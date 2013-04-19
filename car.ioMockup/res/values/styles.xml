@@ -1,0 +1,20 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Style for the TextViews in the CheckList -->
+    <style name="CheckListTextViewStyle" parent="@android:style/TextAppearance.Large">
+        <item name="android:layout_width">@dimen/checklist_textwidth</item>
+        <item name="android:layout_height">@dimen/checklist_textheight</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textSize">@dimen/checklist_textsize</item>
+    </style>
+
+    <!-- Style for the LinearLayout in the CheckList -->
+    <style name="CheckListLayoutStyle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">@dimen/checklist_layout_margin_top</item>
+        <item name="android:layout_centerHorizontal">true</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
+
+</resources>

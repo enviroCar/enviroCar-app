@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="checklist_textwidth">220dp</dimen>
+    <dimen name="checklist_textheight">50dp</dimen>
+    <dimen name="checklist_textsize">20sp</dimen>
+    <dimen name="checklist_layout_margin_top">15dp</dimen>
+</resources>
