@@ -19,6 +19,9 @@
             android:name="de.ifgi.car.iomockup.CheckListActivity"
             android:label="@string/activity_checklist_title"
             android:parentActivityName="MyData" >
+                        <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.ifgi.car.iomockup.MyData" />
         </activity>
         <activity
             android:name="de.ifgi.car.iomockup.MyData"
@@ -28,6 +31,23 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name="de.ifgi.car.iomockup.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName="de.ifgi.car.iomockup.MyData" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.ifgi.car.iomockup.MyData" />
+        </activity>
+        <activity
+            android:name="de.ifgi.car.iomockup.LoginActivity"
+            android:label="@string/title_activity_login"
+            android:parentActivityName="de.ifgi.car.iomockup.MyData"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="de.ifgi.car.iomockup.MyData" />
         </activity>
     </application>
 

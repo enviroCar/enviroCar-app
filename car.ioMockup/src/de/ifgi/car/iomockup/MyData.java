@@ -1,8 +1,11 @@
 package de.ifgi.car.iomockup;
 
+import java.lang.reflect.Field;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ViewConfiguration;
 import android.widget.ArrayAdapter;
 import android.widget.SpinnerAdapter;
 
@@ -46,7 +49,11 @@ public class MyData extends SherlockActivity {
 			case R.id.menu_help:
 				startActivity(new Intent(MyData.this,CheckListActivity.class));
 			break;
+			case R.id.menu_settings:
+				startActivity(new Intent(MyData.this,SettingsActivity.class));
+			break;			
 		}
 		return true;
 	}
+
 }

@@ -2,17 +2,16 @@ package de.ifgi.car.iomockup;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
-import android.widget.ArrayAdapter;
-import android.widget.SpinnerAdapter;
+import android.support.v4.app.NavUtils;
+import android.view.View;
+import android.view.View.OnClickListener;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.ActionBar.OnNavigationListener;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
-public class CheckListActivity extends SherlockActivity {
+public class CheckListActivity extends SherlockActivity implements OnClickListener {
 
 	private ActionBar actionBar;
 
@@ -20,36 +19,12 @@ public class CheckListActivity extends SherlockActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.checklist_layout);
-		
-		
-//		OnNavigationListener  mOnNavigationListener = new OnNavigationListener() {
-//			  // Get the same strings provided for the drop-down's ArrayAdapter
-//			  String[] strings = getResources().getStringArray(R.array.dropdownnavigation);
-//
-//			  @Override
-//			  public boolean onNavigationItemSelected(int position, long itemId) {
-//				switch(position){
-//				case 0:
-//					//startActivity(new Intent(CheckListActivity.this,MyData.class));
-//					break;
-//				}
-//			    return true;
-//
-//			  }
-//			};
-//
-//		// enable drop-down navigation
-//		SpinnerAdapter mSpinnerAdapter = ArrayAdapter.createFromResource(this,
-//				R.array.dropdownnavigation,
-//				R.layout.sherlock_spinner_dropdown_item);
-//				
+
 		actionBar = getSupportActionBar();
-//		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-//		actionBar.setListNavigationCallbacks(mSpinnerAdapter,mOnNavigationListener);
-		
-		//actionBar.setTitle("Checklist");
 		actionBar.setHomeButtonEnabled(true);
 		actionBar.setDisplayHomeAsUpEnabled(true);
+		
+		this.findViewById(R.id.fourthItem).setOnClickListener(this);
 	}
 
 	@Override
@@ -59,7 +34,25 @@ public class CheckListActivity extends SherlockActivity {
 		return true;
 	}
 
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    switch (item.getItemId()) {
 
+	    case android.R.id.home:
+	         //finish();
+	    	NavUtils.navigateUpFromSameTask(this);
+	         return true;
+
+
+	    default:
+	        return super.onOptionsItemSelected(item);
+	    }
+	}
+
+	@Override
+	public void onClick(View arg0) {
+		//up until now, just the login activity is implemented, omitting the switch block
+		startActivity(new Intent(CheckListActivity.this, LoginActivity.class));
+	}
 	
 
 }

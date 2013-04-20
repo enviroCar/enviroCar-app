@@ -3,5 +3,6 @@
     <dimen name="checklist_textwidth">220dp</dimen>
     <dimen name="checklist_textheight">50dp</dimen>
     <dimen name="checklist_textsize">20sp</dimen>
-    <dimen name="checklist_layout_margin_top">15dp</dimen>
+    <dimen name="checklist_layout_margin_top">5dp</dimen>
+    <dimen name="checklist_item_padding">5dp</dimen>    
 </resources>
