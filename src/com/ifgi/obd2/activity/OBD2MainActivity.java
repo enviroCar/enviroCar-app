@@ -569,6 +569,18 @@ public class OBD2MainActivity extends Activity implements LocationListener {
 
 		case START_MEASUREMENT:
 			if (!serviceConnector.isRunning()) {
+
+				// TODO at this point, insert a new service:
+
+				/**
+				 * We need a new service that runs in the background. This
+				 * service has to start the backgroundService every X minutes.
+				 * If the backgroundService could be started, we are connected
+				 * to the car. If the backgroundService could not be started,
+				 * the device is not in range. Then, the new service has to
+				 * retry to start the service in X minutes.
+				 */
+
 				startService(backgroundService);
 			}
 			handler.post(waitingListRunnable);

@@ -15,6 +15,7 @@ import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.ifgi.obd2.activity.Settings;
 import com.ifgi.obd2.commands.CommonCommand;
@@ -97,6 +98,7 @@ public class BackgroundService extends Service {
 			startConnection();
 		} catch (Exception e) {
 			stopService();
+			Log.e("obd2", "retry");
 		}
 	}
 
@@ -111,6 +113,7 @@ public class BackgroundService extends Service {
 
 		bluetoothSocket = bluetoothDevice
 				.createRfcommSocketToServiceRecord(MY_UUID);
+
 		bluetoothSocket.connect();
 
 		// Configure the connection
@@ -127,6 +130,7 @@ public class BackgroundService extends Service {
 
 		// Set waiting list execution counter
 		counter = 0L;
+
 	}
 
 	/**
