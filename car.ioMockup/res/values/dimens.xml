@@ -2,7 +2,7 @@
 <resources>
     <dimen name="checklist_textwidth">220dp</dimen>
     <dimen name="checklist_textheight">48dp</dimen>
-    <dimen name="checklist_textsize">22sp</dimen>
+    <dimen name="checklist_textsize">18sp</dimen>
     <dimen name="checklist_layout_margin_top">2dp</dimen>
     <dimen name="checklist_item_padding">2dp</dimen>    
 </resources>
