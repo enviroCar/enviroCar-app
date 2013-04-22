@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/checklist_root_layout"
     tools:context=".CheckListActivity" >
 
     <TextView
@@ -24,12 +25,22 @@
         android:text="It seems this is your first time starting the app"
         android:textSize="18sp"
         android:typeface="serif" />
+    
+    <Button 
+        android:id="@+id/continue_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="Continue anyway">
+
+    </Button>    
 
     <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:layout_below="@id/welcome_text" >
+        android:layout_below="@id/welcome_text"
+        android:layout_above="@id/continue_button" >
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -65,7 +76,6 @@
                 <TextView
                     android:id="@+id/textView1"
                     style="@style/CheckListTextViewStyle"
-                    android:textSize="18sp"
                     android:text="ODB adapter not paired" />
 
                 <ImageView
@@ -88,7 +98,6 @@
                 <TextView
                     android:id="@+id/textView1"
                     style="@style/CheckListTextViewStyle"
-                    android:textSize="18sp"
                     android:text="ODB adapter not connected" />
 
                 <!--
@@ -153,4 +162,6 @@
         </LinearLayout>
     </ScrollView>
 
+
+    
 </RelativeLayout>
