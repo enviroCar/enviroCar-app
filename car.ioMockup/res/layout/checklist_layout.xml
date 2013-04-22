@@ -4,102 +4,153 @@
     android:layout_height="match_parent"
     tools:context=".CheckListActivity" >
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/welcome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center_horizontal"
+        android:text="Welcome to car.io!"
+        android:textSize="32sp" />
+
+    <TextView
+        android:id="@+id/welcome_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/welcome"
+        android:layout_marginTop="8dp"
+        android:gravity="center_horizontal"
+        android:text="It seems this is your first time starting the app"
+        android:textSize="18sp"
+        android:typeface="serif" />
+
+    <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:orientation="vertical" >
+        android:layout_below="@id/welcome_text" >
 
         <LinearLayout
-            android:id="@+id/firstItem"
-            style="@style/CheckListLayoutStyle" >
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
 
-            <TextView
-                android:id="@+id/textView1"
-                style="@style/CheckListTextViewStyle"
-                android:text="Bluetooth enabled" />
+            <LinearLayout
+                android:id="@+id/firstItem"
+                style="@style/CheckListLayoutStyle" >
 
-            <ImageView
-                android:layout_width="@dimen/checklist_textheight"
-                android:layout_height="@dimen/checklist_textheight"
-                android:src="@drawable/checkmark" />
+                <TextView
+                    android:id="@+id/textView1"
+                    style="@style/CheckListTextViewStyle"
+                    android:text="Bluetooth enabled" />
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/checklist_textheight"
-                android:src="@drawable/action_right"
-                android:visibility="invisible" />
-        </LinearLayout>
+                <ImageView
+                    android:layout_width="@dimen/checklist_textheight"
+                    android:layout_height="@dimen/checklist_textheight"
+                    android:src="@drawable/checkmark" />
 
-        <LinearLayout
-            android:id="@+id/secondItem"
-            style="@style/CheckListLayoutStyle"
-            android:layout_below="@id/firstItem" >
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/checklist_textheight"
+                    android:src="@drawable/action_right"
+                    android:visibility="invisible" />
+            </LinearLayout>
 
-            <TextView
-                android:id="@+id/textView1"
-                style="@style/CheckListTextViewStyle"
-                android:text="ODB-2 Adapter paired" />
+            <LinearLayout
+                android:id="@+id/secondItem"
+                style="@style/CheckListLayoutStyle"
+                android:layout_below="@id/firstItem" >
 
-            <!--
+                <TextView
+                    android:id="@+id/textView1"
+                    style="@style/CheckListTextViewStyle"
+                    android:textSize="18sp"
+                    android:text="ODB adapter not paired" />
+
+                <ImageView
+                    android:layout_width="@dimen/checklist_textheight"
+                    android:layout_height="@dimen/checklist_textheight"
+                    android:src="@drawable/cross" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/checklist_textheight"
+                    android:src="@drawable/action_right"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/secondItem"
+                style="@style/CheckListLayoutStyle"
+                android:layout_below="@id/firstItem" >
+
+                <TextView
+                    android:id="@+id/textView1"
+                    style="@style/CheckListTextViewStyle"
+                    android:textSize="18sp"
+                    android:text="ODB adapter not connected" />
+
+                <!--
              <ImageView
             android:layout_width="@dimen/checklist_textheight"
             android:layout_height="@dimen/checklist_textheight"
             android:src="@drawable/checkmark" />
-            -->
+                -->
 
-            <ProgressBar
-                android:layout_width="@dimen/checklist_textheight"
-                android:layout_height="@dimen/checklist_textheight" />
+                <ProgressBar
+                    android:layout_width="@dimen/checklist_textheight"
+                    android:layout_height="@dimen/checklist_textheight" />
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/checklist_textheight"
-                android:src="@drawable/action_right"
-                android:visibility="invisible" />
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/checklist_textheight"
+                    android:src="@drawable/action_right"
+                    android:visibility="invisible" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/thirdItem"
+                style="@style/CheckListLayoutStyle"
+                android:layout_below="@id/secondItem" >
+
+                <TextView
+                    android:id="@+id/textView1"
+                    style="@style/CheckListTextViewStyle"
+                    android:text="GPS not enabled" />
+
+                <ImageView
+                    android:layout_width="@dimen/checklist_textheight"
+                    android:layout_height="@dimen/checklist_textheight"
+                    android:src="@drawable/cross" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/checklist_textheight"
+                    android:src="@drawable/action_right" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/fourthItem"
+                style="@style/CheckListLayoutStyle"
+                android:layout_below="@id/thirdItem" >
+
+                <TextView
+                    android:id="@+id/textView1"
+                    style="@style/CheckListTextViewStyle"
+                    android:text="Not signed in" />
+
+                <ImageView
+                    android:layout_width="@dimen/checklist_textheight"
+                    android:layout_height="@dimen/checklist_textheight"
+                    android:src="@drawable/problem" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/checklist_textheight"
+                    android:src="@drawable/action_right" />
+            </LinearLayout>
         </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/thirdItem"
-            style="@style/CheckListLayoutStyle"
-            android:layout_below="@id/secondItem" >
-
-            <TextView
-                android:id="@+id/textView1"
-                style="@style/CheckListTextViewStyle"
-                android:text="GPS Enabled" />
-
-            <ImageView
-                android:layout_width="@dimen/checklist_textheight"
-                android:layout_height="@dimen/checklist_textheight"
-                android:src="@drawable/cross" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/checklist_textheight"
-                android:src="@drawable/action_right" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/fourthItem"
-            style="@style/CheckListLayoutStyle"
-            android:layout_below="@id/thirdItem" >
-
-            <TextView
-                android:id="@+id/textView1"
-                style="@style/CheckListTextViewStyle"
-                android:text="Logged in" />
-
-            <ImageView
-                android:layout_width="@dimen/checklist_textheight"
-                android:layout_height="@dimen/checklist_textheight"
-                android:src="@drawable/problem" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/checklist_textheight"
-                android:src="@drawable/action_right" />
-        </LinearLayout>
-    </LinearLayout>
+    </ScrollView>
 
 </RelativeLayout>
