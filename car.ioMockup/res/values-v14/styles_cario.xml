@@ -38,12 +38,15 @@
         <item name="android:backgroundStacked">@drawable/ab_stacked_solid_cario</item>
         <item name="android:backgroundSplit">@drawable/ab_bottom_solid_cario</item>
         <item name="android:progressBarStyle">@style/ProgressBar.Cario</item>
+        <item name="titleTextStyle">@style/cario.TitleTextStyle</item>
+        <item name="android:titleTextStyle">@style/cario.TitleTextStyle</item>        
     </style>
 
     <style name="ActionBar.Transparent.Cario" parent="@style/Widget.Sherlock.Light.ActionBar">
         <item name="android:background">@drawable/ab_transparent_cario</item>
         <item name="android:progressBarStyle">@style/ProgressBar.Cario</item>
     </style>
+
     
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->
     <style name="Theme.Cario.Widget" parent="@style/Theme.Sherlock">

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- File created by the Android Action Bar Style Generator
+<!--
+     File created by the Android Action Bar Style Generator
 
      Copyright (C) 2011 The Android Open Source Project
      Copyright (C) 2012 readyState Software Ltd
@@ -17,7 +18,7 @@
      limitations under the License.
 -->
 
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="Theme.Cario" parent="@style/Theme.Sherlock.Light">
         <item name="actionBarItemBackground">@drawable/selectable_background_cario</item>
@@ -29,8 +30,6 @@
         <item name="actionModeBackground">@drawable/cab_background_top_cario</item>
         <item name="actionModeSplitBackground">@drawable/cab_background_bottom_cario</item>
         <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Cario</item>
-
-        
     </style>
 
     <style name="ActionBar.Solid.Cario" parent="@style/Widget.Sherlock.Light.ActionBar.Solid">
@@ -38,17 +37,22 @@
         <item name="backgroundStacked">@drawable/ab_stacked_solid_cario</item>
         <item name="backgroundSplit">@drawable/ab_bottom_solid_cario</item>
         <item name="progressBarStyle">@style/ProgressBar.Cario</item>
+        <item name="titleTextStyle">@style/cario.TitleTextStyle</item>
     </style>
+    
+    <style name="cario.TitleTextStyle" parent="TextAppearance.Sherlock.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/actionbar_title_font_cario</item>
+    </style>    
 
     <style name="ActionBar.Transparent.Cario" parent="@style/Widget.Sherlock.Light.ActionBar">
         <item name="background">@drawable/ab_transparent_cario</item>
         <item name="progressBarStyle">@style/ProgressBar.Cario</item>
     </style>
-	
-    <style name="PopupMenu.Cario" parent="@style/Widget.Sherlock.Light.ListPopupWindow">	
-        <item name="android:popupBackground">@drawable/menu_dropdown_panel_cario</item>	
+
+    <style name="PopupMenu.Cario" parent="@style/Widget.Sherlock.Light.ListPopupWindow">
+        <item name="android:popupBackground">@drawable/menu_dropdown_panel_cario</item>
     </style>
-	
+
     <style name="DropDownListView.Cario" parent="@style/Widget.Sherlock.Light.ListView.DropDown">
         <item name="android:listSelector">@drawable/selectable_background_cario</item>
     </style>
@@ -56,21 +60,21 @@
     <style name="ActionBarTabStyle.Cario" parent="@style/Widget.Sherlock.Light.ActionBar.TabView">
         <item name="android:background">@drawable/tab_indicator_ab_cario</item>
     </style>
-	
+
     <style name="DropDownNav.Cario" parent="@style/Widget.Sherlock.Light.Spinner.DropDown.ActionBar">
         <item name="android:background">@drawable/spinner_background_ab_cario</item>
         <item name="android:popupBackground">@drawable/menu_dropdown_panel_cario</item>
         <item name="android:dropDownSelector">@drawable/selectable_background_cario</item>
     </style>
-    
+
     <style name="ProgressBar.Cario" parent="@style/Widget.Sherlock.Light.ProgressBar.Horizontal">
         <item name="android:progressDrawable">@drawable/progress_horizontal_cario</item>
     </style>
-    
+
     <style name="ActionButton.CloseMode.Cario" parent="@style/Widget.Sherlock.Light.ActionButton.CloseMode">
         <item name="android:background">@drawable/btn_cab_done_cario</item>
     </style>
-    
+
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->
     <style name="Theme.Cario.Widget" parent="@style/Theme.Sherlock">
         <item name="popupMenuStyle">@style/PopupMenu.Cario</item>
