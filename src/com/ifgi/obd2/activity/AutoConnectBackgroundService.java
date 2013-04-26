@@ -20,6 +20,8 @@ public class AutoConnectBackgroundService extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context arg0, Intent arg1) {
 		Log.e("obd2", "autodiscover");
+		
+		OBD2MainActivity.startTest();
 
 	}
 

@@ -598,28 +598,11 @@ public class OBD2MainActivity<AndroidAlarmService> extends Activity implements
 		switch (item.getItemId()) {
 
 		case START_MEASUREMENT:
-			if (!serviceConnector.isRunning()) {
-
-				// TODO at this point, insert a new service:
-
-				/**
-				 * We need a new service that runs in the background. This
-				 * service has to start the backgroundService every X minutes.
-				 * If the backgroundService could be started, we are connected
-				 * to the car. If the backgroundService could not be started,
-				 * the device is not in range. Then, the new service has to
-				 * retry to start the service in X minutes.
-				 */
-
-				startService(backgroundService);
-			}
-			handler.post(waitingListRunnable);
+			startConnection();
 			return true;
 
 		case STOP_MEASUREMENT:
-			if (serviceConnector.isRunning())
-				stopService(backgroundService);
-			handler.removeCallbacks(waitingListRunnable);
+			stopConnection();
 			return true;
 
 		case SETTINGS:
@@ -633,6 +616,35 @@ public class OBD2MainActivity<AndroidAlarmService> extends Activity implements
 			return true;
 		}
 		return false;
+	}
+
+	public static void startTest() {
+		Log.e("obd2", "test");
+	}
+
+	public void startConnection() {
+		if (!serviceConnector.isRunning()) {
+
+			// TODO at this point, insert a new service:
+
+			/**
+			 * We need a new service that runs in the background. This service
+			 * has to start the backgroundService every X minutes. If the
+			 * backgroundService could be started, we are connected to the car.
+			 * If the backgroundService could not be started, the device is not
+			 * in range. Then, the new service has to retry to start the service
+			 * in X minutes.
+			 */
+
+			startService(backgroundService);
+		}
+		handler.post(waitingListRunnable);
+	}
+
+	public void stopConnection() {
+		if (serviceConnector.isRunning())
+			stopService(backgroundService);
+		handler.removeCallbacks(waitingListRunnable);
 	}
 
 	public ServiceConnector getServiceConnector() {
