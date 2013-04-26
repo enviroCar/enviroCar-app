@@ -20,5 +20,6 @@
     <string name="maf">MAF</string>
     <string name="engine_load">Engine Load</string>
     <string name="car">Car</string>
+    <string name="autoConnect">Autoconnect to OBDII Bluetooth Adapter</string>
 
 </resources>

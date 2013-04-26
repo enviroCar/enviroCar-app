@@ -18,6 +18,8 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -50,7 +52,8 @@ import com.ifgi.obd2.obd.ServiceConnector;
  * 
  */
 
-public class OBD2MainActivity extends Activity implements LocationListener {
+public class OBD2MainActivity<AndroidAlarmService> extends Activity implements
+		LocationListener {
 
 	// Preferences
 
@@ -106,6 +109,10 @@ public class OBD2MainActivity extends Activity implements LocationListener {
 	private TextView locationLatitudeTextView;
 	private TextView locationLongitudeTextView;
 
+	// Bluetooth AutoConnect
+
+	private AutoConnectBackgroundService autoConnectBackgroundService;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
@@ -119,6 +126,29 @@ public class OBD2MainActivity extends Activity implements LocationListener {
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		locationLatitudeTextView = (TextView) findViewById(R.id.latitudeText);
 		locationLongitudeTextView = (TextView) findViewById(R.id.longitudeText);
+
+		// AutoConnect checkbox and service
+
+		autoConnectBackgroundService = new AutoConnectBackgroundService();
+
+		final CheckBox connectAutomatically = (CheckBox) findViewById(R.id.checkBox1);
+
+		connectAutomatically
+				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+					@Override
+					public void onCheckedChanged(CompoundButton buttonView,
+							boolean isChecked) {
+						if (connectAutomatically.isChecked()) {
+							// Start Service
+							startRepeatingTimer();
+						} else {
+							// Stop Service
+							cancelRepeatingTimer();
+						}
+
+					}
+				});
 
 		/*
 		 * Measure with the listener
@@ -603,6 +633,39 @@ public class OBD2MainActivity extends Activity implements LocationListener {
 			return true;
 		}
 		return false;
+	}
+
+	public ServiceConnector getServiceConnector() {
+		return serviceConnector;
+	}
+
+	public void setServiceConnector(ServiceConnector serviceConnector) {
+		this.serviceConnector = serviceConnector;
+	}
+
+	/**
+	 * Starts the timer for the AutoConnectBackgroundService
+	 */
+	public void startRepeatingTimer() {
+		Context context = this.getApplicationContext();
+		if (autoConnectBackgroundService != null) {
+			autoConnectBackgroundService.SetAlarm(context);
+		} else {
+			Log.e("obd2", "here2");
+			Toast.makeText(context, "Alarm is null", Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	/**
+	 * Cancels the AutoConnectBackgroundService Auto Connect
+	 */
+	public void cancelRepeatingTimer() {
+		Context context = this.getApplicationContext();
+		if (autoConnectBackgroundService != null) {
+			autoConnectBackgroundService.CancelAlarm(context);
+		} else {
+			Toast.makeText(context, "Alarm is null", Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	/**

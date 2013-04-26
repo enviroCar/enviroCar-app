@@ -55,6 +55,7 @@
             android:name=".activity.MeasurementDisplay"
             android:label="@string/app_name" >
         </activity>
+        <receiver android:name=".activity.AutoConnectBackgroundService" />
     </application>
 
 </manifest>
