@@ -34,7 +34,8 @@
     </style>
 
     <style name="ActionBar.Solid.Cario" parent="@style/Widget.Sherlock.Light.ActionBar.Solid">
-        <item name="android:background">@drawable/ab_solid_cario</item>
+        <item name="background">@drawable/ab_background_cario_gradient</item>
+        <item name="android:background">@drawable/ab_background_cario_gradient</item>
         <item name="android:backgroundStacked">@drawable/ab_stacked_solid_cario</item>
         <item name="android:backgroundSplit">@drawable/ab_bottom_solid_cario</item>
         <item name="android:progressBarStyle">@style/ProgressBar.Cario</item>

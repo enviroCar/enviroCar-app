@@ -18,6 +18,6 @@
 -->
 
 <resources>
-    <color name="pressed_cario">#CC048ABF</color>
-    <color name="actionbar_title_font_cario">#b9d989</color>
+    <color name="pressed_cario">#8CBF3F</color>
+    <color name="actionbar_title_font_cario">#FFFFFF</color>
 </resources>

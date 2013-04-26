@@ -1,9 +1,6 @@
 package de.ifgi.car.iomockup;
 
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Typeface;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
 import android.view.View;
@@ -34,7 +31,7 @@ public class CheckListActivity extends SherlockActivity implements
 		actionBarTitleID = Utils.getActionBarId();
 		if (Utils.getActionBarId() == 0) {
 			((TextView) this.findViewById(actionBarTitleID))
-					.setTypeface(TYPEFACE.Raleway(this));
+					.setTypeface(TYPEFACE.Newscycle(this));
 		}
 
 		((TextView) this.findViewById(actionBarTitleID)).setTypeface(TYPEFACE
