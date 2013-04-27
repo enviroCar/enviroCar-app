@@ -9,6 +9,7 @@
         <item name="progressBarStyle">@style/ProgressBar.Cario</item>
         <item name="titleTextStyle">@style/cario.TitleTextStyle</item>
         <item name="android:titleTextStyle">@style/cario.TitleTextStyle</item>
+        <item name="android:buttonStyle">@style/ButtonStyle</item>
     </style>
     
 

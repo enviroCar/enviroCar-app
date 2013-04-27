@@ -1,4 +1,4 @@
-package de.ifgi.car.iomockup;
+package de.ifgi.car.io.ui;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -17,6 +17,8 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+
+import de.ifgi.car.io.R;
 
 /**
  * Activity which displays a login screen to the user, offering registration as

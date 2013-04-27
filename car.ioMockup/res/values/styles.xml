@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Style for the TextViews in the CheckList -->
-    <style name="CheckListTextViewStyle" parent="@android:style/TextAppearance.Large">
+    <!-- Style for the TextViews in the CheckList parent="@android:style/TextAppearance.Large" -->
+    <style name="CheckListTextViewStyle" >
         <item name="android:layout_width">@dimen/checklist_textwidth</item>
         <item name="android:layout_height">@dimen/checklist_textheight</item>
         <item name="android:gravity">center_vertical</item>

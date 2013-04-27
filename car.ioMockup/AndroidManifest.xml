@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="de.ifgi.car.iomockup"
+    package="de.ifgi.car.io"
     android:versionCode="1"
     android:versionName="1.0" >
 
     <uses-sdk
-        android:minSdkVersion="8"
+        android:minSdkVersion="10"
         android:targetSdkVersion="17" />
 
     <application
@@ -16,15 +16,15 @@
 
         <!-- android:theme="@style/AppTheme" -->
         <activity
-            android:name="de.ifgi.car.iomockup.CheckListActivity"
+            android:name="de.ifgi.car.io.ui.CheckListActivity"
             android:label="@string/activity_checklist_title"
             android:parentActivityName="MyData" >
-                        <meta-data
+            <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="de.ifgi.car.iomockup.MyData" />
+                android:value="de.ifgi.car.io.ui.MyData" />
         </activity>
         <activity
-            android:name="de.ifgi.car.iomockup.MyData"
+            android:name="de.ifgi.car.io.ui.MyData"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -33,17 +33,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="de.ifgi.car.iomockup.SettingsActivity"
+            android:name="de.ifgi.car.io.ui.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="de.ifgi.car.iomockup.MyData" >
+            android:parentActivityName="de.ifgi.car.io.ui.MyData" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="de.ifgi.car.iomockup.MyData" />
+                android:value="de.ifgi.car.io.ui.MyData" />
         </activity>
         <activity
-            android:name="de.ifgi.car.iomockup.LoginActivity"
+            android:name="de.ifgi.car.io.ui.LoginActivity"
             android:label="@string/title_activity_login"
-            android:parentActivityName="de.ifgi.car.iomockup.MyData"
+            android:parentActivityName="de.ifgi.car.io.ui.MyData"
             android:windowSoftInputMode="adjustResize|stateVisible" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

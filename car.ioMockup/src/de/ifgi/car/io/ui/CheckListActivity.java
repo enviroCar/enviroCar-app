@@ -1,4 +1,4 @@
-package de.ifgi.car.iomockup;
+package de.ifgi.car.io.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,6 +12,8 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+
+import de.ifgi.car.io.R;
 
 public class CheckListActivity extends SherlockActivity implements
 		OnClickListener {
@@ -44,6 +46,7 @@ public class CheckListActivity extends SherlockActivity implements
 				.Raleway(this));
 
 		this.findViewById(R.id.fourthItem).setOnClickListener(this);
+		this.findViewById(R.id.continue_button).setOnClickListener(this);
 	}
 
 	@Override

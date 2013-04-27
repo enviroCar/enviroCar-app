@@ -20,4 +20,10 @@
 <resources>
     <color name="pressed_cario">#8CBF3F</color>
     <color name="actionbar_title_font_cario">#FFFFFF</color>
+    
+    <color name="blue_dark_cario">#0065A0</color>
+    <color name="blue_light_cario">#048ABF</color>
+    <color name="green_dark_cario">#8CBF3F</color>
+    <color name="green_light_cario">#B9D989</color>
+    <color name="white_cario">#F2F2F2</color>
 </resources>

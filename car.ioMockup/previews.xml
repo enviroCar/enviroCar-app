@@ -3,7 +3,7 @@
 
     <preview
         name="ray"
-        activity="de.ifgi.car.iomockup.MainActivity"
+        activity="de.ifgi.car.io.ui.MainActivity"
         config="layout-sw360dp-w360dp-h640dp-normal-long-port-notnight-xhdpi-finger-keyssoft-nokeys-navhidden-nonav-1280x720-v17"
         device="Galaxy Nexus"
         devicestate="Portrait"

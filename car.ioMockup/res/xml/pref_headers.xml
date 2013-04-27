@@ -3,13 +3,13 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="de.ifgi.car.iomockup.SettingsActivity$GeneralPreferenceFragment"
+        android:fragment="de.ifgi.car.io.ui.SettingsActivity$GeneralPreferenceFragment"
         android:title="@string/pref_header_general" />
     <header
-        android:fragment="de.ifgi.car.iomockup.SettingsActivity$NotificationPreferenceFragment"
+        android:fragment="de.ifgi.car.io.ui.SettingsActivity$NotificationPreferenceFragment"
         android:title="@string/pref_header_notifications" />
     <header
-        android:fragment="de.ifgi.car.iomockup.SettingsActivity$DataSyncPreferenceFragment"
+        android:fragment="de.ifgi.car.io.ui.SettingsActivity$DataSyncPreferenceFragment"
         android:title="@string/pref_header_data_sync" />
 
 </preference-headers>

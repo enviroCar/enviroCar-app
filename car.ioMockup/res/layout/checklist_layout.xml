@@ -1,8 +1,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:cario="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/checklist_root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/checklist_root_layout"
     tools:context=".CheckListActivity" >
 
     <TextView
@@ -25,28 +26,52 @@
         android:text="It seems this is your first time starting the app"
         android:textSize="18sp"
         android:typeface="serif" />
-    
-    <Button 
+
+    <Button
         android:id="@+id/continue_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:text="Continue anyway">
-
-    </Button>    
+        android:text="Continue anyway" >
+    </Button>
 
     <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
+        android:layout_above="@id/continue_button"
         android:layout_below="@id/welcome_text"
-        android:layout_above="@id/continue_button" >
+        android:layout_centerInParent="true" >
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
+            <de.ifgi.car.io.ui.CheckListItem
+                style="@style/CheckListLayoutStyle"
+                android:id="@+id/firstItem"
+                cario:itemText="@string/checklist_item_bluetooth_disabled" >
+            </de.ifgi.car.io.ui.CheckListItem>
+            
+            <de.ifgi.car.io.ui.CheckListItem
+                style="@style/CheckListLayoutStyle"
+                android:id="@+id/secondItem"
+                cario:itemText="@string/app_name" >
+            </de.ifgi.car.io.ui.CheckListItem>
+                        
+            <de.ifgi.car.io.ui.CheckListItem
+                style="@style/CheckListLayoutStyle"
+                android:id="@+id/thirdItem"
+                cario:itemText="@string/app_name" >
+            </de.ifgi.car.io.ui.CheckListItem>
+            
+            <de.ifgi.car.io.ui.CheckListItem
+                style="@style/CheckListLayoutStyle"
+                android:id="@+id/fourthItem"
+                cario:itemText="@string/app_name" >
+            </de.ifgi.car.io.ui.CheckListItem>
+            
+            <!--
             <LinearLayout
                 android:id="@+id/firstItem"
                 style="@style/CheckListLayoutStyle" >
@@ -100,13 +125,6 @@
                     style="@style/CheckListTextViewStyle"
                     android:text="ODB adapter not connected" />
 
-                <!--
-             <ImageView
-            android:layout_width="@dimen/checklist_textheight"
-            android:layout_height="@dimen/checklist_textheight"
-            android:src="@drawable/checkmark" />
-                -->
-
                 <ProgressBar
                     android:layout_width="@dimen/checklist_textheight"
                     android:layout_height="@dimen/checklist_textheight" />
@@ -159,9 +177,9 @@
                     android:layout_height="@dimen/checklist_textheight"
                     android:src="@drawable/action_right" />
             </LinearLayout>
+            -->
+
         </LinearLayout>
     </ScrollView>
 
-
-    
 </RelativeLayout>

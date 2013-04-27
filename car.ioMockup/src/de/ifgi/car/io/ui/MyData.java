@@ -1,4 +1,4 @@
-package de.ifgi.car.iomockup;
+package de.ifgi.car.io.ui;
 
 import java.lang.reflect.Field;
 
@@ -13,6 +13,8 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
+
+import de.ifgi.car.io.R;
 
 public class MyData extends SherlockActivity {
 	

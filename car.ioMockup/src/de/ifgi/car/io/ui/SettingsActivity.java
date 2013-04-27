@@ -1,4 +1,4 @@
-package de.ifgi.car.iomockup;
+package de.ifgi.car.io.ui;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -23,6 +23,8 @@ import java.util.List;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.MenuItem;
+
+import de.ifgi.car.io.R;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
