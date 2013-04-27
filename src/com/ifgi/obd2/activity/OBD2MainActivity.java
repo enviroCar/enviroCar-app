@@ -2,6 +2,9 @@ package com.ifgi.obd2.activity;
 
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -111,8 +114,6 @@ public class OBD2MainActivity<AndroidAlarmService> extends Activity implements
 
 	// Bluetooth AutoConnect
 
-	private AutoConnectBackgroundService autoConnectBackgroundService;
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 
@@ -129,9 +130,10 @@ public class OBD2MainActivity<AndroidAlarmService> extends Activity implements
 
 		// AutoConnect checkbox and service
 
-		autoConnectBackgroundService = new AutoConnectBackgroundService();
-
 		final CheckBox connectAutomatically = (CheckBox) findViewById(R.id.checkBox1);
+
+		final ScheduledExecutorService scheduleTaskExecutor = Executors
+				.newScheduledThreadPool(1);
 
 		connectAutomatically
 				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -140,11 +142,29 @@ public class OBD2MainActivity<AndroidAlarmService> extends Activity implements
 					public void onCheckedChanged(CompoundButton buttonView,
 							boolean isChecked) {
 						if (connectAutomatically.isChecked()) {
-							// Start Service
-							startRepeatingTimer();
+							// Start Service every minute
+							scheduleTaskExecutor.scheduleAtFixedRate(
+									new Runnable() {
+										public void run() {
+											if (requirementsFulfilled) {
+												if (!serviceConnector
+														.isRunning()) {
+													startConnection();
+												} else {
+													Log.e("obd2",
+															"serviceConnector not running");
+												}
+											} else {
+												Log.e("obd2",
+														"requirementsFulfilled was false!");
+											}
+
+										}
+									}, 0, 1, TimeUnit.MINUTES);
+
 						} else {
 							// Stop Service
-							cancelRepeatingTimer();
+							scheduleTaskExecutor.shutdown();
 						}
 
 					}
@@ -618,66 +638,25 @@ public class OBD2MainActivity<AndroidAlarmService> extends Activity implements
 		return false;
 	}
 
-	public static void startTest() {
-		Log.e("obd2", "test");
-	}
-
+	/**
+	 * Connects to the Bluetooth Adapter and starts the execution of the
+	 * commands
+	 */
 	public void startConnection() {
 		if (!serviceConnector.isRunning()) {
-
-			// TODO at this point, insert a new service:
-
-			/**
-			 * We need a new service that runs in the background. This service
-			 * has to start the backgroundService every X minutes. If the
-			 * backgroundService could be started, we are connected to the car.
-			 * If the backgroundService could not be started, the device is not
-			 * in range. Then, the new service has to retry to start the service
-			 * in X minutes.
-			 */
 
 			startService(backgroundService);
 		}
 		handler.post(waitingListRunnable);
 	}
 
+	/**
+	 * Ends the connection with the Bluetooth Adapter
+	 */
 	public void stopConnection() {
 		if (serviceConnector.isRunning())
 			stopService(backgroundService);
 		handler.removeCallbacks(waitingListRunnable);
-	}
-
-	public ServiceConnector getServiceConnector() {
-		return serviceConnector;
-	}
-
-	public void setServiceConnector(ServiceConnector serviceConnector) {
-		this.serviceConnector = serviceConnector;
-	}
-
-	/**
-	 * Starts the timer for the AutoConnectBackgroundService
-	 */
-	public void startRepeatingTimer() {
-		Context context = this.getApplicationContext();
-		if (autoConnectBackgroundService != null) {
-			autoConnectBackgroundService.SetAlarm(context);
-		} else {
-			Log.e("obd2", "here2");
-			Toast.makeText(context, "Alarm is null", Toast.LENGTH_SHORT).show();
-		}
-	}
-
-	/**
-	 * Cancels the AutoConnectBackgroundService Auto Connect
-	 */
-	public void cancelRepeatingTimer() {
-		Context context = this.getApplicationContext();
-		if (autoConnectBackgroundService != null) {
-			autoConnectBackgroundService.CancelAlarm(context);
-		} else {
-			Toast.makeText(context, "Alarm is null", Toast.LENGTH_SHORT).show();
-		}
 	}
 
 	/**
