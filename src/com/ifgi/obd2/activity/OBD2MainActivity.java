@@ -14,6 +14,8 @@ import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.ParseException;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,6 +27,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.ifgi.obd2.R;
 import com.ifgi.obd2.adapter.DbAdapter;
@@ -112,7 +115,9 @@ public class OBD2MainActivity<AndroidAlarmService> extends Activity implements
 	private TextView locationLatitudeTextView;
 	private TextView locationLongitudeTextView;
 
-	// Bluetooth AutoConnect
+	// Upload in Wlan
+
+	private boolean uploadOnlyInWlan;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -169,6 +174,56 @@ public class OBD2MainActivity<AndroidAlarmService> extends Activity implements
 
 					}
 				});
+
+		// Toggle Button for WLan Upload
+
+		final ToggleButton wlanToggleButton = (ToggleButton) findViewById(R.id.toggleButton1);
+		wlanToggleButton.setChecked(true);
+		uploadOnlyInWlan = true;
+
+		wlanToggleButton
+				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+					@Override
+					public void onCheckedChanged(CompoundButton buttonView,
+							boolean isChecked) {
+						if (wlanToggleButton.isChecked()) {
+							uploadOnlyInWlan = true;
+						} else {
+							uploadOnlyInWlan = false;
+						}
+
+					}
+				});
+
+		// Upload data every 10 minutes
+		// TODO: also include database size here... sometimes, this makes no
+		// sense (if no new data is in the database...)
+
+		ScheduledExecutorService uploadTaskExecutor = Executors
+				.newScheduledThreadPool(1);
+		uploadTaskExecutor.scheduleAtFixedRate(new Runnable() {
+
+			@Override
+			public void run() {
+				ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+				NetworkInfo mWifi = connManager
+						.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+				Log.e("obd2", "pre uploading");
+
+				if (uploadOnlyInWlan == true) {
+					if (mWifi.isConnected()) {
+						// TODO: upload
+						Log.e("obd2", "uploading");
+					}
+				} else {
+					// TODO: upload
+					Log.e("obd2", "uploading");
+				}
+
+			}
+		}, 0, 10, TimeUnit.MINUTES);
 
 		/*
 		 * Measure with the listener

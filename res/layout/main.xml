@@ -11,6 +11,14 @@
         android:layout_height="wrap_content"
         android:text="@string/autoConnect" />
 
+    <ToggleButton
+        android:id="@+id/toggleButton1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/uploadOnly"
+        android:textOff="@string/uploadMobileInternet"
+        android:textOn="@string/uploadOnly" />
+
     <TextView
         android:id="@+id/rpm_text"
         android:layout_width="wrap_content"

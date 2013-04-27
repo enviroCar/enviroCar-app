@@ -21,5 +21,7 @@
     <string name="engine_load">Engine Load</string>
     <string name="car">Car</string>
     <string name="autoConnect">Autoconnect to OBDII Bluetooth Adapter</string>
+    <string name="uploadOnly">Upload only in W-LAN</string>
+    <string name="uploadMobileInternet">Always upload</string>
 
 </resources>
