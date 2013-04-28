@@ -1,5 +1,8 @@
 package de.ifgi.car.io.ui;
 
+import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
+import android.location.LocationManager;
 import android.os.Build;
 
 public class Utils {
@@ -19,5 +22,16 @@ public class Utils {
             e.printStackTrace();
         }
         return 0;
+	}
+	
+	/*
+	 * Util functions for the Checklist
+	 */
+	public static boolean isGPSEnabled(Context context){
+		return ((LocationManager) context.getSystemService(android.content.Context.LOCATION_SERVICE) != null) && ((LocationManager) context.getSystemService(android.content.Context.LOCATION_SERVICE)).isProviderEnabled(LocationManager.GPS_PROVIDER);
+	}
+	
+	public static boolean isBluetoothEnabled(Context context){
+		return BluetoothAdapter.getDefaultAdapter() != null && BluetoothAdapter.getDefaultAdapter().isEnabled();
 	}
 }

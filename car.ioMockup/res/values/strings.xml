@@ -10,6 +10,19 @@
     <string name="checklist_item_bluetooth_enabled">Bluetooth enabled</string>
     <string name="checklist_item_bluetooth_disabled">Bluetooth not enabled</string>
     
+    <string name="checklist_item_obd_paired">OBD adapter paired</string>
+    <string name="checklist_item_obd_not_paired">OBD adapter not paired</string>
     
+    <string name="checklist_item_obd_connected">OBD adapter connected</string>
+    <string name="checklist_item_obd_not_connected">OBD adapter not connected</string>
+    
+    <string name="checklist_item_obd_service_enabled">OBD service enabled</string>
+    <string name="checklist_item_obd_service_disabled">OBD service not enabled</string>    
+    
+    <string name="checklist_item_gps_enabled">GPS enabled</string>
+    <string name="checklist_item_gps_disabled">GPS not enabled</string>
+    
+    <string name="checklist_item_not_signed_in">Not signed in</string>
+    <string name="checklist_item_signed_in">Signed in</string>    
 
 </resources>

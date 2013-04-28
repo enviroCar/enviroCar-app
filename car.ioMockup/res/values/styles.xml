@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!-- Style for the TextViews in the CheckList parent="@android:style/TextAppearance.Large" -->
-    <style name="CheckListTextViewStyle" >
-        <item name="android:layout_width">@dimen/checklist_textwidth</item>
-        <item name="android:layout_height">@dimen/checklist_textheight</item>
-        <item name="android:gravity">center_vertical</item>
-        <item name="android:textSize">@dimen/checklist_textsize</item>
-    </style>
-
     <!-- Style for the LinearLayout in the CheckList -->
     <style name="CheckListLayoutStyle">
         <item name="android:layout_width">wrap_content</item>
@@ -19,6 +11,7 @@
         <item name="android:orientation">horizontal</item>
         <item name="android:clickable">true</item>
         <item name="android:background">@drawable/checkboxitem_background_drawable</item>
+        <item name="android:descendantFocusability">blocksDescendants</item>
     </style>
 
     <style name="LoginFormContainer">

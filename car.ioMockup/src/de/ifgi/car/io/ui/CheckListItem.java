@@ -3,7 +3,6 @@ package de.ifgi.car.io.ui;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -16,10 +15,10 @@ import de.ifgi.car.io.R;
 
 public class CheckListItem extends LinearLayout {
 	
-	private static final int STATUS_ERROR = 0;
-	private static final int STATUS_CLEAR = 1;
-	private static final int STATUS_PROBLEM = 2;
-	private static final int STATUS_PENDING = 3;
+	public static final int STATUS_ERROR = 0;
+	public static final int STATUS_CLEAR = 1;
+	public static final int STATUS_PROBLEM = 2;
+	public static final int STATUS_PENDING = 3;
 
 	private String strText = "";
 	
@@ -37,7 +36,7 @@ public class CheckListItem extends LinearLayout {
 	
 	public CheckListItem(Context context, String itemText) {
 		super(context);
-		strText = itemText;
+		setText(itemText);
 		init(context);
 	}
 
@@ -45,18 +44,20 @@ public class CheckListItem extends LinearLayout {
 		super(context, attrs);
 		TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.CheckList);
 		strText = a.getString(R.styleable.CheckList_itemText);
-		Log.i("text",strText);
 		a.recycle();
 		init(context);
 	}
 	
 	public void setText(String str){
 		strText = str;
+		text.setText(str);
 	}
 	
 	public void setText(int id){
 		strText = getResources().getString(id);
+		text.setText(id);
 	}
+	
 	
 	public void setState(int state){
 		switch(state){
@@ -97,18 +98,25 @@ public class CheckListItem extends LinearLayout {
 		text.setTextSize(TypedValue.COMPLEX_UNIT_PX,getResources().getDimensionPixelSize(R.dimen.checklist_textsize));
 		text.setText(strText);
 		text.setGravity(Gravity.CENTER_VERTICAL);
-		
+		text.setFocusable(false);
+
 		
 		
 		img = new ImageView(context);
 		img.setLayoutParams(imgLayoutParams);
 		img.setImageResource(R.drawable.cross);
+		img.setVisibility(View.GONE);
+		img.setFocusable(false);
+
 		
 		progress = new ProgressBar(context);
 		progress.setLayoutParams(imgLayoutParams);
-		progress.setVisibility(View.GONE);
+		progress.setFocusable(false);
+
 		
 		imgActionRight = initImgActionRight(context);
+		imgActionRight.setFocusable(false);
+
 		
 		this.addView(text);
 		this.addView(img);
@@ -128,6 +136,7 @@ public class CheckListItem extends LinearLayout {
 		v.setImageResource(R.drawable.action_right);
 		return v;
 	}
+
 	
 
 
