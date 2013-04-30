@@ -213,4 +213,13 @@ public class DbAdapterLocal implements DbAdapter {
 
 	}
 
+	@Override
+	public int getNumberOfStoredMeasurements() {
+		
+		ArrayList<Measurement> allMeasurements = getAllMeasurements();
+
+		return allMeasurements.size();
+
+	}
+
 }

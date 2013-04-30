@@ -196,9 +196,8 @@ public class OBD2MainActivity<AndroidAlarmService> extends Activity implements
 					}
 				});
 
-		// Upload data every 10 minutes
-		// TODO: also include database size here... sometimes, this makes no
-		// sense (if no new data is in the database...)
+		// Upload data every 10 minutes and only if there are more than 50
+		// measurements stored in the database
 
 		ScheduledExecutorService uploadTaskExecutor = Executors
 				.newScheduledThreadPool(1);
@@ -212,14 +211,16 @@ public class OBD2MainActivity<AndroidAlarmService> extends Activity implements
 
 				Log.e("obd2", "pre uploading");
 
-				if (uploadOnlyInWlan == true) {
-					if (mWifi.isConnected()) {
+				if (dbAdapter.getNumberOfStoredMeasurements() > 50) {
+					if (uploadOnlyInWlan == true) {
+						if (mWifi.isConnected()) {
+							// TODO: upload
+							Log.e("obd2", "uploading");
+						}
+					} else {
 						// TODO: upload
 						Log.e("obd2", "uploading");
 					}
-				} else {
-					// TODO: upload
-					Log.e("obd2", "uploading");
 				}
 
 			}
