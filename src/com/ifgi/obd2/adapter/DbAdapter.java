@@ -59,7 +59,7 @@ public interface DbAdapter {
 	public void deleteAllMeasurements();
 
 	/**
-	 * Returns the number of stored measurements in the SQLite database<
+	 * Returns the number of stored measurements in the SQLite database
 	 */
 	public int getNumberOfStoredMeasurements();
 
