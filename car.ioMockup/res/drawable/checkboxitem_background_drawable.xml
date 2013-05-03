@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@android:color/transparent" android:state_window_focused="false"/>
+    <item android:drawable="@drawable/pressed_background_cario" android:state_focused="true" android:state_pressed="true"/>
+    <item android:drawable="@drawable/pressed_background_cario" android:state_focused="false" android:state_pressed="true"/>
+
+    <!--
+             !!hack!! to fill StateListDrawable.mStateListState with exactly 10
+                items otherwise it will throw NPE on Android 1.6
+    -->
+
+    <item android:animationCache="true" android:drawable="@android:color/transparent"/>
+    <item android:animationCache="false" android:drawable="@android:color/transparent"/>
+    <item android:alwaysDrawnWithCache="false" android:drawable="@android:color/transparent"/>
+    <item android:alwaysDrawnWithCache="true" android:drawable="@android:color/transparent"/>
+
+</selector>
