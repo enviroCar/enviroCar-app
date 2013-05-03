@@ -1,0 +1,89 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:cario="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/checklist_root_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".CheckListActivity" >
+
+    <TextView
+        android:id="@+id/welcome"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center_horizontal"
+        android:text="Welcome to car.io!"
+        android:textSize="32sp" />
+
+    <TextView
+        android:id="@+id/welcome_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/welcome"
+        android:layout_marginTop="8dp"
+        android:gravity="center_horizontal"
+        android:text="It seems this is your first time starting the app.\nPlease use this Checklist as starting point for using the car.io app."
+        android:textSize="18sp"
+        android:typeface="serif" />
+
+    <Button
+        android:id="@+id/continue_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:text="Continue anyway" >
+    </Button>
+
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/continue_button"
+        android:layout_below="@id/welcome_text"
+        android:layout_centerInParent="true" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <de.ifgi.car.io.ui.CheckListItem
+                android:id="@+id/checklist_bluetooth"
+                style="@style/CheckListLayoutStyle"
+                cario:itemText="@string/checklist_item_bluetooth_disabled" >
+            </de.ifgi.car.io.ui.CheckListItem>
+
+            <de.ifgi.car.io.ui.CheckListItem
+                android:id="@+id/checklist_obd_pair"
+                style="@style/CheckListLayoutStyle"
+                cario:itemText="@string/checklist_item_obd_not_paired" >
+            </de.ifgi.car.io.ui.CheckListItem>
+
+            <de.ifgi.car.io.ui.CheckListItem
+                android:id="@+id/checklist_obd_service"
+                style="@style/CheckListLayoutStyle"
+                cario:itemText="@string/checklist_item_obd_service_disabled" >
+            </de.ifgi.car.io.ui.CheckListItem>
+
+            <de.ifgi.car.io.ui.CheckListItem
+                android:id="@+id/checklist_obd_connection"
+                style="@style/CheckListLayoutStyle"
+                cario:itemText="@string/checklist_item_obd_not_connected" >
+            </de.ifgi.car.io.ui.CheckListItem>
+
+            <de.ifgi.car.io.ui.CheckListItem
+                android:id="@+id/checklist_gps"
+                style="@style/CheckListLayoutStyle"
+                cario:itemText="@string/checklist_item_gps_disabled" >
+            </de.ifgi.car.io.ui.CheckListItem>
+            
+            <de.ifgi.car.io.ui.CheckListItem
+                android:id="@+id/checklist_login"
+                style="@style/CheckListLayoutStyle"
+                cario:itemText="@string/checklist_item_not_signed_in" >
+            </de.ifgi.car.io.ui.CheckListItem>            
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>
