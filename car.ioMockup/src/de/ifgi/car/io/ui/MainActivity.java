@@ -45,9 +45,9 @@ public class MainActivity extends SwipeableFragmentActivity {
 		View rootView = findViewById(R.id.pager_title_strip);
 		TYPEFACE.applyCustomFont((ViewGroup) rootView, TYPEFACE.Newscycle(this));
  
-        addTab( "Data", MyData.class, MyData.createBundle( "My Data") );
-        addTab( "Overview", MyData.class, MyData.createBundle( "Overview") );
-        addTab( "Friends", MyData.class, MyData.createBundle( "Fragment 3") );
+        addTab( "List", ListMeasurementsFragment.class, MyData.createBundle( "Overview"));
+        //addTab( "Overview", MyData.class, MyData.createBundle( "Overview") );
+        //addTab( "Friends", MyData.class, MyData.createBundle( "Fragment 3") );
         
         setSelectedTab(1);
     }
