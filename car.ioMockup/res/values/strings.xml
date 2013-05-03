@@ -25,4 +25,26 @@
     <string name="checklist_item_not_signed_in">Not signed in</string>
     <string name="checklist_item_signed_in">Signed in</string>    
 
+    
+    <string name="textView">TextView</string>
+    <string name="measurement">Measurement</string>
+    <string name="id">ID</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
+    <string name="time">Time</string>
+    <string name="tps">Throttle Position</string>
+    <string name="rpm">RPM</string>
+    <string name="speed">Speed</string>
+    <string name="fuel_type">Fuel Type</string>
+    <string name="fuel_consumption">Fuel Consumption</string>
+    <string name="intake_pressure">Intake Pressure</string>
+    <string name="intake_temperature">Intake Temperature</string>
+    <string name="sttb1">Short Term Trim Bank 1</string>
+    <string name="lttb1">Long Term Trim Bank 1</string>
+    <string name="maf">MAF</string>
+    <string name="engine_load">Engine Load</string>
+    <string name="car">Car</string>
+    <string name="autoConnect">Autoconnect to OBDII Bluetooth Adapter</string>
+    <string name="uploadOnly">Upload only in W-LAN</string>
+    <string name="uploadMobileInternet">Always upload</string>    
 </resources>

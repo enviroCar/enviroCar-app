@@ -1,6 +1,9 @@
 package de.ifgi.car.io.ui;
 
 import android.annotation.TargetApi;
+import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.media.Ringtone;
@@ -15,11 +18,15 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.preference.Preference.OnPreferenceClickListener;
 import android.text.TextUtils;
+import android.widget.Toast;
 
 import android.support.v4.app.NavUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 import com.actionbarsherlock.view.MenuItem;
@@ -45,14 +52,95 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	 * shown on tablets.
 	 */
 	private static final boolean ALWAYS_SIMPLE_PREFS = false;
+	public static final String BLUETOOTH_KEY = "bluetooth_list";
+	public static final String FUEL_TYPE_KEY = "fueltype_list_preference";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 	}
 
+	/**
+	 * Helper method that cares about the bluetooth list
+	 */
 
+	private void initializeBluetoothList() {
+
+		// Init Lists
+
+		ArrayList<CharSequence> possibleDevices = new ArrayList<CharSequence>();
+		ArrayList<CharSequence> entryValues = new ArrayList<CharSequence>();
+
+		// Get the bluetooth preference if possible
+
+		ListPreference bluetoothDeviceList = (ListPreference) getPreferenceScreen()
+				.findPreference(BLUETOOTH_KEY);
+
+		// Get the default adapter
+
+		final BluetoothAdapter bluetoothAdapter = BluetoothAdapter
+				.getDefaultAdapter();
+
+		// No Bluetooth available...
+
+		if (bluetoothAdapter == null) {
+			bluetoothDeviceList.setEntries(possibleDevices
+					.toArray(new CharSequence[0]));
+			bluetoothDeviceList.setEntryValues(entryValues
+					.toArray(new CharSequence[0]));
+
+			Toast.makeText(this, "No Bluetooth available!", Toast.LENGTH_SHORT);
+
+			return;
+		}
+
+		// Prepare getting the devices
+
+		final Activity thisSettingsActivity = this;
+		bluetoothDeviceList.setEntries(new CharSequence[1]);
+		bluetoothDeviceList.setEntryValues(new CharSequence[1]);
+
+		// Listen for clicks on the list
+
+		bluetoothDeviceList
+				.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+					public boolean onPreferenceClick(Preference preference) {
+
+						if (bluetoothAdapter == null
+								|| !bluetoothAdapter.isEnabled()) {
+							Toast.makeText(thisSettingsActivity,
+									"No Bluetooth support. Is Bluetooth on?",
+									Toast.LENGTH_SHORT);
+							return false;
+						}
+						return true;
+					}
+				});
+
+		// Get all paired devices...
+
+		Set<BluetoothDevice> availablePairedDevices = bluetoothAdapter
+				.getBondedDevices();
+
+		// ...and add them to the list of available paired devices
+
+		if (availablePairedDevices.size() > 0) {
+			for (BluetoothDevice device : availablePairedDevices) {
+				possibleDevices.add(device.getName() + "\n"
+						+ device.getAddress());
+				entryValues.add(device.getAddress());
+			}
+		}
+
+		bluetoothDeviceList.setEntries(possibleDevices
+				.toArray(new CharSequence[0]));
+		bluetoothDeviceList.setEntryValues(entryValues
+				.toArray(new CharSequence[0]));
+	}
+	
+	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
@@ -76,7 +164,10 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 
-		setupSimplePreferencesScreen();
+		//setupSimplePreferencesScreen();
+		addPreferencesFromResource(R.xml.preferences);
+
+		initializeBluetoothList();
 	}
 
 	/**
