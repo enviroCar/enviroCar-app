@@ -7,8 +7,7 @@
     <uses-sdk
         android:minSdkVersion="10"
         android:targetSdkVersion="17" />
-    
-    
+
     <uses-permission android:name="android.permission.INTERNET" >
     </uses-permission>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" >
@@ -25,7 +24,7 @@
     </uses-permission>
     <uses-permission android:name="android.permission.WAKE_LOCK" >
     </uses-permission>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>    
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:allowBackup="true"
@@ -72,7 +71,11 @@
         <activity
             android:name="de.ifgi.car.io.ui.MeasurementDisplay"
             android:label="@string/app_name" >
-        </activity>        
+        </activity>
+
+        <service
+            android:name="com.ifgi.obd2.obd.BackgroundService"
+            android:exported="false" />
     </application>
 
 </manifest>

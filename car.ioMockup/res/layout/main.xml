@@ -3,7 +3,8 @@
     android:id="@+id/vehicle_view"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical"
+    android:tag="OBDFragment" >
 
     <CheckBox
         android:id="@+id/checkBox1"

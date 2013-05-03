@@ -1,15 +1,24 @@
 package de.ifgi.car.io.ui;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.ParseException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerTabStrip;
 import android.util.Log;
 import android.view.View;
@@ -34,12 +43,13 @@ import com.ifgi.obd2.commands.ShortTermTrimBank1;
 import com.ifgi.obd2.commands.Speed;
 import com.ifgi.obd2.commands.TPS;
 import com.ifgi.obd2.exception.LocationInvalidException;
+import com.ifgi.obd2.obd.BackgroundService;
 import com.ifgi.obd2.obd.Listener;
 import com.ifgi.obd2.obd.ServiceConnector;
 
 import de.ifgi.car.io.R;
 
-public class MainActivity extends SwipeableFragmentActivity implements
+public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity implements
 		LocationListener {
 
 	private int actionBarTitleID = 0;
@@ -139,7 +149,352 @@ public class MainActivity extends SwipeableFragmentActivity implements
 		// --------------------------
 		// --------------------------
 		
+		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		locationLatitudeTextView = (TextView) findViewById(R.id.latitudeText);
+		locationLongitudeTextView = (TextView) findViewById(R.id.longitudeText);
 
+		// AutoConnect checkbox and service
+
+		//final CheckBox connectAutomatically = (CheckBox) getSupportFragmentManager().findFragmentByTag("OBDFragment").findViewById(R.id.checkBox1);
+
+		final ScheduledExecutorService scheduleTaskExecutor = Executors
+				.newScheduledThreadPool(1);
+		/*
+		connectAutomatically
+				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+					@Override
+					public void onCheckedChanged(CompoundButton buttonView,
+							boolean isChecked) {
+						if (connectAutomatically.isChecked()) {
+							// Start Service every minute
+							scheduleTaskExecutor.scheduleAtFixedRate(
+									new Runnable() {
+										public void run() {
+											if (requirementsFulfilled) {
+												if (!serviceConnector
+														.isRunning()) {
+													startConnection();
+												} else {
+													Log.e("obd2",
+															"serviceConnector not running");
+												}
+											} else {
+												Log.e("obd2",
+														"requirementsFulfilled was false!");
+											}
+
+										}
+									}, 0, 1, TimeUnit.MINUTES);
+
+						} else {
+							// Stop Service
+							scheduleTaskExecutor.shutdown();
+						}
+
+					}
+				});
+*/
+		// Toggle Button for WLan Upload
+/*
+		final ToggleButton wlanToggleButton = (ToggleButton) findViewById(R.id.toggleButton1);
+		wlanToggleButton.setChecked(true);
+		uploadOnlyInWlan = true;
+
+		wlanToggleButton
+				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+					@Override
+					public void onCheckedChanged(CompoundButton buttonView,
+							boolean isChecked) {
+						if (wlanToggleButton.isChecked()) {
+							uploadOnlyInWlan = true;
+						} else {
+							uploadOnlyInWlan = false;
+						}
+
+					}
+				});
+*/
+
+		// Upload data every 10 minutes and only if there are more than 50
+		// measurements stored in the database
+
+		ScheduledExecutorService uploadTaskExecutor = Executors
+				.newScheduledThreadPool(1);
+		uploadTaskExecutor.scheduleAtFixedRate(new Runnable() {
+
+			@Override
+			public void run() {
+				ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+				NetworkInfo mWifi = connManager
+						.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+				Log.e("obd2", "pre uploading");
+
+				if (dbAdapter.getNumberOfStoredMeasurements() > 50) {
+					if (uploadOnlyInWlan == true) {
+						if (mWifi.isConnected()) {
+							// TODO: upload
+							Log.e("obd2", "uploading");
+						}
+					} else {
+						// TODO: upload
+						Log.e("obd2", "uploading");
+					}
+				}
+
+			}
+		}, 0, 10, TimeUnit.MINUTES);
+
+		/*
+		 * Measure with the listener
+		 */
+
+		// Try to create an empty measurement
+
+		try {
+			measurement = new Measurement(locationLatitude, locationLongitude);
+		} catch (LocationInvalidException e) {
+			e.printStackTrace();
+		}
+
+		// Make a new listener to interpret the measurement values that are
+		// returned
+		Log.e("obd2","init listener");
+		listener = new Listener() {
+
+			public void receiveUpdate(CommonCommand job) {
+				Log.e("obd2", "update received");
+				// Get the name and the result of the Command
+
+				String commandName = job.getCommandName();
+				String commandResult = job.getResult();
+
+				// Get the fuel type from the preferences
+
+//				TextView fuelTypeTextView = (TextView) findViewById(R.id.fueltypeText);
+//				fuelTypeTextView.setText(preferences.getString(PREF_FUEL_TPYE,
+//						"Gasoline"));
+
+				/*
+				 * Check which measurent is returned and save the value in the
+				 * previously created measurement
+				 */
+				Log.e("obd2", commandResult);
+				// RPM
+
+				if (commandName.equals("Engine RPM")) {
+//					TextView rpmTextView = (TextView) findViewById(R.id.rpm_text);
+//					rpmTextView.setText(commandResult + " rpm");
+					rpmMeasurement = Integer.valueOf(commandResult);
+
+				}
+
+				// Speed
+
+				else if (commandName.equals("Vehicle Speed")) {
+//					TextView speedTextView = (TextView) findViewById(R.id.spd_text);
+//					speedTextView.setText(commandResult + " km/h");
+
+					try {
+						speedMeasurement = Integer.valueOf(commandResult);
+					} catch (NumberFormatException e) {
+						Log.e("obd2", "speed parse exception");
+						e.printStackTrace();
+					}
+				}
+
+				// Short Term Trim Bank 1
+
+				else if (commandName.equals("Short Term Fuel Trim Bank 1")) {
+//					TextView shortTermTrimTextView = (TextView) findViewById(R.id.shortTrimText);
+					String shortTermTrimBank1 = commandResult;
+//					shortTermTrimTextView.setText("Short Term Trim: "
+//							+ shortTermTrimBank1 + " %");
+
+					try {
+						NumberFormat format = NumberFormat
+								.getInstance(Locale.GERMAN);
+						Number number;
+						number = format.parse(shortTermTrimBank1);
+						shortTermTrimBank1Measurement = number.doubleValue();
+					} catch (ParseException e) {
+						Log.e("obd2", "parse exception short term");
+						e.printStackTrace();
+					} catch (java.text.ParseException e) {
+						Log.e("obd2", "parse exception short term");
+						e.printStackTrace();
+					}
+				}
+
+				// Long Term Trim Bank 1
+
+				else if (commandName.equals("Long Term Fuel Trim Bank 1")) {
+//					TextView longTermTrimTextView = (TextView) findViewById(R.id.longTrimText);
+					String longTermTrimBank1 = commandResult;
+//					longTermTrimTextView.setText("Long Term Trim: "
+//							+ longTermTrimBank1 + " %");
+
+					try {
+						NumberFormat format = NumberFormat
+								.getInstance(Locale.GERMAN);
+						Number number;
+						number = format.parse(longTermTrimBank1);
+						longTermTrimBank1Measurement = number.doubleValue();
+					} catch (ParseException e) {
+						Log.e("obd2", "parse exception long term");
+						e.printStackTrace();
+					} catch (java.text.ParseException e) {
+						Log.e("obd2", "parse exception long term");
+						e.printStackTrace();
+					}
+				}
+
+				// Intake Temperature
+
+				else if (commandName.equals("Air Intake Temperature")) {
+//					TextView intakeTempTextView = (TextView) findViewById(R.id.intakeTempText);
+					String intakeTemperature = commandResult;
+//					intakeTempTextView.setText("Intake Temp: "
+//							+ intakeTemperature + " C");
+					try {
+						intakeTemperatureMeasurement = Integer
+								.valueOf(intakeTemperature);
+					} catch (NumberFormatException e) {
+						Log.e("obd2", "intake temp parse exception");
+						e.printStackTrace();
+					}
+
+				}
+
+				// Throttle Position
+
+				else if (commandName.equals("Throttle Position")) {
+//					TextView throttlePositionTextView = (TextView) findViewById(R.id.throttle);
+					String throttlePosition = commandResult;
+//					throttlePositionTextView.setText("T. Pos: "
+//							+ throttlePosition + " %");
+
+					try {
+						NumberFormat format = NumberFormat
+								.getInstance(Locale.GERMAN);
+						Number number;
+						number = format.parse(throttlePosition);
+						throttlePositionMeasurement = number.doubleValue();
+					} catch (ParseException e) {
+						Log.e("obd2", "parse exception throttle");
+						e.printStackTrace();
+					} catch (java.text.ParseException e) {
+						Log.e("obd2", "parse exception throttle");
+						e.printStackTrace();
+					}
+
+				}
+
+				// Engine Load
+
+				else if (commandName.equals("Engine Load")) {
+//					TextView engineLoadTextView = (TextView) findViewById(R.id.engineLoadText);
+					String engineLoad = commandResult;
+					Log.e("obd2", "Engine Load: " + engineLoad);
+//					engineLoadTextView.setText("Engine load: " + engineLoad
+//							+ " %");
+
+					try {
+						NumberFormat format = NumberFormat
+								.getInstance(Locale.GERMAN);
+						Number number;
+						number = format.parse(engineLoad);
+						engineLoadMeasurement = number.doubleValue();
+					} catch (ParseException e) {
+						Log.e("obd2", "parse exception load");
+						e.printStackTrace();
+					} catch (java.text.ParseException e) {
+						Log.e("obd2", "parse exception load");
+						e.printStackTrace();
+					}
+				}
+
+				// MAF
+
+				else if (commandName.equals("Mass Air Flow")) {
+//					TextView mafTextView = (TextView) findViewById(R.id.mafText);
+					String maf = commandResult;
+//					mafTextView.setText("MAF: " + maf + " g/s");
+
+					try {
+						NumberFormat format = NumberFormat
+								.getInstance(Locale.GERMAN);
+						Number number;
+						number = format.parse(maf);
+						mafMeasurement = number.doubleValue();
+					} catch (ParseException e) {
+						Log.e("obd", "parse exception maf");
+						e.printStackTrace();
+					} catch (java.text.ParseException e) {
+						Log.e("obd", "parse exception maf");
+						e.printStackTrace();
+					}
+				}
+
+				// Intake Pressure
+
+				else if (commandName.equals("Intake Manifold Pressure")) {
+//					TextView intakePressureTextView = (TextView) findViewById(R.id.intakeText);
+					String intakePressure = commandResult;
+//					intakePressureTextView.setText("Intake: " + intakePressure
+//							+ "kPa");
+
+					try {
+						intakePressureMeasurement = Integer
+								.valueOf(intakePressure);
+					} catch (NumberFormatException e) {
+						Log.e("obd", "intake pressure parse exception");
+						e.printStackTrace();
+					}
+				}
+
+				// Update and insert the measurement
+
+				updateMeasurement();
+			}
+
+		};
+
+		// Get the default bluetooth adapter
+
+		final BluetoothAdapter bluetoothAdapter = BluetoothAdapter
+				.getDefaultAdapter();
+
+		// Check whether the bluetooth adapter is available or supported
+
+		if (bluetoothAdapter == null) {
+
+			requirementsFulfilled = false;
+			showDialog(NO_BLUETOOTH);
+
+		} else {
+
+			if (!bluetoothAdapter.isEnabled()) {
+				requirementsFulfilled = false;
+				showDialog(BLUETOOTH_DISABLED);
+			}
+		}
+
+		// If everything is available, start the service connector and listener
+
+		if (requirementsFulfilled) {
+			Log.e("obd2","requirements met");
+			backgroundService = new Intent(this, BackgroundService.class);
+			serviceConnector = new ServiceConnector();
+			serviceConnector.setServiceListener(listener);
+
+			bindService(backgroundService, serviceConnector,
+					Context.BIND_AUTO_CREATE);
+		} else {
+			Log.e("obd2","requirements not met");
+		}
 		
 		
 	}
@@ -318,8 +673,6 @@ public class MainActivity extends SwipeableFragmentActivity implements
 
 	protected void onResume() {
 		super.onResume();
-		
-
 
 		initLocationManager();
 
@@ -374,12 +727,11 @@ public class MainActivity extends SwipeableFragmentActivity implements
 			Intent configIntent = new Intent(this, SettingsActivity.class);
 			startActivity(configIntent);
 			return true;
-
-			/*
-			 * case START_LIST_VIEW: Intent listIntent = new Intent(this,
-			 * ListMeasurementsActivity.class); startActivity(listIntent);
-			 * return true;
-			 */
+				
+//		case START_LIST_VIEW:
+//			Intent listIntent = new Intent(this, ListMeasurementsActivity.class);
+//			startActivity(listIntent);
+//			return true;
 		}
 		return false;
 	}
@@ -389,12 +741,8 @@ public class MainActivity extends SwipeableFragmentActivity implements
 	 * commands
 	 */
 	public void startConnection() {
-		if(serviceConnector == null){
-			Fragment currentFragment = getSupportFragmentManager().findFragmentByTag("OBDFragment");
-			serviceConnector = ((OBDFrament) currentFragment).getServiceConnector();
-		}
 		if (!serviceConnector.isRunning()) {
-
+			Log.e("obd2", "service start");
 			startService(backgroundService);
 		}
 		handler.post(waitingListRunnable);
@@ -413,7 +761,7 @@ public class MainActivity extends SwipeableFragmentActivity implements
 	 * Activate or deactivate the menu items
 	 */
 	public boolean onPrepareOptionsMenu(Menu menu) {
-/*
+
 		MenuItem start = menu.findItem(START_MEASUREMENT);
 		MenuItem stop = menu.findItem(STOP_MEASUREMENT);
 		MenuItem settings = menu.findItem(SETTINGS);
@@ -433,7 +781,7 @@ public class MainActivity extends SwipeableFragmentActivity implements
 			stop.setEnabled(false);
 			settings.setEnabled(false);
 		}
-*/
+
 		return true;
 	}
 
@@ -455,11 +803,11 @@ public class MainActivity extends SwipeableFragmentActivity implements
 
 		locationLatitude = (float) location.getLatitude();
 
-		locationLatitudeTextView.setText(String.valueOf(locationLatitude));
+		//locationLatitudeTextView.setText(String.valueOf(locationLatitude));
 
 		locationLongitude = (float) location.getLongitude();
 
-		locationLongitudeTextView.setText(String.valueOf(locationLongitude));
+		//locationLongitudeTextView.setText(String.valueOf(locationLongitude));
 
 	}
 

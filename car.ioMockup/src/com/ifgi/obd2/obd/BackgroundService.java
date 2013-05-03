@@ -98,7 +98,7 @@ public class BackgroundService extends Service {
 			startConnection();
 		} catch (Exception e) {
 			stopService();
-			Log.e("obd2", "retry");
+			Log.e("obd2", "retry"+e.toString());
 		}
 	}
 
