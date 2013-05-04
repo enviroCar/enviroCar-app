@@ -47,41 +47,41 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
-            <de.ifgi.car.io.ui.CheckListItem
+            <car.io.views.CheckListItem
                 android:id="@+id/checklist_bluetooth"
                 style="@style/CheckListLayoutStyle"
                 cario:itemText="@string/checklist_item_bluetooth_disabled" >
-            </de.ifgi.car.io.ui.CheckListItem>
+            </car.io.views.CheckListItem>
 
-            <de.ifgi.car.io.ui.CheckListItem
+            <car.io.views.CheckListItem
                 android:id="@+id/checklist_obd_pair"
                 style="@style/CheckListLayoutStyle"
                 cario:itemText="@string/checklist_item_obd_not_paired" >
-            </de.ifgi.car.io.ui.CheckListItem>
+            </car.io.views.CheckListItem>
 
-            <de.ifgi.car.io.ui.CheckListItem
+            <car.io.views.CheckListItem
                 android:id="@+id/checklist_obd_service"
                 style="@style/CheckListLayoutStyle"
                 cario:itemText="@string/checklist_item_obd_service_disabled" >
-            </de.ifgi.car.io.ui.CheckListItem>
+            </car.io.views.CheckListItem>
 
-            <de.ifgi.car.io.ui.CheckListItem
+            <car.io.views.CheckListItem
                 android:id="@+id/checklist_obd_connection"
                 style="@style/CheckListLayoutStyle"
                 cario:itemText="@string/checklist_item_obd_not_connected" >
-            </de.ifgi.car.io.ui.CheckListItem>
+            </car.io.views.CheckListItem>
 
-            <de.ifgi.car.io.ui.CheckListItem
+            <car.io.views.CheckListItem
                 android:id="@+id/checklist_gps"
                 style="@style/CheckListLayoutStyle"
                 cario:itemText="@string/checklist_item_gps_disabled" >
-            </de.ifgi.car.io.ui.CheckListItem>
+            </car.io.views.CheckListItem>
             
-            <de.ifgi.car.io.ui.CheckListItem
+            <car.io.views.CheckListItem
                 android:id="@+id/checklist_login"
                 style="@style/CheckListLayoutStyle"
                 cario:itemText="@string/checklist_item_not_signed_in" >
-            </de.ifgi.car.io.ui.CheckListItem>            
+            </car.io.views.CheckListItem>            
 
         </LinearLayout>
     </ScrollView>
