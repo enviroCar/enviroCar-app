@@ -1,6 +1,7 @@
 package car.io.adapter;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -231,10 +232,16 @@ public class DbAdapterLocal implements DbAdapter {
 	public ArrayList<Track> getAllTracks() throws TrackException {
 		ArrayList<Measurement> allMeasurements = getAllMeasurements();
 		ArrayList<Track> allTracks = new ArrayList<Track>();
-		
-		if (allMeasurements.size()>0){
-			//TODO build and return tracks
-			
+
+		if (allMeasurements.size() > 0) {
+			// TODO build and return tracks
+
+			// Get all track ids
+			HashSet<Integer> ids = new HashSet<Integer>();
+			for (Measurement measurement : allMeasurements) {
+				ids.add(measurement.getTrack());
+			}
+
 			return allTracks;
 		} else {
 			throw new TrackException("No measurements stored yet.");
