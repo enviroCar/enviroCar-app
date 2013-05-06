@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="8dp" >
+
+    <TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/track_details_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start:" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/track_details_start_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/track_details_end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="End:" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/track_details_end_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent" >
+            </TextView>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
+                android:id="@+id/track_details_length"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/track_details_start"
+                android:text="Length:" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/track_details_length_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_toRightOf="@id/track_details_length" >
+            </TextView>
+        </TableRow>
+    </TableLayout>
+
+</RelativeLayout>
