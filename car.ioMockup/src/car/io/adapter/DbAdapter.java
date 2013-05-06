@@ -2,6 +2,8 @@ package car.io.adapter;
 
 import java.util.ArrayList;
 
+import car.io.exception.TrackException;
+
 /**
  * DB Adapter Interface that saves measurements in a local SQLite Database
  * 
@@ -37,9 +39,12 @@ public interface DbAdapter {
 	/**
 	 * Returns all measurements as an ArrayList<Measurement>
 	 * 
+	 * Deprecated because it should be made private to only use tracks in the
+	 * future!
+	 * 
 	 * @return All measurements in an ArrayList
 	 */
-
+	@Deprecated
 	public ArrayList<Measurement> getAllMeasurements();
 
 	/**
@@ -49,7 +54,7 @@ public interface DbAdapter {
 	 *            The id of the measurement that should be returned
 	 * @return The desired measurement
 	 */
-
+	@Deprecated
 	public Measurement getMeasurement(int id);
 
 	/**
@@ -62,5 +67,13 @@ public interface DbAdapter {
 	 * Returns the number of stored measurements in the SQLite database
 	 */
 	public int getNumberOfStoredMeasurements();
+
+	/**
+	 * Returns all tracks in the database as an ArrayList
+	 * 
+	 * @return
+	 * @throws TrackException 
+	 */
+	public ArrayList<Track> getAllTracks() throws TrackException;
 
 }

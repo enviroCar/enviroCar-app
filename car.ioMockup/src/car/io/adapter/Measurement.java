@@ -14,6 +14,7 @@ public class Measurement {
 	// All measurement values
 
 	private int id;
+	private int track;
 	private float latitude;
 	private float longitude;
 	private long measurementTime;
@@ -61,8 +62,8 @@ public class Measurement {
 	 */
 	@Override
 	public String toString() {
-		return "Measurement [id=" + id + ", latitude=" + latitude
-				+ ", longitude=" + longitude + ", measurementTime="
+		return "Measurement [id=" + id + ", track=" + track + ", latitude="
+				+ latitude + ", longitude=" + longitude + ", measurementTime="
 				+ measurementTime + ", throttlePosition=" + throttlePosition
 				+ ", rpm=" + rpm + ", speed=" + speed + ", fuelType="
 				+ fuelType + ", engineLoad=" + engineLoad
@@ -71,6 +72,20 @@ public class Measurement {
 				+ ", shortTermTrimBank1=" + shortTermTrimBank1
 				+ ", longTermTrimBank1=" + longTermTrimBank1 + ", maf=" + maf
 				+ ", car=" + car + "]";
+	}
+
+	/**
+	 * @return the track
+	 */
+	public int getTrack() {
+		return track;
+	}
+
+	/**
+	 * @param track the track to set
+	 */
+	public void setTrack(int track) {
+		this.track = track;
 	}
 
 	/**
