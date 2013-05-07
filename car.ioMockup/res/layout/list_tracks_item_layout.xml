@@ -2,7 +2,21 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="8dp" >
+    android:layout_marginRight="16dp" >
+
+     <Button
+         android:id="@+id/track_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/content_discard" />
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@id/track_delete"
+        android:background="@drawable/content_edit" />
 
     <TableLayout
         android:layout_width="match_parent"
@@ -13,29 +27,68 @@
             android:layout_height="wrap_content" >
 
             <TextView
+                android:id="@+id/track_details_car"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="2dp"
+                android:text="Auto:" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/track_details_car_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="2dp" >
+            </TextView>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
                 android:id="@+id/track_details_start"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Start:" >
+                android:layout_marginRight="2dp"
+                android:text="Startzeit:" >
             </TextView>
 
             <TextView
                 android:id="@+id/track_details_start_textview"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent" >
+                android:layout_height="match_parent"
+                android:layout_marginRight="2dp" >
             </TextView>
 
             <TextView
                 android:id="@+id/track_details_end"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="End:" >
+                android:layout_marginRight="2dp"
+                android:text="Endzeit:" >
             </TextView>
 
             <TextView
                 android:id="@+id/track_details_end_textview"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent" >
+                android:layout_height="match_parent"
+                android:layout_marginRight="2dp" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/track_details_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="2dp"
+                android:text="Fahrzeit:" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/track_details_duration_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="2dp" >
             </TextView>
         </TableRow>
 
@@ -47,17 +100,38 @@
                 android:id="@+id/track_details_length"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/track_details_start"
-                android:text="Length:" >
+                android:layout_marginRight="2dp"
+                android:text="Länge:" >
             </TextView>
 
             <TextView
                 android:id="@+id/track_details_length_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_toRightOf="@id/track_details_length" >
+                android:layout_marginRight="2dp" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/track_details_co2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="2dp"
+                android:text="CO\u2082-Ausstoß:" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/track_details_co2_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="2dp" >
             </TextView>
         </TableRow>
     </TableLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:background="?android:attr/listDivider" />
 
 </RelativeLayout>

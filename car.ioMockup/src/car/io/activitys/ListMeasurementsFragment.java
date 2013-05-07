@@ -1,13 +1,15 @@
 package car.io.activitys;
 
+import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.Button;
 import android.widget.ExpandableListView;
-import android.widget.ExpandableListView.OnChildClickListener;
-import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import car.io.R;
+import car.io.views.TYPEFACE;
 
 import com.actionbarsherlock.app.SherlockFragment;
 
@@ -19,18 +21,29 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		View v = inflater.inflate(R.layout.list_tracks_layout, null);
 		ExpandableListView elv = (ExpandableListView) v.findViewById(R.id.list);
 		elv.setAdapter(new TracksListAdapter());
+		elv.setGroupIndicator(getResources().getDrawable(
+				R.drawable.list_indicator));
+		elv.setChildDivider(getResources().getDrawable(
+				android.R.color.transparent));
+	
+
 		return v;
 	};
 
 	public class TracksListAdapter extends BaseExpandableListAdapter {
 
-		private String[] groups = { "People Names", "Dog Names", "Cat Names",
-				"Fish Names" };
+		private String[] groups = { 
+				"Fahrt 08.05.2013 09:01",
+				"Fahrt 07.05.2013 13:13", 
+				"Zur Arbeit 6. Mai 2013",
+				"Sonntagsfahrt 5. Mai" };
 
 		private String[][] children = {
-				{ "Arnold", "Barry", "Chuck", "David" },
-				{ "Ace", "Bandit", "Cha-Cha", "Deuce" },
-				{ "Fluffy", "Snuggles" }, { "Goldy", "Bubbles" } };
+				{ "09:01","09:36","35 Min","9,56 km","VW Golf","0,908 kg" },
+				{ "13:13","14:10","57 Min","89,87 km","VW Golf","7,899 kg" },
+				{ "09:03","09:35","32 Min","9,61 km","VW Golf","1,078 kg" },
+				{ "14:43","16:10","87 Min","109,18 km","VW Golf","9,156 kg" },
+				};
 
 		@Override
 		public int getGroupCount() {
@@ -49,7 +62,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 		@Override
 		public Object getChild(int i, int i1) {
-			return children[i];
+			return children[i][i1];
 		}
 
 		@Override
@@ -59,7 +72,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 		@Override
 		public long getChildId(int i, int i1) {
-			return i1;
+			return i;
 		}
 
 		@Override
@@ -70,12 +83,23 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		@Override
 		public View getGroupView(int i, boolean b, View view,
 				ViewGroup viewGroup) {
-			if (view == null) {
+			if (view == null || view.getId() != 10000000 + i) {
 				View groupRow = ViewGroup.inflate(getActivity(),
 						R.layout.list_tracks_group_layout, null);
 				TextView textView = (TextView) groupRow
 						.findViewById(R.id.track_name_textview);
 				textView.setText(getGroup(i).toString());
+				Button button = (Button)groupRow.findViewById(R.id.track_name_go_to_map);
+				button.setOnClickListener(new OnClickListener() {
+
+					@Override
+					public void onClick(View v) {
+						Log.i("bla","bla");
+						
+					}});
+				groupRow.setId(10000000 + i);
+				TYPEFACE.applyCustomFont((ViewGroup) groupRow,
+						TYPEFACE.Newscycle(getActivity()));
 				return groupRow;
 			}
 			return view;
@@ -84,13 +108,26 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		@Override
 		public View getChildView(int i, int i1, boolean b, View view,
 				ViewGroup viewGroup) {
-			if(view == null) {
+			if (view == null || view.getId() != 10000100 + i+ i1) {
 				View row = ViewGroup.inflate(getActivity(),
 						R.layout.list_tracks_item_layout, null);
+				TextView start = (TextView) row.findViewById(R.id.track_details_start_textview);
+				TextView end = (TextView) row.findViewById(R.id.track_details_end_textview);
+				TextView length = (TextView) row.findViewById(R.id.track_details_length_textview);
+				TextView car = (TextView) row.findViewById(R.id.track_details_car_textview);
+				TextView duration = (TextView) row.findViewById(R.id.track_details_duration_textview);
+				TextView co2 = (TextView) row.findViewById(R.id.track_details_co2_textview);
 				
+				start.setText(getChild(i, 0).toString());
+				end.setText(getChild(i, 1).toString());
+				duration.setText(getChild(i, 2).toString());
+				length.setText(getChild(i, 3).toString());
+				car.setText(getChild(i, 4).toString());
+				co2.setText(getChild(i, 5).toString());
 				
-				row.setClickable(false);
-				
+				row.setId(10000100 + i+ i1);
+				TYPEFACE.applyCustomFont((ViewGroup) row,
+						TYPEFACE.Newscycle(getActivity()));
 				return row;
 			}
 			return view;
@@ -98,7 +135,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 		@Override
 		public boolean isChildSelectable(int i, int i1) {
-			return true;
+			return false;
 		}
 
 	}
