@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft" >
+
+    <TextView
+        android:id="@+id/track_name_textview"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:ellipsize="marquee"
+        android:freezesText="true"
+        android:gravity="center_vertical"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        android:textSize="18sp"
+        android:paddingRight="32dp" >
+    </TextView>
+
+    <Button
+        android:id="@+id/track_name_go_to_map"
+        android:layout_alignParentRight="true"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:background="@drawable/navigation_go_to_map" >
+    </Button>
+
+</RelativeLayout>
