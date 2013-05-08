@@ -50,8 +50,8 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
-public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity implements
-		LocationListener {
+public class MainActivity<AndroidAlarmService> extends
+		SwipeableFragmentActivity implements LocationListener {
 
 	private int actionBarTitleID = 0;
 	private ActionBar actionBar;
@@ -141,7 +141,9 @@ public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity
 
 		addTab("List", ListMeasurementsFragment.class,
 				MyData.createBundle("Overview"));
-		addTab( "OBD", OBDFrament.class, MyData.createBundle( "Overview") );
+		addTab("OBD", OBDFrament.class, MyData.createBundle("Overview"));
+		addTab("Dashboard", DashboardFragment.class,
+				MyData.createBundle("Dashboard"));
 		// addTab( "Friends", MyData.class, MyData.createBundle( "Fragment 3")
 		// );
 
@@ -149,74 +151,51 @@ public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity
 		// --------------------------
 		// --------------------------
 		// --------------------------
-		
+
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		locationLatitudeTextView = (TextView) findViewById(R.id.latitudeText);
 		locationLongitudeTextView = (TextView) findViewById(R.id.longitudeText);
 
 		// AutoConnect checkbox and service
 
-		//final CheckBox connectAutomatically = (CheckBox) getSupportFragmentManager().findFragmentByTag("OBDFragment").findViewById(R.id.checkBox1);
+		// final CheckBox connectAutomatically = (CheckBox)
+		// getSupportFragmentManager().findFragmentByTag("OBDFragment").findViewById(R.id.checkBox1);
 
 		final ScheduledExecutorService scheduleTaskExecutor = Executors
 				.newScheduledThreadPool(1);
 		/*
-		connectAutomatically
-				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-					@Override
-					public void onCheckedChanged(CompoundButton buttonView,
-							boolean isChecked) {
-						if (connectAutomatically.isChecked()) {
-							// Start Service every minute
-							scheduleTaskExecutor.scheduleAtFixedRate(
-									new Runnable() {
-										public void run() {
-											if (requirementsFulfilled) {
-												if (!serviceConnector
-														.isRunning()) {
-													startConnection();
-												} else {
-													Log.e("obd2",
-															"serviceConnector not running");
-												}
-											} else {
-												Log.e("obd2",
-														"requirementsFulfilled was false!");
-											}
-
-										}
-									}, 0, 1, TimeUnit.MINUTES);
-
-						} else {
-							// Stop Service
-							scheduleTaskExecutor.shutdown();
-						}
-
-					}
-				});
-*/
+		 * connectAutomatically .setOnCheckedChangeListener(new
+		 * CompoundButton.OnCheckedChangeListener() {
+		 * 
+		 * @Override public void onCheckedChanged(CompoundButton buttonView,
+		 * boolean isChecked) { if (connectAutomatically.isChecked()) { // Start
+		 * Service every minute scheduleTaskExecutor.scheduleAtFixedRate( new
+		 * Runnable() { public void run() { if (requirementsFulfilled) { if
+		 * (!serviceConnector .isRunning()) { startConnection(); } else {
+		 * Log.e("obd2", "serviceConnector not running"); } } else {
+		 * Log.e("obd2", "requirementsFulfilled was false!"); }
+		 * 
+		 * } }, 0, 1, TimeUnit.MINUTES);
+		 * 
+		 * } else { // Stop Service scheduleTaskExecutor.shutdown(); }
+		 * 
+		 * } });
+		 */
 		// Toggle Button for WLan Upload
-/*
-		final ToggleButton wlanToggleButton = (ToggleButton) findViewById(R.id.toggleButton1);
-		wlanToggleButton.setChecked(true);
-		uploadOnlyInWlan = true;
-
-		wlanToggleButton
-				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-
-					@Override
-					public void onCheckedChanged(CompoundButton buttonView,
-							boolean isChecked) {
-						if (wlanToggleButton.isChecked()) {
-							uploadOnlyInWlan = true;
-						} else {
-							uploadOnlyInWlan = false;
-						}
-
-					}
-				});
-*/
+		/*
+		 * final ToggleButton wlanToggleButton = (ToggleButton)
+		 * findViewById(R.id.toggleButton1); wlanToggleButton.setChecked(true);
+		 * uploadOnlyInWlan = true;
+		 * 
+		 * wlanToggleButton .setOnCheckedChangeListener(new
+		 * CompoundButton.OnCheckedChangeListener() {
+		 * 
+		 * @Override public void onCheckedChanged(CompoundButton buttonView,
+		 * boolean isChecked) { if (wlanToggleButton.isChecked()) {
+		 * uploadOnlyInWlan = true; } else { uploadOnlyInWlan = false; }
+		 * 
+		 * } });
+		 */
 
 		// Upload data every 10 minutes and only if there are more than 50
 		// measurements stored in the database
@@ -262,7 +241,7 @@ public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity
 
 		// Make a new listener to interpret the measurement values that are
 		// returned
-		Log.e("obd2","init listener");
+		Log.e("obd2", "init listener");
 		listener = new Listener() {
 
 			public void receiveUpdate(CommonCommand job) {
@@ -274,9 +253,10 @@ public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity
 
 				// Get the fuel type from the preferences
 
-//				TextView fuelTypeTextView = (TextView) findViewById(R.id.fueltypeText);
-//				fuelTypeTextView.setText(preferences.getString(PREF_FUEL_TPYE,
-//						"Gasoline"));
+				// TextView fuelTypeTextView = (TextView)
+				// findViewById(R.id.fueltypeText);
+				// fuelTypeTextView.setText(preferences.getString(PREF_FUEL_TPYE,
+				// "Gasoline"));
 
 				/*
 				 * Check which measurent is returned and save the value in the
@@ -286,8 +266,9 @@ public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity
 				// RPM
 
 				if (commandName.equals("Engine RPM")) {
-//					TextView rpmTextView = (TextView) findViewById(R.id.rpm_text);
-//					rpmTextView.setText(commandResult + " rpm");
+					// TextView rpmTextView = (TextView)
+					// findViewById(R.id.rpm_text);
+					// rpmTextView.setText(commandResult + " rpm");
 					rpmMeasurement = Integer.valueOf(commandResult);
 
 				}
@@ -295,8 +276,9 @@ public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity
 				// Speed
 
 				else if (commandName.equals("Vehicle Speed")) {
-//					TextView speedTextView = (TextView) findViewById(R.id.spd_text);
-//					speedTextView.setText(commandResult + " km/h");
+					// TextView speedTextView = (TextView)
+					// findViewById(R.id.spd_text);
+					// speedTextView.setText(commandResult + " km/h");
 
 					try {
 						speedMeasurement = Integer.valueOf(commandResult);
@@ -309,10 +291,11 @@ public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity
 				// Short Term Trim Bank 1
 
 				else if (commandName.equals("Short Term Fuel Trim Bank 1")) {
-//					TextView shortTermTrimTextView = (TextView) findViewById(R.id.shortTrimText);
+					// TextView shortTermTrimTextView = (TextView)
+					// findViewById(R.id.shortTrimText);
 					String shortTermTrimBank1 = commandResult;
-//					shortTermTrimTextView.setText("Short Term Trim: "
-//							+ shortTermTrimBank1 + " %");
+					// shortTermTrimTextView.setText("Short Term Trim: "
+					// + shortTermTrimBank1 + " %");
 
 					try {
 						NumberFormat format = NumberFormat
@@ -332,10 +315,11 @@ public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity
 				// Long Term Trim Bank 1
 
 				else if (commandName.equals("Long Term Fuel Trim Bank 1")) {
-//					TextView longTermTrimTextView = (TextView) findViewById(R.id.longTrimText);
+					// TextView longTermTrimTextView = (TextView)
+					// findViewById(R.id.longTrimText);
 					String longTermTrimBank1 = commandResult;
-//					longTermTrimTextView.setText("Long Term Trim: "
-//							+ longTermTrimBank1 + " %");
+					// longTermTrimTextView.setText("Long Term Trim: "
+					// + longTermTrimBank1 + " %");
 
 					try {
 						NumberFormat format = NumberFormat
@@ -355,10 +339,11 @@ public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity
 				// Intake Temperature
 
 				else if (commandName.equals("Air Intake Temperature")) {
-//					TextView intakeTempTextView = (TextView) findViewById(R.id.intakeTempText);
+					// TextView intakeTempTextView = (TextView)
+					// findViewById(R.id.intakeTempText);
 					String intakeTemperature = commandResult;
-//					intakeTempTextView.setText("Intake Temp: "
-//							+ intakeTemperature + " C");
+					// intakeTempTextView.setText("Intake Temp: "
+					// + intakeTemperature + " C");
 					try {
 						intakeTemperatureMeasurement = Integer
 								.valueOf(intakeTemperature);
@@ -372,10 +357,11 @@ public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity
 				// Throttle Position
 
 				else if (commandName.equals("Throttle Position")) {
-//					TextView throttlePositionTextView = (TextView) findViewById(R.id.throttle);
+					// TextView throttlePositionTextView = (TextView)
+					// findViewById(R.id.throttle);
 					String throttlePosition = commandResult;
-//					throttlePositionTextView.setText("T. Pos: "
-//							+ throttlePosition + " %");
+					// throttlePositionTextView.setText("T. Pos: "
+					// + throttlePosition + " %");
 
 					try {
 						NumberFormat format = NumberFormat
@@ -396,11 +382,12 @@ public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity
 				// Engine Load
 
 				else if (commandName.equals("Engine Load")) {
-//					TextView engineLoadTextView = (TextView) findViewById(R.id.engineLoadText);
+					// TextView engineLoadTextView = (TextView)
+					// findViewById(R.id.engineLoadText);
 					String engineLoad = commandResult;
 					Log.e("obd2", "Engine Load: " + engineLoad);
-//					engineLoadTextView.setText("Engine load: " + engineLoad
-//							+ " %");
+					// engineLoadTextView.setText("Engine load: " + engineLoad
+					// + " %");
 
 					try {
 						NumberFormat format = NumberFormat
@@ -420,9 +407,10 @@ public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity
 				// MAF
 
 				else if (commandName.equals("Mass Air Flow")) {
-//					TextView mafTextView = (TextView) findViewById(R.id.mafText);
+					// TextView mafTextView = (TextView)
+					// findViewById(R.id.mafText);
 					String maf = commandResult;
-//					mafTextView.setText("MAF: " + maf + " g/s");
+					// mafTextView.setText("MAF: " + maf + " g/s");
 
 					try {
 						NumberFormat format = NumberFormat
@@ -442,10 +430,12 @@ public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity
 				// Intake Pressure
 
 				else if (commandName.equals("Intake Manifold Pressure")) {
-//					TextView intakePressureTextView = (TextView) findViewById(R.id.intakeText);
+					// TextView intakePressureTextView = (TextView)
+					// findViewById(R.id.intakeText);
 					String intakePressure = commandResult;
-//					intakePressureTextView.setText("Intake: " + intakePressure
-//							+ "kPa");
+					// intakePressureTextView.setText("Intake: " +
+					// intakePressure
+					// + "kPa");
 
 					try {
 						intakePressureMeasurement = Integer
@@ -486,7 +476,7 @@ public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity
 		// If everything is available, start the service connector and listener
 
 		if (requirementsFulfilled) {
-			Log.e("obd2","requirements met");
+			Log.e("obd2", "requirements met");
 			backgroundService = new Intent(this, BackgroundService.class);
 			serviceConnector = new ServiceConnector();
 			serviceConnector.setServiceListener(listener);
@@ -494,10 +484,9 @@ public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity
 			bindService(backgroundService, serviceConnector,
 					Context.BIND_AUTO_CREATE);
 		} else {
-			Log.e("obd2","requirements not met");
+			Log.e("obd2", "requirements not met");
 		}
-		
-		
+
 	}
 
 	/*
@@ -728,11 +717,12 @@ public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity
 			Intent configIntent = new Intent(this, SettingsActivity.class);
 			startActivity(configIntent);
 			return true;
-				
-//		case START_LIST_VIEW:
-//			Intent listIntent = new Intent(this, ListMeasurementsActivity.class);
-//			startActivity(listIntent);
-//			return true;
+
+			// case START_LIST_VIEW:
+			// Intent listIntent = new Intent(this,
+			// ListMeasurementsActivity.class);
+			// startActivity(listIntent);
+			// return true;
 		}
 		return false;
 	}
@@ -804,11 +794,11 @@ public class MainActivity<AndroidAlarmService> extends SwipeableFragmentActivity
 
 		locationLatitude = (float) location.getLatitude();
 
-		//locationLatitudeTextView.setText(String.valueOf(locationLatitude));
+		// locationLatitudeTextView.setText(String.valueOf(locationLatitude));
 
 		locationLongitude = (float) location.getLongitude();
 
-		//locationLongitudeTextView.setText(String.valueOf(locationLongitude));
+		// locationLongitudeTextView.setText(String.valueOf(locationLongitude));
 
 	}
 
