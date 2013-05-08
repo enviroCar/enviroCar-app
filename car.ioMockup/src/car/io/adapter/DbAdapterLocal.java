@@ -1,7 +1,6 @@
 package car.io.adapter;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -10,7 +9,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import car.io.exception.LocationInvalidException;
-import car.io.exception.TrackException;
 
 /**
  * Implementation of DbAdapter
@@ -27,7 +25,6 @@ public class DbAdapterLocal implements DbAdapter {
 	public static final String KEY_LONGITUDE = "longitude";
 	public static final String KEY_LATITUDE = "latitude";
 	public static final String KEY_ROWID = "_id";
-	public static final String KEY_TRACKID = "track_id";
 	public static final String KEY_THROTTLE = "throttle_position";
 	public static final String KEY_RPM = "rpm";
 	public static final String KEY_SPEED = "speed";
@@ -47,11 +44,11 @@ public class DbAdapterLocal implements DbAdapter {
 	// Database parameters
 
 	private static final String DATABASE_NAME = "obd2";
-	private static final int DATABASE_VERSION = 5;
+	private static final int DATABASE_VERSION = 4;
 	private static final String DATABASE_TABLE = "measurements";
 	private static final String DATABASE_CREATE = "create table measurements "
 			+ "(_id INTEGER primary key autoincrement, "
-			+ "track_id BLOB, latitude BLOB, "
+			+ "latitude BLOB, "
 			+ "longitude BLOB, measurement_time BLOB, throttle_position BLOB, rpm BLOB, speed BLOB, fuel_type BLOB, engine_load BLOB, fuel_consumption BLOB, intake_pressure BLOB, intake_temperature BLOB, short_term_trim_bank_1 BLOB, long_term_trim_bank_1 BLOB, maf BLOB, car BLOB);";
 
 	private final Context mCtx;
@@ -107,7 +104,6 @@ public class DbAdapterLocal implements DbAdapter {
 	public void insertMeasurement(Measurement measurement) {
 		ContentValues initialValues = new ContentValues();
 
-		initialValues.put(KEY_TRACKID, measurement.getTrack());
 		initialValues.put(KEY_LATITUDE, measurement.getLatitude());
 		initialValues.put(KEY_LONGITUDE, measurement.getLongitude());
 		initialValues.put(KEY_TIME, measurement.getMeasurementTime());
@@ -136,7 +132,7 @@ public class DbAdapterLocal implements DbAdapter {
 		ArrayList<Measurement> allMeasurements = new ArrayList<Measurement>();
 
 		Cursor c = mDb.query(DATABASE_TABLE,
-				new String[] { KEY_ROWID, KEY_TRACKID, KEY_LATITUDE,
+				new String[] { KEY_ROWID, KEY_LATITUDE,
 						KEY_LONGITUDE, KEY_TIME, KEY_THROTTLE, KEY_RPM,
 						KEY_SPEED, KEY_FUELTYPE, KEY_ENGINELOAD,
 						KEY_FUELCONSUMPTION, KEY_INTAKEPRESSURE,
@@ -149,28 +145,26 @@ public class DbAdapterLocal implements DbAdapter {
 		for (int i = 0; i < c.getCount(); i++) {
 
 			String row = c.getString(0);
-			String track = c.getString(1);
-			String lat = c.getString(2);
-			String lon = c.getString(3);
-			String time = c.getString(4);
-			String throttle = c.getString(5);
-			String rpm = c.getString(6);
-			String speed = c.getString(7);
-			String fuelType = c.getString(8);
-			String engineLoad = c.getString(9);
-			String fuelConsumption = c.getString(10);
-			String intakePressure = c.getString(11);
-			String intakeTemperature = c.getString(12);
-			String shortTermTrimBank1 = c.getString(13);
-			String longTermTrimBank1 = c.getString(14);
-			String maf = c.getString(15);
-			String car = c.getString(16);
+			String lat = c.getString(1);
+			String lon = c.getString(2);
+			String time = c.getString(3);
+			String throttle = c.getString(4);
+			String rpm = c.getString(5);
+			String speed = c.getString(6);
+			String fuelType = c.getString(7);
+			String engineLoad = c.getString(8);
+			String fuelConsumption = c.getString(9);
+			String intakePressure = c.getString(10);
+			String intakeTemperature = c.getString(11);
+			String shortTermTrimBank1 = c.getString(12);
+			String longTermTrimBank1 = c.getString(13);
+			String maf = c.getString(14);
+			String car = c.getString(15);
 
 			try {
 				Measurement measurement = new Measurement(Float.valueOf(lat),
 						Float.valueOf(lon));
 				measurement.setId(Integer.valueOf(row));
-				measurement.setTrack(Integer.valueOf(track));
 				measurement.setMeasurementTime(Long.valueOf(time));
 				measurement.setThrottlePosition(Double.valueOf(throttle));
 				measurement.setRpm(Integer.valueOf(rpm));
@@ -228,25 +222,6 @@ public class DbAdapterLocal implements DbAdapter {
 
 	}
 
-	@Override
-	public ArrayList<Track> getAllTracks() throws TrackException {
-		ArrayList<Measurement> allMeasurements = getAllMeasurements();
-		ArrayList<Track> allTracks = new ArrayList<Track>();
-
-		if (allMeasurements.size() > 0) {
-			// TODO build and return tracks
-
-			// Get all track ids
-			HashSet<Integer> ids = new HashSet<Integer>();
-			for (Measurement measurement : allMeasurements) {
-				ids.add(measurement.getTrack());
-			}
-
-			return allTracks;
-		} else {
-			throw new TrackException("No measurements stored yet.");
-		}
-
-	}
+	
 
 }
