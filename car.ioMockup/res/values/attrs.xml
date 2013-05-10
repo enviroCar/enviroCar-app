@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <declare-styleable name="CheckList">
         <attr name="itemText" format="string" localization="suggested" />
-    </declare-styleable> 
-</resources> 
+    </declare-styleable>
+    <declare-styleable name="RoundProgress">
+        <attr name="progress" format="integer" />
+        <attr name="max" format="integer" />
+        <attr name="progressDrawable" format="integer" />
+        <attr name="track" format="integer" />
+    </declare-styleable>
+
+</resources>
