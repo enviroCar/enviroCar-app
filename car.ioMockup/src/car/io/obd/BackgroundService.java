@@ -81,7 +81,7 @@ public class BackgroundService extends Service {
 
 		// Init bluetooth
 
-		String remoteDevice = preferences.getString(car.io.activitys.SettingsActivity.BLUETOOTH_KEY,
+		String remoteDevice = preferences.getString(car.io.activity.SettingsActivity.BLUETOOTH_KEY,
 				null);
 
 		// Stop if device is not available

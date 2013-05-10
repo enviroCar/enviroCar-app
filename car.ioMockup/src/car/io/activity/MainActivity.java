@@ -1,4 +1,4 @@
-package car.io.activitys;
+package car.io.activity;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -139,15 +139,15 @@ public class MainActivity<AndroidAlarmService> extends
 		View rootView = findViewById(R.id.pager_title_strip);
 		TYPEFACE.applyCustomFont((ViewGroup) rootView, TYPEFACE.Newscycle(this));
 
-		addTab("List", ListMeasurementsFragment.class,
-				MyData.createBundle("Overview"));
+		addTab("Meine Fahrten", ListMeasurementsFragment.class,
+				MyData.createBundle("Meine Fahrten"));
 		addTab("OBD", OBDFrament.class, MyData.createBundle("Overview"));
-		addTab("Dashboard", DashboardFragment.class,
-				MyData.createBundle("Dashboard"));
+		addTab("Überblick", DashboardFragment.class,
+				MyData.createBundle("Überblick"));
 		// addTab( "Friends", MyData.class, MyData.createBundle( "Fragment 3")
 		// );
 
-		setSelectedTab(1);
+		setSelectedTab(2);
 		// --------------------------
 		// --------------------------
 		// --------------------------

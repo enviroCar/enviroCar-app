@@ -1,4 +1,4 @@
-package car.io.activitys;
+package car.io.activity;
 
 import android.util.Log;
 import android.view.View;
@@ -142,7 +142,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 }
 
-// package car.io.activitys;
+// package car.io.activity;
 //
 // import java.io.IOException;
 // import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package car.io.activitys;
+package car.io.activity;
 
 import android.os.Bundle;
 import android.view.Gravity;

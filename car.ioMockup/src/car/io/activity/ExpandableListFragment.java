@@ -1,4 +1,4 @@
-package car.io.activitys;
+package car.io.activity;
 
 import com.actionbarsherlock.app.SherlockFragment;
 

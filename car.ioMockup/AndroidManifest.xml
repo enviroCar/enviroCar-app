@@ -39,17 +39,17 @@
 
         <!-- android:theme="@style/AppTheme" -->
         <activity
-            android:name="car.io.activitys.CheckListActivity"
+            android:name="car.io.activity.CheckListActivity"
             android:label="@string/activity_checklist_title"
-            android:parentActivityName="car.io.activitys.MainActivity" >
+            android:parentActivityName="car.io.activity.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="car.io.activitys.MainActivity" />
+                android:value="car.io.activity.MainActivity" />
         </activity>
         <activity
-            android:name="car.io.activitys.MainActivity"
+            android:name="car.io.activity.MainActivity"
             android:label="@string/app_name"
-            android:parentActivityName="car.io.activitys.MainActivity" >
+            android:parentActivityName="car.io.activity.MainActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -57,24 +57,24 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="car.io.activitys.SettingsActivity"
+            android:name="car.io.activity.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="car.io.activitys.MainActivity" >
+            android:parentActivityName="car.io.activity.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="car.io.activitys.MainActivity" />
+                android:value="car.io.activity.MainActivity" />
         </activity>
         <activity
-            android:name="car.io.activitys.LoginActivity"
+            android:name="car.io.activity.LoginActivity"
             android:label="@string/title_activity_login"
-            android:parentActivityName="car.io.activitys.MainActivity"
+            android:parentActivityName="car.io.activity.MainActivity"
             android:windowSoftInputMode="adjustResize|stateVisible" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="car.io.activitys.MainActivity" />
+                android:value="car.io.activity.MainActivity" />
         </activity>
         <activity
-            android:name="car.io.activitys.MeasurementDisplay"
+            android:name="car.io.activity.MeasurementDisplay"
             android:label="@string/app_name" >
         </activity>
 

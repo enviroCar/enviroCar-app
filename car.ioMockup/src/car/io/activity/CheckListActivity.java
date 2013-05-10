@@ -1,4 +1,4 @@
-package car.io.activitys;
+package car.io.activity;
 
 import android.content.Intent;
 import android.os.Bundle;

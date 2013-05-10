@@ -1,4 +1,4 @@
-package car.io.activitys;
+package car.io.activity;
 
 import java.util.ArrayList;
 import java.util.List;
