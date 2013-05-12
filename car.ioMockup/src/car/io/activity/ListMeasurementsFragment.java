@@ -1,5 +1,6 @@
 package car.io.activity;
 
+import android.content.Intent;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -94,6 +95,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 					@Override
 					public void onClick(View v) {
+						Intent intent = new Intent(getActivity().getApplicationContext(), Map.class);
+						startActivity(intent);
 						Log.i("bla","bla");
 						
 					}});
@@ -229,7 +232,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 // *
 // * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
 // */
-// //TODO MEnü
+// //TODO MEnï¿½
 // /*
 // @Override
 // public boolean onOptionsItemSelected(MenuItem item) {
