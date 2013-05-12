@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginRight="16dp" >
+    android:layout_height="match_parent" >
 
-     <Button
-         android:id="@+id/track_delete"
+    <Button
+        android:id="@+id/track_delete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
         android:background="@drawable/content_discard" />
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -20,7 +20,8 @@
 
     <TableLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:layout_marginLeft="4dp" >
 
         <TableRow
             android:layout_width="match_parent"
@@ -31,14 +32,33 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="2dp"
-                android:text="Auto:" >
+                android:text="Auto:"
+                android:textSize="18sp" >
             </TextView>
 
             <TextView
                 android:id="@+id/track_details_car_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginRight="2dp" >
+                android:layout_marginRight="2dp"
+                android:textSize="18sp" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/track_details_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="2dp"
+                android:text="Fahrzeit:"
+                android:textSize="18sp" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/track_details_duration_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="2dp"
+                android:textSize="18sp" >
             </TextView>
         </TableRow>
 
@@ -51,14 +71,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="2dp"
-                android:text="Startzeit:" >
+                android:text="Startzeit:"
+                android:textSize="18sp" >
             </TextView>
 
             <TextView
                 android:id="@+id/track_details_start_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginRight="2dp" >
+                android:layout_marginRight="2dp"
+                android:textSize="18sp" >
             </TextView>
 
             <TextView
@@ -66,29 +88,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="2dp"
-                android:text="Endzeit:" >
+                android:text="Endzeit:"
+                android:textSize="18sp" >
             </TextView>
 
             <TextView
                 android:id="@+id/track_details_end_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginRight="2dp" >
-            </TextView>
-
-            <TextView
-                android:id="@+id/track_details_duration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:layout_marginRight="2dp"
-                android:text="Fahrzeit:" >
-            </TextView>
-
-            <TextView
-                android:id="@+id/track_details_duration_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginRight="2dp" >
+                android:textSize="18sp" >
             </TextView>
         </TableRow>
 
@@ -101,14 +110,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="2dp"
-                android:text="Länge:" >
+                android:text="Länge:"
+                android:textSize="18sp" >
             </TextView>
 
             <TextView
                 android:id="@+id/track_details_length_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginRight="2dp" >
+                android:layout_marginRight="2dp"
+                android:textSize="18sp" >
             </TextView>
 
             <TextView
@@ -116,14 +127,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="2dp"
-                android:text="CO\u2082-Ausstoß:" >
+                android:text="CO\u2082-Ausstoß:"
+                android:textSize="18sp" >
             </TextView>
 
             <TextView
                 android:id="@+id/track_details_co2_textview"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginRight="2dp" >
+                android:layout_marginRight="2dp"
+                android:textSize="18sp" >
             </TextView>
         </TableRow>
     </TableLayout>

@@ -3,19 +3,19 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft" >
-
+    
     <TextView
         android:id="@+id/track_name_textview"
         android:layout_width="match_parent"
-        android:layout_height="32dp"
+        android:layout_height="48dp"
         android:ellipsize="marquee"
         android:freezesText="true"
         android:gravity="center_vertical"
         android:marqueeRepeatLimit="marquee_forever"
         android:scrollHorizontally="true"
         android:singleLine="true"
-        android:textSize="18sp"
-        android:paddingRight="32dp" >
+        android:textSize="22sp"
+        android:paddingRight="48dp" >
     </TextView>
 
     <Button

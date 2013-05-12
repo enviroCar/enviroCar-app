@@ -10,6 +10,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import car.io.R;
 import car.io.views.RoundProgress;
+import car.io.views.TYPEFACE;
 
 import com.actionbarsherlock.app.SherlockFragment;
 
@@ -61,6 +62,8 @@ public class DashboardFragment extends SherlockFragment {
 
 			}
 		});
+		
+		TYPEFACE.applyCustomFont((ViewGroup)view, TYPEFACE.Newscycle(getActivity()));
 
 	}
 

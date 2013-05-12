@@ -148,6 +148,8 @@ public class MainActivity<AndroidAlarmService> extends
 		// );
 
 		setSelectedTab(2);
+		
+
 		// --------------------------
 		// --------------------------
 		// --------------------------
