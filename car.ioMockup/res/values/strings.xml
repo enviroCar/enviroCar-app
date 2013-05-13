@@ -45,5 +45,9 @@
     <string name="title_activity_map">Driven route</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
+    <string name="name">Name</string>
+    <string name="messages">Nachrichten</string>
+    <string name="performance">Leistung</string>
+    <string name="auto">Auto</string>
 
 </resources>
