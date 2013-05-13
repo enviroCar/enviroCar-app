@@ -142,13 +142,13 @@ public class MainActivity<AndroidAlarmService> extends
 		addTab("Meine Fahrten", ListMeasurementsFragment.class,
 				MyData.createBundle("Meine Fahrten"));
 		addTab("OBD", OBDFrament.class, MyData.createBundle("Overview"));
-		addTab("Überblick", DashboardFragment.class,
-				MyData.createBundle("Überblick"));
+		addTab("Ueberblick", DashboardFragment.class,
+				MyData.createBundle("Ueberblick"));
+		addTab("Freunde", ListFriends.class, MyData.createBundle("Freunde"));
 		// addTab( "Friends", MyData.class, MyData.createBundle( "Fragment 3")
 		// );
 
 		setSelectedTab(2);
-		
 
 		// --------------------------
 		// --------------------------
