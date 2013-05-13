@@ -42,7 +42,7 @@
     <string name="currentCO2">Current Co2 Emissions</string>
     <string name="drivingStyleRating">Driving Style Rating</string>
     <string name="moneySpent">Money spent for this trip</string>
-    <string name="title_activity_map">Driven route</string>
+    <string name="title_activity_map">Gefahrene Route</string>
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="name">Name</string>
