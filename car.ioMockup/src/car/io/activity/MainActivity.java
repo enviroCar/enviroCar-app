@@ -138,17 +138,19 @@ public class MainActivity<AndroidAlarmService> extends
 		}
 		View rootView = findViewById(R.id.pager_title_strip);
 		TYPEFACE.applyCustomFont((ViewGroup) rootView, TYPEFACE.Newscycle(this));
+		
+		actionBar.setLogo(getResources().getDrawable(R.drawable.home_icon));
 
-		addTab("Meine Fahrten", ListMeasurementsFragment.class,
-				MyData.createBundle("Meine Fahrten"));
-		addTab("OBD", OBDFrament.class, MyData.createBundle("Overview"));
-		addTab("Ueberblick", DashboardFragment.class,
-				MyData.createBundle("Ueberblick"));
-		addTab("Freunde", ListFriends.class, MyData.createBundle("Freunde"));
+		addTab("My Tracks", ListMeasurementsFragment.class,
+				MyData.createBundle("My Tracks"));
+		//addTab("OBD", OBDFrament.class, MyData.createBundle("Overview"));
+		addTab("Overview", DashboardFragment.class,
+				MyData.createBundle("Overview"));
+		addTab("Friends", ListFriends.class, MyData.createBundle("Friends"));
 		// addTab( "Friends", MyData.class, MyData.createBundle( "Fragment 3")
 		// );
 
-		setSelectedTab(2);
+		setSelectedTab(1);
 
 		// --------------------------
 		// --------------------------
