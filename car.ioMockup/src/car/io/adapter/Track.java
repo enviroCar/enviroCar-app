@@ -103,4 +103,12 @@ public class Track {
 		return "FuelType";
 	}
 
+	public void addMeasurement(Measurement measurement) {
+		this.measurements.add(measurement);
+	}
+
+	public int getNumberOfMeasurements() {
+		return this.measurements.size();
+	}
+
 }
