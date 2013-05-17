@@ -48,29 +48,31 @@ public class MeasurementAdapterLocal implements MeasurementAdapter {
 				.valueOf(measurement.getLongitude())));
 		nameValuePairs.add(new BasicNameValuePair("measurement_time", String
 				.valueOf(measurement.getMeasurementTime())));
-		nameValuePairs.add(new BasicNameValuePair("throttle_position", String
-				.valueOf(measurement.getThrottlePosition())));
+		// nameValuePairs.add(new BasicNameValuePair("throttle_position", String
+		// .valueOf(measurement.getThrottlePosition())));
 		nameValuePairs.add(new BasicNameValuePair("rpm", String
 				.valueOf(measurement.getRpm())));
 		nameValuePairs.add(new BasicNameValuePair("speed", String
 				.valueOf(measurement.getSpeed())));
-		nameValuePairs.add(new BasicNameValuePair("fuel_type", measurement
-				.getFuelType()));
-		nameValuePairs.add(new BasicNameValuePair("engine_load", String
-				.valueOf(measurement.getEngineLoad())));
+		// nameValuePairs.add(new BasicNameValuePair("fuel_type", measurement
+		// .getFuelType()));
+		// nameValuePairs.add(new BasicNameValuePair("engine_load", String
+		// .valueOf(measurement.getEngineLoad())));
 		nameValuePairs.add(new BasicNameValuePair("fuel_consumption", String
 				.valueOf(measurement.getFuelConsumption())));
-		nameValuePairs.add(new BasicNameValuePair("intake_pressure", String
-				.valueOf(measurement.getIntakePressure())));
-		nameValuePairs.add(new BasicNameValuePair("intake_temperature", String
-				.valueOf(measurement.getIntakeTemperature())));
-		nameValuePairs.add(new BasicNameValuePair("short_term_trim_bank_1",
-				String.valueOf(measurement.getShortTermTrimBank1())));
-		nameValuePairs.add(new BasicNameValuePair("long_term_trim_bank_1",
-				String.valueOf(measurement.getLongTermTrimBank1())));
+		// nameValuePairs.add(new BasicNameValuePair("intake_pressure", String
+		// .valueOf(measurement.getIntakePressure())));
+		// nameValuePairs.add(new BasicNameValuePair("intake_temperature",
+		// String
+		// .valueOf(measurement.getIntakeTemperature())));
+		// nameValuePairs.add(new BasicNameValuePair("short_term_trim_bank_1",
+		// String.valueOf(measurement.getShortTermTrimBank1())));
+		// nameValuePairs.add(new BasicNameValuePair("long_term_trim_bank_1",
+		// String.valueOf(measurement.getLongTermTrimBank1())));
 		nameValuePairs.add(new BasicNameValuePair("maf", String
 				.valueOf(measurement.getMaf())));
-		nameValuePairs.add(new BasicNameValuePair("car", measurement.getCar()));
+		// nameValuePairs.add(new BasicNameValuePair("car",
+		// measurement.getCar()));
 
 		httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 

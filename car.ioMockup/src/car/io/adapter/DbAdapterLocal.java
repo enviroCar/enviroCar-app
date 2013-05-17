@@ -25,18 +25,20 @@ public class DbAdapterLocal implements DbAdapter {
 	public static final String KEY_LONGITUDE = "longitude";
 	public static final String KEY_LATITUDE = "latitude";
 	public static final String KEY_ROWID = "_id";
-	public static final String KEY_THROTTLE = "throttle_position";
+	// public static final String KEY_THROTTLE = "throttle_position";
 	public static final String KEY_RPM = "rpm";
 	public static final String KEY_SPEED = "speed";
-	public static final String KEY_FUELTYPE = "fuel_type";
-	public static final String KEY_ENGINELOAD = "engine_load";
-	public static final String KEY_FUELCONSUMPTION = "fuel_consumption";
-	public static final String KEY_INTAKEPRESSURE = "intake_pressure";
-	public static final String KEY_INTAKETEMPERATURE = "intake_temperature";
-	public static final String KEY_SHORTTERMTRIMBANK1 = "short_term_trim_bank_1";
-	public static final String KEY_LONGTERMTRIMBANK1 = "long_term_trim_bank_1";
+	// public static final String KEY_FUELTYPE = "fuel_type";
+	// public static final String KEY_ENGINELOAD = "engine_load";
+	// public static final String KEY_FUELCONSUMPTION = "fuel_consumption";
+	// public static final String KEY_INTAKEPRESSURE = "intake_pressure";
+	// public static final String KEY_INTAKETEMPERATURE = "intake_temperature";
+	// public static final String KEY_SHORTTERMTRIMBANK1 =
+	// "short_term_trim_bank_1";
+	// public static final String KEY_LONGTERMTRIMBANK1 =
+	// "long_term_trim_bank_1";
 	public static final String KEY_MAF = "maf";
-	public static final String KEY_CAR = "car";
+	// public static final String KEY_CAR = "car";
 
 	private DatabaseHelper mDbHelper;
 	private SQLiteDatabase mDb;
@@ -44,12 +46,12 @@ public class DbAdapterLocal implements DbAdapter {
 	// Database parameters
 
 	private static final String DATABASE_NAME = "obd2";
-	private static final int DATABASE_VERSION = 4;
+	private static final int DATABASE_VERSION = 5;
 	private static final String DATABASE_TABLE = "measurements";
 	private static final String DATABASE_CREATE = "create table measurements "
 			+ "(_id INTEGER primary key autoincrement, "
 			+ "latitude BLOB, "
-			+ "longitude BLOB, measurement_time BLOB, throttle_position BLOB, rpm BLOB, speed BLOB, fuel_type BLOB, engine_load BLOB, fuel_consumption BLOB, intake_pressure BLOB, intake_temperature BLOB, short_term_trim_bank_1 BLOB, long_term_trim_bank_1 BLOB, maf BLOB, car BLOB);";
+			+ "longitude BLOB, measurement_time BLOB,  rpm BLOB, speed BLOB, maf BLOB);";
 
 	private final Context mCtx;
 
@@ -107,22 +109,23 @@ public class DbAdapterLocal implements DbAdapter {
 		initialValues.put(KEY_LATITUDE, measurement.getLatitude());
 		initialValues.put(KEY_LONGITUDE, measurement.getLongitude());
 		initialValues.put(KEY_TIME, measurement.getMeasurementTime());
-		initialValues.put(KEY_THROTTLE, measurement.getThrottlePosition());
+		// initialValues.put(KEY_THROTTLE, measurement.getThrottlePosition());
 		initialValues.put(KEY_RPM, measurement.getRpm());
 		initialValues.put(KEY_SPEED, measurement.getSpeed());
-		initialValues.put(KEY_FUELTYPE, measurement.getFuelType());
-		initialValues.put(KEY_ENGINELOAD, measurement.getEngineLoad());
-		initialValues
-				.put(KEY_FUELCONSUMPTION, measurement.getFuelConsumption());
-		initialValues.put(KEY_INTAKEPRESSURE, measurement.getIntakePressure());
-		initialValues.put(KEY_INTAKETEMPERATURE,
-				measurement.getIntakeTemperature());
-		initialValues.put(KEY_SHORTTERMTRIMBANK1,
-				measurement.getShortTermTrimBank1());
-		initialValues.put(KEY_LONGTERMTRIMBANK1,
-				measurement.getLongTermTrimBank1());
+		// initialValues.put(KEY_FUELTYPE, measurement.getFuelType());
+		// initialValues.put(KEY_ENGINELOAD, measurement.getEngineLoad());
+		// initialValues
+		// .put(KEY_FUELCONSUMPTION, measurement.getFuelConsumption());
+		// initialValues.put(KEY_INTAKEPRESSURE,
+		// measurement.getIntakePressure());
+		// initialValues.put(KEY_INTAKETEMPERATURE,
+		// measurement.getIntakeTemperature());
+		// initialValues.put(KEY_SHORTTERMTRIMBANK1,
+		// measurement.getShortTermTrimBank1());
+		// initialValues.put(KEY_LONGTERMTRIMBANK1,
+		// measurement.getLongTermTrimBank1());
 		initialValues.put(KEY_MAF, measurement.getMaf());
-		initialValues.put(KEY_CAR, measurement.getCar());
+		// initialValues.put(KEY_CAR, measurement.getCar());
 
 		mDb.insert(DATABASE_TABLE, null, initialValues);
 	}
@@ -131,14 +134,9 @@ public class DbAdapterLocal implements DbAdapter {
 	public ArrayList<Measurement> getAllMeasurements() {
 		ArrayList<Measurement> allMeasurements = new ArrayList<Measurement>();
 
-		Cursor c = mDb.query(DATABASE_TABLE,
-				new String[] { KEY_ROWID, KEY_LATITUDE,
-						KEY_LONGITUDE, KEY_TIME, KEY_THROTTLE, KEY_RPM,
-						KEY_SPEED, KEY_FUELTYPE, KEY_ENGINELOAD,
-						KEY_FUELCONSUMPTION, KEY_INTAKEPRESSURE,
-						KEY_INTAKETEMPERATURE, KEY_SHORTTERMTRIMBANK1,
-						KEY_LONGTERMTRIMBANK1, KEY_MAF, KEY_CAR }, null, null,
-				null, null, null);
+		Cursor c = mDb.query(DATABASE_TABLE, new String[] { KEY_ROWID,
+				KEY_LATITUDE, KEY_LONGITUDE, KEY_TIME, KEY_RPM, KEY_SPEED,
+				KEY_MAF }, null, null, null, null, null);
 
 		c.moveToFirst();
 
@@ -148,39 +146,18 @@ public class DbAdapterLocal implements DbAdapter {
 			String lat = c.getString(1);
 			String lon = c.getString(2);
 			String time = c.getString(3);
-			String throttle = c.getString(4);
-			String rpm = c.getString(5);
-			String speed = c.getString(6);
-			String fuelType = c.getString(7);
-			String engineLoad = c.getString(8);
-			String fuelConsumption = c.getString(9);
-			String intakePressure = c.getString(10);
-			String intakeTemperature = c.getString(11);
-			String shortTermTrimBank1 = c.getString(12);
-			String longTermTrimBank1 = c.getString(13);
-			String maf = c.getString(14);
-			String car = c.getString(15);
+			String rpm = c.getString(4);
+			String speed = c.getString(5);
+			String maf = c.getString(6);
 
 			try {
 				Measurement measurement = new Measurement(Float.valueOf(lat),
 						Float.valueOf(lon));
 				measurement.setId(Integer.valueOf(row));
 				measurement.setMeasurementTime(Long.valueOf(time));
-				measurement.setThrottlePosition(Double.valueOf(throttle));
 				measurement.setRpm(Integer.valueOf(rpm));
 				measurement.setSpeed(Integer.valueOf(speed));
-				measurement.setFuelType(fuelType);
-				measurement.setEngineLoad(Double.valueOf(engineLoad));
-				measurement.setFuelConsumption(Double.valueOf(fuelConsumption));
-				measurement.setIntakePressure(Integer.valueOf(intakePressure));
-				measurement.setIntakeTemperature(Integer
-						.valueOf(intakeTemperature));
-				measurement.setShortTermTrimBank1(Double
-						.valueOf(shortTermTrimBank1));
-				measurement.setLongTermTrimBank1(Double
-						.valueOf(longTermTrimBank1));
 				measurement.setMaf(Double.valueOf(maf));
-				measurement.setCar(car);
 
 				allMeasurements.add(measurement);
 			} catch (LocationInvalidException e) {
@@ -221,7 +198,5 @@ public class DbAdapterLocal implements DbAdapter {
 		return allMeasurements.size();
 
 	}
-
-	
 
 }

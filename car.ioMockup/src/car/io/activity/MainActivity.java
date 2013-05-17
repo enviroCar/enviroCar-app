@@ -138,12 +138,12 @@ public class MainActivity<AndroidAlarmService> extends
 		}
 		View rootView = findViewById(R.id.pager_title_strip);
 		TYPEFACE.applyCustomFont((ViewGroup) rootView, TYPEFACE.Newscycle(this));
-		
+
 		actionBar.setLogo(getResources().getDrawable(R.drawable.home_icon));
 
 		addTab("My Tracks", ListMeasurementsFragment.class,
 				MyData.createBundle("My Tracks"));
-		//addTab("OBD", OBDFrament.class, MyData.createBundle("Overview"));
+		// addTab("OBD", OBDFrament.class, MyData.createBundle("Overview"));
 		addTab("Overview", DashboardFragment.class,
 				MyData.createBundle("Overview"));
 		addTab("Friends", ListFriends.class, MyData.createBundle("Friends"));
@@ -294,119 +294,119 @@ public class MainActivity<AndroidAlarmService> extends
 
 				// Short Term Trim Bank 1
 
-				else if (commandName.equals("Short Term Fuel Trim Bank 1")) {
-					// TextView shortTermTrimTextView = (TextView)
-					// findViewById(R.id.shortTrimText);
-					String shortTermTrimBank1 = commandResult;
-					// shortTermTrimTextView.setText("Short Term Trim: "
-					// + shortTermTrimBank1 + " %");
-
-					try {
-						NumberFormat format = NumberFormat
-								.getInstance(Locale.GERMAN);
-						Number number;
-						number = format.parse(shortTermTrimBank1);
-						shortTermTrimBank1Measurement = number.doubleValue();
-					} catch (ParseException e) {
-						Log.e("obd2", "parse exception short term");
-						e.printStackTrace();
-					} catch (java.text.ParseException e) {
-						Log.e("obd2", "parse exception short term");
-						e.printStackTrace();
-					}
-				}
+				// else if (commandName.equals("Short Term Fuel Trim Bank 1")) {
+				// // TextView shortTermTrimTextView = (TextView)
+				// // findViewById(R.id.shortTrimText);
+				// String shortTermTrimBank1 = commandResult;
+				// // shortTermTrimTextView.setText("Short Term Trim: "
+				// // + shortTermTrimBank1 + " %");
+				//
+				// try {
+				// NumberFormat format = NumberFormat
+				// .getInstance(Locale.GERMAN);
+				// Number number;
+				// number = format.parse(shortTermTrimBank1);
+				// shortTermTrimBank1Measurement = number.doubleValue();
+				// } catch (ParseException e) {
+				// Log.e("obd2", "parse exception short term");
+				// e.printStackTrace();
+				// } catch (java.text.ParseException e) {
+				// Log.e("obd2", "parse exception short term");
+				// e.printStackTrace();
+				// }
+				// }
 
 				// Long Term Trim Bank 1
 
-				else if (commandName.equals("Long Term Fuel Trim Bank 1")) {
-					// TextView longTermTrimTextView = (TextView)
-					// findViewById(R.id.longTrimText);
-					String longTermTrimBank1 = commandResult;
-					// longTermTrimTextView.setText("Long Term Trim: "
-					// + longTermTrimBank1 + " %");
-
-					try {
-						NumberFormat format = NumberFormat
-								.getInstance(Locale.GERMAN);
-						Number number;
-						number = format.parse(longTermTrimBank1);
-						longTermTrimBank1Measurement = number.doubleValue();
-					} catch (ParseException e) {
-						Log.e("obd2", "parse exception long term");
-						e.printStackTrace();
-					} catch (java.text.ParseException e) {
-						Log.e("obd2", "parse exception long term");
-						e.printStackTrace();
-					}
-				}
+				// else if (commandName.equals("Long Term Fuel Trim Bank 1")) {
+				// // TextView longTermTrimTextView = (TextView)
+				// // findViewById(R.id.longTrimText);
+				// String longTermTrimBank1 = commandResult;
+				// // longTermTrimTextView.setText("Long Term Trim: "
+				// // + longTermTrimBank1 + " %");
+				//
+				// try {
+				// NumberFormat format = NumberFormat
+				// .getInstance(Locale.GERMAN);
+				// Number number;
+				// number = format.parse(longTermTrimBank1);
+				// longTermTrimBank1Measurement = number.doubleValue();
+				// } catch (ParseException e) {
+				// Log.e("obd2", "parse exception long term");
+				// e.printStackTrace();
+				// } catch (java.text.ParseException e) {
+				// Log.e("obd2", "parse exception long term");
+				// e.printStackTrace();
+				// }
+				// }
 
 				// Intake Temperature
 
-				else if (commandName.equals("Air Intake Temperature")) {
-					// TextView intakeTempTextView = (TextView)
-					// findViewById(R.id.intakeTempText);
-					String intakeTemperature = commandResult;
-					// intakeTempTextView.setText("Intake Temp: "
-					// + intakeTemperature + " C");
-					try {
-						intakeTemperatureMeasurement = Integer
-								.valueOf(intakeTemperature);
-					} catch (NumberFormatException e) {
-						Log.e("obd2", "intake temp parse exception");
-						e.printStackTrace();
-					}
-
-				}
+				// else if (commandName.equals("Air Intake Temperature")) {
+				// // TextView intakeTempTextView = (TextView)
+				// // findViewById(R.id.intakeTempText);
+				// String intakeTemperature = commandResult;
+				// // intakeTempTextView.setText("Intake Temp: "
+				// // + intakeTemperature + " C");
+				// try {
+				// intakeTemperatureMeasurement = Integer
+				// .valueOf(intakeTemperature);
+				// } catch (NumberFormatException e) {
+				// Log.e("obd2", "intake temp parse exception");
+				// e.printStackTrace();
+				// }
+				//
+				// }
 
 				// Throttle Position
 
-				else if (commandName.equals("Throttle Position")) {
-					// TextView throttlePositionTextView = (TextView)
-					// findViewById(R.id.throttle);
-					String throttlePosition = commandResult;
-					// throttlePositionTextView.setText("T. Pos: "
-					// + throttlePosition + " %");
-
-					try {
-						NumberFormat format = NumberFormat
-								.getInstance(Locale.GERMAN);
-						Number number;
-						number = format.parse(throttlePosition);
-						throttlePositionMeasurement = number.doubleValue();
-					} catch (ParseException e) {
-						Log.e("obd2", "parse exception throttle");
-						e.printStackTrace();
-					} catch (java.text.ParseException e) {
-						Log.e("obd2", "parse exception throttle");
-						e.printStackTrace();
-					}
-
-				}
+				// else if (commandName.equals("Throttle Position")) {
+				// // TextView throttlePositionTextView = (TextView)
+				// // findViewById(R.id.throttle);
+				// String throttlePosition = commandResult;
+				// // throttlePositionTextView.setText("T. Pos: "
+				// // + throttlePosition + " %");
+				//
+				// try {
+				// NumberFormat format = NumberFormat
+				// .getInstance(Locale.GERMAN);
+				// Number number;
+				// number = format.parse(throttlePosition);
+				// throttlePositionMeasurement = number.doubleValue();
+				// } catch (ParseException e) {
+				// Log.e("obd2", "parse exception throttle");
+				// e.printStackTrace();
+				// } catch (java.text.ParseException e) {
+				// Log.e("obd2", "parse exception throttle");
+				// e.printStackTrace();
+				// }
+				//
+				// }
 
 				// Engine Load
 
-				else if (commandName.equals("Engine Load")) {
-					// TextView engineLoadTextView = (TextView)
-					// findViewById(R.id.engineLoadText);
-					String engineLoad = commandResult;
-					Log.e("obd2", "Engine Load: " + engineLoad);
-					// engineLoadTextView.setText("Engine load: " + engineLoad
-					// + " %");
-
-					try {
-						NumberFormat format = NumberFormat
-								.getInstance(Locale.GERMAN);
-						Number number;
-						number = format.parse(engineLoad);
-						engineLoadMeasurement = number.doubleValue();
-					} catch (ParseException e) {
-						Log.e("obd2", "parse exception load");
-						e.printStackTrace();
-					} catch (java.text.ParseException e) {
-						Log.e("obd2", "parse exception load");
-						e.printStackTrace();
-					}
-				}
+				// else if (commandName.equals("Engine Load")) {
+				// // TextView engineLoadTextView = (TextView)
+				// // findViewById(R.id.engineLoadText);
+				// String engineLoad = commandResult;
+				// Log.e("obd2", "Engine Load: " + engineLoad);
+				// // engineLoadTextView.setText("Engine load: " + engineLoad
+				// // + " %");
+				//
+				// try {
+				// NumberFormat format = NumberFormat
+				// .getInstance(Locale.GERMAN);
+				// Number number;
+				// number = format.parse(engineLoad);
+				// engineLoadMeasurement = number.doubleValue();
+				// } catch (ParseException e) {
+				// Log.e("obd2", "parse exception load");
+				// e.printStackTrace();
+				// } catch (java.text.ParseException e) {
+				// Log.e("obd2", "parse exception load");
+				// e.printStackTrace();
+				// }
+				// }
 
 				// MAF
 
@@ -433,22 +433,22 @@ public class MainActivity<AndroidAlarmService> extends
 
 				// Intake Pressure
 
-				else if (commandName.equals("Intake Manifold Pressure")) {
-					// TextView intakePressureTextView = (TextView)
-					// findViewById(R.id.intakeText);
-					String intakePressure = commandResult;
-					// intakePressureTextView.setText("Intake: " +
-					// intakePressure
-					// + "kPa");
-
-					try {
-						intakePressureMeasurement = Integer
-								.valueOf(intakePressure);
-					} catch (NumberFormatException e) {
-						Log.e("obd", "intake pressure parse exception");
-						e.printStackTrace();
-					}
-				}
+				// else if (commandName.equals("Intake Manifold Pressure")) {
+				// // TextView intakePressureTextView = (TextView)
+				// // findViewById(R.id.intakeText);
+				// String intakePressure = commandResult;
+				// // intakePressureTextView.setText("Intake: " +
+				// // intakePressure
+				// // + "kPa");
+				//
+				// try {
+				// intakePressureMeasurement = Integer
+				// .valueOf(intakePressure);
+				// } catch (NumberFormatException e) {
+				// Log.e("obd", "intake pressure parse exception");
+				// e.printStackTrace();
+				// }
+				// }
 
 				// Update and insert the measurement
 
@@ -516,23 +516,23 @@ public class MainActivity<AndroidAlarmService> extends
 	private void addCommandstoWaitinglist() {
 		final CommonCommand speed = new Speed();
 		final CommonCommand rpm = new RPM();
-		final CommonCommand ltft1 = new LongTermTrimBank1();
-		final CommonCommand stft1 = new ShortTermTrimBank1();
-		final CommonCommand throttle = new TPS();
-		final CommonCommand engineLoad = new EngineLoad();
+		// final CommonCommand ltft1 = new LongTermTrimBank1();
+		// final CommonCommand stft1 = new ShortTermTrimBank1();
+		// final CommonCommand throttle = new TPS();
+		// final CommonCommand engineLoad = new EngineLoad();
 		final CommonCommand maf = new MAF();
-		final CommonCommand intakePressure = new IntakePressure();
-		final CommonCommand intakeTemperature = new IntakeTemperature();
+		// final CommonCommand intakePressure = new IntakePressure();
+		// final CommonCommand intakeTemperature = new IntakeTemperature();
 
 		serviceConnector.addJobToWaitingList(speed);
 		serviceConnector.addJobToWaitingList(rpm);
-		serviceConnector.addJobToWaitingList(ltft1);
-		serviceConnector.addJobToWaitingList(throttle);
-		serviceConnector.addJobToWaitingList(engineLoad);
+		// serviceConnector.addJobToWaitingList(ltft1);
+		// serviceConnector.addJobToWaitingList(throttle);
+		// serviceConnector.addJobToWaitingList(engineLoad);
 		serviceConnector.addJobToWaitingList(maf);
-		serviceConnector.addJobToWaitingList(intakePressure);
-		serviceConnector.addJobToWaitingList(stft1);
-		serviceConnector.addJobToWaitingList(intakeTemperature);
+		// serviceConnector.addJobToWaitingList(intakePressure);
+		// serviceConnector.addJobToWaitingList(stft1);
+		// serviceConnector.addJobToWaitingList(intakeTemperature);
 	}
 
 	/**
@@ -563,19 +563,19 @@ public class MainActivity<AndroidAlarmService> extends
 
 				measurement.setSpeed(speedMeasurement);
 				measurement.setRpm(rpmMeasurement);
-				measurement.setThrottlePosition(throttlePositionMeasurement);
-				measurement.setEngineLoad(engineLoadMeasurement);
+				// measurement.setThrottlePosition(throttlePositionMeasurement);
+				// measurement.setEngineLoad(engineLoadMeasurement);
 				measurement.setFuelConsumption(fuelConsumptionMeasurement);
-				measurement.setIntakePressure(intakePressureMeasurement);
-				measurement.setIntakeTemperature(intakeTemperatureMeasurement);
-				measurement
-						.setShortTermTrimBank1(shortTermTrimBank1Measurement);
-				measurement.setLongTermTrimBank1(longTermTrimBank1Measurement);
+				// measurement.setIntakePressure(intakePressureMeasurement);
+				// measurement.setIntakeTemperature(intakeTemperatureMeasurement);
+				// measurement
+				// .setShortTermTrimBank1(shortTermTrimBank1Measurement);
+				// measurement.setLongTermTrimBank1(longTermTrimBank1Measurement);
 				measurement.setMaf(mafMeasurement);
-				measurement.setFuelType(preferences.getString(PREF_FUEL_TPYE,
-						"Gasoline"));
-				measurement.setCar(preferences.getString(PREF_CAR_TYPE,
-						"Not specified"));
+				// measurement.setFuelType(preferences.getString(PREF_FUEL_TPYE,
+				// "Gasoline"));
+				// measurement.setCar(preferences.getString(PREF_CAR_TYPE,
+				// "Not specified"));
 				Log.e("obd2", "new measurement");
 				Log.e("obd2", measurement.toString());
 

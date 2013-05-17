@@ -17,18 +17,11 @@ public class Measurement {
 	private float latitude;
 	private float longitude;
 	private long measurementTime;
-	private double throttlePosition;
 	private int rpm;
 	private int speed;
-	private String fuelType;
-	private double engineLoad;
 	private double fuelConsumption;
-	private int intakePressure;
-	private int intakeTemperature;
-	private double shortTermTrimBank1;
-	private double longTermTrimBank1;
 	private double maf;
-	private String car;
+	private double co2;
 
 	/**
 	 * Create a new measurement. Latitude AND longitude are not allowed to both
@@ -54,55 +47,6 @@ public class Measurement {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		return "Measurement [id=" + id + ", latitude=" + latitude
-				+ ", longitude=" + longitude + ", measurementTime="
-				+ measurementTime + ", throttlePosition=" + throttlePosition
-				+ ", rpm=" + rpm + ", speed=" + speed + ", fuelType="
-				+ fuelType + ", engineLoad=" + engineLoad
-				+ ", fuelConsumption=" + fuelConsumption + ", intakePressure="
-				+ intakePressure + ", intakeTemperature=" + intakeTemperature
-				+ ", shortTermTrimBank1=" + shortTermTrimBank1
-				+ ", longTermTrimBank1=" + longTermTrimBank1 + ", maf=" + maf
-				+ ", car=" + car + "]";
-	}
-
-	/**
-	 * @return the car
-	 */
-	public String getCar() {
-		return car;
-	}
-
-	/**
-	 * @param car
-	 *            the car to set
-	 */
-	public void setCar(String car) {
-		this.car = car;
-	}
-
-	/**
-	 * @return the engineLoad
-	 */
-	public double getEngineLoad() {
-		return engineLoad;
-	}
-
-	/**
-	 * @param engineLoad
-	 *            the engineLoad to set
-	 */
-	public void setEngineLoad(double engineLoad) {
-		this.engineLoad = engineLoad;
-	}
-
 	/**
 	 * @return the fuelConsumption
 	 */
@@ -119,71 +63,14 @@ public class Measurement {
 	}
 
 	/**
-	 * @return the intakePressure
-	 */
-	public int getIntakePressure() {
-		return intakePressure;
-	}
-
-	/**
-	 * @param intakePressure
-	 *            the intakePressure to set
-	 */
-	public void setIntakePressure(int intakePressure) {
-		this.intakePressure = intakePressure;
-	}
-
-	/**
-	 * @return the intakeTemperature
-	 */
-	public int getIntakeTemperature() {
-		return intakeTemperature;
-	}
-
-	/**
-	 * @param intakeTemperature
-	 *            the intakeTemperature to set
-	 */
-	public void setIntakeTemperature(int intakeTemperature) {
-		this.intakeTemperature = intakeTemperature;
-	}
-
-	/**
-	 * @return the shortTermTrimBank1
-	 */
-	public double getShortTermTrimBank1() {
-		return shortTermTrimBank1;
-	}
-
-	/**
-	 * @param shortTermTrimBank1
-	 *            the shortTermTrimBank1 to set
-	 */
-	public void setShortTermTrimBank1(double shortTermTrimBank1) {
-		this.shortTermTrimBank1 = shortTermTrimBank1;
-	}
-
-	/**
-	 * @return the longTermTrimBank1
-	 */
-	public double getLongTermTrimBank1() {
-		return longTermTrimBank1;
-	}
-
-	/**
-	 * @param longTermTrimBank1
-	 *            the longTermTrimBank1 to set
-	 */
-	public void setLongTermTrimBank1(double longTermTrimBank1) {
-		this.longTermTrimBank1 = longTermTrimBank1;
-	}
-
-	/**
 	 * @return the maf
 	 */
 	public double getMaf() {
 		return maf;
 	}
+
+	// TODO the setmaf method should automatically set the fuel con and co2
+	// values!
 
 	/**
 	 * @param maf
@@ -254,21 +141,6 @@ public class Measurement {
 	}
 
 	/**
-	 * @return the throttlePosition
-	 */
-	public double getThrottlePosition() {
-		return throttlePosition;
-	}
-
-	/**
-	 * @param throttlePosition
-	 *            the throttlePosition to set
-	 */
-	public void setThrottlePosition(double throttlePosition) {
-		this.throttlePosition = throttlePosition;
-	}
-
-	/**
 	 * @return the rpm
 	 */
 	public int getRpm() {
@@ -299,18 +171,18 @@ public class Measurement {
 	}
 
 	/**
-	 * @return the fuelType
+	 * @return the co2
 	 */
-	public String getFuelType() {
-		return fuelType;
+	public double getCo2() {
+		return co2;
 	}
 
 	/**
-	 * @param fuelType
-	 *            the fuelType to set
+	 * @param co2
+	 *            the co2 to set
 	 */
-	public void setFuelType(String fuelType) {
-		this.fuelType = fuelType;
+	public void setCo2(double co2) {
+		this.co2 = co2;
 	}
 
 }

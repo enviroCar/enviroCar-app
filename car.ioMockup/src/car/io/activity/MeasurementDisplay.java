@@ -27,18 +27,18 @@ public class MeasurementDisplay extends Activity {
 	private TextView latitudeTextView;
 	private TextView longitudeTextView;
 	private TextView measurementTimeTextView;
-	private TextView throttlePositionTextView;
+	// private TextView throttlePositionTextView;
 	private TextView rpmTextView;
 	private TextView speedTextView;
-	private TextView fuelTypeTextView;
-	private TextView engineLoadTextView;
+	// private TextView fuelTypeTextView;
+	// private TextView engineLoadTextView;
 	private TextView fuelConsumptionTextView;
-	private TextView intakePressureTextView;
-	private TextView intakeTemperatureTextView;
-	private TextView shortTermTrimBank1TextView;
-	private TextView longTermTrimBank1TextView;
+	// private TextView intakePressureTextView;
+	// private TextView intakeTemperatureTextView;
+	// private TextView shortTermTrimBank1TextView;
+	// private TextView longTermTrimBank1TextView;
 	private TextView mafTextView;
-	private TextView carTextView;
+	// private TextView carTextView;
 
 	// The measurement
 
@@ -89,18 +89,24 @@ public class MeasurementDisplay extends Activity {
 		latitudeTextView = (TextView) findViewById(R.id.latitudeTextDisplay);
 		longitudeTextView = (TextView) findViewById(R.id.longitudeTextDisplay);
 		measurementTimeTextView = (TextView) findViewById(R.id.measurementTimeTextDisplay);
-		throttlePositionTextView = (TextView) findViewById(R.id.throttlePositionTextDisplay);
+		// throttlePositionTextView = (TextView)
+		// findViewById(R.id.throttlePositionTextDisplay);
 		rpmTextView = (TextView) findViewById(R.id.rpmTextDisplay);
 		speedTextView = (TextView) findViewById(R.id.speedTextDisplay);
-		fuelTypeTextView = (TextView) findViewById(R.id.fuelTypeTextDisplay);
-		engineLoadTextView = (TextView) findViewById(R.id.engineLoadTextDisplay);
+		// fuelTypeTextView = (TextView) findViewById(R.id.fuelTypeTextDisplay);
+		// engineLoadTextView = (TextView)
+		// findViewById(R.id.engineLoadTextDisplay);
 		fuelConsumptionTextView = (TextView) findViewById(R.id.fuelConsumptionTextDisplay);
-		intakePressureTextView = (TextView) findViewById(R.id.intakePressureTextDisplay);
-		intakeTemperatureTextView = (TextView) findViewById(R.id.intakeTemperatureTextDisplay);
-		shortTermTrimBank1TextView = (TextView) findViewById(R.id.shortTermTrimBank1TextDisplay);
-		longTermTrimBank1TextView = (TextView) findViewById(R.id.longTermTrimBank1TextDisplay);
+		// intakePressureTextView = (TextView)
+		// findViewById(R.id.intakePressureTextDisplay);
+		// intakeTemperatureTextView = (TextView)
+		// findViewById(R.id.intakeTemperatureTextDisplay);
+		// shortTermTrimBank1TextView = (TextView)
+		// findViewById(R.id.shortTermTrimBank1TextDisplay);
+		// longTermTrimBank1TextView = (TextView)
+		// findViewById(R.id.longTermTrimBank1TextDisplay);
 		mafTextView = (TextView) findViewById(R.id.mafTextDisplay);
-		carTextView = (TextView) findViewById(R.id.carTextDisplay);
+		// carTextView = (TextView) findViewById(R.id.carTextDisplay);
 
 		// Set properties
 
@@ -109,25 +115,25 @@ public class MeasurementDisplay extends Activity {
 		longitudeTextView.setText("Longitude: " + measurement.getLongitude());
 		Date date = new Date(measurement.getMeasurementTime());
 		measurementTimeTextView.setText("Time: " + date.toString());
-		throttlePositionTextView.setText("Throttle Position: "
-				+ measurement.getThrottlePosition() + "%");
+		// throttlePositionTextView.setText("Throttle Position: "
+		// + measurement.getThrottlePosition() + "%");
 		rpmTextView.setText("RPM: " + measurement.getRpm());
 		speedTextView.setText("Speed: " + measurement.getSpeed() + "km/h");
-		fuelTypeTextView.setText("Fuel Type: " + measurement.getFuelType());
-		engineLoadTextView.setText("Engine Load: "
-				+ measurement.getEngineLoad() + " %");
+		// fuelTypeTextView.setText("Fuel Type: " + measurement.getFuelType());
+		// engineLoadTextView.setText("Engine Load: "
+		// + measurement.getEngineLoad() + " %");
 		fuelConsumptionTextView.setText("Fuel Consumption: "
 				+ measurement.getFuelConsumption() + " l/h");
-		intakePressureTextView.setText("Intake Pressure: "
-				+ measurement.getIntakePressure() + " kPa");
-		intakeTemperatureTextView.setText("Intake Temperature: "
-				+ measurement.getIntakeTemperature() + "°C");
-		shortTermTrimBank1TextView.setText("Short Term Trim Bank 1: "
-				+ measurement.getShortTermTrimBank1() + " %");
-		longTermTrimBank1TextView.setText("Long Term Trim Bank 1: "
-				+ measurement.getLongTermTrimBank1() + " %");
+		// intakePressureTextView.setText("Intake Pressure: "
+		// + measurement.getIntakePressure() + " kPa");
+		// intakeTemperatureTextView.setText("Intake Temperature: "
+		// + measurement.getIntakeTemperature() + "°C");
+		// shortTermTrimBank1TextView.setText("Short Term Trim Bank 1: "
+		// + measurement.getShortTermTrimBank1() + " %");
+		// longTermTrimBank1TextView.setText("Long Term Trim Bank 1: "
+		// + measurement.getLongTermTrimBank1() + " %");
 		mafTextView.setText("MAF: " + measurement.getMaf() + " g/s");
-		carTextView.setText(measurement.getCar());
+		// carTextView.setText(measurement.getCar());
 
 	}
 
