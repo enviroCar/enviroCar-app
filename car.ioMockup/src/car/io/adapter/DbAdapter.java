@@ -33,13 +33,22 @@ public interface DbAdapter {
 	 */
 
 	public void insertMeasurement(Measurement measurement);
+	
+	/**
+	 * Inserts a track into the database
+	 * 
+	 * @param track
+	 *            The track that should be inserted
+	 * @return the id of the track that has been inserted
+	 */
+	public long insertTrack(Track track);
 
 	/**
 	 * Returns all measurements as an ArrayList<Measurement>
 	 * 
 	 * @return All measurements in an ArrayList
 	 */
-	public ArrayList<Measurement> getAllMeasurements();
+	public ArrayList<Track> getAllTracks();
 
 	/**
 	 * Returns one measurement specified by the id
@@ -48,17 +57,17 @@ public interface DbAdapter {
 	 *            The id of the measurement that should be returned
 	 * @return The desired measurement
 	 */
-	public Measurement getMeasurement(int id);
+	public Track getTrack(String id);
 
 	/**
 	 * Deletes all measurements in the measurements database
 	 */
 
-	public void deleteAllMeasurements();
+	public void deleteAllTracks();
 
 	/**
 	 * Returns the number of stored measurements in the SQLite database
 	 */
-	public int getNumberOfStoredMeasurements();
+	public int getNumberOfStoredTracks();
 
 }

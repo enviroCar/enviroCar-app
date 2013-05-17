@@ -125,6 +125,7 @@ public class BackgroundService extends Service {
 		addCommandToWaitingList(new LineFeedOff());
 		addCommandToWaitingList(new Timeout(62));
 		addCommandToWaitingList(new SelectAutoProtocol());
+		//TODO implement VIN
 
 		// Service is running..
 		isTheServiceRunning.set(true);

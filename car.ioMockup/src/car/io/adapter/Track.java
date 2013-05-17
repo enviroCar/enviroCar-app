@@ -4,12 +4,45 @@ import java.util.ArrayList;
 
 public class Track {
 
-	private int id;
+	private String id;
 	private String name;
 	private String description;
 	private ArrayList<Measurement> measurements;
 	private String carManufacturer;
 	private String carModel;
+	private String vin;
+	private String fuelType;
+
+	private DbAdapter dbAdapter;
+
+	/**
+	 * Constructor for creating a Track from the Database
+	 */
+	public Track(String id) {
+		this.id = id;
+		this.name = "";
+		this.description = "";
+		this.carManufacturer = "";
+		this.carModel = "";
+		this.vin = "";
+		this.fuelType = "";
+		this.measurements = new ArrayList<Measurement>();
+	}
+
+	/**
+	 * Constructor for creating "fresh" new track
+	 */
+	public Track(String vin, String fuelType, DbAdapter dbAdapter) {
+		this.vin = vin;
+		this.name = "heute"; // TODO current date
+		this.description = "";
+		this.carManufacturer = ""; // TODO decode vin
+		this.carModel = "";
+		this.fuelType = fuelType;
+		this.measurements = new ArrayList<Measurement>();
+
+		id = String.valueOf(dbAdapter.insertTrack(this));
+	}
 
 	/**
 	 * @return the name
@@ -98,14 +131,22 @@ public class Track {
 			return 999999999;
 	}
 
-	// TODO Implement this with shared prefs
-
-	public String getFuelType() {
-		return "FuelType";
+	public void insertMeasurement(ArrayList<Measurement> measurements) {
+		this.measurements = measurements;
 	}
 
+	/**
+	 * Use this method only to insert "fresh" measurements, not to recreate a
+	 * Track from the database Use
+	 * {@code insertMeasurement(ArrayList<Measurement> measurements)} instead
+	 * Inserts measurments into the Track and into the database!
+	 * 
+	 * @param measurement
+	 */
 	public void addMeasurement(Measurement measurement) {
+		measurement.setTrack(this);
 		this.measurements.add(measurement);
+		dbAdapter.insertMeasurement(measurement);
 	}
 
 	public int getNumberOfMeasurements() {
@@ -115,15 +156,32 @@ public class Track {
 	/**
 	 * @return the id
 	 */
-	public int getId() {
+	public String getId() {
 		return id;
 	}
 
 	/**
-	 * @param id the id to set
+	 * @param id
+	 *            the id to set
 	 */
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
+	}
+
+	public String getVin() {
+		return vin;
+	}
+
+	public void setVin(String vin) {
+		this.vin = vin;
+	}
+
+	public void setFuelType(String fuelType) {
+		this.fuelType = fuelType;
+	}
+
+	public String getFuelType() {
+		return fuelType;
 	}
 
 }
