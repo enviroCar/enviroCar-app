@@ -193,6 +193,8 @@ public class DbAdapterLocal implements DbAdapter {
 		t.setFuelType(c.getString(4));
 		t.setVin(c.getString(5));
 		
+		c.close();
+		
 		t.insertMeasurement(getAllMeasurementsForTrack(t));
 		return t;
 	}
@@ -221,9 +223,26 @@ public class DbAdapterLocal implements DbAdapter {
 		initialValues.put(KEY_TRACK_CAR_MANUFACTURER, track.getCarManufacturer());
 		initialValues.put(KEY_TRACK_CAR_MODEL, track.getCarModel());
 		initialValues.put(KEY_TRACK_FUEL_TYPE, track.getFuelType());
-		initialValues.put(KEY_TRACK_VIN, track.getVIN());
+		initialValues.put(KEY_TRACK_VIN, track.getVin());
 
 		return mDb.insert(DATABASE_TABLE_TRACKS, null, initialValues);
+	}
+
+	@Override
+	public ArrayList<Track> getAllTracks() {
+		ArrayList<Track> tracks = new ArrayList<Track>();
+		
+		Cursor c = mDb.query(DATABASE_TABLE_TRACKS, new String[] { 
+				KEY_ROWID}, null, null, null, null, null);
+
+		c.moveToFirst();
+		
+		for (int i = 0; i < c.getCount(); i++) {
+			tracks.add(getTrack(c.getString(0)));
+		}
+		c.close();
+		
+		return tracks;
 	}
 
 }
