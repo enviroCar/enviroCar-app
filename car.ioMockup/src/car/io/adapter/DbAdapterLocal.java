@@ -45,7 +45,7 @@ public class DbAdapterLocal implements DbAdapter {
 	// Database parameters
 
 	private static final String DATABASE_NAME = "obd2";
-	private static final int DATABASE_VERSION = 5;
+	private static final int DATABASE_VERSION = 6;
 	private static final String DATABASE_TABLE = "measurements";
 	private static final String DATABASE_TABLE_TRACKS = "tracks";
 	private static final String DATABASE_CREATE = "create table measurements "
@@ -55,7 +55,7 @@ public class DbAdapterLocal implements DbAdapter {
 	private static final String DATABASE_CREATE_TRACK = "create table tracks"
 			+" (_id INTEGER primary key autoincrement, "
 			+"name BLOB, "
-			+"description BLOB, "
+			+"descr BLOB, "
 			+"car_manufacturer BLOB, "
 			+"car_model BLOB, "
 			+"fuel_type BLOB, "

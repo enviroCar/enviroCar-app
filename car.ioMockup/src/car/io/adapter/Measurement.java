@@ -17,7 +17,6 @@ public class Measurement {
 	private float latitude;
 	private float longitude;
 	private long measurementTime;
-	private int rpm;
 	private int speed;
 	private double maf;
 	private Track track;
@@ -43,6 +42,8 @@ public class Measurement {
 			this.latitude = latitude;
 			this.longitude = longitude;
 			this.measurementTime = System.currentTimeMillis();
+			this.speed = 0;
+			this.maf = 0.0;
 		} else {
 			throw new LocationInvalidException();
 		}
@@ -129,21 +130,6 @@ public class Measurement {
 	 */
 	public void setMeasurementTime(long measurementTime) {
 		this.measurementTime = measurementTime;
-	}
-
-	/**
-	 * @return the rpm
-	 */
-	public int getRpm() {
-		return rpm;
-	}
-
-	/**
-	 * @param rpm
-	 *            the rpm to set
-	 */
-	public void setRpm(int rpm) {
-		this.rpm = rpm;
 	}
 
 	/**

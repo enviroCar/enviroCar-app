@@ -2,6 +2,8 @@ package car.io.adapter;
 
 import java.util.ArrayList;
 
+import android.util.Log;
+
 public class Track {
 
 	private String id;
@@ -40,7 +42,7 @@ public class Track {
 		this.carModel = "";
 		this.fuelType = fuelType;
 		this.measurements = new ArrayList<Measurement>();
-
+		this.dbAdapter = dbAdapter;
 		id = String.valueOf(dbAdapter.insertTrack(this));
 	}
 
@@ -144,9 +146,12 @@ public class Track {
 	 * @param measurement
 	 */
 	public void addMeasurement(Measurement measurement) {
-		measurement.setTrack(this);
+	//	Log.i("this",this.getClass()+"");
+		measurement.setTrack(Track.this);
 		this.measurements.add(measurement);
-		dbAdapter.insertMeasurement(measurement);
+		dbAdapter.
+		insertMeasurement(
+				measurement);
 	}
 
 	public int getNumberOfMeasurements() {

@@ -29,6 +29,7 @@ import car.io.R;
 import car.io.adapter.DbAdapter;
 import car.io.adapter.DbAdapterLocal;
 import car.io.adapter.Measurement;
+import car.io.adapter.Track;
 import car.io.commands.CommonCommand;
 import car.io.commands.EngineLoad;
 import car.io.commands.IntakePressure;
@@ -155,6 +156,10 @@ public class MainActivity<AndroidAlarmService> extends
 		// --------------------------
 		// --------------------------
 		// --------------------------
+		
+		
+		
+
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		locationLatitudeTextView = (TextView) findViewById(R.id.latitudeText);
@@ -216,7 +221,7 @@ public class MainActivity<AndroidAlarmService> extends
 
 				Log.e("obd2", "pre uploading");
 
-				if (dbAdapter.getNumberOfStoredMeasurements() > 50) {
+				/*if (dbAdapter.getNumberOfStoredMeasurements() > 50) {
 					if (uploadOnlyInWlan == true) {
 						if (mWifi.isConnected()) {
 							// TODO: upload
@@ -226,7 +231,7 @@ public class MainActivity<AndroidAlarmService> extends
 						// TODO: upload
 						Log.e("obd2", "uploading");
 					}
-				}
+				}*/
 
 			}
 		}, 0, 10, TimeUnit.MINUTES);
@@ -508,6 +513,28 @@ public class MainActivity<AndroidAlarmService> extends
 	 * }
 	 */
 
+	private void testMethode() {
+		Track track = new Track("vinnie", "Kartoffeln", dbAdapter);
+		
+		dbAdapter.deleteAllTracks();
+		
+		try {
+			Measurement m1 = new Measurement(51.4f, 7.6f);
+			Measurement m2 = new Measurement(53.3f, 6.3f);
+			
+			m1.setMaf(5.5);
+			m2.setMaf(5.7);
+			Log.i("m1",(dbAdapter == null)+"");
+			track.addMeasurement(m1);
+			track.addMeasurement(m2);
+		} catch (LocationInvalidException e) {
+			e.printStackTrace();
+		}
+		
+		Log.i("wurst",dbAdapter.getNumberOfStoredTracks()+"");
+		
+	}
+
 	// -----------------------------------------------------------
 	/**
 	 * Helper method that adds the desired commands to the waiting list where
@@ -562,7 +589,6 @@ public class MainActivity<AndroidAlarmService> extends
 					- System.currentTimeMillis()) < 5000) {
 
 				measurement.setSpeed(speedMeasurement);
-				measurement.setRpm(rpmMeasurement);
 				// measurement.setThrottlePosition(throttlePositionMeasurement);
 				// measurement.setEngineLoad(engineLoadMeasurement);
 				// measurement.setFuelConsumption(fuelConsumptionMeasurement);
@@ -672,7 +698,9 @@ public class MainActivity<AndroidAlarmService> extends
 
 		initDbAdapter();
 
-		// doTests();
+		//---TESTMETHODE
+		testMethode();
+		//---TESTMETHODE
 
 		// Update preferences
 

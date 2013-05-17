@@ -50,8 +50,6 @@ public class MeasurementAdapterLocal implements MeasurementAdapter {
 				.valueOf(measurement.getMeasurementTime())));
 		// nameValuePairs.add(new BasicNameValuePair("throttle_position", String
 		// .valueOf(measurement.getThrottlePosition())));
-		nameValuePairs.add(new BasicNameValuePair("rpm", String
-				.valueOf(measurement.getRpm())));
 		nameValuePairs.add(new BasicNameValuePair("speed", String
 				.valueOf(measurement.getSpeed())));
 		// nameValuePairs.add(new BasicNameValuePair("fuel_type", measurement
