@@ -38,6 +38,7 @@ public class DbAdapterLocal implements DbAdapter {
 	// public static final String KEY_LONGTERMTRIMBANK1 =
 	// "long_term_trim_bank_1";
 	public static final String KEY_MAF = "maf";
+	public static final String KEY_TRACK = "track";
 	// public static final String KEY_CAR = "car";
 
 	private DatabaseHelper mDbHelper;
@@ -51,7 +52,7 @@ public class DbAdapterLocal implements DbAdapter {
 	private static final String DATABASE_CREATE = "create table measurements "
 			+ "(_id INTEGER primary key autoincrement, "
 			+ "latitude BLOB, "
-			+ "longitude BLOB, measurement_time BLOB,  rpm BLOB, speed BLOB, maf BLOB);";
+			+ "longitude BLOB, measurement_time BLOB,  rpm BLOB, speed BLOB, maf BLOB, track BLOB);";
 
 	private final Context mCtx;
 
@@ -125,6 +126,8 @@ public class DbAdapterLocal implements DbAdapter {
 		// initialValues.put(KEY_LONGTERMTRIMBANK1,
 		// measurement.getLongTermTrimBank1());
 		initialValues.put(KEY_MAF, measurement.getMaf());
+		initialValues.put(KEY_TRACK,
+				String.valueOf(measurement.getTrack().getId()));
 		// initialValues.put(KEY_CAR, measurement.getCar());
 
 		mDb.insert(DATABASE_TABLE, null, initialValues);
@@ -136,7 +139,7 @@ public class DbAdapterLocal implements DbAdapter {
 
 		Cursor c = mDb.query(DATABASE_TABLE, new String[] { KEY_ROWID,
 				KEY_LATITUDE, KEY_LONGITUDE, KEY_TIME, KEY_RPM, KEY_SPEED,
-				KEY_MAF }, null, null, null, null, null);
+				KEY_MAF, KEY_TRACK }, null, null, null, null, null);
 
 		c.moveToFirst();
 
@@ -149,6 +152,7 @@ public class DbAdapterLocal implements DbAdapter {
 			String rpm = c.getString(4);
 			String speed = c.getString(5);
 			String maf = c.getString(6);
+			String track = c.getString(7);
 
 			try {
 				Measurement measurement = new Measurement(Float.valueOf(lat),
@@ -158,6 +162,7 @@ public class DbAdapterLocal implements DbAdapter {
 				measurement.setRpm(Integer.valueOf(rpm));
 				measurement.setSpeed(Integer.valueOf(speed));
 				measurement.setMaf(Double.valueOf(maf));
+				// TODO: set track measurement.setTrack(track...);
 
 				allMeasurements.add(measurement);
 			} catch (LocationInvalidException e) {

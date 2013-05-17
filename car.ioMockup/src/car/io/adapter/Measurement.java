@@ -20,6 +20,7 @@ public class Measurement {
 	private int rpm;
 	private int speed;
 	private double maf;
+	private Track track;
 
 	/**
 	 * Create a new measurement. Latitude AND longitude are not allowed to both
@@ -33,6 +34,8 @@ public class Measurement {
 	 * @throws LocationInvalidException
 	 *             If latitude AND longitude equal 0.0
 	 */
+	
+	//TODO: set track with constructor?
 
 	public Measurement(float latitude, float longitude)
 			throws LocationInvalidException {
@@ -59,9 +62,6 @@ public class Measurement {
 	public double getMaf() {
 		return maf;
 	}
-
-	// TODO the setmaf method should automatically set the fuel con and co2
-	// values!
 
 	/**
 	 * @param maf
@@ -167,6 +167,20 @@ public class Measurement {
 	// TODO: implement this
 	public double getCo2() {
 		return 0.0;
+	}
+
+	/**
+	 * @return the track
+	 */
+	public Track getTrack() {
+		return track;
+	}
+
+	/**
+	 * @param track the track to set
+	 */
+	public void setTrack(Track track) {
+		this.track = track;
 	}
 
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class Track {
 
+	private int id;
 	private String name;
 	private String description;
 	private ArrayList<Measurement> measurements;
@@ -109,6 +110,20 @@ public class Track {
 
 	public int getNumberOfMeasurements() {
 		return this.measurements.size();
+	}
+
+	/**
+	 * @return the id
+	 */
+	public int getId() {
+		return id;
+	}
+
+	/**
+	 * @param id the id to set
+	 */
+	public void setId(int id) {
+		this.id = id;
 	}
 
 }
