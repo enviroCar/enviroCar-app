@@ -19,9 +19,7 @@ public class Measurement {
 	private long measurementTime;
 	private int rpm;
 	private int speed;
-	private double fuelConsumption;
 	private double maf;
-	private double co2;
 
 	/**
 	 * Create a new measurement. Latitude AND longitude are not allowed to both
@@ -47,19 +45,12 @@ public class Measurement {
 		}
 	}
 
+	// TODO: implement this
 	/**
 	 * @return the fuelConsumption
 	 */
 	public double getFuelConsumption() {
-		return fuelConsumption;
-	}
-
-	/**
-	 * @param fuelConsumption
-	 *            the fuelConsumption to set
-	 */
-	public void setFuelConsumption(double fuelConsumption) {
-		this.fuelConsumption = fuelConsumption;
+		return 0.0;
 	}
 
 	/**
@@ -173,16 +164,9 @@ public class Measurement {
 	/**
 	 * @return the co2
 	 */
+	// TODO: implement this
 	public double getCo2() {
-		return co2;
-	}
-
-	/**
-	 * @param co2
-	 *            the co2 to set
-	 */
-	public void setCo2(double co2) {
-		this.co2 = co2;
+		return 0.0;
 	}
 
 }

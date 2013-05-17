@@ -565,7 +565,7 @@ public class MainActivity<AndroidAlarmService> extends
 				measurement.setRpm(rpmMeasurement);
 				// measurement.setThrottlePosition(throttlePositionMeasurement);
 				// measurement.setEngineLoad(engineLoadMeasurement);
-				measurement.setFuelConsumption(fuelConsumptionMeasurement);
+				// measurement.setFuelConsumption(fuelConsumptionMeasurement);
 				// measurement.setIntakePressure(intakePressureMeasurement);
 				// measurement.setIntakeTemperature(intakeTemperatureMeasurement);
 				// measurement
