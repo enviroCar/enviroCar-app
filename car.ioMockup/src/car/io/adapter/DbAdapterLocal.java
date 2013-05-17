@@ -45,13 +45,13 @@ public class DbAdapterLocal implements DbAdapter {
 	// Database parameters
 
 	private static final String DATABASE_NAME = "obd2";
-	private static final int DATABASE_VERSION = 6;
+	private static final int DATABASE_VERSION = 8;
 	private static final String DATABASE_TABLE = "measurements";
 	private static final String DATABASE_TABLE_TRACKS = "tracks";
 	private static final String DATABASE_CREATE = "create table measurements "
 			+ "(_id INTEGER primary key autoincrement, "
 			+ "latitude BLOB, "
-			+ "longitude BLOB, measurement_time BLOB, speed BLOB, maf BLOB, track BLOB);";
+			+ "longitude BLOB, measurement_time BLOB, speed BLOB, maf BLOB, track TEXT);";
 	private static final String DATABASE_CREATE_TRACK = "create table tracks"
 			+" (_id INTEGER primary key autoincrement, "
 			+"name BLOB, "
@@ -132,10 +132,15 @@ public class DbAdapterLocal implements DbAdapter {
 	private ArrayList<Measurement> getAllMeasurementsForTrack(Track track) {
 		ArrayList<Measurement> allMeasurements = new ArrayList<Measurement>();
 		
-		
 		Cursor c = mDb.query(DATABASE_TABLE, new String[] { KEY_ROWID,
 				KEY_LATITUDE, KEY_LONGITUDE, KEY_TIME, KEY_SPEED,
-				KEY_MAF }, KEY_TRACK+ " = "+String.valueOf(track.getId()), null, null, null, KEY_TIME+" ASC");
+				KEY_MAF },
+				//null,
+				KEY_TRACK+ "="+String.valueOf(track.getId()),
+				null, null, null,
+				//null
+				KEY_TIME+" ASC"
+				);
 
 		c.moveToFirst();
 
@@ -207,9 +212,7 @@ public class DbAdapterLocal implements DbAdapter {
 
 	@Override
 	public int getNumberOfStoredTracks() {
-
 		ArrayList<Track> allTracks = getAllTracks();
-
 		return allTracks.size();
 
 	}
@@ -224,7 +227,7 @@ public class DbAdapterLocal implements DbAdapter {
 		initialValues.put(KEY_TRACK_CAR_MODEL, track.getCarModel());
 		initialValues.put(KEY_TRACK_FUEL_TYPE, track.getFuelType());
 		initialValues.put(KEY_TRACK_VIN, track.getVin());
-
+		
 		return mDb.insert(DATABASE_TABLE_TRACKS, null, initialValues);
 	}
 
@@ -232,8 +235,8 @@ public class DbAdapterLocal implements DbAdapter {
 	public ArrayList<Track> getAllTracks() {
 		ArrayList<Track> tracks = new ArrayList<Track>();
 		
-		Cursor c = mDb.query(DATABASE_TABLE_TRACKS, new String[] { 
-				KEY_ROWID}, null, null, null, null, null);
+		Cursor c = mDb.query(DATABASE_TABLE_TRACKS, null, null, null, null, null, null);
+		//Cursor c = mDb.rawQuery("SELECT * from \"tracks\"", null);
 
 		c.moveToFirst();
 		

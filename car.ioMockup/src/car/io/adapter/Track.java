@@ -37,9 +37,9 @@ public class Track {
 	public Track(String vin, String fuelType, DbAdapter dbAdapter) {
 		this.vin = vin;
 		this.name = "heute"; // TODO current date
-		this.description = "";
-		this.carManufacturer = ""; // TODO decode vin
-		this.carModel = "";
+		this.description = "nix";
+		this.carManufacturer = "hallo"; // TODO decode vin
+		this.carModel = "wurst"; 
 		this.fuelType = fuelType;
 		this.measurements = new ArrayList<Measurement>();
 		this.dbAdapter = dbAdapter;
@@ -149,9 +149,7 @@ public class Track {
 	//	Log.i("this",this.getClass()+"");
 		measurement.setTrack(Track.this);
 		this.measurements.add(measurement);
-		dbAdapter.
-		insertMeasurement(
-				measurement);
+		dbAdapter.insertMeasurement(measurement);
 	}
 
 	public int getNumberOfMeasurements() {

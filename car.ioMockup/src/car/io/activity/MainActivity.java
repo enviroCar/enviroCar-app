@@ -514,17 +514,16 @@ public class MainActivity<AndroidAlarmService> extends
 	 */
 
 	private void testMethode() {
-		Track track = new Track("vinnie", "Kartoffeln", dbAdapter);
-		
 		dbAdapter.deleteAllTracks();
-		
+		Track track = new Track("vinnie", "Kartoffeln", dbAdapter);
+
 		try {
 			Measurement m1 = new Measurement(51.4f, 7.6f);
 			Measurement m2 = new Measurement(53.3f, 6.3f);
 			
 			m1.setMaf(5.5);
 			m2.setMaf(5.7);
-			Log.i("m1",(dbAdapter == null)+"");
+
 			track.addMeasurement(m1);
 			track.addMeasurement(m2);
 		} catch (LocationInvalidException e) {
