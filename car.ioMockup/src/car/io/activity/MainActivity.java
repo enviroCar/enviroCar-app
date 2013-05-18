@@ -340,7 +340,7 @@ public class MainActivity<AndroidAlarmService> extends
 	 * Helper method that inits the DbAdapter
 	 */
 	private void initDbAdapter() {
-		dbAdapter = (DbAdapter) application.getDbAdapter();
+		dbAdapter = (DbAdapter) application.getDbAdapterLocal();
 	}
 
 	@Override
@@ -382,6 +382,8 @@ public class MainActivity<AndroidAlarmService> extends
 		// Update preferences
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		
+		application.downloadTracks();
 	}
 
 	/**

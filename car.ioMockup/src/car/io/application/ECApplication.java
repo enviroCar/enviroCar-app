@@ -6,18 +6,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import car.io.adapter.DbAdapter;
-import car.io.adapter.DbAdapterLocal;
-import car.io.adapter.Measurement;
-import car.io.adapter.Track;
-import car.io.commands.CommonCommand;
-import car.io.commands.MAF;
-import car.io.commands.RPM;
-import car.io.commands.Speed;
-import car.io.exception.LocationInvalidException;
-import car.io.obd.BackgroundService;
-import car.io.obd.Listener;
-import car.io.obd.ServiceConnector;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -26,15 +18,29 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ParseException;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
+import car.io.adapter.DbAdapter;
+import car.io.adapter.DbAdapterLocal;
+import car.io.adapter.DbAdapterRemote;
+import car.io.adapter.Measurement;
+import car.io.adapter.Track;
+import car.io.commands.CommonCommand;
+import car.io.commands.MAF;
+import car.io.commands.Speed;
+import car.io.exception.LocationInvalidException;
+import car.io.obd.BackgroundService;
+import car.io.obd.Listener;
+import car.io.obd.ServiceConnector;
 
 public class ECApplication extends Application implements LocationListener {
 
 	private static ECApplication singleton;
-	private DbAdapter dbAdapter;
+	private DbAdapter dbAdapterLocal;
+	private DbAdapter dbAdapterRemote;
 	private final ScheduledExecutorService scheduleTaskExecutor = Executors
 			.newScheduledThreadPool(1);
 	// get the default Bluetooth adapter
@@ -73,7 +79,7 @@ public class ECApplication extends Application implements LocationListener {
 		initBluetooth();
 		initLocationManager();
 
-		track = new Track("123456", "Gasoline", dbAdapter);
+		track = new Track("123456", "Gasoline", dbAdapterLocal); //TODO create track dynamically and from preferences
 
 		try {
 			measurement = new Measurement(locationLatitude, locationLongitude);
@@ -85,10 +91,14 @@ public class ECApplication extends Application implements LocationListener {
 	}
 
 	private void initDbAdapter() {
-		if (dbAdapter == null) {
-			dbAdapter = new DbAdapterLocal(this.getApplicationContext());
-			dbAdapter.open();
+		if (dbAdapterLocal == null) {
+			dbAdapterLocal = new DbAdapterLocal(this.getApplicationContext());
+			dbAdapterLocal.open();
 		}
+		if (dbAdapterRemote == null) {
+			dbAdapterRemote = new DbAdapterRemote(this.getApplicationContext());
+			dbAdapterRemote.open();
+		}		
 	}
 
 	private void initBluetooth() {
@@ -104,8 +114,40 @@ public class ECApplication extends Application implements LocationListener {
 		}
 	}
 
-	public DbAdapter getDbAdapter() {
-		return dbAdapter;
+	public void downloadTracks(){
+		AsyncTask<Void, Void, Void> downloadTracksTask = new AsyncTask<Void, Void, Void>(){
+
+			@Override
+			protected Void doInBackground(Void... params) {
+				String response = HttpRequest.get("http://giv-car.uni-muenster.de:8080/dev/rest/tracks").body();
+				Log.i("response",response);
+				try {
+					JSONObject j = new JSONObject(response);
+					JSONArray a = j.getJSONArray("tracks");
+					for(int i = 0; i<a.length(); i++){
+						String eachTrackResponse = HttpRequest.get(a.getJSONObject(i).getString("href")).body();
+						JSONObject trackJSON = new JSONObject(eachTrackResponse);
+						Track toInsert = new Track(trackJSON.getJSONObject("properties").getString("id"));
+						toInsert.setName(trackJSON.getJSONObject("properties").getString("name"));
+						Log.i("track from remote",toInsert.getId());
+						dbAdapterRemote.insertTrack(toInsert);
+					}
+					//Log.i("tracks",a.getJSONObject(0).getString("name"));
+
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				return null;
+			}
+			
+		};
+		downloadTracksTask.execute((Void)null);
+	}
+	
+	public DbAdapter getDbAdapterLocal() {
+		return dbAdapterLocal;
 	}
 	
 	public void stopLocating(){
@@ -372,6 +414,10 @@ public class ECApplication extends Application implements LocationListener {
 	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
 		// TODO Auto-generated method stub
 
+	}
+
+	public DbAdapter getDbAdapterRemote() {
+		return dbAdapterRemote;
 	}
 
 }
