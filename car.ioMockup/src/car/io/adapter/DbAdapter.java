@@ -16,13 +16,11 @@ public interface DbAdapter {
 	 * 
 	 * @return DbAdapter Object that can be used to call the other methods
 	 */
-
 	public DbAdapter open();
 
 	/**
 	 * Close the DB connection. Should be called when the app stops
 	 */
-
 	public void close();
 
 	/**
@@ -31,9 +29,8 @@ public interface DbAdapter {
 	 * @param measurement
 	 *            The measurement that should be inserted
 	 */
-
 	public void insertMeasurement(Measurement measurement);
-	
+
 	/**
 	 * Inserts a track into the database
 	 * 
@@ -44,29 +41,28 @@ public interface DbAdapter {
 	public long insertTrack(Track track);
 
 	/**
-	 * Returns all measurements as an ArrayList<Measurement>
+	 * Returns all tracks as an ArrayList<Track>
 	 * 
-	 * @return All measurements in an ArrayList
+	 * @return All tracks in an ArrayList
 	 */
 	public ArrayList<Track> getAllTracks();
 
 	/**
-	 * Returns one measurement specified by the id
+	 * Returns one track specified by the id
 	 * 
 	 * @param id
-	 *            The id of the measurement that should be returned
-	 * @return The desired measurement
+	 *            The id of the track that should be returned
+	 * @return The desired track
 	 */
 	public Track getTrack(String id);
 
 	/**
-	 * Deletes all measurements in the measurements database
+	 * Deletes all tracks and measurements in the database
 	 */
-
 	public void deleteAllTracks();
 
 	/**
-	 * Returns the number of stored measurements in the SQLite database
+	 * Returns the number of stored tracks in the SQLite database
 	 */
 	public int getNumberOfStoredTracks();
 

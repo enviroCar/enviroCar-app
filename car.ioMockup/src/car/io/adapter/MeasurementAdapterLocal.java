@@ -56,8 +56,8 @@ public class MeasurementAdapterLocal implements MeasurementAdapter {
 		// .getFuelType()));
 		// nameValuePairs.add(new BasicNameValuePair("engine_load", String
 		// .valueOf(measurement.getEngineLoad())));
-		nameValuePairs.add(new BasicNameValuePair("fuel_consumption", String
-				.valueOf(measurement.getFuelConsumption())));
+		// nameValuePairs.add(new BasicNameValuePair("fuel_consumption", String
+		// .valueOf(measurement.getFuelConsumption())));
 		// nameValuePairs.add(new BasicNameValuePair("intake_pressure", String
 		// .valueOf(measurement.getIntakePressure())));
 		// nameValuePairs.add(new BasicNameValuePair("intake_temperature",

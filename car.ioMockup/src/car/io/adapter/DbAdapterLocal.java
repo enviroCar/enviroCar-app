@@ -200,7 +200,7 @@ public class DbAdapterLocal implements DbAdapter {
 		
 		c.close();
 		
-		t.insertMeasurement(getAllMeasurementsForTrack(t));
+		t.setMeasurementsAsArrayList(getAllMeasurementsForTrack(t));
 		return t;
 	}
 

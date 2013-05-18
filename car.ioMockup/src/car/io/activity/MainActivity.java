@@ -1,6 +1,7 @@
 package car.io.activity;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -31,15 +32,10 @@ import car.io.adapter.DbAdapterLocal;
 import car.io.adapter.Measurement;
 import car.io.adapter.Track;
 import car.io.commands.CommonCommand;
-import car.io.commands.EngineLoad;
-import car.io.commands.IntakePressure;
-import car.io.commands.IntakeTemperature;
-import car.io.commands.LongTermTrimBank1;
 import car.io.commands.MAF;
 import car.io.commands.RPM;
-import car.io.commands.ShortTermTrimBank1;
 import car.io.commands.Speed;
-import car.io.commands.TPS;
+import car.io.exception.FuelConsumptionException;
 import car.io.exception.LocationInvalidException;
 import car.io.obd.BackgroundService;
 import car.io.obd.Listener;
@@ -156,10 +152,6 @@ public class MainActivity<AndroidAlarmService> extends
 		// --------------------------
 		// --------------------------
 		// --------------------------
-		
-		
-		
-
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		locationLatitudeTextView = (TextView) findViewById(R.id.latitudeText);
@@ -221,17 +213,12 @@ public class MainActivity<AndroidAlarmService> extends
 
 				Log.e("obd2", "pre uploading");
 
-				/*if (dbAdapter.getNumberOfStoredMeasurements() > 50) {
-					if (uploadOnlyInWlan == true) {
-						if (mWifi.isConnected()) {
-							// TODO: upload
-							Log.e("obd2", "uploading");
-						}
-					} else {
-						// TODO: upload
-						Log.e("obd2", "uploading");
-					}
-				}*/
+				/*
+				 * if (dbAdapter.getNumberOfStoredMeasurements() > 50) { if
+				 * (uploadOnlyInWlan == true) { if (mWifi.isConnected()) { //
+				 * TODO: upload Log.e("obd2", "uploading"); } } else { // TODO:
+				 * upload Log.e("obd2", "uploading"); } }
+				 */
 
 			}
 		}, 0, 10, TimeUnit.MINUTES);
@@ -514,24 +501,110 @@ public class MainActivity<AndroidAlarmService> extends
 	 */
 
 	private void testMethode() {
+
+		// TODO make this test method work completely
+
 		dbAdapter.deleteAllTracks();
-		Track track = new Track("vinnie", "Kartoffeln", dbAdapter);
+		Track track = new Track("123456", "Gasoline", dbAdapter);
+
+		track.setName("Testname");
+		track.setDescription("Testdescription");
+		track.setCarManufacturer("carManufacturer");
+		track.setCarModel("CarModel");
 
 		try {
 			Measurement m1 = new Measurement(51.4f, 7.6f);
 			Measurement m2 = new Measurement(53.3f, 6.3f);
-			
+
+			m1.setSpeed(100);
+			m2.setSpeed(200);
+
 			m1.setMaf(5.5);
 			m2.setMaf(5.7);
 
 			track.addMeasurement(m1);
 			track.addMeasurement(m2);
+
+			// for (Measurement measurement : track.getMeasurements()) {
+			// try {
+			// Log.i("obd2",
+			// "fuel con: "
+			// + track.getFuelConsumptionOfMeasurement(measurement
+			// .getId()));
+			// Log.i("obd2",
+			// "co2: "
+			// + track.getCO2EmissionOfMeasurement(measurement
+			// .getId()));
+			// } catch (FuelConsumptionException e) {
+			// // TODO Auto-generated catch block
+			// e.printStackTrace();
+			// }
+			// }
+
+			Log.i("obd2",
+					"Number of stored tracks: "
+							+ dbAdapter.getNumberOfStoredTracks());
+
+			ArrayList<Track> trackList = dbAdapter.getAllTracks();
+
+			for (Track t : trackList) {
+				Log.i("obd2", "TRACKS");
+				Log.i("obd2", "id: " + track.getId() + " ID: " + t.getId());
+				Log.i("obd2",
+						"name: " + track.getName() + " Name: " + t.getName());
+				Log.i("obd2",
+						"desc: " + track.getDescription() + " Desc: "
+								+ t.getDescription());
+				Log.i("obd2", "CMa: " + track.getCarManufacturer() + " CMa: "
+						+ t.getCarManufacturer());
+				Log.i("obd2",
+						"CMo: " + track.getCarModel() + " CMo: "
+								+ t.getCarModel());
+				Log.i("obd2", "VIN: " + track.getVin() + " VIN: " + t.getVin());
+				Log.i("obd2",
+						"FT: " + track.getFuelType() + " FT: "
+								+ t.getFuelType());
+				Measurement m3 = t.getMeasurements().get(0);
+				Measurement m4 = t.getMeasurements().get(1);
+				Log.i("obd2", "MEASUREMENTS");
+				Log.i("obd2", "m1 id: " + m1.getId() + " m3 id: " + m3.getId());
+				Log.i("obd2", "m2 id: " + m2.getId() + " m4 id: " + m4.getId());
+				Log.i("obd2",
+						"m1 lat: " + m1.getLatitude() + " m3 lat: "
+								+ m3.getLatitude());
+				Log.i("obd2",
+						"m2 lat: " + m2.getLatitude() + " m4 lat: "
+								+ m4.getLatitude());
+				Log.i("obd2",
+						"m1 lon: " + m1.getLongitude() + " m3 lon: "
+								+ m3.getLongitude());
+				Log.i("obd2",
+						"m2 lon: " + m2.getLongitude() + " m4 lon: "
+								+ m4.getLongitude());
+				Log.i("obd2", "m1 mt: " + m1.getMeasurementTime() + " m3 mt: "
+						+ m3.getMeasurementTime());
+				Log.i("obd2", "m2 mt: " + m2.getMeasurementTime() + " m4 mt: "
+						+ m4.getMeasurementTime());
+				Log.i("obd2",
+						"m1 speed: " + m1.getSpeed() + " m3 speed: "
+								+ m3.getSpeed());
+				Log.i("obd2",
+						"m2 speed: " + m2.getSpeed() + " m4 speed: "
+								+ m4.getSpeed());
+				Log.i("obd2",
+						"m1 maf: " + m1.getMaf() + " m3 maf: " + m3.getMaf());
+				Log.i("obd2",
+						"m2 maf: " + m2.getMaf() + " m4 maf: " + m4.getMaf());
+				Log.i("obd2", "m1 track: " + m1.getTrack().getId()
+						+ " m3 track: " + m3.getTrack().getId());
+				Log.i("obd2", "m2 track: " + m2.getTrack().getId()
+						+ " m4 track: " + m4.getTrack().getId());
+			}
+
 		} catch (LocationInvalidException e) {
 			e.printStackTrace();
 		}
-		
-		Log.i("wurst",dbAdapter.getNumberOfStoredTracks()+"");
-		
+
 	}
 
 	// -----------------------------------------------------------
@@ -697,9 +770,9 @@ public class MainActivity<AndroidAlarmService> extends
 
 		initDbAdapter();
 
-		//---TESTMETHODE
+		// ---TESTMETHODE
 		testMethode();
-		//---TESTMETHODE
+		// ---TESTMETHODE
 
 		// Update preferences
 

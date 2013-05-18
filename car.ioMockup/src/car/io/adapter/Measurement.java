@@ -33,8 +33,8 @@ public class Measurement {
 	 * @throws LocationInvalidException
 	 *             If latitude AND longitude equal 0.0
 	 */
-	
-	//TODO: set track with constructor?
+
+	// TODO: set track with constructor?
 
 	public Measurement(float latitude, float longitude)
 			throws LocationInvalidException {
@@ -47,14 +47,6 @@ public class Measurement {
 		} else {
 			throw new LocationInvalidException();
 		}
-	}
-
-	// TODO: implement this
-	/**
-	 * @return the fuelConsumption
-	 */
-	public double getFuelConsumption() {
-		return 0.0;
 	}
 
 	/**
@@ -148,14 +140,6 @@ public class Measurement {
 	}
 
 	/**
-	 * @return the co2
-	 */
-	// TODO: implement this
-	public double getCo2() {
-		return 0.0;
-	}
-
-	/**
 	 * @return the track
 	 */
 	public Track getTrack() {
@@ -163,7 +147,8 @@ public class Measurement {
 	}
 
 	/**
-	 * @param track the track to set
+	 * @param track
+	 *            the track to set
 	 */
 	public void setTrack(Track track) {
 		this.track = track;

@@ -2,7 +2,8 @@ package car.io.adapter;
 
 import java.util.ArrayList;
 
-import android.util.Log;
+import car.io.exception.FuelConsumptionException;
+import car.io.exception.MeasurementsException;
 
 public class Track {
 
@@ -18,7 +19,8 @@ public class Track {
 	private DbAdapter dbAdapter;
 
 	/**
-	 * Constructor for creating a Track from the Database
+	 * Constructor for creating a Track from the Database. Use this constructor
+	 * when you want to rebuild tracks from the database.
 	 */
 	public Track(String id) {
 		this.id = id;
@@ -32,19 +34,23 @@ public class Track {
 	}
 
 	/**
-	 * Constructor for creating "fresh" new track
+	 * Constructor for creating "fresh" new track. Use this for new measurements
+	 * that were captured from the OBD-II adapter.
 	 */
 	public Track(String vin, String fuelType, DbAdapter dbAdapter) {
 		this.vin = vin;
-		this.name = "heute"; // TODO current date
-		this.description = "nix";
-		this.carManufacturer = "hallo"; // TODO decode vin
-		this.carModel = "wurst"; 
+		this.name = ""; // TODO current date
+		this.description = "";
+		this.carManufacturer = ""; // TODO decode vin
+		this.carModel = "";
 		this.fuelType = fuelType;
 		this.measurements = new ArrayList<Measurement>();
 		this.dbAdapter = dbAdapter;
 		id = String.valueOf(dbAdapter.insertTrack(this));
 	}
+
+	// TODO: we need an update method that is called whenever a setter is
+	// called. This is also important for the measurements
 
 	/**
 	 * @return the name
@@ -113,27 +119,41 @@ public class Track {
 		return measurements;
 	}
 
-	// TODO throw exceptions here
-
-	public long getStartTime() {
+	/**
+	 * get the time where the track started
+	 * 
+	 * @return start time of track as unix long
+	 * @throws MeasurementsException
+	 */
+	public long getStartTime() throws MeasurementsException {
 		if (this.getMeasurements().size() > 0)
 			return this.getMeasurements().get(0).getMeasurementTime();
 		else
-			return 0;
+			throw new MeasurementsException("No measurements in the track");
 	}
 
-	// TODO throw exceptions here
-
-	public long getEndTime() {
+	/**
+	 * get the time where the track ended
+	 * 
+	 * @return end time of track as unix long
+	 * @throws MeasurementsException
+	 */
+	public long getEndTime() throws MeasurementsException {
 		if (this.getMeasurements().size() > 0)
 			return this.getMeasurements()
 					.get(this.getMeasurements().size() - 1)
 					.getMeasurementTime();
 		else
-			return 999999999;
+			throw new MeasurementsException("No measurements in the track");
 	}
 
-	public void insertMeasurement(ArrayList<Measurement> measurements) {
+	/**
+	 * Sets the measurements with an arraylist of measurements
+	 * 
+	 * @param measurements
+	 *            the measurements of a track
+	 */
+	public void setMeasurementsAsArrayList(ArrayList<Measurement> measurements) {
 		this.measurements = measurements;
 	}
 
@@ -146,12 +166,16 @@ public class Track {
 	 * @param measurement
 	 */
 	public void addMeasurement(Measurement measurement) {
-	//	Log.i("this",this.getClass()+"");
 		measurement.setTrack(Track.this);
 		this.measurements.add(measurement);
 		dbAdapter.insertMeasurement(measurement);
 	}
 
+	/**
+	 * Returns the number of measurements of this track
+	 * 
+	 * @return
+	 */
 	public int getNumberOfMeasurements() {
 		return this.measurements.size();
 	}
@@ -171,20 +195,91 @@ public class Track {
 		this.id = id;
 	}
 
+	/**
+	 * get the VIN
+	 * 
+	 * @return
+	 */
 	public String getVin() {
 		return vin;
 	}
 
+	/**
+	 * set the vin
+	 * 
+	 * @param vin
+	 */
 	public void setVin(String vin) {
 		this.vin = vin;
 	}
 
+	/**
+	 * set the fuel type
+	 * 
+	 * @param fuelType
+	 */
 	public void setFuelType(String fuelType) {
 		this.fuelType = fuelType;
 	}
 
+	/**
+	 * get the fuel type
+	 * 
+	 * @return
+	 */
 	public String getFuelType() {
 		return fuelType;
+	}
+
+	/**
+	 * Returns the fuel consumption for a measurement
+	 * 
+	 * @param measurement
+	 *            The measurement with the fuel consumption
+	 * @return The fuel consumption in l/s
+	 * @throws FuelConsumptionException
+	 */
+
+	public double getFuelConsumptionOfMeasurement(int measurement)
+			throws FuelConsumptionException {
+
+		// TODO make this in l/100km (include speed information)
+
+		Measurement m = getMeasurements().get(measurement);
+
+		double maf = m.getMaf();
+
+		if (this.fuelType.equals("Gasoline")) {
+			return (maf / 14.7) / 747;
+		} else if (this.fuelType.equals("Diesel")) {
+			return (maf / 14.5) / 832;
+		} else
+			throw new FuelConsumptionException();
+
+	}
+
+	/**
+	 * Returns the Co2 emission of a measurement
+	 * 
+	 * @param measurement
+	 * @return co2 emission in kg/s
+	 * @throws FuelConsumptionException
+	 */
+	public double getCO2EmissionOfMeasurement(int measurement)
+			throws FuelConsumptionException {
+
+		// TODO change unit to kg/km (include speed information)
+
+		double fuelCon;
+		fuelCon = getFuelConsumptionOfMeasurement(measurement);
+
+		if (this.fuelType.equals("Gasoline")) {
+			return fuelCon * 2.35;
+		} else if (this.fuelType.equals("Diesel")) {
+			return fuelCon * 2.65;
+		} else
+			throw new FuelConsumptionException();
+
 	}
 
 }
