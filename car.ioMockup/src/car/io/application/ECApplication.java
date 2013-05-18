@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import car.io.adapter.DbAdapter;
 import car.io.adapter.DbAdapterLocal;
 import car.io.adapter.Measurement;
+import car.io.adapter.Track;
 import car.io.commands.CommonCommand;
 import car.io.commands.MAF;
 import car.io.commands.RPM;
@@ -45,7 +46,7 @@ public class ECApplication extends Application implements LocationListener {
 	private Handler handler = new Handler();
 	private Listener listener = null;
 	private LocationManager locationManager;
-	
+
 	private float locationLatitude;
 	private float locationLongitude;
 	private int speedMeasurement;
@@ -53,28 +54,33 @@ public class ECApplication extends Application implements LocationListener {
 	private Measurement measurement = null;
 	private long lastInsertTime = 0;
 
+	private Track track;
+
 	private boolean requirementsFulfilled = true;
 
 	public ECApplication getInstance() {
 		return singleton;
 	}
 
-	public ServiceConnector getServiceConnector(){
+	public ServiceConnector getServiceConnector() {
 		return serviceConnector;
 	}
-	
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
 		initDbAdapter();
 		initBluetooth();
 		initLocationManager();
+
+		track = new Track("123456", "Gasoline", dbAdapter);
+
 		try {
 			measurement = new Measurement(locationLatitude, locationLongitude);
 		} catch (LocationInvalidException e) {
 			e.printStackTrace();
 		}
-		
+
 		singleton = this;
 	}
 
@@ -101,8 +107,8 @@ public class ECApplication extends Application implements LocationListener {
 	public DbAdapter getDbAdapter() {
 		return dbAdapter;
 	}
-	
-	public void startBackgroundService(){
+
+	public void startBackgroundService() {
 		if (requirementsFulfilled) {
 			Log.e("obd2", "requirements met");
 			backgroundService = new Intent(this, BackgroundService.class);
@@ -133,7 +139,7 @@ public class ECApplication extends Application implements LocationListener {
 		}, 0, 1, TimeUnit.MINUTES);
 	}
 
-	public void startListener(){
+	public void startListener() {
 		listener = new Listener() {
 
 			public void receiveUpdate(CommonCommand job) {
@@ -170,8 +176,6 @@ public class ECApplication extends Application implements LocationListener {
 					}
 				}
 
-	
-
 				// MAF
 
 				else if (commandName.equals("Mass Air Flow")) {
@@ -202,11 +206,11 @@ public class ECApplication extends Application implements LocationListener {
 
 		};
 	}
-	
-	public void stopServiceConnector(){
+
+	public void stopServiceConnector() {
 		scheduleTaskExecutor.shutdown();
 	}
-	
+
 	/**
 	 * Connects to the Bluetooth Adapter and starts the execution of the
 	 * commands
@@ -240,17 +244,19 @@ public class ECApplication extends Application implements LocationListener {
 			handler.postDelayed(waitingListRunnable, 2000);
 		}
 	};
+
 	/**
 	 * Helper method that adds the desired commands to the waiting list where
 	 * all commands are executed
 	 */
 	private void addCommandstoWaitinglist() {
-		final CommonCommand speed = new Speed(); //TODO take speed from location provider
+		final CommonCommand speed = new Speed(); // TODO take speed from
+													// location provider
 		final CommonCommand maf = new MAF();
 		serviceConnector.addJobToWaitingList(speed);
 		serviceConnector.addJobToWaitingList(maf);
 	}
-	
+
 	/**
 	 * Helper Command that updates the current measurement with the last
 	 * measurement data and inserts it into the database if the measurements is
@@ -295,6 +301,7 @@ public class ECApplication extends Application implements LocationListener {
 		}
 
 	}
+
 	/**
 	 * Helper method to insert a measurement into the database (ensures that a
 	 * measurement is only stored every 5 seconds and not faster...)
@@ -308,7 +315,9 @@ public class ECApplication extends Application implements LocationListener {
 
 			lastInsertTime = measurement2.getMeasurementTime();
 
-			dbAdapter.insertMeasurement(measurement2);
+			track.addMeasurement(measurement2);
+
+			Log.i("obd2", measurement2.toString());
 
 			Toast.makeText(getApplicationContext(), measurement2.toString(),
 					Toast.LENGTH_SHORT).show();
@@ -316,7 +325,7 @@ public class ECApplication extends Application implements LocationListener {
 		}
 
 	}
-	
+
 	/**
 	 * Init the location Manager
 	 */
@@ -328,8 +337,8 @@ public class ECApplication extends Application implements LocationListener {
 				0, this);
 
 	}
-	
-	public void destroyStuff(){
+
+	public void destroyStuff() {
 		backgroundService = null;
 		serviceConnector = null;
 		listener = null;
@@ -340,25 +349,25 @@ public class ECApplication extends Application implements LocationListener {
 	public void onLocationChanged(Location location) {
 		locationLatitude = (float) location.getLatitude();
 		locationLongitude = (float) location.getLongitude();
-		
+
 	}
 
 	@Override
 	public void onProviderDisabled(String arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onProviderEnabled(String arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
 		// TODO Auto-generated method stub
-		
-	}	
+
+	}
 
 }

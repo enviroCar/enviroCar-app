@@ -111,6 +111,8 @@ public abstract class CommonCommand {
 	/**
 	 * @return the raw command response in string representation.
 	 */
+	//TODO null pointer when car is off...
+	
 	public String getRawData() {
 		if (rawData.contains("SEARCHING") || rawData.contains("DATA")) {
 			rawData = "NODATA";

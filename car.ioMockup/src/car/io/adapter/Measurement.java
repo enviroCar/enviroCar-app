@@ -49,6 +49,21 @@ public class Measurement {
 		}
 	}
 
+	
+	
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Measurement [id=" + id + ", latitude=" + latitude
+				+ ", longitude=" + longitude + ", measurementTime="
+				+ measurementTime + ", speed=" + speed + ", maf=" + maf
+				+ ", track=" + track + "]";
+	}
+
+
+
 	/**
 	 * @return the maf
 	 */
