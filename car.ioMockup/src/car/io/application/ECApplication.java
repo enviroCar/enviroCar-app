@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
@@ -37,6 +38,9 @@ import car.io.obd.Listener;
 import car.io.obd.ServiceConnector;
 
 public class ECApplication extends Application implements LocationListener {
+	
+	
+	public static final String GET_TRACKS_URI = "http://giv-car.uni-muenster.de:8080/dev/rest/tracks";
 
 	private static ECApplication singleton;
 	private DbAdapter dbAdapterLocal;
@@ -119,16 +123,18 @@ public class ECApplication extends Application implements LocationListener {
 
 			@Override
 			protected Void doInBackground(Void... params) {
-				String response = HttpRequest.get("http://giv-car.uni-muenster.de:8080/dev/rest/tracks").body();
+				String response = HttpRequest.get(GET_TRACKS_URI).body();
 				Log.i("response",response);
 				try {
-					JSONObject j = new JSONObject(response);
-					JSONArray a = j.getJSONArray("tracks");
+					JSONObject tracksJSON = new JSONObject(response); //TODO reuse Objects to avoid GC
+					JSONArray a = tracksJSON.getJSONArray("tracks");
 					for(int i = 0; i<a.length(); i++){
+						//TODO skip tracks already in the database
 						String eachTrackResponse = HttpRequest.get(a.getJSONObject(i).getString("href")).body();
 						JSONObject trackJSON = new JSONObject(eachTrackResponse);
 						Track toInsert = new Track(trackJSON.getJSONObject("properties").getString("id"));
 						toInsert.setName(trackJSON.getJSONObject("properties").getString("name"));
+						
 						Log.i("track from remote",toInsert.getId());
 						dbAdapterRemote.insertTrack(toInsert);
 					}
