@@ -50,7 +50,7 @@ import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 public class MainActivity<AndroidAlarmService> extends
-		SwipeableFragmentActivity implements LocationListener {
+		SwipeableFragmentActivity {
 
 	private int actionBarTitleID = 0;
 	private ActionBar actionBar;
@@ -86,8 +86,6 @@ public class MainActivity<AndroidAlarmService> extends
 
 	// Adapter Classes
 
-	
-	private LocationManager locationManager;
 	private DbAdapter dbAdapter;
 
 	// Measurement values
@@ -96,9 +94,6 @@ public class MainActivity<AndroidAlarmService> extends
 	private float locationLongitude;
 	private int speedMeasurement;
 	private double mafMeasurement;
-
-
-
 
 	// Upload in Wlan
 
@@ -159,24 +154,26 @@ public class MainActivity<AndroidAlarmService> extends
 
 		// AutoConnect checkbox and service
 
-//		final CheckBox connectAutomatically = (CheckBox) this.findViewById(R.id.checkBox1);
-//
-//		connectAutomatically
-//				.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//
-//					@Override
-//					public void onCheckedChanged(CompoundButton buttonView,
-//							boolean isChecked) {
-//						if (connectAutomatically.isChecked()) { // Start Service
-//																// every minute
+		// final CheckBox connectAutomatically = (CheckBox)
+		// this.findViewById(R.id.checkBox1);
+		//
+		// connectAutomatically
+		// .setOnCheckedChangeListener(new
+		// CompoundButton.OnCheckedChangeListener() {
+		//
+		// @Override
+		// public void onCheckedChanged(CompoundButton buttonView,
+		// boolean isChecked) {
+		// if (connectAutomatically.isChecked()) { // Start Service
+		// // every minute
 
-							application.startServiceConnector();
-//						} else { // Stop Service
-							//application.stopServiceConnector();
-//						}
-//					}
-//
-//				});
+		application.startServiceConnector();
+		// } else { // Stop Service
+		// application.stopServiceConnector();
+		// }
+		// }
+		//
+		// });
 
 		// Toggle Button for WLan Upload
 		/*
@@ -219,18 +216,14 @@ public class MainActivity<AndroidAlarmService> extends
 			}
 		}, 0, 10, TimeUnit.MINUTES);
 
-
-
 		// Make a new listener to interpret the measurement values that are
 		// returned
 		Log.e("obd2", "init listener");
 		application.startListener();
 
-
 		// If everything is available, start the service connector and listener
 
 		application.startBackgroundService();
-		
 
 	}
 
@@ -338,15 +331,10 @@ public class MainActivity<AndroidAlarmService> extends
 		} catch (LocationInvalidException e) {
 			e.printStackTrace();
 		}
-		dbAdapter.deleteAllTracks();
+		//dbAdapter.deleteAllTracks();
 	}
 
 	// -----------------------------------------------------------
-
-
-
-
-
 
 	/**
 	 * Helper method that inits the DbAdapter
@@ -375,19 +363,15 @@ public class MainActivity<AndroidAlarmService> extends
 
 		// Stop GPS
 
-		locationManager.removeUpdates(this);
+		application.stopLocating();
 
 		// Close DB
 
 		dbAdapter.close();
 	}
 
-
-
 	protected void onResume() {
 		super.onResume();
-
-		
 
 		initDbAdapter();
 
@@ -399,19 +383,6 @@ public class MainActivity<AndroidAlarmService> extends
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 	}
-
-	// private void doTests() {
-	// try {
-	// Measurement testMeasurement = new Measurement(52.0f, 7.0f);
-	//
-	// testMeasurement.setEngineLoad(10.0);
-	//
-	// insertMeasurement(testMeasurement);
-	// } catch (LocationInvalidException e) {
-	// e.printStackTrace();
-	// }
-	//
-	// }
 
 	/**
 	 * Create the menu with the entries
@@ -479,32 +450,4 @@ public class MainActivity<AndroidAlarmService> extends
 
 		return true;
 	}
-
-
-
-	@Override
-	public void onLocationChanged(Location location) {
-		locationLatitude = (float) location.getLatitude();
-		locationLongitude = (float) location.getLongitude();
-	}
-
-	@Override
-	public void onProviderDisabled(String provider) {
-		Toast.makeText(getApplicationContext(), "Gps Disabled",
-				Toast.LENGTH_SHORT).show();
-
-	}
-
-	@Override
-	public void onProviderEnabled(String provider) {
-		Toast.makeText(getApplicationContext(), "Gps Enabled",
-				Toast.LENGTH_SHORT).show();
-
-	}
-
-	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras) {
-
-	}
-
 }

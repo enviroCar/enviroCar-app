@@ -10,15 +10,23 @@ import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 import car.io.R;
+import car.io.adapter.DbAdapter;
+import car.io.adapter.Track;
+import car.io.application.ECApplication;
 import car.io.views.TYPEFACE;
 
 import com.actionbarsherlock.app.SherlockFragment;
 
 public class ListMeasurementsFragment extends SherlockFragment {
+	
+	private DbAdapter dbAdapter;
 
 	public View onCreateView(android.view.LayoutInflater inflater,
 			android.view.ViewGroup container,
 			android.os.Bundle savedInstanceState) {
+		
+		dbAdapter = ((ECApplication) getActivity().getApplication()).getInstance().getDbAdapter();
+		
 		View v = inflater.inflate(R.layout.list_tracks_layout, null);
 		ExpandableListView elv = (ExpandableListView) v.findViewById(R.id.list);
 		elv.setAdapter(new TracksListAdapter());
@@ -27,9 +35,10 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		elv.setChildDivider(getResources().getDrawable(
 				android.R.color.transparent));
 	
-
+		
 		return v;
 	};
+	
 
 	public class TracksListAdapter extends BaseExpandableListAdapter {
 
@@ -48,7 +57,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 		@Override
 		public int getGroupCount() {
-			return groups.length;
+			return dbAdapter.getNumberOfStoredTracks();
 		}
 
 		@Override
@@ -58,12 +67,12 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 		@Override
 		public Object getGroup(int i) {
-			return groups[i];
+			return dbAdapter.getAllTracks().get(i);
 		}
 
 		@Override
 		public Object getChild(int i, int i1) {
-			return children[i][i1];
+			return dbAdapter.getAllTracks().get(i);
 		}
 
 		@Override
@@ -85,11 +94,12 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		public View getGroupView(int i, boolean b, View view,
 				ViewGroup viewGroup) {
 			if (view == null || view.getId() != 10000000 + i) {
+				Track currTrack = (Track) getGroup(i);
 				View groupRow = ViewGroup.inflate(getActivity(),
 						R.layout.list_tracks_group_layout, null);
 				TextView textView = (TextView) groupRow
 						.findViewById(R.id.track_name_textview);
-				textView.setText(getGroup(i).toString());
+				textView.setText(currTrack.getName());
 				Button button = (Button)groupRow.findViewById(R.id.track_name_go_to_map);
 				button.setOnClickListener(new OnClickListener() {
 
@@ -112,6 +122,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		public View getChildView(int i, int i1, boolean b, View view,
 				ViewGroup viewGroup) {
 			if (view == null || view.getId() != 10000100 + i+ i1) {
+				Track currTrack = (Track) getChild(i, i1);
 				View row = ViewGroup.inflate(getActivity(),
 						R.layout.list_tracks_item_layout, null);
 				TextView start = (TextView) row.findViewById(R.id.track_details_start_textview);
@@ -121,12 +132,17 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				TextView duration = (TextView) row.findViewById(R.id.track_details_duration_textview);
 				TextView co2 = (TextView) row.findViewById(R.id.track_details_co2_textview);
 				
-				start.setText(getChild(i, 0).toString());
-				end.setText(getChild(i, 1).toString());
-				duration.setText(getChild(i, 2).toString());
-				length.setText(getChild(i, 3).toString());
-				car.setText(getChild(i, 4).toString());
-				co2.setText(getChild(i, 5).toString());
+				try{
+					start.setText(currTrack.getStartTime()+"");
+					end.setText(currTrack.getEndTime()+"");
+					duration.setText((currTrack.getEndTime()-currTrack.getStartTime())+"");
+					length.setText("");
+					car.setText(currTrack.getCarManufacturer()+ " "+ currTrack.getCarModel());
+					co2.setText("");
+				}catch( Exception e) {
+					
+				}
+
 				
 				row.setId(10000100 + i+ i1);
 				TYPEFACE.applyCustomFont((ViewGroup) row,

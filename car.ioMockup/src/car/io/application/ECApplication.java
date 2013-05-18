@@ -107,6 +107,10 @@ public class ECApplication extends Application implements LocationListener {
 	public DbAdapter getDbAdapter() {
 		return dbAdapter;
 	}
+	
+	public void stopLocating(){
+		locationManager.removeUpdates(this);
+	}
 
 	public void startBackgroundService() {
 		if (requirementsFulfilled) {
