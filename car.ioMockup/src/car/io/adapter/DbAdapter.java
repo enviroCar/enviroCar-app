@@ -41,6 +41,15 @@ public interface DbAdapter {
 	public long insertTrack(Track track);
 
 	/**
+	 * Updates a Track in the database
+	 * 
+	 * @param track
+	 *            the track to update
+	 * @return true or false if the query was successful
+	 */
+	public boolean updateTrack(Track track);
+
+	/**
 	 * Returns all tracks as an ArrayList<Track>
 	 * 
 	 * @return All tracks in an ArrayList

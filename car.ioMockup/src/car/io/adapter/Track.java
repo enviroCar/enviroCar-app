@@ -49,8 +49,13 @@ public class Track {
 		id = String.valueOf(dbAdapter.insertTrack(this));
 	}
 
-	// TODO: we need an update method that is called whenever a setter is
-	// called. This is also important for the measurements
+	/**
+	 * Updates the Track in the database
+	 * @return
+	 */
+	public boolean commitTrackToDatabase(){
+		return dbAdapter.updateTrack(this);
+	}
 
 	/**
 	 * @return the name

@@ -45,7 +45,7 @@ public class DbAdapterLocal implements DbAdapter {
 	// Database parameters
 
 	private static final String DATABASE_NAME = "obd2";
-	private static final int DATABASE_VERSION = 8;
+	private static final int DATABASE_VERSION = 9;
 	private static final String DATABASE_TABLE = "measurements";
 	private static final String DATABASE_TABLE_TRACKS = "tracks";
 	private static final String DATABASE_CREATE = "create table measurements "
@@ -191,12 +191,13 @@ public class DbAdapterLocal implements DbAdapter {
 
 		c.moveToFirst();
 		
-		t.setName(c.getString(0));
-		t.setDescription(c.getString(1));
-		t.setCarManufacturer(c.getString(2));
-		t.setCarModel(c.getString(3));
-		t.setFuelType(c.getString(4));
-		t.setVin(c.getString(5));
+		t.setId(c.getString(0));
+		t.setName(c.getString(1));
+		t.setDescription(c.getString(2));
+		t.setCarManufacturer(c.getString(3));
+		t.setCarModel(c.getString(4));
+		t.setFuelType(c.getString(5));
+		t.setVin(c.getString(6));
 		
 		c.close();
 		
@@ -246,6 +247,22 @@ public class DbAdapterLocal implements DbAdapter {
 		c.close();
 		
 		return tracks;
+	}
+
+	@Override
+	public boolean updateTrack(Track track) {
+		
+		ContentValues initialValues = new ContentValues();
+		
+		initialValues.put(KEY_TRACK_NAME, track.getName());
+		initialValues.put(KEY_TRACK_DESCRIPTION, track.getDescription());
+		initialValues.put(KEY_TRACK_CAR_MANUFACTURER, track.getCarManufacturer());
+		initialValues.put(KEY_TRACK_CAR_MODEL, track.getCarModel());
+		initialValues.put(KEY_TRACK_FUEL_TYPE, track.getFuelType());
+		initialValues.put(KEY_TRACK_VIN, track.getVin());
+		
+		int result = mDb.update(DATABASE_TABLE_TRACKS, initialValues, KEY_ROWID+"="+track.getId(), null);
+		return (result == 1 ? true : false);
 	}
 
 }

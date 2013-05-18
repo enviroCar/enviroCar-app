@@ -511,6 +511,7 @@ public class MainActivity<AndroidAlarmService> extends
 		track.setDescription("Testdescription");
 		track.setCarManufacturer("carManufacturer");
 		track.setCarModel("CarModel");
+		track.commitTrackToDatabase();
 
 		try {
 			Measurement m1 = new Measurement(51.4f, 7.6f);
