@@ -79,9 +79,11 @@ public class ECApplication extends Application implements LocationListener {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		
 		initDbAdapter();
 		initBluetooth();
 		initLocationManager();
+		startBackgroundService();
 
 		track = new Track("123456", "Gasoline", dbAdapterLocal); //TODO create track dynamically and from preferences
 
@@ -98,11 +100,15 @@ public class ECApplication extends Application implements LocationListener {
 		if (dbAdapterLocal == null) {
 			dbAdapterLocal = new DbAdapterLocal(this.getApplicationContext());
 			dbAdapterLocal.open();
+		} else {
+			if(!dbAdapterLocal.isOpen()) dbAdapterLocal.open();
 		}
 		if (dbAdapterRemote == null) {
 			dbAdapterRemote = new DbAdapterRemote(this.getApplicationContext());
 			dbAdapterRemote.open();
-		}		
+		} else {
+			if(!dbAdapterRemote.isOpen()) dbAdapterRemote.open();
+		}
 	}
 
 	private void initBluetooth() {
@@ -153,7 +159,13 @@ public class ECApplication extends Application implements LocationListener {
 	}
 	
 	public DbAdapter getDbAdapterLocal() {
+		initDbAdapter();
 		return dbAdapterLocal;
+	}
+	
+	public DbAdapter getDbAdapterRemote() {
+		initDbAdapter();
+		return dbAdapterRemote;
 	}
 	
 	public void stopLocating(){
@@ -421,9 +433,22 @@ public class ECApplication extends Application implements LocationListener {
 		// TODO Auto-generated method stub
 
 	}
+	
+	
+	public void openDb(){
+		initDbAdapter();
+	}
 
-	public DbAdapter getDbAdapterRemote() {
-		return dbAdapterRemote;
+	public void closeDb() {
+		if(dbAdapterLocal != null){
+			dbAdapterLocal.close();
+			dbAdapterLocal = null;
+		}
+		if(dbAdapterRemote != null){
+			dbAdapterRemote.close();
+			dbAdapterRemote = null;
+		}
+		
 	}
 
 }

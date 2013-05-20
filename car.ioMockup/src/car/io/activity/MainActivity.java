@@ -149,6 +149,8 @@ public class MainActivity<AndroidAlarmService> extends
 		// --------------------------
 		// --------------------------
 		// --------------------------
+		
+		
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -349,7 +351,7 @@ public class MainActivity<AndroidAlarmService> extends
 
 		// Close db connection
 
-		dbAdapter.close();
+		application.closeDb();
 
 		// Remove the services etc.
 
@@ -367,23 +369,24 @@ public class MainActivity<AndroidAlarmService> extends
 
 		// Close DB
 
-		dbAdapter.close();
+		application.closeDb();
 	}
 
 	protected void onResume() {
 		super.onResume();
-
-		initDbAdapter();
+		application.openDb();
+		
+		//initDbAdapter();
 
 		// ---TESTMETHODE
-		testMethode();
+		//testMethode();
 		// ---TESTMETHODE
 
 		// Update preferences
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		
-		application.downloadTracks();
+		//application.downloadTracks();
 	}
 
 	/**
@@ -434,7 +437,7 @@ public class MainActivity<AndroidAlarmService> extends
 		MenuItem stop = menu.findItem(STOP_MEASUREMENT);
 		MenuItem settings = menu.findItem(SETTINGS);
 
-		if (requirementsFulfilled) {
+		if (false) { //was requirementsFulfilled
 			if (application.getServiceConnector().isRunning()) {
 				start.setEnabled(false);
 				stop.setEnabled(true);
@@ -447,7 +450,7 @@ public class MainActivity<AndroidAlarmService> extends
 		} else {
 			start.setEnabled(false);
 			stop.setEnabled(false);
-			settings.setEnabled(false);
+			//settings.setEnabled(false);
 		}
 
 		return true;

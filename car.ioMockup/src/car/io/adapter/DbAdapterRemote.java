@@ -92,6 +92,7 @@ public class DbAdapterRemote implements DbAdapter {
 			db.execSQL("DROP TABLE IF EXISTS tracks");
 			onCreate(db);
 		}
+		
 	}
 
 	public DbAdapterRemote(Context ctx) {
@@ -108,8 +109,8 @@ public class DbAdapterRemote implements DbAdapter {
 
 	@Override
 	public void close() {
+		mDb.close();
 		mDbHelper.close();
-
 	}
 
 	@Override
@@ -216,6 +217,11 @@ public class DbAdapterRemote implements DbAdapter {
 		ArrayList<Track> allTracks = getAllTracks();
 		return allTracks.size();
 
+	}
+	
+	@Override
+	public boolean isOpen(){
+		return mDb.isOpen();
 	}
 
 	@Override

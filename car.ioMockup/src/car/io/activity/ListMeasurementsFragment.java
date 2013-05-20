@@ -1,6 +1,9 @@
 package car.io.activity;
 
+import java.util.ArrayList;
+
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -20,27 +23,43 @@ import com.actionbarsherlock.app.SherlockFragment;
 public class ListMeasurementsFragment extends SherlockFragment {
 	
 	private DbAdapter dbAdapter;
+	private ExpandableListView elv;
 
 	public View onCreateView(android.view.LayoutInflater inflater,
 			android.view.ViewGroup container,
 			android.os.Bundle savedInstanceState) {
 		
-		dbAdapter = ((ECApplication) getActivity().getApplication()).getInstance().getDbAdapterRemote();
+		dbAdapter = ((ECApplication) getActivity().getApplication()).getInstance().getDbAdapterLocal();
 		
 		View v = inflater.inflate(R.layout.list_tracks_layout, null);
-		ExpandableListView elv = (ExpandableListView) v.findViewById(R.id.list);
-		elv.setAdapter(new TracksListAdapter());
-		elv.setGroupIndicator(getResources().getDrawable(
-				R.drawable.list_indicator));
-		elv.setChildDivider(getResources().getDrawable(
-				android.R.color.transparent));
+		elv = (ExpandableListView) v.findViewById(R.id.list);
+
 	
 		
 		return v;
 	};
 	
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		elv.setAdapter(new TracksListAdapter());
+		elv.setGroupIndicator(getResources().getDrawable(
+				R.drawable.list_indicator));
+		elv.setChildDivider(getResources().getDrawable(
+				android.R.color.transparent));
+	}
+	
 
 	public class TracksListAdapter extends BaseExpandableListAdapter {
+		
+		private ArrayList<Track> tracks;
+		
+		
+		public TracksListAdapter(){
+			super();
+			tracks = dbAdapter.getAllTracks();
+			
+		}
 
 		private String[] groups = { 
 				"Fahrt 08.05.2013 09:01",
@@ -57,7 +76,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 		@Override
 		public int getGroupCount() {
-			return dbAdapter.getNumberOfStoredTracks();
+			return tracks.size();
 		}
 
 		@Override
@@ -67,12 +86,12 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 		@Override
 		public Object getGroup(int i) {
-			return dbAdapter.getAllTracks().get(i);
+			return tracks.get(i);
 		}
 
 		@Override
 		public Object getChild(int i, int i1) {
-			return dbAdapter.getAllTracks().get(i);
+			return tracks.get(i);
 		}
 
 		@Override

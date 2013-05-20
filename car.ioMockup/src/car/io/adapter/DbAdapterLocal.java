@@ -108,8 +108,13 @@ public class DbAdapterLocal implements DbAdapter {
 
 	@Override
 	public void close() {
+		mDb.close();
 		mDbHelper.close();
-
+	}
+	
+	@Override
+	public boolean isOpen(){
+		return mDb.isOpen();
 	}
 
 	@Override

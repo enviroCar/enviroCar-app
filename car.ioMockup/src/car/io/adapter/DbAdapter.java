@@ -22,6 +22,8 @@ public interface DbAdapter {
 	 * Close the DB connection. Should be called when the app stops
 	 */
 	public void close();
+	
+	public boolean isOpen();
 
 	/**
 	 * Inserts a measurements into the database
