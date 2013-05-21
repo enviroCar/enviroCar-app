@@ -1,15 +1,27 @@
 package car.io.application;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
@@ -24,6 +36,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
+import car.io.R;
 import car.io.adapter.DbAdapter;
 import car.io.adapter.DbAdapterLocal;
 import car.io.adapter.DbAdapterRemote;
@@ -449,6 +462,108 @@ public class ECApplication extends Application implements LocationListener {
 			dbAdapterRemote = null;
 		}
 		
+	}
+	
+	/*
+	 * Use this method to sign up a new user
+	 */
+	public void createUser(String user, String token, String mail, String groups){
+
+		JSONObject requestJson = new JSONObject();
+		try {
+			requestJson.put("name", user);
+			requestJson.put("token", token);
+			requestJson.put("mail", mail);
+			requestJson.put("groups", groups);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		DefaultHttpClient httpClient = new DefaultHttpClient();
+
+		HttpResponse response;
+		try {
+			HttpPost postRequest = new HttpPost("http://giv-car.uni-muenster.de:8080/dev/rest/users");
+
+			StringEntity input = new StringEntity(requestJson.toString(), HTTP.UTF_8);
+			input.setContentType("application/json");
+			postRequest.setEntity(input);
+					
+			response = httpClient.execute(postRequest);
+
+			if (response.getStatusLine().getStatusCode() != 201) {
+				// TODO Throw error
+			} else {
+				// TODO Report to user if successfull and redirect
+				BufferedReader br = new BufferedReader(new InputStreamReader(
+						(response.getEntity().getContent())));
+
+				String output;
+				System.out.println("Output from Server .... \n");
+				while ((output = br.readLine()) != null) {
+					System.out.println(output);
+				}
+			}
+		} catch (UnsupportedEncodingException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (ClientProtocolException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} finally {
+			// When HttpClient instance is no longer needed,
+			// shut down the connection manager to ensure
+			// immediate deallocation of all system resources
+			httpClient.getConnectionManager().shutdown();
+		}
+	}
+	
+	
+
+	/*
+	 * Method used for authentication (e.g. at loginscreen to verify user
+	 * credentials
+	 */
+	public void authenticateHttp(String user, String token) {
+		DefaultHttpClient httpclient = new DefaultHttpClient();
+		try {
+			HttpGet httpget = new HttpGet(
+					"http://giv-car.uni-muenster.de:8080/dev/rest/users/"
+							+ user);
+			httpget.addHeader(new BasicHeader("X-User", user));
+			httpget.addHeader(new BasicHeader("X-Token", token));
+			HttpResponse response = httpclient.execute(httpget);
+
+			int status = response.getStatusLine().getStatusCode();
+			if (status != HttpStatus.SC_OK) {
+				// TODO Throw error
+				/*
+				 * for example in LoginActivity:
+				 * mPasswordView.setError(getString(R.string.error_field_required));
+				 * mPasswordView.requestFocus();
+				 */
+				
+			} else {
+				// TODO Set Sharedprefs or similar
+
+			}
+
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			// When HttpClient instance is no longer needed,
+			// shut down the connection manager to ensure
+			// immediate deallocation of all system resources
+			httpclient.getConnectionManager().shutdown();
+		}
 	}
 
 }
