@@ -1,6 +1,7 @@
 package car.io.application;
 
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.Executors;
@@ -133,12 +134,26 @@ public class ECApplication extends Application implements LocationListener {
 		
 		dbAdapterRemote.deleteAllTracks();
 		AsyncTask<Void, Void, Void> downloadTracksTask = new AsyncTask<Void, Void, Void>(){
+			
+			
+			
 
-			JSONParser parser=new JSONParser();
-			JSONArray track = new JSONArray();
+
+			JSONParser parser = new JSONParser();
+			JSONArray track = null;
+			JSONArray measurementsJSONArray = null;
 			JSONObject eachTrackJSON = new JSONObject();
 			Track trackToInsert = null;
+			ArrayList<Measurement> measurements = new ArrayList<Measurement>();
 			
+			SimpleDateFormat sdf  = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+			
+			long start;
+			
+			
+			protected void onPreExecute() {
+				start = System.currentTimeMillis();
+			};
 			
 			@Override
 			protected Void doInBackground(Void... params) {
@@ -147,13 +162,46 @@ public class ECApplication extends Application implements LocationListener {
 					track = (JSONArray) ((JSONObject) parser.parse(response)).get("tracks");
 					for(int i = 0; i<track.size(); i++){
 						//TODO skip tracks already in the database
-
-						String eachTrackResponse = HttpRequest.get((CharSequence) ((JSONObject) track.get(i)).get("href")).body();
-						eachTrackJSON = (JSONObject) parser.parse(eachTrackResponse);
-						trackToInsert = new Track((String) ((JSONObject) eachTrackJSON.get("properties")).get("id"));
-						trackToInsert.setName((String) ((JSONObject) eachTrackJSON.get("properties")).get("name"));
 						
-						dbAdapterRemote.insertTrack(trackToInsert);
+						trackToInsert = new Track((String) ((JSONObject) track.get(i)).get("id"));
+						trackToInsert.setName((String) ((JSONObject) track.get(i)).get("name"));
+						//download the uri supplied by the 'tracks'-request
+						String eachTrackResponse = HttpRequest.get((CharSequence) ((JSONObject) track.get(i)).get("href")).body();
+						//decode..
+						eachTrackJSON = (JSONObject) parser.parse(eachTrackResponse);
+						
+						//fill out the blanks..
+						trackToInsert.setDescription((String) ((JSONObject) eachTrackJSON.get("properties")).get("description"));
+						//TODO more properties when ready
+						
+						//Fill the measurements
+						//TODO replace with actual data
+						measurementsJSONArray = ((JSONArray) eachTrackJSON.get("features"));
+						for(Object m : measurementsJSONArray){
+							try {
+								Measurement measurement = new Measurement(((Number) ((JSONArray) ((JSONObject) ((JSONObject) m).get("geometry")).get("coordinates")).get(1)).floatValue(),  ((Number) ((JSONArray) ((JSONObject) ((JSONObject) m).get("geometry")).get("coordinates")).get(0)).floatValue());
+								measurement.setMaf(((Number) ((JSONObject) ((JSONObject) ((JSONObject) ((JSONObject) m).get("properties")).get("phenomenons")).get("testphenomenon1")).get("value")).floatValue());
+								measurement.setSpeed(((Number) ((JSONObject) ((JSONObject) ((JSONObject) ((JSONObject) m).get("properties")).get("phenomenons")).get("testphenomenon2")).get("value")).intValue());
+								measurement.setMeasurementTime(sdf.parse((String) ((JSONObject) ((JSONObject) m).get("properties")).get("time")).getTime());//TODO look into date
+								measurement.setTrack(trackToInsert);
+								
+								//add to measurements
+								measurements.add(measurement);
+							} catch (NumberFormatException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (LocationInvalidException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (java.text.ParseException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+						
+						//finally add the measurements to the track and insert to the database
+						trackToInsert.setMeasurementsAsArrayList(measurements);
+						((DbAdapterRemote) dbAdapterRemote).insertTrackWithMeasurements(trackToInsert);
 					}
 
 				} catch (org.json.simple.parser.ParseException e) {
@@ -167,7 +215,7 @@ public class ECApplication extends Application implements LocationListener {
 			@Override
 			protected void onPostExecute(Void result) {
 				super.onPostExecute(result);
-				
+				Log.i("duration",(System.currentTimeMillis()-start)+"");
 				Log.i("remoteTrack",dbAdapterRemote.getNumberOfStoredTracks()+"");
 			}
 		};
