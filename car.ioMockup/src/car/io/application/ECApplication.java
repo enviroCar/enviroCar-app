@@ -1,15 +1,17 @@
 package car.io.application;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
+
 
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
@@ -40,7 +42,7 @@ import car.io.obd.ServiceConnector;
 public class ECApplication extends Application implements LocationListener {
 	
 	
-	public static final String GET_TRACKS_URI = "http://giv-car.uni-muenster.de:8080/dev/rest/tracks";
+	public static final String GET_TRACKS_URI = "http://giv-car.uni-muenster.de:8080/stable/rest/tracks";
 
 	private static ECApplication singleton;
 	private DbAdapter dbAdapterLocal;
@@ -84,6 +86,7 @@ public class ECApplication extends Application implements LocationListener {
 		initBluetooth();
 		initLocationManager();
 		startBackgroundService();
+		//startServiceConnector();
 
 		track = new Track("123456", "Gasoline", dbAdapterLocal); //TODO create track dynamically and from preferences
 
@@ -92,6 +95,8 @@ public class ECApplication extends Application implements LocationListener {
 		} catch (LocationInvalidException e) {
 			e.printStackTrace();
 		}
+		
+		downloadTracks();
 
 		singleton = this;
 	}
@@ -125,28 +130,33 @@ public class ECApplication extends Application implements LocationListener {
 	}
 
 	public void downloadTracks(){
+		
+		dbAdapterRemote.deleteAllTracks();
 		AsyncTask<Void, Void, Void> downloadTracksTask = new AsyncTask<Void, Void, Void>(){
 
+			JSONParser parser=new JSONParser();
+			JSONArray track = new JSONArray();
+			JSONObject eachTrackJSON = new JSONObject();
+			Track trackToInsert = null;
+			
+			
 			@Override
 			protected Void doInBackground(Void... params) {
 				String response = HttpRequest.get(GET_TRACKS_URI).body();
-				Log.i("response",response);
 				try {
-					JSONObject tracksJSON = new JSONObject(response); //TODO reuse Objects to avoid GC
-					JSONArray a = tracksJSON.getJSONArray("tracks");
-					for(int i = 0; i<a.length(); i++){
+					track = (JSONArray) ((JSONObject) parser.parse(response)).get("tracks");
+					for(int i = 0; i<track.size(); i++){
 						//TODO skip tracks already in the database
-						String eachTrackResponse = HttpRequest.get(a.getJSONObject(i).getString("href")).body();
-						JSONObject trackJSON = new JSONObject(eachTrackResponse);
-						Track toInsert = new Track(trackJSON.getJSONObject("properties").getString("id"));
-						toInsert.setName(trackJSON.getJSONObject("properties").getString("name"));
-						
-						Log.i("track from remote",toInsert.getId());
-						dbAdapterRemote.insertTrack(toInsert);
-					}
-					//Log.i("tracks",a.getJSONObject(0).getString("name"));
 
-				} catch (JSONException e) {
+						String eachTrackResponse = HttpRequest.get((CharSequence) ((JSONObject) track.get(i)).get("href")).body();
+						eachTrackJSON = (JSONObject) parser.parse(eachTrackResponse);
+						trackToInsert = new Track((String) ((JSONObject) eachTrackJSON.get("properties")).get("id"));
+						trackToInsert.setName((String) ((JSONObject) eachTrackJSON.get("properties")).get("name"));
+						
+						dbAdapterRemote.insertTrack(trackToInsert);
+					}
+
+				} catch (org.json.simple.parser.ParseException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
@@ -154,6 +164,12 @@ public class ECApplication extends Application implements LocationListener {
 				return null;
 			}
 			
+			@Override
+			protected void onPostExecute(Void result) {
+				super.onPostExecute(result);
+				
+				Log.i("remoteTrack",dbAdapterRemote.getNumberOfStoredTracks()+"");
+			}
 		};
 		downloadTracksTask.execute((Void)null);
 	}
@@ -328,7 +344,7 @@ public class ECApplication extends Application implements LocationListener {
 	 */
 	public void updateMeasurement() {
 
-		// Create a new measurement if necessary
+		// Create track new measurement if necessary
 
 		if (measurement == null) {
 			try {
@@ -340,7 +356,7 @@ public class ECApplication extends Application implements LocationListener {
 		}
 
 		// Insert the values if the measurement (with the coordinates) is young
-		// enough (5000ms) or create a new one if it is too old
+		// enough (5000ms) or create track new one if it is too old
 
 		if (measurement != null) {
 
@@ -367,7 +383,7 @@ public class ECApplication extends Application implements LocationListener {
 	}
 
 	/**
-	 * Helper method to insert a measurement into the database (ensures that a
+	 * Helper method to insert track measurement into the database (ensures that track
 	 * measurement is only stored every 5 seconds and not faster...)
 	 * 
 	 * @param measurement2

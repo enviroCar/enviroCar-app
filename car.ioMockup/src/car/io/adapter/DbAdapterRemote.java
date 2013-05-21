@@ -32,12 +32,14 @@ public class DbAdapterRemote implements DbAdapter {
 	public static final String KEY_TRACK = "track";
 
 	
+	public static final String KEY_TRACK_ID = "_id";
 	public static final String KEY_TRACK_NAME = "name";
 	public static final String KEY_TRACK_DESCRIPTION = "descr";
 	public static final String KEY_TRACK_CAR_MANUFACTURER = "car_manufacturer";
 	public static final String KEY_TRACK_CAR_MODEL = "car_model";
 	public static final String KEY_TRACK_FUEL_TYPE = "fuel_type";
 	public static final String KEY_TRACK_VIN = "vin";
+	
 	
 	private DatabaseHelper mDbHelper;
 	private SQLiteDatabase mDb;
@@ -137,7 +139,7 @@ public class DbAdapterRemote implements DbAdapter {
 				KEY_LATITUDE, KEY_LONGITUDE, KEY_TIME, KEY_SPEED,
 				KEY_MAF },
 				//null,
-				KEY_TRACK+ "="+String.valueOf(track.getId()),
+				KEY_TRACK+ "=\""+track.getId()+"\"",
 				null, null, null,
 				//null
 				KEY_TIME+" ASC"
@@ -188,7 +190,7 @@ public class DbAdapterRemote implements DbAdapter {
 				KEY_TRACK_CAR_MANUFACTURER,
 				KEY_TRACK_CAR_MODEL,
 				KEY_TRACK_FUEL_TYPE,
-				KEY_TRACK_VIN}, KEY_ROWID+ " = "+id, null, null, null, null);
+				KEY_TRACK_VIN}, KEY_ROWID+ " = \""+id+"\"", null, null, null, null);
 
 		c.moveToFirst();
 		
@@ -228,6 +230,7 @@ public class DbAdapterRemote implements DbAdapter {
 	public long insertTrack(Track track) {
 		ContentValues initialValues = new ContentValues();
 
+		initialValues.put(KEY_TRACK_ID, track.getId());
 		initialValues.put(KEY_TRACK_NAME, track.getName());
 		initialValues.put(KEY_TRACK_DESCRIPTION, track.getDescription());
 		initialValues.put(KEY_TRACK_CAR_MANUFACTURER, track.getCarManufacturer());
