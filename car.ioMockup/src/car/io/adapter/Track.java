@@ -51,9 +51,10 @@ public class Track {
 
 	/**
 	 * Updates the Track in the database
+	 * 
 	 * @return
 	 */
-	public boolean commitTrackToDatabase(){
+	public boolean commitTrackToDatabase() {
 		return dbAdapter.updateTrack(this);
 	}
 
@@ -248,7 +249,7 @@ public class Track {
 	public double getFuelConsumptionOfMeasurement(int measurement)
 			throws FuelConsumptionException {
 
-		// TODO make this in l/100km (include speed information)
+		// TODO make this in l/100km (include speed information) (pay attention to speed=0)
 
 		Measurement m = getMeasurements().get(measurement);
 
@@ -273,7 +274,7 @@ public class Track {
 	public double getCO2EmissionOfMeasurement(int measurement)
 			throws FuelConsumptionException {
 
-		// TODO change unit to kg/km (include speed information)
+		// TODO change unit to kg/km (include speed information) (pay attention to speed=0)
 
 		double fuelCon;
 		fuelCon = getFuelConsumptionOfMeasurement(measurement);
@@ -284,6 +285,57 @@ public class Track {
 			return fuelCon * 2.65;
 		} else
 			throw new FuelConsumptionException();
+
+	}
+
+	/**
+	 * Returns the length of a track in meters
+	 * 
+	 * @return
+	 */
+	// TODO: Test implementation
+	public double getLengthOfTrack() {
+		ArrayList<Measurement> measurements = this.getMeasurements();
+
+		double distance = 0.0;
+
+		if (measurements.size() > 1) {
+			for (int i = 0; i < measurements.size() - 2; i++) {
+				distance = distance
+						+ getDistance(measurements.get(i).getLatitude(),
+								measurements.get(i).getLongitude(),
+								measurements.get(i + 1).getLatitude(),
+								measurements.get(i + 1).getLongitude());
+			}
+		}
+
+		return distance;
+	}
+
+	/**
+	 * Returns the distance of two points in meters.
+	 * 
+	 * @param lat1
+	 * @param lng1
+	 * @param lat2
+	 * @param lng2
+	 * @return
+	 */
+	// TODO: Test this implementation whether the results are correct...
+	private double getDistance(double lat1, double lng1, double lat2,
+			double lng2) {
+
+		double earthRadius = 6369;
+		double dLat = Math.toRadians(lat2 - lat1);
+		double dLng = Math.toRadians(lng2 - lng1);
+		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+				+ Math.cos(Math.toRadians(lat1))
+				* Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2)
+				* Math.sin(dLng / 2);
+		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		double dist = earthRadius * c;
+
+		return dist;
 
 	}
 
