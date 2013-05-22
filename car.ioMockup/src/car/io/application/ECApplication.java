@@ -287,22 +287,22 @@ public class ECApplication extends Application implements LocationListener {
 
 				// Speed
 
-				if (commandName.equals("Vehicle Speed")) {
-					// TextView speedTextView = (TextView)
-					// findViewById(R.id.spd_text);
-					// speedTextView.setText(commandResult + " km/h");
-
-					try {
-						speedMeasurement = Integer.valueOf(commandResult);
-					} catch (NumberFormatException e) {
-						Log.e("obd2", "speed parse exception");
-						e.printStackTrace();
-					}
-				}
+//				if (commandName.equals("Vehicle Speed")) {
+//					// TextView speedTextView = (TextView)
+//					// findViewById(R.id.spd_text);
+//					// speedTextView.setText(commandResult + " km/h");
+//
+//					try {
+//						speedMeasurement = Integer.valueOf(commandResult);
+//					} catch (NumberFormatException e) {
+//						Log.e("obd2", "speed parse exception");
+//						e.printStackTrace();
+//					}
+//				}
 
 				// MAF
 
-				else if (commandName.equals("Mass Air Flow")) {
+				if (commandName.equals("Mass Air Flow")) {
 					// TextView mafTextView = (TextView)
 					// findViewById(R.id.mafText);
 					String maf = commandResult;
@@ -374,10 +374,9 @@ public class ECApplication extends Application implements LocationListener {
 	 * all commands are executed
 	 */
 	private void addCommandstoWaitinglist() {
-		final CommonCommand speed = new Speed(); // TODO take speed from
-													// location provider
+//		final CommonCommand speed = new Speed(); 
 		final CommonCommand maf = new MAF();
-		serviceConnector.addJobToWaitingList(speed);
+//		serviceConnector.addJobToWaitingList(speed);
 		serviceConnector.addJobToWaitingList(maf);
 	}
 
@@ -473,6 +472,7 @@ public class ECApplication extends Application implements LocationListener {
 	public void onLocationChanged(Location location) {
 		locationLatitude = (float) location.getLatitude();
 		locationLongitude = (float) location.getLongitude();
+		speedMeasurement = (int) (location.getSpeed()*3.6);
 
 	}
 
