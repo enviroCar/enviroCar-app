@@ -188,13 +188,10 @@ public class ECApplication extends Application implements LocationListener {
 								//add to measurements
 								measurements.add(measurement);
 							} catch (NumberFormatException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							} catch (LocationInvalidException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							} catch (java.text.ParseException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 						}
@@ -205,7 +202,6 @@ public class ECApplication extends Application implements LocationListener {
 					}
 
 				} catch (org.json.simple.parser.ParseException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				
@@ -482,19 +478,16 @@ public class ECApplication extends Application implements LocationListener {
 
 	@Override
 	public void onProviderDisabled(String arg0) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void onProviderEnabled(String arg0) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
-		// TODO Auto-generated method stub
 
 	}
 	

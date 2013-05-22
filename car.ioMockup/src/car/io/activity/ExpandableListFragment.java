@@ -320,20 +320,17 @@ public class ExpandableListFragment extends SherlockFragment implements
 
 	@Override
 	public void onGroupExpand(int arg0) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void onGroupCollapse(int arg0) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public boolean onChildClick(ExpandableListView arg0, View arg1, int arg2,
 			int arg3, long arg4) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

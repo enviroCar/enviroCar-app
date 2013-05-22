@@ -70,7 +70,6 @@ public class DashboardFragment extends SherlockFragment {
 	/**
 	 * Do a mockup demo
 	 * 
-	 * TODO animate this
 	 */
 	private void doMockupDemo(int size) {
 		int co2Value = size;

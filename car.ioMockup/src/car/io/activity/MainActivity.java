@@ -246,8 +246,6 @@ public class MainActivity<AndroidAlarmService> extends
 
 	private void testMethode() {
 
-		// TODO make this test method work completely
-
 		dbAdapter.deleteAllTracks();
 		Track track = new Track("123456", "Gasoline", dbAdapter);
 

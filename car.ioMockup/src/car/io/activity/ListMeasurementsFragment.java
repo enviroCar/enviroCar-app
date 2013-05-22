@@ -267,7 +267,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 // *
 // * @see android.app.Activity#onOptionsItemSelected(android.view.MenuItem)
 // */
-// //TODO MEn�
+// //TODO Menu
 // /*
 // @Override
 // public boolean onOptionsItemSelected(MenuItem item) {
@@ -464,7 +464,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 // Measurement m = new Measurement(51.7f, 7.4f);
 // dbAdapter.insertMeasurement(m);
 // } catch (LocationInvalidException e) {
-// // TODO Auto-generated catch block
 // e.printStackTrace();
 // }
 // }
