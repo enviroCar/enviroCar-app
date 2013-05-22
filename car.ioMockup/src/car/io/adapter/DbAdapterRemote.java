@@ -270,6 +270,7 @@ public class DbAdapterRemote implements DbAdapter {
 		
 		for (int i = 0; i < c.getCount(); i++) {
 			tracks.add(getTrack(c.getString(0)));
+			c.moveToNext();
 		}
 		c.close();
 		

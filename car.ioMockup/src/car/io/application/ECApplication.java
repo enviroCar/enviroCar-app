@@ -12,8 +12,6 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-
-
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -41,8 +39,7 @@ import car.io.obd.Listener;
 import car.io.obd.ServiceConnector;
 
 public class ECApplication extends Application implements LocationListener {
-	
-	
+
 	public static final String GET_TRACKS_URI = "http://giv-car.uni-muenster.de:8080/stable/rest/tracks";
 
 	private static ECApplication singleton;
@@ -82,21 +79,25 @@ public class ECApplication extends Application implements LocationListener {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		
+
 		initDbAdapter();
 		initBluetooth();
 		initLocationManager();
 		startBackgroundService();
-		//startServiceConnector();
+		// startServiceConnector();
 
-		track = new Track("123456", "Gasoline", dbAdapterLocal); //TODO create track dynamically and from preferences
+		track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO create
+																	// track
+																	// dynamically
+																	// and from
+																	// preferences
 
 		try {
 			measurement = new Measurement(locationLatitude, locationLongitude);
 		} catch (LocationInvalidException e) {
 			e.printStackTrace();
 		}
-		
+
 		downloadTracks();
 
 		singleton = this;
@@ -107,13 +108,15 @@ public class ECApplication extends Application implements LocationListener {
 			dbAdapterLocal = new DbAdapterLocal(this.getApplicationContext());
 			dbAdapterLocal.open();
 		} else {
-			if(!dbAdapterLocal.isOpen()) dbAdapterLocal.open();
+			if (!dbAdapterLocal.isOpen())
+				dbAdapterLocal.open();
 		}
 		if (dbAdapterRemote == null) {
 			dbAdapterRemote = new DbAdapterRemote(this.getApplicationContext());
 			dbAdapterRemote.open();
 		} else {
-			if(!dbAdapterRemote.isOpen()) dbAdapterRemote.open();
+			if (!dbAdapterRemote.isOpen())
+				dbAdapterRemote.open();
 		}
 	}
 
@@ -130,14 +133,9 @@ public class ECApplication extends Application implements LocationListener {
 		}
 	}
 
-	public void downloadTracks(){
-		
-		dbAdapterRemote.deleteAllTracks(); //TODO: make this intelligent... only download new tracks
-		AsyncTask<Void, Void, Void> downloadTracksTask = new AsyncTask<Void, Void, Void>(){
-			
-			
-			
+	public void downloadTracks() {
 
+		AsyncTask<Void, Void, Void> downloadTracksTask = new AsyncTask<Void, Void, Void>() {
 
 			JSONParser parser = new JSONParser();
 			JSONArray track = null;
@@ -145,97 +143,170 @@ public class ECApplication extends Application implements LocationListener {
 			JSONObject eachTrackJSON = new JSONObject();
 			Track trackToInsert = null;
 			ArrayList<Measurement> measurements = new ArrayList<Measurement>();
-			
-			SimpleDateFormat sdf  = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
-			
+
+			SimpleDateFormat sdf = new SimpleDateFormat(
+					"yyyy-MM-dd'T'HH:mm:ssZ");
+
 			long start;
-			
-			
+
 			protected void onPreExecute() {
 				start = System.currentTimeMillis();
 			};
-			
+
 			@Override
 			protected Void doInBackground(Void... params) {
 				String response = HttpRequest.get(GET_TRACKS_URI).body();
 				try {
-					track = (JSONArray) ((JSONObject) parser.parse(response)).get("tracks");
-					Log.i("number of tracks to download",track.size()+"");
-					Log.i("number of tracks in the remote db",dbAdapterRemote.getNumberOfStoredTracks()+"");
-					for(int i = 0; i<track.size(); i++){
-						
-						Log.i("currently downloading track",i+"");
-						
-						//TODO skip tracks already in the database
-						
-						trackToInsert = new Track((String) ((JSONObject) track.get(i)).get("id"));
-						trackToInsert.setName((String) ((JSONObject) track.get(i)).get("name"));
-						//download the uri supplied by the 'tracks'-request
-						String eachTrackResponse = HttpRequest.get((CharSequence) ((JSONObject) track.get(i)).get("href")).body();
-						//decode..
-						eachTrackJSON = (JSONObject) parser.parse(eachTrackResponse);
-						
-						//fill out the blanks..
-						trackToInsert.setDescription((String) ((JSONObject) eachTrackJSON.get("properties")).get("description"));
-						//TODO more properties when ready
-						
-						//Fill the measurements
-						//TODO replace with actual data
-						measurementsJSONArray = ((JSONArray) eachTrackJSON.get("features")); //TODO make this whole process asynchronous.. takes 108 seconds on htc desire
-						for(Object m : measurementsJSONArray){
-							try {
-								Measurement measurement = new Measurement(((Number) ((JSONArray) ((JSONObject) ((JSONObject) m).get("geometry")).get("coordinates")).get(1)).floatValue(),  ((Number) ((JSONArray) ((JSONObject) ((JSONObject) m).get("geometry")).get("coordinates")).get(0)).floatValue());
-								measurement.setMaf(((Number) ((JSONObject) ((JSONObject) ((JSONObject) ((JSONObject) m).get("properties")).get("phenomenons")).get("testphenomenon1")).get("value")).floatValue());
-								measurement.setSpeed(((Number) ((JSONObject) ((JSONObject) ((JSONObject) ((JSONObject) m).get("properties")).get("phenomenons")).get("testphenomenon2")).get("value")).intValue());
-								measurement.setMeasurementTime(sdf.parse((String) ((JSONObject) ((JSONObject) m).get("properties")).get("time")).getTime());//TODO look into date
-								measurement.setTrack(trackToInsert);
-								
-								//add to measurements
-								measurements.add(measurement);
-							} catch (NumberFormatException e) {
-								e.printStackTrace();
-							} catch (LocationInvalidException e) {
-								e.printStackTrace();
-							} catch (java.text.ParseException e) {
-								e.printStackTrace();
+					track = (JSONArray) ((JSONObject) parser.parse(response))
+							.get("tracks");
+					Log.i("obd", "number of tracks to download " + track.size());
+					Log.i("obd2", "number of tracks in the remote db "
+							+ dbAdapterRemote.getNumberOfStoredTracks() + "");
+					for (int i = 0; i < track.size(); i++) {
+
+						trackToInsert = new Track(
+								(String) ((JSONObject) track.get(i)).get("id"));
+
+						if (!trackAlreadyInDB(trackToInsert.getId())) {
+
+							Log.i("obd2",
+									"track not present yet. will download it");
+
+							trackToInsert.setName((String) ((JSONObject) track
+									.get(i)).get("name"));
+							// download the uri supplied by the 'tracks'-request
+							String eachTrackResponse = HttpRequest.get(
+									(CharSequence) ((JSONObject) track.get(i))
+											.get("href")).body();
+							// decode..
+							eachTrackJSON = (JSONObject) parser
+									.parse(eachTrackResponse);
+							// fill out the blanks..
+							trackToInsert
+									.setDescription((String) ((JSONObject) eachTrackJSON
+											.get("properties"))
+											.get("description"));
+							// TODO more properties when ready
+							// Fill the measurements
+							// TODO replace with actual data
+							measurementsJSONArray = ((JSONArray) eachTrackJSON
+									.get("features")); // TODO make this whole
+														// process
+														// asynchronous.. takes
+														// 108 seconds on htc
+														// desire
+							for (Object m : measurementsJSONArray) {
+								try {
+									Measurement measurement = new Measurement(
+											((Number) ((JSONArray) ((JSONObject) ((JSONObject) m)
+													.get("geometry"))
+													.get("coordinates")).get(1))
+													.floatValue(),
+											((Number) ((JSONArray) ((JSONObject) ((JSONObject) m)
+													.get("geometry"))
+													.get("coordinates")).get(0))
+													.floatValue());
+									measurement
+											.setMaf(((Number) ((JSONObject) ((JSONObject) ((JSONObject) ((JSONObject) m)
+													.get("properties"))
+													.get("phenomenons"))
+													.get("testphenomenon1"))
+													.get("value")).floatValue());
+									measurement
+											.setSpeed(((Number) ((JSONObject) ((JSONObject) ((JSONObject) ((JSONObject) m)
+													.get("properties"))
+													.get("phenomenons"))
+													.get("testphenomenon2"))
+													.get("value")).intValue());
+									measurement
+											.setMeasurementTime(sdf
+													.parse((String) ((JSONObject) ((JSONObject) m)
+															.get("properties"))
+															.get("time"))
+													.getTime());// TODO look
+																// into date
+									measurement.setTrack(trackToInsert);
+
+									// add to measurements
+									measurements.add(measurement);
+								} catch (NumberFormatException e) {
+									e.printStackTrace();
+								} catch (LocationInvalidException e) {
+									e.printStackTrace();
+								} catch (java.text.ParseException e) {
+									e.printStackTrace();
+								}
 							}
+							// finally add the measurements to the track and
+							// insert to the database
+							trackToInsert
+									.setMeasurementsAsArrayList(measurements);
+							((DbAdapterRemote) dbAdapterRemote)
+									.insertTrackWithMeasurements(trackToInsert);
+							Log.i("length of new track",
+									trackToInsert.getLengthOfTrack() + "");
+						} else {
+							Log.i("obd2",
+									"track already present, no need to download");
 						}
-						
-						//finally add the measurements to the track and insert to the database
-						trackToInsert.setMeasurementsAsArrayList(measurements);
-						((DbAdapterRemote) dbAdapterRemote).insertTrackWithMeasurements(trackToInsert);
-						
-						Log.i("length of new track",trackToInsert.getLengthOfTrack()+"");
+						trackToInsert = null;
 					}
 
 				} catch (org.json.simple.parser.ParseException e) {
 					e.printStackTrace();
 				}
-				
+
 				return null;
 			}
-			
+
 			@Override
 			protected void onPostExecute(Void result) {
 				super.onPostExecute(result);
-				Log.i("duration",(System.currentTimeMillis()-start)+"");
-				Log.i("remoteTrack",dbAdapterRemote.getNumberOfStoredTracks()+"");
+				Log.i("duration", (System.currentTimeMillis() - start) + "");
+				Log.i("remoteTrack", dbAdapterRemote.getNumberOfStoredTracks()
+						+ "");
 			}
 		};
-		downloadTracksTask.execute((Void)null);
+		downloadTracksTask.execute((Void) null);
 	}
-	
+
+	/**
+	 * Checks if a track with specific index is already present in the
+	 * dbAdapterRemote
+	 * 
+	 * @param index
+	 * @return true if track already stored, false if track is new
+	 */
+	public boolean trackAlreadyInDB(String index) {
+
+		boolean matchFound = false;
+
+		ArrayList<Track> allStoredTracks = dbAdapterRemote.getAllTracks();
+		for (Track trackCompare : allStoredTracks) {
+			Log.i("obd2", "comparing: " + index + "");
+			Log.i("obd2", "to: " + trackCompare.getId() + "");
+
+			if (trackCompare.getId().equals(index)) {
+				Log.i("obd2", "match found");
+				matchFound = true;
+				return matchFound;
+			}
+		}
+
+		return matchFound;
+	}
+
 	public DbAdapter getDbAdapterLocal() {
 		initDbAdapter();
 		return dbAdapterLocal;
 	}
-	
+
 	public DbAdapter getDbAdapterRemote() {
 		initDbAdapter();
 		return dbAdapterRemote;
 	}
-	
-	public void stopLocating(){
+
+	public void stopLocating() {
 		locationManager.removeUpdates(this);
 	}
 
@@ -294,18 +365,18 @@ public class ECApplication extends Application implements LocationListener {
 
 				// Speed
 
-//				if (commandName.equals("Vehicle Speed")) {
-//					// TextView speedTextView = (TextView)
-//					// findViewById(R.id.spd_text);
-//					// speedTextView.setText(commandResult + " km/h");
-//
-//					try {
-//						speedMeasurement = Integer.valueOf(commandResult);
-//					} catch (NumberFormatException e) {
-//						Log.e("obd2", "speed parse exception");
-//						e.printStackTrace();
-//					}
-//				}
+				// if (commandName.equals("Vehicle Speed")) {
+				// // TextView speedTextView = (TextView)
+				// // findViewById(R.id.spd_text);
+				// // speedTextView.setText(commandResult + " km/h");
+				//
+				// try {
+				// speedMeasurement = Integer.valueOf(commandResult);
+				// } catch (NumberFormatException e) {
+				// Log.e("obd2", "speed parse exception");
+				// e.printStackTrace();
+				// }
+				// }
 
 				// MAF
 
@@ -381,9 +452,9 @@ public class ECApplication extends Application implements LocationListener {
 	 * all commands are executed
 	 */
 	private void addCommandstoWaitinglist() {
-//		final CommonCommand speed = new Speed(); 
+		// final CommonCommand speed = new Speed();
 		final CommonCommand maf = new MAF();
-//		serviceConnector.addJobToWaitingList(speed);
+		// serviceConnector.addJobToWaitingList(speed);
 		serviceConnector.addJobToWaitingList(maf);
 	}
 
@@ -433,8 +504,8 @@ public class ECApplication extends Application implements LocationListener {
 	}
 
 	/**
-	 * Helper method to insert track measurement into the database (ensures that track
-	 * measurement is only stored every 5 seconds and not faster...)
+	 * Helper method to insert track measurement into the database (ensures that
+	 * track measurement is only stored every 5 seconds and not faster...)
 	 * 
 	 * @param measurement2
 	 *            The measurement you want to insert
@@ -479,7 +550,7 @@ public class ECApplication extends Application implements LocationListener {
 	public void onLocationChanged(Location location) {
 		locationLatitude = (float) location.getLatitude();
 		locationLongitude = (float) location.getLongitude();
-		speedMeasurement = (int) (location.getSpeed()*3.6);
+		speedMeasurement = (int) (location.getSpeed() * 3.6);
 
 	}
 
@@ -497,22 +568,21 @@ public class ECApplication extends Application implements LocationListener {
 	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
 
 	}
-	
-	
-	public void openDb(){
+
+	public void openDb() {
 		initDbAdapter();
 	}
 
 	public void closeDb() {
-		if(dbAdapterLocal != null){
+		if (dbAdapterLocal != null) {
 			dbAdapterLocal.close();
 			dbAdapterLocal = null;
 		}
-		if(dbAdapterRemote != null){
+		if (dbAdapterRemote != null) {
 			dbAdapterRemote.close();
 			dbAdapterRemote = null;
 		}
-		
+
 	}
 
 }
