@@ -132,7 +132,7 @@ public class ECApplication extends Application implements LocationListener {
 
 	public void downloadTracks(){
 		
-		dbAdapterRemote.deleteAllTracks();
+		dbAdapterRemote.deleteAllTracks(); //TODO: make this intelligent... only download new tracks
 		AsyncTask<Void, Void, Void> downloadTracksTask = new AsyncTask<Void, Void, Void>(){
 			
 			
@@ -160,7 +160,12 @@ public class ECApplication extends Application implements LocationListener {
 				String response = HttpRequest.get(GET_TRACKS_URI).body();
 				try {
 					track = (JSONArray) ((JSONObject) parser.parse(response)).get("tracks");
+					Log.i("number of tracks to download",track.size()+"");
+					Log.i("number of tracks in the remote db",dbAdapterRemote.getNumberOfStoredTracks()+"");
 					for(int i = 0; i<track.size(); i++){
+						
+						Log.i("currently downloading track",i+"");
+						
 						//TODO skip tracks already in the database
 						
 						trackToInsert = new Track((String) ((JSONObject) track.get(i)).get("id"));
@@ -199,6 +204,8 @@ public class ECApplication extends Application implements LocationListener {
 						//finally add the measurements to the track and insert to the database
 						trackToInsert.setMeasurementsAsArrayList(measurements);
 						((DbAdapterRemote) dbAdapterRemote).insertTrackWithMeasurements(trackToInsert);
+						
+						Log.i("length of new track",trackToInsert.getLengthOfTrack()+"");
 					}
 
 				} catch (org.json.simple.parser.ParseException e) {
