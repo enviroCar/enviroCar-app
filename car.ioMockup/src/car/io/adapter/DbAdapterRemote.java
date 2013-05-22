@@ -240,6 +240,24 @@ public class DbAdapterRemote implements DbAdapter {
 		
 		return mDb.insert(DATABASE_TABLE_TRACKS, null, initialValues);
 	}
+	
+	public long insertTrackWithMeasurements(Track track) {
+		ContentValues initialValues = new ContentValues();
+
+		initialValues.put(KEY_TRACK_ID, track.getId());
+		initialValues.put(KEY_TRACK_NAME, track.getName());
+		initialValues.put(KEY_TRACK_DESCRIPTION, track.getDescription());
+		initialValues.put(KEY_TRACK_CAR_MANUFACTURER, track.getCarManufacturer());
+		initialValues.put(KEY_TRACK_CAR_MODEL, track.getCarModel());
+		initialValues.put(KEY_TRACK_FUEL_TYPE, track.getFuelType());
+		initialValues.put(KEY_TRACK_VIN, track.getVin());
+		
+		for(Measurement m : track.getMeasurements()){
+			insertMeasurement(m);
+		}
+		
+		return mDb.insert(DATABASE_TABLE_TRACKS, null, initialValues);
+	}
 
 	@Override
 	public ArrayList<Track> getAllTracks() {
