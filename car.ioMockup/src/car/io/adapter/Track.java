@@ -289,18 +289,17 @@ public class Track {
 	}
 
 	/**
-	 * Returns the length of a track in meters
+	 * Returns the length of a track in kilometers
 	 * 
 	 * @return
 	 */
-	// TODO: Test implementation
 	public double getLengthOfTrack() {
 		ArrayList<Measurement> measurements = this.getMeasurements();
 
 		double distance = 0.0;
 
 		if (measurements.size() > 1) {
-			for (int i = 0; i < measurements.size() - 2; i++) {
+			for (int i = 0; i < measurements.size() - 1; i++) {
 				distance = distance
 						+ getDistance(measurements.get(i).getLatitude(),
 								measurements.get(i).getLongitude(),
@@ -313,7 +312,7 @@ public class Track {
 	}
 
 	/**
-	 * Returns the distance of two points in meters.
+	 * Returns the distance of two points in kilometers.
 	 * 
 	 * @param lat1
 	 * @param lng1
@@ -321,7 +320,6 @@ public class Track {
 	 * @param lng2
 	 * @return
 	 */
-	// TODO: Test this implementation whether the results are correct...
 	private double getDistance(double lat1, double lng1, double lat2,
 			double lng2) {
 
