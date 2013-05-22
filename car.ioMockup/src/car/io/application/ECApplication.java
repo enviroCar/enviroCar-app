@@ -176,7 +176,7 @@ public class ECApplication extends Application implements LocationListener {
 						
 						//Fill the measurements
 						//TODO replace with actual data
-						measurementsJSONArray = ((JSONArray) eachTrackJSON.get("features"));
+						measurementsJSONArray = ((JSONArray) eachTrackJSON.get("features")); //TODO make this whole process asynchronous.. takes 108 seconds on htc desire
 						for(Object m : measurementsJSONArray){
 							try {
 								Measurement measurement = new Measurement(((Number) ((JSONArray) ((JSONObject) ((JSONObject) m).get("geometry")).get("coordinates")).get(1)).floatValue(),  ((Number) ((JSONArray) ((JSONObject) ((JSONObject) m).get("geometry")).get("coordinates")).get(0)).floatValue());
