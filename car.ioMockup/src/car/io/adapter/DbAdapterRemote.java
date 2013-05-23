@@ -216,9 +216,11 @@ public class DbAdapterRemote implements DbAdapter {
 
 	@Override
 	public int getNumberOfStoredTracks() {
-		ArrayList<Track> allTracks = getAllTracks();
-		return allTracks.size();
-
+		Cursor count = mDb.rawQuery("SELECT COUNT(*) FROM tracks", null);
+		count.moveToFirst();
+		int ct = count.getInt(0);
+		count.close();
+		return ct;
 	}
 	
 	@Override
