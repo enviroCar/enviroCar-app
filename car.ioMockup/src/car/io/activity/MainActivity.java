@@ -169,7 +169,7 @@ public class MainActivity<AndroidAlarmService> extends
 		// if (connectAutomatically.isChecked()) { // Start Service
 		// // every minute
 
-		application.startServiceConnector();
+//		application.startServiceConnector();
 		// } else { // Stop Service
 		// application.stopServiceConnector();
 		// }
@@ -217,15 +217,6 @@ public class MainActivity<AndroidAlarmService> extends
 
 			}
 		}, 0, 10, TimeUnit.MINUTES);
-
-		// Make a new listener to interpret the measurement values that are
-		// returned
-		Log.e("obd2", "init listener");
-		application.startListener();
-
-		// If everything is available, start the service connector and listener
-
-		application.startBackgroundService();
 
 	}
 
@@ -435,7 +426,7 @@ public class MainActivity<AndroidAlarmService> extends
 		MenuItem stop = menu.findItem(STOP_MEASUREMENT);
 		MenuItem settings = menu.findItem(SETTINGS);
 
-		if (false) { //was requirementsFulfilled
+		if (application.requirementsFulfilled()) { //was requirementsFulfilled
 			if (application.getServiceConnector().isRunning()) {
 				start.setEnabled(false);
 				stop.setEnabled(true);
@@ -448,7 +439,7 @@ public class MainActivity<AndroidAlarmService> extends
 		} else {
 			start.setEnabled(false);
 			stop.setEnabled(false);
-			//settings.setEnabled(false);
+			settings.setEnabled(false);
 		}
 
 		return true;

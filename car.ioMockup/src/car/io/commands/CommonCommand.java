@@ -114,7 +114,10 @@ public abstract class CommonCommand {
 	//TODO null pointer when car is off...
 	
 	public String getRawData() {
-		if (rawData.contains("SEARCHING") || rawData.contains("DATA")) {
+		if (rawData.contains("SEARCHING") || rawData.contains("DATA")
+				//TODO check if cars do this!!
+				|| rawData.contains("OK")
+				) {
 			rawData = "NODATA";
 		}
 

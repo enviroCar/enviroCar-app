@@ -75,6 +75,10 @@ public class ECApplication extends Application implements LocationListener {
 	public ServiceConnector getServiceConnector() {
 		return serviceConnector;
 	}
+	
+	public boolean requirementsFulfilled(){
+		return requirementsFulfilled;
+	}
 
 	@Override
 	public void onCreate() {
@@ -83,8 +87,16 @@ public class ECApplication extends Application implements LocationListener {
 		initDbAdapter();
 		initBluetooth();
 		initLocationManager();
+		// AutoConnect checkbox and service 
+		//TODO settings -> automatic connection to bt adapter
+		//startServiceConnector();
+		// Make a new listener to interpret the measurement values that are
+		// returned
+		Log.e("obd2", "init listener");
+		startListener();
+		// If everything is available, start the service connector and listener
 		startBackgroundService();
-		// startServiceConnector();
+//		
 
 		track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO create
 																	// track
@@ -98,7 +110,7 @@ public class ECApplication extends Application implements LocationListener {
 			e.printStackTrace();
 		}
 
-		downloadTracks();
+		//downloadTracks();
 
 		singleton = this;
 	}
@@ -349,8 +361,8 @@ public class ECApplication extends Application implements LocationListener {
 				// Get the name and the result of the Command
 
 				String commandName = job.getCommandName();
-				String commandResult = job.getResult();
-
+			String commandResult = job.getResult();
+				if(commandResult.equals("NODATA")) return;
 				// Get the fuel type from the preferences
 
 				// TextView fuelTypeTextView = (TextView)
@@ -364,7 +376,7 @@ public class ECApplication extends Application implements LocationListener {
 				 */
 
 				// Speed
-
+				
 				if (commandName.equals("Vehicle Speed")) {
 					// TextView speedTextView = (TextView)
 					// findViewById(R.id.spd_text);
