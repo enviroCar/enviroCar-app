@@ -16,15 +16,16 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
-
 import car.io.commands.CommonCommand;
 import car.io.commands.CommonCommand.CommonCommandState;
+import car.io.importedCommands.Defaults;
 import car.io.importedCommands.EchoOff;
 import car.io.importedCommands.EnableHeaders;
+import car.io.importedCommands.HeadersOff;
 import car.io.importedCommands.LineFeedOff;
 import car.io.importedCommands.ObdReset;
-import car.io.importedCommands.Ok;
 import car.io.importedCommands.SelectAutoProtocol;
+import car.io.importedCommands.SpacesOff;
 import car.io.importedCommands.Timeout;
 
 /**
@@ -121,13 +122,17 @@ public class BackgroundService extends Service {
 
 		// Configure the connection
 
+		addCommandToWaitingList(new Defaults());
 		addCommandToWaitingList(new ObdReset());
 		addCommandToWaitingList(new EchoOff());
 		addCommandToWaitingList(new EchoOff());
 		addCommandToWaitingList(new LineFeedOff());
-		//addCommandToWaitingList(new EnableHeaders());
-		addCommandToWaitingList(new Timeout(62));
+		addCommandToWaitingList(new SpacesOff());
+		addCommandToWaitingList(new HeadersOff());
+		//addCommandToWaitingList(new Timeout(62));
 		addCommandToWaitingList(new SelectAutoProtocol());
+		addCommandToWaitingList(new EnableHeaders());
+		addCommandToWaitingList(new HeadersOff());
 		//addCommandToWaitingList(new Ok());
 		// TODO implement VIN
 
