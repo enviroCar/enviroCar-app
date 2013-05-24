@@ -17,7 +17,6 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
-
 import car.io.commands.CommonCommand;
 import car.io.commands.CommonCommand.CommonCommandState;
 import car.io.importedCommands.EchoOff;
@@ -25,7 +24,6 @@ import car.io.importedCommands.LineFeedOff;
 import car.io.importedCommands.ObdReset;
 import car.io.importedCommands.SelectAutoProtocol;
 import car.io.importedCommands.Timeout;
-
 
 /**
  * Service for connection to Bluetooth device and running commands. Imported
@@ -46,6 +44,8 @@ public class BackgroundService extends Service {
 
 	private BluetoothDevice bluetoothDevice = null;
 	private BluetoothSocket bluetoothSocket = null;
+	// TODO: do we have to set this id dynamically? embarrassingly, i do not
+	// remember that anymore...
 	private static final UUID MY_UUID = UUID
 			.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	private Listener callbackListener = null;
@@ -81,8 +81,8 @@ public class BackgroundService extends Service {
 
 		// Init bluetooth
 
-		String remoteDevice = preferences.getString(car.io.activity.SettingsActivity.BLUETOOTH_KEY,
-				null);
+		String remoteDevice = preferences.getString(
+				car.io.activity.SettingsActivity.BLUETOOTH_KEY, null);
 
 		// Stop if device is not available
 
@@ -99,7 +99,7 @@ public class BackgroundService extends Service {
 			startConnection();
 		} catch (Exception e) {
 			stopService();
-			Log.e("obd2", "retry"+e.toString());
+			Log.e("obd2", "retry" + e.toString());
 		}
 	}
 
@@ -125,7 +125,7 @@ public class BackgroundService extends Service {
 		addCommandToWaitingList(new LineFeedOff());
 		addCommandToWaitingList(new Timeout(62));
 		addCommandToWaitingList(new SelectAutoProtocol());
-		//TODO implement VIN
+		// TODO implement VIN
 
 		// Service is running..
 		isTheServiceRunning.set(true);
