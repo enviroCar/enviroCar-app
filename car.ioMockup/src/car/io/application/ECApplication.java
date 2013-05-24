@@ -365,18 +365,18 @@ public class ECApplication extends Application implements LocationListener {
 
 				// Speed
 
-				// if (commandName.equals("Vehicle Speed")) {
-				// // TextView speedTextView = (TextView)
-				// // findViewById(R.id.spd_text);
-				// // speedTextView.setText(commandResult + " km/h");
-				//
-				// try {
-				// speedMeasurement = Integer.valueOf(commandResult);
-				// } catch (NumberFormatException e) {
-				// Log.e("obd2", "speed parse exception");
-				// e.printStackTrace();
-				// }
-				// }
+				if (commandName.equals("Vehicle Speed")) {
+					// TextView speedTextView = (TextView)
+					// findViewById(R.id.spd_text);
+					// speedTextView.setText(commandResult + " km/h");
+
+					try {
+						speedMeasurement = Integer.valueOf(commandResult);
+					} catch (NumberFormatException e) {
+						Log.e("obd2", "speed parse exception");
+						e.printStackTrace();
+					}
+				}
 
 				// MAF
 
@@ -452,9 +452,9 @@ public class ECApplication extends Application implements LocationListener {
 	 * all commands are executed
 	 */
 	private void addCommandstoWaitinglist() {
-		// final CommonCommand speed = new Speed();
+		final CommonCommand speed = new Speed();
 		final CommonCommand maf = new MAF();
-		// serviceConnector.addJobToWaitingList(speed);
+		serviceConnector.addJobToWaitingList(speed);
 		serviceConnector.addJobToWaitingList(maf);
 	}
 
@@ -478,6 +478,17 @@ public class ECApplication extends Application implements LocationListener {
 
 		// Insert the values if the measurement (with the coordinates) is young
 		// enough (5000ms) or create track new one if it is too old
+
+		// TODO: This has to be added with the following conditions:
+		/*
+		 * 1)New measurement if more than 50 meters away 2)New measurement if
+		 * last measurement more than 1 minute ago 3)New measurement if MAF
+		 * value changed significantly (whatever this means... we will have to
+		 * investigate on that. also it is not clear whether we should use this
+		 * condition because we are vulnerable to noise from the sensor.
+		 * therefore, we should include a minimum time between measurements (1
+		 * sec) as well.)
+		 */
 
 		if (measurement != null) {
 
@@ -550,7 +561,7 @@ public class ECApplication extends Application implements LocationListener {
 	public void onLocationChanged(Location location) {
 		locationLatitude = (float) location.getLatitude();
 		locationLongitude = (float) location.getLongitude();
-		speedMeasurement = (int) (location.getSpeed() * 3.6);
+		// speedMeasurement = (int) (location.getSpeed() * 3.6);
 
 	}
 
