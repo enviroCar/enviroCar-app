@@ -3,6 +3,7 @@ package car.io.application;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Currency;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -34,6 +35,7 @@ import car.io.commands.CommonCommand;
 import car.io.commands.MAF;
 import car.io.commands.Speed;
 import car.io.exception.LocationInvalidException;
+import car.io.exception.MeasurementsException;
 import car.io.obd.BackgroundService;
 import car.io.obd.Listener;
 import car.io.obd.ServiceConnector;
@@ -75,8 +77,8 @@ public class ECApplication extends Application implements LocationListener {
 	public ServiceConnector getServiceConnector() {
 		return serviceConnector;
 	}
-	
-	public boolean requirementsFulfilled(){
+
+	public boolean requirementsFulfilled() {
 		return requirementsFulfilled;
 	}
 
@@ -84,25 +86,32 @@ public class ECApplication extends Application implements LocationListener {
 	public void onCreate() {
 		super.onCreate();
 
+		// TODO: Create something like a first-start method that determines the
+		// BT-Adapter, VIN etc. ... something like a setup method
+
 		initDbAdapter();
 		initBluetooth();
 		initLocationManager();
-		// AutoConnect checkbox and service 
-		//TODO settings -> automatic connection to bt adapter
-		//startServiceConnector();
+		// AutoConnect checkbox and service
+		// TODO settings -> automatic connection to bt adapter
+		// startServiceConnector();
 		// Make a new listener to interpret the measurement values that are
 		// returned
 		Log.e("obd2", "init listener");
 		startListener();
 		// If everything is available, start the service connector and listener
 		startBackgroundService();
-//		
+		//
 
-		track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO create
-																	// track
-																	// dynamically
-																	// and from
-																	// preferences
+		// track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO
+		// create
+		// track
+		// dynamically
+		// and from
+		// preferences
+
+		// TODO: Test this method.
+		createNewTrackIfNecessary();
 
 		try {
 			measurement = new Measurement(locationLatitude, locationLongitude);
@@ -110,9 +119,142 @@ public class ECApplication extends Application implements LocationListener {
 			e.printStackTrace();
 		}
 
-		//downloadTracks();
+		// downloadTracks();
 
 		singleton = this;
+	}
+
+	/**
+	 * This method determines whether it is necessary to create a new track or
+	 * of the current/last used track should be reused
+	 */
+	// TODO call this method at some other positions in the code aswell... at
+	// some places, it might make sense to do so
+	private void createNewTrackIfNecessary() {
+
+		// if track is null, create a new one or take the last one from the
+		// database
+
+		if (track == null) {
+
+			Track lastUsedTrack;
+
+			try {
+				lastUsedTrack = dbAdapterLocal.getLastUsedTrack();
+
+				// New track if last measurement is more than 60 minutes
+				// ago
+				if ((System.currentTimeMillis() - lastUsedTrack
+						.getLastMeasurement().getMeasurementTime()) > 360000) {
+					// TODO: make parameters dynamic
+					track = new Track("123456", "Gasoline", dbAdapterLocal);
+					return;
+				}
+				// TODO: New track if user clicks on create new track button
+
+				// new track if last position is significantly different from
+				// the
+				// current position (more than 3 km)
+
+				if (getDistance(lastUsedTrack.getLastMeasurement(),
+						locationLatitude, locationLongitude) > 3.0) {
+					track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO
+					return;
+
+				}
+
+				// TODO: new track if VIN changed
+
+				else {
+					track = lastUsedTrack;
+					return;
+				}
+
+			} catch (MeasurementsException e) {
+
+				track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO:
+
+				e.printStackTrace();
+			}
+
+			return;
+
+		}
+
+		// if track is not null, determine whether it is useful to create a new
+		// track and store the current one //TODO: is it necessary to store
+		// this? normally, this is already in the database
+
+		if (track != null) {
+
+			Track currentTrack = track;
+
+			try {
+
+				// New track if last measurement is more than 60 minutes
+				// ago
+				if ((System.currentTimeMillis() - currentTrack
+						.getLastMeasurement().getMeasurementTime()) > 360000) {
+					// TODO: make parameters dynamic
+					track = new Track("123456", "Gasoline", dbAdapterLocal);
+					return;
+				}
+				// TODO: New track if user clicks on create new track button
+
+				// new track if last position is significantly different from
+				// the
+				// current position (more than 3 km)
+
+				if (getDistance(currentTrack.getLastMeasurement(),
+						locationLatitude, locationLongitude) > 3.0) {
+					track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO
+					return;
+
+				}
+
+				// TODO: new track if VIN changed
+
+				else {
+					return;
+				}
+
+			} catch (MeasurementsException e) {
+
+				e.printStackTrace();
+			}
+
+		}
+
+	}
+
+	/**
+	 * Returns the distance between a measurement and a coordinate in kilometers
+	 * 
+	 * @param m1
+	 *            Measurement
+	 * @param lat2
+	 *            Latitude of coordinate
+	 * @param lng2
+	 *            Longitude of coordinate
+	 * @return
+	 */
+	public double getDistance(Measurement m1, double lat2, double lng2) {
+
+		double lat1 = m1.getLatitude();
+		double lng1 = m1.getLongitude();
+
+		double earthRadius = 6369;
+		double dLat = Math.toRadians(lat2 - lat1);
+		double dLng = Math.toRadians(lng2 - lng1);
+		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+				+ Math.cos(Math.toRadians(lat1))
+				* Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2)
+				* Math.sin(dLng / 2);
+		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		double dist = earthRadius * c;
+
+		return dist;
+
 	}
 
 	private void initDbAdapter() {
@@ -361,8 +503,9 @@ public class ECApplication extends Application implements LocationListener {
 				// Get the name and the result of the Command
 
 				String commandName = job.getCommandName();
-			String commandResult = job.getResult();
-				if(commandResult.equals("NODATA")) return;
+				String commandResult = job.getResult();
+				if (commandResult.equals("NODATA"))
+					return;
 				// Get the fuel type from the preferences
 
 				// TextView fuelTypeTextView = (TextView)
@@ -376,7 +519,7 @@ public class ECApplication extends Application implements LocationListener {
 				 */
 
 				// Speed
-				
+
 				if (commandName.equals("Vehicle Speed")) {
 					// TextView speedTextView = (TextView)
 					// findViewById(R.id.spd_text);

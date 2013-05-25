@@ -2,6 +2,8 @@ package car.io.adapter;
 
 import java.util.ArrayList;
 
+import car.io.exception.MeasurementsException;
+
 /**
  * DB Adapter Interface that saves measurements in a local SQLite Database
  * 
@@ -22,7 +24,7 @@ public interface DbAdapter {
 	 * Close the DB connection. Should be called when the app stops
 	 */
 	public void close();
-	
+
 	public boolean isOpen();
 
 	/**
@@ -76,5 +78,14 @@ public interface DbAdapter {
 	 * Returns the number of stored tracks in the SQLite database
 	 */
 	public int getNumberOfStoredTracks();
+
+	/**
+	 * Retruns the track that was last inserted into the database
+	 * 
+	 * @return
+	 * @throws MeasurementsException
+	 *             If there are no tracks in the local database
+	 */
+	public Track getLastUsedTrack() throws MeasurementsException;
 
 }

@@ -249,7 +249,8 @@ public class Track {
 	public double getFuelConsumptionOfMeasurement(int measurement)
 			throws FuelConsumptionException {
 
-		// TODO make this in l/100km (include speed information) (pay attention to speed=0)
+		// TODO make this in l/100km (include speed information) (pay attention
+		// to speed=0)
 
 		Measurement m = getMeasurements().get(measurement);
 
@@ -274,7 +275,8 @@ public class Track {
 	public double getCO2EmissionOfMeasurement(int measurement)
 			throws FuelConsumptionException {
 
-		// TODO change unit to kg/km (include speed information) (pay attention to speed=0)
+		// TODO change unit to kg/km (include speed information) (pay attention
+		// to speed=0)
 
 		double fuelCon;
 		fuelCon = getFuelConsumptionOfMeasurement(measurement);
@@ -335,6 +337,20 @@ public class Track {
 
 		return dist;
 
+	}
+
+	/**
+	 * Returns the last measurement of this track
+	 * 
+	 * @return
+	 * @throws MeasurementsException
+	 *             If there are no measurements in the track
+	 */
+	public Measurement getLastMeasurement() throws MeasurementsException {
+		if (this.measurements.size() > 0) {
+			return this.measurements.get(this.measurements.size() - 1);
+		} else
+			throw new MeasurementsException("No Measurements in this track!");
 	}
 
 }
