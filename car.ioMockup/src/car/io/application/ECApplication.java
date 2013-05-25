@@ -504,6 +504,7 @@ public class ECApplication extends Application implements LocationListener {
 
 				String commandName = job.getCommandName();
 				String commandResult = job.getResult();
+				Log.i("btlogger",commandName+" "+commandResult);
 				if (commandResult.equals("NODATA"))
 					return;
 				// Get the fuel type from the preferences

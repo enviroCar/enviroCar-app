@@ -24,6 +24,7 @@ import car.io.importedCommands.EnableHeaders;
 import car.io.importedCommands.HeadersOff;
 import car.io.importedCommands.LineFeedOff;
 import car.io.importedCommands.ObdReset;
+import car.io.importedCommands.Ok;
 import car.io.importedCommands.SelectAutoProtocol;
 import car.io.importedCommands.SpacesOff;
 import car.io.importedCommands.Timeout;
@@ -120,20 +121,29 @@ public class BackgroundService extends Service {
 
 		bluetoothSocket.connect();
 
+		//TODO test this tomorrow with 11:22:33 Adapter
 		// Configure the connection
-
-		addCommandToWaitingList(new Defaults());
 		addCommandToWaitingList(new ObdReset());
+		addCommandToWaitingList(new Defaults());
 		addCommandToWaitingList(new EchoOff());
-		addCommandToWaitingList(new EchoOff());
+		//addCommandToWaitingList(new EchoOff());
 		addCommandToWaitingList(new LineFeedOff());
 		addCommandToWaitingList(new SpacesOff());
 		addCommandToWaitingList(new HeadersOff());
 		//addCommandToWaitingList(new Timeout(62));
 		addCommandToWaitingList(new SelectAutoProtocol());
-		addCommandToWaitingList(new EnableHeaders());
+		//addCommandToWaitingList(new EnableHeaders());
+		//addCommandToWaitingList(new HeadersOff());
+//		addCommandToWaitingList(new Ok()); 
+		addCommandToWaitingList(new ObdReset());
+		addCommandToWaitingList(new Defaults());
+		addCommandToWaitingList(new EchoOff());
+		//addCommandToWaitingList(new EchoOff());
+		addCommandToWaitingList(new LineFeedOff());
+		addCommandToWaitingList(new SpacesOff());
 		addCommandToWaitingList(new HeadersOff());
-		//addCommandToWaitingList(new Ok());
+		//addCommandToWaitingList(new Timeout(62));
+		addCommandToWaitingList(new SelectAutoProtocol());		
 		// TODO implement VIN
 
 		// Service is running..
