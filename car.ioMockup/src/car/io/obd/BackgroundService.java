@@ -23,8 +23,9 @@ import car.io.importedCommands.EchoOff;
 import car.io.importedCommands.EnableHeaders;
 import car.io.importedCommands.HeadersOff;
 import car.io.importedCommands.LineFeedOff;
+import car.io.importedCommands.MemoryOff;
 import car.io.importedCommands.ObdReset;
-import car.io.importedCommands.Ok;
+import car.io.importedCommands.PIDSupported;
 import car.io.importedCommands.SelectAutoProtocol;
 import car.io.importedCommands.SpacesOff;
 import car.io.importedCommands.Timeout;
@@ -120,31 +121,74 @@ public class BackgroundService extends Service {
 				.createRfcommSocketToServiceRecord(MY_UUID);
 
 		bluetoothSocket.connect();
-
-		//TODO test this tomorrow with 11:22:33 Adapter
-		// Configure the connection
-		addCommandToWaitingList(new ObdReset());
+		
+		/*
+		 * This is what Torque does:
+		 */
+		
 		addCommandToWaitingList(new Defaults());
+		addCommandToWaitingList(new Defaults());
+		addCommandToWaitingList(new ObdReset());
+		addCommandToWaitingList(new ObdReset());
 		addCommandToWaitingList(new EchoOff());
-		//addCommandToWaitingList(new EchoOff());
+		addCommandToWaitingList(new EchoOff());
+		addCommandToWaitingList(new EchoOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new MemoryOff());
 		addCommandToWaitingList(new LineFeedOff());
 		addCommandToWaitingList(new SpacesOff());
 		addCommandToWaitingList(new HeadersOff());
-		//addCommandToWaitingList(new Timeout(62));
+		addCommandToWaitingList(new Defaults());
+		addCommandToWaitingList(new ObdReset());
+		addCommandToWaitingList(new ObdReset());
+		addCommandToWaitingList(new EchoOff());
+		addCommandToWaitingList(new EchoOff());
+		addCommandToWaitingList(new EchoOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new LineFeedOff());
+		addCommandToWaitingList(new SpacesOff());
+		addCommandToWaitingList(new HeadersOff());
 		addCommandToWaitingList(new SelectAutoProtocol());
-		//addCommandToWaitingList(new EnableHeaders());
-		//addCommandToWaitingList(new HeadersOff());
-//		addCommandToWaitingList(new Ok()); 
-		addCommandToWaitingList(new ObdReset());
-		addCommandToWaitingList(new Defaults());
-		addCommandToWaitingList(new EchoOff());
-		//addCommandToWaitingList(new EchoOff());
-		addCommandToWaitingList(new LineFeedOff());
-		addCommandToWaitingList(new SpacesOff());
+		addCommandToWaitingList(new PIDSupported());
+		addCommandToWaitingList(new EnableHeaders());
+		addCommandToWaitingList(new PIDSupported());
 		addCommandToWaitingList(new HeadersOff());
-		//addCommandToWaitingList(new Timeout(62));
-		addCommandToWaitingList(new SelectAutoProtocol());		
-		// TODO implement VIN
+		
+		/*
+		 * End Torque
+		 */
+
+//		//TODO test this tomorrow with 11:22:33 Adapter
+//		// Configure the connection
+//		addCommandToWaitingList(new ObdReset());
+//		addCommandToWaitingList(new Defaults());
+//		addCommandToWaitingList(new EchoOff());
+//		//addCommandToWaitingList(new EchoOff());
+//		addCommandToWaitingList(new LineFeedOff());
+//		addCommandToWaitingList(new SpacesOff());
+//		addCommandToWaitingList(new HeadersOff());
+//		//addCommandToWaitingList(new Timeout(62));
+//		addCommandToWaitingList(new SelectAutoProtocol());
+//		//addCommandToWaitingList(new EnableHeaders());
+//		//addCommandToWaitingList(new HeadersOff());
+////		addCommandToWaitingList(new Ok()); 
+//		addCommandToWaitingList(new ObdReset());
+//		addCommandToWaitingList(new Defaults());
+//		addCommandToWaitingList(new EchoOff());
+//		//addCommandToWaitingList(new EchoOff());
+//		addCommandToWaitingList(new LineFeedOff());
+//		addCommandToWaitingList(new SpacesOff());
+//		addCommandToWaitingList(new HeadersOff());
+//		//addCommandToWaitingList(new Timeout(62));
+//		addCommandToWaitingList(new SelectAutoProtocol());		
+//		// TODO implement VIN
 
 		// Service is running..
 		isTheServiceRunning.set(true);
