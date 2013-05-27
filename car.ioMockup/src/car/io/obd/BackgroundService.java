@@ -18,16 +18,10 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import car.io.commands.CommonCommand;
 import car.io.commands.CommonCommand.CommonCommandState;
-import car.io.importedCommands.Defaults;
 import car.io.importedCommands.EchoOff;
-import car.io.importedCommands.EnableHeaders;
-import car.io.importedCommands.HeadersOff;
 import car.io.importedCommands.LineFeedOff;
-import car.io.importedCommands.MemoryOff;
 import car.io.importedCommands.ObdReset;
-import car.io.importedCommands.PIDSupported;
 import car.io.importedCommands.SelectAutoProtocol;
-import car.io.importedCommands.SpacesOff;
 import car.io.importedCommands.Timeout;
 
 /**
@@ -122,11 +116,18 @@ public class BackgroundService extends Service {
 
 		bluetoothSocket.connect();
 		
+		addCommandToWaitingList(new ObdReset());
+		addCommandToWaitingList(new EchoOff());
+		addCommandToWaitingList(new EchoOff());
+		addCommandToWaitingList(new LineFeedOff());
+		addCommandToWaitingList(new Timeout(62));
+		addCommandToWaitingList(new SelectAutoProtocol());
+		
 		/*
 		 * This is what Torque does:
 		 */
 		
-		addCommandToWaitingList(new Defaults());
+		/*addCommandToWaitingList(new Defaults());
 		addCommandToWaitingList(new Defaults());
 		addCommandToWaitingList(new ObdReset());
 		addCommandToWaitingList(new ObdReset());
@@ -159,36 +160,13 @@ public class BackgroundService extends Service {
 		addCommandToWaitingList(new PIDSupported());
 		addCommandToWaitingList(new EnableHeaders());
 		addCommandToWaitingList(new PIDSupported());
-		addCommandToWaitingList(new HeadersOff());
+		addCommandToWaitingList(new HeadersOff());*/
 		
 		/*
 		 * End Torque
 		 */
-
-//		//TODO test this tomorrow with 11:22:33 Adapter
-//		// Configure the connection
-//		addCommandToWaitingList(new ObdReset());
-//		addCommandToWaitingList(new Defaults());
-//		addCommandToWaitingList(new EchoOff());
-//		//addCommandToWaitingList(new EchoOff());
-//		addCommandToWaitingList(new LineFeedOff());
-//		addCommandToWaitingList(new SpacesOff());
-//		addCommandToWaitingList(new HeadersOff());
-//		//addCommandToWaitingList(new Timeout(62));
-//		addCommandToWaitingList(new SelectAutoProtocol());
-//		//addCommandToWaitingList(new EnableHeaders());
-//		//addCommandToWaitingList(new HeadersOff());
-////		addCommandToWaitingList(new Ok()); 
-//		addCommandToWaitingList(new ObdReset());
-//		addCommandToWaitingList(new Defaults());
-//		addCommandToWaitingList(new EchoOff());
-//		//addCommandToWaitingList(new EchoOff());
-//		addCommandToWaitingList(new LineFeedOff());
-//		addCommandToWaitingList(new SpacesOff());
-//		addCommandToWaitingList(new HeadersOff());
-//		//addCommandToWaitingList(new Timeout(62));
-//		addCommandToWaitingList(new SelectAutoProtocol());		
-//		// TODO implement VIN
+	
+		// TODO implement VIN
 
 		// Service is running..
 		isTheServiceRunning.set(true);
