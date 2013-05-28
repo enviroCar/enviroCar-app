@@ -1,5 +1,7 @@
 package car.io.activity;
 
+import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import org.json.JSONArray;
@@ -18,7 +20,6 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 import car.io.R;
 import car.io.adapter.DbAdapter;
-import car.io.adapter.DbAdapterRemote;
 import car.io.adapter.Measurement;
 import car.io.adapter.Track;
 import car.io.application.ECApplication;
@@ -238,10 +239,13 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				TextView co2 = (TextView) row.findViewById(R.id.track_details_co2_textview);
 				
 				try{
-					start.setText(currTrack.getStartTime()+"");
-					end.setText(currTrack.getEndTime()+"");
-					duration.setText((currTrack.getEndTime()-currTrack.getStartTime())+"");
-					length.setText(currTrack.getLengthOfTrack()+"");
+//					SimpleDateFormat sdf = new SimpleDateFormat("hh:mm, d.MM.yyyy");
+					DateFormat sdf = DateFormat.getDateTimeInstance();
+					DecimalFormat twoDForm = new DecimalFormat("#.##");
+					start.setText(sdf.format(currTrack.getStartTime())+"");
+					end.setText(sdf.format(currTrack.getEndTime())+"");
+					duration.setText((currTrack.getEndTime()-currTrack.getStartTime())+" ms"); //TODO: make a more convenient unit here when we have the data
+					length.setText(twoDForm.format(currTrack.getLengthOfTrack())+" km");
 					car.setText(currTrack.getCarManufacturer()+ " "+ currTrack.getCarModel());
 					co2.setText("");
 				}catch( Exception e) {
