@@ -241,7 +241,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					start.setText(currTrack.getStartTime()+"");
 					end.setText(currTrack.getEndTime()+"");
 					duration.setText((currTrack.getEndTime()-currTrack.getStartTime())+"");
-					length.setText("");
+					length.setText(currTrack.getLengthOfTrack()+"");
 					car.setText(currTrack.getCarManufacturer()+ " "+ currTrack.getCarModel());
 					co2.setText("");
 				}catch( Exception e) {
