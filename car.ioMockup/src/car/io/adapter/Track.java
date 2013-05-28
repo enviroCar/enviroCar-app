@@ -48,6 +48,10 @@ public class Track {
 		this.dbAdapter = dbAdapter;
 		id = String.valueOf(dbAdapter.insertTrack(this));
 	}
+	
+	public void setDatabaseAdapter(DbAdapter dbAdapter){
+		this.dbAdapter = dbAdapter;
+	}
 
 	/**
 	 * Updates the Track in the database

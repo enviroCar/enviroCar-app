@@ -2,6 +2,10 @@ package car.io.activity;
 
 import java.util.ArrayList;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,23 +18,32 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 import car.io.R;
 import car.io.adapter.DbAdapter;
+import car.io.adapter.DbAdapterRemote;
+import car.io.adapter.Measurement;
 import car.io.adapter.Track;
 import car.io.application.ECApplication;
+import car.io.application.RestClient;
+import car.io.exception.LocationInvalidException;
 import car.io.views.TYPEFACE;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 public class ListMeasurementsFragment extends SherlockFragment {
 	
+	private ArrayList<Track> tracksList;
+	private TracksListAdapter elvAdapter;
 	private DbAdapter dbAdapter;
 	private ExpandableListView elv;
+	
+	private int errors = 0;
 
 	public View onCreateView(android.view.LayoutInflater inflater,
 			android.view.ViewGroup container,
 			android.os.Bundle savedInstanceState) {
 		
-		dbAdapter = ((ECApplication) getActivity().getApplication()).getInstance().getDbAdapterLocal();
-		
+		dbAdapter = ((ECApplication) getActivity().getApplication()).getInstance().getDbAdapterRemote();
+
 		View v = inflater.inflate(R.layout.list_tracks_layout, null);
 		elv = (ExpandableListView) v.findViewById(R.id.list);
 
@@ -42,41 +55,113 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		elv.setAdapter(new TracksListAdapter());
 		elv.setGroupIndicator(getResources().getDrawable(
 				R.drawable.list_indicator));
 		elv.setChildDivider(getResources().getDrawable(
 				android.R.color.transparent));
+		//elv.setAdapter(new TracksListAdapter());
+		tracksList = new ArrayList<Track>();
+		RestClient.downloadTracks(new JsonHttpResponseHandler(){
+			
+			@Override
+			public void onStart() {
+				// TODO Auto-generated method stub
+				super.onStart();
+				elvAdapter = new TracksListAdapter();
+			}
+		
+			
+			@Override
+			public void onSuccess(int httpStatus, JSONObject json) {
+				super.onSuccess(httpStatus, json);
+
+			
+				try {
+					JSONArray tracks = json.getJSONArray("tracks");
+					Log.i("anzahl tracks", tracks.length()+"");
+					for (int i = 0 ; i<tracks.length(); i++){
+						
+							
+							//download the track
+							
+      							RestClient.downloadTrack(((JSONObject) tracks.get(i)).getString("href"), tracksList, new JsonHttpResponseHandler() {
+								
+								@Override
+								public void onFinish() {
+									// TODO Auto-generated method stub
+									super.onFinish();
+									if(elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))){
+										elv.setAdapter(elvAdapter);
+										Log.i("adapter","on Finish drin jetzt hoffentlich");
+									}
+									elvAdapter.notifyDataSetChanged();
+								}
+								
+								@Override
+								public void onSuccess(JSONObject trackJson) {
+									super.onSuccess(trackJson);
+									Track t;
+									try {
+										t = new Track(trackJson.getJSONObject("properties").getString("id"));
+										t.setDatabaseAdapter(dbAdapter);
+										t.setName(trackJson.getJSONObject("properties").getString("name"));
+										t.setDescription(trackJson.getJSONObject("properties").getString("description"));
+										//TODO more properties
+										Measurement recycleMeasurement;
+										
+										for(int j = 0 ; j < trackJson.getJSONArray("features").length(); j++){
+											recycleMeasurement = new Measurement(
+													Float.valueOf(trackJson.getJSONArray("features").getJSONObject(j).getJSONObject("geometry").getJSONArray("coordinates").getString(1)),
+													Float.valueOf(trackJson.getJSONArray("features").getJSONObject(j).getJSONObject("geometry").getJSONArray("coordinates").getString(0)));
+											
+											recycleMeasurement.setMaf((trackJson.getJSONArray("features").getJSONObject(j).getJSONObject("properties").getJSONObject("phenomenons").getJSONObject("testphenomenon9").getDouble("value")));
+											//TODO more properties
+											recycleMeasurement.setTrack(t);
+											t.addMeasurement(recycleMeasurement);
+										}
+										//TODO t.commitTrackToDatabase();
+										tracksList.add(t);
+										elvAdapter.notifyDataSetChanged();
+										Log.i("diese sind jetzt drin",tracksList.size()+"");
+									} catch (JSONException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace(); 
+									} catch (NumberFormatException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									} catch (LocationInvalidException e) {
+										// TODO Auto-generated catch block
+										e.printStackTrace();
+									}
+
+									
+								}
+								
+								public void onFailure(Throwable arg0, String arg1) {
+									errors++;
+								};
+							});
+							
+					}
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		
+
 	}
 	
 
 	public class TracksListAdapter extends BaseExpandableListAdapter {
 		
-		private ArrayList<Track> tracks;
 		
 		
-		public TracksListAdapter(){
-			super();
-			tracks = dbAdapter.getAllTracks();
-			
-		}
-
-		private String[] groups = { 
-				"Fahrt 08.05.2013 09:01",
-				"Fahrt 07.05.2013 13:13", 
-				"Zur Arbeit 6. Mai 2013",
-				"Sonntagsfahrt 5. Mai" };
-
-		private String[][] children = {
-				{ "09:01","09:36","35 Min","9,56 km","VW Golf","0,908 kg" },
-				{ "13:13","14:10","57 Min","89,87 km","VW Golf","7,899 kg" },
-				{ "09:03","09:35","32 Min","9,61 km","VW Golf","1,078 kg" },
-				{ "14:43","16:10","87 Min","109,18 km","VW Golf","9,156 kg" },
-				};
 
 		@Override
 		public int getGroupCount() {
-			return tracks.size();
+			return tracksList.size();
 		}
 
 		@Override
@@ -86,12 +171,12 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 		@Override
 		public Object getGroup(int i) {
-			return tracks.get(i);
+			return tracksList.get(i);
 		}
 
 		@Override
 		public Object getChild(int i, int i1) {
-			return tracks.get(i);
+			return tracksList.get(i);
 		}
 
 		@Override
@@ -112,6 +197,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		@Override
 		public View getGroupView(int i, boolean b, View view,
 				ViewGroup viewGroup) {
+			Log.i("dlerrors",errors+"");
 			if (view == null || view.getId() != 10000000 + i) {
 				Track currTrack = (Track) getGroup(i);
 				View groupRow = ViewGroup.inflate(getActivity(),
