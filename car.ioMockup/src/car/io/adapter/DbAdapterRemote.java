@@ -168,6 +168,14 @@ public class DbAdapterRemote implements DbAdapter {
 		return allMeasurements;
 	}
 
+	public boolean trackExistsInDatabase(String id){
+		Cursor count = mDb.rawQuery("SELECT COUNT(_id) FROM tracks WHERE _id =\""+id+"\"", null);
+		count.moveToFirst();
+		int ct = count.getInt(0);
+		count.close();
+		return ( ct==1 ? true: false);
+	}
+	
 	@Override
 	public Track getTrack(String id) {
 		Track t = new Track(id);

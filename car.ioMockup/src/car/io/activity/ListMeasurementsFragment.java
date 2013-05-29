@@ -78,12 +78,12 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			
 				try {
 					JSONArray tracks = json.getJSONArray("tracks");
-					Log.i("anzahl tracks", tracks.length()+"");
+
 					for (int i = 0 ; i<tracks.length(); i++){
-						
-							
+							if(((DbAdapterRemote) dbAdapter).trackExistsInDatabase(((JSONObject) tracks.get(i)).getString("id"))){
+								continue;
+							}
 							//download the track
-							
       							RestClient.downloadTrack(((JSONObject) tracks.get(i)).getString("href"), tracksList, new JsonHttpResponseHandler() {
 								
 								@Override
@@ -138,7 +138,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 								}
 								
 								public void onFailure(Throwable arg0, String arg1) {
-									errors++;
+									//TODO implement errors
 								};
 							});
 							
@@ -197,7 +197,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		@Override
 		public View getGroupView(int i, boolean b, View view,
 				ViewGroup viewGroup) {
-			Log.i("dlerrors",errors+"");
 			if (view == null || view.getId() != 10000000 + i) {
 				Track currTrack = (Track) getGroup(i);
 				View groupRow = ViewGroup.inflate(getActivity(),
