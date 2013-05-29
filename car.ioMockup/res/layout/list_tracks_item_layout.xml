@@ -32,7 +32,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="2dp"
-                android:text="Auto:"
+                android:text="@string/car2"
                 android:textSize="18sp" >
             </TextView>
 
@@ -43,13 +43,18 @@
                 android:layout_marginRight="2dp"
                 android:textSize="18sp" >
             </TextView>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
 
             <TextView
                 android:id="@+id/track_details_duration"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="2dp"
-                android:text="Fahrzeit:"
+                android:text="@string/duration"
                 android:textSize="18sp" >
             </TextView>
 
@@ -71,7 +76,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="2dp"
-                android:text="Startzeit:"
+                android:text="@string/begin"
                 android:textSize="18sp" >
             </TextView>
 
@@ -82,13 +87,18 @@
                 android:layout_marginRight="2dp"
                 android:textSize="18sp" >
             </TextView>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
 
             <TextView
                 android:id="@+id/track_details_end"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="2dp"
-                android:text="Endzeit:"
+                android:text="@string/end"
                 android:textSize="18sp" >
             </TextView>
 
@@ -110,7 +120,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="2dp"
-                android:text="Länge:"
+                android:text="@string/length"
                 android:textSize="18sp" >
             </TextView>
 
@@ -121,13 +131,18 @@
                 android:layout_marginRight="2dp"
                 android:textSize="18sp" >
             </TextView>
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
 
             <TextView
                 android:id="@+id/track_details_co2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="2dp"
-                android:text="CO\u2082-Ausstoß:"
+                android:text="@string/Co2emission"
                 android:textSize="18sp" >
             </TextView>
 
