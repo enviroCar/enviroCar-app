@@ -43,8 +43,6 @@ public class BackgroundService extends Service {
 
 	private BluetoothDevice bluetoothDevice = null;
 	private BluetoothSocket bluetoothSocket = null;
-	// TODO: do we have to set this id dynamically? embarrassingly, i do not
-	// remember that anymore...
 	private static final UUID MY_UUID = UUID
 			.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	private Listener callbackListener = null;
