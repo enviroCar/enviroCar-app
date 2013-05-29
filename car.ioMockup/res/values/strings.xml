@@ -49,5 +49,11 @@
     <string name="messages">Nachrichten</string>
     <string name="performance">Leistung</string>
     <string name="auto">Auto</string>
+    <string name="car2">"Car: "</string>
+    <string name="duration">"Duration: "</string>
+    <string name="begin">"Begin: "</string>
+    <string name="end">"End: "</string>
+    <string name="length">"Length: "</string>
+    <string name="Co2emission">"CO\u2082 emission: "</string>
 
 </resources>
