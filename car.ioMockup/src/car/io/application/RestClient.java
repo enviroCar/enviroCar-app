@@ -14,7 +14,7 @@ public class RestClient {
 	private static AsyncHttpClient client = new AsyncHttpClient();
 	
 	public static void downloadTracks(JsonHttpResponseHandler handler){
-		client.get(BASE_URL+"tracks?limit=50", handler);
+		client.get(BASE_URL+"tracks?limit=10", handler); //TODO: remove download limit
 	}
 	
 	public static void downloadTrack(String url, ArrayList<Track> tracks, JsonHttpResponseHandler handler){

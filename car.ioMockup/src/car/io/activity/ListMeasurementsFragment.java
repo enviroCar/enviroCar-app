@@ -2,7 +2,10 @@ package car.io.activity;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.TimeZone;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -66,7 +69,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			
 			@Override
 			public void onStart() {
-				// TODO Auto-generated method stub
 				super.onStart();
 				elvAdapter = new TracksListAdapter();
 			}
@@ -89,7 +91,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 								
 								@Override
 								public void onFinish() {
-									// TODO Auto-generated method stub
 									super.onFinish();
 									if(elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))){
 										elv.setAdapter(elvAdapter);
@@ -125,13 +126,10 @@ public class ListMeasurementsFragment extends SherlockFragment {
 										elvAdapter.notifyDataSetChanged();
 										Log.i("diese sind jetzt drin",tracksList.size()+"");
 									} catch (JSONException e) {
-										// TODO Auto-generated catch block
 										e.printStackTrace(); 
 									} catch (NumberFormatException e) {
-										// TODO Auto-generated catch block
 										e.printStackTrace();
 									} catch (LocationInvalidException e) {
-										// TODO Auto-generated catch block
 										e.printStackTrace();
 									}
 
@@ -145,7 +143,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 							
 					}
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -239,12 +236,15 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				TextView co2 = (TextView) row.findViewById(R.id.track_details_co2_textview);
 				
 				try{
-//					SimpleDateFormat sdf = new SimpleDateFormat("hh:mm, d.MM.yyyy");
 					DateFormat sdf = DateFormat.getDateTimeInstance();
 					DecimalFormat twoDForm = new DecimalFormat("#.##");
+					DateFormat dfDuration = new SimpleDateFormat("HH:mm:ss:SSS"); //TODO: leave out millis when we have other data
+					dfDuration.setTimeZone(TimeZone.getTimeZone("UTC"));
 					start.setText(sdf.format(currTrack.getStartTime())+"");
 					end.setText(sdf.format(currTrack.getEndTime())+"");
-					duration.setText((currTrack.getEndTime()-currTrack.getStartTime())+" ms"); //TODO: make a more convenient unit here when we have the data
+					Log.e("duration",currTrack.getEndTime()-currTrack.getStartTime()+"");
+					Date durationMillis = new Date(currTrack.getEndTime()-currTrack.getStartTime());
+					duration.setText(dfDuration.format(durationMillis)+""); 
 					length.setText(twoDForm.format(currTrack.getLengthOfTrack())+" km");
 					car.setText(currTrack.getCarManufacturer()+ " "+ currTrack.getCarModel());
 					co2.setText("");
