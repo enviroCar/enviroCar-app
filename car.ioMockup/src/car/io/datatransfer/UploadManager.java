@@ -96,7 +96,7 @@ public class UploadManager {
 		//TODO Error Handling: only registered sensor names are accepted from server side
 		String trackSensorName = "testsensor1";
 		
-		String trackElementJson = String.format("{ \"type\": \"FeatureCollection\", \"properties\": { \"name\": \"%s\", \"description\": \"%s\", \"sensor\": \" %s \" }, \"features\": [", trackName, trackDescription, trackSensorName);
+		String trackElementJson = String.format("{ \"type\": \"FeatureCollection\", \"properties\": { \"name\": \"%s\", \"description\": \"%s\", \"sensor\": \"%s\" }, \"features\": [", trackName, trackDescription, trackSensorName);
 		
 		ArrayList<Measurement> measurements = track.getMeasurements();
 		ArrayList<String> measurementElements = new ArrayList<String>();
