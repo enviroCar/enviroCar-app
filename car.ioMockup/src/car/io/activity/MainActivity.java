@@ -23,7 +23,9 @@ import android.preference.PreferenceManager;
 import android.support.v4.view.PagerTabStrip;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -55,7 +57,7 @@ public class MainActivity<AndroidAlarmService> extends
 	private int actionBarTitleID = 0;
 	private ActionBar actionBar;
 
-	private ECApplication application;
+	public static ECApplication application;
 
 	// Preferences
 
@@ -192,6 +194,15 @@ public class MainActivity<AndroidAlarmService> extends
 		 * 
 		 * } });
 		 */
+		
+//		Button closeButton = (Button) findViewById(R.id.uploadnow);
+//		closeButton.setOnClickListener(new OnClickListener() {
+//			
+//			@Override
+//			public void onClick(View v) {
+//				// TODO Auto-generated method stub
+//			}
+//		});
 
 		// Upload data every 10 minutes and only if there are more than 50
 		// measurements stored in the database
@@ -217,6 +228,8 @@ public class MainActivity<AndroidAlarmService> extends
 
 			}
 		}, 0, 10, TimeUnit.MINUTES);
+
+		
 
 	}
 

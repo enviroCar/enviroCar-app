@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import car.io.R;
+import car.io.datatransfer.UploadManager;
 import car.io.views.RoundProgress;
 import car.io.views.TYPEFACE;
 
@@ -59,7 +60,8 @@ public class DashboardFragment extends SherlockFragment {
 					index = 20;
 					doMockupDemo(index);
 				}
-
+			UploadManager u = new UploadManager();
+			u.uploadAllTracks();
 			}
 		});
 		
