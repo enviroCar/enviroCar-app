@@ -60,8 +60,6 @@ public class DashboardFragment extends SherlockFragment {
 					index = 20;
 					doMockupDemo(index);
 				}
-			UploadManager u = new UploadManager();
-			u.uploadAllTracks();
 			}
 		});
 		

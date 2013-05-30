@@ -23,6 +23,7 @@ import android.widget.ExpandableListView;
 import android.widget.TextView;
 import car.io.R;
 import car.io.adapter.DbAdapter;
+import car.io.adapter.DbAdapterRemote;
 import car.io.adapter.Measurement;
 import car.io.adapter.Track;
 import car.io.application.ECApplication;

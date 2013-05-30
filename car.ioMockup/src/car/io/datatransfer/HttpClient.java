@@ -4,7 +4,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.AbstractClientConnAdapter;
 import org.json.JSONObject;
 
 import car.io.activity.MainActivity;

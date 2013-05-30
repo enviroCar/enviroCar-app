@@ -39,6 +39,7 @@ import car.io.commands.CommonCommand;
 import car.io.commands.MAF;
 import car.io.commands.RPM;
 import car.io.commands.Speed;
+import car.io.datatransfer.UploadManager;
 import car.io.exception.LocationInvalidException;
 import car.io.obd.BackgroundService;
 import car.io.obd.Listener;
@@ -72,6 +73,7 @@ public class MainActivity<AndroidAlarmService> extends
 	static final int STOP_MEASUREMENT = 4;
 	static final int SETTINGS = 5;
 	static final int START_LIST_VIEW = 6;
+	static final int START_UPLOAD = 7;
 
 	// Properties
 
@@ -399,6 +401,7 @@ public class MainActivity<AndroidAlarmService> extends
 		menu.add(0, STOP_MEASUREMENT, 0, "Stop");
 		menu.add(0, START_LIST_VIEW, 0, "List");
 		menu.add(0, SETTINGS, 0, "Settings");
+		menu.add(0, START_UPLOAD, 0, "Upload");
 		return true;
 	}
 
@@ -420,7 +423,13 @@ public class MainActivity<AndroidAlarmService> extends
 			Intent configIntent = new Intent(this, SettingsActivity.class);
 			startActivity(configIntent);
 			return true;
-
+		
+		case START_UPLOAD:
+			//TODO Only enable when getAllTracks() != 0
+			UploadManager uploadManager = new UploadManager(application.getInstance().getDbAdapterLocal());
+			uploadManager.uploadAllTracks();
+			return true;
+			
 			// case START_LIST_VIEW:
 			// Intent listIntent = new Intent(this,
 			// ListMeasurementsActivity.class);

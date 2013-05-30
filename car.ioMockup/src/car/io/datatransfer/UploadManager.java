@@ -5,15 +5,11 @@ import java.util.ArrayList;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import car.io.activity.MainActivity;
 import car.io.adapter.DbAdapter;
-import car.io.adapter.DbAdapterLocal;
 import car.io.adapter.Measurement;
 import car.io.adapter.Track;
-import car.io.application.ECApplication;
 import car.io.exception.LocationInvalidException;
 
-import android.content.Context;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -22,28 +18,27 @@ public class UploadManager {
 	private static final String TAG = "UploadManager";
 	
 	// TODO Configure Url in property document/shared preferences
-	private String url = "http://giv-car.uni-muenster.de:8080/stable/rest/users/uploaduser/tracks";
+	private String url = "http://giv-car.uni-muenster.de:8080/stable/rest/users/upload/tracks";
 	
-	private ECApplication application;
 	private DbAdapter dbAdapter;
+	public UploadManager(DbAdapter dbAdapter){
+		this.dbAdapter = dbAdapter;
+	}
 	
 	public void uploadAllTracks() {
 		
-		//TODO fetch all Tracks from LocalDbAdapter
-		//TODO DbAdapterLocal as Singleton DbAdapterLocal.getAllTracks
-		dbAdapter = MainActivity.application.getInstance().getDbAdapterLocal();
-		
+//		<- Diesen Teil zum Testen mit dem Auto auskommentieren und Zeile 55 frei geben
 		Track dummyTrack = new Track("VIN", "Diesel", dbAdapter);
 		dummyTrack.setDescription("This is a description of the track.");
 		dummyTrack.setName("This is the Name of the track");
 		
 		try {
 			Measurement dummyMeasurement = new Measurement(12.365f, 24.068f);
-			dummyMeasurement.setSpeed(140);
+			dummyMeasurement.setSpeed(220);
 			dummyTrack.addMeasurement(dummyMeasurement);
 			
 			Measurement dummyMeasurement2 = new Measurement(55.365f, 7.068f);
-			dummyMeasurement2.setSpeed(150);
+			dummyMeasurement2.setSpeed(160);
 			dummyTrack.addMeasurement(dummyMeasurement2);
 			
 			Log.i(TAG, "Measurement Objekt erstellt.");
@@ -53,8 +48,14 @@ public class UploadManager {
 		}
 		
 		ArrayList<Track> trackList = new ArrayList<Track>();
-//		ArrayList<Track> trackList = MainActivity.application.getInstance().getDbAdapterLocal().getAllTracks();
 		trackList.add(dummyTrack);
+//		->
+		
+//		ArrayList<Track> trackList = dbAdapter.getAllTracks();
+		if (trackList.size() == 0){
+			Log.d(TAG, "No stored tracks in local db found.");
+			return;
+		}
 		
 		ArrayList<String> trackJsonList = new ArrayList<String>(); 
 		
@@ -75,7 +76,7 @@ public class UploadManager {
 			}
 			
 			// TODO Configure X-User, X-Token in property document/shared preferences
-			HttpClient.SendHttpPost(url, obj, "tokenxyza", "uploaduser");
+			HttpClient.SendHttpPost(url, obj, "upload", "upload");
 		}
 	}
 	
@@ -108,7 +109,7 @@ public class UploadManager {
 			String time = String.valueOf(measurement.getMeasurementTime());
 			String sensorNameMeasurement = "testsensor1";
 			String speed = String.valueOf(measurement.getSpeed());
-			String measurementJson = String.format("{ \"type\": \"Feature\", \"geometry\": { \"type\": \"Point\", \"coordinates\": [ %s, %s ] }, \"properties\": { \"time\": \"2013-05-16T02:13:27Z\", \"sensor\": { \"name\": \"testsensor1\", \"unit\": \"some\" }, \"phenomenons\": { \"testphenomenon1\": { \"value\": %s } } } }", lat, lon, speed);
+			String measurementJson = String.format("{ \"type\": \"Feature\", \"geometry\": { \"type\": \"Point\", \"coordinates\": [ %s, %s ] }, \"properties\": { \"time\": \"2013-05-16T02:13:27Z\", \"sensor\": { \"name\": \"testsensor1\"}, \"phenomenons\": { \"testphenomenon1\": { \"value\": %s } } } }", lat, lon, speed);
 			measurementElements.add(measurementJson);
 		}
 		
