@@ -18,14 +18,10 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import car.io.commands.CommonCommand;
 import car.io.commands.CommonCommand.CommonCommandState;
-import car.io.importedCommands.Defaults;
 import car.io.importedCommands.EchoOff;
-import car.io.importedCommands.EnableHeaders;
-import car.io.importedCommands.HeadersOff;
 import car.io.importedCommands.LineFeedOff;
 import car.io.importedCommands.ObdReset;
 import car.io.importedCommands.SelectAutoProtocol;
-import car.io.importedCommands.SpacesOff;
 import car.io.importedCommands.Timeout;
 
 /**
@@ -47,8 +43,6 @@ public class BackgroundService extends Service {
 
 	private BluetoothDevice bluetoothDevice = null;
 	private BluetoothSocket bluetoothSocket = null;
-	// TODO: do we have to set this id dynamically? embarrassingly, i do not
-	// remember that anymore...
 	private static final UUID MY_UUID = UUID
 			.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	private Listener callbackListener = null;
@@ -119,21 +113,57 @@ public class BackgroundService extends Service {
 				.createRfcommSocketToServiceRecord(MY_UUID);
 
 		bluetoothSocket.connect();
-
-		// Configure the connection
-
-		addCommandToWaitingList(new Defaults());
+		
 		addCommandToWaitingList(new ObdReset());
 		addCommandToWaitingList(new EchoOff());
 		addCommandToWaitingList(new EchoOff());
 		addCommandToWaitingList(new LineFeedOff());
+		addCommandToWaitingList(new Timeout(62));
+		addCommandToWaitingList(new SelectAutoProtocol());
+		
+		/*
+		 * This is what Torque does:
+		 */
+		
+		/*addCommandToWaitingList(new Defaults());
+		addCommandToWaitingList(new Defaults());
+		addCommandToWaitingList(new ObdReset());
+		addCommandToWaitingList(new ObdReset());
+		addCommandToWaitingList(new EchoOff());
+		addCommandToWaitingList(new EchoOff());
+		addCommandToWaitingList(new EchoOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new LineFeedOff());
 		addCommandToWaitingList(new SpacesOff());
 		addCommandToWaitingList(new HeadersOff());
-		//addCommandToWaitingList(new Timeout(62));
-		addCommandToWaitingList(new SelectAutoProtocol());
-		addCommandToWaitingList(new EnableHeaders());
+		addCommandToWaitingList(new Defaults());
+		addCommandToWaitingList(new ObdReset());
+		addCommandToWaitingList(new ObdReset());
+		addCommandToWaitingList(new EchoOff());
+		addCommandToWaitingList(new EchoOff());
+		addCommandToWaitingList(new EchoOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new MemoryOff());
+		addCommandToWaitingList(new LineFeedOff());
+		addCommandToWaitingList(new SpacesOff());
 		addCommandToWaitingList(new HeadersOff());
-		//addCommandToWaitingList(new Ok());
+		addCommandToWaitingList(new SelectAutoProtocol());
+		addCommandToWaitingList(new PIDSupported());
+		addCommandToWaitingList(new EnableHeaders());
+		addCommandToWaitingList(new PIDSupported());
+		addCommandToWaitingList(new HeadersOff());*/
+		
+		/*
+		 * End Torque
+		 */
+	
 		// TODO implement VIN
 
 		// Service is running..

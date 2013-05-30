@@ -101,14 +101,7 @@ public class ECApplication extends Application implements LocationListener {
 		startListener();
 		// If everything is available, start the service connector and listener
 		startBackgroundService();
-		//
 
-		// track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO
-		// create
-		// track
-		// dynamically
-		// and from
-		// preferences
 
 		// TODO: Test this method.
 		createNewTrackIfNecessary();
@@ -504,6 +497,7 @@ public class ECApplication extends Application implements LocationListener {
 
 				String commandName = job.getCommandName();
 				String commandResult = job.getResult();
+				Log.i("btlogger",commandName+" "+commandResult);
 				if (commandResult.equals("NODATA"))
 					return;
 				// Get the fuel type from the preferences

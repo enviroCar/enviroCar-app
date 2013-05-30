@@ -5,12 +5,12 @@ import car.io.commands.CommonCommand;
 /**
  * Turns off line-feed.
  */
-public class Ok extends CommonCommand {
+public class PIDSupported extends CommonCommand {
 
 	/**
 	 * @param command
 	 */
-	public Ok() {
+	public PIDSupported() {
 		super("01 00");
 	}
 
