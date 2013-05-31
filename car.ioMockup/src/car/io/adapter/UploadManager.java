@@ -35,33 +35,35 @@ public class UploadManager {
 		/*
 		 * This is just for testing
 		 */
-		Track dummyTrack = new Track("VIN", "Diesel", dbAdapter);
-		dummyTrack.setDescription("This is a description of the track.");
-		dummyTrack.setName("This is the Name of the track");
-
-		try {
-			Measurement dummyMeasurement = new Measurement(12.365f, 24.068f);
-			dummyMeasurement.setSpeed(220);
-			dummyTrack.addMeasurement(dummyMeasurement);
-
-			Measurement dummyMeasurement2 = new Measurement(55.365f, 7.068f);
-			dummyMeasurement2.setSpeed(160);
-			dummyTrack.addMeasurement(dummyMeasurement2);
-
-			Log.i(TAG, "Measurement object created.");
-		} catch (LocationInvalidException e1) {
-			Log.e(TAG, "Measurement object creation failed.");
-			e1.printStackTrace();
-		}
-
-		ArrayList<Track> trackList = new ArrayList<Track>();
-		trackList.add(dummyTrack);
+		/*
+		 * Track dummyTrack = new Track("VIN", "Diesel", dbAdapter);
+		 * dummyTrack.setDescription("This is a description of the track.");
+		 * dummyTrack.setName("This is the Name of the track");
+		 * 
+		 * try { Measurement dummyMeasurement = new Measurement(12.365f,
+		 * 24.068f); dummyMeasurement.setSpeed(220);
+		 * dummyTrack.addMeasurement(dummyMeasurement);
+		 * 
+		 * Measurement dummyMeasurement2 = new Measurement(55.365f, 7.068f);
+		 * dummyMeasurement2.setSpeed(160);
+		 * dummyTrack.addMeasurement(dummyMeasurement2);
+		 * 
+		 * Log.i(TAG, "Measurement object created."); } catch
+		 * (LocationInvalidException e1) { Log.e(TAG,
+		 * "Measurement object creation failed."); e1.printStackTrace(); }
+		 * 
+		 * ArrayList<Track> trackList = new ArrayList<Track>();
+		 * trackList.add(dummyTrack);
+		 */
 		/*
 		 * This is where testing ends. Remember to correctly comment in or out
 		 * the next line as well.
 		 */
 
-		// ArrayList<Track> trackList = dbAdapter.getAllTracks();
+		ArrayList<Track> trackList = dbAdapter.getAllTracks();
+
+		// TODO remove tracks from local storage if upload was successful
+
 		if (trackList.size() == 0) {
 			Log.d(TAG, "No stored tracks in local db found.");
 			return;
