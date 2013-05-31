@@ -1,9 +1,5 @@
 package car.io.application;
 
-import java.util.ArrayList;
-
-import car.io.adapter.Track;
-
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -17,7 +13,7 @@ public class RestClient {
 		client.get(BASE_URL+"tracks?limit=10", handler); //TODO: remove download limit
 	}
 	
-	public static void downloadTrack(String url, ArrayList<Track> tracks, JsonHttpResponseHandler handler){
+	public static void downloadTrack(String url, JsonHttpResponseHandler handler){
 		client.get(url, handler);
 	}
 

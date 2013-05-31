@@ -290,7 +290,7 @@ public class DbAdapterRemote implements DbAdapter {
 		initialValues.put(KEY_TRACK_VIN, track.getVin());
 
 		int result = mDb.update(DATABASE_TABLE_TRACKS, initialValues, KEY_ROWID
-				+ "=" + track.getId(), null);
+				+ "= \"" + track.getId()+"\"", null);
 		return (result == 1 ? true : false);
 	}
 
