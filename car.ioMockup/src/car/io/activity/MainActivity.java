@@ -34,12 +34,12 @@ import car.io.R;
 import car.io.adapter.DbAdapter;
 import car.io.adapter.Measurement;
 import car.io.adapter.Track;
+import car.io.adapter.UploadManager;
 import car.io.application.ECApplication;
 import car.io.commands.CommonCommand;
 import car.io.commands.MAF;
 import car.io.commands.RPM;
 import car.io.commands.Speed;
-import car.io.datatransfer.UploadManager;
 import car.io.exception.LocationInvalidException;
 import car.io.obd.BackgroundService;
 import car.io.obd.Listener;
@@ -58,7 +58,7 @@ public class MainActivity<AndroidAlarmService> extends
 	private int actionBarTitleID = 0;
 	private ActionBar actionBar;
 
-	public static ECApplication application;
+	public ECApplication application;
 
 	// Preferences
 
@@ -153,8 +153,6 @@ public class MainActivity<AndroidAlarmService> extends
 		// --------------------------
 		// --------------------------
 		// --------------------------
-		
-		
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -173,7 +171,7 @@ public class MainActivity<AndroidAlarmService> extends
 		// if (connectAutomatically.isChecked()) { // Start Service
 		// // every minute
 
-//		application.startServiceConnector();
+		// application.startServiceConnector();
 		// } else { // Stop Service
 		// application.stopServiceConnector();
 		// }
@@ -196,15 +194,15 @@ public class MainActivity<AndroidAlarmService> extends
 		 * 
 		 * } });
 		 */
-		
-//		Button closeButton = (Button) findViewById(R.id.uploadnow);
-//		closeButton.setOnClickListener(new OnClickListener() {
-//			
-//			@Override
-//			public void onClick(View v) {
-//				// TODO Auto-generated method stub
-//			}
-//		});
+
+		// Button closeButton = (Button) findViewById(R.id.uploadnow);
+		// closeButton.setOnClickListener(new OnClickListener() {
+		//
+		// @Override
+		// public void onClick(View v) {
+		// // TODO Auto-generated method stub
+		// }
+		// });
 
 		// Upload data every 10 minutes and only if there are more than 50
 		// measurements stored in the database
@@ -230,8 +228,6 @@ public class MainActivity<AndroidAlarmService> extends
 
 			}
 		}, 0, 10, TimeUnit.MINUTES);
-
-		
 
 	}
 
@@ -337,7 +333,7 @@ public class MainActivity<AndroidAlarmService> extends
 		} catch (LocationInvalidException e) {
 			e.printStackTrace();
 		}
-		//dbAdapter.deleteAllTracks();
+		// dbAdapter.deleteAllTracks();
 	}
 
 	// -----------------------------------------------------------
@@ -379,18 +375,18 @@ public class MainActivity<AndroidAlarmService> extends
 	protected void onResume() {
 		super.onResume();
 		application.openDb();
-		
-		//initDbAdapter();
+
+		// initDbAdapter();
 
 		// ---TESTMETHODE
-		//testMethode();
+		// testMethode();
 		// ---TESTMETHODE
 
 		// Update preferences
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		
-		//application.downloadTracks();
+
+		// application.downloadTracks();
 	}
 
 	/**
@@ -423,13 +419,14 @@ public class MainActivity<AndroidAlarmService> extends
 			Intent configIntent = new Intent(this, SettingsActivity.class);
 			startActivity(configIntent);
 			return true;
-		
+
 		case START_UPLOAD:
-			//TODO Only enable when getAllTracks() != 0
-			UploadManager uploadManager = new UploadManager(application.getInstance().getDbAdapterLocal());
+			// TODO Only enable when getAllTracks() != 0
+			UploadManager uploadManager = new UploadManager(application
+					.getInstance().getDbAdapterLocal());
 			uploadManager.uploadAllTracks();
 			return true;
-			
+
 			// case START_LIST_VIEW:
 			// Intent listIntent = new Intent(this,
 			// ListMeasurementsActivity.class);
@@ -448,7 +445,7 @@ public class MainActivity<AndroidAlarmService> extends
 		MenuItem stop = menu.findItem(STOP_MEASUREMENT);
 		MenuItem settings = menu.findItem(SETTINGS);
 
-		if (application.requirementsFulfilled()) { //was requirementsFulfilled
+		if (application.requirementsFulfilled()) { // was requirementsFulfilled
 			if (application.getServiceConnector().isRunning()) {
 				start.setEnabled(false);
 				stop.setEnabled(true);

@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 import car.io.R;
-import car.io.datatransfer.UploadManager;
+import car.io.adapter.UploadManager;
 import car.io.views.RoundProgress;
 import car.io.views.TYPEFACE;
 
