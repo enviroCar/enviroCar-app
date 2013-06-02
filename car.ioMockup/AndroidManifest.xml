@@ -80,10 +80,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="car.io.activity.MainActivity" />
         </activity>
-        <activity
-            android:name="car.io.activity.MeasurementDisplay"
-            android:label="@string/app_name" >
-        </activity>
 
         <service
             android:name="car.io.obd.BackgroundService"

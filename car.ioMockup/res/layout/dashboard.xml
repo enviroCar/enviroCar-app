@@ -8,6 +8,34 @@
     android:tag="Dashboard" >
 
     <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="15dp"
+        android:text="@string/currentSpeed"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <car.io.views.RoundProgress
+        android:id="@+id/blue_progress_bar2"
+        android:layout_width="fill_parent"
+        android:layout_height="35dip"
+        android:layout_alignParentBottom="true"
+        android:padding="3dip"
+        myNamespace:max="100"
+        myNamespace:progress="50"
+        myNamespace:progressDrawable="@drawable/red_progress_clip"
+        myNamespace:track="@drawable/progress_bar_fill_bg"
+    />
+    
+    <TextView
+        android:id="@+id/textViewSpeedDashboard"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_marginRight="10dp" />
+    
+    <TextView
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

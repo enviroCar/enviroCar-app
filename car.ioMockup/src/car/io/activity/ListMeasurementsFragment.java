@@ -69,7 +69,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				android.R.color.transparent));
 
 
-		downloadTracks();
+//		downloadTracks();
 
 	}
 	

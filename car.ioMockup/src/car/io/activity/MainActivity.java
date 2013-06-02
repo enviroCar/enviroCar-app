@@ -148,7 +148,7 @@ public class MainActivity<AndroidAlarmService> extends
 		// addTab( "Friends", MyData.class, MyData.createBundle( "Fragment 3")
 		// );
 
-		setSelectedTab(1);
+		setSelectedTab(2);
 
 		// --------------------------
 		// --------------------------

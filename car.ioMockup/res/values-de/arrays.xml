@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="pref_fuel_type">
+        <item>Benzin</item>
+        <item>Diesel</item>
+        <item>Andere</item>
+    </string-array>
+
+</resources>
