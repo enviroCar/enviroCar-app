@@ -997,6 +997,7 @@ containing a value of this type.
         /**  Label for the "Done" button on the far left of action mode toolbars. 
          */
         public static int abs__action_mode_done=0x7f090003;
+        public static int abs__activity_chooser_view_dialog_title_default=0x7f09000d;
         /**  Title for a button to expand the list of activities in ActivityChooserView [CHAR LIMIT=25] 
          */
         public static int abs__activity_chooser_view_see_all=0x7f090004;
@@ -1018,6 +1019,7 @@ containing a value of this type.
         /**  SearchView accessibility description for voice button [CHAR LIMIT=NONE] 
          */
         public static int abs__searchview_description_voice=0x7f09000c;
+        public static int abs__share_action_provider_share_with=0x7f09000e;
         /**  Description of the choose target button in a ShareActionProvider (share UI). [CHAR LIMIT=NONE] 
          */
         public static int abs__shareactionprovider_share_with=0x7f090006;

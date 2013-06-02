@@ -318,6 +318,7 @@ int string abs__action_bar_home_description 0x7f090000
 int string abs__action_bar_up_description 0x7f090001
 int string abs__action_menu_overflow_description 0x7f090002
 int string abs__action_mode_done 0x7f090003
+int string abs__activity_chooser_view_dialog_title_default 0x7f09000d
 int string abs__activity_chooser_view_see_all 0x7f090004
 int string abs__activitychooserview_choose_application 0x7f090005
 int string abs__searchview_description_clear 0x7f09000a
@@ -325,6 +326,7 @@ int string abs__searchview_description_query 0x7f090009
 int string abs__searchview_description_search 0x7f090008
 int string abs__searchview_description_submit 0x7f09000b
 int string abs__searchview_description_voice 0x7f09000c
+int string abs__share_action_provider_share_with 0x7f09000e
 int string abs__shareactionprovider_share_with 0x7f090006
 int string abs__shareactionprovider_share_with_application 0x7f090007
 int style Sherlock___TextAppearance_Small 0x7f0a0046
