@@ -126,7 +126,7 @@ public class UploadManager {
 			String speed = String.valueOf(measurement.getSpeed());
 			String measurementJson = String
 					.format("{ \"type\": \"Feature\", \"geometry\": { \"type\": \"Point\", \"coordinates\": [ %s, %s ] }, \"properties\": { \"time\": \"2013-05-16T02:13:27Z\", \"sensor\": { \"name\": \"testsensor1\"}, \"phenomenons\": { \"testphenomenon1\": { \"value\": %s } } } }",
-							lat, lon, speed);
+							lon, lat, speed);
 			measurementElements.add(measurementJson);
 		}
 
