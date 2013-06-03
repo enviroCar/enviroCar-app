@@ -4,7 +4,7 @@
     <string name="app_name">enviroCar</string>
     <string name="menu_settings">Einstellungen</string>
     <string name="menu_help">Hilfe</string>
-    <string name="menu_about">Über car.io</string>
+    <string name="menu_about">Über enviroCar</string>
     <string name="activity_checklist_title">Checkliste</string>
     
     <string name="checklist_item_bluetooth_enabled">Bluetooth aktiviert</string>
@@ -65,4 +65,7 @@
     <string name="Co2emission">"CO\u2082 Ausstoß: "</string>
     <string name="title_activity_settings">Einstellungen</string>
     <string name="currentSpeed">Aktuelle Geschwindigkeit</string>
+        <string name="menu_start">Start</string>
+    <string name="menu_stop">Stopp</string>
+        <string name="menu_upload">Hochladen</string>
 </resources>

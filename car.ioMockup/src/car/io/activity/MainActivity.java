@@ -69,11 +69,11 @@ public class MainActivity<AndroidAlarmService> extends
 	static final int NO_BLUETOOTH = 0;
 	static final int BLUETOOTH_DISABLED = 1;
 	static final int NO_GPS = 2;
-	static final int START_MEASUREMENT = 3;
-	static final int STOP_MEASUREMENT = 4;
-	static final int SETTINGS = 5;
+	static final int START_MEASUREMENT = R.id.menu_start;
+	static final int STOP_MEASUREMENT = R.id.menu_stop;
+	static final int SETTINGS = R.id.menu_settings;
 	static final int START_LIST_VIEW = 6;
-	static final int START_UPLOAD = 7;
+	static final int START_UPLOAD = R.id.menu_upload;
 
 	// Properties
 
@@ -231,11 +231,11 @@ public class MainActivity<AndroidAlarmService> extends
 
 	}
 
-	/*
-	 * @Override public boolean onCreateOptionsMenu(Menu menu) { // Inflate the
-	 * menu; this adds items to the action bar if it is present.
-	 * getSupportMenuInflater().inflate(R.menu.menu, menu); return true; }
-	 */
+	
+	  @Override public boolean onCreateOptionsMenu(Menu menu) { 
+	  // Inflate the menu; this adds items to the action bar if it is present.
+	  getSupportMenuInflater().inflate(R.menu.menu, menu); return true; }
+	 
 	/*
 	 * @Override public boolean onOptionsItemSelected(MenuItem item) {
 	 * Log.i("itemid",item.getItemId()+""); switch(item.getItemId()){ case
@@ -392,14 +392,15 @@ public class MainActivity<AndroidAlarmService> extends
 	/**
 	 * Create the menu with the entries
 	 */
-	public boolean onCreateOptionsMenu(Menu menu) {
-		menu.add(0, START_MEASUREMENT, 0, "Start");
-		menu.add(0, STOP_MEASUREMENT, 0, "Stop");
-		menu.add(0, START_LIST_VIEW, 0, "List");
-		menu.add(0, SETTINGS, 0, "Settings");
-		menu.add(0, START_UPLOAD, 0, "Upload");
-		return true;
-	}
+//	public boolean onCreateOptionsMenu(Menu menu) {
+//		menu.add(0, START_MEASUREMENT, 0, "Start");
+//		menu.add(0, STOP_MEASUREMENT, 0, "Stop");
+//		menu.add(0, START_LIST_VIEW, 0, "List");
+//		menu.add(0, SETTINGS, 0, "Settings");
+//		menu.add(0, START_UPLOAD, 0, "Upload");
+//		return true;
+//	}
+	
 
 	/**
 	 * Determine what the menu buttons do
