@@ -132,6 +132,9 @@ public class MainActivity<AndroidAlarmService> extends
 
 		actionBar.setLogo(getResources().getDrawable(R.drawable.home_icon));
 
+		addTab("Local Tracks", ListMeasurementsFragmentLocal.class,
+				MyData.createBundle("Local Tracks"));
+
 		addTab("My Tracks", ListMeasurementsFragment.class,
 				MyData.createBundle("My Tracks"));
 		addTab("OBD", OBDFrament.class, MyData.createBundle("Overview")); // TODO
@@ -148,7 +151,7 @@ public class MainActivity<AndroidAlarmService> extends
 		// addTab( "Friends", MyData.class, MyData.createBundle( "Fragment 3")
 		// );
 
-		setSelectedTab(2);
+		setSelectedTab(3);
 
 		// --------------------------
 		// --------------------------
@@ -203,6 +206,9 @@ public class MainActivity<AndroidAlarmService> extends
 		// // TODO Auto-generated method stub
 		// }
 		// });
+
+		// initDbAdapter();
+		// testMethode();
 
 		// Upload data every 10 minutes and only if there are more than 50
 		// measurements stored in the database

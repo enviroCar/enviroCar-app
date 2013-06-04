@@ -134,6 +134,7 @@ public class ECApplication extends Application implements LocationListener {
 						.getLastMeasurement().getMeasurementTime()) > 360000) {
 					// TODO: make parameters dynamic
 					track = new Track("123456", "Gasoline", dbAdapterLocal);
+					track.setName("Trackname");
 					return;
 				}
 				// TODO: New track if user clicks on create new track button
@@ -145,6 +146,7 @@ public class ECApplication extends Application implements LocationListener {
 				if (getDistance(lastUsedTrack.getLastMeasurement(),
 						locationLatitude, locationLongitude) > 3.0) {
 					track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO
+					track.setName("Trackname");
 					return;
 
 				}
@@ -159,7 +161,7 @@ public class ECApplication extends Application implements LocationListener {
 			} catch (MeasurementsException e) {
 
 				track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO:
-
+				track.setName("Trackname");
 				e.printStackTrace();
 			}
 
@@ -183,6 +185,7 @@ public class ECApplication extends Application implements LocationListener {
 						.getLastMeasurement().getMeasurementTime()) > 360000) {
 					// TODO: make parameters dynamic
 					track = new Track("123456", "Gasoline", dbAdapterLocal);
+					track.setName("Trackname");
 					return;
 				}
 				// TODO: New track if user clicks on create new track button
@@ -194,6 +197,7 @@ public class ECApplication extends Application implements LocationListener {
 				if (getDistance(currentTrack.getLastMeasurement(),
 						locationLatitude, locationLongitude) > 3.0) {
 					track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO
+					track.setName("Trackname");
 					return;
 
 				}
