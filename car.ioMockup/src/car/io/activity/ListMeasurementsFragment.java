@@ -6,6 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.Vector;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -44,6 +45,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	private ExpandableListView elv;
 
 	private ProgressBar progress;
+	
+	private Vector<String> dlTrackIds = new Vector<String>();
 
 	public View onCreateView(android.view.LayoutInflater inflater,
 			android.view.ViewGroup container,
@@ -55,7 +58,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		View v = inflater.inflate(R.layout.list_tracks_layout, null);
 		elv = (ExpandableListView) v.findViewById(R.id.list);
 		progress = (ProgressBar) v.findViewById(R.id.listprogress);
-
+		tracksList = new ArrayList<Track>();
 		return v;
 	};
 
@@ -67,7 +70,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		elv.setChildDivider(getResources().getDrawable(
 				android.R.color.transparent));
 
-		//downloadTracks();
+		downloadTracks();
 
 	}
 
@@ -92,6 +95,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			public void onSuccess(int httpStatus, JSONObject json) {
 				super.onSuccess(httpStatus, json);
 
+				//TODO put everything in the asynctask
 				try {
 					JSONArray tracks = json.getJSONArray("tracks");
 					ct = tracks.length();
@@ -103,6 +107,9 @@ public class ListMeasurementsFragment extends SherlockFragment {
 								ct--;
 								if (ct == 0) {
 									progress.setVisibility(View.GONE);
+								}
+								if (elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))) {
+									elv.setAdapter(elvAdapter);
 								}
 								continue;
 							}
@@ -116,14 +123,18 @@ public class ListMeasurementsFragment extends SherlockFragment {
 							if (ct == 0) {
 								progress.setVisibility(View.GONE);
 							}
+							if (elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))) {
+								elv.setAdapter(elvAdapter);
+							}
 							continue;
 						}
+
 						// else
 						// download the track
 						RestClient.downloadTrack(
 								((JSONObject) tracks.get(i)).getString("href"),
 								new JsonHttpResponseHandler() {
-
+									
 									@Override
 									public void onFinish() {
 										super.onFinish();
@@ -139,77 +150,105 @@ public class ListMeasurementsFragment extends SherlockFragment {
 									@Override
 									public void onSuccess(JSONObject trackJson) {
 										super.onSuccess(trackJson);
-										Track t;
-										try {
-											t = new Track(
-													trackJson.getJSONObject(
-															"properties")
-															.getString("id"));
-											t.setDatabaseAdapter(dbAdapter);
-											t.setName(trackJson.getJSONObject(
-													"properties").getString(
-													"name"));
-											t.setDescription(trackJson
-													.getJSONObject("properties")
-													.getString("description"));
-											// TODO more properties
-											Measurement recycleMeasurement;
+										class AsyncOnSuccessTask extends AsyncTask<JSONObject, Void, Track>{
+											
+											@Override
+											protected Track doInBackground(
+													JSONObject... trackJson) {
+												Track t;
+												try {
+													t = new Track(
+															trackJson[0].getJSONObject(
+																	"properties")
+																	.getString("id"));
+													t.setDatabaseAdapter(dbAdapter);
+													t.setName(trackJson[0].getJSONObject(
+															"properties").getString(
+															"name"));
+													t.setDescription(trackJson[0]
+															.getJSONObject("properties")
+															.getString("description"));
+													// TODO more properties
+													Measurement recycleMeasurement;
 
-											for (int j = 0; j < trackJson
-													.getJSONArray("features")
-													.length(); j++) {
-												recycleMeasurement = new Measurement(
-														Float.valueOf(trackJson
+													for (int j = 0; j < trackJson[0]
+															.getJSONArray("features")
+															.length(); j++) {
+														recycleMeasurement = new Measurement(
+																Float.valueOf(trackJson[0]
+																		.getJSONArray(
+																				"features")
+																		.getJSONObject(
+																				j)
+																		.getJSONObject(
+																				"geometry")
+																		.getJSONArray(
+																				"coordinates")
+																		.getString(1)),
+																Float.valueOf(trackJson[0]
+																		.getJSONArray(
+																				"features")
+																		.getJSONObject(
+																				j)
+																		.getJSONObject(
+																				"geometry")
+																		.getJSONArray(
+																				"coordinates")
+																		.getString(0)));
+
+														recycleMeasurement.setMaf((trackJson[0]
 																.getJSONArray(
 																		"features")
+																.getJSONObject(j)
 																.getJSONObject(
-																		j)
+																		"properties")
 																.getJSONObject(
-																		"geometry")
-																.getJSONArray(
-																		"coordinates")
-																.getString(1)),
-														Float.valueOf(trackJson
-																.getJSONArray(
-																		"features")
+																		"phenomenons")
 																.getJSONObject(
-																		j)
-																.getJSONObject(
-																		"geometry")
-																.getJSONArray(
-																		"coordinates")
-																.getString(0)));
-
-												recycleMeasurement.setMaf((trackJson
-														.getJSONArray(
-																"features")
-														.getJSONObject(j)
-														.getJSONObject(
-																"properties")
-														.getJSONObject(
-																"phenomenons")
-														.getJSONObject(
-																"testphenomenon9")
-														.getDouble("value")));
-												// TODO more properties
-												recycleMeasurement.setTrack(t);
-												t.addMeasurement(recycleMeasurement);
+																		"testphenomenon9")
+																.getDouble("value")));
+														// TODO more properties
+														recycleMeasurement.setTrack(t);
+														t.addMeasurement(recycleMeasurement);
+													}
+													t.commitTrackToDatabase();
+													Log.i("track_id",t.getId()+" "+((DbAdapterRemote) dbAdapter).trackExistsInDatabase(t.getId())+" "+dbAdapter.getNumberOfStoredTracks());
+													dlTrackIds.remove(t.getId());
+													return t;
+												} catch (JSONException e) {
+													e.printStackTrace();
+												} catch (NumberFormatException e) {
+													e.printStackTrace();
+												} catch (LocationInvalidException e) {
+													e.printStackTrace();
+												}
+												return null;
 											}
-											t.commitTrackToDatabase();
-											tracksList.add(t);
-											elvAdapter.notifyDataSetChanged();
-											ct--;
-											if (ct == 0) {
-												progress.setVisibility(View.GONE);
+
+											@Override
+											protected void onPostExecute(
+													Track t) {
+												super.onPostExecute(t);
+												tracksList.add(t);
+												elvAdapter.notifyDataSetChanged();
+												ct--;
+												if (ct == 0) {
+													progress.setVisibility(View.GONE);
+												}
+											}
+											
+										}
+										//check if the task for dling the track is already running
+										try {
+											if(!dlTrackIds.contains(trackJson.getJSONObject("properties").getString("id"))){
+												dlTrackIds.add(trackJson.getJSONObject("properties").getString("id"));
+												new AsyncOnSuccessTask().execute(trackJson);
 											}
 										} catch (JSONException e) {
-											e.printStackTrace();
-										} catch (NumberFormatException e) {
-											e.printStackTrace();
-										} catch (LocationInvalidException e) {
+											// TODO Auto-generated catch block
 											e.printStackTrace();
 										}
-
+										
 									}
 
 									public void onFailure(Throwable arg0,

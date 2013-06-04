@@ -280,7 +280,8 @@ public class DbAdapterRemote implements DbAdapter {
 	public boolean updateTrack(Track track) {
 
 		ContentValues initialValues = new ContentValues();
-
+		
+		initialValues.put(KEY_TRACK_ID, track.getId());
 		initialValues.put(KEY_TRACK_NAME, track.getName());
 		initialValues.put(KEY_TRACK_DESCRIPTION, track.getDescription());
 		initialValues.put(KEY_TRACK_CAR_MANUFACTURER,
@@ -289,9 +290,8 @@ public class DbAdapterRemote implements DbAdapter {
 		initialValues.put(KEY_TRACK_FUEL_TYPE, track.getFuelType());
 		initialValues.put(KEY_TRACK_VIN, track.getVin());
 
-		int result = mDb.update(DATABASE_TABLE_TRACKS, initialValues, KEY_ROWID
-				+ "= \"" + track.getId()+"\"", null);
-		return (result == 1 ? true : false);
+		long result = mDb.replace(DATABASE_TABLE_TRACKS, null, initialValues);
+		return (result != -1 ? true : false);
 	}
 
 	@Override
