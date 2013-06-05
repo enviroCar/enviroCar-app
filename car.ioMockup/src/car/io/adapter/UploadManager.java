@@ -1,5 +1,8 @@
 package car.io.adapter;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 
 import org.apache.http.HttpResponse;
@@ -9,8 +12,10 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import car.io.exception.FuelConsumptionException;
 import car.io.exception.LocationInvalidException;
 
+import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -35,34 +40,40 @@ public class UploadManager {
 		/*
 		 * This is just for testing
 		 */
-		/*
-		 * Track dummyTrack = new Track("VIN", "Diesel", dbAdapter);
-		 * dummyTrack.setDescription("This is a description of the track.");
-		 * dummyTrack.setName("This is the Name of the track");
-		 * 
-		 * try { Measurement dummyMeasurement = new Measurement(12.365f,
-		 * 24.068f); dummyMeasurement.setSpeed(220);
-		 * dummyTrack.addMeasurement(dummyMeasurement);
-		 * 
-		 * Measurement dummyMeasurement2 = new Measurement(55.365f, 7.068f);
-		 * dummyMeasurement2.setSpeed(160);
-		 * dummyTrack.addMeasurement(dummyMeasurement2);
-		 * 
-		 * Log.i(TAG, "Measurement object created."); } catch
-		 * (LocationInvalidException e1) { Log.e(TAG,
-		 * "Measurement object creation failed."); e1.printStackTrace(); }
-		 * 
-		 * ArrayList<Track> trackList = new ArrayList<Track>();
-		 * trackList.add(dummyTrack);
-		 */
+
+		Track dummyTrack = new Track("VIN", "Diesel", dbAdapter);
+		dummyTrack.setDescription("This is a description of the track.");
+		dummyTrack.setName("This is the Name of the track");
+		dummyTrack.setFuelType("Diesel");
+
+		try {
+			Measurement dummyMeasurement = new Measurement(12.365f, 24.068f);
+			dummyMeasurement.setMaf(456);
+			dummyMeasurement.setSpeed(220);
+			dummyTrack.addMeasurement(dummyMeasurement);
+			dummyMeasurement.setId(0);
+
+			Measurement dummyMeasurement2 = new Measurement(55.365f, 7.068f);
+			dummyMeasurement.setMaf(550);
+			dummyMeasurement2.setSpeed(130);
+			dummyTrack.addMeasurement(dummyMeasurement2);
+			dummyMeasurement2.setId(1);
+
+			Log.i(TAG, "Measurement object created.");
+		} catch (LocationInvalidException e1) {
+			Log.e(TAG, "Measurement object creation failed.");
+			e1.printStackTrace();
+		}
+
+		ArrayList<Track> trackList = new ArrayList<Track>();
+		trackList.add(dummyTrack);
+		
 		/*
 		 * This is where testing ends. Remember to correctly comment in or out
 		 * the next line as well.
 		 */
 
-		ArrayList<Track> trackList = dbAdapter.getAllTracks();
-
-		// TODO remove tracks from local storage if upload was successful
+//		ArrayList<Track> trackList = dbAdapter.getAllTracks();
 
 		if (trackList.size() == 0) {
 			Log.d(TAG, "No stored tracks in local db found.");
@@ -82,6 +93,7 @@ public class UploadManager {
 
 			try {
 				obj = new JSONObject(trackJsonString);
+				savetoSdCard(obj);
 			} catch (JSONException e) {
 				Log.e(TAG, "Error parsing measurement string to JSON object.");
 				e.printStackTrace();
@@ -89,7 +101,12 @@ public class UploadManager {
 
 			// TODO Configure X-User, X-Token in property document/shared
 			// preferences
-			sendHttpPost(url, obj, "upload", "upload");
+			int statusCode = sendHttpPost(url, obj, "upload", "upload");
+
+			if (statusCode != -1 && statusCode == 201) {
+				// TODO remove tracks from local storage if upload was successful
+				// TODO method dbAdapter.removeTrackFromLocalDb(Track) needed
+			}
 		}
 	}
 
@@ -108,7 +125,7 @@ public class UploadManager {
 		// TODO configure sensorName in Track Class.
 		// TODO Error Handling: only registered sensor names are accepted from
 		// server side
-		String trackSensorName = "testsensor1";
+		String trackSensorName = "Car";
 
 		String trackElementJson = String
 				.format("{ \"type\": \"FeatureCollection\", \"properties\": { \"name\": \"%s\", \"description\": \"%s\", \"sensor\": \"%s\" }, \"features\": [",
@@ -121,12 +138,22 @@ public class UploadManager {
 			String lat = String.valueOf(measurement.getLatitude());
 			String lon = String.valueOf(measurement.getLongitude());
 			// TODO Format change a la 2013-05-16T02:13:27Z needed
-			String time = String.valueOf(measurement.getMeasurementTime());
-			String sensorNameMeasurement = "testsensor1";
+			String time = "2013-05-16T02:13:27Z";
+			// String time = String.valueOf(measurement.getMeasurementTime());
+			String co2 = "0", consumption = "0";
+			try {
+				co2 = String.valueOf(track.getCO2EmissionOfMeasurement(measurement.getId()));
+				consumption = String.valueOf(track.getFuelConsumptionOfMeasurement(measurement.getId()));
+			} catch (FuelConsumptionException e) {
+				e.printStackTrace();
+			}
+
+			String maf = String.valueOf(measurement.getMaf());
 			String speed = String.valueOf(measurement.getSpeed());
 			String measurementJson = String
-					.format("{ \"type\": \"Feature\", \"geometry\": { \"type\": \"Point\", \"coordinates\": [ %s, %s ] }, \"properties\": { \"time\": \"2013-05-16T02:13:27Z\", \"sensor\": { \"name\": \"testsensor1\"}, \"phenomenons\": { \"testphenomenon1\": { \"value\": %s } } } }",
-							lon, lat, speed);
+					.format("{ \"type\": \"Feature\", \"geometry\": { \"type\": \"Point\", \"coordinates\": [ %s, %s ] }, \"properties\": { \"time\": \"%s\", \"sensor\": { \"name\": \"%s\" }, \"phenomenons\": { \"MAF\": { \"value\": %s }, \"CO2\": { \"value\": %s }, \"Consumption\": { \"value\": %s }, \"Speed\": { \"value\": %s } } } }",
+							lon, lat, time, trackSensorName, maf, co2,
+							consumption, speed);
 			measurementElements.add(measurementJson);
 		}
 
@@ -153,9 +180,10 @@ public class UploadManager {
 	 *            Token
 	 * @param xUser
 	 *            Username
+	 * @return Server response status code
 	 */
-	private void sendHttpPost(String url, JSONObject jsonObjSend,
-			String xToken, String xUser) {
+	private int sendHttpPost(String url, JSONObject jsonObjSend, String xToken,
+			String xUser) {
 
 		try {
 			DefaultHttpClient httpclient = new DefaultHttpClient();
@@ -173,23 +201,45 @@ public class UploadManager {
 			long timeSubtrahend = System.currentTimeMillis();
 			HttpResponse response = (HttpResponse) httpclient
 					.execute(httpPostRequest);
+
 			Log.i(TAG,
 					String.format("HTTP response time: [%s ms]",
 							(System.currentTimeMillis() - timeSubtrahend)));
+
 			String statusCode = String.valueOf(response.getStatusLine()
 					.getStatusCode());
+
 			String reasonPhrase = response.getStatusLine().getReasonPhrase();
 			Log.d(TAG, String.format("%s: %s", statusCode, reasonPhrase));
 
 			if (statusCode != "xyz") { // TODO replace with 201
-				CharSequence text = String.format("%s: %s", statusCode,
-						reasonPhrase);
-				Log.i(TAG, text + "");
+				String text = String.format("%s: %s", statusCode, reasonPhrase);
+				Log.i(TAG, text);
 			}
+
+			return Integer.parseInt(statusCode);
 
 		} catch (Exception e) {
 			Log.e(TAG, "Error occured while sending JSON file to server.");
 			e.printStackTrace();
+			return -1;
+		}
+
+	}
+
+	private void savetoSdCard(JSONObject obj) {
+		File log = new File(Environment.getExternalStorageDirectory(),
+				"Tracks.txt");
+		try {
+			BufferedWriter out = new BufferedWriter(new FileWriter(
+					log.getAbsolutePath(), true));
+			out.write(obj.toString());
+			out.newLine();
+			out.newLine();
+			out.flush();
+			out.close();
+		} catch (Exception e) {
+			Log.e(TAG, "Error saving tracks to SD card.", e);
 		}
 	}
 
