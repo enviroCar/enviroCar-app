@@ -138,8 +138,8 @@ public class MainActivity<AndroidAlarmService> extends
 																			// main.xml
 																			// to
 																			// SettingsActivity
-		addTab("Overview", DashboardFragment.class,
-				MyData.createBundle("Overview"));
+//		addTab("Overview", DashboardFragment.class,
+//				MyData.createBundle("Overview"));
 		addTab("Friends", ListFriends.class, MyData.createBundle("Friends"));
 		// addTab( "Friends", MyData.class, MyData.createBundle( "Fragment 3")
 		// );
@@ -397,6 +397,7 @@ public class MainActivity<AndroidAlarmService> extends
 		menu.add(0, STOP_MEASUREMENT, 0, "Stop");
 		menu.add(0, START_LIST_VIEW, 0, "List");
 		menu.add(0, SETTINGS, 0, "Settings");
+		menu.add(0, 999, 0, "Login");
 		return true;
 	}
 
@@ -417,6 +418,11 @@ public class MainActivity<AndroidAlarmService> extends
 		case SETTINGS:
 			Intent configIntent = new Intent(this, SettingsActivity.class);
 			startActivity(configIntent);
+			return true;
+			
+		case 999:
+			Intent loginIntent = new Intent(this, LoginActivity.class);
+			startActivity(loginIntent);
 			return true;
 
 			// case START_LIST_VIEW:
