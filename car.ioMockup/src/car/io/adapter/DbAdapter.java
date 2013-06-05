@@ -3,6 +3,7 @@ package car.io.adapter;
 import java.util.ArrayList;
 
 import car.io.exception.MeasurementsException;
+import car.io.exception.TracksException;
 
 /**
  * DB Adapter Interface that saves measurements in a local SQLite Database
@@ -86,6 +87,6 @@ public interface DbAdapter {
 	 * @throws MeasurementsException
 	 *             If there are no tracks in the local database
 	 */
-	public Track getLastUsedTrack() throws MeasurementsException;
+	public Track getLastUsedTrack() throws TracksException;
 
 }

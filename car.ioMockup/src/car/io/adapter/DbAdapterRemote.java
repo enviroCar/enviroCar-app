@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import car.io.exception.LocationInvalidException;
-import car.io.exception.MeasurementsException;
+import car.io.exception.TracksException;
 
 /**
  * Implementation of DbAdapter
@@ -295,8 +295,8 @@ public class DbAdapterRemote implements DbAdapter {
 	}
 
 	@Override
-	public Track getLastUsedTrack() throws MeasurementsException {
-		throw new MeasurementsException(
+	public Track getLastUsedTrack() throws TracksException {
+		throw new TracksException(
 				"This is not applicable for the remote adapter.");
 	}
 

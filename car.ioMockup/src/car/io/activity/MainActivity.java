@@ -72,7 +72,7 @@ public class MainActivity<AndroidAlarmService> extends
 	static final int START_MEASUREMENT = R.id.menu_start;
 	static final int STOP_MEASUREMENT = R.id.menu_stop;
 	static final int SETTINGS = R.id.menu_settings;
-	static final int START_LIST_VIEW = 6;
+	static final int REMOVE_LOCAL_TRACKS = R.id.menu_about;
 	static final int START_UPLOAD = R.id.menu_upload;
 
 	// Properties
@@ -207,7 +207,7 @@ public class MainActivity<AndroidAlarmService> extends
 		// }
 		// });
 
-		// initDbAdapter();
+		initDbAdapter();
 		// testMethode();
 
 		// Upload data every 10 minutes and only if there are more than 50
@@ -237,11 +237,13 @@ public class MainActivity<AndroidAlarmService> extends
 
 	}
 
-	
-	  @Override public boolean onCreateOptionsMenu(Menu menu) { 
-	  // Inflate the menu; this adds items to the action bar if it is present.
-	  getSupportMenuInflater().inflate(R.menu.menu, menu); return true; }
-	 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getSupportMenuInflater().inflate(R.menu.menu, menu);
+		return true;
+	}
+
 	/*
 	 * @Override public boolean onOptionsItemSelected(MenuItem item) {
 	 * Log.i("itemid",item.getItemId()+""); switch(item.getItemId()){ case
@@ -398,15 +400,14 @@ public class MainActivity<AndroidAlarmService> extends
 	/**
 	 * Create the menu with the entries
 	 */
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//		menu.add(0, START_MEASUREMENT, 0, "Start");
-//		menu.add(0, STOP_MEASUREMENT, 0, "Stop");
-//		menu.add(0, START_LIST_VIEW, 0, "List");
-//		menu.add(0, SETTINGS, 0, "Settings");
-//		menu.add(0, START_UPLOAD, 0, "Upload");
-//		return true;
-//	}
-	
+	// public boolean onCreateOptionsMenu(Menu menu) {
+	// menu.add(0, START_MEASUREMENT, 0, "Start");
+	// menu.add(0, STOP_MEASUREMENT, 0, "Stop");
+	// menu.add(0, START_LIST_VIEW, 0, "List");
+	// menu.add(0, SETTINGS, 0, "Settings");
+	// menu.add(0, START_UPLOAD, 0, "Upload");
+	// return true;
+	// }
 
 	/**
 	 * Determine what the menu buttons do
@@ -434,11 +435,10 @@ public class MainActivity<AndroidAlarmService> extends
 			uploadManager.uploadAllTracks();
 			return true;
 
-			// case START_LIST_VIEW:
-			// Intent listIntent = new Intent(this,
-			// ListMeasurementsActivity.class);
-			// startActivity(listIntent);
-			// return true;
+		case REMOVE_LOCAL_TRACKS:
+			dbAdapter.deleteAllTracks();
+			Log.i("obd2", "deleted all local tracks");
+			return true;
 		}
 		return false;
 	}

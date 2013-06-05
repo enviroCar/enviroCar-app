@@ -60,5 +60,6 @@
     <string name="menu_start">Start</string>
     <string name="menu_stop">Stop</string>
     <string name="menu_upload">Upload</string>
+    <string name="menu_delete">Delete</string>
 
 </resources>
