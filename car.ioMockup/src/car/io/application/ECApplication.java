@@ -29,6 +29,7 @@ import car.io.commands.MAF;
 import car.io.commands.Speed;
 import car.io.exception.LocationInvalidException;
 import car.io.exception.MeasurementsException;
+import car.io.exception.TracksException;
 import car.io.obd.BackgroundService;
 import car.io.obd.Listener;
 import car.io.obd.ServiceConnector;
@@ -95,7 +96,6 @@ public class ECApplication extends Application implements LocationListener {
 		// If everything is available, start the service connector and listener
 		startBackgroundService();
 
-
 		// TODO: Test this method.
 		createNewTrackIfNecessary();
 
@@ -128,40 +128,55 @@ public class ECApplication extends Application implements LocationListener {
 			try {
 				lastUsedTrack = dbAdapterLocal.getLastUsedTrack();
 
-				// New track if last measurement is more than 60 minutes
-				// ago
-				if ((System.currentTimeMillis() - lastUsedTrack
-						.getLastMeasurement().getMeasurementTime()) > 360000) {
-					// TODO: make parameters dynamic
-					track = new Track("123456", "Gasoline", dbAdapterLocal);
-					track.setName("Trackname");
-					track.commitTrackToDatabase();
-					return;
+				try {
+
+					// New track if last measurement is more than 60 minutes
+					// ago
+
+					if ((System.currentTimeMillis() - lastUsedTrack
+							.getLastMeasurement().getMeasurementTime()) > 360000) {
+						// TODO: make parameters dynamic
+						track = new Track("123456", "Gasoline", dbAdapterLocal);
+						track.setName("Trackname");
+						track.commitTrackToDatabase();
+						return;
+					} else {
+						track = lastUsedTrack;
+						return;
+					}
+
+				} catch (MeasurementsException e) {
+					// Track is empty, so take the last track.
+					track = lastUsedTrack;
+					e.printStackTrace();
 				}
 				// TODO: New track if user clicks on create new track button
 
-				// new track if last position is significantly different from
-				// the
-				// current position (more than 3 km)
+				try {
 
-				if (getDistance(lastUsedTrack.getLastMeasurement(),
-						locationLatitude, locationLongitude) > 3.0) {
-					track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO
-					track.setName("Trackname");
-					track.commitTrackToDatabase();
-					return;
+					// new track if last position is significantly different
+					// from the current position (more than 3 km)
+					if (getDistance(lastUsedTrack.getLastMeasurement(),
+							locationLatitude, locationLongitude) > 3.0) {
+						track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO
+						track.setName("Trackname");
+						track.commitTrackToDatabase();
+						return;
 
+					}
+
+					else {
+						track = lastUsedTrack;
+						return;
+					}
+				} catch (MeasurementsException e) {
+					track = lastUsedTrack;
+					e.printStackTrace();
 				}
 
 				// TODO: new track if VIN changed
 
-				else {
-					track = lastUsedTrack;
-					return;
-				}
-
-			} catch (MeasurementsException e) {
-
+			} catch (TracksException e) {
 				track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO:
 				track.setName("Trackname");
 				track.commitTrackToDatabase();
@@ -282,7 +297,6 @@ public class ECApplication extends Application implements LocationListener {
 		}
 	}
 
-
 	/**
 	 * Checks if a track with specific index is already present in the
 	 * dbAdapterRemote
@@ -363,7 +377,7 @@ public class ECApplication extends Application implements LocationListener {
 
 				String commandName = job.getCommandName();
 				String commandResult = job.getResult();
-				Log.i("btlogger",commandName+" "+commandResult);
+				Log.i("btlogger", commandName + " " + commandResult);
 				if (commandResult.equals("NODATA"))
 					return;
 				// Get the fuel type from the preferences
@@ -433,6 +447,7 @@ public class ECApplication extends Application implements LocationListener {
 	 * commands
 	 */
 	public void startConnection() {
+		createNewTrackIfNecessary();
 		if (!serviceConnector.isRunning()) {
 			Log.e("obd2", "service start");
 			startService(backgroundService);

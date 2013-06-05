@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import car.io.exception.LocationInvalidException;
 import car.io.exception.MeasurementsException;
+import car.io.exception.TracksException;
 
 /**
  * Implementation of DbAdapter
@@ -266,12 +267,12 @@ public class DbAdapterLocal implements DbAdapter {
 	}
 
 	@Override
-	public Track getLastUsedTrack() throws MeasurementsException {
+	public Track getLastUsedTrack() throws TracksException {
 		ArrayList<Track> trackList = getAllTracks();
 		if (trackList.size() > 0) {
 			return trackList.get(trackList.size() - 1);
 		} else
-			throw new MeasurementsException("No tracks in local database!");
+			throw new TracksException("No tracks in local database!");
 	}
 
 }
