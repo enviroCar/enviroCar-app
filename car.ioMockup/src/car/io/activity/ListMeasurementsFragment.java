@@ -70,7 +70,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		elv.setChildDivider(getResources().getDrawable(
 				android.R.color.transparent));
 
-//		downloadTracks();
+		//downloadTracks();
 
 	}
 
