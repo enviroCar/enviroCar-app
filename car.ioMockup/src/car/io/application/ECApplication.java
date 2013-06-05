@@ -135,6 +135,7 @@ public class ECApplication extends Application implements LocationListener {
 					// TODO: make parameters dynamic
 					track = new Track("123456", "Gasoline", dbAdapterLocal);
 					track.setName("Trackname");
+					track.commitTrackToDatabase();
 					return;
 				}
 				// TODO: New track if user clicks on create new track button
@@ -147,6 +148,7 @@ public class ECApplication extends Application implements LocationListener {
 						locationLatitude, locationLongitude) > 3.0) {
 					track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO
 					track.setName("Trackname");
+					track.commitTrackToDatabase();
 					return;
 
 				}
@@ -162,6 +164,7 @@ public class ECApplication extends Application implements LocationListener {
 
 				track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO:
 				track.setName("Trackname");
+				track.commitTrackToDatabase();
 				e.printStackTrace();
 			}
 
@@ -186,6 +189,7 @@ public class ECApplication extends Application implements LocationListener {
 					// TODO: make parameters dynamic
 					track = new Track("123456", "Gasoline", dbAdapterLocal);
 					track.setName("Trackname");
+					track.commitTrackToDatabase();
 					return;
 				}
 				// TODO: New track if user clicks on create new track button
@@ -198,6 +202,7 @@ public class ECApplication extends Application implements LocationListener {
 						locationLatitude, locationLongitude) > 3.0) {
 					track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO
 					track.setName("Trackname");
+					track.commitTrackToDatabase();
 					return;
 
 				}
