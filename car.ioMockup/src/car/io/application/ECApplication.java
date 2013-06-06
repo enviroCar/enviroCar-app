@@ -527,6 +527,9 @@ public class ECApplication extends Application implements LocationListener {
 				measurement.setSpeed(speedMeasurement);
 				measurement.setMaf(mafMeasurement);
 				Log.e("obd2", "new measurement");
+				Log.e("obd2",
+						measurement.getLatitude() + " "
+								+ measurement.getLongitude());
 				Log.e("obd2", measurement.toString());
 
 				insertMeasurement(measurement);
