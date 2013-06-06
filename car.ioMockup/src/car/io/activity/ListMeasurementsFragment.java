@@ -46,6 +46,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 	private ProgressBar progress;
 	
+	
 	private Vector<String> dlTrackIds = new Vector<String>();
 
 	public View onCreateView(android.view.LayoutInflater inflater,
@@ -68,14 +69,18 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				R.drawable.list_indicator));
 		elv.setChildDivider(getResources().getDrawable(
 				android.R.color.transparent));
-
-		//downloadTracks();
+		if(((ECApplication) getActivity().getApplication()).isLoggedIn()){
+			//downloadTracks();
+		}
 
 	}
 
 	private void downloadTracks() {
+		
+		
+		String username = ((ECApplication) getActivity().getApplication()).getUser().getUsername();
 		//TODO: make AsyncJsonHttpResponseHandler
-		RestClient.downloadTracks(new JsonHttpResponseHandler() {
+		RestClient.downloadTracks(username,new JsonHttpResponseHandler() {
 
 			// Variable that holds the number of trackdl requests
 			private int ct = 0;

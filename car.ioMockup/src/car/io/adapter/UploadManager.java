@@ -15,25 +15,28 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
+import car.io.application.ECApplication;
 import car.io.exception.FuelConsumptionException;
-import car.io.exception.LocationInvalidException;
 
 public class UploadManager {
 
 	private static final String TAG = "obd2";
 
 	// TODO Configure Url in property document/shared preferences
-	private String url = "http://giv-car.uni-muenster.de:8080/stable/rest/users/upload/tracks";
+	private String url = "http://giv-car.uni-muenster.de:8080/stable/rest/users/%1$s/tracks";
 	private JSONObject obj;
 
 	private DbAdapter dbAdapter;
+	private Context context;
 
-	public UploadManager(DbAdapter dbAdapter) {
+	public UploadManager(DbAdapter dbAdapter,Context ctx) {
 		this.dbAdapter = dbAdapter;
+		this.context = ctx;
 	}
 
 	/**
@@ -92,7 +95,8 @@ public class UploadManager {
 		}
 
 		Log.i("Size", String.valueOf(trackJsonList.size()));
-
+		//TODO bulk upload over one connection..
+		new UploadAsyncTask().execute();
 		for (String trackJsonString : trackJsonList) {
 			obj = null;
 
@@ -104,7 +108,7 @@ public class UploadManager {
 				e.printStackTrace();
 			}
 
-			new UploadAsyncTask().execute();
+			
 
 		}
 	}
@@ -115,7 +119,10 @@ public class UploadManager {
 		protected Void doInBackground(Void... params) {
 			// TODO Configure X-User, X-Token in property document/shared
 			// preferences
-			int statusCode = sendHttpPost(url, obj, "upload", "upload");
+			String username = ((ECApplication) context).getUser().getUsername();
+			String token = ((ECApplication) context).getUser().getToken();
+			String urlL = String.format(url, username);
+			int statusCode = sendHttpPost(urlL, obj, username, token);
 			if (statusCode != -1 && statusCode == 201) {
 				// TODO remove tracks from local storage if upload was
 				// successful

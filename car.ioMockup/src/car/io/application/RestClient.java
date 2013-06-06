@@ -9,8 +9,8 @@ public class RestClient {
 	
 	private static AsyncHttpClient client = new AsyncHttpClient();
 	
-	public static void downloadTracks(JsonHttpResponseHandler handler){
-		client.get(BASE_URL+"tracks?limit=10", handler); //TODO: remove download limit
+	public static void downloadTracks(String user, JsonHttpResponseHandler handler){
+		client.get(BASE_URL+"/"+user+"/tracks", handler); //TODO use pagination
 	}
 	
 	public static void downloadTrack(String url, JsonHttpResponseHandler handler){

@@ -416,7 +416,7 @@ public class MainActivity<AndroidAlarmService> extends
 
 		case START_UPLOAD:
 			// TODO Only enable when getAllTracks().size = 0 item.setEnabled(false)
-			UploadManager uploadManager = new UploadManager(application.getDbAdapterLocal());
+			UploadManager uploadManager = new UploadManager(application.getDbAdapterLocal(),getApplication());
 			uploadManager.uploadAllTracks();
 			return true;
 
