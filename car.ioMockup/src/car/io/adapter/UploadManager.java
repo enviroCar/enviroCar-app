@@ -19,7 +19,6 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 import car.io.exception.FuelConsumptionException;
-import car.io.exception.LocationInvalidException;
 
 public class UploadManager {
 
@@ -43,33 +42,33 @@ public class UploadManager {
 		 * This is just for testing
 		 */
 
-		Track dummyTrack = new Track("VIN", "Diesel", dbAdapter);
-		dummyTrack.setDescription("This is a description of the track.");
-		dummyTrack.setName("This is the Name of the track");
-		dummyTrack.setFuelType("Diesel");
-
-		try {
-			Measurement dummyMeasurement = new Measurement(12.365f, 24.068f);
-			dummyMeasurement.setMaf(456);
-			dummyMeasurement.setSpeed(220);
-			dummyTrack.addMeasurement(dummyMeasurement);
-			dummyMeasurement.setId(0);
-
-			Measurement dummyMeasurement2 = new Measurement(55.365f, 7.068f);
-			dummyMeasurement2.setMaf(550);
-			dummyMeasurement2.setSpeed(130);
-			dummyTrack.addMeasurement(dummyMeasurement2);
-			dummyMeasurement2.setId(1);
-
-			Log.i(TAG, "Measurement object created.");
-		} catch (LocationInvalidException e1) {
-			Log.e(TAG, "Measurement object creation failed.");
-			e1.printStackTrace();
-		}
-
-		dummyTrack.commitTrackToDatabase();
-		ArrayList<Track> trackList = new ArrayList<Track>();
-		trackList.add(dummyTrack);
+		// Track dummyTrack = new Track("VIN", "Diesel", dbAdapter);
+		// dummyTrack.setDescription("This is a description of the track.");
+		// dummyTrack.setName("This is the Name of the track");
+		// dummyTrack.setFuelType("Diesel");
+		//
+		// try {
+		// Measurement dummyMeasurement = new Measurement(12.365f, 24.068f);
+		// dummyMeasurement.setMaf(456);
+		// dummyMeasurement.setSpeed(220);
+		// dummyTrack.addMeasurement(dummyMeasurement);
+		// dummyMeasurement.setId(0);
+		//
+		// Measurement dummyMeasurement2 = new Measurement(55.365f, 7.068f);
+		// dummyMeasurement2.setMaf(550);
+		// dummyMeasurement2.setSpeed(130);
+		// dummyTrack.addMeasurement(dummyMeasurement2);
+		// dummyMeasurement2.setId(1);
+		//
+		// Log.i(TAG, "Measurement object created.");
+		// } catch (LocationInvalidException e1) {
+		// Log.e(TAG, "Measurement object creation failed.");
+		// e1.printStackTrace();
+		// }
+		//
+		// dummyTrack.commitTrackToDatabase();
+		// ArrayList<Track> trackList = new ArrayList<Track>();
+		// trackList.add(dummyTrack);
 
 		/*
 		 * This is where testing ends. Remember to correctly comment in or out
@@ -78,7 +77,7 @@ public class UploadManager {
 
 		cleanDumpFile();
 
-		// ArrayList<Track> trackList = dbAdapter.getAllTracks();
+		ArrayList<Track> trackList = dbAdapter.getAllTracks();
 
 		if (trackList.size() == 0) {
 			Log.d(TAG, "No stored tracks in local db found.");
