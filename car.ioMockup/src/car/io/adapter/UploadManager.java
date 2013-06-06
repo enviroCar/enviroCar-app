@@ -54,7 +54,7 @@ public class UploadManager {
 			dummyMeasurement.setId(0);
 
 			Measurement dummyMeasurement2 = new Measurement(55.365f, 7.068f);
-			dummyMeasurement.setMaf(550);
+			dummyMeasurement2.setMaf(550);
 			dummyMeasurement2.setSpeed(130);
 			dummyTrack.addMeasurement(dummyMeasurement2);
 			dummyMeasurement2.setId(1);
@@ -67,11 +67,13 @@ public class UploadManager {
 
 		ArrayList<Track> trackList = new ArrayList<Track>();
 		trackList.add(dummyTrack);
-		
+
 		/*
 		 * This is where testing ends. Remember to correctly comment in or out
 		 * the next line as well.
 		 */
+
+		cleanDumpFile();
 
 //		ArrayList<Track> trackList = dbAdapter.getAllTracks();
 
@@ -104,7 +106,8 @@ public class UploadManager {
 			int statusCode = sendHttpPost(url, obj, "upload", "upload");
 
 			if (statusCode != -1 && statusCode == 201) {
-				// TODO remove tracks from local storage if upload was successful
+				// TODO remove tracks from local storage if upload was
+				// successful
 				// TODO method dbAdapter.removeTrackFromLocalDb(Track) needed
 			}
 		}
@@ -142,8 +145,10 @@ public class UploadManager {
 			// String time = String.valueOf(measurement.getMeasurementTime());
 			String co2 = "0", consumption = "0";
 			try {
-				co2 = String.valueOf(track.getCO2EmissionOfMeasurement(measurement.getId()));
-				consumption = String.valueOf(track.getFuelConsumptionOfMeasurement(measurement.getId()));
+				co2 = String.valueOf(track
+						.getCO2EmissionOfMeasurement(measurement.getId()));
+				consumption = String.valueOf(track
+						.getFuelConsumptionOfMeasurement(measurement.getId()));
 			} catch (FuelConsumptionException e) {
 				e.printStackTrace();
 			}
@@ -225,6 +230,12 @@ public class UploadManager {
 			return -1;
 		}
 
+	}
+
+	private void cleanDumpFile() {
+		File log = new File(Environment.getExternalStorageDirectory(),
+				"Tracks.txt");
+		log.delete();
 	}
 
 	private void savetoSdCard(JSONObject obj) {
