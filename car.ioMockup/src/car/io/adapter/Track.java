@@ -246,7 +246,7 @@ public class Track {
 	 * 
 	 * @param measurement
 	 *            The measurement with the fuel consumption
-	 * @return The fuel consumption in l/s
+	 * @return The fuel consumption in l/s. 0.0 if MAF is -1.0 (no MAF sensor)
 	 * @throws FuelConsumptionException
 	 */
 
@@ -260,12 +260,16 @@ public class Track {
 
 		double maf = m.getMaf();
 
-		if (this.fuelType.equals("Gasoline")) {
-			return (maf / 14.7) / 747;
-		} else if (this.fuelType.equals("Diesel")) {
-			return (maf / 14.5) / 832;
-		} else
-			throw new FuelConsumptionException();
+		if (maf!=-1.0) {
+			if (this.fuelType.equals("Gasoline")) {
+				return (maf / 14.7) / 747;
+			} else if (this.fuelType.equals("Diesel")) {
+				return (maf / 14.5) / 832;
+			} else
+				throw new FuelConsumptionException();
+		} else {
+			return 0.0;
+		}
 
 	}
 
