@@ -54,8 +54,6 @@ import car.io.obd.ServiceConnector;
 public class ECApplication extends Application implements LocationListener {
 	
 	
-	public static final String GET_TRACKS_URI = "http://giv-car.uni-muenster.de:8080/dev/rest/tracks";
-
 	private static ECApplication singleton;
 	private DbAdapter dbAdapterLocal;
 	private DbAdapter dbAdapterRemote;
@@ -81,6 +79,8 @@ public class ECApplication extends Application implements LocationListener {
 	private Track track;
 
 	private boolean requirementsFulfilled = true;
+	
+	private static User user;
 
 	public ECApplication getInstance() {
 		return singleton;
@@ -143,7 +143,7 @@ public class ECApplication extends Application implements LocationListener {
 
 			@Override
 			protected Void doInBackground(Void... params) {
-				String response = HttpRequest.get(GET_TRACKS_URI).body();
+				String response = HttpRequest.get("").body();
 				Log.i("response",response);
 				try {
 					JSONObject tracksJSON = new JSONObject(response); //TODO reuse Objects to avoid GC
@@ -170,6 +170,14 @@ public class ECApplication extends Application implements LocationListener {
 			
 		};
 		downloadTracksTask.execute((Void)null);
+	}
+	
+	public void setUser(User user){
+		ECApplication.user = user;
+	}
+	
+	public User getUser(){
+		return user;
 	}
 	
 	public DbAdapter getDbAdapterLocal() {

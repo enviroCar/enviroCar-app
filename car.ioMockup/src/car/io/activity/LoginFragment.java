@@ -1,21 +1,13 @@
 package car.io.activity;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.protocol.HTTP;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -23,7 +15,6 @@ import android.annotation.TargetApi;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.NavUtils;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -33,10 +24,11 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import car.io.R;
+import car.io.application.ECApplication;
+import car.io.application.User;
+import car.io.views.Utils;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-import com.actionbarsherlock.view.MenuItem;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -55,11 +47,12 @@ public class LoginFragment extends SherlockFragment {
 	private UserLoginTask mAuthTask = null;
 
 	// Values for email and password at the time of the login attempt.
-	private String mEmail;
+	private String mUsername;
 	private String mPassword;
+	private String mPasswordMD5;
 
 	// UI references.
-	private EditText mEmailView;
+	private EditText mUsernameView;
 	private EditText mPasswordView;
 	private View mLoginFormView;
 	private View mLoginStatusView;
@@ -72,7 +65,7 @@ public class LoginFragment extends SherlockFragment {
 //				super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.login_layout, null);
 		
-		mEmailView = (EditText) view.findViewById(R.id.login_username);
+		mUsernameView = (EditText) view.findViewById(R.id.login_username);
 
 
 		mPasswordView = (EditText) view.findViewById(R.id.login_password);
@@ -113,11 +106,11 @@ public class LoginFragment extends SherlockFragment {
 		}
 
 		// Reset errors.
-		mEmailView.setError(null);
+		mUsernameView.setError(null);
 		mPasswordView.setError(null);
 
 		// Store values at the time of the login attempt.
-		mEmail = mEmailView.getText().toString();
+		mUsername = mUsernameView.getText().toString();
 		mPassword = mPasswordView.getText().toString();
 
 		boolean cancel = false;
@@ -135,22 +128,26 @@ public class LoginFragment extends SherlockFragment {
 		}
 
 		// Check for a valid email address.
-		if (TextUtils.isEmpty(mEmail)) {
-			mEmailView.setError(getString(R.string.error_field_required));
-			focusView = mEmailView;
+		if (TextUtils.isEmpty(mUsername)) {
+			mUsernameView.setError(getString(R.string.error_field_required));
+			focusView = mUsernameView;
 			cancel = true;
-		} 
-//		else if (!mEmail.contains("@")) {
-//			mEmailView.setError(getString(R.string.error_invalid_email));
-//			focusView = mEmailView;
-//			cancel = true;
-//		}
+		}
+		
+		//convert the password to md5
+		mPasswordMD5 = Utils.MD5(mPassword);
+		if(mPasswordMD5==null){
+			mPasswordView.setError(getString(R.string.error_invalid_email));
+			focusView = mPasswordView;
+			cancel = true;
+		}
 
 		if (cancel) {
 			// There was an error; don't attempt login and focus the first
 			// form field with an error.
 			focusView.requestFocus();
 		} else {
+			
 			// Show a progress spinner, and kick off a background task to
 			// perform the user login attempt.
 			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
@@ -208,7 +205,7 @@ public class LoginFragment extends SherlockFragment {
 	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 		@Override
 		protected Boolean doInBackground(Void... params) {
-			return authenticateHttp(mEmail,mPassword);
+			return authenticateHttp(mUsername,mPasswordMD5);
 			
 		}
 
@@ -218,6 +215,7 @@ public class LoginFragment extends SherlockFragment {
 			showProgress(false);
 
 			if (success) {
+				((ECApplication) getActivity().getApplication()).setUser(new User(mUsername,mPasswordMD5));
 				getActivity().finish();
 			} else {
 				mPasswordView

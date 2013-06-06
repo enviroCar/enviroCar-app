@@ -1,18 +1,13 @@
 package car.io.activity;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,7 +19,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +27,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import car.io.R;
+import car.io.views.Utils;
 
 import com.actionbarsherlock.app.SherlockFragment;
 
@@ -41,6 +36,10 @@ import com.actionbarsherlock.app.SherlockFragment;
  * well.
  */
 public class RegisterFragment extends SherlockFragment {
+	
+	
+	private static final int ERROR_GENERAL = 1;
+	private static final int ERROR_NET = 2;
 
 	/**
 	 * The default email to populate the email field with.
@@ -57,6 +56,7 @@ public class RegisterFragment extends SherlockFragment {
 	private String mEmail;
 	private String mPassword;
 	private String mPasswordConfirm;
+	private String mPasswordMD5;
 
 	// UI references.
 	private EditText mUsernameView;
@@ -183,6 +183,14 @@ public class RegisterFragment extends SherlockFragment {
 			focusView = mPasswordConfirmView;
 			cancel = true;
 		}
+		
+		//convert the password to md5
+		mPasswordMD5 = Utils.MD5(mPassword);
+		if(mPasswordMD5==null){
+			mPasswordView.setError(getString(R.string.error_invalid_email));
+			focusView = mPasswordView;
+			cancel = true;
+		}
 
 		if (cancel) {
 			// There was an error; don't attempt register and focus the first
@@ -243,22 +251,26 @@ public class RegisterFragment extends SherlockFragment {
 	 * Represents an asynchronous register/registration task used to authenticate
 	 * the user.
 	 */
-	public class UserRegisterTask extends AsyncTask<Void, Void, Boolean> {
+	public class UserRegisterTask extends AsyncTask<Void, Void, Integer> {
 		@Override
-		protected Boolean doInBackground(Void... params) {
-			createUser(mUsername, mPassword, mEmail);
-			return false;
+		protected Integer doInBackground(Void... params) {
+			
+			return createUser(mUsername, mPasswordMD5, mEmail);
 			
 		}
 
 		@Override
-		protected void onPostExecute(final Boolean success) {
+		protected void onPostExecute(final Integer httpStatus) {
 			mAuthTask = null;
 			showProgress(false);
 
-			if (success) {
+			if (httpStatus == HttpStatus.SC_CREATED) {
+				//TODO greet the user or something..
 				getActivity().finish();
+			} else if (httpStatus == HttpStatus.SC_CONFLICT){
+				//TODO look out for server changes..
 			} else {
+				//TODO general error
 				mPasswordView
 						.setError(getString(R.string.error_incorrect_password));
 				mPasswordView.requestFocus();
@@ -275,7 +287,7 @@ public class RegisterFragment extends SherlockFragment {
 	/*
 	 * Use this method to sign up a new user
 	 */
-	public void createUser(String user, String token, String mail){
+	public int createUser(String user, String token, String mail){
 
 		JSONObject requestJson = new JSONObject();
 		try {
@@ -289,7 +301,7 @@ public class RegisterFragment extends SherlockFragment {
 		
 		DefaultHttpClient httpClient = new DefaultHttpClient();
 
-		HttpResponse response;
+
 		try {
 			HttpPost postRequest = new HttpPost("http://giv-car.uni-muenster.de:8080/stable/rest/users");
 
@@ -297,33 +309,22 @@ public class RegisterFragment extends SherlockFragment {
 			input.setContentType("application/json");			
 			
 			postRequest.setEntity(input);
-					
-			response = httpClient.execute(postRequest);
+			return httpClient.execute(postRequest).getStatusLine().getStatusCode();
+			
 
-			if (response.getStatusLine().getStatusCode() != 201) {
-				// TODO Throw error
-			} else {
-				// TODO Report to user if successful and redirect
-				BufferedReader br = new BufferedReader(new InputStreamReader(
-						(response.getEntity().getContent())));
-
-				String output="";
-				String line = "";
-//				System.out.println("Output from Server .... \n");
-				while ((line = br.readLine()) != null) {
-					output += line+"\n";
-				}
-				Log.i("response",output);
-			}
 		} catch (UnsupportedEncodingException e1) {
-			// TODO Auto-generated catch block
+			//Shouldn't occur hopefully..
 			e1.printStackTrace();
+			return ERROR_GENERAL;
 		} catch (ClientProtocolException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+			return ERROR_GENERAL;
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+			//probably something with the Internet..
+			return ERROR_NET;
 		} finally {
 			// When HttpClient instance is no longer needed,
 			// shut down the connection manager to ensure
@@ -331,44 +332,5 @@ public class RegisterFragment extends SherlockFragment {
 			httpClient.getConnectionManager().shutdown();
 		}
 	}
-	
-	
 
-	/*
-	 * Method used for authentication (e.g. at registerscreen to verify user
-	 * credentials
-	 */
-	public boolean authenticateHttp(String user, String token) {
-		DefaultHttpClient httpclient = new DefaultHttpClient();
-		try {
-			HttpGet httpget = new HttpGet(
-					"http://giv-car.uni-muenster.de:8080/stable/rest/users"
-							+ user);
-			httpget.addHeader(new BasicHeader("X-User", user));
-			httpget.addHeader(new BasicHeader("X-Token", token));
-			HttpResponse response = httpclient.execute(httpget);
-
-			int status = response.getStatusLine().getStatusCode();
-			if (status != HttpStatus.SC_OK) {
-				return false;
-			} else {
-				// TODO Set Sharedprefs or similar
-				return true;
-
-			}
-
-		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			// When HttpClient instance is no longer needed,
-			// shut down the connection manager to ensure
-			// immediate deallocation of all system resources
-			httpclient.getConnectionManager().shutdown();
-		}
-		return false;
-	}
 }
