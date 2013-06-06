@@ -27,6 +27,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import car.io.R;
+import car.io.views.TYPEFACE;
 import car.io.views.Utils;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -107,6 +108,12 @@ public class RegisterFragment extends SherlockFragment {
 		return view;
 	}
 
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		TYPEFACE.applyCustomFont((ViewGroup) view, TYPEFACE.Raleway(getActivity()));
+	}
+	
 	/**
 	 * Attempts to sign in or register the account specified by the register form.
 	 * If there are form errors (invalid email, missing fields, etc.), the

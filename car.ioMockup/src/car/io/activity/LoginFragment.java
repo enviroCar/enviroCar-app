@@ -26,6 +26,7 @@ import android.widget.TextView;
 import car.io.R;
 import car.io.application.ECApplication;
 import car.io.application.User;
+import car.io.views.TYPEFACE;
 import car.io.views.Utils;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -95,6 +96,12 @@ public class LoginFragment extends SherlockFragment {
 		return view;
 	}
 
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		TYPEFACE.applyCustomFont((ViewGroup) view, TYPEFACE.Raleway(getActivity()));
+	}	
+	
 	/**
 	 * Attempts to sign in or register the account specified by the login form.
 	 * If there are form errors (invalid email, missing fields, etc.), the

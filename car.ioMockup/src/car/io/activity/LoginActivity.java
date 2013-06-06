@@ -1,13 +1,14 @@
 package car.io.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NavUtils;
-
+import android.widget.TextView;
 import car.io.R;
+import car.io.views.TYPEFACE;
+import car.io.views.Utils;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.ActionBar.Tab;
@@ -21,12 +22,25 @@ import com.actionbarsherlock.view.MenuItem;
  * well.
  */
 public class LoginActivity extends SherlockFragmentActivity {
+	
+	private int actionBarTitleID = 0;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		final ActionBar actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+		
+		// font stuff
+		actionBarTitleID = Utils.getActionBarId();
+		if (Utils.getActionBarId() != 0) {
+			((TextView) this.findViewById(actionBarTitleID))
+					.setTypeface(TYPEFACE.Newscycle(this));
+		}
+		//TODO style tabs
+
+		actionBar.setLogo(getResources().getDrawable(R.drawable.home_icon));
+		
 		
 		actionBar.setDisplayHomeAsUpEnabled(true);
 
@@ -40,8 +54,7 @@ public class LoginActivity extends SherlockFragmentActivity {
 		tabB.setText(getResources().getString(R.string.action_sign_in_register));
 		tabB.setTabListener(new TabListener<RegisterFragment>(this, "Register",
 				RegisterFragment.class));
-		actionBar.addTab(tabB);
-
+		actionBar.addTab(tabB);		
 
 		if (savedInstanceState != null) {
 			int savedIndex = savedInstanceState.getInt("SAVED_INDEX");
