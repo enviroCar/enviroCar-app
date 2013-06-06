@@ -44,8 +44,7 @@ public class DashboardFragment extends SherlockFragment {
 
 		// application = ((ECApplication) getApplication()).getInstance();
 		// dbAdapter = (DbAdapter) application.getDbAdapterLocal();
-		dbAdapter = ((ECApplication) getActivity().getApplication())
-				.getInstance().getDbAdapterLocal();
+		dbAdapter = ((ECApplication) getActivity().getApplication()).getDbAdapterLocal();
 
 		co2TextView = (TextView) getView().findViewById(R.id.co2TextView);
 		speedTextView = (TextView) getView().findViewById(
