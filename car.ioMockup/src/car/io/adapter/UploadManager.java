@@ -19,6 +19,7 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 import car.io.exception.FuelConsumptionException;
+import car.io.exception.LocationInvalidException;
 
 public class UploadManager {
 
@@ -52,13 +53,11 @@ public class UploadManager {
 		// dummyMeasurement.setMaf(456);
 		// dummyMeasurement.setSpeed(220);
 		// dummyTrack.addMeasurement(dummyMeasurement);
-		// dummyMeasurement.setId(0);
 		//
 		// Measurement dummyMeasurement2 = new Measurement(55.365f, 7.068f);
 		// dummyMeasurement2.setMaf(550);
 		// dummyMeasurement2.setSpeed(130);
 		// dummyTrack.addMeasurement(dummyMeasurement2);
-		// dummyMeasurement2.setId(1);
 		//
 		// Log.i(TAG, "Measurement object created.");
 		// } catch (LocationInvalidException e1) {
@@ -139,29 +138,29 @@ public class UploadManager {
 		ArrayList<Measurement> measurements = track.getMeasurements();
 		ArrayList<String> measurementElements = new ArrayList<String>();
 
-		for (Measurement measurement : measurements) {
-			String lat = String.valueOf(measurement.getLatitude());
-			String lon = String.valueOf(measurement.getLongitude());
+		for (int i = 0; i < measurements.size(); i++) {
+			String lat = String.valueOf(measurements.get(i).getLatitude());
+			String lon = String.valueOf(measurements.get(i).getLongitude());
 			DateFormat dateFormat1 = new SimpleDateFormat("y-MM-d");
 			DateFormat dateFormat2 = new SimpleDateFormat("HH:mm:ss");
 			dateFormat1.setTimeZone(TimeZone.getTimeZone("UTC"));
 			dateFormat2.setTimeZone(TimeZone.getTimeZone("UTC"));
-			String time = dateFormat1.format(measurement.getMeasurementTime())
+			String time = dateFormat1.format(measurements.get(i)
+					.getMeasurementTime())
 					+ "T"
-					+ dateFormat2.format(measurement.getMeasurementTime())
-					+ "Z";
+					+ dateFormat2.format(measurements.get(i)
+							.getMeasurementTime()) + "Z";
 			String co2 = "0", consumption = "0";
 			try {
-				co2 = String.valueOf(track
-						.getCO2EmissionOfMeasurement(measurement.getId()));
+				co2 = String.valueOf(track.getCO2EmissionOfMeasurement(i));
 				consumption = String.valueOf(track
-						.getFuelConsumptionOfMeasurement(measurement.getId()));
+						.getFuelConsumptionOfMeasurement(i));
 			} catch (FuelConsumptionException e) {
 				e.printStackTrace();
 			}
 
-			String maf = String.valueOf(measurement.getMaf());
-			String speed = String.valueOf(measurement.getSpeed());
+			String maf = String.valueOf(measurements.get(i).getMaf());
+			String speed = String.valueOf(measurements.get(i).getSpeed());
 			String measurementJson = String
 					.format("{ \"type\": \"Feature\", \"geometry\": { \"type\": \"Point\", \"coordinates\": [ %s, %s ] }, \"properties\": { \"time\": \"%s\", \"sensor\": { \"name\": \"%s\" }, \"phenomenons\": { \"MAF\": { \"value\": %s }, \"CO2\": { \"value\": %s }, \"Consumption\": { \"value\": %s }, \"Speed\": { \"value\": %s } } } }",
 							lon, lat, time, trackSensorName, maf, co2,
