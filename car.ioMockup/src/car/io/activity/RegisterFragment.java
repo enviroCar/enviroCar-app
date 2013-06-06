@@ -24,6 +24,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,12 +53,16 @@ public class RegisterFragment extends SherlockFragment {
 	private UserRegisterTask mAuthTask = null;
 
 	// Values for email and password at the time of the register attempt.
+	private String mUsername;
 	private String mEmail;
 	private String mPassword;
+	private String mPasswordConfirm;
 
 	// UI references.
+	private EditText mUsernameView;
 	private EditText mEmailView;
 	private EditText mPasswordView;
+	private EditText mPasswordConfirmView;
 	private View mRegisterFormView;
 	private View mRegisterStatusView;
 	private TextView mRegisterStatusMessageView;
@@ -69,11 +74,14 @@ public class RegisterFragment extends SherlockFragment {
 //				super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.register_layout, null);
 		
-		mEmailView = (EditText) view.findViewById(R.id.email);
+		mUsernameView = (EditText) view.findViewById(R.id.register_username);
+		
+		mEmailView = (EditText) view.findViewById(R.id.register_email);
 
 
-		mPasswordView = (EditText) view.findViewById(R.id.password);
-		mPasswordView
+		mPasswordView = (EditText) view.findViewById(R.id.register_password);
+		mPasswordConfirmView = (EditText) view.findViewById(R.id.register_password_second);
+		mPasswordConfirmView
 				.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 					@Override
 					public boolean onEditorAction(TextView textView, int id,
@@ -89,7 +97,7 @@ public class RegisterFragment extends SherlockFragment {
 		mRegisterStatusView = view.findViewById(R.id.register_status);
 		mRegisterStatusMessageView = (TextView) view.findViewById(R.id.register_status_message);
 
-		view.findViewById(R.id.sign_in_button).setOnClickListener(
+		view.findViewById(R.id.register_button).setOnClickListener(
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View view) {
@@ -110,24 +118,38 @@ public class RegisterFragment extends SherlockFragment {
 		}
 
 		// Reset errors.
+		mUsernameView.setError(null);
 		mEmailView.setError(null);
+		mPasswordView.setError(null);
 		mPasswordView.setError(null);
 
 		// Store values at the time of the register attempt.
+		mUsername = mUsernameView.getText().toString();
 		mEmail = mEmailView.getText().toString();
 		mPassword = mPasswordView.getText().toString();
-
+		mPasswordConfirm = mPasswordConfirmView.getText().toString();
+		
 		boolean cancel = false;
 		View focusView = null;
+		
+		
+		//TODO fiddle around with order of checks
 
 		// Check for a valid password.
 		if (TextUtils.isEmpty(mPassword)) {
 			mPasswordView.setError(getString(R.string.error_field_required));
 			focusView = mPasswordView;
 			cancel = true;
-		} else if (mPassword.length() < 4) {
+		} else if (mPassword.length() < 6) {
 			mPasswordView.setError(getString(R.string.error_invalid_password));
 			focusView = mPasswordView;
+			cancel = true;
+		}
+		
+		//check if the password confirm is empty
+		if (TextUtils.isEmpty(mPasswordConfirm)) {
+			mPasswordConfirmView.setError(getString(R.string.error_field_required));
+			focusView = mPasswordConfirmView;
 			cancel = true;
 		}
 
@@ -139,6 +161,26 @@ public class RegisterFragment extends SherlockFragment {
 		} else if (!mEmail.contains("@")) {
 			mEmailView.setError(getString(R.string.error_invalid_email));
 			focusView = mEmailView;
+			cancel = true;
+		}
+		
+		//check for valid username
+		if (TextUtils.isEmpty(mUsername)){
+			mUsernameView.setError(getString(R.string.error_field_required));
+			focusView = mUsernameView;
+			cancel = true;
+		} else if (mUsername.length() < 6) {
+			mUsernameView.setError(getString(R.string.error_invalid_username));
+			focusView = mUsernameView;
+			cancel = true;
+		}
+		
+
+		
+		//check if passwords match
+		if(!mPassword.equals(mPasswordConfirm)){
+			mPasswordConfirmView.setError(getString(R.string.error_passwords_not_matching));
+			focusView = mPasswordConfirmView;
 			cancel = true;
 		}
 
@@ -204,7 +246,8 @@ public class RegisterFragment extends SherlockFragment {
 	public class UserRegisterTask extends AsyncTask<Void, Void, Boolean> {
 		@Override
 		protected Boolean doInBackground(Void... params) {
-			return authenticateHttp(mEmail,mPassword);
+			createUser(mUsername, mPassword, mEmail);
+			return false;
 			
 		}
 
@@ -232,14 +275,13 @@ public class RegisterFragment extends SherlockFragment {
 	/*
 	 * Use this method to sign up a new user
 	 */
-	public void createUser(String user, String token, String mail, String groups){
+	public void createUser(String user, String token, String mail){
 
 		JSONObject requestJson = new JSONObject();
 		try {
 			requestJson.put("name", user);
 			requestJson.put("token", token);
 			requestJson.put("mail", mail);
-			requestJson.put("groups", groups);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -252,7 +294,8 @@ public class RegisterFragment extends SherlockFragment {
 			HttpPost postRequest = new HttpPost("http://giv-car.uni-muenster.de:8080/stable/rest/users");
 
 			StringEntity input = new StringEntity(requestJson.toString(), HTTP.UTF_8);
-			input.setContentType("application/json");
+			input.setContentType("application/json");			
+			
 			postRequest.setEntity(input);
 					
 			response = httpClient.execute(postRequest);
@@ -260,15 +303,17 @@ public class RegisterFragment extends SherlockFragment {
 			if (response.getStatusLine().getStatusCode() != 201) {
 				// TODO Throw error
 			} else {
-				// TODO Report to user if successfull and redirect
+				// TODO Report to user if successful and redirect
 				BufferedReader br = new BufferedReader(new InputStreamReader(
 						(response.getEntity().getContent())));
 
-				String output;
-				System.out.println("Output from Server .... \n");
-				while ((output = br.readLine()) != null) {
-					System.out.println(output);
+				String output="";
+				String line = "";
+//				System.out.println("Output from Server .... \n");
+				while ((line = br.readLine()) != null) {
+					output += line+"\n";
 				}
+				Log.i("response",output);
 			}
 		} catch (UnsupportedEncodingException e1) {
 			// TODO Auto-generated catch block

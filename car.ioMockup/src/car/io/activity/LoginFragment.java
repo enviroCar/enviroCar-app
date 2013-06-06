@@ -72,10 +72,10 @@ public class LoginFragment extends SherlockFragment {
 //				super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.login_layout, null);
 		
-		mEmailView = (EditText) view.findViewById(R.id.email);
+		mEmailView = (EditText) view.findViewById(R.id.login_username);
 
 
-		mPasswordView = (EditText) view.findViewById(R.id.password);
+		mPasswordView = (EditText) view.findViewById(R.id.login_password);
 		mPasswordView
 				.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 					@Override
@@ -128,7 +128,7 @@ public class LoginFragment extends SherlockFragment {
 			mPasswordView.setError(getString(R.string.error_field_required));
 			focusView = mPasswordView;
 			cancel = true;
-		} else if (mPassword.length() < 4) {
+		} else if (mPassword.length() < 6) {
 			mPasswordView.setError(getString(R.string.error_invalid_password));
 			focusView = mPasswordView;
 			cancel = true;
