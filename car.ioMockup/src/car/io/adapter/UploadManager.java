@@ -3,7 +3,10 @@ package car.io.adapter;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.TimeZone;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -12,12 +15,11 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import car.io.exception.FuelConsumptionException;
-import car.io.exception.LocationInvalidException;
-
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
+import car.io.exception.FuelConsumptionException;
+import car.io.exception.LocationInvalidException;
 
 public class UploadManager {
 
@@ -65,6 +67,7 @@ public class UploadManager {
 			e1.printStackTrace();
 		}
 
+		dummyTrack.commitTrackToDatabase();
 		ArrayList<Track> trackList = new ArrayList<Track>();
 		trackList.add(dummyTrack);
 
@@ -75,7 +78,7 @@ public class UploadManager {
 
 		cleanDumpFile();
 
-//		ArrayList<Track> trackList = dbAdapter.getAllTracks();
+		// ArrayList<Track> trackList = dbAdapter.getAllTracks();
 
 		if (trackList.size() == 0) {
 			Log.d(TAG, "No stored tracks in local db found.");
@@ -140,9 +143,14 @@ public class UploadManager {
 		for (Measurement measurement : measurements) {
 			String lat = String.valueOf(measurement.getLatitude());
 			String lon = String.valueOf(measurement.getLongitude());
-			// TODO Format change a la 2013-05-16T02:13:27Z needed
-			String time = "2013-05-16T02:13:27Z";
-			// String time = String.valueOf(measurement.getMeasurementTime());
+			DateFormat dateFormat1 = new SimpleDateFormat("y-MM-d");
+			DateFormat dateFormat2 = new SimpleDateFormat("HH:mm:ss");
+			dateFormat1.setTimeZone(TimeZone.getTimeZone("UTC"));
+			dateFormat2.setTimeZone(TimeZone.getTimeZone("UTC"));
+			String time = dateFormat1.format(measurement.getMeasurementTime())
+					+ "T"
+					+ dateFormat2.format(measurement.getMeasurementTime())
+					+ "Z";
 			String co2 = "0", consumption = "0";
 			try {
 				co2 = String.valueOf(track
@@ -232,12 +240,21 @@ public class UploadManager {
 
 	}
 
+	/**
+	 * Deletes the dump file
+	 */
 	private void cleanDumpFile() {
 		File log = new File(Environment.getExternalStorageDirectory(),
 				"Tracks.txt");
 		log.delete();
 	}
 
+	/**
+	 * Saves a json object to the sd card
+	 * 
+	 * @param obj
+	 *            the object to save
+	 */
 	private void savetoSdCard(JSONObject obj) {
 		File log = new File(Environment.getExternalStorageDirectory(),
 				"Tracks.txt");
