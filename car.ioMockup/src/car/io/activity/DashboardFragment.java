@@ -1,9 +1,5 @@
 package car.io.activity;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,9 +9,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 import car.io.R;
 import car.io.adapter.DbAdapter;
-import car.io.adapter.Measurement;
 import car.io.application.ECApplication;
-import car.io.exception.MeasurementsException;
 import car.io.views.RoundProgress;
 import car.io.views.TYPEFACE;
 

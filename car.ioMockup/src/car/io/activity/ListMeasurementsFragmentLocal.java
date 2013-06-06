@@ -7,12 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -25,16 +20,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import car.io.R;
 import car.io.adapter.DbAdapter;
-import car.io.adapter.DbAdapterRemote;
-import car.io.adapter.Measurement;
 import car.io.adapter.Track;
 import car.io.application.ECApplication;
-import car.io.application.RestClient;
-import car.io.exception.LocationInvalidException;
 import car.io.views.TYPEFACE;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 public class ListMeasurementsFragmentLocal extends SherlockFragment {
 

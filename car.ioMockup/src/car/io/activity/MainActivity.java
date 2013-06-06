@@ -1,54 +1,34 @@
 package car.io.activity;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import android.bluetooth.BluetoothAdapter;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.ParseException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.view.PagerTabStrip;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
 import car.io.R;
 import car.io.adapter.DbAdapter;
 import car.io.adapter.Measurement;
 import car.io.adapter.Track;
 import car.io.adapter.UploadManager;
 import car.io.application.ECApplication;
-import car.io.commands.CommonCommand;
-import car.io.commands.MAF;
-import car.io.commands.RPM;
-import car.io.commands.Speed;
 import car.io.exception.LocationInvalidException;
-import car.io.obd.BackgroundService;
 import car.io.obd.Listener;
-import car.io.obd.ServiceConnector;
 import car.io.views.TYPEFACE;
 import car.io.views.Utils;
 
 import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
