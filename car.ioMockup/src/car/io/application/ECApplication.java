@@ -96,8 +96,7 @@ public class ECApplication extends Application implements LocationListener {
 		// If everything is available, start the service connector and listener
 		startBackgroundService();
 
-		// TODO: Test this method.
-		createNewTrackIfNecessary();
+		// createNewTrackIfNecessary();
 
 		try {
 			measurement = new Measurement(locationLatitude, locationLongitude);
