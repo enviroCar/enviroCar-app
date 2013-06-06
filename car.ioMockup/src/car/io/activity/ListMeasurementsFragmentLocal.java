@@ -39,8 +39,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 			android.view.ViewGroup container,
 			android.os.Bundle savedInstanceState) {
 
-		dbAdapter = ((ECApplication) getActivity().getApplication())
-				.getInstance().getDbAdapterLocal();
+		dbAdapter = ((ECApplication) getActivity().getApplication()).getDbAdapterLocal();
 
 		View v = inflater.inflate(R.layout.list_tracks_layout_local, null);
 		elv = (ExpandableListView) v.findViewById(R.id.list);
