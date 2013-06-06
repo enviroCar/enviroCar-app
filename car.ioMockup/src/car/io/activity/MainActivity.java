@@ -52,6 +52,7 @@ public class MainActivity<AndroidAlarmService> extends
 	static final int START_MEASUREMENT = R.id.menu_start;
 	static final int STOP_MEASUREMENT = R.id.menu_stop;
 	static final int SETTINGS = R.id.menu_settings;
+	static final int LOGIN = R.id.menu_login;
 	static final int REMOVE_LOCAL_TRACKS = R.id.menu_about;
 	static final int START_UPLOAD = R.id.menu_upload;
 
@@ -125,8 +126,8 @@ public class MainActivity<AndroidAlarmService> extends
 																			// main.xml
 																			// to
 																			// SettingsActivity
-		addTab("Overview", DashboardFragment.class,
-				MyData.createBundle("Overview"));
+//		addTab("Overview", DashboardFragment.class,
+//				MyData.createBundle("Overview"));
 		addTab("Friends", ListFriends.class, MyData.createBundle("Friends"));
 		// addTab( "Friends", MyData.class, MyData.createBundle( "Fragment 3")
 		// );
@@ -406,6 +407,11 @@ public class MainActivity<AndroidAlarmService> extends
 		case SETTINGS:
 			Intent configIntent = new Intent(this, SettingsActivity.class);
 			startActivity(configIntent);
+			return true;
+			
+		case LOGIN:
+			Intent loginIntent = new Intent(this, LoginActivity.class);
+			startActivity(loginIntent);
 			return true;
 
 		case START_UPLOAD:

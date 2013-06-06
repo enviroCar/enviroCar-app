@@ -61,5 +61,6 @@
     <string name="menu_stop">Stop</string>
     <string name="menu_upload">Upload</string>
     <string name="menu_delete">Delete</string>
+    <string name="menu_login">Sign in/Register</string>
 
 </resources>

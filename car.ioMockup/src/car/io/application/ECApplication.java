@@ -1,5 +1,9 @@
 package car.io.application;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -7,6 +11,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -19,6 +32,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
+import car.io.R;
 import car.io.adapter.DbAdapter;
 import car.io.adapter.DbAdapterLocal;
 import car.io.adapter.DbAdapterRemote;
@@ -37,7 +51,6 @@ import car.io.obd.ServiceConnector;
 public class ECApplication extends Application implements LocationListener {
 
 	public static final String GET_TRACKS_URI = "http://giv-car.uni-muenster.de:8080/stable/rest/tracks";
-
 	private static ECApplication singleton;
 	private DbAdapter dbAdapterLocal;
 	private DbAdapter dbAdapterRemote;
@@ -63,6 +76,8 @@ public class ECApplication extends Application implements LocationListener {
 	private Track track;
 
 	private boolean requirementsFulfilled = true;
+	
+	private static User user;
 
 	public ECApplication getInstance() {
 		return singleton;
@@ -322,6 +337,14 @@ public class ECApplication extends Application implements LocationListener {
 		return matchFound;
 	}
 
+	public void setUser(User user){
+		ECApplication.user = user;
+	}
+	
+	public User getUser(){
+		return user;
+	}
+	
 	public DbAdapter getDbAdapterLocal() {
 		initDbAdapter();
 		return dbAdapterLocal;
@@ -627,5 +650,5 @@ public class ECApplication extends Application implements LocationListener {
 		}
 
 	}
-
+	
 }

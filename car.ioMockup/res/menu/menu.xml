@@ -21,14 +21,19 @@
         android:showAsAction="never"
         android:title="@string/menu_upload"/>    
     <item
-        android:id="@+id/menu_help"
+        android:id="@+id/menu_login"
         android:orderInCategory="200"
         android:showAsAction="never"
-        android:title="@string/menu_help"/>
+        android:title="@string/menu_login"/>
     <item
         android:id="@+id/menu_about"
         android:orderInCategory="300"
         android:showAsAction="never"
         android:title="@string/menu_delete"/>
+    <item
+        android:id="@+id/menu_help"
+        android:orderInCategory="400"
+        android:showAsAction="never"
+        android:title="@string/menu_help"/>    
 
 </menu>
