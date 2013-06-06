@@ -1,7 +1,7 @@
 package car.io.application;
 
 public class User {
-
+	
 	private String username;
 	private String token;
 
@@ -23,10 +23,6 @@ public class User {
 	 */
 	public String getToken() {
 		return token;
-	}
-
-	public void logout() {
-		// TODO delete in sharedpreferences
 	}
 
 }

@@ -1,9 +1,5 @@
 package car.io.application;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -11,28 +7,21 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.protocol.HTTP;
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.ParseException;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
-import car.io.R;
 import car.io.adapter.DbAdapter;
 import car.io.adapter.DbAdapterLocal;
 import car.io.adapter.DbAdapterRemote;
@@ -50,8 +39,9 @@ import car.io.obd.ServiceConnector;
 
 public class ECApplication extends Application implements LocationListener {
 
-	public static final String GET_TRACKS_URI = "http://giv-car.uni-muenster.de:8080/stable/rest/tracks";
-	private static ECApplication singleton;
+	
+	private SharedPreferences preferences = null;
+	
 	private DbAdapter dbAdapterLocal;
 	private DbAdapter dbAdapterRemote;
 	private final ScheduledExecutorService scheduleTaskExecutor = Executors
@@ -78,10 +68,6 @@ public class ECApplication extends Application implements LocationListener {
 	private boolean requirementsFulfilled = true;
 	
 	private static User user;
-
-	public ECApplication getInstance() {
-		return singleton;
-	}
 
 	public ServiceConnector getServiceConnector() {
 		return serviceConnector;
@@ -119,9 +105,9 @@ public class ECApplication extends Application implements LocationListener {
 			e.printStackTrace();
 		}
 
-		// downloadTracks();
+		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		user = getUserFromSharedPreferences();
 
-		singleton = this;
 	}
 
 	/**
@@ -336,13 +322,37 @@ public class ECApplication extends Application implements LocationListener {
 
 		return matchFound;
 	}
+	
+	private User getUserFromSharedPreferences(){
+		if(preferences.contains("username")&& preferences.contains("token")){
+			return new User(preferences.getString("username", "anonymous"),preferences.getString("token", "anon"));
+		}
+		return null;
+	}
 
 	public void setUser(User user){
 		ECApplication.user = user;
+		Editor e = preferences.edit();
+		e.putString("username", user.getUsername());
+		e.putString("token", user.getToken());
+		e.apply();
 	}
 	
 	public User getUser(){
 		return user;
+	}
+	
+	public boolean isLoggedIn(){
+		return user != null;
+	}
+	
+	public void logOut(){
+		if(preferences.contains("username"))
+			preferences.edit().remove("username");
+		if(preferences.contains("token"))
+			preferences.edit().remove("token");
+		preferences.edit().apply();
+		user = null;
 	}
 	
 	public DbAdapter getDbAdapterLocal() {

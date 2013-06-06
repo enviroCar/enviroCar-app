@@ -88,7 +88,7 @@ public class MainActivity<AndroidAlarmService> extends
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		application = ((ECApplication) getApplication()).getInstance();
+		application = ((ECApplication) getApplication());
 
 		int pageMargin = (int) (4 * getResources().getDisplayMetrics().density);
 		viewPager.setPageMargin(pageMargin);
@@ -416,8 +416,7 @@ public class MainActivity<AndroidAlarmService> extends
 
 		case START_UPLOAD:
 			// TODO Only enable when getAllTracks().size = 0 item.setEnabled(false)
-			UploadManager uploadManager = new UploadManager(application
-					.getInstance().getDbAdapterLocal());
+			UploadManager uploadManager = new UploadManager(application.getDbAdapterLocal());
 			uploadManager.uploadAllTracks();
 			return true;
 
