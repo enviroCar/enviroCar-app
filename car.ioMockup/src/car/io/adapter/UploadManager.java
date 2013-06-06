@@ -15,6 +15,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
@@ -27,6 +28,7 @@ public class UploadManager {
 
 	// TODO Configure Url in property document/shared preferences
 	private String url = "http://giv-car.uni-muenster.de:8080/stable/rest/users/upload/tracks";
+	private JSONObject obj;
 
 	private DbAdapter dbAdapter;
 
@@ -92,7 +94,7 @@ public class UploadManager {
 		Log.i("Size", String.valueOf(trackJsonList.size()));
 
 		for (String trackJsonString : trackJsonList) {
-			JSONObject obj = null;
+			obj = null;
 
 			try {
 				obj = new JSONObject(trackJsonString);
@@ -102,16 +104,27 @@ public class UploadManager {
 				e.printStackTrace();
 			}
 
+			new UploadAsyncTask().execute();
+
+		}
+	}
+
+	private class UploadAsyncTask extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... params) {
 			// TODO Configure X-User, X-Token in property document/shared
 			// preferences
 			int statusCode = sendHttpPost(url, obj, "upload", "upload");
-
 			if (statusCode != -1 && statusCode == 201) {
 				// TODO remove tracks from local storage if upload was
 				// successful
 				// TODO method dbAdapter.removeTrackFromLocalDb(Track) needed
+				// }
 			}
+			return null;
 		}
+
 	}
 
 	/**
