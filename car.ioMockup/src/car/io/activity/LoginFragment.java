@@ -27,7 +27,6 @@ import car.io.R;
 import car.io.application.ECApplication;
 import car.io.application.User;
 import car.io.views.TYPEFACE;
-import car.io.views.Utils;
 
 import com.actionbarsherlock.app.SherlockFragment;
 
@@ -50,7 +49,7 @@ public class LoginFragment extends SherlockFragment {
 	// Values for email and password at the time of the login attempt.
 	private String mUsername;
 	private String mPassword;
-	private String mPasswordMD5;
+	// private String mPasswordMD5;
 
 	// UI references.
 	private EditText mUsernameView;
@@ -59,15 +58,13 @@ public class LoginFragment extends SherlockFragment {
 	private View mLoginStatusView;
 	private TextView mLoginStatusMessageView;
 
-	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-//				super.onCreateView(inflater, container, savedInstanceState);
+		// super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.login_layout, null);
-		
-		mUsernameView = (EditText) view.findViewById(R.id.login_username);
 
+		mUsernameView = (EditText) view.findViewById(R.id.login_username);
 
 		mPasswordView = (EditText) view.findViewById(R.id.login_password);
 		mPasswordView
@@ -84,7 +81,8 @@ public class LoginFragment extends SherlockFragment {
 				});
 		mLoginFormView = view.findViewById(R.id.login_form);
 		mLoginStatusView = view.findViewById(R.id.login_status);
-		mLoginStatusMessageView = (TextView) view.findViewById(R.id.login_status_message);
+		mLoginStatusMessageView = (TextView) view
+				.findViewById(R.id.login_status_message);
 
 		view.findViewById(R.id.sign_in_button).setOnClickListener(
 				new View.OnClickListener() {
@@ -99,9 +97,10 @@ public class LoginFragment extends SherlockFragment {
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		TYPEFACE.applyCustomFont((ViewGroup) view, TYPEFACE.Raleway(getActivity()));
-	}	
-	
+		TYPEFACE.applyCustomFont((ViewGroup) view,
+				TYPEFACE.Raleway(getActivity()));
+	}
+
 	/**
 	 * Attempts to sign in or register the account specified by the login form.
 	 * If there are form errors (invalid email, missing fields, etc.), the
@@ -140,21 +139,21 @@ public class LoginFragment extends SherlockFragment {
 			focusView = mUsernameView;
 			cancel = true;
 		}
-		
-		//convert the password to md5
-		mPasswordMD5 = Utils.MD5(mPassword);
-		if(mPasswordMD5==null){
-			mPasswordView.setError(getString(R.string.error_invalid_email));
-			focusView = mPasswordView;
-			cancel = true;
-		}
+
+		// convert the password to md5
+		// mPasswordMD5 = Utils.MD5(mPassword);
+		// if(mPasswordMD5==null){
+		// mPasswordView.setError(getString(R.string.error_invalid_email));
+		// focusView = mPasswordView;
+		// cancel = true;
+		// }
 
 		if (cancel) {
 			// There was an error; don't attempt login and focus the first
 			// form field with an error.
 			focusView.requestFocus();
 		} else {
-			
+
 			// Show a progress spinner, and kick off a background task to
 			// perform the user login attempt.
 			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
@@ -212,8 +211,8 @@ public class LoginFragment extends SherlockFragment {
 	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 		@Override
 		protected Boolean doInBackground(Void... params) {
-			return authenticateHttp(mUsername,mPasswordMD5);
-			
+			return authenticateHttp(mUsername, mPassword);
+
 		}
 
 		@Override
@@ -222,7 +221,8 @@ public class LoginFragment extends SherlockFragment {
 			showProgress(false);
 
 			if (success) {
-				((ECApplication) getActivity().getApplication()).setUser(new User(mUsername,mPasswordMD5));
+				((ECApplication) getActivity().getApplication())
+						.setUser(new User(mUsername, mPassword));
 				getActivity().finish();
 			} else {
 				mPasswordView
@@ -238,7 +238,6 @@ public class LoginFragment extends SherlockFragment {
 		}
 	}
 
-
 	/*
 	 * Method used for authentication (e.g. at loginscreen to verify user
 	 * credentials
@@ -248,13 +247,13 @@ public class LoginFragment extends SherlockFragment {
 		try {
 			HttpGet httpget = new HttpGet(
 					"http://giv-car.uni-muenster.de:8080/stable/rest/users/"
-							+ user);		
+							+ user);
 			httpget.addHeader(new BasicHeader("X-User", user));
 			httpget.addHeader(new BasicHeader("X-Token", token));
 			HttpResponse response = httpclient.execute(httpget);
 
 			int status = response.getStatusLine().getStatusCode();
-			//TODO finer errors..
+			// TODO finer errors..
 			if (status != HttpStatus.SC_OK) {
 				return false;
 			} else {

@@ -22,14 +22,15 @@ import android.text.TextUtils;
 import android.util.Log;
 import car.io.application.ECApplication;
 import car.io.exception.FuelConsumptionException;
-import car.io.exception.LocationInvalidException;
 
 public class UploadManager {
 
 	private static final String TAG = "obd2";
 
 	// TODO Configure Url in property document/shared preferences
-	private String url = "http://giv-car.uni-muenster.de:8080/stable/rest/users/upload/tracks";
+	private String url = "http://giv-car.uni-muenster.de:8080/stable/rest/users/%1$s/tracks";
+	// private String url =
+	// "http://giv-car.uni-muenster.de:8080/stable/rest/users/upload/tracks";
 	private JSONObject obj;
 
 	private DbAdapter dbAdapter;
@@ -49,31 +50,31 @@ public class UploadManager {
 		 * This is just for testing
 		 */
 
-		Track dummyTrack = new Track("VIN", "Diesel", dbAdapter);
-		dummyTrack.setDescription("This is a description of the track.");
-		dummyTrack.setName("This is the Name of the track");
-		dummyTrack.setFuelType("Diesel");
-
-		try {
-			Measurement dummyMeasurement = new Measurement(12.365f, 24.068f);
-			dummyMeasurement.setMaf(456);
-			dummyMeasurement.setSpeed(220);
-			dummyTrack.addMeasurement(dummyMeasurement);
-
-			Measurement dummyMeasurement2 = new Measurement(55.365f, 7.068f);
-			dummyMeasurement2.setMaf(550);
-			dummyMeasurement2.setSpeed(130);
-			dummyTrack.addMeasurement(dummyMeasurement2);
-
-			Log.i(TAG, "Measurement object created.");
-		} catch (LocationInvalidException e1) {
-			Log.e(TAG, "Measurement object creation failed.");
-			e1.printStackTrace();
-		}
-		
-		 dummyTrack.commitTrackToDatabase();
-		 ArrayList<Track> trackList = new ArrayList<Track>();
-		 trackList.add(dummyTrack);
+		// Track dummyTrack = new Track("VIN", "Diesel", dbAdapter);
+		// dummyTrack.setDescription("This is a description of the track.");
+		// dummyTrack.setName("This is the Name of the track");
+		// dummyTrack.setFuelType("Diesel");
+		//
+		// try {
+		// Measurement dummyMeasurement = new Measurement(12.365f, 24.068f);
+		// dummyMeasurement.setMaf(456);
+		// dummyMeasurement.setSpeed(220);
+		// dummyTrack.addMeasurement(dummyMeasurement);
+		//
+		// Measurement dummyMeasurement2 = new Measurement(55.365f, 7.068f);
+		// dummyMeasurement2.setMaf(550);
+		// dummyMeasurement2.setSpeed(130);
+		// dummyTrack.addMeasurement(dummyMeasurement2);
+		//
+		// Log.i(TAG, "Measurement object created.");
+		// } catch (LocationInvalidException e1) {
+		// Log.e(TAG, "Measurement object creation failed.");
+		// e1.printStackTrace();
+		// }
+		//
+		// dummyTrack.commitTrackToDatabase();
+		// ArrayList<Track> trackList = new ArrayList<Track>();
+		// trackList.add(dummyTrack);
 
 		/*
 		 * This is where testing ends. Remember to correctly comment in or out
@@ -81,7 +82,7 @@ public class UploadManager {
 		 */
 		cleanDumpFile();
 
-//		ArrayList<Track> trackList = dbAdapter.getAllTracks();
+		ArrayList<Track> trackList = dbAdapter.getAllTracks();
 
 		if (trackList.size() == 0) {
 			Log.d(TAG, "No stored tracks in local db found.");
@@ -96,48 +97,47 @@ public class UploadManager {
 
 		Log.i("Size", String.valueOf(trackJsonList.size()));
 		// TODO bulk upload over one connection..
-//		new UploadAsyncTask().execute();
+		// new UploadAsyncTask().execute();
 		for (String trackJsonString : trackJsonList) {
 			obj = null;
+
+			// TODO Bug: Upload only works with one track. But both tracks are
+			// stored on sd.
 
 			try {
 				obj = new JSONObject(trackJsonString);
 				savetoSdCard(obj);
+				new UploadAsyncTask().execute();
 			} catch (JSONException e) {
 				Log.e(TAG, "Error parsing measurement string to JSON object.");
 				e.printStackTrace();
 			}
-			
-//			new UploadAsyncTask().execute();
-			int statusCode = sendHttpPost(url, obj, "upload", "upload");
+
+			// new UploadAsyncTask().execute();
+
+		}
+	}
+
+	private class UploadAsyncTask extends AsyncTask<Void, Void, Void> {
+
+		@Override
+		protected Void doInBackground(Void... params) {
+			// TODO Configure X-User, X-Token in property document/shared
+			// preferences
+			String username = ((ECApplication) context).getUser().getUsername();
+			String token = ((ECApplication) context).getUser().getToken();
+			String urlL = String.format(url, username);
+			int statusCode = sendHttpPost(urlL, obj, username, token);
 			if (statusCode != -1 && statusCode == 201) {
 				// TODO remove tracks from local storage if upload was
 				// successful
 				// TODO method dbAdapter.removeTrackFromLocalDb(Track) needed
-				 }
+				// }
+			}
+			return null;
 		}
-	}
 
-//	private class UploadAsyncTask extends AsyncTask<Void, Void, Void> {
-//
-//		@Override
-//		protected Void doInBackground(Void... params) {
-//			// TODO Configure X-User, X-Token in property document/shared
-//			// preferences
-//			String username = ((ECApplication) context).getUser().getUsername();
-//			String token = ((ECApplication) context).getUser().getToken();
-//			String urlL = String.format(url, username);
-//			int statusCode = sendHttpPost(url, obj, "upload", "upload");
-//			if (statusCode != -1 && statusCode == 201) {
-//				// TODO remove tracks from local storage if upload was
-//				// successful
-//				// TODO method dbAdapter.removeTrackFromLocalDb(Track) needed
-//				// }
-//			}
-//			return null;
-//		}
-//
-//	}
+	}
 
 	/**
 	 * Converts Track Object into track.create.json string
@@ -154,6 +154,8 @@ public class UploadManager {
 		// TODO configure sensorName in Track Class.
 		// TODO Error Handling: only registered sensor names are accepted from
 		// server side
+		// String trackSensorName = "Car";
+		// TODO make sensor dynamic
 		String trackSensorName = "51b1c2cb31db8e4e51795ea6";
 
 		String trackElementJson = String
@@ -250,7 +252,7 @@ public class UploadManager {
 
 			if (statusCode != "xyz") { // TODO replace with 201
 				String text = String.format("%s: %s", statusCode, reasonPhrase);
-				Log.e(TAG, text);
+				Log.i(TAG, text);
 			}
 
 			return Integer.parseInt(statusCode);
