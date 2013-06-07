@@ -156,7 +156,7 @@ public class UploadManager {
 		// server side
 		// String trackSensorName = "Car";
 		// TODO make sensor dynamic
-		String trackSensorName = "51b1c2cb31db8e4e51795ea6";
+		String trackSensorName = "51b25b00e4b01748637ea904";
 
 		String trackElementJson = String
 				.format("{ \"type\":\"FeatureCollection\",\"properties\": {\"name\": \"%s\", \"description\": \"%s\", \"sensor\": \"%s\"}, \"features\": [",
