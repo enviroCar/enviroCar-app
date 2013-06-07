@@ -34,7 +34,7 @@ public class UploadManager {
 	private DbAdapter dbAdapter;
 	private Context context;
 
-	public UploadManager(DbAdapter dbAdapter,Context ctx) {
+	public UploadManager(DbAdapter dbAdapter, Context ctx) {
 		this.dbAdapter = dbAdapter;
 		this.context = ctx;
 	}
@@ -78,7 +78,6 @@ public class UploadManager {
 		 * This is where testing ends. Remember to correctly comment in or out
 		 * the next line as well.
 		 */
-
 		cleanDumpFile();
 
 		ArrayList<Track> trackList = dbAdapter.getAllTracks();
@@ -95,8 +94,8 @@ public class UploadManager {
 		}
 
 		Log.i("Size", String.valueOf(trackJsonList.size()));
-		//TODO bulk upload over one connection..
-		new UploadAsyncTask().execute();
+		// TODO bulk upload over one connection..
+//		new UploadAsyncTask().execute();
 		for (String trackJsonString : trackJsonList) {
 			obj = null;
 
@@ -107,8 +106,8 @@ public class UploadManager {
 				Log.e(TAG, "Error parsing measurement string to JSON object.");
 				e.printStackTrace();
 			}
-
 			
+			new UploadAsyncTask().execute();
 
 		}
 	}
