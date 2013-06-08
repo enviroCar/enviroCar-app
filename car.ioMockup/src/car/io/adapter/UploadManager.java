@@ -32,6 +32,7 @@ public class UploadManager {
 	// private String url =
 	// "http://giv-car.uni-muenster.de:8080/stable/rest/users/upload/tracks";
 	private JSONObject obj;
+	private ArrayList<JSONObject> objList;
 
 	private DbAdapter dbAdapter;
 	private Context context;
@@ -96,18 +97,20 @@ public class UploadManager {
 		}
 
 		Log.i("Size", String.valueOf(trackJsonList.size()));
+
+		objList = new ArrayList<JSONObject>();
+
 		// TODO bulk upload over one connection..
 		// new UploadAsyncTask().execute();
+
 		for (String trackJsonString : trackJsonList) {
 			obj = null;
-
-			// TODO Bug: Upload only works with one track. But both tracks are
-			// stored on sd.
 
 			try {
 				obj = new JSONObject(trackJsonString);
 				savetoSdCard(obj);
-				new UploadAsyncTask().execute();
+				objList.add(obj);
+
 			} catch (JSONException e) {
 				Log.e(TAG, "Error parsing measurement string to JSON object.");
 				e.printStackTrace();
@@ -115,6 +118,10 @@ public class UploadManager {
 
 			// new UploadAsyncTask().execute();
 
+		}
+		if (objList.size() > 0) {
+			Log.d("obd2", "Uploading: " + objList.size() + " tracks.");
+			new UploadAsyncTask().execute();
 		}
 	}
 
@@ -127,12 +134,15 @@ public class UploadManager {
 			String username = ((ECApplication) context).getUser().getUsername();
 			String token = ((ECApplication) context).getUser().getToken();
 			String urlL = String.format(url, username);
-			int statusCode = sendHttpPost(urlL, obj, username, token);
-			if (statusCode != -1 && statusCode == 201) {
-				// TODO remove tracks from local storage if upload was
-				// successful
-				// TODO method dbAdapter.removeTrackFromLocalDb(Track) needed
-				// }
+			for (JSONObject object : objList) {
+				int statusCode = sendHttpPost(urlL, object, username, token);
+				if (statusCode != -1 && statusCode == 201) {
+					// TODO remove tracks from local storage if upload was
+					// successful
+					// TODO method dbAdapter.removeTrackFromLocalDb(Track)
+					// needed
+					// }
+				}
 			}
 			return null;
 		}
