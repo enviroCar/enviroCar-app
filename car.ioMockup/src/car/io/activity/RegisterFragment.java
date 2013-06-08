@@ -28,17 +28,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import car.io.R;
 import car.io.views.TYPEFACE;
-import car.io.views.Utils;
 
 import com.actionbarsherlock.app.SherlockFragment;
 
 /**
- * Activity which displays a register screen to the user, offering registration as
- * well.
+ * Activity which displays a register screen to the user, offering registration
+ * as well.
  */
 public class RegisterFragment extends SherlockFragment {
-	
-	
+
 	private static final int ERROR_GENERAL = 1;
 	private static final int ERROR_NET = 2;
 
@@ -57,7 +55,7 @@ public class RegisterFragment extends SherlockFragment {
 	private String mEmail;
 	private String mPassword;
 	private String mPasswordConfirm;
-	private String mPasswordMD5;
+	// private String mPasswordMD5;
 
 	// UI references.
 	private EditText mUsernameView;
@@ -68,20 +66,19 @@ public class RegisterFragment extends SherlockFragment {
 	private View mRegisterStatusView;
 	private TextView mRegisterStatusMessageView;
 
-	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-//				super.onCreateView(inflater, container, savedInstanceState);
+		// super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.register_layout, null);
-		
+
 		mUsernameView = (EditText) view.findViewById(R.id.register_username);
-		
+
 		mEmailView = (EditText) view.findViewById(R.id.register_email);
 
-
 		mPasswordView = (EditText) view.findViewById(R.id.register_password);
-		mPasswordConfirmView = (EditText) view.findViewById(R.id.register_password_second);
+		mPasswordConfirmView = (EditText) view
+				.findViewById(R.id.register_password_second);
 		mPasswordConfirmView
 				.setOnEditorActionListener(new TextView.OnEditorActionListener() {
 					@Override
@@ -96,7 +93,8 @@ public class RegisterFragment extends SherlockFragment {
 				});
 		mRegisterFormView = view.findViewById(R.id.register_form);
 		mRegisterStatusView = view.findViewById(R.id.register_status);
-		mRegisterStatusMessageView = (TextView) view.findViewById(R.id.register_status_message);
+		mRegisterStatusMessageView = (TextView) view
+				.findViewById(R.id.register_status_message);
 
 		view.findViewById(R.id.register_button).setOnClickListener(
 				new View.OnClickListener() {
@@ -111,12 +109,13 @@ public class RegisterFragment extends SherlockFragment {
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		TYPEFACE.applyCustomFont((ViewGroup) view, TYPEFACE.Raleway(getActivity()));
+		TYPEFACE.applyCustomFont((ViewGroup) view,
+				TYPEFACE.Raleway(getActivity()));
 	}
-	
+
 	/**
-	 * Attempts to sign in or register the account specified by the register form.
-	 * If there are form errors (invalid email, missing fields, etc.), the
+	 * Attempts to sign in or register the account specified by the register
+	 * form. If there are form errors (invalid email, missing fields, etc.), the
 	 * errors are presented and no actual register attempt is made.
 	 */
 	public void attemptRegister() {
@@ -135,12 +134,11 @@ public class RegisterFragment extends SherlockFragment {
 		mEmail = mEmailView.getText().toString();
 		mPassword = mPasswordView.getText().toString();
 		mPasswordConfirm = mPasswordConfirmView.getText().toString();
-		
+
 		boolean cancel = false;
 		View focusView = null;
-		
-		
-		//TODO fiddle around with order of checks
+
+		// TODO fiddle around with order of checks
 
 		// Check for a valid password.
 		if (TextUtils.isEmpty(mPassword)) {
@@ -152,10 +150,11 @@ public class RegisterFragment extends SherlockFragment {
 			focusView = mPasswordView;
 			cancel = true;
 		}
-		
-		//check if the password confirm is empty
+
+		// check if the password confirm is empty
 		if (TextUtils.isEmpty(mPasswordConfirm)) {
-			mPasswordConfirmView.setError(getString(R.string.error_field_required));
+			mPasswordConfirmView
+					.setError(getString(R.string.error_field_required));
 			focusView = mPasswordConfirmView;
 			cancel = true;
 		}
@@ -170,9 +169,9 @@ public class RegisterFragment extends SherlockFragment {
 			focusView = mEmailView;
 			cancel = true;
 		}
-		
-		//check for valid username
-		if (TextUtils.isEmpty(mUsername)){
+
+		// check for valid username
+		if (TextUtils.isEmpty(mUsername)) {
 			mUsernameView.setError(getString(R.string.error_field_required));
 			focusView = mUsernameView;
 			cancel = true;
@@ -181,23 +180,22 @@ public class RegisterFragment extends SherlockFragment {
 			focusView = mUsernameView;
 			cancel = true;
 		}
-		
 
-		
-		//check if passwords match
-		if(!mPassword.equals(mPasswordConfirm)){
-			mPasswordConfirmView.setError(getString(R.string.error_passwords_not_matching));
+		// check if passwords match
+		if (!mPassword.equals(mPasswordConfirm)) {
+			mPasswordConfirmView
+					.setError(getString(R.string.error_passwords_not_matching));
 			focusView = mPasswordConfirmView;
 			cancel = true;
 		}
-		
-		//convert the password to md5
-		mPasswordMD5 = Utils.MD5(mPassword);
-		if(mPasswordMD5==null){
-			mPasswordView.setError(getString(R.string.error_invalid_email));
-			focusView = mPasswordView;
-			cancel = true;
-		}
+
+		// convert the password to md5
+		// mPasswordMD5 = Utils.MD5(mPassword);
+		// if(mPasswordMD5==null){
+		// mPasswordView.setError(getString(R.string.error_invalid_email));
+		// focusView = mPasswordView;
+		// cancel = true;
+		// }
 
 		if (cancel) {
 			// There was an error; don't attempt register and focus the first
@@ -206,7 +204,8 @@ public class RegisterFragment extends SherlockFragment {
 		} else {
 			// Show a progress spinner, and kick off a background task to
 			// perform the user register attempt.
-			mRegisterStatusMessageView.setText(R.string.register_progress_signing_in);
+			mRegisterStatusMessageView
+					.setText(R.string.register_progress_signing_in);
 			showProgress(true);
 			mAuthTask = new UserRegisterTask();
 			mAuthTask.execute((Void) null);
@@ -231,8 +230,9 @@ public class RegisterFragment extends SherlockFragment {
 					.setListener(new AnimatorListenerAdapter() {
 						@Override
 						public void onAnimationEnd(Animator animation) {
-							mRegisterStatusView.setVisibility(show ? View.VISIBLE
-									: View.GONE);
+							mRegisterStatusView
+									.setVisibility(show ? View.VISIBLE
+											: View.GONE);
 						}
 					});
 
@@ -255,15 +255,15 @@ public class RegisterFragment extends SherlockFragment {
 	}
 
 	/**
-	 * Represents an asynchronous register/registration task used to authenticate
-	 * the user.
+	 * Represents an asynchronous register/registration task used to
+	 * authenticate the user.
 	 */
 	public class UserRegisterTask extends AsyncTask<Void, Void, Integer> {
 		@Override
 		protected Integer doInBackground(Void... params) {
-			
-			return createUser(mUsername, mPasswordMD5, mEmail);
-			
+
+			return createUser(mUsername, mPassword, mEmail);
+
 		}
 
 		@Override
@@ -272,12 +272,12 @@ public class RegisterFragment extends SherlockFragment {
 			showProgress(false);
 
 			if (httpStatus == HttpStatus.SC_CREATED) {
-				//TODO greet the user or something..
+				// TODO greet the user or something..
 				getActivity().finish();
-			} else if (httpStatus == HttpStatus.SC_CONFLICT){
-				//TODO look out for server changes..
+			} else if (httpStatus == HttpStatus.SC_CONFLICT) {
+				// TODO look out for server changes..
 			} else {
-				//TODO general error
+				// TODO general error
 				mPasswordView
 						.setError(getString(R.string.error_incorrect_password));
 				mPasswordView.requestFocus();
@@ -290,11 +290,11 @@ public class RegisterFragment extends SherlockFragment {
 			showProgress(false);
 		}
 	}
-	
+
 	/*
 	 * Use this method to sign up a new user
 	 */
-	public int createUser(String user, String token, String mail){
+	public int createUser(String user, String token, String mail) {
 
 		JSONObject requestJson = new JSONObject();
 		try {
@@ -305,22 +305,23 @@ public class RegisterFragment extends SherlockFragment {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		DefaultHttpClient httpClient = new DefaultHttpClient();
 
-
 		try {
-			HttpPost postRequest = new HttpPost("http://giv-car.uni-muenster.de:8080/stable/rest/users");
+			HttpPost postRequest = new HttpPost(
+					"http://giv-car.uni-muenster.de:8080/stable/rest/users");
 
-			StringEntity input = new StringEntity(requestJson.toString(), HTTP.UTF_8);
-			input.setContentType("application/json");			
-			
+			StringEntity input = new StringEntity(requestJson.toString(),
+					HTTP.UTF_8);
+			input.setContentType("application/json");
+
 			postRequest.setEntity(input);
-			return httpClient.execute(postRequest).getStatusLine().getStatusCode();
-			
+			return httpClient.execute(postRequest).getStatusLine()
+					.getStatusCode();
 
 		} catch (UnsupportedEncodingException e1) {
-			//Shouldn't occur hopefully..
+			// Shouldn't occur hopefully..
 			e1.printStackTrace();
 			return ERROR_GENERAL;
 		} catch (ClientProtocolException e1) {
@@ -330,7 +331,7 @@ public class RegisterFragment extends SherlockFragment {
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
-			//probably something with the Internet..
+			// probably something with the Internet..
 			return ERROR_NET;
 		} finally {
 			// When HttpClient instance is no longer needed,

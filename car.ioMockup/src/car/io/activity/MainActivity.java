@@ -126,8 +126,8 @@ public class MainActivity<AndroidAlarmService> extends
 																			// main.xml
 																			// to
 																			// SettingsActivity
-//		addTab("Overview", DashboardFragment.class,
-//				MyData.createBundle("Overview"));
+		addTab("Dashboard", DashboardFragment.class,
+				MyData.createBundle("Dashboard"));
 		addTab("Friends", ListFriends.class, MyData.createBundle("Friends"));
 		// addTab( "Friends", MyData.class, MyData.createBundle( "Fragment 3")
 		// );

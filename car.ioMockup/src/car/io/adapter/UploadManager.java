@@ -29,12 +29,15 @@ public class UploadManager {
 
 	// TODO Configure Url in property document/shared preferences
 	private String url = "http://giv-car.uni-muenster.de:8080/stable/rest/users/%1$s/tracks";
+	// private String url =
+	// "http://giv-car.uni-muenster.de:8080/stable/rest/users/upload/tracks";
 	private JSONObject obj;
+	private ArrayList<JSONObject> objList;
 
 	private DbAdapter dbAdapter;
 	private Context context;
 
-	public UploadManager(DbAdapter dbAdapter,Context ctx) {
+	public UploadManager(DbAdapter dbAdapter, Context ctx) {
 		this.dbAdapter = dbAdapter;
 		this.context = ctx;
 	}
@@ -78,7 +81,6 @@ public class UploadManager {
 		 * This is where testing ends. Remember to correctly comment in or out
 		 * the next line as well.
 		 */
-
 		cleanDumpFile();
 
 		ArrayList<Track> trackList = dbAdapter.getAllTracks();
@@ -95,21 +97,31 @@ public class UploadManager {
 		}
 
 		Log.i("Size", String.valueOf(trackJsonList.size()));
-		//TODO bulk upload over one connection..
-		new UploadAsyncTask().execute();
+
+		objList = new ArrayList<JSONObject>();
+
+		// TODO bulk upload over one connection..
+		// new UploadAsyncTask().execute();
+
 		for (String trackJsonString : trackJsonList) {
 			obj = null;
 
 			try {
 				obj = new JSONObject(trackJsonString);
 				savetoSdCard(obj);
+				objList.add(obj);
+
 			} catch (JSONException e) {
 				Log.e(TAG, "Error parsing measurement string to JSON object.");
 				e.printStackTrace();
 			}
 
-			
+			// new UploadAsyncTask().execute();
 
+		}
+		if (objList.size() > 0) {
+			Log.d("obd2", "Uploading: " + objList.size() + " tracks.");
+			new UploadAsyncTask().execute();
 		}
 	}
 
@@ -122,12 +134,15 @@ public class UploadManager {
 			String username = ((ECApplication) context).getUser().getUsername();
 			String token = ((ECApplication) context).getUser().getToken();
 			String urlL = String.format(url, username);
-			int statusCode = sendHttpPost(urlL, obj, username, token);
-			if (statusCode != -1 && statusCode == 201) {
-				// TODO remove tracks from local storage if upload was
-				// successful
-				// TODO method dbAdapter.removeTrackFromLocalDb(Track) needed
-				// }
+			for (JSONObject object : objList) {
+				int statusCode = sendHttpPost(urlL, object, username, token);
+				if (statusCode != -1 && statusCode == 201) {
+					// TODO remove tracks from local storage if upload was
+					// successful
+					// TODO method dbAdapter.removeTrackFromLocalDb(Track)
+					// needed
+					// }
+				}
 			}
 			return null;
 		}
@@ -149,10 +164,12 @@ public class UploadManager {
 		// TODO configure sensorName in Track Class.
 		// TODO Error Handling: only registered sensor names are accepted from
 		// server side
-		String trackSensorName = "Car";
+		// String trackSensorName = "Car";
+		// TODO make sensor dynamic
+		String trackSensorName = "51b25b00e4b01748637ea904";
 
 		String trackElementJson = String
-				.format("{ \"type\": \"FeatureCollection\", \"properties\": { \"name\": \"%s\", \"description\": \"%s\", \"sensor\": \"%s\" }, \"features\": [",
+				.format("{ \"type\":\"FeatureCollection\",\"properties\": {\"name\": \"%s\", \"description\": \"%s\", \"sensor\": \"%s\"}, \"features\": [",
 						trackName, trackDescription, trackSensorName);
 
 		ArrayList<Measurement> measurements = track.getMeasurements();
@@ -182,7 +199,7 @@ public class UploadManager {
 			String maf = String.valueOf(measurements.get(i).getMaf());
 			String speed = String.valueOf(measurements.get(i).getSpeed());
 			String measurementJson = String
-					.format("{ \"type\": \"Feature\", \"geometry\": { \"type\": \"Point\", \"coordinates\": [ %s, %s ] }, \"properties\": { \"time\": \"%s\", \"sensor\": { \"name\": \"%s\" }, \"phenomenons\": { \"MAF\": { \"value\": %s }, \"CO2\": { \"value\": %s }, \"Consumption\": { \"value\": %s }, \"Speed\": { \"value\": %s } } } }",
+					.format("{ \"type\": \"Feature\", \"geometry\": { \"type\": \"Point\", \"coordinates\": [ %s, %s ] }, \"properties\": { \"time\": \"%s\", \"sensor\": \"%s\", \"phenomenons\": { \"CO2\": { \"value\": %s }, \"Consumption\": { \"value\": %s }, \"MAF\": { \"value\": %s }, \"Speed\": { \"value\": %s}} } }",
 							lon, lat, time, trackSensorName, maf, co2,
 							consumption, speed);
 			measurementElements.add(measurementJson);
