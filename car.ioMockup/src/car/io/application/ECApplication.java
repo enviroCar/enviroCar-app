@@ -39,9 +39,8 @@ import car.io.obd.ServiceConnector;
 
 public class ECApplication extends Application implements LocationListener {
 
-	
 	private SharedPreferences preferences = null;
-	
+
 	private DbAdapter dbAdapterLocal;
 	private DbAdapter dbAdapterRemote;
 	private final ScheduledExecutorService scheduleTaskExecutor = Executors
@@ -66,7 +65,7 @@ public class ECApplication extends Application implements LocationListener {
 	private Track track;
 
 	private boolean requirementsFulfilled = true;
-	
+
 	private static User user;
 
 	public ServiceConnector getServiceConnector() {
@@ -322,39 +321,40 @@ public class ECApplication extends Application implements LocationListener {
 
 		return matchFound;
 	}
-	
-	private User getUserFromSharedPreferences(){
-		if(preferences.contains("username")&& preferences.contains("token")){
-			return new User(preferences.getString("username", "anonymous"),preferences.getString("token", "anon"));
+
+	private User getUserFromSharedPreferences() {
+		if (preferences.contains("username") && preferences.contains("token")) {
+			return new User(preferences.getString("username", "anonymous"),
+					preferences.getString("token", "anon"));
 		}
 		return null;
 	}
 
-	public void setUser(User user){
+	public void setUser(User user) {
 		ECApplication.user = user;
 		Editor e = preferences.edit();
 		e.putString("username", user.getUsername());
 		e.putString("token", user.getToken());
 		e.apply();
 	}
-	
-	public User getUser(){
+
+	public User getUser() {
 		return user;
 	}
-	
-	public boolean isLoggedIn(){
+
+	public boolean isLoggedIn() {
 		return user != null;
 	}
-	
-	public void logOut(){
-		if(preferences.contains("username"))
+
+	public void logOut() {
+		if (preferences.contains("username"))
 			preferences.edit().remove("username");
-		if(preferences.contains("token"))
+		if (preferences.contains("token"))
 			preferences.edit().remove("token");
 		preferences.edit().apply();
 		user = null;
 	}
-	
+
 	public DbAdapter getDbAdapterLocal() {
 		initDbAdapter();
 		return dbAdapterLocal;
@@ -541,17 +541,6 @@ public class ECApplication extends Application implements LocationListener {
 		// Insert the values if the measurement (with the coordinates) is young
 		// enough (5000ms) or create track new one if it is too old
 
-		// TODO: This has to be added with the following conditions:
-		/*
-		 * 1)New measurement if more than 50 meters away 2)New measurement if
-		 * last measurement more than 1 minute ago 3)New measurement if MAF
-		 * value changed significantly (whatever this means... we will have to
-		 * investigate on that. also it is not clear whether we should use this
-		 * condition because we are vulnerable to noise from the sensor.
-		 * therefore, we should include a minimum time between measurements (1
-		 * sec) as well.)
-		 */
-
 		if (measurement != null) {
 
 			if (Math.abs(measurement.getMeasurementTime()
@@ -587,6 +576,17 @@ public class ECApplication extends Application implements LocationListener {
 	 *            The measurement you want to insert
 	 */
 	private void insertMeasurement(Measurement measurement2) {
+
+		// TODO: This has to be added with the following conditions:
+		/*
+		 * 1)New measurement if more than 50 meters away 2)New measurement if
+		 * last measurement more than 1 minute ago 3)New measurement if MAF
+		 * value changed significantly (whatever this means... we will have to
+		 * investigate on that. also it is not clear whether we should use this
+		 * condition because we are vulnerable to noise from the sensor.
+		 * therefore, we should include a minimum time between measurements (1
+		 * sec) as well.)
+		 */
 
 		if (Math.abs(lastInsertTime - measurement2.getMeasurementTime()) > 5000) {
 
@@ -660,5 +660,5 @@ public class ECApplication extends Application implements LocationListener {
 		}
 
 	}
-	
+
 }
