@@ -1,6 +1,7 @@
 package car.io.activity;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,10 +25,9 @@ public class DashboardFragment extends SherlockFragment {
 	RoundProgress roundProgressCO2;
 	ImageView image;
 	DbAdapter dbAdapter;
-
-	// public ECApplication application;
-
-	// int index = 20;
+	ECApplication application;
+	int speed;
+	int speedProgress;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -42,14 +42,14 @@ public class DashboardFragment extends SherlockFragment {
 
 		super.onViewCreated(view, savedInstanceState);
 
-		// application = ((ECApplication) getApplication()).getInstance();
-		// dbAdapter = (DbAdapter) application.getDbAdapterLocal();
-		dbAdapter = ((ECApplication) getActivity().getApplication()).getDbAdapterLocal();
+		application = ((ECApplication) getActivity().getApplication());
+
+		dbAdapter = ((ECApplication) getActivity().getApplication())
+				.getDbAdapterLocal();
 
 		co2TextView = (TextView) getView().findViewById(R.id.co2TextView);
 		speedTextView = (TextView) getView().findViewById(
 				R.id.textViewSpeedDashboard);
-		// co2TextView.setText("Bla");
 
 		roundProgressCO2 = (RoundProgress) getView().findViewById(
 				R.id.blue_progress_bar);
@@ -60,81 +60,36 @@ public class DashboardFragment extends SherlockFragment {
 
 		image = (ImageView) getView().findViewById(R.id.imageView1);
 
-		/*
-		 * The following code for the sheduledexecutorservice is a performance
-		 * killer as well. We have to do this differently.
-		 */
-		// TODO: update speed and co2 values
-		// ScheduledExecutorService uploadTaskExecutor = Executors
-		// .newScheduledThreadPool(1);
-		// uploadTaskExecutor.scheduleAtFixedRate(new Runnable() {
-		//
-		// @Override
-		// public void run() {
-		// try {
-		// Measurement lastMeasurement = dbAdapter.getLastUsedTrack()
-		// .getLastMeasurement();
-		//
-		// if ((System.currentTimeMillis() - lastMeasurement
-		// .getMeasurementTime()) < 10000) {
-		// speedTextView.setText(lastMeasurement.getSpeed()
-		// + " km/h");
-		// roundProgressSpeed.setProgress(lastMeasurement
-		// .getSpeed() / 2);
-		// } else {
-		// speedTextView.setText("");
-		// roundProgressSpeed.setProgress(0);
-		// }
-		//
-		// } catch (MeasurementsException e) {
-		// speedTextView.setText("");
-		// roundProgressSpeed.setProgress(0);
-		// }
-		//
-		// }
-		// }, 0, 2, TimeUnit.SECONDS);
+		// Handle the UI updates
 
-		// image.setImageResource(R.drawable.bigmoney);
-		// index = 80;
-		// doMockupDemo(index);
+		final Handler handler = new Handler();
+		Runnable runnable = new Runnable() {
+			@Override
+			public void run() {
 
-		// image.setOnClickListener(new OnClickListener() {
-		//
-		// @Override
-		// public void onClick(View arg0) {
-		// if (index < 80) {
-		// index = index + 20;
-		// doMockupDemo(index);
-		// } else {
-		// index = 20;
-		// doMockupDemo(index);
-		// }
-		// }
-		// });
+				// Deal with the speed values
+
+				speed = application.getSpeedMeasurement();
+				speedTextView.setText(speed + " km/h");
+				if (speed <= 0)
+					speedProgress = 0;
+				else if (speed > 200)
+					speedProgress = 100;
+				else
+					speedProgress = speed / 2;
+				roundProgressSpeed.setProgress(speedProgress);
+
+				// TODO extend to co2 emissions
+
+				// Repeat this in x ms
+				handler.postDelayed(this, 1000);
+			}
+		};
+		handler.postDelayed(runnable, 1000);
 
 		TYPEFACE.applyCustomFont((ViewGroup) view,
 				TYPEFACE.Newscycle(getActivity()));
 
 	}
-
-	// /**
-	// * Do a mockup demo
-	// *
-	// */
-	// private void doMockupDemo(int size) {
-	// int co2Value = size;
-	// roundProgress.setProgress(co2Value);
-	// co2TextView.setText(String.valueOf(co2Value) + " kg/h");
-	// drivingStyle.setRating(5.0f - (float) size / 16);
-	// if (size < 30) {
-	// image.setImageResource(R.drawable.smallmoney);
-	// }
-	// if (size > 30 && size < 70) {
-	// image.setImageResource(R.drawable.mediummoney);
-	// }
-	// if (size > 70) {
-	// image.setImageResource(R.drawable.bigmoney);
-	// }
-	// }
 
 }

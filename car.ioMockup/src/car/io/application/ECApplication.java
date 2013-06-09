@@ -57,7 +57,7 @@ public class ECApplication extends Application implements LocationListener {
 
 	private float locationLatitude;
 	private float locationLongitude;
-	private int speedMeasurement;
+	private int speedMeasurement = 0;
 	private double mafMeasurement;
 	private Measurement measurement = null;
 	private long lastInsertTime = 0;
@@ -661,4 +661,11 @@ public class ECApplication extends Application implements LocationListener {
 
 	}
 
+	/**
+	 * @return the speedMeasurement
+	 */
+	public int getSpeedMeasurement() {
+		return speedMeasurement;
+	}
+	
 }
