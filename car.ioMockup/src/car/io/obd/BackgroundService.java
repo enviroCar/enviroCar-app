@@ -87,16 +87,20 @@ public class BackgroundService extends Service {
 			stopService();
 		}
 
-		final BluetoothAdapter bluetoothAdapter = BluetoothAdapter
-				.getDefaultAdapter();
-		bluetoothDevice = bluetoothAdapter.getRemoteDevice(remoteDevice);
-		bluetoothAdapter.cancelDiscovery();
-
 		try {
+
+			// TODO: if bluetooth adapter is not selected, disable the start
+			// button in the app!
+
+			final BluetoothAdapter bluetoothAdapter = BluetoothAdapter
+					.getDefaultAdapter();
+			bluetoothDevice = bluetoothAdapter.getRemoteDevice(remoteDevice);
+			bluetoothAdapter.cancelDiscovery();
+
 			startConnection();
 		} catch (Exception e) {
 			stopService();
-			Log.e("obd2", "retry" + e.toString());
+			Log.e("obd2", "retry " + e.toString());
 		}
 	}
 
@@ -113,57 +117,57 @@ public class BackgroundService extends Service {
 				.createRfcommSocketToServiceRecord(MY_UUID);
 
 		bluetoothSocket.connect();
-		
+
 		addCommandToWaitingList(new ObdReset());
 		addCommandToWaitingList(new EchoOff());
 		addCommandToWaitingList(new EchoOff());
 		addCommandToWaitingList(new LineFeedOff());
 		addCommandToWaitingList(new Timeout(62));
 		addCommandToWaitingList(new SelectAutoProtocol());
-		
+
 		/*
 		 * This is what Torque does:
 		 */
-		
-		/*addCommandToWaitingList(new Defaults());
-		addCommandToWaitingList(new Defaults());
-		addCommandToWaitingList(new ObdReset());
-		addCommandToWaitingList(new ObdReset());
-		addCommandToWaitingList(new EchoOff());
-		addCommandToWaitingList(new EchoOff());
-		addCommandToWaitingList(new EchoOff());
-		addCommandToWaitingList(new MemoryOff());
-		addCommandToWaitingList(new MemoryOff());
-		addCommandToWaitingList(new MemoryOff());
-		addCommandToWaitingList(new MemoryOff());
-		addCommandToWaitingList(new MemoryOff());
-		addCommandToWaitingList(new LineFeedOff());
-		addCommandToWaitingList(new SpacesOff());
-		addCommandToWaitingList(new HeadersOff());
-		addCommandToWaitingList(new Defaults());
-		addCommandToWaitingList(new ObdReset());
-		addCommandToWaitingList(new ObdReset());
-		addCommandToWaitingList(new EchoOff());
-		addCommandToWaitingList(new EchoOff());
-		addCommandToWaitingList(new EchoOff());
-		addCommandToWaitingList(new MemoryOff());
-		addCommandToWaitingList(new MemoryOff());
-		addCommandToWaitingList(new MemoryOff());
-		addCommandToWaitingList(new MemoryOff());
-		addCommandToWaitingList(new MemoryOff());
-		addCommandToWaitingList(new LineFeedOff());
-		addCommandToWaitingList(new SpacesOff());
-		addCommandToWaitingList(new HeadersOff());
-		addCommandToWaitingList(new SelectAutoProtocol());
-		addCommandToWaitingList(new PIDSupported());
-		addCommandToWaitingList(new EnableHeaders());
-		addCommandToWaitingList(new PIDSupported());
-		addCommandToWaitingList(new HeadersOff());*/
-		
+
+		// addCommandToWaitingList(new Defaults());
+		// addCommandToWaitingList(new Defaults());
+		// addCommandToWaitingList(new ObdReset());
+		// addCommandToWaitingList(new ObdReset());
+		// addCommandToWaitingList(new EchoOff());
+		// addCommandToWaitingList(new EchoOff());
+		// addCommandToWaitingList(new EchoOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new LineFeedOff());
+		// addCommandToWaitingList(new SpacesOff());
+		// addCommandToWaitingList(new HeadersOff());
+		// addCommandToWaitingList(new Defaults());
+		// addCommandToWaitingList(new ObdReset());
+		// addCommandToWaitingList(new ObdReset());
+		// addCommandToWaitingList(new EchoOff());
+		// addCommandToWaitingList(new EchoOff());
+		// addCommandToWaitingList(new EchoOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new LineFeedOff());
+		// addCommandToWaitingList(new SpacesOff());
+		// addCommandToWaitingList(new HeadersOff());
+		// addCommandToWaitingList(new SelectAutoProtocol());
+		// addCommandToWaitingList(new PIDSupported());
+		// addCommandToWaitingList(new EnableHeaders());
+		// addCommandToWaitingList(new PIDSupported());
+		// addCommandToWaitingList(new HeadersOff());
+
 		/*
 		 * End Torque
 		 */
-	
+
 		// TODO implement VIN
 
 		// Service is running..
@@ -207,7 +211,8 @@ public class BackgroundService extends Service {
 
 		try {
 			bluetoothSocket.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		stopSelf();
