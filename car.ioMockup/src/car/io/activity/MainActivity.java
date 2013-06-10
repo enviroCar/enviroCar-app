@@ -1,6 +1,5 @@
 package car.io.activity;
 
-import java.util.ArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -10,7 +9,6 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.view.PagerTabStrip;
 import android.util.Log;
@@ -18,13 +16,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import car.io.R;
-import car.io.adapter.DbAdapter;
-import car.io.adapter.Measurement;
-import car.io.adapter.Track;
 import car.io.adapter.UploadManager;
 import car.io.application.ECApplication;
-import car.io.exception.LocationInvalidException;
-import car.io.obd.Listener;
 import car.io.views.TYPEFACE;
 import car.io.views.Utils;
 
@@ -58,31 +51,31 @@ public class MainActivity<AndroidAlarmService> extends
 
 	// Properties
 
-	private static final String PREF_FUEL_TPYE = "pref_fuel_type";
-	private static final String PREF_CAR_TYPE = "car_preference";
+	// private static final String PREF_FUEL_TPYE = "pref_fuel_type";
+	// private static final String PREF_CAR_TYPE = "car_preference";
 
-	private boolean requirementsFulfilled = true;
+	// private boolean requirementsFulfilled = true;
 
 	// Service objects
 
-	private Handler handler = new Handler();
-	private Listener listener = null;
-	private Intent backgroundService = null;
+	// private Handler handler = new Handler();
+	// private Listener listener = null;
+	// private Intent backgroundService = null;
 
 	// Adapter Classes
 
-	private DbAdapter dbAdapter;
+	// private DbAdapter dbAdapter;
 
 	// Measurement values
 
-	private float locationLatitude;
-	private float locationLongitude;
-	private int speedMeasurement;
-	private double mafMeasurement;
+	// private float locationLatitude;
+	// private float locationLongitude;
+	// private int speedMeasurement;
+	// private double mafMeasurement;
 
 	// Upload in Wlan
 
-	private boolean uploadOnlyInWlan;
+	// private boolean uploadOnlyInWlan;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -188,7 +181,7 @@ public class MainActivity<AndroidAlarmService> extends
 		// }
 		// });
 
-		initDbAdapter();
+		// initDbAdapter();
 		// testMethode();
 
 		// Upload data every 10 minutes and only if there are more than 50
@@ -235,104 +228,104 @@ public class MainActivity<AndroidAlarmService> extends
 	 * }
 	 */
 
-	private void testMethode() {
-
-		dbAdapter.deleteAllTracks();
-		Track track = new Track("123456", "Gasoline", dbAdapter);
-
-		track.setName("Testname");
-		track.setDescription("Testdescription");
-		track.setCarManufacturer("carManufacturer");
-		track.setCarModel("CarModel");
-		track.commitTrackToDatabase();
-
-		try {
-			Measurement m1 = new Measurement(51.4f, 7.6f);
-			Measurement m2 = new Measurement(53.3f, 6.3f);
-
-			m1.setSpeed(100);
-			m2.setSpeed(200);
-
-			m1.setMaf(5.5);
-			m2.setMaf(5.7);
-
-			track.addMeasurement(m1);
-			track.addMeasurement(m2);
-
-			Log.i("obd2",
-					"Number of stored tracks: "
-							+ dbAdapter.getNumberOfStoredTracks());
-
-			ArrayList<Track> trackList = dbAdapter.getAllTracks();
-
-			for (Track t : trackList) {
-				Log.i("obd2", "TRACKS");
-				Log.i("obd2", "id: " + track.getId() + " ID: " + t.getId());
-				Log.i("obd2",
-						"name: " + track.getName() + " Name: " + t.getName());
-				Log.i("obd2",
-						"desc: " + track.getDescription() + " Desc: "
-								+ t.getDescription());
-				Log.i("obd2", "CMa: " + track.getCarManufacturer() + " CMa: "
-						+ t.getCarManufacturer());
-				Log.i("obd2",
-						"CMo: " + track.getCarModel() + " CMo: "
-								+ t.getCarModel());
-				Log.i("obd2", "VIN: " + track.getVin() + " VIN: " + t.getVin());
-				Log.i("obd2",
-						"FT: " + track.getFuelType() + " FT: "
-								+ t.getFuelType());
-				Measurement m3 = t.getMeasurements().get(0);
-				Measurement m4 = t.getMeasurements().get(1);
-				Log.i("obd2", "MEASUREMENTS");
-				Log.i("obd2", "m1 id: " + m1.getId() + " m3 id: " + m3.getId());
-				Log.i("obd2", "m2 id: " + m2.getId() + " m4 id: " + m4.getId());
-				Log.i("obd2",
-						"m1 lat: " + m1.getLatitude() + " m3 lat: "
-								+ m3.getLatitude());
-				Log.i("obd2",
-						"m2 lat: " + m2.getLatitude() + " m4 lat: "
-								+ m4.getLatitude());
-				Log.i("obd2",
-						"m1 lon: " + m1.getLongitude() + " m3 lon: "
-								+ m3.getLongitude());
-				Log.i("obd2",
-						"m2 lon: " + m2.getLongitude() + " m4 lon: "
-								+ m4.getLongitude());
-				Log.i("obd2", "m1 mt: " + m1.getMeasurementTime() + " m3 mt: "
-						+ m3.getMeasurementTime());
-				Log.i("obd2", "m2 mt: " + m2.getMeasurementTime() + " m4 mt: "
-						+ m4.getMeasurementTime());
-				Log.i("obd2",
-						"m1 speed: " + m1.getSpeed() + " m3 speed: "
-								+ m3.getSpeed());
-				Log.i("obd2",
-						"m2 speed: " + m2.getSpeed() + " m4 speed: "
-								+ m4.getSpeed());
-				Log.i("obd2",
-						"m1 maf: " + m1.getMaf() + " m3 maf: " + m3.getMaf());
-				Log.i("obd2",
-						"m2 maf: " + m2.getMaf() + " m4 maf: " + m4.getMaf());
-				Log.i("obd2", "m1 track: " + m1.getTrack().getId()
-						+ " m3 track: " + m3.getTrack().getId());
-				Log.i("obd2", "m2 track: " + m2.getTrack().getId()
-						+ " m4 track: " + m4.getTrack().getId());
-			}
-
-		} catch (LocationInvalidException e) {
-			e.printStackTrace();
-		}
-		// dbAdapter.deleteAllTracks();
-	}
+	// private void testMethode() {
+	//
+	// dbAdapter.deleteAllTracks();
+	// Track track = new Track("123456", "Gasoline", dbAdapter);
+	//
+	// track.setName("Testname");
+	// track.setDescription("Testdescription");
+	// track.setCarManufacturer("carManufacturer");
+	// track.setCarModel("CarModel");
+	// track.commitTrackToDatabase();
+	//
+	// try {
+	// Measurement m1 = new Measurement(51.4f, 7.6f);
+	// Measurement m2 = new Measurement(53.3f, 6.3f);
+	//
+	// m1.setSpeed(100);
+	// m2.setSpeed(200);
+	//
+	// m1.setMaf(5.5);
+	// m2.setMaf(5.7);
+	//
+	// track.addMeasurement(m1);
+	// track.addMeasurement(m2);
+	//
+	// Log.i("obd2",
+	// "Number of stored tracks: "
+	// + dbAdapter.getNumberOfStoredTracks());
+	//
+	// ArrayList<Track> trackList = dbAdapter.getAllTracks();
+	//
+	// for (Track t : trackList) {
+	// Log.i("obd2", "TRACKS");
+	// Log.i("obd2", "id: " + track.getId() + " ID: " + t.getId());
+	// Log.i("obd2",
+	// "name: " + track.getName() + " Name: " + t.getName());
+	// Log.i("obd2",
+	// "desc: " + track.getDescription() + " Desc: "
+	// + t.getDescription());
+	// Log.i("obd2", "CMa: " + track.getCarManufacturer() + " CMa: "
+	// + t.getCarManufacturer());
+	// Log.i("obd2",
+	// "CMo: " + track.getCarModel() + " CMo: "
+	// + t.getCarModel());
+	// Log.i("obd2", "VIN: " + track.getVin() + " VIN: " + t.getVin());
+	// Log.i("obd2",
+	// "FT: " + track.getFuelType() + " FT: "
+	// + t.getFuelType());
+	// Measurement m3 = t.getMeasurements().get(0);
+	// Measurement m4 = t.getMeasurements().get(1);
+	// Log.i("obd2", "MEASUREMENTS");
+	// Log.i("obd2", "m1 id: " + m1.getId() + " m3 id: " + m3.getId());
+	// Log.i("obd2", "m2 id: " + m2.getId() + " m4 id: " + m4.getId());
+	// Log.i("obd2",
+	// "m1 lat: " + m1.getLatitude() + " m3 lat: "
+	// + m3.getLatitude());
+	// Log.i("obd2",
+	// "m2 lat: " + m2.getLatitude() + " m4 lat: "
+	// + m4.getLatitude());
+	// Log.i("obd2",
+	// "m1 lon: " + m1.getLongitude() + " m3 lon: "
+	// + m3.getLongitude());
+	// Log.i("obd2",
+	// "m2 lon: " + m2.getLongitude() + " m4 lon: "
+	// + m4.getLongitude());
+	// Log.i("obd2", "m1 mt: " + m1.getMeasurementTime() + " m3 mt: "
+	// + m3.getMeasurementTime());
+	// Log.i("obd2", "m2 mt: " + m2.getMeasurementTime() + " m4 mt: "
+	// + m4.getMeasurementTime());
+	// Log.i("obd2",
+	// "m1 speed: " + m1.getSpeed() + " m3 speed: "
+	// + m3.getSpeed());
+	// Log.i("obd2",
+	// "m2 speed: " + m2.getSpeed() + " m4 speed: "
+	// + m4.getSpeed());
+	// Log.i("obd2",
+	// "m1 maf: " + m1.getMaf() + " m3 maf: " + m3.getMaf());
+	// Log.i("obd2",
+	// "m2 maf: " + m2.getMaf() + " m4 maf: " + m4.getMaf());
+	// Log.i("obd2", "m1 track: " + m1.getTrack().getId()
+	// + " m3 track: " + m3.getTrack().getId());
+	// Log.i("obd2", "m2 track: " + m2.getTrack().getId()
+	// + " m4 track: " + m4.getTrack().getId());
+	// }
+	//
+	// } catch (LocationInvalidException e) {
+	// e.printStackTrace();
+	// }
+	// // dbAdapter.deleteAllTracks();
+	// }
 
 	// -----------------------------------------------------------
 
-	/**
-	 * Helper method that inits the DbAdapter
-	 */
-	private void initDbAdapter() {
-		dbAdapter = (DbAdapter) application.getDbAdapterLocal();
-	}
+	// /**
+	// * Helper method that inits the DbAdapter
+	// */
+	// private void initDbAdapter() {
+	// dbAdapter = (DbAdapter) application.getDbAdapterLocal();
+	// }
 
 	@Override
 	protected void onDestroy() {
@@ -423,7 +416,8 @@ public class MainActivity<AndroidAlarmService> extends
 			return true;
 
 		case REMOVE_LOCAL_TRACKS:
-			dbAdapter.deleteAllTracks();
+			// dbAdapter.deleteAllTracks();
+			application.getDbAdapterLocal().deleteAllTracks();
 			Log.i("obd2", "deleted all local tracks");
 			return true;
 		}
@@ -446,15 +440,15 @@ public class MainActivity<AndroidAlarmService> extends
 				settings.setEnabled(false);
 			} else {
 				stop.setEnabled(false);
-				
-				//Only enable start button when adapter is selected
+
+				// Only enable start button when adapter is selected
 
 				SharedPreferences preferences = PreferenceManager
 						.getDefaultSharedPreferences(this);
 
 				String remoteDevice = preferences.getString(
 						car.io.activity.SettingsActivity.BLUETOOTH_KEY, null);
-				
+
 				if (remoteDevice != null) {
 					start.setEnabled(true);
 				} else {
