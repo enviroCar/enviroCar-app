@@ -106,12 +106,9 @@ public class MainActivity<AndroidAlarmService> extends
 
 		actionBar.setLogo(getResources().getDrawable(R.drawable.home_icon));
 
-		addTab("Local Tracks", ListMeasurementsFragmentLocal.class,
-				MyData.createBundle("Local Tracks"));
-
-		addTab("My Tracks", ListMeasurementsFragment.class,
-				MyData.createBundle("My Tracks"));
-		addTab("OBD", OBDFrament.class, MyData.createBundle("Overview")); // TODO
+		addTab("Local Tracks", ListMeasurementsFragmentLocal.class);
+		addTab("My Tracks", ListMeasurementsFragment.class);
+		//addTab("OBD", OBDFrament.class); // TODO
 																			// place
 																			// controls
 																			// located
@@ -119,9 +116,8 @@ public class MainActivity<AndroidAlarmService> extends
 																			// main.xml
 																			// to
 																			// SettingsActivity
-		addTab("Dashboard", DashboardFragment.class,
-				MyData.createBundle("Dashboard"));
-		addTab("Friends", ListFriends.class, MyData.createBundle("Friends"));
+		addTab("Dashboard", DashboardFragment.class);
+		addTab("Friends", ListFriends.class);
 		// addTab( "Friends", MyData.class, MyData.createBundle( "Fragment 3")
 		// );
 

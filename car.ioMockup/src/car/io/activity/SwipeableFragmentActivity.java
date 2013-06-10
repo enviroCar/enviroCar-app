@@ -8,6 +8,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import car.io.R;
 
 import com.actionbarsherlock.app.ActionBar;
@@ -23,11 +24,8 @@ public abstract class SwipeableFragmentActivity extends
 
 		private static class TabInfo {
 			public final Class<? extends Fragment> fragmentClass;
-			public final Bundle args;
-
-			public TabInfo(Class<? extends Fragment> fragmentClass, Bundle args) {
+			public TabInfo(Class<? extends Fragment> fragmentClass) {
 				this.fragmentClass = fragmentClass;
-				this.args = args;
 			}
 		}
 
@@ -52,8 +50,8 @@ public abstract class SwipeableFragmentActivity extends
 		}
 
 		public void addTab(CharSequence title,
-				Class<? extends Fragment> fragmentClass, Bundle args) {
-			final TabInfo tabInfo = new TabInfo(fragmentClass, args);
+				Class<? extends Fragment> fragmentClass) {
+			final TabInfo tabInfo = new TabInfo(fragmentClass);
 
 			Tab tab = mActionBar.newTab();
 			tab.setText(title);
@@ -75,11 +73,11 @@ public abstract class SwipeableFragmentActivity extends
 		public Fragment getItem(int position) {
 			final TabInfo tabInfo = mTabs.get(position);
 			return Fragment.instantiate(mActivity,
-					tabInfo.fragmentClass.getName(), tabInfo.args);
+					tabInfo.fragmentClass.getName());
 		}
 		@Override
 		public CharSequence getPageTitle(int position) {
-			return mTabs.get(position).args.getCharSequence("wat");
+			return mActionBar.getTabAt(position).getText();
 		}
 
 		@Override
@@ -96,6 +94,8 @@ public abstract class SwipeableFragmentActivity extends
 			 * Select tab when user swiped
 			 */
 			mActionBar.setSelectedNavigationItem(position);
+			TabInfo t = (TabInfo) mActionBar.getTabAt(position).getTag();
+			//Fragment f = mActivity.getSupportFragmentManager().
 		}
 
 		@Override
@@ -113,6 +113,7 @@ public abstract class SwipeableFragmentActivity extends
 					mPager.setCurrentItem(i);
 				}
 			}
+			Log.i("tabs","onTabSelected");
 		}
 
 		@Override
@@ -135,8 +136,8 @@ public abstract class SwipeableFragmentActivity extends
 	 *            An optional Bundle to pass along to the Fragment (may be null)
 	 */
 	protected void addTab(CharSequence title,
-			Class<? extends Fragment> fragmentClass, Bundle args) {
-		tabsAdapter.addTab(title, fragmentClass, args);
+			Class<? extends Fragment> fragmentClass) {
+		tabsAdapter.addTab(title, fragmentClass);
 	}
 
 	/**
@@ -150,8 +151,8 @@ public abstract class SwipeableFragmentActivity extends
 	 *            An optional Bundle to pass along to the Fragment (may be null)
 	 */
 	protected void addTab(int titleRes,
-			Class<? extends Fragment> fragmentClass, Bundle args) {
-		tabsAdapter.addTab(getString(titleRes), fragmentClass, args);
+			Class<? extends Fragment> fragmentClass) {
+		tabsAdapter.addTab(getString(titleRes), fragmentClass);
 	}
 	/**WARNING */
 	protected void setSelectedTab(int i){

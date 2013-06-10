@@ -70,9 +70,13 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		elv.setChildDivider(getResources().getDrawable(
 				android.R.color.transparent));
 		if(((ECApplication) getActivity().getApplication()).isLoggedIn()){
-			//downloadTracks();
+			downloadTracks();
 		}
 
+	}
+	
+	public void notifyFragmentVisible(){
+		
 	}
 
 	private void downloadTracks() {
@@ -161,17 +165,13 @@ public class ListMeasurementsFragment extends SherlockFragment {
 													JSONObject... trackJson) {
 												Track t;
 												try {
-													t = new Track(
-															trackJson[0].getJSONObject(
-																	"properties")
-																	.getString("id"));
+													t = new Track(trackJson[0].getJSONObject("properties").getString("id"));
 													t.setDatabaseAdapter(dbAdapter);
-													t.setName(trackJson[0].getJSONObject(
-															"properties").getString(
-															"name"));
-													t.setDescription(trackJson[0]
-															.getJSONObject("properties")
-															.getString("description"));
+													t.setName(trackJson[0].getJSONObject("properties").getString("name"));
+													t.setDescription(trackJson[0].getJSONObject("properties").getString("description"));
+													t.setCarManufacturer(trackJson[0].getJSONObject("sensor").getJSONObject("properties").getString("manufacturer"));
+													t.setCarModel(trackJson[0].getJSONObject("sensor").getJSONObject("properties").getString("model"));
+													//include server properties tracks created, modified?
 													// TODO more properties
 													Measurement recycleMeasurement;
 
@@ -179,39 +179,11 @@ public class ListMeasurementsFragment extends SherlockFragment {
 															.getJSONArray("features")
 															.length(); j++) {
 														recycleMeasurement = new Measurement(
-																Float.valueOf(trackJson[0]
-																		.getJSONArray(
-																				"features")
-																		.getJSONObject(
-																				j)
-																		.getJSONObject(
-																				"geometry")
-																		.getJSONArray(
-																				"coordinates")
-																		.getString(1)),
-																Float.valueOf(trackJson[0]
-																		.getJSONArray(
-																				"features")
-																		.getJSONObject(
-																				j)
-																		.getJSONObject(
-																				"geometry")
-																		.getJSONArray(
-																				"coordinates")
-																		.getString(0)));
+																Float.valueOf(trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("geometry").getJSONArray("coordinates").getString(1)),
+																Float.valueOf(trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("geometry").getJSONArray("coordinates").getString(0)));
 
-														recycleMeasurement.setMaf((trackJson[0]
-																.getJSONArray(
-																		"features")
-																.getJSONObject(j)
-																.getJSONObject(
-																		"properties")
-																.getJSONObject(
-																		"phenomenons")
-																.getJSONObject(
-																		"testphenomenon9")
-																.getDouble("value")));
-														// TODO more properties
+														recycleMeasurement.setMaf((trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("properties").getJSONObject("phenomenons").getJSONObject("MAF").getDouble("value")));
+														recycleMeasurement.setSpeed((trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("properties").getJSONObject("phenomenons").getJSONObject("Speed").getInt("value")));
 														recycleMeasurement.setTrack(t);
 														t.addMeasurement(recycleMeasurement);
 													}
