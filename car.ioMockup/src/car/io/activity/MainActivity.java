@@ -408,15 +408,17 @@ public class MainActivity<AndroidAlarmService> extends
 			Intent configIntent = new Intent(this, SettingsActivity.class);
 			startActivity(configIntent);
 			return true;
-			
+
 		case LOGIN:
 			Intent loginIntent = new Intent(this, LoginActivity.class);
 			startActivity(loginIntent);
 			return true;
 
 		case START_UPLOAD:
-			// TODO Only enable when getAllTracks().size = 0 item.setEnabled(false)
-			UploadManager uploadManager = new UploadManager(application.getDbAdapterLocal(),getApplication());
+			// TODO Only enable when getAllTracks().size = 0
+			// item.setEnabled(false)
+			UploadManager uploadManager = new UploadManager(
+					application.getDbAdapterLocal(), getApplication());
 			uploadManager.uploadAllTracks();
 			return true;
 
@@ -444,7 +446,20 @@ public class MainActivity<AndroidAlarmService> extends
 				settings.setEnabled(false);
 			} else {
 				stop.setEnabled(false);
-				start.setEnabled(true);
+				
+				//Only enable start button when adapter is selected
+
+				SharedPreferences preferences = PreferenceManager
+						.getDefaultSharedPreferences(this);
+
+				String remoteDevice = preferences.getString(
+						car.io.activity.SettingsActivity.BLUETOOTH_KEY, null);
+				
+				if (remoteDevice != null) {
+					start.setEnabled(true);
+				} else {
+					start.setEnabled(false);
+				}
 				settings.setEnabled(true);
 			}
 		} else {
@@ -452,11 +467,12 @@ public class MainActivity<AndroidAlarmService> extends
 			stop.setEnabled(false);
 			settings.setEnabled(false);
 		}
-		
-//		MenuItem upload = menu.findItem(START_UPLOAD);
-//		boolean isEmpty = application.getDbAdapterLocal().getAllTracks().isEmpty();
-//		Log.e("HHH", String.valueOf(isEmpty));
-//		upload.setEnabled(isEmpty);
+
+		// MenuItem upload = menu.findItem(START_UPLOAD);
+		// boolean isEmpty =
+		// application.getDbAdapterLocal().getAllTracks().isEmpty();
+		// Log.e("HHH", String.valueOf(isEmpty));
+		// upload.setEnabled(isEmpty);
 
 		return true;
 	}

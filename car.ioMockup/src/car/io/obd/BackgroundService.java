@@ -89,9 +89,6 @@ public class BackgroundService extends Service {
 
 		try {
 
-			// TODO: if bluetooth adapter is not selected, disable the start
-			// button in the app!
-
 			final BluetoothAdapter bluetoothAdapter = BluetoothAdapter
 					.getDefaultAdapter();
 			bluetoothDevice = bluetoothAdapter.getRemoteDevice(remoteDevice);
