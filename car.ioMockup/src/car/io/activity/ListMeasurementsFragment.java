@@ -45,9 +45,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	private ExpandableListView elv;
 
 	private ProgressBar progress;
-	
-	
-	private Vector<String> dlTrackIds = new Vector<String>();
 
 	public View onCreateView(android.view.LayoutInflater inflater,
 			android.view.ViewGroup container,
@@ -68,7 +65,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				R.drawable.list_indicator));
 		elv.setChildDivider(getResources().getDrawable(
 				android.R.color.transparent));
-		dbAdapter.deleteAllTracks();
 		if(((ECApplication) getActivity().getApplication()).isLoggedIn()){
 			downloadTracks();
 		}
@@ -81,13 +77,95 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 	private void downloadTracks() {
 		
-		
 		String username = ((ECApplication) getActivity().getApplication()).getUser().getUsername();
-		//TODO: make AsyncJsonHttpResponseHandler
 		RestClient.downloadTracks(username,new JsonHttpResponseHandler() {
-
+			
 			// Variable that holds the number of trackdl requests
 			private int ct = 0;
+			
+			class AsyncOnSuccessTask extends AsyncTask<JSONObject, Void, Track>{
+				
+				@Override
+				protected Track doInBackground(JSONObject... trackJson) {
+					Track t;
+					try {
+						t = new Track(trackJson[0].getJSONObject("properties").getString("id"));
+						t.setDatabaseAdapter(dbAdapter);
+						String trackName = "unnamed Track #"+ct;
+						try{
+							trackName = trackJson[0].getJSONObject("properties").getString("name");
+						}catch (JSONException e){}
+						t.setName(trackName);
+						String description = "";
+						try{
+							description = trackJson[0].getJSONObject("properties").getString("description");
+						}catch (JSONException e){}
+						t.setDescription(description);
+						String manufacturer = "unknown";
+						try{
+							manufacturer = trackJson[0].getJSONObject("properties").getJSONObject("sensor").getJSONObject("properties").getString("manufacturer");
+						}catch (JSONException e){}
+						t.setCarManufacturer(manufacturer);
+						String carModel = "unknown";
+						try{
+							carModel = trackJson[0].getJSONObject("properties").getJSONObject("sensor").getJSONObject("properties").getString("model");
+						}catch (JSONException e){}
+						t.setCarModel(carModel);
+						//include server properties tracks created, modified?
+						// TODO more properties
+						
+						t.commitTrackToDatabase();
+						//Log.i("track_id",t.getId()+" "+((DbAdapterRemote) dbAdapter).trackExistsInDatabase(t.getId())+" "+dbAdapter.getNumberOfStoredTracks());
+						
+						Measurement recycleMeasurement;
+						
+						for (int j = 0; j < trackJson[0].getJSONArray("features").length(); j++) {
+							recycleMeasurement = new Measurement(
+									Float.valueOf(trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("geometry").getJSONArray("coordinates").getString(1)),
+									Float.valueOf(trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("geometry").getJSONArray("coordinates").getString(0)));
+
+							recycleMeasurement.setMaf((trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("properties").getJSONObject("phenomenons").getJSONObject("MAF").getDouble("value")));
+							recycleMeasurement.setSpeed((trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("properties").getJSONObject("phenomenons").getJSONObject("Speed").getInt("value")));
+							recycleMeasurement.setTrack(t);
+							t.addMeasurement(recycleMeasurement);
+						}
+
+						return t;
+					} catch (JSONException e) {
+						e.printStackTrace();
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+					} catch (LocationInvalidException e) {
+						e.printStackTrace();
+					}
+					return null;
+				}
+
+				@Override
+				protected void onPostExecute(
+						Track t) {
+					super.onPostExecute(t);
+					if(t != null){
+						tracksList.add(t);
+						elvAdapter.notifyDataSetChanged();
+					}
+					ct--;
+					if (ct == 0) {
+						progress.setVisibility(View.GONE);
+					}
+				}
+			}
+			
+			
+			private void afterOneTrack(){
+				ct--;
+				if (ct == 0) {
+					progress.setVisibility(View.GONE);
+				}
+				if (elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))) {
+					elv.setAdapter(elvAdapter);
+				}
+			}
 
 			@Override
 			public void onStart() {
@@ -112,28 +190,28 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						// skip tracks already in the ArrayList
 						for (Track t : tracksList) {
 							if (t.getId().equals(((JSONObject) tracks.get(i)).getString("id"))) {
-								ct--;
-								if (ct == 0) {
-									progress.setVisibility(View.GONE);
-								}
-								if (elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))) {
-									elv.setAdapter(elvAdapter);
-								}
+								afterOneTrack();
 								continue;
 							}
 						}
-
+						//AsyncTask to retrieve a Track from the database
+						class RetrieveTrackfromDbAsyncTask extends AsyncTask<String, Void, Track>{
+							
+							@Override
+							protected Track doInBackground(String... params) {
+								return dbAdapter.getTrack(params[0]);
+							}
+							
+							protected void onPostExecute(Track result) {
+								tracksList.add(result);
+								elvAdapter.notifyDataSetChanged();
+								afterOneTrack();
+							}
+							
+						}
 						if (((DbAdapterRemote) dbAdapter).trackExistsInDatabase(((JSONObject) tracks.get(i)).getString("id"))) {
 							// if the track already exists in the db, skip and load from db.
-							tracksList.add(dbAdapter.getTrack(((JSONObject) tracks.get(i)).getString("id")));
-							elvAdapter.notifyDataSetChanged();
-							ct--;
-							if (ct == 0) {
-								progress.setVisibility(View.GONE);
-							}
-							if (elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))) {
-								elv.setAdapter(elvAdapter);
-							}
+							new RetrieveTrackfromDbAsyncTask().execute(((JSONObject) tracks.get(i)).getString("id"));
 							continue;
 						}
 
@@ -145,10 +223,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 									@Override
 									public void onFinish() {
 										super.onFinish();
-										if (elv.getAdapter() == null
-												|| (elv.getAdapter() != null && !elv
-														.getAdapter().equals(
-																elvAdapter))) {
+										if (elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))) {
 											elv.setAdapter(elvAdapter);
 										}
 										elvAdapter.notifyDataSetChanged();
@@ -157,95 +232,10 @@ public class ListMeasurementsFragment extends SherlockFragment {
 									@Override
 									public void onSuccess(JSONObject trackJson) {
 										super.onSuccess(trackJson);
-										class AsyncOnSuccessTask extends AsyncTask<JSONObject, Void, Track>{
-											
-											@Override
-											protected Track doInBackground(
-													JSONObject... trackJson) {
-												Track t;
-												try {
-													t = new Track(trackJson[0].getJSONObject("properties").getString("id"));
-													t.setDatabaseAdapter(dbAdapter);
-													String trackName = "unnamed Track #"+ct;
-													try{
-														trackName = trackJson[0].getJSONObject("properties").getString("name");
-													}catch (JSONException e){}
-													t.setName(trackName);
-													String description = "";
-													try{
-														description = trackJson[0].getJSONObject("properties").getString("description");
-													}catch (JSONException e){}
-													t.setDescription(description);
-													String manufacturer = "unknown";
-													try{
-														manufacturer = trackJson[0].getJSONObject("properties").getJSONObject("sensor").getJSONObject("properties").getString("manufacturer");
-													}catch (JSONException e){}
-													t.setCarManufacturer(manufacturer);
-													String carModel = "unknown";
-													try{
-														carModel = trackJson[0].getJSONObject("properties").getJSONObject("sensor").getJSONObject("properties").getString("model");
-													}catch (JSONException e){}
-													t.setCarModel(carModel);
-													//include server properties tracks created, modified?
-													// TODO more properties
-													
-													t.commitTrackToDatabase();
-													//Log.i("track_id",t.getId()+" "+((DbAdapterRemote) dbAdapter).trackExistsInDatabase(t.getId())+" "+dbAdapter.getNumberOfStoredTracks());
-													
-													Measurement recycleMeasurement;
-													
-													for (int j = 0; j < trackJson[0]
-															.getJSONArray("features")
-															.length(); j++) {
-														recycleMeasurement = new Measurement(
-																Float.valueOf(trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("geometry").getJSONArray("coordinates").getString(1)),
-																Float.valueOf(trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("geometry").getJSONArray("coordinates").getString(0)));
-
-														recycleMeasurement.setMaf((trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("properties").getJSONObject("phenomenons").getJSONObject("MAF").getDouble("value")));
-														recycleMeasurement.setSpeed((trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("properties").getJSONObject("phenomenons").getJSONObject("Speed").getInt("value")));
-														recycleMeasurement.setTrack(t);
-														t.addMeasurement(recycleMeasurement);
-													}
-													//t.commitTrackToDatabase();
-													//Log.i("track_id",t.getId()+" "+((DbAdapterRemote) dbAdapter).trackExistsInDatabase(t.getId())+" "+dbAdapter.getNumberOfStoredTracks());
-													dlTrackIds.remove(t.getId());
-													return t;
-												} catch (JSONException e) {
-													e.printStackTrace();
-												} catch (NumberFormatException e) {
-													e.printStackTrace();
-												} catch (LocationInvalidException e) {
-													e.printStackTrace();
-												}
-												return null;
-											}
-
-											@Override
-											protected void onPostExecute(
-													Track t) {
-												super.onPostExecute(t);
-												if(t != null){
-													tracksList.add(t);
-													elvAdapter.notifyDataSetChanged();
-												}
-												ct--;
-												if (ct == 0) {
-													progress.setVisibility(View.GONE);
-												}
-											}
-											
-										}
-										//check if the task for dling the track is already running
-										try {
-											if(!dlTrackIds.contains(trackJson.getJSONObject("properties").getString("id"))){
-												dlTrackIds.add(trackJson.getJSONObject("properties").getString("id"));
-												new AsyncOnSuccessTask().execute(trackJson);
-											}
-										} catch (JSONException e) {
-											// TODO Auto-generated catch block
-											e.printStackTrace();
-										}
 										
+										// start the AsyncTask to handle the downloaded trackjson
+										new AsyncOnSuccessTask().execute(trackJson);
+
 									}
 
 									public void onFailure(Throwable arg0,
@@ -260,6 +250,9 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				}
 			}
 		});
+		
+		
+		
 
 	}
 
