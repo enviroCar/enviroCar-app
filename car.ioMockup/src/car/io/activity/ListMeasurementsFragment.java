@@ -188,8 +188,12 @@ public class ListMeasurementsFragment extends SherlockFragment {
 													t.setCarModel(carModel);
 													//include server properties tracks created, modified?
 													// TODO more properties
+													
+													t.commitTrackToDatabase();
+													//Log.i("track_id",t.getId()+" "+((DbAdapterRemote) dbAdapter).trackExistsInDatabase(t.getId())+" "+dbAdapter.getNumberOfStoredTracks());
+													
 													Measurement recycleMeasurement;
-
+													
 													for (int j = 0; j < trackJson[0]
 															.getJSONArray("features")
 															.length(); j++) {
@@ -202,7 +206,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 														recycleMeasurement.setTrack(t);
 														t.addMeasurement(recycleMeasurement);
 													}
-													t.commitTrackToDatabase();
+													//t.commitTrackToDatabase();
 													//Log.i("track_id",t.getId()+" "+((DbAdapterRemote) dbAdapter).trackExistsInDatabase(t.getId())+" "+dbAdapter.getNumberOfStoredTracks());
 													dlTrackIds.remove(t.getId());
 													return t;
