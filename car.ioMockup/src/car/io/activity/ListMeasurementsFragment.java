@@ -68,6 +68,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				R.drawable.list_indicator));
 		elv.setChildDivider(getResources().getDrawable(
 				android.R.color.transparent));
+		dbAdapter.deleteAllTracks();
 		if(((ECApplication) getActivity().getApplication()).isLoggedIn()){
 			downloadTracks();
 		}
@@ -138,8 +139,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 						// else
 						// download the track
-						RestClient.downloadTrack(
-								((JSONObject) tracks.get(i)).getString("href"),
+						RestClient.downloadTrack(((JSONObject) tracks.get(i)).getString("href"),
 								new JsonHttpResponseHandler() {
 									
 									@Override
@@ -166,10 +166,26 @@ public class ListMeasurementsFragment extends SherlockFragment {
 												try {
 													t = new Track(trackJson[0].getJSONObject("properties").getString("id"));
 													t.setDatabaseAdapter(dbAdapter);
-													t.setName(trackJson[0].getJSONObject("properties").getString("name"));
-													t.setDescription(trackJson[0].getJSONObject("properties").getString("description"));
-													t.setCarManufacturer(trackJson[0].getJSONObject("sensor").getJSONObject("properties").getString("manufacturer"));
-													t.setCarModel(trackJson[0].getJSONObject("sensor").getJSONObject("properties").getString("model"));
+													String trackName = "unnamed Track #"+ct;
+													try{
+														trackName = trackJson[0].getJSONObject("properties").getString("name");
+													}catch (JSONException e){}
+													t.setName(trackName);
+													String description = "";
+													try{
+														description = trackJson[0].getJSONObject("properties").getString("description");
+													}catch (JSONException e){}
+													t.setDescription(description);
+													String manufacturer = "unknown";
+													try{
+														manufacturer = trackJson[0].getJSONObject("properties").getJSONObject("sensor").getJSONObject("properties").getString("manufacturer");
+													}catch (JSONException e){}
+													t.setCarManufacturer(manufacturer);
+													String carModel = "unknown";
+													try{
+														carModel = trackJson[0].getJSONObject("properties").getJSONObject("sensor").getJSONObject("properties").getString("model");
+													}catch (JSONException e){}
+													t.setCarModel(carModel);
 													//include server properties tracks created, modified?
 													// TODO more properties
 													Measurement recycleMeasurement;
