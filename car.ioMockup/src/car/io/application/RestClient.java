@@ -10,7 +10,7 @@ public class RestClient {
 	private static AsyncHttpClient client = new AsyncHttpClient();
 	
 	public static void downloadTracks(String user, JsonHttpResponseHandler handler){
-		client.get(BASE_URL+"/"+user+"/tracks", handler); //TODO use pagination
+		client.get(BASE_URL+"users/"+user+"/tracks", handler); //TODO use pagination
 	}
 	
 	public static void downloadTrack(String url, JsonHttpResponseHandler handler){

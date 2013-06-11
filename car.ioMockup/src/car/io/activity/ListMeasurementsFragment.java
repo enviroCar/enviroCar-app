@@ -58,7 +58,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		View v = inflater.inflate(R.layout.list_tracks_layout, null);
 		elv = (ExpandableListView) v.findViewById(R.id.list);
 		progress = (ProgressBar) v.findViewById(R.id.listprogress);
-		tracksList = new ArrayList<Track>();
 		return v;
 	};
 
@@ -188,7 +187,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 														t.addMeasurement(recycleMeasurement);
 													}
 													t.commitTrackToDatabase();
-													Log.i("track_id",t.getId()+" "+((DbAdapterRemote) dbAdapter).trackExistsInDatabase(t.getId())+" "+dbAdapter.getNumberOfStoredTracks());
+													//Log.i("track_id",t.getId()+" "+((DbAdapterRemote) dbAdapter).trackExistsInDatabase(t.getId())+" "+dbAdapter.getNumberOfStoredTracks());
 													dlTrackIds.remove(t.getId());
 													return t;
 												} catch (JSONException e) {
@@ -205,8 +204,10 @@ public class ListMeasurementsFragment extends SherlockFragment {
 											protected void onPostExecute(
 													Track t) {
 												super.onPostExecute(t);
-												tracksList.add(t);
-												elvAdapter.notifyDataSetChanged();
+												if(t != null){
+													tracksList.add(t);
+													elvAdapter.notifyDataSetChanged();
+												}
 												ct--;
 												if (ct == 0) {
 													progress.setVisibility(View.GONE);
@@ -229,7 +230,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 									public void onFailure(Throwable arg0,
 											String arg1) {
-										// TODO implement errors
+										Log.i("downloaderror",arg1,arg0);
 									};
 								});
 
@@ -284,10 +285,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				ViewGroup viewGroup) {
 			if (view == null || view.getId() != 10000000 + i) {
 				Track currTrack = (Track) getGroup(i);
-				View groupRow = ViewGroup.inflate(getActivity(),
-						R.layout.list_tracks_group_layout, null);
-				TextView textView = (TextView) groupRow
-						.findViewById(R.id.track_name_textview);
+				View groupRow = ViewGroup.inflate(getActivity(), R.layout.list_tracks_group_layout, null);
+				TextView textView = (TextView) groupRow.findViewById(R.id.track_name_textview);
 				textView.setText(currTrack.getName());
 				Button button = (Button) groupRow
 						.findViewById(R.id.track_name_go_to_map);
