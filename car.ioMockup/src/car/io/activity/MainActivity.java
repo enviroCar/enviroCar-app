@@ -343,18 +343,18 @@ public class MainActivity<AndroidAlarmService> extends
 
 		// Stop GPS
 
-		application.stopLocating();
+		// application.stopLocating();
 
 		// Close DB
 
-		application.closeDb();
+		// application.closeDb();
 	}
 
 	protected void onResume() {
 		super.onResume();
-		application.openDb();
+		// application.openDb();
 
-		application.startLocationManager();
+		// application.startLocationManager();
 
 		// initDbAdapter();
 
