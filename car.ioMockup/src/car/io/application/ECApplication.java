@@ -365,6 +365,17 @@ public class ECApplication extends Application implements LocationListener {
 		return dbAdapterRemote;
 	}
 
+	/**
+	 * Starts the location manager again after an resume.
+	 */
+	public void startLocationManager() {
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
+				0, this);
+	}
+
+	/**
+	 * Stops the location manager (removeUpdates) for pause.
+	 */
 	public void stopLocating() {
 		locationManager.removeUpdates(this);
 	}
@@ -616,6 +627,7 @@ public class ECApplication extends Application implements LocationListener {
 	}
 
 	public void destroyStuff() {
+		locationManager = null;
 		backgroundService = null;
 		serviceConnector = null;
 		listener = null;
@@ -667,5 +679,5 @@ public class ECApplication extends Application implements LocationListener {
 	public int getSpeedMeasurement() {
 		return speedMeasurement;
 	}
-	
+
 }

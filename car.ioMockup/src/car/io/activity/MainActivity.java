@@ -108,20 +108,20 @@ public class MainActivity<AndroidAlarmService> extends
 
 		addTab("Local Tracks", ListMeasurementsFragmentLocal.class);
 		addTab("My Tracks", ListMeasurementsFragment.class);
-		//addTab("OBD", OBDFrament.class); // TODO
-																			// place
-																			// controls
-																			// located
-																			// in
-																			// main.xml
-																			// to
-																			// SettingsActivity
+		// addTab("OBD", OBDFrament.class); // TODO
+		// place
+		// controls
+		// located
+		// in
+		// main.xml
+		// to
+		// SettingsActivity
 		addTab("Dashboard", DashboardFragment.class);
 		addTab("Friends", ListFriends.class);
 		// addTab( "Friends", MyData.class, MyData.createBundle( "Fragment 3")
 		// );
 
-		setSelectedTab(3);
+		setSelectedTab(2);
 
 		// --------------------------
 		// --------------------------
@@ -353,6 +353,8 @@ public class MainActivity<AndroidAlarmService> extends
 	protected void onResume() {
 		super.onResume();
 		application.openDb();
+
+		application.startLocationManager();
 
 		// initDbAdapter();
 
