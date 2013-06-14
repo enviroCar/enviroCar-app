@@ -122,6 +122,8 @@ public class ECApplication extends Application implements LocationListener {
 
 		if (track == null) {
 
+			Log.e("obd2", "The track was null");
+
 			Track lastUsedTrack;
 
 			try {
@@ -135,28 +137,20 @@ public class ECApplication extends Application implements LocationListener {
 					if ((System.currentTimeMillis() - lastUsedTrack
 							.getLastMeasurement().getMeasurementTime()) > 360000) {
 						// TODO: make parameters dynamic
+						Log.e("obd2",
+								"I create a new track because the last measurement is more than 60 mins ago");
 						track = new Track("123456", "Gasoline", dbAdapterLocal);
 						track.setName("Trackname");
 						track.commitTrackToDatabase();
 						return;
-					} else {
-						track = lastUsedTrack;
-						return;
 					}
-
-				} catch (MeasurementsException e) {
-					// Track is empty, so take the last track.
-					track = lastUsedTrack;
-					e.printStackTrace();
-				}
-				// TODO: New track if user clicks on create new track button
-
-				try {
 
 					// new track if last position is significantly different
 					// from the current position (more than 3 km)
 					if (getDistance(lastUsedTrack.getLastMeasurement(),
 							locationLatitude, locationLongitude) > 3.0) {
+						Log.e("obd2",
+								"The last measurement's position is more than 3 km away. I will create a new track");
 						track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO
 						track.setName("Trackname");
 						track.commitTrackToDatabase();
@@ -164,22 +158,30 @@ public class ECApplication extends Application implements LocationListener {
 
 					}
 
+					// TODO: New track if user clicks on create new track button
+
+					// TODO: new track if VIN changed
+
 					else {
+						Log.e("obd2",
+								"The last measurement is less than 3 km away. I will append the measurement to this track");
 						track = lastUsedTrack;
 						return;
 					}
+
 				} catch (MeasurementsException e) {
+					Log.e("obd", "Track is empty, so I take the last track.");
 					track = lastUsedTrack;
 					e.printStackTrace();
 				}
-
-				// TODO: new track if VIN changed
 
 			} catch (TracksException e) {
 				track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO:
 				track.setName("Trackname");
 				track.commitTrackToDatabase();
 				e.printStackTrace();
+				Log.e("obd2",
+						"There was no track in the database so I created a new one");
 			}
 
 			return;
@@ -191,6 +193,8 @@ public class ECApplication extends Application implements LocationListener {
 		// this? normally, this is already in the database
 
 		if (track != null) {
+
+			Log.e("obd2", "the track was not null");
 
 			Track currentTrack = track;
 
@@ -204,6 +208,8 @@ public class ECApplication extends Application implements LocationListener {
 					track = new Track("123456", "Gasoline", dbAdapterLocal);
 					track.setName("Trackname");
 					track.commitTrackToDatabase();
+					Log.e("obd2",
+							"I create a new track because the last measurement is more than 60 mins ago");
 					return;
 				}
 				// TODO: New track if user clicks on create new track button
@@ -217,6 +223,8 @@ public class ECApplication extends Application implements LocationListener {
 					track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO
 					track.setName("Trackname");
 					track.commitTrackToDatabase();
+					Log.e("obd2",
+							"The last measurement's position is more than 3 km away. I will create a new track");
 					return;
 
 				}
@@ -224,11 +232,13 @@ public class ECApplication extends Application implements LocationListener {
 				// TODO: new track if VIN changed
 
 				else {
+					Log.e("obd2",
+							"I will append to the last track because that still makes sense");
 					return;
 				}
 
 			} catch (MeasurementsException e) {
-
+				Log.e("obd2", "The track was empty so I will use this track");
 				e.printStackTrace();
 			}
 
@@ -494,7 +504,8 @@ public class ECApplication extends Application implements LocationListener {
 		if (!serviceConnector.isRunning()) {
 			Log.e("obd2", "service start");
 			startService(backgroundService);
-			bindService(backgroundService, serviceConnector, Context.BIND_AUTO_CREATE);
+			bindService(backgroundService, serviceConnector,
+					Context.BIND_AUTO_CREATE);
 		}
 		handler.post(waitingListRunnable);
 	}
@@ -503,7 +514,7 @@ public class ECApplication extends Application implements LocationListener {
 	 * Ends the connection with the Bluetooth Adapter
 	 */
 	public void stopConnection() {
-		if (serviceConnector.isRunning()){
+		if (serviceConnector.isRunning()) {
 			stopService(backgroundService);
 			unbindService(serviceConnector);
 		}
@@ -682,5 +693,21 @@ public class ECApplication extends Application implements LocationListener {
 	public int getSpeedMeasurement() {
 		return speedMeasurement;
 	}
+
+	/**
+	 * @return the track
+	 */
+	public Track getTrack() {
+		return track;
+	}
+
+	/**
+	 * @param track the track to set
+	 */
+	public void setTrack(Track track) {
+		this.track = track;
+	}
+	
+	
 
 }

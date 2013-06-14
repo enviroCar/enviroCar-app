@@ -416,6 +416,7 @@ public class MainActivity<AndroidAlarmService> extends
 		case REMOVE_LOCAL_TRACKS:
 			// dbAdapter.deleteAllTracks();
 			application.getDbAdapterLocal().deleteAllTracks();
+			application.setTrack(null);
 			Log.i("obd2", "deleted all local tracks");
 			return true;
 		}
