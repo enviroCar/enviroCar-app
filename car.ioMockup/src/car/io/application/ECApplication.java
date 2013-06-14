@@ -494,6 +494,7 @@ public class ECApplication extends Application implements LocationListener {
 		if (!serviceConnector.isRunning()) {
 			Log.e("obd2", "service start");
 			startService(backgroundService);
+			bindService(backgroundService, serviceConnector, Context.BIND_AUTO_CREATE);
 		}
 		handler.post(waitingListRunnable);
 	}
@@ -502,8 +503,10 @@ public class ECApplication extends Application implements LocationListener {
 	 * Ends the connection with the Bluetooth Adapter
 	 */
 	public void stopConnection() {
-		if (serviceConnector.isRunning())
+		if (serviceConnector.isRunning()){
 			stopService(backgroundService);
+			unbindService(serviceConnector);
+		}
 		handler.removeCallbacks(waitingListRunnable);
 	}
 
