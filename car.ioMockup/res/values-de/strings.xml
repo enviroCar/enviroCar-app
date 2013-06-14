@@ -10,8 +10,8 @@
     <string name="checklist_item_bluetooth_enabled">Bluetooth aktiviert</string>
     <string name="checklist_item_bluetooth_disabled">Bluetooth deaktiviert</string>
     
-    <string name="checklist_item_obd_paired">OBD Adapter paired</string>
-    <string name="checklist_item_obd_not_paired">OBD Adapter not paired</string>
+    <string name="checklist_item_obd_paired">OBD Adapter gekoppelt</string>
+    <string name="checklist_item_obd_not_paired">OBD Adapter nicht gekoppelt</string>
     
     <string name="checklist_item_obd_connected">OBD Adapter verbunden</string>
     <string name="checklist_item_obd_not_connected">OBD Adapter nicht verbunden</string>
