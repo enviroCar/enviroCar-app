@@ -42,6 +42,8 @@ public class UploadManager {
 		this.context = ctx;
 	}
 
+	public UploadManager(){};
+	
 	/**
 	 * This methods uploads all local tracks to the server
 	 */
@@ -230,7 +232,7 @@ public class UploadManager {
 	 *            Username
 	 * @return Server response status code
 	 */
-	private int sendHttpPost(String url, JSONObject jsonObjSend, String xToken,
+	public int sendHttpPost(String url, JSONObject jsonObjSend, String xToken,
 			String xUser) {
 
 		try {

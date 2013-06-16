@@ -62,5 +62,13 @@
     <string name="menu_upload">Upload</string>
     <string name="menu_delete">Delete</string>
     <string name="menu_login">Sign in/Register</string>
+    <string name="gasoline">Gasoline</string>
+    <string name="diesel">Diesel</string>
+    <string name="electric">Electric</string>
+    <string name="register_car">Register Car</string>
+    <string name="register_car_progress">Register Car Progress</string>
+    <string name="prompt_car_model">Car model</string>
+    <string name="prompt_car_manufacturer">Car manufacturer</string>
+    <string name="prompt_car_constructionYear">Construction year</string>
 
 </resources>

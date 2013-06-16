@@ -118,6 +118,7 @@ public class MainActivity<AndroidAlarmService> extends
 		// SettingsActivity
 		addTab("Dashboard", DashboardFragment.class);
 		addTab("Friends", ListFriends.class);
+		addTab("My Garage", MyGarage.class);
 		// addTab( "Friends", MyData.class, MyData.createBundle( "Fragment 3")
 		// );
 
