@@ -302,7 +302,6 @@ public class RegisterFragment extends SherlockFragment {
 			requestJson.put("token", token);
 			requestJson.put("mail", mail);
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -325,11 +324,9 @@ public class RegisterFragment extends SherlockFragment {
 			e1.printStackTrace();
 			return ERROR_GENERAL;
 		} catch (ClientProtocolException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 			return ERROR_GENERAL;
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 			// probably something with the Internet..
 			return ERROR_NET;

@@ -262,10 +262,8 @@ public class LoginFragment extends SherlockFragment {
 			}
 
 		} catch (ClientProtocolException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} finally {
 			// When HttpClient instance is no longer needed,

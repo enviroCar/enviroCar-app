@@ -91,7 +91,6 @@ public class LoginActivity extends SherlockFragmentActivity {
 	
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		// TODO Auto-generated method stub
 		super.onSaveInstanceState(outState);
 		outState.putInt("SAVED_INDEX", getSupportActionBar()
 				.getSelectedNavigationIndex());
@@ -144,7 +143,6 @@ public class LoginActivity extends SherlockFragmentActivity {
 
 		@Override
 		public void onTabReselected(Tab tab, FragmentTransaction ft) {
-			// TODO Auto-generated method stub
 
 		}
 
