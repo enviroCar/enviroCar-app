@@ -34,8 +34,6 @@ public class Measurement {
 	 *             If latitude AND longitude equal 0.0
 	 */
 
-	// TODO: set track with constructor?
-
 	public Measurement(float latitude, float longitude)
 			throws LocationInvalidException {
 		if (latitude != 0.0 && longitude != 0.0) {

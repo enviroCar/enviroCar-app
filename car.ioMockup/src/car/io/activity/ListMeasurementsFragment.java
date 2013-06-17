@@ -6,7 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.Vector;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -345,15 +344,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				try {
 					DateFormat sdf = DateFormat.getDateTimeInstance();
 					DecimalFormat twoDForm = new DecimalFormat("#.##");
-					DateFormat dfDuration = new SimpleDateFormat("HH:mm:ss:SSS"); // TODO:
-																					// leave
-																					// out
-																					// millis
-																					// when
-																					// we
-																					// have
-																					// other
-																					// data
+					DateFormat dfDuration = new SimpleDateFormat("HH:mm:ss");
 					dfDuration.setTimeZone(TimeZone.getTimeZone("UTC"));
 					start.setText(sdf.format(currTrack.getStartTime()) + "");
 					end.setText(sdf.format(currTrack.getEndTime()) + "");

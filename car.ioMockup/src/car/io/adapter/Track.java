@@ -39,9 +39,9 @@ public class Track {
 	 */
 	public Track(String vin, String fuelType, DbAdapter dbAdapter) {
 		this.vin = vin;
-		this.name = ""; // TODO current date
+		this.name = "";
 		this.description = "";
-		this.carManufacturer = ""; // TODO decode vin
+		this.carManufacturer = ""; // TODO decode vin or read from shared preferences...
 		this.carModel = "";
 		this.fuelType = fuelType;
 		this.measurements = new ArrayList<Measurement>();
