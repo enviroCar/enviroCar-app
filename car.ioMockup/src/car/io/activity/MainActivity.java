@@ -406,8 +406,6 @@ public class MainActivity<AndroidAlarmService> extends
 			return true;
 
 		case START_UPLOAD:
-			// TODO Only enable when getAllTracks().size = 0
-			// item.setEnabled(false)
 			UploadManager uploadManager = new UploadManager(
 					application.getDbAdapterLocal(), getApplication());
 			uploadManager.uploadAllTracks();
@@ -431,6 +429,7 @@ public class MainActivity<AndroidAlarmService> extends
 		MenuItem start = menu.findItem(START_MEASUREMENT);
 		MenuItem stop = menu.findItem(STOP_MEASUREMENT);
 		MenuItem settings = menu.findItem(SETTINGS);
+		MenuItem upload = menu.findItem(START_UPLOAD);
 
 		if (application.requirementsFulfilled()) { // was requirementsFulfilled
 			if (application.getServiceConnector().isRunning()) {
@@ -459,6 +458,12 @@ public class MainActivity<AndroidAlarmService> extends
 			start.setEnabled(false);
 			stop.setEnabled(false);
 			settings.setEnabled(false);
+		}
+
+		if (application.getDbAdapterLocal().getAllTracks().size() > 0) {
+			upload.setEnabled(true);
+		} else {
+			upload.setEnabled(false);
 		}
 
 		// MenuItem upload = menu.findItem(START_UPLOAD);
