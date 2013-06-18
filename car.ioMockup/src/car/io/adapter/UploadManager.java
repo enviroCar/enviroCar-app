@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.TimeZone;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -260,6 +261,9 @@ public class UploadManager {
 					.getStatusCode());
 
 			String reasonPhrase = response.getStatusLine().getReasonPhrase();
+			//ULTRAMIESER HACK, wirklich, wenn ich es nicht selbst gebaut hätte, würde ich mich tadeln
+			String location = response.getHeaders("Location")[0].getValue();
+			
 			Log.d(TAG, String.format("%s: %s", statusCode, reasonPhrase));
 
 			if (statusCode != "xyz") { // TODO replace with 201

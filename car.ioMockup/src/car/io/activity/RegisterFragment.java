@@ -279,7 +279,8 @@ public class RegisterFragment extends SherlockFragment {
 				((ECApplication) getActivity().getApplication()).setUser(new User(mUsername, mPassword));
 				
 				Intent intent = new Intent(getActivity(), MyGarage.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+				intent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+				intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
 				getActivity().startActivity(intent);
 				//getActivity().finish();
 				

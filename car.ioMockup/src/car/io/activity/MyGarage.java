@@ -21,12 +21,16 @@ import android.widget.TextView;
 import car.io.R;
 import car.io.adapter.UploadManager;
 import car.io.application.ECApplication;
+import car.io.application.RestClient;
 import car.io.views.TYPEFACE;
 import car.io.views.Utils;
+
+import org.apache.http.Header;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.loopj.android.http.AsyncHttpResponseHandler;
 
 public class MyGarage extends SherlockActivity {
 
@@ -110,7 +114,7 @@ public class MyGarage extends SherlockActivity {
 			@Override
 			public void onClick(View v) {
 				RadioButton rb = (RadioButton) v;
-				setFuelType(rb.getText().toString());
+				carFuelType = rb.getText().toString().toLowerCase();
 				Log.e(TAG, carFuelType);
 			}
 		};
@@ -118,7 +122,7 @@ public class MyGarage extends SherlockActivity {
 		RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radiogroup_fueltype);
 		int selected = radioGroup.getCheckedRadioButtonId();
 		RadioButton checked = (RadioButton) findViewById(selected);
-		carFuelType = setFuelType(checked.getText().toString());
+		carFuelType = checked.getText().toString().toLowerCase();
 
 		RadioButton rbGasoline = (RadioButton) findViewById(R.id.radio_gasoline);
 		rbGasoline.setOnClickListener(listener);
@@ -160,11 +164,45 @@ public class MyGarage extends SherlockActivity {
 		edit.putString(ECApplication.PREF_KEY_CAR_MODEL, carModel);
 		edit.commit();
 		//TODO Sensor id
-
+		
+		String username =((ECApplication) getApplication()).getUser().getUsername();
+		String token = ((ECApplication) getApplication()).getUser().getToken();
+		
+		RestClient.createSensor(sensorString, username, token, new AsyncHttpResponseHandler(){
+			
+			
+			@Override
+			public void onFailure(Throwable error, String content) {
+				// TODO Auto-generated method stub
+				super.onFailure(error, content);
+				Log.i("fail",content,error);
+			}
+			
+			
+			@Override
+			public void onSuccess(int arg0, Header[] h, String arg1) {
+				super.onSuccess(arg0,h, arg1);
+				String location = "";
+				for (int i = 0; i< h.length; i++){
+					if( h[i].getName().equals("Location")){
+						location += h[i].getValue();
+						break;
+					}
+				}
+				Log.i("create sensor", arg0+" "+location);
+				
+				String sensorId = location.substring(location.lastIndexOf("/")+1, location.length());
+				
+				Editor edit = sharedPreferences.edit();
+				edit.putString(ECApplication.PREF_KEY_SENSOR_ID, sensorId);
+				edit.commit();
+				finish();
+			}
+		});
+		/*
 		try {
 			JSONObject obj = new JSONObject(sensorString);
-			String username =((ECApplication) getApplication()).getUser().getUsername();
-			String token = ((ECApplication) getApplication()).getUser().getToken();
+
 			UploadManager uploadManager = new UploadManager();
 			uploadManager.sendHttpPost(url, obj, token, username);
 		} catch (JSONException e) {
@@ -172,25 +210,26 @@ public class MyGarage extends SherlockActivity {
 					"Error while creating JSON string for sensor registration.");
 			e.printStackTrace();
 		}
-		finish();
+		*/
+		//finish();
 	}
 
-	private String setFuelType(String fuelType) {
-		// TODO Eliminate variations in spelling of "Gasoline" or "Gasolene"
-		// between app and server
-
-		if (fuelType.equals("Gasoline")) {
-			carFuelType = "gasolene";
-		}
-		if (fuelType.equals("Diesel")) {
-			carFuelType = "diesel";
-		}
-		if (fuelType.equals("Electric")) {
-			carFuelType = "electric";
-		}
-
-		return carFuelType;
-	}
+//	private String setFuelType(String fuelType) {
+//		// TODO Eliminate variations in spelling of "Gasoline" or "Gasolene"
+//		// between app and server
+//
+//		if (fuelType.equals("Gasoline")) {
+//			carFuelType = "gasoline";
+//		}
+//		if (fuelType.equals("Diesel")) {
+//			carFuelType = "diesel";
+//		}
+//		if (fuelType.equals("Electric")) {
+//			carFuelType = "electric";
+//		}
+//
+//		return carFuelType;
+//	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
