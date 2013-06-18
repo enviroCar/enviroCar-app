@@ -500,6 +500,8 @@ public class ECApplication extends Application implements LocationListener {
 	 * commands
 	 */
 	public void startConnection() {
+		openDb();
+		startLocationManager();
 		createNewTrackIfNecessary();
 		if (!serviceConnector.isRunning()) {
 			Log.e("obd2", "service start");
@@ -514,6 +516,8 @@ public class ECApplication extends Application implements LocationListener {
 	 * Ends the connection with the Bluetooth Adapter
 	 */
 	public void stopConnection() {
+		closeDb();
+		stopLocating();
 		if (serviceConnector.isRunning()) {
 			stopService(backgroundService);
 			unbindService(serviceConnector);
@@ -635,12 +639,13 @@ public class ECApplication extends Application implements LocationListener {
 
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
-				0, this);
+		//locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
+		//		0, this);
 
 	}
 
 	public void destroyStuff() {
+		stopLocating();
 		locationManager = null;
 		backgroundService = null;
 		serviceConnector = null;
