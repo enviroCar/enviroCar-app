@@ -4,6 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.os.Bundle;
+import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -13,15 +14,20 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import car.io.R;
 import car.io.adapter.UploadManager;
 import car.io.application.ECApplication;
 import car.io.views.TYPEFACE;
+import car.io.views.Utils;
 import android.widget.RadioButton;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.MenuItem;
 
-public class MyGarage extends SherlockFragment {
+public class MyGarage extends SherlockActivity {
 
 	// TODO get url, token, username from sharedprefs
 	private String url = "http://giv-car.uni-muenster.de:8080/stable/rest/sensors";
@@ -37,17 +43,32 @@ public class MyGarage extends SherlockFragment {
 	private EditText carModelView;
 	private EditText carManufacturerView;
 	private EditText carConstructionYearView;
+	
+	private int actionBarTitleID = 0;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.my_garage_layout);
+		
+		final ActionBar actionBar = getSupportActionBar();
+		
+		// font stuff
+		actionBarTitleID = Utils.getActionBarId();
+		if (Utils.getActionBarId() != 0) {
+			((TextView) this.findViewById(actionBarTitleID))
+					.setTypeface(TYPEFACE.Newscycle(this));
+		}
+		//TODO style tabs
 
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-
-		View view = inflater.inflate(R.layout.my_garage_layout, null);
-		carModelView = (EditText) view
-				.findViewById(R.id.addCarToGarage_car_model);
-		carManufacturerView = (EditText) view
-				.findViewById(R.id.addCarToGarage_car_manufacturer);
-		carConstructionYearView = (EditText) view
-				.findViewById(R.id.addCarToGarage_car_constructionYear);
+		actionBar.setLogo(getResources().getDrawable(R.drawable.home_icon));
+		
+		
+		actionBar.setDisplayHomeAsUpEnabled(true);		
+		
+		carModelView = (EditText) findViewById(R.id.addCarToGarage_car_model);
+		carManufacturerView = (EditText) findViewById(R.id.addCarToGarage_car_manufacturer);
+		carConstructionYearView = (EditText) findViewById(R.id.addCarToGarage_car_constructionYear);
 
 		TextWatcher textWatcher = new TextWatcher() {
 
@@ -86,23 +107,19 @@ public class MyGarage extends SherlockFragment {
 			}
 		};
 
-		RadioGroup radioGroup = (RadioGroup) view
-				.findViewById(R.id.radiogroup_fueltype);
+		RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radiogroup_fueltype);
 		int selected = radioGroup.getCheckedRadioButtonId();
-		RadioButton checked = (RadioButton) view.findViewById(selected);
+		RadioButton checked = (RadioButton) findViewById(selected);
 		carFuelType = setFuelType(checked.getText().toString());
 
-		RadioButton rbGasoline = (RadioButton) view
-				.findViewById(R.id.radio_gasoline);
+		RadioButton rbGasoline = (RadioButton) findViewById(R.id.radio_gasoline);
 		rbGasoline.setOnClickListener(listener);
-		RadioButton rbDiesel = (RadioButton) view
-				.findViewById(R.id.radio_diesel);
+		RadioButton rbDiesel = (RadioButton) findViewById(R.id.radio_diesel);
 		rbDiesel.setOnClickListener(listener);
-		RadioButton rbElectric = (RadioButton) view
-				.findViewById(R.id.radio_electric);
+		RadioButton rbElectric = (RadioButton) findViewById(R.id.radio_electric);
 		rbElectric.setOnClickListener(listener);
 
-		view.findViewById(R.id.register_car_button).setOnClickListener(
+		findViewById(R.id.register_car_button).setOnClickListener(
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View view) {
@@ -116,15 +133,7 @@ public class MyGarage extends SherlockFragment {
 						}
 					}
 				});
-
-		return view;
-	}
-
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		TYPEFACE.applyCustomFont((ViewGroup) view,
-				TYPEFACE.Raleway(getActivity()));
+		TYPEFACE.applyCustomFont((ViewGroup) findViewById(R.id.mygaragelayout), TYPEFACE.Raleway(this));
 	}
 
 	private void registerSensorAtServer(String sensorType,
@@ -138,8 +147,8 @@ public class MyGarage extends SherlockFragment {
 
 		try {
 			JSONObject obj = new JSONObject(sensorString);
-			String username =((ECApplication) getActivity().getApplication()).getUser().getUsername();
-			String token = ((ECApplication) getActivity().getApplication()).getUser().getToken();
+			String username =((ECApplication) getApplication()).getUser().getUsername();
+			String token = ((ECApplication) getApplication()).getUser().getToken();
 			UploadManager uploadManager = new UploadManager();
 			uploadManager.sendHttpPost(url, obj, token, username);
 		} catch (JSONException e) {
@@ -165,4 +174,23 @@ public class MyGarage extends SherlockFragment {
 
 		return carFuelType;
 	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case android.R.id.home:
+			// This ID represents the Home or Up button. In the case of this
+			// activity, the Up button is shown. Use NavUtils to allow users
+			// to navigate up one level in the application structure. For
+			// more details, see the Navigation pattern on Android Design:
+			//
+			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
+			//
+			// TODO: If Settings has multiple levels, Up should navigate up
+			// that hierarchy.
+			NavUtils.navigateUpFromSameTask(this);
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
+	}	
 }

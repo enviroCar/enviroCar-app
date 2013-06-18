@@ -80,6 +80,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="car.io.activity.MainActivity" />
         </activity>
+        <activity
+            android:name="car.io.activity.MyGarage"
+            android:label="@string/menu_garage"
+            android:parentActivityName="car.io.activity.MainActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="car.io.activity.MainActivity" />
+        </activity>        
 
         <service
             android:name="car.io.obd.BackgroundService"

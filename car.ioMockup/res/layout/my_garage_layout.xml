@@ -2,9 +2,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".registerActivity" >
+    tools:context=".registerActivity" 
+    android:id="@+id/mygaragelayout">
 
-    <!-- register progress -->
 
     <LinearLayout
         android:id="@+id/addCarToGarage_status"

@@ -48,6 +48,8 @@ public class MainActivity<AndroidAlarmService> extends
 	static final int LOGIN = R.id.menu_login;
 	static final int REMOVE_LOCAL_TRACKS = R.id.menu_about;
 	static final int START_UPLOAD = R.id.menu_upload;
+	static final int MENU_GARAGE = R.id.menu_my_garage;
+
 
 	// Properties
 
@@ -118,7 +120,7 @@ public class MainActivity<AndroidAlarmService> extends
 		// SettingsActivity
 		addTab("Dashboard", DashboardFragment.class);
 		addTab("Friends", ListFriends.class);
-		addTab("My Garage", MyGarage.class);
+
 		// addTab( "Friends", MyData.class, MyData.createBundle( "Fragment 3")
 		// );
 
@@ -417,6 +419,11 @@ public class MainActivity<AndroidAlarmService> extends
 			application.setTrack(null);
 			Log.i("obd2", "deleted all local tracks");
 			return true;
+			
+		case MENU_GARAGE:
+			Intent garageIntent = new Intent(this, MyGarage.class);
+			startActivity(garageIntent);
+			return true;
 		}
 		return false;
 	}
@@ -430,6 +437,8 @@ public class MainActivity<AndroidAlarmService> extends
 		MenuItem stop = menu.findItem(STOP_MEASUREMENT);
 		MenuItem settings = menu.findItem(SETTINGS);
 		MenuItem upload = menu.findItem(START_UPLOAD);
+		MenuItem myGarage = menu.findItem(MENU_GARAGE);
+		MenuItem loginRegister = menu.findItem(LOGIN);
 
 		if (application.requirementsFulfilled()) { // was requirementsFulfilled
 			if (application.getServiceConnector().isRunning()) {
@@ -460,10 +469,17 @@ public class MainActivity<AndroidAlarmService> extends
 			settings.setEnabled(false);
 		}
 
-		if (application.getDbAdapterLocal().getAllTracks().size() > 0) {
+		if (application.getDbAdapterLocal().getAllTracks().size() > 0 && application.isLoggedIn()) {
 			upload.setEnabled(true);
 		} else {
 			upload.setEnabled(false);
+		}
+		
+		if (application.isLoggedIn()){
+			myGarage.setEnabled(true);
+			loginRegister.setTitle(String.format(getResources().getString(R.string.logged_in_as), application.getUser().getUsername()));
+		}else{
+			myGarage.setEnabled(false);
 		}
 
 		// MenuItem upload = menu.findItem(START_UPLOAD);

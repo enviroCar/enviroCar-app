@@ -19,12 +19,17 @@
         android:id="@+id/menu_upload"
         android:orderInCategory="120"
         android:showAsAction="never"
-        android:title="@string/menu_upload"/>    
+        android:title="@string/menu_upload"/>
     <item
         android:id="@+id/menu_login"
         android:orderInCategory="200"
         android:showAsAction="never"
         android:title="@string/menu_login"/>
+    <item
+        android:id="@+id/menu_my_garage"
+        android:orderInCategory="250"
+        android:showAsAction="never"
+        android:title="@string/menu_garage"/>    
     <item
         android:id="@+id/menu_about"
         android:orderInCategory="300"
