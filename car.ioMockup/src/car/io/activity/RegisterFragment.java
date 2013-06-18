@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,6 +28,8 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.TextView;
 import car.io.R;
+import car.io.application.ECApplication;
+import car.io.application.User;
 import car.io.views.TYPEFACE;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -273,7 +276,13 @@ public class RegisterFragment extends SherlockFragment {
 
 			if (httpStatus == HttpStatus.SC_CREATED) {
 				// TODO greet the user or something..
-				getActivity().finish();
+				((ECApplication) getActivity().getApplication()).setUser(new User(mUsername, mPassword));
+				
+				Intent intent = new Intent(getActivity(), MyGarage.class);
+				intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+				getActivity().startActivity(intent);
+				//getActivity().finish();
+				
 			} else if (httpStatus == HttpStatus.SC_CONFLICT) {
 				// TODO look out for server changes..
 			} else {

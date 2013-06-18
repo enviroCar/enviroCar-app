@@ -3,16 +3,19 @@ package car.io.activity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import car.io.R;
@@ -20,17 +23,16 @@ import car.io.adapter.UploadManager;
 import car.io.application.ECApplication;
 import car.io.views.TYPEFACE;
 import car.io.views.Utils;
-import android.widget.RadioButton;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.MenuItem;
 
 public class MyGarage extends SherlockActivity {
 
-	// TODO get url, token, username from sharedprefs
 	private String url = "http://giv-car.uni-muenster.de:8080/stable/rest/sensors";
+	
+	private SharedPreferences sharedPreferences;
 
 	private static final String TAG = "MyGarage";
 
@@ -51,7 +53,14 @@ public class MyGarage extends SherlockActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.my_garage_layout);
 		
+		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		
 		final ActionBar actionBar = getSupportActionBar();
+		
+		//TODO implement something that can detect from where the activity has been called
+		//to allow for things like
+		// * disable home as up
+		// * display message
 		
 		// font stuff
 		actionBarTitleID = Utils.getActionBarId();
@@ -59,7 +68,6 @@ public class MyGarage extends SherlockActivity {
 			((TextView) this.findViewById(actionBarTitleID))
 					.setTypeface(TYPEFACE.Newscycle(this));
 		}
-		//TODO style tabs
 
 		actionBar.setLogo(getResources().getDrawable(R.drawable.home_icon));
 		
@@ -144,6 +152,14 @@ public class MyGarage extends SherlockActivity {
 				.format("{ \"type\": \"%s\", \"properties\": {\"manufacturer\": \"%s\", \"model\": \"%s\", \"fuelType\": \"%s\", \"constructionYear\": %s } }",
 						sensorType, carManufacturer, carModel, carFuelType,
 						carConstructionYear);
+		
+		Editor edit = sharedPreferences.edit();
+		edit.putString(ECApplication.PREF_KEY_FUEL_TYPE, carFuelType);
+		edit.putString(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR, carConstructionYear);
+		edit.putString(ECApplication.PREF_KEY_CAR_MANUFACTURER, carManufacturer);
+		edit.putString(ECApplication.PREF_KEY_CAR_MODEL, carModel);
+		edit.commit();
+		//TODO Sensor id
 
 		try {
 			JSONObject obj = new JSONObject(sensorString);
@@ -156,6 +172,7 @@ public class MyGarage extends SherlockActivity {
 					"Error while creating JSON string for sensor registration.");
 			e.printStackTrace();
 		}
+		finish();
 	}
 
 	private String setFuelType(String fuelType) {

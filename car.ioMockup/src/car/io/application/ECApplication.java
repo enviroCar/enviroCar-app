@@ -39,6 +39,12 @@ import car.io.obd.ServiceConnector;
 
 public class ECApplication extends Application implements LocationListener {
 
+	public static final String PREF_KEY_CAR_MODEL = "carmodel";
+	public static final String PREF_KEY_CAR_MANUFACTURER = "manufacturer";
+	public static final String PREF_KEY_CAR_CONSTRUCTION_YEAR = "constructionyear";
+	public static final String PREF_KEY_FUEL_TYPE = "fueltype";
+	public static final String PREF_KEY_SENSOR_ID = "sensorid";
+
 	private SharedPreferences preferences = null;
 
 	private DbAdapter dbAdapterLocal;
