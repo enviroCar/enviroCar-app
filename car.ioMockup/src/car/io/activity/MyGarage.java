@@ -25,9 +25,6 @@ public class MyGarage extends SherlockFragment {
 
 	// TODO get url, token, username from sharedprefs
 	private String url = "http://giv-car.uni-muenster.de:8080/stable/rest/sensors";
-	
-	String username = ((ECApplication) getActivity().getApplication()).getUser().getUsername();
-	String token = ((ECApplication) getActivity().getApplication()).getUser().getToken();
 
 	private static final String TAG = "MyGarage";
 
@@ -141,6 +138,8 @@ public class MyGarage extends SherlockFragment {
 
 		try {
 			JSONObject obj = new JSONObject(sensorString);
+			String username =((ECApplication) getActivity().getApplication()).getUser().getUsername();
+			String token = ((ECApplication) getActivity().getApplication()).getUser().getToken();
 			UploadManager uploadManager = new UploadManager();
 			uploadManager.sendHttpPost(url, obj, token, username);
 		} catch (JSONException e) {
