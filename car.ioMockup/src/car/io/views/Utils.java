@@ -1,5 +1,9 @@
 package car.io.views;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.location.LocationManager;
@@ -34,6 +38,24 @@ public class Utils {
 	public static boolean isBluetoothEnabled(Context context){
 		return BluetoothAdapter.getDefaultAdapter() != null && BluetoothAdapter.getDefaultAdapter().isEnabled();
 	}
+	
+	
+
+
+
+	    /** Transform ISO 8601 string to Calendar. */
+	    public static long isoDateToLong(final String iso8601string) throws ParseException {
+	        String s = iso8601string.replace("Z", "+00:00");
+	        try {
+	            s = s.substring(0, 22) + s.substring(23);
+	        } catch (IndexOutOfBoundsException e) {
+	            throw new ParseException("Invalid length", 0);
+	        }
+	        Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(s);
+
+	        return date.getTime();
+	    }
+
 
 //	public static String MD5(String md5) {
 //		try {

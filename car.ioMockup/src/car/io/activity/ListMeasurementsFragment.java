@@ -2,6 +2,7 @@ package car.io.activity;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -32,6 +33,7 @@ import car.io.application.ECApplication;
 import car.io.application.RestClient;
 import car.io.exception.LocationInvalidException;
 import car.io.views.TYPEFACE;
+import car.io.views.Utils;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.loopj.android.http.JsonHttpResponseHandler;
@@ -125,6 +127,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 							recycleMeasurement.setMaf((trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("properties").getJSONObject("phenomenons").getJSONObject("MAF").getDouble("value")));
 							recycleMeasurement.setSpeed((trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("properties").getJSONObject("phenomenons").getJSONObject("Speed").getInt("value")));
+							recycleMeasurement.setMeasurementTime(Utils.isoDateToLong((trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("properties").getString("time"))));
 							recycleMeasurement.setTrack(t);
 							t.addMeasurement(recycleMeasurement);
 						}
@@ -135,6 +138,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					} catch (NumberFormatException e) {
 						e.printStackTrace();
 					} catch (LocationInvalidException e) {
+						e.printStackTrace();
+					} catch (ParseException e) {
 						e.printStackTrace();
 					}
 					return null;
