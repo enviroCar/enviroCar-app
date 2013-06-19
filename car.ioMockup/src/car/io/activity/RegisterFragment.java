@@ -8,6 +8,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -319,7 +320,8 @@ public class RegisterFragment extends SherlockFragment {
 
 		try {
 			HttpPost postRequest = new HttpPost(
-					"http://giv-car.uni-muenster.de:8080/stable/rest/users");
+					"https://giv-car.uni-muenster.de/stable/rest/users");
+					
 
 			StringEntity input = new StringEntity(requestJson.toString(),
 					HTTP.UTF_8);
