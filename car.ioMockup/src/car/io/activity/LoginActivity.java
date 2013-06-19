@@ -1,5 +1,8 @@
 package car.io.activity;
 
+import org.apache.http.HttpStatus;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -22,6 +25,8 @@ import com.actionbarsherlock.view.MenuItem;
  * well.
  */
 public class LoginActivity extends SherlockFragmentActivity {
+	
+	static final int REQUEST_MY_GARAGE = 1000;
 	
 	private int actionBarTitleID = 0;
 
@@ -94,6 +99,19 @@ public class LoginActivity extends SherlockFragmentActivity {
 		super.onSaveInstanceState(outState);
 		outState.putInt("SAVED_INDEX", getSupportActionBar()
 				.getSelectedNavigationIndex());
+	}
+	
+	@Override
+	protected void onActivityResult (int requestCode, int resultCode, Intent data) {
+		super.onActivityResult (requestCode,resultCode, data);
+		switch(requestCode){
+		case REQUEST_MY_GARAGE:
+			if(resultCode == HttpStatus.SC_CREATED){
+				finish();
+			}
+			break;
+		}
+		
 	}
 
 	public static class TabListener<T extends SherlockFragment> implements

@@ -1,8 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    tools:context=".registerActivity" 
+    android:layout_height="match_parent"
+    tools:context=".MyGarage" 
     android:id="@+id/mygaragelayout">
 
 
@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:orientation="vertical"
-        android:visibility="gone" >
+        android:visibility="gone"  >
 
         <ProgressBar
             style="?android:attr/progressBarStyleLarge"
@@ -33,9 +33,10 @@
     <!-- register car at server form -->
 
     <ScrollView
-        android:id="@+id/register_form"
+        android:id="@+id/garage_form"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        >
 
         <LinearLayout
             style="@style/LoginFormContainer"

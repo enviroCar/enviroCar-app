@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".registerActivity" >
+    tools:context=".RegisterActivity" >
 
     <!-- register progress -->
 
@@ -35,7 +35,8 @@
     <ScrollView
         android:id="@+id/register_form"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+         >
 
        <LinearLayout
             style="@style/LoginFormContainer"

@@ -246,7 +246,7 @@ public class LoginFragment extends SherlockFragment {
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 		try {
 			HttpGet httpget = new HttpGet(
-					"https://giv-car.uni-muenster.de/stable/rest/users/"
+					ECApplication.BASE_URL+"/users/"
 							+ user);
 			httpget.addHeader(new BasicHeader("X-User", user));
 			httpget.addHeader(new BasicHeader("X-Token", token));

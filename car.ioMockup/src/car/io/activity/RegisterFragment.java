@@ -104,7 +104,8 @@ public class RegisterFragment extends SherlockFragment {
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View view) {
-						attemptRegister();
+						//attemptRegister();
+						showProgress(true);
 					}
 				});
 		return view;
@@ -193,14 +194,6 @@ public class RegisterFragment extends SherlockFragment {
 			cancel = true;
 		}
 
-		// convert the password to md5
-		// mPasswordMD5 = Utils.MD5(mPassword);
-		// if(mPasswordMD5==null){
-		// mPasswordView.setError(getString(R.string.error_invalid_email));
-		// focusView = mPasswordView;
-		// cancel = true;
-		// }
-
 		if (cancel) {
 			// There was an error; don't attempt register and focus the first
 			// form field with an error.
@@ -280,9 +273,9 @@ public class RegisterFragment extends SherlockFragment {
 				((ECApplication) getActivity().getApplication()).setUser(new User(mUsername, mPassword));
 				
 				Intent intent = new Intent(getActivity(), MyGarage.class);
-				intent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-				intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
-				getActivity().startActivity(intent);
+//				intent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+//				intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
+				getActivity().startActivityForResult(intent, LoginActivity.REQUEST_MY_GARAGE);
 				//getActivity().finish();
 				
 			} else if (httpStatus == HttpStatus.SC_CONFLICT) {
@@ -320,7 +313,7 @@ public class RegisterFragment extends SherlockFragment {
 
 		try {
 			HttpPost postRequest = new HttpPost(
-					"https://giv-car.uni-muenster.de/stable/rest/users");
+					ECApplication.BASE_URL+"/users");
 					
 
 			StringEntity input = new StringEntity(requestJson.toString(),

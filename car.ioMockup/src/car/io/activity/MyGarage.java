@@ -1,10 +1,13 @@
 package car.io.activity;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.apache.http.Header;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
@@ -15,17 +18,16 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import car.io.R;
-import car.io.adapter.UploadManager;
 import car.io.application.ECApplication;
 import car.io.application.RestClient;
 import car.io.views.TYPEFACE;
 import car.io.views.Utils;
-
-import org.apache.http.Header;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
@@ -49,6 +51,9 @@ public class MyGarage extends SherlockActivity {
 	private EditText carModelView;
 	private EditText carManufacturerView;
 	private EditText carConstructionYearView;
+	
+	private ScrollView garageForm;
+	private LinearLayout garageProgress;
 	
 	private int actionBarTitleID = 0;
 	
@@ -74,9 +79,11 @@ public class MyGarage extends SherlockActivity {
 		}
 
 		actionBar.setLogo(getResources().getDrawable(R.drawable.home_icon));
+
+		actionBar.setDisplayHomeAsUpEnabled(true);
 		
-		
-		actionBar.setDisplayHomeAsUpEnabled(true);		
+		garageForm = (ScrollView) this.findViewById(R.id.garage_form);
+		garageProgress = (LinearLayout) this.findViewById(R.id.addCarToGarage_status);
 		
 		carModelView = (EditText) findViewById(R.id.addCarToGarage_car_model);
 		carManufacturerView = (EditText) findViewById(R.id.addCarToGarage_car_manufacturer);
@@ -94,15 +101,11 @@ public class MyGarage extends SherlockActivity {
 			}
 
 			@Override
-			public void afterTextChanged(Editable s) {
-
-			}
+			public void afterTextChanged(Editable s) {}
 
 			@Override
 			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-
-			}
+					int after) {}
 
 		};
 
@@ -163,25 +166,29 @@ public class MyGarage extends SherlockActivity {
 		edit.putString(ECApplication.PREF_KEY_CAR_MANUFACTURER, carManufacturer);
 		edit.putString(ECApplication.PREF_KEY_CAR_MODEL, carModel);
 		edit.commit();
-		//TODO Sensor id
 		
 		String username =((ECApplication) getApplication()).getUser().getUsername();
 		String token = ((ECApplication) getApplication()).getUser().getToken();
 		
 		RestClient.createSensor(sensorString, username, token, new AsyncHttpResponseHandler(){
 			
-			
+			@Override
+			public void onStart() {
+				super.onStart();
+				showProgress(true);
+			}
+
 			@Override
 			public void onFailure(Throwable error, String content) {
 				// TODO Auto-generated method stub
 				super.onFailure(error, content);
-				Log.i("fail",content,error);
+				showProgress(false);
 			}
 			
 			
 			@Override
-			public void onSuccess(int arg0, Header[] h, String arg1) {
-				super.onSuccess(arg0,h, arg1);
+			public void onSuccess(int httpStatusCode, Header[] h, String response) {
+				super.onSuccess(httpStatusCode, h, response);
 				String location = "";
 				for (int i = 0; i< h.length; i++){
 					if( h[i].getName().equals("Location")){
@@ -189,64 +196,69 @@ public class MyGarage extends SherlockActivity {
 						break;
 					}
 				}
-				Log.i("create sensor", arg0+" "+location);
+				Log.i("create sensor", httpStatusCode+" "+location);
 				
 				String sensorId = location.substring(location.lastIndexOf("/")+1, location.length());
-				
+				//put the sensor id into shared preferences
 				Editor edit = sharedPreferences.edit();
 				edit.putString(ECApplication.PREF_KEY_SENSOR_ID, sensorId);
 				edit.commit();
+				setResult(httpStatusCode);
 				finish();
 			}
 		});
-		/*
-		try {
-			JSONObject obj = new JSONObject(sensorString);
 
-			UploadManager uploadManager = new UploadManager();
-			uploadManager.sendHttpPost(url, obj, token, username);
-		} catch (JSONException e) {
-			Log.e("TAG",
-					"Error while creating JSON string for sensor registration.");
-			e.printStackTrace();
-		}
-		*/
-		//finish();
 	}
-
-//	private String setFuelType(String fuelType) {
-//		// TODO Eliminate variations in spelling of "Gasoline" or "Gasolene"
-//		// between app and server
-//
-//		if (fuelType.equals("Gasoline")) {
-//			carFuelType = "gasoline";
-//		}
-//		if (fuelType.equals("Diesel")) {
-//			carFuelType = "diesel";
-//		}
-//		if (fuelType.equals("Electric")) {
-//			carFuelType = "electric";
-//		}
-//
-//		return carFuelType;
-//	}
 	
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 		case android.R.id.home:
-			// This ID represents the Home or Up button. In the case of this
-			// activity, the Up button is shown. Use NavUtils to allow users
-			// to navigate up one level in the application structure. For
-			// more details, see the Navigation pattern on Android Design:
-			//
-			// http://developer.android.com/design/patterns/navigation.html#up-vs-back
-			//
-			// TODO: If Settings has multiple levels, Up should navigate up
-			// that hierarchy.
 			NavUtils.navigateUpFromSameTask(this);
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+	
+	/**
+	 * Shows the progress UI and hides the register form.
+	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+	private void showProgress(final boolean show) {
+		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+		// for very easy animations. If available, use these APIs to fade-in
+		// the progress spinner.
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+			int shortAnimTime = getResources().getInteger(
+					android.R.integer.config_shortAnimTime);
+
+			garageProgress.setVisibility(View.VISIBLE);
+			garageProgress.animate().setDuration(shortAnimTime)
+					.alpha(show ? 1 : 0)
+					.setListener(new AnimatorListenerAdapter() {
+						@Override
+						public void onAnimationEnd(Animator animation) {
+							garageProgress
+									.setVisibility(show ? View.VISIBLE
+											: View.GONE);
+						}
+					});
+
+			garageForm.setVisibility(View.VISIBLE);
+			garageForm.animate().setDuration(shortAnimTime)
+					.alpha(show ? 0 : 1)
+					.setListener(new AnimatorListenerAdapter() {
+						@Override
+						public void onAnimationEnd(Animator animation) {
+							garageForm.setVisibility(show ? View.GONE
+									: View.VISIBLE);
+						}
+					});
+		} else {
+			// The ViewPropertyAnimator APIs are not available, so simply show
+			// and hide the relevant UI components.
+			garageProgress.setVisibility(show ? View.VISIBLE : View.GONE);
+			garageForm.setVisibility(show ? View.GONE : View.VISIBLE);
+		}
 	}	
 }

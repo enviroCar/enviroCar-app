@@ -38,6 +38,8 @@ import car.io.obd.Listener;
 import car.io.obd.ServiceConnector;
 
 public class ECApplication extends Application implements LocationListener {
+	
+	public static final String BASE_URL = "https://giv-car.uni-muenster.de/stable/rest";
 
 	public static final String PREF_KEY_CAR_MODEL = "carmodel";
 	public static final String PREF_KEY_CAR_MANUFACTURER = "manufacturer";
@@ -543,6 +545,7 @@ public class ECApplication extends Application implements LocationListener {
 			handler.postDelayed(waitingListRunnable, 2000);
 		}
 	};
+
 
 	/**
 	 * Helper method that adds the desired commands to the waiting list where
