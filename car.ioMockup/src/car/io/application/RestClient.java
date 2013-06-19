@@ -9,40 +9,39 @@ import org.apache.http.protocol.HTTP;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
-import com.loopj.android.http.RequestParams;
 
 public class RestClient {
 	
-	private static final String BASE_URL = "http://giv-car.uni-muenster.de:8080/stable/rest/";
+	private static final String BASE_URL = "https://giv-car.uni-muenster.de/stable/rest/";
 	
 	private static AsyncHttpClient client = new AsyncHttpClient();
 	
-	public static void downloadTracks(String user, JsonHttpResponseHandler handler){
+	public static void downloadTracks(String user, String token, JsonHttpResponseHandler handler){
+		client.addHeader("X-User", user);
+		client.addHeader("X-Token", token);
 		client.get(BASE_URL+"users/"+user+"/tracks", handler); //TODO use pagination
 	}
 	
-	public static void downloadTrack(String url, JsonHttpResponseHandler handler){
-		client.get(url, handler);
+	public static void downloadTrack(String user, String token, String id, JsonHttpResponseHandler handler){
+		client.addHeader("X-User", user);
+		client.addHeader("X-Token", token);
+		client.get(BASE_URL+"tracks/"+id, handler);
 	}
 	
-	public static void createSensor(String jsonObj, String user, String token, AsyncHttpResponseHandler handler){
+	public static boolean createSensor(String jsonObj, String user, String token, AsyncHttpResponseHandler handler){
 		client.addHeader("Content-Type", "application/json");
 		client.addHeader("X-User", user);
 		client.addHeader("X-Token", token);
 		
-		StringEntity se = null;
 		try {
-		  se = new StringEntity(jsonObj);
+			StringEntity se = new StringEntity(jsonObj);
+			se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+			client.post(null, BASE_URL+"sensors", se, "application/json", handler);		  
 		} catch (UnsupportedEncodingException e) {
-		  e.printStackTrace();
-		  return;
+			e.printStackTrace();
+			return false;
 		}
-		se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
-
-		client.post(null, BASE_URL+"sensors", se, "application/json", handler);
-		
-
-		//client.post(BASE_URL+"sensors", new RequestParams("",jsonObj), handler);
+		return true;
 	}
 
 }

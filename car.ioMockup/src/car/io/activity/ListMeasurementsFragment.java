@@ -78,8 +78,24 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 	private void downloadTracks() {
 		
-		String username = ((ECApplication) getActivity().getApplication()).getUser().getUsername();
-		RestClient.downloadTracks(username,new JsonHttpResponseHandler() {
+		final String username = ((ECApplication) getActivity().getApplication()).getUser().getUsername();
+		final String token = ((ECApplication) getActivity().getApplication()).getUser().getToken();
+		RestClient.downloadTracks(username,token, new JsonHttpResponseHandler() {
+			
+			
+			@Override
+			public void onFailure(Throwable e, JSONObject errorResponse) {
+				// TODO Auto-generated method stub
+				super.onFailure(e, errorResponse);
+				Log.i("error",e.toString());
+			}
+			
+			@Override
+			public void onFailure(Throwable error, String content) {
+				// TODO Auto-generated method stub
+				super.onFailure(error, content);
+				Log.i("faildl",content,error);
+			}
 			
 			// Variable that holds the number of trackdl requests
 			private int ct = 0;
@@ -221,7 +237,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 						// else
 						// download the track
-						RestClient.downloadTrack(((JSONObject) tracks.get(i)).getString("href"),
+						RestClient.downloadTrack(username, token, ((JSONObject) tracks.get(i)).getString("id"),
 								new JsonHttpResponseHandler() {
 									
 									@Override
@@ -236,7 +252,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 									@Override
 									public void onSuccess(JSONObject trackJson) {
 										super.onSuccess(trackJson);
-										
+
 										// start the AsyncTask to handle the downloaded trackjson
 										new AsyncOnSuccessTask().execute(trackJson);
 
