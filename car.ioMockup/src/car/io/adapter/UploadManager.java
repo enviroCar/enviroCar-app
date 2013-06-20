@@ -8,7 +8,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.TimeZone;
 
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -28,10 +27,7 @@ public class UploadManager {
 
 	private static final String TAG = "obd2";
 
-	// TODO Configure Url in property document/shared preferences
-	private String url = "http://giv-car.uni-muenster.de:8080/stable/rest/users/%1$s/tracks";
-	// private String url =
-	// "http://giv-car.uni-muenster.de:8080/stable/rest/users/upload/tracks";
+	private String url = ECApplication.BASE_URL+"users/%1$s/tracks";
 	private JSONObject obj;
 	private ArrayList<JSONObject> objList;
 
@@ -54,31 +50,31 @@ public class UploadManager {
 		 * This is just for testing
 		 */
 
-		// Track dummyTrack = new Track("VIN", "Diesel", dbAdapter);
-		// dummyTrack.setDescription("This is a description of the track.");
-		// dummyTrack.setName("This is the Name of the track");
-		// dummyTrack.setFuelType("Diesel");
-		//
-		// try {
-		// Measurement dummyMeasurement = new Measurement(12.365f, 24.068f);
-		// dummyMeasurement.setMaf(456);
-		// dummyMeasurement.setSpeed(220);
-		// dummyTrack.addMeasurement(dummyMeasurement);
-		//
-		// Measurement dummyMeasurement2 = new Measurement(55.365f, 7.068f);
-		// dummyMeasurement2.setMaf(550);
-		// dummyMeasurement2.setSpeed(130);
-		// dummyTrack.addMeasurement(dummyMeasurement2);
-		//
-		// Log.i(TAG, "Measurement object created.");
-		// } catch (LocationInvalidException e1) {
-		// Log.e(TAG, "Measurement object creation failed.");
-		// e1.printStackTrace();
-		// }
-		//
-		// dummyTrack.commitTrackToDatabase();
-		// ArrayList<Track> trackList = new ArrayList<Track>();
-		// trackList.add(dummyTrack);
+//		 Track dummyTrack = new Track("VIN", "Diesel","Test-Hersteller","Test-modell","", dbAdapter);
+//		 dummyTrack.setDescription("This is a description of the track.");
+//		 dummyTrack.setName("This is the Name of the track");
+//		 dummyTrack.setFuelType("Diesel");
+//		
+//		 try {
+//		 Measurement dummyMeasurement = new Measurement(12.365f, 24.068f);
+//		 dummyMeasurement.setMaf(456);
+//		 dummyMeasurement.setSpeed(220);
+//		 dummyTrack.addMeasurement(dummyMeasurement);
+//		
+//		 Measurement dummyMeasurement2 = new Measurement(55.365f, 7.068f);
+//		 dummyMeasurement2.setMaf(550);
+//		 dummyMeasurement2.setSpeed(130);
+//		 dummyTrack.addMeasurement(dummyMeasurement2);
+//		
+//		 Log.i(TAG, "Measurement object created.");
+//		 } catch (LocationInvalidException e1) {
+//		 Log.e(TAG, "Measurement object creation failed.");
+//		 e1.printStackTrace();
+//		 }
+//		
+//		 dummyTrack.commitTrackToDatabase();
+//		 ArrayList<Track> trackList = new ArrayList<Track>();
+//		 trackList.add(dummyTrack);
 
 		/*
 		 * This is where testing ends. Remember to correctly comment in or out
@@ -163,13 +159,7 @@ public class UploadManager {
 
 		String trackName = track.getName();
 		String trackDescription = track.getDescription();
-
-		// TODO configure sensorName in Track Class.
-		// TODO Error Handling: only registered sensor names are accepted from
-		// server side
-		// String trackSensorName = "Car";
-		// TODO make sensor dynamic
-		String trackSensorName = "51b25b00e4b01748637ea904";
+		String trackSensorName = track.getSensorID();
 
 		String trackElementJson = String
 				.format("{ \"type\":\"FeatureCollection\",\"properties\": {\"name\": \"%s\", \"description\": \"%s\", \"sensor\": \"%s\"}, \"features\": [",
@@ -261,8 +251,6 @@ public class UploadManager {
 					.getStatusCode());
 
 			String reasonPhrase = response.getStatusLine().getReasonPhrase();
-			//ULTRAMIESER HACK, wirklich, wenn ich es nicht selbst gebaut hätte, würde ich mich tadeln
-			String location = response.getHeaders("Location")[0].getValue();
 			
 			Log.d(TAG, String.format("%s: %s", statusCode, reasonPhrase));
 
