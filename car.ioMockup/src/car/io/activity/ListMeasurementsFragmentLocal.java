@@ -11,26 +11,24 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Toast;
 import car.io.R;
 import car.io.adapter.DbAdapter;
-import car.io.adapter.Measurement;
 import car.io.adapter.Track;
 import car.io.application.ECApplication;
-import car.io.exception.LocationInvalidException;
 import car.io.views.TYPEFACE;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -56,7 +54,27 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 		 * Testing
 		 */
 
-		// Track track = new Track("123456", "Gasoline", dbAdapter);
+		// ECApplication application = ((ECApplication) getActivity()
+		// .getApplication());
+		//
+		// SharedPreferences preferences = PreferenceManager
+		// .getDefaultSharedPreferences(application);
+		//
+		// String fuelType =
+		// preferences.getString(application.PREF_KEY_FUEL_TYPE,
+		// "gasoline");
+		// String carManufacturer = preferences.getString(
+		// application.PREF_KEY_CAR_MANUFACTURER, "undefined");
+		// String carModel =
+		// preferences.getString(application.PREF_KEY_CAR_MODEL,
+		// "undefined");
+		// String sensorId =
+		// preferences.getString(application.PREF_KEY_SENSOR_ID,
+		// "undefined");
+		//
+		// Track track = new Track("123456", fuelType, carManufacturer,
+		// carModel,
+		// sensorId, dbAdapter);
 		// track.setName("Track 1");
 		// track.commitTrackToDatabase();
 		// try {
@@ -68,7 +86,9 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 		// e.printStackTrace();
 		// }
 		//
-		// Track track2 = new Track("123456", "Gasoline", dbAdapter);
+		// Track track2 = new Track("123456", fuelType, carManufacturer,
+		// carModel,
+		// sensorId, dbAdapter);
 		// track2.setName("Track 2");
 		// track2.commitTrackToDatabase();
 		// try {
@@ -130,8 +150,8 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 			dbAdapter.deleteTrack(track.getId());
 			Toast.makeText(getActivity(), "Track deleted.", Toast.LENGTH_LONG)
 					.show();
-			// TODO update the UI list because you cannot see that the track was
-			// deleted
+			tracksList.remove(itemSelect);
+			elvAdapter.notifyDataSetChanged();
 			return true;
 		case R.id.uploadTrack:
 			Log.e("obd2", "uploading item: " + itemSelect);
@@ -139,7 +159,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 					getActivity(),
 					"This function is not supported yet. Please upload all tracks at once via the menu.",
 					Toast.LENGTH_LONG).show();
-			//TODO implement this (not "mission critical")
+			// TODO implement this (not "mission critical")
 			return true;
 		default:
 			return super.onContextItemSelected(item);
