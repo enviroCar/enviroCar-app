@@ -21,9 +21,7 @@ public class DashboardFragment extends SherlockFragment {
 	TextView speedTextView;
 	RoundProgress roundProgressSpeed;
 	TextView co2TextView;
-	RatingBar drivingStyle;
 	RoundProgress roundProgressCO2;
-	ImageView image;
 	DbAdapter dbAdapter;
 	ECApplication application;
 	int speed;
@@ -57,10 +55,6 @@ public class DashboardFragment extends SherlockFragment {
 				R.id.blue_progress_bar);
 		roundProgressSpeed = (RoundProgress) getView().findViewById(
 				R.id.blue_progress_bar2);
-
-		drivingStyle = (RatingBar) getView().findViewById(R.id.ratingBar1);
-
-		image = (ImageView) getView().findViewById(R.id.imageView1);
 
 		// Handle the UI updates
 
