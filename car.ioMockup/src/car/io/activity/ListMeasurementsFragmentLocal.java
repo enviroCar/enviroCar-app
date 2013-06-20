@@ -139,6 +139,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 					getActivity(),
 					"This function is not supported yet. Please upload all tracks at once via the menu.",
 					Toast.LENGTH_LONG).show();
+			//TODO implement this (not "mission critical")
 			return true;
 		default:
 			return super.onContextItemSelected(item);
