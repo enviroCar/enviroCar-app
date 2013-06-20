@@ -70,6 +70,8 @@ public class MyGarage extends SherlockActivity {
 		//to allow for things like
 		// * disable home as up
 		// * display message
+		//TODO really implement this to detect if a list of available sensors should be displayed
+		//TODO !fancy! search for sensors
 		
 		// font stuff
 		actionBarTitleID = Utils.getActionBarId();
