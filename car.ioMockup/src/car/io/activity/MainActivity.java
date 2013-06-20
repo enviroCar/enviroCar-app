@@ -50,7 +50,6 @@ public class MainActivity<AndroidAlarmService> extends
 	static final int START_UPLOAD = R.id.menu_upload;
 	static final int MENU_GARAGE = R.id.menu_my_garage;
 
-
 	// Properties
 
 	// private static final String PREF_FUEL_TPYE = "pref_fuel_type";
@@ -419,7 +418,7 @@ public class MainActivity<AndroidAlarmService> extends
 			application.setTrack(null);
 			Log.i("obd2", "deleted all local tracks");
 			return true;
-			
+
 		case MENU_GARAGE:
 			Intent garageIntent = new Intent(this, MyGarage.class);
 			startActivity(garageIntent);
@@ -441,27 +440,36 @@ public class MainActivity<AndroidAlarmService> extends
 		MenuItem loginRegister = menu.findItem(LOGIN);
 
 		if (application.requirementsFulfilled()) { // was requirementsFulfilled
-			if (application.getServiceConnector().isRunning()) { //TODO check for null
+			try {
+				if (application.getServiceConnector().isRunning()) {
+					start.setEnabled(false);
+					stop.setEnabled(true);
+					settings.setEnabled(false);
+				} else {
+					stop.setEnabled(false);
+
+					// Only enable start button when adapter is selected
+
+					SharedPreferences preferences = PreferenceManager
+							.getDefaultSharedPreferences(this);
+
+					String remoteDevice = preferences.getString(
+							car.io.activity.SettingsActivity.BLUETOOTH_KEY,
+							null);
+
+					if (remoteDevice != null) {
+						start.setEnabled(true);
+					} else {
+						start.setEnabled(false);
+					}
+					settings.setEnabled(true);
+				}
+			} catch (NullPointerException e) {
+				Log.e("obd2", "The Service Connector is null.");
 				start.setEnabled(false);
 				stop.setEnabled(true);
-				settings.setEnabled(false);
-			} else {
-				stop.setEnabled(false);
-
-				// Only enable start button when adapter is selected
-
-				SharedPreferences preferences = PreferenceManager
-						.getDefaultSharedPreferences(this);
-
-				String remoteDevice = preferences.getString(
-						car.io.activity.SettingsActivity.BLUETOOTH_KEY, null);
-
-				if (remoteDevice != null) {
-					start.setEnabled(true);
-				} else {
-					start.setEnabled(false);
-				}
 				settings.setEnabled(true);
+				e.printStackTrace();
 			}
 		} else {
 			start.setEnabled(false);
@@ -469,16 +477,19 @@ public class MainActivity<AndroidAlarmService> extends
 			settings.setEnabled(false);
 		}
 
-		if (application.getDbAdapterLocal().getAllTracks().size() > 0 && application.isLoggedIn()) {
+		if (application.getDbAdapterLocal().getAllTracks().size() > 0
+				&& application.isLoggedIn()) {
 			upload.setEnabled(true);
 		} else {
 			upload.setEnabled(false);
 		}
-		
-		if (application.isLoggedIn()){
+
+		if (application.isLoggedIn()) {
 			myGarage.setEnabled(true);
-			loginRegister.setTitle(String.format(getResources().getString(R.string.logged_in_as), application.getUser().getUsername()));
-		}else{
+			loginRegister.setTitle(String.format(
+					getResources().getString(R.string.logged_in_as),
+					application.getUser().getUsername()));
+		} else {
 			myGarage.setEnabled(false);
 		}
 
