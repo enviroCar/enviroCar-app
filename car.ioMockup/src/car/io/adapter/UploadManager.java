@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import car.io.application.ECApplication;
@@ -27,7 +28,7 @@ public class UploadManager {
 
 	private static final String TAG = "obd2";
 
-	private String url = ECApplication.BASE_URL+"users/%1$s/tracks";
+	private String url = ECApplication.BASE_URL+"/users/%1$s/tracks";
 	private JSONObject obj;
 	private ArrayList<JSONObject> objList;
 
@@ -133,8 +134,10 @@ public class UploadManager {
 			String username = ((ECApplication) context).getUser().getUsername();
 			String token = ((ECApplication) context).getUser().getToken();
 			String urlL = String.format(url, username);
+
+			
 			for (JSONObject object : objList) {
-				int statusCode = sendHttpPost(urlL, object, username, token);
+				int statusCode = sendHttpPost(urlL, object, token, username);
 				if (statusCode != -1 && statusCode == 201) {
 					// TODO remove tracks from local storage if upload was
 					// successful
@@ -160,7 +163,7 @@ public class UploadManager {
 		String trackName = track.getName();
 		String trackDescription = track.getDescription();
 		String trackSensorName = track.getSensorID();
-
+		
 		String trackElementJson = String
 				.format("{ \"type\":\"FeatureCollection\",\"properties\": {\"name\": \"%s\", \"description\": \"%s\", \"sensor\": \"%s\"}, \"features\": [",
 						trackName, trackDescription, trackSensorName);
@@ -231,6 +234,7 @@ public class UploadManager {
 			HttpPost httpPostRequest = new HttpPost(url);
 
 			StringEntity se = new StringEntity(jsonObjSend.toString());
+			se.setContentType("application/json");
 			Log.d(TAG + "SE", jsonObjSend.toString());
 
 			// Set HTTP parameters

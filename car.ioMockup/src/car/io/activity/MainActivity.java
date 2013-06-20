@@ -441,7 +441,7 @@ public class MainActivity<AndroidAlarmService> extends
 		MenuItem loginRegister = menu.findItem(LOGIN);
 
 		if (application.requirementsFulfilled()) { // was requirementsFulfilled
-			if (application.getServiceConnector().isRunning()) {
+			if (application.getServiceConnector().isRunning()) { //TODO check for null
 				start.setEnabled(false);
 				stop.setEnabled(true);
 				settings.setEnabled(false);

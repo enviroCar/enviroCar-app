@@ -104,8 +104,7 @@ public class RegisterFragment extends SherlockFragment {
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View view) {
-						//attemptRegister();
-						showProgress(true);
+						attemptRegister();
 					}
 				});
 		return view;
