@@ -57,7 +57,7 @@ public class Track {
 		this.vin = vin;
 		this.name = "";
 		this.description = "";
-		this.carManufacturer = carManufacturer; // TODO decode vin or read from shared preferences...
+		this.carManufacturer = carManufacturer; 
 		this.carModel = carModel;
 		this.fuelType = fuelType;
 		this.sensorID = sensorId;
