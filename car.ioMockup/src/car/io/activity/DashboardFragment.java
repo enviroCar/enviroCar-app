@@ -75,7 +75,8 @@ public class DashboardFragment extends SherlockFragment {
 				R.id.blue_progress_bar2);
 		
 		sensorSpinner = (Spinner) getView().findViewById(R.id.dashboard_current_sensor_spinner);
-		//this rather difficult code is to ensure that the event is only fired for selection
+		//TODO select sensor from sharedpreferences
+		//TODO add "add sensor" button to spinner
 		sensorSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 			private boolean firstSelect = true;
 			@Override
