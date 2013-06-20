@@ -30,6 +30,7 @@ import car.io.adapter.Track;
 import car.io.commands.CommonCommand;
 import car.io.commands.MAF;
 import car.io.commands.Speed;
+import car.io.exception.FuelConsumptionException;
 import car.io.exception.LocationInvalidException;
 import car.io.exception.MeasurementsException;
 import car.io.exception.TracksException;
@@ -38,7 +39,7 @@ import car.io.obd.Listener;
 import car.io.obd.ServiceConnector;
 
 public class ECApplication extends Application implements LocationListener {
-	
+
 	public static final String BASE_URL = "https://giv-car.uni-muenster.de/stable/rest";
 
 	public static final String PREF_KEY_CAR_MODEL = "carmodel";
@@ -66,6 +67,7 @@ public class ECApplication extends Application implements LocationListener {
 	private float locationLatitude;
 	private float locationLongitude;
 	private int speedMeasurement = 0;
+	private double co2Measurement = 0.0;
 	private double mafMeasurement;
 	private Measurement measurement = null;
 	private long lastInsertTime = 0;
@@ -124,15 +126,19 @@ public class ECApplication extends Application implements LocationListener {
 	// TODO call this method at some other positions in the code aswell... at
 	// some places, it might make sense to do so
 	private void createNewTrackIfNecessary() {
-		
+
 		// TODO decode vin or read from shared preferences...
-		
-		//setting undefined, will hopefully prevent correct uploading.
-		//but this shouldn't be possible to record tracks without these values
-		String fuelType = preferences.getString(PREF_KEY_FUEL_TYPE, "undefined");
-		String carManufacturer = preferences.getString(PREF_KEY_CAR_MANUFACTURER, "undefined");
-		String carModel = preferences.getString(PREF_KEY_CAR_MODEL, "undefined");
-		String sensorId = preferences.getString(PREF_KEY_SENSOR_ID, "undefined");
+
+		// setting undefined, will hopefully prevent correct uploading.
+		// but this shouldn't be possible to record tracks without these values
+		String fuelType = preferences
+				.getString(PREF_KEY_FUEL_TYPE, "undefined");
+		String carManufacturer = preferences.getString(
+				PREF_KEY_CAR_MANUFACTURER, "undefined");
+		String carModel = preferences
+				.getString(PREF_KEY_CAR_MODEL, "undefined");
+		String sensorId = preferences
+				.getString(PREF_KEY_SENSOR_ID, "undefined");
 
 		// if track is null, create a new one or take the last one from the
 		// database
@@ -156,7 +162,8 @@ public class ECApplication extends Application implements LocationListener {
 						// TODO: make parameters dynamic
 						Log.e("obd2",
 								"I create a new track because the last measurement is more than 60 mins ago");
-						track = new Track("123456", fuelType,carManufacturer,carModel,sensorId, dbAdapterLocal);
+						track = new Track("123456", fuelType, carManufacturer,
+								carModel, sensorId, dbAdapterLocal);
 						track.setName("Trackname");
 						track.commitTrackToDatabase();
 						return;
@@ -168,7 +175,8 @@ public class ECApplication extends Application implements LocationListener {
 							locationLatitude, locationLongitude) > 3.0) {
 						Log.e("obd2",
 								"The last measurement's position is more than 3 km away. I will create a new track");
-						track = new Track("123456", fuelType,carManufacturer,carModel,sensorId, dbAdapterLocal); // TODO
+						track = new Track("123456", fuelType, carManufacturer,
+								carModel, sensorId, dbAdapterLocal); // TODO
 						track.setName("Trackname");
 						track.commitTrackToDatabase();
 						return;
@@ -193,7 +201,8 @@ public class ECApplication extends Application implements LocationListener {
 				}
 
 			} catch (TracksException e) {
-				track = new Track("123456",  fuelType,carManufacturer,carModel,sensorId, dbAdapterLocal); // TODO:
+				track = new Track("123456", fuelType, carManufacturer,
+						carModel, sensorId, dbAdapterLocal); // TODO:
 				track.setName("Trackname");
 				track.commitTrackToDatabase();
 				e.printStackTrace();
@@ -222,7 +231,8 @@ public class ECApplication extends Application implements LocationListener {
 				if ((System.currentTimeMillis() - currentTrack
 						.getLastMeasurement().getMeasurementTime()) > 360000) {
 					// TODO: make parameters dynamic
-					track = new Track("123456", fuelType,carManufacturer,carModel,sensorId, dbAdapterLocal);
+					track = new Track("123456", fuelType, carManufacturer,
+							carModel, sensorId, dbAdapterLocal);
 					track.setName("Trackname");
 					track.commitTrackToDatabase();
 					Log.e("obd2",
@@ -237,7 +247,8 @@ public class ECApplication extends Application implements LocationListener {
 
 				if (getDistance(currentTrack.getLastMeasurement(),
 						locationLatitude, locationLongitude) > 3.0) {
-					track = new Track("123456",  fuelType,carManufacturer,carModel,sensorId, dbAdapterLocal); // TODO
+					track = new Track("123456", fuelType, carManufacturer,
+							carModel, sensorId, dbAdapterLocal); // TODO
 					track.setName("Trackname");
 					track.commitTrackToDatabase();
 					Log.e("obd2",
@@ -491,6 +502,30 @@ public class ECApplication extends Application implements LocationListener {
 						Number number;
 						number = format.parse(maf);
 						mafMeasurement = number.doubleValue();
+
+						// Dashboard Co2 current value preparation
+
+						double consumption = 0.0;
+
+						if (mafMeasurement != -1.0) {
+							if (preferences.getString(PREF_KEY_FUEL_TYPE,
+									"gasoline").equals("gasoline")) {
+								consumption = (mafMeasurement / 14.7) / 747;
+							} else if (preferences.getString(
+									PREF_KEY_FUEL_TYPE, "gasoline").equals(
+									"diesel")) {
+								consumption = (mafMeasurement / 14.5) / 832;
+							}
+						}
+
+						if (preferences.getString(PREF_KEY_FUEL_TYPE,
+								"gasoline").equals("gasoline")) {
+							co2Measurement = consumption * 2.35;
+						} else if (preferences.getString(PREF_KEY_FUEL_TYPE,
+								"gasoline").equals("diesel")) {
+							co2Measurement = consumption * 2.65;
+						}
+
 					} catch (ParseException e) {
 						Log.e("obd", "parse exception maf");
 						e.printStackTrace();
@@ -554,7 +589,6 @@ public class ECApplication extends Application implements LocationListener {
 			handler.postDelayed(waitingListRunnable, 2000);
 		}
 	};
-
 
 	/**
 	 * Helper method that adds the desired commands to the waiting list where
@@ -657,8 +691,9 @@ public class ECApplication extends Application implements LocationListener {
 
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-		//locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
-		//		0, this);
+		// locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+		// 0,
+		// 0, this);
 
 	}
 
@@ -725,12 +760,19 @@ public class ECApplication extends Application implements LocationListener {
 	}
 
 	/**
-	 * @param track the track to set
+	 * @param track
+	 *            the track to set
 	 */
 	public void setTrack(Track track) {
 		this.track = track;
 	}
-	
-	
+
+	/**
+	 * 
+	 * @return the current co2 value
+	 */
+	public double getCo2Measurement() {
+		return co2Measurement;
+	}
 
 }
