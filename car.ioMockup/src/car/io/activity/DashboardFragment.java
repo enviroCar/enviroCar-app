@@ -28,6 +28,8 @@ public class DashboardFragment extends SherlockFragment {
 	ECApplication application;
 	int speed;
 	int speedProgress;
+	double co2;
+	double co2Progress;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -79,7 +81,18 @@ public class DashboardFragment extends SherlockFragment {
 					speedProgress = speed / 2;
 				roundProgressSpeed.setProgress(speedProgress);
 
-				// TODO extend to co2 emissions
+				// Deal with the co2 values
+
+				co2 = application.getCo2Measurement();
+				co2TextView.setText(co2 + " unit"); // TODO work out unit
+													// precisely
+				if (co2 <= 0)
+					co2Progress = 0;
+				else if (co2 > 200)
+					co2Progress = 100;
+				else
+					co2Progress = co2 / 2;
+				roundProgressCO2.setProgress(co2Progress);
 
 				// Repeat this in x ms
 				handler.postDelayed(this, 1000);
