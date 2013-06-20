@@ -10,18 +10,26 @@ import java.util.TimeZone;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import car.io.R;
 import car.io.adapter.DbAdapter;
+import car.io.adapter.Measurement;
 import car.io.adapter.Track;
 import car.io.application.ECApplication;
+import car.io.exception.LocationInvalidException;
 import car.io.views.TYPEFACE;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -35,18 +43,94 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 
 	private ProgressBar progress;
 
+	private int itemSelect;
+
 	public View onCreateView(android.view.LayoutInflater inflater,
 			android.view.ViewGroup container,
 			android.os.Bundle savedInstanceState) {
 
-		dbAdapter = ((ECApplication) getActivity().getApplication()).getDbAdapterLocal();
+		dbAdapter = ((ECApplication) getActivity().getApplication())
+				.getDbAdapterLocal();
+		/*
+		 * Testing
+		 */
+
+//		Track track = new Track("123456", "Gasoline", dbAdapter);
+//		track.setName("Track 1");
+//		track.commitTrackToDatabase();
+//		try {
+//			Measurement m1 = new Measurement(51.5f, 7.5f);
+//			Measurement m2 = new Measurement(52.5f, 7.6f);
+//			track.addMeasurement(m1);
+//			track.addMeasurement(m2);
+//		} catch (LocationInvalidException e) {
+//			e.printStackTrace();
+//		}
+//
+//		Track track2 = new Track("123456", "Gasoline", dbAdapter);
+//		track2.setName("Track 2");
+//		track2.commitTrackToDatabase();
+//		try {
+//			Measurement m1 = new Measurement(41.5f, 7.5f);
+//			Measurement m2 = new Measurement(42.5f, 7.6f);
+//			track2.addMeasurement(m1);
+//			track2.addMeasurement(m2);
+//		} catch (LocationInvalidException e) {
+//			e.printStackTrace();
+//		}
+
+		/*
+		 * Testing End
+		 */
 
 		View v = inflater.inflate(R.layout.list_tracks_layout_local, null);
 		elv = (ExpandableListView) v.findViewById(R.id.list);
 		progress = (ProgressBar) v.findViewById(R.id.listprogress);
 
+		registerForContextMenu(elv);
+
+		elv.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				itemSelect = ExpandableListView.getPackedPositionGroup(id);
+				Log.e("obd2", String.valueOf("Selected item: " + itemSelect));
+				return false;
+			}
+
+		});
+
 		return v;
 	};
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v,
+			ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getSherlockActivity().getMenuInflater();
+		inflater.inflate(R.menu.context_item, menu);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.editName:
+			Log.e("obd2", "editing track: " + itemSelect);
+			// TODO change the name of the track
+			return true;
+		case R.id.deleteTrack:
+			Log.e("obd2", "deleting item: " + itemSelect);
+			// TODO delete this track
+			return true;
+		case R.id.uploadTrack:
+			Log.e("obd2", "uploading item: " + itemSelect);
+			// TODO upload this track
+			return true;
+		default:
+			return super.onContextItemSelected(item);
+		}
+	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -55,19 +139,18 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 				R.drawable.list_indicator));
 		elv.setChildDivider(getResources().getDrawable(
 				android.R.color.transparent));
-		
-		this.tracksList=dbAdapter.getAllTracks();
+
+		this.tracksList = dbAdapter.getAllTracks();
 		Log.i("obd", "Number of tracks: " + tracksList.size());
 		if (elvAdapter == null)
 			elvAdapter = new TracksListAdapter();
 		elv.setAdapter(elvAdapter);
 		elvAdapter.notifyDataSetChanged();
-		
-		//TODO update the list if new track is inserted into the database.
+
+		// TODO update the list if new track is inserted into the database.
 
 	}
 
-	
 	private class TracksListAdapter extends BaseExpandableListAdapter {
 
 		@Override

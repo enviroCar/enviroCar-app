@@ -72,5 +72,8 @@
     <string name="prompt_car_manufacturer">Car manufacturer</string>
     <string name="prompt_car_constructionYear">Construction year</string>
     <string name="logged_in_as">Signed in as %1$s</string>
+    <string name="editName">Edit Name</string>
+    <string name="deleteTrack">Delete Track</string>
+    <string name="uploadTrack">Upload Track</string>
 
 </resources>
