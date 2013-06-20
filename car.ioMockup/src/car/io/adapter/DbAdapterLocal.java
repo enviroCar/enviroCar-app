@@ -37,6 +37,7 @@ public class DbAdapterLocal implements DbAdapter {
 	public static final String KEY_TRACK_CAR_MODEL = "car_model";
 	public static final String KEY_TRACK_FUEL_TYPE = "fuel_type";
 	public static final String KEY_TRACK_VIN = "vin";
+	public static final String KEY_TRACK_SENSOR_ID = "sensorid";
 
 	private DatabaseHelper mDbHelper;
 	private SQLiteDatabase mDb;
@@ -44,7 +45,7 @@ public class DbAdapterLocal implements DbAdapter {
 	// Database parameters
 
 	private static final String DATABASE_NAME = "obd2";
-	private static final int DATABASE_VERSION = 9;
+	private static final int DATABASE_VERSION = 11;
 	private static final String DATABASE_TABLE = "measurements";
 	private static final String DATABASE_TABLE_TRACKS = "tracks";
 	private static final String DATABASE_CREATE = "create table measurements "
@@ -54,7 +55,9 @@ public class DbAdapterLocal implements DbAdapter {
 	private static final String DATABASE_CREATE_TRACK = "create table tracks"
 			+ " (_id INTEGER primary key autoincrement, " + "name BLOB, "
 			+ "descr BLOB, " + "car_manufacturer BLOB, " + "car_model BLOB, "
-			+ "fuel_type BLOB, " + "vin BLOB);";
+			+ "fuel_type BLOB, " 
+			+ "vin BLOB, "
+			+ "sensorid BLOB);";
 
 	private final Context mCtx;
 
@@ -179,7 +182,7 @@ public class DbAdapterLocal implements DbAdapter {
 		Cursor c = mDb.query(DATABASE_TABLE_TRACKS, new String[] { KEY_ROWID,
 				KEY_TRACK_NAME, KEY_TRACK_DESCRIPTION,
 				KEY_TRACK_CAR_MANUFACTURER, KEY_TRACK_CAR_MODEL,
-				KEY_TRACK_FUEL_TYPE, KEY_TRACK_VIN }, KEY_ROWID + " = " + id,
+				KEY_TRACK_FUEL_TYPE, KEY_TRACK_VIN, KEY_TRACK_SENSOR_ID}, KEY_ROWID + " = " + id,
 				null, null, null, null);
 
 		c.moveToFirst();
@@ -191,6 +194,7 @@ public class DbAdapterLocal implements DbAdapter {
 		t.setCarModel(c.getString(4));
 		t.setFuelType(c.getString(5));
 		t.setVin(c.getString(6));
+		t.setSensorID(c.getString(7));
 
 		c.close();
 
@@ -235,6 +239,7 @@ public class DbAdapterLocal implements DbAdapter {
 		initialValues.put(KEY_TRACK_CAR_MODEL, track.getCarModel());
 		initialValues.put(KEY_TRACK_FUEL_TYPE, track.getFuelType());
 		initialValues.put(KEY_TRACK_VIN, track.getVin());
+		initialValues.put(KEY_TRACK_SENSOR_ID, track.getSensorID());
 
 		return mDb.insert(DATABASE_TABLE_TRACKS, null, initialValues);
 	}
@@ -270,6 +275,7 @@ public class DbAdapterLocal implements DbAdapter {
 		initialValues.put(KEY_TRACK_CAR_MODEL, track.getCarModel());
 		initialValues.put(KEY_TRACK_FUEL_TYPE, track.getFuelType());
 		initialValues.put(KEY_TRACK_VIN, track.getVin());
+		initialValues.put(KEY_TRACK_SENSOR_ID, track.getSensorID());
 
 		int result = mDb.update(DATABASE_TABLE_TRACKS, initialValues, KEY_ROWID
 				+ "=" + track.getId(), null);

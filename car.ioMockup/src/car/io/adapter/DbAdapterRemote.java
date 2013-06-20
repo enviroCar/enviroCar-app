@@ -38,6 +38,7 @@ public class DbAdapterRemote implements DbAdapter {
 	public static final String KEY_TRACK_CAR_MODEL = "car_model";
 	public static final String KEY_TRACK_FUEL_TYPE = "fuel_type";
 	public static final String KEY_TRACK_VIN = "vin";
+	public static final String KEY_TRACK_SENSOR_ID = "sensorid";
 
 	private DatabaseHelper mDbHelper;
 	private SQLiteDatabase mDb;
@@ -45,7 +46,7 @@ public class DbAdapterRemote implements DbAdapter {
 	// Database parameters
 
 	private static final String DATABASE_NAME = "obd2_remote";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 3;
 	private static final String DATABASE_TABLE = "measurements";
 	private static final String DATABASE_TABLE_TRACKS = "tracks";
 	private static final String DATABASE_CREATE = "create table measurements "
@@ -55,7 +56,9 @@ public class DbAdapterRemote implements DbAdapter {
 	private static final String DATABASE_CREATE_TRACK = "create table tracks"
 			+ " (_id TEXT primary key, " + "name BLOB, " + "descr BLOB, "
 			+ "car_manufacturer BLOB, " + "car_model BLOB, "
-			+ "fuel_type BLOB, " + "vin BLOB);";
+			+ "fuel_type BLOB, " 
+			+ "vin BLOB, "
+			+ "sensorid BLOB);";
 
 	private final Context mCtx;
 
@@ -185,7 +188,7 @@ public class DbAdapterRemote implements DbAdapter {
 		Cursor c = mDb.query(DATABASE_TABLE_TRACKS, new String[] { KEY_ROWID,
 				KEY_TRACK_NAME, KEY_TRACK_DESCRIPTION,
 				KEY_TRACK_CAR_MANUFACTURER, KEY_TRACK_CAR_MODEL,
-				KEY_TRACK_FUEL_TYPE, KEY_TRACK_VIN }, KEY_ROWID + " = \"" + id
+				KEY_TRACK_FUEL_TYPE, KEY_TRACK_VIN, KEY_TRACK_SENSOR_ID }, KEY_ROWID + " = \"" + id
 				+ "\"", null, null, null, null);
 
 		c.moveToFirst();
@@ -197,6 +200,7 @@ public class DbAdapterRemote implements DbAdapter {
 		t.setCarModel(c.getString(4));
 		t.setFuelType(c.getString(5));
 		t.setVin(c.getString(6));
+		t.setSensorID(c.getString(7));
 
 		c.close();
 
@@ -236,6 +240,7 @@ public class DbAdapterRemote implements DbAdapter {
 		initialValues.put(KEY_TRACK_CAR_MODEL, track.getCarModel());
 		initialValues.put(KEY_TRACK_FUEL_TYPE, track.getFuelType());
 		initialValues.put(KEY_TRACK_VIN, track.getVin());
+		initialValues.put(KEY_TRACK_SENSOR_ID, track.getSensorID());
 
 		return mDb.insert(DATABASE_TABLE_TRACKS, null, initialValues);
 	}
@@ -251,6 +256,7 @@ public class DbAdapterRemote implements DbAdapter {
 		initialValues.put(KEY_TRACK_CAR_MODEL, track.getCarModel());
 		initialValues.put(KEY_TRACK_FUEL_TYPE, track.getFuelType());
 		initialValues.put(KEY_TRACK_VIN, track.getVin());
+		initialValues.put(KEY_TRACK_SENSOR_ID, track.getSensorID());
 
 		for (Measurement m : track.getMeasurements()) {
 			insertMeasurement(m);
@@ -291,6 +297,7 @@ public class DbAdapterRemote implements DbAdapter {
 		initialValues.put(KEY_TRACK_CAR_MODEL, track.getCarModel());
 		initialValues.put(KEY_TRACK_FUEL_TYPE, track.getFuelType());
 		initialValues.put(KEY_TRACK_VIN, track.getVin());
+		initialValues.put(KEY_TRACK_SENSOR_ID, track.getSensorID());
 
 		long result = mDb.replace(DATABASE_TABLE_TRACKS, null, initialValues);
 		return (result != -1 ? true : false);
