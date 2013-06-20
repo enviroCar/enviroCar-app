@@ -88,5 +88,13 @@ public interface DbAdapter {
 	 *             If there are no tracks in the local database
 	 */
 	public Track getLastUsedTrack() throws TracksException;
-
+	
+	/**
+	 * Delete track specified by id.
+	 * 
+	 * @param id
+	 *            id of the track to be deleted.
+	 */
+	public void deleteTrack(String id);
+	
 }

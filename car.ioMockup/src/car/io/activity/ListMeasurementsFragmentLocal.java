@@ -24,6 +24,7 @@ import android.widget.ExpandableListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Toast;
 import car.io.R;
 import car.io.adapter.DbAdapter;
 import car.io.adapter.Measurement;
@@ -55,29 +56,29 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 		 * Testing
 		 */
 
-//		Track track = new Track("123456", "Gasoline", dbAdapter);
-//		track.setName("Track 1");
-//		track.commitTrackToDatabase();
-//		try {
-//			Measurement m1 = new Measurement(51.5f, 7.5f);
-//			Measurement m2 = new Measurement(52.5f, 7.6f);
-//			track.addMeasurement(m1);
-//			track.addMeasurement(m2);
-//		} catch (LocationInvalidException e) {
-//			e.printStackTrace();
-//		}
-//
-//		Track track2 = new Track("123456", "Gasoline", dbAdapter);
-//		track2.setName("Track 2");
-//		track2.commitTrackToDatabase();
-//		try {
-//			Measurement m1 = new Measurement(41.5f, 7.5f);
-//			Measurement m2 = new Measurement(42.5f, 7.6f);
-//			track2.addMeasurement(m1);
-//			track2.addMeasurement(m2);
-//		} catch (LocationInvalidException e) {
-//			e.printStackTrace();
-//		}
+		// Track track = new Track("123456", "Gasoline", dbAdapter);
+		// track.setName("Track 1");
+		// track.commitTrackToDatabase();
+		// try {
+		// Measurement m1 = new Measurement(51.5f, 7.5f);
+		// Measurement m2 = new Measurement(52.5f, 7.6f);
+		// track.addMeasurement(m1);
+		// track.addMeasurement(m2);
+		// } catch (LocationInvalidException e) {
+		// e.printStackTrace();
+		// }
+		//
+		// Track track2 = new Track("123456", "Gasoline", dbAdapter);
+		// track2.setName("Track 2");
+		// track2.commitTrackToDatabase();
+		// try {
+		// Measurement m1 = new Measurement(41.5f, 7.5f);
+		// Measurement m2 = new Measurement(42.5f, 7.6f);
+		// track2.addMeasurement(m1);
+		// track2.addMeasurement(m2);
+		// } catch (LocationInvalidException e) {
+		// e.printStackTrace();
+		// }
 
 		/*
 		 * Testing End
@@ -114,18 +115,30 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
+		ArrayList<Track> tracks = dbAdapter.getAllTracks();
+		Track track = tracks.get(itemSelect);
 		switch (item.getItemId()) {
 		case R.id.editName:
 			Log.e("obd2", "editing track: " + itemSelect);
+			Toast.makeText(getActivity(),
+					"This function is not supported yet.", Toast.LENGTH_LONG)
+					.show();
 			// TODO change the name of the track
 			return true;
 		case R.id.deleteTrack:
 			Log.e("obd2", "deleting item: " + itemSelect);
-			// TODO delete this track
+			dbAdapter.deleteTrack(track.getId());
+			Toast.makeText(getActivity(), "Track deleted.", Toast.LENGTH_LONG)
+					.show();
+			// TODO update the UI list because you cannot see that the track was
+			// deleted
 			return true;
 		case R.id.uploadTrack:
 			Log.e("obd2", "uploading item: " + itemSelect);
-			// TODO upload this track
+			Toast.makeText(
+					getActivity(),
+					"This function is not supported yet. Please upload all tracks at once via the menu.",
+					Toast.LENGTH_LONG).show();
 			return true;
 		default:
 			return super.onContextItemSelected(item);

@@ -204,6 +204,17 @@ public class DbAdapterLocal implements DbAdapter {
 		mDb.delete(DATABASE_TABLE_TRACKS, null, null);
 	}
 
+	/**
+	 * Delete track specified by id.
+	 * 
+	 * @param id
+	 *            id of the track to be deleted.
+	 */
+	public void deleteTrack(String id) {
+		mDb.delete(DATABASE_TABLE, KEY_TRACK + "=" + id, null);
+		mDb.delete(DATABASE_TABLE_TRACKS, "_id=" + id, null);
+	}
+
 	@Override
 	public int getNumberOfStoredTracks() {
 		Cursor count = mDb.rawQuery("SELECT COUNT(_id) FROM tracks", null);

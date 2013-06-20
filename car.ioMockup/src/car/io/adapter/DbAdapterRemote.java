@@ -168,14 +168,16 @@ public class DbAdapterRemote implements DbAdapter {
 		return allMeasurements;
 	}
 
-	public boolean trackExistsInDatabase(String id){
-		Cursor count = mDb.rawQuery("SELECT COUNT(_id) FROM tracks WHERE _id =\""+id+"\"", null);
+	public boolean trackExistsInDatabase(String id) {
+		Cursor count = mDb
+				.rawQuery("SELECT COUNT(_id) FROM tracks WHERE _id =\"" + id
+						+ "\"", null);
 		count.moveToFirst();
 		int ct = count.getInt(0);
 		count.close();
-		return ( ct==1 ? true: false);
+		return (ct == 1 ? true : false);
 	}
-	
+
 	@Override
 	public Track getTrack(String id) {
 		Track t = new Track(id);
@@ -280,7 +282,7 @@ public class DbAdapterRemote implements DbAdapter {
 	public boolean updateTrack(Track track) {
 
 		ContentValues initialValues = new ContentValues();
-		
+
 		initialValues.put(KEY_TRACK_ID, track.getId());
 		initialValues.put(KEY_TRACK_NAME, track.getName());
 		initialValues.put(KEY_TRACK_DESCRIPTION, track.getDescription());
@@ -298,6 +300,14 @@ public class DbAdapterRemote implements DbAdapter {
 	public Track getLastUsedTrack() throws TracksException {
 		throw new TracksException(
 				"This is not applicable for the remote adapter.");
+	}
+
+	@Override
+	public void deleteTrack(String id) {
+		/*
+		 * This is not supported for the remote adapter.
+		 */
+
 	}
 
 }
