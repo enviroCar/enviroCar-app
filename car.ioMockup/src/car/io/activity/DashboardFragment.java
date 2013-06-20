@@ -76,33 +76,32 @@ public class DashboardFragment extends SherlockFragment {
 		
 		sensorSpinner = (Spinner) getView().findViewById(R.id.dashboard_current_sensor_spinner);
 		//this rather difficult code is to ensure that the event is only fired for selection
-		sensorSpinner.post(new Runnable() {
+		sensorSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+			private boolean firstSelect = true;
 			@Override
-			public void run() {
-				sensorSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-
-					@Override
-					public void onItemSelected(AdapterView<?> parent, View view, 
-				            int pos, long id) {
-						Log.i("item",parent.getItemAtPosition(pos)+"");
-						
-						try {
-							application.updateCurrentSensor(((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getString("id"),
-									((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getString("manufacturer"),
-									((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getString("model"),
-									((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getString("fuelType"),
-									((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getInt("constructionYear"));
-						} catch (JSONException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
+			public void onItemSelected(AdapterView<?> parent, View view, 
+		            int pos, long id) {
+				if(!firstSelect){
+					Log.i("item",parent.getItemAtPosition(pos)+"");
+					
+					try {
+						application.updateCurrentSensor(((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getString("id"),
+								((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getString("manufacturer"),
+								((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getString("model"),
+								((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getString("fuelType"),
+								((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getInt("constructionYear"));
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
 					}
+				}else{
+					firstSelect = false;
+				}
+			}
 
-					@Override
-					public void onNothingSelected(AdapterView<?> parent) {
-						//TODO do something
-					}
-				});
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				//TODO do something
 			}
 		});
 		sensorDlProgress = (ProgressBar) getView().findViewById(R.id.sensor_dl_progress);
