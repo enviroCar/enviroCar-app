@@ -75,5 +75,6 @@
     <string name="editName">Edit Name</string>
     <string name="deleteTrack">Delete Track</string>
     <string name="uploadTrack">Upload Track</string>
-
+	<string name="dashboard_sensor_title">Current Car:</string>
+	<string name="retry">Retry</string>
 </resources>

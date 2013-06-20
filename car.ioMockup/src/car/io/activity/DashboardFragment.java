@@ -1,20 +1,33 @@
 package car.io.activity;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.RatingBar;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import car.io.R;
 import car.io.adapter.DbAdapter;
 import car.io.application.ECApplication;
+import car.io.application.RestClient;
 import car.io.views.RoundProgress;
 import car.io.views.TYPEFACE;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 public class DashboardFragment extends SherlockFragment {
 
@@ -24,10 +37,15 @@ public class DashboardFragment extends SherlockFragment {
 	RoundProgress roundProgressCO2;
 	DbAdapter dbAdapter;
 	ECApplication application;
+	private Spinner sensorSpinner;
+	private ProgressBar sensorDlProgress;
+	private Button sensorRetryButton;
 	int speed;
 	int speedProgress;
 	double co2;
 	double co2Progress;
+	
+	private JSONArray sensors;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -55,6 +73,48 @@ public class DashboardFragment extends SherlockFragment {
 				R.id.blue_progress_bar);
 		roundProgressSpeed = (RoundProgress) getView().findViewById(
 				R.id.blue_progress_bar2);
+		
+		sensorSpinner = (Spinner) getView().findViewById(R.id.dashboard_current_sensor_spinner);
+		//this rather difficult code is to ensure that the event is only fired for selection
+		sensorSpinner.post(new Runnable() {
+			@Override
+			public void run() {
+				sensorSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+					@Override
+					public void onItemSelected(AdapterView<?> parent, View view, 
+				            int pos, long id) {
+						Log.i("item",parent.getItemAtPosition(pos)+"");
+						
+						try {
+							application.updateCurrentSensor(((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getString("id"),
+									((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getString("manufacturer"),
+									((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getString("model"),
+									((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getString("fuelType"),
+									((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getInt("constructionYear"));
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+
+					@Override
+					public void onNothingSelected(AdapterView<?> parent) {
+						//TODO do something
+					}
+				});
+			}
+		});
+		sensorDlProgress = (ProgressBar) getView().findViewById(R.id.sensor_dl_progress);
+		sensorRetryButton = (Button) getView().findViewById(R.id.retrybutton);
+		sensorRetryButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				dlSensors();
+			}
+		});
+		
+		dlSensors();
 
 		// Handle the UI updates
 
@@ -98,5 +158,70 @@ public class DashboardFragment extends SherlockFragment {
 				TYPEFACE.Newscycle(getActivity()));
 
 	}
+	
+	private void dlSensors(){
+		sensorDlProgress.setVisibility(View.VISIBLE);
+		sensorSpinner.setVisibility(View.GONE);
+		sensorRetryButton.setVisibility(View.GONE);
+		
+		RestClient.downloadSensors(new JsonHttpResponseHandler() {
+			
+			
+			@Override
+			public void onFailure(Throwable error, String content) {
+				super.onFailure(error, content);
+				sensorDlProgress.setVisibility(View.GONE);
+				sensorRetryButton.setVisibility(View.VISIBLE);
+			}
+			
+			@Override
+			public void onSuccess(JSONObject response) {
+				super.onSuccess(response);
+				try {
+					sensors = response.getJSONArray("sensors");
+					sensorSpinner.setAdapter(new SensorAdapter());
+					sensorDlProgress.setVisibility(View.GONE);
+					sensorSpinner.setVisibility(View.VISIBLE);
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		
+	}
+	
+
+	private class SensorAdapter extends BaseAdapter implements SpinnerAdapter {
+
+        @Override
+        public int getCount() {
+            return sensors.length();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            try {
+				return sensors.get(position);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View view, ViewGroup parent) {
+            TextView text = new TextView(DashboardFragment.this.getActivity());
+            text.setText(getItem(position).toString());
+            return text;
+        }
+
+    }	
 
 }

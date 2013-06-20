@@ -62,7 +62,38 @@
         android:layout_height="wrap_content"
         android:layout_gravity="right"
         android:layout_marginRight="10dp" />
+    
+    <TextView
+        android:id="@+id/dashboard_current_sensor_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="15dp"
+        android:text="@string/dashboard_sensor_title"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
 
+    <ProgressBar
+        android:id="@+id/sensor_dl_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/retrybutton"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"
+        android:text="@string/retry" />
+    
+    <Spinner
+        android:id="@+id/dashboard_current_sensor_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="5dp"/>    
   <!--  <TextView
         android:id="@+id/textView2"
         android:layout_width="wrap_content"

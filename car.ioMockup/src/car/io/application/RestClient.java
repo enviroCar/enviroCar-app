@@ -42,4 +42,7 @@ public class RestClient {
 		return true;
 	}
 
+	public static void downloadSensors(JsonHttpResponseHandler handler){
+		client.get(ECApplication.BASE_URL+"/sensors", handler);
+	}
 }

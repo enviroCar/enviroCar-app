@@ -71,4 +71,6 @@
     <string name="menu_upload">Hochladen</string>
     <string name="menu_delete">Löschen</string>
     <string name="logged_in_as">Eingeloggt als %1$s</string>
+    <string name="dashboard_sensor_title">Aktuelles Auto:</string>
+    <string name="retry">Erneut versuchen</string>
 </resources>

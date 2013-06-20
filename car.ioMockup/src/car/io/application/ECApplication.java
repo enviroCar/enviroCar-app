@@ -85,6 +85,16 @@ public class ECApplication extends Application implements LocationListener {
 	public boolean requirementsFulfilled() {
 		return requirementsFulfilled;
 	}
+	
+	public void updateCurrentSensor(String sensorid, String carManufacturer, String carModel, String fuelType, int year){
+		Editor e  = preferences.edit();
+		e.putString(PREF_KEY_SENSOR_ID, sensorid);
+		e.putString(PREF_KEY_CAR_MANUFACTURER, carManufacturer);
+		e.putString(PREF_KEY_CAR_MODEL, carModel);
+		e.putString(PREF_KEY_FUEL_TYPE, fuelType);
+		e.putString(PREF_KEY_CAR_CONSTRUCTION_YEAR,year+"");
+		e.commit();
+	}
 
 	@Override
 	public void onCreate() {
