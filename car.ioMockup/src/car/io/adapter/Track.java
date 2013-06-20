@@ -15,6 +15,21 @@ public class Track {
 	private String carModel;
 	private String vin;
 	private String fuelType;
+	private String sensorID;
+
+	/**
+	 * @return the sensorID
+	 */
+	public String getSensorID() {
+		return sensorID;
+	}
+
+	/**
+	 * @param sensorID the sensorID to set
+	 */
+	public void setSensorID(String sensorID) {
+		this.sensorID = sensorID;
+	}
 
 	private DbAdapter dbAdapter;
 
@@ -30,6 +45,7 @@ public class Track {
 		this.carModel = "";
 		this.vin = "";
 		this.fuelType = "";
+		this.sensorID = "";
 		this.measurements = new ArrayList<Measurement>();
 	}
 
@@ -37,13 +53,14 @@ public class Track {
 	 * Constructor for creating "fresh" new track. Use this for new measurements
 	 * that were captured from the OBD-II adapter.
 	 */
-	public Track(String vin, String fuelType, DbAdapter dbAdapter) {
+	public Track(String vin, String fuelType, String carManufacturer, String carModel, String sensorId, DbAdapter dbAdapter) {
 		this.vin = vin;
 		this.name = "";
 		this.description = "";
-		this.carManufacturer = ""; // TODO decode vin or read from shared preferences...
-		this.carModel = "";
+		this.carManufacturer = carManufacturer; 
+		this.carModel = carModel;
 		this.fuelType = fuelType;
+		this.sensorID = sensorId;
 		this.measurements = new ArrayList<Measurement>();
 		this.dbAdapter = dbAdapter;
 		id = String.valueOf(dbAdapter.insertTrack(this));
