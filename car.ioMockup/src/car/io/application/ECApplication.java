@@ -124,6 +124,13 @@ public class ECApplication extends Application implements LocationListener {
 	// TODO call this method at some other positions in the code aswell... at
 	// some places, it might make sense to do so
 	private void createNewTrackIfNecessary() {
+		
+		//setting undefined, will hopefully prevent correct uploading.
+		//but this shouldn't be possible to record tracks without these values
+		String fuelType = preferences.getString(PREF_KEY_FUEL_TYPE, "undefined");
+		String carManufacturer = preferences.getString(PREF_KEY_CAR_MANUFACTURER, "undefined");
+		String carModel = preferences.getString(PREF_KEY_CAR_MODEL, "undefined");
+		String sensorId = preferences.getString(PREF_KEY_SENSOR_ID, "undefined");
 
 		// if track is null, create a new one or take the last one from the
 		// database
@@ -147,7 +154,7 @@ public class ECApplication extends Application implements LocationListener {
 						// TODO: make parameters dynamic
 						Log.e("obd2",
 								"I create a new track because the last measurement is more than 60 mins ago");
-						track = new Track("123456", "Gasoline", dbAdapterLocal);
+						track = new Track("123456", fuelType,carManufacturer,carModel,sensorId, dbAdapterLocal);
 						track.setName("Trackname");
 						track.commitTrackToDatabase();
 						return;
@@ -159,7 +166,7 @@ public class ECApplication extends Application implements LocationListener {
 							locationLatitude, locationLongitude) > 3.0) {
 						Log.e("obd2",
 								"The last measurement's position is more than 3 km away. I will create a new track");
-						track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO
+						track = new Track("123456", fuelType,carManufacturer,carModel,sensorId, dbAdapterLocal); // TODO
 						track.setName("Trackname");
 						track.commitTrackToDatabase();
 						return;
@@ -184,7 +191,7 @@ public class ECApplication extends Application implements LocationListener {
 				}
 
 			} catch (TracksException e) {
-				track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO:
+				track = new Track("123456",  fuelType,carManufacturer,carModel,sensorId, dbAdapterLocal); // TODO:
 				track.setName("Trackname");
 				track.commitTrackToDatabase();
 				e.printStackTrace();
@@ -213,7 +220,7 @@ public class ECApplication extends Application implements LocationListener {
 				if ((System.currentTimeMillis() - currentTrack
 						.getLastMeasurement().getMeasurementTime()) > 360000) {
 					// TODO: make parameters dynamic
-					track = new Track("123456", "Gasoline", dbAdapterLocal);
+					track = new Track("123456", fuelType,carManufacturer,carModel,sensorId, dbAdapterLocal);
 					track.setName("Trackname");
 					track.commitTrackToDatabase();
 					Log.e("obd2",
@@ -228,7 +235,7 @@ public class ECApplication extends Application implements LocationListener {
 
 				if (getDistance(currentTrack.getLastMeasurement(),
 						locationLatitude, locationLongitude) > 3.0) {
-					track = new Track("123456", "Gasoline", dbAdapterLocal); // TODO
+					track = new Track("123456",  fuelType,carManufacturer,carModel,sensorId, dbAdapterLocal); // TODO
 					track.setName("Trackname");
 					track.commitTrackToDatabase();
 					Log.e("obd2",
