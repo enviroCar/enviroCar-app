@@ -128,6 +128,11 @@ public class ListMeasurementsFragment extends SherlockFragment {
 							carModel = trackJson[0].getJSONObject("properties").getJSONObject("sensor").getJSONObject("properties").getString("model");
 						}catch (JSONException e){}
 						t.setCarModel(carModel);
+						String sensorId = "undefined";
+						try{
+							sensorId = trackJson[0].getJSONObject("properties").getJSONObject("sensor").getString("id");
+						}catch (JSONException e) {}
+						t.setSensorID(sensorId);
 						//include server properties tracks created, modified?
 						// TODO more properties
 						
