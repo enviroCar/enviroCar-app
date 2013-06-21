@@ -196,8 +196,8 @@ public class UploadManager {
 			String speed = String.valueOf(measurements.get(i).getSpeed());
 			String measurementJson = String
 					.format("{ \"type\": \"Feature\", \"geometry\": { \"type\": \"Point\", \"coordinates\": [ %s, %s ] }, \"properties\": { \"time\": \"%s\", \"sensor\": \"%s\", \"phenomenons\": { \"CO2\": { \"value\": %s }, \"Consumption\": { \"value\": %s }, \"MAF\": { \"value\": %s }, \"Speed\": { \"value\": %s}} } }",
-							lon, lat, time, trackSensorName, maf, co2,
-							consumption, speed);
+							lon, lat, time, trackSensorName, co2,
+							consumption, maf, speed);
 			measurementElements.add(measurementJson);
 		}
 
