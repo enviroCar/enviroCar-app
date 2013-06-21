@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -86,11 +87,11 @@ public class DashboardFragment extends SherlockFragment {
 					Log.i("item",parent.getItemAtPosition(pos)+"");
 					
 					try {
-						application.updateCurrentSensor(((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getString("id"),
-								((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getString("manufacturer"),
-								((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getString("model"),
-								((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getString("fuelType"),
-								((JSONObject) parent.getItemAtPosition(pos)).getJSONObject("properties").getInt("constructionYear"));
+						application.updateCurrentSensor(((JSONObject) parent.getItemAtPosition(pos)).getString("id"),
+								((JSONObject) parent.getItemAtPosition(pos)).getString("manufacturer"),
+								((JSONObject) parent.getItemAtPosition(pos)).getString("model"),
+								((JSONObject) parent.getItemAtPosition(pos)).getString("fuelType"),
+								((JSONObject) parent.getItemAtPosition(pos)).getInt("constructionYear"));
 					} catch (JSONException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -182,6 +183,7 @@ public class DashboardFragment extends SherlockFragment {
 					sensorSpinner.setAdapter(new SensorAdapter());
 					sensorDlProgress.setVisibility(View.GONE);
 					sensorSpinner.setVisibility(View.VISIBLE);
+					selectSensorFromSharedPreferences();
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -189,6 +191,22 @@ public class DashboardFragment extends SherlockFragment {
 			}
 		});
 		
+	}
+	
+	private void selectSensorFromSharedPreferences() throws JSONException{
+		if(PreferenceManager.getDefaultSharedPreferences(application).contains(ECApplication.PREF_KEY_SENSOR_ID)){
+			String prefSensorid = PreferenceManager.getDefaultSharedPreferences(application).getString(ECApplication.PREF_KEY_SENSOR_ID, "nosensor");
+			if(prefSensorid.equals("nosensor") == false){
+				for(int i = 0; i<sensors.length(); i++){
+					//iterate over sensors
+					if(((JSONObject) sensors.get(i)).getJSONObject("properties").getString("id").equals(prefSensorid)){
+						sensorSpinner.setSelection(i);
+						Log.i("setspinner from prefs",((JSONObject) sensors.get(i)).getJSONObject("properties").getString("id")+" "+prefSensorid);
+						break;
+					}
+				}
+			}
+		}
 	}
 	
 
@@ -223,7 +241,7 @@ public class DashboardFragment extends SherlockFragment {
 						((JSONObject) getItem(position)).getString("manufacturer")+" "+
 						((JSONObject) getItem(position)).getString("model")+" ("+
 						((JSONObject) getItem(position)).getString("fuelType")+" "+
-						((JSONObject) getItem(position)).getString("constructionYear")+")");
+						((JSONObject) getItem(position)).getInt("constructionYear")+")");
 			} catch (JSONException e) {
 				text.setText("error");
 				e.printStackTrace();
