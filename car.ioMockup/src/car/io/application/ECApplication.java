@@ -168,7 +168,7 @@ public class ECApplication extends Application implements LocationListener {
 					// ago
 
 					if ((System.currentTimeMillis() - lastUsedTrack
-							.getLastMeasurement().getMeasurementTime()) > 360000) {
+							.getLastMeasurement().getMeasurementTime()) > 3600000) {
 						// TODO: make parameters dynamic
 						Log.e("obd2",
 								"I create a new track because the last measurement is more than 60 mins ago");
@@ -239,7 +239,7 @@ public class ECApplication extends Application implements LocationListener {
 				// New track if last measurement is more than 60 minutes
 				// ago
 				if ((System.currentTimeMillis() - currentTrack
-						.getLastMeasurement().getMeasurementTime()) > 360000) {
+						.getLastMeasurement().getMeasurementTime()) > 3600000) {
 					// TODO: make parameters dynamic
 					track = new Track("123456", fuelType, carManufacturer,
 							carModel, sensorId, dbAdapterLocal);
