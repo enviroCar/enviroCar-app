@@ -202,7 +202,7 @@ public class DashboardFragment extends SherlockFragment {
         @Override
         public Object getItem(int position) {
             try {
-				return sensors.get(position);
+				return ((JSONObject) sensors.get(position)).getJSONObject("properties");
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -218,7 +218,16 @@ public class DashboardFragment extends SherlockFragment {
         @Override
         public View getView(int position, View view, ViewGroup parent) {
             TextView text = new TextView(DashboardFragment.this.getActivity());
-            text.setText(getItem(position).toString());
+            try {
+				text.setText(
+						((JSONObject) getItem(position)).getString("manufacturer")+" "+
+						((JSONObject) getItem(position)).getString("model")+" ("+
+						((JSONObject) getItem(position)).getString("fuelType")+" "+
+						((JSONObject) getItem(position)).getString("constructionYear")+")");
+			} catch (JSONException e) {
+				text.setText("error");
+				e.printStackTrace();
+			}
             return text;
         }
 
