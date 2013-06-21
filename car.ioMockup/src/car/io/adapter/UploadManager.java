@@ -28,7 +28,7 @@ public class UploadManager {
 
 	private static final String TAG = "obd2";
 
-	private String url = ECApplication.BASE_URL+"/users/%1$s/tracks";
+	private String url = ECApplication.BASE_URL + "/users/%1$s/tracks";
 	private JSONObject obj;
 	private ArrayList<JSONObject> objList;
 
@@ -95,7 +95,10 @@ public class UploadManager {
 		ArrayList<String> trackJsonList = new ArrayList<String>();
 
 		for (Track track : trackList) {
-			trackJsonList.add(createTrackJson(track));
+			// Prevent emtpy tracks from being uploaded.
+			if (track.getNumberOfMeasurements() > 0) {
+				trackJsonList.add(createTrackJson(track));
+			}
 		}
 
 		Log.i("Size", String.valueOf(trackJsonList.size()));
@@ -137,7 +140,6 @@ public class UploadManager {
 			String token = ((ECApplication) context).getUser().getToken();
 			String urlL = String.format(url, username);
 
-			
 			for (JSONObject object : objList) {
 				int statusCode = sendHttpPost(urlL, object, token, username);
 				if (statusCode != -1 && statusCode == 201) {
@@ -165,7 +167,7 @@ public class UploadManager {
 		String trackName = track.getName();
 		String trackDescription = track.getDescription();
 		String trackSensorName = track.getSensorID();
-		
+
 		String trackElementJson = String
 				.format("{ \"type\":\"FeatureCollection\",\"properties\": {\"name\": \"%s\", \"description\": \"%s\", \"sensor\": \"%s\"}, \"features\": [",
 						trackName, trackDescription, trackSensorName);
@@ -198,8 +200,8 @@ public class UploadManager {
 			String speed = String.valueOf(measurements.get(i).getSpeed());
 			String measurementJson = String
 					.format("{ \"type\": \"Feature\", \"geometry\": { \"type\": \"Point\", \"coordinates\": [ %s, %s ] }, \"properties\": { \"time\": \"%s\", \"sensor\": \"%s\", \"phenomenons\": { \"CO2\": { \"value\": %s }, \"Consumption\": { \"value\": %s }, \"MAF\": { \"value\": %s }, \"Speed\": { \"value\": %s}} } }",
-							lon, lat, time, trackSensorName, co2,
-							consumption, maf, speed);
+							lon, lat, time, trackSensorName, co2, consumption,
+							maf, speed);
 			measurementElements.add(measurementJson);
 		}
 
@@ -257,7 +259,7 @@ public class UploadManager {
 					.getStatusCode());
 
 			String reasonPhrase = response.getStatusLine().getReasonPhrase();
-			
+
 			Log.d(TAG, String.format("%s: %s", statusCode, reasonPhrase));
 
 			if (statusCode != "xyz") { // TODO replace with 201
