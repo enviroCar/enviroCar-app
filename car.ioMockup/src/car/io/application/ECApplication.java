@@ -85,14 +85,15 @@ public class ECApplication extends Application implements LocationListener {
 	public boolean requirementsFulfilled() {
 		return requirementsFulfilled;
 	}
-	
-	public void updateCurrentSensor(String sensorid, String carManufacturer, String carModel, String fuelType, int year){
-		Editor e  = preferences.edit();
+
+	public void updateCurrentSensor(String sensorid, String carManufacturer,
+			String carModel, String fuelType, int year) {
+		Editor e = preferences.edit();
 		e.putString(PREF_KEY_SENSOR_ID, sensorid);
 		e.putString(PREF_KEY_CAR_MANUFACTURER, carManufacturer);
 		e.putString(PREF_KEY_CAR_MODEL, carModel);
 		e.putString(PREF_KEY_FUEL_TYPE, fuelType);
-		e.putString(PREF_KEY_CAR_CONSTRUCTION_YEAR,year+"");
+		e.putString(PREF_KEY_CAR_CONSTRUCTION_YEAR, year + "");
 		e.commit();
 	}
 
@@ -578,13 +579,15 @@ public class ECApplication extends Application implements LocationListener {
 	 * Ends the connection with the Bluetooth Adapter
 	 */
 	public void stopConnection() {
-		closeDb();
-		stopLocating();
+
 		if (serviceConnector.isRunning()) {
 			stopService(backgroundService);
 			unbindService(serviceConnector);
 		}
 		handler.removeCallbacks(waitingListRunnable);
+
+		stopLocating();
+		closeDb();
 	}
 
 	/**
@@ -746,11 +749,11 @@ public class ECApplication extends Application implements LocationListener {
 	public void closeDb() {
 		if (dbAdapterLocal != null) {
 			dbAdapterLocal.close();
-			dbAdapterLocal = null;
+			// dbAdapterLocal = null;
 		}
 		if (dbAdapterRemote != null) {
 			dbAdapterRemote.close();
-			dbAdapterRemote = null;
+			// dbAdapterRemote = null;
 		}
 
 	}
