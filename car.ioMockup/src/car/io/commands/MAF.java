@@ -15,7 +15,7 @@ public class MAF extends CommonCommand {
 	@Override
 	public String getResult() {
 
-		float maf = -1.0f;
+		float maf = 0.0f;
 
 		if (!"NODATA".equals(getRawData())) {
 			int bytethree = buffer.get(2);
