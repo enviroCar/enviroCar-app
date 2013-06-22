@@ -204,7 +204,7 @@ public class ECApplication extends Application implements LocationListener {
 
 					else {
 						Log.e("obd2",
-								"The last measurement is less than 3 km away. I will append the measurement to this track");
+								"I will append to the last track because that still makes sense");
 						track = lastUsedTrack;
 						return;
 					}
