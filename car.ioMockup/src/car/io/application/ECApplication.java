@@ -8,6 +8,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import android.app.Application;
+import android.app.NotificationManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
@@ -20,8 +21,10 @@ import android.net.ParseException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
+import car.io.R;
 import car.io.adapter.DbAdapter;
 import car.io.adapter.DbAdapterLocal;
 import car.io.adapter.DbAdapterRemote;
@@ -36,6 +39,7 @@ import car.io.exception.TracksException;
 import car.io.obd.BackgroundService;
 import car.io.obd.Listener;
 import car.io.obd.ServiceConnector;
+
 /**
  * This is the main application that is the central linking component for all adapters, services and so on.
  * This application is implemented like a singleton, it exists only once while the app is running.
@@ -67,7 +71,7 @@ public class ECApplication extends Application implements LocationListener {
 	private Handler handler = new Handler();
 	private Listener listener = null;
 	private LocationManager locationManager;
-
+	private int mId = 1337;
 	private float locationLatitude;
 	private float locationLongitude;
 	private int speedMeasurement = 0;
@@ -866,5 +870,34 @@ public class ECApplication extends Application implements LocationListener {
 	public double getCo2Measurement() {
 		return co2Measurement;
 	}
+	
+	/**
+	 * 
+	 * @action Can also contain the http status code with error if fail
+	 */
+	public void createNotification(String action) {
+		String notification_text = "";
+		if(action.equals("success")){
+			notification_text = getString(R.string.upload_notification_success);
+		}else if(action.equals("start")){
+			notification_text = getString(R.string.upload_notification);
+		}else{
+			notification_text = action;
+		}
+		
+		NotificationCompat.Builder mBuilder =
+		        new NotificationCompat.Builder(this)
+		        .setSmallIcon(R.drawable.ic_launcher)
+		        .setContentTitle("EnviroCar")
+		        .setContentText(notification_text)
+		        .setTicker(notification_text)
+		        .setProgress(0, 0, !action.equals("success"));
+		
+		NotificationManager mNotificationManager =
+		    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+		// mId allows you to update the notification later on.
+		mNotificationManager.notify(mId, mBuilder.build());
+
+	  }
 
 }
