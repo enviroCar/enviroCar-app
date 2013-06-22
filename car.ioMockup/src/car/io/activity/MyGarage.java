@@ -182,7 +182,6 @@ public class MyGarage extends SherlockActivity {
 
 			@Override
 			public void onFailure(Throwable error, String content) {
-				// TODO Auto-generated method stub
 				super.onFailure(error, content);
 				showProgress(false);
 			}

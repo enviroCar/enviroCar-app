@@ -85,14 +85,12 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			
 			@Override
 			public void onFailure(Throwable e, JSONObject errorResponse) {
-				// TODO Auto-generated method stub
 				super.onFailure(e, errorResponse);
 				Log.i("error",e.toString());
 			}
 			
 			@Override
 			public void onFailure(Throwable error, String content) {
-				// TODO Auto-generated method stub
 				super.onFailure(error, content);
 				Log.i("faildl",content,error);
 			}

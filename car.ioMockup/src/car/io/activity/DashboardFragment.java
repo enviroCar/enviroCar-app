@@ -93,7 +93,6 @@ public class DashboardFragment extends SherlockFragment {
 								((JSONObject) parent.getItemAtPosition(pos)).getString("fuelType"),
 								((JSONObject) parent.getItemAtPosition(pos)).getInt("constructionYear"));
 					} catch (JSONException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}else{
@@ -185,7 +184,6 @@ public class DashboardFragment extends SherlockFragment {
 					sensorSpinner.setVisibility(View.VISIBLE);
 					selectSensorFromSharedPreferences();
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -222,7 +220,6 @@ public class DashboardFragment extends SherlockFragment {
             try {
 				return ((JSONObject) sensors.get(position)).getJSONObject("properties");
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
             return null;
