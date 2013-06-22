@@ -2,25 +2,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <PreferenceCategory android:title="OBD Preferences" >
-        <EditTextPreference
-            android:defaultValue="Not specified"
-            android:dialogTitle="Car Type"
-            android:key="car_preference"
-            android:summary="String: car type"
-            android:title="Car Type" />
-
         <ListPreference
             android:dialogTitle="Choose Bluetooth Device"
             android:key="bluetooth_list"
             android:summary="All Bluetooth Devices"
             android:title="Bluetooth Device" />
-        <ListPreference
-            android:defaultValue="Gasoline"
-            android:entries="@array/pref_fuel_type"
-            android:entryValues="@array/pref_fuel_type"
-            android:key="pref_fuel_type"
-            android:summary="List of supported fuel types."
-            android:title="Choose fuel type" />
     </PreferenceCategory>
 
 </PreferenceScreen>
