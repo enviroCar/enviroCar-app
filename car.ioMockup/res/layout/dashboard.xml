@@ -20,7 +20,6 @@
         android:id="@+id/blue_progress_bar2"
         android:layout_width="fill_parent"
         android:layout_height="35dip"
-        android:layout_alignParentBottom="true"
         android:padding="3dip"
         myNamespace:max="100"
         myNamespace:progress="50"
@@ -48,7 +47,6 @@
         android:id="@+id/blue_progress_bar"
         android:layout_width="fill_parent"
         android:layout_height="35dip"
-        android:layout_alignParentBottom="true"
         android:padding="3dip"
         myNamespace:max="100"
         myNamespace:progress="50"
@@ -71,58 +69,18 @@
         android:layout_marginTop="15dp"
         android:text="@string/dashboard_sensor_title"
         android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <ProgressBar
-        android:id="@+id/sensor_dl_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:visibility="gone" />
-
-    <Button
-        android:id="@+id/retrybutton"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:visibility="gone"
-        android:text="@string/retry" />
     
-    <Spinner
-        android:id="@+id/dashboard_current_sensor_spinner"
+    <TextView 
+        android:id="@+id/dashboard_current_sensor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="5dp"/>    
-  <!--  <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="20dp"
-        android:text="@string/drivingStyleRating"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:layout_marginTop="5dp"
+        android:drawableRight="@drawable/content_edit"
+        android:clickable="true"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <RatingBar
-        android:id="@+id/ratingBar1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" />
+  
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/moneySpent"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
-
-    <ImageView
-        android:id="@+id/imageView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="15dp"
-        android:src="@drawable/ab_background_cario_gradient" /> -->
 
 </LinearLayout>

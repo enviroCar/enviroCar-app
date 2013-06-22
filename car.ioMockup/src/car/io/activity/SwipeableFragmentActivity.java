@@ -24,6 +24,7 @@ public abstract class SwipeableFragmentActivity extends
 
 		private static class TabInfo {
 			public final Class<? extends Fragment> fragmentClass;
+
 			public TabInfo(Class<? extends Fragment> fragmentClass) {
 				this.fragmentClass = fragmentClass;
 			}
@@ -46,7 +47,6 @@ public abstract class SwipeableFragmentActivity extends
 			this.mActionBar = activity.getSupportActionBar();
 			this.mPager = pager;
 
-			//mActionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		}
 
 		public void addTab(CharSequence title,
@@ -72,9 +72,11 @@ public abstract class SwipeableFragmentActivity extends
 		@Override
 		public Fragment getItem(int position) {
 			final TabInfo tabInfo = mTabs.get(position);
-			return Fragment.instantiate(mActivity,
+			Fragment f = Fragment.instantiate(mActivity,
 					tabInfo.fragmentClass.getName());
+			return f;
 		}
+
 		@Override
 		public CharSequence getPageTitle(int position) {
 			return mActionBar.getTabAt(position).getText();
@@ -94,8 +96,6 @@ public abstract class SwipeableFragmentActivity extends
 			 * Select tab when user swiped
 			 */
 			mActionBar.setSelectedNavigationItem(position);
-			TabInfo t = (TabInfo) mActionBar.getTabAt(position).getTag();
-			//Fragment f = mActivity.getSupportFragmentManager().
 		}
 
 		@Override
@@ -113,7 +113,7 @@ public abstract class SwipeableFragmentActivity extends
 					mPager.setCurrentItem(i);
 				}
 			}
-			Log.i("tabs","onTabSelected");
+			Log.i("tabs", "onTabSelected");
 		}
 
 		@Override
@@ -150,20 +150,25 @@ public abstract class SwipeableFragmentActivity extends
 	 * @param args
 	 *            An optional Bundle to pass along to the Fragment (may be null)
 	 */
-	protected void addTab(int titleRes,
-			Class<? extends Fragment> fragmentClass) {
+	protected void addTab(int titleRes, Class<? extends Fragment> fragmentClass) {
 		tabsAdapter.addTab(getString(titleRes), fragmentClass);
 	}
-	/**WARNING */
-	protected void setSelectedTab(int i){
+
+	/** WARNING */
+	protected void setSelectedTab(int i) {
 		viewPager.setCurrentItem(i);
+	}
+
+	protected Fragment getFragmentByPosition(int pos) {
+		String tag = "android:switcher:" + viewPager.getId() + ":" + pos;
+		return getSupportFragmentManager().findFragmentByTag(tag);
 	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_layout);
-	
+
 		viewPager = (ViewPager) findViewById(R.id.pager);
 
 		tabsAdapter = new TabsAdapter(this, viewPager);

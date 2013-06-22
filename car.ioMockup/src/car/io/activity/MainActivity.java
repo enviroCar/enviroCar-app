@@ -41,22 +41,20 @@ public class MainActivity<AndroidAlarmService> extends
 
 	public ECApplication application;
 
-	// Preferences
-
-	private SharedPreferences preferences = null;
-
 	// Menu Items
 
 	static final int NO_BLUETOOTH = 0;
 	static final int BLUETOOTH_DISABLED = 1;
 	static final int NO_GPS = 2;
-	static final int START_MEASUREMENT = R.id.menu_start;
-	static final int STOP_MEASUREMENT = R.id.menu_stop;
+	static final int START_STOP_MEASUREMENT = R.id.menu_start;
 	static final int SETTINGS = R.id.menu_settings;
 	static final int LOGIN = R.id.menu_login;
 	static final int REMOVE_LOCAL_TRACKS = R.id.menu_about;
 	static final int START_UPLOAD = R.id.menu_upload;
 	static final int MENU_GARAGE = R.id.menu_my_garage;
+	
+	
+	public static final int REQUEST_MY_GARAGE = 1336;
 
 	// Properties
 
@@ -126,10 +124,6 @@ public class MainActivity<AndroidAlarmService> extends
 		// to
 		// SettingsActivity
 		addTab("Dashboard", DashboardFragment.class);
-		addTab("Friends", ListFriends.class);
-
-		// addTab( "Friends", MyData.class, MyData.createBundle( "Fragment 3")
-		// );
 
 		setSelectedTab(2);
 
@@ -137,7 +131,6 @@ public class MainActivity<AndroidAlarmService> extends
 		// --------------------------
 		// --------------------------
 
-		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
 		// AutoConnect checkbox and service
 
@@ -223,114 +216,6 @@ public class MainActivity<AndroidAlarmService> extends
 		return true;
 	}
 
-	/*
-	 * @Override public boolean onOptionsItemSelected(MenuItem item) {
-	 * Log.i("itemid",item.getItemId()+""); switch(item.getItemId()){ case
-	 * R.id.menu_help: startActivity(new
-	 * Intent(MainActivity.this,CheckListActivity.class)); break; case
-	 * R.id.menu_settings: startActivity(new
-	 * Intent(MainActivity.this,SettingsActivity.class)); break; } return true;
-	 * }
-	 */
-
-	// private void testMethode() {
-	//
-	// dbAdapter.deleteAllTracks();
-	// Track track = new Track("123456", "Gasoline", dbAdapter);
-	//
-	// track.setName("Testname");
-	// track.setDescription("Testdescription");
-	// track.setCarManufacturer("carManufacturer");
-	// track.setCarModel("CarModel");
-	// track.commitTrackToDatabase();
-	//
-	// try {
-	// Measurement m1 = new Measurement(51.4f, 7.6f);
-	// Measurement m2 = new Measurement(53.3f, 6.3f);
-	//
-	// m1.setSpeed(100);
-	// m2.setSpeed(200);
-	//
-	// m1.setMaf(5.5);
-	// m2.setMaf(5.7);
-	//
-	// track.addMeasurement(m1);
-	// track.addMeasurement(m2);
-	//
-	// Log.i("obd2",
-	// "Number of stored tracks: "
-	// + dbAdapter.getNumberOfStoredTracks());
-	//
-	// ArrayList<Track> trackList = dbAdapter.getAllTracks();
-	//
-	// for (Track t : trackList) {
-	// Log.i("obd2", "TRACKS");
-	// Log.i("obd2", "id: " + track.getId() + " ID: " + t.getId());
-	// Log.i("obd2",
-	// "name: " + track.getName() + " Name: " + t.getName());
-	// Log.i("obd2",
-	// "desc: " + track.getDescription() + " Desc: "
-	// + t.getDescription());
-	// Log.i("obd2", "CMa: " + track.getCarManufacturer() + " CMa: "
-	// + t.getCarManufacturer());
-	// Log.i("obd2",
-	// "CMo: " + track.getCarModel() + " CMo: "
-	// + t.getCarModel());
-	// Log.i("obd2", "VIN: " + track.getVin() + " VIN: " + t.getVin());
-	// Log.i("obd2",
-	// "FT: " + track.getFuelType() + " FT: "
-	// + t.getFuelType());
-	// Measurement m3 = t.getMeasurements().get(0);
-	// Measurement m4 = t.getMeasurements().get(1);
-	// Log.i("obd2", "MEASUREMENTS");
-	// Log.i("obd2", "m1 id: " + m1.getId() + " m3 id: " + m3.getId());
-	// Log.i("obd2", "m2 id: " + m2.getId() + " m4 id: " + m4.getId());
-	// Log.i("obd2",
-	// "m1 lat: " + m1.getLatitude() + " m3 lat: "
-	// + m3.getLatitude());
-	// Log.i("obd2",
-	// "m2 lat: " + m2.getLatitude() + " m4 lat: "
-	// + m4.getLatitude());
-	// Log.i("obd2",
-	// "m1 lon: " + m1.getLongitude() + " m3 lon: "
-	// + m3.getLongitude());
-	// Log.i("obd2",
-	// "m2 lon: " + m2.getLongitude() + " m4 lon: "
-	// + m4.getLongitude());
-	// Log.i("obd2", "m1 mt: " + m1.getMeasurementTime() + " m3 mt: "
-	// + m3.getMeasurementTime());
-	// Log.i("obd2", "m2 mt: " + m2.getMeasurementTime() + " m4 mt: "
-	// + m4.getMeasurementTime());
-	// Log.i("obd2",
-	// "m1 speed: " + m1.getSpeed() + " m3 speed: "
-	// + m3.getSpeed());
-	// Log.i("obd2",
-	// "m2 speed: " + m2.getSpeed() + " m4 speed: "
-	// + m4.getSpeed());
-	// Log.i("obd2",
-	// "m1 maf: " + m1.getMaf() + " m3 maf: " + m3.getMaf());
-	// Log.i("obd2",
-	// "m2 maf: " + m2.getMaf() + " m4 maf: " + m4.getMaf());
-	// Log.i("obd2", "m1 track: " + m1.getTrack().getId()
-	// + " m3 track: " + m3.getTrack().getId());
-	// Log.i("obd2", "m2 track: " + m2.getTrack().getId()
-	// + " m4 track: " + m4.getTrack().getId());
-	// }
-	//
-	// } catch (LocationInvalidException e) {
-	// e.printStackTrace();
-	// }
-	// // dbAdapter.deleteAllTracks();
-	// }
-
-	// -----------------------------------------------------------
-
-	// /**
-	// * Helper method that inits the DbAdapter
-	// */
-	// private void initDbAdapter() {
-	// dbAdapter = (DbAdapter) application.getDbAdapterLocal();
-	// }
 
 	@Override
 	protected void onDestroy() {
@@ -346,62 +231,20 @@ public class MainActivity<AndroidAlarmService> extends
 
 	}
 
-	@Override
-	protected void onPause() {
-		super.onPause();
 
-		// Stop GPS
-
-		// application.stopLocating();
-
-		// Close DB
-
-		// application.closeDb();
-	}
-
-	protected void onResume() {
-		super.onResume();
-		// application.openDb();
-
-		// application.startLocationManager();
-
-		// initDbAdapter();
-
-		// ---TESTMETHODE
-		// testMethode();
-		// ---TESTMETHODE
-
-		// Update preferences
-
-		preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-		// application.downloadTracks();
-	}
-
-	/**
-	 * Create the menu with the entries
-	 */
-	// public boolean onCreateOptionsMenu(Menu menu) {
-	// menu.add(0, START_MEASUREMENT, 0, "Start");
-	// menu.add(0, STOP_MEASUREMENT, 0, "Stop");
-	// menu.add(0, START_LIST_VIEW, 0, "List");
-	// menu.add(0, SETTINGS, 0, "Settings");
-	// menu.add(0, START_UPLOAD, 0, "Upload");
-	// return true;
-	// }
-
+	
 	/**
 	 * Determine what the menu buttons do
 	 */
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 
-		case START_MEASUREMENT:
-			application.startConnection();
-			return true;
-
-		case STOP_MEASUREMENT:
-			application.stopConnection();
+		case START_STOP_MEASUREMENT:
+			if(!application.getServiceConnector().isRunning()){
+				application.startConnection();
+			}else {
+				application.stopConnection();
+			}
 			return true;
 
 		case SETTINGS:
@@ -430,7 +273,7 @@ public class MainActivity<AndroidAlarmService> extends
 
 		case MENU_GARAGE:
 			Intent garageIntent = new Intent(this, MyGarage.class);
-			startActivity(garageIntent);
+			startActivityForResult(garageIntent,REQUEST_MY_GARAGE);
 			return true;
 		}
 		return false;
@@ -442,8 +285,7 @@ public class MainActivity<AndroidAlarmService> extends
 	 */
 	public boolean onPrepareOptionsMenu(Menu menu) {
 
-		MenuItem start = menu.findItem(START_MEASUREMENT);
-		MenuItem stop = menu.findItem(STOP_MEASUREMENT);
+		MenuItem startStop = menu.findItem(START_STOP_MEASUREMENT);
 		MenuItem settings = menu.findItem(SETTINGS);
 		MenuItem upload = menu.findItem(START_UPLOAD);
 		MenuItem myGarage = menu.findItem(MENU_GARAGE);
@@ -452,11 +294,11 @@ public class MainActivity<AndroidAlarmService> extends
 		if (application.requirementsFulfilled()) { // was requirementsFulfilled
 			try {
 				if (application.getServiceConnector().isRunning()) {
-					start.setEnabled(false);
-					stop.setEnabled(true);
+					startStop.setTitle(R.string.menu_stop);
+					//stop.setEnabled(true);
 					settings.setEnabled(false);
 				} else {
-					stop.setEnabled(false);
+					startStop.setTitle(R.string.menu_start);
 
 					// Only enable start button when adapter is selected
 
@@ -468,22 +310,21 @@ public class MainActivity<AndroidAlarmService> extends
 							null);
 
 					if (remoteDevice != null) {
-						start.setEnabled(true);
+						startStop.setEnabled(true);
 					} else {
-						start.setEnabled(false);
+						startStop.setEnabled(false);
 					}
 					settings.setEnabled(true);
 				}
 			} catch (NullPointerException e) {
 				Log.e("obd2", "The Service Connector is null.");
-				start.setEnabled(false);
-				stop.setEnabled(true);
+				startStop.setEnabled(false);
 				settings.setEnabled(true);
 				e.printStackTrace();
 			}
 		} else {
-			start.setEnabled(false);
-			stop.setEnabled(false);
+			startStop.setTitle(R.string.menu_start);
+			startStop.setEnabled(false);
 			settings.setEnabled(false);
 		}
 
@@ -503,12 +344,16 @@ public class MainActivity<AndroidAlarmService> extends
 			myGarage.setEnabled(false);
 		}
 
-		// MenuItem upload = menu.findItem(START_UPLOAD);
-		// boolean isEmpty =
-		// application.getDbAdapterLocal().getAllTracks().isEmpty();
-		// Log.e("HHH", String.valueOf(isEmpty));
-		// upload.setEnabled(isEmpty);
-
 		return true;
 	}
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		switch(requestCode){
+			case REQUEST_MY_GARAGE:
+				((DashboardFragment) getFragmentByPosition(2)).updateSensorOnDashboard();
+			break;
+		}
+	}	
 }
