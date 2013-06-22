@@ -29,12 +29,19 @@ public class LoginActivity extends SherlockFragmentActivity {
 	static final int REQUEST_MY_GARAGE = 1000;
 	
 	private int actionBarTitleID = 0;
+	
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		final ActionBar actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+		
+		if(getIntent().getExtras()!=null){
+			if(getIntent().getExtras().getInt("redirect") == MainActivity.REQUEST_MY_GARAGE){
+				setResult(MainActivity.REQUEST_MY_GARAGE);
+			}
+		}
 		
 		// font stuff
 		actionBarTitleID = Utils.getActionBarId();

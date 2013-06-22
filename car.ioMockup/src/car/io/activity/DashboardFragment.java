@@ -95,7 +95,13 @@ public class DashboardFragment extends SherlockFragment {
 		sensor.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				getActivity().startActivityForResult(new Intent(getActivity(), MyGarage.class), MainActivity.REQUEST_MY_GARAGE);
+				if(application.isLoggedIn()){
+					getActivity().startActivityForResult(new Intent(getActivity(), MyGarage.class), MainActivity.REQUEST_MY_GARAGE);
+				}else{
+					Intent i = new Intent(getActivity(), LoginActivity.class);
+					i.putExtra("redirect", MainActivity.REQUEST_MY_GARAGE);
+					getActivity().startActivityForResult(i,MainActivity.REQUEST_REDIRECT_TO_GARAGE);
+				}
 			}
 		});
 		

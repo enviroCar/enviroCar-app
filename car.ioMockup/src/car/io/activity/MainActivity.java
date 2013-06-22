@@ -55,6 +55,7 @@ public class MainActivity<AndroidAlarmService> extends
 	
 	
 	public static final int REQUEST_MY_GARAGE = 1336;
+	public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
 
 	// Properties
 
@@ -352,6 +353,13 @@ public class MainActivity<AndroidAlarmService> extends
 		super.onActivityResult(requestCode, resultCode, data);
 		switch(requestCode){
 			case REQUEST_MY_GARAGE:
+				((DashboardFragment) getFragmentByPosition(2)).updateSensorOnDashboard();
+			break;
+			case REQUEST_REDIRECT_TO_GARAGE:
+				if(resultCode == REQUEST_MY_GARAGE){
+					Intent garageIntent = new Intent(this, MyGarage.class);
+					startActivityForResult(garageIntent,REQUEST_MY_GARAGE);
+				}
 				((DashboardFragment) getFragmentByPosition(2)).updateSensorOnDashboard();
 			break;
 		}
