@@ -156,6 +156,28 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 				}
 			}).show();
 			return true;
+		case R.id.editDescription:
+			Log.e("obd2", "editing track: " + itemSelect);
+			final EditText input2 = new EditText(getActivity());
+			new AlertDialog.Builder(getActivity()).setTitle("Edit Track").setMessage("Enter track description").setView(input2).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					String value = input2.getText().toString();
+					Log.e("obd2", "New description: " + value.toString());
+					track.setDescription(value);
+					track.setDatabaseAdapter(dbAdapter);
+					track.commitTrackToDatabase();
+					elv.collapseGroup(itemSelect);
+					tracksList.get(itemSelect).setDescription(value);
+					elvAdapter.notifyDataSetChanged();
+					//TODO Bug: update the description when it is changed.
+					
+				}
+			}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					// Do nothing.
+				}
+			}).show();
+			return true;
 		case R.id.deleteTrack:
 			Log.e("obd2", "deleting item: " + itemSelect);
 			dbAdapter.deleteTrack(track.getId());
@@ -261,6 +283,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 				TextView end = (TextView) row.findViewById(R.id.track_details_end_textview);
 				TextView length = (TextView) row.findViewById(R.id.track_details_length_textview);
 				TextView car = (TextView) row.findViewById(R.id.track_details_car_textview);
+				TextView description = (TextView) row.findViewById(R.id.track_details_description_textview);
 				TextView duration = (TextView) row.findViewById(R.id.track_details_duration_textview);
 				TextView co2 = (TextView) row.findViewById(R.id.track_details_co2_textview);
 
@@ -284,6 +307,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 					duration.setText(dfDuration.format(durationMillis) + "");
 					length.setText(twoDForm.format(currTrack.getLengthOfTrack()) + " km");
 					car.setText(currTrack.getCarManufacturer() + " " + currTrack.getCarModel());
+					description.setText(currTrack.getDescription());
 					co2.setText("");
 				} catch (Exception e) {
 

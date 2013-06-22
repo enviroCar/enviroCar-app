@@ -366,6 +366,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						.findViewById(R.id.track_details_duration_textview);
 				TextView co2 = (TextView) row
 						.findViewById(R.id.track_details_co2_textview);
+				TextView description = (TextView) row.findViewById(R.id.track_details_description_textview);
 
 				try {
 					DateFormat sdf = DateFormat.getDateTimeInstance();
@@ -384,6 +385,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 							+ " km");
 					car.setText(currTrack.getCarManufacturer() + " "
 							+ currTrack.getCarModel());
+					description.setText(currTrack.getDescription());
 					co2.setText("");
 				} catch (Exception e) {
 

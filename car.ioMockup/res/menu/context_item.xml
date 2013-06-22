@@ -6,6 +6,10 @@
         android:title="@string/editName">
     </item>
     <item
+        android:id="@+id/editDescription"
+        android:title="@string/editDescription">
+    </item>
+    <item
         android:id="@+id/deleteTrack"
         android:title="@string/deleteTrack">
     </item>

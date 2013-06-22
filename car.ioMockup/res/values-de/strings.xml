@@ -73,4 +73,6 @@
     <string name="logged_in_as">Eingeloggt als %1$s</string>
     <string name="dashboard_sensor_title">Aktuelles Auto:</string>
     <string name="retry">Erneut versuchen</string>
+    <string name="description">Beschreibung:</string>
+    <string name="editDescription">Edit Description</string>
 </resources>

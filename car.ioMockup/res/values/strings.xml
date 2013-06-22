@@ -77,4 +77,6 @@
     <string name="uploadTrack">Upload Track</string>
 	<string name="dashboard_sensor_title">Current Car:</string>
 	<string name="retry">Retry</string>
+	<string name="description">Description:</string>
+	<string name="editDescription">Edit Description</string>
 </resources>
