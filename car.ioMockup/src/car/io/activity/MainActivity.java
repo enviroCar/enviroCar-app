@@ -4,12 +4,19 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationCompat.Builder;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.view.PagerTabStrip;
 import android.util.Log;
 import android.view.View;
@@ -28,6 +35,7 @@ import com.actionbarsherlock.view.MenuItem;
 public class MainActivity<AndroidAlarmService> extends
 		SwipeableFragmentActivity {
 
+	private int mId = 0;
 	private int actionBarTitleID = 0;
 	private ActionBar actionBar;
 
@@ -407,6 +415,7 @@ public class MainActivity<AndroidAlarmService> extends
 			return true;
 
 		case START_UPLOAD:
+			((ECApplication) this.getApplicationContext()).createNotification("start");
 			UploadManager uploadManager = new UploadManager(
 					application.getDbAdapterLocal(), getApplication());
 			uploadManager.uploadAllTracks();
@@ -426,6 +435,7 @@ public class MainActivity<AndroidAlarmService> extends
 		}
 		return false;
 	}
+	
 
 	/**
 	 * Activate or deactivate the menu items

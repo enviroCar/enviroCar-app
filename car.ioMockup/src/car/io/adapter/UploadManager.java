@@ -143,11 +143,14 @@ public class UploadManager {
 			for (JSONObject object : objList) {
 				int statusCode = sendHttpPost(urlL, object, token, username);
 				if (statusCode != -1 && statusCode == 201) {
+					((ECApplication) context).createNotification("success");
 					// TODO remove tracks from local storage if upload was
 					// successful
 					// TODO method dbAdapter.removeTrackFromLocalDb(Track)
 					// needed
 					// }
+				}else{
+					((ECApplication) context).createNotification("Upload failed with http code" + statusCode);
 				}
 			}
 			return null;

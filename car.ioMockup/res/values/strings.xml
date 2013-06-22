@@ -77,4 +77,6 @@
     <string name="uploadTrack">Upload Track</string>
 	<string name="dashboard_sensor_title">Current Car:</string>
 	<string name="retry">Retry</string>
+	<string name="upload_notification">Attempting to upload local tracks.</string>
+	<string name="upload_notification_success">Successfully uploaded local tracks.</string>
 </resources>
