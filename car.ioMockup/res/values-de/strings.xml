@@ -87,4 +87,5 @@
 	<string name="upload_notification">Versuche lokale Tracks hochzuladen.</string>
     <string name="upload_notification_success">Lokale Tracks wurden erfolgreich hochgeladen.</string>
     <string name="please_select">&#8230;</string>
+    <string name="startMap">In Karte betrachten</string>
 </resources>

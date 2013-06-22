@@ -17,9 +17,5 @@
         android:id="@+id/deleteTrack"
         android:title="@string/deleteTrack">
     </item>
-    <item
-        android:id="@+id/uploadTrack"
-        android:title="@string/uploadTrack">
-    </item>
 
 </menu>

@@ -1,5 +1,6 @@
 package car.io.activity;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -10,19 +11,20 @@ import java.util.TimeZone;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ProgressBar;
@@ -30,8 +32,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 import car.io.R;
 import car.io.adapter.DbAdapter;
+import car.io.adapter.Measurement;
 import car.io.adapter.Track;
 import car.io.application.ECApplication;
+import car.io.exception.LocationInvalidException;
 import car.io.views.TYPEFACE;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -132,7 +136,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 		ArrayList<Track> tracks = dbAdapter.getAllTracks();
 		final Track track = tracks.get(itemSelect);
 		switch (item.getItemId()) {
-		
+
 		case R.id.editName:
 			Log.e("obd2", "editing track: " + itemSelect);
 			final EditText input = new EditText(getActivity());
@@ -153,7 +157,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 				}
 			}).show();
 			return true;
-			
+
 		case R.id.editDescription:
 			Log.e("obd2", "editing track: " + itemSelect);
 			final EditText input2 = new EditText(getActivity());
@@ -167,9 +171,9 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 					elv.collapseGroup(itemSelect);
 					tracksList.get(itemSelect).setDescription(value);
 					elvAdapter.notifyDataSetChanged();
-					//TODO Bug: update the description when it is changed.
+					// TODO Bug: update the description when it is changed.
 					Toast.makeText(getActivity(), getString(R.string.descriptionChanged), Toast.LENGTH_SHORT).show();
-					
+
 				}
 			}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
@@ -177,7 +181,24 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 				}
 			}).show();
 			return true;
-			
+
+		case R.id.startMap:
+			Log.e("obd2", Environment.getExternalStorageDirectory().toString());
+			File f = new File(Environment.getExternalStorageDirectory() + "/Android");
+			if (f.isDirectory()) {
+				ArrayList<Measurement> measurements = track.getMeasurements();
+				String[] trackCoordinates = extractCoordinates(measurements);
+				Intent intent = new Intent(getActivity().getApplicationContext(), Map.class);
+				Bundle bundle = new Bundle();
+				bundle.putStringArray("coordinates", trackCoordinates);
+				intent.putExtras(bundle);
+				startActivity(intent);
+			} else {
+				Toast.makeText(getActivity(), "Map not possible without SD card.", Toast.LENGTH_LONG).show();
+			}
+
+			return true;
+
 		case R.id.deleteTrack:
 			Log.e("obd2", "deleting item: " + itemSelect);
 			dbAdapter.deleteTrack(track.getId());
@@ -185,7 +206,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 			tracksList.remove(itemSelect);
 			elvAdapter.notifyDataSetChanged();
 			return true;
-			
+
 		case R.id.uploadTrack:
 			Log.e("obd2", "uploading item: " + itemSelect);
 			Toast.makeText(getActivity(), "This function is not supported yet. Please upload all tracks at once via the menu.", Toast.LENGTH_LONG).show();
@@ -211,6 +232,25 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 
 		// TODO update the list if new track is inserted into the database.
 
+	}
+
+	/**
+	 * Returns an StringArray of coordinates for the mpa
+	 * 
+	 * @param measurements
+	 *            arraylist with all measurements
+	 * @return string array with coordinates
+	 */
+	private String[] extractCoordinates(ArrayList<Measurement> measurements) {
+		ArrayList<String> coordinates = new ArrayList<String>();
+
+		for (Measurement measurement : measurements) {
+			String lat = String.valueOf(measurement.getLatitude());
+			String lon = String.valueOf(measurement.getLongitude());
+			coordinates.add(lat);
+			coordinates.add(lon);
+		}
+		return coordinates.toArray(new String[coordinates.size()]);
 	}
 
 	private class TracksListAdapter extends BaseExpandableListAdapter {
