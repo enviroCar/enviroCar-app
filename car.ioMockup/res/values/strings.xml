@@ -82,4 +82,7 @@
 	<string name="editTrack">Edit Track</string>
 	<string name="enterTrackName">Enter trackname</string>
 	<string name="enterTrackDescription">Enter track description</string>
+	<string name="nameChanged">Name changed</string>
+	<string name="descriptionChanged">Description changed</string>
+	<string name="trackDeleted">Track deleted</string>
 </resources>

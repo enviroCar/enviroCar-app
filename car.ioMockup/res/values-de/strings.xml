@@ -78,4 +78,7 @@
     <string name="editTrack">Track bearbeiten</string>
     <string name="enterTrackName">Trackname eingeben</string>
     <string name="enterTrackDescription">Trackbeschreibung eingeben</string>
+    <string name="nameChanged">Name geändert</string>
+    <string name="descriptionChanged">Beschreibung geändert</string>
+    <string name="trackDeleted">Track gelöscht</string>
 </resources>

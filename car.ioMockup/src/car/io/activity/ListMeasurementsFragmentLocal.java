@@ -132,6 +132,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 		ArrayList<Track> tracks = dbAdapter.getAllTracks();
 		final Track track = tracks.get(itemSelect);
 		switch (item.getItemId()) {
+		
 		case R.id.editName:
 			Log.e("obd2", "editing track: " + itemSelect);
 			final EditText input = new EditText(getActivity());
@@ -144,6 +145,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 					track.commitTrackToDatabase();
 					tracksList.get(itemSelect).setName(value);
 					elvAdapter.notifyDataSetChanged();
+					Toast.makeText(getActivity(), getString(R.string.nameChanged), Toast.LENGTH_SHORT).show();
 				}
 			}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
@@ -151,6 +153,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 				}
 			}).show();
 			return true;
+			
 		case R.id.editDescription:
 			Log.e("obd2", "editing track: " + itemSelect);
 			final EditText input2 = new EditText(getActivity());
@@ -165,6 +168,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 					tracksList.get(itemSelect).setDescription(value);
 					elvAdapter.notifyDataSetChanged();
 					//TODO Bug: update the description when it is changed.
+					Toast.makeText(getActivity(), getString(R.string.descriptionChanged), Toast.LENGTH_SHORT).show();
 					
 				}
 			}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -173,13 +177,15 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 				}
 			}).show();
 			return true;
+			
 		case R.id.deleteTrack:
 			Log.e("obd2", "deleting item: " + itemSelect);
 			dbAdapter.deleteTrack(track.getId());
-			Toast.makeText(getActivity(), "Track deleted.", Toast.LENGTH_LONG).show();
+			Toast.makeText(getActivity(), getString(R.string.trackDeleted), Toast.LENGTH_LONG).show();
 			tracksList.remove(itemSelect);
 			elvAdapter.notifyDataSetChanged();
 			return true;
+			
 		case R.id.uploadTrack:
 			Log.e("obd2", "uploading item: " + itemSelect);
 			Toast.makeText(getActivity(), "This function is not supported yet. Please upload all tracks at once via the menu.", Toast.LENGTH_LONG).show();
