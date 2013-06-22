@@ -90,4 +90,5 @@
 	<string name="no_sensor_selected">No Car selected</string>
 	<string name="title_create_new_sensor">&#8230;or create a new car:</string>
 	<string name="title_select_sensor">Select an existing car,</string>
+	<string name="please_select">&#8230;</string>
 </resources>

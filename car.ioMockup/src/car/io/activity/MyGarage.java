@@ -379,7 +379,7 @@ public class MyGarage extends SherlockActivity {
 
         @Override
         public int getCount() {
-            return sensors.length();
+            return sensors.length()+1;
         }
 
         @Override
