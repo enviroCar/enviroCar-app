@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.json.JSONArray;
@@ -322,7 +323,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		public View getGroupView(int i, boolean b, View view,
 				ViewGroup viewGroup) {
 			if (view == null || view.getId() != 10000000 + i) {
-				Track currTrack = (Track) getGroup(i);
+				final Track currTrack = (Track) getGroup(i);
 				View groupRow = ViewGroup.inflate(getActivity(), R.layout.list_tracks_group_layout, null);
 				TextView textView = (TextView) groupRow.findViewById(R.id.track_name_textview);
 				textView.setText(currTrack.getName());
@@ -334,10 +335,30 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					public void onClick(View v) {
 						Intent intent = new Intent(getActivity()
 								.getApplicationContext(), Map.class);
+					
+						ArrayList<Measurement> measurements = currTrack.getMeasurements();
+						String[] trackCoordinates = extractCoordinates(measurements);
+						
+						Bundle bundle = new Bundle();
+						bundle.putStringArray("coordinates", trackCoordinates);
+						intent.putExtras(bundle);
 						startActivity(intent);
-						Log.i("bla", "bla");
-
+						Log.e("MeasurementFragment", "Map Intent started");
 					}
+					
+					private String[] extractCoordinates(ArrayList<Measurement> measurements) {
+						List<String> coordinates = new ArrayList<String>();
+						
+						for (Measurement measurement : measurements) {
+							String lat = String.valueOf(measurement.getLatitude());
+							String lon = String.valueOf(measurement.getLongitude());
+							coordinates.add(lat);
+							coordinates.add(lon);
+						}
+						return coordinates.toArray(new String[coordinates.size()]);
+					}
+						
+
 				});
 				groupRow.setId(10000000 + i);
 				TYPEFACE.applyCustomFont((ViewGroup) groupRow,
