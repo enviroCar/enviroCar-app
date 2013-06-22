@@ -106,12 +106,9 @@ public class LoginActivity extends SherlockFragmentActivity {
 		super.onActivityResult (requestCode,resultCode, data);
 		switch(requestCode){
 		case REQUEST_MY_GARAGE:
-			if(resultCode == HttpStatus.SC_CREATED){
+			if(resultCode == HttpStatus.SC_CREATED || resultCode == DashboardFragment.SENSOR_CHANGED_RESULT){
 				finish();
 			}
-			break;
-		case MainActivity.REQUEST_MY_GARAGE:
-			finish();
 			break;
 		}
 		
