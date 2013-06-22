@@ -39,6 +39,20 @@
         <LinearLayout
             style="@style/LoginFormContainer"
             android:orientation="vertical" >
+            
+			<View
+                android:layout_width="match_parent"
+                android:layout_height="2px"
+                android:background="@color/blue_dark_cario"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp" />
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/title_select_sensor" />
 
             <ProgressBar
                 android:id="@+id/sensor_dl_progress"
