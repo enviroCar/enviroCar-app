@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.TimeZone;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -15,12 +14,10 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -50,59 +47,6 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 
 		dbAdapter = ((ECApplication) getActivity().getApplication())
 				.getDbAdapterLocal();
-		/*
-		 * Testing
-		 */
-
-		// ECApplication application = ((ECApplication) getActivity()
-		// .getApplication());
-		//
-		// SharedPreferences preferences = PreferenceManager
-		// .getDefaultSharedPreferences(application);
-		//
-		// String fuelType =
-		// preferences.getString(application.PREF_KEY_FUEL_TYPE,
-		// "gasoline");
-		// String carManufacturer = preferences.getString(
-		// application.PREF_KEY_CAR_MANUFACTURER, "undefined");
-		// String carModel =
-		// preferences.getString(application.PREF_KEY_CAR_MODEL,
-		// "undefined");
-		// String sensorId =
-		// preferences.getString(application.PREF_KEY_SENSOR_ID,
-		// "undefined");
-		//
-		// Track track = new Track("123456", fuelType, carManufacturer,
-		// carModel,
-		// sensorId, dbAdapter);
-		// track.setName("Track 1");
-		// track.commitTrackToDatabase();
-		// try {
-		// Measurement m1 = new Measurement(51.5f, 7.5f);
-		// Measurement m2 = new Measurement(52.5f, 7.6f);
-		// track.addMeasurement(m1);
-		// track.addMeasurement(m2);
-		// } catch (LocationInvalidException e) {
-		// e.printStackTrace();
-		// }
-		//
-		// Track track2 = new Track("123456", fuelType, carManufacturer,
-		// carModel,
-		// sensorId, dbAdapter);
-		// track2.setName("Track 2");
-		// track2.commitTrackToDatabase();
-		// try {
-		// Measurement m1 = new Measurement(41.5f, 7.5f);
-		// Measurement m2 = new Measurement(42.5f, 7.6f);
-		// track2.addMeasurement(m1);
-		// track2.addMeasurement(m2);
-		// } catch (LocationInvalidException e) {
-		// e.printStackTrace();
-		// }
-
-		/*
-		 * Testing End
-		 */
 
 		View v = inflater.inflate(R.layout.list_tracks_layout_local, null);
 		elv = (ExpandableListView) v.findViewById(R.id.list);
@@ -232,19 +176,6 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 				TextView textView = (TextView) groupRow
 						.findViewById(R.id.track_name_textview);
 				textView.setText(currTrack.getName());
-				Button button = (Button) groupRow
-						.findViewById(R.id.track_name_go_to_map);
-				button.setOnClickListener(new OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-						Intent intent = new Intent(getActivity()
-								.getApplicationContext(), Map.class);
-						startActivity(intent);
-						Log.i("bla", "bla");
-
-					}
-				});
 				groupRow.setId(10000000 + i);
 				TYPEFACE.applyCustomFont((ViewGroup) groupRow,
 						TYPEFACE.Newscycle(getActivity()));
