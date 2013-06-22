@@ -79,4 +79,7 @@
 	<string name="retry">Retry</string>
 	<string name="description">Description:</string>
 	<string name="editDescription">Edit Description</string>
+	<string name="editTrack">Edit Track</string>
+	<string name="enterTrackName">Enter trackname</string>
+	<string name="enterTrackDescription">Enter track description</string>
 </resources>

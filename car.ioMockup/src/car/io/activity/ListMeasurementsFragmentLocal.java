@@ -10,10 +10,7 @@ import java.util.TimeZone;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
-import android.text.Editable;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -33,10 +30,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import car.io.R;
 import car.io.adapter.DbAdapter;
-import car.io.adapter.Measurement;
 import car.io.adapter.Track;
 import car.io.application.ECApplication;
-import car.io.exception.LocationInvalidException;
 import car.io.views.TYPEFACE;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -140,7 +135,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 		case R.id.editName:
 			Log.e("obd2", "editing track: " + itemSelect);
 			final EditText input = new EditText(getActivity());
-			new AlertDialog.Builder(getActivity()).setTitle("Edit Track").setMessage("Enter track name").setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.editTrack)).setMessage(getString(R.string.enterTrackName)).setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
 					String value = input.getText().toString();
 					Log.e("obd2", "New name: " + value.toString());
@@ -159,7 +154,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 		case R.id.editDescription:
 			Log.e("obd2", "editing track: " + itemSelect);
 			final EditText input2 = new EditText(getActivity());
-			new AlertDialog.Builder(getActivity()).setTitle("Edit Track").setMessage("Enter track description").setView(input2).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+			new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.editTrack)).setMessage(getString(R.string.enterTrackDescription)).setView(input2).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int whichButton) {
 					String value = input2.getText().toString();
 					Log.e("obd2", "New description: " + value.toString());

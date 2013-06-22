@@ -75,4 +75,7 @@
     <string name="retry">Erneut versuchen</string>
     <string name="description">Beschreibung:</string>
     <string name="editDescription">Edit Description</string>
+    <string name="editTrack">Track bearbeiten</string>
+    <string name="enterTrackName">Trackname eingeben</string>
+    <string name="enterTrackDescription">Trackbeschreibung eingeben</string>
 </resources>
