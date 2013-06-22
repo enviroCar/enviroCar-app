@@ -18,12 +18,18 @@ import org.json.JSONObject;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import car.io.application.ECApplication;
 import car.io.exception.FuelConsumptionException;
-
+/**
+ * Manager that can upload a track to the server. 
+ * Use the uploadAllTracks function to upload all local tracks. 
+ * Make sure that you specify the dbAdapter when instantiating.
+ * The default constructor should only be used when there is no
+ * other way.
+ * 
+ */
 public class UploadManager {
 
 	private static final String TAG = "obd2";
@@ -34,12 +40,20 @@ public class UploadManager {
 
 	private DbAdapter dbAdapter;
 	private Context context;
-
+	
+	/**
+	 * Normal constructor for this manager. Specify the context and the dbadapter.
+	 * @param dbAdapter The dbadapter (most likely the local one)
+	 * @param ctx The context.
+	 */
 	public UploadManager(DbAdapter dbAdapter, Context ctx) {
 		this.dbAdapter = dbAdapter;
 		this.context = ctx;
 	}
-
+	
+	/**
+	 * Default constructor. Normally not needed.
+	 */
 	public UploadManager() {
 	};
 

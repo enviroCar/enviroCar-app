@@ -37,7 +37,12 @@ import car.io.exception.TracksException;
 import car.io.obd.BackgroundService;
 import car.io.obd.Listener;
 import car.io.obd.ServiceConnector;
-
+/**
+ * This is the main application that is the central linking component for all adapters, services and so on.
+ * This application is implemented like a singleton, it exists only once while the app is running.
+ * @author gerald, jakob
+ *
+ */
 public class ECApplication extends Application implements LocationListener {
 
 	public static final String BASE_URL = "https://giv-car.uni-muenster.de/stable/rest";
@@ -79,15 +84,31 @@ public class ECApplication extends Application implements LocationListener {
 	private boolean requirementsFulfilled = true;
 
 	private static User user;
-
+	
+	/**
+	 * Returns the service connector of the server
+	 * @return the serviceConnector
+	 */
 	public ServiceConnector getServiceConnector() {
 		return serviceConnector;
 	}
-
+	
+	/**
+	 * Returns whether requirements were fulfilled (bluetooth activated)
+	 * @return requirementsFulfilled?
+	 */
 	public boolean requirementsFulfilled() {
 		return requirementsFulfilled;
 	}
 
+	/**
+	 * This method updates the attributes of the current sensor (=car) 
+	 * @param sensorid the id that is stored on the server
+	 * @param carManufacturer the car manufacturer
+	 * @param carModel the car model
+	 * @param fuelType the fuel type of the car
+	 * @param year construction year of the car
+	 */
 	public void updateCurrentSensor(String sensorid, String carManufacturer,
 			String carModel, String fuelType, int year) {
 		Editor e = preferences.edit();
@@ -107,7 +128,7 @@ public class ECApplication extends Application implements LocationListener {
 		// BT-Adapter, VIN etc. ... something like a setup method
 
 		initDbAdapter();
-		initBluetooth();
+		checkRequirementsForBluetooth();
 		initLocationManager();
 		// AutoConnect checkbox and service
 		// TODO settings -> automatic connection to bt adapter
@@ -136,8 +157,6 @@ public class ECApplication extends Application implements LocationListener {
 	 * This method determines whether it is necessary to create a new track or
 	 * of the current/last used track should be reused
 	 */
-	// TODO call this method at some other positions in the code aswell... at
-	// some places, it might make sense to do so
 	private void createNewTrackIfNecessary() {
 
 		// TODO decode vin or read from shared preferences...
@@ -322,6 +341,9 @@ public class ECApplication extends Application implements LocationListener {
 
 	}
 
+	/**
+	 * This method opens both dbadapters or also gets them and opens them afterwards.
+	 */
 	private void initDbAdapter() {
 		if (dbAdapterLocal == null) {
 			dbAdapterLocal = new DbAdapterLocal(this.getApplicationContext());
@@ -339,7 +361,11 @@ public class ECApplication extends Application implements LocationListener {
 		}
 	}
 
-	private void initBluetooth() {
+	/**
+	 * This checks whether the bluetooth adadpter exists and whether it is enabled.
+	 * You can get the result by calling the requirementsFulfilled() funtion.
+	 */
+	private void checkRequirementsForBluetooth() {
 		if (bluetoothAdapter == null) {
 
 			requirementsFulfilled = false;
@@ -378,6 +404,10 @@ public class ECApplication extends Application implements LocationListener {
 		return matchFound;
 	}
 
+	/**
+	 * Get a user object from the shared preferences
+	 * @return the user that is stored on the device
+	 */
 	private User getUserFromSharedPreferences() {
 		if (preferences.contains("username") && preferences.contains("token")) {
 			return new User(preferences.getString("username", "anonymous"),
@@ -386,6 +416,10 @@ public class ECApplication extends Application implements LocationListener {
 		return null;
 	}
 
+	/**
+	 * Set the user (to the application and also store it in the preferences)
+	 * @param user The user you want to set
+	 */
 	public void setUser(User user) {
 		ECApplication.user = user;
 		Editor e = preferences.edit();
@@ -394,14 +428,26 @@ public class ECApplication extends Application implements LocationListener {
 		e.apply();
 	}
 
+	/**
+	 * Get the user
+	 * @return user
+	 */
 	public User getUser() {
 		return user;
 	}
 
+	/**
+	 * Determines whether the user is logged in. A user is logged in when
+	 * the application has a user as a variable.
+	 * @return
+	 */
 	public boolean isLoggedIn() {
 		return user != null;
 	}
 
+	/**
+	 * Logs out the user.
+	 */
 	public void logOut() {
 		if (preferences.contains("username"))
 			preferences.edit().remove("username");
@@ -411,11 +457,20 @@ public class ECApplication extends Application implements LocationListener {
 		user = null;
 	}
 
+	/**
+	 * Returns the local db adadpter. This has to be called by other
+	 * functions in order to work with the data (change tracks and measurements).
+	 * @return the local db adapter
+	 */
 	public DbAdapter getDbAdapterLocal() {
 		initDbAdapter();
 		return dbAdapterLocal;
 	}
 
+	/**
+	 * Get the remote db adapter (to work with the measurements from the server).
+	 * @return the remote dbadapter
+	 */
 	public DbAdapter getDbAdapterRemote() {
 		initDbAdapter();
 		return dbAdapterRemote;
@@ -436,6 +491,9 @@ public class ECApplication extends Application implements LocationListener {
 		locationManager.removeUpdates(this);
 	}
 
+	/**
+	 * This method starts the service that connects to the adapter to the app.
+	 */
 	public void startBackgroundService() {
 		if (requirementsFulfilled) {
 			Log.e("obd2", "requirements met");
@@ -450,6 +508,10 @@ public class ECApplication extends Application implements LocationListener {
 		}
 	}
 
+	/**
+	 * This method starts the service connector every five minutes if the user 
+	 * wants an autoconnection
+	 */
 	public void startServiceConnector() {
 		scheduleTaskExecutor.scheduleAtFixedRate(new Runnable() {
 			public void run() {
@@ -464,9 +526,12 @@ public class ECApplication extends Application implements LocationListener {
 				}
 
 			}
-		}, 0, 1, TimeUnit.MINUTES);
+		}, 0, 5, TimeUnit.MINUTES);
 	}
 
+	/**
+	 * This method starts the listener that interprets the answers from the BT adapter.
+	 */
 	public void startListener() {
 		listener = new Listener() {
 
@@ -479,12 +544,6 @@ public class ECApplication extends Application implements LocationListener {
 				Log.i("btlogger", commandName + " " + commandResult);
 				if (commandResult.equals("NODATA"))
 					return;
-				// Get the fuel type from the preferences
-
-				// TextView fuelTypeTextView = (TextView)
-				// findViewById(R.id.fueltypeText);
-				// fuelTypeTextView.setText(preferences.getString(PREF_FUEL_TPYE,
-				// "Gasoline"));
 
 				/*
 				 * Check which measurent is returned and save the value in the
@@ -494,9 +553,6 @@ public class ECApplication extends Application implements LocationListener {
 				// Speed
 
 				if (commandName.equals("Vehicle Speed")) {
-					// TextView speedTextView = (TextView)
-					// findViewById(R.id.spd_text);
-					// speedTextView.setText(commandResult + " km/h");
 
 					try {
 						speedMeasurement = Integer.valueOf(commandResult);
@@ -509,10 +565,7 @@ public class ECApplication extends Application implements LocationListener {
 				// MAF
 
 				if (commandName.equals("Mass Air Flow")) {
-					// TextView mafTextView = (TextView)
-					// findViewById(R.id.mafText);
 					String maf = commandResult;
-					// mafTextView.setText("MAF: " + maf + " g/s");
 
 					try {
 						NumberFormat format = NumberFormat
@@ -561,13 +614,16 @@ public class ECApplication extends Application implements LocationListener {
 		};
 	}
 
+	/**
+	 * Stop the service connector and therefore the scheduled tasks.
+	 */
 	public void stopServiceConnector() {
 		scheduleTaskExecutor.shutdown();
 	}
 
 	/**
 	 * Connects to the Bluetooth Adapter and starts the execution of the
-	 * commands
+	 * commands. also opens the db and starts the gps.
 	 */
 	public void startConnection() {
 		openDb();
@@ -583,7 +639,7 @@ public class ECApplication extends Application implements LocationListener {
 	}
 
 	/**
-	 * Ends the connection with the Bluetooth Adapter
+	 * Ends the connection with the Bluetooth Adapter. also stops gps and closes the db.
 	 */
 	public void stopConnection() {
 
@@ -717,6 +773,9 @@ public class ECApplication extends Application implements LocationListener {
 
 	}
 
+	/**
+	 * Stops gps, kills service, kills service connector, kills listener and handler
+	 */
 	public void destroyStuff() {
 		stopLocating();
 		locationManager = null;
@@ -726,11 +785,13 @@ public class ECApplication extends Application implements LocationListener {
 		handler = null;
 	}
 
+	/**
+	 * updates the location variables when the device moved
+	 */
 	@Override
 	public void onLocationChanged(Location location) {
 		locationLatitude = (float) location.getLatitude();
 		locationLongitude = (float) location.getLongitude();
-		// speedMeasurement = (int) (location.getSpeed() * 3.6);
 
 	}
 
@@ -749,10 +810,16 @@ public class ECApplication extends Application implements LocationListener {
 
 	}
 
+	/**
+	 * Opens the databases.
+	 */
 	public void openDb() {
 		initDbAdapter();
 	}
 
+	/**
+	 * Closes both databases.
+	 */
 	public void closeDb() {
 		if (dbAdapterLocal != null) {
 			dbAdapterLocal.close();

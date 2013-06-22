@@ -1,5 +1,5 @@
 package car.io.application;
-
+//TODO: javadoc
 public class User {
 	
 	private String username;

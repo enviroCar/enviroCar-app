@@ -5,6 +5,12 @@ import java.util.ArrayList;
 import car.io.exception.FuelConsumptionException;
 import car.io.exception.MeasurementsException;
 
+/**
+ * This is a track. A track is a collection of measurements. 
+ * All measurements of a track are accessible via the track. 
+ * The track stores meta information about the ride (car, fuel, description...)
+ *
+ */
 public class Track {
 
 	private String id;
@@ -65,7 +71,12 @@ public class Track {
 		this.dbAdapter = dbAdapter;
 		id = String.valueOf(dbAdapter.insertTrack(this));
 	}
-	
+	/**
+	 * Set the db adpater for the track. This method is needed when you want 
+	 * to update a track in the database because when you get the 
+	 * track, the dbadapter is not returned.
+	 * @param dbAdapter the dbapapter
+	 */
 	public void setDatabaseAdapter(DbAdapter dbAdapter){
 		this.dbAdapter = dbAdapter;
 	}
