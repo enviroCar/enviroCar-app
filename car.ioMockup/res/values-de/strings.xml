@@ -88,4 +88,19 @@
     <string name="upload_notification_success">Lokale Tracks wurden erfolgreich hochgeladen.</string>
     <string name="please_select">&#8230;</string>
     <string name="startMap">In Karte betrachten</string>
+    
+    
+    <string name="menu_login">Einloggen/Registrieren</string>
+    <string name="gasoline">Gasoline</string>
+    <string name="diesel">Diesel</string>
+    <string name="electric">Electric</string>
+    <string name="register_car">Auto neu erstellen</string>
+    <string name="register_car_progress">Auto erstellen Fortschritt</string>
+    <string name="prompt_car_model">Modell</string>
+    <string name="prompt_car_manufacturer">Hersteller</string>
+    <string name="prompt_car_constructionYear">Baujahr</string>
+    
+        <string name="editName">Namen ändern</string>
+    <string name="deleteTrack">Track löschen</string>
+    <string name="uploadTrack">Track hochladen</string>
 </resources>
