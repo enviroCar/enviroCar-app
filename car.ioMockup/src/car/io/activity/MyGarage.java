@@ -379,8 +379,10 @@ public class MyGarage extends SherlockActivity {
 
         @Override
         public int getCount() {
-            return sensors.length()+1;
+            return sensors.length();
         }
+        
+        boolean firstTime = true;
 
         @Override
         public Object getItem(int position) {
@@ -401,16 +403,21 @@ public class MyGarage extends SherlockActivity {
         @Override
         public View getView(int position, View view, ViewGroup parent) {
             TextView text = new TextView(MyGarage.this);
-            try {
-				text.setText(
-						((JSONObject) getItem(position)).getString("manufacturer")+" "+
-						((JSONObject) getItem(position)).getString("model")+" ("+
-						((JSONObject) getItem(position)).getString("fuelType")+" "+
-						((JSONObject) getItem(position)).getInt("constructionYear")+")");
-			} catch (JSONException e) {
-				text.setText("error");
-				e.printStackTrace();
-			}
+            if(firstTime){
+            	text.setText(getResources().getString(R.string.please_select));
+            	firstTime = false;
+            }else{
+	            try {
+					text.setText(
+							((JSONObject) getItem(position)).getString("manufacturer")+" "+
+							((JSONObject) getItem(position)).getString("model")+" ("+
+							((JSONObject) getItem(position)).getString("fuelType")+" "+
+							((JSONObject) getItem(position)).getInt("constructionYear")+")");
+				} catch (JSONException e) {
+					text.setText("error");
+					e.printStackTrace();
+				}
+            }
             return text;
         }
 
