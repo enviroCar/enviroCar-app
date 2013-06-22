@@ -83,6 +83,7 @@
     <string name="trackDeleted">Track gelöscht</string>
     <string name="no_sensor_selected">Kein Auto ausgewählt.</string>
     <string name="title_create_new_sensor">&#8230;oder erstelle ein neues Auto:</string>
+    <string name="title_select_sensor">Wähle ein bestehendes Auto,</string>
 	<string name="upload_notification">Versuche lokale Tracks hochzuladen.</string>
     <string name="upload_notification_success">Lokale Tracks wurden erfolgreich hochgeladen.</string>
     <string name="startMap">In Karte betrachten</string>
