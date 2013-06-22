@@ -204,7 +204,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			public void onSuccess(int httpStatus, JSONObject json) {
 				super.onSuccess(httpStatus, json);
 
-				//TODO put everything in the asynctask
 				try {
 					JSONArray tracks = json.getJSONArray("tracks");
 					ct = tracks.length();

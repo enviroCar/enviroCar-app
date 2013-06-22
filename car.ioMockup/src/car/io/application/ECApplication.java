@@ -191,7 +191,6 @@ public class ECApplication extends Application implements LocationListener {
 
 					if ((System.currentTimeMillis() - lastUsedTrack
 							.getLastMeasurement().getMeasurementTime()) > 3600000) {
-						// TODO: make parameters dynamic
 						Log.e("obd2",
 								"I create a new track because the last measurement is more than 60 mins ago");
 						track = new Track("123456", fuelType, carManufacturer,
@@ -209,7 +208,7 @@ public class ECApplication extends Application implements LocationListener {
 						Log.e("obd2",
 								"The last measurement's position is more than 3 km away. I will create a new track");
 						track = new Track("123456", fuelType, carManufacturer,
-								carModel, sensorId, dbAdapterLocal); // TODO
+								carModel, sensorId, dbAdapterLocal); 
 						track.setName(trackName);
 						track.setDescription(trackDescription);
 						track.commitTrackToDatabase();
@@ -232,7 +231,7 @@ public class ECApplication extends Application implements LocationListener {
 					Log.e("obd", "The last track contains no measurements. I will delete it and create a new one.");
 					dbAdapterLocal.deleteTrack(lastUsedTrack.getId());
 					track = new Track("123456", fuelType, carManufacturer,
-							carModel, sensorId, dbAdapterLocal); // TODO:
+							carModel, sensorId, dbAdapterLocal); 
 					track.setName(trackName);
 					track.setDescription(trackDescription);
 					track.commitTrackToDatabase();
@@ -240,7 +239,7 @@ public class ECApplication extends Application implements LocationListener {
 
 			} catch (TracksException e) {
 				track = new Track("123456", fuelType, carManufacturer,
-						carModel, sensorId, dbAdapterLocal); // TODO:
+						carModel, sensorId, dbAdapterLocal); 
 				track.setName(trackName);
 				track.setDescription(trackDescription);
 				track.commitTrackToDatabase();
@@ -254,8 +253,7 @@ public class ECApplication extends Application implements LocationListener {
 		}
 
 		// if track is not null, determine whether it is useful to create a new
-		// track and store the current one //TODO: is it necessary to store
-		// this? normally, this is already in the database
+		// track and store the current one
 
 		if (track != null) {
 
@@ -269,7 +267,6 @@ public class ECApplication extends Application implements LocationListener {
 				// ago
 				if ((System.currentTimeMillis() - currentTrack
 						.getLastMeasurement().getMeasurementTime()) > 3600000) {
-					// TODO: make parameters dynamic
 					track = new Track("123456", fuelType, carManufacturer,
 							carModel, sensorId, dbAdapterLocal);
 					track.setName(trackName);
@@ -288,7 +285,7 @@ public class ECApplication extends Application implements LocationListener {
 				if (getDistance(currentTrack.getLastMeasurement(),
 						locationLatitude, locationLongitude) > 3.0) {
 					track = new Track("123456", fuelType, carManufacturer,
-							carModel, sensorId, dbAdapterLocal); // TODO
+							carModel, sensorId, dbAdapterLocal); 
 					track.setName(trackName);
 					track.setDescription(trackDescription);
 					track.commitTrackToDatabase();
@@ -310,7 +307,7 @@ public class ECApplication extends Application implements LocationListener {
 				Log.e("obd", "The last track contains no measurements. I will delete it and create a new one.");
 				dbAdapterLocal.deleteTrack(currentTrack.getId());
 				track = new Track("123456", fuelType, carManufacturer,
-						carModel, sensorId, dbAdapterLocal); // TODO:
+						carModel, sensorId, dbAdapterLocal); 
 				track.setName(trackName);
 				track.setDescription(trackDescription);
 				track.commitTrackToDatabase();

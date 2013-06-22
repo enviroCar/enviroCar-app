@@ -148,8 +148,6 @@ public class UploadManager {
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			// TODO Configure X-User, X-Token in property document/shared
-			// preferences
 			String username = ((ECApplication) context).getUser().getUsername();
 			String token = ((ECApplication) context).getUser().getToken();
 			String urlL = String.format(url, username);
@@ -171,8 +169,6 @@ public class UploadManager {
 
 	/**
 	 * Converts Track Object into track.create.json string
-	 * 
-	 * TODO Outsource JSON converting to Converter class
 	 * 
 	 * @return
 	 */

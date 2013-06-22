@@ -291,15 +291,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 				try {
 					DateFormat sdf = DateFormat.getDateTimeInstance();
 					DecimalFormat twoDForm = new DecimalFormat("#.##");
-					DateFormat dfDuration = new SimpleDateFormat("HH:mm:ss:SSS"); // TODO:
-																					// leave
-																					// out
-																					// millis
-																					// when
-																					// we
-																					// have
-																					// other
-																					// data
+					DateFormat dfDuration = new SimpleDateFormat("HH:mm:ss:SSS");
 					dfDuration.setTimeZone(TimeZone.getTimeZone("UTC"));
 					start.setText(sdf.format(currTrack.getStartTime()) + "");
 					end.setText(sdf.format(currTrack.getEndTime()) + "");

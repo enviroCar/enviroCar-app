@@ -281,9 +281,6 @@ public class Track {
 	public double getFuelConsumptionOfMeasurement(int measurement)
 			throws FuelConsumptionException {
 
-		// TODO make this in l/100km (include speed information) (pay attention
-		// to speed=0)
-
 		Measurement m = getMeasurements().get(measurement);
 
 		double maf = m.getMaf();
@@ -310,9 +307,6 @@ public class Track {
 	 */
 	public double getCO2EmissionOfMeasurement(int measurement)
 			throws FuelConsumptionException {
-
-		// TODO change unit to kg/km (include speed information) (pay attention
-		// to speed=0)
 
 		double fuelCon;
 		fuelCon = getFuelConsumptionOfMeasurement(measurement);
