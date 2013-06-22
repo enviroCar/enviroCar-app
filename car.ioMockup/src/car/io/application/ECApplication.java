@@ -30,7 +30,6 @@ import car.io.adapter.Track;
 import car.io.commands.CommonCommand;
 import car.io.commands.MAF;
 import car.io.commands.Speed;
-import car.io.exception.FuelConsumptionException;
 import car.io.exception.LocationInvalidException;
 import car.io.exception.MeasurementsException;
 import car.io.exception.TracksException;

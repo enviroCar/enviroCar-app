@@ -1,10 +1,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mygaragelayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MyGarage" 
-    android:id="@+id/mygaragelayout">
-
+    tools:context=".MyGarage" >
 
     <LinearLayout
         android:id="@+id/addCarToGarage_status"
@@ -12,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:orientation="vertical"
-        android:visibility="gone"  >
+        android:visibility="gone" >
 
         <ProgressBar
             style="?android:attr/progressBarStyleLarge"
@@ -35,12 +34,49 @@
     <ScrollView
         android:id="@+id/garage_form"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent" >
 
         <LinearLayout
             style="@style/LoginFormContainer"
             android:orientation="vertical" >
+
+            <ProgressBar
+                android:id="@+id/sensor_dl_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/retrybutton"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/retry"
+                android:visibility="gone" />
+
+            <Spinner
+                android:id="@+id/dashboard_current_sensor_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="5dp" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="2px"
+                android:background="@color/blue_dark_cario"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp" />
+            
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_gravity="center_horizontal"
+                android:text="@string/title_create_new_sensor" />
+
 
             <EditText
                 android:id="@+id/addCarToGarage_car_manufacturer"
@@ -59,12 +95,12 @@
                 android:inputType="textEmailAddress"
                 android:maxLines="1"
                 android:singleLine="true" />
-            
+
             <EditText
                 android:id="@+id/addCarToGarage_car_constructionYear"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/prompt_car_constructionYear" 
+                android:hint="@string/prompt_car_constructionYear"
                 android:inputType="text"
                 android:maxLines="1"
                 android:singleLine="true" />
@@ -77,9 +113,9 @@
 
                 <RadioButton
                     android:id="@+id/radio_gasoline"
-                    android:checked="true"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:checked="true"
                     android:onClick="onRadioButtonClicked"
                     android:text="@string/gasoline" />
 
@@ -89,7 +125,7 @@
                     android:layout_height="wrap_content"
                     android:onClick="onRadioButtonClicked"
                     android:text="@string/diesel" />
-                
+
                 <RadioButton
                     android:id="@+id/radio_electric"
                     android:layout_width="wrap_content"

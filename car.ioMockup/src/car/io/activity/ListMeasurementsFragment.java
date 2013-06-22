@@ -12,15 +12,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -323,19 +320,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				View groupRow = ViewGroup.inflate(getActivity(), R.layout.list_tracks_group_layout, null);
 				TextView textView = (TextView) groupRow.findViewById(R.id.track_name_textview);
 				textView.setText(currTrack.getName());
-				Button button = (Button) groupRow
-						.findViewById(R.id.track_name_go_to_map);
-				button.setOnClickListener(new OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-						Intent intent = new Intent(getActivity()
-								.getApplicationContext(), Map.class);
-						startActivity(intent);
-						Log.i("bla", "bla");
-
-					}
-				});
 				groupRow.setId(10000000 + i);
 				TYPEFACE.applyCustomFont((ViewGroup) groupRow,
 						TYPEFACE.Newscycle(getActivity()));

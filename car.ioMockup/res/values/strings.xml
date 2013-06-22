@@ -85,4 +85,6 @@
 	<string name="nameChanged">Name changed</string>
 	<string name="descriptionChanged">Description changed</string>
 	<string name="trackDeleted">Track deleted</string>
+	<string name="no_sensor_selected">No Car selected</string>
+	<string name="title_create_new_sensor">&#8230;or create a new car:</string>
 </resources>

@@ -1,59 +1,74 @@
 package car.io.activity;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.BaseAdapter;
-import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.Spinner;
-import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import car.io.R;
 import car.io.adapter.DbAdapter;
 import car.io.application.ECApplication;
-import car.io.application.RestClient;
 import car.io.views.RoundProgress;
 import car.io.views.TYPEFACE;
 
 import com.actionbarsherlock.app.SherlockFragment;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 public class DashboardFragment extends SherlockFragment {
 
+	
+	public static final int SENSOR_CHANGED_RESULT = 1337;
 	TextView speedTextView;
 	RoundProgress roundProgressSpeed;
 	TextView co2TextView;
 	RoundProgress roundProgressCO2;
 	DbAdapter dbAdapter;
 	ECApplication application;
-	private Spinner sensorSpinner;
-	private ProgressBar sensorDlProgress;
-	private Button sensorRetryButton;
+	
+	private TextView sensor;
+
 	int speed;
 	int speedProgress;
 	double co2;
 	double co2Progress;
 	
-	private JSONArray sensors;
+
+	
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-
 		return inflater.inflate(R.layout.dashboard, container, false);
-
+	}
+	
+	public void updateSensorOnDashboard(){
+		sensor.setText(getCurrentSensorString());
+	}
+	
+	private String getCurrentSensorString(){
+		if(PreferenceManager.getDefaultSharedPreferences(application).contains(ECApplication.PREF_KEY_SENSOR_ID) && 
+				PreferenceManager.getDefaultSharedPreferences(application).contains(ECApplication.PREF_KEY_FUEL_TYPE) &&
+				PreferenceManager.getDefaultSharedPreferences(application).contains(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR) &&
+				PreferenceManager.getDefaultSharedPreferences(application).contains(ECApplication.PREF_KEY_CAR_MODEL) &&
+				PreferenceManager.getDefaultSharedPreferences(application).contains(ECApplication.PREF_KEY_CAR_MANUFACTURER)){
+			String prefSensorid = PreferenceManager.getDefaultSharedPreferences(application).getString(ECApplication.PREF_KEY_SENSOR_ID, "nosensor");
+			String prefFuelType = PreferenceManager.getDefaultSharedPreferences(application).getString(ECApplication.PREF_KEY_FUEL_TYPE, "nosensor");
+			String prefYear = PreferenceManager.getDefaultSharedPreferences(application).getString(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR, "nosensor");
+			String prefModel = PreferenceManager.getDefaultSharedPreferences(application).getString(ECApplication.PREF_KEY_CAR_MODEL, "nosensor");
+			String prefManu = PreferenceManager.getDefaultSharedPreferences(application).getString(ECApplication.PREF_KEY_CAR_MANUFACTURER, "nosensor");
+			if(prefSensorid.equals("nosensor") == false ||
+					prefYear.equals("nosensor") == false ||
+					prefFuelType.equals("nosensor") == false ||
+					prefModel.equals("nosensor") == false ||
+					prefManu.equals("nosensor") == false ){
+				return prefManu+" "+prefModel+" ("+prefFuelType+" "+prefYear+")";
+			}
+		}
+			return getResources().getString(R.string.no_sensor_selected);
+		
 	}
 
 	@Override
@@ -75,46 +90,15 @@ public class DashboardFragment extends SherlockFragment {
 		roundProgressSpeed = (RoundProgress) getView().findViewById(
 				R.id.blue_progress_bar2);
 		
-		sensorSpinner = (Spinner) getView().findViewById(R.id.dashboard_current_sensor_spinner);
-		//TODO select sensor from sharedpreferences
-		//TODO add "add sensor" button to spinner
-		sensorSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-			private boolean firstSelect = true;
+		sensor = (TextView) getView().findViewById(R.id.dashboard_current_sensor);
+		updateSensorOnDashboard();
+		sensor.setOnClickListener(new OnClickListener() {
 			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, 
-		            int pos, long id) {
-				if(!firstSelect){
-					Log.i("item",parent.getItemAtPosition(pos)+"");
-					
-					try {
-						application.updateCurrentSensor(((JSONObject) parent.getItemAtPosition(pos)).getString("id"),
-								((JSONObject) parent.getItemAtPosition(pos)).getString("manufacturer"),
-								((JSONObject) parent.getItemAtPosition(pos)).getString("model"),
-								((JSONObject) parent.getItemAtPosition(pos)).getString("fuelType"),
-								((JSONObject) parent.getItemAtPosition(pos)).getInt("constructionYear"));
-					} catch (JSONException e) {
-						e.printStackTrace();
-					}
-				}else{
-					firstSelect = false;
-				}
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
-				//TODO do something
-			}
-		});
-		sensorDlProgress = (ProgressBar) getView().findViewById(R.id.sensor_dl_progress);
-		sensorRetryButton = (Button) getView().findViewById(R.id.retrybutton);
-		sensorRetryButton.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				dlSensors();
+			public void onClick(View v) {
+				getActivity().startActivityForResult(new Intent(getActivity(), MyGarage.class), MainActivity.REQUEST_MY_GARAGE);
 			}
 		});
 		
-		dlSensors();
 
 		// Handle the UI updates
 
@@ -158,94 +142,4 @@ public class DashboardFragment extends SherlockFragment {
 				TYPEFACE.Newscycle(getActivity()));
 
 	}
-	
-	private void dlSensors(){
-		sensorDlProgress.setVisibility(View.VISIBLE);
-		sensorSpinner.setVisibility(View.GONE);
-		sensorRetryButton.setVisibility(View.GONE);
-		
-		RestClient.downloadSensors(new JsonHttpResponseHandler() {
-			
-			
-			@Override
-			public void onFailure(Throwable error, String content) {
-				super.onFailure(error, content);
-				sensorDlProgress.setVisibility(View.GONE);
-				sensorRetryButton.setVisibility(View.VISIBLE);
-			}
-			
-			@Override
-			public void onSuccess(JSONObject response) {
-				super.onSuccess(response);
-				try {
-					sensors = response.getJSONArray("sensors");
-					sensorSpinner.setAdapter(new SensorAdapter());
-					sensorDlProgress.setVisibility(View.GONE);
-					sensorSpinner.setVisibility(View.VISIBLE);
-					selectSensorFromSharedPreferences();
-				} catch (JSONException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		
-	}
-	
-	private void selectSensorFromSharedPreferences() throws JSONException{
-		if(PreferenceManager.getDefaultSharedPreferences(application).contains(ECApplication.PREF_KEY_SENSOR_ID)){
-			String prefSensorid = PreferenceManager.getDefaultSharedPreferences(application).getString(ECApplication.PREF_KEY_SENSOR_ID, "nosensor");
-			if(prefSensorid.equals("nosensor") == false){
-				for(int i = 0; i<sensors.length(); i++){
-					//iterate over sensors
-					if(((JSONObject) sensors.get(i)).getJSONObject("properties").getString("id").equals(prefSensorid)){
-						sensorSpinner.setSelection(i);
-						Log.i("setspinner from prefs",((JSONObject) sensors.get(i)).getJSONObject("properties").getString("id")+" "+prefSensorid);
-						break;
-					}
-				}
-			}
-		}
-	}
-	
-
-	private class SensorAdapter extends BaseAdapter implements SpinnerAdapter {
-
-        @Override
-        public int getCount() {
-            return sensors.length();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            try {
-				return ((JSONObject) sensors.get(position)).getJSONObject("properties");
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View view, ViewGroup parent) {
-            TextView text = new TextView(DashboardFragment.this.getActivity());
-            try {
-				text.setText(
-						((JSONObject) getItem(position)).getString("manufacturer")+" "+
-						((JSONObject) getItem(position)).getString("model")+" ("+
-						((JSONObject) getItem(position)).getString("fuelType")+" "+
-						((JSONObject) getItem(position)).getInt("constructionYear")+")");
-			} catch (JSONException e) {
-				text.setText("error");
-				e.printStackTrace();
-			}
-            return text;
-        }
-
-    }	
-
 }
