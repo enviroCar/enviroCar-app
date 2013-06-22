@@ -382,14 +382,11 @@ public class MyGarage extends SherlockActivity {
             return sensors.length();
         }
         
-        boolean firstTime = true;
-
         @Override
         public Object getItem(int position) {
             try {
 				return ((JSONObject) sensors.get(position)).getJSONObject("properties");
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
             return null;
@@ -400,13 +397,15 @@ public class MyGarage extends SherlockActivity {
             return position;
         }
 
+        boolean firstTime = true;
+        
         @Override
         public View getView(int position, View view, ViewGroup parent) {
             TextView text = new TextView(MyGarage.this);
-            if(firstTime){
+            if(firstTime && !PreferenceManager.getDefaultSharedPreferences(getApplication()).contains(ECApplication.PREF_KEY_SENSOR_ID)){
             	text.setText(getResources().getString(R.string.please_select));
             	firstTime = false;
-            }else{
+            } else {
 	            try {
 					text.setText(
 							((JSONObject) getItem(position)).getString("manufacturer")+" "+
