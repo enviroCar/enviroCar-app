@@ -110,6 +110,9 @@ public class LoginActivity extends SherlockFragmentActivity {
 				finish();
 			}
 			break;
+		case MainActivity.REQUEST_MY_GARAGE:
+			finish();
+			break;
 		}
 		
 	}

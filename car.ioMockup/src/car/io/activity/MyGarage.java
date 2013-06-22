@@ -1,6 +1,9 @@
 package car.io.activity;
 
 import org.apache.http.Header;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -17,11 +20,18 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.ScrollView;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import car.io.R;
 import car.io.application.ECApplication;
@@ -33,6 +43,7 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockActivity;
 import com.actionbarsherlock.view.MenuItem;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 public class MyGarage extends SherlockActivity {
 
@@ -55,7 +66,13 @@ public class MyGarage extends SherlockActivity {
 	private ScrollView garageForm;
 	private LinearLayout garageProgress;
 	
+	private Spinner sensorSpinner;
+	private ProgressBar sensorDlProgress;
+	private Button sensorRetryButton;	
+	
 	private int actionBarTitleID = 0;
+	
+	private JSONArray sensors;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -150,8 +167,103 @@ public class MyGarage extends SherlockActivity {
 						}
 					}
 				});
+		
+
+		sensorSpinner = (Spinner) findViewById(R.id.dashboard_current_sensor_spinner);
+		sensorSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+			private boolean firstSelect = true;
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, 
+		            int pos, long id) {
+				if(!firstSelect){
+					Log.i("item",parent.getItemAtPosition(pos)+"");
+					
+					try {
+						((ECApplication) getApplication()).updateCurrentSensor(((JSONObject) parent.getItemAtPosition(pos)).getString("id"),
+								((JSONObject) parent.getItemAtPosition(pos)).getString("manufacturer"),
+								((JSONObject) parent.getItemAtPosition(pos)).getString("model"),
+								((JSONObject) parent.getItemAtPosition(pos)).getString("fuelType"),
+								((JSONObject) parent.getItemAtPosition(pos)).getInt("constructionYear"));
+						setResult(DashboardFragment.SENSOR_CHANGED_RESULT);
+						finish();
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}else{
+					firstSelect = false;
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				//TODO do something
+			}
+		});
+		sensorDlProgress = (ProgressBar) findViewById(R.id.sensor_dl_progress);
+		sensorRetryButton = (Button) findViewById(R.id.retrybutton);
+		sensorRetryButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				dlSensors();
+			}
+		});
+		
+		dlSensors();
+		
+		
 		TYPEFACE.applyCustomFont((ViewGroup) findViewById(R.id.mygaragelayout), TYPEFACE.Raleway(this));
 	}
+	
+	private void selectSensorFromSharedPreferences() throws JSONException{
+		if(PreferenceManager.getDefaultSharedPreferences(getApplication()).contains(ECApplication.PREF_KEY_SENSOR_ID)){
+			String prefSensorid = PreferenceManager.getDefaultSharedPreferences(getApplication()).getString(ECApplication.PREF_KEY_SENSOR_ID, "nosensor");
+			if(prefSensorid.equals("nosensor") == false){
+				for(int i = 0; i<sensors.length(); i++){
+					//iterate over sensors
+					if(((JSONObject) sensors.get(i)).getJSONObject("properties").getString("id").equals(prefSensorid)){
+						sensorSpinner.setSelection(i);
+						Log.i("setspinner from prefs",((JSONObject) sensors.get(i)).getJSONObject("properties").getString("id")+" "+prefSensorid);
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+	
+	private void dlSensors(){
+		sensorDlProgress.setVisibility(View.VISIBLE);
+		sensorSpinner.setVisibility(View.GONE);
+		sensorRetryButton.setVisibility(View.GONE);
+		
+		RestClient.downloadSensors(new JsonHttpResponseHandler() {
+			
+			
+			@Override
+			public void onFailure(Throwable error, String content) {
+				super.onFailure(error, content);
+				sensorDlProgress.setVisibility(View.GONE);
+				sensorRetryButton.setVisibility(View.VISIBLE);
+			}
+			
+			@Override
+			public void onSuccess(JSONObject response) {
+				super.onSuccess(response);
+				try {
+					sensors = response.getJSONArray("sensors");
+					sensorSpinner.setAdapter(new SensorAdapter());
+					sensorDlProgress.setVisibility(View.GONE);
+					sensorSpinner.setVisibility(View.VISIBLE);
+					selectSensorFromSharedPreferences();
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		
+	}	
 
 	private void registerSensorAtServer(String sensorType,
 			String carManufacturer, String carModel,
@@ -262,5 +374,46 @@ public class MyGarage extends SherlockActivity {
 			garageProgress.setVisibility(show ? View.VISIBLE : View.GONE);
 			garageForm.setVisibility(show ? View.GONE : View.VISIBLE);
 		}
-	}	
+	}
+	
+	private class SensorAdapter extends BaseAdapter implements SpinnerAdapter {
+
+        @Override
+        public int getCount() {
+            return sensors.length();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            try {
+				return ((JSONObject) sensors.get(position)).getJSONObject("properties");
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View view, ViewGroup parent) {
+            TextView text = new TextView(MyGarage.this);
+            try {
+				text.setText(
+						((JSONObject) getItem(position)).getString("manufacturer")+" "+
+						((JSONObject) getItem(position)).getString("model")+" ("+
+						((JSONObject) getItem(position)).getString("fuelType")+" "+
+						((JSONObject) getItem(position)).getInt("constructionYear")+")");
+			} catch (JSONException e) {
+				text.setText("error");
+				e.printStackTrace();
+			}
+            return text;
+        }
+
+    }		
 }

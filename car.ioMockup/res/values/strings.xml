@@ -77,4 +77,6 @@
     <string name="uploadTrack">Upload Track</string>
 	<string name="dashboard_sensor_title">Current Car:</string>
 	<string name="retry">Retry</string>
+	<string name="no_sensor_selected">No Car selected</string>
+	<string name="title_create_new_sensor">&#8230;or create a new car:</string>
 </resources>

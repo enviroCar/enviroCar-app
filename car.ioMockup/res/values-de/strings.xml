@@ -73,4 +73,6 @@
     <string name="logged_in_as">Eingeloggt als %1$s</string>
     <string name="dashboard_sensor_title">Aktuelles Auto:</string>
     <string name="retry">Erneut versuchen</string>
+    <string name="no_sensor_selected">Kein Auto ausgewählt.</string>
+    <string name="title_create_new_sensor">&#8230;oder erstelle ein neues Auto:</string>
 </resources>

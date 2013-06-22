@@ -44,6 +44,9 @@ public class MainActivity<AndroidAlarmService> extends
 	static final int REMOVE_LOCAL_TRACKS = R.id.menu_about;
 	static final int START_UPLOAD = R.id.menu_upload;
 	static final int MENU_GARAGE = R.id.menu_my_garage;
+	
+	
+	public static final int REQUEST_MY_GARAGE = 1336;
 
 	// Properties
 
@@ -220,19 +223,8 @@ public class MainActivity<AndroidAlarmService> extends
 
 	}
 
-	@Override
-	protected void onPause() {
-		super.onPause();
 
-		// Stop GPS
-
-		// application.stopLocating();
-
-		// Close DB
-
-		// application.closeDb();
-	}
-
+	
 	/**
 	 * Determine what the menu buttons do
 	 */
@@ -272,7 +264,7 @@ public class MainActivity<AndroidAlarmService> extends
 
 		case MENU_GARAGE:
 			Intent garageIntent = new Intent(this, MyGarage.class);
-			startActivity(garageIntent);
+			startActivityForResult(garageIntent,REQUEST_MY_GARAGE);
 			return true;
 		}
 		return false;
@@ -344,4 +336,14 @@ public class MainActivity<AndroidAlarmService> extends
 
 		return true;
 	}
+	
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		switch(requestCode){
+			case REQUEST_MY_GARAGE:
+				((DashboardFragment) getFragmentByPosition(2)).updateSensorOnDashboard();
+			break;
+		}
+	}	
 }
