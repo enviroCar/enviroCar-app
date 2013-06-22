@@ -73,6 +73,8 @@ public class ECApplication extends Application implements LocationListener {
 	private long lastInsertTime = 0;
 
 	private Track track;
+	private String trackName = "Some Name";
+	private String trackDescription = "Some Description";
 
 	private boolean requirementsFulfilled = true;
 
@@ -175,7 +177,8 @@ public class ECApplication extends Application implements LocationListener {
 								"I create a new track because the last measurement is more than 60 mins ago");
 						track = new Track("123456", fuelType, carManufacturer,
 								carModel, sensorId, dbAdapterLocal);
-						track.setName("Trackname");
+						track.setName(trackName);
+						track.setDescription(trackDescription);
 						track.commitTrackToDatabase();
 						return;
 					}
@@ -188,7 +191,8 @@ public class ECApplication extends Application implements LocationListener {
 								"The last measurement's position is more than 3 km away. I will create a new track");
 						track = new Track("123456", fuelType, carManufacturer,
 								carModel, sensorId, dbAdapterLocal); // TODO
-						track.setName("Trackname");
+						track.setName(trackName);
+						track.setDescription(trackDescription);
 						track.commitTrackToDatabase();
 						return;
 
@@ -214,7 +218,8 @@ public class ECApplication extends Application implements LocationListener {
 			} catch (TracksException e) {
 				track = new Track("123456", fuelType, carManufacturer,
 						carModel, sensorId, dbAdapterLocal); // TODO:
-				track.setName("Trackname");
+				track.setName(trackName);
+				track.setDescription(trackDescription);
 				track.commitTrackToDatabase();
 				e.printStackTrace();
 				Log.e("obd2",
@@ -244,7 +249,8 @@ public class ECApplication extends Application implements LocationListener {
 					// TODO: make parameters dynamic
 					track = new Track("123456", fuelType, carManufacturer,
 							carModel, sensorId, dbAdapterLocal);
-					track.setName("Trackname");
+					track.setName(trackName);
+					track.setDescription(trackDescription);
 					track.commitTrackToDatabase();
 					Log.e("obd2",
 							"I create a new track because the last measurement is more than 60 mins ago");
@@ -260,7 +266,8 @@ public class ECApplication extends Application implements LocationListener {
 						locationLatitude, locationLongitude) > 3.0) {
 					track = new Track("123456", fuelType, carManufacturer,
 							carModel, sensorId, dbAdapterLocal); // TODO
-					track.setName("Trackname");
+					track.setName(trackName);
+					track.setDescription(trackDescription);
 					track.commitTrackToDatabase();
 					Log.e("obd2",
 							"The last measurement's position is more than 3 km away. I will create a new track");
