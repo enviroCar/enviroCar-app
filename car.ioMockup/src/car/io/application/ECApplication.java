@@ -229,9 +229,13 @@ public class ECApplication extends Application implements LocationListener {
 					}
 
 				} catch (MeasurementsException e) {
-					Log.e("obd", "Track is empty, so I take the last track.");
-					track = lastUsedTrack;
-					e.printStackTrace();
+					Log.e("obd", "The last track contains no measurements. I will delete it and create a new one.");
+					dbAdapterLocal.deleteTrack(lastUsedTrack.getId());
+					track = new Track("123456", fuelType, carManufacturer,
+							carModel, sensorId, dbAdapterLocal); // TODO:
+					track.setName(trackName);
+					track.setDescription(trackDescription);
+					track.commitTrackToDatabase();
 				}
 
 			} catch (TracksException e) {
@@ -303,8 +307,13 @@ public class ECApplication extends Application implements LocationListener {
 				}
 
 			} catch (MeasurementsException e) {
-				Log.e("obd2", "The track was empty so I will use this track");
-				e.printStackTrace();
+				Log.e("obd", "The last track contains no measurements. I will delete it and create a new one.");
+				dbAdapterLocal.deleteTrack(currentTrack.getId());
+				track = new Track("123456", fuelType, carManufacturer,
+						carModel, sensorId, dbAdapterLocal); // TODO:
+				track.setName(trackName);
+				track.setDescription(trackDescription);
+				track.commitTrackToDatabase();
 			}
 
 		}
