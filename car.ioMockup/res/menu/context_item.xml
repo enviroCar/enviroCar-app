@@ -2,6 +2,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <item
+        android:id="@+id/startMap"
+        android:title="@string/startMap">
+    </item>
+    <item
         android:id="@+id/editName"
         android:title="@string/editName">
     </item>
