@@ -234,6 +234,13 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 
 	}
 
+	/**
+	 * Returns an StringArray of coordinates for the mpa
+	 * 
+	 * @param measurements
+	 *            arraylist with all measurements
+	 * @return string array with coordinates
+	 */
 	private String[] extractCoordinates(ArrayList<Measurement> measurements) {
 		ArrayList<String> coordinates = new ArrayList<String>();
 

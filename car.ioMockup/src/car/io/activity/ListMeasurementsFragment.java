@@ -1,5 +1,6 @@
 package car.io.activity;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -12,15 +13,27 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.AdapterView;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.AdapterView.OnItemLongClickListener;
 import car.io.R;
 import car.io.adapter.DbAdapter;
 import car.io.adapter.DbAdapterRemote;
@@ -43,6 +56,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	private ExpandableListView elv;
 
 	private ProgressBar progress;
+	
+	private int itemSelect;
 
 	public View onCreateView(android.view.LayoutInflater inflater,
 			android.view.ViewGroup container,
@@ -53,8 +68,123 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		View v = inflater.inflate(R.layout.list_tracks_layout, null);
 		elv = (ExpandableListView) v.findViewById(R.id.list);
 		progress = (ProgressBar) v.findViewById(R.id.listprogress);
+		
+		registerForContextMenu(elv);
+
+		elv.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				itemSelect = ExpandableListView.getPackedPositionGroup(id);
+				Log.e("obd2", String.valueOf("Selected item: " + itemSelect));
+				return false;
+			}
+
+		});
+		
+		
 		return v;
 	};
+	
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getSherlockActivity().getMenuInflater();
+		inflater.inflate(R.menu.context_item_remote, menu);
+	}
+	
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		ArrayList<Track> tracks = dbAdapter.getAllTracks();
+		final Track track = tracks.get(itemSelect);
+		switch (item.getItemId()) {
+
+		case R.id.editName:
+//			Log.e("obd2", "editing track: " + itemSelect);
+//			final EditText input = new EditText(getActivity());
+//			new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.editTrack)).setMessage(getString(R.string.enterTrackName)).setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+//				public void onClick(DialogInterface dialog, int whichButton) {
+//					String value = input.getText().toString();
+//					Log.e("obd2", "New name: " + value.toString());
+//					track.setName(value);
+//					track.setDatabaseAdapter(dbAdapter);
+//					track.commitTrackToDatabase();
+//					tracksList.get(itemSelect).setName(value);
+//					elvAdapter.notifyDataSetChanged();
+//					Toast.makeText(getActivity(), getString(R.string.nameChanged), Toast.LENGTH_SHORT).show();
+//				}
+//			}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//				public void onClick(DialogInterface dialog, int whichButton) {
+//					// Do nothing.
+//				}
+//			}).show();
+			
+			Toast.makeText(getActivity(), "Not yet possible for remote tracks.", Toast.LENGTH_SHORT).show();
+			
+			return true;
+
+		case R.id.editDescription:
+//			Log.e("obd2", "editing track: " + itemSelect);
+//			final EditText input2 = new EditText(getActivity());
+//			new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.editTrack)).setMessage(getString(R.string.enterTrackDescription)).setView(input2).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+//				public void onClick(DialogInterface dialog, int whichButton) {
+//					String value = input2.getText().toString();
+//					Log.e("obd2", "New description: " + value.toString());
+//					track.setDescription(value);
+//					track.setDatabaseAdapter(dbAdapter);
+//					track.commitTrackToDatabase();
+//					elv.collapseGroup(itemSelect);
+//					tracksList.get(itemSelect).setDescription(value);
+//					elvAdapter.notifyDataSetChanged();
+//					// TODO Bug: update the description when it is changed.
+//					Toast.makeText(getActivity(), getString(R.string.descriptionChanged), Toast.LENGTH_SHORT).show();
+//
+//				}
+//			}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+//				public void onClick(DialogInterface dialog, int whichButton) {
+//					// Do nothing.
+//				}
+//			}).show();
+			
+			Toast.makeText(getActivity(), "Not yet possible for remote tracks.", Toast.LENGTH_SHORT).show();
+			
+			return true;
+
+		case R.id.startMap:
+			Log.e("obd2", Environment.getExternalStorageDirectory().toString());
+			File f = new File(Environment.getExternalStorageDirectory() + "/Android");
+			if (f.isDirectory()) {
+				ArrayList<Measurement> measurements = track.getMeasurements();
+				Log.e("obd2",String.valueOf(measurements.size()));
+				String[] trackCoordinates = extractCoordinates(measurements);
+				Log.e("obd2",String.valueOf(trackCoordinates.length));
+				Intent intent = new Intent(getActivity().getApplicationContext(), Map.class);
+				Bundle bundle = new Bundle();
+				bundle.putStringArray("coordinates", trackCoordinates);
+				intent.putExtras(bundle);
+				startActivity(intent);
+			} else {
+				Toast.makeText(getActivity(), "Map not possible without SD card.", Toast.LENGTH_LONG).show();
+			}
+
+			return true;
+
+		case R.id.deleteTrack:
+//			Log.e("obd2", "deleting item: " + itemSelect);
+//			dbAdapter.deleteTrack(track.getId());
+//			Toast.makeText(getActivity(), getString(R.string.trackDeleted), Toast.LENGTH_LONG).show();
+//			tracksList.remove(itemSelect);
+//			elvAdapter.notifyDataSetChanged();
+			
+			Toast.makeText(getActivity(), "Not yet possible for remote tracks.", Toast.LENGTH_SHORT).show();
+			
+			return true;
+
+		
+		default:
+			return super.onContextItemSelected(item);
+		}
+	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -67,6 +197,25 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			downloadTracks();
 		}
 
+	}
+	
+	/**
+	 * Returns an StringArray of coordinates for the mpa
+	 * 
+	 * @param measurements
+	 *            arraylist with all measurements
+	 * @return string array with coordinates
+	 */
+	private String[] extractCoordinates(ArrayList<Measurement> measurements) {
+		ArrayList<String> coordinates = new ArrayList<String>();
+
+		for (Measurement measurement : measurements) {
+			String lat = String.valueOf(measurement.getLatitude());
+			String lon = String.valueOf(measurement.getLongitude());
+			coordinates.add(lat);
+			coordinates.add(lon);
+		}
+		return coordinates.toArray(new String[coordinates.size()]);
 	}
 	
 	public void notifyFragmentVisible(){
