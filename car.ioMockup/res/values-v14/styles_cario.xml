@@ -30,6 +30,7 @@
         <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_cario</item>
         <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Cario</item>
         <item name="android:buttonStyle">@style/ButtonStyle</item>
+        <item name="android:homeAsUpIndicator">@drawable/ic_drawer</item>
         
         
     </style>
