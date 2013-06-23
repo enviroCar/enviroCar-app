@@ -92,4 +92,9 @@
 	<string name="startMap">View in map</string>
 	<string name="title_select_sensor">Select an existing car,</string>
 	<string name="please_select">&#8230;</string>
+	
+	<string name="open_drawer">Open</string>
+	<string name="close_drawer">Close</string>
+	
+	<string name="menu_logout">Sign out</string>
 </resources>

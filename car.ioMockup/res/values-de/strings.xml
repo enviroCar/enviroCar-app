@@ -103,4 +103,6 @@
         <string name="editName">Namen ändern</string>
     <string name="deleteTrack">Track löschen</string>
     <string name="uploadTrack">Track hochladen</string>
+    
+    <string name="menu_logout">Ausloggen</string>
 </resources>
