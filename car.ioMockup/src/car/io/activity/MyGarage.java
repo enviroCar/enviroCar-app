@@ -46,8 +46,6 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 public class MyGarage extends SherlockActivity {
-
-	private String url = "http://giv-car.uni-muenster.de:8080/stable/rest/sensors";
 	
 	private SharedPreferences sharedPreferences;
 
@@ -83,11 +81,6 @@ public class MyGarage extends SherlockActivity {
 		
 		final ActionBar actionBar = getSupportActionBar();
 		
-		//TODO implement something that can detect from where the activity has been called
-		//to allow for things like
-		// * disable home as up
-		// * display message
-		//TODO really implement this to detect if a list of available sensors should be displayed
 		//TODO !fancy! search for sensors
 		
 		// font stuff
@@ -150,8 +143,6 @@ public class MyGarage extends SherlockActivity {
 		rbGasoline.setOnClickListener(listener);
 		RadioButton rbDiesel = (RadioButton) findViewById(R.id.radio_diesel);
 		rbDiesel.setOnClickListener(listener);
-		RadioButton rbElectric = (RadioButton) findViewById(R.id.radio_electric);
-		rbElectric.setOnClickListener(listener);
 
 		findViewById(R.id.register_car_button).setOnClickListener(
 				new View.OnClickListener() {
