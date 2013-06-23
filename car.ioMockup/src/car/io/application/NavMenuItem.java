@@ -6,23 +6,25 @@ public class NavMenuItem {
 	private boolean enabled;
 	private String title;
 	private String subtitle;
+	private int iconRes;
 	
-	public NavMenuItem(int id, String title){
-		this.id = id;
-		this.title = title;
-		this.subtitle = "";
-		this.enabled = true;
+	public NavMenuItem(int id, String title, int iconRes){
+		this(id,title,"",iconRes,true);
 	}
 	
-	public NavMenuItem(int id, String title, String subtitle) {
+	public NavMenuItem(int id, String title, String subtitle, int icon) {
 		this.id = id;
 		this.title = title;
 		this.subtitle = subtitle;
 	}
 	
-	public NavMenuItem(int id,String title, String subtitle, boolean enabled){
-		this(id,title,subtitle);
+	public NavMenuItem(int id,String title, String subtitle, int iconRes, boolean enabled){
+		this(id,title,subtitle,iconRes);
 		setEnabled(enabled);
+	}
+	
+	public int getIconRes(){
+		return iconRes;
 	}
 	
 	public int getId(){

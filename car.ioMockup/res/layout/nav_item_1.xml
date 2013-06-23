@@ -37,6 +37,7 @@
         android:layout_marginTop="6dip"
         android:layout_toRightOf="@id/nav_item_icon"
         android:layout_centerVertical="true"
+        android:textColor="@color/white_cario"
         android:textAppearance="?android:attr/textAppearanceLarge"
     />
 
