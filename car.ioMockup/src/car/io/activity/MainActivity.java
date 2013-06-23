@@ -63,29 +63,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	public static final int REQUEST_MY_GARAGE = 1336;
 	public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
 
-	// Properties
-
-	// private static final String PREF_FUEL_TPYE = "pref_fuel_type";
-	// private static final String PREF_CAR_TYPE = "car_preference";
-
-	// private boolean requirementsFulfilled = true;
-
-	// Service objects
-
-	// private Handler handler = new Handler();
-	// private Listener listener = null;
-	// private Intent backgroundService = null;
-
-	// Adapter Classes
-
-	// private DbAdapter dbAdapter;
-
-	// Measurement values
-
-	// private float locationLatitude;
-	// private float locationLongitude;
-	// private int speedMeasurement;
-	// private double mafMeasurement;
 
 	// Upload in Wlan
 
@@ -94,13 +71,13 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
 			navDrawerItems = new NavMenuItem[7];
-			navDrawerItems[LOGIN] = new NavMenuItem(LOGIN, getResources().getString(R.string.menu_login));
-			navDrawerItems[SETTINGS] = new NavMenuItem(SETTINGS, getResources().getString(R.string.menu_settings));
-			navDrawerItems[START_STOP_MEASUREMENT] = new NavMenuItem(START_STOP_MEASUREMENT, getResources().getString(R.string.menu_start));
-			navDrawerItems[START_UPLOAD] = new NavMenuItem(START_UPLOAD, getResources().getString(R.string.menu_upload));
-			navDrawerItems[MENU_GARAGE] = new NavMenuItem(MENU_GARAGE, getResources().getString(R.string.menu_garage));
-			navDrawerItems[REMOVE_LOCAL_TRACKS] = new NavMenuItem(REMOVE_LOCAL_TRACKS, getResources().getString(R.string.menu_delete));
-			navDrawerItems[MY_TRACKS] = new NavMenuItem(MY_TRACKS, "My Tracks");
+			navDrawerItems[LOGIN] = new NavMenuItem(LOGIN, getResources().getString(R.string.menu_login),R.drawable.home_icon);
+			navDrawerItems[SETTINGS] = new NavMenuItem(SETTINGS, getResources().getString(R.string.menu_settings),R.drawable.home_icon);
+			navDrawerItems[START_STOP_MEASUREMENT] = new NavMenuItem(START_STOP_MEASUREMENT, getResources().getString(R.string.menu_start),R.drawable.home_icon);
+			navDrawerItems[START_UPLOAD] = new NavMenuItem(START_UPLOAD, getResources().getString(R.string.menu_upload),R.drawable.home_icon);
+			navDrawerItems[MENU_GARAGE] = new NavMenuItem(MENU_GARAGE, getResources().getString(R.string.menu_garage),R.drawable.home_icon);
+			navDrawerItems[REMOVE_LOCAL_TRACKS] = new NavMenuItem(REMOVE_LOCAL_TRACKS, getResources().getString(R.string.menu_delete),R.drawable.home_icon);
+			navDrawerItems[MY_TRACKS] = new NavMenuItem(MY_TRACKS, "My Tracks",R.drawable.home_icon);
 		}
 		
 		if (application.requirementsFulfilled()) { // was requirementsFulfilled
@@ -345,15 +322,16 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			View item;
 			if(currentItem.getSubtitle().equals("")){
 				item = View.inflate(MainActivity.this,R.layout.nav_item_1, null);
-				((ImageView) item.findViewById(R.id.nav_item_icon)).setImageResource(R.drawable.content_discard);
+				
 			} else {
 				item = View.inflate(MainActivity.this,R.layout.nav_item_2, null);
 				TextView textView2 = (TextView) item.findViewById(android.R.id.text2);
 				textView2.setText(currentItem.getSubtitle());
 			}
+			((ImageView) item.findViewById(R.id.nav_item_icon)).setImageResource(R.drawable.content_discard);
 			TextView textView = (TextView) item.findViewById(android.R.id.text1);
 			textView.setText(currentItem.getTitle());
-
+			TYPEFACE.applyCustomFont((ViewGroup) item, TYPEFACE.Raleway(MainActivity.this));
 			return item;
 		}
 
