@@ -19,5 +19,8 @@
     <string name="register_progress_signing_in">Registerung&#8230;</string>
     <string name="error_passwords_not_matching">Die Passwörter stimmen nicht überein</string>
     <string name="error_invalid_username">Dieser Username ist zu kurz</string>
+    
+    <string name="error_username_already_in_use">Dieser Username ist bereits vergeben.</string>
+    <string name="error_email_already_in_use">Diese Adresse ist bereits in Benutzung.</string>
 
 </resources>

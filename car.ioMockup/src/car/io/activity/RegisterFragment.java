@@ -8,7 +8,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -169,7 +168,7 @@ public class RegisterFragment extends SherlockFragment {
 			mEmailView.setError(getString(R.string.error_field_required));
 			focusView = mEmailView;
 			cancel = true;
-		} else if (!mEmail.contains("@")) {
+		} else if (!mEmail.matches("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")){
 			mEmailView.setError(getString(R.string.error_invalid_email));
 			focusView = mEmailView;
 			cancel = true;
@@ -273,18 +272,16 @@ public class RegisterFragment extends SherlockFragment {
 				((ECApplication) getActivity().getApplication()).setUser(new User(mUsername, mPassword));
 				
 				Intent intent = new Intent(getActivity(), MyGarage.class);
-//				intent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
-//				intent.setFlags(Intent.FLAG_ACTIVITY_PREVIOUS_IS_TOP);
 				getActivity().startActivityForResult(intent, LoginActivity.REQUEST_MY_GARAGE);
 				//getActivity().finish();
 				
 			} else if (httpStatus == HttpStatus.SC_CONFLICT) {
 				// TODO look out for server changes..
+				mUsernameView.setError(getString(R.string.error_username_already_in_use));
+				mEmailView.setError(getString(R.string.error_email_already_in_use));
+				mUsernameView.requestFocus();				
 			} else {
-				// TODO general error
-				mPasswordView
-						.setError(getString(R.string.error_incorrect_password));
-				mPasswordView.requestFocus();
+
 			}
 		}
 

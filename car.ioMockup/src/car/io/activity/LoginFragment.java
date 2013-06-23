@@ -141,14 +141,6 @@ public class LoginFragment extends SherlockFragment {
 			cancel = true;
 		}
 
-		// convert the password to md5
-		// mPasswordMD5 = Utils.MD5(mPassword);
-		// if(mPasswordMD5==null){
-		// mPasswordView.setError(getString(R.string.error_invalid_email));
-		// focusView = mPasswordView;
-		// cancel = true;
-		// }
-
 		if (cancel) {
 			// There was an error; don't attempt login and focus the first
 			// form field with an error.
