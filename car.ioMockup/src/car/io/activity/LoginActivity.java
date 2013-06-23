@@ -37,12 +37,6 @@ public class LoginActivity extends SherlockFragmentActivity {
 		final ActionBar actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		
-		if(getIntent().getExtras()!=null){
-			if(getIntent().getExtras().getInt("redirect") == MainActivity.REQUEST_MY_GARAGE){
-				setResult(MainActivity.REQUEST_MY_GARAGE);
-			}
-		}
-		
 		// font stuff
 		actionBarTitleID = Utils.getActionBarId();
 		if (Utils.getActionBarId() != 0) {

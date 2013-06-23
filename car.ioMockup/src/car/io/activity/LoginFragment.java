@@ -216,6 +216,11 @@ public class LoginFragment extends SherlockFragment {
 			if (success) {
 				((ECApplication) getActivity().getApplication())
 						.setUser(new User(mUsername, mPassword));
+				if(getActivity().getIntent().getExtras()!=null){
+					if(getActivity().getIntent().getExtras().getInt("redirect") == MainActivity.REQUEST_MY_GARAGE){
+						getActivity().setResult(MainActivity.REQUEST_MY_GARAGE);
+					}
+				}				
 				getActivity().finish();
 			} else {
 				mPasswordView
