@@ -115,6 +115,7 @@ public class RegisterFragment extends SherlockFragment {
 		super.onViewCreated(view, savedInstanceState);
 		TYPEFACE.applyCustomFont((ViewGroup) view,
 				TYPEFACE.Raleway(getActivity()));
+		mUsernameView.requestFocus();
 	}
 
 	/**
