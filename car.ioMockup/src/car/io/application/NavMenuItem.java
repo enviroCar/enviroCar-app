@@ -16,6 +16,7 @@ public class NavMenuItem {
 		this.id = id;
 		this.title = title;
 		this.subtitle = subtitle;
+		this.iconRes = icon;
 	}
 	
 	public NavMenuItem(int id,String title, String subtitle, int iconRes, boolean enabled){
@@ -25,6 +26,10 @@ public class NavMenuItem {
 	
 	public int getIconRes(){
 		return iconRes;
+	}
+	
+	public void setIconRes(int iconRes){
+		this.iconRes = iconRes;
 	}
 	
 	public int getId(){

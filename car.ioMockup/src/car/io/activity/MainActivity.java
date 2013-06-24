@@ -72,24 +72,24 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
 			navDrawerItems = new NavMenuItem[7];
-			navDrawerItems[LOGIN] = new NavMenuItem(LOGIN, getResources().getString(R.string.menu_login),R.drawable.home_icon);
-			navDrawerItems[SETTINGS] = new NavMenuItem(SETTINGS, getResources().getString(R.string.menu_settings),R.drawable.home_icon);
-			navDrawerItems[START_STOP_MEASUREMENT] = new NavMenuItem(START_STOP_MEASUREMENT, getResources().getString(R.string.menu_start),R.drawable.home_icon);
-			navDrawerItems[START_UPLOAD] = new NavMenuItem(START_UPLOAD, getResources().getString(R.string.menu_upload),R.drawable.home_icon);
-			navDrawerItems[MENU_GARAGE] = new NavMenuItem(MENU_GARAGE, getResources().getString(R.string.menu_garage),R.drawable.home_icon);
-			navDrawerItems[REMOVE_LOCAL_TRACKS] = new NavMenuItem(REMOVE_LOCAL_TRACKS, getResources().getString(R.string.menu_delete),R.drawable.home_icon);
-			navDrawerItems[MY_TRACKS] = new NavMenuItem(MY_TRACKS, "My Tracks",R.drawable.home_icon);
+			navDrawerItems[LOGIN] = new NavMenuItem(LOGIN, getResources().getString(R.string.menu_login),R.drawable.device_access_accounts);
+			navDrawerItems[SETTINGS] = new NavMenuItem(SETTINGS, getResources().getString(R.string.menu_settings),R.drawable.action_settings);
+			navDrawerItems[START_STOP_MEASUREMENT] = new NavMenuItem(START_STOP_MEASUREMENT, getResources().getString(R.string.menu_start),R.drawable.av_play);
+			navDrawerItems[START_UPLOAD] = new NavMenuItem(START_UPLOAD, getResources().getString(R.string.menu_upload),R.drawable.av_upload);
+			//navDrawerItems[MENU_GARAGE] = new NavMenuItem(MENU_GARAGE, getResources().getString(R.string.menu_garage),R.drawable.nav_content_discard);
+			navDrawerItems[REMOVE_LOCAL_TRACKS] = new NavMenuItem(REMOVE_LOCAL_TRACKS, getResources().getString(R.string.menu_delete),R.drawable.nav_content_discard);
+			navDrawerItems[MY_TRACKS] = new NavMenuItem(MY_TRACKS, "My Tracks",R.drawable.device_access_storage);
 		}
 		
 		if (application.requirementsFulfilled()) { // was requirementsFulfilled
 		try {
 			if (application.getServiceConnector().isRunning()) {
 				navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_stop));
-				// stop.setEnabled(true);
+				navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_pause);
 				navDrawerItems[SETTINGS].setEnabled(false);
 			} else {
 				navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
-
+				navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_play);
 				// Only enable start button when adapter is selected
 
 				SharedPreferences preferences = PreferenceManager
@@ -114,6 +114,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		}
 		} else {
 			navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
+			navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_play);
 			navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
 			navDrawerItems[SETTINGS].setEnabled(false);
 		}
@@ -126,11 +127,11 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		}
 	
 		if (application.isLoggedIn()) {
-			navDrawerItems[MENU_GARAGE].setEnabled(true);
+			//navDrawerItems[MENU_GARAGE].setEnabled(true);
 			navDrawerItems[LOGIN].setTitle(getResources().getString(R.string.menu_logout));
 			navDrawerItems[LOGIN].setSubtitle(String.format(getResources().getString(R.string.logged_in_as),application.getUser().getUsername()));
 		} else {
-			navDrawerItems[MENU_GARAGE].setEnabled(false);
+			//navDrawerItems[MENU_GARAGE].setEnabled(false);
 			navDrawerItems[LOGIN].setTitle(getResources().getString(R.string.menu_login));
 			navDrawerItems[LOGIN].setSubtitle("");		
 		}
@@ -333,7 +334,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				TextView textView2 = (TextView) item.findViewById(android.R.id.text2);
 				textView2.setText(currentItem.getSubtitle());
 			}
-			((ImageView) item.findViewById(R.id.nav_item_icon)).setImageResource(R.drawable.content_discard);
+			((ImageView) item.findViewById(R.id.nav_item_icon)).setImageResource(currentItem.getIconRes());
 			TextView textView = (TextView) item.findViewById(android.R.id.text1);
 			textView.setText(currentItem.getTitle());
 			TYPEFACE.applyCustomFont((ViewGroup) item, TYPEFACE.Raleway(MainActivity.this));
