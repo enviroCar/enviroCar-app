@@ -86,7 +86,7 @@ public class ECApplication extends Application implements LocationListener {
 	private String trackName = "Some Name";
 	private String trackDescription = "Some Description";
 
-	private boolean requirementsFulfilled = true;
+	//private boolean requirementsFulfilled = true;
 
 	private static User user;
 	
@@ -103,7 +103,14 @@ public class ECApplication extends Application implements LocationListener {
 	 * @return requirementsFulfilled?
 	 */
 	public boolean requirementsFulfilled() {
-		return requirementsFulfilled;
+		if (bluetoothAdapter == null) {
+			return false;
+		} else {
+			if (!bluetoothAdapter.isEnabled()) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -133,7 +140,7 @@ public class ECApplication extends Application implements LocationListener {
 		// BT-Adapter, VIN etc. ... something like a setup method
 
 		initDbAdapter();
-		checkRequirementsForBluetooth();
+		
 		initLocationManager();
 		// AutoConnect checkbox and service
 		// TODO settings -> automatic connection to bt adapter
@@ -155,7 +162,16 @@ public class ECApplication extends Application implements LocationListener {
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		user = getUserFromSharedPreferences();
-
+		
+		//activateBluetooth();
+	}
+	
+	
+	/**
+	 * enable bluetooth
+	 */
+	private void activateBluetooth(){
+		bluetoothAdapter.enable();
 	}
 
 	/**
@@ -373,23 +389,6 @@ public class ECApplication extends Application implements LocationListener {
 	}
 
 	/**
-	 * This checks whether the bluetooth adadpter exists and whether it is enabled.
-	 * You can get the result by calling the requirementsFulfilled() funtion.
-	 */
-	private void checkRequirementsForBluetooth() {
-		if (bluetoothAdapter == null) {
-
-			requirementsFulfilled = false;
-
-		} else {
-
-			if (!bluetoothAdapter.isEnabled()) {
-				requirementsFulfilled = false;
-			}
-		}
-	}
-
-	/**
 	 * Checks if a track with specific index is already present in the
 	 * dbAdapterRemote
 	 * 
@@ -506,7 +505,7 @@ public class ECApplication extends Application implements LocationListener {
 	 * This method starts the service that connects to the adapter to the app.
 	 */
 	public void startBackgroundService() {
-		if (requirementsFulfilled) {
+		if (requirementsFulfilled()) {
 			Log.e("obd2", "requirements met");
 			backgroundService = new Intent(this, BackgroundService.class);
 			serviceConnector = new ServiceConnector();
@@ -526,7 +525,7 @@ public class ECApplication extends Application implements LocationListener {
 	public void startServiceConnector() {
 		scheduleTaskExecutor.scheduleAtFixedRate(new Runnable() {
 			public void run() {
-				if (requirementsFulfilled) {
+				if (requirementsFulfilled()) {
 					if (!serviceConnector.isRunning()) {
 						startConnection();
 					} else {

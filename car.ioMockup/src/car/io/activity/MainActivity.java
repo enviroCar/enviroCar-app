@@ -77,41 +77,42 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		}
 		
 		if (application.requirementsFulfilled()) { // was requirementsFulfilled
-		try {
-			if (application.getServiceConnector().isRunning()) {
-				navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_stop));
-				navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_pause);
-				navDrawerItems[SETTINGS].setEnabled(false);
-			} else {
-				navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
-				navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_play);
-				// Only enable start button when adapter is selected
-
-				SharedPreferences preferences = PreferenceManager
-						.getDefaultSharedPreferences(this);
-
-				String remoteDevice = preferences.getString(
-						car.io.activity.SettingsActivity.BLUETOOTH_KEY,
-						null);
-
-				if (remoteDevice != null) {
-					navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
+			try {
+				if (application.getServiceConnector().isRunning()) {
+					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_stop));
+					navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_pause);
 				} else {
-					navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
+					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
+					navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_play);
+					// Only enable start button when adapter is selected
+	
+					SharedPreferences preferences = PreferenceManager
+							.getDefaultSharedPreferences(this);
+	
+					String remoteDevice = preferences.getString(
+							car.io.activity.SettingsActivity.BLUETOOTH_KEY,
+							null);
+	
+					if (remoteDevice != null) {
+						navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
+						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle("");
+					} else {
+						navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
+						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle("Please select an OBD adapter");
+					}
+
 				}
-				navDrawerItems[SETTINGS].setEnabled(true);
+			} catch (NullPointerException e) {
+				Log.e("obd2", "The Service Connector is null.");
+				navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
+
+				e.printStackTrace();
 			}
-		} catch (NullPointerException e) {
-			Log.e("obd2", "The Service Connector is null.");
-			navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-			navDrawerItems[SETTINGS].setEnabled(true);
-			e.printStackTrace();
-		}
 		} else {
 			navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
 			navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_play);
+			navDrawerItems[START_STOP_MEASUREMENT].setSubtitle("Please enable Bluetooth");
 			navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-			navDrawerItems[SETTINGS].setEnabled(false);
 		}
 	
 		if (application.isLoggedIn()) {
@@ -133,20 +134,11 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 		application = ((ECApplication) getApplication());
 
-		// int pageMargin = (int) (4 *
-		// getResources().getDisplayMetrics().density);
-		// viewPager.setPageMargin(pageMargin);
-		// viewPager.setPageMarginDrawable(R.drawable.viewpager_margin);
-
 		actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setHomeButtonEnabled(true);
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setTitle("");
-		// actionBar.setH
-
-		// ((PagerTabStrip) this.findViewById(R.id.pager_title_strip))
-		// .setTabIndicatorColorResource(R.color.blue_light_cario);
 
 		// font stuff
 		actionBarTitleID = Utils.getActionBarId();
@@ -154,37 +146,14 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			((TextView) this.findViewById(actionBarTitleID))
 					.setTypeface(TYPEFACE.Newscycle(this));
 		}
-		// View rootView = findViewById(R.id.pager_title_strip);
-		// TYPEFACE.applyCustomFont((ViewGroup) rootView,
-		// TYPEFACE.Newscycle(this));
 
 		actionBar.setLogo(getResources().getDrawable(R.drawable.actionbarlogo_with_padding));
 		
-
-		// addTab("Local Tracks", ListMeasurementsFragmentLocal.class);
-		// addTab("My Tracks", ListMeasurementsFragment.class);
-		// addTab("OBD", OBDFrament.class); // TODO
-		// place
-		// controls
-		// located
-		// in
-		// main.xml
-		// to
-		// SettingsActivity
-		// addTab("Dashboard", DashboardFragment.class);
-		//
-		// setSelectedTab(2);
-
-		// --------------------------
-		// --------------------------
-		// --------------------------
-
 		manager = getSupportFragmentManager();
 
-		DashboardFragment firstFragment = new DashboardFragment();
-		manager.beginTransaction().replace(R.id.content_frame, firstFragment)
+		DashboardFragment initialFragment = new DashboardFragment();
+		manager.beginTransaction().replace(R.id.content_frame, initialFragment)
 				.commit();
-
 
 		drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawerList = (ListView) findViewById(R.id.left_drawer);
@@ -300,13 +269,13 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		}
 
 		@Override
-		public Object getItem(int arg0) {
-			return navDrawerItems[arg0];
+		public Object getItem(int position) {
+			return navDrawerItems[position];
 		}
 
 		@Override
-		public long getItemId(int arg0) {
-			return arg0;
+		public long getItemId(int position) {
+			return position;
 		}
 
 		@Override
@@ -320,7 +289,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				item = View.inflate(MainActivity.this,R.layout.nav_item_2, null);
 				TextView textView2 = (TextView) item.findViewById(android.R.id.text2);
 				textView2.setText(currentItem.getSubtitle());
-				if(!currentItem.isEnabled()) textView2.setBackgroundColor(Color.GRAY);
+				if(!currentItem.isEnabled()) textView2.setTextColor(Color.GRAY);
 			}
 			ImageView icon = ((ImageView) item.findViewById(R.id.nav_item_icon));
 			icon.setImageResource(currentItem.getIconRes());
@@ -338,7 +307,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	
     @Override
     public void onItemClick(AdapterView parent, View view, int position, long id) {
-        // TODO Auto-generated method stub
         openFragment(position);
     }
 
@@ -354,6 +322,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			startActivity(loginIntent);
             break;
         case SETTINGS:
+//        	SettingsFragment settingsFragment = new SettingsFragment();
+//            manager.beginTransaction().replace(R.id.content_frame, settingsFragment).commit();
 			Intent configIntent = new Intent(this, SettingsActivity.class);
 			startActivity(configIntent);
             break;
@@ -368,7 +338,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				application.stopConnection();
 			}
 			break;
-
         default:
             break;
         }
@@ -389,6 +358,12 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		application.destroyStuff();
 
 	}
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		drawer.closeDrawer(drawerList);
+	}
 
 
 	/**
@@ -408,72 +383,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		return false;
 	}
 
-	/**
-	 * Activate or deactivate the menu navDrawerItems
-	 */
-//	public boolean onPrepareOptionsMenu(Menu menu) {
-//
-//		NavMenuItem startStop = menu.findItem(START_STOP_MEASUREMENT);
-//		NavMenuItem settings = menu.findItem(SETTINGS);
-//		NavMenuItem upload = menu.findItem(START_UPLOAD);
-//		NavMenuItem myGarage = menu.findItem(MENU_GARAGE);
-//		NavMenuItem loginRegister = menu.findItem(LOGIN);
-//
-//		if (application.requirementsFulfilled()) { // was requirementsFulfilled
-//			try {
-//				if (application.getServiceConnector().isRunning()) {
-//					startStop.setTitle(R.string.menu_stop);
-//					// stop.setEnabled(true);
-//					settings.setEnabled(false);
-//				} else {
-//					startStop.setTitle(R.string.menu_start);
-//
-//					// Only enable start button when adapter is selected
-//
-//					SharedPreferences preferences = PreferenceManager
-//							.getDefaultSharedPreferences(this);
-//
-//					String remoteDevice = preferences.getString(
-//							car.io.activity.SettingsActivity.BLUETOOTH_KEY,
-//							null);
-//
-//					if (remoteDevice != null) {
-//						startStop.setEnabled(true);
-//					} else {
-//						startStop.setEnabled(false);
-//					}
-//					settings.setEnabled(true);
-//				}
-//			} catch (NullPointerException e) {
-//				Log.e("obd2", "The Service Connector is null.");
-//				startStop.setEnabled(false);
-//				settings.setEnabled(true);
-//				e.printStackTrace();
-//			}
-//		} else {
-//			startStop.setTitle(R.string.menu_start);
-//			startStop.setEnabled(false);
-//			settings.setEnabled(false);
-//		}
-//
-//		if (application.getDbAdapterLocal().getAllTracks().size() > 0
-//				&& application.isLoggedIn()) {
-//			upload.setEnabled(true);
-//		} else {
-//			upload.setEnabled(false);
-//		}
-//
-//		if (application.isLoggedIn()) {
-//			myGarage.setEnabled(true);
-//			loginRegister.setTitle(String.format(
-//					getResources().getString(R.string.logged_in_as),
-//					application.getUser().getUsername()));
-//		} else {
-//			myGarage.setEnabled(false);
-//		}
-//
-//		return true;
-//	}
 
 	// @Override
 	// public void onActivityResult(int requestCode, int resultCode, Intent
