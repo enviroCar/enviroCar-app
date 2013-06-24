@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -53,12 +54,12 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	static final int NO_BLUETOOTH = 0;
 	static final int BLUETOOTH_DISABLED = 1;
 	static final int NO_GPS = 2;
-	static final int START_STOP_MEASUREMENT = 3;
-	static final int SETTINGS = 6;
+	static final int START_STOP_MEASUREMENT = 2;
+	static final int SETTINGS = 5;
 	static final int LOGIN = 0;
-	static final int REMOVE_LOCAL_TRACKS = 4;
-	static final int START_UPLOAD = 5;
-	static final int MENU_GARAGE = 2;
+	static final int REMOVE_LOCAL_TRACKS = 3;
+	static final int START_UPLOAD = 4;
+	//static final int MENU_GARAGE = 2;
 	static final int MY_TRACKS = 1;
 
 	public static final int REQUEST_MY_GARAGE = 1336;
@@ -71,7 +72,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
-			navDrawerItems = new NavMenuItem[7];
+			navDrawerItems = new NavMenuItem[6];
 			navDrawerItems[LOGIN] = new NavMenuItem(LOGIN, getResources().getString(R.string.menu_login),R.drawable.device_access_accounts);
 			navDrawerItems[SETTINGS] = new NavMenuItem(SETTINGS, getResources().getString(R.string.menu_settings),R.drawable.action_settings);
 			navDrawerItems[START_STOP_MEASUREMENT] = new NavMenuItem(START_STOP_MEASUREMENT, getResources().getString(R.string.menu_start),R.drawable.av_play);
@@ -337,6 +338,9 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			((ImageView) item.findViewById(R.id.nav_item_icon)).setImageResource(currentItem.getIconRes());
 			TextView textView = (TextView) item.findViewById(android.R.id.text1);
 			textView.setText(currentItem.getTitle());
+//			if(!currentItem.isEnabled()){
+//				textView.setTextColor();
+//			}
 			TYPEFACE.applyCustomFont((ViewGroup) item, TYPEFACE.Raleway(MainActivity.this));
 			return item;
 		}
@@ -377,10 +381,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			Log.i("obd2", "deleted all local tracks");
 			break;
 
-		case MENU_GARAGE:
-			Intent garageIntent = new Intent(this, MyGarage.class);
-			startActivityForResult(garageIntent, REQUEST_MY_GARAGE);
-			break;
+//		case MENU_GARAGE:
+//			Intent garageIntent = new Intent(this, MyGarage.class);
+//			startActivityForResult(garageIntent, REQUEST_MY_GARAGE);
+//			break;
 		case START_STOP_MEASUREMENT:
 			if (!application.getServiceConnector().isRunning()) {
 				application.startConnection();
@@ -465,10 +469,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			Log.i("obd2", "deleted all local tracks");
 			return true;
 
-		case MENU_GARAGE:
-			Intent garageIntent = new Intent(this, MyGarage.class);
-			startActivityForResult(garageIntent, REQUEST_MY_GARAGE);
-			return true;
+//		case MENU_GARAGE:
+//			Intent garageIntent = new Intent(this, MyGarage.class);
+//			startActivityForResult(garageIntent, REQUEST_MY_GARAGE);
+//			return true;
 		}
 		return false;
 	}
