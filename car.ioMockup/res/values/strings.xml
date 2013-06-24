@@ -37,9 +37,6 @@
     <string name="maf">MAF</string>
     <string name="engine_load">Engine Load</string>
     <string name="car">Car</string>
-    <string name="autoConnect">Autoconnect to OBDII Bluetooth Adapter</string>
-    <string name="uploadOnly">Upload only in W-LAN</string>
-    <string name="uploadMobileInternet">Always upload</string>
     <string name="currentCO2">Current Co2 Emissions</string>
     <string name="drivingStyleRating">Driving Style Rating</string>
     <string name="moneySpent">Money spent for this trip</string>

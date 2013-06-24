@@ -45,9 +45,6 @@
     <string name="maf">MAF (Luftmassenströmung)</string>
     <string name="engine_load">Motorlast</string>
     <string name="car">Auto</string>
-    <string name="autoConnect">OBDII Bluetooth Adapter automatisch verbinden</string>
-    <string name="uploadOnly">Nur im W-LAN hochladen</string>
-    <string name="uploadMobileInternet">Immer hochladen</string>
     <string name="currentCO2">Aktueller Co2 Ausstoß</string>
     <string name="drivingStyleRating">Fahrstilbewertung</string>
     <string name="moneySpent">Fahrtkosten</string>

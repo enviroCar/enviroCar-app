@@ -24,7 +24,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import car.io.R;
-import car.io.adapter.UploadManager;
 import car.io.application.ECApplication;
 import car.io.application.NavMenuItem;
 import car.io.views.TYPEFACE;
@@ -32,7 +31,6 @@ import car.io.views.Utils;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
-import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 
@@ -95,24 +93,26 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	
 					if (remoteDevice != null) {
 						navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
-						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle("");
+						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(preferences.getString(SettingsActivity.BLUETOOTH_NAME, ""));
 					} else {
 						navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle("Please select an OBD adapter");
+						navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
+						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.pref_summary_chose_adapter));
 					}
 
 				}
 			} catch (NullPointerException e) {
 				Log.e("obd2", "The Service Connector is null.");
 				navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-
+				navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
 				e.printStackTrace();
 			}
 		} else {
 			navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
 			navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_play);
-			navDrawerItems[START_STOP_MEASUREMENT].setSubtitle("Please enable Bluetooth");
+			navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.pref_bluetooth_disabled));
 			navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
+			navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
 		}
 	
 		if (application.isLoggedIn()) {
@@ -260,7 +260,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 		@Override
 		public boolean isEnabled(int position) {
-			return navDrawerItems[position].isEnabled();
+			//to allow things like start bluetooth or go to settings from "disabled" action
+			return (position == START_STOP_MEASUREMENT ? true : navDrawerItems[position].isEnabled());
 		}
 		
 		@Override
@@ -318,12 +319,14 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
             manager.beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
             break;
         case LOGIN:
-			Intent loginIntent = new Intent(this, LoginActivity.class);
-			startActivity(loginIntent);
+        	if(application.isLoggedIn()){
+        		application.logOut();
+        	} else {
+        		Intent loginIntent = new Intent(this, LoginActivity.class);
+        		startActivity(loginIntent);
+        	}
             break;
         case SETTINGS:
-//        	SettingsFragment settingsFragment = new SettingsFragment();
-//            manager.beginTransaction().replace(R.id.content_frame, settingsFragment).commit();
 			Intent configIntent = new Intent(this, SettingsActivity.class);
 			startActivity(configIntent);
             break;
@@ -332,10 +335,19 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
             manager.beginTransaction().replace(R.id.content_frame, listMeasurementFragment, "MY_TRACKS").commit();
             break;
 		case START_STOP_MEASUREMENT:
-			if (!application.getServiceConnector().isRunning()) {
-				application.startConnection();
+			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+			String remoteDevice = preferences.getString(car.io.activity.SettingsActivity.BLUETOOTH_KEY,null);
+
+			if (application.requirementsFulfilled() && remoteDevice != null) {
+				if (!application.getServiceConnector().isRunning()) {
+					application.startConnection();
+				} else {
+					application.stopConnection();
+				}
 			} else {
-				application.stopConnection();
+				Intent settingsIntent = new Intent(this, SettingsActivity.class);
+				startActivity(settingsIntent);
 			}
 			break;
         default:
