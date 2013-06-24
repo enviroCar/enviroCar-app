@@ -175,7 +175,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		// TYPEFACE.applyCustomFont((ViewGroup) rootView,
 		// TYPEFACE.Newscycle(this));
 
-		actionBar.setLogo(getResources().getDrawable(R.drawable.home_icon));
+		actionBar.setLogo(getResources().getDrawable(R.drawable.actionbarlogo_with_padding));
+		
 
 		// addTab("Local Tracks", ListMeasurementsFragmentLocal.class);
 		// addTab("My Tracks", ListMeasurementsFragment.class);
