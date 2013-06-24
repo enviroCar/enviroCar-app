@@ -199,6 +199,7 @@ public class DbAdapterLocal implements DbAdapter {
 		c.close();
 
 		t.setMeasurementsAsArrayList(getAllMeasurementsForTrack(t));
+		t.setLocalTrack(true);
 		return t;
 	}
 

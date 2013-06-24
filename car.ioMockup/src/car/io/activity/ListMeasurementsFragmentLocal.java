@@ -44,7 +44,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 
 	private ArrayList<Track> tracksList;
 	private TracksListAdapter elvAdapter;
-	private DbAdapter dbAdapter;
+	private DbAdapter dbAdapterLocal;
 	private ExpandableListView elv;
 
 	private ProgressBar progress;
@@ -53,7 +53,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 
 	public View onCreateView(android.view.LayoutInflater inflater, android.view.ViewGroup container, android.os.Bundle savedInstanceState) {
 
-		dbAdapter = ((ECApplication) getActivity().getApplication()).getDbAdapterLocal();
+		dbAdapterLocal = ((ECApplication) getActivity().getApplication()).getDbAdapterLocal();
 		/*
 		 * Testing
 		 */
@@ -133,7 +133,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-		ArrayList<Track> tracks = dbAdapter.getAllTracks();
+		ArrayList<Track> tracks = dbAdapterLocal.getAllTracks();
 		final Track track = tracks.get(itemSelect);
 		switch (item.getItemId()) {
 
@@ -145,7 +145,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 					String value = input.getText().toString();
 					Log.e("obd2", "New name: " + value.toString());
 					track.setName(value);
-					track.setDatabaseAdapter(dbAdapter);
+					track.setDatabaseAdapter(dbAdapterLocal);
 					track.commitTrackToDatabase();
 					tracksList.get(itemSelect).setName(value);
 					elvAdapter.notifyDataSetChanged();
@@ -166,7 +166,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 					String value = input2.getText().toString();
 					Log.e("obd2", "New description: " + value.toString());
 					track.setDescription(value);
-					track.setDatabaseAdapter(dbAdapter);
+					track.setDatabaseAdapter(dbAdapterLocal);
 					track.commitTrackToDatabase();
 					elv.collapseGroup(itemSelect);
 					tracksList.get(itemSelect).setDescription(value);
@@ -201,7 +201,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 
 		case R.id.deleteTrack:
 			Log.e("obd2", "deleting item: " + itemSelect);
-			dbAdapter.deleteTrack(track.getId());
+			dbAdapterLocal.deleteTrack(track.getId());
 			Toast.makeText(getActivity(), getString(R.string.trackDeleted), Toast.LENGTH_LONG).show();
 			tracksList.remove(itemSelect);
 			elvAdapter.notifyDataSetChanged();
@@ -223,7 +223,7 @@ public class ListMeasurementsFragmentLocal extends SherlockFragment {
 		elv.setGroupIndicator(getResources().getDrawable(R.drawable.list_indicator));
 		elv.setChildDivider(getResources().getDrawable(android.R.color.transparent));
 
-		this.tracksList = dbAdapter.getAllTracks();
+		this.tracksList = dbAdapterLocal.getAllTracks();
 		Log.i("obd", "Number of tracks: " + tracksList.size());
 		if (elvAdapter == null)
 			elvAdapter = new TracksListAdapter();

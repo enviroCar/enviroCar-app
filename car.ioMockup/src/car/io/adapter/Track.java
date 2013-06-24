@@ -22,6 +22,21 @@ public class Track {
 	private String vin;
 	private String fuelType;
 	private String sensorID;
+	private boolean localTrack;
+
+	/**
+	 * @return the localTrack
+	 */
+	public boolean isLocalTrack() {
+		return localTrack;
+	}
+
+	/**
+	 * @param localTrack the localTrack to set
+	 */
+	public void setLocalTrack(boolean localTrack) {
+		this.localTrack = localTrack;
+	}
 
 	/**
 	 * @return the sensorID

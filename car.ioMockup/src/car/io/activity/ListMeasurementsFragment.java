@@ -21,19 +21,19 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemLongClickListener;
 import car.io.R;
 import car.io.adapter.DbAdapter;
 import car.io.adapter.DbAdapterRemote;
@@ -52,7 +52,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 	private ArrayList<Track> tracksList;
 	private TracksListAdapter elvAdapter;
-	private DbAdapter dbAdapter;
+	private DbAdapter dbAdapterRemote;
+	private DbAdapter dbAdapterLocal;
 	private ExpandableListView elv;
 
 	private ProgressBar progress;
@@ -63,7 +64,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			android.view.ViewGroup container,
 			android.os.Bundle savedInstanceState) {
 
-		dbAdapter = ((ECApplication) getActivity().getApplication()).getDbAdapterRemote();
+		dbAdapterRemote = ((ECApplication) getActivity().getApplication()).getDbAdapterRemote();
+		dbAdapterLocal = ((ECApplication) getActivity().getApplication()).getDbAdapterLocal();
 
 		View v = inflater.inflate(R.layout.list_tracks_layout, null);
 		elv = (ExpandableListView) v.findViewById(R.id.list);
@@ -95,59 +97,61 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-		ArrayList<Track> tracks = dbAdapter.getAllTracks();
+		ArrayList<Track> tracks = dbAdapterRemote.getAllTracks();
 		final Track track = tracks.get(itemSelect);
 		switch (item.getItemId()) {
 
 		case R.id.editName:
-//			Log.e("obd2", "editing track: " + itemSelect);
-//			final EditText input = new EditText(getActivity());
-//			new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.editTrack)).setMessage(getString(R.string.enterTrackName)).setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-//				public void onClick(DialogInterface dialog, int whichButton) {
-//					String value = input.getText().toString();
-//					Log.e("obd2", "New name: " + value.toString());
-//					track.setName(value);
-//					track.setDatabaseAdapter(dbAdapter);
-//					track.commitTrackToDatabase();
-//					tracksList.get(itemSelect).setName(value);
-//					elvAdapter.notifyDataSetChanged();
-//					Toast.makeText(getActivity(), getString(R.string.nameChanged), Toast.LENGTH_SHORT).show();
-//				}
-//			}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//				public void onClick(DialogInterface dialog, int whichButton) {
-//					// Do nothing.
-//				}
-//			}).show();
-			
-			Toast.makeText(getActivity(), "Not yet possible for remote tracks.", Toast.LENGTH_SHORT).show();
-			
+			if(track.isLocalTrack()){
+				Log.e("obd2", "editing track: " + itemSelect);
+				final EditText input = new EditText(getActivity());
+				new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.editTrack)).setMessage(getString(R.string.enterTrackName)).setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						String value = input.getText().toString();
+						Log.e("obd2", "New name: " + value.toString());
+						track.setName(value);
+						track.setDatabaseAdapter(dbAdapterLocal);
+						track.commitTrackToDatabase();
+						tracksList.get(itemSelect).setName(value);
+						elvAdapter.notifyDataSetChanged();
+						Toast.makeText(getActivity(), getString(R.string.nameChanged), Toast.LENGTH_SHORT).show();
+					}
+				}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// Do nothing.
+					}
+				}).show();
+			} else {
+				Toast.makeText(getActivity(), "Not yet possible for remote tracks.", Toast.LENGTH_SHORT).show();
+			}
 			return true;
 
 		case R.id.editDescription:
-//			Log.e("obd2", "editing track: " + itemSelect);
-//			final EditText input2 = new EditText(getActivity());
-//			new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.editTrack)).setMessage(getString(R.string.enterTrackDescription)).setView(input2).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-//				public void onClick(DialogInterface dialog, int whichButton) {
-//					String value = input2.getText().toString();
-//					Log.e("obd2", "New description: " + value.toString());
-//					track.setDescription(value);
-//					track.setDatabaseAdapter(dbAdapter);
-//					track.commitTrackToDatabase();
-//					elv.collapseGroup(itemSelect);
-//					tracksList.get(itemSelect).setDescription(value);
-//					elvAdapter.notifyDataSetChanged();
-//					// TODO Bug: update the description when it is changed.
-//					Toast.makeText(getActivity(), getString(R.string.descriptionChanged), Toast.LENGTH_SHORT).show();
-//
-//				}
-//			}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-//				public void onClick(DialogInterface dialog, int whichButton) {
-//					// Do nothing.
-//				}
-//			}).show();
-			
-			Toast.makeText(getActivity(), "Not yet possible for remote tracks.", Toast.LENGTH_SHORT).show();
-			
+			if(track.isLocalTrack()){
+				Log.e("obd2", "editing track: " + itemSelect);
+				final EditText input2 = new EditText(getActivity());
+				new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.editTrack)).setMessage(getString(R.string.enterTrackDescription)).setView(input2).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						String value = input2.getText().toString();
+						Log.e("obd2", "New description: " + value.toString());
+						track.setDescription(value);
+						track.setDatabaseAdapter(dbAdapterLocal);
+						track.commitTrackToDatabase();
+						elv.collapseGroup(itemSelect);
+						tracksList.get(itemSelect).setDescription(value);
+						elvAdapter.notifyDataSetChanged();
+						// TODO Bug: update the description when it is changed.
+						Toast.makeText(getActivity(), getString(R.string.descriptionChanged), Toast.LENGTH_SHORT).show();
+	
+					}
+				}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int whichButton) {
+						// Do nothing.
+					}
+				}).show();
+			} else {
+				Toast.makeText(getActivity(), "Not yet possible for remote tracks.", Toast.LENGTH_SHORT).show();
+			}
 			return true;
 
 		case R.id.startMap:
@@ -170,14 +174,15 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			return true;
 
 		case R.id.deleteTrack:
-//			Log.e("obd2", "deleting item: " + itemSelect);
-//			dbAdapter.deleteTrack(track.getId());
-//			Toast.makeText(getActivity(), getString(R.string.trackDeleted), Toast.LENGTH_LONG).show();
-//			tracksList.remove(itemSelect);
-//			elvAdapter.notifyDataSetChanged();
-			
-			Toast.makeText(getActivity(), "Not yet possible for remote tracks.", Toast.LENGTH_SHORT).show();
-			
+			if(track.isLocalTrack()){
+				Log.e("obd2", "deleting item: " + itemSelect);
+				dbAdapterLocal.deleteTrack(track.getId());
+				Toast.makeText(getActivity(), getString(R.string.trackDeleted), Toast.LENGTH_LONG).show();
+				tracksList.remove(itemSelect);
+				elvAdapter.notifyDataSetChanged();
+			} else {
+				Toast.makeText(getActivity(), "Not yet possible for remote tracks.", Toast.LENGTH_SHORT).show();
+			}
 			return true;
 
 		
@@ -193,6 +198,20 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				R.drawable.list_indicator));
 		elv.setChildDivider(getResources().getDrawable(
 				android.R.color.transparent));
+		
+		//fetch local tracks
+		this.tracksList = dbAdapterLocal.getAllTracks();
+		Log.i("obd", "Number of tracks: " + tracksList.size());
+		if (elvAdapter == null)
+			elvAdapter = new TracksListAdapter();
+		elv.setAdapter(elvAdapter);
+		elvAdapter.notifyDataSetChanged();
+
+		
+		
+		// TODO update the list if new track is inserted into the database.		
+		
+		//if logged in, download tracks from server
 		if(((ECApplication) getActivity().getApplication()).isLoggedIn()){
 			downloadTracks();
 		}
@@ -251,7 +270,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					Track t;
 					try {
 						t = new Track(trackJson[0].getJSONObject("properties").getString("id"));
-						t.setDatabaseAdapter(dbAdapter);
+						t.setDatabaseAdapter(dbAdapterRemote);
 						String trackName = "unnamed Track #"+ct;
 						try{
 							trackName = trackJson[0].getJSONObject("properties").getString("name");
@@ -315,6 +334,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						Track t) {
 					super.onPostExecute(t);
 					if(t != null){
+						t.setLocalTrack(false);
 						tracksList.add(t);
 						elvAdapter.notifyDataSetChanged();
 					}
@@ -345,6 +365,12 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					elvAdapter = new TracksListAdapter();
 				progress.setVisibility(View.VISIBLE);
 			}
+			
+			@Override
+			public void onFinish() {
+				super.onFinish();
+				progress.setVisibility(View.GONE);
+			}
 
 			@Override
 			public void onSuccess(int httpStatus, JSONObject json) {
@@ -367,7 +393,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 							
 							@Override
 							protected Track doInBackground(String... params) {
-								return dbAdapter.getTrack(params[0]);
+								return dbAdapterRemote.getTrack(params[0]);
 							}
 							
 							protected void onPostExecute(Track result) {
@@ -377,7 +403,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 							}
 							
 						}
-						if (((DbAdapterRemote) dbAdapter).trackExistsInDatabase(((JSONObject) tracks.get(i)).getString("id"))) {
+						if (((DbAdapterRemote) dbAdapterRemote).trackExistsInDatabase(((JSONObject) tracks.get(i)).getString("id"))) {
 							// if the track already exists in the db, skip and load from db.
 							new RetrieveTrackfromDbAsyncTask().execute(((JSONObject) tracks.get(i)).getString("id"));
 							continue;
@@ -468,7 +494,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				Track currTrack = (Track) getGroup(i);
 				View groupRow = ViewGroup.inflate(getActivity(), R.layout.list_tracks_group_layout, null);
 				TextView textView = (TextView) groupRow.findViewById(R.id.track_name_textview);
-				textView.setText(currTrack.getName());
+				textView.setText((currTrack.isLocalTrack() ? "L" : "R")+" "+currTrack.getName());
 				groupRow.setId(10000000 + i);
 				TYPEFACE.applyCustomFont((ViewGroup) groupRow,
 						TYPEFACE.Newscycle(getActivity()));

@@ -205,6 +205,7 @@ public class DbAdapterRemote implements DbAdapter {
 		c.close();
 
 		t.setMeasurementsAsArrayList(getAllMeasurementsForTrack(t));
+		t.setLocalTrack(false);
 		return t;
 	}
 
