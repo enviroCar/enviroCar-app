@@ -51,16 +51,17 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private NavMenuItem[] navDrawerItems;
 	// Menu Items
 
-	static final int NO_BLUETOOTH = 0;
-	static final int BLUETOOTH_DISABLED = 1;
-	static final int NO_GPS = 2;
-	static final int START_STOP_MEASUREMENT = 2;
-	static final int SETTINGS = 5;
-	static final int LOGIN = 0;
-	static final int REMOVE_LOCAL_TRACKS = 3;
-	static final int START_UPLOAD = 4;
+//	static final int NO_BLUETOOTH = 0;
+//	static final int BLUETOOTH_DISABLED = 1;
+//	static final int NO_GPS = 2;
+	static final int START_STOP_MEASUREMENT = 3;
+	static final int SETTINGS = 6;
+	static final int LOGIN = 1;
+	static final int REMOVE_LOCAL_TRACKS = 4;
+	static final int START_UPLOAD = 5;
 	//static final int MENU_GARAGE = 2;
-	static final int MY_TRACKS = 1;
+	static final int MY_TRACKS = 2;
+	static final int DASHBOARD = 0;
 
 	public static final int REQUEST_MY_GARAGE = 1336;
 	public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
@@ -72,14 +73,15 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
-			navDrawerItems = new NavMenuItem[6];
+			navDrawerItems = new NavMenuItem[7];
 			navDrawerItems[LOGIN] = new NavMenuItem(LOGIN, getResources().getString(R.string.menu_login),R.drawable.device_access_accounts);
 			navDrawerItems[SETTINGS] = new NavMenuItem(SETTINGS, getResources().getString(R.string.menu_settings),R.drawable.action_settings);
 			navDrawerItems[START_STOP_MEASUREMENT] = new NavMenuItem(START_STOP_MEASUREMENT, getResources().getString(R.string.menu_start),R.drawable.av_play);
 			navDrawerItems[START_UPLOAD] = new NavMenuItem(START_UPLOAD, getResources().getString(R.string.menu_upload),R.drawable.av_upload);
 			//navDrawerItems[MENU_GARAGE] = new NavMenuItem(MENU_GARAGE, getResources().getString(R.string.menu_garage),R.drawable.nav_content_discard);
+			navDrawerItems[DASHBOARD] = new NavMenuItem(DASHBOARD, getResources().getString(R.string.dashboard), R.drawable.ic_launcher);
 			navDrawerItems[REMOVE_LOCAL_TRACKS] = new NavMenuItem(REMOVE_LOCAL_TRACKS, getResources().getString(R.string.menu_delete),R.drawable.nav_content_discard);
-			navDrawerItems[MY_TRACKS] = new NavMenuItem(MY_TRACKS, "My Tracks",R.drawable.device_access_storage);
+			navDrawerItems[MY_TRACKS] = new NavMenuItem(MY_TRACKS, getResources().getString(R.string.my_tracks),R.drawable.device_access_storage);
 		}
 		
 		if (application.requirementsFulfilled()) { // was requirementsFulfilled
@@ -359,6 +361,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
     private void openFragment(int position) {
         FragmentManager manager = getSupportFragmentManager();
         switch (position) {
+        case DASHBOARD:
+        	DashboardFragment dashboardFragment = new DashboardFragment();
+            manager.beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
+            break;
         case LOGIN:
 			Intent loginIntent = new Intent(this, LoginActivity.class);
 			startActivity(loginIntent);

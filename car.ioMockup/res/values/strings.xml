@@ -96,4 +96,7 @@
 	<string name="close_drawer">Close</string>
 	
 	<string name="menu_logout">Sign out</string>
+	
+	<string name="dashboard">Dashboard</string>
+	<string name="my_tracks">My Tracks</string>
 </resources>
