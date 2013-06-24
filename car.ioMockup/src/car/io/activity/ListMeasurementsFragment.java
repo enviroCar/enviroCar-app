@@ -101,14 +101,14 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
-//		if (((ECApplication) getActivity().getApplication()).getDbAdapterLocal().getAllTracks().size() > 0
-//				&& ((ECApplication) getActivity().getApplication()).isLoggedIn()) {
-//			menu.findItem(R.id.menu_upload).setEnabled(true);
-//			menu.findItem(R.id.menu_delete_all).setEnabled(true);
-//		} else {
-//			menu.findItem(R.id.menu_upload).setEnabled(false);
-//			menu.findItem(R.id.menu_delete_all).setEnabled(false);
-//		}
+		if (((ECApplication) getActivity().getApplication()).getDbAdapterLocal().getAllTracks().size() > 0
+				&& ((ECApplication) getActivity().getApplication()).isLoggedIn()) {
+			menu.findItem(R.id.menu_upload).setEnabled(true);
+			menu.findItem(R.id.menu_delete_all).setEnabled(true);
+		} else {
+			menu.findItem(R.id.menu_upload).setEnabled(false);
+			menu.findItem(R.id.menu_delete_all).setEnabled(false);
+		}
 	}
 	
 	@Override
