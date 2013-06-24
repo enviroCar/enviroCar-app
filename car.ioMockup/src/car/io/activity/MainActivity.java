@@ -334,13 +334,16 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				item = View.inflate(MainActivity.this,R.layout.nav_item_2, null);
 				TextView textView2 = (TextView) item.findViewById(android.R.id.text2);
 				textView2.setText(currentItem.getSubtitle());
+				if(!currentItem.isEnabled()) textView2.setBackgroundColor(Color.GRAY);
 			}
-			((ImageView) item.findViewById(R.id.nav_item_icon)).setImageResource(currentItem.getIconRes());
+			ImageView icon = ((ImageView) item.findViewById(R.id.nav_item_icon));
+			icon.setImageResource(currentItem.getIconRes());
 			TextView textView = (TextView) item.findViewById(android.R.id.text1);
 			textView.setText(currentItem.getTitle());
-//			if(!currentItem.isEnabled()){
-//				textView.setTextColor();
-//			}
+			if(!currentItem.isEnabled()){
+				textView.setTextColor(Color.GRAY);
+				icon.setColorFilter(Color.GRAY);
+			}
 			TYPEFACE.applyCustomFont((ViewGroup) item, TYPEFACE.Raleway(MainActivity.this));
 			return item;
 		}
