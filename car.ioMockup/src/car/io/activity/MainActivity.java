@@ -44,6 +44,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private FragmentManager manager;
 	private DrawerLayout drawer;
 	private ListView drawerList;
+	private NavAdapter navDrawerAdapter;
 
 	
 	private NavMenuItem[] navDrawerItems;
@@ -111,29 +112,30 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			navDrawerItems[SETTINGS].setEnabled(true);
 			e.printStackTrace();
 		}
-	} else {
-		navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
-		navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-		navDrawerItems[SETTINGS].setEnabled(false);
-	}
+		} else {
+			navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
+			navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
+			navDrawerItems[SETTINGS].setEnabled(false);
+		}
+	
+		if (application.getDbAdapterLocal().getAllTracks().size() > 0
+				&& application.isLoggedIn()) {
+			navDrawerItems[START_UPLOAD].setEnabled(true);
+		} else {
+			navDrawerItems[START_UPLOAD].setEnabled(false);
+		}
+	
+		if (application.isLoggedIn()) {
+			navDrawerItems[MENU_GARAGE].setEnabled(true);
+			navDrawerItems[LOGIN].setTitle(getResources().getString(R.string.menu_logout));
+			navDrawerItems[LOGIN].setSubtitle(String.format(getResources().getString(R.string.logged_in_as),application.getUser().getUsername()));
+		} else {
+			navDrawerItems[MENU_GARAGE].setEnabled(false);
+			navDrawerItems[LOGIN].setTitle(getResources().getString(R.string.menu_login));
+			navDrawerItems[LOGIN].setSubtitle("");		
+		}
 
-	if (application.getDbAdapterLocal().getAllTracks().size() > 0
-			&& application.isLoggedIn()) {
-		navDrawerItems[START_UPLOAD].setEnabled(true);
-	} else {
-		navDrawerItems[START_UPLOAD].setEnabled(false);
-	}
-
-	if (application.isLoggedIn()) {
-		navDrawerItems[MENU_GARAGE].setEnabled(true);
-		navDrawerItems[LOGIN].setTitle(getResources().getString(R.string.menu_logout));
-		navDrawerItems[LOGIN].setSubtitle(String.format(getResources().getString(R.string.logged_in_as),application.getUser().getUsername()));
-	} else {
-		navDrawerItems[MENU_GARAGE].setEnabled(false);
-		navDrawerItems[LOGIN].setTitle(getResources().getString(R.string.menu_login));
-		navDrawerItems[LOGIN].setSubtitle("");		
-	}
-
+		navDrawerAdapter.notifyDataSetChanged();
 
 	}
 
@@ -195,13 +197,16 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		manager.beginTransaction().replace(R.id.content_frame, firstFragment)
 				.commit();
 
-		prepareNavDrawerItems();
+
 		drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawerList = (ListView) findViewById(R.id.left_drawer);
-		drawerList.setAdapter(new NavAdapter());
+		navDrawerAdapter = new NavAdapter();
+		prepareNavDrawerItems();
+		drawerList.setAdapter(navDrawerAdapter);
 		ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(
 				this, drawer, R.drawable.ic_drawer, R.string.open_drawer,
 				R.string.close_drawer) {
+			
 			@Override
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
