@@ -18,7 +18,7 @@
     <item
         android:id="@+id/menu_upload"
         android:orderInCategory="120"
-        android:showAsAction="never"
+        android:showAsAction="always|withText"
         android:title="@string/menu_upload"/>
     <item
         android:id="@+id/menu_login"
@@ -33,7 +33,7 @@
     <item
         android:id="@+id/menu_about"
         android:orderInCategory="300"
-        android:showAsAction="never"
+        android:showAsAction="always|withText"
         android:title="@string/menu_delete"/>
     <item
         android:id="@+id/menu_help"

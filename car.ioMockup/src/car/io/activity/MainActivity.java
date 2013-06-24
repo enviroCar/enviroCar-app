@@ -32,6 +32,7 @@ import car.io.views.Utils;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
 
 
@@ -43,23 +44,17 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	public ECApplication application;
 
 	private FragmentManager manager;
+	//Navigation Drawer
 	private DrawerLayout drawer;
 	private ListView drawerList;
 	private NavAdapter navDrawerAdapter;
 
-	
-	private NavMenuItem[] navDrawerItems;
 	// Menu Items
+	private NavMenuItem[] navDrawerItems;
 
-//	static final int NO_BLUETOOTH = 0;
-//	static final int BLUETOOTH_DISABLED = 1;
-//	static final int NO_GPS = 2;
 	static final int START_STOP_MEASUREMENT = 3;
-	static final int SETTINGS = 6;
+	static final int SETTINGS = 4;
 	static final int LOGIN = 1;
-	static final int REMOVE_LOCAL_TRACKS = 4;
-	static final int START_UPLOAD = 5;
-	//static final int MENU_GARAGE = 2;
 	static final int MY_TRACKS = 2;
 	static final int DASHBOARD = 0;
 
@@ -73,14 +68,11 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
-			navDrawerItems = new NavMenuItem[7];
+			navDrawerItems = new NavMenuItem[5];
 			navDrawerItems[LOGIN] = new NavMenuItem(LOGIN, getResources().getString(R.string.menu_login),R.drawable.device_access_accounts);
 			navDrawerItems[SETTINGS] = new NavMenuItem(SETTINGS, getResources().getString(R.string.menu_settings),R.drawable.action_settings);
 			navDrawerItems[START_STOP_MEASUREMENT] = new NavMenuItem(START_STOP_MEASUREMENT, getResources().getString(R.string.menu_start),R.drawable.av_play);
-			navDrawerItems[START_UPLOAD] = new NavMenuItem(START_UPLOAD, getResources().getString(R.string.menu_upload),R.drawable.av_upload);
-			//navDrawerItems[MENU_GARAGE] = new NavMenuItem(MENU_GARAGE, getResources().getString(R.string.menu_garage),R.drawable.nav_content_discard);
 			navDrawerItems[DASHBOARD] = new NavMenuItem(DASHBOARD, getResources().getString(R.string.dashboard), R.drawable.ic_launcher);
-			navDrawerItems[REMOVE_LOCAL_TRACKS] = new NavMenuItem(REMOVE_LOCAL_TRACKS, getResources().getString(R.string.menu_delete),R.drawable.nav_content_discard);
 			navDrawerItems[MY_TRACKS] = new NavMenuItem(MY_TRACKS, getResources().getString(R.string.my_tracks),R.drawable.device_access_storage);
 		}
 		
@@ -122,19 +114,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			navDrawerItems[SETTINGS].setEnabled(false);
 		}
 	
-		if (application.getDbAdapterLocal().getAllTracks().size() > 0
-				&& application.isLoggedIn()) {
-			navDrawerItems[START_UPLOAD].setEnabled(true);
-		} else {
-			navDrawerItems[START_UPLOAD].setEnabled(false);
-		}
-	
 		if (application.isLoggedIn()) {
-			//navDrawerItems[MENU_GARAGE].setEnabled(true);
 			navDrawerItems[LOGIN].setTitle(getResources().getString(R.string.menu_logout));
 			navDrawerItems[LOGIN].setSubtitle(String.format(getResources().getString(R.string.logged_in_as),application.getUser().getUsername()));
 		} else {
-			//navDrawerItems[MENU_GARAGE].setEnabled(false);
 			navDrawerItems[LOGIN].setTitle(getResources().getString(R.string.menu_login));
 			navDrawerItems[LOGIN].setSubtitle("");		
 		}
@@ -376,25 +359,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
             break;
         case MY_TRACKS:
             ListMeasurementsFragment listMeasurementFragment = new ListMeasurementsFragment();
-            manager.beginTransaction().replace(R.id.content_frame, listMeasurementFragment).commit();
+            manager.beginTransaction().replace(R.id.content_frame, listMeasurementFragment, "MY_TRACKS").commit();
             break;
-		case START_UPLOAD:
-			((ECApplication) this.getApplicationContext())
-					.createNotification("start");
-			UploadManager uploadManager = new UploadManager(
-					application.getDbAdapterLocal(), getApplication());
-			uploadManager.uploadAllTracks();
-			break;
-		case REMOVE_LOCAL_TRACKS:
-			application.getDbAdapterLocal().deleteAllTracks();
-			application.setTrack(null);
-			Log.i("obd2", "deleted all local tracks");
-			break;
-
-//		case MENU_GARAGE:
-//			Intent garageIntent = new Intent(this, MyGarage.class);
-//			startActivityForResult(garageIntent, REQUEST_MY_GARAGE);
-//			break;
 		case START_STOP_MEASUREMENT:
 			if (!application.getServiceConnector().isRunning()) {
 				application.startConnection();
@@ -408,14 +374,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         }
         drawer.closeDrawer(drawerList);
 
-    }	
-
-//	@Override
-//	public boolean onCreateOptionsMenu(Menu menu) {
-//		// Inflate the menu; this adds navDrawerItems to the action bar if it is present.
-//		getSupportMenuInflater().inflate(R.menu.menu, menu);
-//		return true;
-//	}
+    }
 
 	@Override
 	protected void onDestroy() {
@@ -445,44 +404,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				drawer.openDrawer(drawerList);
 			}
 			return true;
-		
-		case START_STOP_MEASUREMENT:
-			if (!application.getServiceConnector().isRunning()) {
-				application.startConnection();
-			} else {
-				application.stopConnection();
-			}
-			return true;
-
-		case SETTINGS:
-			Intent configIntent = new Intent(this, SettingsActivity.class);
-			startActivity(configIntent);
-			return true;
-
-		case LOGIN:
-			Intent loginIntent = new Intent(this, LoginActivity.class);
-			startActivity(loginIntent);
-			return true;
-
-		case START_UPLOAD:
-			((ECApplication) this.getApplicationContext())
-					.createNotification("start");
-			UploadManager uploadManager = new UploadManager(
-					application.getDbAdapterLocal(), getApplication());
-			uploadManager.uploadAllTracks();
-			return true;
-
-		case REMOVE_LOCAL_TRACKS:
-			// dbAdapter.deleteAllTracks();
-			application.getDbAdapterLocal().deleteAllTracks();
-			application.setTrack(null);
-			Log.i("obd2", "deleted all local tracks");
-			return true;
-
-//		case MENU_GARAGE:
-//			Intent garageIntent = new Intent(this, MyGarage.class);
-//			startActivityForResult(garageIntent, REQUEST_MY_GARAGE);
-//			return true;
 		}
 		return false;
 	}

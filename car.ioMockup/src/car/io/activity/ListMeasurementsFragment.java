@@ -39,6 +39,7 @@ import car.io.adapter.DbAdapter;
 import car.io.adapter.DbAdapterRemote;
 import car.io.adapter.Measurement;
 import car.io.adapter.Track;
+import car.io.adapter.UploadManager;
 import car.io.application.ECApplication;
 import car.io.application.RestClient;
 import car.io.exception.LocationInvalidException;
@@ -46,6 +47,7 @@ import car.io.views.TYPEFACE;
 import car.io.views.Utils;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.Menu;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 public class ListMeasurementsFragment extends SherlockFragment {
@@ -63,6 +65,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	public View onCreateView(android.view.LayoutInflater inflater,
 			android.view.ViewGroup container,
 			android.os.Bundle savedInstanceState) {
+		
+		setHasOptionsMenu(true);
 
 		dbAdapterRemote = ((ECApplication) getActivity().getApplication()).getDbAdapterRemote();
 		dbAdapterLocal = ((ECApplication) getActivity().getApplication()).getDbAdapterLocal();
@@ -87,6 +91,45 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		
 		return v;
 	};
+	
+	@Override
+	public void onCreateOptionsMenu(Menu menu, com.actionbarsherlock.view.MenuInflater inflater) {
+    	inflater.inflate(R.menu.menu_tracks, (com.actionbarsherlock.view.Menu) menu);
+    	super.onCreateOptionsMenu(menu, inflater);
+	}
+	
+	@Override
+	public void onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+//		if (((ECApplication) getActivity().getApplication()).getDbAdapterLocal().getAllTracks().size() > 0
+//				&& ((ECApplication) getActivity().getApplication()).isLoggedIn()) {
+//			menu.findItem(R.id.menu_upload).setEnabled(true);
+//			menu.findItem(R.id.menu_delete_all).setEnabled(true);
+//		} else {
+//			menu.findItem(R.id.menu_upload).setEnabled(false);
+//			menu.findItem(R.id.menu_delete_all).setEnabled(false);
+//		}
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(
+			com.actionbarsherlock.view.MenuItem item) {
+		switch(item.getItemId()){
+		case R.id.menu_upload:
+			((ECApplication) getActivity().getApplicationContext()).createNotification("start");
+			UploadManager uploadManager = new UploadManager(
+					((ECApplication) getActivity().getApplication()).getDbAdapterLocal(), ((ECApplication) getActivity().getApplication()));
+			uploadManager.uploadAllTracks();
+			return true;
+
+		case R.id.menu_delete_all:
+			((ECApplication) getActivity().getApplication()).getDbAdapterLocal().deleteAllTracks();
+			((ECApplication) getActivity().getApplication()).setTrack(null);
+			return true;
+			
+		}
+		return false;
+	}
 	
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
