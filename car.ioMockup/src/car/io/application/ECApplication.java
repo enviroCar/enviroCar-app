@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 
 import android.app.Application;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
@@ -25,6 +26,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 import car.io.R;
+import car.io.activity.MainActivity;
 import car.io.adapter.DbAdapter;
 import car.io.adapter.DbAdapterLocal;
 import car.io.adapter.DbAdapterRemote;
@@ -71,7 +73,7 @@ public class ECApplication extends Application implements LocationListener {
 	private Handler handler = new Handler();
 	private Listener listener = null;
 	private LocationManager locationManager;
-	private int mId = 1337;
+	private int mId = 1133;
 	private float locationLatitude;
 	private float locationLongitude;
 	private int speedMeasurement = 0;
@@ -885,11 +887,15 @@ public class ECApplication extends Application implements LocationListener {
 			notification_text = action;
 		}
 		
+		Intent intent = new Intent(this,MainActivity.class);
+		PendingIntent pintent = PendingIntent.getActivity(getApplicationContext(), 0, intent, 0);
+		
 		NotificationCompat.Builder mBuilder =
 		        new NotificationCompat.Builder(this)
 		        .setSmallIcon(R.drawable.ic_launcher)
 		        .setContentTitle("EnviroCar")
 		        .setContentText(notification_text)
+		        .setContentIntent(pintent)
 		        .setTicker(notification_text)
 		        .setProgress(0, 0, !action.equals("success"));
 		
