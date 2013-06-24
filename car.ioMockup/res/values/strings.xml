@@ -65,7 +65,6 @@
     <string name="menu_login">Sign in/Register</string>
     <string name="gasoline">Gasoline</string>
     <string name="diesel">Diesel</string>
-    <string name="electric">Electric</string>
     <string name="register_car">Register Car</string>
     <string name="register_car_progress">Register Car Progress</string>
     <string name="prompt_car_model">Car model</string>

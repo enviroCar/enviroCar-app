@@ -128,16 +128,13 @@ public class MyGarage extends SherlockActivity {
 		OnClickListener listener = new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				RadioButton rb = (RadioButton) v;
-				carFuelType = rb.getText().toString().toLowerCase();
+				carFuelType = getCorrectFuelTypeFromCheckbox(v.getId());
 				Log.e(TAG, carFuelType);
 			}
 		};
 
 		RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radiogroup_fueltype);
-		int selected = radioGroup.getCheckedRadioButtonId();
-		RadioButton checked = (RadioButton) findViewById(selected);
-		carFuelType = checked.getText().toString().toLowerCase();
+		carFuelType = getCorrectFuelTypeFromCheckbox( radioGroup.getCheckedRadioButtonId());
 
 		RadioButton rbGasoline = (RadioButton) findViewById(R.id.radio_gasoline);
 		rbGasoline.setOnClickListener(listener);
@@ -204,6 +201,16 @@ public class MyGarage extends SherlockActivity {
 		
 		
 		TYPEFACE.applyCustomFont((ViewGroup) findViewById(R.id.mygaragelayout), TYPEFACE.Raleway(this));
+	}
+	
+	private String getCorrectFuelTypeFromCheckbox(int resid){
+		switch(resid){
+		case R.id.radio_diesel:
+			return "diesel";
+		case R.id.radio_gasoline:
+			return "gasoline";
+		}
+		return "none";
 	}
 	
 	private void selectSensorFromSharedPreferences() throws JSONException{

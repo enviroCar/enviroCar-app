@@ -91,9 +91,8 @@
     
     
     <string name="menu_login">Einloggen/Registrieren</string>
-    <string name="gasoline">Gasoline</string>
+    <string name="gasoline">Benzin</string>
     <string name="diesel">Diesel</string>
-    <string name="electric">Electric</string>
     <string name="register_car">Auto neu erstellen</string>
     <string name="register_car_progress">Auto erstellen Fortschritt</string>
     <string name="prompt_car_model">Modell</string>
