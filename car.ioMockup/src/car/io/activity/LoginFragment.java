@@ -54,6 +54,9 @@ import car.io.views.TYPEFACE;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
+
 /**
  * Activity which displays a login screen to the user, offering registration as
  * well.
@@ -265,11 +268,7 @@ public class LoginFragment extends SherlockFragment {
 			if (success) {
 				((ECApplication) getActivity().getApplication())
 						.setUser(new User(mUsername, mPassword));
-				if(getActivity().getIntent().getExtras()!=null){
-					if(getActivity().getIntent().getExtras().getInt("redirect") == MainActivity.REQUEST_MY_GARAGE){
-						getActivity().setResult(MainActivity.REQUEST_MY_GARAGE);
-					}
-				}				
+				Crouton.makeText(getActivity(), getResources().getString(R.string.welcome_message)+mUsername, Style.CONFIRM).show();
 				DashboardFragment dashboardFragment = new DashboardFragment();
 	            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
 			} else {

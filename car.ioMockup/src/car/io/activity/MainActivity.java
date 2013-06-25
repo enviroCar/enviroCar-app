@@ -55,6 +55,8 @@ import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+
 
 /**
  * @author jakob
@@ -394,6 +396,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		// Remove the services etc.
 
 		application.destroyStuff();
+		
+		Crouton.cancelAllCroutons();
 
 	}
 	

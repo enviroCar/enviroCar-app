@@ -56,6 +56,9 @@ import car.io.views.TYPEFACE;
 
 import com.actionbarsherlock.app.SherlockFragment;
 
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
+
 /**
  * Activity which displays a register screen to the user, offering registration
  * as well.
@@ -295,7 +298,7 @@ public class RegisterFragment extends SherlockFragment {
 			showProgress(false);
 
 			if (httpStatus == HttpStatus.SC_CREATED) {
-				// TODO greet the user or something..
+				Crouton.makeText(getActivity(), getResources().getString(R.string.welcome_message)+mUsername, Style.CONFIRM).show();
 				((ECApplication) getActivity().getApplication()).setUser(new User(mUsername, mPassword));
 				
 				//open the Garage

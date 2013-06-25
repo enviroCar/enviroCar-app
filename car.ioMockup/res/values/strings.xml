@@ -97,4 +97,6 @@
 	
 	<string name="dashboard">Dashboard</string>
 	<string name="my_tracks">My Tracks</string>
+	
+	<string name="welcome_message">Welcome, </string>
 </resources>
