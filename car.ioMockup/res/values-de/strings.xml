@@ -101,6 +101,7 @@
     <string name="uploadTrack">Track hochladen</string>
     
     <string name="menu_logout">Ausloggen</string>
+    <string name="menu_register">Registrieren</string>
     
     <string name="dashboard">Dashboard</string>
 	<string name="my_tracks">Meine Fahrten</string>

@@ -21,6 +21,8 @@
 
 package car.io.activity;
 
+import java.util.ArrayList;
+
 import org.apache.http.Header;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,10 +36,10 @@ import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NavUtils;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -58,15 +60,12 @@ import car.io.R;
 import car.io.application.ECApplication;
 import car.io.application.RestClient;
 import car.io.views.TYPEFACE;
-import car.io.views.Utils;
 
-import com.actionbarsherlock.app.ActionBar;
-import com.actionbarsherlock.app.SherlockActivity;
-import com.actionbarsherlock.view.MenuItem;
+import com.actionbarsherlock.app.SherlockFragment;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
-public class MyGarage extends SherlockActivity {
+public class MyGarage extends SherlockFragment {
 	
 	private SharedPreferences sharedPreferences;
 
@@ -87,40 +86,25 @@ public class MyGarage extends SherlockActivity {
 	
 	private Spinner sensorSpinner;
 	private ProgressBar sensorDlProgress;
-	private Button sensorRetryButton;	
-	
-	private int actionBarTitleID = 0;
+	private Button sensorRetryButton;
 	
 	private JSONArray sensors;
 	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.my_garage_layout);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
 		
-		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		
-		final ActionBar actionBar = getSupportActionBar();
-		
+		View view = inflater.inflate(R.layout.my_garage_layout, null);
 		//TODO !fancy! search for sensors
 		
-		// font stuff
-		actionBarTitleID = Utils.getActionBarId();
-		if (Utils.getActionBarId() != 0) {
-			((TextView) this.findViewById(actionBarTitleID))
-					.setTypeface(TYPEFACE.Newscycle(this));
-		}
-
-		actionBar.setLogo(getResources().getDrawable(R.drawable.home_icon));
-
-		actionBar.setDisplayHomeAsUpEnabled(true);
+		garageForm = (ScrollView) view.findViewById(R.id.garage_form);
+		garageProgress = (LinearLayout) view.findViewById(R.id.addCarToGarage_status);
 		
-		garageForm = (ScrollView) this.findViewById(R.id.garage_form);
-		garageProgress = (LinearLayout) this.findViewById(R.id.addCarToGarage_status);
-		
-		carModelView = (EditText) findViewById(R.id.addCarToGarage_car_model);
-		carManufacturerView = (EditText) findViewById(R.id.addCarToGarage_car_manufacturer);
-		carConstructionYearView = (EditText) findViewById(R.id.addCarToGarage_car_constructionYear);
+		carModelView = (EditText) view.findViewById(R.id.addCarToGarage_car_model);
+		carManufacturerView = (EditText) view.findViewById(R.id.addCarToGarage_car_manufacturer);
+		carConstructionYearView = (EditText) view.findViewById(R.id.addCarToGarage_car_constructionYear);
 
 		TextWatcher textWatcher = new TextWatcher() {
 
@@ -154,15 +138,15 @@ public class MyGarage extends SherlockActivity {
 			}
 		};
 
-		RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radiogroup_fueltype);
+		RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.radiogroup_fueltype);
 		carFuelType = getCorrectFuelTypeFromCheckbox( radioGroup.getCheckedRadioButtonId());
 
-		RadioButton rbGasoline = (RadioButton) findViewById(R.id.radio_gasoline);
+		RadioButton rbGasoline = (RadioButton) view.findViewById(R.id.radio_gasoline);
 		rbGasoline.setOnClickListener(listener);
-		RadioButton rbDiesel = (RadioButton) findViewById(R.id.radio_diesel);
+		RadioButton rbDiesel = (RadioButton) view.findViewById(R.id.radio_diesel);
 		rbDiesel.setOnClickListener(listener);
 
-		findViewById(R.id.register_car_button).setOnClickListener(
+		view.findViewById(R.id.register_car_button).setOnClickListener(
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View view) {
@@ -178,7 +162,7 @@ public class MyGarage extends SherlockActivity {
 				});
 		
 
-		sensorSpinner = (Spinner) findViewById(R.id.dashboard_current_sensor_spinner);
+		sensorSpinner = (Spinner) view.findViewById(R.id.dashboard_current_sensor_spinner);
 		sensorSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 			private boolean firstSelect = true;
 			@Override
@@ -188,15 +172,14 @@ public class MyGarage extends SherlockActivity {
 					Log.i("item",parent.getItemAtPosition(pos)+"");
 					
 					try {
-						((ECApplication) getApplication()).updateCurrentSensor(((JSONObject) parent.getItemAtPosition(pos)).getString("id"),
+						((ECApplication) getActivity().getApplication()).updateCurrentSensor(((JSONObject) parent.getItemAtPosition(pos)).getString("id"),
 								((JSONObject) parent.getItemAtPosition(pos)).getString("manufacturer"),
 								((JSONObject) parent.getItemAtPosition(pos)).getString("model"),
 								((JSONObject) parent.getItemAtPosition(pos)).getString("fuelType"),
 								((JSONObject) parent.getItemAtPosition(pos)).getInt("constructionYear"));
-						setResult(DashboardFragment.SENSOR_CHANGED_RESULT);
-						finish();
+			        	DashboardFragment dashboardFragment = new DashboardFragment();
+			            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
 					} catch (JSONException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}else{
@@ -206,11 +189,11 @@ public class MyGarage extends SherlockActivity {
 
 			@Override
 			public void onNothingSelected(AdapterView<?> parent) {
-				//TODO do something
+				//TODO do something, also nothing is selected if the same item as selected is selected
 			}
 		});
-		sensorDlProgress = (ProgressBar) findViewById(R.id.sensor_dl_progress);
-		sensorRetryButton = (Button) findViewById(R.id.retrybutton);
+		sensorDlProgress = (ProgressBar) view.findViewById(R.id.sensor_dl_progress);
+		sensorRetryButton = (Button) view.findViewById(R.id.retrybutton);
 		sensorRetryButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -221,9 +204,12 @@ public class MyGarage extends SherlockActivity {
 		dlSensors();
 		
 		
-		TYPEFACE.applyCustomFont((ViewGroup) findViewById(R.id.mygaragelayout), TYPEFACE.Raleway(this));
+		TYPEFACE.applyCustomFont((ViewGroup) view.findViewById(R.id.mygaragelayout), TYPEFACE.Raleway(getActivity()));
+		
+		
+		return view;
 	}
-	
+
 	private String getCorrectFuelTypeFromCheckbox(int resid){
 		switch(resid){
 		case R.id.radio_diesel:
@@ -235,14 +221,14 @@ public class MyGarage extends SherlockActivity {
 	}
 	
 	private void selectSensorFromSharedPreferences() throws JSONException{
-		if(PreferenceManager.getDefaultSharedPreferences(getApplication()).contains(ECApplication.PREF_KEY_SENSOR_ID)){
-			String prefSensorid = PreferenceManager.getDefaultSharedPreferences(getApplication()).getString(ECApplication.PREF_KEY_SENSOR_ID, "nosensor");
+		if(PreferenceManager.getDefaultSharedPreferences(getActivity().getApplication()).contains(ECApplication.PREF_KEY_SENSOR_ID)){
+			String prefSensorid = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplication()).getString(ECApplication.PREF_KEY_SENSOR_ID, "nosensor");
 			if(prefSensorid.equals("nosensor") == false){
 				for(int i = 0; i<sensors.length(); i++){
 					//iterate over sensors
-					if(((JSONObject) sensors.get(i)).getJSONObject("properties").getString("id").equals(prefSensorid)){
+					if(((JSONObject) sensors.get(i)).getString("id").equals(prefSensorid)){
 						sensorSpinner.setSelection(i);
-						Log.i("setspinner from prefs",((JSONObject) sensors.get(i)).getJSONObject("properties").getString("id")+" "+prefSensorid);
+						Log.i("setspinner from prefs",((JSONObject) sensors.get(i)).getString("id")+" "+prefSensorid);
 						break;
 					}
 				}
@@ -269,16 +255,33 @@ public class MyGarage extends SherlockActivity {
 			@Override
 			public void onSuccess(JSONObject response) {
 				super.onSuccess(response);
-				try {
-					sensors = response.getJSONArray("sensors");
-					sensorSpinner.setAdapter(new SensorAdapter());
-					sensorDlProgress.setVisibility(View.GONE);
-					sensorSpinner.setVisibility(View.VISIBLE);
-					selectSensorFromSharedPreferences();
+				ArrayList<JSONObject> a = new ArrayList<JSONObject>();
+				try {					
+					JSONArray res = response.getJSONArray("sensors");
+					for(int i = 0; i<res.length(); i++){
+						if(((JSONObject) res.get(i)).optString("type", "none").equals("car")){
+							a.add(((JSONObject) res.get(i)).getJSONObject("properties"));
+						}
+					}
+					
+		
+
 				} catch (JSONException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				} finally {
+					sensors = new JSONArray(a);
+					sensorSpinner.setAdapter(new SensorAdapter());
+					sensorDlProgress.setVisibility(View.GONE);
+					sensorSpinner.setVisibility(View.VISIBLE);
+					try {
+						selectSensorFromSharedPreferences();
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
+				
 			}
 		});
 		
@@ -300,8 +303,8 @@ public class MyGarage extends SherlockActivity {
 		edit.putString(ECApplication.PREF_KEY_CAR_MODEL, carModel);
 		edit.commit();
 		
-		String username =((ECApplication) getApplication()).getUser().getUsername();
-		String token = ((ECApplication) getApplication()).getUser().getToken();
+		String username =((ECApplication) getActivity().getApplication()).getUser().getUsername();
+		String token = ((ECApplication) getActivity().getApplication()).getUser().getToken();
 		
 		RestClient.createSensor(sensorString, username, token, new AsyncHttpResponseHandler(){
 			
@@ -335,21 +338,12 @@ public class MyGarage extends SherlockActivity {
 				Editor edit = sharedPreferences.edit();
 				edit.putString(ECApplication.PREF_KEY_SENSOR_ID, sensorId);
 				edit.commit();
-				setResult(httpStatusCode);
-				finish();
+				//go back to the dashboard
+	        	DashboardFragment dashboardFragment = new DashboardFragment();
+	            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
 			}
 		});
 
-	}
-	
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case android.R.id.home:
-			NavUtils.navigateUpFromSameTask(this);
-			return true;
-		}
-		return super.onOptionsItemSelected(item);
 	}
 	
 	/**
@@ -400,11 +394,11 @@ public class MyGarage extends SherlockActivity {
         public int getCount() {
             return sensors.length();
         }
-        
+
         @Override
         public Object getItem(int position) {
             try {
-				return ((JSONObject) sensors.get(position)).getJSONObject("properties");
+				return ((JSONObject) sensors.get(position));
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
@@ -420,8 +414,8 @@ public class MyGarage extends SherlockActivity {
         
         @Override
         public View getView(int position, View view, ViewGroup parent) {
-            TextView text = new TextView(MyGarage.this);
-            if(firstTime && !PreferenceManager.getDefaultSharedPreferences(getApplication()).contains(ECApplication.PREF_KEY_SENSOR_ID)){
+            TextView text = new TextView(getActivity());
+            if(firstTime && !PreferenceManager.getDefaultSharedPreferences(getActivity().getApplication()).contains(ECApplication.PREF_KEY_SENSOR_ID)){
             	text.setText(getResources().getString(R.string.please_select));
             	firstTime = false;
             } else {

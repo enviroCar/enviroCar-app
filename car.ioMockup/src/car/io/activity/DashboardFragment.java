@@ -117,11 +117,11 @@ public class DashboardFragment extends SherlockFragment {
 			@Override
 			public void onClick(View v) {
 				if(application.isLoggedIn()){
-					getActivity().startActivityForResult(new Intent(getActivity(), MyGarage.class), MainActivity.REQUEST_MY_GARAGE);
+		        	MyGarage garageFragment = new MyGarage();
+		            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).commit();
 				}else{
-					Intent i = new Intent(getActivity(), LoginActivity.class);
-					i.putExtra("redirect", MainActivity.REQUEST_MY_GARAGE);
-					getActivity().startActivityForResult(i,MainActivity.REQUEST_REDIRECT_TO_GARAGE);
+	                LoginFragment loginFragment = new LoginFragment();
+	                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").commit();
 				}
 			}
 		});

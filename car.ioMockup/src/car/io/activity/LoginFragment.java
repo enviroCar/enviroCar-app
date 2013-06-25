@@ -50,6 +50,7 @@ import car.io.application.User;
 import car.io.views.TYPEFACE;
 
 import com.actionbarsherlock.app.SherlockFragment;
+import com.actionbarsherlock.view.Menu;
 
 /**
  * Activity which displays a login screen to the user, offering registration as
@@ -82,7 +83,9 @@ public class LoginFragment extends SherlockFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		// super.onCreateView(inflater, container, savedInstanceState);
+		
+		setHasOptionsMenu(true);
+		
 		View view = inflater.inflate(R.layout.login_layout, null);
 
 		mUsernameView = (EditText) view.findViewById(R.id.login_username);
@@ -122,7 +125,26 @@ public class LoginFragment extends SherlockFragment {
 				TYPEFACE.Raleway(getActivity()));
 		mUsernameView.requestFocus();
 	}
+	
+	@Override
+	public boolean onOptionsItemSelected(
+			com.actionbarsherlock.view.MenuItem item) {
+		switch(item.getItemId()){
+		case R.id.menu_register:
+            RegisterFragment registerFragment = new RegisterFragment();
+            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, registerFragment, "REGISTER").commit();
+			return true;
+			
+		}
+		return false;
+	}
 
+	@Override
+	public void onCreateOptionsMenu(Menu menu, com.actionbarsherlock.view.MenuInflater inflater) {
+    	inflater.inflate(R.menu.menu_login, (com.actionbarsherlock.view.Menu) menu);
+    	super.onCreateOptionsMenu(menu, inflater);
+	}
+	
 	/**
 	 * Attempts to sign in or register the account specified by the login form.
 	 * If there are form errors (invalid email, missing fields, etc.), the
@@ -242,7 +264,8 @@ public class LoginFragment extends SherlockFragment {
 						getActivity().setResult(MainActivity.REQUEST_MY_GARAGE);
 					}
 				}				
-				getActivity().finish();
+				DashboardFragment dashboardFragment = new DashboardFragment();
+	            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
 			} else {
 				mPasswordView
 						.setError(getString(R.string.error_incorrect_password));

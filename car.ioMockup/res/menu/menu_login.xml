@@ -1,0 +1,8 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/menu_register"
+        android:orderInCategory="100"
+        android:showAsAction="always"
+        android:icon="@drawable/action_register"
+        android:title="@string/menu_register"/>
+</menu>

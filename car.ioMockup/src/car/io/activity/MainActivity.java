@@ -348,8 +348,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         	if(application.isLoggedIn()){
         		application.logOut();
         	} else {
-        		Intent loginIntent = new Intent(this, LoginActivity.class);
-        		startActivity(loginIntent);
+                LoginFragment loginFragment = new LoginFragment();
+                manager.beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").commit();
         	}
             break;
         case SETTINGS:

@@ -93,6 +93,7 @@
 	<string name="close_drawer">Close</string>
 	
 	<string name="menu_logout">Sign out</string>
+	<string name="menu_register">Register</string>
 	
 	<string name="dashboard">Dashboard</string>
 	<string name="my_tracks">My Tracks</string>
