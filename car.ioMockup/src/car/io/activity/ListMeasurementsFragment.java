@@ -205,12 +205,16 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				ArrayList<Measurement> measurements = track.getMeasurements();
 				Log.e("obd2",String.valueOf(measurements.size()));
 				String[] trackCoordinates = extractCoordinates(measurements);
-				Log.e("obd2",String.valueOf(trackCoordinates.length));
-				Intent intent = new Intent(getActivity().getApplicationContext(), Map.class);
-				Bundle bundle = new Bundle();
-				bundle.putStringArray("coordinates", trackCoordinates);
-				intent.putExtras(bundle);
-				startActivity(intent);
+				
+				if (trackCoordinates.length != 0){
+					Log.e("obd2",String.valueOf(trackCoordinates.length));
+					Intent intent = new Intent(getActivity().getApplicationContext(), Map.class);
+					Bundle bundle = new Bundle();
+					bundle.putStringArray("coordinates", trackCoordinates);
+					intent.putExtras(bundle);
+					startActivity(intent);	
+				}
+				Toast.makeText(getActivity(), "Track does not contain any coordinates.", Toast.LENGTH_LONG).show();
 			} else {
 				Toast.makeText(getActivity(), "Map not possible without SD card.", Toast.LENGTH_LONG).show();
 			}
