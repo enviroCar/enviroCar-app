@@ -16,9 +16,11 @@ import org.json.JSONObject;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -141,8 +143,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-		ArrayList<Track> tracks = dbAdapterRemote.getAllTracks();
-		final Track track = tracks.get(itemSelect);
+		final Track track = tracksList.get(itemSelect);
 		switch (item.getItemId()) {
 
 		case R.id.editName:
