@@ -36,7 +36,7 @@ import org.json.JSONObject;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.Intent;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -46,6 +46,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import car.io.R;
@@ -219,6 +220,11 @@ public class RegisterFragment extends SherlockFragment {
 			// form field with an error.
 			focusView.requestFocus();
 		} else {
+			//hide the keyboard
+			InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
+				      Context.INPUT_METHOD_SERVICE);
+				imm.hideSoftInputFromWindow(mPasswordView.getWindowToken(), 0);
+
 			// Show a progress spinner, and kick off a background task to
 			// perform the user register attempt.
 			mRegisterStatusMessageView
@@ -292,10 +298,9 @@ public class RegisterFragment extends SherlockFragment {
 				// TODO greet the user or something..
 				((ECApplication) getActivity().getApplication()).setUser(new User(mUsername, mPassword));
 				
-				Intent intent = new Intent(getActivity(), MyGarage.class);
-				getActivity().startActivityForResult(intent, LoginActivity.REQUEST_MY_GARAGE);
-				//getActivity().finish();
-				
+				//open the Garage
+	        	MyGarage garageFragment = new MyGarage();
+	            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).commit();
 			} else if (httpStatus == HttpStatus.SC_CONFLICT) {
 				// TODO look out for server changes..
 				mUsernameView.setError(getString(R.string.error_username_already_in_use));

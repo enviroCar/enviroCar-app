@@ -33,6 +33,7 @@ import org.apache.http.message.BasicHeader;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -42,6 +43,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import car.io.R;
@@ -132,7 +134,7 @@ public class LoginFragment extends SherlockFragment {
 		switch(item.getItemId()){
 		case R.id.menu_register:
             RegisterFragment registerFragment = new RegisterFragment();
-            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, registerFragment, "REGISTER").commit();
+            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, registerFragment, "REGISTER").addToBackStack(null).commit();
 			return true;
 			
 		}
@@ -150,7 +152,7 @@ public class LoginFragment extends SherlockFragment {
 	 * If there are form errors (invalid email, missing fields, etc.), the
 	 * errors are presented and no actual login attempt is made.
 	 */
-	public void attemptLogin() {
+	private void attemptLogin() {
 		if (mAuthTask != null) {
 			return;
 		}
@@ -189,7 +191,11 @@ public class LoginFragment extends SherlockFragment {
 			// form field with an error.
 			focusView.requestFocus();
 		} else {
-
+			//hide the keyboard
+			InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
+				      Context.INPUT_METHOD_SERVICE);
+				imm.hideSoftInputFromWindow(mPasswordView.getWindowToken(), 0);
+			
 			// Show a progress spinner, and kick off a background task to
 			// perform the user login attempt.
 			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
@@ -284,7 +290,7 @@ public class LoginFragment extends SherlockFragment {
 	 * Method used for authentication (e.g. at loginscreen to verify user
 	 * credentials
 	 */
-	public boolean authenticateHttp(String user, String token) {
+	private boolean authenticateHttp(String user, String token) {
 		DefaultHttpClient httpclient = new DefaultHttpClient();
 		try {
 			HttpGet httpget = new HttpGet(

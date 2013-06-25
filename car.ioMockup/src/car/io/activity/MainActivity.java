@@ -33,6 +33,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
@@ -84,8 +85,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 	public static final int REQUEST_MY_GARAGE = 1336;
 	public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
-
-
+		
 	// Upload in Wlan
 
 	// private boolean uploadOnlyInWlan;
@@ -180,7 +180,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		DashboardFragment initialFragment = new DashboardFragment();
 		manager.beginTransaction().replace(R.id.content_frame, initialFragment)
 				.commit();
-
+		
 		drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawerList = (ListView) findViewById(R.id.left_drawer);
 		navDrawerAdapter = new NavAdapter();
@@ -189,7 +189,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(
 				this, drawer, R.drawable.ic_drawer, R.string.open_drawer,
 				R.string.close_drawer) {
-			
+		
 			@Override
 			public void onDrawerOpened(View drawerView) {
 				super.onDrawerOpened(drawerView);
@@ -349,7 +349,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         		application.logOut();
         	} else {
                 LoginFragment loginFragment = new LoginFragment();
-                manager.beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").commit();
+                manager.beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
         	}
             break;
         case SETTINGS:
@@ -358,7 +358,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
             break;
         case MY_TRACKS:
             ListMeasurementsFragment listMeasurementFragment = new ListMeasurementsFragment();
-            manager.beginTransaction().replace(R.id.content_frame, listMeasurementFragment, "MY_TRACKS").commit();
+            manager.beginTransaction().replace(R.id.content_frame, listMeasurementFragment, "MY_TRACKS").addToBackStack(null).commit();
             break;
 		case START_STOP_MEASUREMENT:
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -420,7 +420,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		}
 		return false;
 	}
-
 
 	// @Override
 	// public void onActivityResult(int requestCode, int resultCode, Intent

@@ -21,7 +21,6 @@
 
 package car.io.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -40,7 +39,6 @@ import com.actionbarsherlock.app.SherlockFragment;
 
 public class DashboardFragment extends SherlockFragment {
 
-	
 	public static final int SENSOR_CHANGED_RESULT = 1337;
 	TextView speedTextView;
 	RoundProgress roundProgressSpeed;
@@ -48,16 +46,13 @@ public class DashboardFragment extends SherlockFragment {
 	RoundProgress roundProgressCO2;
 	DbAdapter dbAdapter;
 	ECApplication application;
-	
+
 	private TextView sensor;
 
 	int speed;
 	int speedProgress;
 	double co2;
 	double co2Progress;
-	
-
-	
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -118,10 +113,10 @@ public class DashboardFragment extends SherlockFragment {
 			public void onClick(View v) {
 				if(application.isLoggedIn()){
 		        	MyGarage garageFragment = new MyGarage();
-		            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).commit();
+		            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
 				}else{
 	                LoginFragment loginFragment = new LoginFragment();
-	                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").commit();
+	                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
 				}
 			}
 		});
