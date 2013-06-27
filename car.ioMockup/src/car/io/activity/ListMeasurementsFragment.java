@@ -56,7 +56,6 @@ import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 import car.io.R;
 import car.io.adapter.DbAdapter;
 import car.io.adapter.DbAdapterRemote;
@@ -72,6 +71,9 @@ import car.io.views.Utils;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
 import com.loopj.android.http.JsonHttpResponseHandler;
+
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class ListMeasurementsFragment extends SherlockFragment {
 
@@ -180,7 +182,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						track.commitTrackToDatabase();
 						tracksList.get(itemSelect).setName(value);
 						elvAdapter.notifyDataSetChanged();
-						Toast.makeText(getActivity(), getString(R.string.nameChanged), Toast.LENGTH_SHORT).show();
+						Crouton.showText(getActivity(), getString(R.string.nameChanged), Style.INFO);
 					}
 				}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
@@ -188,7 +190,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					}
 				}).show();
 			} else {
-				Toast.makeText(getActivity(), "Not yet possible for remote tracks.", Toast.LENGTH_SHORT).show();
+				Crouton.showText(getActivity(), "Not yet possible for remote tracks.", Style.INFO);
 			}
 			return true;
 
@@ -207,8 +209,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						tracksList.get(itemSelect).setDescription(value);
 						elvAdapter.notifyDataSetChanged();
 						// TODO Bug: update the description when it is changed.
-						Toast.makeText(getActivity(), getString(R.string.descriptionChanged), Toast.LENGTH_SHORT).show();
-	
+						Crouton.showText(getActivity(), getString(R.string.descriptionChanged), Style.INFO);
 					}
 				}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
@@ -216,7 +217,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					}
 				}).show();
 			} else {
-				Toast.makeText(getActivity(), "Not yet possible for remote tracks.", Toast.LENGTH_SHORT).show();
+				Crouton.showText(getActivity(), "Not yet possible for remote tracks.", Style.INFO);
 			}
 			return true;
 
@@ -234,11 +235,13 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					Bundle bundle = new Bundle();
 					bundle.putStringArray("coordinates", trackCoordinates);
 					intent.putExtras(bundle);
-					startActivity(intent);	
+					startActivity(intent);
+				} else {
+					Crouton.showText(getActivity(), getString(R.string.trackContainsNoCoordinates), Style.INFO);
 				}
-				Toast.makeText(getActivity(), "Track does not contain any coordinates.", Toast.LENGTH_LONG).show();
+				
 			} else {
-				Toast.makeText(getActivity(), "Map not possible without SD card.", Toast.LENGTH_LONG).show();
+				Crouton.showText(getActivity(), getString(R.string.noSdCard), Style.INFO);
 			}
 
 			return true;
@@ -247,11 +250,11 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			if(track.isLocalTrack()){
 				Log.e("obd2", "deleting item: " + itemSelect);
 				dbAdapterLocal.deleteTrack(track.getId());
-				Toast.makeText(getActivity(), getString(R.string.trackDeleted), Toast.LENGTH_LONG).show();
+				Crouton.showText(getActivity(), getString(R.string.trackDeleted), Style.INFO);
 				tracksList.remove(itemSelect);
 				elvAdapter.notifyDataSetChanged();
 			} else {
-				Toast.makeText(getActivity(), "Not yet possible for remote tracks.", Toast.LENGTH_SHORT).show();
+				Crouton.showText(getActivity(), "Not yet possible for remote tracks.", Style.INFO);
 			}
 			return true;
 

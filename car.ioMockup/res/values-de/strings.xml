@@ -85,6 +85,8 @@
     <string name="upload_notification_success">Lokale Tracks wurden erfolgreich hochgeladen.</string>
     <string name="please_select">&#8230;</string>
     <string name="startMap">In Karte betrachten</string>
+    <string name="trackContainsNoCoordinates">Track enthält keine Koordinaten.</string>
+    <string name="noSdCard">"Karte wird ohne SD-Karte nicht angezeigt."</string>
     
     
     <string name="menu_login">Einloggen/Registrieren</string>

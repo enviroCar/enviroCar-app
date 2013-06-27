@@ -40,6 +40,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.WindowManager.LayoutParams;
 
 import org.mapsforge.android.maps.overlay.ArrayItemizedOverlay;
 import org.mapsforge.android.maps.overlay.OverlayItem;
@@ -52,9 +53,8 @@ public class Map extends MapActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(null);
+		super.onCreate(savedInstanceState);
 
-		this.setTheme(android.R.style.Theme);
 		mapView = new MapView(this, new MapnikTileDownloader());
 		mapView.setClickable(true);
 		mapView.setBuiltInZoomControls(true);
@@ -98,12 +98,11 @@ public class Map extends MapActivity {
 				"End Point of Measurements.");
 		itemizedOverlay.addItem(endItem);
 
-		mapView.getOverlays().add(itemizedOverlay);
 		OverlayWay way = new OverlayWay(overlayPoints);
 		wayOverlay.addWay(way);
 		mapView.getOverlays().add(wayOverlay);
+		mapView.getOverlays().add(itemizedOverlay);
 		setContentView(mapView);
-		bundle.clear();
 	}
 
 	private GeoPoint[][] getGeoPoints(String[] coordinates) {
