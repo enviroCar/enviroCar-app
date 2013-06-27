@@ -37,11 +37,9 @@ import org.json.JSONObject;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -99,6 +97,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		View v = inflater.inflate(R.layout.list_tracks_layout, null);
 		elv = (ExpandableListView) v.findViewById(R.id.list);
 		progress = (ProgressBar) v.findViewById(R.id.listprogress);
+		elv.setEmptyView(v.findViewById(android.R.id.empty));
 		
 		registerForContextMenu(elv);
 
@@ -434,6 +433,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			
 			
 			private void afterOneTrack(){
+				getView().findViewById(android.R.id.empty).setVisibility(View.GONE);
 				ct--;
 				if (ct == 0) {
 					progress.setVisibility(View.GONE);
@@ -452,12 +452,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					elvAdapter = new TracksListAdapter();
 				progress.setVisibility(View.VISIBLE);
 			}
-			
-			@Override
-			public void onFinish() {
-				super.onFinish();
-				progress.setVisibility(View.GONE);
-			}
 
 			@Override
 			public void onSuccess(int httpStatus, JSONObject json) {
@@ -465,6 +459,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 				try {
 					JSONArray tracks = json.getJSONArray("tracks");
+					if(tracks.length()==0) progress.setVisibility(View.GONE);
 					ct = tracks.length();
 					for (int i = 0; i < tracks.length(); i++) {
 

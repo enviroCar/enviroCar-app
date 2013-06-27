@@ -109,4 +109,5 @@
 	<string name="my_tracks">Meine Fahrten</string>
 	
 	<string name="welcome_message">Willkommen, </string>
+	<string name="no_tracks">Keine Fahrten vorhanden</string>
 </resources>

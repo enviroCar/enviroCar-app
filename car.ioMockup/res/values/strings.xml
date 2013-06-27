@@ -101,4 +101,5 @@
 	<string name="my_tracks">My Tracks</string>
 	
 	<string name="welcome_message">Welcome, </string>
+	<string name="no_tracks">You have no tracks</string>
 </resources>
