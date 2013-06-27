@@ -61,31 +61,10 @@ public class DashboardFragment extends SherlockFragment {
 	}
 	
 	public void updateSensorOnDashboard(){
-		sensor.setText(getCurrentSensorString());
+		sensor.setText(application.getCurrentSensorString());
 	}
 	
-	private String getCurrentSensorString(){
-		if(PreferenceManager.getDefaultSharedPreferences(application).contains(ECApplication.PREF_KEY_SENSOR_ID) && 
-				PreferenceManager.getDefaultSharedPreferences(application).contains(ECApplication.PREF_KEY_FUEL_TYPE) &&
-				PreferenceManager.getDefaultSharedPreferences(application).contains(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR) &&
-				PreferenceManager.getDefaultSharedPreferences(application).contains(ECApplication.PREF_KEY_CAR_MODEL) &&
-				PreferenceManager.getDefaultSharedPreferences(application).contains(ECApplication.PREF_KEY_CAR_MANUFACTURER)){
-			String prefSensorid = PreferenceManager.getDefaultSharedPreferences(application).getString(ECApplication.PREF_KEY_SENSOR_ID, "nosensor");
-			String prefFuelType = PreferenceManager.getDefaultSharedPreferences(application).getString(ECApplication.PREF_KEY_FUEL_TYPE, "nosensor");
-			String prefYear = PreferenceManager.getDefaultSharedPreferences(application).getString(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR, "nosensor");
-			String prefModel = PreferenceManager.getDefaultSharedPreferences(application).getString(ECApplication.PREF_KEY_CAR_MODEL, "nosensor");
-			String prefManu = PreferenceManager.getDefaultSharedPreferences(application).getString(ECApplication.PREF_KEY_CAR_MANUFACTURER, "nosensor");
-			if(prefSensorid.equals("nosensor") == false ||
-					prefYear.equals("nosensor") == false ||
-					prefFuelType.equals("nosensor") == false ||
-					prefModel.equals("nosensor") == false ||
-					prefManu.equals("nosensor") == false ){
-				return prefManu+" "+prefModel+" ("+prefFuelType+" "+prefYear+")";
-			}
-		}
-			return getResources().getString(R.string.no_sensor_selected);
-		
-	}
+
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {

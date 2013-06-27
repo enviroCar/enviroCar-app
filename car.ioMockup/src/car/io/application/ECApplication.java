@@ -86,7 +86,7 @@ public class ECApplication extends Application implements LocationListener {
 	private final ScheduledExecutorService scheduleTaskExecutor = Executors
 			.newScheduledThreadPool(1);
 	// get the default Bluetooth adapter
-	private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter
+	private BluetoothAdapter bluetoothAdapter = BluetoothAdapter
 			.getDefaultAdapter();
 
 	private ServiceConnector serviceConnector = null;
@@ -127,11 +127,8 @@ public class ECApplication extends Application implements LocationListener {
 		if (bluetoothAdapter == null) {
 			return false;
 		} else {
-			if (!bluetoothAdapter.isEnabled()) {
-				return false;
-			}
+			return bluetoothAdapter.isEnabled();
 		}
-		return true;
 	}
 
 	/**
@@ -193,6 +190,29 @@ public class ECApplication extends Application implements LocationListener {
 	 */
 	private void activateBluetooth(){
 		bluetoothAdapter.enable();
+	}
+	
+	public String getCurrentSensorString(){
+		if(PreferenceManager.getDefaultSharedPreferences(this).contains(ECApplication.PREF_KEY_SENSOR_ID) && 
+				PreferenceManager.getDefaultSharedPreferences(this).contains(ECApplication.PREF_KEY_FUEL_TYPE) &&
+				PreferenceManager.getDefaultSharedPreferences(this).contains(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR) &&
+				PreferenceManager.getDefaultSharedPreferences(this).contains(ECApplication.PREF_KEY_CAR_MODEL) &&
+				PreferenceManager.getDefaultSharedPreferences(this).contains(ECApplication.PREF_KEY_CAR_MANUFACTURER)){
+			String prefSensorid = PreferenceManager.getDefaultSharedPreferences(this).getString(ECApplication.PREF_KEY_SENSOR_ID, "nosensor");
+			String prefFuelType = PreferenceManager.getDefaultSharedPreferences(this).getString(ECApplication.PREF_KEY_FUEL_TYPE, "nosensor");
+			String prefYear = PreferenceManager.getDefaultSharedPreferences(this).getString(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR, "nosensor");
+			String prefModel = PreferenceManager.getDefaultSharedPreferences(this).getString(ECApplication.PREF_KEY_CAR_MODEL, "nosensor");
+			String prefManu = PreferenceManager.getDefaultSharedPreferences(this).getString(ECApplication.PREF_KEY_CAR_MANUFACTURER, "nosensor");
+			if(prefSensorid.equals("nosensor") == false ||
+					prefYear.equals("nosensor") == false ||
+					prefFuelType.equals("nosensor") == false ||
+					prefModel.equals("nosensor") == false ||
+					prefManu.equals("nosensor") == false ){
+				return prefManu+" "+prefModel+" ("+prefFuelType+" "+prefYear+")";
+			}
+		}
+			return getResources().getString(R.string.no_sensor_selected);
+		
 	}
 
 	/**

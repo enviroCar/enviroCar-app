@@ -120,8 +120,14 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 							null);
 	
 					if (remoteDevice != null) {
-						navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
-						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(preferences.getString(SettingsActivity.BLUETOOTH_NAME, ""));
+						if(!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)){
+							navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
+							navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
+							navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.no_sensor_selected));
+						} else {
+							navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
+							navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(preferences.getString(SettingsActivity.BLUETOOTH_NAME, ""));
+						}
 					} else {
 						navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
 						navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
@@ -194,8 +200,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 			@Override
 			public void onDrawerOpened(View drawerView) {
-				super.onDrawerOpened(drawerView);
 				prepareNavDrawerItems();
+				super.onDrawerOpened(drawerView);
 			}
 		};
 
@@ -368,10 +374,20 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			String remoteDevice = preferences.getString(car.io.activity.SettingsActivity.BLUETOOTH_KEY,null);
 
 			if (application.requirementsFulfilled() && remoteDevice != null) {
-				if (!application.getServiceConnector().isRunning()) {
-					application.startConnection();
+				if(!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)){
+					if(application.isLoggedIn()){
+			        	MyGarage garageFragment = new MyGarage();
+			            getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
+					}else{
+		                LoginFragment loginFragment = new LoginFragment();
+		                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
+					}
 				} else {
-					application.stopConnection();
+					if (!application.getServiceConnector().isRunning()) {
+						application.startConnection();
+					} else {
+						application.stopConnection();
+					}
 				}
 			} else {
 				Intent settingsIntent = new Intent(this, SettingsActivity.class);
