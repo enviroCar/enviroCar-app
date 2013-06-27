@@ -355,6 +355,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         case LOGIN:
         	if(application.isLoggedIn()){
         		application.logOut();
+        		((ListMeasurementsFragment) getSupportFragmentManager().findFragmentByTag("MY_TRACKS")).clearRemoteTracks();
         	} else {
                 LoginFragment loginFragment = new LoginFragment();
                 manager.beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();

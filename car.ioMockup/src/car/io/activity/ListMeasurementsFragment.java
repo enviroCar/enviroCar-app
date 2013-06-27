@@ -137,6 +137,20 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		
 	}
 	
+	/**
+	 * Method to remove all tracks of the logged in user from the listview and from the internal database.
+	 * Tracks which are locally on the device, are not removed.
+	 */
+	
+	public void clearRemoteTracks(){
+		for(Track t : tracksList){
+			if(!t.isLocalTrack())
+				tracksList.remove(t);
+		}
+		dbAdapterRemote.deleteAllTracks();
+		elvAdapter.notifyDataSetChanged();
+	}
+	
 	@Override
 	public boolean onOptionsItemSelected(
 			com.actionbarsherlock.view.MenuItem item) {
