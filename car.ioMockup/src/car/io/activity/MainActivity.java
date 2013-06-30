@@ -304,109 +304,99 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		}, 1, 10, TimeUnit.MINUTES);
 		
 		/*
-		 * Auto-Uploader of tracks.
+		 * Auto-Uploader of tracks. Uploads complete tracks every 10 minutes.
 		 */
 
-//		ScheduledExecutorService uploadTaskExecutor = Executors
-//				.newScheduledThreadPool(1);
-//		uploadTaskExecutor.scheduleAtFixedRate(new Runnable() {
-//
-//			@Override
-//			public void run() {
-//				ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-//				NetworkInfo mWifi = connManager
-//						.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-//
-//				Log.e("obd2", "Automatic upload");
-//                if (application.isLoggedIn()) {
-//                    try {
-//                        if (!application.getServiceConnector().isRunning()) {
-//                            Log.e("obd2", "Service connector not running");
-//                            if (alwaysUpload == true) {
-//                                if (uploadOnlyInWlan == true) {
-//                                    if (mWifi.isConnected()) {
-//                                        Log.e("obd2", "Uploading tracks 1");
-//                                        try {
-//											handler_upload.post(new Runnable() {
-//												
-//												@Override
-//												public void run() {
-//													uploadTracks();
-//												}
-//											});
-//										} catch (Exception e) {
-//											// TODO Auto-generated catch block
-//											e.printStackTrace();
-//										}
-//                                        
-//                                    }
-//                                } else {
-//                                    Log.e("obd2", "Uploading tracks 2");
-//                                    handler_upload.post(new Runnable() {
-//										
-//										@Override
-//										public void run() {
-//											uploadTracks();
-//										}
-//									});
-//                                }
-//                            }
-//						}
-//					} catch (NullPointerException e) {
-//						Log.e("obd2", "Service connector is null");
-//						if (alwaysUpload == true) {
-//							if (uploadOnlyInWlan == true) {
-//								if (mWifi.isConnected()) {
-//									Log.e("obd2", "Uploading tracks 3 ");
-//									try {
-//										handler_upload.post(new Runnable() {
-//
-//											@Override
-//											public void run() {
-//												uploadTracks();
-//											}
-//										});
-//									} catch (Exception e1) {
-//										// TODO Auto-generated catch block
-//										e1.printStackTrace();
-//									}
-//								}
-//							} else {
-//								Log.e("obd2", "Uploading tracks 4");
-//								handler_upload.post(new Runnable() {
-//
-//									@Override
-//									public void run() {
-//										uploadTracks();
-//									}
-//								});
-//							}
-//						}
-//					}
-//                } 
-//			}
-//		}, 0, 2, TimeUnit.MINUTES);
-//
+		ScheduledExecutorService uploadTaskExecutor = Executors.newScheduledThreadPool(1);
+		uploadTaskExecutor.scheduleAtFixedRate(new Runnable() {
+
+			@Override
+			public void run() {
+				ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+				NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+				if (alwaysUpload) {
+					Log.e("obd2", "Automatic upload will start");
+					if (application.isLoggedIn()) {
+						try {
+							if (!application.getServiceConnector().isRunning()) {
+								Log.e("obd2", "Service connector not running");
+								if (uploadOnlyInWlan == true) {
+									if (mWifi.isConnected()) {
+										Log.e("obd2", "Uploading tracks 1");
+										handler_upload.post(new Runnable() {
+
+											@Override
+											public void run() {
+												uploadTracks();
+											}
+										});
+									}
+								} else {
+									Log.e("obd2", "Uploading tracks 2");
+									handler_upload.post(new Runnable() {
+
+										@Override
+										public void run() {
+											uploadTracks();
+										}
+									});
+								}
+							}
+						} catch (NullPointerException e) {
+							Log.e("obd2", "Service connector is null");
+							if (uploadOnlyInWlan == true) {
+								if (mWifi.isConnected()) {
+									Log.e("obd2", "Uploading tracks 3 ");
+									handler_upload.post(new Runnable() {
+
+										@Override
+										public void run() {
+											uploadTracks();
+										}
+									});
+								}
+							} else {
+								Log.e("obd2", "Uploading tracks 4");
+								handler_upload.post(new Runnable() {
+
+									@Override
+									public void run() {
+										uploadTracks();
+									}
+								});
+							}
+						}
+					}
+				} else {
+					Log.e("obd2","automatic upload not wanted by user");
+				}
+			}
+		}, 0, 10, TimeUnit.MINUTES);
 	}
-	
-//    private void uploadTracks() {
-//        DbAdapterLocal dbAdapter = (DbAdapterLocal) application
-//                .getDbAdapterLocal();
-//        
-//            try {
-//                if (dbAdapter.getNumberOfStoredTracks() > 0
-//                        && dbAdapter.getLastUsedTrack()
-//                                .getNumberOfMeasurements() > 0) {
-//                    UploadManager uploadManager = new UploadManager(dbAdapter,
-//                            application.getApplicationContext());
-//                    uploadManager.uploadAllTracks();
-//                }
-//            } catch (TracksException e) {
-//                Log.e("obd2", "Auto-Upload failed.");
-//                e.printStackTrace();
-//            }
-//        
-//    }
+	/**
+	 * Helper method for the automatic upload of local tracks via the scheduler.
+	 */
+    private void uploadTracks() {
+        DbAdapterLocal dbAdapter = (DbAdapterLocal) application
+                .getDbAdapterLocal();
+        
+            try {
+                if (dbAdapter.getNumberOfStoredTracks() > 0
+                        && dbAdapter.getLastUsedTrack()
+                                .getNumberOfMeasurements() > 0) {
+                    UploadManager uploadManager = new UploadManager(dbAdapter,
+                            application.getApplicationContext());
+                    uploadManager.uploadAllTracks();
+                } else {
+                	Log.e("obd2","Uploading does not make sense right now");
+                }
+            } catch (TracksException e) {
+                Log.e("obd2", "Auto-Upload failed.");
+                e.printStackTrace();
+            }
+        
+    }
 
 	private class NavAdapter extends BaseAdapter {
 		
