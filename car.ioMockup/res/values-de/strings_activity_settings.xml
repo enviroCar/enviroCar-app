@@ -11,7 +11,7 @@
 	
 	<string name="pref_auto_connect">Automatische Verbindung mit OBD Adapter</string>
     <string name="pref_upload_only_in_wifi">Nur in WLan hochladen</string>
-    <string name="pref_always_upload">Immer automatisch hochladen</string>
+    <string name="pref_always_upload">Automatisch hochladen</string>
     <string name="pref_auto_enable_bluetooth">Bluetooth beim Appstart einschalten</string>
     
     <string name="pref_bluetooth_disabled">Bitte Bluetooth einschalten</string>

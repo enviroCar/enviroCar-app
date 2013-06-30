@@ -25,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import android.app.Application;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -46,8 +47,11 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import car.io.R;
+import car.io.adapter.DbAdapterLocal;
+import car.io.adapter.UploadManager;
 import car.io.application.ECApplication;
 import car.io.application.NavMenuItem;
+import car.io.exception.TracksException;
 import car.io.views.TYPEFACE;
 import car.io.views.Utils;
 
@@ -87,6 +91,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 	public static final int REQUEST_MY_GARAGE = 1336;
 	public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
+	
+	private SharedPreferences preferences = null;
+	boolean alwaysUpload = false;
+	boolean uploadOnlyInWlan = true;
 		
 	// Upload in Wlan
 
@@ -167,6 +175,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		this.setContentView(R.layout.main_layout);
 
 		application = ((ECApplication) getApplication());
+		
+		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
+        uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
 
 		actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
@@ -264,6 +276,13 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 		// Upload data every 10 minutes and only if there are more than 50
 		// measurements stored in the database
+		
+		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
+		uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
+        
+		/*
+		 * Auto-Uploader of tracks.
+		 */
 
 		ScheduledExecutorService uploadTaskExecutor = Executors
 				.newScheduledThreadPool(1);
@@ -275,19 +294,61 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				NetworkInfo mWifi = connManager
 						.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
-				Log.e("obd2", "pre uploading");
-
-				/*
-				 * if (dbAdapter.getNumberOfStoredMeasurements() > 50) { if
-				 * (uploadOnlyInWlan == true) { if (mWifi.isConnected()) { //
-				 * TODO: upload Log.e("obd2", "uploading"); } } else { // TODO:
-				 * upload Log.e("obd2", "uploading"); } }
-				 */
-
+				Log.e("obd2", "Automatic upload");
+                if (application.isLoggedIn()) {
+                    try {
+                        if (!application.getServiceConnector().isRunning()) {
+                            Log.e("obd2", "Service connector not running");
+                            if (alwaysUpload == true) {
+                                if (uploadOnlyInWlan == true) {
+                                    if (mWifi.isConnected()) {
+                                        Log.e("obd2", "Uploading tracks");
+                                        uploadTracks();
+                                    }
+                                } else {
+                                    Log.e("obd2", "Uploading tracks");
+                                    uploadTracks();
+                                }
+                            }
+                        }
+                    } catch (NullPointerException e) {
+                        Log.e("obd2", "Service connector is null");
+                        if (alwaysUpload == true) {
+                            if (uploadOnlyInWlan == true) {
+                                if (mWifi.isConnected()) {
+                                    Log.e("obd2", "Uploading tracks");
+                                    uploadTracks();
+                                }
+                            } else {
+                                Log.e("obd2", "Uploading tracks");
+                                uploadTracks();
+                            }
+                        }
+                    }
+                } 
 			}
-		}, 0, 10, TimeUnit.MINUTES);
+		}, 0, 2, TimeUnit.MINUTES);
 
 	}
+	
+    private void uploadTracks() {
+        DbAdapterLocal dbAdapter = (DbAdapterLocal) application
+                .getDbAdapterLocal();
+        
+            try {
+                if (dbAdapter.getNumberOfStoredTracks() > 0
+                        && dbAdapter.getLastUsedTrack()
+                                .getNumberOfMeasurements() > 0) {
+                    UploadManager uploadManager = new UploadManager(dbAdapter,
+                            application.getApplicationContext());
+                    uploadManager.uploadAllTracks();
+                }
+            } catch (TracksException e) {
+                Log.e("obd2", "Auto-Upload failed.");
+                e.printStackTrace();
+            }
+        
+    }
 
 	private class NavAdapter extends BaseAdapter {
 		
@@ -422,6 +483,9 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	protected void onResume() {
 		super.onResume();
 		drawer.closeDrawer(drawerList);
+		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
+        uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
+		
 	}
 
 
