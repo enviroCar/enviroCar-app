@@ -23,10 +23,12 @@ package car.io.activity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.mapsforge.android.maps.MapActivity;
 import org.mapsforge.android.maps.MapView;
+import org.mapsforge.android.maps.Projection;
 import org.mapsforge.android.maps.mapgenerator.tiledownloader.MapnikTileDownloader;
 import org.mapsforge.android.maps.overlay.ArrayWayOverlay;
 import org.mapsforge.android.maps.overlay.OverlayWay;
@@ -36,11 +38,12 @@ import car.io.R;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
-import android.view.WindowManager.LayoutParams;
 
 import org.mapsforge.android.maps.overlay.ArrayItemizedOverlay;
 import org.mapsforge.android.maps.overlay.OverlayItem;
@@ -102,6 +105,15 @@ public class Map extends MapActivity {
 		wayOverlay.addWay(way);
 		mapView.getOverlays().add(wayOverlay);
 		mapView.getOverlays().add(itemizedOverlay);
+
+		GeoPoint max = new GeoPoint(getMaxLat(coordinates),
+				getMaxLon(coordinates));
+		GeoPoint min = new GeoPoint(getMinLat(coordinates),
+				getMinLon(coordinates));
+
+		zoomToTrackExtent(mapView, min.latitudeE6, max.latitudeE6,
+				min.longitudeE6, max.longitudeE6);
+
 		setContentView(mapView);
 	}
 
@@ -128,6 +140,117 @@ public class Map extends MapActivity {
 		Log.d(TAG, debugTwoDimArr(result));
 
 		return result;
+	}
+
+	private double getMaxLat(String[] coordinates) {
+		String[] lats = new String[coordinates.length / 2];
+		int counter = 0;
+
+		for (int i = 0; i < coordinates.length; i = i + 2) {
+			lats[counter] = coordinates[i];
+			counter++;
+		}
+
+		Double maxLat = Double.parseDouble(String.valueOf(Collections
+				.max(Arrays.asList(lats))));
+		Log.e(TAG, String.valueOf(maxLat));
+
+		return maxLat;
+	}
+
+	private double getMinLat(String[] coordinates) {
+		String[] lats = new String[coordinates.length / 2];
+		int counter = 0;
+
+		for (int i = 0; i < coordinates.length; i = i + 2) {
+			lats[counter] = coordinates[i];
+			counter++;
+		}
+
+		Double minLat = Double.parseDouble(String.valueOf(Collections
+				.min(Arrays.asList(lats))));
+		Log.e(TAG, String.valueOf(minLat));
+
+		return minLat;
+	}
+
+	private double getMinLon(String[] coordinates) {
+		String[] lons = new String[coordinates.length / 2];
+		int counter = 0;
+
+		for (int i = 1; i < coordinates.length; i = i + 2) {
+			lons[counter] = coordinates[i];
+			counter++;
+		}
+
+		Double minLon = Double.parseDouble(String.valueOf(Collections
+				.min(Arrays.asList(lons))));
+		Log.e(TAG, String.valueOf(minLon));
+
+		return minLon;
+	}
+
+	private double getMaxLon(String[] coordinates) {
+		String[] lons = new String[coordinates.length / 2];
+		int counter = 0;
+
+		for (int i = 1; i < coordinates.length; i = i + 2) {
+			lons[counter] = coordinates[i];
+			counter++;
+		}
+
+		Double maxLon = Double.parseDouble(String.valueOf(Collections
+				.max(Arrays.asList(lons))));
+		Log.e(TAG, String.valueOf(maxLon));
+
+		return maxLon;
+	}
+
+	private boolean zoomToTrackExtent(MapView mapView, int minLatE6,
+			int maxLatE6, int minLngE6, int maxLngE6) {
+
+		Display display = getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		int width = size.x;
+		int heigth = size.y;
+
+		if (width <= 0 || heigth <= 0) {
+			Log.e(TAG, "Display size values not valid numbers.");
+			return false;
+		}
+
+		int centerLat = (maxLatE6 + minLatE6) / 2;
+		int centerLon = (maxLngE6 + minLngE6) / 2;
+
+		mapView.getController().setCenter(new GeoPoint(centerLat, centerLon));
+
+		GeoPoint pointSouthWest = new GeoPoint(minLatE6, minLngE6);
+		GeoPoint pointNorthEast = new GeoPoint(maxLatE6, maxLngE6);
+
+		Projection projection = mapView.getProjection();
+		Point pointSW = new Point();
+		Point pointNE = new Point();
+		byte zoomLevelMax = (byte) mapView.getMapGenerator().getZoomLevelMax();
+		byte zoomLevel = 0;
+		
+		while (zoomLevel < zoomLevelMax) {
+			byte tmpZoomLevel = (byte) (zoomLevel + 1);
+			projection.toPoint(pointSouthWest, pointSW, tmpZoomLevel);
+			projection.toPoint(pointNorthEast, pointNE, tmpZoomLevel);
+			if (pointNE.x - pointSW.x > width) {
+				break;
+			}
+			if (pointSW.y - pointNE.y > heigth) {
+				break;
+			}
+			zoomLevel = tmpZoomLevel;
+		}
+
+		Log.d(TAG + "Zoomlevel", String.valueOf(zoomLevel));
+		mapView.getController().setZoom(zoomLevel);
+
+		return true;
 	}
 
 	@Override
