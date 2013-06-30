@@ -25,6 +25,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import android.app.Activity;
 import android.app.Application;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,6 +33,7 @@ import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
@@ -95,6 +97,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private SharedPreferences preferences = null;
 	boolean alwaysUpload = false;
 	boolean uploadOnlyInWlan = true;
+	boolean autoConnect = false;
+	
+	private Handler handler_connect;
+	private Handler handler_upload;
 		
 	// Upload in Wlan
 
@@ -179,6 +185,9 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
+        autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
+        handler_connect = new Handler();
+        handler_upload = new Handler();
 
 		actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
@@ -220,135 +229,184 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		drawer.setDrawerListener(actionBarDrawerToggle);
 		drawerList.setOnItemClickListener(this);
 
-		// --------------------------
-		// --------------------------
-		// --------------------------
-
-		// AutoConnect checkbox and service
-
-		// final CheckBox connectAutomatically = (CheckBox)
-		// this.findViewById(R.id.checkBox1);
-		//
-		// connectAutomatically
-		// .setOnCheckedChangeListener(new
-		// CompoundButton.OnCheckedChangeListener() {
-		//
-		// @Override
-		// public void onCheckedChanged(CompoundButton buttonView,
-		// boolean isChecked) {
-		// if (connectAutomatically.isChecked()) { // Start Service
-		// // every minute
-
-		// application.startServiceConnector();
-		// } else { // Stop Service
-		// application.stopServiceConnector();
-		// }
-		// }
-		//
-		// });
-
-		// Toggle Button for WLan Upload
 		/*
-		 * final ToggleButton wlanToggleButton = (ToggleButton)
-		 * findViewById(R.id.toggleButton1); wlanToggleButton.setChecked(true);
-		 * uploadOnlyInWlan = true;
-		 * 
-		 * wlanToggleButton .setOnCheckedChangeListener(new
-		 * CompoundButton.OnCheckedChangeListener() {
-		 * 
-		 * @Override public void onCheckedChanged(CompoundButton buttonView,
-		 * boolean isChecked) { if (wlanToggleButton.isChecked()) {
-		 * uploadOnlyInWlan = true; } else { uploadOnlyInWlan = false; }
-		 * 
-		 * } });
+		 * Auto connect to bluetooth adapter every 10 minutes
 		 */
 
-		// Button closeButton = (Button) findViewById(R.id.uploadnow);
-		// closeButton.setOnClickListener(new OnClickListener() {
-		//
-		// @Override
-		// public void onClick(View v) {
-		// }
-		// });
+		ScheduledExecutorService autoConnectTaskExecutor = Executors.newScheduledThreadPool(1);
+		autoConnectTaskExecutor.scheduleAtFixedRate(new Runnable() {
 
-		// initDbAdapter();
-		// testMethode();
+			@Override
+			public void run() {
+				if (autoConnect) {
+					Log.e("obd2", "User wants to auto-connect");
+					try {
+						if (!application.getServiceConnector().isRunning()) {
+							Log.e("obd2", "starting connection 1");
 
-		// Upload data every 10 minutes and only if there are more than 50
-		// measurements stored in the database
+							String remoteDevice = preferences.getString(car.io.activity.SettingsActivity.BLUETOOTH_KEY, null);
+
+							if (application.requirementsFulfilled() && remoteDevice != null) {
+								if (!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)) {
+									if (application.isLoggedIn()) {
+										MyGarage garageFragment = new MyGarage();
+										getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
+									} else {
+										LoginFragment loginFragment = new LoginFragment();
+										getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
+									}
+								} else {
+									if (!application.getServiceConnector().isRunning()) {
+
+										handler_connect.post(new Runnable() {
+											public void run() {
+												application.startConnection();
+											}
+										});
+									}
+								}
+							} else {
+								Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
+								startActivity(settingsIntent);
+							}
+						}
+					} catch (NullPointerException e) {
+						Log.e("obd2", "starting connection 2");
+
+						String remoteDevice = preferences.getString(car.io.activity.SettingsActivity.BLUETOOTH_KEY, null);
+
+						if (application.requirementsFulfilled() && remoteDevice != null) {
+							if (!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)) {
+								if (application.isLoggedIn()) {
+									MyGarage garageFragment = new MyGarage();
+									getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
+								} else {
+									LoginFragment loginFragment = new LoginFragment();
+									getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
+								}
+							} else {
+								if (!application.getServiceConnector().isRunning()) {
+									handler_connect.post(new Runnable() {
+										public void run() {
+											application.startConnection();
+										}
+									});
+								}
+							}
+						} else {
+							Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
+							startActivity(settingsIntent);
+						}
+					}
+				}
+
+			}
+		}, 1, 10, TimeUnit.MINUTES);
 		
-		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
-		uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
-        
 		/*
 		 * Auto-Uploader of tracks.
 		 */
 
-		ScheduledExecutorService uploadTaskExecutor = Executors
-				.newScheduledThreadPool(1);
-		uploadTaskExecutor.scheduleAtFixedRate(new Runnable() {
-
-			@Override
-			public void run() {
-				ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-				NetworkInfo mWifi = connManager
-						.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-				Log.e("obd2", "Automatic upload");
-                if (application.isLoggedIn()) {
-                    try {
-                        if (!application.getServiceConnector().isRunning()) {
-                            Log.e("obd2", "Service connector not running");
-                            if (alwaysUpload == true) {
-                                if (uploadOnlyInWlan == true) {
-                                    if (mWifi.isConnected()) {
-                                        Log.e("obd2", "Uploading tracks");
-                                        uploadTracks();
-                                    }
-                                } else {
-                                    Log.e("obd2", "Uploading tracks");
-                                    uploadTracks();
-                                }
-                            }
-                        }
-                    } catch (NullPointerException e) {
-                        Log.e("obd2", "Service connector is null");
-                        if (alwaysUpload == true) {
-                            if (uploadOnlyInWlan == true) {
-                                if (mWifi.isConnected()) {
-                                    Log.e("obd2", "Uploading tracks");
-                                    uploadTracks();
-                                }
-                            } else {
-                                Log.e("obd2", "Uploading tracks");
-                                uploadTracks();
-                            }
-                        }
-                    }
-                } 
-			}
-		}, 0, 2, TimeUnit.MINUTES);
-
+//		ScheduledExecutorService uploadTaskExecutor = Executors
+//				.newScheduledThreadPool(1);
+//		uploadTaskExecutor.scheduleAtFixedRate(new Runnable() {
+//
+//			@Override
+//			public void run() {
+//				ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+//				NetworkInfo mWifi = connManager
+//						.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+//
+//				Log.e("obd2", "Automatic upload");
+//                if (application.isLoggedIn()) {
+//                    try {
+//                        if (!application.getServiceConnector().isRunning()) {
+//                            Log.e("obd2", "Service connector not running");
+//                            if (alwaysUpload == true) {
+//                                if (uploadOnlyInWlan == true) {
+//                                    if (mWifi.isConnected()) {
+//                                        Log.e("obd2", "Uploading tracks 1");
+//                                        try {
+//											handler_upload.post(new Runnable() {
+//												
+//												@Override
+//												public void run() {
+//													uploadTracks();
+//												}
+//											});
+//										} catch (Exception e) {
+//											// TODO Auto-generated catch block
+//											e.printStackTrace();
+//										}
+//                                        
+//                                    }
+//                                } else {
+//                                    Log.e("obd2", "Uploading tracks 2");
+//                                    handler_upload.post(new Runnable() {
+//										
+//										@Override
+//										public void run() {
+//											uploadTracks();
+//										}
+//									});
+//                                }
+//                            }
+//						}
+//					} catch (NullPointerException e) {
+//						Log.e("obd2", "Service connector is null");
+//						if (alwaysUpload == true) {
+//							if (uploadOnlyInWlan == true) {
+//								if (mWifi.isConnected()) {
+//									Log.e("obd2", "Uploading tracks 3 ");
+//									try {
+//										handler_upload.post(new Runnable() {
+//
+//											@Override
+//											public void run() {
+//												uploadTracks();
+//											}
+//										});
+//									} catch (Exception e1) {
+//										// TODO Auto-generated catch block
+//										e1.printStackTrace();
+//									}
+//								}
+//							} else {
+//								Log.e("obd2", "Uploading tracks 4");
+//								handler_upload.post(new Runnable() {
+//
+//									@Override
+//									public void run() {
+//										uploadTracks();
+//									}
+//								});
+//							}
+//						}
+//					}
+//                } 
+//			}
+//		}, 0, 2, TimeUnit.MINUTES);
+//
 	}
 	
-    private void uploadTracks() {
-        DbAdapterLocal dbAdapter = (DbAdapterLocal) application
-                .getDbAdapterLocal();
-        
-            try {
-                if (dbAdapter.getNumberOfStoredTracks() > 0
-                        && dbAdapter.getLastUsedTrack()
-                                .getNumberOfMeasurements() > 0) {
-                    UploadManager uploadManager = new UploadManager(dbAdapter,
-                            application.getApplicationContext());
-                    uploadManager.uploadAllTracks();
-                }
-            } catch (TracksException e) {
-                Log.e("obd2", "Auto-Upload failed.");
-                e.printStackTrace();
-            }
-        
-    }
+//    private void uploadTracks() {
+//        DbAdapterLocal dbAdapter = (DbAdapterLocal) application
+//                .getDbAdapterLocal();
+//        
+//            try {
+//                if (dbAdapter.getNumberOfStoredTracks() > 0
+//                        && dbAdapter.getLastUsedTrack()
+//                                .getNumberOfMeasurements() > 0) {
+//                    UploadManager uploadManager = new UploadManager(dbAdapter,
+//                            application.getApplicationContext());
+//                    uploadManager.uploadAllTracks();
+//                }
+//            } catch (TracksException e) {
+//                Log.e("obd2", "Auto-Upload failed.");
+//                e.printStackTrace();
+//            }
+//        
+//    }
 
 	private class NavAdapter extends BaseAdapter {
 		
@@ -485,6 +543,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		drawer.closeDrawer(drawerList);
 		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
+        autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
 		
 	}
 

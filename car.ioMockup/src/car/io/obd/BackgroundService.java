@@ -37,6 +37,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import car.io.application.ECApplication;
 import car.io.commands.CommonCommand;
 import car.io.commands.CommonCommand.CommonCommandState;
 import car.io.importedCommands.EchoOff;
@@ -226,6 +227,9 @@ public class BackgroundService extends Service {
 		isWaitingListRunning.set(false);
 		callbackListener = null;
 		isTheServiceRunning.set(false);
+		
+		ECApplication application = (ECApplication) getApplication();
+		application.stopLocating();
 
 		try {
 			bluetoothSocket.close();
