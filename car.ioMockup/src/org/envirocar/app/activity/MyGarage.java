@@ -1,0 +1,437 @@
+/* 
+ * enviroCar 2013
+ * Copyright (C) 2013  
+ * Martin Dueren, Jakob Moellers, Gerald Pape, Christopher Stephan
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+ * 
+ */
+
+package org.envirocar.app.activity;
+
+import java.util.ArrayList;
+
+import org.apache.http.Header;
+import org.envirocar.app.R;
+import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.application.RestClient;
+import org.envirocar.app.views.TYPEFACE;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.os.Build;
+import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.ScrollView;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
+import android.widget.TextView;
+
+import com.actionbarsherlock.app.SherlockFragment;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.JsonHttpResponseHandler;
+
+public class MyGarage extends SherlockFragment {
+	
+	private SharedPreferences sharedPreferences;
+
+	private static final String TAG = "MyGarage";
+
+	private final String sensorType = "car";
+	private String carFuelType;
+	private String carModel;
+	private String carManufacturer;
+	private String carConstructionYear;
+
+	private EditText carModelView;
+	private EditText carManufacturerView;
+	private EditText carConstructionYearView;
+	
+	private ScrollView garageForm;
+	private LinearLayout garageProgress;
+	
+	private Spinner sensorSpinner;
+	private ProgressBar sensorDlProgress;
+	private Button sensorRetryButton;
+	
+	private JSONArray sensors;
+	
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		
+		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		
+		View view = inflater.inflate(R.layout.my_garage_layout, null);
+		//TODO !fancy! search for sensors
+		
+		garageForm = (ScrollView) view.findViewById(R.id.garage_form);
+		garageProgress = (LinearLayout) view.findViewById(R.id.addCarToGarage_status);
+		
+		carModelView = (EditText) view.findViewById(R.id.addCarToGarage_car_model);
+		carManufacturerView = (EditText) view.findViewById(R.id.addCarToGarage_car_manufacturer);
+		carConstructionYearView = (EditText) view.findViewById(R.id.addCarToGarage_car_constructionYear);
+
+		TextWatcher textWatcher = new TextWatcher() {
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				carModel = carModelView.getText().toString();
+				carManufacturer = carManufacturerView.getText().toString();
+				carConstructionYear = carConstructionYearView.getText()
+						.toString();
+			}
+
+			@Override
+			public void afterTextChanged(Editable s) {}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {}
+
+		};
+
+		carModelView.addTextChangedListener(textWatcher);
+		carManufacturerView.addTextChangedListener(textWatcher);
+		carConstructionYearView.addTextChangedListener(textWatcher);
+
+		OnClickListener listener = new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				carFuelType = getCorrectFuelTypeFromCheckbox(v.getId());
+				Log.e(TAG, carFuelType);
+			}
+		};
+
+		RadioGroup radioGroup = (RadioGroup) view.findViewById(R.id.radiogroup_fueltype);
+		carFuelType = getCorrectFuelTypeFromCheckbox( radioGroup.getCheckedRadioButtonId());
+
+		RadioButton rbGasoline = (RadioButton) view.findViewById(R.id.radio_gasoline);
+		rbGasoline.setOnClickListener(listener);
+		RadioButton rbDiesel = (RadioButton) view.findViewById(R.id.radio_diesel);
+		rbDiesel.setOnClickListener(listener);
+
+		view.findViewById(R.id.register_car_button).setOnClickListener(
+				new View.OnClickListener() {
+					@Override
+					public void onClick(View view) {
+						Log.d(TAG, carModel + " " + carManufacturer + " "
+								+ carFuelType);
+						if (carModel != null && carManufacturer != null
+								&& carConstructionYear != null
+								&& carFuelType != null) {
+							registerSensorAtServer(sensorType, carManufacturer,
+									carModel, carConstructionYear, carFuelType);
+						}
+					}
+				});
+		
+
+		sensorSpinner = (Spinner) view.findViewById(R.id.dashboard_current_sensor_spinner);
+		sensorSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+			private boolean firstSelect = true;
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, 
+		            int pos, long id) {
+				if(!firstSelect){
+					Log.i("item",parent.getItemAtPosition(pos)+"");
+					
+					try {
+						((ECApplication) getActivity().getApplication()).updateCurrentSensor(((JSONObject) parent.getItemAtPosition(pos)).getString("id"),
+								((JSONObject) parent.getItemAtPosition(pos)).getString("manufacturer"),
+								((JSONObject) parent.getItemAtPosition(pos)).getString("model"),
+								((JSONObject) parent.getItemAtPosition(pos)).getString("fuelType"),
+								((JSONObject) parent.getItemAtPosition(pos)).getInt("constructionYear"));
+			        	DashboardFragment dashboardFragment = new DashboardFragment();
+			            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
+				}else{
+					firstSelect = false;
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+				//TODO do something, also nothing is selected if the same item as selected is selected
+			}
+		});
+		sensorDlProgress = (ProgressBar) view.findViewById(R.id.sensor_dl_progress);
+		sensorRetryButton = (Button) view.findViewById(R.id.retrybutton);
+		sensorRetryButton.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				dlSensors();
+			}
+		});
+		
+		dlSensors();
+		
+		
+		TYPEFACE.applyCustomFont((ViewGroup) view.findViewById(R.id.mygaragelayout), TYPEFACE.Raleway(getActivity()));
+		
+		
+		return view;
+	}
+
+	private String getCorrectFuelTypeFromCheckbox(int resid){
+		switch(resid){
+		case R.id.radio_diesel:
+			return "diesel";
+		case R.id.radio_gasoline:
+			return "gasoline";
+		}
+		return "none";
+	}
+	
+	private void selectSensorFromSharedPreferences() throws JSONException{
+		if(PreferenceManager.getDefaultSharedPreferences(getActivity().getApplication()).contains(ECApplication.PREF_KEY_SENSOR_ID)){
+			String prefSensorid = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplication()).getString(ECApplication.PREF_KEY_SENSOR_ID, "nosensor");
+			if(prefSensorid.equals("nosensor") == false){
+				for(int i = 0; i<sensors.length(); i++){
+					//iterate over sensors
+					if(((JSONObject) sensors.get(i)).getString("id").equals(prefSensorid)){
+						sensorSpinner.setSelection(i);
+						Log.i("setspinner from prefs",((JSONObject) sensors.get(i)).getString("id")+" "+prefSensorid);
+						break;
+					}
+				}
+			}
+		}
+	}
+	
+	
+	private void dlSensors(){
+		sensorDlProgress.setVisibility(View.VISIBLE);
+		sensorSpinner.setVisibility(View.GONE);
+		sensorRetryButton.setVisibility(View.GONE);
+		
+		RestClient.downloadSensors(new JsonHttpResponseHandler() {
+			
+			
+			@Override
+			public void onFailure(Throwable error, String content) {
+				super.onFailure(error, content);
+				sensorDlProgress.setVisibility(View.GONE);
+				sensorRetryButton.setVisibility(View.VISIBLE);
+			}
+			
+			@Override
+			public void onSuccess(JSONObject response) {
+				super.onSuccess(response);
+				ArrayList<JSONObject> a = new ArrayList<JSONObject>();
+				try {					
+					JSONArray res = response.getJSONArray("sensors");
+					for(int i = 0; i<res.length(); i++){
+						if(((JSONObject) res.get(i)).optString("type", "none").equals("car")){
+							a.add(((JSONObject) res.get(i)).getJSONObject("properties"));
+						}
+					}
+					
+		
+
+				} catch (JSONException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} finally {
+					sensors = new JSONArray(a);
+					sensorSpinner.setAdapter(new SensorAdapter());
+					sensorDlProgress.setVisibility(View.GONE);
+					sensorSpinner.setVisibility(View.VISIBLE);
+					try {
+						selectSensorFromSharedPreferences();
+					} catch (JSONException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				
+			}
+		});
+		
+	}	
+
+	private void registerSensorAtServer(String sensorType,
+			String carManufacturer, String carModel,
+			String carConstructionYear, String carFuelType) {
+
+		String sensorString = String
+				.format("{ \"type\": \"%s\", \"properties\": {\"manufacturer\": \"%s\", \"model\": \"%s\", \"fuelType\": \"%s\", \"constructionYear\": %s } }",
+						sensorType, carManufacturer, carModel, carFuelType,
+						carConstructionYear);
+		
+		Editor edit = sharedPreferences.edit();
+		edit.putString(ECApplication.PREF_KEY_FUEL_TYPE, carFuelType);
+		edit.putString(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR, carConstructionYear);
+		edit.putString(ECApplication.PREF_KEY_CAR_MANUFACTURER, carManufacturer);
+		edit.putString(ECApplication.PREF_KEY_CAR_MODEL, carModel);
+		edit.commit();
+		
+		String username =((ECApplication) getActivity().getApplication()).getUser().getUsername();
+		String token = ((ECApplication) getActivity().getApplication()).getUser().getToken();
+		
+		RestClient.createSensor(sensorString, username, token, new AsyncHttpResponseHandler(){
+			
+			@Override
+			public void onStart() {
+				super.onStart();
+				showProgress(true);
+			}
+
+			@Override
+			public void onFailure(Throwable error, String content) {
+				super.onFailure(error, content);
+				showProgress(false);
+			}
+			
+			
+			@Override
+			public void onSuccess(int httpStatusCode, Header[] h, String response) {
+				super.onSuccess(httpStatusCode, h, response);
+				String location = "";
+				for (int i = 0; i< h.length; i++){
+					if( h[i].getName().equals("Location")){
+						location += h[i].getValue();
+						break;
+					}
+				}
+				Log.i("create sensor", httpStatusCode+" "+location);
+				
+				String sensorId = location.substring(location.lastIndexOf("/")+1, location.length());
+				//put the sensor id into shared preferences
+				Editor edit = sharedPreferences.edit();
+				edit.putString(ECApplication.PREF_KEY_SENSOR_ID, sensorId);
+				edit.commit();
+				//go back to the dashboard
+	        	DashboardFragment dashboardFragment = new DashboardFragment();
+	            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
+			}
+		});
+
+	}
+	
+	/**
+	 * Shows the progress UI and hides the register form.
+	 */
+	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+	private void showProgress(final boolean show) {
+		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+		// for very easy animations. If available, use these APIs to fade-in
+		// the progress spinner.
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+			int shortAnimTime = getResources().getInteger(
+					android.R.integer.config_shortAnimTime);
+
+			garageProgress.setVisibility(View.VISIBLE);
+			garageProgress.animate().setDuration(shortAnimTime)
+					.alpha(show ? 1 : 0)
+					.setListener(new AnimatorListenerAdapter() {
+						@Override
+						public void onAnimationEnd(Animator animation) {
+							garageProgress
+									.setVisibility(show ? View.VISIBLE
+											: View.GONE);
+						}
+					});
+
+			garageForm.setVisibility(View.VISIBLE);
+			garageForm.animate().setDuration(shortAnimTime)
+					.alpha(show ? 0 : 1)
+					.setListener(new AnimatorListenerAdapter() {
+						@Override
+						public void onAnimationEnd(Animator animation) {
+							garageForm.setVisibility(show ? View.GONE
+									: View.VISIBLE);
+						}
+					});
+		} else {
+			// The ViewPropertyAnimator APIs are not available, so simply show
+			// and hide the relevant UI components.
+			garageProgress.setVisibility(show ? View.VISIBLE : View.GONE);
+			garageForm.setVisibility(show ? View.GONE : View.VISIBLE);
+		}
+	}
+	
+	private class SensorAdapter extends BaseAdapter implements SpinnerAdapter {
+
+        @Override
+        public int getCount() {
+            return sensors.length();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            try {
+				return ((JSONObject) sensors.get(position));
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        boolean firstTime = true;
+        
+        @Override
+        public View getView(int position, View view, ViewGroup parent) {
+            TextView text = new TextView(getActivity());
+            if(firstTime && !PreferenceManager.getDefaultSharedPreferences(getActivity().getApplication()).contains(ECApplication.PREF_KEY_SENSOR_ID)){
+            	text.setText(getResources().getString(R.string.please_select));
+            	firstTime = false;
+            } else {
+	            try {
+					text.setText(
+							((JSONObject) getItem(position)).getString("manufacturer")+" "+
+							((JSONObject) getItem(position)).getString("model")+" ("+
+							((JSONObject) getItem(position)).getString("fuelType")+" "+
+							((JSONObject) getItem(position)).getInt("constructionYear")+")");
+				} catch (JSONException e) {
+					text.setText("error");
+					e.printStackTrace();
+				}
+            }
+            return text;
+        }
+
+    }		
+}

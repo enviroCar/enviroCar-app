@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="car.io"
+    package="org.envirocar.app"
     android:versionCode="7"
     android:versionName="1.0">
 
@@ -39,24 +39,24 @@
 	
     <application
         android:allowBackup="true"
-        android:name="car.io.application.ECApplication"
+        android:name="org.envirocar.app.application.ECApplication"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.Cario" >
 
         <!-- android:theme="@style/AppTheme" -->
         <activity
-            android:name="car.io.activity.CheckListActivity"
+            android:name="org.envirocar.app.activity.CheckListActivity"
             android:label="@string/activity_checklist_title"
-            android:parentActivityName="car.io.activity.MainActivity" >
+            android:parentActivityName="org.envirocar.app.activity.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="car.io.activity.MainActivity" />
+                android:value="org.envirocar.app.activity.MainActivity" />
         </activity>
         <activity
-            android:name="car.io.activity.MainActivity"
+            android:name="org.envirocar.app.activity.MainActivity"
             android:label="@string/app_name"
-            android:parentActivityName="car.io.activity.MainActivity" android:screenOrientation="portrait">
+            android:parentActivityName="org.envirocar.app.activity.MainActivity" android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -64,37 +64,37 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="car.io.activity.SettingsActivity"
+            android:name="org.envirocar.app.activity.SettingsActivity"
             android:label="@string/title_activity_settings"
-            android:parentActivityName="car.io.activity.MainActivity" android:screenOrientation="portrait">
+            android:parentActivityName="org.envirocar.app.activity.MainActivity" android:screenOrientation="portrait">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="car.io.activity.MainActivity" />
+                android:value="org.envirocar.app.activity.MainActivity" />
         </activity>
         <activity
-            android:name="car.io.activity.LoginActivity"
+            android:name="org.envirocar.app.activity.LoginActivity"
             android:label="@string/title_activity_login"
-            android:parentActivityName="car.io.activity.MainActivity"
+            android:parentActivityName="org.envirocar.app.activity.MainActivity"
             android:windowSoftInputMode="adjustResize|stateVisible" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="car.io.activity.MainActivity" />
+                android:value="org.envirocar.app.activity.MainActivity" />
         </activity>
         <activity
-            android:name="car.io.activity.MyGarage"
+            android:name="org.envirocar.app.activity.MyGarage"
             android:label="@string/menu_garage"
-            android:parentActivityName="car.io.activity.MainActivity" >
+            android:parentActivityName="org.envirocar.app.activity.MainActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="car.io.activity.MainActivity" />
+                android:value="org.envirocar.app.activity.MainActivity" />
         </activity>        
 
         <service
-            android:name="car.io.obd.BackgroundService"
+            android:name="org.envirocar.app.obd.BackgroundService"
             android:exported="false" />
 
         <activity
-            android:name="car.io.activity.Map"
+            android:name="org.envirocar.app.activity.Map"
             android:label="@string/title_activity_map"
             android:theme="@android:style/Theme.Dialog">
         </activity>

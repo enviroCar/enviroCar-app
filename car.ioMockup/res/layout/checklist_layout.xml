@@ -47,41 +47,41 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" >
 
-            <car.io.views.CheckListItem
+            <org.envirocar.app.views.CheckListItem
                 android:id="@+id/checklist_bluetooth"
                 style="@style/CheckListLayoutStyle"
                 cario:itemText="@string/checklist_item_bluetooth_disabled" >
-            </car.io.views.CheckListItem>
+            </org.envirocar.app.views.CheckListItem>
 
-            <car.io.views.CheckListItem
+            <org.envirocar.app.views.CheckListItem
                 android:id="@+id/checklist_obd_pair"
                 style="@style/CheckListLayoutStyle"
                 cario:itemText="@string/checklist_item_obd_not_paired" >
-            </car.io.views.CheckListItem>
+            </org.envirocar.app.views.CheckListItem>
 
-            <car.io.views.CheckListItem
+            <org.envirocar.app.views.CheckListItem
                 android:id="@+id/checklist_obd_service"
                 style="@style/CheckListLayoutStyle"
                 cario:itemText="@string/checklist_item_obd_service_disabled" >
-            </car.io.views.CheckListItem>
+            </org.envirocar.app.views.CheckListItem>
 
-            <car.io.views.CheckListItem
+            <org.envirocar.app.views.CheckListItem
                 android:id="@+id/checklist_obd_connection"
                 style="@style/CheckListLayoutStyle"
                 cario:itemText="@string/checklist_item_obd_not_connected" >
-            </car.io.views.CheckListItem>
+            </org.envirocar.app.views.CheckListItem>
 
-            <car.io.views.CheckListItem
+            <org.envirocar.app.views.CheckListItem
                 android:id="@+id/checklist_gps"
                 style="@style/CheckListLayoutStyle"
                 cario:itemText="@string/checklist_item_gps_disabled" >
-            </car.io.views.CheckListItem>
+            </org.envirocar.app.views.CheckListItem>
             
-            <car.io.views.CheckListItem
+            <org.envirocar.app.views.CheckListItem
                 android:id="@+id/checklist_login"
                 style="@style/CheckListLayoutStyle"
                 cario:itemText="@string/checklist_item_not_signed_in" >
-            </car.io.views.CheckListItem>            
+            </org.envirocar.app.views.CheckListItem>            
 
         </LinearLayout>
     </ScrollView>

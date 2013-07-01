@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:myNamespace="http://schemas.android.com/apk/res/car.io"
+    xmlns:myNamespace="http://schemas.android.com/apk/res/org.envirocar.app"
     android:id="@+id/vehicle_view"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -16,7 +16,7 @@
         android:text="@string/currentSpeed"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <car.io.views.RoundProgress
+    <org.envirocar.app.views.RoundProgress
         android:id="@+id/blue_progress_bar2"
         android:layout_width="fill_parent"
         android:layout_height="35dip"
@@ -43,7 +43,7 @@
         android:text="@string/currentCO2"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <car.io.views.RoundProgress
+    <org.envirocar.app.views.RoundProgress
         android:id="@+id/blue_progress_bar"
         android:layout_width="fill_parent"
         android:layout_height="35dip"
