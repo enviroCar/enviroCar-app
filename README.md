@@ -2,10 +2,10 @@ enviroCar Android App
 =====================
 
 Main developers of this app
-  * @jakobmoellers
-  * @ubergesundheit
-  * @ChristopherStephan
-  * @MartinDueren
+  * Jakob Möllers (@jakobmoellers)
+  * Gerald Pape (@ubergesundheit)
+  * Christopher Stephan (@ChristopherStephan)
+  * Martin Düren (@MartinDueren)
 
 This is the app for the enviroCar ecosystem. (www.envirocar.org)
 
