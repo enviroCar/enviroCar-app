@@ -60,6 +60,7 @@ import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 
 
 /**
@@ -448,7 +449,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	}
 	
     @Override
-    public void onItemClick(AdapterView parent, View view, int position, long id) {
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         openFragment(position);
     }
 
@@ -462,7 +463,12 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         case LOGIN:
         	if(application.isLoggedIn()){
         		application.logOut();
-        		((ListMeasurementsFragment) getSupportFragmentManager().findFragmentByTag("MY_TRACKS")).clearRemoteTracks();
+        		try{
+        			((ListMeasurementsFragment) getSupportFragmentManager().findFragmentByTag("MY_TRACKS")).clearRemoteTracks();
+        		} catch (NullPointerException e){
+        			//do nothing, the fragment hasnt been initialized yet.
+        		}
+        		Crouton.makeText(this, "Bye Bye!", Style.INFO).show();
         	} else {
                 LoginFragment loginFragment = new LoginFragment();
                 manager.beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
