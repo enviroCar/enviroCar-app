@@ -19,30 +19,24 @@
  * 
  */
 
-package org.envirocar.app.importedCommands;
+package org.envirocar.app.application;
 
 import org.envirocar.app.commands.CommonCommand;
 
 /**
- * This command will turn-off echo.
+ * Interface that adds jobs to the waiting list and executes it
+ * 
+ * @author jakob
+ * 
  */
-public class SpacesOff extends CommonCommand {
+public interface Monitor {
 
-	/**
-	 * @param command
-	 */
-	public SpacesOff() {
-		super("AT S0");
-	}
+	void setListener(Listener listener);
 
-	@Override
-	public String getResult() {
-		return getRawData();
-	}
+	boolean isRunning();
 
-	@Override
-	public String getCommandName() {
-		return "Spaces Off";
-	}
+	void executeWaitingList();
+
+	void newJobToWaitingList(CommonCommand newJob);
 
 }

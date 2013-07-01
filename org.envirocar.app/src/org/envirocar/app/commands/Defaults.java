@@ -19,20 +19,19 @@
  * 
  */
 
-package org.envirocar.app.importedCommands;
+package org.envirocar.app.commands;
 
-import org.envirocar.app.commands.CommonCommand;
 
 /**
  * Turns off line-feed.
  */
-public class EnableHeaders extends CommonCommand {
+public class Defaults extends CommonCommand {
 
 	/**
 	 * @param command
 	 */
-	public EnableHeaders() {
-		super("AT H1");
+	public Defaults() {
+		super("AT D");
 	}
 
 	@Override
@@ -42,7 +41,7 @@ public class EnableHeaders extends CommonCommand {
 
 	@Override
 	public String getCommandName() {
-		return "Enable Headers";
+		return "Defaults";
 	}
 
 }

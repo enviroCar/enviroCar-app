@@ -19,20 +19,19 @@
  * 
  */
 
-package org.envirocar.app.importedCommands;
+package org.envirocar.app.commands;
 
-import org.envirocar.app.commands.CommonCommand;
 
 /**
  * Turns off line-feed.
  */
-public class LineFeedOff extends CommonCommand {
+public class HeadersOff extends CommonCommand {
 
 	/**
 	 * @param command
 	 */
-	public LineFeedOff() {
-		super("AT L0");
+	public HeadersOff() {
+		super("AT H0");
 	}
 
 	@Override
@@ -42,7 +41,7 @@ public class LineFeedOff extends CommonCommand {
 
 	@Override
 	public String getCommandName() {
-		return "Line Feed Off";
+		return "Disable Headers";
 	}
 
 }

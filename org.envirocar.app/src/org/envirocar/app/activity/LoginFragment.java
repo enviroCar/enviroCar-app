@@ -32,7 +32,7 @@ import org.apache.http.message.BasicHeader;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.User;
-import org.envirocar.app.views.TYPEFACE;
+import org.envirocar.app.views.TypefaceEC;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -126,8 +126,8 @@ public class LoginFragment extends SherlockFragment {
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		TYPEFACE.applyCustomFont((ViewGroup) view,
-				TYPEFACE.Raleway(getActivity()));
+		TypefaceEC.applyCustomFont((ViewGroup) view,
+				TypefaceEC.Raleway(getActivity()));
 		mUsernameView.requestFocus();
 	}
 	

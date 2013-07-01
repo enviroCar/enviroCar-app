@@ -31,15 +31,15 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.envirocar.app.R;
-import org.envirocar.app.adapter.DbAdapter;
-import org.envirocar.app.adapter.DbAdapterRemote;
-import org.envirocar.app.adapter.Measurement;
-import org.envirocar.app.adapter.Track;
-import org.envirocar.app.adapter.UploadManager;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.RestClient;
+import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.exception.LocationInvalidException;
-import org.envirocar.app.views.TYPEFACE;
+import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.app.storage.DbAdapterRemote;
+import org.envirocar.app.storage.Measurement;
+import org.envirocar.app.storage.Track;
+import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -578,8 +578,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				TextView textView = (TextView) groupRow.findViewById(R.id.track_name_textview);
 				textView.setText((currTrack.isLocalTrack() ? "L" : "R")+" "+currTrack.getName());
 				groupRow.setId(10000000 + i);
-				TYPEFACE.applyCustomFont((ViewGroup) groupRow,
-						TYPEFACE.Newscycle(getActivity()));
+				TypefaceEC.applyCustomFont((ViewGroup) groupRow,
+						TypefaceEC.Newscycle(getActivity()));
 				return groupRow;
 			}
 			return view;
@@ -630,8 +630,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				}
 
 				row.setId(10000100 + i + i1);
-				TYPEFACE.applyCustomFont((ViewGroup) row,
-						TYPEFACE.Newscycle(getActivity()));
+				TypefaceEC.applyCustomFont((ViewGroup) row,
+						TypefaceEC.Newscycle(getActivity()));
 				return row;
 			}
 			return view;

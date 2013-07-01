@@ -19,7 +19,7 @@
  * 
  */
 
-package org.envirocar.app.adapter;
+package org.envirocar.app.storage;
 
 import java.util.ArrayList;
 

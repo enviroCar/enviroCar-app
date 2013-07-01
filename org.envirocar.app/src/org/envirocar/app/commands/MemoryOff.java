@@ -19,20 +19,19 @@
  * 
  */
 
-package org.envirocar.app.importedCommands;
+package org.envirocar.app.commands;
 
-import org.envirocar.app.commands.CommonCommand;
 
 /**
- * Select the protocol to use.
+ * This command will turn-off memory.
  */
-public class SelectAutoProtocol extends CommonCommand {
+public class MemoryOff extends CommonCommand {
 
 	/**
 	 * @param command
 	 */
-	public SelectAutoProtocol() {
-		super("AT SP " + 0);
+	public MemoryOff() {
+		super("AT M0");
 	}
 
 	@Override
@@ -42,7 +41,7 @@ public class SelectAutoProtocol extends CommonCommand {
 
 	@Override
 	public String getCommandName() {
-		return "Protocol: Auto";
+		return "Memory Off";
 	}
 
 }

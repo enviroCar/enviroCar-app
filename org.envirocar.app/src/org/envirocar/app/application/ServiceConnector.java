@@ -19,7 +19,7 @@
  * 
  */
 
-package org.envirocar.app.obd;
+package org.envirocar.app.application;
 
 import org.envirocar.app.commands.CommonCommand;
 

@@ -22,10 +22,10 @@
 package org.envirocar.app.activity;
 
 import org.envirocar.app.R;
-import org.envirocar.app.adapter.DbAdapter;
 import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.views.RoundProgress;
-import org.envirocar.app.views.TYPEFACE;
+import org.envirocar.app.views.TypefaceEC;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -139,8 +139,8 @@ public class DashboardFragment extends SherlockFragment {
 		};
 		handler.postDelayed(runnable, 1000);
 
-		TYPEFACE.applyCustomFont((ViewGroup) view,
-				TYPEFACE.Newscycle(getActivity()));
+		TypefaceEC.applyCustomFont((ViewGroup) view,
+				TypefaceEC.Newscycle(getActivity()));
 
 	}
 }

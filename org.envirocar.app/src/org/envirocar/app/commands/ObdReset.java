@@ -19,20 +19,36 @@
  * 
  */
 
-package org.envirocar.app.importedCommands;
+package org.envirocar.app.commands;
 
-import org.envirocar.app.commands.CommonCommand;
+import java.io.IOException;
+import java.io.InputStream;
+
+
 
 /**
- * Turns off line-feed.
+ * This method will reset the OBD connection.
  */
-public class Defaults extends CommonCommand {
+public class ObdReset extends CommonCommand {
+
+	public ObdReset() {
+		super("AT Z");
+	}
 
 	/**
-	 * @param command
+	 * Reset command returns an empty string, so we must override the following
+	 * two methods.
+	 * 
+	 * @throws IOException
 	 */
-	public Defaults() {
-		super("AT D");
+	@Override
+	public void readResult(InputStream in) throws IOException {
+		return;
+	}
+
+	@Override
+	public String getRawData() {
+		return "";
 	}
 
 	@Override
@@ -42,7 +58,7 @@ public class Defaults extends CommonCommand {
 
 	@Override
 	public String getCommandName() {
-		return "Defaults";
+		return "Reset OBD";
 	}
 
 }

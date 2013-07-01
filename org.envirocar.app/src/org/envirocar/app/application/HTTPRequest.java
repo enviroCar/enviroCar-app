@@ -87,7 +87,7 @@ import javax.net.ssl.X509TrustManager;
  * Each instance supports making a single request and cannot be reused for
  * further requests.
  */
-public class HttpRequest {
+public class HTTPRequest {
 
   /**
    * 'UTF-8' charset name
@@ -721,8 +721,8 @@ public class HttpRequest {
    * This method ensures the path and query segments of the URL are properly
    * encoded such as ' ' characters being encoded to '%20' or any UTF-8
    * characters that are non-ASCII. No encoding of URLs is done by default by
-   * the {@link HttpRequest} constructors and so if URL encoding is needed this
-   * method should be called before calling the {@link HttpRequest} constructor.
+   * the {@link HTTPRequest} constructors and so if URL encoding is needed this
+   * method should be called before calling the {@link HTTPRequest} constructor.
    *
    * @param url
    * @return encoded URL
@@ -846,9 +846,9 @@ public class HttpRequest {
    * @return request
    * @throws HttpRequestException
    */
-  public static HttpRequest get(final CharSequence url)
+  public static HTTPRequest get(final CharSequence url)
       throws HttpRequestException {
-    return new HttpRequest(url, METHOD_GET);
+    return new HTTPRequest(url, METHOD_GET);
   }
 
   /**
@@ -858,8 +858,8 @@ public class HttpRequest {
    * @return request
    * @throws HttpRequestException
    */
-  public static HttpRequest get(final URL url) throws HttpRequestException {
-    return new HttpRequest(url, METHOD_GET);
+  public static HTTPRequest get(final URL url) throws HttpRequestException {
+    return new HTTPRequest(url, METHOD_GET);
   }
 
   /**
@@ -876,7 +876,7 @@ public class HttpRequest {
    *
    * @return request
    */
-  public static HttpRequest get(final CharSequence baseUrl,
+  public static HTTPRequest get(final CharSequence baseUrl,
       final Map<?, ?> params, final boolean encode) {
     String url = append(baseUrl, params);
     return get(encode ? encode(url) : url);
@@ -897,7 +897,7 @@ public class HttpRequest {
    *
    * @return request
    */
-  public static HttpRequest get(final CharSequence baseUrl,
+  public static HTTPRequest get(final CharSequence baseUrl,
       final boolean encode, final Object... params) {
     String url = append(baseUrl, params);
     return get(encode ? encode(url) : url);
@@ -910,9 +910,9 @@ public class HttpRequest {
    * @return request
    * @throws HttpRequestException
    */
-  public static HttpRequest post(final CharSequence url)
+  public static HTTPRequest post(final CharSequence url)
       throws HttpRequestException {
-    return new HttpRequest(url, METHOD_POST);
+    return new HTTPRequest(url, METHOD_POST);
   }
 
   /**
@@ -922,8 +922,8 @@ public class HttpRequest {
    * @return request
    * @throws HttpRequestException
    */
-  public static HttpRequest post(final URL url) throws HttpRequestException {
-    return new HttpRequest(url, METHOD_POST);
+  public static HTTPRequest post(final URL url) throws HttpRequestException {
+    return new HTTPRequest(url, METHOD_POST);
   }
 
   /**
@@ -940,7 +940,7 @@ public class HttpRequest {
    *
    * @return request
    */
-  public static HttpRequest post(final CharSequence baseUrl,
+  public static HTTPRequest post(final CharSequence baseUrl,
       final Map<?, ?> params, final boolean encode) {
     String url = append(baseUrl, params);
     return post(encode ? encode(url) : url);
@@ -961,7 +961,7 @@ public class HttpRequest {
    *
    * @return request
    */
-  public static HttpRequest post(final CharSequence baseUrl,
+  public static HTTPRequest post(final CharSequence baseUrl,
       final boolean encode, final Object... params) {
     String url = append(baseUrl, params);
     return post(encode ? encode(url) : url);
@@ -974,9 +974,9 @@ public class HttpRequest {
    * @return request
    * @throws HttpRequestException
    */
-  public static HttpRequest put(final CharSequence url)
+  public static HTTPRequest put(final CharSequence url)
       throws HttpRequestException {
-    return new HttpRequest(url, METHOD_PUT);
+    return new HTTPRequest(url, METHOD_PUT);
   }
 
   /**
@@ -986,8 +986,8 @@ public class HttpRequest {
    * @return request
    * @throws HttpRequestException
    */
-  public static HttpRequest put(final URL url) throws HttpRequestException {
-    return new HttpRequest(url, METHOD_PUT);
+  public static HTTPRequest put(final URL url) throws HttpRequestException {
+    return new HTTPRequest(url, METHOD_PUT);
   }
 
   /**
@@ -1004,7 +1004,7 @@ public class HttpRequest {
    *
    * @return request
    */
-  public static HttpRequest put(final CharSequence baseUrl,
+  public static HTTPRequest put(final CharSequence baseUrl,
       final Map<?, ?> params, final boolean encode) {
     String url = append(baseUrl, params);
     return put(encode ? encode(url) : url);
@@ -1025,7 +1025,7 @@ public class HttpRequest {
    *
    * @return request
    */
-  public static HttpRequest put(final CharSequence baseUrl,
+  public static HTTPRequest put(final CharSequence baseUrl,
       final boolean encode, final Object... params) {
     String url = append(baseUrl, params);
     return put(encode ? encode(url) : url);
@@ -1038,9 +1038,9 @@ public class HttpRequest {
    * @return request
    * @throws HttpRequestException
    */
-  public static HttpRequest delete(final CharSequence url)
+  public static HTTPRequest delete(final CharSequence url)
       throws HttpRequestException {
-    return new HttpRequest(url, METHOD_DELETE);
+    return new HTTPRequest(url, METHOD_DELETE);
   }
 
   /**
@@ -1050,8 +1050,8 @@ public class HttpRequest {
    * @return request
    * @throws HttpRequestException
    */
-  public static HttpRequest delete(final URL url) throws HttpRequestException {
-    return new HttpRequest(url, METHOD_DELETE);
+  public static HTTPRequest delete(final URL url) throws HttpRequestException {
+    return new HTTPRequest(url, METHOD_DELETE);
   }
 
   /**
@@ -1068,7 +1068,7 @@ public class HttpRequest {
    *
    * @return request
    */
-  public static HttpRequest delete(final CharSequence baseUrl,
+  public static HTTPRequest delete(final CharSequence baseUrl,
       final Map<?, ?> params, final boolean encode) {
     String url = append(baseUrl, params);
     return delete(encode ? encode(url) : url);
@@ -1089,7 +1089,7 @@ public class HttpRequest {
    *
    * @return request
    */
-  public static HttpRequest delete(final CharSequence baseUrl,
+  public static HTTPRequest delete(final CharSequence baseUrl,
       final boolean encode, final Object... params) {
     String url = append(baseUrl, params);
     return delete(encode ? encode(url) : url);
@@ -1102,9 +1102,9 @@ public class HttpRequest {
    * @return request
    * @throws HttpRequestException
    */
-  public static HttpRequest head(final CharSequence url)
+  public static HTTPRequest head(final CharSequence url)
       throws HttpRequestException {
-    return new HttpRequest(url, METHOD_HEAD);
+    return new HTTPRequest(url, METHOD_HEAD);
   }
 
   /**
@@ -1114,8 +1114,8 @@ public class HttpRequest {
    * @return request
    * @throws HttpRequestException
    */
-  public static HttpRequest head(final URL url) throws HttpRequestException {
-    return new HttpRequest(url, METHOD_HEAD);
+  public static HTTPRequest head(final URL url) throws HttpRequestException {
+    return new HTTPRequest(url, METHOD_HEAD);
   }
 
   /**
@@ -1132,7 +1132,7 @@ public class HttpRequest {
    *
    * @return request
    */
-  public static HttpRequest head(final CharSequence baseUrl,
+  public static HTTPRequest head(final CharSequence baseUrl,
       final Map<?, ?> params, final boolean encode) {
     String url = append(baseUrl, params);
     return head(encode ? encode(url) : url);
@@ -1153,7 +1153,7 @@ public class HttpRequest {
    *
    * @return request
    */
-  public static HttpRequest head(final CharSequence baseUrl,
+  public static HTTPRequest head(final CharSequence baseUrl,
       final boolean encode, final Object... params) {
     String url = append(baseUrl, params);
     return head(encode ? encode(url) : url);
@@ -1166,9 +1166,9 @@ public class HttpRequest {
    * @return request
    * @throws HttpRequestException
    */
-  public static HttpRequest options(final CharSequence url)
+  public static HTTPRequest options(final CharSequence url)
       throws HttpRequestException {
-    return new HttpRequest(url, METHOD_OPTIONS);
+    return new HTTPRequest(url, METHOD_OPTIONS);
   }
 
   /**
@@ -1178,8 +1178,8 @@ public class HttpRequest {
    * @return request
    * @throws HttpRequestException
    */
-  public static HttpRequest options(final URL url) throws HttpRequestException {
-    return new HttpRequest(url, METHOD_OPTIONS);
+  public static HTTPRequest options(final URL url) throws HttpRequestException {
+    return new HTTPRequest(url, METHOD_OPTIONS);
   }
 
   /**
@@ -1189,9 +1189,9 @@ public class HttpRequest {
    * @return request
    * @throws HttpRequestException
    */
-  public static HttpRequest trace(final CharSequence url)
+  public static HTTPRequest trace(final CharSequence url)
       throws HttpRequestException {
-    return new HttpRequest(url, METHOD_TRACE);
+    return new HTTPRequest(url, METHOD_TRACE);
   }
 
   /**
@@ -1201,8 +1201,8 @@ public class HttpRequest {
    * @return request
    * @throws HttpRequestException
    */
-  public static HttpRequest trace(final URL url) throws HttpRequestException {
-    return new HttpRequest(url, METHOD_TRACE);
+  public static HTTPRequest trace(final URL url) throws HttpRequestException {
+    return new HTTPRequest(url, METHOD_TRACE);
   }
 
   /**
@@ -1313,7 +1313,7 @@ public class HttpRequest {
    * @param method
    * @throws HttpRequestException
    */
-  public HttpRequest(final CharSequence url, final String method)
+  public HTTPRequest(final CharSequence url, final String method)
       throws HttpRequestException {
     try {
       connection = (HttpURLConnection) new URL(url.toString()).openConnection();
@@ -1330,7 +1330,7 @@ public class HttpRequest {
    * @param method
    * @throws HttpRequestException
    */
-  public HttpRequest(final URL url, final String method)
+  public HTTPRequest(final URL url, final String method)
       throws HttpRequestException {
     try {
       connection = (HttpURLConnection) url.openConnection();
@@ -1363,7 +1363,7 @@ public class HttpRequest {
    * @param ignore
    * @return this request
    */
-  public HttpRequest ignoreCloseExceptions(final boolean ignore) {
+  public HTTPRequest ignoreCloseExceptions(final boolean ignore) {
     ignoreCloseExceptions = ignore;
     return this;
   }
@@ -1401,7 +1401,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest code(final AtomicInteger output)
+  public HTTPRequest code(final AtomicInteger output)
       throws HttpRequestException {
     output.set(code());
     return this;
@@ -1487,7 +1487,7 @@ public class HttpRequest {
    *
    * @return this request
    */
-  public HttpRequest disconnect() {
+  public HTTPRequest disconnect() {
     connection.disconnect();
     return this;
   }
@@ -1498,7 +1498,7 @@ public class HttpRequest {
    * @param size
    * @return this request
    */
-  public HttpRequest chunk(final int size) {
+  public HTTPRequest chunk(final int size) {
     connection.setChunkedStreamingMode(size);
     return this;
   }
@@ -1514,7 +1514,7 @@ public class HttpRequest {
    * @param size
    * @return this request
    */
-  public HttpRequest bufferSize(final int size) {
+  public HTTPRequest bufferSize(final int size) {
     if (size < 1)
       throw new IllegalArgumentException("Size must be greater than zero");
     bufferSize = size;
@@ -1550,7 +1550,7 @@ public class HttpRequest {
    * @param uncompress
    * @return this request
    */
-  public HttpRequest uncompress(final boolean uncompress) {
+  public HTTPRequest uncompress(final boolean uncompress) {
     this.uncompress = uncompress;
     return this;
   }
@@ -1734,17 +1734,17 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest receive(final File file) throws HttpRequestException {
+  public HTTPRequest receive(final File file) throws HttpRequestException {
     final OutputStream output;
     try {
       output = new BufferedOutputStream(new FileOutputStream(file), bufferSize);
     } catch (FileNotFoundException e) {
       throw new HttpRequestException(e);
     }
-    return new CloseOperation<HttpRequest>(output, ignoreCloseExceptions) {
+    return new CloseOperation<HTTPRequest>(output, ignoreCloseExceptions) {
 
       @Override
-      protected HttpRequest run() throws HttpRequestException, IOException {
+      protected HTTPRequest run() throws HttpRequestException, IOException {
         return receive(output);
       }
     }.call();
@@ -1757,7 +1757,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest receive(final OutputStream output)
+  public HTTPRequest receive(final OutputStream output)
       throws HttpRequestException {
     try {
       return copy(buffer(), output);
@@ -1773,7 +1773,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest receive(final PrintStream output)
+  public HTTPRequest receive(final PrintStream output)
       throws HttpRequestException {
     return receive((OutputStream) output);
   }
@@ -1785,13 +1785,13 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest receive(final Appendable appendable)
+  public HTTPRequest receive(final Appendable appendable)
       throws HttpRequestException {
     final BufferedReader reader = bufferedReader();
-    return new CloseOperation<HttpRequest>(reader, ignoreCloseExceptions) {
+    return new CloseOperation<HTTPRequest>(reader, ignoreCloseExceptions) {
 
       @Override
-      public HttpRequest run() throws IOException {
+      public HTTPRequest run() throws IOException {
         final CharBuffer buffer = CharBuffer.allocate(bufferSize);
         int read;
         while ((read = reader.read(buffer)) != -1) {
@@ -1799,7 +1799,7 @@ public class HttpRequest {
           appendable.append(buffer, 0, read);
           buffer.rewind();
         }
-        return HttpRequest.this;
+        return HTTPRequest.this;
       }
     }.call();
   }
@@ -1811,12 +1811,12 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest receive(final Writer writer) throws HttpRequestException {
+  public HTTPRequest receive(final Writer writer) throws HttpRequestException {
     final BufferedReader reader = bufferedReader();
-    return new CloseOperation<HttpRequest>(reader, ignoreCloseExceptions) {
+    return new CloseOperation<HTTPRequest>(reader, ignoreCloseExceptions) {
 
       @Override
-      public HttpRequest run() throws IOException {
+      public HTTPRequest run() throws IOException {
         return copy(reader, writer);
       }
     }.call();
@@ -1828,7 +1828,7 @@ public class HttpRequest {
    * @param timeout
    * @return this request
    */
-  public HttpRequest readTimeout(final int timeout) {
+  public HTTPRequest readTimeout(final int timeout) {
     connection.setReadTimeout(timeout);
     return this;
   }
@@ -1839,7 +1839,7 @@ public class HttpRequest {
    * @param timeout
    * @return this request
    */
-  public HttpRequest connectTimeout(final int timeout) {
+  public HTTPRequest connectTimeout(final int timeout) {
     connection.setConnectTimeout(timeout);
     return this;
   }
@@ -1851,7 +1851,7 @@ public class HttpRequest {
    * @param value
    * @return this request
    */
-  public HttpRequest header(final String name, final String value) {
+  public HTTPRequest header(final String name, final String value) {
     connection.setRequestProperty(name, value);
     return this;
   }
@@ -1863,7 +1863,7 @@ public class HttpRequest {
    * @param value
    * @return this request
    */
-  public HttpRequest header(final String name, final Number value) {
+  public HTTPRequest header(final String name, final Number value) {
     return header(name, value != null ? value.toString() : null);
   }
 
@@ -1874,7 +1874,7 @@ public class HttpRequest {
    * @param headers
    * @return this request
    */
-  public HttpRequest headers(final Map<String, String> headers) {
+  public HTTPRequest headers(final Map<String, String> headers) {
     if (!headers.isEmpty())
       for (Entry<String, String> header : headers.entrySet())
         header(header);
@@ -1887,7 +1887,7 @@ public class HttpRequest {
    * @param header
    * @return this request
    */
-  public HttpRequest header(final Entry<String, String> header) {
+  public HTTPRequest header(final Entry<String, String> header) {
     return header(header.getKey(), header.getValue());
   }
 
@@ -2114,7 +2114,7 @@ public class HttpRequest {
    * @param value
    * @return this request
    */
-  public HttpRequest userAgent(final String value) {
+  public HTTPRequest userAgent(final String value) {
     return header(HEADER_USER_AGENT, value);
   }
 
@@ -2124,7 +2124,7 @@ public class HttpRequest {
    * @param useCaches
    * @return this request
    */
-  public HttpRequest useCaches(final boolean useCaches) {
+  public HTTPRequest useCaches(final boolean useCaches) {
     connection.setUseCaches(useCaches);
     return this;
   }
@@ -2135,7 +2135,7 @@ public class HttpRequest {
    * @param value
    * @return this request
    */
-  public HttpRequest acceptEncoding(final String value) {
+  public HTTPRequest acceptEncoding(final String value) {
     return header(HEADER_ACCEPT_ENCODING, value);
   }
 
@@ -2145,7 +2145,7 @@ public class HttpRequest {
    * @see #uncompress(boolean)
    * @return this request
    */
-  public HttpRequest acceptGzipEncoding() {
+  public HTTPRequest acceptGzipEncoding() {
     return acceptEncoding(ENCODING_GZIP);
   }
 
@@ -2155,7 +2155,7 @@ public class HttpRequest {
    * @param value
    * @return this request
    */
-  public HttpRequest acceptCharset(final String value) {
+  public HTTPRequest acceptCharset(final String value) {
     return header(HEADER_ACCEPT_CHARSET, value);
   }
 
@@ -2237,7 +2237,7 @@ public class HttpRequest {
    * @param value
    * @return this request
    */
-  public HttpRequest authorization(final String value) {
+  public HTTPRequest authorization(final String value) {
     return header(HEADER_AUTHORIZATION, value);
   }
 
@@ -2249,7 +2249,7 @@ public class HttpRequest {
    * @param password
    * @return this request
    */
-  public HttpRequest basic(final String name, final String password) {
+  public HTTPRequest basic(final String name, final String password) {
     return authorization("Basic " + Base64.encode(name + ':' + password));
   }
 
@@ -2259,7 +2259,7 @@ public class HttpRequest {
    * @param value
    * @return this request
    */
-  public HttpRequest ifModifiedSince(final long value) {
+  public HTTPRequest ifModifiedSince(final long value) {
     connection.setIfModifiedSince(value);
     return this;
   }
@@ -2270,7 +2270,7 @@ public class HttpRequest {
    * @param value
    * @return this request
    */
-  public HttpRequest ifNoneMatch(final String value) {
+  public HTTPRequest ifNoneMatch(final String value) {
     return header(HEADER_IF_NONE_MATCH, value);
   }
 
@@ -2280,7 +2280,7 @@ public class HttpRequest {
    * @param value
    * @return this request
    */
-  public HttpRequest contentType(final String value) {
+  public HTTPRequest contentType(final String value) {
     return contentType(value, null);
   }
 
@@ -2291,7 +2291,7 @@ public class HttpRequest {
    * @param charset
    * @return this request
    */
-  public HttpRequest contentType(final String value, final String charset) {
+  public HTTPRequest contentType(final String value, final String charset) {
     if (charset != null && charset.length() > 0) {
       final String separator = "; " + PARAM_CHARSET + '=';
       return header(HEADER_CONTENT_TYPE, value + separator + charset);
@@ -2323,7 +2323,7 @@ public class HttpRequest {
    * @param value
    * @return this request
    */
-  public HttpRequest contentLength(final String value) {
+  public HTTPRequest contentLength(final String value) {
     return contentLength(Integer.parseInt(value));
   }
 
@@ -2333,7 +2333,7 @@ public class HttpRequest {
    * @param value
    * @return this request
    */
-  public HttpRequest contentLength(final int value) {
+  public HTTPRequest contentLength(final int value) {
     connection.setFixedLengthStreamingMode(value);
     return this;
   }
@@ -2344,7 +2344,7 @@ public class HttpRequest {
    * @param value
    * @return this request
    */
-  public HttpRequest accept(final String value) {
+  public HTTPRequest accept(final String value) {
     return header(HEADER_ACCEPT, value);
   }
 
@@ -2353,7 +2353,7 @@ public class HttpRequest {
    *
    * @return this request
    */
-  public HttpRequest acceptJson() {
+  public HTTPRequest acceptJson() {
     return accept(CONTENT_TYPE_JSON);
   }
 
@@ -2365,17 +2365,17 @@ public class HttpRequest {
    * @return this request
    * @throws IOException
    */
-  protected HttpRequest copy(final InputStream input, final OutputStream output)
+  protected HTTPRequest copy(final InputStream input, final OutputStream output)
       throws IOException {
-    return new CloseOperation<HttpRequest>(input, ignoreCloseExceptions) {
+    return new CloseOperation<HTTPRequest>(input, ignoreCloseExceptions) {
 
       @Override
-      public HttpRequest run() throws IOException {
+      public HTTPRequest run() throws IOException {
         final byte[] buffer = new byte[bufferSize];
         int read;
         while ((read = input.read(buffer)) != -1)
           output.write(buffer, 0, read);
-        return HttpRequest.this;
+        return HTTPRequest.this;
       }
     }.call();
   }
@@ -2388,17 +2388,17 @@ public class HttpRequest {
    * @return this request
    * @throws IOException
    */
-  protected HttpRequest copy(final Reader input, final Writer output)
+  protected HTTPRequest copy(final Reader input, final Writer output)
       throws IOException {
-    return new CloseOperation<HttpRequest>(input, ignoreCloseExceptions) {
+    return new CloseOperation<HTTPRequest>(input, ignoreCloseExceptions) {
 
       @Override
-      public HttpRequest run() throws IOException {
+      public HTTPRequest run() throws IOException {
         final char[] buffer = new char[bufferSize];
         int read;
         while ((read = input.read(buffer)) != -1)
           output.write(buffer, 0, read);
-        return HttpRequest.this;
+        return HTTPRequest.this;
       }
     }.call();
   }
@@ -2410,7 +2410,7 @@ public class HttpRequest {
    * @throws HttpRequestException
    * @throws IOException
    */
-  protected HttpRequest closeOutput() throws IOException {
+  protected HTTPRequest closeOutput() throws IOException {
     if (output == null)
       return this;
     if (multipart)
@@ -2434,7 +2434,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  protected HttpRequest closeOutputQuietly() throws HttpRequestException {
+  protected HTTPRequest closeOutputQuietly() throws HttpRequestException {
     try {
       return closeOutput();
     } catch (IOException e) {
@@ -2448,7 +2448,7 @@ public class HttpRequest {
    * @return this request
    * @throws IOException
    */
-  protected HttpRequest openOutput() throws IOException {
+  protected HTTPRequest openOutput() throws IOException {
     if (output != null)
       return this;
     connection.setDoOutput(true);
@@ -2465,7 +2465,7 @@ public class HttpRequest {
    * @return this request
    * @throws IOException
    */
-  protected HttpRequest startPart() throws IOException {
+  protected HTTPRequest startPart() throws IOException {
     if (!multipart) {
       multipart = true;
       contentType(CONTENT_TYPE_MULTIPART).openOutput();
@@ -2483,7 +2483,7 @@ public class HttpRequest {
    * @return this request
    * @throws IOException
    */
-  protected HttpRequest writePartHeader(final String name, final String filename)
+  protected HTTPRequest writePartHeader(final String name, final String filename)
       throws IOException {
     return writePartHeader(name, filename, null);
   }
@@ -2497,7 +2497,7 @@ public class HttpRequest {
    * @return this request
    * @throws IOException
    */
-  protected HttpRequest writePartHeader(final String name,
+  protected HTTPRequest writePartHeader(final String name,
       final String filename, final String contentType) throws IOException {
     final StringBuilder partBuffer = new StringBuilder();
     partBuffer.append("form-data; name=\"").append(name);
@@ -2517,7 +2517,7 @@ public class HttpRequest {
    * @param part
    * @return this request
    */
-  public HttpRequest part(final String name, final String part) {
+  public HTTPRequest part(final String name, final String part) {
     return part(name, null, part);
   }
 
@@ -2530,7 +2530,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest part(final String name, final String filename,
+  public HTTPRequest part(final String name, final String filename,
       final String part) throws HttpRequestException {
     return part(name, filename, null, part);
   }
@@ -2546,7 +2546,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest part(final String name, final String filename,
+  public HTTPRequest part(final String name, final String filename,
       final String contentType, final String part) throws HttpRequestException {
     try {
       startPart();
@@ -2566,7 +2566,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest part(final String name, final Number part)
+  public HTTPRequest part(final String name, final Number part)
       throws HttpRequestException {
     return part(name, null, part);
   }
@@ -2580,7 +2580,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest part(final String name, final String filename,
+  public HTTPRequest part(final String name, final String filename,
       final Number part) throws HttpRequestException {
     return part(name, filename, part != null ? part.toString() : null);
   }
@@ -2593,7 +2593,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest part(final String name, final File part)
+  public HTTPRequest part(final String name, final File part)
       throws HttpRequestException {
     return part(name, null, part);
   }
@@ -2607,7 +2607,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest part(final String name, final String filename,
+  public HTTPRequest part(final String name, final String filename,
       final File part) throws HttpRequestException {
     return part(name, filename, null, part);
   }
@@ -2623,7 +2623,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest part(final String name, final String filename,
+  public HTTPRequest part(final String name, final String filename,
       final String contentType, final File part) throws HttpRequestException {
     final InputStream stream;
     try {
@@ -2642,7 +2642,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest part(final String name, final InputStream part)
+  public HTTPRequest part(final String name, final InputStream part)
       throws HttpRequestException {
     return part(name, null, null, part);
   }
@@ -2658,7 +2658,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest part(final String name, final String filename,
+  public HTTPRequest part(final String name, final String filename,
       final String contentType, final InputStream part)
       throws HttpRequestException {
     try {
@@ -2679,7 +2679,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest partHeader(final String name, final String value)
+  public HTTPRequest partHeader(final String name, final String value)
       throws HttpRequestException {
     return send(name).send(": ").send(value).send(CRLF);
   }
@@ -2691,7 +2691,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest send(final File input) throws HttpRequestException {
+  public HTTPRequest send(final File input) throws HttpRequestException {
     final InputStream stream;
     try {
       stream = new BufferedInputStream(new FileInputStream(input));
@@ -2708,7 +2708,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest send(final byte[] input) throws HttpRequestException {
+  public HTTPRequest send(final byte[] input) throws HttpRequestException {
     return send(new ByteArrayInputStream(input));
   }
 
@@ -2721,7 +2721,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest send(final InputStream input) throws HttpRequestException {
+  public HTTPRequest send(final InputStream input) throws HttpRequestException {
     try {
       openOutput();
       copy(input, output);
@@ -2740,7 +2740,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest send(final Reader input) throws HttpRequestException {
+  public HTTPRequest send(final Reader input) throws HttpRequestException {
     try {
       openOutput();
     } catch (IOException e) {
@@ -2748,10 +2748,10 @@ public class HttpRequest {
     }
     final Writer writer = new OutputStreamWriter(output,
         output.encoder.charset());
-    return new FlushOperation<HttpRequest>(writer) {
+    return new FlushOperation<HTTPRequest>(writer) {
 
       @Override
-      protected HttpRequest run() throws IOException {
+      protected HTTPRequest run() throws IOException {
         return copy(input, writer);
       }
     }.call();
@@ -2767,7 +2767,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest send(final CharSequence value) throws HttpRequestException {
+  public HTTPRequest send(final CharSequence value) throws HttpRequestException {
     try {
       openOutput();
       output.write(value.toString());
@@ -2802,7 +2802,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest form(final Map<?, ?> values) throws HttpRequestException {
+  public HTTPRequest form(final Map<?, ?> values) throws HttpRequestException {
     return form(values, CHARSET_UTF8);
   }
 
@@ -2816,7 +2816,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest form(final Entry<?, ?> entry) throws HttpRequestException {
+  public HTTPRequest form(final Entry<?, ?> entry) throws HttpRequestException {
     return form(entry, CHARSET_UTF8);
   }
 
@@ -2831,7 +2831,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest form(final Entry<?, ?> entry, final String charset)
+  public HTTPRequest form(final Entry<?, ?> entry, final String charset)
       throws HttpRequestException {
     return form(entry.getKey(), entry.getValue(), charset);
   }
@@ -2847,7 +2847,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest form(final Object name, final Object value)
+  public HTTPRequest form(final Object name, final Object value)
       throws HttpRequestException {
     return form(name, value, CHARSET_UTF8);
   }
@@ -2864,7 +2864,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest form(final Object name, final Object value, String charset)
+  public HTTPRequest form(final Object name, final Object value, String charset)
       throws HttpRequestException {
     final boolean first = !form;
     if (first) {
@@ -2894,7 +2894,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest form(final Map<?, ?> values, final String charset)
+  public HTTPRequest form(final Map<?, ?> values, final String charset)
       throws HttpRequestException {
     if (!values.isEmpty())
       for (Entry<?, ?> entry : values.entrySet())
@@ -2910,7 +2910,7 @@ public class HttpRequest {
    * @return this request
    * @throws HttpRequestException
    */
-  public HttpRequest trustAllCerts() throws HttpRequestException {
+  public HTTPRequest trustAllCerts() throws HttpRequestException {
     if (connection instanceof HttpsURLConnection)
       ((HttpsURLConnection) connection)
           .setSSLSocketFactory(getTrustedFactory());
@@ -2926,7 +2926,7 @@ public class HttpRequest {
    *
    * @return this request
    */
-  public HttpRequest trustAllHosts() {
+  public HTTPRequest trustAllHosts() {
     if (connection instanceof HttpsURLConnection)
       ((HttpsURLConnection) connection)
           .setHostnameVerifier(getTrustedVerifier());

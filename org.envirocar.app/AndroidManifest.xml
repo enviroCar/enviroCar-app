@@ -72,15 +72,6 @@
                 android:value="org.envirocar.app.activity.MainActivity" />
         </activity>
         <activity
-            android:name="org.envirocar.app.activity.LoginActivity"
-            android:label="@string/title_activity_login"
-            android:parentActivityName="org.envirocar.app.activity.MainActivity"
-            android:windowSoftInputMode="adjustResize|stateVisible" >
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.envirocar.app.activity.MainActivity" />
-        </activity>
-        <activity
             android:name="org.envirocar.app.activity.MyGarage"
             android:label="@string/menu_garage"
             android:parentActivityName="org.envirocar.app.activity.MainActivity" >
@@ -90,7 +81,7 @@
         </activity>        
 
         <service
-            android:name="org.envirocar.app.obd.BackgroundService"
+            android:name="org.envirocar.app.application.BackgroundService"
             android:exported="false" />
 
         <activity

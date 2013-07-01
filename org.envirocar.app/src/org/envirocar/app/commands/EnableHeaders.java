@@ -19,20 +19,19 @@
  * 
  */
 
-package org.envirocar.app.importedCommands;
+package org.envirocar.app.commands;
 
-import org.envirocar.app.commands.CommonCommand;
 
 /**
- * This command will turn-off echo.
+ * Turns off line-feed.
  */
-public class EchoOff extends CommonCommand {
+public class EnableHeaders extends CommonCommand {
 
 	/**
 	 * @param command
 	 */
-	public EchoOff() {
-		super("AT E0");
+	public EnableHeaders() {
+		super("AT H1");
 	}
 
 	@Override
@@ -42,7 +41,7 @@ public class EchoOff extends CommonCommand {
 
 	@Override
 	public String getCommandName() {
-		return "Echo Off";
+		return "Enable Headers";
 	}
 
 }

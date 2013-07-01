@@ -19,23 +19,19 @@
  * 
  */
 
-package org.envirocar.app.importedCommands;
+package org.envirocar.app.commands;
 
-import org.envirocar.app.commands.CommonCommand;
 
 /**
- * This will set the value of time in milliseconds (ms) that the OBD interface
- * will wait for a response from the ECU. If exceeds, the response is "NO DATA".
+ * This command will turn-off echo.
  */
-public class Timeout extends CommonCommand {
+public class SpacesOff extends CommonCommand {
 
 	/**
-	 * @param a
-	 *            value between 0 and 255 that multiplied by 4 results in the
-	 *            desired timeout in milliseconds (ms).
+	 * @param command
 	 */
-	public Timeout(int timeout) {
-		super("AT ST " + Integer.toHexString(0xFF & timeout));
+	public SpacesOff() {
+		super("AT S0");
 	}
 
 	@Override
@@ -45,7 +41,7 @@ public class Timeout extends CommonCommand {
 
 	@Override
 	public String getCommandName() {
-		return "Timeout";
+		return "Spaces Off";
 	}
 
 }

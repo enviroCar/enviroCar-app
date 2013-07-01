@@ -27,7 +27,7 @@ import org.apache.http.Header;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.RestClient;
-import org.envirocar.app.views.TYPEFACE;
+import org.envirocar.app.views.TypefaceEC;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -204,7 +204,7 @@ public class MyGarage extends SherlockFragment {
 		dlSensors();
 		
 		
-		TYPEFACE.applyCustomFont((ViewGroup) view.findViewById(R.id.mygaragelayout), TYPEFACE.Raleway(getActivity()));
+		TypefaceEC.applyCustomFont((ViewGroup) view.findViewById(R.id.mygaragelayout), TypefaceEC.Raleway(getActivity()));
 		
 		
 		return view;

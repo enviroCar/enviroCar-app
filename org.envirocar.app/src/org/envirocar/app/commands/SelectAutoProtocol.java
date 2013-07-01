@@ -19,24 +19,29 @@
  * 
  */
 
-package org.envirocar.app.obd;
+package org.envirocar.app.commands;
 
-import org.envirocar.app.commands.CommonCommand;
 
 /**
- * Interface that adds jobs to the waiting list and executes it
- * 
- * @author jakob
- * 
+ * Select the protocol to use.
  */
-public interface Monitor {
+public class SelectAutoProtocol extends CommonCommand {
 
-	void setListener(Listener listener);
+	/**
+	 * @param command
+	 */
+	public SelectAutoProtocol() {
+		super("AT SP " + 0);
+	}
 
-	boolean isRunning();
+	@Override
+	public String getResult() {
+		return getRawData();
+	}
 
-	void executeWaitingList();
-
-	void newJobToWaitingList(CommonCommand newJob);
+	@Override
+	public String getCommandName() {
+		return "Protocol: Auto";
+	}
 
 }

@@ -19,20 +19,19 @@
  * 
  */
 
-package org.envirocar.app.importedCommands;
+package org.envirocar.app.commands;
 
-import org.envirocar.app.commands.CommonCommand;
 
 /**
- * This command will turn-off memory.
+ * Turns off line-feed.
  */
-public class MemoryOff extends CommonCommand {
+public class LineFeedOff extends CommonCommand {
 
 	/**
 	 * @param command
 	 */
-	public MemoryOff() {
-		super("AT M0");
+	public LineFeedOff() {
+		super("AT L0");
 	}
 
 	@Override
@@ -42,7 +41,7 @@ public class MemoryOff extends CommonCommand {
 
 	@Override
 	public String getCommandName() {
-		return "Memory Off";
+		return "Line Feed Off";
 	}
 
 }

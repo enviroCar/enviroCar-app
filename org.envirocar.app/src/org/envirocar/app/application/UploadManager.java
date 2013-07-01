@@ -19,7 +19,7 @@
  * 
  */
 
-package org.envirocar.app.adapter;
+package org.envirocar.app.application;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -33,8 +33,10 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.exception.FuelConsumptionException;
+import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.app.storage.Measurement;
+import org.envirocar.app.storage.Track;
 import org.json.JSONException;
 import org.json.JSONObject;
 

@@ -22,12 +22,12 @@
 package org.envirocar.app.views;
 
 import android.content.Context;
-import android.graphics.Typeface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.graphics.Typeface;
 
-public final class TYPEFACE {
+public final class TypefaceEC {
     public static final Typeface Raleway(Context ctx){
         Typeface typeface = Typeface.createFromAsset(ctx.getAssets(), "Raleway-Regular.ttf");
         return typeface;

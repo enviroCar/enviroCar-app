@@ -26,12 +26,12 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.envirocar.app.R;
-import org.envirocar.app.adapter.DbAdapterLocal;
-import org.envirocar.app.adapter.UploadManager;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.NavMenuItem;
+import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.exception.TracksException;
-import org.envirocar.app.views.TYPEFACE;
+import org.envirocar.app.storage.DbAdapterLocal;
+import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
 
 import android.content.Intent;
@@ -197,7 +197,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		actionBarTitleID = Utils.getActionBarId();
 		if (Utils.getActionBarId() != 0) {
 			((TextView) this.findViewById(actionBarTitleID))
-					.setTypeface(TYPEFACE.Newscycle(this));
+					.setTypeface(TypefaceEC.Newscycle(this));
 		}
 
 		actionBar.setLogo(getResources().getDrawable(R.drawable.actionbarlogo_with_padding));
@@ -441,7 +441,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				textView.setTextColor(Color.GRAY);
 				icon.setColorFilter(Color.GRAY);
 			}
-			TYPEFACE.applyCustomFont((ViewGroup) item, TYPEFACE.Raleway(MainActivity.this));
+			TypefaceEC.applyCustomFont((ViewGroup) item, TypefaceEC.Raleway(MainActivity.this));
 			return item;
 		}
 

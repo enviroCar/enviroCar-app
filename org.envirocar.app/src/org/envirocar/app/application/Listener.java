@@ -19,30 +19,21 @@
  * 
  */
 
-package org.envirocar.app.importedCommands;
+package org.envirocar.app.application;
 
 import org.envirocar.app.commands.CommonCommand;
 
 /**
- * Turns off line-feed.
+ * Interface that listens for updates from the current obd job
+ * 
+ * @author jakob
+ * 
  */
-public class HeadersOff extends CommonCommand {
 
-	/**
-	 * @param command
-	 */
-	public HeadersOff() {
-		super("AT H0");
-	}
+public interface Listener {
 
-	@Override
-	public String getResult() {
-		return getRawData();
-	}
 
-	@Override
-	public String getCommandName() {
-		return "Disable Headers";
-	}
+	void receiveUpdate(CommonCommand currentJob);
+
 
 }

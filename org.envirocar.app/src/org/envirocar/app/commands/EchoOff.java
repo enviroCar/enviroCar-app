@@ -19,21 +19,29 @@
  * 
  */
 
-package org.envirocar.app.obd;
+package org.envirocar.app.commands;
 
-import org.envirocar.app.commands.CommonCommand;
 
 /**
- * Interface that listens for updates from the current obd job
- * 
- * @author jakob
- * 
+ * This command will turn-off echo.
  */
+public class EchoOff extends CommonCommand {
 
-public interface Listener {
+	/**
+	 * @param command
+	 */
+	public EchoOff() {
+		super("AT E0");
+	}
 
+	@Override
+	public String getResult() {
+		return getRawData();
+	}
 
-	void receiveUpdate(CommonCommand currentJob);
-
+	@Override
+	public String getCommandName() {
+		return "Echo Off";
+	}
 
 }

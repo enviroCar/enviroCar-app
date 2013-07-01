@@ -30,20 +30,17 @@ import java.util.concurrent.TimeUnit;
 
 import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
-import org.envirocar.app.adapter.DbAdapter;
-import org.envirocar.app.adapter.DbAdapterLocal;
-import org.envirocar.app.adapter.DbAdapterRemote;
-import org.envirocar.app.adapter.Measurement;
-import org.envirocar.app.adapter.Track;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.MAF;
 import org.envirocar.app.commands.Speed;
 import org.envirocar.app.exception.LocationInvalidException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.TracksException;
-import org.envirocar.app.obd.BackgroundService;
-import org.envirocar.app.obd.Listener;
-import org.envirocar.app.obd.ServiceConnector;
+import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.app.storage.DbAdapterLocal;
+import org.envirocar.app.storage.DbAdapterRemote;
+import org.envirocar.app.storage.Measurement;
+import org.envirocar.app.storage.Track;
 
 import android.app.Application;
 import android.app.NotificationManager;
