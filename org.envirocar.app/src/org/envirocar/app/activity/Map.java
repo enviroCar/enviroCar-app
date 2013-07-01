@@ -252,12 +252,6 @@ public class Map extends MapActivity {
 		return true;
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.map, menu);
-		return true;
-	}
-
 	private String debugTwoDimArr(GeoPoint[][] result) {
 		StringBuffer results = new StringBuffer();
 		String separator = ",";
