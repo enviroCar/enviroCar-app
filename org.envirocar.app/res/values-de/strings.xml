@@ -110,4 +110,9 @@
 	
 	<string name="welcome_message">Willkommen, </string>
 	<string name="no_tracks">Keine Fahrten vorhanden</string>
+	<string name="start_measuring">Starte Messung.</string>
+    <string name="stop_measuring">Messung gestoppt.</string>
+    <string name="bye_bye">Auf Wiedersehen!</string>
+    <string name="all_local_tracks_deleted">Alle lokalen Tracks gelöscht.</string>
+    <string name="not_possible_for_remote">Noch nicht möglich für remote Tracks.</string>
 </resources>

@@ -468,7 +468,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         		} catch (NullPointerException e){
         			//do nothing, the fragment hasnt been initialized yet.
         		}
-        		Crouton.makeText(this, "Bye Bye!", Style.INFO).show();
+        		Crouton.makeText(this, R.string.bye_bye, Style.CONFIRM).show();
         	} else {
                 LoginFragment loginFragment = new LoginFragment();
                 manager.beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
@@ -499,8 +499,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				} else {
 					if (!application.getServiceConnector().isRunning()) {
 						application.startConnection();
+						Crouton.makeText(this, R.string.start_measuring, Style.INFO).show();
 					} else {
 						application.stopConnection();
+						Crouton.makeText(this, R.string.stop_measuring, Style.INFO).show();
 					}
 				}
 			} else {

@@ -164,6 +164,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		case R.id.menu_delete_all:
 			((ECApplication) getActivity().getApplication()).getDbAdapterLocal().deleteAllTracks();
 			((ECApplication) getActivity().getApplication()).setTrack(null);
+			Crouton.makeText(getActivity(), R.string.all_local_tracks_deleted,Style.CONFIRM).show();
 			return true;
 			
 		}
@@ -203,7 +204,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					}
 				}).show();
 			} else {
-				Crouton.showText(getActivity(), "Not yet possible for remote tracks.", Style.INFO);
+				Crouton.showText(getActivity(), R.string.not_possible_for_remote, Style.INFO);
 			}
 			return true;
 
@@ -230,7 +231,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					}
 				}).show();
 			} else {
-				Crouton.showText(getActivity(), "Not yet possible for remote tracks.", Style.INFO);
+				Crouton.showText(getActivity(), R.string.not_possible_for_remote, Style.INFO);
 			}
 			return true;
 
@@ -267,7 +268,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				tracksList.remove(itemSelect);
 				elvAdapter.notifyDataSetChanged();
 			} else {
-				Crouton.showText(getActivity(), "Not yet possible for remote tracks.", Style.INFO);
+				Crouton.showText(getActivity(), R.string.not_possible_for_remote, Style.INFO);
 			}
 			return true;
 

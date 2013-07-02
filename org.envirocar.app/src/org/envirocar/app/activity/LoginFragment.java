@@ -268,7 +268,7 @@ public class LoginFragment extends SherlockFragment {
 			if (success) {
 				((ECApplication) getActivity().getApplication())
 						.setUser(new User(mUsername, mPassword));
-				Crouton.makeText(getActivity(), getResources().getString(R.string.welcome_message)+mUsername, Style.CONFIRM).show();
+				Crouton.makeText(getActivity(), getResources().getString(R.string.welcome_message) + " " + mUsername, Style.CONFIRM).show();
 				DashboardFragment dashboardFragment = new DashboardFragment();
 	            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
 			} else {

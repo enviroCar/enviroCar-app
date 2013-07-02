@@ -102,4 +102,9 @@
 	
 	<string name="welcome_message">Welcome, </string>
 	<string name="no_tracks">You have no tracks</string>
+	<string name="start_measuring">Start measuring.</string>
+	<string name="stop_measuring">Stopped measuring.</string>
+	<string name="bye_bye">Bye Bye!</string>
+	<string name="all_local_tracks_deleted">All local tracks deleted.</string>
+	<string name="not_possible_for_remote">Not yet possible for remote tracks.</string>
 </resources>
