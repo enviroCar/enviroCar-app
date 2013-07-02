@@ -45,25 +45,22 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
-import android.view.Menu;
 
 public class Map extends MapActivity {
 
 	private final static String TAG = "Map";
 
-	private MapView mapView;
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		mapView = new MapView(this, new MapnikTileDownloader());
+		MapView mapView = new MapView(this, new MapnikTileDownloader());
 		mapView.setClickable(true);
 		mapView.setBuiltInZoomControls(true);
 
 		Bundle bundle = getIntent().getExtras();
 		String[] coordinates = bundle.getStringArray("coordinates");
-		GeoPoint[][] overlayPoints = getGeoPoints(coordinates);
+		GeoPoint[][] overlayPoints = getOverlayPoints(coordinates);
 
 		Log.d(TAG, Arrays.deepToString(coordinates));
 
@@ -105,42 +102,54 @@ public class Map extends MapActivity {
 		mapView.getOverlays().add(wayOverlay);
 		mapView.getOverlays().add(itemizedOverlay);
 
-		GeoPoint max = new GeoPoint(getMaxLat(coordinates),
-				getMaxLon(coordinates));
-		GeoPoint min = new GeoPoint(getMinLat(coordinates),
-				getMinLon(coordinates));
+		GeoPoint pointNorthEast = new GeoPoint(getMaxLat(coordinates),
+				getMaxLng(coordinates));
+		GeoPoint pointSouthWest = new GeoPoint(getMinLat(coordinates),
+				getMinLng(coordinates));
 
-		zoomToTrackExtent(mapView, min.latitudeE6, max.latitudeE6,
-				min.longitudeE6, max.longitudeE6);
-
+		zoomToTrackExtent(mapView, pointSouthWest.latitudeE6,
+				pointNorthEast.latitudeE6, pointSouthWest.longitudeE6,
+				pointNorthEast.longitudeE6);
+		
 		setContentView(mapView);
 	}
 
-	private GeoPoint[][] getGeoPoints(String[] coordinates) {
-		List<GeoPoint> geoPoints = new ArrayList<GeoPoint>();
+	/**
+	 * Converts a string array with coordinates to geoOverlay array.
+	 * 
+	 * @param coordinates the string array containing
+	 * @return the overlay GeoPoints
+	 */
+	private GeoPoint[][] getOverlayPoints(String[] coordinates) {
+		List<GeoPoint> geoPointList = new ArrayList<GeoPoint>();
 
 		for (int i = 0; i < coordinates.length; i = i + 2) {
 			String lat = coordinates[i];
-			String lon = coordinates[i + 1];
+			String lng = coordinates[i + 1];
 			GeoPoint geoPoint = new GeoPoint(Double.parseDouble(lat),
-					Double.parseDouble(lon));
-			geoPoints.add(geoPoint);
+					Double.parseDouble(lng));
+			geoPointList.add(geoPoint);
 		}
 
-		GeoPoint[] geoPointArr = geoPoints.toArray(new GeoPoint[geoPoints
-				.size()]);
+		GeoPoint[] geoPointArray = geoPointList
+				.toArray(new GeoPoint[geoPointList.size()]);
 
-		GeoPoint[][] result = new GeoPoint[1][geoPointArr.length];
+		GeoPoint[][] overlayPoints = new GeoPoint[1][geoPointArray.length];
 
-		for (int i = 0; i < geoPointArr.length; i++) {
-			result[0][i] = geoPointArr[i];
+		for (int i = 0; i < geoPointArray.length; i++) {
+			overlayPoints[0][i] = geoPointArray[i];
 		}
 
-		Log.d(TAG, debugTwoDimArr(result));
-
-		return result;
+		return overlayPoints;
 	}
 
+	/**
+	 * Returns the maximum latitude value of a string array containing coordinates 
+	 * in order "[lat, lng, lat, ...]".
+	 * 
+	 * @param coordinates the coordinates array to be searched
+	 * @return the maximum latitude value of the passed coordinates array
+	 */
 	private double getMaxLat(String[] coordinates) {
 		String[] lats = new String[coordinates.length / 2];
 		int counter = 0;
@@ -152,11 +161,18 @@ public class Map extends MapActivity {
 
 		Double maxLat = Double.parseDouble(String.valueOf(Collections
 				.max(Arrays.asList(lats))));
-		Log.e(TAG, String.valueOf(maxLat));
+		Log.d(TAG, String.valueOf(maxLat));
 
 		return maxLat;
 	}
 
+	/**
+	 * Returns the minimum latitude value of a string array containing coordinates 
+	 * in order "[lat, lng, lat, ...]".
+	 * 
+	 * @param coordinates the coordinates array to be searched
+	 * @return the minimum latitude value of the passed coordinates array
+	 */
 	private double getMinLat(String[] coordinates) {
 		String[] lats = new String[coordinates.length / 2];
 		int counter = 0;
@@ -168,61 +184,83 @@ public class Map extends MapActivity {
 
 		Double minLat = Double.parseDouble(String.valueOf(Collections
 				.min(Arrays.asList(lats))));
-		Log.e(TAG, String.valueOf(minLat));
+		Log.d(TAG, String.valueOf(minLat));
 
 		return minLat;
 	}
 
-	private double getMinLon(String[] coordinates) {
-		String[] lons = new String[coordinates.length / 2];
+	/**
+	 * Returns the minimum longitude value of a string array containing coordinates 
+	 * in order "[lat, lng, lat, ...]".
+	 * 
+	 * @param coordinates the coordinates array to be searched
+	 * @return the minimum longitude value of the passed coordinates array
+	 */
+	private double getMinLng(String[] coordinates) {
+		String[] lngs = new String[coordinates.length / 2];
 		int counter = 0;
 
 		for (int i = 1; i < coordinates.length; i = i + 2) {
-			lons[counter] = coordinates[i];
+			lngs[counter] = coordinates[i];
 			counter++;
 		}
 
-		Double minLon = Double.parseDouble(String.valueOf(Collections
-				.min(Arrays.asList(lons))));
-		Log.e(TAG, String.valueOf(minLon));
+		Double minLng = Double.parseDouble(String.valueOf(Collections
+				.min(Arrays.asList(lngs))));
+		Log.d(TAG, String.valueOf(minLng));
 
-		return minLon;
+		return minLng;
 	}
 
-	private double getMaxLon(String[] coordinates) {
-		String[] lons = new String[coordinates.length / 2];
+	/**
+	 * Returns the maximum longitude value of a string array containing coordinates 
+	 * in order "[lat, lng, lat, ...]".
+	 * 
+	 * @param coordinates the coordinates array to be searched
+	 * @return the maximum longitude value of the passed coordinates array
+	 */
+	private double getMaxLng(String[] coordinates) {
+		String[] lngs = new String[coordinates.length / 2];
 		int counter = 0;
 
 		for (int i = 1; i < coordinates.length; i = i + 2) {
-			lons[counter] = coordinates[i];
+			lngs[counter] = coordinates[i];
 			counter++;
 		}
 
-		Double maxLon = Double.parseDouble(String.valueOf(Collections
-				.max(Arrays.asList(lons))));
-		Log.e(TAG, String.valueOf(maxLon));
+		Double maxLng = Double.parseDouble(String.valueOf(Collections
+				.max(Arrays.asList(lngs))));
+		Log.d(TAG, String.valueOf(maxLng));
 
-		return maxLon;
+		return maxLng;
 	}
 
+	/**
+	 * Sets the map's bounding box to the extent of the track overlay.
+	 * 
+	 * @param mapView the MapView instance to be adapted
+	 * @param minLatE6 the minimum latitude value of the track overlay in microdegrees
+	 * @param maxLatE6 the maximum latitude value of the track overlay in microdegrees
+	 * @param minLngE6 the minimum longitude value of the track overlay in microdegrees
+	 * @param maxLngE6 the maximum longitude value of the track overlay in microdegrees
+	 * @return true if zoomToTrackExtent could be executed, otherwise false
+	 */
 	private boolean zoomToTrackExtent(MapView mapView, int minLatE6,
 			int maxLatE6, int minLngE6, int maxLngE6) {
 
-		Display display = getWindowManager().getDefaultDisplay();
-		Point size = new Point();
-//		display.getSize(size);
-		int width = size.x;
-		int heigth = size.y;
-
-		if (width <= 0 || heigth <= 0) {
+		Display display = getWindowManager().getDefaultDisplay(); 
+		int width = display.getWidth() - 45;  
+		int height = display.getHeight() - 45;  
+		
+		if (width <= 0 || height <= 0) {
 			Log.e(TAG, "Display size values not valid numbers.");
 			return false;
 		}
 
 		int centerLat = (maxLatE6 + minLatE6) / 2;
-		int centerLon = (maxLngE6 + minLngE6) / 2;
+		int centerLng = (maxLngE6 + minLngE6) / 2;
 
-		mapView.getController().setCenter(new GeoPoint(centerLat, centerLon));
+		mapView.getController().setCenter(new GeoPoint(centerLat, centerLng));
 
 		GeoPoint pointSouthWest = new GeoPoint(minLatE6, minLngE6);
 		GeoPoint pointNorthEast = new GeoPoint(maxLatE6, maxLngE6);
@@ -232,7 +270,7 @@ public class Map extends MapActivity {
 		Point pointNE = new Point();
 		byte zoomLevelMax = (byte) mapView.getMapGenerator().getZoomLevelMax();
 		byte zoomLevel = 0;
-		
+
 		while (zoomLevel < zoomLevelMax) {
 			byte tmpZoomLevel = (byte) (zoomLevel + 1);
 			projection.toPoint(pointSouthWest, pointSW, tmpZoomLevel);
@@ -240,7 +278,7 @@ public class Map extends MapActivity {
 			if (pointNE.x - pointSW.x > width) {
 				break;
 			}
-			if (pointSW.y - pointNE.y > heigth) {
+			if (pointSW.y - pointNE.y > height) {
 				break;
 			}
 			zoomLevel = tmpZoomLevel;
@@ -251,20 +289,5 @@ public class Map extends MapActivity {
 
 		return true;
 	}
-
-	private String debugTwoDimArr(GeoPoint[][] result) {
-		StringBuffer results = new StringBuffer();
-		String separator = ",";
-
-		for (int i = 0; i < result.length; ++i) {
-			results.append('[');
-			for (int j = 0; j < result[i].length; ++j)
-				if (j > 0)
-					results.append(result[i][j]);
-				else
-					results.append(result[i][j]).append(separator);
-			results.append(']');
-		}
-		return results.toString();
-	}
+	
 }
