@@ -26,12 +26,11 @@ import java.util.ArrayList;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
 
-
 /**
- * This is a track. A track is a collection of measurements. 
- * All measurements of a track are accessible via the track. 
- * The track stores meta information about the ride (car, fuel, description...)
- *
+ * This is a track. A track is a collection of measurements. All measurements of
+ * a track are accessible via the track. The track stores meta information about
+ * the ride (car, fuel, description...)
+ * 
  */
 public class Track {
 
@@ -54,7 +53,8 @@ public class Track {
 	}
 
 	/**
-	 * @param localTrack the localTrack to set
+	 * @param localTrack
+	 *            the localTrack to set
 	 */
 	public void setLocalTrack(boolean localTrack) {
 		this.localTrack = localTrack;
@@ -68,7 +68,8 @@ public class Track {
 	}
 
 	/**
-	 * @param sensorID the sensorID to set
+	 * @param sensorID
+	 *            the sensorID to set
 	 */
 	public void setSensorID(String sensorID) {
 		this.sensorID = sensorID;
@@ -100,7 +101,7 @@ public class Track {
 		this.vin = vin;
 		this.name = "";
 		this.description = "";
-		this.carManufacturer = carManufacturer; 
+		this.carManufacturer = carManufacturer;
 		this.carModel = carModel;
 		this.fuelType = fuelType;
 		this.sensorID = sensorId;
@@ -108,13 +109,16 @@ public class Track {
 		this.dbAdapter = dbAdapter;
 		id = String.valueOf(dbAdapter.insertTrack(this));
 	}
+
 	/**
-	 * Set the db adpater for the track. This method is needed when you want 
-	 * to update a track in the database because when you get the 
-	 * track, the dbadapter is not returned.
-	 * @param dbAdapter the dbapapter
+	 * Set the db adpater for the track. This method is needed when you want to
+	 * update a track in the database because when you get the track, the
+	 * dbadapter is not returned.
+	 * 
+	 * @param dbAdapter
+	 *            the dbapapter
 	 */
-	public void setDatabaseAdapter(DbAdapter dbAdapter){
+	public void setDatabaseAdapter(DbAdapter dbAdapter) {
 		this.dbAdapter = dbAdapter;
 	}
 
@@ -215,9 +219,7 @@ public class Track {
 	 */
 	public long getEndTime() throws MeasurementsException {
 		if (this.getMeasurements().size() > 0)
-			return this.getMeasurements()
-					.get(this.getMeasurements().size() - 1)
-					.getMeasurementTime();
+			return this.getMeasurements().get(this.getMeasurements().size() - 1).getMeasurementTime();
 		else
 			throw new MeasurementsException("No measurements in the track");
 	}
@@ -315,14 +317,13 @@ public class Track {
 	 * @throws FuelConsumptionException
 	 */
 
-	public double getFuelConsumptionOfMeasurement(int measurement)
-			throws FuelConsumptionException {
+	public double getFuelConsumptionOfMeasurement(int measurement) throws FuelConsumptionException {
 
 		Measurement m = getMeasurements().get(measurement);
 
 		double maf = m.getMaf();
 
-		if (maf!=-1.0) {
+		if (maf != -1.0) {
 			if (this.fuelType.equals("Gasoline")) {
 				return (maf / 14.7) / 747;
 			} else if (this.fuelType.equals("Diesel")) {
@@ -342,8 +343,7 @@ public class Track {
 	 * @return co2 emission in kg/s
 	 * @throws FuelConsumptionException
 	 */
-	public double getCO2EmissionOfMeasurement(int measurement)
-			throws FuelConsumptionException {
+	public double getCO2EmissionOfMeasurement(int measurement) throws FuelConsumptionException {
 
 		double fuelCon;
 		fuelCon = getFuelConsumptionOfMeasurement(measurement);
@@ -369,11 +369,7 @@ public class Track {
 
 		if (measurements.size() > 1) {
 			for (int i = 0; i < measurements.size() - 1; i++) {
-				distance = distance
-						+ getDistance(measurements.get(i).getLatitude(),
-								measurements.get(i).getLongitude(),
-								measurements.get(i + 1).getLatitude(),
-								measurements.get(i + 1).getLongitude());
+				distance = distance + getDistance(measurements.get(i).getLatitude(), measurements.get(i).getLongitude(), measurements.get(i + 1).getLatitude(), measurements.get(i + 1).getLongitude());
 			}
 		}
 
@@ -389,16 +385,12 @@ public class Track {
 	 * @param lng2
 	 * @return
 	 */
-	private double getDistance(double lat1, double lng1, double lat2,
-			double lng2) {
+	private double getDistance(double lat1, double lng1, double lat2, double lng2) {
 
 		double earthRadius = 6369;
 		double dLat = Math.toRadians(lat2 - lat1);
 		double dLng = Math.toRadians(lng2 - lng1);
-		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-				+ Math.cos(Math.toRadians(lat1))
-				* Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2)
-				* Math.sin(dLng / 2);
+		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
 		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 		double dist = earthRadius * c;
 

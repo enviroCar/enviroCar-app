@@ -21,6 +21,13 @@
 
 package org.envirocar.app.exception;
 
+/**
+ * This exception is thrown when there was a problem with a measurement. This
+ * occurs most likely when there are no measurements in the track.
+ * 
+ * @author jakob
+ * 
+ */
 public class MeasurementsException extends Exception {
 
 	/**

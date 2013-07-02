@@ -21,13 +21,19 @@
 
 package org.envirocar.app.exception;
 
+/**
+ * This exception is thrown when there are no tracks in the local database.
+ * 
+ * @author jakob
+ * 
+ */
 public class TracksException extends Exception {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 5754700912732803345L;
-	
+
 	public TracksException(String e) {
 		super(e);
 	}

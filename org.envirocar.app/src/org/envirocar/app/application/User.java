@@ -20,12 +20,24 @@
  */
 
 package org.envirocar.app.application;
-//TODO: javadoc
+
+/**
+ * Class that represents a user with a name and a password.
+ * 
+ */
 public class User {
-	
+
 	private String username;
 	private String token;
 
+	/**
+	 * Creates a new user with given parameters
+	 * 
+	 * @param username
+	 *            username
+	 * @param token
+	 *            password
+	 */
 	public User(String username, String token) {
 		this.username = username;
 		this.token = token;

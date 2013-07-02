@@ -21,6 +21,13 @@
 
 package org.envirocar.app.exception;
 
+/**
+ * Exception when the fuel consumption could not be determined. Most likely to
+ * occur when there is no MAF sensor present.
+ * 
+ * @author jakob
+ * 
+ */
 public class FuelConsumptionException extends Exception {
 
 	/**
