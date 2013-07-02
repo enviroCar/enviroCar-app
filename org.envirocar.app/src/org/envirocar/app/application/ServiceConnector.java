@@ -62,7 +62,7 @@ public class ServiceConnector implements ServiceConnection {
 	 */
 	public boolean isRunning() {
 		if (localMonitor == null) {
-			return localMonitor.isRunning();
+			return false;
 		}
 
 		return localMonitor.isRunning();
