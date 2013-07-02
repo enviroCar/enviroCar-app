@@ -64,8 +64,12 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 
 
 /**
+ * Main UI application that cares about the auto-upload, auto-connect and global
+ * UI elements
+ * 
  * @author jakob
- *
+ * @author gerald
+ * 
  * @param <AndroidAlarmService>
  */
 public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity implements OnItemClickListener {
@@ -93,18 +97,15 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	public static final int REQUEST_MY_GARAGE = 1336;
 	public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
 	
+	// Include settings for auto upload and auto-connect
+	
 	private SharedPreferences preferences = null;
 	boolean alwaysUpload = false;
 	boolean uploadOnlyInWlan = true;
 	boolean autoConnect = false;
-	
 	private Handler handler_connect;
 	private Handler handler_upload;
 		
-	// Upload in Wlan
-
-	// private boolean uploadOnlyInWlan;
-	
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
 			navDrawerItems = new NavMenuItem[5];
@@ -456,10 +457,16 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
     private void openFragment(int position) {
         FragmentManager manager = getSupportFragmentManager();
         switch (position) {
+        
+        // Go to the dashboard
+        
         case DASHBOARD:
         	DashboardFragment dashboardFragment = new DashboardFragment();
             manager.beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
             break;
+            
+        //Start the Login activity
+            
         case LOGIN:
         	if(application.isLoggedIn()){
         		application.logOut();
@@ -474,14 +481,23 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
                 manager.beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
         	}
             break;
+            
+        // Go to the settings
+            
         case SETTINGS:
 			Intent configIntent = new Intent(this, SettingsActivity.class);
 			startActivity(configIntent);
             break;
+            
+        // Go to the track list
+            
         case MY_TRACKS:
             ListMeasurementsFragment listMeasurementFragment = new ListMeasurementsFragment();
             manager.beginTransaction().replace(R.id.content_frame, listMeasurementFragment, "MY_TRACKS").addToBackStack(null).commit();
             break;
+            
+        // Start or stop the measurement process
+            
 		case START_STOP_MEASUREMENT:
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -561,21 +577,4 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		return false;
 	}
 
-	// @Override
-	// public void onActivityResult(int requestCode, int resultCode, Intent
-	// data) {
-	// super.onActivityResult(requestCode, resultCode, data);
-	// switch(requestCode){
-	// case REQUEST_MY_GARAGE:
-	// ((DashboardFragment) getFragmentByPosition(2)).updateSensorOnDashboard();
-	// break;
-	// case REQUEST_REDIRECT_TO_GARAGE:
-	// if(resultCode == REQUEST_MY_GARAGE){
-	// Intent garageIntent = new Intent(this, MyGarage.class);
-	// startActivityForResult(garageIntent,REQUEST_MY_GARAGE);
-	// }
-	// ((DashboardFragment) getFragmentByPosition(2)).updateSensorOnDashboard();
-	// break;
-	// }
-	// }
 }

@@ -93,6 +93,10 @@ public class BackgroundService extends Service {
 		return START_STICKY;
 	}
 
+	/**
+	 * Starts the background service (bluetooth connction). Then calls methods
+	 * to start sending the obd commands for initialization.
+	 */
 	private void startBackgroundService() {
 
 		SharedPreferences preferences = PreferenceManager

@@ -65,6 +65,12 @@ import com.actionbarsherlock.app.SherlockFragment;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
+/**
+ * Garage class that cares about the sensor type "car" and its properties.
+ * 
+ * @author gerald
+ * 
+ */
 public class MyGarage extends SherlockFragment {
 	
 	private SharedPreferences sharedPreferences;
@@ -197,11 +203,11 @@ public class MyGarage extends SherlockFragment {
 		sensorRetryButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				dlSensors();
+				downloadSensors();
 			}
 		});
 		
-		dlSensors();
+		downloadSensors();
 		
 		
 		TypefaceEC.applyCustomFont((ViewGroup) view.findViewById(R.id.mygaragelayout), TypefaceEC.Raleway(getActivity()));
@@ -210,6 +216,11 @@ public class MyGarage extends SherlockFragment {
 		return view;
 	}
 
+	/**
+	 * Get the fuel type form the checkbox
+	 * @param resid
+	 * @return
+	 */
 	private String getCorrectFuelTypeFromCheckbox(int resid){
 		switch(resid){
 		case R.id.radio_diesel:
@@ -236,8 +247,10 @@ public class MyGarage extends SherlockFragment {
 		}
 	}
 	
-	
-	private void dlSensors(){
+	/**
+	 * Download sensors from the server
+	 */
+	private void downloadSensors(){
 		sensorDlProgress.setVisibility(View.VISIBLE);
 		sensorSpinner.setVisibility(View.GONE);
 		sensorRetryButton.setVisibility(View.GONE);
@@ -285,6 +298,14 @@ public class MyGarage extends SherlockFragment {
 		
 	}	
 
+	/**
+	 * Register a new sensor (car) at the server
+	 * @param sensorType 
+	 * @param carManufacturer Car manufacturer
+	 * @param carModel Car model
+	 * @param carConstructionYear Construction year of the car
+	 * @param carFuelType Fuel type of the car
+	 */
 	private void registerSensorAtServer(String sensorType,
 			String carManufacturer, String carModel,
 			String carConstructionYear, String carFuelType) {

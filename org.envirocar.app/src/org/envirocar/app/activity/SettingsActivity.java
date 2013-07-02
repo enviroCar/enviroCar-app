@@ -38,6 +38,13 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
 
+/**
+ * Settings class that deals with bluetooth select, autoconnect, auto upload and
+ * wifi-upload
+ * 
+ * @author jakob
+ * 
+ */
 public class SettingsActivity extends SherlockPreferenceActivity {
 
 	public static final String BLUETOOTH_KEY = "bluetooth_list";

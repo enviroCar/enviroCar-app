@@ -30,67 +30,65 @@ import android.content.Context;
 import android.location.LocationManager;
 import android.os.Build;
 
+/**
+ * Utility functions for the application
+ * 
+ */
 public class Utils {
 
-	
-	public static int getActionBarId(){
-        try {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-                return Class.forName("com.actionbarsherlock.R$id").getField("abs__action_bar_title").getInt(null);
-            }
-            else {
-                // Use reflection to get the actionbar title TextView and set the custom font. May break in updates.
-                return Class.forName("com.android.internal.R$id").getField("action_bar_title").getInt(null);
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        return 0;
+	public static int getActionBarId() {
+		try {
+			if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+				return Class.forName("com.actionbarsherlock.R$id").getField("abs__action_bar_title").getInt(null);
+			} else {
+				// Use reflection to get the actionbar title TextView and set
+				// the custom font. May break in updates.
+				return Class.forName("com.android.internal.R$id").getField("action_bar_title").getInt(null);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return 0;
 	}
-	
-	/*
-	 * Util functions for the Checklist
+
+	/**
+	 * Checks whether the GPS is enabled.
+	 * 
+	 * @param context
+	 *            the current context
+	 * @return true if gps is enabled.
 	 */
-	public static boolean isGPSEnabled(Context context){
+	public static boolean isGPSEnabled(Context context) {
 		return ((LocationManager) context.getSystemService(android.content.Context.LOCATION_SERVICE) != null) && ((LocationManager) context.getSystemService(android.content.Context.LOCATION_SERVICE)).isProviderEnabled(LocationManager.GPS_PROVIDER);
 	}
-	
-	public static boolean isBluetoothEnabled(Context context){
+
+	/**
+	 * Checks whether Bluetooth is enabled
+	 * 
+	 * @param context
+	 *            the current context
+	 * @return true if bluetooth is enabled
+	 */
+	public static boolean isBluetoothEnabled(Context context) {
 		return BluetoothAdapter.getDefaultAdapter() != null && BluetoothAdapter.getDefaultAdapter().isEnabled();
 	}
-	
-	
 
+	/**
+	 * Transform ISO 8601 string to Calendar.
+	 * @param iso8601string 
+	 * @return 
+	 * @throws ParseException
+	 */
+	public static long isoDateToLong(final String iso8601string) throws ParseException {
+		String s = iso8601string.replace("Z", "+00:00");
+		try {
+			s = s.substring(0, 22) + s.substring(23);
+		} catch (IndexOutOfBoundsException e) {
+			throw new ParseException("Invalid length", 0);
+		}
+		Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(s);
 
+		return date.getTime();
+	}
 
-	    /** Transform ISO 8601 string to Calendar. */
-	    public static long isoDateToLong(final String iso8601string) throws ParseException {
-	        String s = iso8601string.replace("Z", "+00:00");
-	        try {
-	            s = s.substring(0, 22) + s.substring(23);
-	        } catch (IndexOutOfBoundsException e) {
-	            throw new ParseException("Invalid length", 0);
-	        }
-	        Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(s);
-
-	        return date.getTime();
-	    }
-
-
-//	public static String MD5(String md5) {
-//		try {
-//			java.security.MessageDigest md = java.security.MessageDigest
-//					.getInstance("MD5");
-//			byte[] array = md.digest(md5.getBytes());
-//			StringBuffer sb = new StringBuffer();
-//			for (int i = 0; i < array.length; ++i) {
-//				sb.append(Integer.toHexString((array[i] & 0xFF) | 0x100)
-//						.substring(1, 3));
-//			}
-//			return sb.toString();
-//		} catch (java.security.NoSuchAlgorithmException e) {
-//		}
-//		return null;
-//	}
 }

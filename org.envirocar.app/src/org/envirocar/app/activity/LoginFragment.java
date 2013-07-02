@@ -285,7 +285,7 @@ public class LoginFragment extends SherlockFragment {
 		}
 	}
 
-	/*
+	/**
 	 * Method used for authentication (e.g. at loginscreen to verify user
 	 * credentials
 	 */

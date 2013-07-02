@@ -31,12 +31,32 @@ import org.envirocar.app.commands.CommonCommand;
  */
 public interface Monitor {
 
+	/**
+	 * Set the listener for this monitor
+	 * 
+	 * @param listener
+	 *            the listener
+	 */
 	void setListener(Listener listener);
 
+	/**
+	 * Check whether the monitor is running
+	 * 
+	 * @return true if monitori running
+	 */
 	boolean isRunning();
 
+	/**
+	 * starts the execution of the waiting list (list with obd commands)
+	 */
 	void executeWaitingList();
 
-	void newJobToWaitingList(CommonCommand newJob);
+	/**
+	 * adds a new DommonCommand to the waiting list
+	 * 
+	 * @param newCommand
+	 *            the new CommonCommand to add
+	 */
+	void newJobToWaitingList(CommonCommand newCommand);
 
 }

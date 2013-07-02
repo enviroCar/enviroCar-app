@@ -32,8 +32,12 @@ import org.envirocar.app.commands.CommonCommand;
 
 public interface Listener {
 
-
+	/**
+	 * Receive the current command
+	 * 
+	 * @param currentJob
+	 *            the answer-job
+	 */
 	void receiveUpdate(CommonCommand currentJob);
-
 
 }

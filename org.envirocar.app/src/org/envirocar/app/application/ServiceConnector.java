@@ -40,11 +40,17 @@ public class ServiceConnector implements ServiceConnection {
 	private Monitor localMonitor = null;
 	private Listener localListener = null;
 
+	/**
+	 * connects listener and monitor
+	 */
 	public void onServiceConnected(ComponentName componentName, IBinder binder) {
 		localMonitor = (Monitor) binder;
 		localMonitor.setListener(localListener);
 	}
 
+	/**
+	 * deactivates the local monitor
+	 */
 	public void onServiceDisconnected(ComponentName name) {
 		localMonitor = null;
 	}

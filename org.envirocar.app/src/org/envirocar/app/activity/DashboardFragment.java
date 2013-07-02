@@ -36,19 +36,25 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
-
+/**
+ * Dashboard page that displays the current speed, co2 and car.
+ * @author jakob
+ * @author gerald
+ *
+ */
 public class DashboardFragment extends SherlockFragment {
 
 	public static final int SENSOR_CHANGED_RESULT = 1337;
+	
+	// UI Items
+	
 	TextView speedTextView;
 	RoundProgress roundProgressSpeed;
 	TextView co2TextView;
 	RoundProgress roundProgressCO2;
 	DbAdapter dbAdapter;
 	ECApplication application;
-
 	private TextView sensor;
-
 	int speed;
 	int speedProgress;
 	double co2;
@@ -60,33 +66,37 @@ public class DashboardFragment extends SherlockFragment {
 		return inflater.inflate(R.layout.dashboard, container, false);
 	}
 	
+	/**
+	 * Updates the sensor-textview
+	 */
 	public void updateSensorOnDashboard(){
 		sensor.setText(application.getCurrentSensorString());
 	}
-	
-
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 
 		super.onViewCreated(view, savedInstanceState);
 
+		// Include application and adapter
+		
 		application = ((ECApplication) getActivity().getApplication());
-
 		dbAdapter = ((ECApplication) getActivity().getApplication())
 				.getDbAdapterLocal();
+		
+		// Setup UI elements
 
 		co2TextView = (TextView) getView().findViewById(R.id.co2TextView);
 		speedTextView = (TextView) getView().findViewById(
 				R.id.textViewSpeedDashboard);
-
 		roundProgressCO2 = (RoundProgress) getView().findViewById(
 				R.id.blue_progress_bar);
 		roundProgressSpeed = (RoundProgress) getView().findViewById(
 				R.id.blue_progress_bar2);
-		
 		sensor = (TextView) getView().findViewById(R.id.dashboard_current_sensor);
+		
 		updateSensorOnDashboard();
+		
 		sensor.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -137,6 +147,9 @@ public class DashboardFragment extends SherlockFragment {
 				handler.postDelayed(this, 1000);
 			}
 		};
+		
+		// Repeat the UI update every second (1000ms)
+		
 		handler.postDelayed(runnable, 1000);
 
 		TypefaceEC.applyCustomFont((ViewGroup) view,

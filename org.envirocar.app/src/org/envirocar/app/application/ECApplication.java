@@ -68,6 +68,8 @@ import android.widget.Toast;
  *
  */
 public class ECApplication extends Application implements LocationListener {
+	
+	// Strings
 
 	public static final String BASE_URL = "https://giv-car.uni-muenster.de/stable/rest";
 
@@ -78,12 +80,13 @@ public class ECApplication extends Application implements LocationListener {
 	public static final String PREF_KEY_SENSOR_ID = "sensorid";
 
 	private SharedPreferences preferences = null;
+	
+	// Helpers and objects
 
 	private DbAdapter dbAdapterLocal;
 	private DbAdapter dbAdapterRemote;
 	private final ScheduledExecutorService scheduleTaskExecutor = Executors
 			.newScheduledThreadPool(1);
-	// get the default Bluetooth adapter
 	private BluetoothAdapter bluetoothAdapter = BluetoothAdapter
 			.getDefaultAdapter();
 
@@ -93,6 +96,9 @@ public class ECApplication extends Application implements LocationListener {
 	private Listener listener = null;
 	private LocationManager locationManager;
 	private int mId = 1133;
+	
+	// Measurement values
+	
 	private float locationLatitude;
 	private float locationLongitude;
 	private int speedMeasurement = 0;
@@ -100,6 +106,8 @@ public class ECApplication extends Application implements LocationListener {
 	private double mafMeasurement;
 	private Measurement measurement = null;
 	private long lastInsertTime = 0;
+	
+	// Track properties
 
 	private Track track;
 	private String trackName = "Some Name";
@@ -182,14 +190,10 @@ public class ECApplication extends Application implements LocationListener {
 		//activateBluetooth();
 	}
 	
-	
 	/**
-	 * enable bluetooth
+	 * Returns the sensor properties as a string
+	 * @return
 	 */
-	private void activateBluetooth(){
-		bluetoothAdapter.enable();
-	}
-	
 	public String getCurrentSensorString(){
 		if(PreferenceManager.getDefaultSharedPreferences(this).contains(ECApplication.PREF_KEY_SENSOR_ID) && 
 				PreferenceManager.getDefaultSharedPreferences(this).contains(ECApplication.PREF_KEY_FUEL_TYPE) &&
@@ -673,7 +677,7 @@ public class ECApplication extends Application implements LocationListener {
 	 * commands. also opens the db and starts the gps.
 	 */
 	public void startConnection() {
-		openDb();
+		initDbAdapter();
 		startLocationManager();
 		createNewTrackIfNecessary();
 		if (!serviceConnector.isRunning()) {
@@ -855,13 +859,6 @@ public class ECApplication extends Application implements LocationListener {
 	@Override
 	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
 
-	}
-
-	/**
-	 * Opens the databases.
-	 */
-	public void openDb() {
-		initDbAdapter();
 	}
 
 	/**

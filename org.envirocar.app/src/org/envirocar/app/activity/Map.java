@@ -45,7 +45,11 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
-
+/**
+ * Map visualization that displays a track on a map
+ * @author christopher
+ *
+ */
 public class Map extends MapActivity {
 
 	private final static String TAG = "Map";

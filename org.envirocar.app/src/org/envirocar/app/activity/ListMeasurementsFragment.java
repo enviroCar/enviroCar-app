@@ -72,17 +72,25 @@ import com.loopj.android.http.JsonHttpResponseHandler;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
-
+/**
+ * List Fragement that displays local and remote tracks.
+ * @author jakob
+ * @author gerald
+ *
+ */
 public class ListMeasurementsFragment extends SherlockFragment {
 
+	// Measurements and tracks
+	
 	private ArrayList<Track> tracksList;
 	private TracksListAdapter elvAdapter;
 	private DbAdapter dbAdapterRemote;
 	private DbAdapter dbAdapterLocal;
-	private ExpandableListView elv;
-
-	private ProgressBar progress;
 	
+	// UI Elements
+	
+	private ExpandableListView elv;
+	private ProgressBar progress;
 	private int itemSelect;
 
 	public View onCreateView(android.view.LayoutInflater inflater,
@@ -140,7 +148,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	 * Method to remove all tracks of the logged in user from the listview and from the internal database.
 	 * Tracks which are locally on the device, are not removed.
 	 */
-	
 	public void clearRemoteTracks(){
 		for(Track t : tracksList){
 			if(!t.isLocalTrack())
@@ -150,16 +157,24 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		elvAdapter.notifyDataSetChanged();
 	}
 	
+	/**
+	 * Edit all tracks
+	 */
 	@Override
 	public boolean onOptionsItemSelected(
 			com.actionbarsherlock.view.MenuItem item) {
 		switch(item.getItemId()){
+		
+		//Upload all tracks
+		
 		case R.id.menu_upload:
 			((ECApplication) getActivity().getApplicationContext()).createNotification("start");
 			UploadManager uploadManager = new UploadManager(
 					((ECApplication) getActivity().getApplication()).getDbAdapterLocal(), ((ECApplication) getActivity().getApplication()));
 			uploadManager.uploadAllTracks();
 			return true;
+			
+		//Delete all tracks
 
 		case R.id.menu_delete_all:
 			((ECApplication) getActivity().getApplication()).getDbAdapterLocal().deleteAllTracks();
@@ -178,10 +193,15 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		inflater.inflate(R.menu.context_item_remote, menu);
 	}
 	
+	/**
+	 * Change one item
+	 */
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
 		final Track track = tracksList.get(itemSelect);
 		switch (item.getItemId()) {
+		
+		//Edit the trackname
 
 		case R.id.editName:
 			if(track.isLocalTrack()){
@@ -207,6 +227,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				Crouton.showText(getActivity(), R.string.not_possible_for_remote, Style.INFO);
 			}
 			return true;
+			
+		//Edit the track description
 
 		case R.id.editDescription:
 			if(track.isLocalTrack()){
@@ -234,6 +256,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				Crouton.showText(getActivity(), R.string.not_possible_for_remote, Style.INFO);
 			}
 			return true;
+			
+		// Show that track in the map
 
 		case R.id.startMap:
 			Log.e("obd2", Environment.getExternalStorageDirectory().toString());
@@ -259,6 +283,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			}
 
 			return true;
+			
+		// Delete only this track
 
 		case R.id.deleteTrack:
 			if(track.isLocalTrack()){
@@ -294,8 +320,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		elv.setAdapter(elvAdapter);
 		elvAdapter.notifyDataSetChanged();
 
-		
-		
 		// TODO update the list if new track is inserted into the database.		
 		
 		//if logged in, download tracks from server
@@ -328,6 +352,9 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		
 	}
 
+	/**
+	 * Download remote tracks from the server and include them in the track list
+	 */
 	private void downloadTracks() {
 		
 		final String username = ((ECApplication) getActivity().getApplication()).getUser().getUsername();

@@ -85,41 +85,6 @@ public class UploadManager {
 	 */
 	public void uploadAllTracks() {
 
-		/*
-		 * This is just for testing
-		 */
-
-		// Track dummyTrack = new Track("VIN",
-		// "Diesel","Test-Hersteller","Test-modell","", dbAdapter);
-		// dummyTrack.setDescription("This is a description of the track.");
-		// dummyTrack.setName("This is the Name of the track");
-		// dummyTrack.setFuelType("Diesel");
-		//
-		// try {
-		// Measurement dummyMeasurement = new Measurement(12.365f, 24.068f);
-		// dummyMeasurement.setMaf(456);
-		// dummyMeasurement.setSpeed(220);
-		// dummyTrack.addMeasurement(dummyMeasurement);
-		//
-		// Measurement dummyMeasurement2 = new Measurement(55.365f, 7.068f);
-		// dummyMeasurement2.setMaf(550);
-		// dummyMeasurement2.setSpeed(130);
-		// dummyTrack.addMeasurement(dummyMeasurement2);
-		//
-		// Log.i(TAG, "Measurement object created.");
-		// } catch (LocationInvalidException e1) {
-		// Log.e(TAG, "Measurement object creation failed.");
-		// e1.printStackTrace();
-		// }
-		//
-		// dummyTrack.commitTrackToDatabase();
-		// ArrayList<Track> trackList = new ArrayList<Track>();
-		// trackList.add(dummyTrack);
-
-		/*
-		 * This is where testing ends. Remember to correctly comment in or out
-		 * the next line as well.
-		 */
 		cleanDumpFile();
 
 		ArrayList<Track> trackList = dbAdapter.getAllTracks();
@@ -142,9 +107,6 @@ public class UploadManager {
 
 		objList = new ArrayList<JSONObject>();
 
-		// TODO bulk upload over one connection..
-		// new UploadAsyncTask().execute();
-
 		for (String trackJsonString : trackJsonList) {
 			obj = null;
 
@@ -157,8 +119,6 @@ public class UploadManager {
 				Log.e(TAG, "Error parsing measurement string to JSON object.");
 				e.printStackTrace();
 			}
-
-			// new UploadAsyncTask().execute();
 
 		}
 		if (objList.size() > 0) {

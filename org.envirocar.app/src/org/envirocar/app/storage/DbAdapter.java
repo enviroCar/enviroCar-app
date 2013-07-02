@@ -48,6 +48,10 @@ public interface DbAdapter {
 	 */
 	public void close();
 
+	/**
+	 * Check whether the database is opened at the moment.
+	 * @return true if db is open.
+	 */
 	public boolean isOpen();
 
 	/**
