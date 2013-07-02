@@ -98,9 +98,12 @@
     <string name="prompt_car_manufacturer">Hersteller</string>
     <string name="prompt_car_constructionYear">Baujahr</string>
     
-        <string name="editName">Namen ändern</string>
+    <string name="editName">Namen ändern</string>
     <string name="deleteTrack">Track löschen</string>
     <string name="uploadTrack">Track hochladen</string>
+    
+   	<string name="open_drawer">Open</string>
+	<string name="close_drawer">Close</string>
     
     <string name="menu_logout">Ausloggen</string>
     <string name="menu_register">Registrieren</string>
