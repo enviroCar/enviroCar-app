@@ -187,8 +187,6 @@ public class BackgroundService extends Service {
 		 * End Torque
 		 */
 
-		// TODO implement VIN
-
 		// Service is running..
 		isTheServiceRunning.set(true);
 

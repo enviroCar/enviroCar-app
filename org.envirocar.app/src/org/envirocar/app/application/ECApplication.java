@@ -219,8 +219,6 @@ public class ECApplication extends Application implements LocationListener {
 	 */
 	private void createNewTrackIfNecessary() {
 
-		// TODO decode vin or read from shared preferences...
-
 		// setting undefined, will hopefully prevent correct uploading.
 		// but this shouldn't be possible to record tracks without these values
 		String fuelType = preferences

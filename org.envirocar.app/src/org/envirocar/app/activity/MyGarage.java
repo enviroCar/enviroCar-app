@@ -267,7 +267,6 @@ public class MyGarage extends SherlockFragment {
 		
 
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} finally {
 					sensors = new JSONArray(a);
@@ -277,7 +276,6 @@ public class MyGarage extends SherlockFragment {
 					try {
 						selectSensorFromSharedPreferences();
 					} catch (JSONException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
