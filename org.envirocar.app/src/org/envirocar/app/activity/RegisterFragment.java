@@ -40,7 +40,9 @@ import org.json.JSONObject;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -304,6 +306,21 @@ public class RegisterFragment extends SherlockFragment {
 				//open the Garage
 	        	MyGarage garageFragment = new MyGarage();
 	            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).commit();
+			} else if (httpStatus == HttpStatus.SC_FORBIDDEN) {
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
+                alertDialogBuilder.setTitle("Sorry");
+                alertDialogBuilder
+                        .setMessage(R.string.error_email_not_in_beta)
+                        .setCancelable(false)
+                        .setPositiveButton(android.R.string.ok,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog,
+                                            int id) {
+                                        dialog.cancel();
+                                    }
+                                });
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
 			} else if (httpStatus == HttpStatus.SC_CONFLICT) {
 				// TODO look out for server changes..
 				mUsernameView.setError(getString(R.string.error_username_already_in_use));
