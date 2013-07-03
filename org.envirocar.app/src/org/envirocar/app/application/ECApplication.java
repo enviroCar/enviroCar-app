@@ -23,6 +23,7 @@ package org.envirocar.app.application;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -110,8 +111,7 @@ public class ECApplication extends Application implements LocationListener {
 	// Track properties
 
 	private Track track;
-	private String trackName = "Some Name";
-	private String trackDescription = "Some Description";
+	private String trackDescription = "Description of the track";
 
 	//private boolean requirementsFulfilled = true;
 
@@ -236,6 +236,12 @@ public class ECApplication extends Application implements LocationListener {
 
 		// if track is null, create a new one or take the last one from the
 		// database
+		
+		Calendar calendar = Calendar.getInstance();
+		int year = calendar.get(Calendar.YEAR);
+		int month = calendar.get(Calendar.MONTH);
+		int day = calendar.get(Calendar.DAY_OF_MONTH);
+		String date = String.valueOf(year) + "-" + String.valueOf(month) + "-" + String.valueOf(day);
 
 		if (track == null) {
 
@@ -257,7 +263,7 @@ public class ECApplication extends Application implements LocationListener {
 								"I create a new track because the last measurement is more than 60 mins ago");
 						track = new Track("123456", fuelType, carManufacturer,
 								carModel, sensorId, dbAdapterLocal);
-						track.setName(trackName);
+						track.setName("Track " + date);
 						track.setDescription(trackDescription);
 						track.commitTrackToDatabase();
 						return;
@@ -271,7 +277,7 @@ public class ECApplication extends Application implements LocationListener {
 								"The last measurement's position is more than 3 km away. I will create a new track");
 						track = new Track("123456", fuelType, carManufacturer,
 								carModel, sensorId, dbAdapterLocal); 
-						track.setName(trackName);
+						track.setName("Track " + date);
 						track.setDescription(trackDescription);
 						track.commitTrackToDatabase();
 						return;
@@ -294,7 +300,7 @@ public class ECApplication extends Application implements LocationListener {
 					dbAdapterLocal.deleteTrack(lastUsedTrack.getId());
 					track = new Track("123456", fuelType, carManufacturer,
 							carModel, sensorId, dbAdapterLocal); 
-					track.setName(trackName);
+					track.setName("Track " + date);
 					track.setDescription(trackDescription);
 					track.commitTrackToDatabase();
 				}
@@ -302,7 +308,7 @@ public class ECApplication extends Application implements LocationListener {
 			} catch (TracksException e) {
 				track = new Track("123456", fuelType, carManufacturer,
 						carModel, sensorId, dbAdapterLocal); 
-				track.setName(trackName);
+				track.setName("Track " + date);
 				track.setDescription(trackDescription);
 				track.commitTrackToDatabase();
 				e.printStackTrace();
@@ -331,7 +337,7 @@ public class ECApplication extends Application implements LocationListener {
 						.getLastMeasurement().getMeasurementTime()) > 3600000) {
 					track = new Track("123456", fuelType, carManufacturer,
 							carModel, sensorId, dbAdapterLocal);
-					track.setName(trackName);
+					track.setName("Track " + date);
 					track.setDescription(trackDescription);
 					track.commitTrackToDatabase();
 					Log.e("obd2",
@@ -348,7 +354,7 @@ public class ECApplication extends Application implements LocationListener {
 						locationLatitude, locationLongitude) > 3.0) {
 					track = new Track("123456", fuelType, carManufacturer,
 							carModel, sensorId, dbAdapterLocal); 
-					track.setName(trackName);
+					track.setName("Track " + date);
 					track.setDescription(trackDescription);
 					track.commitTrackToDatabase();
 					Log.e("obd2",
@@ -370,7 +376,7 @@ public class ECApplication extends Application implements LocationListener {
 				dbAdapterLocal.deleteTrack(currentTrack.getId());
 				track = new Track("123456", fuelType, carManufacturer,
 						carModel, sensorId, dbAdapterLocal); 
-				track.setName(trackName);
+				track.setName("Track " + date);
 				track.setDescription(trackDescription);
 				track.commitTrackToDatabase();
 			}
