@@ -88,11 +88,12 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	// Menu Items
 	private NavMenuItem[] navDrawerItems;
 
-	static final int START_STOP_MEASUREMENT = 3;
-	static final int SETTINGS = 4;
+	static final int DASHBOARD = 0;
 	static final int LOGIN = 1;
 	static final int MY_TRACKS = 2;
-	static final int DASHBOARD = 0;
+	static final int START_STOP_MEASUREMENT = 3;
+	static final int SETTINGS = 4;
+	static final int HELP = 5;
 
 	public static final int REQUEST_MY_GARAGE = 1336;
 	public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
@@ -108,12 +109,13 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
-			navDrawerItems = new NavMenuItem[5];
+			navDrawerItems = new NavMenuItem[6];
 			navDrawerItems[LOGIN] = new NavMenuItem(LOGIN, getResources().getString(R.string.menu_login),R.drawable.device_access_accounts);
 			navDrawerItems[SETTINGS] = new NavMenuItem(SETTINGS, getResources().getString(R.string.menu_settings),R.drawable.action_settings);
 			navDrawerItems[START_STOP_MEASUREMENT] = new NavMenuItem(START_STOP_MEASUREMENT, getResources().getString(R.string.menu_start),R.drawable.av_play);
 			navDrawerItems[DASHBOARD] = new NavMenuItem(DASHBOARD, getResources().getString(R.string.dashboard), R.drawable.dashboard);
 			navDrawerItems[MY_TRACKS] = new NavMenuItem(MY_TRACKS, getResources().getString(R.string.my_tracks),R.drawable.device_access_storage);
+			navDrawerItems[HELP] = new NavMenuItem(HELP, getResources().getString(R.string.menu_help), R.drawable.action_help);
 		}
 		
 		if (application.requirementsFulfilled()) { // was requirementsFulfilled
@@ -525,6 +527,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				Intent settingsIntent = new Intent(this, SettingsActivity.class);
 				startActivity(settingsIntent);
 			}
+			break;
+		case HELP:
+			HelpFragment helpFragment = new HelpFragment();
+            manager.beginTransaction().replace(R.id.content_frame, helpFragment, "HELP").addToBackStack(null).commit();
 			break;
         default:
             break;
