@@ -25,10 +25,13 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import org.envirocar.app.R;
+import org.envirocar.app.application.ECApplication;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -53,6 +56,8 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	public static final String AUTO_BLUETOOH = "pref_auto_bluetooth";
 	public static final String WIFI_UPLOAD = "pref_wifi_upload";
 	public static final String ALWAYS_UPLOAD = "pref_always_upload";
+	
+	private Preference about;
 	
 	/**
 	 * Helper method that cares about the bluetooth list
@@ -155,6 +160,18 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 		super.onPostCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
 		initializeBluetoothList();
+		
+		about = findPreference("about_version");
+		about.setSummary(((ECApplication) getApplication()).getVersionString());
+		about.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+			
+			@Override
+			public boolean onPreferenceClick(Preference preference) {
+				Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(R.string.envirocar_org)));
+				startActivity(i);
+				return true;
+			}
+		});
 	}
 
 	/**

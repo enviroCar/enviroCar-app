@@ -15,5 +15,7 @@
     <string name="pref_auto_enable_bluetooth">Enable Bluetooth on app start</string>
     
     <string name="pref_bluetooth_disabled">Please enable Bluetooth</string>
+    
+    <string name="pref_about">About this app</string>
 	
 </resources>

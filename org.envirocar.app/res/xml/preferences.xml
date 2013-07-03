@@ -9,15 +9,23 @@
             android:title="@string/pref_title_chose_adapter" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_general_settings" >
-        <CheckBoxPreference android:title="@string/pref_auto_connect"
-            android:key="pref_auto_connect" />
-        <CheckBoxPreference android:title="@string/pref_auto_enable_bluetooth"
-            android:key="pref_auto_bluetooth" />
-        <CheckBoxPreference android:title="@string/pref_upload_only_in_wifi"
-            android:key="pref_wifi_upload" />
-        <CheckBoxPreference android:title="@string/pref_always_upload"
-            android:key="pref_always_upload" />
+        <CheckBoxPreference
+            android:key="pref_auto_connect"
+            android:title="@string/pref_auto_connect" />
+        <CheckBoxPreference
+            android:key="pref_auto_bluetooth"
+            android:title="@string/pref_auto_enable_bluetooth" />
+        <CheckBoxPreference
+            android:key="pref_wifi_upload"
+            android:title="@string/pref_upload_only_in_wifi" />
+        <CheckBoxPreference
+            android:key="pref_always_upload"
+            android:title="@string/pref_always_upload" />
     </PreferenceCategory>
-1
+    <PreferenceCategory android:title="@string/pref_about" >
+        <Preference 
+            android:key="about_version"
+            android:title="@string/envirocar.org"/>
+    </PreferenceCategory>
 
 </PreferenceScreen>

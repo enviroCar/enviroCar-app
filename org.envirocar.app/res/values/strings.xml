@@ -107,4 +107,6 @@
 	<string name="bye_bye">Bye Bye!</string>
 	<string name="all_local_tracks_deleted">All local tracks deleted.</string>
 	<string name="not_possible_for_remote">Not yet possible for remote tracks.</string>
+	
+	<string name="envirocar.org">http://www.envirocar.org</string>
 </resources>

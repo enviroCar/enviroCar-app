@@ -16,4 +16,6 @@
     
     <string name="pref_bluetooth_disabled">Bitte Bluetooth einschalten</string>
     
+    <string name="pref_about">Über diese App</string>
+    
 </resources>

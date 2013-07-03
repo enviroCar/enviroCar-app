@@ -22,12 +22,15 @@
 package org.envirocar.app.application;
 
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
@@ -51,6 +54,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -944,5 +949,32 @@ public class ECApplication extends Application implements LocationListener {
 		mNotificationManager.notify(mId, mBuilder.build());
 
 	  }
+	
+	/**
+	 * method to get the current version
+	 * 
+	 */
+	public String getVersionString() {
+		StringBuilder out = new StringBuilder("Version ");
+		try {
+			out.append(this.getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
+			out.append(" (");
+			out.append(this.getPackageManager().getPackageInfo(getPackageName(), 0).versionCode);
+			out.append("), ");
+		} catch (NameNotFoundException e) {
+		}
+		try {
+			ApplicationInfo ai = getPackageManager().getApplicationInfo(
+					getPackageName(), 0);
+			ZipFile zf = new ZipFile(ai.sourceDir);
+			ZipEntry ze = zf.getEntry("classes.dex");
+			long time = ze.getTime();
+			out.append(SimpleDateFormat.getInstance().format(new java.util.Date(time)));
+
+		} catch (Exception e) {
+		}
+
+		return out.toString();
+	}
 
 }
