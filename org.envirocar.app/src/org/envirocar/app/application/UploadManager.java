@@ -29,12 +29,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.TimeZone;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.envirocar.app.exception.FuelConsumptionException;
-import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.app.storage.DbAdapterLocal;
+import org.envirocar.app.storage.DbAdapterRemote;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.json.JSONException;
@@ -42,7 +44,6 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.text.TextUtils;
 import android.util.Log;
 /**
@@ -55,13 +56,12 @@ import android.util.Log;
  */
 public class UploadManager {
 
-	private static final String TAG = "obd2";
+	private static final String TAG = "uploadmanager";
 
 	private String url = ECApplication.BASE_URL + "/users/%1$s/tracks";
-	private JSONObject obj;
-	private ArrayList<JSONObject> objList;
 
-	private DbAdapter dbAdapter;
+	private DbAdapterLocal dbAdapterLocal;
+	private DbAdapterRemote dbAdapterRemote;
 	private Context context;
 	
 	/**
@@ -69,85 +69,114 @@ public class UploadManager {
 	 * @param dbAdapter The dbadapter (most likely the local one)
 	 * @param ctx The context.
 	 */
-	public UploadManager(DbAdapter dbAdapter, Context ctx) {
-		this.dbAdapter = dbAdapter;
+	public UploadManager(Context ctx) {
 		this.context = ctx;
+		this.dbAdapterLocal = (DbAdapterLocal) ((ECApplication) context).getDbAdapterLocal();
+		this.dbAdapterRemote = (DbAdapterRemote) ((ECApplication) context).getDbAdapterRemote();
 	}
-	
-	/**
-	 * Default constructor. Normally not needed.
-	 */
-	public UploadManager() {
-	};
 
 	/**
 	 * This methods uploads all local tracks to the server
 	 */
 	public void uploadAllTracks() {
-
-		cleanDumpFile();
-
-		ArrayList<Track> trackList = dbAdapter.getAllTracks();
-
-		if (trackList.size() == 0) {
-			Log.d(TAG, "No stored tracks in local db found.");
-			return;
-		}
-
-		ArrayList<String> trackJsonList = new ArrayList<String>();
-
-		for (Track track : trackList) {
-			// Prevent emtpy tracks from being uploaded.
-			if (track.getNumberOfMeasurements() > 0) {
-				trackJsonList.add(createTrackJson(track));
-			}
-		}
-
-		Log.i("Size", String.valueOf(trackJsonList.size()));
-
-		objList = new ArrayList<JSONObject>();
-
-		for (String trackJsonString : trackJsonList) {
-			obj = null;
-
-			try {
-				obj = new JSONObject(trackJsonString);
-				savetoSdCard(obj);
-				objList.add(obj);
-
-			} catch (JSONException e) {
-				Log.e(TAG, "Error parsing measurement string to JSON object.");
-				e.printStackTrace();
-			}
-
-		}
-		if (objList.size() > 0) {
-			Log.d("obd2", "Uploading: " + objList.size() + " tracks.");
-			new UploadAsyncTask().execute();
-		}
+		
+//		ArrayList<Track> trackList = dbAdapter.getAllTracks();
+//
+//		if (trackList.size() == 0) {
+//			Log.d(TAG, "No stored tracks in local db found.");
+//			return;
+//		}
+//
+//		HashMap<String,String> trackJsonList = new HashMap<String,String>();
+//
+//		for (Track track : trackList) {
+//			// Prevent emtpy tracks from being uploaded.
+//			if (track.getNumberOfMeasurements() > 0) {
+//				trackJsonList.put(track.getId(), createTrackJson(track));
+//			}
+//		}
+//
+//		Log.i("Size", String.valueOf(trackJsonList.size()));
+//
+//		objList = new ArrayList<JSONObject>();
+//
+//		for (String trackJsonString : trackJsonList.values()) {
+//			obj = null;
+//
+//			try {
+//				obj = new JSONObject(trackJsonString);
+//				savetoSdCard(obj);
+//				objList.add(obj);
+//
+//			} catch (JSONException e) {
+//				Log.e(TAG, "Error parsing measurement string to JSON object.");
+//				e.printStackTrace();
+//			}
+//
+//		}
+//		if (objList.size() > 0) {
+//			Log.d("obd2", "Uploading: " + objList.size() + " tracks.");
+//			new UploadAsyncTask().execute();
+//		}
+		new UploadAsyncTask().execute();
 	}
 
 	private class UploadAsyncTask extends AsyncTask<Void, Void, Void> {
-
+		
 		@Override
 		protected Void doInBackground(Void... params) {
+			
+			//probably unnecessary
+			if(dbAdapterLocal.getNumberOfStoredTracks() == 0)
+				this.cancel(true);
+			
 			String username = ((ECApplication) context).getUser().getUsername();
 			String token = ((ECApplication) context).getUser().getToken();
 			String urlL = String.format(url, username);
 
-			for (JSONObject object : objList) {
-				int statusCode = sendHttpPost(urlL, object, token, username);
-				if (statusCode != -1 && statusCode == 201) {
-					((ECApplication) context).createNotification("success");
-					// TODO remove tracks from local storage if upload was
-					// successful
-					// TODO method dbAdapter.removeTrackFromLocalDb(Track)
-					// needed
-					// }
-				}else{
-					((ECApplication) context).createNotification("Upload failed with http code" + statusCode);
+
+			//iterate through the list of tracks :)
+			for(Track t : dbAdapterLocal.getAllTracks()){
+				JSONObject trackJSONObject = null;
+				try {
+					trackJSONObject = createTrackJson(t);
+				} catch (JSONException e) {
+					//the track wasn't JSON serializable. shouldn't occur.
+					this.cancel(true);
+					((ECApplication) context).createNotification("General Track error (JSON) Please contact envirocar.org");
 				}
+				//try next track if the track has no measurements
+				if(t.getNumberOfMeasurements() == 0)
+					continue;
+				
+				//save the track into a json file
+				savetoSdCard(trackJSONObject,t.getId());
+				//upload
+				String httpResult = sendHttpPost(urlL, trackJSONObject, token, username);
+				if (!httpResult.equals("-1")) {
+					((ECApplication) context).createNotification("success");
+					dbAdapterLocal.deleteTrack(t.getId());
+					t.setId(httpResult);
+					dbAdapterRemote.insertTrackWithMeasurements(t);
+				}else{
+					((ECApplication) context).createNotification("Upload failed with http code" + httpResult);
+				}
+				
 			}
+			
+//			for (JSONObject object : objList) {
+//				int statusCode = sendHttpPost(urlL, object, token, username);
+//				if (statusCode != -1 && statusCode == 201) {
+//					((ECApplication) context).createNotification("success");
+//					// TODO remove tracks from local storage if upload was
+//					// successful
+//					// TODO method dbAdapter.removeTrackFromLocalDb(Track)
+//					// needed
+//					// }
+//				}else{
+//					((ECApplication) context).createNotification("Upload failed with http code" + statusCode);
+//				}
+//			}
 			return null;
 		}
 
@@ -157,8 +186,9 @@ public class UploadManager {
 	 * Converts Track Object into track.create.json string
 	 * 
 	 * @return
+	 * @throws JSONException 
 	 */
-	private String createTrackJson(Track track) {
+	private JSONObject createTrackJson(Track track) throws JSONException {
 
 		String trackName = track.getName();
 		String trackDescription = track.getDescription();
@@ -209,8 +239,9 @@ public class UploadManager {
 		String trackString = String.format("%s %s %s", trackElementJson,
 				measurementElementsJson, closingElementJson);
 		Log.d("Track", trackString);
-
-		return trackString;
+		
+		
+		return new JSONObject(trackString);
 	}
 
 	/**
@@ -226,7 +257,7 @@ public class UploadManager {
 	 *            Username
 	 * @return Server response status code
 	 */
-	public int sendHttpPost(String url, JSONObject jsonObjSend, String xToken,
+	private String sendHttpPost(String url, JSONObject jsonObjSend, String xToken,
 			String xUser) {
 
 		try {
@@ -243,43 +274,38 @@ public class UploadManager {
 			httpPostRequest.setHeader("X-Token", xToken);
 			httpPostRequest.setHeader("X-User", xUser);
 
-			long timeSubtrahend = System.currentTimeMillis();
 			HttpResponse response = (HttpResponse) httpclient
 					.execute(httpPostRequest);
+			
+			String location = "";
+			Header[] h = response.getAllHeaders();
+			for (int i = 0; i< h.length; i++){
+				if( h[i].getName().equals("Location")){
+					location += h[i].getValue();
+					break;
+				}
+			}
+			
+			String trackid = location.substring(location.lastIndexOf("/")+1, location.length());
 
-			Log.i(TAG,
-					String.format("HTTP response time: [%s ms]",
-							(System.currentTimeMillis() - timeSubtrahend)));
 
 			String statusCode = String.valueOf(response.getStatusLine()
 					.getStatusCode());
 
-			String reasonPhrase = response.getStatusLine().getReasonPhrase();
+			Log.d(TAG, String.format("%s: %s", statusCode));
 
-			Log.d(TAG, String.format("%s: %s", statusCode, reasonPhrase));
-
-			if (statusCode != "xyz") { // TODO replace with 201
-				String text = String.format("%s: %s", statusCode, reasonPhrase);
-				Log.i(TAG, text);
+			if(statusCode.equals(201)){
+				return trackid;
+			} else {
+				return "-1";
 			}
-
-			return Integer.parseInt(statusCode);
 
 		} catch (Exception e) {
 			Log.e(TAG, "Error occured while sending JSON file to server.");
 			e.printStackTrace();
-			return -1;
+			return "-1";
 		}
 
-	}
-
-	/**
-	 * Deletes the dump file
-	 */
-	private void cleanDumpFile() {
-		File log = new File(Environment.getExternalStorageDirectory(),
-				"Tracks.txt");
-		log.delete();
 	}
 
 	/**
@@ -288,15 +314,11 @@ public class UploadManager {
 	 * @param obj
 	 *            the object to save
 	 */
-	private void savetoSdCard(JSONObject obj) {
-		File log = new File(Environment.getExternalStorageDirectory(),
-				"Tracks.txt");
+	private void savetoSdCard(JSONObject obj, String fileid) {
+		File log = new File(context.getExternalFilesDir(null),"envirocar_track"+fileid+".json");
 		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(
-					log.getAbsolutePath(), true));
+			BufferedWriter out = new BufferedWriter(new FileWriter(log.getAbsolutePath(), true));
 			out.write(obj.toString());
-			out.newLine();
-			out.newLine();
 			out.flush();
 			out.close();
 		} catch (Exception e) {

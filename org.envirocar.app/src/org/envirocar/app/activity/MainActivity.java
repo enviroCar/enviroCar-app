@@ -387,7 +387,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
                 if (dbAdapter.getNumberOfStoredTracks() > 0
                         && dbAdapter.getLastUsedTrack()
                                 .getNumberOfMeasurements() > 0) {
-                    UploadManager uploadManager = new UploadManager(dbAdapter,
+                    UploadManager uploadManager = new UploadManager(
                             application.getApplicationContext());
                     uploadManager.uploadAllTracks();
                 } else {

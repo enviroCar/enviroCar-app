@@ -92,6 +92,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	private ExpandableListView elv;
 	private ProgressBar progress;
 	private int itemSelect;
+	
+	private com.actionbarsherlock.view.MenuItem upload;
 
 	public View onCreateView(android.view.LayoutInflater inflater,
 			android.view.ViewGroup container,
@@ -141,6 +143,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			menu.findItem(R.id.menu_upload).setEnabled(false);
 			menu.findItem(R.id.menu_delete_all).setEnabled(false);
 		}
+		upload = menu.findItem(R.id.menu_upload);
 		
 	}
 	
@@ -169,9 +172,9 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		
 		case R.id.menu_upload:
 			((ECApplication) getActivity().getApplicationContext()).createNotification("start");
-			UploadManager uploadManager = new UploadManager(
-					((ECApplication) getActivity().getApplication()).getDbAdapterLocal(), ((ECApplication) getActivity().getApplication()));
+			UploadManager uploadManager = new UploadManager(((ECApplication) getActivity().getApplication()));
 			uploadManager.uploadAllTracks();
+			upload.setEnabled(false);
 			return true;
 			
 		//Delete all tracks
