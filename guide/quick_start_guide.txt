@@ -31,6 +31,8 @@ Completed Tracks can be inspected in the track view:
 
 <tracks.png>
 
+The letters "L" and "R" indicate whether a track is already uploaded (Remote) or still only available on the local device. Pushing the delete button will delete all local tracks. Pushing the upload button will upload all local tracks that are not already uploaded.
+
 A long-click on a track gives the user the possibility to edit the track or view the track on a map. You will need an SD card for the map visualization:
 
 <tracks2.png>
