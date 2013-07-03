@@ -29,6 +29,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.TimeZone;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -195,7 +196,7 @@ public class UploadManager {
 		String trackSensorName = track.getSensorID();
 
 		String trackElementJson = String
-				.format("{ \"type\":\"FeatureCollection\",\"properties\": {\"name\": \"%s\", \"description\": \"%s\", \"sensor\": \"%s\"}, \"features\": [",
+				.format("{\"type\":\"FeatureCollection\",\"properties\":{\"name\":\"%s\",\"description\":\"%s\",\"sensor\":\"%s\"},\"features\":[",
 						trackName, trackDescription, trackSensorName);
 
 		ArrayList<Measurement> measurements = track.getMeasurements();
@@ -234,22 +235,36 @@ public class UploadManager {
 					+ "T"
 					+ dateFormat2.format(measurements.get(i)
 							.getMeasurementTime()) + "Z";
-			String co2 = "0", consumption = "0";
-			try {
-				co2 = String.valueOf(track.getCO2EmissionOfMeasurement(i));
-				consumption = String.valueOf(track
-						.getFuelConsumptionOfMeasurement(i));
-			} catch (FuelConsumptionException e) {
-				e.printStackTrace();
-			}
-
-			String maf = String.valueOf(measurements.get(i).getMaf());
+			
 			String speed = String.valueOf(measurements.get(i).getSpeed());
-			String measurementJson = String
-					.format("{ \"type\": \"Feature\", \"geometry\": { \"type\": \"Point\", \"coordinates\": [ %s, %s ] }, \"properties\": { \"time\": \"%s\", \"sensor\": \"%s\", \"phenomenons\": { \"CO2\": { \"value\": %s }, \"Consumption\": { \"value\": %s }, \"MAF\": { \"value\": %s }, \"Speed\": { \"value\": %s}} } }",
-							lon, lat, time, trackSensorName, co2, consumption,
-							maf, speed);
-			measurementElements.add(measurementJson);
+			//no maf? no json! :)
+			if(measurements.get(i).getMaf() > 0){
+				String co2 = "0", consumption = "0";
+				try {
+					co2 = String.valueOf(track.getCO2EmissionOfMeasurement(i));
+					consumption = String.valueOf(track
+							.getFuelConsumptionOfMeasurement(i));
+				} catch (FuelConsumptionException e) {
+					e.printStackTrace();
+				}
+
+				String maf = String.valueOf(measurements.get(i).getMaf());
+				String measurementJson = String
+						.format("{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[%s,%s]},\"properties\":{\"time\":\"%s\",\"sensor\":\"%s\",\"phenomenons\":{\"CO2\":{\"value\":%s},\"Consumption\":{\"value\":%s},\"MAF\":{\"value\":%s},\"Speed\":{\"value\":%s}}}}",
+								lon, lat, time, trackSensorName, co2, consumption,
+								maf, speed);
+				measurementElements.add(measurementJson);
+			} else {
+				String measurementJson = String
+						.format("{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[%s,%s]},\"properties\":{\"time\":\"%s\",\"sensor\":\"%s\",\"phenomenons\":{\"Speed\":{\"value\":%s}}}}",
+								lon, lat, time, trackSensorName, speed);
+				measurementElements.add(measurementJson);
+			}
+			
+
+			
+
+			
 		}
 
 		String measurementElementsJson = TextUtils.join(",",
