@@ -161,6 +161,8 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 		addPreferencesFromResource(R.xml.preferences);
 		initializeBluetoothList();
 		
+		this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+		
 		about = findPreference("about_version");
 		about.setSummary(((ECApplication) getApplication()).getVersionString());
 		about.setOnPreferenceClickListener(new OnPreferenceClickListener() {
