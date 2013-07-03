@@ -1,0 +1,36 @@
+Quick start guide
+=================
+
+<dashboard.png>
+
+The dashboard shows the current speed of the vehicle and the CO2 consumption. In addition to that, the user can specify and edit his car in the "Current Car" section.
+
+All options and features can be accessed by swiping in the menu from the left side of the screen:
+
+<menu.png>
+
+Before a user can use the app, for example for taking measurements, he/she has to register at first:
+
+<register.png>
+
+After registering and logging in, the user has to specify his/her car. When the car is new to the system (not already created by another user), the user has to add a new car via the form:
+
+<garage.png>
+
+Before starting the measurement process, an already paired OBD-2 adapter has to be selected in the settings:
+
+<settings.png>
+
+Here, one can also specify whether:
+-The app should automatically connect to the adapter when in range and start measuring automatically
+-The app should automatically enable Bluetooth when started
+-Uploads of tracks should only be performed via a W-Lan/Wifi connection
+-Tracks should automatically be uploaded whenever a track is finished
+
+Completed Tracks can be inspected in the track view:
+
+<tracks.png>
+
+A long-click on a track gives the user the possibility to edit the track or view the track on a map. You will need an SD card for the map visualization:
+
+<tracks2.png>
