@@ -29,12 +29,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.TimeZone;
 
-import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.envirocar.app.exception.FuelConsumptionException;
+import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.storage.DbAdapterLocal;
 import org.envirocar.app.storage.DbAdapterRemote;
 import org.envirocar.app.storage.Measurement;
@@ -122,7 +122,7 @@ public class UploadManager {
 	}
 
 	private class UploadAsyncTask extends AsyncTask<Void, Void, Void> {
-		
+
 		@Override
 		protected Void doInBackground(Void... params) {
 			
@@ -200,6 +200,27 @@ public class UploadManager {
 
 		ArrayList<Measurement> measurements = track.getMeasurements();
 		ArrayList<String> measurementElements = new ArrayList<String>();
+		
+		// Cut-off first and last minute of tracks that are longer than 3
+		// minutes
+		try {
+			if (track.getEndTime() - track.getStartTime() > 180000) {
+				ArrayList<Measurement> privateMeasurements = new ArrayList<Measurement>();
+				for (Measurement measurement : measurements) {
+					try {
+						if (measurement.getMeasurementTime() - track.getStartTime() > 60000 && 
+								track.getEndTime() - measurement.getMeasurementTime() > 60000) {
+							privateMeasurements.add(measurement);
+						}
+					} catch (MeasurementsException e) {
+						e.printStackTrace();
+					}
+				}
+				measurements = privateMeasurements;
+			}
+		} catch (MeasurementsException e1) {
+			e1.printStackTrace();
+		}
 
 		for (int i = 0; i < measurements.size(); i++) {
 			String lat = String.valueOf(measurements.get(i).getLatitude());
@@ -239,8 +260,7 @@ public class UploadManager {
 		String trackString = String.format("%s %s %s", trackElementJson,
 				measurementElementsJson, closingElementJson);
 		Log.d("Track", trackString);
-		
-		
+
 		return new JSONObject(trackString);
 	}
 

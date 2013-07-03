@@ -323,8 +323,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		elv.setAdapter(elvAdapter);
 		elvAdapter.notifyDataSetChanged();
 
-		// TODO update the list if new track is inserted into the database.		
-		
 		//if logged in, download tracks from server
 		if(((ECApplication) getActivity().getApplication()).isLoggedIn()){
 			downloadTracks();
