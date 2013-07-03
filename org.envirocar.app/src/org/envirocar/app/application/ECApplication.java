@@ -164,35 +164,24 @@ public class ECApplication extends Application implements LocationListener {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
-		// TODO: Create something like a first-start method that determines the
-		// BT-Adapter, VIN etc. ... something like a setup method
+		
+		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		user = getUserFromSharedPreferences();
 
 		initDbAdapter();
-		
 		initLocationManager();
-		// AutoConnect checkbox and service
-		// TODO settings -> automatic connection to bt adapter
-		// startServiceConnector();
 		// Make a new listener to interpret the measurement values that are
 		// returned
 		Log.e("obd2", "init listener");
 		startListener();
 		// If everything is available, start the service connector and listener
 		startBackgroundService();
-
-		// createNewTrackIfNecessary();
-
+		//Make sure that there are coordinates for the first measurement
 		try {
 			measurement = new Measurement(locationLatitude, locationLongitude);
 		} catch (LocationInvalidException e) {
 			e.printStackTrace();
 		}
-
-		preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		user = getUserFromSharedPreferences();
-		
-		//activateBluetooth();
 	}
 	
 	/**
