@@ -34,6 +34,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.envirocar.app.exception.FuelConsumptionException;
+import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
@@ -95,7 +96,7 @@ public class UploadManager {
 		}
 
 		ArrayList<String> trackJsonList = new ArrayList<String>();
-
+		
 		for (Track track : trackList) {
 			// Prevent emtpy tracks from being uploaded.
 			if (track.getNumberOfMeasurements() > 0) {
@@ -170,6 +171,27 @@ public class UploadManager {
 
 		ArrayList<Measurement> measurements = track.getMeasurements();
 		ArrayList<String> measurementElements = new ArrayList<String>();
+		
+		// Cut-off first and last minute of tracks that are longer than 3
+		// minutes
+		try {
+			if (track.getEndTime() - track.getStartTime() > 180000) {
+				ArrayList<Measurement> privateMeasurements = new ArrayList<Measurement>();
+				for (Measurement measurement : measurements) {
+					try {
+						if (measurement.getMeasurementTime() - track.getStartTime() > 60000 && 
+								track.getEndTime() - measurement.getMeasurementTime() > 60000) {
+							privateMeasurements.add(measurement);
+						}
+					} catch (MeasurementsException e) {
+						e.printStackTrace();
+					}
+				}
+				measurements = privateMeasurements;
+			}
+		} catch (MeasurementsException e1) {
+			e1.printStackTrace();
+		}
 
 		for (int i = 0; i < measurements.size(); i++) {
 			String lat = String.valueOf(measurements.get(i).getLatitude());
