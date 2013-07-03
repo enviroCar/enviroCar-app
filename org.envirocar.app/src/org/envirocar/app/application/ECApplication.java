@@ -550,7 +550,9 @@ public class ECApplication extends Application implements LocationListener {
 	 * Stops the location manager (removeUpdates) for pause.
 	 */
 	public void stopLocating() {
-		locationManager.removeUpdates(this);
+		if(locationManager != null){
+			locationManager.removeUpdates(this);
+		}
 	}
 
 	/**
