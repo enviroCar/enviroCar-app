@@ -21,6 +21,7 @@
 
 package org.envirocar.app.activity;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import org.apache.http.Header;
@@ -64,6 +65,9 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.SherlockFragment;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
+
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 
 /**
  * Garage class that cares about the sensor type "car" and its properties.
@@ -263,6 +267,7 @@ public class MyGarage extends SherlockFragment {
 				super.onFailure(error, content);
 				sensorDlProgress.setVisibility(View.GONE);
 				sensorRetryButton.setVisibility(View.VISIBLE);
+				Crouton.makeText(getActivity(), getResources().getString(R.string.error_host_not_found), Style.ALERT).show();
 			}
 			
 			@Override
@@ -336,6 +341,9 @@ public class MyGarage extends SherlockFragment {
 			@Override
 			public void onFailure(Throwable error, String content) {
 				super.onFailure(error, content);
+				if(content.equals("can't resolve host") ){
+					Crouton.makeText(getActivity(), getResources().getString(R.string.error_host_not_found), Style.ALERT).show();
+				}
 				showProgress(false);
 			}
 			

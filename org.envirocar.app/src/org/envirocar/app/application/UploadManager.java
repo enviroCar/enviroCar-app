@@ -24,6 +24,9 @@ package org.envirocar.app.application;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,9 +34,11 @@ import java.util.TimeZone;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.envirocar.app.R;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.storage.DbAdapterLocal;
@@ -159,8 +164,8 @@ public class UploadManager {
 					dbAdapterLocal.deleteTrack(t.getId());
 					t.setId(httpResult);
 					dbAdapterRemote.insertTrackWithMeasurements(t);
-				}else{
-					((ECApplication) context).createNotification("Upload failed with http code" + httpResult);
+				} else if (httpResult.equals("net_error")){
+					((ECApplication) context).createNotification(context.getResources().getString(R.string.error_host_not_found));
 				}
 				
 			}
@@ -335,12 +340,15 @@ public class UploadManager {
 				return "-1";
 			}
 
-		} catch (Exception e) {
-			Log.e(TAG, "Error occured while sending JSON file to server.");
-			e.printStackTrace();
+		} catch (UnknownHostException e) {
+			return "net_error";
+		} catch (UnsupportedEncodingException e) {
 			return "-1";
+		} catch (ClientProtocolException e) {
+			return "net_error";
+		} catch (IOException e) {
+			return "net_error";
 		}
-
 	}
 
 	/**
