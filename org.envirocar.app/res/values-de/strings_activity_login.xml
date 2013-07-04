@@ -24,5 +24,6 @@
     <string name="error_email_already_in_use">Diese Adresse ist bereits in Benutzung.</string>
     
     <string name="error_email_not_in_beta">Deine Emailadresse ist aktuell nicht für die Beta-Phase freigeschalten.\nBitte besuche http://www.envirocar.org/</string>
+    <string name="error_host_not_found">Keine Verbindung zum Server möglich.</string>
 
 </resources>

@@ -22,6 +22,7 @@
 package org.envirocar.app.activity;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -64,11 +65,6 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 public class LoginFragment extends SherlockFragment {
 
 	/**
-	 * The default email to populate the email field with.
-	 */
-	public static final String EXTRA_EMAIL = "com.example.android.authenticatordemo.extra.EMAIL";
-
-	/**
 	 * Keep track of the login task to ensure we can cancel it if requested.
 	 */
 	private UserLoginTask mAuthTask = null;
@@ -76,7 +72,6 @@ public class LoginFragment extends SherlockFragment {
 	// Values for email and password at the time of the login attempt.
 	private String mUsername;
 	private String mPassword;
-	// private String mPasswordMD5;
 
 	// UI references.
 	private EditText mUsernameView;
@@ -156,13 +151,14 @@ public class LoginFragment extends SherlockFragment {
 	 * errors are presented and no actual login attempt is made.
 	 */
 	private void attemptLogin() {
-		if (mAuthTask != null) {
-			return;
-		}
-
+		
 		// Reset errors.
 		mUsernameView.setError(null);
 		mPasswordView.setError(null);
+		
+		if (mAuthTask != null) {
+			return;
+		}
 
 		// Store values at the time of the login attempt.
 		mUsername = mUsernameView.getText().toString();
@@ -272,9 +268,11 @@ public class LoginFragment extends SherlockFragment {
 				DashboardFragment dashboardFragment = new DashboardFragment();
 	            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
 			} else {
-				mPasswordView
-						.setError(getString(R.string.error_incorrect_password));
-				mPasswordView.requestFocus();
+				if(mUsernameView.getError() != null) {
+					mUsernameView.requestFocus();
+				} else {
+					mPasswordView.requestFocus();
+				}
 			}
 		}
 
@@ -302,12 +300,14 @@ public class LoginFragment extends SherlockFragment {
 			int status = response.getStatusLine().getStatusCode();
 			// TODO finer errors..
 			if (status != HttpStatus.SC_OK) {
+				mPasswordView.setError(getString(R.string.error_incorrect_password));
 				return false;
 			} else {
 				return true;
 
 			}
-
+		} catch (UnknownHostException e){
+			mUsernameView.setError(getString(R.string.error_host_not_found));
 		} catch (ClientProtocolException e) {
 			e.printStackTrace();
 		} catch (IOException e) {

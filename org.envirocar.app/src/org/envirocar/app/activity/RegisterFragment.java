@@ -23,6 +23,7 @@ package org.envirocar.app.activity;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.UnknownHostException;
 
 import org.apache.http.HttpStatus;
 import org.apache.http.client.ClientProtocolException;
@@ -71,11 +72,6 @@ public class RegisterFragment extends SherlockFragment {
 	private static final int ERROR_NET = 2;
 
 	/**
-	 * The default email to populate the email field with.
-	 */
-	public static final String EXTRA_EMAIL = "com.example.android.authenticatordemo.extra.EMAIL";
-
-	/**
 	 * Keep track of the register task to ensure we can cancel it if requested.
 	 */
 	private UserRegisterTask mAuthTask = null;
@@ -85,7 +81,6 @@ public class RegisterFragment extends SherlockFragment {
 	private String mEmail;
 	private String mPassword;
 	private String mPasswordConfirm;
-	// private String mPasswordMD5;
 
 	// UI references.
 	private EditText mUsernameView;
@@ -99,7 +94,6 @@ public class RegisterFragment extends SherlockFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		// super.onCreateView(inflater, container, savedInstanceState);
 		View view = inflater.inflate(R.layout.register_layout, null);
 
 		mUsernameView = (EditText) view.findViewById(R.id.register_username);
@@ -150,15 +144,15 @@ public class RegisterFragment extends SherlockFragment {
 	 * errors are presented and no actual register attempt is made.
 	 */
 	public void attemptRegister() {
-		if (mAuthTask != null) {
-			return;
-		}
-
 		// Reset errors.
 		mUsernameView.setError(null);
 		mEmailView.setError(null);
 		mPasswordView.setError(null);
-		mPasswordView.setError(null);
+		mPasswordConfirmView.setError(null);
+
+		if (mAuthTask != null) {
+			return;
+		}
 
 		// Store values at the time of the register attempt.
 		mUsername = mUsernameView.getText().toString();
@@ -326,8 +320,9 @@ public class RegisterFragment extends SherlockFragment {
 				mUsernameView.setError(getString(R.string.error_username_already_in_use));
 				mEmailView.setError(getString(R.string.error_email_already_in_use));
 				mUsernameView.requestFocus();				
-			} else {
-
+			} else if (httpStatus==ERROR_NET){
+				mUsernameView.setError(getString(R.string.error_host_not_found));
+				mUsernameView.requestFocus();
 			}
 		}
 
@@ -367,6 +362,8 @@ public class RegisterFragment extends SherlockFragment {
 			return httpClient.execute(postRequest).getStatusLine()
 					.getStatusCode();
 
+		} catch (UnknownHostException e1){
+			return ERROR_NET;
 		} catch (UnsupportedEncodingException e1) {
 			// Shouldn't occur hopefully..
 			e1.printStackTrace();

@@ -22,6 +22,7 @@
     <string name="error_username_already_in_use">This username is already in use</string>
     <string name="error_email_already_in_use">This Email is already in use</string>
     
-        <string name="error_email_not_in_beta">Your email address is not registered for our beta-phase.\nPlease visit http://www.envirocar.org/</string>
+    <string name="error_email_not_in_beta">Your email address is not registered for our beta-phase.\nPlease visit http://www.envirocar.org/</string>
+    <string name="error_host_not_found">Unable to communicate with the server.</string>
 
 </resources>
