@@ -72,20 +72,20 @@
     <string name="retry">Erneut versuchen</string>
     <string name="description">Beschreibung:</string>
     <string name="editDescription">Edit Description</string>
-    <string name="editTrack">Track bearbeiten</string>
-    <string name="enterTrackName">Trackname eingeben</string>
-    <string name="enterTrackDescription">Trackbeschreibung eingeben</string>
+    <string name="editTrack">Fahrt bearbeiten</string>
+    <string name="enterTrackName">Name für die Fahrt eingeben</string>
+    <string name="enterTrackDescription">Beschreibung für die Fahrt eingeben</string>
     <string name="nameChanged">Name geändert</string>
     <string name="descriptionChanged">Beschreibung geändert</string>
-    <string name="trackDeleted">Track gelöscht</string>
+    <string name="trackDeleted">Fahrt gelöscht</string>
     <string name="no_sensor_selected">Kein Auto ausgewählt.</string>
     <string name="title_create_new_sensor">&#8230;oder erstelle ein neues Auto:</string>
     <string name="title_select_sensor">Wähle ein bestehendes Auto,</string>
-	<string name="upload_notification">Versuche lokale Tracks hochzuladen.</string>
-    <string name="upload_notification_success">Lokale Tracks wurden erfolgreich hochgeladen.</string>
+	<string name="upload_notification">Versuche lokale Fahrten hochzuladen.</string>
+    <string name="upload_notification_success">Lokale Fahrten wurden erfolgreich hochgeladen.</string>
     <string name="please_select">&#8230;</string>
     <string name="startMap">In Karte betrachten</string>
-    <string name="trackContainsNoCoordinates">Track enthält keine Koordinaten.</string>
+    <string name="trackContainsNoCoordinates">Fahrten enthält keine Koordinaten.</string>
     <string name="noSdCard">"Karte wird ohne SD-Karte nicht angezeigt."</string>
     
     
@@ -99,8 +99,8 @@
     <string name="prompt_car_constructionYear">Baujahr</string>
     
     <string name="editName">Namen ändern</string>
-    <string name="deleteTrack">Track löschen</string>
-    <string name="uploadTrack">Track hochladen</string>
+    <string name="deleteTrack">Fahrt löschen</string>
+    <string name="uploadTrack">Fahrt hochladen</string>
     
    	<string name="open_drawer">Open</string>
 	<string name="close_drawer">Close</string>
@@ -116,10 +116,13 @@
 	<string name="start_measuring">Starte Messung.</string>
     <string name="stop_measuring">Messung gestoppt.</string>
     <string name="bye_bye">Auf Wiedersehen!</string>
-    <string name="all_local_tracks_deleted">Alle lokalen Tracks gelöscht.</string>
+    <string name="all_local_tracks_deleted">Alle lokalen Fahrten gelöscht.</string>
     <string name="not_possible_for_remote">Noch nicht möglich für remote Tracks.</string>
     
     <string name="envirocar.org">http://www.envirocar.org</string>
     
     <string name="imperial_unit">Imperiale Maßeinheiten?</string>
+    <string name="shareTrack">Fahrt als JSON teilen</string>
+    <string name="garage_not_signed_in">&#8230;oder <b>einloggen</b>um Auto zu erstellen:</string>
+    <string name="error_json">Interner Fehler beim JSON generieren.</string>
 </resources>
