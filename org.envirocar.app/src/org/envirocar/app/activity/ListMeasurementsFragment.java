@@ -310,7 +310,19 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				Crouton.showText(getActivity(), R.string.not_possible_for_remote, Style.INFO);
 			}
 			return true;
-
+			
+		case R.id.shareTrack:
+			try{
+				Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+				sharingIntent.setType("application/json");
+				String shareBody = new UploadManager(getActivity().getApplication()).getTrackJSON(track);
+				sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "EnviroCar Track "+track.getName());
+				sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+				startActivity(Intent.createChooser(sharingIntent, "Share via"));
+				return true;
+			}catch (JSONException e){
+				Crouton.showText(getActivity(), R.string.error_json, Style.ALERT);
+			}
 		
 		default:
 			return super.onContextItemSelected(item);
@@ -418,11 +430,10 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						t.setCarModel(carModel);
 						String sensorId = "undefined";
 						try{
-							sensorId = trackJson[0].getJSONObject("properties").getJSONObject("sensor").getString("id");
+							sensorId = trackJson[0].getJSONObject("properties").getJSONObject("sensor").getJSONObject("properties").getString("id");
 						}catch (JSONException e) {}
 						t.setSensorID(sensorId);
 						//include server properties tracks created, modified?
-						// TODO more properties
 						
 						t.commitTrackToDatabase();
 						//Log.i("track_id",t.getId()+" "+((DbAdapterRemote) dbAdapter).trackExistsInDatabase(t.getId())+" "+dbAdapter.getNumberOfStoredTracks());

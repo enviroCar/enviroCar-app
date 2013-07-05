@@ -194,6 +194,10 @@ public class UploadManager {
 
 	}
 
+	public String getTrackJSON(Track track) throws JSONException{
+		return createTrackJson(track).toString();
+	}
+	
 	/**
 	 * Converts Track Object into track.create.json string
 	 * 

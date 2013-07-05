@@ -21,5 +21,10 @@
         android:id="@+id/uploadTrack"
         android:title="@string/uploadTrack">
     </item>
+    <item
+        android:id="@+id/shareTrack"
+        android:title="@string/shareTrack">
+    </item>
+    
 
 </menu>
