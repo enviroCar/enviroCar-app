@@ -203,7 +203,12 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		MenuInflater inflater = getSherlockActivity().getMenuInflater();
-		inflater.inflate(R.menu.context_item_remote, menu);
+		final Track track = tracksList.get(itemSelect);
+		if(track.isLocalTrack()){
+			inflater.inflate(R.menu.context_item, menu);
+		}else{
+			inflater.inflate(R.menu.context_item_remote, menu);
+		}
 	}
 	
 	/**
@@ -319,10 +324,14 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "EnviroCar Track "+track.getName());
 				sharingIntent.putExtra(android.content.Intent.EXTRA_STREAM,shareBody);
 				startActivity(Intent.createChooser(sharingIntent, "Share via"));
-				return true;
 			}catch (JSONException e){
 				Crouton.showText(getActivity(), R.string.error_json, Style.ALERT);
 			}
+			return true;
+			
+		case R.id.uploadTrack:
+			new UploadManager(((ECApplication) getActivity().getApplication())).uploadSingleTrack(track);
+			return true;
 		
 		default:
 			return super.onContextItemSelected(item);
