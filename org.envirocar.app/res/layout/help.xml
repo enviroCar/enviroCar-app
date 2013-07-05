@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/vehicle_view"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:tag="Help" >
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical" >
+
+            <ImageView
+                android:id="@+id/imageView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/marker_red" />
+
+            <TextView
+                android:id="@+id/textView1_help"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_1" />
+
+            <TextView
+                android:id="@+id/textView2_help"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_2" />
+
+            <TextView
+                android:id="@+id/textView3_help"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_3" />
+
+            <TextView
+                android:id="@+id/textView4_help"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_4" />
+
+            <TextView
+                android:id="@+id/textView5_help"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_5" />
+
+            <TextView
+                android:id="@+id/textView6_help"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_6" />
+
+            <TextView
+                android:id="@+id/textView7_help"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_7" />
+
+            <TextView
+                android:id="@+id/textView8_help"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_8" />
+
+            <TextView
+                android:id="@+id/textView9_help"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/help_9" />
+        </LinearLayout>
+    </ScrollView>
+
+</LinearLayout>
