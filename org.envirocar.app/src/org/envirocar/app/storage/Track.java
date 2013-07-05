@@ -405,5 +405,23 @@ public class Track {
 		} else
 			throw new MeasurementsException("No measurements in this track!");
 	}
+	
+	/**
+	 * Returns the average co2 emission for the track.
+	 * 
+	 * @return
+	 */
+	public double getCO2Average() {
+		double co2Average = 0.0;
+		try {
+			for (int i = 0; i < measurements.size(); i++) {
+				co2Average = co2Average + getCO2EmissionOfMeasurement(i);
+			}
+			co2Average = co2Average / measurements.size();
+		} catch (FuelConsumptionException e) {
+			e.printStackTrace();
+		}
+		return co2Average;
+	}
 
 }
