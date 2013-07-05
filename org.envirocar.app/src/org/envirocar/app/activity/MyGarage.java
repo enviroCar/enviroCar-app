@@ -21,7 +21,6 @@
 
 package org.envirocar.app.activity;
 
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import org.apache.http.Header;
@@ -38,6 +37,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -160,13 +160,16 @@ public class MyGarage extends SherlockFragment {
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View view) {
-						Log.d(TAG, carModel + " " + carManufacturer + " "
-								+ carFuelType);
-						if (carModel != null && carManufacturer != null
-								&& carConstructionYear != null
-								&& carFuelType != null) {
-							registerSensorAtServer(sensorType, carManufacturer,
-									carModel, carConstructionYear, carFuelType);
+						if(((ECApplication) getActivity().getApplication()).isLoggedIn()){
+							if (carModel != null && carManufacturer != null
+									&& carConstructionYear != null
+									&& carFuelType != null) {
+								registerSensorAtServer(sensorType, carManufacturer,
+										carModel, carConstructionYear, carFuelType);
+							}
+						} else {
+							LoginFragment loginFragment = new LoginFragment();
+			                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
 						}
 					}
 				});
@@ -211,8 +214,17 @@ public class MyGarage extends SherlockFragment {
 			}
 		});
 		
+		if(!((ECApplication) getActivity().getApplication()).isLoggedIn()){
+			carManufacturerView.setEnabled(false);
+			carConstructionYearView.setEnabled(false);
+			carModelView.setEnabled(false);
+			rbGasoline.setEnabled(false);
+			rbDiesel.setEnabled(false);
+			((Button) view.findViewById(R.id.register_car_button)).setText(R.string.action_sign_in_short);
+			((TextView) view.findViewById(R.id.title_create_new_sensor)).setText(R.string.garage_not_signed_in);
+		}
+
 		downloadSensors();
-		
 		
 		TypefaceEC.applyCustomFont((ViewGroup) view.findViewById(R.id.mygaragelayout), TypefaceEC.Raleway(getActivity()));
 		

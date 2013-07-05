@@ -100,13 +100,8 @@ public class DashboardFragment extends SherlockFragment {
 		sensor.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if(application.isLoggedIn()){
-		        	MyGarage garageFragment = new MyGarage();
-		            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
-				}else{
-	                LoginFragment loginFragment = new LoginFragment();
-	                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
-				}
+		        MyGarage garageFragment = new MyGarage();
+		        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
 			}
 		});
 		

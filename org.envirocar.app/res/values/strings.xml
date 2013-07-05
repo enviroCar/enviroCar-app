@@ -109,4 +109,6 @@
 	<string name="not_possible_for_remote">Not yet possible for remote tracks.</string>
 	
 	<string name="envirocar.org">http://www.envirocar.org</string>
+	
+	<string name="garage_not_signed_in">&#8230;or <b>sign in</b><br/>, to create a new car:</string>
 </resources>

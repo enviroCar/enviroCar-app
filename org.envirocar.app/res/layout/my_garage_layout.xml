@@ -90,7 +90,8 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:layout_gravity="center_horizontal"
-                android:text="@string/title_create_new_sensor" />
+                android:text="@string/title_create_new_sensor"
+                android:id="@+id/title_create_new_sensor" />
 
 
             <EditText
