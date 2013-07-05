@@ -34,7 +34,9 @@ import org.envirocar.app.storage.DbAdapterLocal;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
@@ -376,6 +378,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				}
 			}
 		}, 0, 10, TimeUnit.MINUTES);
+		
+		//bluetooth change listener
+	    IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+	    this.registerReceiver(application.bluetoothChangeReceiver, filter);
 	}
 	/**
 	 * Helper method for the automatic upload of local tracks via the scheduler.
@@ -548,6 +554,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		application.destroyStuff();
 		
 		Crouton.cancelAllCroutons();
+		
+		this.unregisterReceiver(application.bluetoothChangeReceiver);
 
 	}
 	

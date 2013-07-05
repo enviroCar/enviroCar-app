@@ -51,8 +51,10 @@ import android.app.Application;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
@@ -184,6 +186,8 @@ public class ECApplication extends Application implements LocationListener {
 		} catch (LocationInvalidException e) {
 			e.printStackTrace();
 		}
+
+		
 	}
 	
 	/**
@@ -954,5 +958,23 @@ public class ECApplication extends Application implements LocationListener {
 	public void setImperialUnits(boolean imperialUnits) {
 		this.imperialUnits = imperialUnits;
 	}
+	
+	public final BroadcastReceiver bluetoothChangeReceiver = new BroadcastReceiver() {
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	        final String action = intent.getAction();
+
+	        if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+	            final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
+	                                                 BluetoothAdapter.ERROR);
+	            switch (state) {
+	            case BluetoothAdapter.STATE_ON:
+	            	Log.i("bt","is now on");
+	            	startBackgroundService();
+	                break;
+	            }
+	        }
+	    }
+	};
 
 }
