@@ -45,6 +45,7 @@ import org.envirocar.app.storage.DbAdapterLocal;
 import org.envirocar.app.storage.DbAdapterRemote;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.views.Utils;
 
 import android.app.Application;
 import android.app.NotificationManager;
@@ -266,7 +267,7 @@ public class ECApplication extends Application implements LocationListener {
 
 					// new track if last position is significantly different
 					// from the current position (more than 3 km)
-					if (getDistance(lastUsedTrack.getLastMeasurement(),
+					if (Utils.getDistance(lastUsedTrack.getLastMeasurement().getLatitude(),lastUsedTrack.getLastMeasurement().getLongitude(),
 							locationLatitude, locationLongitude) > 3.0) {
 						Log.e("obd2",
 								"The last measurement's position is more than 3 km away. I will create a new track");
@@ -345,7 +346,7 @@ public class ECApplication extends Application implements LocationListener {
 				// the
 				// current position (more than 3 km)
 
-				if (getDistance(currentTrack.getLastMeasurement(),
+				if (Utils.getDistance(currentTrack.getLastMeasurement().getLatitude(),currentTrack.getLastMeasurement().getLongitude(),
 						locationLatitude, locationLongitude) > 3.0) {
 					track = new Track("123456", fuelType, carManufacturer,
 							carModel, sensorId, dbAdapterLocal); 
@@ -377,36 +378,6 @@ public class ECApplication extends Application implements LocationListener {
 			}
 
 		}
-
-	}
-
-	/**
-	 * Returns the distance between a measurement and a coordinate in kilometers
-	 * 
-	 * @param m1
-	 *            Measurement
-	 * @param lat2
-	 *            Latitude of coordinate
-	 * @param lng2
-	 *            Longitude of coordinate
-	 * @return
-	 */
-	public double getDistance(Measurement m1, double lat2, double lng2) {
-
-		double lat1 = m1.getLatitude();
-		double lng1 = m1.getLongitude();
-
-		double earthRadius = 6369;
-		double dLat = Math.toRadians(lat2 - lat1);
-		double dLng = Math.toRadians(lng2 - lng1);
-		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-				+ Math.cos(Math.toRadians(lat1))
-				* Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2)
-				* Math.sin(dLng / 2);
-		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		double dist = earthRadius * c;
-
-		return dist;
 
 	}
 

@@ -24,6 +24,9 @@
         <CheckBoxPreference
             android:key="pref_imperial_unit"
             android:title="@string/imperial_unit" />
+        <CheckBoxPreference 
+            android:key="pref_privacy"
+            android:title="@string/privacy"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_about" >
         <Preference 
