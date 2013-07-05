@@ -57,6 +57,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	public static final String WIFI_UPLOAD = "pref_wifi_upload";
 	public static final String ALWAYS_UPLOAD = "pref_always_upload";
 	public static final String IMPERIAL_UNIT = "pref_imperial_unit";
+	public static final String OBFUSCATE_POSITION = "pref_privacy";
 	
 	private Preference about;
 	

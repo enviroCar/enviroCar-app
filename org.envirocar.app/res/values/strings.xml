@@ -111,4 +111,5 @@
 	<string name="envirocar.org">http://www.envirocar.org</string>
 	
 	<string name="imperial_unit">Imperial units?</string>
+	<string name="privacy">Obfuscate positions?</string>
 </resources>

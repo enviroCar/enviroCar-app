@@ -31,6 +31,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.TimeZone;
+import java.util.prefs.Preferences;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -39,6 +40,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.envirocar.app.R;
+import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.storage.DbAdapterLocal;
@@ -49,8 +51,11 @@ import org.envirocar.app.views.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 /**
@@ -211,16 +216,22 @@ public class UploadManager {
 		// Cut-off first and last minute of tracks that are longer than 3
 		// minutes. Also cut of these measurements if they are closer than 250m
 		// to the start and the end.
+		SharedPreferences preferences = PreferenceManager
+				.getDefaultSharedPreferences(context.getApplicationContext());
+		boolean obfuscatePositions = preferences.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
+		
 		try {
 			if (track.getEndTime() - track.getStartTime() > 180000) {
 				ArrayList<Measurement> privateMeasurements = new ArrayList<Measurement>();
 				for (Measurement measurement : measurements) {
 					try {
-						if (measurement.getMeasurementTime() - track.getStartTime() > 60000 && 
-								track.getEndTime() - measurement.getMeasurementTime() > 60000) {
-							
-							if ((Utils.getDistance(track.getFirstMeasurement().getLatitude(), track.getFirstMeasurement().getLongitude(), measurement.getLatitude(), measurement.getLongitude()) > 0.25) && 
-									(Utils.getDistance(track.getLastMeasurement().getLatitude(), track.getLastMeasurement().getLongitude(), measurement.getLatitude(), measurement.getLongitude()) > 0.25)) {
+						if (obfuscatePositions) {
+							if (measurement.getMeasurementTime() - track.getStartTime() > 60000 && track.getEndTime() - measurement.getMeasurementTime() > 60000) {
+
+								if ((Utils.getDistance(track.getFirstMeasurement().getLatitude(), track.getFirstMeasurement().getLongitude(), measurement.getLatitude(), measurement.getLongitude()) > 0.25) && (Utils.getDistance(track.getLastMeasurement().getLatitude(), track.getLastMeasurement().getLongitude(), measurement.getLatitude(), measurement.getLongitude()) > 0.25)) {
+									privateMeasurements.add(measurement);
+								}
+							} else {
 								privateMeasurements.add(measurement);
 							}
 						}
