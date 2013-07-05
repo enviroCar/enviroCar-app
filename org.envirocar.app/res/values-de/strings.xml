@@ -122,7 +122,7 @@
     <string name="envirocar.org">http://www.envirocar.org</string>
     
     <string name="imperial_unit">Imperiale Maßeinheiten?</string>
-    <string name="shareTrack">Fahrt als JSON teilen</string>
+    <string name="shareTrack">Fahrt als JSON-Datei teilen</string>
     <string name="garage_not_signed_in">&#8230;oder <b>einloggen</b>um Auto zu erstellen:</string>
     <string name="error_json">Interner Fehler beim JSON generieren.</string>
 	<string name="privacy">Position verbergen?</string>

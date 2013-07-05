@@ -47,9 +47,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.AlertDialog;
-import android.app.Application;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
@@ -315,9 +315,9 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			try{
 				Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 				sharingIntent.setType("application/json");
-				String shareBody = new UploadManager(getActivity().getApplication()).getTrackJSON(track);
+				Uri shareBody = Uri.fromFile(new UploadManager(getActivity().getApplication()).saveTrackAndReturnUri(track));
 				sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "EnviroCar Track "+track.getName());
-				sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+				sharingIntent.putExtra(android.content.Intent.EXTRA_STREAM,shareBody);
 				startActivity(Intent.createChooser(sharingIntent, "Share via"));
 				return true;
 			}catch (JSONException e){

@@ -378,16 +378,22 @@ public class UploadManager {
 	 * @param obj
 	 *            the object to save
 	 */
-	private void savetoSdCard(JSONObject obj, String fileid) {
+	private File savetoSdCard(JSONObject obj, String fileid) {
 		File log = new File(context.getExternalFilesDir(null),"envirocar_track"+fileid+".json");
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(log.getAbsolutePath(), true));
 			out.write(obj.toString());
 			out.flush();
 			out.close();
+			return log;
 		} catch (Exception e) {
 			Log.e(TAG, "Error saving tracks to SD card.", e);
 		}
+		return null;
+	}
+	
+	public File saveTrackAndReturnUri(Track t) throws JSONException{
+		return savetoSdCard(createTrackJson(t), t.getId());
 	}
 
 }
