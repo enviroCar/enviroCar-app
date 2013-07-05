@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
+import org.envirocar.app.views.Utils;
 
 /**
  * This is a track. A track is a collection of measurements. All measurements of
@@ -369,34 +370,13 @@ public class Track {
 
 		if (measurements.size() > 1) {
 			for (int i = 0; i < measurements.size() - 1; i++) {
-				distance = distance + getDistance(measurements.get(i).getLatitude(), measurements.get(i).getLongitude(), measurements.get(i + 1).getLatitude(), measurements.get(i + 1).getLongitude());
+				distance = distance + Utils.getDistance(measurements.get(i).getLatitude(), measurements.get(i).getLongitude(), measurements.get(i + 1).getLatitude(), measurements.get(i + 1).getLongitude());
 			}
 		}
-
 		return distance;
 	}
 
-	/**
-	 * Returns the distance of two points in kilometers.
-	 * 
-	 * @param lat1
-	 * @param lng1
-	 * @param lat2
-	 * @param lng2
-	 * @return
-	 */
-	private double getDistance(double lat1, double lng1, double lat2, double lng2) {
-
-		double earthRadius = 6369;
-		double dLat = Math.toRadians(lat2 - lat1);
-		double dLng = Math.toRadians(lng2 - lng1);
-		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		double dist = earthRadius * c;
-
-		return dist;
-
-	}
+	
 
 	/**
 	 * Returns the last measurement of this track
@@ -410,6 +390,20 @@ public class Track {
 			return this.measurements.get(this.measurements.size() - 1);
 		} else
 			throw new MeasurementsException("No Measurements in this track!");
+	}
+	
+	/**
+	 * Returns the first measurement of this grack
+	 * 
+	 * @return
+	 * @throws MeasurementsException
+	 *             If there are no measurements in the track
+	 */
+	public Measurement getFirstMeasurement() throws MeasurementsException {
+		if (this.measurements.size() > 0) {
+			return this.measurements.get(0);
+		} else
+			throw new MeasurementsException("No measurements in this track!");
 	}
 
 }

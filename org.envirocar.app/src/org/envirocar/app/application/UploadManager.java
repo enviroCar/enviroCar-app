@@ -45,6 +45,7 @@ import org.envirocar.app.storage.DbAdapterLocal;
 import org.envirocar.app.storage.DbAdapterRemote;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.views.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -208,7 +209,8 @@ public class UploadManager {
 		ArrayList<String> measurementElements = new ArrayList<String>();
 		
 		// Cut-off first and last minute of tracks that are longer than 3
-		// minutes
+		// minutes. Also cut of these measurements if they are closer than 250m
+		// to the start and the end.
 		try {
 			if (track.getEndTime() - track.getStartTime() > 180000) {
 				ArrayList<Measurement> privateMeasurements = new ArrayList<Measurement>();
@@ -216,7 +218,11 @@ public class UploadManager {
 					try {
 						if (measurement.getMeasurementTime() - track.getStartTime() > 60000 && 
 								track.getEndTime() - measurement.getMeasurementTime() > 60000) {
-							privateMeasurements.add(measurement);
+							
+							if ((Utils.getDistance(track.getFirstMeasurement().getLatitude(), track.getFirstMeasurement().getLongitude(), measurement.getLatitude(), measurement.getLongitude()) > 0.25) && 
+									(Utils.getDistance(track.getLastMeasurement().getLatitude(), track.getLastMeasurement().getLongitude(), measurement.getLatitude(), measurement.getLongitude()) > 0.25)) {
+								privateMeasurements.add(measurement);
+							}
 						}
 					} catch (MeasurementsException e) {
 						e.printStackTrace();
