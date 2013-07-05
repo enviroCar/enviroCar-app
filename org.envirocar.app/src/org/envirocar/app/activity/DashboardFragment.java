@@ -121,14 +121,26 @@ public class DashboardFragment extends SherlockFragment {
 				// Deal with the speed values
 
 				speed = application.getSpeedMeasurement();
-				speedTextView.setText(speed + " km/h");
-				if (speed <= 0)
-					speedProgress = 0;
-				else if (speed > 200)
-					speedProgress = 100;
-				else
-					speedProgress = speed / 2;
-				roundProgressSpeed.setProgress(speedProgress);
+				if (!application.isImperialUnits()) {
+					speedTextView.setText(speed + " km/h");
+					if (speed <= 0)
+						speedProgress = 0;
+					else if (speed > 200)
+						speedProgress = 100;
+					else
+						speedProgress = speed / 2;
+					roundProgressSpeed.setProgress(speedProgress);
+				} else {
+					speedTextView.setText(speed/1.6 + " mph");
+					if (speed <= 0)
+						speedProgress = 0;
+					else if (speed > 150)
+						speedProgress = 100;
+					else
+						speedProgress = (int) (speed / 1.5);
+					roundProgressSpeed.setProgress(speedProgress);
+				}
+				
 
 				// Deal with the co2 values
 

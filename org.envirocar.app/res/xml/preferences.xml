@@ -21,6 +21,9 @@
         <CheckBoxPreference
             android:key="pref_always_upload"
             android:title="@string/pref_always_upload" />
+        <CheckBoxPreference
+            android:key="pref_imperial_unit"
+            android:title="@string/imperial_unit" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_about" >
         <Preference 
