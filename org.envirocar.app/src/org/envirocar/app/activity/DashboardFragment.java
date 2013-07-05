@@ -27,6 +27,7 @@ import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.views.RoundProgress;
 import org.envirocar.app.views.TypefaceEC;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -105,7 +106,6 @@ public class DashboardFragment extends SherlockFragment {
 			}
 		});
 		
-
 		// Handle the UI updates
 
 		final Handler handler = new Handler();
@@ -149,6 +149,12 @@ public class DashboardFragment extends SherlockFragment {
 				else
 					co2Progress = co2 / 2;
 				roundProgressCO2.setProgress(co2Progress);
+				
+				if (co2Progress>60){
+					getView().setBackgroundColor(Color.RED);
+				} else {
+					getView().setBackgroundColor(Color.WHITE);
+				}
 
 				// Repeat this in x ms
 				handler.postDelayed(this, 1000);
