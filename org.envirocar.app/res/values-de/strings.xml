@@ -120,4 +120,6 @@
     <string name="not_possible_for_remote">Noch nicht möglich für remote Tracks.</string>
     
     <string name="envirocar.org">http://www.envirocar.org</string>
+    
+    <string name="imperial_unit">Imperiale Maßeinheiten?</string>
 </resources>

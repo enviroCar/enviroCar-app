@@ -86,6 +86,7 @@ public class ECApplication extends Application implements LocationListener {
 	public static final String PREF_KEY_SENSOR_ID = "sensorid";
 
 	private SharedPreferences preferences = null;
+	private boolean imperialUnits = false;
 	
 	// Helpers and objects
 
@@ -967,6 +968,20 @@ public class ECApplication extends Application implements LocationListener {
 		}
 
 		return out.toString();
+	}
+
+	/**
+	 * @return the imperialUnits
+	 */
+	public boolean isImperialUnits() {
+		return imperialUnits;
+	}
+
+	/**
+	 * @param imperialUnits the imperialUnits to set
+	 */
+	public void setImperialUnits(boolean imperialUnits) {
+		this.imperialUnits = imperialUnits;
 	}
 
 }

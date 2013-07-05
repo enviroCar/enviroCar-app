@@ -47,6 +47,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.AlertDialog;
+import android.app.Application;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -80,6 +81,8 @@ import de.keyboardsurfer.android.widget.crouton.Style;
  *
  */
 public class ListMeasurementsFragment extends SherlockFragment {
+	
+	ECApplication application;
 
 	// Measurements and tracks
 	
@@ -99,6 +102,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	public View onCreateView(android.view.LayoutInflater inflater,
 			android.view.ViewGroup container,
 			android.os.Bundle savedInstanceState) {
+		
+		application = ((ECApplication) getActivity().getApplication()); 
 		
 		setHasOptionsMenu(true);
 
@@ -653,8 +658,11 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					Date durationMillis = new Date(currTrack.getEndTime()
 							- currTrack.getStartTime());
 					duration.setText(dfDuration.format(durationMillis) + "");
-					length.setText(twoDForm.format(currTrack.getLengthOfTrack())
-							+ " km");
+					if (!application.isImperialUnits()) {
+						length.setText(twoDForm.format(currTrack.getLengthOfTrack()) + " km");
+					} else {
+						length.setText(twoDForm.format(currTrack.getLengthOfTrack()/1.6) + " miles");
+					}
 					car.setText(currTrack.getCarManufacturer() + " "
 							+ currTrack.getCarModel());
 					description.setText(currTrack.getDescription());

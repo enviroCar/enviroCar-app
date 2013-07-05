@@ -111,4 +111,5 @@
 	<string name="envirocar.org">http://www.envirocar.org</string>
 	
 	<string name="garage_not_signed_in">&#8230;or <b>sign in</b><br/>, to create a new car:</string>
+	<string name="imperial_unit">Imperial units?</string>
 </resources>
