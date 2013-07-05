@@ -60,6 +60,7 @@ public class DashboardFragment extends SherlockFragment {
 	int speedProgress;
 	double co2;
 	double co2Progress;
+	View dashboardView;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -78,6 +79,8 @@ public class DashboardFragment extends SherlockFragment {
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 
 		super.onViewCreated(view, savedInstanceState);
+		
+		dashboardView = getView();
 
 		// Include application and adapter
 		
@@ -151,9 +154,9 @@ public class DashboardFragment extends SherlockFragment {
 				roundProgressCO2.setProgress(co2Progress);
 				
 				if (co2Progress>60){
-					getView().setBackgroundColor(Color.RED);
+					dashboardView.setBackgroundColor(Color.RED);
 				} else {
-					getView().setBackgroundColor(Color.WHITE);
+					dashboardView.setBackgroundColor(Color.WHITE);
 				}
 
 				// Repeat this in x ms
