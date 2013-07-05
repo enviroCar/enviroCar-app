@@ -27,6 +27,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.TimeZone;
 
@@ -157,9 +158,13 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	 * Tracks which are locally on the device, are not removed.
 	 */
 	public void clearRemoteTracks(){
-		for(Track t : tracksList){
-			if(!t.isLocalTrack())
-				tracksList.remove(t);
+		try{
+			for(Track t : tracksList){
+				if(!t.isLocalTrack())
+					tracksList.remove(t);
+			}
+		} catch (ConcurrentModificationException e) {
+			clearRemoteTracks();
 		}
 		dbAdapterRemote.deleteAllTracks();
 		elvAdapter.notifyDataSetChanged();

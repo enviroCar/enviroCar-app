@@ -501,11 +501,12 @@ public class ECApplication extends Application implements LocationListener {
 	 * Logs out the user.
 	 */
 	public void logOut() {
+		Editor e = preferences.edit();
 		if (preferences.contains("username"))
-			preferences.edit().remove("username");
+			e.remove("username");
 		if (preferences.contains("token"))
-			preferences.edit().remove("token");
-		preferences.edit().apply();
+			e.remove("token");
+		e.commit();
 		user = null;
 	}
 

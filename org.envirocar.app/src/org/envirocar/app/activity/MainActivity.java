@@ -508,13 +508,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 			if (application.requirementsFulfilled() && remoteDevice != null) {
 				if(!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)){
-					if(application.isLoggedIn()){
-			        	MyGarage garageFragment = new MyGarage();
-			            getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
-					}else{
-		                LoginFragment loginFragment = new LoginFragment();
-		                getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
-					}
+			        MyGarage garageFragment = new MyGarage();
+			        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
 				} else {
 					if (!application.getServiceConnector().isRunning()) {
 						application.startConnection();
