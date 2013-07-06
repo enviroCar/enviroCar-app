@@ -21,6 +21,8 @@
 
 package org.envirocar.app.commands;
 
+import android.util.Log;
+
 /**
  * Mass Air Flow Value PID 01 10
  * 
@@ -38,10 +40,15 @@ public class MAF extends CommonCommand {
 
 		float maf = 0.0f;
 
-		if (!"NODATA".equals(getRawData())) {
-			int bytethree = buffer.get(2);
-			int bytefour = buffer.get(3);
-			maf = (bytethree * 256 + bytefour) / 100.0f;
+		try {
+			if (!"NODATA".equals(getRawData())) {
+				int bytethree = buffer.get(2);
+				int bytefour = buffer.get(3);
+				maf = (bytethree * 256 + bytefour) / 100.0f;
+			}
+		} catch (Exception e) {
+			Log.e("obd2","something went wrong with the maf");
+			e.printStackTrace();
 		}
 
 		return String.format("%.2f%s", maf, "");
