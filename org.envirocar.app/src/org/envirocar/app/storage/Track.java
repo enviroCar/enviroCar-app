@@ -325,9 +325,9 @@ public class Track {
 		double maf = m.getMaf();
 
 		if (maf != -1.0) {
-			if (this.fuelType.equals("Gasoline")) {
+			if (this.fuelType.equals("gasoline")) {
 				return (maf / 14.7) / 747;
-			} else if (this.fuelType.equals("Diesel")) {
+			} else if (this.fuelType.equals("diesel")) {
 				return (maf / 14.5) / 832;
 			} else
 				throw new FuelConsumptionException();
@@ -349,9 +349,9 @@ public class Track {
 		double fuelCon;
 		fuelCon = getFuelConsumptionOfMeasurement(measurement);
 
-		if (this.fuelType.equals("Gasoline")) {
+		if (this.fuelType.equals("gasoline")) {
 			return fuelCon * 2.35;
-		} else if (this.fuelType.equals("Diesel")) {
+		} else if (this.fuelType.equals("diesel")) {
 			return fuelCon * 2.65;
 		} else
 			throw new FuelConsumptionException();
