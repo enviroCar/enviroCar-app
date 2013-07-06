@@ -686,7 +686,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					car.setText(currTrack.getCarManufacturer() + " "
 							+ currTrack.getCarModel());
 					description.setText(currTrack.getDescription());
-					co2.setText(currTrack.getCO2Average() + " kg/s");
+					co2.setText(twoDForm.format(currTrack.getCO2Average()*3600) + " kg/h");
 				} catch (Exception e) {
 
 				}

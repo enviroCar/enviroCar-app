@@ -21,6 +21,8 @@
 
 package org.envirocar.app.activity;
 
+import java.text.DecimalFormat;
+
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.storage.DbAdapter;
@@ -143,17 +145,21 @@ public class DashboardFragment extends SherlockFragment {
 				// Deal with the co2 values
 
 				co2 = application.getCo2Measurement();
-				co2TextView.setText(co2 + " unit"); // TODO work out unit
-													// precisely
+				
+				// Convert to readable format (kg/h)
+				co2 = co2 * 3600;
+				DecimalFormat twoDForm = new DecimalFormat("#.##");
+				
+				co2TextView.setText(twoDForm.format(co2) + " kg/h"); 
 				if (co2 <= 0)
 					co2Progress = 0;
-				else if (co2 > 200)
+				else if (co2 > 100)
 					co2Progress = 100;
 				else
-					co2Progress = co2 / 2;
+					co2Progress = co2;
 				roundProgressCO2.setProgress(co2Progress);
 				
-				if (co2Progress>60){
+				if (co2Progress>30){
 					dashboardView.setBackgroundColor(Color.RED);
 				} else {
 					dashboardView.setBackgroundColor(Color.WHITE);
