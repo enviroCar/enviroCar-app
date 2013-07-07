@@ -40,6 +40,10 @@ public class Measurement {
 	private long measurementTime;
 	private int speed;
 	private double maf;
+	private double calculatedMaf;
+	private double rpm;
+	private double intake_temperature;
+	private double intake_pressure;
 	private Track track;
 
 	/**
@@ -63,6 +67,10 @@ public class Measurement {
 			this.measurementTime = System.currentTimeMillis();
 			this.speed = 0;
 			this.maf = 0.0;
+			this.rpm = 0;
+			this.intake_temperature = 0;
+			this.intake_pressure = 0;
+			this.calculatedMaf = 0;
 		} else {
 			throw new LocationInvalidException();
 		}
@@ -186,6 +194,66 @@ public class Measurement {
 	 */
 	public void setTrack(Track track) {
 		this.track = track;
+	}
+	
+	/**
+	 * @return the rpm
+	 */
+	public double getRpm() {
+		return rpm;
+	}
+
+	/**
+	 * @param maf
+	 *            the rpm to set
+	 */
+	public void setRpm(double rpm) {
+		this.rpm = rpm;
+	}
+
+	/**
+	 * @return the intake_temperature
+	 */
+	public double getIntakeTemperature() {
+		return intake_temperature;
+	}
+
+	/**
+	 * @param intake_temperature
+	 *            the intake_temperature to set
+	 */
+	public void setIntakeTemperature(double intake_temperature) {
+		this.intake_temperature = intake_temperature;
+	}
+
+	/**
+	 * @return the intake_pressure
+	 */
+	public double getIntakePressure() {
+		return intake_pressure;
+	}
+
+	/**
+	 * @param intake_pressure
+	 *            the intake_pressure to set
+	 */
+	public void setIntakePressure(double intake_pressure) {
+		this.intake_pressure = intake_pressure;
+	}
+	
+	/**
+	 * @return calculated maf
+	 */
+	public double getCalculatedMaf() {
+		return calculatedMaf;
+	}
+
+	/**
+	 * @param calculated maf
+	 */
+	public void setCalculatedMaf(double calculatedMaf) {
+		this.calculatedMaf = calculatedMaf;
+		
 	}
 
 }

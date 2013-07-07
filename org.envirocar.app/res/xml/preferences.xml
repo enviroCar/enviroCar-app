@@ -27,11 +27,16 @@
         <CheckBoxPreference 
             android:key="pref_privacy"
             android:title="@string/privacy"/>
+        <EditTextPreference 
+            android:title="@string/pref_engine_displacement" 
+            android:key="pref_engine_displacement" 
+            android:summary="@string/pref_in_liters"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_about" >
         <Preference 
             android:key="about_version"
             android:title="@string/envirocar.org"/>
     </PreferenceCategory>
+    
 
 </PreferenceScreen>

@@ -35,7 +35,10 @@ import java.util.zip.ZipFile;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
 import org.envirocar.app.commands.CommonCommand;
+import org.envirocar.app.commands.IntakePressure;
+import org.envirocar.app.commands.IntakeTemperature;
 import org.envirocar.app.commands.MAF;
+import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.Speed;
 import org.envirocar.app.exception.LocationInvalidException;
 import org.envirocar.app.exception.MeasurementsException;
@@ -114,6 +117,10 @@ public class ECApplication extends Application implements LocationListener {
 	private int speedMeasurement = 0;
 	private double co2Measurement = 0.0;
 	private double mafMeasurement;
+	private double calculatedMafMeasurement = 0;
+	private int rpmMeasurement = 0;
+	private int intakeTemperatureMeasurement = 0;
+	private int intakePressureMeasurement = 0;
 	private Measurement measurement = null;
 	private long lastInsertTime = 0;
 	
@@ -592,6 +599,60 @@ public class ECApplication extends Application implements LocationListener {
 					}
 				}
 
+				
+				
+//RPM
+				
+				if (commandName.equals("Engine RPM")) {
+					// TextView speedTextView = (TextView)
+					// findViewById(R.id.spd_text);
+					// speedTextView.setText(commandResult + " km/h");
+
+					try {
+						rpmMeasurement = Integer.valueOf(commandResult);
+					} catch (NumberFormatException e) {
+						Log.e("obd2", "rpm parse exception");
+						e.printStackTrace();
+					}
+				}
+
+				//IntakePressure
+				
+				if (commandName.equals("Intake Manifold Pressure")) {
+					// TextView speedTextView = (TextView)
+					// findViewById(R.id.spd_text);
+					// speedTextView.setText(commandResult + " km/h");
+
+					try {
+						intakePressureMeasurement = Integer.valueOf(commandResult);
+					} catch (NumberFormatException e) {
+						Log.e("obd2", "Intake Pressure parse exception");
+						e.printStackTrace();
+					}
+				}
+				
+				//IntakeTemperature
+				
+				if (commandName.equals("Air Intake Temperature")) {
+					// TextView speedTextView = (TextView)
+					// findViewById(R.id.spd_text);
+					// speedTextView.setText(commandResult + " km/h");
+
+					try {
+						intakeTemperatureMeasurement = Integer.valueOf(commandResult);
+					} catch (NumberFormatException e) {
+						Log.e("obd2", "Intake Temperature parse exception");
+						e.printStackTrace();
+					}
+				}
+								
+				//calculate alternative maf from iat, map, rpm
+				double imap = rpmMeasurement * intakePressureMeasurement / (intakeTemperatureMeasurement+273);
+				//VE = 85 in most modern cars
+				double calculatedMaf = imap / 120.0 * 85/100 * Float.parseFloat(preferences.getString("pref_engine_displacement","2.0")) * 28.97 / 8.317;	
+				calculatedMafMeasurement = calculatedMaf;
+				
+				
 				// MAF
 
 				if (commandName.equals("Mass Air Flow")) {
@@ -616,6 +677,15 @@ public class ECApplication extends Application implements LocationListener {
 									PREF_KEY_FUEL_TYPE, "gasoline").equals(
 									"diesel")) {
 								consumption = (mafMeasurement / 14.5) / 832;
+							}
+						}else{
+							if (preferences.getString(PREF_KEY_FUEL_TYPE,
+									"gasoline").equals("gasoline")) {
+								consumption = (calculatedMafMeasurement / 14.7) / 747;
+							} else if (preferences.getString(
+									PREF_KEY_FUEL_TYPE, "gasoline").equals(
+									"diesel")) {
+								consumption = (calculatedMafMeasurement / 14.5) / 832;
 							}
 						}
 
@@ -703,8 +773,15 @@ public class ECApplication extends Application implements LocationListener {
 	private void addCommandstoWaitinglist() {
 		final CommonCommand speed = new Speed();
 		final CommonCommand maf = new MAF();
+		final CommonCommand rpm = new RPM();
+		final CommonCommand intakePressure = new IntakePressure();
+		final CommonCommand intakeTemperature = new IntakeTemperature();
+		
 		serviceConnector.addJobToWaitingList(speed);
 		serviceConnector.addJobToWaitingList(maf);
+		serviceConnector.addJobToWaitingList(rpm);
+		serviceConnector.addJobToWaitingList(intakePressure);
+		serviceConnector.addJobToWaitingList(intakeTemperature);
 	}
 
 	/**
@@ -734,7 +811,11 @@ public class ECApplication extends Application implements LocationListener {
 					- System.currentTimeMillis()) < 5000) {
 
 				measurement.setSpeed(speedMeasurement);
-				measurement.setMaf(mafMeasurement);
+				measurement.setMaf(mafMeasurement);	
+				measurement.setCalculatedMaf(calculatedMafMeasurement);
+				measurement.setRpm(rpmMeasurement);
+				measurement.setIntakePressure(intakePressureMeasurement);
+				measurement.setIntakeTemperature(intakeTemperatureMeasurement);
 				Log.e("obd2", "new measurement");
 				Log.e("obd2",
 						measurement.getLatitude() + " "
