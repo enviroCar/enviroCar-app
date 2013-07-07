@@ -220,6 +220,9 @@ public class UploadManager {
 							.getMeasurementTime()) + "Z";
 			
 			String speed = String.valueOf(measurements.get(i).getSpeed());
+			String rpm = String.valueOf(measurements.get(i).getRpm());
+			String intake_temperature = String.valueOf(measurements.get(i).getIntakeTemperature());
+			String intake_pressure = String.valueOf(measurements.get(i).getIntakePressure());
 			//no maf? no json! :)
 			if(measurements.get(i).getMaf() > 0){
 				String co2 = "0", consumption = "0";
@@ -237,9 +240,9 @@ public class UploadManager {
 
 				String maf = String.valueOf(measurements.get(i).getMaf());
 				String measurementJson = String
-						.format("{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[%s,%s]},\"properties\":{\"time\":\"%s\",\"sensor\":\"%s\",\"phenomenons\":{\"CO2\":{\"value\":%s},\"Consumption\":{\"value\":%s},\"MAF\":{\"value\":%s},\"Speed\":{\"value\":%s}}}}",
+						.format("{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[%s,%s]},\"properties\":{\"time\":\"%s\",\"sensor\":\"%s\",\"phenomenons\":{\"CO2\":{\"value\":%s},\"Consumption\":{\"value\":%s},\"MAF\":{\"value\":%s},\"Speed\":{\"value\":%s}, \"Rpm\": { \"value\": %s}, \"Intake Temperature\": { \"value\": %s}, \"Intake Pressure\": { \"value\": %s}}}}",
 								lon, lat, time, trackSensorName, co2, consumption,
-								maf, speed);
+								maf, speed, rpm, intake_temperature, intake_pressure);
 				measurementElements.add(measurementJson);
 			} else {
 				String co2 = "0", consumption = "0";
@@ -253,9 +256,9 @@ public class UploadManager {
 
 				String calculatedMaf = String.valueOf(measurements.get(i).getCalculatedMaf());
 				String measurementJson = String
-						.format("{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[%s,%s]},\"properties\":{\"time\":\"%s\",\"sensor\":\"%s\",\"phenomenons\":{\"CO2\":{\"value\":%s},\"Consumption\":{\"value\":%s},\"Calculated MAF\":{\"value\":%s},\"Speed\":{\"value\":%s}}}}",
+						.format("{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[%s,%s]},\"properties\":{\"time\":\"%s\",\"sensor\":\"%s\",\"phenomenons\":{\"CO2\":{\"value\":%s},\"Consumption\":{\"value\":%s},\"Calculated MAF\":{\"value\":%s},\"Speed\":{\"value\":%s}, \"Rpm\": { \"value\": %s}, \"Intake Temperature\": { \"value\": %s}, \"Intake Pressure\": { \"value\": %s}}}}",
 								lon, lat, time, trackSensorName, co2, consumption,
-								calculatedMaf, speed);
+								calculatedMaf, speed, rpm, intake_temperature, intake_pressure);
 				measurementElements.add(measurementJson);
 			}
 			
