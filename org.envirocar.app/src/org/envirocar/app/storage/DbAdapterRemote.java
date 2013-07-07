@@ -51,6 +51,7 @@ public class DbAdapterRemote implements DbAdapter {
 	public static final String KEY_RPM = "rpm";
 	public static final String KEY_SPEED = "speed";
 	public static final String KEY_MAF = "maf";
+	public static final String KEY_CALCULATED_MAF = "calculated_maf";
 	public static final String KEY_TRACK = "track";
 
 	public static final String KEY_TRACK_ID = "_id";
@@ -68,13 +69,13 @@ public class DbAdapterRemote implements DbAdapter {
 	// Database parameters
 
 	private static final String DATABASE_NAME = "obd2_remote";
-	private static final int DATABASE_VERSION = 3;
+	private static final int DATABASE_VERSION = 4;
 	private static final String DATABASE_TABLE = "measurements";
 	private static final String DATABASE_TABLE_TRACKS = "tracks";
 	private static final String DATABASE_CREATE = "create table measurements "
 			+ "(_id INTEGER primary key autoincrement, "
 			+ "latitude BLOB, "
-			+ "longitude BLOB, measurement_time BLOB, speed BLOB, maf BLOB, track TEXT);";
+			+ "longitude BLOB, measurement_time BLOB, speed BLOB, maf BLOB, calculated_maf BLOB, track TEXT);";
 	private static final String DATABASE_CREATE_TRACK = "create table tracks"
 			+ " (_id TEXT primary key, " + "name BLOB, " + "descr BLOB, "
 			+ "car_manufacturer BLOB, " + "car_model BLOB, "
@@ -143,6 +144,7 @@ public class DbAdapterRemote implements DbAdapter {
 		initialValues.put(KEY_TIME, measurement.getMeasurementTime());
 		initialValues.put(KEY_SPEED, measurement.getSpeed());
 		initialValues.put(KEY_MAF, measurement.getMaf());
+		initialValues.put(KEY_CALCULATED_MAF, measurement.getCalculatedMaf());
 		initialValues.put(KEY_TRACK,
 				String.valueOf(measurement.getTrack().getId()));
 
@@ -153,7 +155,7 @@ public class DbAdapterRemote implements DbAdapter {
 		ArrayList<Measurement> allMeasurements = new ArrayList<Measurement>();
 
 		Cursor c = mDb.query(DATABASE_TABLE, new String[] { KEY_ROWID,
-				KEY_LATITUDE, KEY_LONGITUDE, KEY_TIME, KEY_SPEED, KEY_MAF },
+				KEY_LATITUDE, KEY_LONGITUDE, KEY_TIME, KEY_SPEED, KEY_MAF, KEY_CALCULATED_MAF },
 		// null,
 				KEY_TRACK + "=\"" + track.getId() + "\"", null, null, null,
 				// null
@@ -169,6 +171,7 @@ public class DbAdapterRemote implements DbAdapter {
 			String time = c.getString(3);
 			String speed = c.getString(4);
 			String maf = c.getString(5);
+			String calculated_maf = c.getString(6);
 			// String track = c.getString(6);
 
 			try {
@@ -178,6 +181,7 @@ public class DbAdapterRemote implements DbAdapter {
 				measurement.setMeasurementTime(Long.valueOf(time));
 				measurement.setSpeed(Integer.valueOf(speed));
 				measurement.setMaf(Double.valueOf(maf));
+				measurement.setCalculatedMaf(Double.valueOf(calculated_maf));
 				measurement.setTrack(track);
 
 				allMeasurements.add(measurement);

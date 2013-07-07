@@ -30,7 +30,8 @@
         <EditTextPreference 
             android:title="@string/pref_engine_displacement" 
             android:key="pref_engine_displacement" 
-            android:summary="@string/pref_in_liters"/>
+            android:summary="@string/pref_in_liters"
+            android:inputType="numberDecimal"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_about" >
         <Preference 

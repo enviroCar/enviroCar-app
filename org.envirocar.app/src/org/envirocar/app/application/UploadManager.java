@@ -224,6 +224,10 @@ public class UploadManager {
 			if(measurements.get(i).getMaf() > 0){
 				String co2 = "0", consumption = "0";
 				try {
+					//TODO
+					//Why get this here when it is already set in ECApplication.java?
+					//Also if this wasn't set in ECApplication we should get FIRST consumption then co2 because of the way the methods are defined in Track.java
+					
 					co2 = String.valueOf(track.getCO2EmissionOfMeasurement(i));
 					consumption = String.valueOf(track
 							.getFuelConsumptionOfMeasurement(i));
@@ -238,9 +242,20 @@ public class UploadManager {
 								maf, speed);
 				measurementElements.add(measurementJson);
 			} else {
+				String co2 = "0", consumption = "0";
+				try {
+					consumption = String.valueOf(track
+							.getFuelConsumptionOfMeasurement(i));
+					co2 = String.valueOf(track.getCO2EmissionOfMeasurement(i));
+				} catch (FuelConsumptionException e) {
+					e.printStackTrace();
+				}
+
+				String calculatedMaf = String.valueOf(measurements.get(i).getCalculatedMaf());
 				String measurementJson = String
-						.format("{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[%s,%s]},\"properties\":{\"time\":\"%s\",\"sensor\":\"%s\",\"phenomenons\":{\"Speed\":{\"value\":%s}}}}",
-								lon, lat, time, trackSensorName, speed);
+						.format("{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[%s,%s]},\"properties\":{\"time\":\"%s\",\"sensor\":\"%s\",\"phenomenons\":{\"CO2\":{\"value\":%s},\"Consumption\":{\"value\":%s},\"Calculated MAF\":{\"value\":%s},\"Speed\":{\"value\":%s}}}}",
+								lon, lat, time, trackSensorName, co2, consumption,
+								calculatedMaf, speed);
 				measurementElements.add(measurementJson);
 			}
 			

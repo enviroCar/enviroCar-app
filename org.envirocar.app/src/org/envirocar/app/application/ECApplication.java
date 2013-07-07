@@ -669,7 +669,7 @@ public class ECApplication extends Application implements LocationListener {
 
 						double consumption = 0.0;
 
-						if (mafMeasurement != -1.0) {
+						if (mafMeasurement > 0.0) {
 							if (preferences.getString(PREF_KEY_FUEL_TYPE,
 									"gasoline").equals("gasoline")) {
 								consumption = (mafMeasurement / 14.7) / 747;
@@ -864,8 +864,10 @@ public class ECApplication extends Application implements LocationListener {
 
 			Log.i("obd2", measurement2.toString());
 
-			Toast.makeText(getApplicationContext(), measurement2.toString(),
-					Toast.LENGTH_SHORT).show();
+			//Toast.makeText(getApplicationContext(), measurement2.toString(),
+				//	Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), "" + measurement.getCalculatedMaf(),
+						Toast.LENGTH_SHORT).show();
 
 		}
 
