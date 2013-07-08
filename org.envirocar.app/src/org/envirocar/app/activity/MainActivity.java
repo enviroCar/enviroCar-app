@@ -517,7 +517,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			        MyGarage garageFragment = new MyGarage();
 			        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
 				} else {
-					if (!application.getServiceConnector().isRunning()) {
+					if (application.getServiceConnector()!= null && !application.getServiceConnector().isRunning()) {
 						application.startConnection();
 						Crouton.makeText(this, R.string.start_measuring, Style.INFO).show();
 					} else {
