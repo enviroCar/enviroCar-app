@@ -247,7 +247,7 @@ public class ECApplication extends Application implements LocationListener {
 		Calendar calendar = Calendar.getInstance();
 		int year = calendar.get(Calendar.YEAR);
 		int month = calendar.get(Calendar.MONTH);
-		int day = calendar.get(Calendar.DAY_OF_MONTH);
+		int day = calendar.get(Calendar.DAY_OF_MONTH)+1;
 		String date = String.valueOf(year) + "-" + String.valueOf(month) + "-" + String.valueOf(day);
 
 		if (track == null) {
