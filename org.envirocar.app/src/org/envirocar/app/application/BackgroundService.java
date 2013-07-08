@@ -27,6 +27,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.envirocar.app.R;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.EchoOff;
 import org.envirocar.app.commands.LineFeedOff;
@@ -34,6 +35,9 @@ import org.envirocar.app.commands.ObdReset;
 import org.envirocar.app.commands.SelectAutoProtocol;
 import org.envirocar.app.commands.Timeout;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
+
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -140,6 +144,11 @@ public class BackgroundService extends Service {
 				.createRfcommSocketToServiceRecord(MY_UUID);
 
 		bluetoothSocket.connect();
+		
+		if(!bluetoothSocket.isConnected())
+			return;
+		
+		((ECApplication) getApplication()).createNewTrackIfNecessary();
 
 		addCommandToWaitingList(new ObdReset());
 		addCommandToWaitingList(new EchoOff());
@@ -147,7 +156,7 @@ public class BackgroundService extends Service {
 		addCommandToWaitingList(new LineFeedOff());
 		addCommandToWaitingList(new Timeout(62));
 		addCommandToWaitingList(new SelectAutoProtocol());
-
+		
 		/*
 		 * This is what Torque does:
 		 */

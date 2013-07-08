@@ -53,11 +53,9 @@ import org.envirocar.app.views.Utils;
 import android.app.Application;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
@@ -228,7 +226,7 @@ public class ECApplication extends Application implements LocationListener {
 	 * This method determines whether it is necessary to create a new track or
 	 * of the current/last used track should be reused
 	 */
-	private void createNewTrackIfNecessary() {
+	public void createNewTrackIfNecessary() {
 
 		// setting undefined, will hopefully prevent correct uploading.
 		// but this shouldn't be possible to record tracks without these values
@@ -728,7 +726,7 @@ public class ECApplication extends Application implements LocationListener {
 	public void startConnection() {
 		initDbAdapter();
 		startLocationManager();
-		createNewTrackIfNecessary();
+		//createNewTrackIfNecessary();
 		if (!serviceConnector.isRunning()) {
 			Log.e("obd2", "service start");
 			startService(backgroundService);
