@@ -1,7 +1,7 @@
 Quick start guide
 =================
 
-<dashboard.png>
+<dashboard_h.png>
 
 The dashboard shows the current speed of the vehicle and the CO2 consumption. In addition to that, the user can specify and edit his car in the "Current Car" section.
 

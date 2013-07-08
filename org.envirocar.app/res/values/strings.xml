@@ -115,4 +115,22 @@
 	<string name="privacy">Obfuscate positions?</string>
 	<string name="shareTrack">Share Track as JSON file</string>
 	<string name="error_json">Internal Error creating your JSON string</string>
+	
+	<string name="help">Help</string>
+	<string name="help_0">QUICK START GUIDE</string>
+	<string name="help_1">The dashboard shows the current speed of the vehicle and the CO2 consumption. In addition to that, the user can specify and edit his car in the "Current Car" section.</string>
+	<string name="help_2">All options and features can be accessed by swiping in the menu from the left side of the screen:</string>
+	<string name="help_3">Before a user can use the app, for example for taking measurements, he/she has to register at first:</string>
+	<string name="help_4">After registering and logging in, the user has to specify his/her car. When the car is new to the system (not already created by another user), the user has to add a new car via the form:</string>
+	<string name="help_5">Before starting the measurement process, an already paired OBD-2 adapter has to be selected in the settings:</string>
+	<string name="help_6">Here, one can also specify whether:</string>
+	<string name="help_6_1">-The app should automatically connect to the adapter when in range and start measuring automatically</string>
+	<string name="help_6_2">-The app should automatically enable Bluetooth when started</string>
+	<string name="help_6_3">-Uploads of tracks should only be performed via a W-Lan/Wifi connection</string>
+	<string name="help_6_4">-Tracks should automatically be uploaded whenever a track is finished</string>
+	<string name="help_7">Completed Tracks can be inspected in the track view:</string>
+	<string name="help_8">The letters "L" and "R" indicate whether a track is already uploaded (Remote) or still only available on the local device. Pushing the delete button will delete all local tracks. Pushing the upload button will upload all local tracks that are not already uploaded.</string>
+	<string name="help_9">A long-click on a track gives the user the possibility to edit the track or view the track on a map. You will need an SD card for the map visualization:</string>
+	
+	
 </resources>
