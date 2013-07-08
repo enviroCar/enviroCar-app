@@ -188,14 +188,14 @@ public class UploadManager {
 					try {
 						if (obfuscatePositions) {
 							if (measurement.getMeasurementTime() - track.getStartTime() > 60000 && track.getEndTime() - measurement.getMeasurementTime() > 60000) {
-
 								if ((Utils.getDistance(track.getFirstMeasurement().getLatitude(), track.getFirstMeasurement().getLongitude(), measurement.getLatitude(), measurement.getLongitude()) > 0.25) && (Utils.getDistance(track.getLastMeasurement().getLatitude(), track.getLastMeasurement().getLongitude(), measurement.getLatitude(), measurement.getLongitude()) > 0.25)) {
 									privateMeasurements.add(measurement);
 								}
-							} else {
-								privateMeasurements.add(measurement);
 							}
+						} else {
+							privateMeasurements.add(measurement);
 						}
+
 					} catch (MeasurementsException e) {
 						e.printStackTrace();
 					}
