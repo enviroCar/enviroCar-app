@@ -126,4 +126,21 @@
     <string name="garage_not_signed_in">&#8230;oder <b>einloggen</b>um Auto zu erstellen:</string>
     <string name="error_json">Interner Fehler beim JSON generieren.</string>
 	<string name="privacy">Position verbergen?</string>
+	
+	<string name="help">Hilfe</string>
+    <string name="help_0">SCHNELLSTART HILFE</string>
+    <string name="help_1">Das Dashboard zeigt die aktuelle Geschwindigkeit des Fahrzeugs und den CO2 Ausstoß des Fahrzeugs an. Zusätzlich dazu wird das aktuell ausgewählte Fahrzeug dargestellt.</string>
+    <string name="help_2">Alle Optionen und Features können über das Menü erreicht werden, welches von der linken Seite aus eingezogen werden kann:</string>
+    <string name="help_3">Bevor die App benutzt werden kann muss sich der Benutzer registrieren:</string>
+    <string name="help_4">Nach dem Registrieren und Einloggen legt der Nutzer sein Fahrzeug fest. Wenn das Auto noch nicht im System ist (also nicht in der Liste vorhanden ist) muss es über die entsprechenden Felder neu angelegt werden:</string>
+    <string name="help_5">Bevor mit der Messung begonnen werden kann muss ein schon gepaarter OBD-2 Adapter ausgewählt werden:</string>
+    <string name="help_6">Hier kann man auch festlegen ob:</string>
+    <string name="help_6_1">-Die App sich automatisch mit einem Adapter verbinden soll, der in Reichweite ist</string>
+    <string name="help_6_2">-Die App automatisch Bluetooth aktivieren soll</string>
+    <string name="help_6_3">-Uploads nur über W-Lan ausgeführt werden sollen</string>
+    <string name="help_6_4">-Tracks automatisch nach Beendigung der Fahrt hochgeladen werden sollen</string>
+    <string name="help_7">Beendete Messreihen/Tracks können in der Track-Ansicht ausgewertet werden:</string>
+    <string name="help_8">Die Buchstaben L (für local) und R (für remote) kennzeichnen ob ein Track nur lokal auf dem Gerät vorhanden ist oder ob der Track schon zum Server (Remote) hochgeladen wurde. Das Hochladen von Tracks löscht den Track aus dem lokalen Speicher. Das Drücken des Löschen-Buttons löscht alle lokalen Tracks. Das Drücken des Upload-Buttons lädt alle lokalen Tracks hoch.</string>
+    <string name="help_9">Ein langer Klick auf einen Track öffnet ein Optionsmenü zum bearbeiten und anschauen eines Tracks. Für die Kartendarstellung wird eine SD-Karte benötigt:</string>
+	
 </resources>

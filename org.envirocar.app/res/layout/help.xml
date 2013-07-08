@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:contentDescription="@string/help"
         android:orientation="vertical" >
-        
+
         <TextView
             android:id="@+id/textView0_help"
             android:layout_width="wrap_content"
@@ -22,9 +22,9 @@
             android:id="@+id/imageView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="5dip"
             android:adjustViewBounds="true"
             android:contentDescription="@string/help"
-            android:layout_margin="5dip"
             android:src="@drawable/dashboard_h" />
 
         <TextView
@@ -38,14 +38,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/help_2" />
-        
-         <ImageView
+
+        <ImageView
             android:id="@+id/imageView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="5dip"
             android:adjustViewBounds="true"
             android:contentDescription="@string/help"
-            android:layout_margin="5dip"
             android:src="@drawable/menu" />
 
         <TextView
@@ -53,14 +53,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/help_3" />
-        
-         <ImageView
+
+        <ImageView
             android:id="@+id/imageView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="5dip"
             android:adjustViewBounds="true"
             android:contentDescription="@string/help"
-            android:layout_margin="5dip"
             android:src="@drawable/register" />
 
         <TextView
@@ -68,14 +68,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/help_4" />
-        
-         <ImageView
+
+        <ImageView
             android:id="@+id/imageView4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="5dip"
             android:adjustViewBounds="true"
             android:contentDescription="@string/help"
-            android:layout_margin="5dip"
             android:src="@drawable/garage" />
 
         <TextView
@@ -83,14 +83,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/help_5" />
-        
+
         <ImageView
             android:id="@+id/imageView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="5dip"
             android:adjustViewBounds="true"
             android:contentDescription="@string/help"
-            android:layout_margin="5dip"
             android:src="@drawable/settings" />
 
         <TextView
@@ -98,25 +98,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/help_6" />
-        
+
         <TextView
             android:id="@+id/textView6_1_help"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/help_6_1" />
-        
+
         <TextView
             android:id="@+id/textView6_2_help"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/help_6_2" />
-        
+
         <TextView
             android:id="@+id/textView6_3_help"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/help_6_3" />
-        
+
         <TextView
             android:id="@+id/textView6_4_help"
             android:layout_width="wrap_content"
@@ -128,14 +128,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/help_7" />
-        
+
         <ImageView
             android:id="@+id/imageView6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="5dip"
             android:adjustViewBounds="true"
             android:contentDescription="@string/help"
-            android:layout_margin="5dip"
             android:src="@drawable/tracks" />
 
         <TextView
@@ -149,14 +149,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/help_9" />
-        
+
         <ImageView
             android:id="@+id/imageView7"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="5dip"
             android:adjustViewBounds="true"
             android:contentDescription="@string/help"
-            android:layout_margin="5dip"
             android:src="@drawable/tracks2" />
     </LinearLayout>
 
