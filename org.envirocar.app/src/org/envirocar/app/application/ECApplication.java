@@ -746,7 +746,7 @@ public class ECApplication extends Application implements LocationListener {
 	 */
 	public void stopConnection() {
 
-		if (serviceConnector.isRunning()) {
+		if (serviceConnector != null && serviceConnector.isRunning()) {
 			stopService(backgroundService);
 			unbindService(serviceConnector);
 		}
@@ -762,7 +762,7 @@ public class ECApplication extends Application implements LocationListener {
 	private Runnable waitingListRunnable = new Runnable() {
 		public void run() {
 
-			if (serviceConnector.isRunning())
+			if (serviceConnector != null && serviceConnector.isRunning())
 				addCommandstoWaitinglist();
 
 			handler.postDelayed(waitingListRunnable, 2000);
