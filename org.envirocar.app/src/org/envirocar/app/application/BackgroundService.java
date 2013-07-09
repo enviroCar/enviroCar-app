@@ -141,9 +141,6 @@ public class BackgroundService extends Service {
 
 		bluetoothSocket.connect();
 		
-		if(!bluetoothSocket.isConnected())
-			return;
-		
 		((ECApplication) getApplication()).createNewTrackIfNecessary();
 
 		addCommandToWaitingList(new ObdReset());

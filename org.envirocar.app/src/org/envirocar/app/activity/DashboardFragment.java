@@ -146,8 +146,6 @@ public class DashboardFragment extends SherlockFragment {
 
 				co2 = application.getCo2Measurement();
 				
-				// Convert to readable format (kg/h)
-				co2 = co2 * 3600;
 				DecimalFormat twoDForm = new DecimalFormat("#.##");
 				
 				co2TextView.setText(twoDForm.format(co2) + " kg/h"); 

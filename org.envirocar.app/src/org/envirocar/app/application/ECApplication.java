@@ -601,10 +601,8 @@ public class ECApplication extends Application implements LocationListener {
 						e.printStackTrace();
 					}
 				}
-
 				
-				
-//RPM
+				//RPM
 				
 				if (commandName.equals("Engine RPM")) {
 					// TextView speedTextView = (TextView)
@@ -655,7 +653,6 @@ public class ECApplication extends Application implements LocationListener {
 				double calculatedMaf = imap / 120.0 * 85/100 * Float.parseFloat(preferences.getString("pref_engine_displacement","2.0")) * 28.97 / 8.317;	
 				calculatedMafMeasurement = calculatedMaf;
 				
-				
 				// MAF
 
 				if (commandName.equals("Mass Air Flow")) {
@@ -676,28 +673,40 @@ public class ECApplication extends Application implements LocationListener {
 							if (preferences.getString(PREF_KEY_FUEL_TYPE,
 									"gasoline").equals("gasoline")) {
 								consumption = (mafMeasurement / 14.7) / 747;
+								// Change to l/h
+								consumption=consumption*3600;
 							} else if (preferences.getString(
 									PREF_KEY_FUEL_TYPE, "gasoline").equals(
 									"diesel")) {
 								consumption = (mafMeasurement / 14.5) / 832;
+								// Change to l/h
+								consumption=consumption*3600;
 							}
 						}else{
 							if (preferences.getString(PREF_KEY_FUEL_TYPE,
 									"gasoline").equals("gasoline")) {
 								consumption = (calculatedMafMeasurement / 14.7) / 747;
+								// Change to l/h
+								consumption=consumption*3600;
 							} else if (preferences.getString(
 									PREF_KEY_FUEL_TYPE, "gasoline").equals(
 									"diesel")) {
 								consumption = (calculatedMafMeasurement / 14.5) / 832;
+								// Change to l/h
+								consumption=consumption*3600;
 							}
 						}
 
 						if (preferences.getString(PREF_KEY_FUEL_TYPE,
 								"gasoline").equals("gasoline")) {
 							co2Measurement = consumption * 2.35;
+							// Change to kg/h
+							co2Measurement = co2Measurement * 3600;
 						} else if (preferences.getString(PREF_KEY_FUEL_TYPE,
 								"gasoline").equals("diesel")) {
 							co2Measurement = consumption * 2.65;
+							// Change to kg/h
+							co2Measurement = co2Measurement * 3600;
 						}
 
 					} catch (ParseException e) {

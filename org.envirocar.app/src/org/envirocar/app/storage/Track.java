@@ -314,7 +314,7 @@ public class Track {
 	 * 
 	 * @param measurement
 	 *            The measurement with the fuel consumption
-	 * @return The fuel consumption in l/s. 0.0 if MAF is -1.0 (no MAF sensor)
+	 * @return The fuel consumption in l/h. 0.0 if MAF is -1.0 (no MAF sensor)
 	 * @throws FuelConsumptionException
 	 */
 
@@ -347,7 +347,7 @@ public class Track {
 	 * Returns the Co2 emission of a measurement
 	 * 
 	 * @param measurement
-	 * @return co2 emission in kg/s
+	 * @return co2 emission in kg/h
 	 * @throws FuelConsumptionException
 	 */
 	public double getCO2EmissionOfMeasurement(int measurement) throws FuelConsumptionException {
