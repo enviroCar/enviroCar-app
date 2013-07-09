@@ -515,6 +515,9 @@ public class ECApplication extends Application implements LocationListener {
 	 * Starts the location manager again after an resume.
 	 */
 	public void startLocationManager() {
+		if(locationManager == null){
+			initLocationManager();
+		}
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
 				0, this);
 	}
