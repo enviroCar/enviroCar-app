@@ -673,14 +673,10 @@ public class ECApplication extends Application implements LocationListener {
 
 						if (preferences.getString(PREF_KEY_FUEL_TYPE,
 								"gasoline").equals("gasoline")) {
-							co2Measurement = consumption * 2.35;
-							// Change to kg/h
-							co2Measurement = co2Measurement * 3600;
+							co2Measurement = consumption * 2.35; //kg/h
 						} else if (preferences.getString(PREF_KEY_FUEL_TYPE,
 								"gasoline").equals("diesel")) {
-							co2Measurement = consumption * 2.65;
-							// Change to kg/h
-							co2Measurement = co2Measurement * 3600;
+							co2Measurement = consumption * 2.65; //kg/h
 						}
 
 					} catch (ParseException e) {
