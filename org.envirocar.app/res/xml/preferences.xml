@@ -12,9 +12,9 @@
         <CheckBoxPreference
             android:key="pref_auto_connect"
             android:title="@string/pref_auto_connect" />
-        <CheckBoxPreference
+        <!-- <CheckBoxPreference
             android:key="pref_auto_bluetooth"
-            android:title="@string/pref_auto_enable_bluetooth" />
+            android:title="@string/pref_auto_enable_bluetooth" /> -->
         <CheckBoxPreference
             android:key="pref_wifi_upload"
             android:title="@string/pref_upload_only_in_wifi" />
