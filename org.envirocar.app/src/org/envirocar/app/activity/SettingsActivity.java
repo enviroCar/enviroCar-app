@@ -178,8 +178,8 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 				startActivity(i);
 				return true;
 			}
-		});
-		
+		});		
+
 		final Activity thisSettingsActivity = this;
 		final EditTextPreference displacementPref = (EditTextPreference) getPreferenceScreen().findPreference(ENGINE_DISPLACEMENT);
 		displacementPref.setSummary(getPreferenceManager().getDefaultSharedPreferences(thisSettingsActivity).getString(ENGINE_DISPLACEMENT, "") + " Liter");

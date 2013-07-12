@@ -38,6 +38,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -127,7 +128,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 					navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_pause);
 				} else {
 					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
-					navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_play);
 					// Only enable start button when adapter is selected
 	
 					SharedPreferences preferences = PreferenceManager
@@ -144,6 +144,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 							navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.no_sensor_selected));
 						} else {
 							navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
+							navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_play);
 							navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(preferences.getString(SettingsActivity.BLUETOOTH_NAME, ""));
 						}
 					} else {
@@ -161,7 +162,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			}
 		} else {
 			navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
-			navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_play);
 			navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.pref_bluetooth_disabled));
 			navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
 			navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
@@ -563,11 +563,12 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	protected void onResume() {
 		super.onResume();
 		drawer.closeDrawer(drawerList);
+	    //first init
+	    firstInit();
 		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
         autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
         application.setImperialUnits(preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT, false));
-		
 	}
 
 
@@ -586,6 +587,17 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			return true;
 		}
 		return false;
+	}
+	
+	private void firstInit(){
+		if(!preferences.contains("first_init")){
+			drawer.openDrawer(drawerList);
+			
+			Editor e = preferences.edit();
+			e.putString("first_init", "seen");
+			e.putBoolean("pref_privacy", true);
+			e.commit();
+		}
 	}
 
 }

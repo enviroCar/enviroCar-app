@@ -23,7 +23,6 @@ package org.envirocar.app.application;
 
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.concurrent.Executors;
@@ -410,32 +409,6 @@ public class ECApplication extends Application implements LocationListener {
 			if (!dbAdapterRemote.isOpen())
 				dbAdapterRemote.open();
 		}
-	}
-
-	/**
-	 * Checks if a track with specific index is already present in the
-	 * dbAdapterRemote
-	 * 
-	 * @param index
-	 * @return true if track already stored, false if track is new
-	 */
-	public boolean trackAlreadyInDB(String index) {
-
-		boolean matchFound = false;
-
-		ArrayList<Track> allStoredTracks = dbAdapterRemote.getAllTracks();
-		for (Track trackCompare : allStoredTracks) {
-			Log.i("obd2", "comparing: " + index + "");
-			Log.i("obd2", "to: " + trackCompare.getId() + "");
-
-			if (trackCompare.getId().equals(index)) {
-				Log.i("obd2", "match found");
-				matchFound = true;
-				return matchFound;
-			}
-		}
-
-		return matchFound;
 	}
 
 	/**

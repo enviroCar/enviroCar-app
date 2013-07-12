@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.envirocar.app"
-    android:versionCode="14"
-    android:versionName="commit hash">
+    android:versionCode="15"
+    android:versionName="4a193e1be412e14045e6376f146e6efd96b81cfa">
 
     <uses-sdk
         android:minSdkVersion="10"
