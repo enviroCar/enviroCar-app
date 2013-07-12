@@ -136,7 +136,8 @@ public class ECApplication extends Application implements LocationListener {
 	 * @return the serviceConnector
 	 */
 	public ServiceConnector getServiceConnector() {
-		startBackgroundService();
+		if (serviceConnector == null)
+			startBackgroundService();
 		return serviceConnector;
 	}
 	
