@@ -33,7 +33,7 @@ import org.envirocar.app.views.Utils;
  * the ride (car, fuel, description...)
  * 
  */
-public class Track {
+public class Track implements Comparable<Track> {
 
 	private String id;
 	private String name;
@@ -428,6 +428,17 @@ public class Track {
 			e.printStackTrace();
 		}
 		return co2Average;
+	}
+
+	@Override
+	public int compareTo(Track t) {
+		try {
+			return (this.getFirstMeasurement().getMeasurementTime() < t.getFirstMeasurement().getMeasurementTime() ? 1 : -1);
+		} catch (MeasurementsException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		return 0;
 	}
 
 }

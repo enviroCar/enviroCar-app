@@ -27,6 +27,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.TimeZone;
@@ -97,6 +98,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	private ProgressBar progress;
 	private int itemSelect;
 	
+	private boolean isDownloading = false;
+	
 	private com.actionbarsherlock.view.MenuItem upload;
 
 	public View onCreateView(android.view.LayoutInflater inflater,
@@ -138,10 +141,13 @@ public class ListMeasurementsFragment extends SherlockFragment {
     	super.onCreateOptionsMenu(menu, inflater);
 	}
 	
+	private com.actionbarsherlock.view.MenuItem delete_btn;
+	
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
-		if (((ECApplication) getActivity().getApplication()).getDbAdapterLocal().getAllTracks().size() > 0) {
+		delete_btn = menu.findItem(R.id.menu_delete_all);
+		if (((ECApplication) getActivity().getApplication()).getDbAdapterLocal().getAllTracks().size() > 0 && !isDownloading) {
 			menu.findItem(R.id.menu_delete_all).setEnabled(true);
 			if(((ECApplication) getActivity().getApplication()).isLoggedIn())
 				menu.findItem(R.id.menu_upload).setEnabled(true);
@@ -170,6 +176,12 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		elvAdapter.notifyDataSetChanged();
 	}
 	
+	public void notifyDataSetChanged(){
+		tracksList.clear();
+		downloadTracks();
+		//elvAdapter.notifyDataSetChanged();
+	}
+	
 	/**
 	 * Edit all tracks
 	 */
@@ -192,6 +204,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		case R.id.menu_delete_all:
 			((ECApplication) getActivity().getApplication()).getDbAdapterLocal().deleteAllTracks();
 			((ECApplication) getActivity().getApplication()).setTrack(null);
+			tracksList.clear();
+			downloadTracks();
 			Crouton.makeText(getActivity(), R.string.all_local_tracks_deleted,Style.CONFIRM).show();
 			return true;
 			
@@ -379,15 +393,13 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		}
 		return coordinates.toArray(new String[coordinates.size()]);
 	}
-	
-	public void notifyFragmentVisible(){
-		
-	}
 
 	/**
 	 * Download remote tracks from the server and include them in the track list
 	 */
 	private void downloadTracks() {
+		
+		isDownloading = true;
 		
 		final String username = ((ECApplication) getActivity().getApplication()).getUser().getUsername();
 		final String token = ((ECApplication) getActivity().getApplication()).getUser().getToken();
@@ -496,6 +508,12 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				ct--;
 				if (ct == 0) {
 					progress.setVisibility(View.GONE);
+					//sort the tracks bubblesort ?
+					Collections.sort(tracksList);
+					elvAdapter.notifyDataSetChanged();
+					isDownloading = false;
+					if (((ECApplication) getActivity().getApplication()).getDbAdapterLocal().getAllTracks().size() > 0)
+						delete_btn.setEnabled(true);
 				}
 				if (elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))) {
 					elv.setAdapter(elvAdapter);
@@ -647,7 +665,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		@Override
 		public View getChildView(int i, int i1, boolean b, View view,
 				ViewGroup viewGroup) {
-			if (view == null || view.getId() != 10000100 + i + i1) {
+			//if (view == null || view.getId() != 10000100 + i + i1) {
 				Track currTrack = (Track) getChild(i, i1);
 				View row = ViewGroup.inflate(getActivity(),
 						R.layout.list_tracks_item_layout, null);
@@ -695,8 +713,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				TypefaceEC.applyCustomFont((ViewGroup) row,
 						TypefaceEC.Newscycle(getActivity()));
 				return row;
-			}
-			return view;
+			//}
+			//return view;
 		}
 
 		@Override

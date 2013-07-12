@@ -71,7 +71,7 @@
     <string name="dashboard_sensor_title">Aktuelles Auto:</string>
     <string name="retry">Erneut versuchen</string>
     <string name="description">Beschreibung:</string>
-    <string name="editDescription">Edit Description</string>
+    <string name="editDescription">Beschreibung bearbeiten</string>
     <string name="editTrack">Fahrt bearbeiten</string>
     <string name="enterTrackName">Name für die Fahrt eingeben</string>
     <string name="enterTrackDescription">Beschreibung für die Fahrt eingeben</string>

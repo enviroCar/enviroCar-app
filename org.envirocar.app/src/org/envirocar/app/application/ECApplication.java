@@ -32,6 +32,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.envirocar.app.R;
+import org.envirocar.app.activity.ListMeasurementsFragment;
 import org.envirocar.app.activity.MainActivity;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.IntakePressure;
@@ -49,6 +50,7 @@ import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.views.Utils;
 
+import android.app.Activity;
 import android.app.Application;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -67,6 +69,7 @@ import android.net.ParseException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -122,6 +125,8 @@ public class ECApplication extends Application implements LocationListener {
 	private Measurement measurement = null;
 	private long lastInsertTime = 0;
 	
+	private Activity currentActivity;
+	
 	// Track properties
 
 	private Track track;
@@ -130,6 +135,18 @@ public class ECApplication extends Application implements LocationListener {
 	//private boolean requirementsFulfilled = true;
 
 	private static User user;
+	
+	/**
+	 * returns the current activity.
+	 * @return
+	 */
+	public Activity getCurrentActivity(){
+		return currentActivity;
+	}
+	
+	public void setActivity(Activity a){
+		this.currentActivity = a;
+	}
 	
 	/**
 	 * Returns the service connector of the server
@@ -624,8 +641,10 @@ public class ECApplication extends Application implements LocationListener {
 				//calculate alternative maf from iat, map, rpm
 				double imap = rpmMeasurement * intakePressureMeasurement / (intakeTemperatureMeasurement+273);
 				//VE = 85 in most modern cars
-				double calculatedMaf = imap / 120.0 * 85/100 * Float.parseFloat(preferences.getString("pref_engine_displacement","2.0")) * 28.97 / 8.317;	
+				double calculatedMaf = imap / 120.0d * 85.0d/100.0d * Float.parseFloat(preferences.getString("pref_engine_displacement","2.0")) * 28.97 / 8.317;	
 				calculatedMafMeasurement = calculatedMaf;
+				
+				Log.i("calculatedMaf",calculatedMaf+" "+Float.parseFloat(preferences.getString("pref_engine_displacement","2.0"))+" "+preferences.getString("pref_engine_displacement","2.0"));
 				
 				// MAF
 
@@ -673,16 +692,12 @@ public class ECApplication extends Application implements LocationListener {
 
 						if (preferences.getString(PREF_KEY_FUEL_TYPE,
 								"gasoline").equals("gasoline")) {
-							co2Measurement = consumption * 2.35;
-							// Change to kg/h
-							co2Measurement = co2Measurement * 3600;
+							co2Measurement = consumption * 2.35; //kg/h
 						} else if (preferences.getString(PREF_KEY_FUEL_TYPE,
 								"gasoline").equals("diesel")) {
-							co2Measurement = consumption * 2.65;
-							// Change to kg/h
-							co2Measurement = co2Measurement * 3600;
+							co2Measurement = consumption * 2.65; //kg/h
 						}
-
+						Log.i("co2",co2Measurement+"");
 					} catch (ParseException e) {
 						Log.e("obd", "parse exception maf");
 						e.printStackTrace();

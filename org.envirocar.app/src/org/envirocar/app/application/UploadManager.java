@@ -40,6 +40,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.envirocar.app.R;
+import org.envirocar.app.activity.ListMeasurementsFragment;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
@@ -56,6 +57,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.util.Log;
 /**
@@ -102,6 +104,12 @@ public class UploadManager {
 	
 
 	private class UploadAsyncTask extends AsyncTask<ArrayList<Track>, Void, Void> {
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			((ListMeasurementsFragment) ((FragmentActivity) ((ECApplication) context).getCurrentActivity()).getSupportFragmentManager().findFragmentByTag("MY_TRACKS")).notifyDataSetChanged();
+		}
 
 		@Override
 		protected Void doInBackground(ArrayList<Track>... params) {
