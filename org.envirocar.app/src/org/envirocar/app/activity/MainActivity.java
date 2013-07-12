@@ -565,6 +565,9 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		drawer.closeDrawer(drawerList);
 	    //first init
 	    firstInit();
+	    
+	    application.setActivity(this);
+	    
 		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
         autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);

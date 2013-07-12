@@ -170,6 +170,10 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		elvAdapter.notifyDataSetChanged();
 	}
 	
+	public void notifyDataSetChanged(){
+		elvAdapter.notifyDataSetChanged();
+	}
+	
 	/**
 	 * Edit all tracks
 	 */
@@ -378,10 +382,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			coordinates.add(lon);
 		}
 		return coordinates.toArray(new String[coordinates.size()]);
-	}
-	
-	public void notifyFragmentVisible(){
-		
 	}
 
 	/**
