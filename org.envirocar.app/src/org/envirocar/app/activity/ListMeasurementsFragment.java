@@ -665,7 +665,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		@Override
 		public View getChildView(int i, int i1, boolean b, View view,
 				ViewGroup viewGroup) {
-			if (view == null || view.getId() != 10000100 + i + i1) {
+			//if (view == null || view.getId() != 10000100 + i + i1) {
 				Track currTrack = (Track) getChild(i, i1);
 				View row = ViewGroup.inflate(getActivity(),
 						R.layout.list_tracks_item_layout, null);
@@ -713,8 +713,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				TypefaceEC.applyCustomFont((ViewGroup) row,
 						TypefaceEC.Newscycle(getActivity()));
 				return row;
-			}
-			return view;
+			//}
+			//return view;
 		}
 
 		@Override
