@@ -98,6 +98,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	private ProgressBar progress;
 	private int itemSelect;
 	
+	private boolean isDownloading = false;
+	
 	private com.actionbarsherlock.view.MenuItem upload;
 
 	public View onCreateView(android.view.LayoutInflater inflater,
@@ -139,10 +141,13 @@ public class ListMeasurementsFragment extends SherlockFragment {
     	super.onCreateOptionsMenu(menu, inflater);
 	}
 	
+	private com.actionbarsherlock.view.MenuItem delete_btn;
+	
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
-		if (((ECApplication) getActivity().getApplication()).getDbAdapterLocal().getAllTracks().size() > 0) {
+		delete_btn = menu.findItem(R.id.menu_delete_all);
+		if (((ECApplication) getActivity().getApplication()).getDbAdapterLocal().getAllTracks().size() > 0 && !isDownloading) {
 			menu.findItem(R.id.menu_delete_all).setEnabled(true);
 			if(((ECApplication) getActivity().getApplication()).isLoggedIn())
 				menu.findItem(R.id.menu_upload).setEnabled(true);
@@ -199,6 +204,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		case R.id.menu_delete_all:
 			((ECApplication) getActivity().getApplication()).getDbAdapterLocal().deleteAllTracks();
 			((ECApplication) getActivity().getApplication()).setTrack(null);
+			tracksList.clear();
+			downloadTracks();
 			Crouton.makeText(getActivity(), R.string.all_local_tracks_deleted,Style.CONFIRM).show();
 			return true;
 			
@@ -392,6 +399,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	 */
 	private void downloadTracks() {
 		
+		isDownloading = true;
+		
 		final String username = ((ECApplication) getActivity().getApplication()).getUser().getUsername();
 		final String token = ((ECApplication) getActivity().getApplication()).getUser().getToken();
 		RestClient.downloadTracks(username,token, new JsonHttpResponseHandler() {
@@ -502,6 +511,9 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					//sort the tracks bubblesort ?
 					Collections.sort(tracksList);
 					elvAdapter.notifyDataSetChanged();
+					isDownloading = false;
+					if (((ECApplication) getActivity().getApplication()).getDbAdapterLocal().getAllTracks().size() > 0)
+						delete_btn.setEnabled(true);
 				}
 				if (elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))) {
 					elv.setAdapter(elvAdapter);
