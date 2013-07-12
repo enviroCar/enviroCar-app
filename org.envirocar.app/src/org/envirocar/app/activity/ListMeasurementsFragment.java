@@ -27,6 +27,7 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.TimeZone;
@@ -499,7 +500,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				if (ct == 0) {
 					progress.setVisibility(View.GONE);
 					//sort the tracks bubblesort ?
-					//TODO
+					Collections.sort(tracksList);
+					elvAdapter.notifyDataSetChanged();
 				}
 				if (elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))) {
 					elv.setAdapter(elvAdapter);
