@@ -171,7 +171,9 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	}
 	
 	public void notifyDataSetChanged(){
-		elvAdapter.notifyDataSetChanged();
+		tracksList.clear();
+		downloadTracks();
+		//elvAdapter.notifyDataSetChanged();
 	}
 	
 	/**
@@ -496,6 +498,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				ct--;
 				if (ct == 0) {
 					progress.setVisibility(View.GONE);
+					//sort the tracks bubblesort ?
+					//TODO
 				}
 				if (elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))) {
 					elv.setAdapter(elvAdapter);

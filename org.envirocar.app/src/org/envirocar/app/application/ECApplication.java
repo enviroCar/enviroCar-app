@@ -140,7 +140,7 @@ public class ECApplication extends Application implements LocationListener {
 	 * returns the current activity.
 	 * @return
 	 */
-	public Activity getActivity(){
+	public Activity getCurrentActivity(){
 		return currentActivity;
 	}
 	
@@ -977,7 +977,6 @@ public class ECApplication extends Application implements LocationListener {
 		String notification_text = "";
 		if(action.equals("success")){
 			notification_text = getString(R.string.upload_notification_success);
-			((ListMeasurementsFragment) ((FragmentActivity) getActivity()).getSupportFragmentManager().findFragmentByTag("MY_TRACKS")).notifyDataSetChanged();
 		}else if(action.equals("start")){
 			notification_text = getString(R.string.upload_notification);
 		}else{
