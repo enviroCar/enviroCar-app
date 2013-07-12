@@ -132,5 +132,7 @@
 	<string name="help_8">The letters "L" and "R" indicate whether a track is already uploaded (Remote) or still only available on the local device. Pushing the delete button will delete all local tracks. Pushing the upload button will upload all local tracks that are not already uploaded.</string>
 	<string name="help_9">A long-click on a track gives the user the possibility to edit the track or view the track on a map. You will need an SD card for the map visualization:</string>
 	
+	<string name="track_obfuscation_on">Only upload measurements which are taken 250 meter (820 feet) and one minute after start and before end of each track</string>
+	
 	
 </resources>

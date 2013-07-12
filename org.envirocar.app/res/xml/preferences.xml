@@ -26,7 +26,9 @@
             android:title="@string/imperial_unit" />
         <CheckBoxPreference 
             android:key="pref_privacy"
-            android:title="@string/privacy"/>
+            android:title="@string/privacy"
+            android:summaryOn="@string/track_obfuscation_on"
+            android:defaultValue="true"/>
         <EditTextPreference 
             android:title="@string/pref_engine_displacement" 
             android:key="pref_engine_displacement" 
