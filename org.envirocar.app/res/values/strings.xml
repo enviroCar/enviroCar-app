@@ -118,7 +118,7 @@
 	
 	<string name="help">Help</string>
 	<string name="help_0">QUICK START GUIDE</string>
-	<string name="help_1">The dashboard shows the current speed of the vehicle and the CO2 consumption. In addition to that, the user can specify and edit his car in the "Current Car" section.</string>
+	<string name="help_1">The dashboard shows the current speed of the vehicle and the CO2 emission. In addition to that, the user can specify and edit his car in the "Current Car" section.</string>
 	<string name="help_2">All options and features can be accessed by swiping in the menu from the left side of the screen:</string>
 	<string name="help_3">Before a user can use the app, for example for taking measurements, he/she has to register at first:</string>
 	<string name="help_4">After registering and logging in, the user has to specify his/her car. When the car is new to the system (not already created by another user), the user has to add a new car via the form:</string>
