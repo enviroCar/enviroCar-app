@@ -233,6 +233,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 		drawer.setDrawerListener(actionBarDrawerToggle);
 		drawerList.setOnItemClickListener(this);
+		
+		manager.executePendingTransactions();
 
 		/*
 		 * Auto connect to bluetooth adapter every 10 minutes
