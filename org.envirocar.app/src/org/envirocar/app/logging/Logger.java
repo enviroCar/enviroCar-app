@@ -22,6 +22,7 @@
  */
 package org.envirocar.app.logging;
 
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,9 +102,13 @@ public class Logger {
 		sb.append(this.name);
 		sb.append("] ");
 		sb.append(message);
-		for (Handler h : handlers) {
-			h.logMessage(level, sb.toString());
+		
+		synchronized (Logger.class) {
+			for (Handler h : handlers) {
+				h.logMessage(level, sb.toString());
+			}	
 		}
+		
 	}
 
 	public void debug(String message) {
@@ -152,6 +157,12 @@ public class Logger {
 		}
 
 		return sb.toString();
+	}
+
+	public static void initialize(FileOutputStream openFileOutput) {
+		synchronized (Logger.class) {
+			handlers.add(new FileOutputStreamHandler(openFileOutput));	
+		}
 	}
 
 }

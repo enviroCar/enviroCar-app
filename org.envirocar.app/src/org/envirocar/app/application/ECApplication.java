@@ -21,6 +21,7 @@
 
 package org.envirocar.app.application;
 
+import java.io.FileNotFoundException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -194,6 +195,11 @@ public class ECApplication extends Application implements LocationListener {
 
 	@Override
 	public void onCreate() {
+		try {
+			Logger.initialize(openFileOutput(Logger.LOCAL_LOG_FILE, MODE_APPEND));
+		} catch (FileNotFoundException e) {
+			logger.warn(e.getMessage(), e);
+		}
 		super.onCreate();
 		
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);

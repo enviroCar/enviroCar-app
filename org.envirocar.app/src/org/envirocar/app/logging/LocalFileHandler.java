@@ -22,15 +22,43 @@
  */
 package org.envirocar.app.logging;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.logging.FileHandler;
+import java.util.logging.SimpleFormatter;
+
+import android.os.Environment;
+import android.util.Log;
 
 public class LocalFileHandler implements Handler {
+	
+	private static final int MAX_SIZE = 5242880; //5MB
 
 	private java.util.logging.Logger logger;
 
 	public LocalFileHandler(String localLogFile) throws Exception {
 		this.logger = java.util.logging.Logger.getLogger("org.envirocar.app");
-		this.logger.addHandler(new FileHandler(localLogFile));
+		String finalPath = ensureFileIsAvailable(localLogFile);
+		this.logger.addHandler(createHandler(finalPath));
+	}
+
+	protected FileHandler createHandler(String finalPath) throws IOException {
+		FileHandler h = new FileHandler(finalPath, MAX_SIZE, 5, true);
+		h.setFormatter(new SimpleFormatter());
+		return h;
+	}
+
+	private String ensureFileIsAvailable(String localLogFile) {
+		File file = new File(Environment.getExternalStorageDirectory() + File.separator + localLogFile);
+		try {
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			return file.toURI().getPath();
+		} catch (IOException e) {
+			Log.w(AndroidHandler.DEFAULT_TAG, e.getMessage(), e);
+		}
+		return localLogFile;
 	}
 
 	@Override
