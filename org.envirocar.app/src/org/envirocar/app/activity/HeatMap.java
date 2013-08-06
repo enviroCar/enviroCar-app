@@ -21,6 +21,7 @@
 
 package org.envirocar.app.activity;
 
+import org.envirocar.app.logging.Logger;
 import org.mapsforge.android.maps.MapActivity;
 import org.mapsforge.android.maps.MapView;
 import org.mapsforge.android.maps.Projection;
@@ -49,6 +50,8 @@ import android.view.View.OnTouchListener;
  */
 
 public class HeatMap extends MapActivity {
+	
+	private static final Logger logger = Logger.getLogger(HeatMap.class);
 
 	private HeatMapOverlay heatMapOverlay;
 
@@ -115,7 +118,7 @@ public class HeatMap extends MapActivity {
 			GeoPoint geoPoint = new GeoPoint(51.219841, 6.7941);
 			Point pts = new Point();
 			this.projection.toPixels(geoPoint, pts);
-			Log.e("Pixel0", String.valueOf(pts.x) + " " + String.valueOf(pts.y));
+			logger.debug("Pixel0 "+ String.valueOf(pts.x) + " " + String.valueOf(pts.y));
 			for (int i = 0; i < 50; i++) {
 				addPoint(pts.x + 10, pts.y + 10);
 			}
@@ -123,7 +126,7 @@ public class HeatMap extends MapActivity {
 			GeoPoint geoPoint1 = new GeoPoint(51.224142, 6.795344);
 			Point pts1 = new Point();
 			this.projection.toPixels(geoPoint1, pts1);
-			Log.e("Pixel1",
+			logger.debug("Pixel1 "+
 					String.valueOf(pts1.x) + " " + String.valueOf(pts1.y));
 			for (int i = 0; i < 10; i++) {
 				addPoint(pts1.x + 10, pts1.y + 10);
@@ -132,7 +135,7 @@ public class HeatMap extends MapActivity {
 			GeoPoint geoPoint2 = new GeoPoint(51.229849, 6.7941);
 			Point pts2 = new Point();
 			this.projection.toPixels(geoPoint2, pts2);
-			Log.e("Pixel2",
+			logger.debug("Pixel2 "+
 					String.valueOf(pts2.x) + " " + String.valueOf(pts2.y));
 			for (int i = 0; i < 20; i++) {
 				addPoint(pts2.x + 10, pts2.y + 10);
@@ -141,7 +144,7 @@ public class HeatMap extends MapActivity {
 			GeoPoint geoPoint3 = new GeoPoint(51.223416, 6.794014);
 			Point pts3 = new Point();
 			this.projection.toPixels(geoPoint3, pts3);
-			Log.e("Pixel3",
+			logger.debug("Pixel3 "+
 					String.valueOf(pts3.x) + " " + String.valueOf(pts3.y));
 			for (int i = 0; i < 30; i++) {
 				addPoint(pts3.x, pts3.y);

@@ -43,6 +43,7 @@ import org.envirocar.app.commands.Speed;
 import org.envirocar.app.exception.LocationInvalidException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.TracksException;
+import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterLocal;
 import org.envirocar.app.storage.DbAdapterRemote;
@@ -81,6 +82,8 @@ import android.widget.Toast;
  *
  */
 public class ECApplication extends Application implements LocationListener {
+	
+	private static final Logger logger = Logger.getLogger(ECApplication.class);
 	
 	// Strings
 
@@ -200,7 +203,7 @@ public class ECApplication extends Application implements LocationListener {
 		initLocationManager();
 		// Make a new listener to interpret the measurement values that are
 		// returned
-		Log.e("obd2", "init listener");
+		logger.info("init listener");
 		startListener();
 		// If everything is available, start the service connector and listener
 		startBackgroundService();
@@ -208,7 +211,7 @@ public class ECApplication extends Application implements LocationListener {
 		try {
 			measurement = new Measurement(locationLatitude, locationLongitude);
 		} catch (LocationInvalidException e) {
-			e.printStackTrace();
+			logger.warn(e.getMessage(), e);
 		}
 
 		
@@ -269,7 +272,7 @@ public class ECApplication extends Application implements LocationListener {
 
 		if (track == null) {
 
-			Log.e("obd2", "The track was null");
+			logger.info("The track was null");
 
 			Track lastUsedTrack;
 
@@ -283,8 +286,7 @@ public class ECApplication extends Application implements LocationListener {
 
 					if ((System.currentTimeMillis() - lastUsedTrack
 							.getLastMeasurement().getMeasurementTime()) > 3600000) {
-						Log.e("obd2",
-								"I create a new track because the last measurement is more than 60 mins ago");
+						logger.info("I create a new track because the last measurement is more than 60 mins ago");
 						track = new Track("123456", fuelType, carManufacturer,
 								carModel, sensorId, dbAdapterLocal);
 						track.setName("Track " + date);
@@ -297,8 +299,7 @@ public class ECApplication extends Application implements LocationListener {
 					// from the current position (more than 3 km)
 					if (Utils.getDistance(lastUsedTrack.getLastMeasurement().getLatitude(),lastUsedTrack.getLastMeasurement().getLongitude(),
 							locationLatitude, locationLongitude) > 3.0) {
-						Log.e("obd2",
-								"The last measurement's position is more than 3 km away. I will create a new track");
+						logger.info("The last measurement's position is more than 3 km away. I will create a new track");
 						track = new Track("123456", fuelType, carManufacturer,
 								carModel, sensorId, dbAdapterLocal); 
 						track.setName("Track " + date);
@@ -313,14 +314,13 @@ public class ECApplication extends Application implements LocationListener {
 					// TODO: new track if VIN changed
 
 					else {
-						Log.e("obd2",
-								"I will append to the last track because that still makes sense");
+						logger.info("I will append to the last track because that still makes sense");
 						track = lastUsedTrack;
 						return;
 					}
 
 				} catch (MeasurementsException e) {
-					Log.e("obd", "The last track contains no measurements. I will delete it and create a new one.");
+					logger.warn("The last track contains no measurements. I will delete it and create a new one.", e);
 					dbAdapterLocal.deleteTrack(lastUsedTrack.getId());
 					track = new Track("123456", fuelType, carManufacturer,
 							carModel, sensorId, dbAdapterLocal); 
@@ -330,14 +330,12 @@ public class ECApplication extends Application implements LocationListener {
 				}
 
 			} catch (TracksException e) {
+				logger.warn("There was no track in the database so I created a new one", e);
 				track = new Track("123456", fuelType, carManufacturer,
 						carModel, sensorId, dbAdapterLocal); 
 				track.setName("Track " + date);
 				track.setDescription(trackDescription);
 				track.commitTrackToDatabase();
-				e.printStackTrace();
-				Log.e("obd2",
-						"There was no track in the database so I created a new one");
 			}
 
 			return;
@@ -349,7 +347,7 @@ public class ECApplication extends Application implements LocationListener {
 
 		if (track != null) {
 
-			Log.e("obd2", "the track was not null");
+			logger.info("the track was not null");
 
 			Track currentTrack = track;
 
@@ -364,8 +362,7 @@ public class ECApplication extends Application implements LocationListener {
 					track.setName("Track " + date);
 					track.setDescription(trackDescription);
 					track.commitTrackToDatabase();
-					Log.e("obd2",
-							"I create a new track because the last measurement is more than 60 mins ago");
+					logger.info("I create a new track because the last measurement is more than 60 mins ago");
 					return;
 				}
 				// TODO: New track if user clicks on create new track button
@@ -381,8 +378,7 @@ public class ECApplication extends Application implements LocationListener {
 					track.setName("Track " + date);
 					track.setDescription(trackDescription);
 					track.commitTrackToDatabase();
-					Log.e("obd2",
-							"The last measurement's position is more than 3 km away. I will create a new track");
+					logger.info("The last measurement's position is more than 3 km away. I will create a new track");
 					return;
 
 				}
@@ -390,13 +386,12 @@ public class ECApplication extends Application implements LocationListener {
 				// TODO: new track if VIN changed
 
 				else {
-					Log.e("obd2",
-							"I will append to the last track because that still makes sense");
+					logger.info("I will append to the last track because that still makes sense");
 					return;
 				}
 
 			} catch (MeasurementsException e) {
-				Log.e("obd", "The last track contains no measurements. I will delete it and create a new one.");
+				logger.warn("The last track contains no measurements. I will delete it and create a new one.", e);
 				dbAdapterLocal.deleteTrack(currentTrack.getId());
 				track = new Track("123456", fuelType, carManufacturer,
 						carModel, sensorId, dbAdapterLocal); 
@@ -527,7 +522,7 @@ public class ECApplication extends Application implements LocationListener {
 	 */
 	public void startBackgroundService() {
 		if (requirementsFulfilled()) {
-			Log.e("obd2", "requirements met");
+			logger.info("requirements met");
 			backgroundService = new Intent(this, BackgroundService.class);
 			serviceConnector = new ServiceConnector();
 			serviceConnector.setServiceListener(listener);
@@ -535,7 +530,7 @@ public class ECApplication extends Application implements LocationListener {
 			bindService(backgroundService, serviceConnector,
 					Context.BIND_AUTO_CREATE);
 		} else {
-			Log.e("obd2", "requirements not met");
+			logger.warn("requirements not met");
 		}
 	}
 
@@ -550,10 +545,10 @@ public class ECApplication extends Application implements LocationListener {
 					if (!serviceConnector.isRunning()) {
 						startConnection();
 					} else {
-						Log.e("obd2", "serviceConnector not running");
+						logger.warn("serviceConnector not running");
 					}
 				} else {
-					Log.e("obd2", "requirementsFulfilled was false!");
+					logger.warn("requirementsFulfilled was false!");
 				}
 
 			}
@@ -567,12 +562,12 @@ public class ECApplication extends Application implements LocationListener {
 		listener = new Listener() {
 
 			public void receiveUpdate(CommonCommand job) {
-				Log.e("obd2", "update received");
+				logger.debug("update received");
 				// Get the name and the result of the Command
 
 				String commandName = job.getCommandName();
 				String commandResult = job.getResult();
-				Log.i("btlogger", commandName + " " + commandResult);
+				logger.debug(commandName + " " + commandResult);
 				if (commandResult.equals("NODATA"))
 					return;
 
@@ -588,8 +583,7 @@ public class ECApplication extends Application implements LocationListener {
 					try {
 						speedMeasurement = Integer.valueOf(commandResult);
 					} catch (NumberFormatException e) {
-						Log.e("obd2", "speed parse exception");
-						e.printStackTrace();
+						logger.warn("speed parse exception", e);
 					}
 				}
 				
@@ -603,8 +597,7 @@ public class ECApplication extends Application implements LocationListener {
 					try {
 						rpmMeasurement = Integer.valueOf(commandResult);
 					} catch (NumberFormatException e) {
-						Log.e("obd2", "rpm parse exception");
-						e.printStackTrace();
+						logger.warn("rpm parse exception", e);
 					}
 				}
 
@@ -618,8 +611,7 @@ public class ECApplication extends Application implements LocationListener {
 					try {
 						intakePressureMeasurement = Integer.valueOf(commandResult);
 					} catch (NumberFormatException e) {
-						Log.e("obd2", "Intake Pressure parse exception");
-						e.printStackTrace();
+						logger.warn("Intake Pressure parse exception", e);
 					}
 				}
 				
@@ -633,8 +625,7 @@ public class ECApplication extends Application implements LocationListener {
 					try {
 						intakeTemperatureMeasurement = Integer.valueOf(commandResult);
 					} catch (NumberFormatException e) {
-						Log.e("obd2", "Intake Temperature parse exception");
-						e.printStackTrace();
+						logger.warn("Intake Temperature parse exception", e);
 					}
 				}
 								
@@ -644,7 +635,7 @@ public class ECApplication extends Application implements LocationListener {
 				double calculatedMaf = imap / 120.0d * 85.0d/100.0d * Float.parseFloat(preferences.getString("pref_engine_displacement","2.0")) * 28.97 / 8.317;	
 				calculatedMafMeasurement = calculatedMaf;
 				
-				Log.i("calculatedMaf",calculatedMaf+" "+Float.parseFloat(preferences.getString("pref_engine_displacement","2.0"))+" "+preferences.getString("pref_engine_displacement","2.0"));
+				logger.info("calculatedMaf: "+calculatedMaf+" "+Float.parseFloat(preferences.getString("pref_engine_displacement","2.0"))+" "+preferences.getString("pref_engine_displacement","2.0"));
 				
 				// MAF
 
@@ -697,13 +688,11 @@ public class ECApplication extends Application implements LocationListener {
 								"gasoline").equals("diesel")) {
 							co2Measurement = consumption * 2.65; //kg/h
 						}
-						Log.i("co2",co2Measurement+"");
+						logger.info("co2: "+ co2Measurement+"");
 					} catch (ParseException e) {
-						Log.e("obd", "parse exception maf");
-						e.printStackTrace();
+						logger.warn("parse exception maf", e);
 					} catch (java.text.ParseException e) {
-						Log.e("obd", "parse exception maf");
-						e.printStackTrace();
+						logger.warn("parse exception maf", e);
 					}
 				}
 
@@ -731,7 +720,7 @@ public class ECApplication extends Application implements LocationListener {
 		startLocationManager();
 		//createNewTrackIfNecessary();
 		if (!serviceConnector.isRunning()) {
-			Log.e("obd2", "service start");
+			logger.info("service start");
 			startService(backgroundService);
 			bindService(backgroundService, serviceConnector,
 					Context.BIND_AUTO_CREATE);
@@ -799,7 +788,7 @@ public class ECApplication extends Application implements LocationListener {
 				measurement = new Measurement(locationLatitude,
 						locationLongitude);
 			} catch (LocationInvalidException e) {
-				e.printStackTrace();
+				logger.warn(e.getMessage(), e);
 			}
 		}
 
@@ -817,11 +806,10 @@ public class ECApplication extends Application implements LocationListener {
 				measurement.setRpm(rpmMeasurement);
 				measurement.setIntakePressure(intakePressureMeasurement);
 				measurement.setIntakeTemperature(intakeTemperatureMeasurement);
-				Log.e("obd2", "new measurement");
-				Log.e("obd2",
-						measurement.getLatitude() + " "
+				logger.info("new measurement");
+				logger.info(measurement.getLatitude() + " "
 								+ measurement.getLongitude());
-				Log.e("obd2", measurement.toString());
+				logger.info(measurement.toString());
 
 				insertMeasurement(measurement);
 
@@ -830,7 +818,7 @@ public class ECApplication extends Application implements LocationListener {
 					measurement = new Measurement(locationLatitude,
 							locationLongitude);
 				} catch (LocationInvalidException e) {
-					e.printStackTrace();
+					logger.warn(e.getMessage(), e);
 				}
 			}
 		}
@@ -863,7 +851,7 @@ public class ECApplication extends Application implements LocationListener {
 
 			track.addMeasurement(measurement2);
 
-			Log.i("obd2", measurement2.toString());
+			logger.info(measurement2.toString());
 
 			//Toast.makeText(getApplicationContext(), measurement2.toString(),
 				//	Toast.LENGTH_SHORT).show();
@@ -1014,6 +1002,7 @@ public class ECApplication extends Application implements LocationListener {
 			out.append(this.getPackageManager().getPackageInfo(getPackageName(), 0).versionCode);
 			out.append("), ");
 		} catch (NameNotFoundException e) {
+			logger.warn(e.getMessage(), e);
 		}
 		try {
 			ApplicationInfo ai = getPackageManager().getApplicationInfo(
@@ -1024,6 +1013,7 @@ public class ECApplication extends Application implements LocationListener {
 			out.append(SimpleDateFormat.getInstance().format(new java.util.Date(time)));
 
 		} catch (Exception e) {
+			logger.warn(e.getMessage(), e);
 		}
 
 		return out.toString();
@@ -1053,7 +1043,7 @@ public class ECApplication extends Application implements LocationListener {
 	                                                 BluetoothAdapter.ERROR);
 	            switch (state) {
 	            case BluetoothAdapter.STATE_ON:
-	            	Log.i("bt","is now on");
+	            	logger.info("bt is now on");
 	            	startBackgroundService();
 	                break;
 	            }

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
+import org.envirocar.app.logging.Logger;
 import org.envirocar.app.views.Utils;
 
 /**
@@ -34,6 +35,8 @@ import org.envirocar.app.views.Utils;
  * 
  */
 public class Track implements Comparable<Track> {
+	
+	private static final Logger logger = Logger.getLogger(Track.class);
 
 	private String id;
 	private String name;
@@ -425,7 +428,7 @@ public class Track implements Comparable<Track> {
 			}
 			co2Average = co2Average / measurements.size();
 		} catch (FuelConsumptionException e) {
-			e.printStackTrace();
+			logger.warn(e.getMessage(), e);
 		}
 		return co2Average;
 	}
@@ -435,8 +438,7 @@ public class Track implements Comparable<Track> {
 		try {
 			return (this.getFirstMeasurement().getMeasurementTime() < t.getFirstMeasurement().getMeasurementTime() ? 1 : -1);
 		} catch (MeasurementsException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn(e.getMessage(), e);
 		} 
 		return 0;
 	}

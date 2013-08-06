@@ -34,6 +34,7 @@ import org.envirocar.app.commands.LineFeedOff;
 import org.envirocar.app.commands.ObdReset;
 import org.envirocar.app.commands.SelectAutoProtocol;
 import org.envirocar.app.commands.Timeout;
+import org.envirocar.app.logging.Logger;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -55,6 +56,8 @@ import android.util.Log;
  */
 public class BackgroundService extends Service {
 
+
+	private static final Logger logger = Logger.getLogger(BackgroundService.class);
 	// Properties
 
 	private AtomicBoolean isTheServiceRunning = new AtomicBoolean(false);
@@ -122,8 +125,8 @@ public class BackgroundService extends Service {
 
 			startConnection();
 		} catch (Exception e) {
+			logger.warn(e.getMessage(), e);
 			stopService();
-			Log.e("obd2", "retry " + e.toString());
 		}
 	}
 
@@ -216,6 +219,7 @@ public class BackgroundService extends Service {
 		try {
 			waitingList.put(job);
 		} catch (InterruptedException e) {
+			logger.warn(e.getMessage(), e);
 			job.setCommandState(CommonCommandState.QUEUE_ERROR);
 		}
 
@@ -238,7 +242,7 @@ public class BackgroundService extends Service {
 		try {
 			bluetoothSocket.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.warn(e.getMessage(), e);
 		}
 
 		stopSelf();
@@ -300,6 +304,7 @@ public class BackgroundService extends Service {
 							bluetoothSocket.getOutputStream());
 				}
 			} catch (Exception e) {
+				logger.warn(e.getMessage(), e);
 				currentJob.setCommandState(CommonCommandState.EXECUTION_ERROR);
 			}
 

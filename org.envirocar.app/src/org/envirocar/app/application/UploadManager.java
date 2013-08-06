@@ -44,6 +44,7 @@ import org.envirocar.app.activity.ListMeasurementsFragment;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
+import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapterLocal;
 import org.envirocar.app.storage.DbAdapterRemote;
 import org.envirocar.app.storage.Measurement;
@@ -70,6 +71,8 @@ import android.util.Log;
  */
 public class UploadManager {
 
+	private static Logger logger = Logger.getLogger(UploadManager.class);
+	
 	private static final String TAG = "uploadmanager";
 
 	private String url = ECApplication.BASE_URL + "/users/%1$s/tracks";
@@ -129,6 +132,7 @@ public class UploadManager {
 				try {
 					trackJSONObject = createTrackJson(t);
 				} catch (JSONException e) {
+					logger.warn(e.getMessage(), e);
 					//the track wasn't JSON serializable. shouldn't occur.
 					this.cancel(true);
 					((ECApplication) context).createNotification("General Track error (JSON) Please contact envirocar.org");
@@ -205,13 +209,13 @@ public class UploadManager {
 						}
 
 					} catch (MeasurementsException e) {
-						e.printStackTrace();
+						logger.warn(e.getMessage(), e);
 					}
 				}
 				measurements = privateMeasurements;
 			}
-		} catch (MeasurementsException e1) {
-			e1.printStackTrace();
+		} catch (MeasurementsException e) {
+			logger.warn(e.getMessage(), e);
 		}
 
 		for (int i = 0; i < measurements.size(); i++) {
@@ -243,7 +247,7 @@ public class UploadManager {
 					consumption = String.valueOf(track
 							.getFuelConsumptionOfMeasurement(i));
 				} catch (FuelConsumptionException e) {
-					e.printStackTrace();
+					logger.warn(e.getMessage(), e);
 				}
 
 				String maf = String.valueOf(measurements.get(i).getMaf());
@@ -259,7 +263,7 @@ public class UploadManager {
 							.getFuelConsumptionOfMeasurement(i));
 					co2 = String.valueOf(track.getCO2EmissionOfMeasurement(i));
 				} catch (FuelConsumptionException e) {
-					e.printStackTrace();
+					logger.warn(e.getMessage(), e);
 				}
 
 				String calculatedMaf = String.valueOf(measurements.get(i).getCalculatedMaf());
@@ -278,12 +282,12 @@ public class UploadManager {
 
 		String measurementElementsJson = TextUtils.join(",",
 				measurementElements);
-		Log.d("measurementElem", measurementElementsJson);
+		logger.debug("measurementElem "+measurementElementsJson);
 		String closingElementJson = "]}";
 
 		String trackString = String.format("%s %s %s", trackElementJson,
 				measurementElementsJson, closingElementJson);
-		Log.d("Track", trackString);
+		logger.debug("Track "+trackString);
 
 		return new JSONObject(trackString);
 	}
@@ -310,7 +314,7 @@ public class UploadManager {
 
 			StringEntity se = new StringEntity(jsonObjSend.toString());
 			se.setContentType("application/json");
-			Log.d(TAG + "SE", jsonObjSend.toString());
+			logger.debug("SE"+ jsonObjSend.toString());
 
 			// Set HTTP parameters
 			httpPostRequest.setEntity(se);
@@ -336,7 +340,7 @@ public class UploadManager {
 			String statusCode = String.valueOf(response.getStatusLine()
 					.getStatusCode());
 
-			Log.d(TAG, String.format("%s", statusCode));
+			logger.debug(String.format("%s", statusCode));
 
 			if(statusCode.equals("201")){
 				return trackid;
@@ -345,12 +349,16 @@ public class UploadManager {
 			}
 
 		} catch (UnknownHostException e) {
+			logger.warn(e.getMessage(), e);
 			return "net_error";
 		} catch (UnsupportedEncodingException e) {
+			logger.warn(e.getMessage(), e);
 			return "-1";
 		} catch (ClientProtocolException e) {
+			logger.warn(e.getMessage(), e);
 			return "net_error";
 		} catch (IOException e) {
+			logger.warn(e.getMessage(), e);
 			return "net_error";
 		}
 	}
@@ -370,7 +378,7 @@ public class UploadManager {
 			out.close();
 			return log;
 		} catch (Exception e) {
-			Log.e(TAG, "Error saving tracks to SD card.", e);
+			logger.warn(e.getMessage(), e);
 		}
 		return null;
 	}

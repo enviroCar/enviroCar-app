@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import org.envirocar.app.exception.LocationInvalidException;
 import org.envirocar.app.exception.TracksException;
+import org.envirocar.app.logging.Logger;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -41,6 +42,8 @@ import android.util.Log;
  */
 
 public class DbAdapterLocal implements DbAdapter {
+	
+	private static final Logger logger = Logger.getLogger(DbAdapterLocal.class);
 
 	// Database tables
 
@@ -109,7 +112,7 @@ public class DbAdapterLocal implements DbAdapter {
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			Log.w("obd2", "Upgrading database from version " + oldVersion
+			logger.info("Upgrading database from version " + oldVersion
 					+ " to " + newVersion + ", which will destroy all old data");
 			db.execSQL("DROP TABLE IF EXISTS measurements");
 			db.execSQL("DROP TABLE IF EXISTS tracks");
@@ -201,8 +204,7 @@ public class DbAdapterLocal implements DbAdapter {
 
 				allMeasurements.add(measurement);
 			} catch (LocationInvalidException e) {
-				Log.e("obd2", "gps not locked");
-				e.printStackTrace();
+				logger.warn(e.getMessage(), e);
 			}
 
 			c.moveToNext();
