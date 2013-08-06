@@ -21,6 +21,8 @@
 
 package org.envirocar.app.commands;
 
+import org.envirocar.app.logging.Logger;
+
 import android.util.Log;
 
 /**
@@ -30,6 +32,8 @@ import android.util.Log;
  * 
  */
 public class MAF extends CommonCommand {
+	
+	private static final Logger logger = Logger.getLogger(MAF.class);
 
 	public MAF() {
 		super("01 10");
@@ -47,8 +51,7 @@ public class MAF extends CommonCommand {
 				maf = (bytethree * 256 + bytefour) / 100.0f;
 			}
 		} catch (Exception e) {
-			Log.e("obd2","something went wrong with the maf");
-			e.printStackTrace();
+			logger.warn(e.getMessage(), e);
 		}
 
 		return String.format("%.2f%s", maf, "");

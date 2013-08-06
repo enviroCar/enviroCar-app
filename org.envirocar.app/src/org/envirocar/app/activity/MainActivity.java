@@ -30,6 +30,7 @@ import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.NavMenuItem;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.exception.TracksException;
+import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapterLocal;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
@@ -101,6 +102,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	public static final int REQUEST_MY_GARAGE = 1336;
 	public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
 	
+	private static final Logger logger = Logger.getLogger(MainActivity.class);
+	
 	// Include settings for auto upload and auto-connect
 	
 	private SharedPreferences preferences = null;
@@ -155,10 +158,9 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 				}
 			} catch (NullPointerException e) {
-				Log.e("obd2", "The Service Connector is null.");
+				logger.warn(e.getMessage(), e);
 				navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
 				navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
-				e.printStackTrace();
 			}
 		} else {
 			navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
@@ -246,10 +248,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			@Override
 			public void run() {
 				if (autoConnect) {
-					Log.e("obd2", "User wants to auto-connect");
+					logger.info("User wants to auto-connect");
 					try {
 						if (!application.getServiceConnector().isRunning()) {
-							Log.e("obd2", "starting connection 1");
+							logger.info("starting connection 1");
 
 							String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY, null);
 
@@ -278,7 +280,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 							}
 						}
 					} catch (NullPointerException e) {
-						Log.e("obd2", "starting connection 2");
+						logger.info("starting connection 2");
 
 						String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY, null);
 
@@ -323,14 +325,14 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
 
 				if (alwaysUpload) {
-					Log.e("obd2", "Automatic upload will start");
+					logger.info("Automatic upload will start");
 					if (application.isLoggedIn()) {
 						try {
 							if (!application.getServiceConnector().isRunning()) {
-								Log.e("obd2", "Service connector not running");
+								logger.info("Service connector not running");
 								if (uploadOnlyInWlan == true) {
 									if (mWifi.isConnected()) {
-										Log.e("obd2", "Uploading tracks 1");
+										logger.info("Uploading tracks 1");
 										handler_upload.post(new Runnable() {
 
 											@Override
@@ -340,7 +342,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 										});
 									}
 								} else {
-									Log.e("obd2", "Uploading tracks 2");
+									logger.info("Uploading tracks 2");
 									handler_upload.post(new Runnable() {
 
 										@Override
@@ -351,10 +353,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 								}
 							}
 						} catch (NullPointerException e) {
-							Log.e("obd2", "Service connector is null");
+							logger.warn(e.getMessage(), e);
 							if (uploadOnlyInWlan == true) {
 								if (mWifi.isConnected()) {
-									Log.e("obd2", "Uploading tracks 3 ");
+									logger.info("Uploading tracks 3 ");
 									handler_upload.post(new Runnable() {
 
 										@Override
@@ -364,7 +366,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 									});
 								}
 							} else {
-								Log.e("obd2", "Uploading tracks 4");
+								logger.info("Uploading tracks 4");
 								handler_upload.post(new Runnable() {
 
 									@Override
@@ -376,7 +378,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 						}
 					}
 				} else {
-					Log.e("obd2","automatic upload not wanted by user");
+					logger.info("automatic upload not wanted by user");
 				}
 			}
 		}, 0, 10, TimeUnit.MINUTES);
@@ -400,11 +402,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
                             application.getApplicationContext());
                     uploadManager.uploadAllTracks();
                 } else {
-                	Log.e("obd2","Uploading does not make sense right now");
+                	logger.info("Uploading does not make sense right now");
                 }
             } catch (TracksException e) {
-                Log.e("obd2", "Auto-Upload failed.");
-                e.printStackTrace();
+            	logger.warn("Upload Failed!", e);
             }
         
     }
@@ -484,6 +485,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         		try{
         			((ListMeasurementsFragment) getSupportFragmentManager().findFragmentByTag("MY_TRACKS")).clearRemoteTracks();
         		} catch (NullPointerException e){
+        			logger.warn(e.getMessage(), e);
         			//do nothing, the fragment hasnt been initialized yet.
         		}
         		Crouton.makeText(this, R.string.bye_bye, Style.CONFIRM).show();

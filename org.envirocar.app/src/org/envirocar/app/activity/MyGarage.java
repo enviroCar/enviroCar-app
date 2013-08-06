@@ -27,6 +27,7 @@ import org.apache.http.Header;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.RestClient;
+import org.envirocar.app.logging.Logger;
 import org.envirocar.app.views.TypefaceEC;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -75,6 +76,8 @@ import de.keyboardsurfer.android.widget.crouton.Style;
  * 
  */
 public class MyGarage extends SherlockFragment {
+	
+	private static final Logger logger = Logger.getLogger(MyGarage.class);
 	
 	private SharedPreferences sharedPreferences;
 
@@ -143,7 +146,7 @@ public class MyGarage extends SherlockFragment {
 			@Override
 			public void onClick(View v) {
 				carFuelType = getCorrectFuelTypeFromCheckbox(v.getId());
-				Log.e(TAG, carFuelType);
+				logger.info(carFuelType);
 			}
 		};
 
@@ -181,7 +184,7 @@ public class MyGarage extends SherlockFragment {
 			public void onItemSelected(AdapterView<?> parent, View view, 
 		            int pos, long id) {
 				if(!firstSelect){
-					Log.i("item",parent.getItemAtPosition(pos)+"");
+					logger.info(parent.getItemAtPosition(pos)+"");
 					
 					try {
 						((ECApplication) getActivity().getApplication()).updateCurrentSensor(((JSONObject) parent.getItemAtPosition(pos)).getString("id"),
@@ -192,7 +195,7 @@ public class MyGarage extends SherlockFragment {
 			        	DashboardFragment dashboardFragment = new DashboardFragment();
 			            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
 					} catch (JSONException e) {
-						e.printStackTrace();
+						logger.warn(e.getMessage(), e);
 					}
 				}else{
 					firstSelect = false;
@@ -254,7 +257,7 @@ public class MyGarage extends SherlockFragment {
 					//iterate over sensors
 					if(((JSONObject) sensors.get(i)).getString("id").equals(prefSensorid)){
 						sensorSpinner.setSelection(i);
-						Log.i("setspinner from prefs",((JSONObject) sensors.get(i)).getString("id")+" "+prefSensorid);
+						logger.info(((JSONObject) sensors.get(i)).getString("id")+" "+prefSensorid);
 						break;
 					}
 				}
@@ -296,7 +299,7 @@ public class MyGarage extends SherlockFragment {
 		
 
 				} catch (JSONException e) {
-					e.printStackTrace();
+					logger.warn(e.getMessage(), e);
 				} finally {
 					sensors = new JSONArray(a);
 					sensorSpinner.setAdapter(new SensorAdapter());
@@ -305,7 +308,7 @@ public class MyGarage extends SherlockFragment {
 					try {
 						selectSensorFromSharedPreferences();
 					} catch (JSONException e) {
-						e.printStackTrace();
+						logger.warn(e.getMessage(), e);
 					}
 				}
 				
@@ -369,7 +372,7 @@ public class MyGarage extends SherlockFragment {
 						break;
 					}
 				}
-				Log.i("create sensor", httpStatusCode+" "+location);
+				logger.info(httpStatusCode+" "+location);
 				
 				String sensorId = location.substring(location.lastIndexOf("/")+1, location.length());
 				//put the sensor id into shared preferences
@@ -438,7 +441,7 @@ public class MyGarage extends SherlockFragment {
             try {
 				return ((JSONObject) sensors.get(position));
 			} catch (JSONException e) {
-				e.printStackTrace();
+				logger.warn(e.getMessage(), e);
 			}
             return null;
         }
@@ -465,7 +468,7 @@ public class MyGarage extends SherlockFragment {
 							((JSONObject) getItem(position)).getInt("constructionYear")+")");
 				} catch (JSONException e) {
 					text.setText("error");
-					e.printStackTrace();
+					logger.warn(e.getMessage(), e);
 				}
             }
             return text;
