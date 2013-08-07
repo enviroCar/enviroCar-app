@@ -49,14 +49,16 @@ public class Logger {
 			.getProperty("line.separator");
 	private static final String TAB_CHAR = "\t";
 
-	public static final String LOCAL_LOG_FILE = "enviroCar-log.log";
-	
 	private static List<Handler> handlers = new ArrayList<Handler>();
 	
 	static {
 		try {
+			handlers.add(new LocalFileHandler());
+		} catch (Exception e) {
+			Log.e(AndroidHandler.DEFAULT_TAG, e.getMessage(), e);
+		}
+		try {
 			handlers.add(new AndroidHandler());
-			handlers.add(new LocalFileHandler(LOCAL_LOG_FILE));
 		} catch (Exception e) {
 			Log.e(AndroidHandler.DEFAULT_TAG, e.getMessage(), e);
 		}
@@ -105,7 +107,11 @@ public class Logger {
 		
 		synchronized (Logger.class) {
 			for (Handler h : handlers) {
-				h.logMessage(level, sb.toString());
+				try {
+					h.logMessage(level, sb.toString());
+				} catch (RuntimeException e) {
+					Log.e(AndroidHandler.DEFAULT_TAG, e.getMessage(), e);
+				}
 			}	
 		}
 		

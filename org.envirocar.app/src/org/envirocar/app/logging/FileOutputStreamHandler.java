@@ -87,4 +87,9 @@ public class FileOutputStreamHandler implements Handler {
 		}
 	}
 
+	@Override
+	public void initializeComplete() {
+		
+	}
+
 }

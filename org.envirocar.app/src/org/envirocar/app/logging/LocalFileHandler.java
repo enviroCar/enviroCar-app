@@ -32,14 +32,29 @@ import android.util.Log;
 
 public class LocalFileHandler implements Handler {
 	
+	private static final Logger LOG = Logger.getLogger(LocalFileHandler.class);
+	
 	private static final int MAX_SIZE = 5242880; //5MB
+	
+	public static final String LOCAL_LOG_FILE = "enviroCar-log.log";
 
+	private static File effectiveFile;
+
+	static {
+		effectiveFile = new File(Environment.getExternalStorageDirectory() + File.separator + LOCAL_LOG_FILE);
+	}
+	
 	private java.util.logging.Logger logger;
 
-	public LocalFileHandler(String localLogFile) throws Exception {
+	public LocalFileHandler() throws Exception {
 		this.logger = java.util.logging.Logger.getLogger("org.envirocar.app");
-		String finalPath = ensureFileIsAvailable(localLogFile);
+		String finalPath = ensureFileIsAvailable();
 		this.logger.addHandler(createHandler(finalPath));
+	}
+	
+	@Override
+	public void initializeComplete() {
+		LOG.info("Using file "+ effectiveFile);
 	}
 
 	protected FileHandler createHandler(String finalPath) throws IOException {
@@ -48,17 +63,28 @@ public class LocalFileHandler implements Handler {
 		return h;
 	}
 
-	private String ensureFileIsAvailable(String localLogFile) {
-		File file = new File(Environment.getExternalStorageDirectory() + File.separator + localLogFile);
+	private String ensureFileIsAvailable() {
 		try {
-			if (!file.exists()) {
-				file.createNewFile();
+			if (!effectiveFile.exists()) {
+				effectiveFile.createNewFile();
 			}
-			return file.toURI().getPath();
+			return effectiveFile.toURI().getPath();
 		} catch (IOException e) {
 			Log.w(AndroidHandler.DEFAULT_TAG, e.getMessage(), e);
 		}
-		return localLogFile;
+		
+		File fallbackFile = new File(LOCAL_LOG_FILE);
+		if (!fallbackFile.exists()) {
+			try {
+				fallbackFile.createNewFile();
+				effectiveFile = fallbackFile;
+				return effectiveFile.toURI().getPath();
+			} catch (IOException e) {
+				Log.w(AndroidHandler.DEFAULT_TAG, e.getMessage(), e);
+			}
+		}
+		
+		throw new IllegalStateException("Could not init file for "+ getClass().getSimpleName());
 	}
 
 	@Override

@@ -33,7 +33,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.envirocar.app.R;
-import org.envirocar.app.activity.ListMeasurementsFragment;
 import org.envirocar.app.activity.MainActivity;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.IntakePressure;
@@ -44,6 +43,7 @@ import org.envirocar.app.commands.Speed;
 import org.envirocar.app.exception.LocationInvalidException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.TracksException;
+import org.envirocar.app.logging.LocalFileHandler;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterLocal;
@@ -71,9 +71,7 @@ import android.net.ParseException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import android.widget.Toast;
 
 /**
@@ -196,7 +194,7 @@ public class ECApplication extends Application implements LocationListener {
 	@Override
 	public void onCreate() {
 		try {
-			Logger.initialize(openFileOutput(Logger.LOCAL_LOG_FILE, MODE_APPEND));
+			Logger.initialize(openFileOutput(LocalFileHandler.LOCAL_LOG_FILE, MODE_APPEND));
 		} catch (FileNotFoundException e) {
 			logger.warn(e.getMessage(), e);
 		}
