@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.envirocar.app.R;
+import org.envirocar.app.logging.Logger;
 import org.mapsforge.android.maps.MapActivity;
 import org.mapsforge.android.maps.MapView;
 import org.mapsforge.android.maps.Projection;
@@ -52,6 +53,7 @@ import android.view.Display;
  */
 public class Map extends MapActivity {
 
+	private static final Logger logger = Logger.getLogger(Map.class);
 	private final static String TAG = "Map";
 
 	@Override
@@ -66,7 +68,7 @@ public class Map extends MapActivity {
 		String[] coordinates = bundle.getStringArray("coordinates");
 		GeoPoint[][] overlayPoints = getOverlayPoints(coordinates);
 
-		Log.d(TAG, Arrays.deepToString(coordinates));
+		logger.debug(Arrays.deepToString(coordinates));
 
 		Paint wayDefaultPaintFill = new Paint(Paint.ANTI_ALIAS_FLAG);
 		wayDefaultPaintFill.setStyle(Paint.Style.STROKE);
@@ -165,7 +167,7 @@ public class Map extends MapActivity {
 
 		Double maxLat = Double.parseDouble(String.valueOf(Collections
 				.max(Arrays.asList(lats))));
-		Log.d(TAG, String.valueOf(maxLat));
+		logger.debug(String.valueOf(maxLat));
 
 		return maxLat;
 	}
@@ -188,7 +190,7 @@ public class Map extends MapActivity {
 
 		Double minLat = Double.parseDouble(String.valueOf(Collections
 				.min(Arrays.asList(lats))));
-		Log.d(TAG, String.valueOf(minLat));
+		logger.debug( String.valueOf(minLat));
 
 		return minLat;
 	}
@@ -211,7 +213,7 @@ public class Map extends MapActivity {
 
 		Double minLng = Double.parseDouble(String.valueOf(Collections
 				.min(Arrays.asList(lngs))));
-		Log.d(TAG, String.valueOf(minLng));
+		logger.debug(String.valueOf(minLng));
 
 		return minLng;
 	}
@@ -234,7 +236,7 @@ public class Map extends MapActivity {
 
 		Double maxLng = Double.parseDouble(String.valueOf(Collections
 				.max(Arrays.asList(lngs))));
-		Log.d(TAG, String.valueOf(maxLng));
+		logger.debug(String.valueOf(maxLng));
 
 		return maxLng;
 	}
@@ -257,7 +259,7 @@ public class Map extends MapActivity {
 		int height = display.getHeight() - 45;  
 		
 		if (width <= 0 || height <= 0) {
-			Log.e(TAG, "Display size values not valid numbers.");
+			logger.warn("Display size values not valid numbers.");
 			return false;
 		}
 
@@ -288,7 +290,7 @@ public class Map extends MapActivity {
 			zoomLevel = tmpZoomLevel;
 		}
 
-		Log.d(TAG + "Zoomlevel", String.valueOf(zoomLevel));
+		logger.debug("Zoomlevel "+ String.valueOf(zoomLevel));
 		mapView.getController().setZoom(zoomLevel);
 
 		return true;

@@ -37,6 +37,7 @@ import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.RestClient;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.exception.LocationInvalidException;
+import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterRemote;
 import org.envirocar.app.storage.Measurement;
@@ -125,7 +126,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 				itemSelect = ExpandableListView.getPackedPositionGroup(id);
-				Log.e("obd2", String.valueOf("Selected item: " + itemSelect));
+				logger.info(String.valueOf("Selected item: " + itemSelect));
 				return false;
 			}
 
@@ -142,6 +143,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	}
 	
 	private com.actionbarsherlock.view.MenuItem delete_btn;
+
+	protected static final Logger logger = Logger.getLogger(ListMeasurementsFragment.class);
 	
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
@@ -170,6 +173,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					tracksList.remove(t);
 			}
 		} catch (ConcurrentModificationException e) {
+			logger.warn(e.getMessage(), e);
 			clearRemoteTracks();
 		}
 		dbAdapterRemote.deleteAllTracks();
@@ -237,12 +241,12 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 		case R.id.editName:
 			if(track.isLocalTrack()){
-				Log.e("obd2", "editing track: " + itemSelect);
+				logger.info("editing track: " + itemSelect);
 				final EditText input = new EditText(getActivity());
 				new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.editTrack)).setMessage(getString(R.string.enterTrackName)).setView(input).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						String value = input.getText().toString();
-						Log.e("obd2", "New name: " + value.toString());
+						logger.info("New name: " + value.toString());
 						track.setName(value);
 						track.setDatabaseAdapter(dbAdapterLocal);
 						track.commitTrackToDatabase();
@@ -264,12 +268,12 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 		case R.id.editDescription:
 			if(track.isLocalTrack()){
-				Log.e("obd2", "editing track: " + itemSelect);
+				logger.info("editing track: " + itemSelect);
 				final EditText input2 = new EditText(getActivity());
 				new AlertDialog.Builder(getActivity()).setTitle(getString(R.string.editTrack)).setMessage(getString(R.string.enterTrackDescription)).setView(input2).setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 						String value = input2.getText().toString();
-						Log.e("obd2", "New description: " + value.toString());
+						logger.info("New description: " + value.toString());
 						track.setDescription(value);
 						track.setDatabaseAdapter(dbAdapterLocal);
 						track.commitTrackToDatabase();
@@ -292,15 +296,15 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		// Show that track in the map
 
 		case R.id.startMap:
-			Log.e("obd2", Environment.getExternalStorageDirectory().toString());
+			logger.info(Environment.getExternalStorageDirectory().toString());
 			File f = new File(Environment.getExternalStorageDirectory() + "/Android");
 			if (f.isDirectory()) {
 				ArrayList<Measurement> measurements = track.getMeasurements();
-				Log.e("obd2",String.valueOf(measurements.size()));
+				logger.info(String.valueOf(measurements.size()));
 				String[] trackCoordinates = extractCoordinates(measurements);
 				
 				if (trackCoordinates.length != 0){
-					Log.e("obd2",String.valueOf(trackCoordinates.length));
+					logger.info(String.valueOf(trackCoordinates.length));
 					Intent intent = new Intent(getActivity().getApplicationContext(), Map.class);
 					Bundle bundle = new Bundle();
 					bundle.putStringArray("coordinates", trackCoordinates);
@@ -320,7 +324,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 		case R.id.deleteTrack:
 			if(track.isLocalTrack()){
-				Log.e("obd2", "deleting item: " + itemSelect);
+				logger.info("deleting item: " + itemSelect);
 				dbAdapterLocal.deleteTrack(track.getId());
 				Crouton.showText(getActivity(), getString(R.string.trackDeleted), Style.INFO);
 				tracksList.remove(itemSelect);
@@ -339,6 +343,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				sharingIntent.putExtra(android.content.Intent.EXTRA_STREAM,shareBody);
 				startActivity(Intent.createChooser(sharingIntent, "Share via"));
 			}catch (JSONException e){
+				logger.warn(e.getMessage(), e);
 				Crouton.showText(getActivity(), R.string.error_json, Style.ALERT);
 			}
 			return true;
@@ -362,7 +367,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		
 		//fetch local tracks
 		this.tracksList = dbAdapterLocal.getAllTracks();
-		Log.i("obd", "Number of tracks: " + tracksList.size());
+		logger.info("Number of tracks: " + tracksList.size());
 		if (elvAdapter == null)
 			elvAdapter = new TracksListAdapter();
 		elv.setAdapter(elvAdapter);
@@ -409,13 +414,13 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			@Override
 			public void onFailure(Throwable e, JSONObject errorResponse) {
 				super.onFailure(e, errorResponse);
-				Log.i("error",e.toString());
+				logger.warn(e.getMessage(), e);
 			}
 			
 			@Override
 			public void onFailure(Throwable error, String content) {
 				super.onFailure(error, content);
-				Log.i("faildl",content,error);
+				logger.warn(content, error);
 			}
 			
 			// Variable that holds the number of trackdl requests
@@ -432,27 +437,37 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						String trackName = "unnamed Track #"+ct;
 						try{
 							trackName = trackJson[0].getJSONObject("properties").getString("name");
-						}catch (JSONException e){}
+						}catch (JSONException e){
+							logger.warn(e.getMessage(), e);
+						}
 						t.setName(trackName);
 						String description = "";
 						try{
 							description = trackJson[0].getJSONObject("properties").getString("description");
-						}catch (JSONException e){}
+						}catch (JSONException e){
+							logger.warn(e.getMessage(), e);
+						}
 						t.setDescription(description);
 						String manufacturer = "unknown";
 						try{
 							manufacturer = trackJson[0].getJSONObject("properties").getJSONObject("sensor").getJSONObject("properties").getString("manufacturer");
-						}catch (JSONException e){}
+						}catch (JSONException e){
+							logger.warn(e.getMessage(), e);
+						}
 						t.setCarManufacturer(manufacturer);
 						String carModel = "unknown";
 						try{
 							carModel = trackJson[0].getJSONObject("properties").getJSONObject("sensor").getJSONObject("properties").getString("model");
-						}catch (JSONException e){}
+						}catch (JSONException e){
+							logger.warn(e.getMessage(), e);
+						}
 						t.setCarModel(carModel);
 						String sensorId = "undefined";
 						try{
 							sensorId = trackJson[0].getJSONObject("properties").getJSONObject("sensor").getJSONObject("properties").getString("id");
-						}catch (JSONException e) {}
+						}catch (JSONException e) {
+							logger.warn(e.getMessage(), e);
+						}
 						t.setSensorID(sensorId);
 						//include server properties tracks created, modified?
 						
@@ -475,13 +490,13 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 						return t;
 					} catch (JSONException e) {
-						e.printStackTrace();
+						logger.warn(e.getMessage(), e);
 					} catch (NumberFormatException e) {
-						e.printStackTrace();
+						logger.warn(e.getMessage(), e);
 					} catch (LocationInvalidException e) {
-						e.printStackTrace();
+						logger.warn(e.getMessage(), e);
 					} catch (ParseException e) {
-						e.printStackTrace();
+						logger.warn(e.getMessage(), e);
 					}
 					return null;
 				}
@@ -593,13 +608,13 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 									public void onFailure(Throwable arg0,
 											String arg1) {
-										Log.i("downloaderror",arg1,arg0);
+										logger.warn(arg1,arg0);
 									};
 								});
 
 					}
 				} catch (JSONException e) {
-					e.printStackTrace();
+					logger.warn(e.getMessage(), e);
 				}
 			}
 		});
@@ -690,8 +705,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					dfDuration.setTimeZone(TimeZone.getTimeZone("UTC"));
 					start.setText(sdf.format(currTrack.getStartTime()) + "");
 					end.setText(sdf.format(currTrack.getEndTime()) + "");
-					Log.e("duration",
-							currTrack.getEndTime() - currTrack.getStartTime()
+					logger.info(currTrack.getEndTime() - currTrack.getStartTime()
 									+ "");
 					Date durationMillis = new Date(currTrack.getEndTime()
 							- currTrack.getStartTime());
@@ -706,7 +720,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					description.setText(currTrack.getDescription());
 					co2.setText(twoDForm.format(currTrack.getCO2Average()) + " kg/h");
 				} catch (Exception e) {
-
+					logger.warn(e.getMessage(), e);
 				}
 
 				row.setId(10000100 + i + i1);

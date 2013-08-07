@@ -25,6 +25,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.envirocar.app.logging.Logger;
+
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.location.LocationManager;
@@ -35,6 +37,8 @@ import android.os.Build;
  * 
  */
 public class Utils {
+	
+	private static final Logger logger = Logger.getLogger(Utils.class);
 
 	public static int getActionBarId() {
 		try {
@@ -46,7 +50,7 @@ public class Utils {
 				return Class.forName("com.android.internal.R$id").getField("action_bar_title").getInt(null);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.warn(e.getMessage(), e);
 		}
 		return 0;
 	}

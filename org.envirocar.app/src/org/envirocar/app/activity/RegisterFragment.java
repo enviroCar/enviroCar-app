@@ -34,6 +34,7 @@ import org.apache.http.protocol.HTTP;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.User;
+import org.envirocar.app.logging.Logger;
 import org.envirocar.app.views.TypefaceEC;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -67,6 +68,8 @@ import de.keyboardsurfer.android.widget.crouton.Style;
  * as well.
  */
 public class RegisterFragment extends SherlockFragment {
+	
+	private static final Logger logger = Logger.getLogger(RegisterFragment.class);
 
 	private static final int ERROR_GENERAL = 1;
 	private static final int ERROR_NET = 2;
@@ -344,7 +347,7 @@ public class RegisterFragment extends SherlockFragment {
 			requestJson.put("token", token);
 			requestJson.put("mail", mail);
 		} catch (JSONException e) {
-			e.printStackTrace();
+			logger.warn(e.getMessage(), e);
 		}
 
 		DefaultHttpClient httpClient = new DefaultHttpClient();
@@ -362,17 +365,18 @@ public class RegisterFragment extends SherlockFragment {
 			return httpClient.execute(postRequest).getStatusLine()
 					.getStatusCode();
 
-		} catch (UnknownHostException e1){
+		} catch (UnknownHostException e){
+			logger.warn(e.getMessage(), e);
 			return ERROR_NET;
-		} catch (UnsupportedEncodingException e1) {
+		} catch (UnsupportedEncodingException e) {
 			// Shouldn't occur hopefully..
-			e1.printStackTrace();
+			logger.warn(e.getMessage(), e);
 			return ERROR_GENERAL;
-		} catch (ClientProtocolException e1) {
-			e1.printStackTrace();
+		} catch (ClientProtocolException e) {
+			logger.warn(e.getMessage(), e);
 			return ERROR_GENERAL;
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		} catch (IOException e) {
+			logger.warn(e.getMessage(), e);
 			// probably something with the Internet..
 			return ERROR_NET;
 		} finally {

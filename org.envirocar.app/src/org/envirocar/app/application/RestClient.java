@@ -26,12 +26,15 @@ import java.io.UnsupportedEncodingException;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
+import org.envirocar.app.logging.Logger;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 //TODO javadoc
 public class RestClient {
+	
+	private static final Logger logger = Logger.getLogger(RestClient.class);
 	
 	private static AsyncHttpClient client = new AsyncHttpClient();
 	
@@ -57,7 +60,7 @@ public class RestClient {
 			se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
 			client.post(null, ECApplication.BASE_URL+"/sensors", se, "application/json", handler);		  
 		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+			logger.warn(e.getMessage(), e);
 			return false;
 		}
 		return true;

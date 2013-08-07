@@ -33,6 +33,7 @@ import org.apache.http.message.BasicHeader;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.User;
+import org.envirocar.app.logging.Logger;
 import org.envirocar.app.views.TypefaceEC;
 
 import android.animation.Animator;
@@ -43,6 +44,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -64,6 +66,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
  */
 public class LoginFragment extends SherlockFragment {
 
+	private static final Logger logger = Logger.getLogger(LoginFragment.class);
 	/**
 	 * Keep track of the login task to ensure we can cancel it if requested.
 	 */
@@ -307,11 +310,12 @@ public class LoginFragment extends SherlockFragment {
 
 			}
 		} catch (UnknownHostException e){
+			logger.warn(e.getMessage(), e);
 			mUsernameView.setError(getString(R.string.error_host_not_found));
 		} catch (ClientProtocolException e) {
-			e.printStackTrace();
+			logger.warn(e.getMessage(), e);
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.warn(e.getMessage(), e);
 		} finally {
 			// When HttpClient instance is no longer needed,
 			// shut down the connection manager to ensure
