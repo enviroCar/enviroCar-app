@@ -38,7 +38,7 @@ import android.os.Environment;
 public class Util {
 
 	private static final Logger logger = Logger.getLogger(Util.class);
-	public static final String EXTERNAL_SUB_FOLDER = ".enviroCar";
+	public static final String EXTERNAL_SUB_FOLDER = "enviroCar";
 
 	/**
 	 * Create a file in the .enviroCar folder of the
