@@ -1,0 +1,78 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    tools:context=".SendLogFileActivity" >
+
+    <ScrollView
+        android:id="@+id/send_log_form"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+       <LinearLayout
+            style="@style/LoginFormContainer"
+            android:orientation="vertical" >
+	            
+	        <TextView
+	            android:id="@+id/textView_send_log_0"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:paddingBottom="5dp"
+	            android:text="@string/send_log_0" />
+	        
+	        <TextView
+	            android:id="@+id/textView_send_log_1"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:paddingBottom="5dp"
+	            android:text="@string/send_log_1" />
+	        
+	        
+	        <TextView
+	            android:id="@+id/textView_send_log_location"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:typeface="monospace"
+	            android:paddingBottom="5dp"
+	            tools:ignore="SelectableText" />
+
+	        <TextView
+	            android:id="@+id/textView_send_log_when_label"
+	            android:layout_width="wrap_content"
+	            android:layout_height="wrap_content"
+	            android:text="@string/send_log_when_label" />
+
+            <EditText
+                android:id="@+id/send_log_when"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLines="1"
+                android:hint="@string/send_log_time_past_hint"
+                android:paddingBottom="15dp"
+                android:singleLine="true" />
+            
+            <EditText
+                android:id="@+id/send_log_comments"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:hint="@string/send_log_comments_label"
+                android:maxLines="10" />
+            
+            <Button
+                android:id="@+id/send_log_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginTop="16dp"
+                android:paddingLeft="32dp"
+                android:paddingRight="32dp"
+                android:text="@string/action_send_log" />
+
+         
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>
