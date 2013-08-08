@@ -27,24 +27,33 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.compress.archivers.ArchiveException;
+import org.apache.commons.compress.archivers.ArchiveStreamFactory;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.utils.IOUtils;
 import org.envirocar.app.logging.Logger;
 
+import android.os.Build;
 import android.os.Environment;
 
 public class Util {
 
 	private static final Logger logger = Logger.getLogger(Util.class);
+	public static final String NEW_LINE_CHAR = System
+			.getProperty("line.separator");
 	public static final String EXTERNAL_SUB_FOLDER = "enviroCar";
 
 	/**
-	 * Create a file in the .enviroCar folder of the
-	 * external storage.
+	 * Create a file in the .enviroCar folder of the external storage.
 	 * 
-	 * @param fileName the name of the new file
+	 * @param fileName
+	 *            the name of the new file
 	 * @return the resulting file
 	 * @throws IOException
 	 */
@@ -70,26 +79,30 @@ public class Util {
 	/**
 	 * Zips a list of files into the target archive.
 	 * 
-	 * @param files the list of files of the target archive
-	 * @param target the target filename
+	 * @param files
+	 *            the list of files of the target archive
+	 * @param target
+	 *            the target filename
+	 * @throws IOException 
 	 */
-	public static void zip(List<File> files, String target) {
+	public static void zipNative(List<File> files, String target) throws IOException {
 		ZipOutputStream zos = null;
 		try {
-			FileOutputStream dest = new FileOutputStream(target);
+			File targetFile = new File(target);
+			FileOutputStream dest = new FileOutputStream(targetFile);
 
-			zos = new ZipOutputStream(
-					new BufferedOutputStream(dest));
-			
+			zos = new ZipOutputStream(new BufferedOutputStream(dest));
+
 			for (File f : files) {
 				byte[] bytes = readFileContents(f).toByteArray();
 				ZipEntry entry = new ZipEntry(f.getName());
 				zos.putNextEntry(entry);
 				zos.write(bytes);
-				zos.closeEntry();				
+				zos.closeEntry();
 			}
+
 		} catch (IOException e) {
-			logger.warn(e.getMessage(), e);
+			throw e;
 		} finally {
 			try {
 				if (zos != null)
@@ -100,43 +113,100 @@ public class Util {
 		}
 
 	}
-
 	
 	/**
-	 * Read the byte contents of a file into
-	 * a {@link ByteArrayOutputStream}.
+	 * Zips the set of files. It uses the Android native Zip mechanism
+	 * or Apache Common Compress for older Android versions (creating
+	 * malformed archives).
 	 * 
-	 * @param f the file to read
+	 * @param files
+	 *            the list of files of the target archive
+	 * @param target
+	 *            the target filename
+	 * @throws IOException
+	 */
+	public static void zip(List<File> files, String target) throws IOException {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			zipInteroperable(files, target);
+		} else {
+			zipNative(files, target);
+		}
+	}
+
+	/**
+	 * Android devices up to version 2.3.7 have a bug in the native
+	 * Zip archive creation, making the archive unreadable with some
+	 * programs.
+	 * 
+	 * @param files
+	 *            the list of files of the target archive
+	 * @param target
+	 *            the target filename
+	 * @throws IOException
+	 */
+	public static void zipInteroperable(List<File> files, String target) throws IOException {
+		ZipArchiveOutputStream aos = null;
+		OutputStream out = null;
+		try {
+			File tarFile = new File(target);
+			out = new FileOutputStream(tarFile);
+
+			try {
+				aos = (ZipArchiveOutputStream) new ArchiveStreamFactory()
+						.createArchiveOutputStream(ArchiveStreamFactory.ZIP,
+								out);
+			} catch (ArchiveException e) {
+				throw new IOException(e);
+			}
+
+			for (File file : files) {
+				ZipArchiveEntry entry = new ZipArchiveEntry(file, file.getName());
+				entry.setSize(file.length());
+				aos.putArchiveEntry(entry);
+				IOUtils.copy(new FileInputStream(file), aos);
+				aos.closeArchiveEntry();
+			}
+
+		} catch (IOException e) {
+			throw e;
+		} finally {
+			aos.finish();
+			out.close();
+		}
+	}
+
+	/**
+	 * Read the byte contents of a file into a {@link ByteArrayOutputStream}.
+	 * 
+	 * @param f
+	 *            the file to read
 	 * @return the contents as {@link ByteArrayOutputStream}
 	 * @throws IOException
 	 */
-	public static ByteArrayOutputStream readFileContents(File f) throws IOException {
+	public static ByteArrayOutputStream readFileContents(File f)
+			throws IOException {
 		InputStream in = null;
 		try {
 			in = new FileInputStream(f);
 
-	        byte[] buff = new byte[8000];
-	        int bytesRead = 0;
+			byte[] buff = new byte[8000];
+			int bytesRead = 0;
 
-	        ByteArrayOutputStream bao = new ByteArrayOutputStream();
+			ByteArrayOutputStream bao = new ByteArrayOutputStream();
 
-	        while((bytesRead = in.read(buff)) != -1) {
-	           bao.write(buff, 0, bytesRead);
-	        }
-	        
-	        bao.flush();
-	        return bao;	
+			while ((bytesRead = in.read(buff)) != -1) {
+				bao.write(buff, 0, bytesRead);
+			}
+
+			bao.flush();
+			return bao;
 		} catch (IOException e) {
 			throw e;
 		} finally {
-			if (in != null) 
+			if (in != null)
 				in.close();
 		}
 
 	}
-
-
-	public static final String NEW_LINE_CHAR = System
-	.getProperty("line.separator");
 
 }
