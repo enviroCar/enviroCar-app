@@ -32,8 +32,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.acra.*;
+import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.R;
-import org.envirocar.app.activity.ListMeasurementsFragment;
 import org.envirocar.app.activity.MainActivity;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.IntakePressure;
@@ -44,7 +45,9 @@ import org.envirocar.app.commands.Speed;
 import org.envirocar.app.exception.LocationInvalidException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.TracksException;
+import org.envirocar.app.logging.LocalFileHandler;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterLocal;
 import org.envirocar.app.storage.DbAdapterRemote;
@@ -71,9 +74,7 @@ import android.net.ParseException;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import android.widget.Toast;
 
 /**
@@ -82,6 +83,7 @@ import android.widget.Toast;
  * @author gerald, jakob
  *
  */
+@ReportsCrashes(formKey = "")
 public class ECApplication extends Application implements LocationListener {
 	
 	private static final Logger logger = Logger.getLogger(ECApplication.class);
@@ -196,11 +198,14 @@ public class ECApplication extends Application implements LocationListener {
 	@Override
 	public void onCreate() {
 		try {
-			Logger.initialize(openFileOutput(Logger.LOCAL_LOG_FILE, MODE_APPEND));
+			Logger.initialize(openFileOutput(LocalFileHandler.LOCAL_LOG_FILE, MODE_APPEND),
+					getVersionString());
 		} catch (FileNotFoundException e) {
 			logger.warn(e.getMessage(), e);
 		}
 		super.onCreate();
+		
+		initializeErrorHandling();
 		
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
 		user = getUserFromSharedPreferences();
@@ -223,6 +228,12 @@ public class ECApplication extends Application implements LocationListener {
 		
 	}
 	
+	private void initializeErrorHandling() {
+		ACRA.init(this);
+		ACRACustomSender yourSender = new ACRACustomSender();
+		ACRA.getErrorReporter().setReportSender(yourSender);
+	}
+
 	/**
 	 * Returns the sensor properties as a string
 	 * @return

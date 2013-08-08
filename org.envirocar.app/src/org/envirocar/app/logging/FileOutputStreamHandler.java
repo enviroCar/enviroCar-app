@@ -29,6 +29,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.envirocar.app.util.Util;
+
 import android.util.Log;
 
 public class FileOutputStreamHandler implements Handler {
@@ -58,7 +60,7 @@ public class FileOutputStreamHandler implements Handler {
 		sb.append(getLevelAsString(level));
 		sb.append(" :");
 		sb.append(string);
-		sb.append(Logger.NEW_LINE_CHAR);
+		sb.append(Util.NEW_LINE_CHAR);
 
 		try {
 			writer.append(sb.toString());
@@ -85,6 +87,11 @@ public class FileOutputStreamHandler implements Handler {
 		default:
 			return "";
 		}
+	}
+
+	@Override
+	public void initializeComplete() {
+		
 	}
 
 }

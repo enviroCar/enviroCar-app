@@ -55,4 +55,9 @@ public class AndroidHandler implements Handler {
 		}
 	}
 
+	@Override
+	public void initializeComplete() {
+		
+	}
+
 }
