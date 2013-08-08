@@ -27,7 +27,8 @@ import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.SimpleFormatter;
 
-import android.os.Environment;
+import org.envirocar.app.util.Util;
+
 import android.util.Log;
 
 public class LocalFileHandler implements Handler {
@@ -38,11 +39,16 @@ public class LocalFileHandler implements Handler {
 	
 	public static final String LOCAL_LOG_FILE = "enviroCar-log.log";
 
-	private static File effectiveFile;
+	public static File effectiveFile;
 
 	static {
-		effectiveFile = new File(Environment.getExternalStorageDirectory() + File.separator + LOCAL_LOG_FILE);
+		try {
+			effectiveFile = Util.createFileOnExternalStorage(LOCAL_LOG_FILE);
+		} catch (IOException e) {
+			LOG.warn(e.getMessage(), e);
+		}
 	}
+
 	
 	private java.util.logging.Logger logger;
 
