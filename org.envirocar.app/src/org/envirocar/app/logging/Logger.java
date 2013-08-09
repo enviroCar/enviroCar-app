@@ -26,6 +26,8 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.envirocar.app.util.Util;
+
 import android.util.Log;
 
 /**
@@ -45,18 +47,18 @@ public class Logger {
 	public static final int VERBOSE = 5;
 	public static final int DEBUG = 10;
 
-	public static final String NEW_LINE_CHAR = System
-			.getProperty("line.separator");
 	private static final String TAB_CHAR = "\t";
 
-	public static final String LOCAL_LOG_FILE = "enviroCar-log.log";
-	
 	private static List<Handler> handlers = new ArrayList<Handler>();
 	
 	static {
 		try {
+			handlers.add(new LocalFileHandler());
+		} catch (Exception e) {
+			Log.e(AndroidHandler.DEFAULT_TAG, e.getMessage(), e);
+		}
+		try {
 			handlers.add(new AndroidHandler());
-			handlers.add(new LocalFileHandler(LOCAL_LOG_FILE));
 		} catch (Exception e) {
 			Log.e(AndroidHandler.DEFAULT_TAG, e.getMessage(), e);
 		}
@@ -89,7 +91,7 @@ public class Logger {
 	private String createConcatenatedMessage(String message, Throwable e) {
 		StringBuilder sb = new StringBuilder(message);
 		sb.append(":");
-		sb.append(NEW_LINE_CHAR);
+		sb.append(Util.NEW_LINE_CHAR);
 
 		sb.append(convertExceptionToString(e));
 
@@ -105,7 +107,11 @@ public class Logger {
 		
 		synchronized (Logger.class) {
 			for (Handler h : handlers) {
-				h.logMessage(level, sb.toString());
+				try {
+					h.logMessage(level, sb.toString());
+				} catch (RuntimeException e) {
+					Log.e(AndroidHandler.DEFAULT_TAG, e.getMessage(), e);
+				}
 			}	
 		}
 		
@@ -146,23 +152,41 @@ public class Logger {
 	public static String convertExceptionToString(Throwable e) {
 		StringBuilder sb = new StringBuilder(e.getMessage());
 		sb.append(":");
-		sb.append(NEW_LINE_CHAR);
+		sb.append(Util.NEW_LINE_CHAR);
 
 		int count = 0;
 		for (StackTraceElement ste : e.getStackTrace()) {
 			sb.append(TAB_CHAR);
 			sb.append(ste.toString());
 			if (++count < e.getStackTrace().length)
-				sb.append(NEW_LINE_CHAR);
+				sb.append(Util.NEW_LINE_CHAR);
 		}
 
 		return sb.toString();
 	}
 
-	public static void initialize(FileOutputStream openFileOutput) {
+	public static void initialize(FileOutputStream openFileOutput, String appVersion) {
 		synchronized (Logger.class) {
 			handlers.add(new FileOutputStreamHandler(openFileOutput));	
 		}
+		
+		Logger initLogger = getLogger(Logger.class);
+		StringBuilder sb = new StringBuilder();
+		sb.append("System information:");
+		sb.append(Util.NEW_LINE_CHAR);
+		sb.append(System.getProperty("os.version"));
+		sb.append(", ");
+		sb.append(android.os.Build.VERSION.SDK_INT);
+		sb.append(", ");
+		sb.append(android.os.Build.DEVICE);
+		sb.append(", ");
+		sb.append(android.os.Build.MODEL);
+		sb.append(", ");
+		sb.append(android.os.Build.PRODUCT);
+		sb.append("; App version: ");
+		sb.append(appVersion);
+
+		initLogger.info(sb.toString());
 	}
 
 }

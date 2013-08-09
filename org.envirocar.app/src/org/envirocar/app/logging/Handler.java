@@ -26,4 +26,6 @@ public interface Handler {
 
 	void logMessage(int level, String string);
 
+	void initializeComplete();
+
 }

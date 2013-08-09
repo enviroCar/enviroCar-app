@@ -49,7 +49,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -98,6 +97,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	static final int START_STOP_MEASUREMENT = 3;
 	static final int SETTINGS = 4;
 	static final int HELP = 5;
+	static final int SEND_LOG = 6;
 
 	public static final int REQUEST_MY_GARAGE = 1336;
 	public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
@@ -115,13 +115,14 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
-			navDrawerItems = new NavMenuItem[6];
+			navDrawerItems = new NavMenuItem[7];
 			navDrawerItems[LOGIN] = new NavMenuItem(LOGIN, getResources().getString(R.string.menu_login),R.drawable.device_access_accounts);
 			navDrawerItems[SETTINGS] = new NavMenuItem(SETTINGS, getResources().getString(R.string.menu_settings),R.drawable.action_settings);
 			navDrawerItems[START_STOP_MEASUREMENT] = new NavMenuItem(START_STOP_MEASUREMENT, getResources().getString(R.string.menu_start),R.drawable.av_play);
 			navDrawerItems[DASHBOARD] = new NavMenuItem(DASHBOARD, getResources().getString(R.string.dashboard), R.drawable.dashboard);
 			navDrawerItems[MY_TRACKS] = new NavMenuItem(MY_TRACKS, getResources().getString(R.string.my_tracks),R.drawable.device_access_storage);
 			navDrawerItems[HELP] = new NavMenuItem(HELP, getResources().getString(R.string.menu_help), R.drawable.action_help);
+			navDrawerItems[SEND_LOG] = new NavMenuItem(SEND_LOG, getResources().getString(R.string.menu_send_log), R.drawable.action_report);
 		}
 		
 		if (application.requirementsFulfilled()) { // was requirementsFulfilled
@@ -538,6 +539,9 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			HelpFragment helpFragment = new HelpFragment();
             manager.beginTransaction().replace(R.id.content_frame, helpFragment, "HELP").addToBackStack(null).commit();
 			break;
+		case SEND_LOG:
+			SendLogFileFragment logFragment = new SendLogFileFragment();
+			manager.beginTransaction().replace(R.id.content_frame, logFragment, "SEND_LOG").addToBackStack(null).commit();
         default:
             break;
         }
