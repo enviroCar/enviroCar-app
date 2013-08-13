@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.acra.*;
+import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
@@ -42,12 +42,11 @@ import org.envirocar.app.commands.IntakeTemperature;
 import org.envirocar.app.commands.MAF;
 import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.Speed;
-import org.envirocar.app.exception.LocationInvalidException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.TracksException;
+import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.LocalFileHandler;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterLocal;
 import org.envirocar.app.storage.DbAdapterRemote;
@@ -218,14 +217,6 @@ public class ECApplication extends Application implements LocationListener {
 		startListener();
 		// If everything is available, start the service connector and listener
 		startBackgroundService();
-		//Make sure that there are coordinates for the first measurement
-		try {
-			measurement = new Measurement(locationLatitude, locationLongitude);
-		} catch (LocationInvalidException e) {
-			logger.warn(e.getMessage(), e);
-		}
-
-		
 	}
 	
 	private void initializeErrorHandling() {
@@ -801,55 +792,38 @@ public class ECApplication extends Application implements LocationListener {
 		// Create track new measurement if necessary
 
 		if (measurement == null) {
-			try {
-				measurement = new Measurement(locationLatitude,
-						locationLongitude);
-			} catch (LocationInvalidException e) {
-				logger.warn(e.getMessage(), e);
-			}
+			measurement = new Measurement(locationLatitude, locationLongitude);
 		}
 
 		// Insert the values if the measurement (with the coordinates) is young
-		// enough (5000ms) or create track new one if it is too old
+		// enough (5000ms) or create new one if it is too old
 
-		if (measurement != null) {
+		if (measurement.getLatitude() != 0.0 && measurement.getLongitude() != 0.0) {
 
-			if (Math.abs(measurement.getMeasurementTime()
-					- System.currentTimeMillis()) < 5000) {
-
-				measurement.setSpeed(speedMeasurement);
-				measurement.setMaf(mafMeasurement);	
-				measurement.setCalculatedMaf(calculatedMafMeasurement);
-				measurement.setRpm(rpmMeasurement);
-				measurement.setIntakePressure(intakePressureMeasurement);
-				measurement.setIntakeTemperature(intakeTemperatureMeasurement);
-				logger.info("new measurement");
-				logger.info(measurement.getLatitude() + " "
-								+ measurement.getLongitude());
-				logger.info(measurement.toString());
-
-				insertMeasurement(measurement);
-
-			} else {
-				try {
-					measurement = new Measurement(locationLatitude,
-							locationLongitude);
-				} catch (LocationInvalidException e) {
-					logger.warn(e.getMessage(), e);
-				}
+			if (Math.abs(measurement.getMeasurementTime() - System.currentTimeMillis()) > 5000) {
+				measurement = new Measurement(locationLatitude, locationLongitude);
 			}
-		}
 
+			measurement.setSpeed(speedMeasurement);
+			measurement.setMaf(mafMeasurement);	
+			measurement.setCalculatedMaf(calculatedMafMeasurement);
+			measurement.setRpm(rpmMeasurement);
+			measurement.setIntakePressure(intakePressureMeasurement);
+			measurement.setIntakeTemperature(intakeTemperatureMeasurement);
+			insertMeasurement(measurement);
+		} else {
+			logger.warn("Position by GPS isn't working correct");
+		}
 	}
 
 	/**
 	 * Helper method to insert track measurement into the database (ensures that
 	 * track measurement is only stored every 5 seconds and not faster...)
 	 * 
-	 * @param measurement2
+	 * @param insertMeasurement
 	 *            The measurement you want to insert
 	 */
-	private void insertMeasurement(Measurement measurement2) {
+	private void insertMeasurement(Measurement insertMeasurement) {
 
 		// TODO: This has to be added with the following conditions:
 		/*
@@ -862,16 +836,14 @@ public class ECApplication extends Application implements LocationListener {
 		 * sec) as well.)
 		 */
 
-		if (Math.abs(lastInsertTime - measurement2.getMeasurementTime()) > 5000) {
+		if (Math.abs(lastInsertTime - insertMeasurement.getMeasurementTime()) > 5000) {
 
-			lastInsertTime = measurement2.getMeasurementTime();
+			lastInsertTime = insertMeasurement.getMeasurementTime();
 
-			track.addMeasurement(measurement2);
+			track.addMeasurement(insertMeasurement);
 
-			logger.info(measurement2.toString());
+			logger.info("Add new measurement to track: " + insertMeasurement.toString());
 
-			//Toast.makeText(getApplicationContext(), measurement2.toString(),
-				//	Toast.LENGTH_SHORT).show();
 			Toast.makeText(getApplicationContext(), "" + measurement.getCalculatedMaf(),
 						Toast.LENGTH_SHORT).show();
 

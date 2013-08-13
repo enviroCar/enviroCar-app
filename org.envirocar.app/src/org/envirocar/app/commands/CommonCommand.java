@@ -193,5 +193,15 @@ public abstract class CommonCommand {
 	public void setCommandState(CommonCommandState commandState) {
 		this.commandState = commandState;
 	}
+	
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("Commandname: " + getCommandName());
+		sb.append(", Command: " + getCommand());
+		sb.append(", RawDatat: " + getRawData());
+		sb.append(", Result: " + getResult());
+		return super.toString();
+	}
 
 }

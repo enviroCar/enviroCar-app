@@ -45,7 +45,6 @@ import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 /**
  * Service for connection to Bluetooth device and running commands. Imported
@@ -304,7 +303,7 @@ public class BackgroundService extends Service {
 							bluetoothSocket.getOutputStream());
 				}
 			} catch (Exception e) {
-				logger.warn(e.getMessage(), e);
+				logger.warn("Error while sending command '" + currentJob.toString() + "'", e);
 				currentJob.setCommandState(CommonCommandState.EXECUTION_ERROR);
 			}
 

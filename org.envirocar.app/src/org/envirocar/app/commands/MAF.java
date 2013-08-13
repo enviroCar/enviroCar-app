@@ -23,8 +23,6 @@ package org.envirocar.app.commands;
 
 import org.envirocar.app.logging.Logger;
 
-import android.util.Log;
-
 /**
  * Mass Air Flow Value PID 01 10
  * 

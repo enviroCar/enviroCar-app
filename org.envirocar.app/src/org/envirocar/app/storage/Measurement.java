@@ -59,9 +59,7 @@ public class Measurement {
 	 *             If latitude AND longitude equal 0.0
 	 */
 
-	public Measurement(float latitude, float longitude)
-			throws LocationInvalidException {
-		if (latitude != 0.0 && longitude != 0.0) {
+	public Measurement(float latitude, float longitude) {
 			this.latitude = latitude;
 			this.longitude = longitude;
 			this.measurementTime = System.currentTimeMillis();
@@ -71,9 +69,6 @@ public class Measurement {
 			this.intake_temperature = 0;
 			this.intake_pressure = 0;
 			this.calculatedMaf = 0;
-		} else {
-			throw new LocationInvalidException();
-		}
 	}
 
 	

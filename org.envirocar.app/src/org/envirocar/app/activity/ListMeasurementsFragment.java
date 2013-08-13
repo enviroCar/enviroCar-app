@@ -36,7 +36,6 @@ import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.RestClient;
 import org.envirocar.app.application.UploadManager;
-import org.envirocar.app.exception.LocationInvalidException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterRemote;
@@ -55,7 +54,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
@@ -492,8 +490,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					} catch (JSONException e) {
 						logger.warn(e.getMessage(), e);
 					} catch (NumberFormatException e) {
-						logger.warn(e.getMessage(), e);
-					} catch (LocationInvalidException e) {
 						logger.warn(e.getMessage(), e);
 					} catch (ParseException e) {
 						logger.warn(e.getMessage(), e);
