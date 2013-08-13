@@ -169,8 +169,10 @@ public class ECApplication extends Application implements LocationListener {
 	 */
 	public boolean requirementsFulfilled() {
 		if (bluetoothAdapter == null) {
+			logger.warn("Bluetooth disabled");
 			return false;
 		} else {
+			logger.warn("Bluetooth enabled");
 			return bluetoothAdapter.isEnabled();
 		}
 	}
@@ -328,7 +330,7 @@ public class ECApplication extends Application implements LocationListener {
 					}
 
 				} catch (MeasurementsException e) {
-					logger.warn("The last track contains no measurements. I will delete it and create a new one.", e);
+					logger.warn("The last track contains no measurements. I will delete it and create a new one.");
 					dbAdapterLocal.deleteTrack(lastUsedTrack.getId());
 					track = new Track("123456", fuelType, carManufacturer,
 							carModel, sensorId, dbAdapterLocal); 
@@ -338,7 +340,7 @@ public class ECApplication extends Application implements LocationListener {
 				}
 
 			} catch (TracksException e) {
-				logger.warn("There was no track in the database so I created a new one", e);
+				logger.warn("There was no track in the database so I created a new one");
 				track = new Track("123456", fuelType, carManufacturer,
 						carModel, sensorId, dbAdapterLocal); 
 				track.setName("Track " + date);
@@ -728,7 +730,7 @@ public class ECApplication extends Application implements LocationListener {
 		startLocationManager();
 		//createNewTrackIfNecessary();
 		if (!serviceConnector.isRunning()) {
-			logger.info("service start");
+			logger.info("Background service starts");
 			startService(backgroundService);
 			bindService(backgroundService, serviceConnector,
 					Context.BIND_AUTO_CREATE);

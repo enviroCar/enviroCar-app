@@ -294,11 +294,12 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		// Show that track in the map
 
 		case R.id.startMap:
+			logger.info("Show in Map");
 			logger.info(Environment.getExternalStorageDirectory().toString());
 			File f = new File(Environment.getExternalStorageDirectory() + "/Android");
 			if (f.isDirectory()) {
 				ArrayList<Measurement> measurements = track.getMeasurements();
-				logger.info(String.valueOf(measurements.size()));
+				logger.info("Count of measurements in the track: " + String.valueOf(measurements.size()));
 				String[] trackCoordinates = extractCoordinates(measurements);
 				
 				if (trackCoordinates.length != 0){
@@ -357,6 +358,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
+		logger.info("Create view ListMeasurementsFragment");
 		super.onViewCreated(view, savedInstanceState);
 		elv.setGroupIndicator(getResources().getDrawable(
 				R.drawable.list_indicator));
@@ -365,7 +367,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		
 		//fetch local tracks
 		this.tracksList = dbAdapterLocal.getAllTracks();
-		logger.info("Number of tracks: " + tracksList.size());
+		logger.info("Number of tracks in the List: " + tracksList.size());
 		if (elvAdapter == null)
 			elvAdapter = new TracksListAdapter();
 		elv.setAdapter(elvAdapter);
@@ -674,8 +676,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		}
 
 		@Override
-		public View getChildView(int i, int i1, boolean b, View view,
-				ViewGroup viewGroup) {
+		public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
+			logger.info("Select a track");
 			//if (view == null || view.getId() != 10000100 + i + i1) {
 				Track currTrack = (Track) getChild(i, i1);
 				View row = ViewGroup.inflate(getActivity(),
@@ -701,8 +703,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					dfDuration.setTimeZone(TimeZone.getTimeZone("UTC"));
 					start.setText(sdf.format(currTrack.getStartTime()) + "");
 					end.setText(sdf.format(currTrack.getEndTime()) + "");
-					logger.info(currTrack.getEndTime() - currTrack.getStartTime()
-									+ "");
 					Date durationMillis = new Date(currTrack.getEndTime()
 							- currTrack.getStartTime());
 					duration.setText(dfDuration.format(durationMillis) + "");

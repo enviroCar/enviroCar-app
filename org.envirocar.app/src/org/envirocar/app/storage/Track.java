@@ -328,6 +328,7 @@ public class Track implements Comparable<Track> {
 		double maf = m.getMaf();
 		double calculatedMaf = m.getCalculatedMaf();
 
+		logger.info("Fuel type: " + this.fuelType);
 		if (maf > 0) {
 			if (this.fuelType.equals("gasoline")) {
 				return (maf / 14.7) / 747;
@@ -402,7 +403,7 @@ public class Track implements Comparable<Track> {
 	}
 	
 	/**
-	 * Returns the first measurement of this grack
+	 * Returns the first measurement of this track
 	 * 
 	 * @return
 	 * @throws MeasurementsException

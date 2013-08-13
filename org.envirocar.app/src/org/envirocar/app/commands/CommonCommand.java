@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import org.envirocar.app.logging.Logger;
+
 /**
  * Abstract command class that the other commands have to extend. Many things
  * are imported from Android OBD Reader project!
@@ -40,6 +42,8 @@ public abstract class CommonCommand {
 	protected String rawData = null;
 	private Long commandId;
 	private CommonCommandState commandState;
+	
+	private static final Logger logger = Logger.getLogger(CommonCommand.class);
 
 	/**
 	 * Default constructor to use
@@ -114,7 +118,8 @@ public abstract class CommonCommand {
 				stringbuilder.append((char) b);
 
 		rawData = stringbuilder.toString().trim();
-
+		logger.info("Command name: " + getCommandName() + ", Send '" + getCommand() + "', get raw data '" + rawData + "'");
+		
 		// clear buffer
 		buffer.clear();
 

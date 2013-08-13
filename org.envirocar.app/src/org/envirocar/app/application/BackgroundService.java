@@ -45,6 +45,7 @@ import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.widget.Toast;
 
 /**
  * Service for connection to Bluetooth device and running commands. Imported
@@ -124,7 +125,8 @@ public class BackgroundService extends Service {
 
 			startConnection();
 		} catch (Exception e) {
-			logger.warn(e.getMessage(), e);
+			logger.warn("Error while connecting to the OBDAdapter.", e);
+			Toast.makeText(getApplicationContext(), "Could not connect to OBD-Adapter!", Toast.LENGTH_LONG).show();
 			stopService();
 		}
 	}
