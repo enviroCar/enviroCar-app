@@ -30,6 +30,7 @@ import org.envirocar.app.views.RoundProgress;
 import org.envirocar.app.views.TypefaceEC;
 
 import android.graphics.Color;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -54,14 +55,11 @@ public class DashboardFragment extends SherlockFragment {
 	TextView speedTextView;
 	RoundProgress roundProgressSpeed;
 	TextView co2TextView;
+	TextView positionTextView;
 	RoundProgress roundProgressCO2;
 	DbAdapter dbAdapter;
 	ECApplication application;
 	private TextView sensor;
-	int speed;
-	int speedProgress;
-	double co2;
-	double co2Progress;
 	View dashboardView;
 
 	@Override
@@ -101,6 +99,8 @@ public class DashboardFragment extends SherlockFragment {
 				R.id.blue_progress_bar2);
 		sensor = (TextView) getView().findViewById(R.id.dashboard_current_sensor);
 		
+		positionTextView = (TextView) getView().findViewById(R.id.positionTextView);
+		
 		updateSensorOnDashboard();
 		
 		sensor.setOnClickListener(new OnClickListener() {
@@ -120,7 +120,8 @@ public class DashboardFragment extends SherlockFragment {
 
 				// Deal with the speed values
 
-				speed = application.getSpeedMeasurement();
+				int speed = application.getSpeedMeasurement();
+				int speedProgress;
 				if (!application.isImperialUnits()) {
 					speedTextView.setText(speed + " km/h");
 					if (speed <= 0)
@@ -144,7 +145,8 @@ public class DashboardFragment extends SherlockFragment {
 
 				// Deal with the co2 values
 
-				co2 = application.getCo2Measurement();
+				double co2 = application.getCo2Measurement();
+				double co2Progress;
 				
 				DecimalFormat twoDForm = new DecimalFormat("#.##");
 				
@@ -161,6 +163,25 @@ public class DashboardFragment extends SherlockFragment {
 					dashboardView.setBackgroundColor(Color.RED);
 				} else {
 					dashboardView.setBackgroundColor(Color.WHITE);
+				}
+				
+				// set location
+				
+				Location location = application.getLocation();
+				if (location != null && location.getLongitude() != 0 && location.getLatitude() != 0) {
+					StringBuffer sb = new StringBuffer();
+					sb.append("Provider: " + location.getProvider() + "\n");
+					sb.append("Lat: " + location.getLatitude() + "\n");
+					sb.append("Long: " + location.getLongitude() + "\n");
+					sb.append("Acc: " + location.getAccuracy() + "\n");
+					sb.append("Speed: " + location.getSpeed() + "\n");
+					positionTextView.setText(sb.toString());
+					positionTextView.setTextColor(Color.BLACK);
+					positionTextView.setBackgroundColor(Color.WHITE);
+				} else {
+					positionTextView.setText(R.string.no_current_position);
+					positionTextView.setTextColor(Color.WHITE);
+					positionTextView.setBackgroundColor(Color.RED);
 				}
 
 				// Repeat this in x ms

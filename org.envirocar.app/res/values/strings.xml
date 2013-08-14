@@ -56,6 +56,8 @@
     <string name="Co2emission">"CO\u2082 emission: "</string>
     <string name="title_activity_settings">Einstellungen</string>
     <string name="currentSpeed">Current Speed</string>
+    <string name="currentPosition">Current Position</string>
+    <string name="no_current_position">none</string>
     <string name="menu_start">Start</string>
     <string name="menu_stop">Stop</string>
     <string name="menu_upload">Upload</string>

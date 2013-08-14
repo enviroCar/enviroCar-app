@@ -27,6 +27,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.commands.EchoOff;
@@ -107,8 +108,7 @@ public class BackgroundService extends Service {
 
 		// Init bluetooth
 
-		String remoteDevice = preferences.getString(
-				org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY, null);
+		String remoteDevice = preferences.getString(SettingsActivity.BLUETOOTH_KEY, null);
 
 		// Stop if device is not available
 
@@ -125,8 +125,8 @@ public class BackgroundService extends Service {
 
 			startConnection();
 		} catch (IOException e) {
-			logger.warn("Error while connecting to the OBDAdapter.", e);
-			Toast.makeText(getApplicationContext(), "Could not connect to OBD-Adapter!", Toast.LENGTH_LONG).show();
+			logger.warn("Connection to " + remoteDevice + " failed:", e);
+			Toast.makeText(getApplicationContext(), "Connection to " + remoteDevice + " failed!", Toast.LENGTH_LONG).show();
 			stopService();
 		}
 	}

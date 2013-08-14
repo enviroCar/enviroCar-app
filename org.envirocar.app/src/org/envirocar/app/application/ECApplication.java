@@ -118,8 +118,7 @@ public class ECApplication extends Application implements LocationListener {
 	
 	// Measurement values
 	
-	private float locationLatitude;
-	private float locationLongitude;
+	private Location location;
 	private int speedMeasurement = 0;
 	private double co2Measurement = 0.0;
 	private double mafMeasurement;
@@ -213,6 +212,7 @@ public class ECApplication extends Application implements LocationListener {
 
 		initDbAdapter();
 		initLocationManager();
+		startLocationManager();
 		// Make a new listener to interpret the measurement values that are
 		// returned
 		logger.info("init listener");
@@ -308,7 +308,7 @@ public class ECApplication extends Application implements LocationListener {
 					// new track if last position is significantly different
 					// from the current position (more than 3 km)
 					if (Utils.getDistance(lastUsedTrack.getLastMeasurement().getLatitude(),lastUsedTrack.getLastMeasurement().getLongitude(),
-							locationLatitude, locationLongitude) > 3.0) {
+							location.getLatitude(), location.getLongitude()) > 3.0) {
 						logger.info("The last measurement's position is more than 3 km away. I will create a new track");
 						track = new Track("123456", fuelType, carManufacturer,
 								carModel, sensorId, dbAdapterLocal); 
@@ -382,7 +382,7 @@ public class ECApplication extends Application implements LocationListener {
 				// current position (more than 3 km)
 
 				if (Utils.getDistance(currentTrack.getLastMeasurement().getLatitude(),currentTrack.getLastMeasurement().getLongitude(),
-						locationLatitude, locationLongitude) > 3.0) {
+						location.getLatitude(), location.getLongitude()) > 3.0) {
 					track = new Track("123456", fuelType, carManufacturer,
 							carModel, sensorId, dbAdapterLocal); 
 					track.setName("Track " + date);
@@ -515,6 +515,8 @@ public class ECApplication extends Application implements LocationListener {
 			initLocationManager();
 		}
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
+				0, this);
+		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0,
 				0, this);
 	}
 
@@ -793,7 +795,7 @@ public class ECApplication extends Application implements LocationListener {
 		// Create track new measurement if necessary
 
 		if (measurement == null) {
-			measurement = new Measurement(locationLatitude, locationLongitude);
+			measurement = new Measurement(location.getLatitude(), location.getLongitude());
 		}
 
 		// Insert the values if the measurement (with the coordinates) is young
@@ -802,7 +804,7 @@ public class ECApplication extends Application implements LocationListener {
 		if (measurement.getLatitude() != 0.0 && measurement.getLongitude() != 0.0) {
 
 			if (Math.abs(measurement.getMeasurementTime() - System.currentTimeMillis()) > 5000) {
-				measurement = new Measurement(locationLatitude, locationLongitude);
+				measurement = new Measurement(location.getLatitude(), location.getLongitude());
 			}
 
 			measurement.setSpeed(speedMeasurement);
@@ -845,7 +847,7 @@ public class ECApplication extends Application implements LocationListener {
 
 			logger.info("Add new measurement to track: " + insertMeasurement.toString());
 
-			Toast.makeText(getApplicationContext(), "" + measurement.getCalculatedMaf(),
+			Toast.makeText(getApplicationContext(), "Calculated Mass Air Flow" + measurement.getCalculatedMaf(),
 						Toast.LENGTH_SHORT).show();
 
 		}
@@ -882,9 +884,8 @@ public class ECApplication extends Application implements LocationListener {
 	 */
 	@Override
 	public void onLocationChanged(Location location) {
-		locationLatitude = (float) location.getLatitude();
-		locationLongitude = (float) location.getLongitude();
-		logger.info("Get new position of the GPS_Provider");
+		this.location = location;
+		logger.info("Get new position of " + location.getProvider() + " : lat " + location.getLatitude() + " long: " + location.getLongitude());
 	}
 
 	@Override
@@ -922,6 +923,10 @@ public class ECApplication extends Application implements LocationListener {
 	 */
 	public int getSpeedMeasurement() {
 		return speedMeasurement;
+	}
+	
+	public Location getLocation() {
+		return location;
 	}
 
 	/**

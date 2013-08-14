@@ -35,8 +35,8 @@ public class Measurement {
 	// All measurement values
 
 	private int id;
-	private float latitude;
-	private float longitude;
+	private double latitude;
+	private double longitude;
 	private long measurementTime;
 	private int speed;
 	private double maf;
@@ -59,7 +59,7 @@ public class Measurement {
 	 *             If latitude AND longitude equal 0.0
 	 */
 
-	public Measurement(float latitude, float longitude) {
+	public Measurement(double latitude, double longitude) {
 			this.latitude = latitude;
 			this.longitude = longitude;
 			this.measurementTime = System.currentTimeMillis();
@@ -119,7 +119,7 @@ public class Measurement {
 	/**
 	 * @return the latitude
 	 */
-	public float getLatitude() {
+	public double getLatitude() {
 		return latitude;
 	}
 
@@ -127,14 +127,14 @@ public class Measurement {
 	 * @param latitude
 	 *            the latitude to set
 	 */
-	public void setLatitude(float latitude) {
+	public void setLatitude(double latitude) {
 		this.latitude = latitude;
 	}
 
 	/**
 	 * @return the longitude
 	 */
-	public float getLongitude() {
+	public double getLongitude() {
 		return longitude;
 	}
 
@@ -142,7 +142,7 @@ public class Measurement {
 	 * @param longitude
 	 *            the longitude to set
 	 */
-	public void setLongitude(float longitude) {
+	public void setLongitude(double longitude) {
 		this.longitude = longitude;
 	}
 
