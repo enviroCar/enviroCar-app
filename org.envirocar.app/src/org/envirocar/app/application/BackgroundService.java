@@ -124,7 +124,7 @@ public class BackgroundService extends Service {
 			bluetoothAdapter.cancelDiscovery();
 
 			startConnection();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			logger.warn("Error while connecting to the OBDAdapter.", e);
 			Toast.makeText(getApplicationContext(), "Could not connect to OBD-Adapter!", Toast.LENGTH_LONG).show();
 			stopService();

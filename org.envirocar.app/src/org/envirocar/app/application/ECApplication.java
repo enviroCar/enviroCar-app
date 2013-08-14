@@ -401,7 +401,7 @@ public class ECApplication extends Application implements LocationListener {
 				}
 
 			} catch (MeasurementsException e) {
-				logger.warn("The last track contains no measurements. I will delete it and create a new one.", e);
+				logger.warn("The last track contains no measurements. I will delete it and create a new one.");
 				dbAdapterLocal.deleteTrack(currentTrack.getId());
 				track = new Track("123456", fuelType, carManufacturer,
 						carModel, sensorId, dbAdapterLocal); 
@@ -653,8 +653,7 @@ public class ECApplication extends Application implements LocationListener {
 					String maf = commandResult;
 
 					try {
-						NumberFormat format = NumberFormat
-								.getInstance(Locale.GERMAN);
+						NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
 						Number number;
 						number = format.parse(maf);
 						mafMeasurement = number.doubleValue();
@@ -676,7 +675,7 @@ public class ECApplication extends Application implements LocationListener {
 								// Change to l/h
 								consumption=consumption*3600;
 							}
-						}else{
+						} else {
 							if (preferences.getString(PREF_KEY_FUEL_TYPE,
 									"gasoline").equals("gasoline")) {
 								consumption = (calculatedMafMeasurement / 14.7) / 747;
@@ -885,7 +884,7 @@ public class ECApplication extends Application implements LocationListener {
 	public void onLocationChanged(Location location) {
 		locationLatitude = (float) location.getLatitude();
 		locationLongitude = (float) location.getLongitude();
-
+		logger.info("Get new position of the GPS_Provider");
 	}
 
 	@Override

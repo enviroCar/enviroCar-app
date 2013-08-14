@@ -102,6 +102,8 @@ public class Logger {
 		StringBuilder sb = new StringBuilder();
 		sb.append("[");
 		sb.append(this.name);
+		sb.append(":");
+		sb.append(Thread.currentThread().getStackTrace()[5].getLineNumber());
 		sb.append("] ");
 		sb.append(message);
 		

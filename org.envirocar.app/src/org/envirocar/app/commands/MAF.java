@@ -21,6 +21,8 @@
 
 package org.envirocar.app.commands;
 
+import java.util.Locale;
+
 import org.envirocar.app.logging.Logger;
 
 /**
@@ -48,11 +50,13 @@ public class MAF extends CommonCommand {
 				int bytefour = buffer.get(3);
 				maf = (bytethree * 256 + bytefour) / 100.0f;
 			}
+		} catch (IndexOutOfBoundsException ioobe){
+			logger.warn("Get wrong result of the obd adapter");
 		} catch (Exception e) {
-			logger.warn(e.getMessage(), e);
+			logger.warn("Error while creating the mass air flow value", e);
 		}
 
-		return String.format("%.2f%s", maf, "");
+		return String.format(Locale.getDefault(),"%.2f%s", maf, "");
 	}
 
 	@Override

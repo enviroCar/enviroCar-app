@@ -136,17 +136,16 @@ public abstract class CommonCommand {
 
 	/**
 	 * @return the raw command response in string representation.
+	 * 
+	 * TODO rawData is null, when car switch. What should be done in this case?
 	 */
-	//TODO null pointer when car is off...
-	
 	public String getRawData() {
-		if (rawData.contains("SEARCHING") || rawData.contains("DATA")
+		if (rawData == null || rawData.contains("SEARCHING") || rawData.contains("DATA")
 				//TODO check if cars do this!!
 				|| rawData.contains("OK")
 				) {
 			rawData = "NODATA";
 		}
-
 		return rawData;
 	}
 
@@ -204,7 +203,7 @@ public abstract class CommonCommand {
 		StringBuffer sb = new StringBuffer();
 		sb.append("Commandname: " + getCommandName());
 		sb.append(", Command: " + getCommand());
-		sb.append(", RawDatat: " + getRawData());
+		sb.append(", RawData: " + getRawData());
 		sb.append(", Result: " + getResult());
 		return super.toString();
 	}
