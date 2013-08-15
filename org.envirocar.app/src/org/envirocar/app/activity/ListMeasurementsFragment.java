@@ -432,43 +432,53 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				protected Track doInBackground(JSONObject... trackJson) {
 					Track t;
 					try {
-						t = new Track(trackJson[0].getJSONObject("properties").getString("id"));
+
+						JSONObject trackProperties = trackJson[0].getJSONObject("properties");
+						t = new Track(trackProperties.getString("id"));
 						t.setDatabaseAdapter(dbAdapterRemote);
 						String trackName = "unnamed Track #"+ct;
 						try{
-							trackName = trackJson[0].getJSONObject("properties").getString("name");
+							trackName = trackProperties.getString("name");
 						}catch (JSONException e){
 							logger.warn(e.getMessage(), e);
 						}
 						t.setName(trackName);
 						String description = "";
 						try{
-							description = trackJson[0].getJSONObject("properties").getString("description");
+							description = trackProperties.getString("description");
 						}catch (JSONException e){
 							logger.warn(e.getMessage(), e);
 						}
 						t.setDescription(description);
 						String manufacturer = "unknown";
+						JSONObject sensorProperties = trackProperties.getJSONObject("sensor").getJSONObject("properties");
 						try{
-							manufacturer = trackJson[0].getJSONObject("properties").getJSONObject("sensor").getJSONObject("properties").getString("manufacturer");
+							manufacturer = sensorProperties.getString("manufacturer");
 						}catch (JSONException e){
 							logger.warn(e.getMessage(), e);
 						}
 						t.setCarManufacturer(manufacturer);
 						String carModel = "unknown";
 						try{
-							carModel = trackJson[0].getJSONObject("properties").getJSONObject("sensor").getJSONObject("properties").getString("model");
+							carModel = sensorProperties.getString("model");
 						}catch (JSONException e){
 							logger.warn(e.getMessage(), e);
 						}
 						t.setCarModel(carModel);
 						String sensorId = "undefined";
 						try{
-							sensorId = trackJson[0].getJSONObject("properties").getJSONObject("sensor").getJSONObject("properties").getString("id");
+							sensorId = sensorProperties.getString("id");
 						}catch (JSONException e) {
 							logger.warn(e.getMessage(), e);
 						}
 						t.setSensorID(sensorId);
+						String fuelType = "undefined";
+						try{
+							fuelType = sensorProperties.getString("fuelType");
+						}catch (JSONException e) {
+							logger.warn(e.getMessage(), e);
+						}
+						t.setFuelType(fuelType);
 						//include server properties tracks created, modified?
 						
 						t.commitTrackToDatabase();
@@ -477,13 +487,21 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						Measurement recycleMeasurement;
 						
 						for (int j = 0; j < trackJson[0].getJSONArray("features").length(); j++) {
+							
+							JSONObject measurementJsonObject = trackJson[0].getJSONArray("features").getJSONObject(j);
 							recycleMeasurement = new Measurement(
-									Float.valueOf(trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("geometry").getJSONArray("coordinates").getString(1)),
-									Float.valueOf(trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("geometry").getJSONArray("coordinates").getString(0)));
-
-							recycleMeasurement.setMaf((trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("properties").getJSONObject("phenomenons").getJSONObject("MAF").getDouble("value")));
-							recycleMeasurement.setSpeed((trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("properties").getJSONObject("phenomenons").getJSONObject("Speed").getInt("value")));
-							recycleMeasurement.setMeasurementTime(Utils.isoDateToLong((trackJson[0].getJSONArray("features").getJSONObject(j).getJSONObject("properties").getString("time"))));
+									Float.valueOf(measurementJsonObject.getJSONObject("geometry").getJSONArray("coordinates").getString(1)),
+									Float.valueOf(measurementJsonObject.getJSONObject("geometry").getJSONArray("coordinates").getString(0)));
+							JSONObject properties = measurementJsonObject.getJSONObject("properties");
+							JSONObject phenomenons = properties.getJSONObject("phenomenons");
+							if (phenomenons.has("MAF")) {
+								recycleMeasurement.setMaf((phenomenons.getJSONObject("MAF").getDouble("value")));
+							}
+							if (phenomenons.has("Calculated MAF")) {
+								recycleMeasurement.setCalculatedMaf((phenomenons.getJSONObject("Calculated MAF").getDouble("value")));
+							}
+							recycleMeasurement.setSpeed((phenomenons.getJSONObject("Speed").getInt("value")));
+							recycleMeasurement.setMeasurementTime(Utils.isoDateToLong((properties.getString("time"))));
 							recycleMeasurement.setTrack(t);
 							t.addMeasurement(recycleMeasurement);
 						}
@@ -677,7 +695,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 		@Override
 		public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
-			logger.info("Select a track");
+			logger.info("Selects a track");
 			//if (view == null || view.getId() != 10000100 + i + i1) {
 				Track currTrack = (Track) getChild(i, i1);
 				View row = ViewGroup.inflate(getActivity(),
@@ -694,6 +712,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						.findViewById(R.id.track_details_duration_textview);
 				TextView co2 = (TextView) row
 						.findViewById(R.id.track_details_co2_textview);
+				TextView consumptionTextView = (TextView) row
+						.findViewById(R.id.track_details_consumption_textview);
 				TextView description = (TextView) row.findViewById(R.id.track_details_description_textview);
 
 				try {
@@ -703,8 +723,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					dfDuration.setTimeZone(TimeZone.getTimeZone("UTC"));
 					start.setText(sdf.format(currTrack.getStartTime()) + "");
 					end.setText(sdf.format(currTrack.getEndTime()) + "");
-					Date durationMillis = new Date(currTrack.getEndTime()
-							- currTrack.getStartTime());
+					Date durationMillis = new Date(currTrack.getDurationInMillis());
 					duration.setText(dfDuration.format(durationMillis) + "");
 					if (!application.isImperialUnits()) {
 						length.setText(twoDForm.format(currTrack.getLengthOfTrack()) + " km");
@@ -714,7 +733,10 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					car.setText(currTrack.getCarManufacturer() + " "
 							+ currTrack.getCarModel());
 					description.setText(currTrack.getDescription());
-					co2.setText(twoDForm.format(currTrack.getCO2Average()) + " kg/h");
+					double consumption = currTrack.getFuelConsumptionPerHour();
+					double literOn100km = currTrack.getLiterPerHundredKm();
+					co2.setText(twoDForm.format(currTrack.getGramsPerKm()) + "g/km");
+					consumptionTextView.setText(twoDForm.format(consumption) + " l/h (" + twoDForm.format(literOn100km) + " l/100 km)");
 				} catch (Exception e) {
 					logger.warn(e.getMessage(), e);
 				}

@@ -86,14 +86,14 @@ public class BackgroundService extends Service {
 
 	@Override
 	public void onDestroy() {
+		logger.info("Stops the background service");
 		stopService();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-
+		logger.info("Starts the background service");
 		startBackgroundService();
-
 		return START_STICKY;
 	}
 
@@ -202,7 +202,6 @@ public class BackgroundService extends Service {
 
 		// Set waiting list execution counter
 		counter = 0L;
-
 	}
 
 	/**
@@ -265,10 +264,6 @@ public class BackgroundService extends Service {
 			return isTheServiceRunning.get();
 		}
 
-		public void executeWaitingList() {
-			runWaitingList();
-		}
-
 		public void newJobToWaitingList(CommonCommand job) {
 			waitingList.add(job);
 
@@ -313,7 +308,9 @@ public class BackgroundService extends Service {
 
 			if (currentJob != null) {
 				currentJob.setCommandState(CommonCommandState.FINISHED);
-				callbackListener.receiveUpdate(currentJob);
+				if (callbackListener != null) {
+					callbackListener.receiveUpdate(currentJob);
+				}
 			}
 		}
 

@@ -516,8 +516,6 @@ public class ECApplication extends Application implements LocationListener {
 		}
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
 				0, this);
-		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0,
-				0, this);
 	}
 
 	/**
@@ -727,23 +725,27 @@ public class ECApplication extends Application implements LocationListener {
 	 * commands. also opens the db and starts the gps.
 	 */
 	public void startConnection() {
+		logger.info("Starts the recording of a track");
 		initDbAdapter();
 		startLocationManager();
 		//createNewTrackIfNecessary();
 		if (!serviceConnector.isRunning()) {
-			logger.info("Background service starts");
 			startService(backgroundService);
 			bindService(backgroundService, serviceConnector,
 					Context.BIND_AUTO_CREATE);
 		}
-		handler.post(waitingListRunnable);
+		try {
+			handler.post(waitingListRunnable);
+		} catch (Exception e) {
+			logger.severe("NullPointerException occured: Handler is null: " + (handler == null) + " waitingList is null: " + (waitingListRunnable == null), e);
+		}
 	}
 
 	/**
 	 * Ends the connection with the Bluetooth Adapter. also stops gps and closes the db.
 	 */
 	public void stopConnection() {
-
+		logger.info("Stops the recording of a track");
 		if (serviceConnector != null && serviceConnector.isRunning()) {
 			stopService(backgroundService);
 			unbindService(serviceConnector);
@@ -763,7 +765,11 @@ public class ECApplication extends Application implements LocationListener {
 			if (serviceConnector != null && serviceConnector.isRunning())
 				addCommandstoWaitinglist();
 
-			handler.postDelayed(waitingListRunnable, 2000);
+			try {
+				handler.postDelayed(waitingListRunnable, 2000);
+			} catch (NullPointerException e) {
+				logger.severe("NullPointerException occured: Handler is null: " + (handler == null) + " waitingList is null: " + (waitingListRunnable == null), e);
+			}
 		}
 	};
 

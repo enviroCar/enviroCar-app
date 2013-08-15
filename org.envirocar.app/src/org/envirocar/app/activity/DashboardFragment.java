@@ -179,7 +179,7 @@ public class DashboardFragment extends SherlockFragment {
 					positionTextView.setTextColor(Color.BLACK);
 					positionTextView.setBackgroundColor(Color.WHITE);
 				} else {
-					positionTextView.setText(R.string.no_current_position);
+					positionTextView.setText(R.string.positioning_Info);
 					positionTextView.setTextColor(Color.WHITE);
 					positionTextView.setBackgroundColor(Color.RED);
 				}

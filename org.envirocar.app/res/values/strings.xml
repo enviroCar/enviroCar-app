@@ -54,9 +54,11 @@
     <string name="end">"End: "</string>
     <string name="length">"Length: "</string>
     <string name="Co2emission">"CO\u2082 emission: "</string>
+    <string name="consumption">"Consumption: "</string>
     <string name="title_activity_settings">Einstellungen</string>
     <string name="currentSpeed">Current Speed</string>
     <string name="currentPosition">Current Position</string>
+    <string name="positioning_Info">The positioning is based on GPS, to have a precised positions for the measurement. Please wait until you get GPS coordinates.</string>
     <string name="no_current_position">none</string>
     <string name="menu_start">Start</string>
     <string name="menu_stop">Stop</string>
