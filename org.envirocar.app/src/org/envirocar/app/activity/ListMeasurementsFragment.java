@@ -54,6 +54,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Message;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
@@ -329,7 +330,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				tracksList.remove(itemSelect);
 				elvAdapter.notifyDataSetChanged();
 			} else {
-				Crouton.showText(getActivity(), R.string.not_possible_for_remote, Style.INFO);
+				createDeleteDialog(track);
 			}
 			return true;
 			
@@ -354,6 +355,50 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		default:
 			return super.onContextItemSelected(item);
 		}
+	}
+
+	private void createDeleteDialog(final Track track) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setMessage(R.string.deleteRemoteTrackQuestion)
+				.setPositiveButton(R.string.yes,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								final String username = ((ECApplication) getActivity()
+										.getApplication()).getUser()
+										.getUsername();
+								final String token = ((ECApplication) getActivity()
+										.getApplication()).getUser().getToken();
+								RestClient.deleteRemoteTrack(username, token,
+										track.getId(),
+										new JsonHttpResponseHandler() {
+											@Override
+											protected void handleMessage(
+													Message msg) {
+												if (dbAdapterRemote
+														.hasTrack(track.getId())) {
+													dbAdapterRemote
+															.deleteTrack(track
+																	.getId());
+													tracksList
+															.remove(itemSelect);
+													elvAdapter
+															.notifyDataSetChanged();
+													Crouton.showText(
+															getActivity(),
+															getString(R.string.remoteTrackDeleted),
+															Style.INFO);
+												}
+											}
+										});
+							}
+						})
+				.setNegativeButton(R.string.no,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								// do nothing
+							}
+						});
+		builder.create().show();
 	}
 
 	@Override

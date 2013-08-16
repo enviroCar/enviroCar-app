@@ -488,7 +488,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         		try{
         			((ListMeasurementsFragment) getSupportFragmentManager().findFragmentByTag("MY_TRACKS")).clearRemoteTracks();
         		} catch (NullPointerException e){
-        			logger.warn(e.getMessage(), e);
+        			logger.warn("Error while clear the remote track list", e);
         			//do nothing, the fragment hasnt been initialized yet.
         		}
         		Crouton.makeText(this, R.string.bye_bye, Style.CONFIRM).show();

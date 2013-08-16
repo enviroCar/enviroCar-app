@@ -326,4 +326,10 @@ public class DbAdapterLocal implements DbAdapter {
 			throw new TracksException("No tracks in local database!");
 	}
 
+	@Override
+	public boolean hasTrack(String id) {
+		logger.warn("Not implemented");
+		return false;
+	}
+
 }

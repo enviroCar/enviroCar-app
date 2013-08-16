@@ -242,6 +242,20 @@ public class DbAdapterRemote implements DbAdapter {
 		t.setLocalTrack(false);
 		return t;
 	}
+	
+	@Override
+	public boolean hasTrack(String id) {
+		Cursor c = mDb.query(DATABASE_TABLE_TRACKS, new String[] { KEY_ROWID,
+				KEY_TRACK_NAME, KEY_TRACK_DESCRIPTION,
+				KEY_TRACK_CAR_MANUFACTURER, KEY_TRACK_CAR_MODEL,
+				KEY_TRACK_FUEL_TYPE, KEY_TRACK_VIN, KEY_TRACK_SENSOR_ID }, KEY_ROWID + " = \"" + id
+				+ "\"", null, null, null, null);
+		if (c.getCount() > 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
 
 	@Override
 	public void deleteAllTracks() {
@@ -346,10 +360,8 @@ public class DbAdapterRemote implements DbAdapter {
 
 	@Override
 	public void deleteTrack(String id) {
-		/*
-		 * This is not supported for the remote adapter.
-		 */
-
+		mDb.delete(DATABASE_TABLE, KEY_TRACK + "='" + id + "'", null);
+		mDb.delete(DATABASE_TABLE_TRACKS, "_id='" + id + "'", null);
 	}
 
 }
