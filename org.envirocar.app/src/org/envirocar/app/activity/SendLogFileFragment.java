@@ -56,7 +56,7 @@ public class SendLogFileFragment extends SherlockFragment {
 
 	private static final Logger logger = Logger
 			.getLogger(SendLogFileFragment.class);
-	private static final String REPORTING_EMAIL = "m.rieke@52north.org";
+	private static final String REPORTING_EMAIL = "envirocar@52north.org";
 	private static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.getDefault());
 	private EditText whenField;
 	private EditText comments;
