@@ -23,7 +23,6 @@ package org.envirocar.app.storage;
 
 import java.util.ArrayList;
 
-import org.envirocar.app.exception.LocationInvalidException;
 import org.envirocar.app.exception.TracksException;
 import org.envirocar.app.logging.Logger;
 
@@ -32,7 +31,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
 
 /**
  * Implementation of DbAdapter
@@ -189,23 +187,20 @@ public class DbAdapterLocal implements DbAdapter {
 			String calculated_maf = c.getString(9);
 			// String track = c.getString(6);
 
-			try {
-				Measurement measurement = new Measurement(Float.valueOf(lat),
-						Float.valueOf(lon));
-				measurement.setId(Integer.valueOf(row));
-				measurement.setMeasurementTime(Long.valueOf(time));
-				measurement.setSpeed(Integer.valueOf(speed));
-				measurement.setRpm(Integer.valueOf(rpm));
-				measurement.setIntakeTemperature(Integer.valueOf(intake_temperature));
-				measurement.setIntakePressure(Integer.valueOf(intake_pressure));
-				measurement.setMaf(Double.valueOf(maf));
-				measurement.setCalculatedMaf(Double.valueOf(calculated_maf));
-				measurement.setTrack(track);
+			Measurement measurement = new Measurement(Float.valueOf(lat),
+					Float.valueOf(lon));
+			measurement.setId(Integer.valueOf(row));
+			measurement.setMeasurementTime(Long.valueOf(time));
+			measurement.setSpeed(Integer.valueOf(speed));
+			measurement.setRpm(Integer.valueOf(rpm));
+			measurement.setIntakeTemperature(Integer
+					.valueOf(intake_temperature));
+			measurement.setIntakePressure(Integer.valueOf(intake_pressure));
+			measurement.setMaf(Double.valueOf(maf));
+			measurement.setCalculatedMaf(Double.valueOf(calculated_maf));
+			measurement.setTrack(track);
 
-				allMeasurements.add(measurement);
-			} catch (LocationInvalidException e) {
-				logger.warn(e.getMessage(), e);
-			}
+			allMeasurements.add(measurement);
 
 			c.moveToNext();
 		}
@@ -329,6 +324,12 @@ public class DbAdapterLocal implements DbAdapter {
 			return trackList.get(trackList.size() - 1);
 		} else
 			throw new TracksException("No tracks in local database!");
+	}
+
+	@Override
+	public boolean hasTrack(String id) {
+		logger.warn("Not implemented");
+		return false;
 	}
 
 }

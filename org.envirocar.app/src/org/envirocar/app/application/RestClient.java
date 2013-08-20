@@ -41,7 +41,14 @@ public class RestClient {
 	public static void downloadTracks(String user, String token, JsonHttpResponseHandler handler){
 		client.addHeader("X-User", user);
 		client.addHeader("X-Token", token);
-		client.get(ECApplication.BASE_URL+"/users/"+user+"/tracks", handler); //TODO use pagination
+//		client.get(ECApplication.BASE_URL+"/users/"+user+"/tracks", handler);
+		client.get(ECApplication.BASE_URL+"/users/"+user+"/tracks?limit=5&page=0", handler); //TODO use pagination
+	}
+	
+	public static void deleteRemoteTrack(String user, String token, String id, JsonHttpResponseHandler handler){
+		client.addHeader("X-User", user);
+		client.addHeader("X-Token", token);
+		client.delete(ECApplication.BASE_URL+"/users/"+user+"/tracks/" + id, handler);
 	}
 	
 	public static void downloadTrack(String user, String token, String id, JsonHttpResponseHandler handler){

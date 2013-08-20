@@ -22,6 +22,9 @@
             android:key="pref_always_upload"
             android:title="@string/pref_always_upload" />
         <CheckBoxPreference
+            android:key="pref_display_always_activ"
+            android:title="@string/pref_display_always_activ" />
+        <CheckBoxPreference
             android:key="pref_imperial_unit"
             android:title="@string/imperial_unit" />
         <CheckBoxPreference 

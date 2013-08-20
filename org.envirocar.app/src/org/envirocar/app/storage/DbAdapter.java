@@ -95,6 +95,15 @@ public interface DbAdapter {
 	 * @return The desired track
 	 */
 	public Track getTrack(String id);
+	
+	/**
+	 * Returns <code>true</code> if a track with the given id is in the Database
+	 * 
+	 * @param id
+	 * 		The id id ot the checked track
+	 * @return exists a track with the id
+	 */
+	public boolean hasTrack(String id);
 
 	/**
 	 * Deletes all tracks and measurements in the database

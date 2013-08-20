@@ -27,6 +27,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.commands.EchoOff;
@@ -45,7 +46,7 @@ import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Service for connection to Bluetooth device and running commands. Imported
@@ -85,14 +86,14 @@ public class BackgroundService extends Service {
 
 	@Override
 	public void onDestroy() {
+		logger.info("Stops the background service");
 		stopService();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-
+		logger.info("Starts the background service");
 		startBackgroundService();
-
 		return START_STICKY;
 	}
 
@@ -107,8 +108,7 @@ public class BackgroundService extends Service {
 
 		// Init bluetooth
 
-		String remoteDevice = preferences.getString(
-				org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY, null);
+		String remoteDevice = preferences.getString(SettingsActivity.BLUETOOTH_KEY, null);
 
 		// Stop if device is not available
 
@@ -124,8 +124,9 @@ public class BackgroundService extends Service {
 			bluetoothAdapter.cancelDiscovery();
 
 			startConnection();
-		} catch (Exception e) {
-			logger.warn(e.getMessage(), e);
+		} catch (IOException e) {
+			logger.warn("Connection to " + remoteDevice + " failed:", e);
+			Toast.makeText(getApplicationContext(), "Connection to " + remoteDevice + " failed!", Toast.LENGTH_LONG).show();
 			stopService();
 		}
 	}
@@ -201,7 +202,6 @@ public class BackgroundService extends Service {
 
 		// Set waiting list execution counter
 		counter = 0L;
-
 	}
 
 	/**
@@ -264,10 +264,6 @@ public class BackgroundService extends Service {
 			return isTheServiceRunning.get();
 		}
 
-		public void executeWaitingList() {
-			runWaitingList();
-		}
-
 		public void newJobToWaitingList(CommonCommand job) {
 			waitingList.add(job);
 
@@ -304,7 +300,7 @@ public class BackgroundService extends Service {
 							bluetoothSocket.getOutputStream());
 				}
 			} catch (Exception e) {
-				logger.warn(e.getMessage(), e);
+				logger.warn("Error while sending command '" + currentJob.toString() + "'", e);
 				currentJob.setCommandState(CommonCommandState.EXECUTION_ERROR);
 			}
 
@@ -312,7 +308,9 @@ public class BackgroundService extends Service {
 
 			if (currentJob != null) {
 				currentJob.setCommandState(CommonCommandState.FINISHED);
-				callbackListener.receiveUpdate(currentJob);
+				if (callbackListener != null) {
+					callbackListener.receiveUpdate(currentJob);
+				}
 			}
 		}
 

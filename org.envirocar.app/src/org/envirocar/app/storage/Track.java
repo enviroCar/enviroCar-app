@@ -48,6 +48,7 @@ public class Track implements Comparable<Track> {
 	private String fuelType;
 	private String sensorID;
 	private boolean localTrack;
+	private Double consumptionPerHour;
 
 	/**
 	 * @return the localTrack
@@ -330,16 +331,16 @@ public class Track implements Comparable<Track> {
 
 		if (maf > 0) {
 			if (this.fuelType.equals("gasoline")) {
-				return (maf / 14.7) / 747;
+				return (maf / 14.7) / 747 * 3600;
 			} else if (this.fuelType.equals("diesel")) {
-				return (maf / 14.5) / 832;
+				return (maf / 14.5) / 832 * 3600;
 			} else
 				throw new FuelConsumptionException();
 		} else {
 			if (this.fuelType.equals("gasoline")) {
-				return (calculatedMaf / 14.7) / 747;
+				return (calculatedMaf / 14.7) / 747 * 3600;
 			} else if (this.fuelType.equals("diesel")) {
-				return (calculatedMaf / 14.5) / 832;
+				return (calculatedMaf / 14.5) / 832 * 3600;
 			} else
 				throw new FuelConsumptionException();
 		}
@@ -402,7 +403,7 @@ public class Track implements Comparable<Track> {
 	}
 	
 	/**
-	 * Returns the first measurement of this grack
+	 * Returns the first measurement of this track
 	 * 
 	 * @return
 	 * @throws MeasurementsException
@@ -432,6 +433,21 @@ public class Track implements Comparable<Track> {
 		}
 		return co2Average;
 	}
+	
+	public double getFuelConsumptionPerHour() {
+		if (consumptionPerHour == null) {
+			consumptionPerHour = 0.0;
+			try {
+				for (int i = 0; i < measurements.size(); i++) {
+					consumptionPerHour = consumptionPerHour + getFuelConsumptionOfMeasurement(i);
+				}
+				consumptionPerHour = consumptionPerHour / measurements.size();
+			} catch (FuelConsumptionException e) {
+				logger.warn(e.getMessage(),e);
+			}
+		}
+		return consumptionPerHour;
+	}
 
 	@Override
 	public int compareTo(Track t) {
@@ -441,6 +457,24 @@ public class Track implements Comparable<Track> {
 			logger.warn(e.getMessage(), e);
 		} 
 		return 0;
+	}
+
+	public double getLiterPerHundredKm() throws MeasurementsException {
+		return consumptionPerHour * getDurationInMillis() / (1000 * 60 * 60) / getLengthOfTrack() * 100;
+	}
+
+	public long getDurationInMillis() throws MeasurementsException {
+		return getEndTime() - getStartTime();
+	}
+
+	public double getGramsPerKm() throws FuelConsumptionException, MeasurementsException {
+
+		if (this.fuelType.equals("gasoline")) {
+			return getLiterPerHundredKm() * 23.3;
+		} else if (this.fuelType.equals("diesel")) {
+			return getLiterPerHundredKm() * 26.4;
+		} else
+			throw new FuelConsumptionException();
 	}
 
 }
