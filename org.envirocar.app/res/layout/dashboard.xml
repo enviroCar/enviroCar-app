@@ -22,7 +22,7 @@
         android:layout_height="35dip"
         android:padding="3dip"
         myNamespace:max="100"
-        myNamespace:progress="50"
+        myNamespace:progress="0"
         myNamespace:progressDrawable="@drawable/red_progress_clip"
         myNamespace:track="@drawable/progress_bar_fill_bg"
     />
@@ -49,10 +49,9 @@
         android:layout_height="35dip"
         android:padding="3dip"
         myNamespace:max="100"
-        myNamespace:progress="50"
+        myNamespace:progress="0"
         myNamespace:progressDrawable="@drawable/red_progress_clip"
-        myNamespace:track="@drawable/progress_bar_fill_bg"
-    />
+        myNamespace:track="@drawable/progress_bar_fill_bg" />
 
     <TextView
         android:id="@+id/co2TextView"
@@ -79,8 +78,23 @@
         android:drawableRight="@drawable/content_edit"
         android:clickable="true"
         android:textAppearance="?android:attr/textAppearanceMedium" />
-
-  
-
+    
+    <TextView
+        android:id="@+id/positionInfoTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="15dp"
+        android:text="@string/currentPosition"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+    
+    <TextView
+        android:id="@+id/positionTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:maxLines="5"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp" />
 
 </LinearLayout>

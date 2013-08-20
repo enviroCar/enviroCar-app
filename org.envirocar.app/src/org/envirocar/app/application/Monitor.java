@@ -47,11 +47,6 @@ public interface Monitor {
 	boolean isRunning();
 
 	/**
-	 * starts the execution of the waiting list (list with obd commands)
-	 */
-	void executeWaitingList();
-
-	/**
 	 * adds a new DommonCommand to the waiting list
 	 * 
 	 * @param newCommand

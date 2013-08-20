@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.acra.*;
+import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
@@ -42,12 +42,11 @@ import org.envirocar.app.commands.IntakeTemperature;
 import org.envirocar.app.commands.MAF;
 import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.Speed;
-import org.envirocar.app.exception.LocationInvalidException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.TracksException;
+import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.LocalFileHandler;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterLocal;
 import org.envirocar.app.storage.DbAdapterRemote;
@@ -119,8 +118,7 @@ public class ECApplication extends Application implements LocationListener {
 	
 	// Measurement values
 	
-	private float locationLatitude;
-	private float locationLongitude;
+	private Location location;
 	private int speedMeasurement = 0;
 	private double co2Measurement = 0.0;
 	private double mafMeasurement;
@@ -170,8 +168,10 @@ public class ECApplication extends Application implements LocationListener {
 	 */
 	public boolean requirementsFulfilled() {
 		if (bluetoothAdapter == null) {
+			logger.warn("Bluetooth disabled");
 			return false;
 		} else {
+			logger.warn("Bluetooth enabled");
 			return bluetoothAdapter.isEnabled();
 		}
 	}
@@ -212,20 +212,13 @@ public class ECApplication extends Application implements LocationListener {
 
 		initDbAdapter();
 		initLocationManager();
+		startLocationManager();
 		// Make a new listener to interpret the measurement values that are
 		// returned
 		logger.info("init listener");
 		startListener();
 		// If everything is available, start the service connector and listener
 		startBackgroundService();
-		//Make sure that there are coordinates for the first measurement
-		try {
-			measurement = new Measurement(locationLatitude, locationLongitude);
-		} catch (LocationInvalidException e) {
-			logger.warn(e.getMessage(), e);
-		}
-
-		
 	}
 	
 	private void initializeErrorHandling() {
@@ -315,7 +308,7 @@ public class ECApplication extends Application implements LocationListener {
 					// new track if last position is significantly different
 					// from the current position (more than 3 km)
 					if (Utils.getDistance(lastUsedTrack.getLastMeasurement().getLatitude(),lastUsedTrack.getLastMeasurement().getLongitude(),
-							locationLatitude, locationLongitude) > 3.0) {
+							location.getLatitude(), location.getLongitude()) > 3.0) {
 						logger.info("The last measurement's position is more than 3 km away. I will create a new track");
 						track = new Track("123456", fuelType, carManufacturer,
 								carModel, sensorId, dbAdapterLocal); 
@@ -337,7 +330,7 @@ public class ECApplication extends Application implements LocationListener {
 					}
 
 				} catch (MeasurementsException e) {
-					logger.warn("The last track contains no measurements. I will delete it and create a new one.", e);
+					logger.warn("The last track contains no measurements. I will delete it and create a new one.");
 					dbAdapterLocal.deleteTrack(lastUsedTrack.getId());
 					track = new Track("123456", fuelType, carManufacturer,
 							carModel, sensorId, dbAdapterLocal); 
@@ -347,7 +340,7 @@ public class ECApplication extends Application implements LocationListener {
 				}
 
 			} catch (TracksException e) {
-				logger.warn("There was no track in the database so I created a new one", e);
+				logger.warn("There was no track in the database so I created a new one");
 				track = new Track("123456", fuelType, carManufacturer,
 						carModel, sensorId, dbAdapterLocal); 
 				track.setName("Track " + date);
@@ -389,7 +382,7 @@ public class ECApplication extends Application implements LocationListener {
 				// current position (more than 3 km)
 
 				if (Utils.getDistance(currentTrack.getLastMeasurement().getLatitude(),currentTrack.getLastMeasurement().getLongitude(),
-						locationLatitude, locationLongitude) > 3.0) {
+						location.getLatitude(), location.getLongitude()) > 3.0) {
 					track = new Track("123456", fuelType, carManufacturer,
 							carModel, sensorId, dbAdapterLocal); 
 					track.setName("Track " + date);
@@ -408,7 +401,7 @@ public class ECApplication extends Application implements LocationListener {
 				}
 
 			} catch (MeasurementsException e) {
-				logger.warn("The last track contains no measurements. I will delete it and create a new one.", e);
+				logger.warn("The last track contains no measurements. I will delete it and create a new one.");
 				dbAdapterLocal.deleteTrack(currentTrack.getId());
 				track = new Track("123456", fuelType, carManufacturer,
 						carModel, sensorId, dbAdapterLocal); 
@@ -660,8 +653,7 @@ public class ECApplication extends Application implements LocationListener {
 					String maf = commandResult;
 
 					try {
-						NumberFormat format = NumberFormat
-								.getInstance(Locale.GERMAN);
+						NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
 						Number number;
 						number = format.parse(maf);
 						mafMeasurement = number.doubleValue();
@@ -683,7 +675,7 @@ public class ECApplication extends Application implements LocationListener {
 								// Change to l/h
 								consumption=consumption*3600;
 							}
-						}else{
+						} else {
 							if (preferences.getString(PREF_KEY_FUEL_TYPE,
 									"gasoline").equals("gasoline")) {
 								consumption = (calculatedMafMeasurement / 14.7) / 747;
@@ -733,23 +725,27 @@ public class ECApplication extends Application implements LocationListener {
 	 * commands. also opens the db and starts the gps.
 	 */
 	public void startConnection() {
+		logger.info("Starts the recording of a track");
 		initDbAdapter();
 		startLocationManager();
 		//createNewTrackIfNecessary();
 		if (!serviceConnector.isRunning()) {
-			logger.info("service start");
 			startService(backgroundService);
 			bindService(backgroundService, serviceConnector,
 					Context.BIND_AUTO_CREATE);
 		}
-		handler.post(waitingListRunnable);
+		try {
+			handler.post(waitingListRunnable);
+		} catch (Exception e) {
+			logger.severe("NullPointerException occured: Handler is null: " + (handler == null) + " waitingList is null: " + (waitingListRunnable == null), e);
+		}
 	}
 
 	/**
 	 * Ends the connection with the Bluetooth Adapter. also stops gps and closes the db.
 	 */
 	public void stopConnection() {
-
+		logger.info("Stops the recording of a track");
 		if (serviceConnector != null && serviceConnector.isRunning()) {
 			stopService(backgroundService);
 			unbindService(serviceConnector);
@@ -769,7 +765,11 @@ public class ECApplication extends Application implements LocationListener {
 			if (serviceConnector != null && serviceConnector.isRunning())
 				addCommandstoWaitinglist();
 
-			handler.postDelayed(waitingListRunnable, 2000);
+			try {
+				handler.postDelayed(waitingListRunnable, 2000);
+			} catch (NullPointerException e) {
+				logger.severe("NullPointerException occured: Handler is null: " + (handler == null) + " waitingList is null: " + (waitingListRunnable == null), e);
+			}
 		}
 	};
 
@@ -801,55 +801,38 @@ public class ECApplication extends Application implements LocationListener {
 		// Create track new measurement if necessary
 
 		if (measurement == null) {
-			try {
-				measurement = new Measurement(locationLatitude,
-						locationLongitude);
-			} catch (LocationInvalidException e) {
-				logger.warn(e.getMessage(), e);
-			}
+			measurement = new Measurement(location.getLatitude(), location.getLongitude());
 		}
 
 		// Insert the values if the measurement (with the coordinates) is young
-		// enough (5000ms) or create track new one if it is too old
+		// enough (5000ms) or create new one if it is too old
 
-		if (measurement != null) {
+		if (measurement.getLatitude() != 0.0 && measurement.getLongitude() != 0.0) {
 
-			if (Math.abs(measurement.getMeasurementTime()
-					- System.currentTimeMillis()) < 5000) {
-
-				measurement.setSpeed(speedMeasurement);
-				measurement.setMaf(mafMeasurement);	
-				measurement.setCalculatedMaf(calculatedMafMeasurement);
-				measurement.setRpm(rpmMeasurement);
-				measurement.setIntakePressure(intakePressureMeasurement);
-				measurement.setIntakeTemperature(intakeTemperatureMeasurement);
-				logger.info("new measurement");
-				logger.info(measurement.getLatitude() + " "
-								+ measurement.getLongitude());
-				logger.info(measurement.toString());
-
-				insertMeasurement(measurement);
-
-			} else {
-				try {
-					measurement = new Measurement(locationLatitude,
-							locationLongitude);
-				} catch (LocationInvalidException e) {
-					logger.warn(e.getMessage(), e);
-				}
+			if (Math.abs(measurement.getMeasurementTime() - System.currentTimeMillis()) > 5000) {
+				measurement = new Measurement(location.getLatitude(), location.getLongitude());
 			}
-		}
 
+			measurement.setSpeed(speedMeasurement);
+			measurement.setMaf(mafMeasurement);	
+			measurement.setCalculatedMaf(calculatedMafMeasurement);
+			measurement.setRpm(rpmMeasurement);
+			measurement.setIntakePressure(intakePressureMeasurement);
+			measurement.setIntakeTemperature(intakeTemperatureMeasurement);
+			insertMeasurement(measurement);
+		} else {
+			logger.warn("Position by GPS isn't working correct");
+		}
 	}
 
 	/**
 	 * Helper method to insert track measurement into the database (ensures that
 	 * track measurement is only stored every 5 seconds and not faster...)
 	 * 
-	 * @param measurement2
+	 * @param insertMeasurement
 	 *            The measurement you want to insert
 	 */
-	private void insertMeasurement(Measurement measurement2) {
+	private void insertMeasurement(Measurement insertMeasurement) {
 
 		// TODO: This has to be added with the following conditions:
 		/*
@@ -862,17 +845,15 @@ public class ECApplication extends Application implements LocationListener {
 		 * sec) as well.)
 		 */
 
-		if (Math.abs(lastInsertTime - measurement2.getMeasurementTime()) > 5000) {
+		if (Math.abs(lastInsertTime - insertMeasurement.getMeasurementTime()) > 5000) {
 
-			lastInsertTime = measurement2.getMeasurementTime();
+			lastInsertTime = insertMeasurement.getMeasurementTime();
 
-			track.addMeasurement(measurement2);
+			track.addMeasurement(insertMeasurement);
 
-			logger.info(measurement2.toString());
+			logger.info("Add new measurement to track: " + insertMeasurement.toString());
 
-			//Toast.makeText(getApplicationContext(), measurement2.toString(),
-				//	Toast.LENGTH_SHORT).show();
-			Toast.makeText(getApplicationContext(), "" + measurement.getCalculatedMaf(),
+			Toast.makeText(getApplicationContext(), "Calculated Mass Air Flow" + measurement.getCalculatedMaf(),
 						Toast.LENGTH_SHORT).show();
 
 		}
@@ -909,9 +890,8 @@ public class ECApplication extends Application implements LocationListener {
 	 */
 	@Override
 	public void onLocationChanged(Location location) {
-		locationLatitude = (float) location.getLatitude();
-		locationLongitude = (float) location.getLongitude();
-
+		this.location = location;
+		logger.info("Get new position of " + location.getProvider() + " : lat " + location.getLatitude() + " long: " + location.getLongitude());
 	}
 
 	@Override
@@ -949,6 +929,10 @@ public class ECApplication extends Application implements LocationListener {
 	 */
 	public int getSpeedMeasurement() {
 		return speedMeasurement;
+	}
+	
+	public Location getLocation() {
+		return location;
 	}
 
 	/**

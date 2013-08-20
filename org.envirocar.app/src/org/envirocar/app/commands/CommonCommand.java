@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
+import org.envirocar.app.logging.Logger;
+
 /**
  * Abstract command class that the other commands have to extend. Many things
  * are imported from Android OBD Reader project!
@@ -40,6 +42,8 @@ public abstract class CommonCommand {
 	protected String rawData = null;
 	private Long commandId;
 	private CommonCommandState commandState;
+	
+	private static final Logger logger = Logger.getLogger(CommonCommand.class);
 
 	/**
 	 * Default constructor to use
@@ -114,7 +118,8 @@ public abstract class CommonCommand {
 				stringbuilder.append((char) b);
 
 		rawData = stringbuilder.toString().trim();
-
+		logger.info("Command name: " + getCommandName() + ", Send '" + getCommand() + "', get raw data '" + rawData + "'");
+		
 		// clear buffer
 		buffer.clear();
 
@@ -131,17 +136,16 @@ public abstract class CommonCommand {
 
 	/**
 	 * @return the raw command response in string representation.
+	 * 
+	 * TODO rawData is null, when car switch. What should be done in this case?
 	 */
-	//TODO null pointer when car is off...
-	
 	public String getRawData() {
-		if (rawData.contains("SEARCHING") || rawData.contains("DATA")
+		if (rawData == null || rawData.contains("SEARCHING") || rawData.contains("DATA")
 				//TODO check if cars do this!!
 				|| rawData.contains("OK")
 				) {
 			rawData = "NODATA";
 		}
-
 		return rawData;
 	}
 
@@ -192,6 +196,16 @@ public abstract class CommonCommand {
 	 */
 	public void setCommandState(CommonCommandState commandState) {
 		this.commandState = commandState;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuffer sb = new StringBuffer();
+		sb.append("Commandname: " + getCommandName());
+		sb.append(", Command: " + getCommand());
+		sb.append(", RawData: " + getRawData());
+		sb.append(", Result: " + getResult());
+		return super.toString();
 	}
 
 }

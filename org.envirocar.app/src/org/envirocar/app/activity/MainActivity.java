@@ -51,6 +51,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.BaseAdapter;
@@ -190,6 +191,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		application = ((ECApplication) getApplication());
 		
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		
 		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
         autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
@@ -486,7 +488,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         		try{
         			((ListMeasurementsFragment) getSupportFragmentManager().findFragmentByTag("MY_TRACKS")).clearRemoteTracks();
         		} catch (NullPointerException e){
-        			logger.warn(e.getMessage(), e);
+        			logger.warn("Error while clear the remote track list", e);
         			//do nothing, the fragment hasnt been initialized yet.
         		}
         		Crouton.makeText(this, R.string.bye_bye, Style.CONFIRM).show();
@@ -575,6 +577,12 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	    firstInit();
 	    
 	    application.setActivity(this);
+	    
+		if (preferences.getBoolean(SettingsActivity.DISPLAY_STAYS_ACTIV, false)) {
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		} else {
+			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		}
 	    
 		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);

@@ -64,7 +64,7 @@ public class LocalFileHandler implements Handler {
 	}
 
 	protected FileHandler createHandler(String finalPath) throws IOException {
-		FileHandler h = new FileHandler(finalPath, MAX_SIZE, 5, true);
+		FileHandler h = new FileHandler(finalPath, MAX_SIZE, 3, true);
 		h.setFormatter(new SimpleFormatter());
 		return h;
 	}
