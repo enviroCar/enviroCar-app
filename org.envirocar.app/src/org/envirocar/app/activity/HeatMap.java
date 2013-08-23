@@ -37,7 +37,6 @@ import android.graphics.Point;
 import android.graphics.RadialGradient;
 import android.graphics.Shader.TileMode;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -260,9 +259,9 @@ public class HeatMap extends MapActivity {
 
 		public OnTouchListener touchListener = new OnTouchListener() {
 			public boolean onTouch(View v, MotionEvent event) {
-				int i = (int) event.getX();
-				int j = (int) event.getY();
-				Point p = new Point(i, j);
+//				int i = (int) event.getX();
+//				int j = (int) event.getY();
+//				Point p = new Point(i, j);
 				// screenPts.x = i;
 				// screenPts.y = j;
 				return false;

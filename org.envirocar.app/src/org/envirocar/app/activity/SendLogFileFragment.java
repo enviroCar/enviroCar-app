@@ -122,6 +122,7 @@ public class SendLogFileFragment extends SherlockFragment {
 		emailIntent.setType("application/zip");
 		
 		startActivity(Intent.createChooser(emailIntent, "Send Log Report"));
+		getFragmentManager().popBackStack();
 	}
 
 	/**
