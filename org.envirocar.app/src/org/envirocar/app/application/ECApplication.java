@@ -21,7 +21,6 @@
 
 package org.envirocar.app.application;
 
-import java.io.FileNotFoundException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -45,7 +44,6 @@ import org.envirocar.app.commands.Speed;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.TracksException;
 import org.envirocar.app.logging.ACRACustomSender;
-import org.envirocar.app.logging.LocalFileHandler;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterLocal;
@@ -195,12 +193,7 @@ public class ECApplication extends Application implements LocationListener {
 
 	@Override
 	public void onCreate() {
-		try {
-			Logger.initialize(openFileOutput(LocalFileHandler.LOCAL_LOG_FILE, MODE_APPEND),
-					getVersionString());
-		} catch (FileNotFoundException e) {
-			logger.warn(e.getMessage(), e);
-		}
+		Logger.initialize(getVersionString());
 		super.onCreate();
 		
 		initializeErrorHandling();

@@ -22,7 +22,6 @@
  */
 package org.envirocar.app.logging;
 
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -169,11 +168,7 @@ public class Logger {
 		return sb.toString();
 	}
 
-	public static void initialize(FileOutputStream openFileOutput, String appVersion) {
-		synchronized (Logger.class) {
-			handlers.add(new FileOutputStreamHandler(openFileOutput));	
-		}
-		
+	public static void initialize(String appVersion) {
 		Logger initLogger = getLogger(Logger.class);
 		StringBuilder sb = new StringBuilder();
 		sb.append("System information:");
