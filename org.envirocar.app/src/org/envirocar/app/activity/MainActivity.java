@@ -29,6 +29,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.NavMenuItem;
 import org.envirocar.app.application.UploadManager;
+import org.envirocar.app.application.UserManager;
 import org.envirocar.app.exception.TracksException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapterLocal;
@@ -171,9 +172,9 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
 		}
 	
-		if (application.isLoggedIn()) {
+		if (UserManager.instance().isLoggedIn()) {
 			navDrawerItems[LOGIN].setTitle(getResources().getString(R.string.menu_logout));
-			navDrawerItems[LOGIN].setSubtitle(String.format(getResources().getString(R.string.logged_in_as),application.getUser().getUsername()));
+			navDrawerItems[LOGIN].setSubtitle(String.format(getResources().getString(R.string.logged_in_as),UserManager.instance().getUser().getUsername()));
 		} else {
 			navDrawerItems[LOGIN].setTitle(getResources().getString(R.string.menu_login));
 			navDrawerItems[LOGIN].setSubtitle("");		
@@ -260,7 +261,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 							if (application.requirementsFulfilled() && remoteDevice != null) {
 								if (!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)) {
-									if (application.isLoggedIn()) {
+									if (UserManager.instance().isLoggedIn()) {
 										MyGarage garageFragment = new MyGarage();
 										getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
 									} else {
@@ -289,7 +290,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 						if (application.requirementsFulfilled() && remoteDevice != null) {
 							if (!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)) {
-								if (application.isLoggedIn()) {
+								if (UserManager.instance().isLoggedIn()) {
 									MyGarage garageFragment = new MyGarage();
 									getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
 								} else {
@@ -329,7 +330,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 				if (alwaysUpload) {
 					logger.info("Automatic upload will start");
-					if (application.isLoggedIn()) {
+					if (UserManager.instance().isLoggedIn()) {
 						try {
 							if (!application.getServiceConnector().isRunning()) {
 								logger.info("Service connector not running");
@@ -483,14 +484,13 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         //Start the Login activity
             
         case LOGIN:
-        	if(application.isLoggedIn()){
-        		application.logOut();
-        		try{
-        			((ListMeasurementsFragment) getSupportFragmentManager().findFragmentByTag("MY_TRACKS")).clearRemoteTracks();
-        		} catch (NullPointerException e){
-        			logger.warn("Error while clear the remote track list", e);
-        			//do nothing, the fragment hasnt been initialized yet.
-        		}
+        	if(UserManager.instance().isLoggedIn()){
+        		UserManager.instance().logOut();
+    			ListMeasurementsFragment listMeasurementsFragment = (ListMeasurementsFragment) getSupportFragmentManager().findFragmentByTag("MY_TRACKS");
+    			// check if this fragment is initialized
+    			if (listMeasurementsFragment != null) {
+    				listMeasurementsFragment.clearRemoteTracks();
+    			} 
         		Crouton.makeText(this, R.string.bye_bye, Style.CONFIRM).show();
         	} else {
                 LoginFragment loginFragment = new LoginFragment();

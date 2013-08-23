@@ -34,6 +34,7 @@ import org.apache.http.protocol.HTTP;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.User;
+import org.envirocar.app.application.UserManager;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.views.TypefaceEC;
 import org.json.JSONException;
@@ -298,7 +299,7 @@ public class RegisterFragment extends SherlockFragment {
 
 			if (httpStatus == HttpStatus.SC_CREATED) {
 				Crouton.makeText(getActivity(), getResources().getString(R.string.welcome_message)+mUsername, Style.CONFIRM).show();
-				((ECApplication) getActivity().getApplication()).setUser(new User(mUsername, mPassword));
+				UserManager.instance().setUser(new User(mUsername, mPassword));
 				
 				//open the Garage
 	        	MyGarage garageFragment = new MyGarage();
