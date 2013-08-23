@@ -138,8 +138,6 @@ public class ECApplication extends Application implements LocationListener {
 
 	//private boolean requirementsFulfilled = true;
 
-	private static User user;
-	
 	/**
 	 * returns the current activity.
 	 * @return
@@ -208,8 +206,8 @@ public class ECApplication extends Application implements LocationListener {
 		initializeErrorHandling();
 		
 		preferences = PreferenceManager.getDefaultSharedPreferences(this);
-		user = getUserFromSharedPreferences();
 
+		UserManager.init(getApplicationContext());
 		initDbAdapter();
 		initLocationManager();
 		startLocationManager();
@@ -409,9 +407,7 @@ public class ECApplication extends Application implements LocationListener {
 				track.setDescription(trackDescription);
 				track.commitTrackToDatabase();
 			}
-
 		}
-
 	}
 
 	/**
@@ -432,60 +428,6 @@ public class ECApplication extends Application implements LocationListener {
 			if (!dbAdapterRemote.isOpen())
 				dbAdapterRemote.open();
 		}
-	}
-
-	/**
-	 * Get a user object from the shared preferences
-	 * @return the user that is stored on the device
-	 */
-	private User getUserFromSharedPreferences() {
-		if (preferences.contains("username") && preferences.contains("token")) {
-			return new User(preferences.getString("username", "anonymous"),
-					preferences.getString("token", "anon"));
-		}
-		return null;
-	}
-
-	/**
-	 * Set the user (to the application and also store it in the preferences)
-	 * @param user The user you want to set
-	 */
-	public void setUser(User user) {
-		ECApplication.user = user;
-		Editor e = preferences.edit();
-		e.putString("username", user.getUsername());
-		e.putString("token", user.getToken());
-		e.apply();
-	}
-
-	/**
-	 * Get the user
-	 * @return user
-	 */
-	public User getUser() {
-		return user;
-	}
-
-	/**
-	 * Determines whether the user is logged in. A user is logged in when
-	 * the application has a user as a variable.
-	 * @return
-	 */
-	public boolean isLoggedIn() {
-		return user != null;
-	}
-
-	/**
-	 * Logs out the user.
-	 */
-	public void logOut() {
-		Editor e = preferences.edit();
-		if (preferences.contains("username"))
-			e.remove("username");
-		if (preferences.contains("token"))
-			e.remove("token");
-		e.commit();
-		user = null;
 	}
 
 	/**

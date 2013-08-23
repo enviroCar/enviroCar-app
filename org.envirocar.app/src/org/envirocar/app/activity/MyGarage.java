@@ -27,6 +27,8 @@ import org.apache.http.Header;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.RestClient;
+import org.envirocar.app.application.User;
+import org.envirocar.app.application.UserManager;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.views.TypefaceEC;
 import org.json.JSONArray;
@@ -161,7 +163,7 @@ public class MyGarage extends SherlockFragment {
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View view) {
-						if(((ECApplication) getActivity().getApplication()).isLoggedIn()){
+						if(UserManager.instance().isLoggedIn()){
 							if (carModel != null && carManufacturer != null
 									&& carConstructionYear != null
 									&& carFuelType != null) {
@@ -215,7 +217,7 @@ public class MyGarage extends SherlockFragment {
 			}
 		});
 		
-		if(!((ECApplication) getActivity().getApplication()).isLoggedIn()){
+		if(!UserManager.instance().isLoggedIn()){
 			carManufacturerView.setEnabled(false);
 			carConstructionYearView.setEnabled(false);
 			carModelView.setEnabled(false);
@@ -228,7 +230,6 @@ public class MyGarage extends SherlockFragment {
 		downloadSensors();
 		
 		TypefaceEC.applyCustomFont((ViewGroup) view.findViewById(R.id.mygaragelayout), TypefaceEC.Raleway(getActivity()));
-		
 		
 		return view;
 	}
@@ -340,8 +341,9 @@ public class MyGarage extends SherlockFragment {
 		edit.putString(ECApplication.PREF_KEY_CAR_MODEL, carModel);
 		edit.commit();
 		
-		String username =((ECApplication) getActivity().getApplication()).getUser().getUsername();
-		String token = ((ECApplication) getActivity().getApplication()).getUser().getToken();
+		User user = UserManager.instance().getUser();
+		String username = user.getUsername();
+		String token = user.getToken();
 		
 		RestClient.createSensor(sensorString, username, token, new AsyncHttpResponseHandler(){
 			

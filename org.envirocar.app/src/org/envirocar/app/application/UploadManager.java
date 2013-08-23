@@ -121,8 +121,9 @@ public class UploadManager {
 			if(dbAdapterLocal.getNumberOfStoredTracks() == 0)
 				this.cancel(true);
 			
-			String username = ((ECApplication) context).getUser().getUsername();
-			String token = ((ECApplication) context).getUser().getToken();
+			User user = UserManager.instance().getUser();
+			String username = user.getUsername();
+			String token = user.getToken();
 			String urlL = String.format(url, username);
 
 
