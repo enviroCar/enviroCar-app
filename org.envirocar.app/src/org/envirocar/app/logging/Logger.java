@@ -22,7 +22,6 @@
  */
 package org.envirocar.app.logging;
 
-import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -89,7 +88,8 @@ public class Logger {
 	}
 
 	private String createConcatenatedMessage(String message, Throwable e) {
-		StringBuilder sb = new StringBuilder(message);
+		StringBuilder sb = new StringBuilder();
+		sb.append(message);
 		sb.append(":");
 		sb.append(Util.NEW_LINE_CHAR);
 
@@ -152,7 +152,8 @@ public class Logger {
 	}
 
 	public static String convertExceptionToString(Throwable e) {
-		StringBuilder sb = new StringBuilder(e.getMessage());
+		StringBuilder sb = new StringBuilder();
+		sb.append(e.getMessage());
 		sb.append(":");
 		sb.append(Util.NEW_LINE_CHAR);
 
@@ -167,11 +168,7 @@ public class Logger {
 		return sb.toString();
 	}
 
-	public static void initialize(FileOutputStream openFileOutput, String appVersion) {
-		synchronized (Logger.class) {
-			handlers.add(new FileOutputStreamHandler(openFileOutput));	
-		}
-		
+	public static void initialize(String appVersion) {
 		Logger initLogger = getLogger(Logger.class);
 		StringBuilder sb = new StringBuilder();
 		sb.append("System information:");
