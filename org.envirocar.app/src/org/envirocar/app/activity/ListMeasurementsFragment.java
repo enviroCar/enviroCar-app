@@ -36,6 +36,8 @@ import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.RestClient;
 import org.envirocar.app.application.UploadManager;
+import org.envirocar.app.application.User;
+import org.envirocar.app.application.UserManager;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterRemote;
@@ -151,7 +153,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		delete_btn = menu.findItem(R.id.menu_delete_all);
 		if (((ECApplication) getActivity().getApplication()).getDbAdapterLocal().getAllTracks().size() > 0 && !isDownloading) {
 			menu.findItem(R.id.menu_delete_all).setEnabled(true);
-			if(((ECApplication) getActivity().getApplication()).isLoggedIn())
+			if(UserManager.instance().isLoggedIn())
 				menu.findItem(R.id.menu_upload).setEnabled(true);
 		} else {
 			menu.findItem(R.id.menu_upload).setEnabled(false);
@@ -363,11 +365,9 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				.setPositiveButton(R.string.yes,
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								final String username = ((ECApplication) getActivity()
-										.getApplication()).getUser()
-										.getUsername();
-								final String token = ((ECApplication) getActivity()
-										.getApplication()).getUser().getToken();
+								User user = UserManager.instance().getUser();
+								final String username = user.getUsername();
+								final String token = user.getToken();
 								RestClient.deleteRemoteTrack(username, token,
 										track.getId(),
 										new JsonHttpResponseHandler() {
@@ -419,7 +419,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		elvAdapter.notifyDataSetChanged();
 
 		//if logged in, download tracks from server
-		if(((ECApplication) getActivity().getApplication()).isLoggedIn()){
+		if(UserManager.instance().isLoggedIn()){
 			downloadTracks();
 		}
 
@@ -451,8 +451,9 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		
 		isDownloading = true;
 		
-		final String username = ((ECApplication) getActivity().getApplication()).getUser().getUsername();
-		final String token = ((ECApplication) getActivity().getApplication()).getUser().getToken();
+		User user = UserManager.instance().getUser();
+		final String username = user.getUsername();
+		final String token = user.getToken();
 		RestClient.downloadTracks(username,token, new JsonHttpResponseHandler() {
 			
 			
