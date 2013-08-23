@@ -89,7 +89,8 @@ public class Logger {
 	}
 
 	private String createConcatenatedMessage(String message, Throwable e) {
-		StringBuilder sb = new StringBuilder(message);
+		StringBuilder sb = new StringBuilder();
+		sb.append(message);
 		sb.append(":");
 		sb.append(Util.NEW_LINE_CHAR);
 
@@ -152,7 +153,8 @@ public class Logger {
 	}
 
 	public static String convertExceptionToString(Throwable e) {
-		StringBuilder sb = new StringBuilder(e.getMessage());
+		StringBuilder sb = new StringBuilder();
+		sb.append(e.getMessage());
 		sb.append(":");
 		sb.append(Util.NEW_LINE_CHAR);
 
