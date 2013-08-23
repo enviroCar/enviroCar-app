@@ -59,8 +59,20 @@ public class Util {
 	 */
 	public static File createFileOnExternalStorage(String fileName)
 			throws IOException {
+		File directory = resolveExternalStorageBaseFolder();
+		
+		File f = new File(directory, fileName);
+		f.createNewFile();
+		if (!f.isFile()) {
+			throw new IOException(fileName + " is not a file!");
+		}
+		return f;
+	}
+	
+	public static File resolveExternalStorageBaseFolder() throws IOException {
 		File directory = new File(Environment.getExternalStorageDirectory()
 				+ File.separator + EXTERNAL_SUB_FOLDER);
+		
 		if (!directory.exists()) {
 			directory.mkdir();
 		}
@@ -68,12 +80,8 @@ public class Util {
 			throw new IOException(directory.getAbsolutePath()
 					+ " is not a directory!");
 		}
-		File f = new File(directory, fileName);
-		f.createNewFile();
-		if (!f.isFile()) {
-			throw new IOException(fileName + " is not a file!");
-		}
-		return f;
+		
+		return directory;
 	}
 
 	/**

@@ -33,6 +33,12 @@ import org.envirocar.app.util.Util;
 
 import android.util.Log;
 
+/**
+ * @deprecated This handler is no longer being used. Use LocalFileHandler instead.
+ * @author matthes
+ *
+ */
+@Deprecated
 public class FileOutputStreamHandler implements Handler {
 
 	private static final String SEVERE = "SEVERE";
