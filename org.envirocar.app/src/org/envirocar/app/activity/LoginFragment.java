@@ -33,6 +33,7 @@ import org.apache.http.message.BasicHeader;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.User;
+import org.envirocar.app.application.UserManager;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.views.TypefaceEC;
 
@@ -264,8 +265,7 @@ public class LoginFragment extends SherlockFragment {
 			showProgress(false);
 
 			if (success) {
-				((ECApplication) getActivity().getApplication())
-						.setUser(new User(mUsername, mPassword));
+				UserManager.instance().setUser(new User(mUsername, mPassword));
 				Crouton.makeText(getActivity(), getResources().getString(R.string.welcome_message) + " " + mUsername, Style.CONFIRM).show();
 				DashboardFragment dashboardFragment = new DashboardFragment();
 	            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
