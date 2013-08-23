@@ -56,8 +56,11 @@ public class SendLogFileFragment extends SherlockFragment {
 
 	private static final Logger logger = Logger
 			.getLogger(SendLogFileFragment.class);
-	private static final String REPORTING_EMAIL = "envirocar@52north.org";
+	private static final String REPORTING_EMAIL = "m.rieke@52north.org";
 	private static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.getDefault());
+	private static final DateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+	private static final String PREFIX = "report-";
+	private static final String EXTENSION = ".zip";
 	private EditText whenField;
 	private EditText comments;
 
@@ -68,6 +71,8 @@ public class SendLogFileFragment extends SherlockFragment {
 
 		File reportBundle = null;
 		try {
+			removeOldReportBundles();
+			
 			final File tmpBundle = createReportBundle();
 			reportBundle = tmpBundle;
 			view.findViewById(R.id.send_log_button).setOnClickListener(
@@ -97,6 +102,7 @@ public class SendLogFileFragment extends SherlockFragment {
 
 		return view;
 	}
+
 
 	private void resolveInputFields(View view) {
 		this.whenField = (EditText) view.findViewById(R.id.send_log_when);
@@ -171,14 +177,34 @@ public class SendLogFileFragment extends SherlockFragment {
 	 * @throws IOException
 	 */
 	private File createReportBundle() throws IOException {
-		File targetFile = Util.createFileOnExternalStorage("report-"
-				+ format.format(new Date()) + ".zip");
+		File targetFile = Util.createFileOnExternalStorage(PREFIX
+				+ format.format(new Date()) + EXTENSION);
 
 		Util.zip(findAllLogFiles(), targetFile.toURI().getPath());
 
 		return targetFile;
 	}
 
+	private void removeOldReportBundles() throws IOException {
+		File baseFolder = Util.resolveExternalStorageBaseFolder();
+		
+		final String todayPrefix = PREFIX.concat(dayFormat.format(new Date()));
+		File[] oldFiles = baseFolder.listFiles(new FileFilter() {
+			@Override
+			public boolean accept(File pathname) {
+				if (pathname.isDirectory()) return false;
+				
+				return pathname.getName().startsWith(PREFIX) &&
+						!pathname.getName().startsWith(todayPrefix) &&
+						pathname.getName().endsWith(EXTENSION);
+			}
+		});
+		
+		for (File file : oldFiles) {
+			file.delete();
+		}
+	}
+	
 	private List<File> findAllLogFiles() {
 		File logFile = LocalFileHandler.effectiveFile;
 		final String shortName = logFile.getName();
