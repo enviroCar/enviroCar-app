@@ -26,25 +26,25 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
-import java.util.prefs.Preferences;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.ListMeasurementsFragment;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.storage.DbAdapterLocal;
 import org.envirocar.app.storage.DbAdapterRemote;
 import org.envirocar.app.storage.Measurement;
@@ -53,14 +53,12 @@ import org.envirocar.app.views.Utils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
-import android.util.Log;
 /**
  * Manager that can upload a track to the server. 
  * Use the uploadAllTracks function to upload all local tracks. 
@@ -73,7 +71,6 @@ public class UploadManager {
 
 	private static Logger logger = Logger.getLogger(UploadManager.class);
 	
-	private static final String TAG = "uploadmanager";
 
 	private String url = ECApplication.BASE_URL + "/users/%1$s/tracks";
 
@@ -100,13 +97,11 @@ public class UploadManager {
 	}
 	
 	public void uploadSingleTrack(Track track){
-		ArrayList<Track> t = new ArrayList<Track>(1);
-		t.add(track);
-		new UploadAsyncTask().execute(t);
+		new UploadAsyncTask().execute(Collections.singletonList(track));
 	}
 	
 
-	private class UploadAsyncTask extends AsyncTask<ArrayList<Track>, Void, Void> {
+	private class UploadAsyncTask extends AsyncTask<List<Track>, Void, Void> {
 		
 		@Override
 		protected void onPostExecute(Void result) {
@@ -115,7 +110,7 @@ public class UploadManager {
 		}
 
 		@Override
-		protected Void doInBackground(ArrayList<Track>... params) {
+		protected Void doInBackground(List<Track>... params) {
 			
 			//probably unnecessary
 			if(dbAdapterLocal.getNumberOfStoredTracks() == 0)
@@ -222,8 +217,8 @@ public class UploadManager {
 		for (int i = 0; i < measurements.size(); i++) {
 			String lat = String.valueOf(measurements.get(i).getLatitude());
 			String lon = String.valueOf(measurements.get(i).getLongitude());
-			DateFormat dateFormat1 = new SimpleDateFormat("y-MM-d");
-			DateFormat dateFormat2 = new SimpleDateFormat("HH:mm:ss");
+			DateFormat dateFormat1 = new SimpleDateFormat("y-MM-d", Locale.ENGLISH);
+			DateFormat dateFormat2 = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
 			dateFormat1.setTimeZone(TimeZone.getTimeZone("UTC"));
 			dateFormat2.setTimeZone(TimeZone.getTimeZone("UTC"));
 			String time = dateFormat1.format(measurements.get(i)
@@ -310,7 +305,6 @@ public class UploadManager {
 			String xUser) {
 
 		try {
-			DefaultHttpClient httpclient = new DefaultHttpClient();
 			HttpPost httpPostRequest = new HttpPost(url);
 
 			StringEntity se = new StringEntity(jsonObjSend.toString());
@@ -323,7 +317,7 @@ public class UploadManager {
 			httpPostRequest.setHeader("X-Token", xToken);
 			httpPostRequest.setHeader("X-User", xUser);
 
-			HttpResponse response = (HttpResponse) httpclient
+			HttpResponse response = (HttpResponse) HTTPClient
 					.execute(httpPostRequest);
 			
 			String location = "";
@@ -340,8 +334,10 @@ public class UploadManager {
 
 			String statusCode = String.valueOf(response.getStatusLine()
 					.getStatusCode());
+			
+			HTTPClient.consumeEntity(response.getEntity());
 
-			logger.debug(String.format("%s", statusCode));
+			logger.debug(statusCode);
 
 			if(statusCode.equals("201")){
 				return trackid;
@@ -349,15 +345,9 @@ public class UploadManager {
 				return "-1";
 			}
 
-		} catch (UnknownHostException e) {
-			logger.warn(e.getMessage(), e);
-			return "net_error";
 		} catch (UnsupportedEncodingException e) {
 			logger.warn(e.getMessage(), e);
 			return "-1";
-		} catch (ClientProtocolException e) {
-			logger.warn(e.getMessage(), e);
-			return "net_error";
 		} catch (IOException e) {
 			logger.warn(e.getMessage(), e);
 			return "net_error";

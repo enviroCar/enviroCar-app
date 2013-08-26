@@ -27,6 +27,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.network.HTTPClient;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -36,7 +37,12 @@ public class RestClient {
 	
 	private static final Logger logger = Logger.getLogger(RestClient.class);
 	
-	private static AsyncHttpClient client = new AsyncHttpClient();
+	private static AsyncHttpClient client;
+	
+	static {
+		client = new AsyncHttpClient();
+		HTTPClient.setupClient(client.getHttpClient());
+	}
 	
 	public static void downloadTracks(String user, String token, JsonHttpResponseHandler handler){
 		client.addHeader("X-User", user);
