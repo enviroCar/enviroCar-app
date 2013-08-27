@@ -25,10 +25,19 @@ import java.text.DecimalFormat;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.event.CO2Event;
+import org.envirocar.app.event.CO2EventListener;
+import org.envirocar.app.event.EventBus;
+import org.envirocar.app.event.LocationEvent;
+import org.envirocar.app.event.LocationEventListener;
+import org.envirocar.app.event.SpeedEvent;
+import org.envirocar.app.event.SpeedEventListener;
 import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.app.util.AndroidUtil;
 import org.envirocar.app.views.RoundProgress;
 import org.envirocar.app.views.TypefaceEC;
 
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -58,9 +67,22 @@ public class DashboardFragment extends SherlockFragment {
 	TextView positionTextView;
 	RoundProgress roundProgressCO2;
 	DbAdapter dbAdapter;
-	ECApplication application;
 	private TextView sensor;
 	View dashboardView;
+
+	protected Location location;
+
+	private LocationEventListener locationListener;
+
+	private int speed;
+
+	private double co2;
+
+	private SpeedEventListener speedListener;
+
+	private CO2EventListener co2Listener;
+
+	private SharedPreferences preferences;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -72,7 +94,38 @@ public class DashboardFragment extends SherlockFragment {
 	 * Updates the sensor-textview
 	 */
 	public void updateSensorOnDashboard(){
-		sensor.setText(application.getCurrentSensorString());
+		sensor.setText(getCurrentSensorString());
+	}
+	
+	/**
+	 * Returns the sensor properties as a string
+	 * @return
+	 */
+	private String getCurrentSensorString() {
+		SharedPreferences pref = AndroidUtil.getInstance().getDefaultSharedPreferences();
+		String nonsens = "nosensor";
+		if (pref.contains(ECApplication.PREF_KEY_SENSOR_ID) && 
+				pref.contains(ECApplication.PREF_KEY_FUEL_TYPE) &&
+				pref.contains(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR) &&
+				pref.contains(ECApplication.PREF_KEY_CAR_MODEL) &&
+				pref.contains(ECApplication.PREF_KEY_CAR_MANUFACTURER)) {
+			
+			String prefSensorid = pref.getString(ECApplication.PREF_KEY_SENSOR_ID, nonsens);
+			String prefFuelType = pref.getString(ECApplication.PREF_KEY_FUEL_TYPE, nonsens);
+			String prefYear = pref.getString(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR, nonsens);
+			String prefModel = pref.getString(ECApplication.PREF_KEY_CAR_MODEL, nonsens);
+			String prefManu = pref.getString(ECApplication.PREF_KEY_CAR_MANUFACTURER, nonsens);
+			
+			if (prefSensorid.equals(nonsens) == false ||
+					prefYear.equals(nonsens) == false ||
+					prefFuelType.equals(nonsens) == false ||
+					prefModel.equals(nonsens) == false ||
+					prefManu.equals(nonsens) == false ) {
+				return prefManu+" "+prefModel+" ("+prefFuelType+" "+prefYear+")";
+			}
+		}
+		return getResources().getString(R.string.no_sensor_selected);
+
 	}
 
 	@Override
@@ -80,11 +133,13 @@ public class DashboardFragment extends SherlockFragment {
 
 		super.onViewCreated(view, savedInstanceState);
 		
+		initializeEventListeners();
+		
 		dashboardView = getView();
 
+		preferences = AndroidUtil.getInstance().getDefaultSharedPreferences();
 		// Include application and adapter
 		
-		application = ((ECApplication) getActivity().getApplication());
 		dbAdapter = ((ECApplication) getActivity().getApplication())
 				.getDbAdapterLocal();
 		
@@ -120,9 +175,9 @@ public class DashboardFragment extends SherlockFragment {
 
 				// Deal with the speed values
 
-				int speed = application.getSpeedMeasurement();
+				int speed = getSpeedMeasurement();
 				int speedProgress;
-				if (!application.isImperialUnits()) {
+				if (preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT, false)) {
 					speedTextView.setText(speed + " km/h");
 					if (speed <= 0)
 						speedProgress = 0;
@@ -145,7 +200,7 @@ public class DashboardFragment extends SherlockFragment {
 
 				// Deal with the co2 values
 
-				double co2 = application.getCo2Measurement();
+				double co2 = getCo2Measurement();
 				double co2Progress;
 				
 				DecimalFormat twoDForm = new DecimalFormat("#.##");
@@ -167,7 +222,7 @@ public class DashboardFragment extends SherlockFragment {
 				
 				// set location
 				
-				Location location = application.getLocation();
+				Location location = getLocation();
 				if (location != null && location.getLongitude() != 0 && location.getLatitude() != 0) {
 					StringBuffer sb = new StringBuffer();
 					sb.append("Provider: " + location.getProvider() + "\n");
@@ -196,5 +251,41 @@ public class DashboardFragment extends SherlockFragment {
 		TypefaceEC.applyCustomFont((ViewGroup) view,
 				TypefaceEC.Newscycle(getActivity()));
 
+	}
+
+	private void initializeEventListeners() {
+		this.locationListener = new LocationEventListener() {
+			@Override
+			public void receiveEvent(LocationEvent event) {
+				location = event.getPayload();
+			}
+		};
+		this.speedListener = new SpeedEventListener() {
+			@Override
+			public void receiveEvent(SpeedEvent event) {
+				speed = event.getPayload(); 
+			}
+		};
+		this.co2Listener = new CO2EventListener() {
+			@Override
+			public void receiveEvent(CO2Event event) {
+				co2 = event.getPayload();
+			}
+		};
+		EventBus.getInstance().registerListener(locationListener);
+		EventBus.getInstance().registerListener(speedListener);
+		EventBus.getInstance().registerListener(co2Listener);
+	}
+
+	protected int getSpeedMeasurement() {
+		return speed;
+	}
+
+	protected double getCo2Measurement() {
+		return co2;
+	}
+
+	protected Location getLocation() {
+		return location;
 	}
 }

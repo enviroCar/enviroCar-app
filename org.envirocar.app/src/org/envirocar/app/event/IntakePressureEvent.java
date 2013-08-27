@@ -18,30 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
+package org.envirocar.app.event;
 
-package org.envirocar.app.application;
+public class IntakePressureEvent implements AbstractEvent<Integer> {
 
-import org.envirocar.app.commands.CommonCommand;
+	private int pressure;
 
-/**
- * Interface that listens for updates from the current obd job
- * 
- * @author jakob
- * 
- */
-
-public interface Listener {
-
-	/**
-	 * Receive the current command
-	 * 
-	 * @param currentJob
-	 *            the answer-job
-	 */
-	void receiveUpdate(CommonCommand currentJob);
-
-	void createNewTrackIfNecessary();
-
-	void resetTrack();
+	public IntakePressureEvent(int p) {
+		this.pressure = p;
+	}
+	
+	@Override
+	public Integer getPayload() {
+		return this.pressure;
+	}
 
 }

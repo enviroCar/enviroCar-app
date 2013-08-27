@@ -21,10 +21,7 @@
 
 package org.envirocar.app.application;
 
-import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -41,16 +38,16 @@ import org.envirocar.app.commands.IntakeTemperature;
 import org.envirocar.app.commands.MAF;
 import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.Speed;
-import org.envirocar.app.exception.MeasurementsException;
-import org.envirocar.app.exception.TracksException;
+import org.envirocar.app.event.EventBus;
+import org.envirocar.app.event.LocationEvent;
 import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.Car;
+import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterLocal;
 import org.envirocar.app.storage.DbAdapterRemote;
-import org.envirocar.app.storage.Measurement;
-import org.envirocar.app.storage.Track;
-import org.envirocar.app.views.Utils;
+import org.envirocar.app.util.AndroidUtil;
 
 import android.app.Activity;
 import android.app.Application;
@@ -67,12 +64,9 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
-import android.net.ParseException;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
-import android.widget.Toast;
 
 /**
  * This is the main application that is the central linking component for all adapters, services and so on.
@@ -94,9 +88,9 @@ public class ECApplication extends Application implements LocationListener {
 	public static final String PREF_KEY_CAR_CONSTRUCTION_YEAR = "constructionyear";
 	public static final String PREF_KEY_FUEL_TYPE = "fueltype";
 	public static final String PREF_KEY_SENSOR_ID = "sensorid";
+	public static final String PREF_KEY_CAR_ENGINE_DISPLACEMENT = "pref_engine_displacement";
 
 	private SharedPreferences preferences = null;
-	private boolean imperialUnits = false;
 	
 	// Helpers and objects
 
@@ -114,26 +108,9 @@ public class ECApplication extends Application implements LocationListener {
 	private LocationManager locationManager;
 	private int mId = 1133;
 	
-	// Measurement values
-	
-	private Location location;
-	private int speedMeasurement = 0;
-	private double co2Measurement = 0.0;
-	private double mafMeasurement;
-	private double calculatedMafMeasurement = 0;
-	private int rpmMeasurement = 0;
-	private int intakeTemperatureMeasurement = 0;
-	private int intakePressureMeasurement = 0;
-	private Measurement measurement = null;
-	private long lastInsertTime = 0;
 	
 	private Activity currentActivity;
 	
-	// Track properties
-
-	private Track track;
-	private String trackDescription = "Description of the track";
-
 	//private boolean requirementsFulfilled = true;
 
 	/**
@@ -198,7 +175,9 @@ public class ECApplication extends Application implements LocationListener {
 		
 		initializeErrorHandling();
 		
-		preferences = PreferenceManager.getDefaultSharedPreferences(this);
+		AndroidUtil.init(getApplicationContext());
+		
+		preferences = AndroidUtil.getInstance().getDefaultSharedPreferences();
 
 		UserManager.init(getApplicationContext());
 		initDbAdapter();
@@ -218,190 +197,6 @@ public class ECApplication extends Application implements LocationListener {
 		ACRA.getErrorReporter().setReportSender(yourSender);
 	}
 
-	/**
-	 * Returns the sensor properties as a string
-	 * @return
-	 */
-	public String getCurrentSensorString(){
-		if(PreferenceManager.getDefaultSharedPreferences(this).contains(ECApplication.PREF_KEY_SENSOR_ID) && 
-				PreferenceManager.getDefaultSharedPreferences(this).contains(ECApplication.PREF_KEY_FUEL_TYPE) &&
-				PreferenceManager.getDefaultSharedPreferences(this).contains(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR) &&
-				PreferenceManager.getDefaultSharedPreferences(this).contains(ECApplication.PREF_KEY_CAR_MODEL) &&
-				PreferenceManager.getDefaultSharedPreferences(this).contains(ECApplication.PREF_KEY_CAR_MANUFACTURER)){
-			String prefSensorid = PreferenceManager.getDefaultSharedPreferences(this).getString(ECApplication.PREF_KEY_SENSOR_ID, "nosensor");
-			String prefFuelType = PreferenceManager.getDefaultSharedPreferences(this).getString(ECApplication.PREF_KEY_FUEL_TYPE, "nosensor");
-			String prefYear = PreferenceManager.getDefaultSharedPreferences(this).getString(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR, "nosensor");
-			String prefModel = PreferenceManager.getDefaultSharedPreferences(this).getString(ECApplication.PREF_KEY_CAR_MODEL, "nosensor");
-			String prefManu = PreferenceManager.getDefaultSharedPreferences(this).getString(ECApplication.PREF_KEY_CAR_MANUFACTURER, "nosensor");
-			if(prefSensorid.equals("nosensor") == false ||
-					prefYear.equals("nosensor") == false ||
-					prefFuelType.equals("nosensor") == false ||
-					prefModel.equals("nosensor") == false ||
-					prefManu.equals("nosensor") == false ){
-				return prefManu+" "+prefModel+" ("+prefFuelType+" "+prefYear+")";
-			}
-		}
-			return getResources().getString(R.string.no_sensor_selected);
-		
-	}
-
-	/**
-	 * This method determines whether it is necessary to create a new track or
-	 * of the current/last used track should be reused
-	 */
-	public void createNewTrackIfNecessary() {
-
-		// setting undefined, will hopefully prevent correct uploading.
-		// but this shouldn't be possible to record tracks without these values
-		String fuelType = preferences
-				.getString(PREF_KEY_FUEL_TYPE, "undefined");
-		String carManufacturer = preferences.getString(
-				PREF_KEY_CAR_MANUFACTURER, "undefined");
-		String carModel = preferences
-				.getString(PREF_KEY_CAR_MODEL, "undefined");
-		String sensorId = preferences
-				.getString(PREF_KEY_SENSOR_ID, "undefined");
-
-		// if track is null, create a new one or take the last one from the
-		// database
-		
-		Calendar calendar = Calendar.getInstance();
-		int year = calendar.get(Calendar.YEAR);
-		int month = calendar.get(Calendar.MONTH)+1;
-		int day = calendar.get(Calendar.DAY_OF_MONTH);
-		String date = String.valueOf(year) + "-" + String.valueOf(month) + "-" + String.valueOf(day);
-
-		if (track == null) {
-
-			logger.info("The track was null");
-
-			Track lastUsedTrack;
-
-			try {
-				lastUsedTrack = dbAdapterLocal.getLastUsedTrack();
-
-				try {
-
-					// New track if last measurement is more than 60 minutes
-					// ago
-
-					if ((System.currentTimeMillis() - lastUsedTrack
-							.getLastMeasurement().getMeasurementTime()) > 3600000) {
-						logger.info("I create a new track because the last measurement is more than 60 mins ago");
-						track = new Track("123456", fuelType, carManufacturer,
-								carModel, sensorId, dbAdapterLocal);
-						track.setName("Track " + date);
-						track.setDescription(trackDescription);
-						track.commitTrackToDatabase();
-						return;
-					}
-
-					// new track if last position is significantly different
-					// from the current position (more than 3 km)
-					if (Utils.getDistance(lastUsedTrack.getLastMeasurement().getLatitude(),lastUsedTrack.getLastMeasurement().getLongitude(),
-							location.getLatitude(), location.getLongitude()) > 3.0) {
-						logger.info("The last measurement's position is more than 3 km away. I will create a new track");
-						track = new Track("123456", fuelType, carManufacturer,
-								carModel, sensorId, dbAdapterLocal); 
-						track.setName("Track " + date);
-						track.setDescription(trackDescription);
-						track.commitTrackToDatabase();
-						return;
-
-					}
-
-					// TODO: New track if user clicks on create new track button
-
-					// TODO: new track if VIN changed
-
-					else {
-						logger.info("I will append to the last track because that still makes sense");
-						track = lastUsedTrack;
-						return;
-					}
-
-				} catch (MeasurementsException e) {
-					logger.warn("The last track contains no measurements. I will delete it and create a new one.");
-					dbAdapterLocal.deleteTrack(lastUsedTrack.getId());
-					track = new Track("123456", fuelType, carManufacturer,
-							carModel, sensorId, dbAdapterLocal); 
-					track.setName("Track " + date);
-					track.setDescription(trackDescription);
-					track.commitTrackToDatabase();
-				}
-
-			} catch (TracksException e) {
-				logger.warn("There was no track in the database so I created a new one");
-				track = new Track("123456", fuelType, carManufacturer,
-						carModel, sensorId, dbAdapterLocal); 
-				track.setName("Track " + date);
-				track.setDescription(trackDescription);
-				track.commitTrackToDatabase();
-			}
-
-			return;
-
-		}
-
-		// if track is not null, determine whether it is useful to create a new
-		// track and store the current one
-
-		if (track != null) {
-
-			logger.info("the track was not null");
-
-			Track currentTrack = track;
-
-			try {
-
-				// New track if last measurement is more than 60 minutes
-				// ago
-				if ((System.currentTimeMillis() - currentTrack
-						.getLastMeasurement().getMeasurementTime()) > 3600000) {
-					track = new Track("123456", fuelType, carManufacturer,
-							carModel, sensorId, dbAdapterLocal);
-					track.setName("Track " + date);
-					track.setDescription(trackDescription);
-					track.commitTrackToDatabase();
-					logger.info("I create a new track because the last measurement is more than 60 mins ago");
-					return;
-				}
-				// TODO: New track if user clicks on create new track button
-
-				// new track if last position is significantly different from
-				// the
-				// current position (more than 3 km)
-
-				if (Utils.getDistance(currentTrack.getLastMeasurement().getLatitude(),currentTrack.getLastMeasurement().getLongitude(),
-						location.getLatitude(), location.getLongitude()) > 3.0) {
-					track = new Track("123456", fuelType, carManufacturer,
-							carModel, sensorId, dbAdapterLocal); 
-					track.setName("Track " + date);
-					track.setDescription(trackDescription);
-					track.commitTrackToDatabase();
-					logger.info("The last measurement's position is more than 3 km away. I will create a new track");
-					return;
-
-				}
-
-				// TODO: new track if VIN changed
-
-				else {
-					logger.info("I will append to the last track because that still makes sense");
-					return;
-				}
-
-			} catch (MeasurementsException e) {
-				logger.warn("The last track contains no measurements. I will delete it and create a new one.");
-				dbAdapterLocal.deleteTrack(currentTrack.getId());
-				track = new Track("123456", fuelType, carManufacturer,
-						carModel, sensorId, dbAdapterLocal); 
-				track.setName("Track " + date);
-				track.setDescription(trackDescription);
-				track.commitTrackToDatabase();
-			}
-		}
-	}
 
 	/**
 	 * This method opens both dbadapters or also gets them and opens them afterwards.
@@ -504,148 +299,28 @@ public class ECApplication extends Application implements LocationListener {
 	 * This method starts the listener that interprets the answers from the BT adapter.
 	 */
 	public void startListener() {
-		listener = new Listener() {
+		//TODO de-couple dbAdapterLocal
+		listener = new CommandListener(createCar(), dbAdapterLocal);
+	}
 
-			public void receiveUpdate(CommonCommand job) {
-				logger.debug("update received");
-				// Get the name and the result of the Command
-
-				String commandName = job.getCommandName();
-				String commandResult = job.getResult();
-				logger.debug(commandName + " " + commandResult);
-				if (commandResult.equals("NODATA"))
-					return;
-
-				/*
-				 * Check which measurent is returned and save the value in the
-				 * previously created measurement
-				 */
-
-				// Speed
-
-				if (commandName.equals("Vehicle Speed")) {
-
-					try {
-						speedMeasurement = Integer.valueOf(commandResult);
-					} catch (NumberFormatException e) {
-						logger.warn("speed parse exception", e);
-					}
-				}
-				
-				//RPM
-				
-				if (commandName.equals("Engine RPM")) {
-					// TextView speedTextView = (TextView)
-					// findViewById(R.id.spd_text);
-					// speedTextView.setText(commandResult + " km/h");
-
-					try {
-						rpmMeasurement = Integer.valueOf(commandResult);
-					} catch (NumberFormatException e) {
-						logger.warn("rpm parse exception", e);
-					}
-				}
-
-				//IntakePressure
-				
-				if (commandName.equals("Intake Manifold Pressure")) {
-					// TextView speedTextView = (TextView)
-					// findViewById(R.id.spd_text);
-					// speedTextView.setText(commandResult + " km/h");
-
-					try {
-						intakePressureMeasurement = Integer.valueOf(commandResult);
-					} catch (NumberFormatException e) {
-						logger.warn("Intake Pressure parse exception", e);
-					}
-				}
-				
-				//IntakeTemperature
-				
-				if (commandName.equals("Air Intake Temperature")) {
-					// TextView speedTextView = (TextView)
-					// findViewById(R.id.spd_text);
-					// speedTextView.setText(commandResult + " km/h");
-
-					try {
-						intakeTemperatureMeasurement = Integer.valueOf(commandResult);
-					} catch (NumberFormatException e) {
-						logger.warn("Intake Temperature parse exception", e);
-					}
-				}
-								
-				//calculate alternative maf from iat, map, rpm
-				double imap = rpmMeasurement * intakePressureMeasurement / (intakeTemperatureMeasurement+273);
-				//VE = 85 in most modern cars
-				double calculatedMaf = imap / 120.0d * 85.0d/100.0d * Float.parseFloat(preferences.getString("pref_engine_displacement","2.0")) * 28.97 / 8.317;	
-				calculatedMafMeasurement = calculatedMaf;
-				
-				logger.info("calculatedMaf: "+calculatedMaf+" "+Float.parseFloat(preferences.getString("pref_engine_displacement","2.0"))+" "+preferences.getString("pref_engine_displacement","2.0"));
-				
-				// MAF
-
-				if (commandName.equals("Mass Air Flow")) {
-					String maf = commandResult;
-
-					try {
-						NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
-						Number number;
-						number = format.parse(maf);
-						mafMeasurement = number.doubleValue();
-
-						// Dashboard Co2 current value preparation
-
-						double consumption = 0.0;
-
-						if (mafMeasurement > 0.0) {
-							if (preferences.getString(PREF_KEY_FUEL_TYPE,
-									"gasoline").equals("gasoline")) {
-								consumption = (mafMeasurement / 14.7) / 747;
-								// Change to l/h
-								consumption=consumption*3600;
-							} else if (preferences.getString(
-									PREF_KEY_FUEL_TYPE, "gasoline").equals(
-									"diesel")) {
-								consumption = (mafMeasurement / 14.5) / 832;
-								// Change to l/h
-								consumption=consumption*3600;
-							}
-						} else {
-							if (preferences.getString(PREF_KEY_FUEL_TYPE,
-									"gasoline").equals("gasoline")) {
-								consumption = (calculatedMafMeasurement / 14.7) / 747;
-								// Change to l/h
-								consumption=consumption*3600;
-							} else if (preferences.getString(
-									PREF_KEY_FUEL_TYPE, "gasoline").equals(
-									"diesel")) {
-								consumption = (calculatedMafMeasurement / 14.5) / 832;
-								// Change to l/h
-								consumption=consumption*3600;
-							}
-						}
-
-						if (preferences.getString(PREF_KEY_FUEL_TYPE,
-								"gasoline").equals("gasoline")) {
-							co2Measurement = consumption * 2.35; //kg/h
-						} else if (preferences.getString(PREF_KEY_FUEL_TYPE,
-								"gasoline").equals("diesel")) {
-							co2Measurement = consumption * 2.65; //kg/h
-						}
-						logger.info("co2: "+ co2Measurement+"");
-					} catch (ParseException e) {
-						logger.warn("parse exception maf", e);
-					} catch (java.text.ParseException e) {
-						logger.warn("parse exception maf", e);
-					}
-				}
-
-				// Update and insert the measurement
-
-				updateMeasurement();
-			}
-
-		};
+	private Car createCar() {
+		String fuelType = preferences
+				.getString(PREF_KEY_FUEL_TYPE, "undefined");
+		String carManufacturer = preferences.getString(
+				PREF_KEY_CAR_MANUFACTURER, "undefined");
+		String carModel = preferences
+				.getString(PREF_KEY_CAR_MODEL, "undefined");
+		String sensorId = preferences
+				.getString(PREF_KEY_SENSOR_ID, "undefined");
+		String displacement = preferences.getString(PREF_KEY_CAR_ENGINE_DISPLACEMENT,"2.0");
+		FuelType type = null;
+		if (fuelType.equalsIgnoreCase(FuelType.GASOLINE.toString())) {
+			type = FuelType.GASOLINE;
+		} else {
+			type = FuelType.DIESEL;
+		}
+		Car car = new Car(type, carManufacturer, carModel, sensorId, Double.parseDouble(displacement));
+		return car;
 	}
 
 	/**
@@ -726,74 +401,7 @@ public class ECApplication extends Application implements LocationListener {
 		serviceConnector.addJobToWaitingList(intakeTemperature);
 	}
 
-	/**
-	 * Helper Command that updates the current measurement with the last
-	 * measurement data and inserts it into the database if the measurements is
-	 * young enough
-	 */
-	public void updateMeasurement() {
 
-		// Create track new measurement if necessary
-
-		if (measurement == null) {
-			measurement = new Measurement(location.getLatitude(), location.getLongitude());
-		}
-
-		// Insert the values if the measurement (with the coordinates) is young
-		// enough (5000ms) or create new one if it is too old
-
-		if (measurement.getLatitude() != 0.0 && measurement.getLongitude() != 0.0) {
-
-			if (Math.abs(measurement.getMeasurementTime() - System.currentTimeMillis()) > 5000) {
-				measurement = new Measurement(location.getLatitude(), location.getLongitude());
-			}
-
-			measurement.setSpeed(speedMeasurement);
-			measurement.setMaf(mafMeasurement);	
-			measurement.setCalculatedMaf(calculatedMafMeasurement);
-			measurement.setRpm(rpmMeasurement);
-			measurement.setIntakePressure(intakePressureMeasurement);
-			measurement.setIntakeTemperature(intakeTemperatureMeasurement);
-			insertMeasurement(measurement);
-		} else {
-			logger.warn("Position by GPS isn't working correct");
-		}
-	}
-
-	/**
-	 * Helper method to insert track measurement into the database (ensures that
-	 * track measurement is only stored every 5 seconds and not faster...)
-	 * 
-	 * @param insertMeasurement
-	 *            The measurement you want to insert
-	 */
-	private void insertMeasurement(Measurement insertMeasurement) {
-
-		// TODO: This has to be added with the following conditions:
-		/*
-		 * 1)New measurement if more than 50 meters away 2)New measurement if
-		 * last measurement more than 1 minute ago 3)New measurement if MAF
-		 * value changed significantly (whatever this means... we will have to
-		 * investigate on that. also it is not clear whether we should use this
-		 * condition because we are vulnerable to noise from the sensor.
-		 * therefore, we should include a minimum time between measurements (1
-		 * sec) as well.)
-		 */
-
-		if (Math.abs(lastInsertTime - insertMeasurement.getMeasurementTime()) > 5000) {
-
-			lastInsertTime = insertMeasurement.getMeasurementTime();
-
-			track.addMeasurement(insertMeasurement);
-
-			logger.info("Add new measurement to track: " + insertMeasurement.toString());
-
-			Toast.makeText(getApplicationContext(), "Calculated Mass Air Flow" + measurement.getCalculatedMaf(),
-						Toast.LENGTH_SHORT).show();
-
-		}
-
-	}
 
 	/**
 	 * Init the location Manager
@@ -816,7 +424,7 @@ public class ECApplication extends Application implements LocationListener {
 		locationManager = null;
 		backgroundService = null;
 		serviceConnector = null;
-		listener = null;
+//		listener = null;
 		handler = null;
 	}
 
@@ -825,7 +433,7 @@ public class ECApplication extends Application implements LocationListener {
 	 */
 	@Override
 	public void onLocationChanged(Location location) {
-		this.location = location;
+		EventBus.getInstance().fireEvent(new LocationEvent(location));
 		logger.info("Get new position of " + location.getProvider() + " : lat " + location.getLatitude() + " long: " + location.getLongitude());
 	}
 
@@ -859,39 +467,6 @@ public class ECApplication extends Application implements LocationListener {
 
 	}
 
-	/**
-	 * @return the speedMeasurement
-	 */
-	public int getSpeedMeasurement() {
-		return speedMeasurement;
-	}
-	
-	public Location getLocation() {
-		return location;
-	}
-
-	/**
-	 * @return the track
-	 */
-	public Track getTrack() {
-		return track;
-	}
-
-	/**
-	 * @param track
-	 *            the track to set
-	 */
-	public void setTrack(Track track) {
-		this.track = track;
-	}
-
-	/**
-	 * 
-	 * @return the current co2 value
-	 */
-	public double getCo2Measurement() {
-		return co2Measurement;
-	}
 	
 	/**
 	 * 
@@ -955,19 +530,6 @@ public class ECApplication extends Application implements LocationListener {
 		return out.toString();
 	}
 
-	/**
-	 * @return the imperialUnits
-	 */
-	public boolean isImperialUnits() {
-		return imperialUnits;
-	}
-
-	/**
-	 * @param imperialUnits the imperialUnits to set
-	 */
-	public void setImperialUnits(boolean imperialUnits) {
-		this.imperialUnits = imperialUnits;
-	}
 	
 	public final BroadcastReceiver bluetoothChangeReceiver = new BroadcastReceiver() {
 	    @Override
@@ -986,5 +548,10 @@ public class ECApplication extends Application implements LocationListener {
 	        }
 	    }
 	};
+
+	public void resetTrack() {
+		this.listener.resetTrack();
+	}
+
 
 }

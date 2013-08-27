@@ -44,7 +44,6 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Display;
 /**
  * Map visualization that displays a track on a map
@@ -54,7 +53,6 @@ import android.view.Display;
 public class Map extends MapActivity {
 
 	private static final Logger logger = Logger.getLogger(Map.class);
-	private final static String TAG = "Map";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {

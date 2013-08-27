@@ -145,7 +145,7 @@ public class BackgroundService extends Service {
 
 		bluetoothSocket.connect();
 		
-		((ECApplication) getApplication()).createNewTrackIfNecessary();
+		callbackListener.createNewTrackIfNecessary();
 
 		addCommandToWaitingList(new ObdReset());
 		addCommandToWaitingList(new EchoOff());

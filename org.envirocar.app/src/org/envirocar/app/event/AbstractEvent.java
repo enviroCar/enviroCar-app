@@ -18,30 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-
-package org.envirocar.app.application;
-
-import org.envirocar.app.commands.CommonCommand;
+package org.envirocar.app.event;
 
 /**
- * Interface that listens for updates from the current obd job
+ * interface for providing specific events (OBDII, GPS location, ...)
  * 
- * @author jakob
- * 
+ * @author matthes rieke
+ *
+ * @param <T> the transported event type
  */
-
-public interface Listener {
+public interface AbstractEvent<T> {
 
 	/**
-	 * Receive the current command
-	 * 
-	 * @param currentJob
-	 *            the answer-job
+	 * @return the payload of this event
 	 */
-	void receiveUpdate(CommonCommand currentJob);
-
-	void createNewTrackIfNecessary();
-
-	void resetTrack();
-
+	public T getPayload();
+	
 }

@@ -18,30 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-
-package org.envirocar.app.application;
-
-import org.envirocar.app.commands.CommonCommand;
+package org.envirocar.app.event;
 
 /**
- * Interface that listens for updates from the current obd job
+ * super-interface for an event listener.
+ * The current {@link EventBus} implementation relies on every
+ * sub-interface to provide an annotation {@link SupportedEventClass}
+ * which defines the supported Event type Class.
  * 
- * @author jakob
- * 
+ * @author matthes rieke
+ *
+ * @param <T>
  */
-
-public interface Listener {
-
+public interface EventListener<T> {
+	
 	/**
-	 * Receive the current command
-	 * 
-	 * @param currentJob
-	 *            the answer-job
+	 * @param event the event holding its payload
 	 */
-	void receiveUpdate(CommonCommand currentJob);
-
-	void createNewTrackIfNecessary();
-
-	void resetTrack();
-
+	public void receiveEvent(T event);
+	
 }

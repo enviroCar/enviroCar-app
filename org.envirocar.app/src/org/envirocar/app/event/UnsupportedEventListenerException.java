@@ -18,30 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
+package org.envirocar.app.event;
 
-package org.envirocar.app.application;
+public class UnsupportedEventListenerException extends Exception {
 
-import org.envirocar.app.commands.CommonCommand;
-
-/**
- * Interface that listens for updates from the current obd job
- * 
- * @author jakob
- * 
- */
-
-public interface Listener {
 
 	/**
-	 * Receive the current command
 	 * 
-	 * @param currentJob
-	 *            the answer-job
 	 */
-	void receiveUpdate(CommonCommand currentJob);
+	private static final long serialVersionUID = 1L;
 
-	void createNewTrackIfNecessary();
-
-	void resetTrack();
-
+	public UnsupportedEventListenerException(String format) {
+		super(format);
+	}
+	
 }

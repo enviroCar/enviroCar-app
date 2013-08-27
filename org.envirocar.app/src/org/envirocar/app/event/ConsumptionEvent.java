@@ -18,30 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
+package org.envirocar.app.event;
 
-package org.envirocar.app.application;
+public class ConsumptionEvent implements AbstractEvent<Double> {
 
-import org.envirocar.app.commands.CommonCommand;
+	private double consumption;
 
-/**
- * Interface that listens for updates from the current obd job
- * 
- * @author jakob
- * 
- */
+	public ConsumptionEvent(double consumption) {
+		this.consumption = consumption;
+	}
 
-public interface Listener {
-
-	/**
-	 * Receive the current command
-	 * 
-	 * @param currentJob
-	 *            the answer-job
-	 */
-	void receiveUpdate(CommonCommand currentJob);
-
-	void createNewTrackIfNecessary();
-
-	void resetTrack();
+	@Override
+	public Double getPayload() {
+		return this.consumption;
+	}
 
 }

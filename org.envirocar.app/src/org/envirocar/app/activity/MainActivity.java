@@ -198,7 +198,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
         handler_connect = new Handler();
         handler_upload = new Handler();
-        application.setImperialUnits(preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT, false));
 
 		actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
@@ -587,7 +586,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
         autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
-        application.setImperialUnits(preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT, false));
 	}
 
 
