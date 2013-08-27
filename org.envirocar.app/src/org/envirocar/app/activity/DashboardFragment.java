@@ -33,7 +33,6 @@ import org.envirocar.app.event.LocationEventListener;
 import org.envirocar.app.event.SpeedEvent;
 import org.envirocar.app.event.SpeedEventListener;
 import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.util.AndroidUtil;
 import org.envirocar.app.views.RoundProgress;
 import org.envirocar.app.views.TypefaceEC;
 
@@ -42,6 +41,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -102,19 +102,18 @@ public class DashboardFragment extends SherlockFragment {
 	 * @return
 	 */
 	private String getCurrentSensorString() {
-		SharedPreferences pref = AndroidUtil.getInstance().getDefaultSharedPreferences();
 		String nonsens = "nosensor";
-		if (pref.contains(ECApplication.PREF_KEY_SENSOR_ID) && 
-				pref.contains(ECApplication.PREF_KEY_FUEL_TYPE) &&
-				pref.contains(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR) &&
-				pref.contains(ECApplication.PREF_KEY_CAR_MODEL) &&
-				pref.contains(ECApplication.PREF_KEY_CAR_MANUFACTURER)) {
+		if (preferences.contains(ECApplication.PREF_KEY_SENSOR_ID) && 
+				preferences.contains(ECApplication.PREF_KEY_FUEL_TYPE) &&
+				preferences.contains(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR) &&
+				preferences.contains(ECApplication.PREF_KEY_CAR_MODEL) &&
+				preferences.contains(ECApplication.PREF_KEY_CAR_MANUFACTURER)) {
 			
-			String prefSensorid = pref.getString(ECApplication.PREF_KEY_SENSOR_ID, nonsens);
-			String prefFuelType = pref.getString(ECApplication.PREF_KEY_FUEL_TYPE, nonsens);
-			String prefYear = pref.getString(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR, nonsens);
-			String prefModel = pref.getString(ECApplication.PREF_KEY_CAR_MODEL, nonsens);
-			String prefManu = pref.getString(ECApplication.PREF_KEY_CAR_MANUFACTURER, nonsens);
+			String prefSensorid = preferences.getString(ECApplication.PREF_KEY_SENSOR_ID, nonsens);
+			String prefFuelType = preferences.getString(ECApplication.PREF_KEY_FUEL_TYPE, nonsens);
+			String prefYear = preferences.getString(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR, nonsens);
+			String prefModel = preferences.getString(ECApplication.PREF_KEY_CAR_MODEL, nonsens);
+			String prefManu = preferences.getString(ECApplication.PREF_KEY_CAR_MANUFACTURER, nonsens);
 			
 			if (prefSensorid.equals(nonsens) == false ||
 					prefYear.equals(nonsens) == false ||
@@ -137,7 +136,7 @@ public class DashboardFragment extends SherlockFragment {
 		
 		dashboardView = getView();
 
-		preferences = AndroidUtil.getInstance().getDefaultSharedPreferences();
+		preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
 		// Include application and adapter
 		
 		dbAdapter = ((ECApplication) getActivity().getApplication())

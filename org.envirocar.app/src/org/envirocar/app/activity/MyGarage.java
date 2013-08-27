@@ -26,10 +26,10 @@ import java.util.ArrayList;
 import org.apache.http.Header;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
-import org.envirocar.app.application.RestClient;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.network.RestClient;
 import org.envirocar.app.views.TypefaceEC;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -186,7 +186,7 @@ public class MyGarage extends SherlockFragment {
 					logger.info(parent.getItemAtPosition(pos)+"");
 					
 					try {
-						((ECApplication) getActivity().getApplication()).updateCurrentSensor(((JSONObject) parent.getItemAtPosition(pos)).getString("id"),
+						updateCurrentSensor(((JSONObject) parent.getItemAtPosition(pos)).getString("id"),
 								((JSONObject) parent.getItemAtPosition(pos)).getString("manufacturer"),
 								((JSONObject) parent.getItemAtPosition(pos)).getString("model"),
 								((JSONObject) parent.getItemAtPosition(pos)).getString("fuelType"),
@@ -230,6 +230,25 @@ public class MyGarage extends SherlockFragment {
 		TypefaceEC.applyCustomFont((ViewGroup) view.findViewById(R.id.mygaragelayout), TypefaceEC.Raleway(getActivity()));
 		
 		return view;
+	}
+
+	/**
+	 * This method updates the attributes of the current sensor (=car) 
+	 * @param sensorid the id that is stored on the server
+	 * @param carManufacturer the car manufacturer
+	 * @param carModel the car model
+	 * @param fuelType the fuel type of the car
+	 * @param year construction year of the car
+	 */
+	public void updateCurrentSensor(String sensorid, String carManufacturer,
+			String carModel, String fuelType, int year) {
+		Editor e = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).edit();
+		e.putString(ECApplication.PREF_KEY_SENSOR_ID, sensorid);
+		e.putString(ECApplication.PREF_KEY_CAR_MANUFACTURER, carManufacturer);
+		e.putString(ECApplication.PREF_KEY_CAR_MODEL, carModel);
+		e.putString(ECApplication.PREF_KEY_FUEL_TYPE, fuelType);
+		e.putString(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR, year + "");
+		e.commit();
 	}
 
 	/**

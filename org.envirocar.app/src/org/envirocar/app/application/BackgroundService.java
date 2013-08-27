@@ -64,7 +64,7 @@ public class BackgroundService extends Service {
 	private AtomicBoolean isTheServiceRunning = new AtomicBoolean(false);
 	private AtomicBoolean isWaitingListRunning = new AtomicBoolean(false);
 	private Long counter = 0L;
-
+	
 	// Bluetooth devices and connection items
 
 	private BluetoothDevice bluetoothDevice = null;
@@ -105,7 +105,7 @@ public class BackgroundService extends Service {
 
 		SharedPreferences preferences = PreferenceManager
 				.getDefaultSharedPreferences(this);
-
+		
 		// Init bluetooth
 
 		String remoteDevice = preferences.getString(SettingsActivity.BLUETOOTH_KEY, null);
@@ -203,6 +203,9 @@ public class BackgroundService extends Service {
 		// Set waiting list execution counter
 		counter = 0L;
 	}
+	
+
+
 
 	/**
 	 * Add a command to the waiting-list
@@ -236,9 +239,6 @@ public class BackgroundService extends Service {
 		callbackListener = null;
 		isTheServiceRunning.set(false);
 		
-		ECApplication application = (ECApplication) getApplication();
-		application.stopLocating();
-
 		try {
 			bluetoothSocket.close();
 		} catch (Exception e) {
@@ -255,7 +255,7 @@ public class BackgroundService extends Service {
 	 * @author jakob
 	 * 
 	 */
-	public class LocalBinder extends Binder implements Monitor {
+	private class LocalBinder extends Binder implements Monitor {
 		public void setListener(Listener callback) {
 			callbackListener = callback;
 		}

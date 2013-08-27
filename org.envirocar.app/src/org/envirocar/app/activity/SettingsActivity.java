@@ -26,7 +26,6 @@ import java.util.Set;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
-import org.envirocar.app.util.AndroidUtil;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -39,6 +38,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
@@ -131,7 +131,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 			public boolean onPreferenceChange(Preference preference, Object newValue) {
 				bluetoothDeviceList.setValue(newValue.toString());
 				preference.setSummary(bluetoothDeviceList.getEntry());
-				AndroidUtil.getInstance().getDefaultSharedPreferences().edit().putString(BLUETOOTH_NAME, (String) bluetoothDeviceList.getEntry()).commit();
+				PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString(BLUETOOTH_NAME, (String) bluetoothDeviceList.getEntry()).commit();
 				return false;
 			}
 		});
@@ -146,7 +146,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 		if (availablePairedDevices.size() > 0) {
 			for (BluetoothDevice device : availablePairedDevices) {
 				possibleDevices.add(device.getName() + "\n"+ device.getAddress());
-				if(device.getAddress().equals(AndroidUtil.getInstance().getDefaultSharedPreferences().getString(BLUETOOTH_KEY, ""))){
+				if(device.getAddress().equals(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(BLUETOOTH_KEY, ""))){
 					bluetoothDeviceList.setSummary(device.getName() + " " + device.getAddress());
 				}
 				entryValues.add(device.getAddress());
@@ -183,13 +183,13 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 		});		
 
 		final EditTextPreference displacementPref = (EditTextPreference) getPreferenceScreen().findPreference(ENGINE_DISPLACEMENT);
-		displacementPref.setSummary(AndroidUtil.getInstance().getDefaultSharedPreferences().getString(ENGINE_DISPLACEMENT, "") + " Liter");
+		displacementPref.setSummary(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(ENGINE_DISPLACEMENT, "") + " Liter");
 		displacementPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
 			
 			@Override
 			public boolean onPreferenceChange(Preference preference, Object newValue) {
 				preference.setSummary(newValue.toString() + " Liter");
-				AndroidUtil.getInstance().getDefaultSharedPreferences().edit().putString(ENGINE_DISPLACEMENT, (String) newValue).commit();
+				PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString(ENGINE_DISPLACEMENT, (String) newValue).commit();
 				return false;
 			}
 		});

@@ -38,8 +38,6 @@ import org.envirocar.app.commands.IntakeTemperature;
 import org.envirocar.app.commands.MAF;
 import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.Speed;
-import org.envirocar.app.event.EventBus;
-import org.envirocar.app.event.LocationEvent;
 import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
@@ -47,7 +45,6 @@ import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterLocal;
 import org.envirocar.app.storage.DbAdapterRemote;
-import org.envirocar.app.util.AndroidUtil;
 
 import android.app.Activity;
 import android.app.Application;
@@ -57,15 +54,13 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
-import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 
 /**
@@ -75,7 +70,7 @@ import android.support.v4.app.NotificationCompat;
  *
  */
 @ReportsCrashes(formKey = "")
-public class ECApplication extends Application implements LocationListener {
+public class ECApplication extends Application {
 	
 	private static final Logger logger = Logger.getLogger(ECApplication.class);
 	
@@ -105,14 +100,30 @@ public class ECApplication extends Application implements LocationListener {
 	private Intent backgroundService = null;
 	private Handler handler = new Handler();
 	private Listener listener = null;
-	private LocationManager locationManager;
+	
 	private int mId = 1133;
 	
 	
 	private Activity currentActivity;
 	
-	//private boolean requirementsFulfilled = true;
+	private final BroadcastReceiver bluetoothChangeReceiver = new BroadcastReceiver() {
+	    @Override
+	    public void onReceive(Context context, Intent intent) {
+	        final String action = intent.getAction();
 
+	        if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+	            final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
+	                                                 BluetoothAdapter.ERROR);
+	            switch (state) {
+	            case BluetoothAdapter.STATE_ON:
+	            	logger.info("bt is now on");
+	            	startBackgroundService();
+	                break;
+	            }
+	        }
+	    }
+	};
+	
 	/**
 	 * returns the current activity.
 	 * @return
@@ -149,24 +160,6 @@ public class ECApplication extends Application implements LocationListener {
 		}
 	}
 
-	/**
-	 * This method updates the attributes of the current sensor (=car) 
-	 * @param sensorid the id that is stored on the server
-	 * @param carManufacturer the car manufacturer
-	 * @param carModel the car model
-	 * @param fuelType the fuel type of the car
-	 * @param year construction year of the car
-	 */
-	public void updateCurrentSensor(String sensorid, String carManufacturer,
-			String carModel, String fuelType, int year) {
-		Editor e = preferences.edit();
-		e.putString(PREF_KEY_SENSOR_ID, sensorid);
-		e.putString(PREF_KEY_CAR_MANUFACTURER, carManufacturer);
-		e.putString(PREF_KEY_CAR_MODEL, carModel);
-		e.putString(PREF_KEY_FUEL_TYPE, fuelType);
-		e.putString(PREF_KEY_CAR_CONSTRUCTION_YEAR, year + "");
-		e.commit();
-	}
 
 	@Override
 	public void onCreate() {
@@ -175,22 +168,32 @@ public class ECApplication extends Application implements LocationListener {
 		
 		initializeErrorHandling();
 		
-		AndroidUtil.init(getApplicationContext());
-		
-		preferences = AndroidUtil.getInstance().getDefaultSharedPreferences();
+		preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
 		UserManager.init(getApplicationContext());
 		initDbAdapter();
-		initLocationManager();
-		startLocationManager();
 		// Make a new listener to interpret the measurement values that are
 		// returned
 		logger.info("init listener");
 		startListener();
+		
+		startLocationListener();
+		
 		// If everything is available, start the service connector and listener
 		startBackgroundService();
+		
+		//bluetooth change listener
+	    IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+	    this.registerReceiver(bluetoothChangeReceiver, filter);
 	}
 	
+	private void startLocationListener() {
+		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		LocationUpdateListener locList = new LocationUpdateListener();
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
+				0, locList);
+	}
+
 	private void initializeErrorHandling() {
 		ACRA.init(this);
 		ACRACustomSender yourSender = new ACRACustomSender();
@@ -237,30 +240,11 @@ public class ECApplication extends Application implements LocationListener {
 		return dbAdapterRemote;
 	}
 
-	/**
-	 * Starts the location manager again after an resume.
-	 */
-	public void startLocationManager() {
-		if(locationManager == null){
-			initLocationManager();
-		}
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
-				0, this);
-	}
-
-	/**
-	 * Stops the location manager (removeUpdates) for pause.
-	 */
-	public void stopLocating() {
-		if(locationManager != null){
-			locationManager.removeUpdates(this);
-		}
-	}
 
 	/**
 	 * This method starts the service that connects to the adapter to the app.
 	 */
-	public void startBackgroundService() {
+	private void startBackgroundService() {
 		if (requirementsFulfilled()) {
 			logger.info("requirements met");
 			backgroundService = new Intent(this, BackgroundService.class);
@@ -277,7 +261,9 @@ public class ECApplication extends Application implements LocationListener {
 	/**
 	 * This method starts the service connector every five minutes if the user 
 	 * wants an autoconnection
+	 * @deprecated not being used. implement a better way at a better location if required
 	 */
+	@Deprecated
 	public void startServiceConnector() {
 		scheduleTaskExecutor.scheduleAtFixedRate(new Runnable() {
 			public void run() {
@@ -337,7 +323,6 @@ public class ECApplication extends Application implements LocationListener {
 	public void startConnection() {
 		logger.info("Starts the recording of a track");
 		initDbAdapter();
-		startLocationManager();
 		//createNewTrackIfNecessary();
 		if (!serviceConnector.isRunning()) {
 			startService(backgroundService);
@@ -362,7 +347,6 @@ public class ECApplication extends Application implements LocationListener {
 		}
 		handler.removeCallbacks(waitingListRunnable);
 
-		stopLocating();
 		closeDb();
 	}
 
@@ -403,54 +387,18 @@ public class ECApplication extends Application implements LocationListener {
 
 
 
-	/**
-	 * Init the location Manager
-	 */
-	private void initLocationManager() {
-
-		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-		// locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-		// 0,
-		// 0, this);
-
-	}
 
 	/**
 	 * Stops gps, kills service, kills service connector, kills listener and handler
 	 */
 	public void destroyStuff() {
-		stopLocating();
-		locationManager = null;
 		backgroundService = null;
 		serviceConnector = null;
 //		listener = null;
 		handler = null;
 	}
 
-	/**
-	 * updates the location variables when the device moved
-	 */
-	@Override
-	public void onLocationChanged(Location location) {
-		EventBus.getInstance().fireEvent(new LocationEvent(location));
-		logger.info("Get new position of " + location.getProvider() + " : lat " + location.getLatitude() + " long: " + location.getLongitude());
-	}
 
-	@Override
-	public void onProviderDisabled(String arg0) {
-
-	}
-
-	@Override
-	public void onProviderEnabled(String arg0) {
-
-	}
-
-	@Override
-	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
-
-	}
 
 	/**
 	 * Closes both databases.
@@ -531,24 +479,6 @@ public class ECApplication extends Application implements LocationListener {
 	}
 
 	
-	public final BroadcastReceiver bluetoothChangeReceiver = new BroadcastReceiver() {
-	    @Override
-	    public void onReceive(Context context, Intent intent) {
-	        final String action = intent.getAction();
-
-	        if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
-	            final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
-	                                                 BluetoothAdapter.ERROR);
-	            switch (state) {
-	            case BluetoothAdapter.STATE_ON:
-	            	logger.info("bt is now on");
-	            	startBackgroundService();
-	                break;
-	            }
-	        }
-	    }
-	};
-
 	public void resetTrack() {
 		this.listener.resetTrack();
 	}

@@ -42,12 +42,10 @@ import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.util.AndroidUtil;
 import org.envirocar.app.views.Utils;
 
 import android.location.Location;
 import android.net.ParseException;
-import android.widget.Toast;
 
 /**
  * Standalone listener class for OBDII commands. It provides all
@@ -278,10 +276,6 @@ public class CommandListener implements Listener, LocationEventListener {
 			track.addMeasurement(insertMeasurement);
 
 			logger.info("Add new measurement to track: " + insertMeasurement.toString());
-
-			AndroidUtil.getInstance().makeTextToast("Calculated Mass Air Flow" + measurement.getCalculatedMaf(),
-					Toast.LENGTH_SHORT);
-
 		}
 
 	}

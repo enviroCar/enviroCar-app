@@ -19,15 +19,15 @@
  * 
  */
 
-package org.envirocar.app.application;
+package org.envirocar.app.network;
 
 import java.io.UnsupportedEncodingException;
 
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
+import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.network.HTTPClient;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;

@@ -35,16 +35,15 @@ import java.util.TimeZone;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
-import org.envirocar.app.application.RestClient;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.network.RestClient;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterRemote;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.util.AndroidUtil;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
 import org.json.JSONArray;
@@ -59,6 +58,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
@@ -771,7 +771,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					end.setText(sdf.format(currTrack.getEndTime()) + "");
 					Date durationMillis = new Date(currTrack.getDurationInMillis());
 					duration.setText(dfDuration.format(durationMillis) + "");
-					if (!AndroidUtil.getInstance().getDefaultSharedPreferences().getBoolean(SettingsActivity.IMPERIAL_UNIT, false)) {
+					if (!PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).getBoolean(SettingsActivity.IMPERIAL_UNIT, false)) {
 						length.setText(twoDForm.format(currTrack.getLengthOfTrack()) + " km");
 					} else {
 						length.setText(twoDForm.format(currTrack.getLengthOfTrack()/1.6) + " miles");
