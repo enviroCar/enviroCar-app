@@ -39,6 +39,7 @@ import org.envirocar.app.exception.TracksException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
+import org.envirocar.app.model.MeasurementCandidate;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
@@ -54,7 +55,7 @@ import android.net.ParseException;
  * @author matthes rieke
  *
  */
-public class CommandListener implements Listener, LocationEventListener {
+public class CommandListener implements Listener, LocationEventListener, MeasurementListener {
 	
 	private static final Logger logger = Logger.getLogger(CommandListener.class);
 
@@ -79,10 +80,13 @@ public class CommandListener implements Listener, LocationEventListener {
 	private Car car;
 
 	private DbAdapter dbAdapterLocal;
+
+	private Collector collector;
 	
 	public CommandListener(Car car, DbAdapter dbAdapterLocal) {
 		this.car = car;
 		this.dbAdapterLocal = dbAdapterLocal;
+		this.collector = new Collector(this);
 		EventBus.getInstance().registerListener(this);
 	}
 	
@@ -443,7 +447,13 @@ public class CommandListener implements Listener, LocationEventListener {
 
 	@Override
 	public void receiveEvent(LocationEvent event) {
-		this.location = event.getPayload();
+		this.collector.newLocation(event.getPayload());
+	}
+
+	@Override
+	public void insertMeasurement(MeasurementCandidate m) {
+		// TODO Auto-generated method stub
+		
 	}
 
 	
