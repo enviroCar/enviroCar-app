@@ -23,6 +23,7 @@ package org.envirocar.app.storage;
 
 import java.util.ArrayList;
 
+import org.envirocar.app.application.Collector;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
@@ -320,8 +321,9 @@ public class Track implements Comparable<Track> {
 	 *            The measurement with the fuel consumption
 	 * @return The fuel consumption in l/h. 0.0 if MAF is -1.0 (no MAF sensor)
 	 * @throws FuelConsumptionException
+	 * @deprecated the track should not be responsible for doing this!! is done at {@link Collector}
 	 */
-
+	@Deprecated
 	public double getFuelConsumptionOfMeasurement(int measurement) throws FuelConsumptionException {
 
 		Measurement m = getMeasurements().get(measurement);
@@ -353,7 +355,9 @@ public class Track implements Comparable<Track> {
 	 * @param measurement
 	 * @return co2 emission in kg/h
 	 * @throws FuelConsumptionException
+	 * @deprecated the track should not be responsible for doing this!! is done at {@link Collector}
 	 */
+	@Deprecated
 	public double getCO2EmissionOfMeasurement(int measurement) throws FuelConsumptionException {
 
 		double fuelCon;

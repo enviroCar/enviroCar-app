@@ -125,7 +125,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			navDrawerItems[SEND_LOG] = new NavMenuItem(SEND_LOG, getResources().getString(R.string.menu_send_log), R.drawable.action_report);
 		}
 		
-		if (application.requirementsFulfilled()) { // was requirementsFulfilled
+		if (application.bluetoothActivated()) { // was requirementsFulfilled
 			try {
 				if (application.getServiceConnector().isRunning()) {
 					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_stop));
@@ -256,7 +256,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 							String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY, null);
 
-							if (application.requirementsFulfilled() && remoteDevice != null) {
+							if (application.bluetoothActivated() && remoteDevice != null) {
 								if (!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)) {
 									if (UserManager.instance().isLoggedIn()) {
 										MyGarage garageFragment = new MyGarage();
@@ -285,7 +285,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 						String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY, null);
 
-						if (application.requirementsFulfilled() && remoteDevice != null) {
+						if (application.bluetoothActivated() && remoteDevice != null) {
 							if (!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)) {
 								if (UserManager.instance().isLoggedIn()) {
 									MyGarage garageFragment = new MyGarage();
@@ -509,11 +509,11 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         // Start or stop the measurement process
             
 		case START_STOP_MEASUREMENT:
-			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
 
 			String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,null);
 
-			if (application.requirementsFulfilled() && remoteDevice != null) {
+			if (application.bluetoothActivated() && remoteDevice != null) {
 				if(!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)){
 			        MyGarage garageFragment = new MyGarage();
 			        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();

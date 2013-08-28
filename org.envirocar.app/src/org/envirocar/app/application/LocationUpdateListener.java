@@ -32,20 +32,10 @@ import android.os.Bundle;
 public class LocationUpdateListener implements LocationListener {
 
 	private static final Logger logger = Logger.getLogger(LocationUpdateListener.class);
-	private LocationManager locationManager;
+	private static LocationUpdateListener instance;
 	
 	public LocationUpdateListener() {
 	}
-
-	/**
-	 * Stops the location manager (removeUpdates) for pause.
-	 */
-	public void stopLocating() {
-		if(locationManager != null){
-			locationManager.removeUpdates(this);
-		}
-	}
-	
 	/**
 	 * updates the location variables when the device moved
 	 */
@@ -68,6 +58,21 @@ public class LocationUpdateListener implements LocationListener {
 	@Override
 	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
 
+	}
+
+	public static synchronized LocationUpdateListener getInstance() {
+		if (instance == null)
+			instance = new LocationUpdateListener();
+		return instance;
+	}
+	
+	public static void startLocating(LocationManager lm) {
+		lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
+				0, getInstance());
+	}
+	
+	public static void stopLocating(LocationManager lm) {
+		lm.removeUpdates(getInstance());
 	}
 	
 }

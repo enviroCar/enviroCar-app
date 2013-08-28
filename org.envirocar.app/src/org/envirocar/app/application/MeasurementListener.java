@@ -20,10 +20,10 @@
  */
 package org.envirocar.app.application;
 
-import org.envirocar.app.model.MeasurementCandidate;
+import org.envirocar.app.storage.Measurement;
 
 public interface MeasurementListener {
 
-	public void insertMeasurement(MeasurementCandidate m);
+	public void insertMeasurement(Measurement m);
 	
 }

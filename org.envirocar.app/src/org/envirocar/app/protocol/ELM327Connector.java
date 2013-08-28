@@ -18,38 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
+package org.envirocar.app.protocol;
 
-package org.envirocar.app.commands;
+import org.envirocar.app.application.ServiceConnector;
+import org.envirocar.app.commands.EchoOff;
+import org.envirocar.app.commands.LineFeedOff;
+import org.envirocar.app.commands.ObdReset;
+import org.envirocar.app.commands.SelectAutoProtocol;
+import org.envirocar.app.commands.Timeout;
 
-/**
- * Intake temperature on PID 01 0F
- * 
- * @author jakob
- * 
- */
-public class IntakeTemperature extends CommonCommand {
-
-	public static final String NAME = "Air Intake Temperature";
-
-	public IntakeTemperature() {
-		super("01 0F");
-	}
+public class ELM327Connector extends AbstractOBDConnector {
 
 	@Override
-	public String getCommandName() {
-		return NAME;
-	}
-
-	@Override
-	public String getResult() {
-		String result = getRawData();
-
-		if (!"NODATA".equals(result)) {
-			float temperature = buffer.get(2) - 40;
-			result = String.format("%.0f%s", temperature, "");
-		}
-
-		return result;
+	public void executeInitializationSequence(ServiceConnector serviceConnector) {
+		serviceConnector.addJobToWaitingList(new ObdReset());
+		serviceConnector.addJobToWaitingList(new EchoOff());
+		serviceConnector.addJobToWaitingList(new EchoOff());
+		serviceConnector.addJobToWaitingList(new LineFeedOff());
+		serviceConnector.addJobToWaitingList(new Timeout(62));
+		serviceConnector.addJobToWaitingList(new SelectAutoProtocol());		
 	}
 
 }

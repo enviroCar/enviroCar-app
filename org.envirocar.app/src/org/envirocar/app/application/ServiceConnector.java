@@ -21,7 +21,14 @@
 
 package org.envirocar.app.application;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.envirocar.app.commands.CommonCommand;
+import org.envirocar.app.protocol.AbstractOBDConnector;
+import org.envirocar.app.protocol.AdapterConnectionListener;
+import org.envirocar.app.protocol.AdapterConnectionNotYetEstablishedListener;
+import org.envirocar.app.protocol.ELM327Connector;
 
 import android.content.ComponentName;
 import android.content.ServiceConnection;
@@ -35,11 +42,21 @@ import android.os.IBinder;
  * @author jakob
  * 
  */
-public class ServiceConnector implements ServiceConnection {
+public class ServiceConnector implements ServiceConnection, AdapterConnectionListener, AdapterConnectionNotYetEstablishedListener {
 
 	private Monitor localMonitor = null;
 	private Listener localListener = null;
+	private AbstractOBDConnector obdAdapter;
+	private List<AbstractOBDConnector> adapterCandidates = new ArrayList<AbstractOBDConnector>();
+	private int tries;
+	private int adapterIndex;
 
+	public ServiceConnector() {
+		//TODO init through ServiceLoader (SlimServiceLoader...)
+		adapterCandidates.add(new ELM327Connector());
+		obdAdapter = adapterCandidates.get(0);
+	}
+	
 	/**
 	 * connects listener and monitor
 	 */
@@ -87,5 +104,34 @@ public class ServiceConnector implements ServiceConnection {
 	public void setServiceListener(Listener listener) {
 		localListener = listener;
 	}
+
+	public void executeCommandRequests() {
+		this.obdAdapter.executeRequestCommands(this);
+	}
+
+	public void executeInitializationSequence() {
+		this.obdAdapter.executeInitializationSequence(this);
+	}
+
+	@Override
+	public void onAdapterConnected() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAdapterDisconnected() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void connectionNotYetEstablished() {
+		if (tries++ > 2) {
+			this.obdAdapter = adapterCandidates.get(adapterIndex++ % adapterCandidates.size());
+		}
+		this.obdAdapter.executeInitializationSequence(this);
+	}
+	
 
 }

@@ -30,13 +30,15 @@ package org.envirocar.app.commands;
 
 public class IntakePressure extends CommonCommand {
 
+	public static final String NAME = "Intake Manifold Pressure";
+
 	public IntakePressure() {
 		super("01 0B");
 	}
 
 	@Override
 	public String getCommandName() {
-		return "Intake Manifold Pressure";
+		return NAME;
 	}
 
 	@Override

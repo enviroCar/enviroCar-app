@@ -20,6 +20,39 @@
  */
 package org.envirocar.app.protocol;
 
+import org.envirocar.app.application.ServiceConnector;
+import org.envirocar.app.commands.CommonCommand;
+import org.envirocar.app.commands.IntakePressure;
+import org.envirocar.app.commands.IntakeTemperature;
+import org.envirocar.app.commands.MAF;
+import org.envirocar.app.commands.RPM;
+import org.envirocar.app.commands.Speed;
+
 public abstract class AbstractOBDConnector {
 
+	public void executeRequestCommands(ServiceConnector serviceConnector) {
+		addCommandstoWaitinglist(serviceConnector);
+	}
+
+	/**
+	 * Helper method that adds the desired commands to the waiting list where
+	 * all commands are executed
+	 * @param serviceConnector 
+	 */
+	private void addCommandstoWaitinglist(ServiceConnector serviceConnector) {
+		final CommonCommand speed = new Speed();
+		final CommonCommand maf = new MAF();
+		final CommonCommand rpm = new RPM();
+		final CommonCommand intakePressure = new IntakePressure();
+		final CommonCommand intakeTemperature = new IntakeTemperature();
+		
+		serviceConnector.addJobToWaitingList(speed);
+		serviceConnector.addJobToWaitingList(maf);
+		serviceConnector.addJobToWaitingList(rpm);
+		serviceConnector.addJobToWaitingList(intakePressure);
+		serviceConnector.addJobToWaitingList(intakeTemperature);
+	}
+
+	public abstract void executeInitializationSequence(ServiceConnector serviceConnector);
+	
 }

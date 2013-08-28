@@ -29,6 +29,8 @@ package org.envirocar.app.commands;
  */
 public class RPM extends CommonCommand {
 
+	public static final String NAME = "Engine RPM";
+
 	public RPM() {
 		super("01 0C");
 	}
@@ -49,7 +51,7 @@ public class RPM extends CommonCommand {
 
 	@Override
 	public String getCommandName() {
-		return "Engine RPM";
+		return NAME;
 	}
 
 }

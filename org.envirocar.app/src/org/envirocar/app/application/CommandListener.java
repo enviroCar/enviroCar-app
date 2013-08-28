@@ -21,12 +21,17 @@
 package org.envirocar.app.application;
 
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 import org.envirocar.app.commands.CommonCommand;
-import org.envirocar.app.event.CO2Event;
-import org.envirocar.app.event.ConsumptionEvent;
+import org.envirocar.app.commands.IntakePressure;
+import org.envirocar.app.commands.IntakeTemperature;
+import org.envirocar.app.commands.MAF;
+import org.envirocar.app.commands.RPM;
+import org.envirocar.app.commands.Speed;
 import org.envirocar.app.event.EventBus;
 import org.envirocar.app.event.IntakePressureEvent;
 import org.envirocar.app.event.IntakeTemperatureEvent;
@@ -38,8 +43,8 @@ import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.TracksException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
-import org.envirocar.app.model.Car.FuelType;
-import org.envirocar.app.model.MeasurementCandidate;
+import org.envirocar.app.protocol.AdapterConnectionListener;
+import org.envirocar.app.protocol.AdapterConnectionNotYetEstablishedListener;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
@@ -59,43 +64,108 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	
 	private static final Logger logger = Logger.getLogger(CommandListener.class);
 
+	protected static final long MAX_INACTIVITY_TIME = 1000 * 60 * 3;
+
+	protected static final long CONNECTION_CHECK_INTERVAL = 1000 * 10;
+
 	// Track properties
 
 	private Track track;
 	private String trackDescription = "Description of the track";
 	
-	// Measurement values
-	
-	private Location location;
-	private int speedMeasurement = 0;
-	private double co2Measurement = 0.0;
-	private double mafMeasurement;
-	private double calculatedMafMeasurement = 0;
-	private int rpmMeasurement = 0;
-	private int intakeTemperatureMeasurement = 0;
-	private int intakePressureMeasurement = 0;
-	private Measurement measurement = null;
-	private long lastInsertTime = 0;
 
 	private Car car;
 
 	private DbAdapter dbAdapterLocal;
 
 	private Collector collector;
+
+	private Location location;
+
+	private List<AdapterConnectionListener> connectedListeners = new ArrayList<AdapterConnectionListener>();
+	private List<AdapterConnectionNotYetEstablishedListener> notYetConnectedListeners = new ArrayList<AdapterConnectionNotYetEstablishedListener>();
+
+	private boolean adapterConnected;
+
+	private Thread activityAssertionThread;
+
+	private long lastCommandTimestamp;
+
+	private Thread connectionNotYetEstablishedThread;
 	
 	public CommandListener(Car car, DbAdapter dbAdapterLocal) {
 		this.car = car;
 		this.dbAdapterLocal = dbAdapterLocal;
-		this.collector = new Collector(this);
+		this.collector = new Collector(this, this.car);
 		EventBus.getInstance().registerListener(this);
+		
+		createConnectionNotYetEstablishedThread();
+		createInactivityAssertionThread();
 	}
 	
-	public void receiveUpdate(CommonCommand job) {
+	private void createConnectionNotYetEstablishedThread() {
+		if (connectionNotYetEstablishedThread != null && connectionNotYetEstablishedThread.isAlive()) {
+			return;
+		}
+		connectionNotYetEstablishedThread = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				while (!adapterConnected) {
+					try {
+						Thread.sleep(CONNECTION_CHECK_INTERVAL);
+					} catch (InterruptedException e) {
+						logger.warn(e.getMessage(), e);
+					}					
+					
+					for (AdapterConnectionNotYetEstablishedListener l : notYetConnectedListeners) {
+						l.connectionNotYetEstablished();
+					}
+
+				}
+			}
+		});
+		connectionNotYetEstablishedThread.setDaemon(true);
+		connectionNotYetEstablishedThread.start();
+	}
+
+	private void createInactivityAssertionThread() {
+		activityAssertionThread = new Thread(new Runnable() {
+			
+			protected boolean running = true;
+
+			@Override
+			public void run() {
+				while (running) {
+					if (System.currentTimeMillis() - lastCommandTimestamp > MAX_INACTIVITY_TIME) {
+						adapterConnected = false;
+						for (AdapterConnectionListener acl : connectedListeners) {
+							acl.onAdapterDisconnected();
+						}
+						
+						createConnectionNotYetEstablishedThread();
+					}
+					
+					try {
+						Thread.sleep(MAX_INACTIVITY_TIME);
+					} catch (InterruptedException e) {
+						logger.warn(e.getMessage(), e);
+					}
+				}
+				
+			}
+		});
+		
+		activityAssertionThread.setDaemon(true);
+		activityAssertionThread.start();
+	}
+
+	public void receiveUpdate(CommonCommand command) {
 		logger.debug("update received");
 		// Get the name and the result of the Command
 
-		String commandName = job.getCommandName();
-		String commandResult = job.getResult();
+		String commandName = command.getCommandName();
+		String commandResult = command.getResult();
 		logger.debug(commandName + " " + commandResult);
 		if (commandResult.equals("NODATA"))
 			return;
@@ -107,10 +177,11 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 		// Speed
 
-		if (commandName.equals("Vehicle Speed")) {
+		if (commandName.equals(Speed.NAME)) {
 
 			try {
-				speedMeasurement = Integer.valueOf(commandResult);
+				Integer speedMeasurement = Integer.valueOf(commandResult);
+				this.collector.newSpeed(speedMeasurement);
 				EventBus.getInstance().fireEvent(new SpeedEvent(speedMeasurement));
 			} catch (NumberFormatException e) {
 				logger.warn("speed parse exception", e);
@@ -119,13 +190,14 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		
 		//RPM
 		
-		else if (commandName.equals("Engine RPM")) {
+		else if (commandName.equals(RPM.NAME)) {
 			// TextView speedTextView = (TextView)
 			// findViewById(R.id.spd_text);
 			// speedTextView.setText(commandResult + " km/h");
 
 			try {
-				rpmMeasurement = Integer.valueOf(commandResult);
+				Integer rpmMeasurement = Integer.valueOf(commandResult);
+				this.collector.newRPM(rpmMeasurement);
 				EventBus.getInstance().fireEvent(new RPMEvent(rpmMeasurement));
 			} catch (NumberFormatException e) {
 				logger.warn("rpm parse exception", e);
@@ -134,13 +206,14 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 		//IntakePressure
 		
-		else if (commandName.equals("Intake Manifold Pressure")) {
+		else if (commandName.equals(IntakePressure.NAME)) {
 			// TextView speedTextView = (TextView)
 			// findViewById(R.id.spd_text);
 			// speedTextView.setText(commandResult + " km/h");
 
 			try {
-				intakePressureMeasurement = Integer.valueOf(commandResult);
+				Integer intakePressureMeasurement = Integer.valueOf(commandResult);
+				this.collector.newIntakePressure(intakePressureMeasurement);
 				EventBus.getInstance().fireEvent(new IntakePressureEvent(intakePressureMeasurement));
 			} catch (NumberFormatException e) {
 				logger.warn("Intake Pressure parse exception", e);
@@ -149,107 +222,53 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		
 		//IntakeTemperature
 		
-		else if (commandName.equals("Air Intake Temperature")) {
+		else if (commandName.equals(IntakeTemperature.NAME)) {
 			// TextView speedTextView = (TextView)
 			// findViewById(R.id.spd_text);
 			// speedTextView.setText(commandResult + " km/h");
 
 			try {
-				intakeTemperatureMeasurement = Integer.valueOf(commandResult);
+				Integer intakeTemperatureMeasurement = Integer.valueOf(commandResult);
+				this.collector.newIntakeTemperature(intakeTemperatureMeasurement);
 				EventBus.getInstance().fireEvent(new IntakeTemperatureEvent(intakeTemperatureMeasurement));
 			} catch (NumberFormatException e) {
 				logger.warn("Intake Temperature parse exception", e);
 			}
 		}
 						
-		//calculate alternative maf from iat, map, rpm
-		double imap = rpmMeasurement * intakePressureMeasurement / (intakeTemperatureMeasurement+273);
-		//VE = 85 in most modern cars
-		double calculatedMaf = imap / 120.0d * 85.0d/100.0d * car.getEngineDisplacement() * 28.97 / 8.317;	
-		calculatedMafMeasurement = calculatedMaf;
-		
-		logger.info("calculatedMaf: "+calculatedMaf+"; engineDisplacement: "+car.getEngineDisplacement());
-		
-		// MAF
-
-		if (commandName.equals("Mass Air Flow")) {
+		else if (commandName.equals(MAF.NAME)) {
 			String maf = commandResult;
 
 			try {
 				NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
 				Number number;
 				number = format.parse(maf);
-				mafMeasurement = number.doubleValue();
-
-				// Dashboard Co2 current value preparation
-
-				double consumption = 0.0;
-
-				double tmpMaf = 0.0;
-				if (mafMeasurement > 0.0) {
-					tmpMaf = mafMeasurement;
-				} else {
-					tmpMaf = calculatedMafMeasurement;
-				}
-				
-				if (car.getFuelType() == FuelType.GASOLINE) {
-					consumption = (tmpMaf / 14.7) / 747;
-					// Change to l/h
-					consumption=consumption*3600;
-					co2Measurement = consumption * 2.35; //kg/h
-				} else if (car.getFuelType() == FuelType.DIESEL) {
-					consumption = (tmpMaf / 14.5) / 832;
-					// Change to l/h
-					consumption=consumption*3600;
-					co2Measurement = consumption * 2.65; //kg/h
-				}
-
-				logger.info("co2: "+ co2Measurement+"");
-				EventBus.getInstance().fireEvent(new ConsumptionEvent(consumption));
-				EventBus.getInstance().fireEvent(new CO2Event(co2Measurement));
+				double mafMeasurement = number.doubleValue();
+				this.collector.newMAF(mafMeasurement);
 			} catch (ParseException e) {
 				logger.warn("parse exception maf", e);
 			} catch (java.text.ParseException e) {
 				logger.warn("parse exception maf", e);
 			}
 		}
+		else {
+			return;
+		}
+		
+		checkAdapterConnectionState();
 
-		// Update and insert the measurement
-
-		updateMeasurement();
 	}
 	
-	/**
-	 * Helper Command that updates the current measurement with the last
-	 * measurement data and inserts it into the database if the measurements is
-	 * young enough
-	 */
-	public void updateMeasurement() {
 
-		// Create track new measurement if necessary
-
-		if (measurement == null) {
-			measurement = new Measurement(location.getLatitude(), location.getLongitude());
-		}
-
-		// Insert the values if the measurement (with the coordinates) is young
-		// enough (5000ms) or create new one if it is too old
-
-		if (measurement.getLatitude() != 0.0 && measurement.getLongitude() != 0.0) {
-
-			if (Math.abs(measurement.getMeasurementTime() - System.currentTimeMillis()) > 5000) {
-				measurement = new Measurement(location.getLatitude(), location.getLongitude());
+	private void checkAdapterConnectionState() {
+		this.lastCommandTimestamp = System.currentTimeMillis();
+		
+		if (this.adapterConnected == false) {
+			this.adapterConnected = true;
+			
+			for (AdapterConnectionListener acl : this.connectedListeners) {
+				acl.onAdapterConnected();
 			}
-
-			measurement.setSpeed(speedMeasurement);
-			measurement.setMaf(mafMeasurement);	
-			measurement.setCalculatedMaf(calculatedMafMeasurement);
-			measurement.setRpm(rpmMeasurement);
-			measurement.setIntakePressure(intakePressureMeasurement);
-			measurement.setIntakeTemperature(intakeTemperatureMeasurement);
-			insertMeasurement(measurement);
-		} else {
-			logger.warn("Position by GPS isn't working correct");
 		}
 	}
 
@@ -260,7 +279,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	 * @param insertMeasurement
 	 *            The measurement you want to insert
 	 */
-	private void insertMeasurement(Measurement insertMeasurement) {
+	public void insertMeasurement(Measurement insertMeasurement) {
 
 		// TODO: This has to be added with the following conditions:
 		/*
@@ -273,14 +292,9 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		 * sec) as well.)
 		 */
 
-		if (Math.abs(lastInsertTime - insertMeasurement.getMeasurementTime()) > 5000) {
+		track.addMeasurement(insertMeasurement);
 
-			lastInsertTime = insertMeasurement.getMeasurementTime();
-
-			track.addMeasurement(insertMeasurement);
-
-			logger.info("Add new measurement to track: " + insertMeasurement.toString());
-		}
+		logger.info("Add new measurement to track: " + insertMeasurement.toString());
 
 	}
 	
@@ -448,13 +462,19 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	@Override
 	public void receiveEvent(LocationEvent event) {
 		this.collector.newLocation(event.getPayload());
+		this.location = event.getPayload();
 	}
 
 	@Override
-	public void insertMeasurement(MeasurementCandidate m) {
-		// TODO Auto-generated method stub
-		
+	public void registerAdapterConnectedListener(
+			AdapterConnectionListener l) {
+		this.connectedListeners.add(l);
 	}
 
+	@Override
+	public void registerAdapterNotYetConnectedListener(
+			AdapterConnectionNotYetEstablishedListener l) {
+		this.notYetConnectedListeners.add(l);
+	}
 	
 }

@@ -41,10 +41,12 @@ public class Measurement {
 	private int speed;
 	private double maf;
 	private double calculatedMaf;
-	private double rpm;
+	private int rpm;
 	private double intake_temperature;
 	private double intake_pressure;
 	private Track track;
+	private double cO2;
+	private double consumption;
 
 	/**
 	 * Create a new measurement. Latitude AND longitude are not allowed to both
@@ -194,7 +196,7 @@ public class Measurement {
 	/**
 	 * @return the rpm
 	 */
-	public double getRpm() {
+	public int getRpm() {
 		return rpm;
 	}
 
@@ -202,7 +204,7 @@ public class Measurement {
 	 * @param maf
 	 *            the rpm to set
 	 */
-	public void setRpm(double rpm) {
+	public void setRpm(int rpm) {
 		this.rpm = rpm;
 	}
 
@@ -249,6 +251,30 @@ public class Measurement {
 	public void setCalculatedMaf(double calculatedMaf) {
 		this.calculatedMaf = calculatedMaf;
 		
+	}
+
+
+
+	public void setCO2(double c) {
+		this.cO2 = c;
+	}
+
+
+
+	public double getCO2() {
+		return this.cO2;
+	}
+
+
+
+	public void setConsumption(double c) {
+		this.consumption = c;
+	}
+
+
+
+	public double getConsumption() {
+		return this.consumption;
 	}
 
 }

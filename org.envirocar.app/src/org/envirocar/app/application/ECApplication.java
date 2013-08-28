@@ -32,12 +32,6 @@ import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
-import org.envirocar.app.commands.CommonCommand;
-import org.envirocar.app.commands.IntakePressure;
-import org.envirocar.app.commands.IntakeTemperature;
-import org.envirocar.app.commands.MAF;
-import org.envirocar.app.commands.RPM;
-import org.envirocar.app.commands.Speed;
 import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
@@ -117,12 +111,14 @@ public class ECApplication extends Application {
 	            switch (state) {
 	            case BluetoothAdapter.STATE_ON:
 	            	logger.info("bt is now on");
-	            	startBackgroundService();
+	            	initializeBackgroundService();
 	                break;
 	            }
 	        }
 	    }
 	};
+
+	protected boolean adapterConnected;
 	
 	/**
 	 * returns the current activity.
@@ -142,7 +138,7 @@ public class ECApplication extends Application {
 	 */
 	public ServiceConnector getServiceConnector() {
 		if (serviceConnector == null)
-			startBackgroundService();
+			initializeBackgroundService();
 		return serviceConnector;
 	}
 	
@@ -150,12 +146,12 @@ public class ECApplication extends Application {
 	 * Returns whether requirements were fulfilled (bluetooth activated)
 	 * @return requirementsFulfilled?
 	 */
-	public boolean requirementsFulfilled() {
+	public boolean bluetoothActivated() {
 		if (bluetoothAdapter == null) {
 			logger.warn("Bluetooth disabled");
 			return false;
 		} else {
-			logger.warn("Bluetooth enabled");
+			logger.info("Bluetooth enabled");
 			return bluetoothAdapter.isEnabled();
 		}
 	}
@@ -175,31 +171,21 @@ public class ECApplication extends Application {
 		// Make a new listener to interpret the measurement values that are
 		// returned
 		logger.info("init listener");
-		startListener();
-		
-		startLocationListener();
+		startListeners();
 		
 		// If everything is available, start the service connector and listener
-		startBackgroundService();
+		initializeBackgroundService();
 		
 		//bluetooth change listener
 	    IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
 	    this.registerReceiver(bluetoothChangeReceiver, filter);
 	}
 	
-	private void startLocationListener() {
-		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		LocationUpdateListener locList = new LocationUpdateListener();
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
-				0, locList);
-	}
-
 	private void initializeErrorHandling() {
 		ACRA.init(this);
 		ACRACustomSender yourSender = new ACRACustomSender();
 		ACRA.getErrorReporter().setReportSender(yourSender);
 	}
-
 
 	/**
 	 * This method opens both dbadapters or also gets them and opens them afterwards.
@@ -244,8 +230,9 @@ public class ECApplication extends Application {
 	/**
 	 * This method starts the service that connects to the adapter to the app.
 	 */
-	private void startBackgroundService() {
-		if (requirementsFulfilled()) {
+	private void initializeBackgroundService() {
+		if (bluetoothActivated()) {
+			
 			logger.info("requirements met");
 			backgroundService = new Intent(this, BackgroundService.class);
 			serviceConnector = new ServiceConnector();
@@ -253,8 +240,11 @@ public class ECApplication extends Application {
 
 			bindService(backgroundService, serviceConnector,
 					Context.BIND_AUTO_CREATE);
+			
+			listener.registerAdapterConnectedListener(serviceConnector);
+			listener.registerAdapterNotYetConnectedListener(serviceConnector);
 		} else {
-			logger.warn("requirements not met");
+			logger.warn("bluetooth not activated!");
 		}
 	}
 
@@ -267,7 +257,7 @@ public class ECApplication extends Application {
 	public void startServiceConnector() {
 		scheduleTaskExecutor.scheduleAtFixedRate(new Runnable() {
 			public void run() {
-				if (requirementsFulfilled()) {
+				if (bluetoothActivated()) {
 					if (!serviceConnector.isRunning()) {
 						startConnection();
 					} else {
@@ -284,9 +274,10 @@ public class ECApplication extends Application {
 	/**
 	 * This method starts the listener that interprets the answers from the BT adapter.
 	 */
-	public void startListener() {
+	public void startListeners() {
 		//TODO de-couple dbAdapterLocal
 		listener = new CommandListener(createCar(), dbAdapterLocal);
+
 	}
 
 	private Car createCar() {
@@ -312,7 +303,7 @@ public class ECApplication extends Application {
 	/**
 	 * Stop the service connector and therefore the scheduled tasks.
 	 */
-	public void stopServiceConnector() {
+	public void shutdownServiceConnector() {
 		scheduleTaskExecutor.shutdown();
 	}
 
@@ -325,6 +316,7 @@ public class ECApplication extends Application {
 		initDbAdapter();
 		//createNewTrackIfNecessary();
 		if (!serviceConnector.isRunning()) {
+			LocationUpdateListener.startLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
 			startService(backgroundService);
 			bindService(backgroundService, serviceConnector,
 					Context.BIND_AUTO_CREATE);
@@ -344,6 +336,7 @@ public class ECApplication extends Application {
 		if (serviceConnector != null && serviceConnector.isRunning()) {
 			stopService(backgroundService);
 			unbindService(serviceConnector);
+			LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
 		}
 		handler.removeCallbacks(waitingListRunnable);
 
@@ -357,7 +350,7 @@ public class ECApplication extends Application {
 		public void run() {
 
 			if (serviceConnector != null && serviceConnector.isRunning())
-				addCommandstoWaitinglist();
+				serviceConnector.executeCommandRequests();
 
 			try {
 				handler.postDelayed(waitingListRunnable, 2000);
@@ -366,26 +359,6 @@ public class ECApplication extends Application {
 			}
 		}
 	};
-
-	/**
-	 * Helper method that adds the desired commands to the waiting list where
-	 * all commands are executed
-	 */
-	private void addCommandstoWaitinglist() {
-		final CommonCommand speed = new Speed();
-		final CommonCommand maf = new MAF();
-		final CommonCommand rpm = new RPM();
-		final CommonCommand intakePressure = new IntakePressure();
-		final CommonCommand intakeTemperature = new IntakeTemperature();
-		
-		serviceConnector.addJobToWaitingList(speed);
-		serviceConnector.addJobToWaitingList(maf);
-		serviceConnector.addJobToWaitingList(rpm);
-		serviceConnector.addJobToWaitingList(intakePressure);
-		serviceConnector.addJobToWaitingList(intakeTemperature);
-	}
-
-
 
 
 	/**

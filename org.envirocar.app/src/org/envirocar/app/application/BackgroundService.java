@@ -30,11 +30,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
-import org.envirocar.app.commands.EchoOff;
-import org.envirocar.app.commands.LineFeedOff;
-import org.envirocar.app.commands.ObdReset;
-import org.envirocar.app.commands.SelectAutoProtocol;
-import org.envirocar.app.commands.Timeout;
 import org.envirocar.app.logging.Logger;
 
 import android.app.Service;
@@ -147,12 +142,15 @@ public class BackgroundService extends Service {
 		
 		callbackListener.createNewTrackIfNecessary();
 
-		addCommandToWaitingList(new ObdReset());
-		addCommandToWaitingList(new EchoOff());
-		addCommandToWaitingList(new EchoOff());
-		addCommandToWaitingList(new LineFeedOff());
-		addCommandToWaitingList(new Timeout(62));
-		addCommandToWaitingList(new SelectAutoProtocol());
+		/*
+		 * EXTRACTED to AbstractOBDConnector
+		 */
+//		addCommandToWaitingList(new ObdReset());
+//		addCommandToWaitingList(new EchoOff());
+//		addCommandToWaitingList(new EchoOff());
+//		addCommandToWaitingList(new LineFeedOff());
+//		addCommandToWaitingList(new Timeout(62));
+//		addCommandToWaitingList(new SelectAutoProtocol());
 		
 		/*
 		 * This is what Torque does:

@@ -20,71 +20,144 @@
  */
 package org.envirocar.app.application;
 
-import org.envirocar.app.model.MeasurementCandidate;
+import org.envirocar.app.exception.FuelConsumptionException;
+import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.Car;
+import org.envirocar.app.protocol.AbstractCalculatedMAFAlgorithm;
+import org.envirocar.app.protocol.AbstractConsumptionAlgorithm;
+import org.envirocar.app.protocol.BasicConsumptionAlgorithm;
+import org.envirocar.app.protocol.CalculatedMAFWithStaticVolumetricEfficiency;
+import org.envirocar.app.storage.Measurement;
 
 import android.location.Location;
 
 public class Collector {
 
-	private MeasurementCandidate measurement = new MeasurementCandidate();
+	private static final Logger logger = Logger.getLogger(Collector.class);
+	private Measurement measurement;
 	private MeasurementListener callback;
+	private Car car;
+	private AbstractCalculatedMAFAlgorithm mafAlgorithm;
+	private AbstractConsumptionAlgorithm consumptionAlgorithm;
 	
-	public Collector(MeasurementListener l) {
+	public Collector(MeasurementListener l, Car car) {
 		this.callback = l;
+		this.car = car;
+		
+		this.mafAlgorithm = new CalculatedMAFWithStaticVolumetricEfficiency(this.car);
+		logger.info("Using MAF Algorithm "+ this.mafAlgorithm.getClass());
+		this.consumptionAlgorithm = new BasicConsumptionAlgorithm(this.car);
+		logger.info("Using Consumption Algorithm "+ this.consumptionAlgorithm.getClass());
+		
+		resetMeasurement();
 	}
 	
+	private void resetMeasurement() {
+		measurement = new Measurement(0.0, 0.0);		
+	}
+
 	public void newLocation(Location l) {
-		this.measurement.setLocation(l);
+//		this.measurement.setLocation(l);
+		this.measurement.setLatitude(l.getLatitude());
+		this.measurement.setLongitude(l.getLongitude());
 		checkStateAndPush();
 	}
 	
 	public void newSpeed(int s) {
-		this.measurement.setSpeedMeasurement(s);
+		this.measurement.setSpeed(s);
 		checkStateAndPush();
 	}
 	
 	public void newCO2(double c) {
-		this.measurement.setCo2Measurement(c);
+		this.measurement.setCO2(c);
+		checkStateAndPush();
+	}
+	
+	public void newConsumption(double c) {
+		this.measurement.setConsumption(c);
 		checkStateAndPush();
 	}
 	
 	public void newMAF(double m) {
-		this.measurement.setMafMeasurement(m);
-		checkStateAndPush();
-	}
-	
-	public void newCalculatedMAF(double m) {
-		this.measurement.setCalculatedMafMeasurement(m);
+		this.measurement.setMaf(m);
 		checkStateAndPush();
 	}
 	
 	public void newRPM(int r) {
-		this.measurement.setRpmMeasurement(r);
+		this.measurement.setRpm(r);
+		checkAndCreateCalculatedMAF();
 		checkStateAndPush();
 	}
 	
+	/**
+	 * method checks if the current measurement has everything available for
+	 * calculating the MAF, and then calculates it.
+	 */
+	private void checkAndCreateCalculatedMAF() {
+		if (this.measurement.getRpm() != 0.0 &&
+				this.measurement.getIntakePressure() != 0 &&
+				this.measurement.getIntakePressure() != 0) {
+			this.measurement.setCalculatedMaf(this.mafAlgorithm.calculateMAF(this.measurement));
+		}
+	}
+
 	public void newIntakeTemperature(int i) {
-		this.measurement.setIntakeTemperatureMeasurement(i);
+		this.measurement.setIntakeTemperature(i);
+		checkAndCreateCalculatedMAF();
 		checkStateAndPush();
 	}
 	
 	public void newIntakePressure(int p) {
-		this.measurement.setIntakePressureMeasurement(p);
+		this.measurement.setIntakePressure(p);
+		checkAndCreateCalculatedMAF();
 		checkStateAndPush();
 	}
 	
 	private void checkStateAndPush() {
 		if (measurement == null) return;
 		
-		if (measurement.ready()) {
-			measurement.setResultTime(System.currentTimeMillis());
+		if (checkReady(measurement)) {
+			try {
+				double consumption = this.consumptionAlgorithm.calculateConsumption(measurement);
+				double co2 = this.consumptionAlgorithm.calculateCO2FromConsumption(consumption);
+				this.measurement.setConsumption(consumption);
+				this.measurement.setCO2(co2);
+			} catch (FuelConsumptionException e) {
+				logger.warn(e.getMessage(), e);
+			}
+			
 			insertMeasurement(measurement);
-			measurement = new MeasurementCandidate();
+			resetMeasurement();
 		}
 	}
 	
 	
-	private void insertMeasurement(MeasurementCandidate m) {
+	private boolean checkReady(Measurement m) {
+		if (m.getLatitude() == 0.0 || m.getLongitude() == 0.0) return false;
+		
+		if (System.currentTimeMillis() - m.getMeasurementTime() < 5000) return false;
+		
+		/*
+		 * emulate the legacy behavior: insert measurement despite data might be missing
+		 */
+//		if (m.getSpeed() == 0) return false;
+//		
+//		if (m.getCO2() == 0.0) return false;
+//		
+//		if (m.getConsumption() == 0.0) return false;
+//		
+//		if (m.getCalculatedMaf() == 0.0 || m.getMaf() == 0.0) return false;
+//		
+//		if (m.getRpm() == 0) return false;
+//		
+//		if (m.getIntakePressure() == 0) return false;
+//		
+//		if (m.getIntakeTemperature() == 0) return false;
+		
+		return true;
+	}
+
+	private void insertMeasurement(Measurement m) {
 		callback.insertMeasurement(m);
 	}
 
