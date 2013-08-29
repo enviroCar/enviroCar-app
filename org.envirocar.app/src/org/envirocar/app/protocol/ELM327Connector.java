@@ -36,7 +36,50 @@ public class ELM327Connector extends AbstractOBDConnector {
 		serviceConnector.addJobToWaitingList(new EchoOff());
 		serviceConnector.addJobToWaitingList(new LineFeedOff());
 		serviceConnector.addJobToWaitingList(new Timeout(62));
-		serviceConnector.addJobToWaitingList(new SelectAutoProtocol());		
+		serviceConnector.addJobToWaitingList(new SelectAutoProtocol());
+		
+		/*
+		 * This is what Torque does:
+		 */
+
+		// addCommandToWaitingList(new Defaults());
+		// addCommandToWaitingList(new Defaults());
+		// addCommandToWaitingList(new ObdReset());
+		// addCommandToWaitingList(new ObdReset());
+		// addCommandToWaitingList(new EchoOff());
+		// addCommandToWaitingList(new EchoOff());
+		// addCommandToWaitingList(new EchoOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new LineFeedOff());
+		// addCommandToWaitingList(new SpacesOff());
+		// addCommandToWaitingList(new HeadersOff());
+		// addCommandToWaitingList(new Defaults());
+		// addCommandToWaitingList(new ObdReset());
+		// addCommandToWaitingList(new ObdReset());
+		// addCommandToWaitingList(new EchoOff());
+		// addCommandToWaitingList(new EchoOff());
+		// addCommandToWaitingList(new EchoOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new MemoryOff());
+		// addCommandToWaitingList(new LineFeedOff());
+		// addCommandToWaitingList(new SpacesOff());
+		// addCommandToWaitingList(new HeadersOff());
+		// addCommandToWaitingList(new SelectAutoProtocol());
+		// addCommandToWaitingList(new PIDSupported());
+		// addCommandToWaitingList(new EnableHeaders());
+		// addCommandToWaitingList(new PIDSupported());
+		// addCommandToWaitingList(new HeadersOff());
+
+		/*
+		 * End Torque
+		 */
 	}
 
 }

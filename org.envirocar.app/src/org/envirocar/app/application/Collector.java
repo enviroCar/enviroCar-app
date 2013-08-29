@@ -20,6 +20,9 @@
  */
 package org.envirocar.app.application;
 
+import org.envirocar.app.event.CO2Event;
+import org.envirocar.app.event.ConsumptionEvent;
+import org.envirocar.app.event.EventBus;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
@@ -68,19 +71,10 @@ public class Collector {
 		checkStateAndPush();
 	}
 	
-	public void newCO2(double c) {
-		this.measurement.setCO2(c);
-		checkStateAndPush();
-	}
-	
-	public void newConsumption(double c) {
-		this.measurement.setConsumption(c);
-		checkStateAndPush();
-	}
-	
 	public void newMAF(double m) {
 		this.measurement.setMaf(m);
 		checkStateAndPush();
+		fireConsumptionEvent();
 	}
 	
 	public void newRPM(int r) {
@@ -98,7 +92,20 @@ public class Collector {
 				this.measurement.getIntakePressure() != 0 &&
 				this.measurement.getIntakePressure() != 0) {
 			this.measurement.setCalculatedMaf(this.mafAlgorithm.calculateMAF(this.measurement));
+			fireConsumptionEvent();
 		}
+	}
+
+	private void fireConsumptionEvent() {
+		try {
+			double consumption = this.consumptionAlgorithm.calculateConsumption(measurement);
+			double co2 = this.consumptionAlgorithm.calculateCO2FromConsumption(consumption);
+			EventBus.getInstance().fireEvent(new ConsumptionEvent(consumption));
+			EventBus.getInstance().fireEvent(new CO2Event(co2));
+		} catch (FuelConsumptionException e) {
+			logger.warn(e.getMessage(), e);
+		}
+		
 	}
 
 	public void newIntakeTemperature(int i) {

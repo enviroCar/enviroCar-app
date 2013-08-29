@@ -26,12 +26,14 @@ import java.util.List;
 
 import org.envirocar.app.application.Listener;
 import org.envirocar.app.commands.CommonCommand;
+import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.AbstractOBDConnector;
 import org.envirocar.app.protocol.AdapterConnectionNotYetEstablishedListener;
 import org.envirocar.app.protocol.ELM327Connector;
 
 import android.content.ComponentName;
 import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
 
 
@@ -44,15 +46,33 @@ import android.os.IBinder;
  */
 public class BackgroundServiceConnector implements ServiceConnection, AdapterConnectionNotYetEstablishedListener {
 
+	private static final Logger logger = Logger.getLogger(BackgroundServiceConnector.class);
 	private static final int MAX_TRIES_PER_ADAPTER = 2;
-	private BackgroundServiceInteractor interactor = null;
-	private Listener localListener = null;
+	private BackgroundServiceInteractor interactor;
+	private Listener commandListener;
 	private AbstractOBDConnector obdAdapter;
 	private List<AbstractOBDConnector> adapterCandidates = new ArrayList<AbstractOBDConnector>();
 	private int tries;
 	private int adapterIndex;
+	
+	private Handler handler = new Handler();
+	
+	private Runnable waitingListRunnable = new Runnable() {
+		public void run() {
 
-	public BackgroundServiceConnector() {
+			if (interactor.isRunning())
+				executeCommandRequests();
+
+			try {
+				handler.postDelayed(waitingListRunnable, 2000);
+			} catch (NullPointerException e) {
+				logger.severe("NullPointerException occured: Handler is null: " + (handler == null) + " waitingList is null: " + (waitingListRunnable == null), e);
+			}
+		}
+	};
+
+	public BackgroundServiceConnector(Listener listener) {
+		this.commandListener = listener;
 		//TODO init through ServiceLoader (SlimServiceLoader...)
 		adapterCandidates.add(new ELM327Connector());
 		obdAdapter = adapterCandidates.get(0);
@@ -63,14 +83,22 @@ public class BackgroundServiceConnector implements ServiceConnection, AdapterCon
 	 */
 	public void onServiceConnected(ComponentName componentName, IBinder binder) {
 		interactor = (BackgroundServiceInteractor) binder;
-		interactor.setListener(localListener);
+		interactor.setListener(commandListener);
+		
+		interactor.initializeConnection();
+		
+		try {
+			handler.post(waitingListRunnable);
+		} catch (Exception e) {
+			logger.severe("NullPointerException occured: Handler is null: " + (handler == null) + " waitingList is null: " + (waitingListRunnable == null), e);
+		}
 	}
+	
 
-	/**
-	 * deactivates the local monitor
-	 */
 	public void onServiceDisconnected(ComponentName name) {
 		interactor = null;
+		handler.removeCallbacks(waitingListRunnable);
+		interactor.shutdownConnection();
 	}
 
 	/**
@@ -101,9 +129,11 @@ public class BackgroundServiceConnector implements ServiceConnection, AdapterCon
 	 * Set the Local Listener
 	 * 
 	 * @param listener
+	 * @deprecated use constructor instead
 	 */
+	@Deprecated
 	public void setServiceListener(Listener listener) {
-		localListener = listener;
+		commandListener = listener;
 	}
 
 	public void executeCommandRequests() {
@@ -116,19 +146,23 @@ public class BackgroundServiceConnector implements ServiceConnection, AdapterCon
 
 	@Override
 	public void connectionNotYetEstablished() {
+		selectAdapter();
+		this.obdAdapter.executeInitializationSequence(this);
+	}
+
+	protected void selectAdapter() {
 		if (tries++ > MAX_TRIES_PER_ADAPTER) {
 			if (++adapterIndex >= adapterCandidates.size()) {
-				connectionFailed();
+				allAdaptersFailed();
 				return;
 			}
 			this.obdAdapter = adapterCandidates.get(adapterIndex % adapterCandidates.size());
 			tries = 0;
 		}
-		this.obdAdapter.executeInitializationSequence(this);
 	}
 
-	private void connectionFailed() {
-		localListener.connectionPermanentlyFailed();
+	private void allAdaptersFailed() {
+		commandListener.connectionPermanentlyFailed();
 	}
 	
 

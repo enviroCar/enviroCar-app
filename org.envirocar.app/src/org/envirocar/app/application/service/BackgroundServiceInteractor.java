@@ -46,7 +46,18 @@ public interface BackgroundServiceInteractor {
 	 * @return true if monitori running
 	 */
 	boolean isRunning();
+	
+	/**
+	 * this method shall create all required resources (e.g. bluetooth connection)
+	 */
+	void initializeConnection();
 
+	
+	/**
+	 * this method shall free all resources created in {@link #initializeConnection()}
+	 */
+	void shutdownConnection();
+	
 	/**
 	 * adds a new DommonCommand to the waiting list
 	 * 
@@ -54,5 +65,6 @@ public interface BackgroundServiceInteractor {
 	 *            the new CommonCommand to add
 	 */
 	void newJobToWaitingList(CommonCommand newCommand);
+
 
 }

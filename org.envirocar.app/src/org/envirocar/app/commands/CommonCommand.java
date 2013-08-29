@@ -93,12 +93,14 @@ public abstract class CommonCommand {
 		outputStream.write(command.getBytes());
 		outputStream.flush();
 
-		Thread.sleep(200);
+		Thread.sleep(100);
 	}
 
 	/**
 	 * Resends this command.
+	 * @deprecated never used!
 	 */
+	@Deprecated
 	protected void resendCommand(OutputStream outputStream) throws IOException,
 			InterruptedException {
 		outputStream.write("\r".getBytes());

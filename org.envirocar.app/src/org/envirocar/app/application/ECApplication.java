@@ -55,8 +55,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.location.LocationManager;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
@@ -94,10 +92,10 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	private BluetoothAdapter bluetoothAdapter = BluetoothAdapter
 			.getDefaultAdapter();
 
-	private BackgroundServiceConnector serviceConnector = null;
-	private Intent backgroundService = null;
-	private Handler handler = new Handler();
-	private Listener listener = null;
+	private BackgroundServiceConnector serviceConnector;
+	private Intent backgroundService;
+	
+	private Listener commandListener;
 	
 	private int mId = 1133;
 	
@@ -122,20 +120,6 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	    }
 	};
 	
-	private Runnable waitingListRunnable = new Runnable() {
-		public void run() {
-
-			if (serviceConnector != null && serviceConnector.isRunning())
-				serviceConnector.executeCommandRequests();
-
-			try {
-				handler.postDelayed(waitingListRunnable, 2000);
-			} catch (NullPointerException e) {
-				logger.severe("NullPointerException occured: Handler is null: " + (handler == null) + " waitingList is null: " + (waitingListRunnable == null), e);
-			}
-		}
-	};
-
 	protected boolean adapterConnected;
 	
 	/**
@@ -186,15 +170,15 @@ public class ECApplication extends Application implements AdapterConnectionListe
 
 		UserManager.init(getApplicationContext());
 		initDbAdapter();
-		// Make a new listener to interpret the measurement values that are
+		// Make a new commandListener to interpret the measurement values that are
 		// returned
-		logger.info("init listener");
-		startListeners();
+		logger.info("init commandListener");
+		createListeners();
 		
-		// If everything is available, start the service connector and listener
+		// If everything is available, start the service connector and commandListener
 		initializeBackgroundService();
 		
-		//bluetooth change listener
+		//bluetooth change commandListener
 	    IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
 	    this.registerReceiver(bluetoothChangeReceiver, filter);
 	}
@@ -277,14 +261,14 @@ public class ECApplication extends Application implements AdapterConnectionListe
 			
 			logger.info("requirements met");
 			backgroundService = new Intent(this, BackgroundService.class);
-			serviceConnector = new BackgroundServiceConnector();
-			serviceConnector.setServiceListener(listener);
+			
+			startService(backgroundService);
+			
+//			serviceConnector.setServiceListener(commandListener);
 
 //			bindService(backgroundService, serviceConnector,
 //					Context.BIND_AUTO_CREATE);
 			
-			listener.registerAdapterConnectedListener(this);
-			listener.registerAdapterNotYetConnectedListener(serviceConnector);
 		} else {
 			logger.warn("bluetooth not activated!");
 		}
@@ -314,12 +298,14 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	}
 
 	/**
-	 * This method starts the listener that interprets the answers from the BT adapter.
+	 * This method starts the commandListener that interprets the answers from the BT adapter.
 	 */
-	public void startListeners() {
+	public void createListeners() {
 		//TODO de-couple dbAdapterLocal
-		listener = new CommandListener(createCar(), dbAdapterLocal);
-
+		commandListener = new CommandListener(createCar(), dbAdapterLocal);
+		serviceConnector = new BackgroundServiceConnector(commandListener);
+		commandListener.registerAdapterConnectedListener(this);
+		commandListener.registerAdapterNotYetConnectedListener(serviceConnector);
 	}
 
 	private Car createCar() {
@@ -358,16 +344,10 @@ public class ECApplication extends Application implements AdapterConnectionListe
 		initDbAdapter();
 		//createNewTrackIfNecessary();
 		if (!serviceConnector.isRunning()) {
-			LocationUpdateListener.startLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
-			startService(backgroundService);
 			bindService(backgroundService, serviceConnector,
 					Context.BIND_AUTO_CREATE);
 		}
-		try {
-			handler.post(waitingListRunnable);
-		} catch (Exception e) {
-			logger.severe("NullPointerException occured: Handler is null: " + (handler == null) + " waitingList is null: " + (waitingListRunnable == null), e);
-		}
+
 	}
 
 	/**
@@ -378,22 +358,18 @@ public class ECApplication extends Application implements AdapterConnectionListe
 		if (serviceConnector != null && serviceConnector.isRunning()) {
 			stopService(backgroundService);
 			unbindService(serviceConnector);
-			LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
 		}
-		handler.removeCallbacks(waitingListRunnable);
 
 		closeDb();
 	}
 
 
 	/**
-	 * Stops gps, kills service, kills service connector, kills listener and handler
+	 * Stops gps, kills service, kills service connector, kills commandListener and handler
 	 */
 	public void destroyStuff() {
 		backgroundService = null;
 		serviceConnector = null;
-//		listener = null;
-		handler = null;
 	}
 
 	/**
@@ -476,7 +452,7 @@ public class ECApplication extends Application implements AdapterConnectionListe
 
 	
 	public void resetTrack() {
-		this.listener.resetTrack();
+		this.commandListener.resetTrack();
 	}
 
 	@Override

@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.application.Listener;
+import org.envirocar.app.application.LocationUpdateListener;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.logging.Logger;
@@ -37,8 +38,10 @@ import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.LocationManager;
 import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -60,15 +63,14 @@ public class BackgroundService extends Service {
 
 	private AtomicBoolean isTheServiceRunning = new AtomicBoolean(false);
 	private AtomicBoolean isWaitingListRunning = new AtomicBoolean(false);
-	private Long counter = 0L;
 	
 	// Bluetooth devices and connection items
 
-	private BluetoothDevice bluetoothDevice = null;
-	private BluetoothSocket bluetoothSocket = null;
+	private BluetoothDevice bluetoothDevice;
+	private BluetoothSocket bluetoothSocket;
 	private static final UUID EMBEDDED_BOARD_SPP = UUID
 			.fromString("00001101-0000-1000-8000-00805F9B34FB");
-	private Listener callbackListener = null;
+	private Listener commandListener;
 	private final Binder binder = new LocalBinder();
 	private BlockingQueue<CommonCommand> waitingList = new LinkedBlockingQueue<CommonCommand>();
 	private BluetoothAdapter bluetoothAdapter;
@@ -91,7 +93,7 @@ public class BackgroundService extends Service {
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		logger.info("Starts the background service");
-		startBackgroundService();
+//		startBackgroundService();
 		return START_STICKY;
 	}
 
@@ -100,7 +102,7 @@ public class BackgroundService extends Service {
 	 * to start sending the obd commands for initialization.
 	 */
 	private void startBackgroundService() {
-
+		LocationUpdateListener.startLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
 		SharedPreferences preferences = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		
@@ -140,63 +142,7 @@ public class BackgroundService extends Service {
 		ConnectThread t = new ConnectThread(bluetoothDevice, true);
 		t.start();
 		
-		callbackListener.createNewTrackIfNecessary();
-
-		/*
-		 * EXTRACTED to AbstractOBDConnector
-		 */
-//		addCommandToWaitingList(new ObdReset());
-//		addCommandToWaitingList(new EchoOff());
-//		addCommandToWaitingList(new EchoOff());
-//		addCommandToWaitingList(new LineFeedOff());
-//		addCommandToWaitingList(new Timeout(62));
-//		addCommandToWaitingList(new SelectAutoProtocol());
-		
-		/*
-		 * This is what Torque does:
-		 */
-
-		// addCommandToWaitingList(new Defaults());
-		// addCommandToWaitingList(new Defaults());
-		// addCommandToWaitingList(new ObdReset());
-		// addCommandToWaitingList(new ObdReset());
-		// addCommandToWaitingList(new EchoOff());
-		// addCommandToWaitingList(new EchoOff());
-		// addCommandToWaitingList(new EchoOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new LineFeedOff());
-		// addCommandToWaitingList(new SpacesOff());
-		// addCommandToWaitingList(new HeadersOff());
-		// addCommandToWaitingList(new Defaults());
-		// addCommandToWaitingList(new ObdReset());
-		// addCommandToWaitingList(new ObdReset());
-		// addCommandToWaitingList(new EchoOff());
-		// addCommandToWaitingList(new EchoOff());
-		// addCommandToWaitingList(new EchoOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new LineFeedOff());
-		// addCommandToWaitingList(new SpacesOff());
-		// addCommandToWaitingList(new HeadersOff());
-		// addCommandToWaitingList(new SelectAutoProtocol());
-		// addCommandToWaitingList(new PIDSupported());
-		// addCommandToWaitingList(new EnableHeaders());
-		// addCommandToWaitingList(new PIDSupported());
-		// addCommandToWaitingList(new HeadersOff());
-
-		/*
-		 * End Torque
-		 */
-
-		// Set waiting list execution counter
-		counter = 0L;
+		commandListener.createNewTrackIfNecessary();
 	}
 	
 	/**
@@ -207,31 +153,7 @@ public class BackgroundService extends Service {
 		logger.info("Bluetooth device connected.");
         // Service is running..
 		isTheServiceRunning.set(true);		
-		callbackListener.onConnectionInitialized();
-	}
-
-	/**
-	 * Add a command to the waiting-list
-	 * 
-	 * @param job
-	 *            The command that should be added
-	 * @return Counter in the waiting list
-	 * @deprecated never used!
-	 */
-	@Deprecated
-	public Long addCommandToWaitingList(CommonCommand job) {
-
-		counter++;
-
-		job.setCommandId(counter);
-		try {
-			waitingList.put(job);
-		} catch (InterruptedException e) {
-			logger.warn(e.getMessage(), e);
-			job.setCommandState(CommonCommandState.QUEUE_ERROR);
-		}
-
-		return counter;
+		commandListener.onConnectionInitialized();
 	}
 
 	/**
@@ -240,7 +162,7 @@ public class BackgroundService extends Service {
 	private void stopService() {
 
 		waitingList.removeAll(waitingList);
-		callbackListener.stopListening();
+		commandListener.stopListening();
 		isTheServiceRunning.set(false);
 		
 		try {
@@ -249,6 +171,7 @@ public class BackgroundService extends Service {
 			logger.warn(e.getMessage(), e);
 		}
 
+		LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
 		stopSelf();
 	}
 
@@ -256,7 +179,7 @@ public class BackgroundService extends Service {
 	/**
 	 * Runs the waiting list until the service is stopped
 	 */
-	private void runWaitingList() {
+	private synchronized void runWaitingList() {
 
 		isWaitingListRunning.set(true);
 
@@ -289,8 +212,8 @@ public class BackgroundService extends Service {
 
 			if (currentJob != null) {
 				currentJob.setCommandState(CommonCommandState.FINISHED);
-				if (callbackListener != null) {
-					callbackListener.receiveUpdate(currentJob);
+				if (commandListener != null) {
+					commandListener.receiveUpdate(currentJob);
 				}
 			}
 		}
@@ -309,24 +232,37 @@ public class BackgroundService extends Service {
 	 */
 	private class LocalBinder extends Binder implements BackgroundServiceInteractor {
 	
+		@Override
 		public void setListener(Listener callback) {
-			callbackListener = callback;
+			commandListener = callback;
 		}
 
+		@Override
 		public boolean isRunning() {
 			return isTheServiceRunning.get();
 		}
 
+		@Override
 		public void newJobToWaitingList(CommonCommand job) {
 			waitingList.add(job);
 
 			if (!isWaitingListRunning.get())
 				runWaitingList();
 		}
+
+		@Override
+		public void initializeConnection() {
+			startBackgroundService();
+		}
+		
+		@Override
+		public void shutdownConnection() {
+			//TODO never called!
+			stopService();
+		}
 	}
 	
     private class ConnectThread extends Thread {
-        private final BluetoothSocket socket;
         private String socketType;
 		private BluetoothAdapter adapter;
 
@@ -353,7 +289,7 @@ public class BackgroundService extends Service {
             } catch (IOException e) {
                 Log.e("ec", "Socket Type: " + socketType + "create() failed", e);
             }
-            socket = tmp;
+            bluetoothSocket = tmp;
         }
 
         public void run() {
@@ -367,11 +303,11 @@ public class BackgroundService extends Service {
             try {
                 // This is a blocking call and will only return on a
                 // successful connection or an exception
-                socket.connect();
+            	bluetoothSocket.connect();
             } catch (IOException e) {
                 // Close the socket
                 try {
-                    socket.close();
+                	bluetoothSocket.close();
                 } catch (IOException e2) {
                     logger.warn(e2.getMessage(), e2);
                 }

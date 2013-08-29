@@ -31,7 +31,7 @@ import org.envirocar.app.commands.Speed;
 public abstract class AbstractOBDConnector {
 
 	public void executeRequestCommands(BackgroundServiceConnector serviceConnector) {
-		addCommandstoWaitinglist(serviceConnector);
+		addDefaultCommandsToWaitingList(serviceConnector);
 	}
 
 	/**
@@ -39,7 +39,7 @@ public abstract class AbstractOBDConnector {
 	 * all commands are executed
 	 * @param serviceConnector 
 	 */
-	private void addCommandstoWaitinglist(BackgroundServiceConnector serviceConnector) {
+	private void addDefaultCommandsToWaitingList(BackgroundServiceConnector serviceConnector) {
 		final CommonCommand speed = new Speed();
 		final CommonCommand maf = new MAF();
 		final CommonCommand rpm = new RPM();
