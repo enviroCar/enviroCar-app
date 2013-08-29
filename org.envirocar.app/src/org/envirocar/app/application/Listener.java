@@ -51,4 +51,10 @@ public interface Listener {
 	void registerAdapterNotYetConnectedListener(
 			AdapterConnectionNotYetEstablishedListener l);
 
+	void connectionPermanentlyFailed();
+
+	void onConnectionInitialized();
+	
+	void shutdown();
+
 }

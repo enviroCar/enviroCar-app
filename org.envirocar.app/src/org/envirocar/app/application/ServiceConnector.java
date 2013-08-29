@@ -26,7 +26,6 @@ import java.util.List;
 
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.protocol.AbstractOBDConnector;
-import org.envirocar.app.protocol.AdapterConnectionListener;
 import org.envirocar.app.protocol.AdapterConnectionNotYetEstablishedListener;
 import org.envirocar.app.protocol.ELM327Connector;
 
@@ -42,9 +41,10 @@ import android.os.IBinder;
  * @author jakob
  * 
  */
-public class ServiceConnector implements ServiceConnection, AdapterConnectionListener, AdapterConnectionNotYetEstablishedListener {
+public class ServiceConnector implements ServiceConnection, AdapterConnectionNotYetEstablishedListener {
 
-	private Monitor localMonitor = null;
+	private static final int MAX_TRIES_PER_ADAPTER = 2;
+	private BackgroundServiceInteractor interactor = null;
 	private Listener localListener = null;
 	private AbstractOBDConnector obdAdapter;
 	private List<AbstractOBDConnector> adapterCandidates = new ArrayList<AbstractOBDConnector>();
@@ -61,15 +61,15 @@ public class ServiceConnector implements ServiceConnection, AdapterConnectionLis
 	 * connects listener and monitor
 	 */
 	public void onServiceConnected(ComponentName componentName, IBinder binder) {
-		localMonitor = (Monitor) binder;
-		localMonitor.setListener(localListener);
+		interactor = (BackgroundServiceInteractor) binder;
+		interactor.setListener(localListener);
 	}
 
 	/**
 	 * deactivates the local monitor
 	 */
 	public void onServiceDisconnected(ComponentName name) {
-		localMonitor = null;
+		interactor = null;
 	}
 
 	/**
@@ -78,11 +78,11 @@ public class ServiceConnector implements ServiceConnection, AdapterConnectionLis
 	 * @return True if running
 	 */
 	public boolean isRunning() {
-		if (localMonitor == null) {
+		if (interactor == null) {
 			return false;
 		}
 
-		return localMonitor.isRunning();
+		return interactor.isRunning();
 	}
 
 	/**
@@ -92,8 +92,8 @@ public class ServiceConnector implements ServiceConnection, AdapterConnectionLis
 	 *            New CommandJob
 	 */
 	public void addJobToWaitingList(CommonCommand newJob) {
-		if (null != localMonitor)
-			localMonitor.newJobToWaitingList(newJob);
+		if (null != interactor)
+			interactor.newJobToWaitingList(newJob);
 	}
 
 	/**
@@ -114,23 +114,20 @@ public class ServiceConnector implements ServiceConnection, AdapterConnectionLis
 	}
 
 	@Override
-	public void onAdapterConnected() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void onAdapterDisconnected() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public void connectionNotYetEstablished() {
-		if (tries++ > 2) {
-			this.obdAdapter = adapterCandidates.get(adapterIndex++ % adapterCandidates.size());
+		if (tries++ > MAX_TRIES_PER_ADAPTER) {
+			if (++adapterIndex >= adapterCandidates.size()) {
+				connectionFailed();
+				return;
+			}
+			this.obdAdapter = adapterCandidates.get(adapterIndex % adapterCandidates.size());
+			tries = 0;
 		}
 		this.obdAdapter.executeInitializationSequence(this);
+	}
+
+	private void connectionFailed() {
+		localListener.connectionPermanentlyFailed();
 	}
 	
 

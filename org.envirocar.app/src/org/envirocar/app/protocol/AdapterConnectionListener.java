@@ -25,5 +25,7 @@ public interface AdapterConnectionListener {
 	public void onAdapterConnected();
 	
 	public void onAdapterDisconnected();
+
+	public void connectionPermanentlyFailed();
 	
 }

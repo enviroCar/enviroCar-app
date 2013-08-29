@@ -41,6 +41,7 @@ import android.content.SharedPreferences;
 import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 
 /**
@@ -64,12 +65,13 @@ public class BackgroundService extends Service {
 
 	private BluetoothDevice bluetoothDevice = null;
 	private BluetoothSocket bluetoothSocket = null;
-	private static final UUID MY_UUID = UUID
+	private static final UUID EMBEDDED_BOARD_SPP = UUID
 			.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	private Listener callbackListener = null;
 	private final Binder binder = new LocalBinder();
 	private BlockingQueue<CommonCommand> waitingList = new LinkedBlockingQueue<CommonCommand>();
-
+	private BluetoothAdapter bluetoothAdapter;
+	
 	@Override
 	public IBinder onBind(Intent intent) {
 		return binder;
@@ -113,10 +115,9 @@ public class BackgroundService extends Service {
 
 		try {
 
-			final BluetoothAdapter bluetoothAdapter = BluetoothAdapter
+			bluetoothAdapter = BluetoothAdapter
 					.getDefaultAdapter();
 			bluetoothDevice = bluetoothAdapter.getRemoteDevice(remoteDevice);
-			bluetoothAdapter.cancelDiscovery();
 
 			startConnection();
 		} catch (IOException e) {
@@ -135,10 +136,8 @@ public class BackgroundService extends Service {
 
 		// Connect to bluetooth device
 
-		bluetoothSocket = bluetoothDevice
-				.createRfcommSocketToServiceRecord(MY_UUID);
-
-		bluetoothSocket.connect();
+		ConnectThread t = new ConnectThread(bluetoothDevice, true);
+		t.start();
 		
 		callbackListener.createNewTrackIfNecessary();
 
@@ -195,15 +194,20 @@ public class BackgroundService extends Service {
 		 * End Torque
 		 */
 
-		// Service is running..
-		isTheServiceRunning.set(true);
-
 		// Set waiting list execution counter
 		counter = 0L;
 	}
 	
-
-
+	/**
+	 * method gets called when the bluetooth device connection
+	 * has been established. 
+	 */
+	private void connected() {
+		logger.info("Bluetooth device connected.");
+        // Service is running..
+		isTheServiceRunning.set(true);		
+		callbackListener.onConnectionInitialized();
+	}
 
 	/**
 	 * Add a command to the waiting-list
@@ -211,7 +215,9 @@ public class BackgroundService extends Service {
 	 * @param job
 	 *            The command that should be added
 	 * @return Counter in the waiting list
+	 * @deprecated never used!
 	 */
+	@Deprecated
 	public Long addCommandToWaitingList(CommonCommand job) {
 
 		counter++;
@@ -230,11 +236,11 @@ public class BackgroundService extends Service {
 	/**
 	 * Method that stops the service, removes everything from the waiting list
 	 */
-	public void stopService() {
+	private void stopService() {
 
 		waitingList.removeAll(waitingList);
 		isWaitingListRunning.set(false);
-		callbackListener = null;
+		callbackListener.shutdown();
 		isTheServiceRunning.set(false);
 		
 		try {
@@ -246,29 +252,6 @@ public class BackgroundService extends Service {
 		stopSelf();
 	}
 
-	/**
-	 * Binder imported directly from Android OBD Project. Runs the waiting list
-	 * when jobs are added to it
-	 * 
-	 * @author jakob
-	 * 
-	 */
-	private class LocalBinder extends Binder implements Monitor {
-		public void setListener(Listener callback) {
-			callbackListener = callback;
-		}
-
-		public boolean isRunning() {
-			return isTheServiceRunning.get();
-		}
-
-		public void newJobToWaitingList(CommonCommand job) {
-			waitingList.add(job);
-
-			if (!isWaitingListRunning.get())
-				runWaitingList();
-		}
-	}
 
 	/**
 	 * Runs the waiting list until the service is stopped
@@ -316,5 +299,95 @@ public class BackgroundService extends Service {
 
 		isWaitingListRunning.set(false);
 	}
+	
+	/**
+	 * Binder imported directly from Android OBD Project. Runs the waiting list
+	 * when jobs are added to it
+	 * 
+	 * @author jakob
+	 * 
+	 */
+	private class LocalBinder extends Binder implements BackgroundServiceInteractor {
+	
+		public void setListener(Listener callback) {
+			callbackListener = callback;
+		}
+
+		public boolean isRunning() {
+			return isTheServiceRunning.get();
+		}
+
+		public void newJobToWaitingList(CommonCommand job) {
+			waitingList.add(job);
+
+			if (!isWaitingListRunning.get())
+				runWaitingList();
+		}
+	}
+	
+    private class ConnectThread extends Thread {
+        private final BluetoothSocket socket;
+        private String socketType;
+		private BluetoothAdapter adapter;
+
+        public ConnectThread(BluetoothDevice device, boolean secure) {
+        	adapter = BluetoothAdapter.getDefaultAdapter();
+   		 // Unique UUID for this application
+    	    UUID MY_UUID_SECURE =
+    	        UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
+    	    UUID MY_UUID_INSECURE =
+    	        UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
+            BluetoothSocket tmp = null;
+            socketType = secure ? "Secure" : "Insecure";
+
+            // Get a BluetoothSocket for a connection with the
+            // given BluetoothDevice
+            try {
+                if (secure) {
+                    tmp = device.createRfcommSocketToServiceRecord(
+                            MY_UUID_SECURE);
+                } else {
+                    tmp = device.createInsecureRfcommSocketToServiceRecord(
+                            MY_UUID_INSECURE);
+                }
+            } catch (IOException e) {
+                Log.e("ec", "Socket Type: " + socketType + "create() failed", e);
+            }
+            socket = tmp;
+        }
+
+        public void run() {
+            setName("ConnectThread" + socketType);
+            logger.info("Running ConnectThread");
+
+            // Always cancel discovery because it will slow down a connection
+            adapter.cancelDiscovery();
+
+            // Make a connection to the BluetoothSocket
+            try {
+                // This is a blocking call and will only return on a
+                // successful connection or an exception
+                socket.connect();
+            } catch (IOException e) {
+                // Close the socket
+                try {
+                    socket.close();
+                } catch (IOException e2) {
+                    logger.warn(e2.getMessage(), e2);
+                }
+                return;
+            }
+
+            connected();
+        }
+
+        public void cancel() {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                Log.e("ec", "close() of connect " + socketType + " socket failed", e);
+            }
+        }
+    }
 
 }

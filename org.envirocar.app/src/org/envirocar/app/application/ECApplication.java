@@ -36,6 +36,7 @@ import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
+import org.envirocar.app.protocol.AdapterConnectionListener;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterLocal;
 import org.envirocar.app.storage.DbAdapterRemote;
@@ -56,6 +57,7 @@ import android.location.LocationManager;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.widget.Toast;
 
 /**
  * This is the main application that is the central linking component for all adapters, services and so on.
@@ -64,7 +66,7 @@ import android.support.v4.app.NotificationCompat;
  *
  */
 @ReportsCrashes(formKey = "")
-public class ECApplication extends Application {
+public class ECApplication extends Application implements AdapterConnectionListener {
 	
 	private static final Logger logger = Logger.getLogger(ECApplication.class);
 	
@@ -116,6 +118,20 @@ public class ECApplication extends Application {
 	            }
 	        }
 	    }
+	};
+	
+	private Runnable waitingListRunnable = new Runnable() {
+		public void run() {
+
+			if (serviceConnector != null && serviceConnector.isRunning())
+				serviceConnector.executeCommandRequests();
+
+			try {
+				handler.postDelayed(waitingListRunnable, 2000);
+			} catch (NullPointerException e) {
+				logger.severe("NullPointerException occured: Handler is null: " + (handler == null) + " waitingList is null: " + (waitingListRunnable == null), e);
+			}
+		}
 	};
 
 	protected boolean adapterConnected;
@@ -181,6 +197,30 @@ public class ECApplication extends Application {
 	    this.registerReceiver(bluetoothChangeReceiver, filter);
 	}
 	
+//	private void testBluetooth() {
+//	    BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+//		
+//		Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+//		// If there are paired devices
+//		BluetoothDevice theDevice = null;
+//		if (pairedDevices.size() > 0) {
+//		    // Loop through paired devices
+//		    for (BluetoothDevice device : pairedDevices) {
+//		        // Add the name and address to an array adapter to show in a ListView
+//		    	if (device.getName().contains("20") || device.getName().contains("_W_W_")) {
+//		    		theDevice = device;
+//		    	}
+//		    }
+//		}
+//		
+//		
+//
+//	}
+
+	
+
+	
+	
 	private void initializeErrorHandling() {
 		ACRA.init(this);
 		ACRACustomSender yourSender = new ACRACustomSender();
@@ -238,10 +278,10 @@ public class ECApplication extends Application {
 			serviceConnector = new ServiceConnector();
 			serviceConnector.setServiceListener(listener);
 
-			bindService(backgroundService, serviceConnector,
-					Context.BIND_AUTO_CREATE);
+//			bindService(backgroundService, serviceConnector,
+//					Context.BIND_AUTO_CREATE);
 			
-			listener.registerAdapterConnectedListener(serviceConnector);
+			listener.registerAdapterConnectedListener(this);
 			listener.registerAdapterNotYetConnectedListener(serviceConnector);
 		} else {
 			logger.warn("bluetooth not activated!");
@@ -343,23 +383,6 @@ public class ECApplication extends Application {
 		closeDb();
 	}
 
-	/**
-	 * Handles the waiting-list
-	 */
-	private Runnable waitingListRunnable = new Runnable() {
-		public void run() {
-
-			if (serviceConnector != null && serviceConnector.isRunning())
-				serviceConnector.executeCommandRequests();
-
-			try {
-				handler.postDelayed(waitingListRunnable, 2000);
-			} catch (NullPointerException e) {
-				logger.severe("NullPointerException occured: Handler is null: " + (handler == null) + " waitingList is null: " + (waitingListRunnable == null), e);
-			}
-		}
-	};
-
 
 	/**
 	 * Stops gps, kills service, kills service connector, kills listener and handler
@@ -370,8 +393,6 @@ public class ECApplication extends Application {
 //		listener = null;
 		handler = null;
 	}
-
-
 
 	/**
 	 * Closes both databases.
@@ -454,6 +475,31 @@ public class ECApplication extends Application {
 	
 	public void resetTrack() {
 		this.listener.resetTrack();
+	}
+
+	@Override
+	public void onAdapterConnected() {
+		displayToast("OBD-II Adapter connected");
+	}
+
+	@Override
+	public void onAdapterDisconnected() {
+		displayToast("OBD-II Adapter disconnected");		
+	}
+
+	@Override
+	public void connectionPermanentlyFailed() {
+		displayToast("OBD-II Adapter connection permanently failed");
+		stopConnection();
+	}
+
+	private void displayToast(final String string) {
+		getCurrentActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(getApplicationContext(), string, Toast.LENGTH_LONG).show();				
+			}
+		});		
 	}
 
 

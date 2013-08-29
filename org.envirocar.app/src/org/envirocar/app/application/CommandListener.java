@@ -66,7 +66,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 	protected static final long MAX_INACTIVITY_TIME = 1000 * 60 * 3;
 
-	protected static final long CONNECTION_CHECK_INTERVAL = 1000 * 10;
+	protected static final long CONNECTION_CHECK_INTERVAL = 1000 * 5;
 
 	// Track properties
 
@@ -87,31 +87,30 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 	private boolean adapterConnected;
 
-	private Thread activityAssertionThread;
-
 	private long lastCommandTimestamp;
 
-	private Thread connectionNotYetEstablishedThread;
+	private boolean connectionNotYetEstablishedThreadRunning = false;
+	private boolean activityAssertionThreadRunning = false;
 	
 	public CommandListener(Car car, DbAdapter dbAdapterLocal) {
 		this.car = car;
 		this.dbAdapterLocal = dbAdapterLocal;
 		this.collector = new Collector(this, this.car);
 		EventBus.getInstance().registerListener(this);
-		
-		createConnectionNotYetEstablishedThread();
-		createInactivityAssertionThread();
 	}
 	
 	private void createConnectionNotYetEstablishedThread() {
-		if (connectionNotYetEstablishedThread != null && connectionNotYetEstablishedThread.isAlive()) {
+		if (connectionNotYetEstablishedThreadRunning == true) {
 			return;
 		}
-		connectionNotYetEstablishedThread = new Thread(new Runnable() {
-			
+		
+		connectionNotYetEstablishedThreadRunning = true;
+		
+		Runnable connectionNotYetEstablishedThread = new Runnable() {
 			@Override
 			public void run() {
-				while (!adapterConnected) {
+				
+				while (connectionNotYetEstablishedThreadRunning && !adapterConnected) {
 					try {
 						Thread.sleep(CONNECTION_CHECK_INTERVAL);
 					} catch (InterruptedException e) {
@@ -119,24 +118,29 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 					}					
 					
 					for (AdapterConnectionNotYetEstablishedListener l : notYetConnectedListeners) {
-						l.connectionNotYetEstablished();
+						try {
+							l.connectionNotYetEstablished();
+						} catch (Exception e) {
+							logger.warn(e.getMessage(), e);
+						}
 					}
 
 				}
 			}
-		});
-		connectionNotYetEstablishedThread.setDaemon(true);
-		connectionNotYetEstablishedThread.start();
+		};
+		Thread t = new Thread(connectionNotYetEstablishedThread);
+		t.setDaemon(true);
+		t.start();
 	}
 
 	private void createInactivityAssertionThread() {
-		activityAssertionThread = new Thread(new Runnable() {
+		Runnable activityAssertionThread = new Runnable() {
 			
-			protected boolean running = true;
-
 			@Override
 			public void run() {
-				while (running) {
+				while (activityAssertionThreadRunning) {
+					if (!adapterConnected) break;
+					
 					if (System.currentTimeMillis() - lastCommandTimestamp > MAX_INACTIVITY_TIME) {
 						adapterConnected = false;
 						for (AdapterConnectionListener acl : connectedListeners) {
@@ -154,10 +158,11 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 				}
 				
 			}
-		});
+		};
 		
-		activityAssertionThread.setDaemon(true);
-		activityAssertionThread.start();
+		Thread t = new Thread(activityAssertionThread);
+		t.setDaemon(true);
+		t.start();
 	}
 
 	public void receiveUpdate(CommonCommand command) {
@@ -167,7 +172,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		String commandName = command.getCommandName();
 		String commandResult = command.getResult();
 		logger.debug(commandName + " " + commandResult);
-		if (commandResult.equals("NODATA"))
+		if (isNoDataCommand(command))
 			return;
 
 		/*
@@ -259,6 +264,18 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 	}
 	
+
+	private boolean isNoDataCommand(CommonCommand command) {
+		if (command.getRawData() != null && (command.getRawData().equals("NODATA") ||
+				command.getRawData().equals(""))) return true;
+		
+		if (command.getResult() != null && (command.getResult().equals("NODATA") ||
+				command.getResult().equals(""))) return true;
+		
+		if (command.getResult() == null || command.getRawData() == null) return true;
+		
+		return false;
+	}
 
 	private void checkAdapterConnectionState() {
 		this.lastCommandTimestamp = System.currentTimeMillis();
@@ -475,6 +492,25 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	public void registerAdapterNotYetConnectedListener(
 			AdapterConnectionNotYetEstablishedListener l) {
 		this.notYetConnectedListeners.add(l);
+	}
+
+	@Override
+	public void connectionPermanentlyFailed() {
+		for (AdapterConnectionListener l : connectedListeners) {
+			l.connectionPermanentlyFailed();
+		}
+	}
+
+	@Override
+	public void shutdown() {
+		connectionNotYetEstablishedThreadRunning = false;
+		activityAssertionThreadRunning = false;
+	}
+
+	@Override
+	public void onConnectionInitialized() {
+		createConnectionNotYetEstablishedThread();
+		createInactivityAssertionThread();		
 	}
 	
 }

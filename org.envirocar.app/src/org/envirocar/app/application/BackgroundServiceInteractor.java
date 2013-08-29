@@ -29,7 +29,7 @@ import org.envirocar.app.commands.CommonCommand;
  * @author jakob
  * 
  */
-public interface Monitor {
+public interface BackgroundServiceInteractor {
 
 	/**
 	 * Set the listener for this monitor
