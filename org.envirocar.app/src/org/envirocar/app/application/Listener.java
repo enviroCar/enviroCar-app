@@ -55,6 +55,6 @@ public interface Listener {
 
 	void onConnectionInitialized();
 	
-	void shutdown();
+	void stopListening();
 
 }

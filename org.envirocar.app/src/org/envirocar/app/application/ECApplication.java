@@ -32,6 +32,8 @@ import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
+import org.envirocar.app.application.service.BackgroundService;
+import org.envirocar.app.application.service.BackgroundServiceConnector;
 import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
@@ -92,7 +94,7 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	private BluetoothAdapter bluetoothAdapter = BluetoothAdapter
 			.getDefaultAdapter();
 
-	private ServiceConnector serviceConnector = null;
+	private BackgroundServiceConnector serviceConnector = null;
 	private Intent backgroundService = null;
 	private Handler handler = new Handler();
 	private Listener listener = null;
@@ -152,7 +154,7 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	 * Returns the service connector of the server
 	 * @return the serviceConnector
 	 */
-	public ServiceConnector getServiceConnector() {
+	public BackgroundServiceConnector getServiceConnector() {
 		if (serviceConnector == null)
 			initializeBackgroundService();
 		return serviceConnector;
@@ -275,7 +277,7 @@ public class ECApplication extends Application implements AdapterConnectionListe
 			
 			logger.info("requirements met");
 			backgroundService = new Intent(this, BackgroundService.class);
-			serviceConnector = new ServiceConnector();
+			serviceConnector = new BackgroundServiceConnector();
 			serviceConnector.setServiceListener(listener);
 
 //			bindService(backgroundService, serviceConnector,

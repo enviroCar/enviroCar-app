@@ -20,7 +20,7 @@
  */
 package org.envirocar.app.protocol;
 
-import org.envirocar.app.application.ServiceConnector;
+import org.envirocar.app.application.service.BackgroundServiceConnector;
 import org.envirocar.app.commands.EchoOff;
 import org.envirocar.app.commands.LineFeedOff;
 import org.envirocar.app.commands.ObdReset;
@@ -30,7 +30,7 @@ import org.envirocar.app.commands.Timeout;
 public class ELM327Connector extends AbstractOBDConnector {
 
 	@Override
-	public void executeInitializationSequence(ServiceConnector serviceConnector) {
+	public void executeInitializationSequence(BackgroundServiceConnector serviceConnector) {
 		serviceConnector.addJobToWaitingList(new ObdReset());
 		serviceConnector.addJobToWaitingList(new EchoOff());
 		serviceConnector.addJobToWaitingList(new EchoOff());

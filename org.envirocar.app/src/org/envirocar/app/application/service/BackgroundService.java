@@ -19,7 +19,7 @@
  * 
  */
 
-package org.envirocar.app.application;
+package org.envirocar.app.application.service;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -28,6 +28,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.envirocar.app.activity.SettingsActivity;
+import org.envirocar.app.application.Listener;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.logging.Logger;
@@ -239,8 +240,7 @@ public class BackgroundService extends Service {
 	private void stopService() {
 
 		waitingList.removeAll(waitingList);
-		isWaitingListRunning.set(false);
-		callbackListener.shutdown();
+		callbackListener.stopListening();
 		isTheServiceRunning.set(false);
 		
 		try {
@@ -333,10 +333,10 @@ public class BackgroundService extends Service {
         public ConnectThread(BluetoothDevice device, boolean secure) {
         	adapter = BluetoothAdapter.getDefaultAdapter();
    		 // Unique UUID for this application
-    	    UUID MY_UUID_SECURE =
-    	        UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
-    	    UUID MY_UUID_INSECURE =
-    	        UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
+//    	    UUID MY_UUID_SECURE =
+//    	        UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
+//    	    UUID MY_UUID_INSECURE =
+//    	        UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
             BluetoothSocket tmp = null;
             socketType = secure ? "Secure" : "Insecure";
 
@@ -345,10 +345,10 @@ public class BackgroundService extends Service {
             try {
                 if (secure) {
                     tmp = device.createRfcommSocketToServiceRecord(
-                            MY_UUID_SECURE);
+                            EMBEDDED_BOARD_SPP);
                 } else {
                     tmp = device.createInsecureRfcommSocketToServiceRecord(
-                            MY_UUID_INSECURE);
+                            EMBEDDED_BOARD_SPP);
                 }
             } catch (IOException e) {
                 Log.e("ec", "Socket Type: " + socketType + "create() failed", e);
@@ -379,14 +379,6 @@ public class BackgroundService extends Service {
             }
 
             connected();
-        }
-
-        public void cancel() {
-            try {
-                socket.close();
-            } catch (IOException e) {
-                Log.e("ec", "close() of connect " + socketType + " socket failed", e);
-            }
         }
     }
 

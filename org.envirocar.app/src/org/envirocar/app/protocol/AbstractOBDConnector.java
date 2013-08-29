@@ -20,7 +20,7 @@
  */
 package org.envirocar.app.protocol;
 
-import org.envirocar.app.application.ServiceConnector;
+import org.envirocar.app.application.service.BackgroundServiceConnector;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.IntakePressure;
 import org.envirocar.app.commands.IntakeTemperature;
@@ -30,7 +30,7 @@ import org.envirocar.app.commands.Speed;
 
 public abstract class AbstractOBDConnector {
 
-	public void executeRequestCommands(ServiceConnector serviceConnector) {
+	public void executeRequestCommands(BackgroundServiceConnector serviceConnector) {
 		addCommandstoWaitinglist(serviceConnector);
 	}
 
@@ -39,7 +39,7 @@ public abstract class AbstractOBDConnector {
 	 * all commands are executed
 	 * @param serviceConnector 
 	 */
-	private void addCommandstoWaitinglist(ServiceConnector serviceConnector) {
+	private void addCommandstoWaitinglist(BackgroundServiceConnector serviceConnector) {
 		final CommonCommand speed = new Speed();
 		final CommonCommand maf = new MAF();
 		final CommonCommand rpm = new RPM();
@@ -53,6 +53,6 @@ public abstract class AbstractOBDConnector {
 		serviceConnector.addJobToWaitingList(intakeTemperature);
 	}
 
-	public abstract void executeInitializationSequence(ServiceConnector serviceConnector);
+	public abstract void executeInitializationSequence(BackgroundServiceConnector serviceConnector);
 	
 }

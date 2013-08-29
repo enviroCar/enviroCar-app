@@ -19,8 +19,9 @@
  * 
  */
 
-package org.envirocar.app.application;
+package org.envirocar.app.application.service;
 
+import org.envirocar.app.application.Listener;
 import org.envirocar.app.commands.CommonCommand;
 
 /**

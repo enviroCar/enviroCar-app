@@ -19,11 +19,12 @@
  * 
  */
 
-package org.envirocar.app.application;
+package org.envirocar.app.application.service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.envirocar.app.application.Listener;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.protocol.AbstractOBDConnector;
 import org.envirocar.app.protocol.AdapterConnectionNotYetEstablishedListener;
@@ -41,7 +42,7 @@ import android.os.IBinder;
  * @author jakob
  * 
  */
-public class ServiceConnector implements ServiceConnection, AdapterConnectionNotYetEstablishedListener {
+public class BackgroundServiceConnector implements ServiceConnection, AdapterConnectionNotYetEstablishedListener {
 
 	private static final int MAX_TRIES_PER_ADAPTER = 2;
 	private BackgroundServiceInteractor interactor = null;
@@ -51,7 +52,7 @@ public class ServiceConnector implements ServiceConnection, AdapterConnectionNot
 	private int tries;
 	private int adapterIndex;
 
-	public ServiceConnector() {
+	public BackgroundServiceConnector() {
 		//TODO init through ServiceLoader (SlimServiceLoader...)
 		adapterCandidates.add(new ELM327Connector());
 		obdAdapter = adapterCandidates.get(0);

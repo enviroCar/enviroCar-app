@@ -111,12 +111,6 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 			public void run() {
 				
 				while (connectionNotYetEstablishedThreadRunning && !adapterConnected) {
-					try {
-						Thread.sleep(CONNECTION_CHECK_INTERVAL);
-					} catch (InterruptedException e) {
-						logger.warn(e.getMessage(), e);
-					}					
-					
 					for (AdapterConnectionNotYetEstablishedListener l : notYetConnectedListeners) {
 						try {
 							l.connectionNotYetEstablished();
@@ -124,7 +118,12 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 							logger.warn(e.getMessage(), e);
 						}
 					}
-
+					
+					try {
+						Thread.sleep(CONNECTION_CHECK_INTERVAL);
+					} catch (InterruptedException e) {
+						logger.warn(e.getMessage(), e);
+					}	
 				}
 			}
 		};
@@ -502,7 +501,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	}
 
 	@Override
-	public void shutdown() {
+	public void stopListening() {
 		connectionNotYetEstablishedThreadRunning = false;
 		activityAssertionThreadRunning = false;
 	}
