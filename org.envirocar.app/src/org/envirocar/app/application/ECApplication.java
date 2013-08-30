@@ -32,8 +32,10 @@ import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
+import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.application.service.BackgroundService;
 import org.envirocar.app.application.service.BackgroundServiceConnector;
+import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
@@ -53,6 +55,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.preference.PreferenceManager;
@@ -94,12 +97,13 @@ public class ECApplication extends Application implements AdapterConnectionListe
 
 	private BackgroundServiceConnector serviceConnector;
 	private Intent backgroundService;
+	private Intent deviceInRangeService;
 	
 	private Listener commandListener;
 	
 	private int mId = 1133;
 	
-	
+	protected boolean adapterConnected;
 	private Activity currentActivity;
 	
 	private final BroadcastReceiver bluetoothChangeReceiver = new BroadcastReceiver() {
@@ -117,11 +121,31 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	                break;
 	            }
 	        }
+	        else if (action.equals(DeviceInRangeService.DEVICE_FOUND)) {
+	        	logger.info("our device got discovered!");
+	        	startConnection();
+	        }
 	    }
 	};
 	
-	protected boolean adapterConnected;
+	private final OnSharedPreferenceChangeListener autoConnectPreferenceChangeReceiver =
+			new OnSharedPreferenceChangeListener() {
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+				String key) {
+			if (key.equals(SettingsActivity.AUTOCONNECT)) {
+				boolean autoConnect = sharedPreferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
+				if (autoConnect) {
+					initializeAdapterAutoConnectService();
+				}
+				else {
+					shutdownAdapterAutoConnectService();
+				}
+			}
+		}
+	};
 	
+
 	/**
 	 * returns the current activity.
 	 * @return
@@ -130,6 +154,7 @@ public class ECApplication extends Application implements AdapterConnectionListe
 		return currentActivity;
 	}
 	
+
 	public void setActivity(Activity a){
 		this.currentActivity = a;
 	}
@@ -179,8 +204,9 @@ public class ECApplication extends Application implements AdapterConnectionListe
 		initializeBackgroundService();
 		
 		//bluetooth change commandListener
-	    IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-	    this.registerReceiver(bluetoothChangeReceiver, filter);
+	    registerReceiver(bluetoothChangeReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+	    registerReceiver(bluetoothChangeReceiver, new IntentFilter(DeviceInRangeService.DEVICE_FOUND));
+	    preferences.registerOnSharedPreferenceChangeListener(autoConnectPreferenceChangeReceiver);
 	}
 	
 //	private void testBluetooth() {
@@ -257,12 +283,18 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	 * This method starts the service that connects to the adapter to the app.
 	 */
 	private void initializeBackgroundService() {
+		boolean autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
+		if (autoConnect) {
+			initializeAdapterAutoConnectService();
+		}
+		
+		
 		if (bluetoothActivated()) {
 			
 			logger.info("requirements met");
 			backgroundService = new Intent(this, BackgroundService.class);
 			
-			startService(backgroundService);
+//			startService(backgroundService);
 			
 //			serviceConnector.setServiceListener(commandListener);
 
@@ -272,6 +304,21 @@ public class ECApplication extends Application implements AdapterConnectionListe
 		} else {
 			logger.warn("bluetooth not activated!");
 		}
+	}
+
+	private void initializeAdapterAutoConnectService() {
+		if (deviceInRangeService == null) {
+			logger.info("initializing auto connect device in range service");
+			deviceInRangeService = new Intent(this, DeviceInRangeService.class);
+			startService(deviceInRangeService);
+		}
+	}
+	
+	private void shutdownAdapterAutoConnectService() {
+		if (deviceInRangeService != null) {
+			logger.info("shutting down auto connect device in range service");
+			stopService(deviceInRangeService);
+		}		
 	}
 
 	/**

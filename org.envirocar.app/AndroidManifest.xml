@@ -66,6 +66,9 @@
         <service
             android:name="org.envirocar.app.application.service.BackgroundService"
             android:exported="false" />
+        
+        <service android:name="org.envirocar.app.application.service.DeviceInRangeService"
+            android:exported="false" />
 
         <activity
             android:name="org.envirocar.app.activity.Map"
