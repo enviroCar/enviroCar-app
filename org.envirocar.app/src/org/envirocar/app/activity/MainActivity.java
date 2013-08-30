@@ -109,8 +109,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private SharedPreferences preferences = null;
 	boolean alwaysUpload = false;
 	boolean uploadOnlyInWlan = true;
-	boolean autoConnect = false;
-	private Handler handler_connect;
 	private Handler handler_upload;
 		
 	private void prepareNavDrawerItems(){
@@ -193,8 +191,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
-        autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
-        handler_connect = new Handler();
         handler_upload = new Handler();
 
 		actionBar = getSupportActionBar();
@@ -243,75 +239,75 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		 * Auto connect to bluetooth adapter every 10 minutes
 		 */
 
-		ScheduledExecutorService autoConnectTaskExecutor = Executors.newScheduledThreadPool(1);
-		autoConnectTaskExecutor.scheduleAtFixedRate(new Runnable() {
-
-			@Override
-			public void run() {
-				if (autoConnect) {
-					logger.info("User wants to auto-connect");
-					try {
-						if (!application.getServiceConnector().isRunning()) {
-							logger.info("starting connection 1");
-
-							String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY, null);
-
-							if (application.bluetoothActivated() && remoteDevice != null) {
-								if (!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)) {
-									if (UserManager.instance().isLoggedIn()) {
-										MyGarage garageFragment = new MyGarage();
-										getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
-									} else {
-										LoginFragment loginFragment = new LoginFragment();
-										getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
-									}
-								} else {
-									if (!application.getServiceConnector().isRunning()) {
-
-										handler_connect.post(new Runnable() {
-											public void run() {
-												application.startConnection();
-											}
-										});
-									}
-								}
-							} else {
-								Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
-								startActivity(settingsIntent);
-							}
-						}
-					} catch (NullPointerException e) {
-						logger.info("starting connection 2");
-
-						String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY, null);
-
-						if (application.bluetoothActivated() && remoteDevice != null) {
-							if (!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)) {
-								if (UserManager.instance().isLoggedIn()) {
-									MyGarage garageFragment = new MyGarage();
-									getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
-								} else {
-									LoginFragment loginFragment = new LoginFragment();
-									getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
-								}
-							} else {
-								if (!application.getServiceConnector().isRunning()) {
-									handler_connect.post(new Runnable() {
-										public void run() {
-											application.startConnection();
-										}
-									});
-								}
-							}
-						} else {
-							Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
-							startActivity(settingsIntent);
-						}
-					}
-				}
-
-			}
-		}, 1, 10, TimeUnit.MINUTES);
+//		ScheduledExecutorService autoConnectTaskExecutor = Executors.newScheduledThreadPool(1);
+//		autoConnectTaskExecutor.scheduleAtFixedRate(new Runnable() {
+//
+//			@Override
+//			public void run() {
+//				if (autoConnect) {
+//					logger.info("User wants to auto-connect");
+//					try {
+//						if (!application.getServiceConnector().isRunning()) {
+//							logger.info("starting connection 1");
+//
+//							String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY, null);
+//
+//							if (application.bluetoothActivated() && remoteDevice != null) {
+//								if (!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)) {
+//									if (UserManager.instance().isLoggedIn()) {
+//										MyGarage garageFragment = new MyGarage();
+//										getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
+//									} else {
+//										LoginFragment loginFragment = new LoginFragment();
+//										getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
+//									}
+//								} else {
+//									if (!application.getServiceConnector().isRunning()) {
+//
+//										handler_connect.post(new Runnable() {
+//											public void run() {
+//												application.startConnection();
+//											}
+//										});
+//									}
+//								}
+//							} else {
+//								Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
+//								startActivity(settingsIntent);
+//							}
+//						}
+//					} catch (NullPointerException e) {
+//						logger.info("starting connection 2");
+//
+//						String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY, null);
+//
+//						if (application.bluetoothActivated() && remoteDevice != null) {
+//							if (!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)) {
+//								if (UserManager.instance().isLoggedIn()) {
+//									MyGarage garageFragment = new MyGarage();
+//									getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
+//								} else {
+//									LoginFragment loginFragment = new LoginFragment();
+//									getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
+//								}
+//							} else {
+//								if (!application.getServiceConnector().isRunning()) {
+//									handler_connect.post(new Runnable() {
+//										public void run() {
+//											application.startConnection();
+//										}
+//									});
+//								}
+//							}
+//						} else {
+//							Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
+//							startActivity(settingsIntent);
+//						}
+//					}
+//				}
+//
+//			}
+//		}, 1, 10, TimeUnit.MINUTES);
 		
 		/*
 		 * Auto-Uploader of tracks. Uploads complete tracks every 10 minutes.
@@ -580,7 +576,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	    
 		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
-        autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
 	}
 
 
