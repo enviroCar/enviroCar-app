@@ -41,19 +41,19 @@ public class BasicConsumptionAlgorithm extends AbstractConsumptionAlgorithm {
 		}
 		
 		double airFuelRatio;
-		double anotherConstant; //XXX search for its meaning!
+		double fuelDensity;
 		if (this.car.getFuelType() == FuelType.GASOLINE) {
 			airFuelRatio = 14.7;
-			anotherConstant = 747;
+			fuelDensity = 747;
 		}
 		else if (this.car.getFuelType() == FuelType.DIESEL) {
 			airFuelRatio = 14.5;
-			anotherConstant = 832;
+			fuelDensity = 832;
 		}
 		else throw new FuelConsumptionException("FuelType not supported: "+this.car.getFuelType());
 		
-		//conver from seconds to hour
-		double consumption = (maf / airFuelRatio) / anotherConstant * 3600;
+		//convert from seconds to hour
+		double consumption = (maf / airFuelRatio) / fuelDensity * 3600;
 		
 		return consumption;
 	}
