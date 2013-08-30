@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import org.envirocar.app.logging.Logger;
 
@@ -42,6 +44,9 @@ public abstract class CommonCommand {
 	protected String rawData = null;
 	private Long commandId;
 	private CommonCommandState commandState;
+	private Object socketMutex = new Object();
+	
+	private static ExecutorService executor = Executors.newFixedThreadPool(3);
 	
 	private static final Logger logger = Logger.getLogger(CommonCommand.class);
 
@@ -72,7 +77,29 @@ public abstract class CommonCommand {
 	public void run(InputStream in, OutputStream out) throws IOException,
 			InterruptedException {
 		sendCommand(out);
+		waitForResult(in);
 		readResult(in);
+	}
+
+	private void waitForResult(final InputStream in) {
+		executor.submit(new Runnable() {
+			@Override
+			public void run() {
+				synchronized (socketMutex) {
+					try {
+						while (in.available() <= 0) {
+							Thread.sleep(25);
+						}
+						socketMutex.notifyAll();
+					} catch (IOException e) {
+						logger.warn(e.getMessage(), e);
+					} catch (InterruptedException e) {
+						logger.warn(e.getMessage(), e);
+					}	
+				}
+				
+			}
+		});
 	}
 
 	/**
@@ -112,6 +139,17 @@ public abstract class CommonCommand {
 	 */
 	protected void readResult(InputStream inputStream) throws IOException {
 		byte b = 0;
+		
+		synchronized (socketMutex) {
+			while (inputStream.available() > 0) {
+				try {
+					socketMutex.wait();
+				} catch (InterruptedException e) {
+					throw new IOException(e);
+				}
+			}
+		}
+		
 		StringBuilder stringbuilder = new StringBuilder();
 
 		// read until '>' arrives
