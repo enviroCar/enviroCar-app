@@ -64,7 +64,7 @@
         </activity>       
 
         <service
-            android:name="org.envirocar.app.application.BackgroundService"
+            android:name="org.envirocar.app.application.service.BackgroundService"
             android:exported="false" />
 
         <activity
