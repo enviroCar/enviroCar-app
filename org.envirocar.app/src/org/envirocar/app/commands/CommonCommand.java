@@ -77,7 +77,8 @@ public abstract class CommonCommand {
 	public void run(InputStream in, OutputStream out) throws IOException,
 			InterruptedException {
 		sendCommand(out);
-		waitForResult(in);
+//		waitForResult(in);
+		Thread.sleep(100);
 		readResult(in);
 	}
 
@@ -120,7 +121,6 @@ public abstract class CommonCommand {
 		outputStream.write(command.getBytes());
 		outputStream.flush();
 
-		Thread.sleep(100);
 	}
 
 	/**
@@ -140,15 +140,15 @@ public abstract class CommonCommand {
 	protected void readResult(InputStream inputStream) throws IOException {
 		byte b = 0;
 		
-		synchronized (socketMutex) {
-			while (inputStream.available() > 0) {
-				try {
-					socketMutex.wait();
-				} catch (InterruptedException e) {
-					throw new IOException(e);
-				}
-			}
-		}
+//		synchronized (socketMutex) {
+//			while (inputStream.available() > 0) {
+//				try {
+//					socketMutex.wait();
+//				} catch (InterruptedException e) {
+//					throw new IOException(e);
+//				}
+//			}
+//		}
 		
 		StringBuilder stringbuilder = new StringBuilder();
 
