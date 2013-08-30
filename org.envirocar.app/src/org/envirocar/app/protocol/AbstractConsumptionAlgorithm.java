@@ -31,7 +31,7 @@ public abstract class AbstractConsumptionAlgorithm {
 	public abstract double calculateCO2FromConsumption(double consumption) throws FuelConsumptionException;
 	
 	/**
-	 * Calculates the CO2 emission for a fuel consumption value (l/h)
+	 * An implementation shall calculate the CO2 emission (kg/h) for a fuel consumption value (l/h)
 	 * 
 	 * @param consumption fuel consumption in l/h
 	 * @param type see {@link FuelType}
