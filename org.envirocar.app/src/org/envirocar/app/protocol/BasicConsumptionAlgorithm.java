@@ -44,7 +44,7 @@ public class BasicConsumptionAlgorithm extends AbstractConsumptionAlgorithm {
 		double fuelDensity;
 		if (this.car.getFuelType() == FuelType.GASOLINE) {
 			airFuelRatio = 14.7;
-			fuelDensity = 747;
+			fuelDensity = 745;
 		}
 		else if (this.car.getFuelType() == FuelType.DIESEL) {
 			airFuelRatio = 14.5;
