@@ -49,8 +49,8 @@ public class DeviceInRangeService extends Service {
 	public static final String DEVICE_FOUND = DeviceInRangeService.class.getName().concat(".DEVICE_FOUND");
 	public static final String DELAY_EXTRA = DeviceInRangeService.class.getName().concat(".INITIAL_DELAY");
 	
-	private static final long DISCOVERY_PERIOD = 1000 * 1 * 2;
-	public static final int DEFAULT_DELAY_AFTER_STOP = 1000 * 1 * 5;
+	private static final long DISCOVERY_PERIOD = 1000 * 60 * 2;
+	public static final int DEFAULT_DELAY_AFTER_STOP = 1000 * 60 * 5;
 	
 	private final BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
