@@ -40,7 +40,6 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,13 +69,7 @@ public class DashboardFragment extends SherlockFragment {
 	private TextView sensor;
 	View dashboardView;
 
-	protected Location location;
-
 	private LocationEventListener locationListener;
-
-	private int speed;
-
-	private double co2;
 
 	private SpeedEventListener speedListener;
 
@@ -165,16 +158,65 @@ public class DashboardFragment extends SherlockFragment {
 			}
 		});
 		
-		// Handle the UI updates
+		TypefaceEC.applyCustomFont((ViewGroup) view,
+				TypefaceEC.Newscycle(getActivity()));
 
-		final Handler handler = new Handler();
-		Runnable runnable = new Runnable() {
+	}
+
+	private void initializeEventListeners() {
+		this.locationListener = new LocationEventListener() {
+			@Override
+			public void receiveEvent(LocationEvent event) {
+				updateLocation(event.getPayload());
+			}
+		};
+		this.speedListener = new SpeedEventListener() {
+			@Override
+			public void receiveEvent(SpeedEvent event) {
+				updateSpeed(event.getPayload());
+			}
+		};
+		this.co2Listener = new CO2EventListener() {
+			@Override
+			public void receiveEvent(CO2Event event) {
+				updateCO2(event.getPayload());
+			}
+		};
+		EventBus.getInstance().registerListener(locationListener);
+		EventBus.getInstance().registerListener(speedListener);
+		EventBus.getInstance().registerListener(co2Listener);
+	}
+
+	protected void updateCO2(final Double co2) {
+		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+				double co2Progress;
+				
+				DecimalFormat twoDForm = new DecimalFormat("#.##");
+				
+				co2TextView.setText(twoDForm.format(co2) + " kg/h"); 
+				if (co2 <= 0)
+					co2Progress = 0;
+				else if (co2 > 100)
+					co2Progress = 100;
+				else
+					co2Progress = co2;
+				roundProgressCO2.setProgress(co2Progress);
+				
+				if (co2Progress>30){
+					dashboardView.setBackgroundColor(Color.RED);
+				} else {
+					dashboardView.setBackgroundColor(Color.WHITE);
+				}				
+			}
+		});
+	}
 
-				// Deal with the speed values
-
-				int speed = getSpeedMeasurement();
+	protected void updateSpeed(final Integer speed) {
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
 				int speedProgress;
 				if (preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT, false)) {
 					speedTextView.setText(speed + " km/h");
@@ -194,34 +236,15 @@ public class DashboardFragment extends SherlockFragment {
 					else
 						speedProgress = (int) (speed / 1.5);
 					roundProgressSpeed.setProgress(speedProgress);
-				}
-				
+				}				
+			}
+		});
+	}
 
-				// Deal with the co2 values
-
-				double co2 = getCo2Measurement();
-				double co2Progress;
-				
-				DecimalFormat twoDForm = new DecimalFormat("#.##");
-				
-				co2TextView.setText(twoDForm.format(co2) + " kg/h"); 
-				if (co2 <= 0)
-					co2Progress = 0;
-				else if (co2 > 100)
-					co2Progress = 100;
-				else
-					co2Progress = co2;
-				roundProgressCO2.setProgress(co2Progress);
-				
-				if (co2Progress>30){
-					dashboardView.setBackgroundColor(Color.RED);
-				} else {
-					dashboardView.setBackgroundColor(Color.WHITE);
-				}
-				
-				// set location
-				
-				Location location = getLocation();
+	protected void updateLocation(final Location location) {
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
 				if (location != null && location.getLongitude() != 0 && location.getLatitude() != 0) {
 					StringBuffer sb = new StringBuffer();
 					sb.append("Provider: " + location.getProvider() + "\n");
@@ -236,55 +259,9 @@ public class DashboardFragment extends SherlockFragment {
 					positionTextView.setText(R.string.positioning_Info);
 					positionTextView.setTextColor(Color.WHITE);
 					positionTextView.setBackgroundColor(Color.RED);
-				}
-
-				// Repeat this in x ms
-				handler.postDelayed(this, 1000);
+				}				
 			}
-		};
-		
-		// Repeat the UI update every second (1000ms)
-		
-		handler.postDelayed(runnable, 1000);
-
-		TypefaceEC.applyCustomFont((ViewGroup) view,
-				TypefaceEC.Newscycle(getActivity()));
-
+		});
 	}
 
-	private void initializeEventListeners() {
-		this.locationListener = new LocationEventListener() {
-			@Override
-			public void receiveEvent(LocationEvent event) {
-				location = event.getPayload();
-			}
-		};
-		this.speedListener = new SpeedEventListener() {
-			@Override
-			public void receiveEvent(SpeedEvent event) {
-				speed = event.getPayload(); 
-			}
-		};
-		this.co2Listener = new CO2EventListener() {
-			@Override
-			public void receiveEvent(CO2Event event) {
-				co2 = event.getPayload();
-			}
-		};
-		EventBus.getInstance().registerListener(locationListener);
-		EventBus.getInstance().registerListener(speedListener);
-		EventBus.getInstance().registerListener(co2Listener);
-	}
-
-	protected int getSpeedMeasurement() {
-		return speed;
-	}
-
-	protected double getCo2Measurement() {
-		return co2;
-	}
-
-	protected Location getLocation() {
-		return location;
-	}
 }
