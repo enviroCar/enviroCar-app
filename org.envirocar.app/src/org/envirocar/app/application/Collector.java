@@ -68,19 +68,19 @@ public class Collector {
 	
 	public void newSpeed(int s) {
 		this.measurement.setSpeed(s);
-		checkStateAndPush();
+//		checkStateAndPush();
 	}
 	
 	public void newMAF(double m) {
 		this.measurement.setMaf(m);
-		checkStateAndPush();
+//		checkStateAndPush();
 		fireConsumptionEvent();
 	}
 	
 	public void newRPM(int r) {
 		this.measurement.setRpm(r);
 		checkAndCreateCalculatedMAF();
-		checkStateAndPush();
+//		checkStateAndPush();
 	}
 	
 	/**
@@ -111,15 +111,23 @@ public class Collector {
 	public void newIntakeTemperature(int i) {
 		this.measurement.setIntakeTemperature(i);
 		checkAndCreateCalculatedMAF();
-		checkStateAndPush();
+//		checkStateAndPush();
 	}
 	
 	public void newIntakePressure(int p) {
 		this.measurement.setIntakePressure(p);
 		checkAndCreateCalculatedMAF();
-		checkStateAndPush();
+//		checkStateAndPush();
 	}
 	
+	/**
+	 * currently, this method is only called when a location update
+	 * was received. as the update rate of the GPS receiver is
+	 * lower (1 Hz probably) then the update rate of the OBD adapter
+	 * (revised one) this provides smaller time deltas. A previous location
+	 * update could be <= 1 second. Following this approach the delta
+	 * is the maximum of the OBD adapter update rate. 
+	 */
 	private void checkStateAndPush() {
 		if (measurement == null) return;
 		
