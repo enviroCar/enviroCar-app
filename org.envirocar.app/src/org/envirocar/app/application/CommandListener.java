@@ -21,8 +21,9 @@
 package org.envirocar.app.application;
 
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -324,11 +325,8 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		// if track is null, create a new one or take the last one from the
 		// database
 		
-		Calendar calendar = Calendar.getInstance();
-		int year = calendar.get(Calendar.YEAR);
-		int month = calendar.get(Calendar.MONTH)+1;
-		int day = calendar.get(Calendar.DAY_OF_MONTH);
-		String date = String.valueOf(year) + "-" + String.valueOf(month) + "-" + String.valueOf(day);
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
+		String date = dateFormat.format(new Date());
 
 		if (track == null) {
 
