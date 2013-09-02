@@ -46,6 +46,9 @@ public abstract class CommonCommand {
 	private static final Logger logger = Logger.getLogger(CommonCommand.class);
 	private static final long SLEEP_TIME = 25;
 	private static final int MAX_SLEEP_TIME = 5000;
+	private static final String COMMAND_SEND_END = "\r";
+	private static final char COMMAND_RECEIVE_END = '>';
+	private static final char COMMAND_RECEIVE_SPACE = ' ';
 
 	/**
 	 * Default constructor to use
@@ -113,11 +116,8 @@ public abstract class CommonCommand {
 	 */
 	protected void sendCommand(OutputStream outputStream) throws IOException,
 			InterruptedException {
-		// add the carriage return char
-		command += "\r";
-
 		// write to OutputStream, or in this case a BluetoothSocket
-		outputStream.write(command.getBytes());
+		outputStream.write(command.concat(COMMAND_SEND_END).getBytes());
 		outputStream.flush();
 
 	}
@@ -136,30 +136,29 @@ public abstract class CommonCommand {
 	/**
 	 * Reads the OBD-II response.
 	 */
-	protected void readResult(InputStream inputStream) throws IOException {
-		byte b = 0;
+	protected void readResult(InputStream in) throws IOException {
+		char b = 0;
 		
-		StringBuilder stringbuilder = new StringBuilder();
+		StringBuilder sb = new StringBuilder();
 
 		// read until '>' arrives
-		while ((char) (b = (byte) inputStream.read()) != '>')
-			if ((char) b != ' ')
-				stringbuilder.append((char) b);
+		while (in.available() > 0) {
+			b = (char) in.read();
+			if (b == COMMAND_RECEIVE_END) break;
+			
+			if (b != COMMAND_RECEIVE_SPACE)
+				sb.append(b);
+		}
 
-		rawData = stringbuilder.toString().trim();
+		rawData = sb.toString().trim();
 //		logger.info("Command name: " + getCommandName() + ", Send '" + getCommand() + "', get raw data '" + rawData + "'");
-		
-		// clear buffer
-		buffer.clear();
 
 		// read string each two chars
-		int begin = 0;
-		int end = 2;
-		while (end <= rawData.length()) {
-			String temp = "0x" + rawData.substring(begin, end);
-			buffer.add(Integer.decode(temp));
-			begin = end;
-			end += 2;
+		int index = 0;
+		int length = 2;
+		while (index + length <= rawData.length()) {
+			buffer.add(Integer.parseInt(rawData.substring(index, index + length), 16));
+			index += length;
 		}
 	}
 
