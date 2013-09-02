@@ -136,7 +136,7 @@ public class ECApplication extends Application implements AdapterConnectionListe
 			if (key.equals(SettingsActivity.AUTOCONNECT)) {
 				boolean autoConnect = sharedPreferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
 				if (autoConnect) {
-					initializeAdapterAutoConnectService();
+					initializeAdapterAutoConnectService(0);
 				}
 				else {
 					shutdownAdapterAutoConnectService();
@@ -285,7 +285,7 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	private void initializeBackgroundService() {
 		boolean autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
 		if (autoConnect) {
-			initializeAdapterAutoConnectService();
+			initializeAdapterAutoConnectService(0);
 		}
 		
 		
@@ -306,12 +306,14 @@ public class ECApplication extends Application implements AdapterConnectionListe
 		}
 	}
 
-	private void initializeAdapterAutoConnectService() {
-		if (deviceInRangeService == null) {
-			logger.info("initializing auto connect device in range service");
-			deviceInRangeService = new Intent(this, DeviceInRangeService.class);
-			startService(deviceInRangeService);
-		}
+	private void initializeAdapterAutoConnectService(int delay) {
+		if (serviceConnector.isRunning())
+			return;
+		
+		logger.info("initializing auto connect device in range service");
+		deviceInRangeService = new Intent(this, DeviceInRangeService.class);
+		deviceInRangeService.putExtra(DeviceInRangeService.DELAY_EXTRA, delay);
+		startService(deviceInRangeService);
 	}
 	
 	private void shutdownAdapterAutoConnectService() {
@@ -509,7 +511,13 @@ public class ECApplication extends Application implements AdapterConnectionListe
 
 	@Override
 	public void onAdapterDisconnected() {
-		displayToast("OBD-II Adapter disconnected");		
+		displayToast("OBD-II Adapter disconnected");	
+		
+		
+		boolean autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
+		if (autoConnect) {
+			initializeAdapterAutoConnectService(DeviceInRangeService.DEFAULT_DELAY_AFTER_STOP);
+		}
 	}
 
 	@Override
@@ -519,6 +527,8 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	}
 
 	private void displayToast(final String string) {
+		if (getCurrentActivity() == null) return;
+		
 		getCurrentActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
