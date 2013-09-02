@@ -61,6 +61,13 @@ public class SimulatorService {
     private ConnectedThread mConnectedThread;
     private int mState;
 	private Random random = new Random();
+	private float lastMaf;
+	private boolean rpmServed;
+	private boolean temperatureServed;
+	private boolean pressureServed;
+	private int rpm;
+	private double temperature;
+	private double pressure;
 
     // Constants that indicate the current connection state
     public static final int STATE_NONE = 0;       // we're doing nothing
@@ -77,6 +84,13 @@ public class SimulatorService {
         mAdapter = BluetoothAdapter.getDefaultAdapter();
         mState = STATE_NONE;
         mHandler = handler;
+
+		//initial MAF
+        int bytethree = (1+random.nextInt(8));
+		int bytefour = (80+random.nextInt(19));
+		
+		lastMaf = (bytethree * 256 + bytefour) / 100.0f;
+		calculateMAFValues(lastMaf);
     }
 
     /**
@@ -333,19 +347,27 @@ public class SimulatorService {
         public void run() {
             Log.i(TAG, "BEGIN mConnectedThread");
             byte[] buffer = new byte[1024];
-            int bytes;
 
             // Keep listening to the InputStream while connected
             while (true) {
                 try {
-                    // Read from the InputStream
-                    bytes = mmInStream.read(buffer);
+                    
+                    int index = 0;
+            		while (mmInStream.available() > 0) {
+            			byte b = (byte) mmInStream.read();
+            			if (b == '\r') break;
+            			
+						buffer[index++] = b;
+            		}
 
+            		if (index == 0) continue;
+            		
                     // Send the obtained bytes to the UI Activity
-                    mHandler.obtainMessage(OBDSimulator.MESSAGE_READ, bytes, -1, buffer)
+                    mHandler.obtainMessage(OBDSimulator.MESSAGE_READ, index, -1, buffer)
                             .sendToTarget();
                     
-                    handleRequest(buffer, bytes);
+                    handleRequest(buffer, 0, index);
+                    
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
                     connectionLost();
@@ -363,6 +385,7 @@ public class SimulatorService {
         public void write(byte[] buffer) {
             try {
                 mmOutStream.write(buffer);
+                mmOutStream.flush();
 
                 // Share the sent message back to the UI Activity
                 mHandler.obtainMessage(OBDSimulator.MESSAGE_WRITE, -1, -1, buffer)
@@ -382,8 +405,8 @@ public class SimulatorService {
     }
 
 
-	public void handleRequest(byte[] buffer, int bytes) {
-		String s = new String(buffer, 0, bytes).trim();
+	public void handleRequest(byte[] buffer, int offset, int bytes) {
+		String s = new String(buffer, offset, bytes).trim();
 		Log.i("obdsim", "command received: "+s);
 		
 		String rawData = null;
@@ -395,14 +418,113 @@ public class SimulatorService {
 			rawData = "0000" + (23+random.nextInt(45));
 		}
 		else if (s.equals("01 10")) {
+			int bytethree = (1+random.nextInt(8));
+			int bytefour = (80+random.nextInt(19));
 			//MAF
-			rawData = "00000"+ (1+random.nextInt(8))+""+ (80+random.nextInt(19));
+			rawData = "00000"+ bytethree+""+ bytefour;
+			lastMaf = (bytethree * 256 + bytefour) / 100.0f;
+		}
+		else if (s.equals("01 0B")) {
+			//Pressure
+			double press = getPressureFromLastMAFCalculation();
+			String tmp = Integer.toHexString((int) press);
+			if (tmp.length() == 1) tmp = "0"+tmp;
+			rawData = "0000" +tmp; 
+		}
+		else if (s.equals("01 0F")) {
+			//temp
+			double temp = getTemperatureFromLastMAFCalcuation();
+			String tmp = Integer.toHexString((int) (temp + 40));
+			if (tmp.length() == 1) tmp = "0"+tmp;
+			rawData = "0000" +tmp;
+		}
+		else if (s.equals("01 0C")) {
+			//rpm
+			int revols = getRPMFromLastMAFCalculation();
+			rawData = integerToByteString(revols);
+			if (rawData.length() != 8) {
+				Log.i("obd-sim", rawData);	
+			}
 		}
 		else {
 			rawData = "0000000000";
 		}
 		
-		if (rawData !=null)
-			mConnectedThread.write(rawData.concat(">").getBytes());
+		if (rawData !=null) {
+			String out = rawData.concat(">");
+
+			mConnectedThread.write(out.getBytes());
+		}
+	}
+
+	private static String integerToByteString(int revols) {
+		int[] bytes = integerToByteArray(revols);
+		StringBuilder sb = new StringBuilder();
+		for (int b : bytes) {
+			String tmp = Integer.toString(b, 16);
+			if (tmp.length() == 1) {
+				sb.append("0");
+			}
+			sb.append(tmp);
+		}
+		return sb.toString();
+	}
+
+	private static int[] integerToByteArray(int val) {
+        int[] buffer = new int[4];
+        
+        buffer[0] = ((byte) (val >>> 24)) & 0xff;
+        buffer[1] = ((byte) (val >>> 16)) & 0xff;
+        buffer[2] = ((byte) (val >>> 8)) & 0xff;
+        buffer[3] = ((byte) val) & 0xff;
+        
+        return buffer;
+	}
+	
+
+	private int getRPMFromLastMAFCalculation() {
+		checkCalculatedMAFValuesServed();
+		
+		rpmServed = true;
+		return rpm;
+	}
+
+
+	private double getTemperatureFromLastMAFCalcuation() {
+		checkCalculatedMAFValuesServed();
+		
+		temperatureServed = true;
+		return temperature;
+	}
+
+	private double getPressureFromLastMAFCalculation() {
+		checkCalculatedMAFValuesServed();
+		
+		pressureServed = true;
+		return pressure;
+	}
+	
+	private void checkCalculatedMAFValuesServed() {
+		if (rpmServed && temperatureServed && pressureServed) {
+			calculateMAFValues(lastMaf);
+			rpmServed = false;
+			temperatureServed = false;
+			pressureServed = false;
+		}
+	}
+
+	private void calculateMAFValues(float realMaf) {
+		temperature = 26.0 + random.nextDouble()*4.0;
+		pressure = 90.0 + random.nextInt(70);
+		
+		/*
+		 * use static values for our simulated car
+		 */
+		double displacement = 1.15;
+		int volumeEfficiencey = 85;
+		
+		double imap = (12000 * realMaf) / (volumeEfficiencey * displacement);
+		
+		rpm = (int) Math.floor(((temperature + 273.15d) * imap) / pressure);
 	}
 }
