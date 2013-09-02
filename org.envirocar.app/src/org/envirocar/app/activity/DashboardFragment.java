@@ -188,80 +188,88 @@ public class DashboardFragment extends SherlockFragment {
 	}
 
 	protected void updateCO2(final Double co2) {
-		getActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				double co2Progress;
-				
-				DecimalFormat twoDForm = new DecimalFormat("#.##");
-				
-				co2TextView.setText(twoDForm.format(co2) + " kg/h"); 
-				if (co2 <= 0)
-					co2Progress = 0;
-				else if (co2 > 100)
-					co2Progress = 100;
-				else
-					co2Progress = co2;
-				roundProgressCO2.setProgress(co2Progress);
-				
-				if (co2Progress>30){
-					dashboardView.setBackgroundColor(Color.RED);
-				} else {
-					dashboardView.setBackgroundColor(Color.WHITE);
-				}				
-			}
-		});
+		if (getActivity() != null) {
+			getActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					double co2Progress;
+					
+					DecimalFormat twoDForm = new DecimalFormat("#.##");
+					
+					co2TextView.setText(twoDForm.format(co2) + " kg/h"); 
+					if (co2 <= 0)
+						co2Progress = 0;
+					else if (co2 > 100)
+						co2Progress = 100;
+					else
+						co2Progress = co2;
+					roundProgressCO2.setProgress(co2Progress);
+					
+					if (co2Progress>30){
+						dashboardView.setBackgroundColor(Color.RED);
+					} else {
+						dashboardView.setBackgroundColor(Color.WHITE);
+					}				
+				}
+			});	
+		}
 	}
 
 	protected void updateSpeed(final Integer speed) {
-		getActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				int speedProgress;
-				if (preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT, false)) {
-					speedTextView.setText(speed + " km/h");
-					if (speed <= 0)
-						speedProgress = 0;
-					else if (speed > 200)
-						speedProgress = 100;
-					else
-						speedProgress = speed / 2;
-					roundProgressSpeed.setProgress(speedProgress);
-				} else {
-					speedTextView.setText(speed/1.6 + " mph");
-					if (speed <= 0)
-						speedProgress = 0;
-					else if (speed > 150)
-						speedProgress = 100;
-					else
-						speedProgress = (int) (speed / 1.5);
-					roundProgressSpeed.setProgress(speedProgress);
-				}				
-			}
-		});
+		if (getActivity() != null) {
+			getActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					int speedProgress;
+					if (preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT,
+							false)) {
+						speedTextView.setText(speed + " km/h");
+						if (speed <= 0)
+							speedProgress = 0;
+						else if (speed > 200)
+							speedProgress = 100;
+						else
+							speedProgress = speed / 2;
+						roundProgressSpeed.setProgress(speedProgress);
+					} else {
+						speedTextView.setText(speed / 1.6 + " mph");
+						if (speed <= 0)
+							speedProgress = 0;
+						else if (speed > 150)
+							speedProgress = 100;
+						else
+							speedProgress = (int) (speed / 1.5);
+						roundProgressSpeed.setProgress(speedProgress);
+					}
+				}
+			});
+		}
 	}
 
 	protected void updateLocation(final Location location) {
-		getActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (location != null && location.getLongitude() != 0 && location.getLatitude() != 0) {
-					StringBuffer sb = new StringBuffer();
-					sb.append("Provider: " + location.getProvider() + "\n");
-					sb.append("Lat: " + location.getLatitude() + "\n");
-					sb.append("Long: " + location.getLongitude() + "\n");
-					sb.append("Acc: " + location.getAccuracy() + "\n");
-					sb.append("Speed: " + location.getSpeed() + "\n");
-					positionTextView.setText(sb.toString());
-					positionTextView.setTextColor(Color.BLACK);
-					positionTextView.setBackgroundColor(Color.WHITE);
-				} else {
-					positionTextView.setText(R.string.positioning_Info);
-					positionTextView.setTextColor(Color.WHITE);
-					positionTextView.setBackgroundColor(Color.RED);
-				}				
-			}
-		});
+		if (getActivity() != null) {
+			getActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					if (location != null && location.getLongitude() != 0
+							&& location.getLatitude() != 0) {
+						StringBuffer sb = new StringBuffer();
+						sb.append("Provider: " + location.getProvider() + "\n");
+						sb.append("Lat: " + location.getLatitude() + "\n");
+						sb.append("Long: " + location.getLongitude() + "\n");
+						sb.append("Acc: " + location.getAccuracy() + "\n");
+						sb.append("Speed: " + location.getSpeed() + "\n");
+						positionTextView.setText(sb.toString());
+						positionTextView.setTextColor(Color.BLACK);
+						positionTextView.setBackgroundColor(Color.WHITE);
+					} else {
+						positionTextView.setText(R.string.positioning_Info);
+						positionTextView.setTextColor(Color.WHITE);
+						positionTextView.setBackgroundColor(Color.RED);
+					}
+				}
+			});
+		}
 	}
 
 }

@@ -1,7 +1,5 @@
-.classpath
-.project
-.settings
-bin
-
 /gen
-/assets
+/.classpath
+/.project
+/.settings
+/bin

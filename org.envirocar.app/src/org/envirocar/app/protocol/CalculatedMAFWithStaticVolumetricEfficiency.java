@@ -26,7 +26,7 @@ public class CalculatedMAFWithStaticVolumetricEfficiency extends
 		AbstractCalculatedMAFAlgorithm {
 
 	private static final double GAS_CONSTANT = 8.3144621;
-	private static final double MOLECULAR_MASS_OF_AIR = 28.97;
+	private static final double MOLECULAR_MASS_OF_AIR = 28.9644;
 	private double volumetricEfficiency = 85.0d;
 	private Car car;
 	
@@ -38,9 +38,9 @@ public class CalculatedMAFWithStaticVolumetricEfficiency extends
 	public double calculateMAF(int rpm, double intakeTemperature,
 			double intakePressure) {
 		//calculate alternative maf from iat (convert to °K), map, rpm
-		double imap = rpm * intakeTemperature / (intakePressure+273);
+		double imap = rpm * intakeTemperature / (intakePressure + 273.15d);
 		//VE = 85 in most modern cars
-		double calculatedMaf = imap / 120.0d * this.volumetricEfficiency/100.0d * this.car.getEngineDisplacement() * MOLECULAR_MASS_OF_AIR / GAS_CONSTANT;	
+		double calculatedMaf = imap / 120.0d * this.volumetricEfficiency / 100.0d * this.car.getEngineDisplacement() * MOLECULAR_MASS_OF_AIR / GAS_CONSTANT;	
 
 		return calculatedMaf;
 	}

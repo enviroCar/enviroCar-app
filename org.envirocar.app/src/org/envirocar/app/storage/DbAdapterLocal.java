@@ -25,6 +25,8 @@ import java.util.ArrayList;
 
 import org.envirocar.app.exception.TracksException;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.Car;
+import org.envirocar.app.model.Car.FuelType;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -62,6 +64,7 @@ public class DbAdapterLocal implements DbAdapter {
 	public static final String KEY_TRACK_CAR_MANUFACTURER = "car_manufacturer";
 	public static final String KEY_TRACK_CAR_MODEL = "car_model";
 	public static final String KEY_TRACK_FUEL_TYPE = "fuel_type";
+	public static final String KEY_TRACK_ENGINE_DISPLACEMENT = "engine_displacement";
 	public static final String KEY_TRACK_VIN = "vin";
 	public static final String KEY_TRACK_SENSOR_ID = "sensorid";
 
@@ -74,7 +77,7 @@ public class DbAdapterLocal implements DbAdapter {
 	private static final int DATABASE_VERSION = 13;
 	private static final String DATABASE_TABLE = "measurements";
 	private static final String DATABASE_TABLE_TRACKS = "tracks";
-	private static final String DATABASE_CREATE = "create table measurements "
+	private static final String DATABASE_CREATE_MEASUREMENTS = "create table measurements "
 			+ "(_id INTEGER primary key autoincrement, "
 			+ "latitude BLOB, "
 			+ "longitude BLOB, measurement_time BLOB, speed BLOB, rpm BLOB, intake_temperature BLOB, intake_pressure BLOB, maf BLOB, calculated_maf BLOB, track TEXT);";
@@ -83,7 +86,8 @@ public class DbAdapterLocal implements DbAdapter {
 			+ "descr BLOB, " + "car_manufacturer BLOB, " + "car_model BLOB, "
 			+ "fuel_type BLOB, " 
 			+ "vin BLOB, "
-			+ "sensorid BLOB);";
+			+ "sensorid BLOB, " 
+			+ "engine_displacement BLOB);";
 
 	private final Context mCtx;
 
@@ -97,14 +101,12 @@ public class DbAdapterLocal implements DbAdapter {
 	private static class DatabaseHelper extends SQLiteOpenHelper {
 
 		DatabaseHelper(Context context) {
-
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
 		}
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-
-			db.execSQL(DATABASE_CREATE);
+			db.execSQL(DATABASE_CREATE_MEASUREMENTS);
 			db.execSQL(DATABASE_CREATE_TRACK);
 		}
 
@@ -210,31 +212,36 @@ public class DbAdapterLocal implements DbAdapter {
 	}
 
 	@Override
-	public Track getTrack(String id) {
-		Track t = new Track(id);
+	public Track getTrack(String trackId) {
+		Track track = new Track(trackId);
 
-		Cursor c = mDb.query(DATABASE_TABLE_TRACKS, new String[] { KEY_ROWID,
+		Cursor cursor = mDb.query(DATABASE_TABLE_TRACKS, new String[] { KEY_ROWID,
 				KEY_TRACK_NAME, KEY_TRACK_DESCRIPTION,
 				KEY_TRACK_CAR_MANUFACTURER, KEY_TRACK_CAR_MODEL,
-				KEY_TRACK_FUEL_TYPE, KEY_TRACK_VIN, KEY_TRACK_SENSOR_ID}, KEY_ROWID + " = " + id,
+				KEY_TRACK_FUEL_TYPE, KEY_TRACK_VIN, KEY_TRACK_SENSOR_ID, KEY_TRACK_ENGINE_DISPLACEMENT}, KEY_ROWID + " = " + trackId,
 				null, null, null, null);
 
-		c.moveToFirst();
+		cursor.moveToFirst();
 
-		t.setId(c.getString(0));
-		t.setName(c.getString(1));
-		t.setDescription(c.getString(2));
-		t.setCarManufacturer(c.getString(3));
-		t.setCarModel(c.getString(4));
-		t.setFuelType(c.getString(5));
-		t.setVin(c.getString(6));
-		t.setSensorID(c.getString(7));
+		track.setId(cursor.getString(0));
+		track.setName(cursor.getString(1));
+		track.setDescription(cursor.getString(2));
+		track.setVin(cursor.getString(6));
+		
+		String manufacturer = cursor.getString(3);
+		String model = cursor.getString(4);
+		String id = cursor.getString(7);
+		FuelType fuelType = FuelType.valueOf(cursor.getString(5));
+		double engineDisplacement = cursor.getDouble(8);
+		
+		Car car = new Car(fuelType, manufacturer, model, id, engineDisplacement);
+		track.setCar(car);
 
-		c.close();
+		cursor.close();
 
-		t.setMeasurementsAsArrayList(getAllMeasurementsForTrack(t));
-		t.setLocalTrack(true);
-		return t;
+		track.setMeasurementsAsArrayList(getAllMeasurementsForTrack(track));
+		track.setLocalTrack(true);
+		return track;
 	}
 
 	@Override
@@ -269,14 +276,15 @@ public class DbAdapterLocal implements DbAdapter {
 
 		initialValues.put(KEY_TRACK_NAME, track.getName());
 		initialValues.put(KEY_TRACK_DESCRIPTION, track.getDescription());
-		initialValues.put(KEY_TRACK_CAR_MANUFACTURER,
-				track.getCarManufacturer());
-		initialValues.put(KEY_TRACK_CAR_MODEL, track.getCarModel());
-		initialValues.put(KEY_TRACK_FUEL_TYPE, track.getFuelType());
+		initialValues.put(KEY_TRACK_CAR_MANUFACTURER, track.getCar().getManufacturer());
+		initialValues.put(KEY_TRACK_CAR_MODEL, track.getCar().getModel());
+		initialValues.put(KEY_TRACK_FUEL_TYPE, track.getCar().getFuelType().name());
 		initialValues.put(KEY_TRACK_VIN, track.getVin());
-		initialValues.put(KEY_TRACK_SENSOR_ID, track.getSensorID());
-
-		return mDb.insert(DATABASE_TABLE_TRACKS, null, initialValues);
+		initialValues.put(KEY_TRACK_SENSOR_ID, track.getCar().getId());
+		initialValues.put(KEY_TRACK_ENGINE_DISPLACEMENT, track.getCar().getEngineDisplacement());
+		
+		long id = mDb.insert(DATABASE_TABLE_TRACKS, null, initialValues);
+		return id;
 	}
 
 	@Override
@@ -285,7 +293,6 @@ public class DbAdapterLocal implements DbAdapter {
 
 		Cursor c = mDb.query(DATABASE_TABLE_TRACKS, null, null, null, null,
 				null, null);
-		// Cursor c = mDb.rawQuery("SELECT * from \"tracks\"", null);
 
 		c.moveToFirst();
 
@@ -305,13 +312,13 @@ public class DbAdapterLocal implements DbAdapter {
 
 		initialValues.put(KEY_TRACK_NAME, track.getName());
 		initialValues.put(KEY_TRACK_DESCRIPTION, track.getDescription());
-		initialValues.put(KEY_TRACK_CAR_MANUFACTURER,
-				track.getCarManufacturer());
-		initialValues.put(KEY_TRACK_CAR_MODEL, track.getCarModel());
-		initialValues.put(KEY_TRACK_FUEL_TYPE, track.getFuelType());
+		initialValues.put(KEY_TRACK_CAR_MANUFACTURER, track.getCar().getManufacturer());
+		initialValues.put(KEY_TRACK_CAR_MODEL, track.getCar().getModel());
+		initialValues.put(KEY_TRACK_FUEL_TYPE, track.getCar().getFuelType().name());
 		initialValues.put(KEY_TRACK_VIN, track.getVin());
-		initialValues.put(KEY_TRACK_SENSOR_ID, track.getSensorID());
-
+		initialValues.put(KEY_TRACK_SENSOR_ID, track.getCar().getId());
+		initialValues.put(KEY_TRACK_ENGINE_DISPLACEMENT, track.getCar().getEngineDisplacement());
+		
 		int result = mDb.update(DATABASE_TABLE_TRACKS, initialValues, KEY_ROWID
 				+ "=" + track.getId(), null);
 		return (result == 1 ? true : false);

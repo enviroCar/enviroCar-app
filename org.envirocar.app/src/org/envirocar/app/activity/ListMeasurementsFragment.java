@@ -39,6 +39,8 @@ import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.Car;
+import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.network.RestClient;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterRemote;
@@ -53,6 +55,7 @@ import org.json.JSONObject;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -503,28 +506,32 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						}catch (JSONException e){
 							logger.warn(e.getMessage(), e);
 						}
-						t.setCarManufacturer(manufacturer);
 						String carModel = "unknown";
 						try{
 							carModel = sensorProperties.getString("model");
 						}catch (JSONException e){
 							logger.warn(e.getMessage(), e);
 						}
-						t.setCarModel(carModel);
 						String sensorId = "undefined";
 						try{
 							sensorId = sensorProperties.getString("id");
 						}catch (JSONException e) {
 							logger.warn(e.getMessage(), e);
 						}
-						t.setSensorID(sensorId);
-						String fuelType = "undefined";
+						FuelType fuelType = null; // TODO check fueltype better
 						try{
-							fuelType = sensorProperties.getString("fuelType");
-						}catch (JSONException e) {
+							String ft = sensorProperties.getString("fuelType");
+							if (ft.equalsIgnoreCase(FuelType.GASOLINE.name())) {
+								fuelType = FuelType.GASOLINE;
+							} else if (ft.equalsIgnoreCase(FuelType.DIESEL.name())) {
+								fuelType = FuelType.DIESEL;
+							}
+						} catch (JSONException e) {
 							logger.warn(e.getMessage(), e);
 						}
-						t.setFuelType(fuelType);
+						SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+						double displacement = preferences.getFloat(ECApplication.PREF_KEY_CAR_ENGINE_DISPLACEMENT, 2.0f);
+						t.setCar(new Car(fuelType, manufacturer, carModel, sensorId, displacement)); // TODO get EngineDisplacement
 						//include server properties tracks created, modified?
 						
 						t.commitTrackToDatabase();
@@ -746,43 +753,43 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				Track currTrack = (Track) getChild(i, i1);
 				View row = ViewGroup.inflate(getActivity(),
 						R.layout.list_tracks_item_layout, null);
-				TextView start = (TextView) row
+				TextView startView = (TextView) row
 						.findViewById(R.id.track_details_start_textview);
-				TextView end = (TextView) row
+				TextView endView = (TextView) row
 						.findViewById(R.id.track_details_end_textview);
-				TextView length = (TextView) row
+				TextView lengthView = (TextView) row
 						.findViewById(R.id.track_details_length_textview);
-				TextView car = (TextView) row
+				TextView carView = (TextView) row
 						.findViewById(R.id.track_details_car_textview);
-				TextView duration = (TextView) row
+				TextView durationView = (TextView) row
 						.findViewById(R.id.track_details_duration_textview);
-				TextView co2 = (TextView) row
+				TextView co2View = (TextView) row
 						.findViewById(R.id.track_details_co2_textview);
-				TextView consumptionTextView = (TextView) row
+				TextView consumptionView = (TextView) row
 						.findViewById(R.id.track_details_consumption_textview);
-				TextView description = (TextView) row.findViewById(R.id.track_details_description_textview);
+				TextView descriptionView = (TextView) row.findViewById(R.id.track_details_description_textview);
 
 				try {
 					DateFormat sdf = DateFormat.getDateTimeInstance();
 					DecimalFormat twoDForm = new DecimalFormat("#.##");
 					DateFormat dfDuration = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
 					dfDuration.setTimeZone(TimeZone.getTimeZone("UTC"));
-					start.setText(sdf.format(currTrack.getStartTime()) + "");
-					end.setText(sdf.format(currTrack.getEndTime()) + "");
+					startView.setText(sdf.format(currTrack.getStartTime()) + "");
+					endView.setText(sdf.format(currTrack.getEndTime()) + "");
 					Date durationMillis = new Date(currTrack.getDurationInMillis());
-					duration.setText(dfDuration.format(durationMillis) + "");
+					durationView.setText(dfDuration.format(durationMillis) + "");
 					if (!PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).getBoolean(SettingsActivity.IMPERIAL_UNIT, false)) {
-						length.setText(twoDForm.format(currTrack.getLengthOfTrack()) + " km");
+						lengthView.setText(twoDForm.format(currTrack.getLengthOfTrack()) + " km");
 					} else {
-						length.setText(twoDForm.format(currTrack.getLengthOfTrack()/1.6) + " miles");
+						lengthView.setText(twoDForm.format(currTrack.getLengthOfTrack()/1.6) + " miles");
 					}
-					car.setText(currTrack.getCarManufacturer() + " "
-							+ currTrack.getCarModel());
-					description.setText(currTrack.getDescription());
+					Car car = currTrack.getCar();
+					carView.setText(car.getManufacturer() + " " + car.getModel());
+					descriptionView.setText(currTrack.getDescription());
 					double consumption = currTrack.getFuelConsumptionPerHour();
 					double literOn100km = currTrack.getLiterPerHundredKm();
-					co2.setText(twoDForm.format(currTrack.getGramsPerKm()) + "g/km");
-					consumptionTextView.setText(twoDForm.format(consumption) + " l/h (" + twoDForm.format(literOn100km) + " l/100 km)");
+					co2View.setText(twoDForm.format(currTrack.getGramsPerKm()) + "g/km");
+					consumptionView.setText(twoDForm.format(consumption) + " l/h (" + twoDForm.format(literOn100km) + " l/100 km)");
 				} catch (Exception e) {
 					logger.warn(e.getMessage(), e);
 				}
