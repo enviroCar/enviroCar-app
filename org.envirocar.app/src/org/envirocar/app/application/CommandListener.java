@@ -323,10 +323,11 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 		// setting undefined, will hopefully prevent correct uploading.
 		// but this shouldn't be possible to record tracks without these values
-		String fuelType = car.getFuelType().toString();
-		String carManufacturer = car.getManufacturer();
-		String carModel = car.getModel();
-		String sensorId = car.getId();
+//		FuelType fuelType = car.getFuelType();
+//		String manufacturer = car.getManufacturer();
+//		String carModel = car.getModel();
+//		String sensorId = car.getId();
+//		double engineDisplacement = car.getEngineDisplacement();
 
 		// if track is null, create a new one or take the last one from the
 		// database
@@ -354,8 +355,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 					if ((System.currentTimeMillis() - lastUsedTrack
 							.getLastMeasurement().getMeasurementTime()) > 3600000) {
 						logger.info("I create a new track because the last measurement is more than 60 mins ago");
-						track = new Track("123456", fuelType, carManufacturer,
-								carModel, sensorId, dbAdapterLocal);
+						track = new Track("123456", car, dbAdapterLocal);
 						track.setName("Track " + date);
 						track.setDescription(trackDescription);
 						track.commitTrackToDatabase();
@@ -367,8 +367,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 					if (Utils.getDistance(lastUsedTrack.getLastMeasurement().getLatitude(),lastUsedTrack.getLastMeasurement().getLongitude(),
 							location.getLatitude(), location.getLongitude()) > 3.0) {
 						logger.info("The last measurement's position is more than 3 km away. I will create a new track");
-						track = new Track("123456", fuelType, carManufacturer,
-								carModel, sensorId, dbAdapterLocal); 
+						track = new Track("123456", car, dbAdapterLocal); 
 						track.setName("Track " + date);
 						track.setDescription(trackDescription);
 						track.commitTrackToDatabase();
@@ -389,8 +388,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 				} catch (MeasurementsException e) {
 					logger.warn("The last track contains no measurements. I will delete it and create a new one.");
 					dbAdapterLocal.deleteTrack(lastUsedTrack.getId());
-					track = new Track("123456", fuelType, carManufacturer,
-							carModel, sensorId, dbAdapterLocal); 
+					track = new Track("123456", car, dbAdapterLocal); 
 					track.setName("Track " + date);
 					track.setDescription(trackDescription);
 					track.commitTrackToDatabase();
@@ -398,8 +396,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 			} catch (TracksException e) {
 				logger.warn("There was no track in the database so I created a new one");
-				track = new Track("123456", fuelType, carManufacturer,
-						carModel, sensorId, dbAdapterLocal); 
+				track = new Track("123456", car, dbAdapterLocal); 
 				track.setName("Track " + date);
 				track.setDescription(trackDescription);
 				track.commitTrackToDatabase();
@@ -424,8 +421,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 				// ago
 				if ((System.currentTimeMillis() - currentTrack
 						.getLastMeasurement().getMeasurementTime()) > 3600000) {
-					track = new Track("123456", fuelType, carManufacturer,
-							carModel, sensorId, dbAdapterLocal);
+					track = new Track("123456", car, dbAdapterLocal);
 					track.setName("Track " + date);
 					track.setDescription(trackDescription);
 					track.commitTrackToDatabase();
@@ -440,8 +436,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 				if (Utils.getDistance(currentTrack.getLastMeasurement().getLatitude(),currentTrack.getLastMeasurement().getLongitude(),
 						location.getLatitude(), location.getLongitude()) > 3.0) {
-					track = new Track("123456", fuelType, carManufacturer,
-							carModel, sensorId, dbAdapterLocal); 
+					track = new Track("123456", car, dbAdapterLocal); 
 					track.setName("Track " + date);
 					track.setDescription(trackDescription);
 					track.commitTrackToDatabase();
@@ -460,8 +455,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 			} catch (MeasurementsException e) {
 				logger.warn("The last track contains no measurements. I will delete it and create a new one.");
 				dbAdapterLocal.deleteTrack(currentTrack.getId());
-				track = new Track("123456", fuelType, carManufacturer,
-						carModel, sensorId, dbAdapterLocal); 
+				track = new Track("123456", car, dbAdapterLocal); 
 				track.setName("Track " + date);
 				track.setDescription(trackDescription);
 				track.commitTrackToDatabase();
