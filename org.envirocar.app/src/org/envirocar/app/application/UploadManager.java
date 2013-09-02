@@ -45,6 +45,8 @@ import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.network.HTTPClient;
+import org.envirocar.app.protocol.AbstractConsumptionAlgorithm;
+import org.envirocar.app.protocol.BasicConsumptionAlgorithm;
 import org.envirocar.app.storage.DbAdapterLocal;
 import org.envirocar.app.storage.DbAdapterRemote;
 import org.envirocar.app.storage.Measurement;
@@ -173,7 +175,7 @@ public class UploadManager {
 
 		String trackName = track.getName();
 		String trackDescription = track.getDescription();
-		String trackSensorName = track.getSensorID();
+		String trackSensorName = track.getCar().getId();
 
 		String trackElementJson = String
 				.format("{\"type\":\"FeatureCollection\",\"properties\":{\"name\":\"%s\",\"description\":\"%s\",\"sensor\":\"%s\"},\"features\":[",
@@ -231,49 +233,30 @@ public class UploadManager {
 			String rpm = String.valueOf(measurements.get(i).getRpm());
 			String intake_temperature = String.valueOf(measurements.get(i).getIntakeTemperature());
 			String intake_pressure = String.valueOf(measurements.get(i).getIntakePressure());
-			//no maf? no json! :)
+			double co2 = 0.0d;
+			double consumption = 0.0d;
+			try {
+				AbstractConsumptionAlgorithm consumptionAlgorithm = new BasicConsumptionAlgorithm(track.getCar());
+				consumption = consumptionAlgorithm.calculateConsumption(measurements.get(i));
+				co2 = consumptionAlgorithm.calculateCO2FromConsumption(consumption);
+			} catch (FuelConsumptionException e) {
+				logger.warn(e.getMessage(), e);
+			}
+			String measurementJson;
 			if(measurements.get(i).getMaf() > 0){
-				String co2 = "0", consumption = "0";
-				try {
-					//TODO
-					//Why get this here when it is already set in ECApplication.java?
-					//Also if this wasn't set in ECApplication we should get FIRST consumption then co2 because of the way the methods are defined in Track.java
-					
-					co2 = String.valueOf(track.getCO2EmissionOfMeasurement(i));
-					consumption = String.valueOf(track
-							.getFuelConsumptionOfMeasurement(i));
-				} catch (FuelConsumptionException e) {
-					logger.warn(e.getMessage(), e);
-				}
-
 				String maf = String.valueOf(measurements.get(i).getMaf());
-				String measurementJson = String
+				measurementJson = String
 						.format("{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[%s,%s]},\"properties\":{\"time\":\"%s\",\"sensor\":\"%s\",\"phenomenons\":{\"CO2\":{\"value\":%s},\"Consumption\":{\"value\":%s},\"MAF\":{\"value\":%s},\"Speed\":{\"value\":%s}, \"Rpm\": { \"value\": %s}, \"Intake Temperature\": { \"value\": %s}, \"Intake Pressure\": { \"value\": %s}}}}",
 								lon, lat, time, trackSensorName, co2, consumption,
 								maf, speed, rpm, intake_temperature, intake_pressure);
-				measurementElements.add(measurementJson);
 			} else {
-				String co2 = "0", consumption = "0";
-				try {
-					consumption = String.valueOf(track
-							.getFuelConsumptionOfMeasurement(i));
-					co2 = String.valueOf(track.getCO2EmissionOfMeasurement(i));
-				} catch (FuelConsumptionException e) {
-					logger.warn(e.getMessage(), e);
-				}
-
 				String calculatedMaf = String.valueOf(measurements.get(i).getCalculatedMaf());
-				String measurementJson = String
+				measurementJson = String
 						.format("{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[%s,%s]},\"properties\":{\"time\":\"%s\",\"sensor\":\"%s\",\"phenomenons\":{\"CO2\":{\"value\":%s},\"Consumption\":{\"value\":%s},\"Calculated MAF\":{\"value\":%s},\"Speed\":{\"value\":%s}, \"Rpm\": { \"value\": %s}, \"Intake Temperature\": { \"value\": %s}, \"Intake Pressure\": { \"value\": %s}}}}",
 								lon, lat, time, trackSensorName, co2, consumption,
 								calculatedMaf, speed, rpm, intake_temperature, intake_pressure);
-				measurementElements.add(measurementJson);
 			}
-			
-
-			
-
-			
+			measurementElements.add(measurementJson);
 		}
 
 		String measurementElementsJson = TextUtils.join(",",
