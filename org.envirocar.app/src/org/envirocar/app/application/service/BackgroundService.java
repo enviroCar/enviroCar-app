@@ -165,10 +165,9 @@ public class BackgroundService extends Service {
 	 * Method that stops the service, removes everything from the waiting list
 	 */
 	private void stopService() {
-
+		isTheServiceRunning.set(false);
 		waitingList.removeAll(waitingList);
 		commandListener.stopListening();
-		isTheServiceRunning.set(false);
 		
 		if (bluetoothSocket != null) {
 			try {
