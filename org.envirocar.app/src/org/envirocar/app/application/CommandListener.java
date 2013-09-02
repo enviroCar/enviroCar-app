@@ -498,6 +498,10 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	public void stopListening() {
 		connectionNotYetEstablishedThreadRunning = false;
 		activityAssertionThreadRunning = false;
+		
+		for (AdapterConnectionListener l : connectedListeners) {
+			l.onAdapterDisconnected();
+		}
 	}
 
 	@Override

@@ -155,6 +155,11 @@ public class BackgroundService extends Service {
 		isTheServiceRunning.set(true);		
 		commandListener.onConnectionInitialized();
 	}
+	
+	private void disconnected() {
+		logger.info("Bluetooth device disconnected.");
+		stopService();
+	}
 
 	/**
 	 * Method that stops the service, removes everything from the waiting list
@@ -165,10 +170,12 @@ public class BackgroundService extends Service {
 		commandListener.stopListening();
 		isTheServiceRunning.set(false);
 		
-		try {
-			bluetoothSocket.close();
-		} catch (Exception e) {
-			logger.warn(e.getMessage(), e);
+		if (bluetoothSocket != null) {
+			try {
+				bluetoothSocket.close();
+			} catch (Exception e) {
+				logger.warn(e.getMessage(), e);
+			}
 		}
 
 		LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
@@ -187,6 +194,10 @@ public class BackgroundService extends Service {
 
 		while (!waitingList.isEmpty()) {
 
+			if (bluetoothSocket == null) {
+				disconnected();
+			}
+			
 			CommonCommand currentJob = null;
 
 			// Try to run the first job from the waitinglist
@@ -203,6 +214,9 @@ public class BackgroundService extends Service {
 					currentJob.run(bluetoothSocket.getInputStream(),
 							bluetoothSocket.getOutputStream());
 				}
+			} catch (IOException e) {
+				logger.warn(e.getMessage(), e);
+				disconnected();
 			} catch (Exception e) {
 				logger.warn("Error while sending command '" + currentJob.toString() + "'", e);
 				currentJob.setCommandState(CommonCommandState.EXECUTION_ERROR);

@@ -25,8 +25,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.envirocar.app.logging.Logger;
 
@@ -44,11 +42,10 @@ public abstract class CommonCommand {
 	protected String rawData = null;
 	private Long commandId;
 	private CommonCommandState commandState;
-	private Object socketMutex = new Object();
-	
-	private static ExecutorService executor = Executors.newFixedThreadPool(3);
 	
 	private static final Logger logger = Logger.getLogger(CommonCommand.class);
+	private static final long SLEEP_TIME = 25;
+	private static final int MAX_SLEEP_TIME = 5000;
 
 	/**
 	 * Default constructor to use
@@ -77,30 +74,32 @@ public abstract class CommonCommand {
 	public void run(InputStream in, OutputStream out) throws IOException,
 			InterruptedException {
 		sendCommand(out);
-//		waitForResult(in);
-		Thread.sleep(100);
-		readResult(in);
+		waitForResult(in);
 	}
 
-	private void waitForResult(final InputStream in) {
-		executor.submit(new Runnable() {
-			@Override
-			public void run() {
-				synchronized (socketMutex) {
-					try {
-						while (in.available() <= 0) {
-							Thread.sleep(25);
-						}
-						socketMutex.notifyAll();
-					} catch (IOException e) {
-						logger.warn(e.getMessage(), e);
-					} catch (InterruptedException e) {
-						logger.warn(e.getMessage(), e);
-					}	
-				}
+	private void waitForResult(final InputStream in) throws IOException {
+		if (!awaitsResults()) return; 
+		try {
+			int tries = 0;
+			while (in.available() <= 0) {
+				if (tries++ * SLEEP_TIME > MAX_SLEEP_TIME)
+					throw new IOException("OBD-II Request Timeout of "+MAX_SLEEP_TIME +" ms exceeded.");
 				
+				Thread.sleep(SLEEP_TIME);
 			}
-		});
+			readResult(in);
+		} catch (InterruptedException e) {
+			logger.warn(e.getMessage(), e);
+		}	
+	}
+
+	/**
+	 * Override if the sub-command does not get data back from the OBD-II interface
+	 * 
+	 * @return if the command awaits raw data as a result
+	 */
+	protected boolean awaitsResults() {
+		return true;
 	}
 
 	/**
@@ -140,16 +139,6 @@ public abstract class CommonCommand {
 	protected void readResult(InputStream inputStream) throws IOException {
 		byte b = 0;
 		
-//		synchronized (socketMutex) {
-//			while (inputStream.available() > 0) {
-//				try {
-//					socketMutex.wait();
-//				} catch (InterruptedException e) {
-//					throw new IOException(e);
-//				}
-//			}
-//		}
-		
 		StringBuilder stringbuilder = new StringBuilder();
 
 		// read until '>' arrives
@@ -158,7 +147,7 @@ public abstract class CommonCommand {
 				stringbuilder.append((char) b);
 
 		rawData = stringbuilder.toString().trim();
-		logger.info("Command name: " + getCommandName() + ", Send '" + getCommand() + "', get raw data '" + rawData + "'");
+//		logger.info("Command name: " + getCommandName() + ", Send '" + getCommand() + "', get raw data '" + rawData + "'");
 		
 		// clear buffer
 		buffer.clear();
@@ -241,11 +230,15 @@ public abstract class CommonCommand {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("Commandname: " + getCommandName());
-		sb.append(", Command: " + getCommand());
-		sb.append(", RawData: " + getRawData());
-		sb.append(", Result: " + getResult());
-		return super.toString();
+		sb.append("Commandname: ");
+		sb.append(getCommandName());
+		sb.append(", Command: ");
+		sb.append(getCommand());
+		sb.append(", RawData: ");
+		sb.append(getRawData());
+		sb.append(", Result: ");
+		sb.append(getResult());
+		return sb.toString();
 	}
 
 }

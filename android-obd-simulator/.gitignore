@@ -1,5 +1,15 @@
+<<<<<<< HEAD
 /gen
 /.classpath
 /.project
 /.settings
 /bin
+=======
+.classpath
+.project
+.settings
+bin
+
+/gen
+/assets
+>>>>>>> ff8d707d0e1e9f83100882613b68e4bb75af973d

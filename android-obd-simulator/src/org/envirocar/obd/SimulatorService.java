@@ -392,11 +392,11 @@ public class SimulatorService {
 		}
 		else if(s.equals("01 0D")) {
 			//Speed
-			rawData = "0000" + (23+random.nextInt(5));
+			rawData = "0000" + (23+random.nextInt(45));
 		}
 		else if (s.equals("01 10")) {
 			//MAF
-			rawData = "000000"+ (70+random.nextInt(10));
+			rawData = "00000"+ (1+random.nextInt(8))+""+ (80+random.nextInt(19));
 		}
 		else {
 			rawData = "0000000000";
