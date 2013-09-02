@@ -64,7 +64,7 @@ public class BackgroundServiceConnector implements ServiceConnection, AdapterCon
 				executeCommandRequests();
 
 			try {
-				handler.postDelayed(waitingListRunnable, 2000);
+				handler.postDelayed(waitingListRunnable, 500);
 			} catch (NullPointerException e) {
 				logger.severe("NullPointerException occured: Handler is null: " + (handler == null) + " waitingList is null: " + (waitingListRunnable == null), e);
 			}

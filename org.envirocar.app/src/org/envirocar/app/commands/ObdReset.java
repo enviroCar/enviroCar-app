@@ -45,6 +45,11 @@ public class ObdReset extends CommonCommand {
 	public void readResult(InputStream in) throws IOException {
 		return;
 	}
+	
+	@Override
+	protected boolean awaitsResults() {
+		return false;
+	}
 
 	@Override
 	public String getRawData() {
