@@ -23,10 +23,13 @@ package org.envirocar.app.storage;
 
 import java.util.ArrayList;
 
-import org.envirocar.app.application.Collector;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.Car;
+import org.envirocar.app.model.Car.FuelType;
+import org.envirocar.app.protocol.AbstractConsumptionAlgorithm;
+import org.envirocar.app.protocol.BasicConsumptionAlgorithm;
 import org.envirocar.app.views.Utils;
 
 /**
@@ -43,11 +46,9 @@ public class Track implements Comparable<Track> {
 	private String name;
 	private String description;
 	private ArrayList<Measurement> measurements;
-	private String carManufacturer;
-	private String carModel;
+	private Car car;
+	private AbstractConsumptionAlgorithm consumptionAlgorithm;
 	private String vin;
-	private String fuelType;
-	private String sensorID;
 	private boolean localTrack;
 	private Double consumptionPerHour;
 
@@ -66,21 +67,6 @@ public class Track implements Comparable<Track> {
 		this.localTrack = localTrack;
 	}
 
-	/**
-	 * @return the sensorID
-	 */
-	public String getSensorID() {
-		return sensorID;
-	}
-
-	/**
-	 * @param sensorID
-	 *            the sensorID to set
-	 */
-	public void setSensorID(String sensorID) {
-		this.sensorID = sensorID;
-	}
-
 	private DbAdapter dbAdapter;
 
 	/**
@@ -91,11 +77,7 @@ public class Track implements Comparable<Track> {
 		this.id = id;
 		this.name = "";
 		this.description = "";
-		this.carManufacturer = "";
-		this.carModel = "";
 		this.vin = "";
-		this.fuelType = "";
-		this.sensorID = "";
 		this.measurements = new ArrayList<Measurement>();
 	}
 
@@ -103,16 +85,14 @@ public class Track implements Comparable<Track> {
 	 * Constructor for creating "fresh" new track. Use this for new measurements
 	 * that were captured from the OBD-II adapter.
 	 */
-	public Track(String vin, String fuelType, String carManufacturer, String carModel, String sensorId, DbAdapter dbAdapter) {
+	public Track(String vin, Car car, DbAdapter dbAdapter) {
 		this.vin = vin;
 		this.name = "";
 		this.description = "";
-		this.carManufacturer = carManufacturer;
-		this.carModel = carModel;
-		this.fuelType = fuelType;
-		this.sensorID = sensorId;
 		this.measurements = new ArrayList<Measurement>();
 		this.dbAdapter = dbAdapter;
+		this.car = car;
+		this.consumptionAlgorithm = new BasicConsumptionAlgorithm(car);
 		id = String.valueOf(dbAdapter.insertTrack(this));
 	}
 
@@ -168,40 +148,19 @@ public class Track implements Comparable<Track> {
 	}
 
 	/**
-	 * @return the carManufacturer
-	 */
-	public String getCarManufacturer() {
-		return carManufacturer;
-	}
-
-	/**
-	 * @param carManufacturer
-	 *            the carManufacturer to set
-	 */
-	public void setCarManufacturer(String carManufacturer) {
-		this.carManufacturer = carManufacturer;
-	}
-
-	/**
-	 * @return the carModel
-	 */
-	public String getCarModel() {
-		return carModel;
-	}
-
-	/**
-	 * @param carModel
-	 *            the carModel to set
-	 */
-	public void setCarModel(String carModel) {
-		this.carModel = carModel;
-	}
-
-	/**
 	 * @return the measurements
 	 */
 	public ArrayList<Measurement> getMeasurements() {
 		return measurements;
+	}
+
+	public Car getCar() {
+		return car;
+	}
+
+	public void setCar(Car car) {
+		this.car = car;
+		this.consumptionAlgorithm = new BasicConsumptionAlgorithm(car);
 	}
 
 	/**
@@ -297,82 +256,6 @@ public class Track implements Comparable<Track> {
 	}
 
 	/**
-	 * set the fuel type
-	 * 
-	 * @param fuelType
-	 */
-	public void setFuelType(String fuelType) {
-		this.fuelType = fuelType;
-	}
-
-	/**
-	 * get the fuel type
-	 * 
-	 * @return
-	 */
-	public String getFuelType() {
-		return fuelType;
-	}
-
-	/**
-	 * Returns the fuel consumption for a measurement
-	 * 
-	 * @param measurement
-	 *            The measurement with the fuel consumption
-	 * @return The fuel consumption in l/h. 0.0 if MAF is -1.0 (no MAF sensor)
-	 * @throws FuelConsumptionException
-	 * @deprecated the track should not be responsible for doing this!! is done at {@link Collector}
-	 */
-	@Deprecated
-	public double getFuelConsumptionOfMeasurement(int measurement) throws FuelConsumptionException {
-
-		Measurement m = getMeasurements().get(measurement);
-
-		double maf = m.getMaf();
-		double calculatedMaf = m.getCalculatedMaf();
-
-		if (maf > 0) {
-			if (this.fuelType.equals("gasoline")) {
-				return (maf / 14.7) / 747 * 3600;
-			} else if (this.fuelType.equals("diesel")) {
-				return (maf / 14.5) / 832 * 3600;
-			} else
-				throw new FuelConsumptionException();
-		} else {
-			if (this.fuelType.equals("gasoline")) {
-				return (calculatedMaf / 14.7) / 747 * 3600;
-			} else if (this.fuelType.equals("diesel")) {
-				return (calculatedMaf / 14.5) / 832 * 3600;
-			} else
-				throw new FuelConsumptionException();
-		}
-
-	}
-
-	/**
-	 * Returns the Co2 emission of a measurement
-	 * 
-	 * @param measurement
-	 * @return co2 emission in kg/h
-	 * @throws FuelConsumptionException
-	 * @deprecated the track should not be responsible for doing this!! is done at {@link Collector}
-	 */
-	@Deprecated
-	public double getCO2EmissionOfMeasurement(int measurement) throws FuelConsumptionException {
-
-		double fuelCon;
-		fuelCon = getFuelConsumptionOfMeasurement(measurement);
-
-		if (this.fuelType.equals("gasoline")) {
-			return fuelCon * 2.35;
-		} else if (this.fuelType.equals("diesel")) {
-			return fuelCon * 2.65;
-		} else
-			throw new FuelConsumptionException();
-
-	}
-
-	/**
 	 * Returns the length of a track in kilometers
 	 * 
 	 * @return
@@ -389,8 +272,6 @@ public class Track implements Comparable<Track> {
 		}
 		return distance;
 	}
-
-	
 
 	/**
 	 * Returns the last measurement of this track
@@ -429,7 +310,7 @@ public class Track implements Comparable<Track> {
 		double co2Average = 0.0;
 		try {
 			for (int i = 0; i < measurements.size(); i++) {
-				co2Average = co2Average + getCO2EmissionOfMeasurement(i);
+				co2Average = co2Average + consumptionAlgorithm.calculateCO2FromConsumption(measurements.get(i).getConsumption());
 			}
 			co2Average = co2Average / measurements.size();
 		} catch (FuelConsumptionException e) {
@@ -443,7 +324,7 @@ public class Track implements Comparable<Track> {
 			consumptionPerHour = 0.0;
 			try {
 				for (int i = 0; i < measurements.size(); i++) {
-					consumptionPerHour = consumptionPerHour + getFuelConsumptionOfMeasurement(i);
+					consumptionPerHour = consumptionPerHour + consumptionAlgorithm.calculateConsumption(measurements.get(i));
 				}
 				consumptionPerHour = consumptionPerHour / measurements.size();
 			} catch (FuelConsumptionException e) {
@@ -473,9 +354,9 @@ public class Track implements Comparable<Track> {
 
 	public double getGramsPerKm() throws FuelConsumptionException, MeasurementsException {
 
-		if (this.fuelType.equals("gasoline")) {
+		if (this.car.getFuelType().equals(FuelType.GASOLINE)) {
 			return getLiterPerHundredKm() * 23.3;
-		} else if (this.fuelType.equals("diesel")) {
+		} else if (this.car.getFuelType().equals(FuelType.DIESEL)) {
 			return getLiterPerHundredKm() * 26.4;
 		} else
 			throw new FuelConsumptionException();

@@ -321,14 +321,6 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	@Override
 	public void createNewTrackIfNecessary() {
 
-		// setting undefined, will hopefully prevent correct uploading.
-		// but this shouldn't be possible to record tracks without these values
-//		FuelType fuelType = car.getFuelType();
-//		String manufacturer = car.getManufacturer();
-//		String carModel = car.getModel();
-//		String sensorId = car.getId();
-//		double engineDisplacement = car.getEngineDisplacement();
-
 		// if track is null, create a new one or take the last one from the
 		// database
 		

@@ -547,11 +547,11 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 		// Close db connection
 
-		application.closeDb();
+//		application.closeDb();
 
 		// Remove the services etc.
 
-		application.destroyStuff();
+//		application.destroyStuff();
 		
 		Crouton.cancelAllCroutons();
 		
