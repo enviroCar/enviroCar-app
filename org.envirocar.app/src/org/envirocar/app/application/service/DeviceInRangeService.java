@@ -37,6 +37,13 @@ import android.os.IBinder;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
 
+/**
+ * backgroundService for managing the auto-discovery of the
+ * specified OBD-II bluetooth device.
+ * 
+ * @author matthes rieke
+ *
+ */
 public class DeviceInRangeService extends Service {
 
 	public static final String DEVICE_FOUND = DeviceInRangeService.class.getName().concat(".DEVICE_FOUND");
@@ -64,9 +71,6 @@ public class DeviceInRangeService extends Service {
 	@Override
 	public void onCreate() {
 		registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
-		registerReceiver(receiver, new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED));
-		
-		
 	}
 
 	protected void verifyRemoteDevice(Intent intent) {
@@ -93,6 +97,9 @@ public class DeviceInRangeService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		/*
+		 * the delay as specified in the intent
+		 */
 		this.delay = intent.getIntExtra(DELAY_EXTRA, 0);
 		
 		final Handler discoveryHandler = new Handler();
@@ -109,6 +116,9 @@ public class DeviceInRangeService extends Service {
 					adapter.startDiscovery();
 				}
 				
+				/*
+				 * re-schedule ourselves
+				 */
 				discoveryHandler.postDelayed(this, DISCOVERY_PERIOD);
 			}
 		};
@@ -120,6 +130,9 @@ public class DeviceInRangeService extends Service {
 
 	@Override
 	public IBinder onBind(Intent intent) {
+		/*
+		 * we do not need a binder, as we are autonomous
+		 */
 		return null;
 	}
 
