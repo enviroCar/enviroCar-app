@@ -34,6 +34,7 @@ import org.envirocar.app.application.service.BackgroundService;
 import org.envirocar.app.exception.TracksException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapterLocal;
+import org.envirocar.app.util.NamedThreadFactory;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
 
@@ -44,6 +45,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -117,6 +119,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private Handler handler_upload;
 	private boolean serviceRunning;
 	private BroadcastReceiver receiver;
+	private OnSharedPreferenceChangeListener settingsReceiver;
 		
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
@@ -209,12 +212,23 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			}
 		};
 		registerReceiver(receiver, new IntentFilter(BackgroundService.SERVICE_STATE));
+
+		settingsReceiver = new OnSharedPreferenceChangeListener() {
+			@Override
+			public void onSharedPreferenceChanged(
+					SharedPreferences sharedPreferences, String key) {
+				if (key.equals(SettingsActivity.BLUETOOTH_KEY)) {
+					updateStartStopButton();
+				}
+			}
+		};
+		preferences.registerOnSharedPreferenceChangeListener(settingsReceiver);
 		
 		/*
 		 * Auto-Uploader of tracks. Uploads complete tracks every 10 minutes.
 		 */
 
-		ScheduledExecutorService uploadTaskExecutor = Executors.newScheduledThreadPool(1);
+		ScheduledExecutorService uploadTaskExecutor = Executors.newScheduledThreadPool(1, new NamedThreadFactory(getClass().getName()+"-Factory"));
 		uploadTaskExecutor.scheduleAtFixedRate(new Runnable() {
 
 			@Override
