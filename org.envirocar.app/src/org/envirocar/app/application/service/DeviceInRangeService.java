@@ -100,7 +100,9 @@ public class DeviceInRangeService extends Service {
 		/*
 		 * the delay as specified in the intent
 		 */
-		this.delay = intent.getIntExtra(DELAY_EXTRA, 0);
+		if (intent != null) {
+			this.delay = intent.getIntExtra(DELAY_EXTRA, 0);
+		}
 		
 		final Handler discoveryHandler = new Handler();
 		
