@@ -62,7 +62,7 @@ public class BackgroundService extends Service {
 	public static final String CONNECTION_VERIFIED_INTENT = BackgroundService.class.getName()+".CONNECTION_VERIFIED";
 	public static final String CONNECTION_NOT_YET_VERIFIED_INTENT = BackgroundService.class.getName()+".CONNECTION_NOT_YET_VERIFIED";
 	public static final String DISCONNECTED_INTENT = BackgroundService.class.getName()+".DISCONNECTED";
-	
+	public static final String SERVICE_STATE = BackgroundService.class.getName()+".STATE";
 	
 	protected static final long CONNECTION_CHECK_INTERVAL = 1000 * 5;
 	// Properties
@@ -75,6 +75,8 @@ public class BackgroundService extends Service {
 	private BluetoothSocket bluetoothSocket;
 	private static final UUID EMBEDDED_BOARD_SPP = UUID
 			.fromString("00001101-0000-1000-8000-00805F9B34FB");
+
+	
 	private Listener commandListener;
 	private final Binder binder = new LocalBinder();
 	private BlockingQueue<CommonCommand> waitingList = new LinkedBlockingQueue<CommonCommand>();
@@ -122,6 +124,7 @@ public class BackgroundService extends Service {
 	 */
 	private void stopBackgroundService() {
 		isTheServiceRunning.set(false);
+		sendStateBroadcast();
 		waitingList.removeAll(waitingList);
 		
 		synchronized (this) {
@@ -147,6 +150,12 @@ public class BackgroundService extends Service {
 		connectionVerified = false;
 	}
 	
+	private void sendStateBroadcast() {
+		Intent intent = new Intent(SERVICE_STATE);
+		intent.putExtra(SERVICE_STATE, isTheServiceRunning.get());
+		sendBroadcast(intent);
+	}
+
 	private void shutdownSocket() throws IOException {
 		if (bluetoothSocket.getInputStream() != null) {
 			try {
@@ -202,6 +211,7 @@ public class BackgroundService extends Service {
 		logger.info("Bluetooth device connected.");
         // Service is running..
 		isTheServiceRunning.set(true);		
+		sendStateBroadcast();
 	}
 	
 	private void disconnected() {
