@@ -46,7 +46,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
 /**
  * Service for connection to Bluetooth device and running commands. Imported
@@ -66,14 +65,12 @@ public class BackgroundService extends Service {
 	
 	// Bluetooth devices and connection items
 
-	private BluetoothDevice bluetoothDevice;
 	private BluetoothSocket bluetoothSocket;
 	private static final UUID EMBEDDED_BOARD_SPP = UUID
 			.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	private Listener commandListener;
 	private final Binder binder = new LocalBinder();
 	private BlockingQueue<CommonCommand> waitingList = new LinkedBlockingQueue<CommonCommand>();
-	private BluetoothAdapter bluetoothAdapter;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -87,13 +84,13 @@ public class BackgroundService extends Service {
 	@Override
 	public void onDestroy() {
 		logger.info("Stops the background service");
-		stopService();
+		stopBackgroundService();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		logger.info("Starts the background service");
-//		startBackgroundService();
+		startBackgroundService();
 		return START_STICKY;
 	}
 
@@ -103,31 +100,62 @@ public class BackgroundService extends Service {
 	 */
 	private void startBackgroundService() {
 		LocationUpdateListener.startLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
-		SharedPreferences preferences = PreferenceManager
-				.getDefaultSharedPreferences(this);
 		
-		// Init bluetooth
-
-		String remoteDevice = preferences.getString(SettingsActivity.BLUETOOTH_KEY, null);
-
-		// Stop if device is not available
-
-		if (remoteDevice == null || "".equals(remoteDevice)) {
-			stopService();
-		}
-
 		try {
-
-			bluetoothAdapter = BluetoothAdapter
-					.getDefaultAdapter();
-			bluetoothDevice = bluetoothAdapter.getRemoteDevice(remoteDevice);
-
 			startConnection();
 		} catch (IOException e) {
-			logger.warn("Connection to " + remoteDevice + " failed:", e);
-			Toast.makeText(getApplicationContext(), "Connection to " + remoteDevice + " failed!", Toast.LENGTH_LONG).show();
-			stopService();
+			logger.warn(e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * Method that stops the service, removes everything from the waiting list
+	 */
+	private void stopBackgroundService() {
+		isTheServiceRunning.set(false);
+		waitingList.removeAll(waitingList);
+		commandListener.stopListening();
+		
+		synchronized (this) {
+			while (isWaitingListRunning.get()) {
+				try {
+					this.wait();
+				} catch (InterruptedException e) {
+					logger.warn(e.getMessage(), e);
+				}
+			}	
+		}
+		
+		if (bluetoothSocket != null) {
+			try {
+				shutdownSocket();
+			} catch (Exception e) {
+				logger.warn(e.getMessage(), e);
+			}
+		}
+
+		LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
+//		stopSelf();
+	}
+	
+	private void shutdownSocket() throws IOException {
+		if (bluetoothSocket.getInputStream() != null) {
+			try {
+				bluetoothSocket.getInputStream().close();
+			} catch (Exception e) {}
+		}
+		
+		if (bluetoothSocket.getOutputStream() != null) {
+			try {
+				bluetoothSocket.getOutputStream().close();
+			} catch (Exception e) {}
+		}
+		
+		try {
+			bluetoothSocket.close();
+		} catch (Exception e) {}
+		
+		bluetoothSocket = null;
 	}
 
 	/**
@@ -138,6 +166,18 @@ public class BackgroundService extends Service {
 	private void startConnection() throws IOException {
 
 		// Connect to bluetooth device
+		// Init bluetooth
+		SharedPreferences preferences = PreferenceManager
+				.getDefaultSharedPreferences(this);
+		String remoteDevice = preferences.getString(SettingsActivity.BLUETOOTH_KEY, null);
+		// Stop if device is not available
+		
+		if (remoteDevice == null || "".equals(remoteDevice)) {
+			return;
+		}
+		BluetoothAdapter bluetoothAdapter = BluetoothAdapter
+				.getDefaultAdapter();
+		BluetoothDevice bluetoothDevice = bluetoothAdapter.getRemoteDevice(remoteDevice);
 
 		ConnectThread t = new ConnectThread(bluetoothDevice, true);
 		t.start();
@@ -158,27 +198,7 @@ public class BackgroundService extends Service {
 	
 	private void disconnected() {
 		logger.info("Bluetooth device disconnected.");
-		stopService();
-	}
-
-	/**
-	 * Method that stops the service, removes everything from the waiting list
-	 */
-	private void stopService() {
-		isTheServiceRunning.set(false);
-		waitingList.removeAll(waitingList);
-		commandListener.stopListening();
-		
-		if (bluetoothSocket != null) {
-			try {
-				bluetoothSocket.close();
-			} catch (Exception e) {
-				logger.warn(e.getMessage(), e);
-			}
-		}
-
-		LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
-		stopSelf();
+		stopBackgroundService();
 	}
 
 
@@ -188,33 +208,30 @@ public class BackgroundService extends Service {
 	private synchronized void runWaitingList() {
 
 		isWaitingListRunning.set(true);
+		this.notifyAll();
 
 		// Go through all the waiting-list-jobs
 
 		while (!waitingList.isEmpty()) {
 
-			if (bluetoothSocket == null) {
-				disconnected();
-			}
-			
 			CommonCommand currentJob = null;
 
 			// Try to run the first job from the waitinglist
 
 			try {
-
 				currentJob = waitingList.take();
 
 				if (currentJob.getCommandState().equals(CommonCommandState.NEW)) {
 
 					// Run the job
-
 					currentJob.setCommandState(CommonCommandState.RUNNING);
 					currentJob.run(bluetoothSocket.getInputStream(),
 							bluetoothSocket.getOutputStream());
 				}
 			} catch (IOException e) {
 				logger.warn(e.getMessage(), e);
+				isWaitingListRunning.set(false);
+				this.notifyAll();
 				disconnected();
 			} catch (Exception e) {
 				logger.warn("Error while sending command '" + currentJob.toString() + "'", e);
@@ -234,6 +251,7 @@ public class BackgroundService extends Service {
 		// Execution finished
 
 		isWaitingListRunning.set(false);
+		this.notifyAll();
 	}
 	
 	/**
@@ -265,13 +283,13 @@ public class BackgroundService extends Service {
 
 		@Override
 		public void initializeConnection() {
-			startBackgroundService();
+//			startBackgroundService();
 		}
 		
 		@Override
 		public void shutdownConnection() {
 			//TODO never called!
-			stopService();
+			stopBackgroundService();
 		}
 	}
 	
@@ -281,16 +299,9 @@ public class BackgroundService extends Service {
 
         public ConnectThread(BluetoothDevice device, boolean secure) {
         	adapter = BluetoothAdapter.getDefaultAdapter();
-   		 // Unique UUID for this application
-//    	    UUID MY_UUID_SECURE =
-//    	        UUID.fromString("fa87c0d0-afac-11de-8a39-0800200c9a66");
-//    	    UUID MY_UUID_INSECURE =
-//    	        UUID.fromString("8ce255c0-200a-11e0-ac64-0800200c9a66");
             BluetoothSocket tmp = null;
             socketType = secure ? "Secure" : "Insecure";
 
-            // Get a BluetoothSocket for a connection with the
-            // given BluetoothDevice
             try {
                 if (secure) {
                     tmp = device.createRfcommSocketToServiceRecord(
@@ -320,10 +331,11 @@ public class BackgroundService extends Service {
             } catch (IOException e) {
                 // Close the socket
                 try {
-                	bluetoothSocket.close();
+                	shutdownSocket();
                 } catch (IOException e2) {
                     logger.warn(e2.getMessage(), e2);
                 }
+                disconnected();
                 return;
             }
 

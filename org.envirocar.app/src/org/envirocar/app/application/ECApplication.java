@@ -207,6 +207,11 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	    registerReceiver(bluetoothChangeReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
 	    registerReceiver(bluetoothChangeReceiver, new IntentFilter(DeviceInRangeService.DEVICE_FOUND));
 	    preferences.registerOnSharedPreferenceChangeListener(autoConnectPreferenceChangeReceiver);
+	    
+		boolean autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
+		if (autoConnect) {
+			initializeAdapterAutoConnectService(0);
+		}
 	}
 	
 //	private void testBluetooth() {
@@ -283,17 +288,14 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	 * This method starts the service that connects to the adapter to the app.
 	 */
 	private void initializeBackgroundService() {
-		boolean autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
-		if (autoConnect) {
-			initializeAdapterAutoConnectService(0);
-		}
-		
-		
 		if (bluetoothActivated()) {
 			
 			logger.info("requirements met");
 			backgroundService = new Intent(this, BackgroundService.class);
-			
+			serviceConnector = new BackgroundServiceConnector(commandListener);
+			commandListener.registerAdapterNotYetConnectedListener(serviceConnector);
+			bindService(backgroundService, serviceConnector,
+					Context.BIND_AUTO_CREATE);
 //			startService(backgroundService);
 			
 //			serviceConnector.setServiceListener(commandListener);
@@ -352,9 +354,7 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	public void createListeners() {
 		//TODO de-couple dbAdapterLocal
 		commandListener = new CommandListener(createCar(), dbAdapterLocal);
-		serviceConnector = new BackgroundServiceConnector(commandListener);
 		commandListener.registerAdapterConnectedListener(this);
-		commandListener.registerAdapterNotYetConnectedListener(serviceConnector);
 	}
 
 	private Car createCar() {
@@ -393,8 +393,7 @@ public class ECApplication extends Application implements AdapterConnectionListe
 		initDbAdapter();
 		//createNewTrackIfNecessary();
 		if (!serviceConnector.isRunning()) {
-			bindService(backgroundService, serviceConnector,
-					Context.BIND_AUTO_CREATE);
+			startService(backgroundService);
 		}
 
 	}
@@ -406,7 +405,7 @@ public class ECApplication extends Application implements AdapterConnectionListe
 		logger.info("Stops the recording of a track");
 		if (serviceConnector != null && serviceConnector.isRunning()) {
 			stopService(backgroundService);
-			unbindService(serviceConnector);
+			serviceConnector.shutdownBackgroundService();
 		}
 
 		closeDb();

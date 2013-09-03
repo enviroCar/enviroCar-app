@@ -121,7 +121,7 @@ public class BackgroundServiceConnector implements ServiceConnection, AdapterCon
 	 *            New CommandJob
 	 */
 	public void addJobToWaitingList(CommonCommand newJob) {
-		if (null != interactor)
+		if (null != interactor && interactor.isRunning())
 			interactor.newJobToWaitingList(newJob);
 	}
 
@@ -163,6 +163,10 @@ public class BackgroundServiceConnector implements ServiceConnection, AdapterCon
 
 	private void allAdaptersFailed() {
 		commandListener.connectionPermanentlyFailed();
+	}
+
+	public void shutdownBackgroundService() {
+		this.interactor.shutdownConnection();
 	}
 	
 
