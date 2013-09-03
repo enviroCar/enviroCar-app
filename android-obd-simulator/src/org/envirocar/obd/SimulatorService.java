@@ -216,6 +216,7 @@ public class SimulatorService {
      * Indicate that the connection was lost and notify the UI Activity.
      */
     private void connectionLost() {
+    	
         // Send a failure message back to the Activity
         Message msg = mHandler.obtainMessage(OBDSimulator.MESSAGE_TOAST);
         Bundle bundle = new Bundle();
@@ -353,9 +354,12 @@ public class SimulatorService {
                 try {
                     
                     int index = 0;
-            		while (mmInStream.available() > 0) {
-            			byte b = (byte) mmInStream.read();
-            			if (b == '\r') break;
+                    int i;
+            		while ((i = mmInStream.read()) != -1) {
+            			byte b = (byte) i;
+            			if (b == (byte) '\r') {
+            				break;
+            			}
             			
 						buffer[index++] = b;
             		}
@@ -366,14 +370,39 @@ public class SimulatorService {
                     mHandler.obtainMessage(OBDSimulator.MESSAGE_READ, index, -1, buffer)
                             .sendToTarget();
                     
+                    try {
+						Thread.sleep(10000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+                    
                     handleRequest(buffer, 0, index);
                     
                 } catch (IOException e) {
                     Log.e(TAG, "disconnected", e);
+                    
+                    try {
+						mmInStream.close();
+					} catch (IOException e1) {
+	                    Log.e(TAG, "disconnected", e);
+					}
+                    
+                    try {
+						mmOutStream.close();
+					} catch (IOException e1) {
+	                    Log.e(TAG, "disconnected", e);
+					}
+                    
+                    try {
+						mmSocket.close();
+					} catch (IOException e1) {
+	                    Log.e(TAG, "disconnected", e);
+					}
+                    
                     connectionLost();
                     // Start the service over to restart listening mode
-                    SimulatorService.this.start();
-                    break;
+                    return;
                 }
             }
         }
