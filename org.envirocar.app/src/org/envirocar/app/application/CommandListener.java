@@ -23,9 +23,7 @@ package org.envirocar.app.application;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import org.envirocar.app.commands.CommonCommand;
@@ -45,8 +43,6 @@ import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.TracksException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
-import org.envirocar.app.protocol.AdapterConnectionListener;
-import org.envirocar.app.protocol.AdapterConnectionNotYetEstablishedListener;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
@@ -66,35 +62,15 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	
 	private static final Logger logger = Logger.getLogger(CommandListener.class);
 
-	protected static final long MAX_INACTIVITY_TIME = 1000 * 60 * 3;
-
-	protected static final long CONNECTION_CHECK_INTERVAL = 1000 * 5;
-
 	private static final DateFormat format = SimpleDateFormat.getDateTimeInstance();
-
-	// Track properties
 
 	private Track track;
 	private String trackDescription = "Description of the track";
-	
-
 	private Car car;
-
 	private DbAdapter dbAdapterLocal;
-
 	private Collector collector;
-
 	private Location location;
 
-	private List<AdapterConnectionListener> connectedListeners = new ArrayList<AdapterConnectionListener>();
-	private List<AdapterConnectionNotYetEstablishedListener> notYetConnectedListeners = new ArrayList<AdapterConnectionNotYetEstablishedListener>();
-
-	private boolean adapterConnected;
-
-	private long lastCommandTimestamp;
-
-	private boolean connectionNotYetEstablishedThreadRunning = false;
-	private boolean activityAssertionThreadRunning = false;
 	
 	public CommandListener(Car car, DbAdapter dbAdapterLocal) {
 		this.car = car;
@@ -103,70 +79,6 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		EventBus.getInstance().registerListener(this);
 	}
 	
-	private void createConnectionNotYetEstablishedThread() {
-		if (connectionNotYetEstablishedThreadRunning == true) {
-			return;
-		}
-		
-		connectionNotYetEstablishedThreadRunning = true;
-		
-		Runnable connectionNotYetEstablishedThread = new Runnable() {
-			@Override
-			public void run() {
-				
-				while (connectionNotYetEstablishedThreadRunning && !adapterConnected) {
-					for (AdapterConnectionNotYetEstablishedListener l : notYetConnectedListeners) {
-						try {
-							l.connectionNotYetEstablished();
-						} catch (Exception e) {
-							logger.warn(e.getMessage(), e);
-						}
-					}
-					
-					try {
-						Thread.sleep(CONNECTION_CHECK_INTERVAL);
-					} catch (InterruptedException e) {
-						logger.warn(e.getMessage(), e);
-					}	
-				}
-			}
-		};
-		Thread t = new Thread(connectionNotYetEstablishedThread);
-		t.setDaemon(true);
-		t.start();
-	}
-
-	private void createInactivityAssertionThread() {
-		Runnable activityAssertionThread = new Runnable() {
-			
-			@Override
-			public void run() {
-				while (activityAssertionThreadRunning) {
-					if (!adapterConnected) break;
-					
-					if (System.currentTimeMillis() - lastCommandTimestamp > MAX_INACTIVITY_TIME) {
-						adapterConnected = false;
-						for (AdapterConnectionListener acl : connectedListeners) {
-							acl.onAdapterDisconnected();
-						}
-						
-						createConnectionNotYetEstablishedThread();
-					}
-					
-					try {
-						Thread.sleep(MAX_INACTIVITY_TIME);
-					} catch (InterruptedException e) {
-						logger.warn(e.getMessage(), e);
-					}
-				}
-				
-			}
-		};
-		
-		Thread t = new Thread(activityAssertionThread);
-		t.setDaemon(true);
-		t.start();
-	}
 
 	public void receiveUpdate(CommonCommand command) {
 		logger.debug("update received");
@@ -262,8 +174,6 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		else {
 			return;
 		}
-		
-		checkAdapterConnectionState();
 
 	}
 	
@@ -280,17 +190,6 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		return false;
 	}
 
-	private void checkAdapterConnectionState() {
-		this.lastCommandTimestamp = System.currentTimeMillis();
-		
-		if (this.adapterConnected == false) {
-			this.adapterConnected = true;
-			
-			for (AdapterConnectionListener acl : this.connectedListeners) {
-				acl.onAdapterConnected();
-			}
-		}
-	}
 
 	/**
 	 * Helper method to insert track measurement into the database (ensures that
@@ -467,39 +366,6 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		this.location = event.getPayload();
 	}
 
-	@Override
-	public void registerAdapterConnectedListener(
-			AdapterConnectionListener l) {
-		this.connectedListeners.add(l);
-	}
 
-	@Override
-	public void registerAdapterNotYetConnectedListener(
-			AdapterConnectionNotYetEstablishedListener l) {
-		this.notYetConnectedListeners.add(l);
-	}
-
-	@Override
-	public void connectionPermanentlyFailed() {
-		for (AdapterConnectionListener l : connectedListeners) {
-			l.connectionPermanentlyFailed();
-		}
-	}
-
-	@Override
-	public void stopListening() {
-		connectionNotYetEstablishedThreadRunning = false;
-		activityAssertionThreadRunning = false;
-		
-		for (AdapterConnectionListener l : connectedListeners) {
-			l.onAdapterDisconnected();
-		}
-	}
-
-	@Override
-	public void onConnectionInitialized() {
-		createConnectionNotYetEstablishedThread();
-		createInactivityAssertionThread();		
-	}
 	
 }

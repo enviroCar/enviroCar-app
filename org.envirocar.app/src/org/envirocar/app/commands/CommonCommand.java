@@ -240,4 +240,17 @@ public abstract class CommonCommand {
 		return sb.toString();
 	}
 
+	public boolean isNoDataCommand() {
+		if (getRawData() != null && (getRawData().equals("NODATA") ||
+				getRawData().equals(""))) return true;
+		
+		if (getResult() != null && (getResult().equals("NODATA") ||
+				getResult().equals(""))) return true;
+		
+		if (getResult() == null || getRawData() == null) return true;
+		
+		return false;
+	}
+
+
 }

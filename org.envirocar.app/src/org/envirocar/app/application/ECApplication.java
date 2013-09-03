@@ -35,12 +35,12 @@ import org.envirocar.app.activity.MainActivity;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.application.service.BackgroundService;
 import org.envirocar.app.application.service.BackgroundServiceConnector;
+import org.envirocar.app.application.service.BackgroundServiceInteractor;
 import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
-import org.envirocar.app.protocol.AdapterConnectionListener;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterLocal;
 import org.envirocar.app.storage.DbAdapterRemote;
@@ -69,7 +69,7 @@ import android.widget.Toast;
  *
  */
 @ReportsCrashes(formKey = "")
-public class ECApplication extends Application implements AdapterConnectionListener {
+public class ECApplication extends Application {
 	
 	private static final Logger logger = Logger.getLogger(ECApplication.class);
 	
@@ -144,6 +144,8 @@ public class ECApplication extends Application implements AdapterConnectionListe
 			}
 		}
 	};
+
+	private BroadcastReceiver receiver;
 	
 
 	/**
@@ -293,7 +295,6 @@ public class ECApplication extends Application implements AdapterConnectionListe
 			logger.info("requirements met");
 			backgroundService = new Intent(this, BackgroundService.class);
 			serviceConnector = new BackgroundServiceConnector(commandListener);
-			commandListener.registerAdapterNotYetConnectedListener(serviceConnector);
 			bindService(backgroundService, serviceConnector,
 					Context.BIND_AUTO_CREATE);
 //			startService(backgroundService);
@@ -303,6 +304,28 @@ public class ECApplication extends Application implements AdapterConnectionListe
 //			bindService(backgroundService, serviceConnector,
 //					Context.BIND_AUTO_CREATE);
 			
+			receiver = new BroadcastReceiver() {
+				@Override
+				public void onReceive(Context context, Intent intent) {
+					if (intent.getAction().equals(BackgroundService.CONNECTION_NOT_YET_VERIFIED_INTENT)) {
+						serviceConnector.executeInitializationSequence();
+					}
+					else if (intent.getAction().equals(BackgroundService.CONNECTION_VERIFIED_INTENT)) {
+						onAdapterConnected();
+					}
+					else if (intent.getAction().equals(BackgroundService.DISCONNECTED_INTENT)) {
+						onAdapterDisconnected();
+					}
+					else if (intent.getAction().equals(BackgroundServiceInteractor.CONNECTION_PERMANENTLY_FAILED_INTENT)) {
+						connectionPermanentlyFailed();
+					}
+				}
+			};
+			
+			registerReceiver(bluetoothChangeReceiver, new IntentFilter(BackgroundService.CONNECTION_NOT_YET_VERIFIED_INTENT));
+			registerReceiver(receiver, new IntentFilter(BackgroundService.CONNECTION_VERIFIED_INTENT));
+			registerReceiver(receiver, new IntentFilter(BackgroundService.DISCONNECTED_INTENT));
+			registerReceiver(receiver, new IntentFilter(BackgroundServiceInteractor.CONNECTION_PERMANENTLY_FAILED_INTENT));
 		} else {
 			logger.warn("bluetooth not activated!");
 		}
@@ -354,7 +377,6 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	public void createListeners() {
 		//TODO de-couple dbAdapterLocal
 		commandListener = new CommandListener(createCar(), dbAdapterLocal);
-		commandListener.registerAdapterConnectedListener(this);
 	}
 
 	private Car createCar() {
@@ -503,15 +525,12 @@ public class ECApplication extends Application implements AdapterConnectionListe
 		this.commandListener.resetTrack();
 	}
 
-	@Override
-	public void onAdapterConnected() {
+	private void onAdapterConnected() {
 		displayToast("OBD-II Adapter connected");
 	}
 
-	@Override
-	public void onAdapterDisconnected() {
+	private void onAdapterDisconnected() {
 		displayToast("OBD-II Adapter disconnected");	
-		
 		
 		boolean autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
 		if (autoConnect) {
@@ -519,10 +538,8 @@ public class ECApplication extends Application implements AdapterConnectionListe
 		}
 	}
 
-	@Override
-	public void connectionPermanentlyFailed() {
+	private void connectionPermanentlyFailed() {
 		displayToast("OBD-II Adapter connection permanently failed");
-		stopConnection();
 	}
 
 	private void displayToast(final String string) {

@@ -58,6 +58,13 @@ public class BackgroundService extends Service {
 
 
 	private static final Logger logger = Logger.getLogger(BackgroundService.class);
+	
+	public static final String CONNECTION_VERIFIED_INTENT = BackgroundService.class.getName()+".CONNECTION_VERIFIED";
+	public static final String CONNECTION_NOT_YET_VERIFIED_INTENT = BackgroundService.class.getName()+".CONNECTION_NOT_YET_VERIFIED";
+	public static final String DISCONNECTED_INTENT = BackgroundService.class.getName()+".DISCONNECTED";
+	
+	
+	protected static final long CONNECTION_CHECK_INTERVAL = 1000 * 5;
 	// Properties
 
 	private AtomicBoolean isTheServiceRunning = new AtomicBoolean(false);
@@ -71,6 +78,8 @@ public class BackgroundService extends Service {
 	private Listener commandListener;
 	private final Binder binder = new LocalBinder();
 	private BlockingQueue<CommonCommand> waitingList = new LinkedBlockingQueue<CommonCommand>();
+
+	private boolean connectionVerified;
 	
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -114,7 +123,6 @@ public class BackgroundService extends Service {
 	private void stopBackgroundService() {
 		isTheServiceRunning.set(false);
 		waitingList.removeAll(waitingList);
-		commandListener.stopListening();
 		
 		synchronized (this) {
 			while (isWaitingListRunning.get()) {
@@ -135,7 +143,8 @@ public class BackgroundService extends Service {
 		}
 
 		LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
-//		stopSelf();
+		sendBroadcast(new Intent(DISCONNECTED_INTENT));
+		connectionVerified = false;
 	}
 	
 	private void shutdownSocket() throws IOException {
@@ -193,7 +202,6 @@ public class BackgroundService extends Service {
 		logger.info("Bluetooth device connected.");
         // Service is running..
 		isTheServiceRunning.set(true);		
-		commandListener.onConnectionInitialized();
 	}
 	
 	private void disconnected() {
@@ -245,6 +253,11 @@ public class BackgroundService extends Service {
 				if (commandListener != null) {
 					commandListener.receiveUpdate(currentJob);
 				}
+				
+				if (!connectionVerified && !currentJob.isNoDataCommand()) {
+					connectionVerified = true;
+					sendBroadcast(new Intent(CONNECTION_VERIFIED_INTENT));
+				}
 			}
 		}
 
@@ -288,8 +301,13 @@ public class BackgroundService extends Service {
 		
 		@Override
 		public void shutdownConnection() {
-			//TODO never called!
 			stopBackgroundService();
+		}
+
+		@Override
+		public void allAdaptersFailed() {
+			shutdownConnection();
+			sendBroadcast(new Intent(CONNECTION_PERMANENTLY_FAILED_INTENT));
 		}
 	}
 	
@@ -340,6 +358,16 @@ public class BackgroundService extends Service {
             }
 
             connected();
+            
+            while (!connectionVerified) {
+            	sendBroadcast(new Intent(CONNECTION_NOT_YET_VERIFIED_INTENT));
+            	
+            	try {
+					Thread.sleep(CONNECTION_CHECK_INTERVAL);
+				} catch (InterruptedException e) {
+					logger.warn(e.getMessage(), e);
+				}
+            }
         }
     }
 

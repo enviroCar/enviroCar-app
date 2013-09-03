@@ -22,8 +22,6 @@
 package org.envirocar.app.application;
 
 import org.envirocar.app.commands.CommonCommand;
-import org.envirocar.app.protocol.AdapterConnectionListener;
-import org.envirocar.app.protocol.AdapterConnectionNotYetEstablishedListener;
 
 /**
  * Interface that listens for updates from the current obd job
@@ -46,15 +44,5 @@ public interface Listener {
 
 	void resetTrack();
 
-	void registerAdapterConnectedListener(AdapterConnectionListener l);
-
-	void registerAdapterNotYetConnectedListener(
-			AdapterConnectionNotYetEstablishedListener l);
-
-	void connectionPermanentlyFailed();
-
-	void onConnectionInitialized();
-	
-	void stopListening();
 
 }
