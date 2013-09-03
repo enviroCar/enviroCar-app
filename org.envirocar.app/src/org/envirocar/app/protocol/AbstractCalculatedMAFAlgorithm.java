@@ -21,13 +21,14 @@
 package org.envirocar.app.protocol;
 
 import org.envirocar.app.storage.Measurement;
+import org.envirocar.app.storage.Measurement.PropertyKey;
 
 public abstract class AbstractCalculatedMAFAlgorithm {
 	
 	public abstract double calculateMAF(int rpm, double intakeTemperature, double intakePressure);
 	
 	public double calculateMAF(Measurement m) {
-		return calculateMAF(m.getRpm(), m.getIntakeTemperature(), m.getIntakePressure());
+		return calculateMAF(m.getRpm(), m.getProperty(PropertyKey.INTAKE_TEMPERATURE), m.getProperty(PropertyKey.INTAKE_PRESSURE));
 	}
 
 }

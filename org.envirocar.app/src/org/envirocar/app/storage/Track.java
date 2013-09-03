@@ -49,23 +49,34 @@ public class Track implements Comparable<Track> {
 	private Car car;
 	private AbstractConsumptionAlgorithm consumptionAlgorithm;
 	private String vin;
-	private boolean localTrack;
+	private boolean remoteTrack;
 	private Double consumptionPerHour;
 
 	/**
 	 * @return the localTrack
 	 */
+	@Deprecated
 	public boolean isLocalTrack() {
-		return localTrack;
+		return !remoteTrack;
 	}
 
 	/**
 	 * @param localTrack
 	 *            the localTrack to set
 	 */
+	@Deprecated
 	public void setLocalTrack(boolean localTrack) {
-		this.localTrack = localTrack;
+		this.remoteTrack = !localTrack;
 	}
+
+	public boolean isRemoteTrack() {
+		return remoteTrack;
+	}
+	
+	public void setRemoteTrack(boolean remoteTrack) {
+		this.remoteTrack = remoteTrack;
+	}
+
 
 	private DbAdapter dbAdapter;
 
@@ -171,7 +182,7 @@ public class Track implements Comparable<Track> {
 	 */
 	public long getStartTime() throws MeasurementsException {
 		if (this.getMeasurements().size() > 0)
-			return this.getMeasurements().get(0).getMeasurementTime();
+			return this.getMeasurements().get(0).getTime();
 		else
 			throw new MeasurementsException("No measurements in the track");
 	}
@@ -184,7 +195,7 @@ public class Track implements Comparable<Track> {
 	 */
 	public long getEndTime() throws MeasurementsException {
 		if (this.getMeasurements().size() > 0)
-			return this.getMeasurements().get(this.getMeasurements().size() - 1).getMeasurementTime();
+			return this.getMeasurements().get(this.getMeasurements().size() - 1).getTime();
 		else
 			throw new MeasurementsException("No measurements in the track");
 	}
@@ -337,7 +348,7 @@ public class Track implements Comparable<Track> {
 	@Override
 	public int compareTo(Track t) {
 		try {
-			return (this.getFirstMeasurement().getMeasurementTime() < t.getFirstMeasurement().getMeasurementTime() ? 1 : -1);
+			return (this.getFirstMeasurement().getTime() < t.getFirstMeasurement().getTime() ? 1 : -1);
 		} catch (MeasurementsException e) {
 			logger.warn(e.getMessage(), e);
 		} 

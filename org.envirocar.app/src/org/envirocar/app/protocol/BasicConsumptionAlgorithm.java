@@ -20,6 +20,9 @@
  */
 package org.envirocar.app.protocol;
 
+import static org.envirocar.app.storage.Measurement.PropertyKey.CALCULATED_MAF;
+import static org.envirocar.app.storage.Measurement.PropertyKey.MAF;
+
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
@@ -35,10 +38,12 @@ public class BasicConsumptionAlgorithm extends AbstractConsumptionAlgorithm {
 
 	@Override
 	public double calculateConsumption(Measurement measurement) throws FuelConsumptionException {
-		double maf = measurement.getMaf();
-		if (maf == 0.0) {
-			maf = measurement.getCalculatedMaf();
-		}
+		double maf;
+		if (measurement.hasProperty(MAF)) {
+			maf = measurement.getProperty(MAF);	
+		} else if (measurement.hasProperty(CALCULATED_MAF)) {
+			maf = measurement.getProperty(CALCULATED_MAF);
+		} else throw new FuelConsumptionException("Get no MAF value");
 		
 		double airFuelRatio;
 		double fuelDensity;

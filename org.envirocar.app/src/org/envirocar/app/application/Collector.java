@@ -31,6 +31,7 @@ import org.envirocar.app.protocol.AbstractConsumptionAlgorithm;
 import org.envirocar.app.protocol.BasicConsumptionAlgorithm;
 import org.envirocar.app.protocol.CalculatedMAFWithStaticVolumetricEfficiency;
 import org.envirocar.app.storage.Measurement;
+import org.envirocar.app.storage.Measurement.PropertyKey;
 
 import android.location.Location;
 
@@ -150,7 +151,7 @@ public class Collector {
 	private boolean checkReady(Measurement m) {
 		if (m.getLatitude() == 0.0 || m.getLongitude() == 0.0) return false;
 		
-		if (System.currentTimeMillis() - m.getMeasurementTime() < 5000) return false;
+		if (System.currentTimeMillis() - m.getTime() < 5000) return false;
 		
 		/*
 		 * emulate the legacy behavior: insert measurement despite data might be missing

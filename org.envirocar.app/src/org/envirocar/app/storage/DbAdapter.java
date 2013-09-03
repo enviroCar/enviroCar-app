@@ -22,6 +22,7 @@
 package org.envirocar.app.storage;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.TracksException;
@@ -131,5 +132,15 @@ public interface DbAdapter {
 	 *            id of the track to be deleted.
 	 */
 	public void deleteTrack(String id);
+
+	public int getNumberOfRemoteTracks();
+
+	public int getNumberOfLocalTracks();
+
+	public void deleteAllLocalTracks();
+
+	public void deleteAllRemoteTracks();
+
+	public List<Track> getAllLocalTracks();
 	
 }

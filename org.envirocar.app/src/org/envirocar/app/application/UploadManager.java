@@ -47,8 +47,7 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.protocol.AbstractConsumptionAlgorithm;
 import org.envirocar.app.protocol.BasicConsumptionAlgorithm;
-import org.envirocar.app.storage.DbAdapterLocal;
-import org.envirocar.app.storage.DbAdapterRemote;
+import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.views.Utils;
@@ -76,8 +75,7 @@ public class UploadManager {
 
 	private String url = ECApplication.BASE_URL + "/users/%1$s/tracks";
 
-	private DbAdapterLocal dbAdapterLocal;
-	private DbAdapterRemote dbAdapterRemote;
+	private DbAdapter dbAdapter;
 	private Context context;
 	
 	/**
@@ -87,15 +85,14 @@ public class UploadManager {
 	 */
 	public UploadManager(Context ctx) {
 		this.context = ctx;
-		this.dbAdapterLocal = (DbAdapterLocal) ((ECApplication) context).getDbAdapterLocal();
-		this.dbAdapterRemote = (DbAdapterRemote) ((ECApplication) context).getDbAdapterRemote();
+		this.dbAdapter = ((ECApplication) context).getDBAdapter();
 	}
 
 	/**
 	 * This methods uploads all local tracks to the server
 	 */
 	public void uploadAllTracks() {
-		new UploadAsyncTask().execute(dbAdapterLocal.getAllTracks());
+		new UploadAsyncTask().execute(dbAdapter.getAllLocalTracks());
 	}
 	
 	public void uploadSingleTrack(Track track){
@@ -115,7 +112,7 @@ public class UploadManager {
 		protected Void doInBackground(List<Track>... params) {
 			
 			//probably unnecessary
-			if(dbAdapterLocal.getNumberOfStoredTracks() == 0)
+			if(dbAdapter.getNumberOfRemoteTracks() == 0)
 				this.cancel(true);
 			
 			User user = UserManager.instance().getUser();
@@ -147,9 +144,9 @@ public class UploadManager {
 					((ECApplication) context).createNotification(context.getResources().getString(R.string.error_host_not_found));
 				} else if (!httpResult.equals("-1")) {
 					((ECApplication) context).createNotification("success");
-					dbAdapterLocal.deleteTrack(t.getId());
+					t.setRemoteTrack(true);
 					t.setId(httpResult);
-					dbAdapterRemote.insertTrackWithMeasurements(t);
+					dbAdapter.updateTrack(t);
 				} else {
 					((ECApplication) context).createNotification("General Track error. Please contact envirocar.org");
 				}
@@ -197,7 +194,7 @@ public class UploadManager {
 				for (Measurement measurement : measurements) {
 					try {
 						if (obfuscatePositions) {
-							if (measurement.getMeasurementTime() - track.getStartTime() > 60000 && track.getEndTime() - measurement.getMeasurementTime() > 60000) {
+							if (measurement.getTime() - track.getStartTime() > 60000 && track.getEndTime() - measurement.getTime() > 60000) {
 								if ((Utils.getDistance(track.getFirstMeasurement().getLatitude(), track.getFirstMeasurement().getLongitude(), measurement.getLatitude(), measurement.getLongitude()) > 0.25) && (Utils.getDistance(track.getLastMeasurement().getLatitude(), track.getLastMeasurement().getLongitude(), measurement.getLatitude(), measurement.getLongitude()) > 0.25)) {
 									privateMeasurements.add(measurement);
 								}
@@ -224,10 +221,10 @@ public class UploadManager {
 			dateFormat1.setTimeZone(TimeZone.getTimeZone("UTC"));
 			dateFormat2.setTimeZone(TimeZone.getTimeZone("UTC"));
 			String time = dateFormat1.format(measurements.get(i)
-					.getMeasurementTime())
+					.getTime())
 					+ "T"
 					+ dateFormat2.format(measurements.get(i)
-							.getMeasurementTime()) + "Z";
+							.getTime()) + "Z";
 			
 			String speed = String.valueOf(measurements.get(i).getSpeed());
 			String rpm = String.valueOf(measurements.get(i).getRpm());

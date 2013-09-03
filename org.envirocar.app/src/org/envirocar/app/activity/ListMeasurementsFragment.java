@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -43,8 +44,8 @@ import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.network.RestClient;
 import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.storage.DbAdapterRemote;
 import org.envirocar.app.storage.Measurement;
+import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
@@ -89,14 +90,12 @@ import de.keyboardsurfer.android.widget.crouton.Style;
  *
  */
 public class ListMeasurementsFragment extends SherlockFragment {
-	
 
 	// Measurements and tracks
 	
-	private ArrayList<Track> tracksList;
+	private List<Track> tracksList;
 	private TracksListAdapter elvAdapter;
-	private DbAdapter dbAdapterRemote;
-	private DbAdapter dbAdapterLocal;
+	private DbAdapter dbAdapter;
 	
 	// UI Elements
 	
@@ -115,8 +114,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		
 		setHasOptionsMenu(true);
 
-		dbAdapterRemote = ((ECApplication) getActivity().getApplication()).getDbAdapterRemote();
-		dbAdapterLocal = ((ECApplication) getActivity().getApplication()).getDbAdapterLocal();
+		dbAdapter = ((ECApplication) getActivity().getApplication()).getDBAdapter();
 
 		View v = inflater.inflate(R.layout.list_tracks_layout, null);
 		elv = (ExpandableListView) v.findViewById(R.id.list);
@@ -154,7 +152,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
 		delete_btn = menu.findItem(R.id.menu_delete_all);
-		if (((ECApplication) getActivity().getApplication()).getDbAdapterLocal().getAllTracks().size() > 0 && !isDownloading) {
+		if (((ECApplication) getActivity().getApplication()).getDBAdapter().getAllTracks().size() > 0 && !isDownloading) {
 			menu.findItem(R.id.menu_delete_all).setEnabled(true);
 			if(UserManager.instance().isLoggedIn())
 				menu.findItem(R.id.menu_upload).setEnabled(true);
@@ -180,7 +178,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			logger.warn(e.getMessage(), e);
 			clearRemoteTracks();
 		}
-		dbAdapterRemote.deleteAllTracks();
+		dbAdapter.deleteAllRemoteTracks();
 		elvAdapter.notifyDataSetChanged();
 	}
 	
@@ -210,7 +208,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		//Delete all tracks
 
 		case R.id.menu_delete_all:
-			((ECApplication) getActivity().getApplication()).getDbAdapterLocal().deleteAllTracks();
+			((ECApplication) getActivity().getApplication()).getDBAdapter().deleteAllLocalTracks();
 			((ECApplication) getActivity().getApplication()).resetTrack();
 			tracksList.clear();
 			downloadTracks();
@@ -252,7 +250,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						String value = input.getText().toString();
 						logger.info("New name: " + value.toString());
 						track.setName(value);
-						track.setDatabaseAdapter(dbAdapterLocal);
+						track.setDatabaseAdapter(dbAdapter);
 						track.commitTrackToDatabase();
 						tracksList.get(itemSelect).setName(value);
 						elvAdapter.notifyDataSetChanged();
@@ -279,7 +277,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						String value = input2.getText().toString();
 						logger.info("New description: " + value.toString());
 						track.setDescription(value);
-						track.setDatabaseAdapter(dbAdapterLocal);
+						track.setDatabaseAdapter(dbAdapter);
 						track.commitTrackToDatabase();
 						elv.collapseGroup(itemSelect);
 						tracksList.get(itemSelect).setDescription(value);
@@ -330,7 +328,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		case R.id.deleteTrack:
 			if(track.isLocalTrack()){
 				logger.info("deleting item: " + itemSelect);
-				dbAdapterLocal.deleteTrack(track.getId());
+				dbAdapter.deleteTrack(track.getId());
 				Crouton.showText(getActivity(), getString(R.string.trackDeleted), Style.INFO);
 				tracksList.remove(itemSelect);
 				elvAdapter.notifyDataSetChanged();
@@ -375,22 +373,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 										track.getId(),
 										new JsonHttpResponseHandler() {
 											@Override
-											protected void handleMessage(
-													Message msg) {
-												if (dbAdapterRemote
-														.hasTrack(track.getId())) {
-													dbAdapterRemote
-															.deleteTrack(track
-																	.getId());
-													tracksList
-															.remove(itemSelect);
-													elvAdapter
-															.notifyDataSetChanged();
-													Crouton.showText(
-															getActivity(),
-															getString(R.string.remoteTrackDeleted),
-															Style.INFO);
-												}
+											protected void handleMessage(Message msg) {
+												removeRemoteTrack(track);
 											}
 										});
 							}
@@ -403,6 +387,18 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						});
 		builder.create().show();
 	}
+	
+	private void removeRemoteTrack(final Track track) {
+		if (track.isRemoteTrack()) {
+			dbAdapter.deleteTrack(track.getId());
+			tracksList.remove(track);
+			elvAdapter.notifyDataSetChanged();
+			Crouton.showText(
+					getActivity(),
+					getString(R.string.remoteTrackDeleted),
+					Style.INFO);
+		}
+	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -414,7 +410,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				android.R.color.transparent));
 		
 		//fetch local tracks
-		this.tracksList = dbAdapterLocal.getAllTracks();
+		this.tracksList = dbAdapter.getAllLocalTracks();
 		logger.info("Number of tracks in the List: " + tracksList.size());
 		if (elvAdapter == null)
 			elvAdapter = new TracksListAdapter();
@@ -484,7 +480,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 						JSONObject trackProperties = trackJson[0].getJSONObject("properties");
 						t = new Track(trackProperties.getString("id"));
-						t.setDatabaseAdapter(dbAdapterRemote);
+						t.setDatabaseAdapter(dbAdapter);
 						String trackName = "unnamed Track #"+ct;
 						try{
 							trackName = trackProperties.getString("name");
@@ -546,15 +542,22 @@ public class ListMeasurementsFragment extends SherlockFragment {
 									Float.valueOf(measurementJsonObject.getJSONObject("geometry").getJSONArray("coordinates").getString(1)),
 									Float.valueOf(measurementJsonObject.getJSONObject("geometry").getJSONArray("coordinates").getString(0)));
 							JSONObject properties = measurementJsonObject.getJSONObject("properties");
+							recycleMeasurement.setTime(Utils.isoDateToLong((properties.getString("time"))));
 							JSONObject phenomenons = properties.getJSONObject("phenomenons");
-							if (phenomenons.has("MAF")) {
-								recycleMeasurement.setMaf((phenomenons.getJSONObject("MAF").getDouble("value")));
+							for (PropertyKey key : PropertyKey.values()) {
+								if (phenomenons.has(key.toString())) {
+									Double value = phenomenons.getJSONObject(key.toString()).getDouble("value"); 
+									recycleMeasurement.addProperty(key, value);
+								}
 							}
-							if (phenomenons.has("Calculated MAF")) {
-								recycleMeasurement.setCalculatedMaf((phenomenons.getJSONObject("Calculated MAF").getDouble("value")));
-							}
-							recycleMeasurement.setSpeed((phenomenons.getJSONObject("Speed").getInt("value")));
-							recycleMeasurement.setMeasurementTime(Utils.isoDateToLong((properties.getString("time"))));
+//							if (phenomenons.has("MAF")) {
+//								recycleMeasurement.setMaf((phenomenons.getJSONObject("MAF").getDouble("value")));
+//							}
+//							if (phenomenons.has("Calculated MAF")) {
+//								recycleMeasurement.setCalculatedMaf((phenomenons.getJSONObject("Calculated MAF").getDouble("value")));
+//							}
+//							recycleMeasurement.setSpeed((phenomenons.getJSONObject("Speed").getInt("value")));
+//							
 							recycleMeasurement.setTrack(t);
 							t.addMeasurement(recycleMeasurement);
 						}
@@ -596,7 +599,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					Collections.sort(tracksList);
 					elvAdapter.notifyDataSetChanged();
 					isDownloading = false;
-					if (((ECApplication) getActivity().getApplication()).getDbAdapterLocal().getAllTracks().size() > 0)
+					if (((ECApplication) getActivity().getApplication()).getDBAdapter().getAllTracks().size() > 0)
 						delete_btn.setEnabled(true);
 				}
 				if (elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))) {
@@ -636,7 +639,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 							
 							@Override
 							protected Track doInBackground(String... params) {
-								return dbAdapterRemote.getTrack(params[0]);
+								return dbAdapter.getTrack(params[0]);
 							}
 							
 							protected void onPostExecute(Track result) {
@@ -646,9 +649,9 @@ public class ListMeasurementsFragment extends SherlockFragment {
 							}
 							
 						}
-						if (((DbAdapterRemote) dbAdapterRemote).trackExistsInDatabase(((JSONObject) tracks.get(i)).getString("id"))) {
+						if (dbAdapter.hasTrack(((JSONObject) tracks.get(i)).getString("id"))) {
 							// if the track already exists in the db, skip and load from db.
-							new RetrieveTrackfromDbAsyncTask().execute(((JSONObject) tracks.get(i)).getString("id"));
+//							new RetrieveTrackfromDbAsyncTask().execute(((JSONObject) tracks.get(i)).getString("id"));
 							continue;
 						}
 

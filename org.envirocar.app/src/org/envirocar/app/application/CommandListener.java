@@ -343,7 +343,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 					// ago
 
 					if ((System.currentTimeMillis() - lastUsedTrack
-							.getLastMeasurement().getMeasurementTime()) > 3600000) {
+							.getLastMeasurement().getTime()) > 3600000) {
 						logger.info("I create a new track because the last measurement is more than 60 mins ago");
 						track = new Track("123456", car, dbAdapterLocal);
 						track.setName("Track " + date);
@@ -410,7 +410,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 				// New track if last measurement is more than 60 minutes
 				// ago
 				if ((System.currentTimeMillis() - currentTrack
-						.getLastMeasurement().getMeasurementTime()) > 3600000) {
+						.getLastMeasurement().getTime()) > 3600000) {
 					track = new Track("123456", car, dbAdapterLocal);
 					track.setName("Track " + date);
 					track.setDescription(trackDescription);

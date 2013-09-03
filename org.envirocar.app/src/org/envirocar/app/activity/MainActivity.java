@@ -32,7 +32,7 @@ import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.exception.TracksException;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.DbAdapterLocal;
+import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
 
@@ -385,11 +385,9 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	 * Helper method for the automatic upload of local tracks via the scheduler.
 	 */
     private void uploadTracks() {
-        DbAdapterLocal dbAdapter = (DbAdapterLocal) application
-                .getDbAdapterLocal();
-        
+        DbAdapter dbAdapter = application.getDBAdapter();
             try {
-                if (dbAdapter.getNumberOfStoredTracks() > 0
+                if (dbAdapter.getNumberOfLocalTracks() > 0
                         && dbAdapter.getLastUsedTrack()
                                 .getNumberOfMeasurements() > 0) {
                     UploadManager uploadManager = new UploadManager(
