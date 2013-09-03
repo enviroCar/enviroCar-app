@@ -369,13 +369,13 @@ public class SimulatorService {
                     // Send the obtained bytes to the UI Activity
                     mHandler.obtainMessage(OBDSimulator.MESSAGE_READ, index, -1, buffer)
                             .sendToTarget();
-                    
-                    try {
-						Thread.sleep(10000);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+//                    
+//                    try {
+//						Thread.sleep(10000);
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
                     
                     handleRequest(buffer, 0, index);
                     
