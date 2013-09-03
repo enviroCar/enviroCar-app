@@ -20,9 +20,11 @@
  */
 package org.envirocar.app.application;
 
+import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -67,6 +69,8 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	protected static final long MAX_INACTIVITY_TIME = 1000 * 60 * 3;
 
 	protected static final long CONNECTION_CHECK_INTERVAL = 1000 * 5;
+
+	private static final DateFormat format = SimpleDateFormat.getDateTimeInstance();
 
 	// Track properties
 
@@ -324,11 +328,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		// if track is null, create a new one or take the last one from the
 		// database
 		
-		Calendar calendar = Calendar.getInstance();
-		int year = calendar.get(Calendar.YEAR);
-		int month = calendar.get(Calendar.MONTH)+1;
-		int day = calendar.get(Calendar.DAY_OF_MONTH);
-		String date = String.valueOf(year) + "-" + String.valueOf(month) + "-" + String.valueOf(day);
+		String date = format.format(new Date());
 
 		if (track == null) {
 
@@ -356,7 +356,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 					// new track if last position is significantly different
 					// from the current position (more than 3 km)
-					if (Utils.getDistance(lastUsedTrack.getLastMeasurement().getLatitude(),lastUsedTrack.getLastMeasurement().getLongitude(),
+					if (location == null || Utils.getDistance(lastUsedTrack.getLastMeasurement().getLatitude(),lastUsedTrack.getLastMeasurement().getLongitude(),
 							location.getLatitude(), location.getLongitude()) > 3.0) {
 						logger.info("The last measurement's position is more than 3 km away. I will create a new track");
 						track = new Track("123456", car, dbAdapterLocal); 
