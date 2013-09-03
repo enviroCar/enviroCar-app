@@ -32,15 +32,14 @@ import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
-import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.application.service.BackgroundService;
 import org.envirocar.app.application.service.BackgroundServiceConnector;
+import org.envirocar.app.application.service.BackgroundServiceInteractor;
 import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
-import org.envirocar.app.protocol.AdapterConnectionListener;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 
@@ -54,7 +53,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.preference.PreferenceManager;
@@ -68,7 +66,7 @@ import android.widget.Toast;
  *
  */
 @ReportsCrashes(formKey = "")
-public class ECApplication extends Application implements AdapterConnectionListener {
+public class ECApplication extends Application {
 	
 	private static final Logger logger = Logger.getLogger(ECApplication.class);
 	
@@ -117,7 +115,7 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	            switch (state) {
 	            case BluetoothAdapter.STATE_ON:
 	            	logger.info("bt is now on");
-	            	initializeBackgroundService();
+	            	initializeBackgroundServices();
 	                break;
 	            }
 	        }
@@ -127,23 +125,8 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	        }
 	    }
 	};
-	
-	private final OnSharedPreferenceChangeListener autoConnectPreferenceChangeReceiver =
-			new OnSharedPreferenceChangeListener() {
-		@Override
-		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-				String key) {
-			if (key.equals(SettingsActivity.AUTOCONNECT)) {
-				boolean autoConnect = sharedPreferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
-				if (autoConnect) {
-					initializeAdapterAutoConnectService(0);
-				}
-				else {
-					shutdownAdapterAutoConnectService();
-				}
-			}
-		}
-	};
+
+	private BroadcastReceiver receiver;
 	
 
 	/**
@@ -165,7 +148,7 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	 */
 	public BackgroundServiceConnector getServiceConnector() {
 		if (serviceConnector == null)
-			initializeBackgroundService();
+			initializeBackgroundServices();
 		return serviceConnector;
 	}
 	
@@ -201,12 +184,12 @@ public class ECApplication extends Application implements AdapterConnectionListe
 		createListeners();
 		
 		// If everything is available, start the service connector and commandListener
-		initializeBackgroundService();
+		initializeBackgroundServices();
 		
 		//bluetooth change commandListener
 	    registerReceiver(bluetoothChangeReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
 	    registerReceiver(bluetoothChangeReceiver, new IntentFilter(DeviceInRangeService.DEVICE_FOUND));
-	    preferences.registerOnSharedPreferenceChangeListener(autoConnectPreferenceChangeReceiver);
+
 	}
 	
 //	private void testBluetooth() {
@@ -258,47 +241,44 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	/**
 	 * This method starts the service that connects to the adapter to the app.
 	 */
-	private void initializeBackgroundService() {
-		boolean autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
-		if (autoConnect) {
-			initializeAdapterAutoConnectService(0);
-		}
-		
-		
+	private void initializeBackgroundServices() {
 		if (bluetoothActivated()) {
-			
 			logger.info("requirements met");
+			deviceInRangeService = new Intent(this, DeviceInRangeService.class);
+			startService(deviceInRangeService);
 			backgroundService = new Intent(this, BackgroundService.class);
+			serviceConnector = new BackgroundServiceConnector(commandListener);
+			bindService(backgroundService, serviceConnector,
+					Context.BIND_AUTO_CREATE);
 			
-//			startService(backgroundService);
+			receiver = new BroadcastReceiver() {
+				@Override
+				public void onReceive(Context context, Intent intent) {
+					if (intent.getAction().equals(BackgroundService.CONNECTION_NOT_YET_VERIFIED_INTENT)) {
+						serviceConnector.executeInitializationSequence();
+					}
+					else if (intent.getAction().equals(BackgroundService.CONNECTION_VERIFIED_INTENT)) {
+						onAdapterConnected();
+					}
+					else if (intent.getAction().equals(BackgroundService.DISCONNECTED_INTENT)) {
+						onAdapterDisconnected();
+					}
+					else if (intent.getAction().equals(BackgroundServiceInteractor.CONNECTION_PERMANENTLY_FAILED_INTENT)) {
+						connectionPermanentlyFailed();
+					}
+				}
+			};
 			
-//			serviceConnector.setServiceListener(commandListener);
-
-//			bindService(backgroundService, serviceConnector,
-//					Context.BIND_AUTO_CREATE);
-			
+			registerReceiver(bluetoothChangeReceiver, new IntentFilter(BackgroundService.CONNECTION_NOT_YET_VERIFIED_INTENT));
+			registerReceiver(receiver, new IntentFilter(BackgroundService.CONNECTION_VERIFIED_INTENT));
+			registerReceiver(receiver, new IntentFilter(BackgroundService.DISCONNECTED_INTENT));
+			registerReceiver(receiver, new IntentFilter(BackgroundServiceInteractor.CONNECTION_PERMANENTLY_FAILED_INTENT));
 		} else {
 			logger.warn("bluetooth not activated!");
 		}
 	}
 
-	private void initializeAdapterAutoConnectService(int delay) {
-		if (serviceConnector.isRunning())
-			return;
-		
-		logger.info("initializing auto connect device in range service");
-		deviceInRangeService = new Intent(this, DeviceInRangeService.class);
-		deviceInRangeService.putExtra(DeviceInRangeService.DELAY_EXTRA, delay);
-		startService(deviceInRangeService);
-	}
 	
-	private void shutdownAdapterAutoConnectService() {
-		if (deviceInRangeService != null) {
-			logger.info("shutting down auto connect device in range service");
-			stopService(deviceInRangeService);
-		}		
-	}
-
 	/**
 	 * This method starts the service connector every five minutes if the user 
 	 * wants an autoconnection
@@ -328,9 +308,6 @@ public class ECApplication extends Application implements AdapterConnectionListe
 	public void createListeners() {
 		//TODO de-couple dbAdapterLocal
 		commandListener = new CommandListener(createCar(), dbAdapter);
-		serviceConnector = new BackgroundServiceConnector(commandListener);
-		commandListener.registerAdapterConnectedListener(this);
-		commandListener.registerAdapterNotYetConnectedListener(serviceConnector);
 	}
 
 	private Car createCar() {
@@ -369,8 +346,7 @@ public class ECApplication extends Application implements AdapterConnectionListe
 		initDbAdapter();
 		//createNewTrackIfNecessary();
 		if (!serviceConnector.isRunning()) {
-			bindService(backgroundService, serviceConnector,
-					Context.BIND_AUTO_CREATE);
+			startService(backgroundService);
 		}
 
 	}
@@ -382,7 +358,7 @@ public class ECApplication extends Application implements AdapterConnectionListe
 		logger.info("Stops the recording of a track");
 		if (serviceConnector != null && serviceConnector.isRunning()) {
 			stopService(backgroundService);
-			unbindService(serviceConnector);
+			serviceConnector.shutdownBackgroundService();
 		}
 		closeDb();
 	}
@@ -472,26 +448,16 @@ public class ECApplication extends Application implements AdapterConnectionListe
 		this.commandListener.resetTrack();
 	}
 
-	@Override
-	public void onAdapterConnected() {
+	private void onAdapterConnected() {
 		displayToast("OBD-II Adapter connected");
 	}
 
-	@Override
-	public void onAdapterDisconnected() {
+	private void onAdapterDisconnected() {
 		displayToast("OBD-II Adapter disconnected");	
-		
-		
-		boolean autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
-		if (autoConnect) {
-			initializeAdapterAutoConnectService(DeviceInRangeService.DEFAULT_DELAY_AFTER_STOP);
-		}
 	}
 
-	@Override
-	public void connectionPermanentlyFailed() {
+	private void connectionPermanentlyFailed() {
 		displayToast("OBD-II Adapter connection permanently failed");
-		stopConnection();
 	}
 
 	private void displayToast(final String string) {

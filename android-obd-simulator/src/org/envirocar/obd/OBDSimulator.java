@@ -16,7 +16,6 @@
 
 package org.envirocar.obd;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
@@ -182,7 +181,6 @@ public class OBDSimulator extends Activity {
     }
 
     // The Handler that gets information back from the SimulatorService
-    @SuppressLint("HandlerLeak")
 	private final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {

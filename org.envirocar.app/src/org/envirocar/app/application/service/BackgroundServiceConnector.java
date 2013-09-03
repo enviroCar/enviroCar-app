@@ -28,7 +28,6 @@ import org.envirocar.app.application.Listener;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.AbstractOBDConnector;
-import org.envirocar.app.protocol.AdapterConnectionNotYetEstablishedListener;
 import org.envirocar.app.protocol.ELM327Connector;
 
 import android.content.ComponentName;
@@ -44,7 +43,7 @@ import android.os.IBinder;
  * @author jakob
  * 
  */
-public class BackgroundServiceConnector implements ServiceConnection, AdapterConnectionNotYetEstablishedListener {
+public class BackgroundServiceConnector implements ServiceConnection {
 
 	private static final Logger logger = Logger.getLogger(BackgroundServiceConnector.class);
 	private static final int MAX_TRIES_PER_ADAPTER = 2;
@@ -76,6 +75,7 @@ public class BackgroundServiceConnector implements ServiceConnection, AdapterCon
 		//TODO init through ServiceLoader (SlimServiceLoader...)
 		adapterCandidates.add(new ELM327Connector());
 		obdAdapter = adapterCandidates.get(0);
+
 	}
 	
 	/**
@@ -121,7 +121,7 @@ public class BackgroundServiceConnector implements ServiceConnection, AdapterCon
 	 *            New CommandJob
 	 */
 	public void addJobToWaitingList(CommonCommand newJob) {
-		if (null != interactor)
+		if (null != interactor && interactor.isRunning())
 			interactor.newJobToWaitingList(newJob);
 	}
 
@@ -142,18 +142,14 @@ public class BackgroundServiceConnector implements ServiceConnection, AdapterCon
 
 	public void executeInitializationSequence() {
 		this.obdAdapter.executeInitializationSequence(this);
+		selectAdapter();
 	}
 
-	@Override
-	public void connectionNotYetEstablished() {
-		selectAdapter();
-		this.obdAdapter.executeInitializationSequence(this);
-	}
 
 	protected void selectAdapter() {
 		if (tries++ > MAX_TRIES_PER_ADAPTER) {
 			if (++adapterIndex >= adapterCandidates.size()) {
-				allAdaptersFailed();
+				this.interactor.allAdaptersFailed();
 				return;
 			}
 			this.obdAdapter = adapterCandidates.get(adapterIndex % adapterCandidates.size());
@@ -161,8 +157,9 @@ public class BackgroundServiceConnector implements ServiceConnection, AdapterCon
 		}
 	}
 
-	private void allAdaptersFailed() {
-		commandListener.connectionPermanentlyFailed();
+
+	public void shutdownBackgroundService() {
+		this.interactor.shutdownConnection();
 	}
 	
 

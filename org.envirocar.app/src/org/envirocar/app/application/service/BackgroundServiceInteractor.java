@@ -24,6 +24,8 @@ package org.envirocar.app.application.service;
 import org.envirocar.app.application.Listener;
 import org.envirocar.app.commands.CommonCommand;
 
+import android.content.Intent;
+
 /**
  * Interface that adds jobs to the waiting list and executes it
  * 
@@ -31,6 +33,9 @@ import org.envirocar.app.commands.CommonCommand;
  * 
  */
 public interface BackgroundServiceInteractor {
+	
+	public static final String CONNECTION_PERMANENTLY_FAILED_INTENT =
+			BackgroundServiceInteractor.class.getName()+".CONNECTION_PERMANENTLY_FAILED";
 
 	/**
 	 * Set the listener for this monitor
@@ -65,6 +70,13 @@ public interface BackgroundServiceInteractor {
 	 *            the new CommonCommand to add
 	 */
 	void newJobToWaitingList(CommonCommand newCommand);
+
+	/**
+	 * an implementation shall invoke the shutdown of the underlying service as
+	 * we could not receive any data. An {@link Intent} with action {@link #CONNECTION_PERMANENTLY_FAILED_INTENT}
+	 * shall be broadcasted.
+	 */
+	void allAdaptersFailed();
 
 
 }
