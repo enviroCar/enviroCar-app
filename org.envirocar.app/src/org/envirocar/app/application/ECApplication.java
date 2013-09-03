@@ -32,7 +32,6 @@ import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
-import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.application.service.BackgroundService;
 import org.envirocar.app.application.service.BackgroundServiceConnector;
 import org.envirocar.app.application.service.BackgroundServiceInteractor;
@@ -55,7 +54,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.preference.PreferenceManager;
@@ -117,7 +115,7 @@ public class ECApplication extends Application {
 	            switch (state) {
 	            case BluetoothAdapter.STATE_ON:
 	            	logger.info("bt is now on");
-	            	initializeBackgroundService();
+	            	initializeBackgroundServices();
 	                break;
 	            }
 	        }
@@ -126,23 +124,6 @@ public class ECApplication extends Application {
 	        	startConnection();
 	        }
 	    }
-	};
-	
-	private final OnSharedPreferenceChangeListener autoConnectPreferenceChangeReceiver =
-			new OnSharedPreferenceChangeListener() {
-		@Override
-		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-				String key) {
-			if (key.equals(SettingsActivity.AUTOCONNECT)) {
-				boolean autoConnect = sharedPreferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
-				if (autoConnect) {
-					initializeAdapterAutoConnectService(0);
-				}
-				else {
-					shutdownAdapterAutoConnectService();
-				}
-			}
-		}
 	};
 
 	private BroadcastReceiver receiver;
@@ -167,7 +148,7 @@ public class ECApplication extends Application {
 	 */
 	public BackgroundServiceConnector getServiceConnector() {
 		if (serviceConnector == null)
-			initializeBackgroundService();
+			initializeBackgroundServices();
 		return serviceConnector;
 	}
 	
@@ -203,17 +184,12 @@ public class ECApplication extends Application {
 		createListeners();
 		
 		// If everything is available, start the service connector and commandListener
-		initializeBackgroundService();
+		initializeBackgroundServices();
 		
 		//bluetooth change commandListener
 	    registerReceiver(bluetoothChangeReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
 	    registerReceiver(bluetoothChangeReceiver, new IntentFilter(DeviceInRangeService.DEVICE_FOUND));
-	    preferences.registerOnSharedPreferenceChangeListener(autoConnectPreferenceChangeReceiver);
-	    
-		boolean autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
-		if (autoConnect) {
-			initializeAdapterAutoConnectService(0);
-		}
+
 	}
 	
 //	private void testBluetooth() {
@@ -289,20 +265,15 @@ public class ECApplication extends Application {
 	/**
 	 * This method starts the service that connects to the adapter to the app.
 	 */
-	private void initializeBackgroundService() {
+	private void initializeBackgroundServices() {
 		if (bluetoothActivated()) {
-			
 			logger.info("requirements met");
+			deviceInRangeService = new Intent(this, DeviceInRangeService.class);
+			startService(deviceInRangeService);
 			backgroundService = new Intent(this, BackgroundService.class);
 			serviceConnector = new BackgroundServiceConnector(commandListener);
 			bindService(backgroundService, serviceConnector,
 					Context.BIND_AUTO_CREATE);
-//			startService(backgroundService);
-			
-//			serviceConnector.setServiceListener(commandListener);
-
-//			bindService(backgroundService, serviceConnector,
-//					Context.BIND_AUTO_CREATE);
 			
 			receiver = new BroadcastReceiver() {
 				@Override
@@ -331,23 +302,7 @@ public class ECApplication extends Application {
 		}
 	}
 
-	private void initializeAdapterAutoConnectService(int delay) {
-		if (serviceConnector.isRunning())
-			return;
-		
-		logger.info("initializing auto connect device in range service");
-		deviceInRangeService = new Intent(this, DeviceInRangeService.class);
-		deviceInRangeService.putExtra(DeviceInRangeService.DELAY_EXTRA, delay);
-		startService(deviceInRangeService);
-	}
 	
-	private void shutdownAdapterAutoConnectService() {
-		if (deviceInRangeService != null) {
-			logger.info("shutting down auto connect device in range service");
-			stopService(deviceInRangeService);
-		}		
-	}
-
 	/**
 	 * This method starts the service connector every five minutes if the user 
 	 * wants an autoconnection
@@ -531,11 +486,6 @@ public class ECApplication extends Application {
 
 	private void onAdapterDisconnected() {
 		displayToast("OBD-II Adapter disconnected");	
-		
-		boolean autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
-		if (autoConnect) {
-			initializeAdapterAutoConnectService(DeviceInRangeService.DEFAULT_DELAY_AFTER_STOP);
-		}
 	}
 
 	private void connectionPermanentlyFailed() {
