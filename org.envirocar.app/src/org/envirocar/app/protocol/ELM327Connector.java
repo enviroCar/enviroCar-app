@@ -20,7 +20,10 @@
  */
 package org.envirocar.app.protocol;
 
-import org.envirocar.app.application.service.BackgroundServiceConnector;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.EchoOff;
 import org.envirocar.app.commands.LineFeedOff;
 import org.envirocar.app.commands.ObdReset;
@@ -29,57 +32,59 @@ import org.envirocar.app.commands.Timeout;
 
 public class ELM327Connector extends AbstractOBDConnector {
 
+	/*
+	 * This is what Torque does:
+	 */
+
+	// addCommandToWaitingList(new Defaults());
+	// addCommandToWaitingList(new Defaults());
+	// addCommandToWaitingList(new ObdReset());
+	// addCommandToWaitingList(new ObdReset());
+	// addCommandToWaitingList(new EchoOff());
+	// addCommandToWaitingList(new EchoOff());
+	// addCommandToWaitingList(new EchoOff());
+	// addCommandToWaitingList(new MemoryOff());
+	// addCommandToWaitingList(new MemoryOff());
+	// addCommandToWaitingList(new MemoryOff());
+	// addCommandToWaitingList(new MemoryOff());
+	// addCommandToWaitingList(new MemoryOff());
+	// addCommandToWaitingList(new LineFeedOff());
+	// addCommandToWaitingList(new SpacesOff());
+	// addCommandToWaitingList(new HeadersOff());
+	// addCommandToWaitingList(new Defaults());
+	// addCommandToWaitingList(new ObdReset());
+	// addCommandToWaitingList(new ObdReset());
+	// addCommandToWaitingList(new EchoOff());
+	// addCommandToWaitingList(new EchoOff());
+	// addCommandToWaitingList(new EchoOff());
+	// addCommandToWaitingList(new MemoryOff());
+	// addCommandToWaitingList(new MemoryOff());
+	// addCommandToWaitingList(new MemoryOff());
+	// addCommandToWaitingList(new MemoryOff());
+	// addCommandToWaitingList(new MemoryOff());
+	// addCommandToWaitingList(new LineFeedOff());
+	// addCommandToWaitingList(new SpacesOff());
+	// addCommandToWaitingList(new HeadersOff());
+	// addCommandToWaitingList(new SelectAutoProtocol());
+	// addCommandToWaitingList(new PIDSupported());
+	// addCommandToWaitingList(new EnableHeaders());
+	// addCommandToWaitingList(new PIDSupported());
+	// addCommandToWaitingList(new HeadersOff());
+
+	/*
+	 * End Torque
+	 */
+
 	@Override
-	public void executeInitializationSequence(BackgroundServiceConnector serviceConnector) {
-		serviceConnector.addJobToWaitingList(new ObdReset());
-		serviceConnector.addJobToWaitingList(new EchoOff());
-		serviceConnector.addJobToWaitingList(new EchoOff());
-		serviceConnector.addJobToWaitingList(new LineFeedOff());
-		serviceConnector.addJobToWaitingList(new Timeout(62));
-		serviceConnector.addJobToWaitingList(new SelectAutoProtocol());
-		
-		/*
-		 * This is what Torque does:
-		 */
-
-		// addCommandToWaitingList(new Defaults());
-		// addCommandToWaitingList(new Defaults());
-		// addCommandToWaitingList(new ObdReset());
-		// addCommandToWaitingList(new ObdReset());
-		// addCommandToWaitingList(new EchoOff());
-		// addCommandToWaitingList(new EchoOff());
-		// addCommandToWaitingList(new EchoOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new LineFeedOff());
-		// addCommandToWaitingList(new SpacesOff());
-		// addCommandToWaitingList(new HeadersOff());
-		// addCommandToWaitingList(new Defaults());
-		// addCommandToWaitingList(new ObdReset());
-		// addCommandToWaitingList(new ObdReset());
-		// addCommandToWaitingList(new EchoOff());
-		// addCommandToWaitingList(new EchoOff());
-		// addCommandToWaitingList(new EchoOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new MemoryOff());
-		// addCommandToWaitingList(new LineFeedOff());
-		// addCommandToWaitingList(new SpacesOff());
-		// addCommandToWaitingList(new HeadersOff());
-		// addCommandToWaitingList(new SelectAutoProtocol());
-		// addCommandToWaitingList(new PIDSupported());
-		// addCommandToWaitingList(new EnableHeaders());
-		// addCommandToWaitingList(new PIDSupported());
-		// addCommandToWaitingList(new HeadersOff());
-
-		/*
-		 * End Torque
-		 */
+	public List<CommonCommand> getInitializationCommands() {
+		List<CommonCommand> result = new ArrayList<CommonCommand>();
+		result.add(new ObdReset());
+		result.add(new EchoOff());
+		result.add(new EchoOff());
+		result.add(new LineFeedOff());
+		result.add(new Timeout(62));
+		result.add(new SelectAutoProtocol());
+		return result;
 	}
 
 }

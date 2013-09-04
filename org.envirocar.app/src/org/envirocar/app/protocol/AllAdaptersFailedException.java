@@ -20,29 +20,15 @@
  */
 package org.envirocar.app.protocol;
 
-import java.util.ArrayList;
-import java.util.List;
+public class AllAdaptersFailedException extends Exception {
 
-import org.envirocar.app.commands.CommonCommand;
-import org.envirocar.app.commands.IntakePressure;
-import org.envirocar.app.commands.IntakeTemperature;
-import org.envirocar.app.commands.MAF;
-import org.envirocar.app.commands.RPM;
-import org.envirocar.app.commands.Speed;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-public abstract class AbstractOBDConnector {
-
-	public abstract List<CommonCommand> getInitializationCommands();
-	
-	public List<CommonCommand> getRequestCommands() {
-		List<CommonCommand> result = new ArrayList<CommonCommand>();
-		result.add(new Speed());
-		result.add(new MAF());
-		result.add(new RPM());
-		result.add(new IntakePressure());
-		result.add(new IntakeTemperature());
-		return result;
+	public AllAdaptersFailedException(String string) {
+		super(string);
 	}
 
-	
 }

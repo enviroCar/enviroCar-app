@@ -20,29 +20,33 @@
  */
 package org.envirocar.app.protocol;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.IOException;
 
-import org.envirocar.app.commands.CommonCommand;
-import org.envirocar.app.commands.IntakePressure;
-import org.envirocar.app.commands.IntakeTemperature;
-import org.envirocar.app.commands.MAF;
-import org.envirocar.app.commands.RPM;
-import org.envirocar.app.commands.Speed;
-
-public abstract class AbstractOBDConnector {
-
-	public abstract List<CommonCommand> getInitializationCommands();
+/**
+ * Interface is used by the {@link OBDCommandLooper} to provide
+ * information on the connection state.
+ * 
+ * @author matthes rieke
+ *
+ */
+public interface ConnectionListener {
 	
-	public List<CommonCommand> getRequestCommands() {
-		List<CommonCommand> result = new ArrayList<CommonCommand>();
-		result.add(new Speed());
-		result.add(new MAF());
-		result.add(new RPM());
-		result.add(new IntakePressure());
-		result.add(new IntakeTemperature());
-		return result;
-	}
+	/**
+	 * a serious exception occured while using the connection
+	 * 
+	 * @param e the exception
+	 */
+	public void onConnectionException(IOException e);
 
-	
+	/**
+	 * called when the connetion is verified (= a useful response
+	 * was received)
+	 */
+	public void onConnectionVerified();
+
+	/**
+	 * called when all registered adapters failed to create a connection
+	 */
+	public void onAllAdaptersFailed();
+
 }
