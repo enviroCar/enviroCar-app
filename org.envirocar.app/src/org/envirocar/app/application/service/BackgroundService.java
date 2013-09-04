@@ -214,7 +214,7 @@ public class BackgroundService extends Service {
 			return;
 		}
 		
-		this.commandLooper = new OBDCommandLooper("OBD-CommandLooper",
+		this.commandLooper = new OBDCommandLooper(
 				in, out,
 				this.commandListener, new ConnectionListener() {
 					@Override
