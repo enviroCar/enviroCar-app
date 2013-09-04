@@ -120,7 +120,6 @@ public class UploadManager {
 			String token = user.getToken();
 			String urlL = String.format(url, username);
 
-
 			//iterate through the list of tracks :)
 			for(Track t : params[0]){
 				JSONObject trackJSONObject = null;

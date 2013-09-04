@@ -199,10 +199,14 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		//Upload all tracks
 		
 		case R.id.menu_upload:
-			((ECApplication) getActivity().getApplicationContext()).createNotification("start");
-			UploadManager uploadManager = new UploadManager(((ECApplication) getActivity().getApplication()));
-			uploadManager.uploadAllTracks();
-			upload.setEnabled(false);
+			if (UserManager.instance().isLoggedIn()) {
+				((ECApplication) getActivity().getApplicationContext()).createNotification("start");
+				UploadManager uploadManager = new UploadManager(((ECApplication) getActivity().getApplication()));
+				uploadManager.uploadAllTracks();
+				upload.setEnabled(false);
+			} else {
+				Crouton.showText(getActivity(), R.string.hint_login_first, Style.INFO);
+			}
 			return true;
 			
 		//Delete all tracks
@@ -350,9 +354,12 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			return true;
 			
 		case R.id.uploadTrack:
-			new UploadManager(((ECApplication) getActivity().getApplication())).uploadSingleTrack(track);
+			if (UserManager.instance().isLoggedIn()) {
+				new UploadManager(((ECApplication) getActivity().getApplication())).uploadSingleTrack(track);
+			} else {
+				Crouton.showText(getActivity(), R.string.hint_login_first, Style.INFO);
+			}
 			return true;
-		
 		default:
 			return super.onContextItemSelected(item);
 		}
@@ -616,7 +623,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 						// skip if tracks already in the ArrayList
 						for (Track t : tracksList) {
-							if (t.getRemoteID().equals(((JSONObject) tracks.get(i)).getString("id"))) {
+							if (t.getRemoteID() != null && t.getRemoteID().equals(((JSONObject) tracks.get(i)).getString("id"))) {
 								afterOneTrack();
 								continue;
 							}

@@ -45,13 +45,12 @@ public class Track implements Comparable<Track> {
 	private long id;
 	private String name;
 	private String description;
-	private ArrayList<Measurement> measurements;
+	private ArrayList<Measurement> measurements = new ArrayList<Measurement>();
 	private Car car;
 	private AbstractConsumptionAlgorithm consumptionAlgorithm;
 	private String vin;
 	private String remoteID;
 	private Double consumptionPerHour;
-//	private DbAdapter dbAdapter;
 
 	/**
 	 * @return the localTrack
@@ -63,18 +62,6 @@ public class Track implements Comparable<Track> {
 	public boolean isRemoteTrack() {
 		return (remoteID != null ? true : false);
 	}
-	
-	/**
-	 * Constructor for creating a Track from the Database. Use this constructor
-	 * when you want to rebuild tracks from the database.
-	 */
-//	public Track(long id) {
-//		this.id = id;
-//		this.name = "";
-//		this.description = "";
-//		this.vin = "";
-//		this.measurements = new ArrayList<Measurement>();
-//	}
 	
 	public static Track createDbTrack(long id) {
 		Track track = new Track(id);
@@ -103,32 +90,10 @@ public class Track implements Comparable<Track> {
 		this.name = "";
 		this.description = "";
 		this.measurements = new ArrayList<Measurement>();
-//		this.dbAdapter = dbAdapter;
 		this.car = car;
 		this.consumptionAlgorithm = new BasicConsumptionAlgorithm(car);
 		id = dbAdapter.insertTrack(this);
 	}
-
-	/**
-	 * Set the db adpater for the track. This method is needed when you want to
-	 * update a track in the database because when you get the track, the
-	 * dbadapter is not returned.
-	 * 
-	 * @param dbAdapter
-	 *            the dbapapter
-	 */
-//	public void setDatabaseAdapter(DbAdapter dbAdapter) {
-//		this.dbAdapter = dbAdapter;
-//	}
-
-	/**
-	 * Updates the Track in the database
-	 * 
-	 * @return
-	 */
-//	public boolean commitTrackToDatabase() {
-//		return dbAdapter.updateTrack(this);
-//	}
 
 	/**
 	 * @return the name
@@ -223,7 +188,6 @@ public class Track implements Comparable<Track> {
 	public void addMeasurement(Measurement measurement) {
 		measurement.setTrack(Track.this);
 		this.measurements.add(measurement);
-//		dbAdapter.insertMeasurement(measurement);
 	}
 
 	/**
