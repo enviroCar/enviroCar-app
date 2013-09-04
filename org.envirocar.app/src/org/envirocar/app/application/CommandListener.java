@@ -246,7 +246,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 						track = new Track("123456", car, dbAdapter);
 						track.setName("Track " + date);
 						track.setDescription(trackDescription);
-						track.commitTrackToDatabase();
+						dbAdapter.updateTrack(track);
 						return;
 					}
 
@@ -258,7 +258,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 						track = new Track("123456", car, dbAdapter); 
 						track.setName("Track " + date);
 						track.setDescription(trackDescription);
-						track.commitTrackToDatabase();
+						dbAdapter.updateTrack(track);
 						return;
 
 					}
@@ -279,7 +279,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 					track = new Track("123456", car, dbAdapter); 
 					track.setName("Track " + date);
 					track.setDescription(trackDescription);
-					track.commitTrackToDatabase();
+					dbAdapter.updateTrack(track);
 				}
 
 			} catch (TracksException e) {
@@ -287,7 +287,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 				track = new Track("123456", car, dbAdapter); 
 				track.setName("Track " + date);
 				track.setDescription(trackDescription);
-				track.commitTrackToDatabase();
+				dbAdapter.updateTrack(track);
 			}
 
 			return;
@@ -312,7 +312,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 					track = new Track("123456", car, dbAdapter);
 					track.setName("Track " + date);
 					track.setDescription(trackDescription);
-					track.commitTrackToDatabase();
+					dbAdapter.updateTrack(track);
 					logger.info("I create a new track because the last measurement is more than 60 mins ago");
 					return;
 				}
@@ -327,7 +327,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 					track = new Track("123456", car, dbAdapter); 
 					track.setName("Track " + date);
 					track.setDescription(trackDescription);
-					track.commitTrackToDatabase();
+					dbAdapter.updateTrack(track);
 					logger.info("The last measurement's position is more than 3 km away. I will create a new track");
 					return;
 
@@ -346,7 +346,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 				track = new Track("123456", car, dbAdapter); 
 				track.setName("Track " + date);
 				track.setDescription(trackDescription);
-				track.commitTrackToDatabase();
+				dbAdapter.updateTrack(track);
 			}
 		}
 	}

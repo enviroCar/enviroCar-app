@@ -250,8 +250,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						String value = input.getText().toString();
 						logger.info("New name: " + value.toString());
 						track.setName(value);
-						track.setDatabaseAdapter(dbAdapter);
-						track.commitTrackToDatabase();
+						dbAdapter.updateTrack(track);
 						tracksList.get(itemSelect).setName(value);
 						elvAdapter.notifyDataSetChanged();
 						Crouton.showText(getActivity(), getString(R.string.nameChanged), Style.INFO);
@@ -277,8 +276,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						String value = input2.getText().toString();
 						logger.info("New description: " + value.toString());
 						track.setDescription(value);
-						track.setDatabaseAdapter(dbAdapter);
-						track.commitTrackToDatabase();
+						dbAdapter.updateTrack(track);
 						elv.collapseGroup(itemSelect);
 						tracksList.get(itemSelect).setDescription(value);
 						elvAdapter.notifyDataSetChanged();
@@ -479,7 +477,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					try {
 						JSONObject trackProperties = trackJson[0].getJSONObject("properties");
 						t = Track.createRemoteTrack(trackProperties.getString("id"));
-						t.setDatabaseAdapter(dbAdapter);
 						String trackName = "unnamed Track #"+ct;
 						try{
 							trackName = trackProperties.getString("name");
@@ -529,7 +526,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						t.setCar(new Car(fuelType, manufacturer, carModel, sensorId, displacement)); // TODO get EngineDisplacement
 						//include server properties tracks created, modified?
 						
-						t.commitTrackToDatabase();
+						dbAdapter.updateTrack(t);
 						//Log.i("track_id",t.getId()+" "+((DbAdapterRemote) dbAdapter).trackExistsInDatabase(t.getId())+" "+dbAdapter.getNumberOfStoredTracks());
 						
 						Measurement recycleMeasurement;

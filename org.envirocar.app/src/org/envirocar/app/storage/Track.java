@@ -51,7 +51,7 @@ public class Track implements Comparable<Track> {
 	private String vin;
 	private String remoteID;
 	private Double consumptionPerHour;
-	private DbAdapter dbAdapter;
+//	private DbAdapter dbAdapter;
 
 	/**
 	 * @return the localTrack
@@ -103,7 +103,7 @@ public class Track implements Comparable<Track> {
 		this.name = "";
 		this.description = "";
 		this.measurements = new ArrayList<Measurement>();
-		this.dbAdapter = dbAdapter;
+//		this.dbAdapter = dbAdapter;
 		this.car = car;
 		this.consumptionAlgorithm = new BasicConsumptionAlgorithm(car);
 		id = dbAdapter.insertTrack(this);
@@ -117,18 +117,18 @@ public class Track implements Comparable<Track> {
 	 * @param dbAdapter
 	 *            the dbapapter
 	 */
-	public void setDatabaseAdapter(DbAdapter dbAdapter) {
-		this.dbAdapter = dbAdapter;
-	}
+//	public void setDatabaseAdapter(DbAdapter dbAdapter) {
+//		this.dbAdapter = dbAdapter;
+//	}
 
 	/**
 	 * Updates the Track in the database
 	 * 
 	 * @return
 	 */
-	public boolean commitTrackToDatabase() {
-		return dbAdapter.updateTrack(this);
-	}
+//	public boolean commitTrackToDatabase() {
+//		return dbAdapter.updateTrack(this);
+//	}
 
 	/**
 	 * @return the name
@@ -223,7 +223,7 @@ public class Track implements Comparable<Track> {
 	public void addMeasurement(Measurement measurement) {
 		measurement.setTrack(Track.this);
 		this.measurements.add(measurement);
-		dbAdapter.insertMeasurement(measurement);
+//		dbAdapter.insertMeasurement(measurement);
 	}
 
 	/**
