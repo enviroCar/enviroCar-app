@@ -54,17 +54,6 @@ public class Track implements Comparable<Track> {
 	private String remoteID;
 	private Double consumptionPerHour;
 
-	/**
-	 * @return the localTrack
-	 */
-	public boolean isLocalTrack() {
-		return (remoteID == null ? true : false);
-	}
-
-	public boolean isRemoteTrack() {
-		return (remoteID != null ? true : false);
-	}
-	
 	public static Track createDbTrack(long id) {
 		Track track = new Track(id);
 		return track;
@@ -74,13 +63,14 @@ public class Track implements Comparable<Track> {
 		this.id = id;
 	}
 	
-	public static Track createRemoteTrack(String remoteID) {
-		Track track = new Track(remoteID);
+	public static Track createRemoteTrack(String remoteID, DbAdapter dbAdapter) {
+		Track track = new Track(remoteID, dbAdapter);
 		return track;
 	}
 	
-	private Track(String remoteID) {
+	private Track(String remoteID, DbAdapter dbAdapter) {
 		this.remoteID = remoteID;
+		this.id = dbAdapter.insertTrack(this);
 	}
 	
 	/**
@@ -95,6 +85,17 @@ public class Track implements Comparable<Track> {
 		this.car = car;
 		this.consumptionAlgorithm = new BasicConsumptionAlgorithm(car);
 		id = dbAdapter.insertTrack(this);
+	}
+
+	/**
+	 * @return the localTrack
+	 */
+	public boolean isLocalTrack() {
+		return (remoteID == null ? true : false);
+	}
+
+	public boolean isRemoteTrack() {
+		return (remoteID != null ? true : false);
 	}
 
 	/**

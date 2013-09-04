@@ -289,12 +289,14 @@ public class DbAdapterImpl implements DbAdapter {
 		values.put(KEY_TRACK_NAME, track.getName());
 		values.put(KEY_TRACK_DESCRIPTION, track.getDescription());
 		values.put(KEY_TRACK_REMOTE, track.getRemoteID());
-		values.put(KEY_TRACK_CAR_MANUFACTURER, track.getCar().getManufacturer());
-		values.put(KEY_TRACK_CAR_MODEL, track.getCar().getModel());
-		values.put(KEY_TRACK_CAR_FUEL_TYPE, track.getCar().getFuelType().name());
-		values.put(KEY_TRACK_CAR_VIN, track.getVin());
-		values.put(KEY_TRACK_CAR_ID, track.getCar().getId());
-		values.put(KEY_TRACK_CAR_ENGINE_DISPLACEMENT, track.getCar().getEngineDisplacement());
+		if (track.getCar() != null) {
+			values.put(KEY_TRACK_CAR_MANUFACTURER, track.getCar().getManufacturer());
+			values.put(KEY_TRACK_CAR_MODEL, track.getCar().getModel());
+			values.put(KEY_TRACK_CAR_FUEL_TYPE, track.getCar().getFuelType().name());
+			values.put(KEY_TRACK_CAR_VIN, track.getVin());
+			values.put(KEY_TRACK_CAR_ID, track.getCar().getId());
+			values.put(KEY_TRACK_CAR_ENGINE_DISPLACEMENT, track.getCar().getEngineDisplacement());
+		}
 		return values;
 	}
 

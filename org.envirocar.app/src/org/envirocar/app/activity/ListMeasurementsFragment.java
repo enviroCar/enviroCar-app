@@ -39,6 +39,9 @@ import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
+import org.envirocar.app.event.EventBus;
+import org.envirocar.app.event.UploadTrackEvent;
+import org.envirocar.app.event.UploadTrackListener;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
@@ -103,14 +106,13 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	private ProgressBar progress;
 	private int itemSelect;
 	
-	private boolean isDownloading = false;
+	private Menu menu;
 	
-	private com.actionbarsherlock.view.MenuItem upload;
+	protected static final Logger logger = Logger.getLogger(ListMeasurementsFragment.class);
 
 	public View onCreateView(android.view.LayoutInflater inflater,
 			android.view.ViewGroup container,
 			android.os.Bundle savedInstanceState) {
-		
 		
 		setHasOptionsMenu(true);
 
@@ -133,26 +135,60 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			}
 
 		});
-		
-		
 		return v;
 	};
 	
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		initializeEventListener();
+		
+		logger.info("Create view ListMeasurementsFragment");
+		super.onViewCreated(view, savedInstanceState);
+		elv.setGroupIndicator(getResources().getDrawable(
+				R.drawable.list_indicator));
+		elv.setChildDivider(getResources().getDrawable(
+				android.R.color.transparent));
+		
+		//fetch local tracks // TODO load tracks with async thread
+		this.tracksList = dbAdapter.getAllTracks();
+		logger.info("Number of tracks in the List: " + tracksList.size());
+		if (elvAdapter == null)
+			elvAdapter = new TracksListAdapter();
+		elv.setAdapter(elvAdapter);
+		elvAdapter.notifyDataSetChanged();
+	
+		//if logged in, download tracks from server
+		if(UserManager.instance().isLoggedIn()){
+			downloadTracks();
+		}
+		
+	}
+
+	private void initializeEventListener() {
+		UploadTrackListener uploadTrackListener = new UploadTrackListener() {
+			@Override
+			public void receiveEvent(UploadTrackEvent event) {
+				notifyDataSetChanged(event.getPayload());
+			}
+		};
+		EventBus.getInstance().registerListener(uploadTrackListener);
+	}
+
 	@Override
 	public void onCreateOptionsMenu(Menu menu, com.actionbarsherlock.view.MenuInflater inflater) {
     	inflater.inflate(R.menu.menu_tracks, (com.actionbarsherlock.view.Menu) menu);
     	super.onCreateOptionsMenu(menu, inflater);
 	}
 	
-	private com.actionbarsherlock.view.MenuItem delete_btn;
-
-	protected static final Logger logger = Logger.getLogger(ListMeasurementsFragment.class);
-	
 	@Override
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
-		delete_btn = menu.findItem(R.id.menu_delete_all);
-		if (dbAdapter.getAllTracks().size() > 0 && !isDownloading) {
+		this.menu = menu;
+		updateUsabilityOfMenuItems();
+	}
+
+	private void updateUsabilityOfMenuItems() {
+		if (dbAdapter.getAllLocalTracks().size() > 0) {
 			menu.findItem(R.id.menu_delete_all).setEnabled(true);
 			if(UserManager.instance().isLoggedIn())
 				menu.findItem(R.id.menu_upload).setEnabled(true);
@@ -160,8 +196,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			menu.findItem(R.id.menu_upload).setEnabled(false);
 			menu.findItem(R.id.menu_delete_all).setEnabled(false);
 		}
-		upload = menu.findItem(R.id.menu_upload);
-		
 	}
 	
 	/**
@@ -182,10 +216,9 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		elvAdapter.notifyDataSetChanged();
 	}
 	
-	public void notifyDataSetChanged(){
-		tracksList.clear();
-		downloadTracks();
-		//elvAdapter.notifyDataSetChanged();
+	public void notifyDataSetChanged(Track track){
+		updateUsabilityOfMenuItems();
+		elvAdapter.notifyDataSetChanged();
 	}
 	
 	/**
@@ -203,7 +236,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				((ECApplication) getActivity().getApplicationContext()).createNotification("start");
 				UploadManager uploadManager = new UploadManager(((ECApplication) getActivity().getApplication()));
 				uploadManager.uploadAllTracks();
-				upload.setEnabled(false);
 			} else {
 				Crouton.showText(getActivity(), R.string.hint_login_first, Style.INFO);
 			}
@@ -214,8 +246,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		case R.id.menu_delete_all:
 			((ECApplication) getActivity().getApplication()).getDBAdapter().deleteAllLocalTracks();
 			((ECApplication) getActivity().getApplication()).resetTrack();
-			tracksList.clear();
-			downloadTracks();
 			Crouton.makeText(getActivity(), R.string.all_local_tracks_deleted,Style.CONFIRM).show();
 			return true;
 			
@@ -228,9 +258,9 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		super.onCreateContextMenu(menu, v, menuInfo);
 		MenuInflater inflater = getSherlockActivity().getMenuInflater();
 		final Track track = tracksList.get(itemSelect);
-		if(track.isLocalTrack()){
+		if (track.isLocalTrack()){
 			inflater.inflate(R.menu.context_item, menu);
-		}else{
+		} else {
 			inflater.inflate(R.menu.context_item_remote, menu);
 		}
 	}
@@ -243,8 +273,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		final Track track = tracksList.get(itemSelect);
 		switch (item.getItemId()) {
 		
-		//Edit the trackname
-
+		// Edit the trackname
 		case R.id.editName:
 			if(track.isLocalTrack()){
 				logger.info("editing track: " + itemSelect);
@@ -269,8 +298,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			}
 			return true;
 			
-		//Edit the track description
-
+		// Edit the track description
 		case R.id.editDescription:
 			if(track.isLocalTrack()){
 				logger.info("editing track: " + itemSelect);
@@ -298,7 +326,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			return true;
 			
 		// Show that track in the map
-
 		case R.id.startMap:
 			logger.info("Show in Map");
 			logger.info(Environment.getExternalStorageDirectory().toString());
@@ -325,8 +352,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 			return true;
 			
-		// Delete only this track
-
+		// Delete only selected track
 		case R.id.deleteTrack:
 			if(track.isLocalTrack()){
 				logger.info("deleting item: " + itemSelect);
@@ -335,10 +361,11 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				tracksList.remove(itemSelect);
 				elvAdapter.notifyDataSetChanged();
 			} else {
-				createDeleteDialog(track);
+				createRemoteDeleteDialog(track);
 			}
 			return true;
 			
+		// Share track
 		case R.id.shareTrack:
 			try{
 				Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
@@ -353,6 +380,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			}
 			return true;
 			
+		// Upload track
 		case R.id.uploadTrack:
 			if (UserManager.instance().isLoggedIn()) {
 				new UploadManager(((ECApplication) getActivity().getApplication())).uploadSingleTrack(track);
@@ -365,7 +393,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		}
 	}
 
-	private void createDeleteDialog(final Track track) {
+	private void createRemoteDeleteDialog(final Track track) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setMessage(R.string.deleteRemoteTrackQuestion)
 				.setPositiveButton(R.string.yes,
@@ -395,40 +423,17 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	
 	private void removeRemoteTrack(final Track track) {
 		if (track.isRemoteTrack()) {
-			dbAdapter.deleteTrack(track.getId());
-			tracksList.remove(track);
-			elvAdapter.notifyDataSetChanged();
-			Crouton.showText(
-					getActivity(),
-					getString(R.string.remoteTrackDeleted),
-					Style.INFO);
+			if (tracksList.remove(track)) {
+				dbAdapter.deleteTrack(track.getId());
+				elvAdapter.notifyDataSetChanged();
+				Crouton.showText(
+						getActivity(),
+						getString(R.string.remoteTrackDeleted),
+						Style.INFO);
+			}
 		}
 	}
 
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		logger.info("Create view ListMeasurementsFragment");
-		super.onViewCreated(view, savedInstanceState);
-		elv.setGroupIndicator(getResources().getDrawable(
-				R.drawable.list_indicator));
-		elv.setChildDivider(getResources().getDrawable(
-				android.R.color.transparent));
-		
-		//fetch local tracks
-		this.tracksList = dbAdapter.getAllLocalTracks();
-		logger.info("Number of tracks in the List: " + tracksList.size());
-		if (elvAdapter == null)
-			elvAdapter = new TracksListAdapter();
-		elv.setAdapter(elvAdapter);
-		elvAdapter.notifyDataSetChanged();
-
-		//if logged in, download tracks from server
-		if(UserManager.instance().isLoggedIn()){
-			downloadTracks();
-		}
-
-	}
-	
 	/**
 	 * Returns an StringArray of coordinates for the mpa
 	 * 
@@ -452,8 +457,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	 * Download remote tracks from the server and include them in the track list
 	 */
 	private void downloadTracks() {
-		
-		isDownloading = true;
 		
 		User user = UserManager.instance().getUser();
 		final String username = user.getUsername();
@@ -483,7 +486,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					Track t;
 					try {
 						JSONObject trackProperties = trackJson[0].getJSONObject("properties");
-						t = Track.createRemoteTrack(trackProperties.getString("id"));
+						t = Track.createRemoteTrack(trackProperties.getString("id"), dbAdapter);
 						String trackName = "unnamed Track #"+ct;
 						try{
 							trackName = trackProperties.getString("name");
@@ -592,9 +595,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					//sort the tracks bubblesort ?
 					Collections.sort(tracksList);
 					elvAdapter.notifyDataSetChanged();
-					isDownloading = false;
-					if (((ECApplication) getActivity().getApplication()).getDBAdapter().getAllTracks().size() > 0)
-						delete_btn.setEnabled(true);
+					updateUsabilityOfMenuItems();
 				}
 				if (elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))) {
 					elv.setAdapter(elvAdapter);
@@ -620,12 +621,13 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					if(tracks.length()==0) progress.setVisibility(View.GONE);
 					ct = tracks.length();
 					for (int i = 0; i < tracks.length(); i++) {
+						boolean trackInList = false;
 
-						// skip if tracks already in the ArrayList
+						// check if track is listed
 						for (Track t : tracksList) {
 							if (t.getRemoteID() != null && t.getRemoteID().equals(((JSONObject) tracks.get(i)).getString("id"))) {
 								afterOneTrack();
-								continue;
+								trackInList = true;
 							}
 						}
 //						//AsyncTask to retrieve a Track from the database
@@ -651,43 +653,41 @@ public class ListMeasurementsFragment extends SherlockFragment {
 
 						// else
 						// download the track
-						RestClient.downloadTrack(username, token, ((JSONObject) tracks.get(i)).getString("id"),
-								new JsonHttpResponseHandler() {
-									
-									@Override
-									public void onFinish() {
-										super.onFinish();
-										if (elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))) {
-											elv.setAdapter(elvAdapter);
+						if (!trackInList) {
+							RestClient.downloadTrack(username, token, ((JSONObject) tracks.get(i)).getString("id"),
+									new JsonHttpResponseHandler() {
+										
+										@Override
+										public void onFinish() {
+											super.onFinish();
+											if (elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))) {
+												elv.setAdapter(elvAdapter);
+											}
+											elvAdapter.notifyDataSetChanged();
 										}
-										elvAdapter.notifyDataSetChanged();
-									}
 
-									@Override
-									public void onSuccess(JSONObject trackJson) {
-										super.onSuccess(trackJson);
+										@Override
+										public void onSuccess(JSONObject trackJson) {
+											super.onSuccess(trackJson);
 
-										// start the AsyncTask to handle the downloaded trackjson
-										new AsyncOnSuccessTask().execute(trackJson);
+											// start the AsyncTask to handle the downloaded trackjson
+											new AsyncOnSuccessTask().execute(trackJson);
 
-									}
+										}
 
-									public void onFailure(Throwable arg0,
-											String arg1) {
-										logger.warn(arg1,arg0);
-									};
-								});
+										public void onFailure(Throwable arg0, String arg1) {
+											logger.warn(arg1,arg0);
+												};
+											});
 
-					}
+								}
+							}
+						
 				} catch (JSONException e) {
 					logger.warn(e.getMessage(), e);
 				}
 			}
 		});
-		
-		
-		
-
 	}
 
 	private class TracksListAdapter extends BaseExpandableListAdapter {

@@ -134,23 +134,6 @@ public class Measurement {
 	}
 
 	/**
-	 * @return the maf
-	 */
-	@Deprecated
-	public double getMaf() {
-		return (Double) propertyMap.get(PropertyKey.MAF);
-	}
-
-	/**
-	 * @param maf
-	 *            the maf to set
-	 */
-	@Deprecated
-	public void setMaf(double maf) {
-		propertyMap.put(PropertyKey.MAF, maf);
-	}
-
-	/**
 	 * @return the latitude
 	 */
 	public double getLatitude() {
@@ -196,23 +179,6 @@ public class Measurement {
 	}
 
 	/**
-	 * @return the speed
-	 */
-	@Deprecated
-	public int getSpeed() {
-		return Double.valueOf((Double) propertyMap.get(PropertyKey.SPEED)).intValue() ;
-	}
-
-	/**
-	 * @param speed
-	 *            the speed to set
-	 */
-	@Deprecated
-	public void setSpeed(int speed) {
-		propertyMap.put(PropertyKey.SPEED, Double.valueOf(speed));
-	}
-
-	/**
 	 * @return the track
 	 */
 	public Track getTrack() {
@@ -227,93 +193,6 @@ public class Measurement {
 		this.track = track;
 	}
 	
-	/**
-	 * @return the rpm
-	 */
-	@Deprecated
-	public int getRpm() {
-		return Double.valueOf((Double) propertyMap.get(PropertyKey.RPM)).intValue();
-	}
-
-	/**
-	 * @param maf
-	 *            the rpm to set
-	 */
-	@Deprecated
-	public void setRpm(int rpm) {
-		propertyMap.put(PropertyKey.RPM, Double.valueOf(rpm));
-	}
-
-	/**
-	 * @return the intake_temperature
-	 */
-	@Deprecated
-	public double getIntakeTemperature() {
-		return (Double) propertyMap.get(PropertyKey.INTAKE_TEMPERATURE);
-	}
-
-	/**
-	 * @param intake_temperature
-	 *            the intake_temperature to set
-	 */
-	@Deprecated
-	public void setIntakeTemperature(double intake_temperature) {
-		propertyMap.put(PropertyKey.INTAKE_TEMPERATURE, intake_temperature);
-	}
-
-	/**
-	 * @return the intake_pressure
-	 */
-	@Deprecated
-	public double getIntakePressure() {
-		return (Double) propertyMap.get(PropertyKey.INTAKE_PRESSURE);
-	}
-
-	/**
-	 * @param intake_pressure
-	 *            the intake_pressure to set
-	 */
-	@Deprecated
-	public void setIntakePressure(double intake_pressure) {
-		propertyMap.put(PropertyKey.INTAKE_PRESSURE, intake_pressure);
-	}
-	
-	/**
-	 * @return calculated maf
-	 */
-	@Deprecated
-	public double getCalculatedMaf() {
-		return (Double) propertyMap.get(PropertyKey.CALCULATED_MAF);
-	}
-
-	/**
-	 * @param calculated maf
-	 */
-	@Deprecated
-	public void setCalculatedMaf(double calculatedMaf) {
-		propertyMap.put(PropertyKey.CALCULATED_MAF, calculatedMaf);
-	}
-
-	@Deprecated
-	public void setCO2(double c) {
-		propertyMap.put(PropertyKey.CO2, c);
-	}
-
-	@Deprecated
-	public double getCO2() {
-		return (Double) propertyMap.get(PropertyKey.CO2);
-	}
-
-	@Deprecated
-	public void setConsumption(double c) {
-		propertyMap.put(PropertyKey.CONSUMPTION, c);
-	}
-
-	@Deprecated
-	public double getConsumption() {
-		return (Double) propertyMap.get(PropertyKey.CONSUMPTION);
-	}
-
 	public boolean hasProperty(PropertyKey key) {
 		return propertyMap.containsKey(key);
 	}

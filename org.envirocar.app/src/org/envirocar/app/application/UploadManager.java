@@ -38,8 +38,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.envirocar.app.R;
-import org.envirocar.app.activity.ListMeasurementsFragment;
 import org.envirocar.app.activity.SettingsActivity;
+import org.envirocar.app.event.EventBus;
+import org.envirocar.app.event.UploadTrackEvent;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.network.HTTPClient;
@@ -55,7 +56,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 /**
  * Manager that can upload a track to the server. 
@@ -98,16 +98,10 @@ public class UploadManager {
 		new UploadAsyncTask().execute(track);
 	}
 
-	private class UploadAsyncTask extends AsyncTask<Track, Void, Void> {
+	private class UploadAsyncTask extends AsyncTask<Track, Void, Track> {
 		
 		@Override
-		protected void onPostExecute(Void result) {
-			super.onPostExecute(result);
-			((ListMeasurementsFragment) ((FragmentActivity) ((ECApplication) context).getCurrentActivity()).getSupportFragmentManager().findFragmentByTag("MY_TRACKS")).notifyDataSetChanged();
-		}
-
-		@Override
-		protected Void doInBackground(Track... params) {
+		protected Track doInBackground(Track... params) {
 			
 			//probably unnecessary
 			if(dbAdapter.getNumberOfRemoteTracks() == 0)
@@ -141,15 +135,13 @@ public class UploadManager {
 					((ECApplication) context).createNotification("success");
 					track.setRemoteID(httpResult);
 					dbAdapter.updateTrack(track);
+					EventBus.getInstance().fireEvent(new UploadTrackEvent(track));
 				} else {
 					((ECApplication) context).createNotification("General Track error. Please contact envirocar.org");
 				}
 			}
 			return null;
-			
-			// TODO notify track list and update track in Database
 		}
-
 	}
 
 	public String getTrackJSON(Track track) throws JSONException{
