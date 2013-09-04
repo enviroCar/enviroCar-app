@@ -22,17 +22,18 @@
 package org.envirocar.app.application.service;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.UUID;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.application.Listener;
 import org.envirocar.app.application.LocationUpdateListener;
 import org.envirocar.app.commands.CommonCommand;
-import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.protocol.ConnectionListener;
+import org.envirocar.app.protocol.OBDCommandLooper;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -60,15 +61,15 @@ public class BackgroundService extends Service {
 	private static final Logger logger = Logger.getLogger(BackgroundService.class);
 	
 	public static final String CONNECTION_VERIFIED_INTENT = BackgroundService.class.getName()+".CONNECTION_VERIFIED";
-	public static final String CONNECTION_NOT_YET_VERIFIED_INTENT = BackgroundService.class.getName()+".CONNECTION_NOT_YET_VERIFIED";
 	public static final String DISCONNECTED_INTENT = BackgroundService.class.getName()+".DISCONNECTED";
+	public static final String CONNECTION_PERMANENTLY_FAILED_INTENT =
+			BackgroundServiceInteractor.class.getName()+".CONNECTION_PERMANENTLY_FAILED";
 	public static final String SERVICE_STATE = BackgroundService.class.getName()+".STATE";
 	
 	protected static final long CONNECTION_CHECK_INTERVAL = 1000 * 5;
 	// Properties
 
 	private AtomicBoolean isTheServiceRunning = new AtomicBoolean(false);
-	private AtomicBoolean isWaitingListRunning = new AtomicBoolean(false);
 	
 	// Bluetooth devices and connection items
 
@@ -79,10 +80,10 @@ public class BackgroundService extends Service {
 	
 	private Listener commandListener;
 	private final Binder binder = new LocalBinder();
-	private BlockingQueue<CommonCommand> waitingList = new LinkedBlockingQueue<CommonCommand>();
 
-	private boolean connectionVerified;
-	
+	private OBDCommandLooper commandLooper;
+
+
 	@Override
 	public IBinder onBind(Intent intent) {
 		return binder;
@@ -123,19 +124,9 @@ public class BackgroundService extends Service {
 	 * Method that stops the service, removes everything from the waiting list
 	 */
 	private void stopBackgroundService() {
+		this.commandLooper.stopLooper();
 		isTheServiceRunning.set(false);
 		sendStateBroadcast();
-		waitingList.removeAll(waitingList);
-		
-		synchronized (this) {
-			while (isWaitingListRunning.get()) {
-				try {
-					this.wait();
-				} catch (InterruptedException e) {
-					logger.warn(e.getMessage(), e);
-				}
-			}	
-		}
 		
 		if (bluetoothSocket != null) {
 			try {
@@ -147,7 +138,6 @@ public class BackgroundService extends Service {
 
 		LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
 		sendBroadcast(new Intent(DISCONNECTED_INTENT));
-		connectionVerified = false;
 	}
 	
 	private void sendStateBroadcast() {
@@ -207,74 +197,52 @@ public class BackgroundService extends Service {
 	 * method gets called when the bluetooth device connection
 	 * has been established. 
 	 */
-	private void connected() {
+	private void deviceConnected() {
 		logger.info("Bluetooth device connected.");
         // Service is running..
 		isTheServiceRunning.set(true);		
 		sendStateBroadcast();
+		
+		InputStream in;
+		OutputStream out;
+		try {
+			in = bluetoothSocket.getInputStream();
+			out = bluetoothSocket.getOutputStream();
+		} catch (IOException e) {
+			logger.warn(e.getMessage(), e);
+			deviceDisconnected();
+			return;
+		}
+		
+		this.commandLooper = new OBDCommandLooper("OBD-CommandLooper",
+				in, out,
+				this.commandListener, new ConnectionListener() {
+					@Override
+					public void onConnectionVerified() {
+						sendBroadcast(new Intent(CONNECTION_VERIFIED_INTENT));
+					}
+					
+					@Override
+					public void onConnectionException(IOException e) {
+						deviceDisconnected();
+					}
+
+					@Override
+					public void onAllAdaptersFailed() {
+						BackgroundService.this.onAllAdaptersFailed();
+					}
+				});
+		this.commandLooper.start();
 	}
 	
-	private void disconnected() {
+	private void deviceDisconnected() {
 		logger.info("Bluetooth device disconnected.");
 		stopBackgroundService();
 	}
 
-
-	/**
-	 * Runs the waiting list until the service is stopped
-	 */
-	private synchronized void runWaitingList() {
-
-		isWaitingListRunning.set(true);
-		this.notifyAll();
-
-		// Go through all the waiting-list-jobs
-
-		while (!waitingList.isEmpty()) {
-
-			CommonCommand currentJob = null;
-
-			// Try to run the first job from the waitinglist
-
-			try {
-				currentJob = waitingList.take();
-
-				if (currentJob.getCommandState().equals(CommonCommandState.NEW)) {
-
-					// Run the job
-					currentJob.setCommandState(CommonCommandState.RUNNING);
-					currentJob.run(bluetoothSocket.getInputStream(),
-							bluetoothSocket.getOutputStream());
-				}
-			} catch (IOException e) {
-				logger.warn(e.getMessage(), e);
-				isWaitingListRunning.set(false);
-				this.notifyAll();
-				disconnected();
-			} catch (Exception e) {
-				logger.warn("Error while sending command '" + currentJob.toString() + "'", e);
-				currentJob.setCommandState(CommonCommandState.EXECUTION_ERROR);
-			}
-
-			// Finished if no more job is in the waiting-list
-
-			if (currentJob != null) {
-				currentJob.setCommandState(CommonCommandState.FINISHED);
-				if (commandListener != null) {
-					commandListener.receiveUpdate(currentJob);
-				}
-				
-				if (!connectionVerified && !currentJob.isNoDataCommand()) {
-					connectionVerified = true;
-					sendBroadcast(new Intent(CONNECTION_VERIFIED_INTENT));
-				}
-			}
-		}
-
-		// Execution finished
-
-		isWaitingListRunning.set(false);
-		this.notifyAll();
+	public void onAllAdaptersFailed() {
+		stopBackgroundService();
+		sendBroadcast(new Intent(CONNECTION_PERMANENTLY_FAILED_INTENT));		
 	}
 	
 	/**
@@ -298,10 +266,6 @@ public class BackgroundService extends Service {
 
 		@Override
 		public void newJobToWaitingList(CommonCommand job) {
-			waitingList.add(job);
-
-			if (!isWaitingListRunning.get())
-				runWaitingList();
 		}
 
 		@Override
@@ -316,8 +280,7 @@ public class BackgroundService extends Service {
 
 		@Override
 		public void allAdaptersFailed() {
-			shutdownConnection();
-			sendBroadcast(new Intent(CONNECTION_PERMANENTLY_FAILED_INTENT));
+			onAllAdaptersFailed();
 		}
 	}
 	
@@ -363,22 +326,14 @@ public class BackgroundService extends Service {
                 } catch (IOException e2) {
                     logger.warn(e2.getMessage(), e2);
                 }
-                disconnected();
+                deviceDisconnected();
                 return;
             }
 
-            connected();
-            
-            while (!connectionVerified) {
-            	sendBroadcast(new Intent(CONNECTION_NOT_YET_VERIFIED_INTENT));
-            	
-            	try {
-					Thread.sleep(CONNECTION_CHECK_INTERVAL);
-				} catch (InterruptedException e) {
-					logger.warn(e.getMessage(), e);
-				}
-            }
+            deviceConnected();
+
         }
     }
+
 
 }

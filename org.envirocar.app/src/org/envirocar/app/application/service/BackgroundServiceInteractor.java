@@ -34,9 +34,6 @@ import android.content.Intent;
  */
 public interface BackgroundServiceInteractor {
 	
-	public static final String CONNECTION_PERMANENTLY_FAILED_INTENT =
-			BackgroundServiceInteractor.class.getName()+".CONNECTION_PERMANENTLY_FAILED";
-
 	/**
 	 * Set the listener for this monitor
 	 * 
@@ -68,7 +65,9 @@ public interface BackgroundServiceInteractor {
 	 * 
 	 * @param newCommand
 	 *            the new CommonCommand to add
+	 * @deprecated this should not be the responsibility of the interactor!
 	 */
+	@Deprecated
 	void newJobToWaitingList(CommonCommand newCommand);
 
 	/**

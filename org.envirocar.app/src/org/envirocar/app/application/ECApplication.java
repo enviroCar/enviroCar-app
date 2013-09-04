@@ -24,7 +24,6 @@ package org.envirocar.app.application;
 import java.text.SimpleDateFormat;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -34,7 +33,6 @@ import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
 import org.envirocar.app.application.service.BackgroundService;
 import org.envirocar.app.application.service.BackgroundServiceConnector;
-import org.envirocar.app.application.service.BackgroundServiceInteractor;
 import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
@@ -97,8 +95,6 @@ public class ECApplication extends Application {
 	private Intent backgroundService;
 	private Intent deviceInRangeService;
 	
-	private Listener commandListener;
-	
 	private int mId = 1133;
 	
 	protected boolean adapterConnected;
@@ -127,6 +123,8 @@ public class ECApplication extends Application {
 	};
 
 	private BroadcastReceiver receiver;
+
+	private CommandListener commandListener;
 	
 
 	/**
@@ -192,29 +190,6 @@ public class ECApplication extends Application {
 
 	}
 	
-//	private void testBluetooth() {
-//	    BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-//		
-//		Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-//		// If there are paired devices
-//		BluetoothDevice theDevice = null;
-//		if (pairedDevices.size() > 0) {
-//		    // Loop through paired devices
-//		    for (BluetoothDevice device : pairedDevices) {
-//		        // Add the name and address to an array adapter to show in a ListView
-//		    	if (device.getName().contains("20") || device.getName().contains("_W_W_")) {
-//		    		theDevice = device;
-//		    	}
-//		    }
-//		}
-//		
-//		
-//
-//	}
-
-	
-
-	
 	
 	private void initializeErrorHandling() {
 		ACRA.init(this);
@@ -247,61 +222,34 @@ public class ECApplication extends Application {
 			deviceInRangeService = new Intent(this, DeviceInRangeService.class);
 			startService(deviceInRangeService);
 			backgroundService = new Intent(this, BackgroundService.class);
-			serviceConnector = new BackgroundServiceConnector(commandListener);
+			serviceConnector = new BackgroundServiceConnector(this.commandListener);
 			bindService(backgroundService, serviceConnector,
 					Context.BIND_AUTO_CREATE);
 			
 			receiver = new BroadcastReceiver() {
 				@Override
 				public void onReceive(Context context, Intent intent) {
-					if (intent.getAction().equals(BackgroundService.CONNECTION_NOT_YET_VERIFIED_INTENT)) {
-						serviceConnector.executeInitializationSequence();
-					}
-					else if (intent.getAction().equals(BackgroundService.CONNECTION_VERIFIED_INTENT)) {
+					if (intent.getAction().equals(BackgroundService.CONNECTION_VERIFIED_INTENT)) {
 						onAdapterConnected();
 					}
 					else if (intent.getAction().equals(BackgroundService.DISCONNECTED_INTENT)) {
 						onAdapterDisconnected();
 					}
-					else if (intent.getAction().equals(BackgroundServiceInteractor.CONNECTION_PERMANENTLY_FAILED_INTENT)) {
+					else if (intent.getAction().equals(BackgroundService.CONNECTION_PERMANENTLY_FAILED_INTENT)) {
 						connectionPermanentlyFailed();
 					}
 				}
 			};
 			
-			registerReceiver(bluetoothChangeReceiver, new IntentFilter(BackgroundService.CONNECTION_NOT_YET_VERIFIED_INTENT));
 			registerReceiver(receiver, new IntentFilter(BackgroundService.CONNECTION_VERIFIED_INTENT));
+			registerReceiver(receiver, new IntentFilter(BackgroundService.CONNECTION_PERMANENTLY_FAILED_INTENT));
 			registerReceiver(receiver, new IntentFilter(BackgroundService.DISCONNECTED_INTENT));
-			registerReceiver(receiver, new IntentFilter(BackgroundServiceInteractor.CONNECTION_PERMANENTLY_FAILED_INTENT));
 		} else {
 			logger.warn("bluetooth not activated!");
 		}
 	}
 
 	
-	/**
-	 * This method starts the service connector every five minutes if the user 
-	 * wants an autoconnection
-	 * @deprecated not being used. implement a better way at a better location if required
-	 */
-	@Deprecated
-	public void startServiceConnector() {
-		scheduleTaskExecutor.scheduleAtFixedRate(new Runnable() {
-			public void run() {
-				if (bluetoothActivated()) {
-					if (!serviceConnector.isRunning()) {
-						startConnection();
-					} else {
-						logger.warn("serviceConnector not running");
-					}
-				} else {
-					logger.warn("requirementsFulfilled was false!");
-				}
-
-			}
-		}, 0, 5, TimeUnit.MINUTES);
-	}
-
 	/**
 	 * This method starts the commandListener that interprets the answers from the BT adapter.
 	 */
@@ -445,6 +393,7 @@ public class ECApplication extends Application {
 
 	
 	public void resetTrack() {
+		//TODO somehow let the CommandListener know of the reset
 		this.commandListener.resetTrack();
 	}
 

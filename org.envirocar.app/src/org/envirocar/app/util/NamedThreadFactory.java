@@ -18,31 +18,33 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol;
+package org.envirocar.app.util;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import org.envirocar.app.commands.CommonCommand;
-import org.envirocar.app.commands.IntakePressure;
-import org.envirocar.app.commands.IntakeTemperature;
-import org.envirocar.app.commands.MAF;
-import org.envirocar.app.commands.RPM;
-import org.envirocar.app.commands.Speed;
+/**
+ * a simple {@link ThreadFactory} impl to allow better thread
+ * debugging.
+ * 
+ * @author matthes rieke
+ *
+ */
+public class NamedThreadFactory implements ThreadFactory {
 
-public abstract class AbstractOBDConnector {
+	private String prefix;
+	private AtomicInteger count;
 
-	public abstract List<CommonCommand> getInitializationCommands();
-	
-	public List<CommonCommand> getRequestCommands() {
-		List<CommonCommand> result = new ArrayList<CommonCommand>();
-		result.add(new Speed());
-		result.add(new MAF());
-		result.add(new RPM());
-		result.add(new IntakePressure());
-		result.add(new IntakeTemperature());
-		return result;
+	public NamedThreadFactory(String string) {
+		this.prefix = string;
+		this.count = new AtomicInteger(0);
 	}
 
-	
+	@Override
+	public Thread newThread(Runnable r) {
+		Thread t = new Thread(r);
+		t.setName(prefix+"-"+this.count.getAndIncrement());
+		return t;
+	}
+
 }

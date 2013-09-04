@@ -74,13 +74,18 @@ public abstract class CommonCommand {
 	 * 
 	 * This method CAN be overriden in fake commands.
 	 */
-	public void run(InputStream in, OutputStream out) throws IOException,
-			InterruptedException {
+	public void run(InputStream in, OutputStream out) throws IOException {
 		sendCommand(out);
 		waitForResult(in);
 	}
 
 	private void waitForResult(final InputStream in) throws IOException {
+		try {
+			Thread.sleep(SLEEP_TIME);
+		} catch (InterruptedException e) {
+			logger.warn(e.getMessage(), e);
+		}
+		
 		if (!awaitsResults()) return; 
 		try {
 			int tries = 0;
@@ -114,8 +119,7 @@ public abstract class CommonCommand {
 	 * @param command
 	 *            The command to send.
 	 */
-	protected void sendCommand(OutputStream outputStream) throws IOException,
-			InterruptedException {
+	protected void sendCommand(OutputStream outputStream) throws IOException {
 		// write to OutputStream, or in this case a BluetoothSocket
 		outputStream.write(command.concat(COMMAND_SEND_END).getBytes());
 		outputStream.flush();
