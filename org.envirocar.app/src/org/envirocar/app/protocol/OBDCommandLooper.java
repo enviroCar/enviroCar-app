@@ -108,27 +108,36 @@ public class OBDCommandLooper extends HandlerThread {
 	private ConnectionListener connectionListener;
 
 	/**
-	 * @see HandlerThread#HandlerThread(String)
+	 * same as OBDCommandLooper#OBDCommandLooper(InputStream, OutputStream, Listener, ConnectionListener, int) with NORM_PRIORITY
 	 */
-	public OBDCommandLooper(String name, InputStream in, OutputStream out, Listener l, ConnectionListener cl) {
-		this(name, in, out, l, cl, NORM_PRIORITY);
+	public OBDCommandLooper(InputStream in, OutputStream out, Listener l, ConnectionListener cl) {
+		this(in, out, l, cl, NORM_PRIORITY);
 	}
 	
 	/**
-	 * @param cl 
-	 * @see HandlerThread#HandlerThread(String, int)
+	 * @param in the inputStream of the connection
+	 * @param out the outputStream of the connection
+	 * @param l the listener which receives command responses
+	 * @param cl the connection listener which receives connection state changes
+	 * @param priority thread priority
+	 * @throws IllegalArgumentException if one of the inputs equals null
 	 */
-	public OBDCommandLooper(String name, InputStream in, OutputStream out, Listener l, ConnectionListener cl, int priority) {
-		super(name, priority);
+	public OBDCommandLooper(InputStream in, OutputStream out, Listener l, ConnectionListener cl, int priority) {
+		super("OBD-CommandLooper-Handler", priority);
 		
-		adapterCandidates.add(new ELM327Connector());
-		obdAdapter = adapterCandidates.get(0);
+		if (in == null) throw new IllegalArgumentException("in must not be null!");
+		if (out == null) throw new IllegalArgumentException("out must not be null!");
+		if (l == null) throw new IllegalArgumentException("l must not be null!");
+		if (cl == null) throw new IllegalArgumentException("cl must not be null!");
 		
 		this.inputStream = in;
 		this.outputStream = out;
 		
 		this.commandListener = l;
 		this.connectionListener = cl;
+		
+		adapterCandidates.add(new ELM327Connector());
+		obdAdapter = adapterCandidates.get(0);
 	}
 	
 	
