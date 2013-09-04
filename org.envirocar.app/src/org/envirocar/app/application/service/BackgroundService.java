@@ -28,6 +28,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.envirocar.app.activity.SettingsActivity;
+import org.envirocar.app.activity.TroubleshootingActivity;
 import org.envirocar.app.application.Listener;
 import org.envirocar.app.application.LocationUpdateListener;
 import org.envirocar.app.commands.CommonCommand;
@@ -44,6 +45,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -124,7 +126,10 @@ public class BackgroundService extends Service {
 	 * Method that stops the service, removes everything from the waiting list
 	 */
 	private void stopBackgroundService() {
-		this.commandLooper.stopLooper();
+		if (this.commandLooper != null) {
+			this.commandLooper.stopLooper();
+		}
+		
 		isTheServiceRunning.set(false);
 		sendStateBroadcast();
 		
@@ -245,6 +250,15 @@ public class BackgroundService extends Service {
 		sendBroadcast(new Intent(CONNECTION_PERMANENTLY_FAILED_INTENT));		
 	}
 	
+	private void openTroubleshootingActivity(int type) {
+		Intent intent = new Intent(getApplicationContext(), TroubleshootingActivity.class);
+		Bundle bundle = new Bundle();
+		bundle.putInt(TroubleshootingActivity.ERROR_TYPE, type);
+		intent.putExtras(bundle);
+		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		getApplication().startActivity(intent);
+	}
+	
 	/**
 	 * Binder imported directly from Android OBD Project. Runs the waiting list
 	 * when jobs are added to it
@@ -327,6 +341,7 @@ public class BackgroundService extends Service {
                     logger.warn(e2.getMessage(), e2);
                 }
                 deviceDisconnected();
+                openTroubleshootingActivity(TroubleshootingActivity.BLUETOOTH_EXCEPTION);
                 return;
             }
 
@@ -334,6 +349,5 @@ public class BackgroundService extends Service {
 
         }
     }
-
 
 }
