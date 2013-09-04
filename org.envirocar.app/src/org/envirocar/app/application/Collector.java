@@ -20,6 +20,13 @@
  */
 package org.envirocar.app.application;
 
+import static org.envirocar.app.storage.Measurement.PropertyKey.CO2;
+import static org.envirocar.app.storage.Measurement.PropertyKey.CONSUMPTION;
+import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_PRESSURE;
+import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_TEMPERATURE;
+import static org.envirocar.app.storage.Measurement.PropertyKey.MAF;
+import static org.envirocar.app.storage.Measurement.PropertyKey.SPEED;
+
 import org.envirocar.app.event.CO2Event;
 import org.envirocar.app.event.ConsumptionEvent;
 import org.envirocar.app.event.EventBus;
@@ -68,18 +75,18 @@ public class Collector {
 	}
 	
 	public void newSpeed(int s) {
-		this.measurement.setSpeed(s);
+		this.measurement.setProperty(SPEED, Double.valueOf(s));
 //		checkStateAndPush();
 	}
 	
 	public void newMAF(double m) {
-		this.measurement.setMaf(m);
+		this.measurement.setProperty(MAF, m);
 //		checkStateAndPush();
 		fireConsumptionEvent();
 	}
 	
 	public void newRPM(int r) {
-		this.measurement.setRpm(r);
+		this.measurement.setProperty(PropertyKey.RPM, Double.valueOf(r));
 		checkAndCreateCalculatedMAF();
 //		checkStateAndPush();
 	}
@@ -89,10 +96,10 @@ public class Collector {
 	 * calculating the MAF, and then calculates it.
 	 */
 	private void checkAndCreateCalculatedMAF() {
-		if (this.measurement.getRpm() != 0.0 &&
-				this.measurement.getIntakePressure() != 0 &&
-				this.measurement.getIntakePressure() != 0) {
-			this.measurement.setCalculatedMaf(this.mafAlgorithm.calculateMAF(this.measurement));
+		if (this.measurement.getProperty(PropertyKey.RPM) != null &&
+				this.measurement.getProperty(PropertyKey.INTAKE_PRESSURE) != null &&
+				this.measurement.getProperty(PropertyKey.INTAKE_TEMPERATURE) != null) {
+			this.measurement.setProperty(PropertyKey.CALCULATED_MAF, this.mafAlgorithm.calculateMAF(this.measurement));
 			fireConsumptionEvent();
 		}
 	}
@@ -110,13 +117,13 @@ public class Collector {
 	}
 
 	public void newIntakeTemperature(int i) {
-		this.measurement.setIntakeTemperature(i);
+		this.measurement.setProperty(INTAKE_TEMPERATURE, Double.valueOf(i));
 		checkAndCreateCalculatedMAF();
 //		checkStateAndPush();
 	}
 	
 	public void newIntakePressure(int p) {
-		this.measurement.setIntakePressure(p);
+		this.measurement.setProperty(INTAKE_PRESSURE, Double.valueOf(p));
 		checkAndCreateCalculatedMAF();
 //		checkStateAndPush();
 	}
@@ -136,8 +143,8 @@ public class Collector {
 			try {
 				double consumption = this.consumptionAlgorithm.calculateConsumption(measurement);
 				double co2 = this.consumptionAlgorithm.calculateCO2FromConsumption(consumption);
-				this.measurement.setConsumption(consumption);
-				this.measurement.setCO2(co2);
+				this.measurement.setProperty(CONSUMPTION, consumption);
+				this.measurement.setProperty(CO2, co2);
 			} catch (FuelConsumptionException e) {
 				logger.warn(e.getMessage(), e);
 			}

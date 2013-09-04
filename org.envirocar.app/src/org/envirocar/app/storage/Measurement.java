@@ -318,4 +318,8 @@ public class Measurement {
 		return propertyMap.containsKey(key);
 	}
 
+	public void setProperty(PropertyKey key, Double value) {
+		propertyMap.put(key, value);
+	}
+
 }

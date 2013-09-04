@@ -253,7 +253,9 @@ public class Map extends MapActivity {
 			int maxLatE6, int minLngE6, int maxLngE6) {
 
 		Display display = getWindowManager().getDefaultDisplay(); 
+		@SuppressWarnings("deprecation")
 		int width = display.getWidth() - 45;  
+		@SuppressWarnings("deprecation")
 		int height = display.getHeight() - 45;  
 		
 		if (width <= 0 || height <= 0) {

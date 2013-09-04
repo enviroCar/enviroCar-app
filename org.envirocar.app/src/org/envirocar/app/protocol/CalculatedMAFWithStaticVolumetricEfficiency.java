@@ -35,7 +35,7 @@ public class CalculatedMAFWithStaticVolumetricEfficiency extends
 	}
 
 	@Override
-	public double calculateMAF(int rpm, double intakeTemperature,
+	public double calculateMAF(double rpm, double intakeTemperature,
 			double intakePressure) {
 		//calculate alternative maf from iat (convert to °K), map, rpm
 		double imap = rpm * intakePressure / (intakeTemperature + 273.15d);

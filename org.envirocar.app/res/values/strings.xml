@@ -91,7 +91,7 @@
 	<string name="remoteTrackDeleted">Remote track deleted</string>
 	<string name="no">No</string>
 	<string name="yes">Yes</string>
-	<string name="deleteRemoteTrackQuestion">Do you realy want to delete this remote track?</string>
+	<string name="deleteRemoteTrackQuestion">Do you really want to delete this remote track?</string>
 	<string name="upload_notification">Attempting to upload local tracks.</string>
 	<string name="upload_notification_success">Successfully uploaded local tracks.</string>
 	<string name="no_sensor_selected">No Car selected</string>

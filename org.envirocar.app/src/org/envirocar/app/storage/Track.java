@@ -21,6 +21,8 @@
 
 package org.envirocar.app.storage;
 
+import static org.envirocar.app.storage.Measurement.PropertyKey.CONSUMPTION;
+
 import java.util.ArrayList;
 
 import org.envirocar.app.exception.FuelConsumptionException;
@@ -294,8 +296,10 @@ public class Track implements Comparable<Track> {
 	public double getCO2Average() {
 		double co2Average = 0.0;
 		try {
-			for (int i = 0; i < measurements.size(); i++) {
-				co2Average = co2Average + consumptionAlgorithm.calculateCO2FromConsumption(measurements.get(i).getConsumption());
+			for (Measurement measurement : measurements) {
+				if (measurement.getProperty(CONSUMPTION) != null){
+					co2Average = co2Average + consumptionAlgorithm.calculateCO2FromConsumption(measurement.getProperty(CONSUMPTION));
+				}
 			}
 			co2Average = co2Average / measurements.size();
 		} catch (FuelConsumptionException e) {
