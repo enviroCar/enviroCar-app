@@ -271,7 +271,7 @@ public class DbAdapterImpl implements DbAdapter {
 	@Override
 	public List<Track> getAllLocalTracks() {
 		ArrayList<Track> tracks = new ArrayList<Track>();
-		Cursor c = mDb.query(TABLE_TRACK, ALL_TRACK_KEYS, KEY_TRACK_REMOTE + " != '1'", null, null, null, null);
+		Cursor c = mDb.query(TABLE_TRACK, ALL_TRACK_KEYS, KEY_TRACK_REMOTE + " IS NULL", null, null, null, null);
 		c.moveToFirst();
 		for (int i = 0; i < c.getCount(); i++) {
 			tracks.add(getTrack(c.getLong(c.getColumnIndex(KEY_TRACK_ID))));

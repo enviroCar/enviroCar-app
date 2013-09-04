@@ -152,7 +152,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
 		delete_btn = menu.findItem(R.id.menu_delete_all);
-		if (((ECApplication) getActivity().getApplication()).getDBAdapter().getAllTracks().size() > 0 && !isDownloading) {
+		if (dbAdapter.getAllTracks().size() > 0 && !isDownloading) {
 			menu.findItem(R.id.menu_delete_all).setEnabled(true);
 			if(UserManager.instance().isLoggedIn())
 				menu.findItem(R.id.menu_upload).setEnabled(true);
