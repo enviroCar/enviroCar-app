@@ -95,7 +95,7 @@ public interface DbAdapter {
 	 *            The id of the track that should be returned
 	 * @return The desired track
 	 */
-	public Track getTrack(String id);
+	public Track getTrack(long id);
 	
 	/**
 	 * Returns <code>true</code> if a track with the given id is in the Database
@@ -104,7 +104,7 @@ public interface DbAdapter {
 	 * 		The id id ot the checked track
 	 * @return exists a track with the id
 	 */
-	public boolean hasTrack(String id);
+	public boolean hasTrack(long id);
 
 	/**
 	 * Deletes all tracks and measurements in the database
@@ -131,7 +131,7 @@ public interface DbAdapter {
 	 * @param id
 	 *            id of the track to be deleted.
 	 */
-	public void deleteTrack(String id);
+	public void deleteTrack(long id);
 
 	public int getNumberOfRemoteTracks();
 

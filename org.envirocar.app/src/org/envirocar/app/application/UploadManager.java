@@ -144,8 +144,7 @@ public class UploadManager {
 					((ECApplication) context).createNotification(context.getResources().getString(R.string.error_host_not_found));
 				} else if (!httpResult.equals("-1")) {
 					((ECApplication) context).createNotification("success");
-					t.setRemoteTrack(true);
-					t.setId(httpResult);
+					t.setRemoteID(httpResult);
 					dbAdapter.updateTrack(t);
 				} else {
 					((ECApplication) context).createNotification("General Track error. Please contact envirocar.org");
@@ -340,7 +339,7 @@ public class UploadManager {
 	 * @param obj
 	 *            the object to save
 	 */
-	private File savetoSdCard(JSONObject obj, String fileid) {
+	private File savetoSdCard(JSONObject obj, long fileid) {
 		File log = new File(context.getExternalFilesDir(null),"envirocar_track"+fileid+".json");
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(log.getAbsolutePath(), true));

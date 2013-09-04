@@ -370,7 +370,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 								final String username = user.getUsername();
 								final String token = user.getToken();
 								RestClient.deleteRemoteTrack(username, token,
-										track.getId(),
+										track.getRemoteID(),
 										new JsonHttpResponseHandler() {
 											@Override
 											protected void handleMessage(Message msg) {
@@ -477,9 +477,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				protected Track doInBackground(JSONObject... trackJson) {
 					Track t;
 					try {
-
 						JSONObject trackProperties = trackJson[0].getJSONObject("properties");
-						t = new Track(trackProperties.getString("id"));
+						t = Track.createRemoteTrack(trackProperties.getString("id"));
 						t.setDatabaseAdapter(dbAdapter);
 						String trackName = "unnamed Track #"+ct;
 						try{
@@ -550,14 +549,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 									recycleMeasurement.addProperty(key, value);
 								}
 							}
-//							if (phenomenons.has("MAF")) {
-//								recycleMeasurement.setMaf((phenomenons.getJSONObject("MAF").getDouble("value")));
-//							}
-//							if (phenomenons.has("Calculated MAF")) {
-//								recycleMeasurement.setCalculatedMaf((phenomenons.getJSONObject("Calculated MAF").getDouble("value")));
-//							}
-//							recycleMeasurement.setSpeed((phenomenons.getJSONObject("Speed").getInt("value")));
-//							
 							recycleMeasurement.setTrack(t);
 							t.addMeasurement(recycleMeasurement);
 						}
@@ -578,7 +569,6 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						Track t) {
 					super.onPostExecute(t);
 					if(t != null){
-						t.setLocalTrack(false);
 						tracksList.add(t);
 						elvAdapter.notifyDataSetChanged();
 					}
@@ -627,33 +617,33 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					ct = tracks.length();
 					for (int i = 0; i < tracks.length(); i++) {
 
-						// skip tracks already in the ArrayList
+						// skip if tracks already in the ArrayList
 						for (Track t : tracksList) {
-							if (t.getId().equals(((JSONObject) tracks.get(i)).getString("id"))) {
+							if (t.getRemoteID().equals(((JSONObject) tracks.get(i)).getString("id"))) {
 								afterOneTrack();
 								continue;
 							}
 						}
-						//AsyncTask to retrieve a Track from the database
-						class RetrieveTrackfromDbAsyncTask extends AsyncTask<String, Void, Track>{
-							
-							@Override
-							protected Track doInBackground(String... params) {
-								return dbAdapter.getTrack(params[0]);
-							}
-							
-							protected void onPostExecute(Track result) {
-								tracksList.add(result);
-								elvAdapter.notifyDataSetChanged();
-								afterOneTrack();
-							}
-							
-						}
-						if (dbAdapter.hasTrack(((JSONObject) tracks.get(i)).getString("id"))) {
-							// if the track already exists in the db, skip and load from db.
+//						//AsyncTask to retrieve a Track from the database
+//						class RetrieveTrackfromDbAsyncTask extends AsyncTask<Long, Void, Track> {
+//							
+//							@Override
+//							protected Track doInBackground(Long... params) {
+//								return dbAdapter.getTrack(params[0]);
+//							}
+//							
+//							protected void onPostExecute(Track result) {
+//								tracksList.add(result);
+//								elvAdapter.notifyDataSetChanged();
+//								afterOneTrack();
+//							}
+//							
+//						}
+//						if (dbAdapter.hasTrack(((JSONObject) tracks.get(i)).getString("id"))) {
+//							// if the track already exists in the db, skip and load from db.
 //							new RetrieveTrackfromDbAsyncTask().execute(((JSONObject) tracks.get(i)).getString("id"));
-							continue;
-						}
+//							continue;
+//						}
 
 						// else
 						// download the track

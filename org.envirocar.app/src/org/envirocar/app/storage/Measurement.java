@@ -79,7 +79,6 @@ public class Measurement {
 		}
 	}
 
-	private int id;
 	private double latitude;
 	private double longitude;
 	private long time;
@@ -125,12 +124,9 @@ public class Measurement {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("Measurement [");
-		sb.append("id=" + id + ",");
 		sb.append("latitude=" + latitude + ",");
 		sb.append("longitude=" + longitude + ",");
 		sb.append("time=" + time + ",");
-		sb.append("id=" + id + ",");
-		sb.append("id=" + id + ",");
 		for (PropertyKey key : propertyMap.keySet()) {
 			sb.append(key.toString() + "=" + propertyMap.get(key) + ",");
 		}
@@ -152,21 +148,6 @@ public class Measurement {
 	@Deprecated
 	public void setMaf(double maf) {
 		propertyMap.put(PropertyKey.MAF, maf);
-	}
-
-	/**
-	 * @return the id
-	 */
-	public int getId() {
-		return id;
-	}
-
-	/**
-	 * @param id
-	 *            the id to set
-	 */
-	public void setId(int id) {
-		this.id = id;
 	}
 
 	/**
@@ -234,7 +215,6 @@ public class Measurement {
 	/**
 	 * @return the track
 	 */
-	@Deprecated
 	public Track getTrack() {
 		return track;
 	}
@@ -243,7 +223,6 @@ public class Measurement {
 	 * @param track
 	 *            the track to set
 	 */
-	@Deprecated
 	public void setTrack(Track track) {
 		this.track = track;
 	}

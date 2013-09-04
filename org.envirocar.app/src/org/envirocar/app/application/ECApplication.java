@@ -360,7 +360,7 @@ public class ECApplication extends Application {
 			stopService(backgroundService);
 			serviceConnector.shutdownBackgroundService();
 		}
-		closeDb();
+//		closeDb();
 	}
 
 

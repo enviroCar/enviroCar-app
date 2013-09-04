@@ -42,56 +42,58 @@ public class Track implements Comparable<Track> {
 	
 	private static final Logger logger = Logger.getLogger(Track.class);
 
-	private String id;
+	private long id;
 	private String name;
 	private String description;
 	private ArrayList<Measurement> measurements;
 	private Car car;
 	private AbstractConsumptionAlgorithm consumptionAlgorithm;
 	private String vin;
-	private boolean remoteTrack;
+	private String remoteID;
 	private Double consumptionPerHour;
+	private DbAdapter dbAdapter;
 
 	/**
 	 * @return the localTrack
 	 */
-	@Deprecated
 	public boolean isLocalTrack() {
-		return !remoteTrack;
-	}
-
-	/**
-	 * @param localTrack
-	 *            the localTrack to set
-	 */
-	@Deprecated
-	public void setLocalTrack(boolean localTrack) {
-		this.remoteTrack = !localTrack;
+		return (remoteID == null ? true : false);
 	}
 
 	public boolean isRemoteTrack() {
-		return remoteTrack;
+		return (remoteID != null ? true : false);
 	}
 	
-	public void setRemoteTrack(boolean remoteTrack) {
-		this.remoteTrack = remoteTrack;
-	}
-
-
-	private DbAdapter dbAdapter;
-
 	/**
 	 * Constructor for creating a Track from the Database. Use this constructor
 	 * when you want to rebuild tracks from the database.
 	 */
-	public Track(String id) {
-		this.id = id;
-		this.name = "";
-		this.description = "";
-		this.vin = "";
-		this.measurements = new ArrayList<Measurement>();
+//	public Track(long id) {
+//		this.id = id;
+//		this.name = "";
+//		this.description = "";
+//		this.vin = "";
+//		this.measurements = new ArrayList<Measurement>();
+//	}
+	
+	public static Track createDbTrack(long id) {
+		Track track = new Track(id);
+		return track;
 	}
-
+	
+	private Track(long id) {
+		this.id = id;
+	}
+	
+	public static Track createRemoteTrack(String remoteID) {
+		Track track = new Track(remoteID);
+		return track;
+	}
+	
+	private Track(String remoteID) {
+		this.remoteID = remoteID;
+	}
+	
 	/**
 	 * Constructor for creating "fresh" new track. Use this for new measurements
 	 * that were captured from the OBD-II adapter.
@@ -104,7 +106,7 @@ public class Track implements Comparable<Track> {
 		this.dbAdapter = dbAdapter;
 		this.car = car;
 		this.consumptionAlgorithm = new BasicConsumptionAlgorithm(car);
-		id = String.valueOf(dbAdapter.insertTrack(this));
+		id = dbAdapter.insertTrack(this);
 	}
 
 	/**
@@ -236,7 +238,7 @@ public class Track implements Comparable<Track> {
 	/**
 	 * @return the id
 	 */
-	public String getId() {
+	public long getId() {
 		return id;
 	}
 
@@ -244,7 +246,7 @@ public class Track implements Comparable<Track> {
 	 * @param id
 	 *            the id to set
 	 */
-	public void setId(String id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -264,6 +266,14 @@ public class Track implements Comparable<Track> {
 	 */
 	public void setVin(String vin) {
 		this.vin = vin;
+	}
+
+	public String getRemoteID() {
+		return remoteID;
+	}
+
+	public void setRemoteID(String remoteID) {
+		this.remoteID = remoteID;
 	}
 
 	/**
