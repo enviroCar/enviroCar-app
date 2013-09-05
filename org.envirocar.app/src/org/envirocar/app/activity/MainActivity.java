@@ -35,6 +35,7 @@ import org.envirocar.app.application.service.BackgroundService;
 import org.envirocar.app.exception.TracksException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.util.NamedThreadFactory;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
@@ -355,7 +356,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	 * Helper method for the automatic upload of local tracks via the scheduler.
 	 */
     private void uploadTracks() {
-        DbAdapter dbAdapter = application.getDBAdapter();
+        DbAdapter dbAdapter = DbAdapterImpl.instance();
             try {
                 if (dbAdapter.getNumberOfLocalTracks() > 0
                         && dbAdapter.getLastUsedTrack()
@@ -445,7 +446,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         case LOGIN:
         	if(UserManager.instance().isLoggedIn()){
         		UserManager.instance().logOut();
-    			ListMeasurementsFragment listMeasurementsFragment = (ListMeasurementsFragment) getSupportFragmentManager().findFragmentByTag("MY_TRACKS");
+    			ListTracksFragment listMeasurementsFragment = (ListTracksFragment) getSupportFragmentManager().findFragmentByTag("MY_TRACKS");
     			// check if this fragment is initialized
     			if (listMeasurementsFragment != null) {
     				listMeasurementsFragment.clearRemoteTracks();
@@ -467,7 +468,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         // Go to the track list
             
         case MY_TRACKS:
-            ListMeasurementsFragment listMeasurementFragment = new ListMeasurementsFragment();
+            ListTracksFragment listMeasurementFragment = new ListTracksFragment();
             manager.beginTransaction().replace(R.id.content_frame, listMeasurementFragment, "MY_TRACKS").addToBackStack(null).commit();
             break;
             

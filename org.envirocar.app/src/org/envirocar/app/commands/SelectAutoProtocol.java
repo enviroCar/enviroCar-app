@@ -25,7 +25,7 @@ package org.envirocar.app.commands;
 /**
  * Select the protocol to use.
  */
-public class SelectAutoProtocol extends CommonCommand {
+public class SelectAutoProtocol extends StringResultCommand {
 
 	/**
 	 * @param command

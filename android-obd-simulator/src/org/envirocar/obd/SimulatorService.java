@@ -442,7 +442,23 @@ public class SimulatorService {
 		if (s.equals("AT Z")) {
 			//ObdReset
 		}
-		else if(s.equals("01 0D")) {
+		else if (s.equals("AT E0")) {
+			//echo off
+			rawData = s;
+		}
+		else if (s.equals("AT L0")) {
+			//Line feed off
+			rawData = s;
+		}
+		else if (s.startsWith("AT SP")) {
+			//select protocol
+			rawData = s;
+		}
+		else if (s.startsWith("AT ST")) {
+			//timeout
+			rawData = s;
+		}
+		else if(s.startsWith("01 0D")) {
 			//Speed
 			rawData = "0000" + (23+random.nextInt(45));
 		}

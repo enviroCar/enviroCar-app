@@ -86,13 +86,24 @@ public class DbAdapterImpl implements DbAdapter {
 			KEY_TRACK_CAR_ENGINE_DISPLACEMENT + " BLOB, " +
 			KEY_TRACK_CAR_VIN + " BLOB, " +
 			KEY_TRACK_CAR_ID + " BLOB);";
+
+	private static DbAdapterImpl instance;
 	
 	private DatabaseHelper mDbHelper;
 	private SQLiteDatabase mDb;
 	private final Context mCtx;
 	
-	public DbAdapterImpl(Context ctx) {
+	private DbAdapterImpl(Context ctx) {
 		this.mCtx = ctx;
+	}
+	
+	public static void init(Context ctx) {
+		instance = new DbAdapterImpl(ctx);
+		instance.open();
+	}
+	
+	public static DbAdapter instance() {
+		return instance;
 	}
 	
 	private static class DatabaseHelper extends SQLiteOpenHelper {
@@ -337,9 +348,11 @@ public class DbAdapterImpl implements DbAdapter {
 			try {
 				JSONObject json = new JSONObject(rawData);
 				JSONArray names = json.names();
-				for (int j = 0; j < names.length(); j++) {
-					String key = names.getString(j);
-					measurement.addProperty(PropertyKey.valueOf(key), json.getDouble(key));
+				if (names != null) {
+					for (int j = 0; j < names.length(); j++) {
+						String key = names.getString(j);
+						measurement.addProperty(PropertyKey.valueOf(key), json.getDouble(key));
+					}
 				}
 			} catch (JSONException e) {
 				logger.severe("could not load properties", e);

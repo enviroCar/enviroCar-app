@@ -31,7 +31,7 @@ import org.envirocar.app.logging.Logger;
  * @author jakob
  * 
  */
-public class MAF extends CommonCommand {
+public class MAF extends NumberResultCommand {
 	
 	private static final Logger logger = Logger.getLogger(MAF.class);
 	public static final String NAME = "Mass Air Flow";

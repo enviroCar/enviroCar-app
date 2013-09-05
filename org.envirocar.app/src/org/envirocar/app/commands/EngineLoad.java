@@ -27,7 +27,7 @@ package org.envirocar.app.commands;
  * @author jakob
  * 
  */
-public class EngineLoad extends CommonCommand {
+public class EngineLoad extends NumberResultCommand {
 
 	/**
 	 * Create the Command

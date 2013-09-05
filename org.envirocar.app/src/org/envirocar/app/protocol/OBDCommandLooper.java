@@ -68,19 +68,40 @@ public class OBDCommandLooper extends HandlerThread {
 	
 	private Runnable commonCommandsRunnable = new Runnable() {
 		public void run() {
-
-			if (running) {
+			/*
+			 * we can do a while (running) here as we are the
+			 * only ones occupying the Handler and will always
+			 * be!
+			 */
+			while (running) {
+				logger.info("Executing Command Commands!");
+				
 				try {
 					executeCommandRequests();
 				} catch (IOException e) {
 					logger.warn(e.getMessage(), e);
 					running = false;
+					notifyWaitersOnShutdown();
 					connectionListener.onConnectionException(e);
 					return;
 				}
+				
+				synchronized (shutdownMutex) {
+					if (!running || shutdownComplete) {
+						notifyWaitersOnShutdown();
+						return;
+					}
+				}
+				
+				logger.info("Scheduling the Executiion of Command Commands!");
+				try {
+					Thread.sleep(requestPeriod);
+				} catch (InterruptedException e) {
+					logger.warn(e.getMessage(), e);
+				}
 			}
-
-			commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
+			
+			notifyWaitersOnShutdown();
 		}
 	};
 
@@ -97,15 +118,29 @@ public class OBDCommandLooper extends HandlerThread {
 				} catch (IOException e) {
 					logger.warn(e.getMessage(), e);
 					running = false;
+					notifyWaitersOnShutdown();
 					connectionListener.onConnectionException(e);
 					return;
 				}
 				
+				synchronized (shutdownMutex) {
+					if (!running || shutdownComplete) {
+						notifyWaitersOnShutdown();
+						return;
+					}
+				}
+				
 				commandExecutionHandler.postDelayed(initializationCommandsRunnable, ADAPTER_TRY_PERIOD);
 			}
+			else {
+				notifyWaitersOnShutdown();
+			}
 		}
+
 	};
 	private ConnectionListener connectionListener;
+	private Object shutdownMutex = new Object();
+	private boolean shutdownComplete;
 
 	/**
 	 * same as OBDCommandLooper#OBDCommandLooper(InputStream, OutputStream, Listener, ConnectionListener, int) with NORM_PRIORITY
@@ -140,6 +175,12 @@ public class OBDCommandLooper extends HandlerThread {
 		obdAdapter = adapterCandidates.get(0);
 	}
 	
+	private void notifyWaitersOnShutdown() {
+		synchronized (shutdownMutex) {
+			shutdownComplete = true;
+			shutdownMutex.notifyAll();
+		}
+	}
 	
 	/**
 	 * stop the command looper. this removes all pending commands.
@@ -151,6 +192,19 @@ public class OBDCommandLooper extends HandlerThread {
 		commandExecutionHandler.removeCallbacks(commonCommandsRunnable);
 		commandExecutionHandler.removeCallbacks(initializationCommandsRunnable);
 		commandExecutionHandler.getLooper().quit();
+		
+		synchronized (shutdownMutex) {
+			while (!shutdownComplete) {
+				logger.info("shutdown not completed. waiting...");
+				try {
+					shutdownMutex.wait();
+				} catch (InterruptedException e) {
+					logger.warn(e.getMessage(), e);
+				}
+			}
+			logger.info("I finished waiting for shutdown!");
+		}
+		
 	}
 
 	private void executeInitializationRequests() throws IOException {
@@ -192,6 +246,19 @@ public class OBDCommandLooper extends HandlerThread {
 		// Finished if no more job is in the waiting-list
 
 		if (cmd != null) {
+			if (cmd.getCommandState() == CommonCommandState.EXECUTION_ERROR) {
+				return;
+			}
+			
+			if (cmd.getCommandState() == CommonCommandState.SEARCHING) {
+				logger.info("Adapter still searching. Waiting a bit.");
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					logger.warn(e.getMessage(), e);
+				}
+				return;
+			}
 			cmd.setCommandState(CommonCommandState.FINISHED);
 			if (commandListener != null) {
 				commandListener.receiveUpdate(cmd);
@@ -216,7 +283,7 @@ public class OBDCommandLooper extends HandlerThread {
 		/*
 		 * switch to common command execution phase
 		 */
-		commandExecutionHandler.post(commonCommandsRunnable);
+		commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
 	}
 
 	private void selectAdapter() throws AllAdaptersFailedException {

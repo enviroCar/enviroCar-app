@@ -18,30 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-
 package org.envirocar.app.commands;
 
+public abstract class StringResultCommand extends CommonCommand {
 
-/**
- * Turns off line-feed.
- */
-public class PIDSupported extends NumberResultCommand {
-
-	/**
-	 * @param command
-	 */
-	public PIDSupported() {
-		super("01 00");
+	public StringResultCommand(String command) {
+		super(command);
 	}
-
+	
 	@Override
-	public String getResult() {
-		return getRawData();
-	}
-
-	@Override
-	public String getCommandName() {
-		return "01 00"; 
+	protected void parseRawData() {
 	}
 
 }

@@ -44,6 +44,7 @@ import org.envirocar.app.exception.TracksException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.views.Utils;
@@ -71,9 +72,9 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	private Collector collector;
 	private Location location;
 	
-	public CommandListener(Car car, DbAdapter dbAdapter) {
+	public CommandListener(Car car) {
 		this.car = car;
-		this.dbAdapter = dbAdapter;
+		this.dbAdapter = DbAdapterImpl.instance();
 		this.collector = new Collector(this, this.car);
 		EventBus.getInstance().registerListener(this);
 	}
