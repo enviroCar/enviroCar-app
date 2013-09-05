@@ -36,8 +36,6 @@ import org.envirocar.app.application.service.BackgroundServiceConnector;
 import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.Car;
-import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 
@@ -71,13 +69,6 @@ public class ECApplication extends Application {
 	// Strings
 
 	public static final String BASE_URL = "https://giv-car.uni-muenster.de/stable/rest";
-
-	public static final String PREF_KEY_CAR_MODEL = "carmodel";
-	public static final String PREF_KEY_CAR_MANUFACTURER = "manufacturer";
-	public static final String PREF_KEY_CAR_CONSTRUCTION_YEAR = "constructionyear";
-	public static final String PREF_KEY_FUEL_TYPE = "fueltype";
-	public static final String PREF_KEY_SENSOR_ID = "sensorid";
-	public static final String PREF_KEY_CAR_ENGINE_DISPLACEMENT = "pref_engine_displacement";
 
 	private SharedPreferences preferences = null;
 	
@@ -175,6 +166,8 @@ public class ECApplication extends Application {
 		preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
 		UserManager.init(getApplicationContext());
+		CarManager.init(preferences);
+		
 		initDbAdapter();
 		// Make a new commandListener to interpret the measurement values that are
 		// returned
@@ -255,27 +248,7 @@ public class ECApplication extends Application {
 	 */
 	public void createListeners() {
 		//TODO de-couple dbAdapterLocal
-		commandListener = new CommandListener(createCar(), dbAdapter);
-	}
-
-	private Car createCar() {
-		String fuelType = preferences
-				.getString(PREF_KEY_FUEL_TYPE, "undefined");
-		String carManufacturer = preferences.getString(
-				PREF_KEY_CAR_MANUFACTURER, "undefined");
-		String carModel = preferences
-				.getString(PREF_KEY_CAR_MODEL, "undefined");
-		String sensorId = preferences
-				.getString(PREF_KEY_SENSOR_ID, "undefined");
-		String displacement = preferences.getString(PREF_KEY_CAR_ENGINE_DISPLACEMENT,"2.0");
-		FuelType type = null;
-		if (fuelType.equalsIgnoreCase(FuelType.GASOLINE.toString())) {
-			type = FuelType.GASOLINE;
-		} else {
-			type = FuelType.DIESEL;
-		}
-		Car car = new Car(type, carManufacturer, carModel, sensorId, Double.parseDouble(displacement));
-		return car;
+		commandListener = new CommandListener(CarManager.instance().getCar(), dbAdapter);
 	}
 
 	/**
