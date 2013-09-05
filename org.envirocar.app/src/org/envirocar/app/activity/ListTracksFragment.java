@@ -46,6 +46,7 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.network.RestClient;
 import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.envirocar.app.storage.Track;
@@ -112,7 +113,7 @@ public class ListTracksFragment extends SherlockFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		dbAdapter = ((ECApplication) getActivity().getApplication()).getDBAdapter();
+		dbAdapter = DbAdapterImpl.instance();
 	}
 
 	public View onCreateView(android.view.LayoutInflater inflater,
@@ -247,7 +248,7 @@ public class ListTracksFragment extends SherlockFragment {
 		//Delete all tracks
 
 		case R.id.menu_delete_all:
-			((ECApplication) getActivity().getApplication()).getDBAdapter().deleteAllLocalTracks();
+			DbAdapterImpl.instance().deleteAllLocalTracks();
 			((ECApplication) getActivity().getApplication()).resetTrack();
 			Crouton.makeText(getActivity(), R.string.all_local_tracks_deleted,Style.CONFIRM).show();
 			return true;

@@ -21,7 +21,6 @@
 
 package org.envirocar.app.application.service;
 
-import org.envirocar.app.application.CommandListener;
 import org.envirocar.app.commands.CommonCommand;
 
 import android.content.ComponentName;
@@ -39,10 +38,8 @@ import android.os.IBinder;
 public class BackgroundServiceConnector implements ServiceConnection {
 
 	private BackgroundServiceInteractor interactor;
-	private CommandListener commandListener;
 
-	public BackgroundServiceConnector(CommandListener commandListener) {
-		this.commandListener = commandListener;
+	public BackgroundServiceConnector() {
 	}
 	
 	/**
@@ -51,7 +48,6 @@ public class BackgroundServiceConnector implements ServiceConnection {
 	public void onServiceConnected(ComponentName componentName, IBinder binder) {
 		interactor = (BackgroundServiceInteractor) binder;
 		interactor.initializeConnection();
-		interactor.setListener(commandListener);
 	}
 	
 

@@ -45,6 +45,7 @@ import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.envirocar.app.storage.Track;
@@ -82,7 +83,7 @@ public class UploadManager {
 	 */
 	public UploadManager(Context ctx) {
 		this.context = ctx;
-		this.dbAdapter = ((ECApplication) context).getDBAdapter();
+		this.dbAdapter = DbAdapterImpl.instance();
 	}
 
 	/**

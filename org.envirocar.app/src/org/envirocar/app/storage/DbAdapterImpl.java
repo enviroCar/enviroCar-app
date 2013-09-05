@@ -86,13 +86,24 @@ public class DbAdapterImpl implements DbAdapter {
 			KEY_TRACK_CAR_ENGINE_DISPLACEMENT + " BLOB, " +
 			KEY_TRACK_CAR_VIN + " BLOB, " +
 			KEY_TRACK_CAR_ID + " BLOB);";
+
+	private static DbAdapterImpl instance;
 	
 	private DatabaseHelper mDbHelper;
 	private SQLiteDatabase mDb;
 	private final Context mCtx;
 	
-	public DbAdapterImpl(Context ctx) {
+	private DbAdapterImpl(Context ctx) {
 		this.mCtx = ctx;
+	}
+	
+	public static void init(Context ctx) {
+		instance = new DbAdapterImpl(ctx);
+		instance.open();
+	}
+	
+	public static DbAdapter instance() {
+		return instance;
 	}
 	
 	private static class DatabaseHelper extends SQLiteOpenHelper {

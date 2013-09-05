@@ -36,7 +36,6 @@ import org.envirocar.app.application.service.BackgroundServiceConnector;
 import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 
 import android.app.Activity;
@@ -76,7 +75,6 @@ public class ECApplication extends Application {
 
 //	private DbAdapter dbAdapterLocal;
 //	private DbAdapter dbAdapterRemote;
-	private DbAdapter dbAdapter;
 	private final ScheduledExecutorService scheduleTaskExecutor = Executors
 			.newScheduledThreadPool(1);
 	private BluetoothAdapter bluetoothAdapter = BluetoothAdapter
@@ -115,8 +113,6 @@ public class ECApplication extends Application {
 
 	private BroadcastReceiver receiver;
 
-	private CommandListener commandListener;
-	
 
 	/**
 	 * returns the current activity.
@@ -161,6 +157,8 @@ public class ECApplication extends Application {
 		Logger.initialize(getVersionString());
 		super.onCreate();
 		
+		DbAdapterImpl.init(getApplicationContext());
+		
 		initializeErrorHandling();
 		
 		preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -168,11 +166,9 @@ public class ECApplication extends Application {
 		UserManager.init(getApplicationContext());
 		CarManager.init(preferences);
 		
-		initDbAdapter();
 		// Make a new commandListener to interpret the measurement values that are
 		// returned
 		logger.info("init commandListener");
-		createListeners();
 		
 		// If everything is available, start the service connector and commandListener
 		initializeBackgroundServices();
@@ -193,17 +189,6 @@ public class ECApplication extends Application {
 	/**
 	 * This method opens both dbadapters or also gets them and opens them afterwards.
 	 */
-	private void initDbAdapter() {
-		if (dbAdapter == null) {
-			dbAdapter = new DbAdapterImpl(this.getApplicationContext());
-			dbAdapter.open();
-		}
-	}
-
-	public DbAdapter getDBAdapter() {
-		initDbAdapter();
-		return dbAdapter;
-	}
 
 
 	/**
@@ -215,7 +200,7 @@ public class ECApplication extends Application {
 			deviceInRangeService = new Intent(this, DeviceInRangeService.class);
 			startService(deviceInRangeService);
 			backgroundService = new Intent(this, BackgroundService.class);
-			serviceConnector = new BackgroundServiceConnector(this.commandListener);
+			serviceConnector = new BackgroundServiceConnector();
 			bindService(backgroundService, serviceConnector,
 					Context.BIND_AUTO_CREATE);
 			
@@ -243,13 +228,6 @@ public class ECApplication extends Application {
 	}
 
 	
-	/**
-	 * This method starts the commandListener that interprets the answers from the BT adapter.
-	 */
-	public void createListeners() {
-		//TODO de-couple dbAdapterLocal
-		commandListener = new CommandListener(CarManager.instance().getCar(), dbAdapter);
-	}
 
 	/**
 	 * Stop the service connector and therefore the scheduled tasks.
@@ -264,7 +242,6 @@ public class ECApplication extends Application {
 	 */
 	public void startConnection() {
 		logger.info("Starts the recording of a track");
-		initDbAdapter();
 		//createNewTrackIfNecessary();
 		if (!serviceConnector.isRunning()) {
 			startService(backgroundService);
@@ -293,14 +270,6 @@ public class ECApplication extends Application {
 		serviceConnector = null;
 	}
 
-	/**
-	 * Closes both databases.
-	 */
-	public void closeDb() {
-		if (dbAdapter != null) {
-			dbAdapter.close();
-		}
-	}
 	
 	/**
 	 * 
@@ -367,7 +336,6 @@ public class ECApplication extends Application {
 	
 	public void resetTrack() {
 		//TODO somehow let the CommandListener know of the reset
-		this.commandListener.resetTrack();
 	}
 
 	private void onAdapterConnected() {

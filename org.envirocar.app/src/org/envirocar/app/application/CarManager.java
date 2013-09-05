@@ -23,6 +23,7 @@ public class CarManager {
 
 	public CarManager(SharedPreferences prefs) {
 		this.preferences = prefs;
+		createCar();
 	}
 	
 	public static synchronized CarManager instance() {
