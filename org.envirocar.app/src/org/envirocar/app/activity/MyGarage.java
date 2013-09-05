@@ -25,10 +25,11 @@ import java.util.ArrayList;
 
 import org.apache.http.Header;
 import org.envirocar.app.R;
-import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.Car;
 import org.envirocar.app.network.RestClient;
 import org.envirocar.app.views.TypefaceEC;
 import org.json.JSONArray;
@@ -242,13 +243,10 @@ public class MyGarage extends SherlockFragment {
 	 */
 	public void updateCurrentSensor(String sensorid, String carManufacturer,
 			String carModel, String fuelType, int year) {
-		Editor e = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).edit();
-		e.putString(ECApplication.PREF_KEY_SENSOR_ID, sensorid);
-		e.putString(ECApplication.PREF_KEY_CAR_MANUFACTURER, carManufacturer);
-		e.putString(ECApplication.PREF_KEY_CAR_MODEL, carModel);
-		e.putString(ECApplication.PREF_KEY_FUEL_TYPE, fuelType);
-		e.putString(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR, year + "");
-		e.commit();
+		// TODO engine Displacement
+		double engineDisplacement = 2.0;
+		Car car = new Car(fuelType, carManufacturer, carModel, sensorid, year, engineDisplacement);
+		CarManager.instance().setCat(car);
 	}
 
 	/**
@@ -267,8 +265,8 @@ public class MyGarage extends SherlockFragment {
 	}
 	
 	private void selectSensorFromSharedPreferences() throws JSONException{
-		if(PreferenceManager.getDefaultSharedPreferences(getActivity().getApplication()).contains(ECApplication.PREF_KEY_SENSOR_ID)){
-			String prefSensorid = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplication()).getString(ECApplication.PREF_KEY_SENSOR_ID, "nosensor");
+		if(CarManager.instance().isCarSet()){
+			String prefSensorid = CarManager.instance().getCar().getId();
 			if(prefSensorid.equals("nosensor") == false){
 				for(int i = 0; i<sensors.length(); i++){
 					//iterate over sensors
@@ -342,21 +340,14 @@ public class MyGarage extends SherlockFragment {
 	 * @param carConstructionYear Construction year of the car
 	 * @param carFuelType Fuel type of the car
 	 */
-	private void registerSensorAtServer(String sensorType,
-			String carManufacturer, String carModel,
-			String carConstructionYear, String carFuelType) {
+	private void registerSensorAtServer(final String sensorType,
+			final String carManufacturer, final String carModel,
+			final String carConstructionYear, final String carFuelType) {
 
 		String sensorString = String
 				.format("{ \"type\": \"%s\", \"properties\": {\"manufacturer\": \"%s\", \"model\": \"%s\", \"fuelType\": \"%s\", \"constructionYear\": %s } }",
 						sensorType, carManufacturer, carModel, carFuelType,
 						carConstructionYear);
-		
-		Editor edit = sharedPreferences.edit();
-		edit.putString(ECApplication.PREF_KEY_FUEL_TYPE, carFuelType);
-		edit.putString(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR, carConstructionYear);
-		edit.putString(ECApplication.PREF_KEY_CAR_MANUFACTURER, carManufacturer);
-		edit.putString(ECApplication.PREF_KEY_CAR_MODEL, carModel);
-		edit.commit();
 		
 		User user = UserManager.instance().getUser();
 		String username = user.getUsername();
@@ -394,10 +385,13 @@ public class MyGarage extends SherlockFragment {
 				
 				String sensorId = location.substring(location.lastIndexOf("/")+1, location.length());
 				//put the sensor id into shared preferences
-				Editor edit = sharedPreferences.edit();
-				edit.putString(ECApplication.PREF_KEY_SENSOR_ID, sensorId);
-				edit.commit();
+				// TODO set EngineDisplacement
+				double engineDisplacement = 2.0;
+				int year = Integer.parseInt(carConstructionYear);
+				Car car = new Car(carFuelType, carManufacturer, carModel, sensorId, year, engineDisplacement);
+				CarManager.instance().setCat(car);
 				//go back to the dashboard
+				// TODO use existing dashboard, dont create a new!
 	        	DashboardFragment dashboardFragment = new DashboardFragment();
 	            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
 			}
@@ -474,7 +468,7 @@ public class MyGarage extends SherlockFragment {
         @Override
         public View getView(int position, View view, ViewGroup parent) {
             TextView text = new TextView(getActivity());
-            if(firstTime && !PreferenceManager.getDefaultSharedPreferences(getActivity().getApplication()).contains(ECApplication.PREF_KEY_SENSOR_ID)){
+            if(firstTime && !CarManager.instance().isCarSet()){
             	text.setText(getResources().getString(R.string.please_select));
             	firstTime = false;
             } else {

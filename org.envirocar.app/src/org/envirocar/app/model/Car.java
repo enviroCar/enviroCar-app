@@ -45,14 +45,28 @@ public class Car {
 	private String manufacturer;
 	private String model;
 	private String id;
+	private int constructionYear;
 	private double engineDisplacement;
 	
-	public Car(FuelType fuelType, String manufacturer, String model, String id,
-			double engineDisplacement) {
+	public Car(FuelType fuelType, String manufacturer, String model, String id, int year, double engineDisplacement) {
 		this.fuelType = fuelType;
 		this.manufacturer = manufacturer;
 		this.model = model;
 		this.id = id;
+		this.constructionYear = year;
+		this.engineDisplacement = engineDisplacement;
+	}
+	
+	public Car(String fuelType, String manufacturer, String model, String id, int year, double engineDisplacement) {
+		if (fuelType.equalsIgnoreCase(FuelType.GASOLINE.toString())) {
+			this.fuelType = FuelType.GASOLINE;
+		} else if (fuelType.equalsIgnoreCase(FuelType.DIESEL.toString())){
+			this.fuelType = FuelType.DIESEL;
+		}
+		this.manufacturer = manufacturer;
+		this.model = model;
+		this.id = id;
+		this.constructionYear = year;
 		this.engineDisplacement = engineDisplacement;
 	}
 
@@ -72,9 +86,15 @@ public class Car {
 		return id;
 	}
 
+	public int getConstructionYear() {
+		return constructionYear;
+	}
+
+	public void setConstructionYear(int year) {
+		this.constructionYear = year;
+	}
+
 	public double getEngineDisplacement() {
 		return engineDisplacement;
 	}
-	
-	
 }
