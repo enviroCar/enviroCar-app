@@ -29,13 +29,15 @@ package org.envirocar.app.commands;
  */
 public class IntakeTemperature extends CommonCommand {
 
+	public static final String NAME = "Air Intake Temperature";
+
 	public IntakeTemperature() {
 		super("01 0F");
 	}
 
 	@Override
 	public String getCommandName() {
-		return "Air Intake Temperature";
+		return NAME;
 	}
 
 	@Override

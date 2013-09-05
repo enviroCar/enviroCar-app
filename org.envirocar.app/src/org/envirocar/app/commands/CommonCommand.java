@@ -44,6 +44,11 @@ public abstract class CommonCommand {
 	private CommonCommandState commandState;
 	
 	private static final Logger logger = Logger.getLogger(CommonCommand.class);
+	private static final long SLEEP_TIME = 25;
+	private static final int MAX_SLEEP_TIME = 5000;
+	private static final String COMMAND_SEND_END = "\r";
+	private static final char COMMAND_RECEIVE_END = '>';
+	private static final char COMMAND_RECEIVE_SPACE = ' ';
 
 	/**
 	 * Default constructor to use
@@ -69,10 +74,40 @@ public abstract class CommonCommand {
 	 * 
 	 * This method CAN be overriden in fake commands.
 	 */
-	public void run(InputStream in, OutputStream out) throws IOException,
-			InterruptedException {
+	public void run(InputStream in, OutputStream out) throws IOException {
 		sendCommand(out);
-		readResult(in);
+		waitForResult(in);
+	}
+
+	private void waitForResult(final InputStream in) throws IOException {
+		try {
+			Thread.sleep(SLEEP_TIME);
+		} catch (InterruptedException e) {
+			logger.warn(e.getMessage(), e);
+		}
+		
+		if (!awaitsResults()) return; 
+		try {
+			int tries = 0;
+			while (in.available() <= 0) {
+				if (tries++ * SLEEP_TIME > MAX_SLEEP_TIME)
+					throw new IOException("OBD-II Request Timeout of "+MAX_SLEEP_TIME +" ms exceeded.");
+				
+				Thread.sleep(SLEEP_TIME);
+			}
+			readResult(in);
+		} catch (InterruptedException e) {
+			logger.warn(e.getMessage(), e);
+		}	
+	}
+
+	/**
+	 * Override if the sub-command does not get data back from the OBD-II interface
+	 * 
+	 * @return if the command awaits raw data as a result
+	 */
+	protected boolean awaitsResults() {
+		return true;
 	}
 
 	/**
@@ -84,21 +119,18 @@ public abstract class CommonCommand {
 	 * @param command
 	 *            The command to send.
 	 */
-	protected void sendCommand(OutputStream outputStream) throws IOException,
-			InterruptedException {
-		// add the carriage return char
-		command += "\r";
-
+	protected void sendCommand(OutputStream outputStream) throws IOException {
 		// write to OutputStream, or in this case a BluetoothSocket
-		outputStream.write(command.getBytes());
+		outputStream.write(command.concat(COMMAND_SEND_END).getBytes());
 		outputStream.flush();
 
-		Thread.sleep(200);
 	}
 
 	/**
 	 * Resends this command.
+	 * @deprecated never used!
 	 */
+	@Deprecated
 	protected void resendCommand(OutputStream outputStream) throws IOException,
 			InterruptedException {
 		outputStream.write("\r".getBytes());
@@ -108,29 +140,29 @@ public abstract class CommonCommand {
 	/**
 	 * Reads the OBD-II response.
 	 */
-	protected void readResult(InputStream inputStream) throws IOException {
-		byte b = 0;
-		StringBuilder stringbuilder = new StringBuilder();
+	protected void readResult(InputStream in) throws IOException {
+		char b = 0;
+		
+		StringBuilder sb = new StringBuilder();
 
 		// read until '>' arrives
-		while ((char) (b = (byte) inputStream.read()) != '>')
-			if ((char) b != ' ')
-				stringbuilder.append((char) b);
+		while (in.available() > 0) {
+			b = (char) in.read();
+			if (b == COMMAND_RECEIVE_END) break;
+			
+			if (b != COMMAND_RECEIVE_SPACE)
+				sb.append(b);
+		}
 
-		rawData = stringbuilder.toString().trim();
-		logger.info("Command name: " + getCommandName() + ", Send '" + getCommand() + "', get raw data '" + rawData + "'");
-		
-		// clear buffer
-		buffer.clear();
+		rawData = sb.toString().trim();
+//		logger.info("Command name: " + getCommandName() + ", Send '" + getCommand() + "', get raw data '" + rawData + "'");
 
 		// read string each two chars
-		int begin = 0;
-		int end = 2;
-		while (end <= rawData.length()) {
-			String temp = "0x" + rawData.substring(begin, end);
-			buffer.add(Integer.decode(temp));
-			begin = end;
-			end += 2;
+		int index = 0;
+		int length = 2;
+		while (index + length <= rawData.length()) {
+			buffer.add(Integer.parseInt(rawData.substring(index, index + length), 16));
+			index += length;
 		}
 	}
 
@@ -201,11 +233,28 @@ public abstract class CommonCommand {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("Commandname: " + getCommandName());
-		sb.append(", Command: " + getCommand());
-		sb.append(", RawData: " + getRawData());
-		sb.append(", Result: " + getResult());
-		return super.toString();
+		sb.append("Commandname: ");
+		sb.append(getCommandName());
+		sb.append(", Command: ");
+		sb.append(getCommand());
+		sb.append(", RawData: ");
+		sb.append(getRawData());
+		sb.append(", Result: ");
+		sb.append(getResult());
+		return sb.toString();
 	}
+
+	public boolean isNoDataCommand() {
+		if (getRawData() != null && (getRawData().equals("NODATA") ||
+				getRawData().equals(""))) return true;
+		
+		if (getResult() != null && (getResult().equals("NODATA") ||
+				getResult().equals(""))) return true;
+		
+		if (getResult() == null || getRawData() == null) return true;
+		
+		return false;
+	}
+
 
 }

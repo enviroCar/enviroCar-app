@@ -19,13 +19,14 @@
  * 
  */
 
-package org.envirocar.app.application;
+package org.envirocar.app.network;
 
 import java.io.UnsupportedEncodingException;
 
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
+import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.logging.Logger;
 
 import com.loopj.android.http.AsyncHttpClient;
@@ -36,31 +37,29 @@ public class RestClient {
 	
 	private static final Logger logger = Logger.getLogger(RestClient.class);
 	
-	private static AsyncHttpClient client = new AsyncHttpClient();
+	private static AsyncHttpClient client;
+	
+	static {
+		client = new AsyncHttpClient();
+		HTTPClient.setupClient(client.getHttpClient());
+	}
 	
 	public static void downloadTracks(String user, String token, JsonHttpResponseHandler handler){
-		client.addHeader("X-User", user);
-		client.addHeader("X-Token", token);
-//		client.get(ECApplication.BASE_URL+"/users/"+user+"/tracks", handler);
-		client.get(ECApplication.BASE_URL+"/users/"+user+"/tracks?limit=5&page=0", handler); //TODO use pagination
+		get(ECApplication.BASE_URL+"/users/"+user+"/tracks?limit=5&page=0", handler, user, token);
 	}
 	
 	public static void deleteRemoteTrack(String user, String token, String id, JsonHttpResponseHandler handler){
-		client.addHeader("X-User", user);
-		client.addHeader("X-Token", token);
+		setHeaders(user, token);
 		client.delete(ECApplication.BASE_URL+"/users/"+user+"/tracks/" + id, handler);
 	}
 	
 	public static void downloadTrack(String user, String token, String id, JsonHttpResponseHandler handler){
-		client.addHeader("X-User", user);
-		client.addHeader("X-Token", token);
-		client.get(ECApplication.BASE_URL+"/tracks/"+id, handler);
+		get(ECApplication.BASE_URL+"/tracks/"+id, handler, user, token);
 	}
 	
 	public static boolean createSensor(String jsonObj, String user, String token, AsyncHttpResponseHandler handler){
 		client.addHeader("Content-Type", "application/json");
-		client.addHeader("X-User", user);
-		client.addHeader("X-Token", token);
+		setHeaders(user, token);
 		
 		try {
 			StringEntity se = new StringEntity(jsonObj);
@@ -72,8 +71,29 @@ public class RestClient {
 		}
 		return true;
 	}
+	
+	private static void get(String url, JsonHttpResponseHandler handler, String user, String token) {		
+		setHeaders(user, token);
+		
+		client.get(url, handler);
+	}
+
+	private static void setHeaders(String user, String token) {
+		client.addHeader("Accept-Encoding", "gzip");
+		
+		if (user != null)
+			client.addHeader("X-User", user);
+		
+		if (token != null)
+			client.addHeader("X-Token", token);
+		
+	}
 
 	public static void downloadSensors(JsonHttpResponseHandler handler){
-		client.get(ECApplication.BASE_URL+"/sensors", handler);
+		get(ECApplication.BASE_URL+"/sensors", handler);
+	}
+
+	private static void get(String url, JsonHttpResponseHandler handler) {
+		get(url, handler, null, null);
 	}
 }

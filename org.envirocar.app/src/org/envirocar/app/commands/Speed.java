@@ -29,6 +29,8 @@ package org.envirocar.app.commands;
  */
 public class Speed extends CommonCommand {
 
+	public static final String NAME = "Vehicle Speed";
+
 	public Speed() {
 		super("01 0D");
 	}
@@ -48,7 +50,7 @@ public class Speed extends CommonCommand {
 
 	@Override
 	public String getCommandName() {
-		return "Vehicle Speed";
+		return NAME;
 	}
 
 }

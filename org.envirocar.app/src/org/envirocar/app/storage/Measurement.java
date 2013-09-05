@@ -21,6 +21,9 @@
 
 package org.envirocar.app.storage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.envirocar.app.exception.LocationInvalidException;
 
 /**
@@ -33,18 +36,55 @@ import org.envirocar.app.exception.LocationInvalidException;
 public class Measurement {
 
 	// All measurement values
+	public enum PropertyKey {
+		SPEED {
+			public String toString() {
+		        return "Speed";
+		    }
+		},
+		MAF {
+			public String toString() {
+		        return "MAF";
+		    } 
+		}, 
+		CALCULATED_MAF {
+			public String toString() {
+		        return "Calculated MAF";
+		    } 
+		}, 
+		RPM {
+			public String toString() {
+		        return "Rpm";
+		    } 
+		}, 
+		INTAKE_TEMPERATURE {
+			public String toString() {
+		        return "Intake Temperature";
+		    } 
+		}, 
+		INTAKE_PRESSURE {
+			public String toString() {
+		        return "Intake Pressure";
+		    } 
+		},
+		CO2 {
+			public String toString() {
+		        return "CO2";
+		    } 
+		},
+		CONSUMPTION {
+			public String toString() {
+		        return "Consumption";
+		    } 
+		}
+	}
 
-	private int id;
 	private double latitude;
 	private double longitude;
-	private long measurementTime;
-	private int speed;
-	private double maf;
-	private double calculatedMaf;
-	private double rpm;
-	private double intake_temperature;
-	private double intake_pressure;
+	private long time;
 	private Track track;
+	
+	private Map<PropertyKey, Double> propertyMap = new HashMap<PropertyKey, Double>();
 
 	/**
 	 * Create a new measurement. Latitude AND longitude are not allowed to both
@@ -62,58 +102,35 @@ public class Measurement {
 	public Measurement(double latitude, double longitude) {
 			this.latitude = latitude;
 			this.longitude = longitude;
-			this.measurementTime = System.currentTimeMillis();
-			this.speed = 0;
-			this.maf = 0.0;
-			this.rpm = 0;
-			this.intake_temperature = 0;
-			this.intake_pressure = 0;
-			this.calculatedMaf = 0;
+			this.time = System.currentTimeMillis();
+	}
+	
+	public void addProperty(PropertyKey key, Double value) {
+		propertyMap.put(key, value);
 	}
 
+	public Double getProperty(PropertyKey key) {
+		return (Double) propertyMap.get(key);
+	}
 	
+	public Map<PropertyKey, Double> getAllProperties() {
+		return propertyMap;
+	}
 	
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
 	public String toString() {
-		return "Measurement [id=" + id + ", latitude=" + latitude
-				+ ", longitude=" + longitude + ", measurementTime="
-				+ measurementTime + ", speed=" + speed + ", maf=" + maf
-				+ ", track=" + track + "]";
-	}
-
-
-
-	/**
-	 * @return the maf
-	 */
-	public double getMaf() {
-		return maf;
-	}
-
-	/**
-	 * @param maf
-	 *            the maf to set
-	 */
-	public void setMaf(double maf) {
-		this.maf = maf;
-	}
-
-	/**
-	 * @return the id
-	 */
-	public int getId() {
-		return id;
-	}
-
-	/**
-	 * @param id
-	 *            the id to set
-	 */
-	public void setId(int id) {
-		this.id = id;
+		StringBuffer sb = new StringBuffer();
+		sb.append("Measurement [");
+		sb.append("latitude=" + latitude + ",");
+		sb.append("longitude=" + longitude + ",");
+		sb.append("time=" + time + ",");
+		for (PropertyKey key : propertyMap.keySet()) {
+			sb.append(key.toString() + "=" + propertyMap.get(key) + ",");
+		}
+		return sb.toString();
 	}
 
 	/**
@@ -149,31 +166,16 @@ public class Measurement {
 	/**
 	 * @return the measurementTime
 	 */
-	public long getMeasurementTime() {
-		return measurementTime;
+	public long getTime() {
+		return time;
 	}
 
 	/**
 	 * @param measurementTime
 	 *            the measurementTime to set
 	 */
-	public void setMeasurementTime(long measurementTime) {
-		this.measurementTime = measurementTime;
-	}
-
-	/**
-	 * @return the speed
-	 */
-	public int getSpeed() {
-		return speed;
-	}
-
-	/**
-	 * @param speed
-	 *            the speed to set
-	 */
-	public void setSpeed(int speed) {
-		this.speed = speed;
+	public void setTime(long time) {
+		this.time = time;
 	}
 
 	/**
@@ -191,64 +193,12 @@ public class Measurement {
 		this.track = track;
 	}
 	
-	/**
-	 * @return the rpm
-	 */
-	public double getRpm() {
-		return rpm;
+	public boolean hasProperty(PropertyKey key) {
+		return propertyMap.containsKey(key);
 	}
 
-	/**
-	 * @param maf
-	 *            the rpm to set
-	 */
-	public void setRpm(double rpm) {
-		this.rpm = rpm;
-	}
-
-	/**
-	 * @return the intake_temperature
-	 */
-	public double getIntakeTemperature() {
-		return intake_temperature;
-	}
-
-	/**
-	 * @param intake_temperature
-	 *            the intake_temperature to set
-	 */
-	public void setIntakeTemperature(double intake_temperature) {
-		this.intake_temperature = intake_temperature;
-	}
-
-	/**
-	 * @return the intake_pressure
-	 */
-	public double getIntakePressure() {
-		return intake_pressure;
-	}
-
-	/**
-	 * @param intake_pressure
-	 *            the intake_pressure to set
-	 */
-	public void setIntakePressure(double intake_pressure) {
-		this.intake_pressure = intake_pressure;
-	}
-	
-	/**
-	 * @return calculated maf
-	 */
-	public double getCalculatedMaf() {
-		return calculatedMaf;
-	}
-
-	/**
-	 * @param calculated maf
-	 */
-	public void setCalculatedMaf(double calculatedMaf) {
-		this.calculatedMaf = calculatedMaf;
-		
+	public void setProperty(PropertyKey key, Double value) {
+		propertyMap.put(key, value);
 	}
 
 }

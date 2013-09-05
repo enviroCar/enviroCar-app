@@ -40,4 +40,9 @@ public interface Listener {
 	 */
 	void receiveUpdate(CommonCommand currentJob);
 
+	void createNewTrackIfNecessary();
+
+	void resetTrack();
+
+
 }

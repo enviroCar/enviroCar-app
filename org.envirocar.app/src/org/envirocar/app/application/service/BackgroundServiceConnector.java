@@ -19,8 +19,9 @@
  * 
  */
 
-package org.envirocar.app.application;
+package org.envirocar.app.application.service;
 
+import org.envirocar.app.application.CommandListener;
 import org.envirocar.app.commands.CommonCommand;
 
 import android.content.ComponentName;
@@ -35,24 +36,27 @@ import android.os.IBinder;
  * @author jakob
  * 
  */
-public class ServiceConnector implements ServiceConnection {
+public class BackgroundServiceConnector implements ServiceConnection {
 
-	private Monitor localMonitor = null;
-	private Listener localListener = null;
+	private BackgroundServiceInteractor interactor;
+	private CommandListener commandListener;
 
+	public BackgroundServiceConnector(CommandListener commandListener) {
+		this.commandListener = commandListener;
+	}
+	
 	/**
 	 * connects listener and monitor
 	 */
 	public void onServiceConnected(ComponentName componentName, IBinder binder) {
-		localMonitor = (Monitor) binder;
-		localMonitor.setListener(localListener);
+		interactor = (BackgroundServiceInteractor) binder;
+		interactor.initializeConnection();
+		interactor.setListener(commandListener);
 	}
+	
 
-	/**
-	 * deactivates the local monitor
-	 */
 	public void onServiceDisconnected(ComponentName name) {
-		localMonitor = null;
+		interactor.shutdownConnection();
 	}
 
 	/**
@@ -61,11 +65,11 @@ public class ServiceConnector implements ServiceConnection {
 	 * @return True if running
 	 */
 	public boolean isRunning() {
-		if (localMonitor == null) {
+		if (interactor == null) {
 			return false;
 		}
 
-		return localMonitor.isRunning();
+		return interactor.isRunning();
 	}
 
 	/**
@@ -73,19 +77,18 @@ public class ServiceConnector implements ServiceConnection {
 	 * 
 	 * @param newJob
 	 *            New CommandJob
+	 * @deprecated this should not be the responsibility of the service connector!
 	 */
+	@Deprecated
 	public void addJobToWaitingList(CommonCommand newJob) {
-		if (null != localMonitor)
-			localMonitor.newJobToWaitingList(newJob);
+		if (null != interactor && interactor.isRunning())
+			interactor.newJobToWaitingList(newJob);
 	}
 
-	/**
-	 * Set the Local Listener
-	 * 
-	 * @param listener
-	 */
-	public void setServiceListener(Listener listener) {
-		localListener = listener;
+
+	public void shutdownBackgroundService() {
+		this.interactor.shutdownConnection();
 	}
+	
 
 }
