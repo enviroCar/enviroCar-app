@@ -19,9 +19,12 @@
  * 
  */
 
-package org.envirocar.app.application;
+package org.envirocar.app.application.service;
 
+import org.envirocar.app.application.Listener;
 import org.envirocar.app.commands.CommonCommand;
+
+import android.content.Intent;
 
 /**
  * Interface that adds jobs to the waiting list and executes it
@@ -29,8 +32,8 @@ import org.envirocar.app.commands.CommonCommand;
  * @author jakob
  * 
  */
-public interface Monitor {
-
+public interface BackgroundServiceInteractor {
+	
 	/**
 	 * Set the listener for this monitor
 	 * 
@@ -45,13 +48,34 @@ public interface Monitor {
 	 * @return true if monitori running
 	 */
 	boolean isRunning();
+	
+	/**
+	 * this method shall create all required resources (e.g. bluetooth connection)
+	 */
+	void initializeConnection();
 
+	
+	/**
+	 * this method shall free all resources created in {@link #initializeConnection()}
+	 */
+	void shutdownConnection();
+	
 	/**
 	 * adds a new DommonCommand to the waiting list
 	 * 
 	 * @param newCommand
 	 *            the new CommonCommand to add
+	 * @deprecated this should not be the responsibility of the interactor!
 	 */
+	@Deprecated
 	void newJobToWaitingList(CommonCommand newCommand);
+
+	/**
+	 * an implementation shall invoke the shutdown of the underlying service as
+	 * we could not receive any data. An {@link Intent} with action {@link #CONNECTION_PERMANENTLY_FAILED_INTENT}
+	 * shall be broadcasted.
+	 */
+	void allAdaptersFailed();
+
 
 }

@@ -23,19 +23,17 @@ package org.envirocar.app.activity;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.UnknownHostException;
 
 import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.views.TypefaceEC;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -351,7 +349,6 @@ public class RegisterFragment extends SherlockFragment {
 			logger.warn(e.getMessage(), e);
 		}
 
-		DefaultHttpClient httpClient = new DefaultHttpClient();
 
 		try {
 			HttpPost postRequest = new HttpPost(
@@ -363,28 +360,17 @@ public class RegisterFragment extends SherlockFragment {
 			input.setContentType("application/json");
 
 			postRequest.setEntity(input);
-			return httpClient.execute(postRequest).getStatusLine()
+			return HTTPClient.execute(postRequest).getStatusLine()
 					.getStatusCode();
 
-		} catch (UnknownHostException e){
-			logger.warn(e.getMessage(), e);
-			return ERROR_NET;
 		} catch (UnsupportedEncodingException e) {
 			// Shouldn't occur hopefully..
-			logger.warn(e.getMessage(), e);
-			return ERROR_GENERAL;
-		} catch (ClientProtocolException e) {
 			logger.warn(e.getMessage(), e);
 			return ERROR_GENERAL;
 		} catch (IOException e) {
 			logger.warn(e.getMessage(), e);
 			// probably something with the Internet..
 			return ERROR_NET;
-		} finally {
-			// When HttpClient instance is no longer needed,
-			// shut down the connection manager to ensure
-			// immediate deallocation of all system resources
-			httpClient.getConnectionManager().shutdown();
 		}
 	}
 

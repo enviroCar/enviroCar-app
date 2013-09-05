@@ -30,17 +30,22 @@ import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.NavMenuItem;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.UserManager;
+import org.envirocar.app.application.service.BackgroundService;
 import org.envirocar.app.exception.TracksException;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.DbAdapterLocal;
+import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.app.util.NamedThreadFactory;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -111,9 +116,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private SharedPreferences preferences = null;
 	boolean alwaysUpload = false;
 	boolean uploadOnlyInWlan = true;
-	boolean autoConnect = false;
-	private Handler handler_connect;
 	private Handler handler_upload;
+	private boolean serviceRunning;
+	private BroadcastReceiver receiver;
+	private OnSharedPreferenceChangeListener settingsReceiver;
 		
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
@@ -127,51 +133,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			navDrawerItems[SEND_LOG] = new NavMenuItem(SEND_LOG, getResources().getString(R.string.menu_send_log), R.drawable.action_report);
 		}
 		
-		if (application.requirementsFulfilled()) { // was requirementsFulfilled
-			try {
-				if (application.getServiceConnector().isRunning()) {
-					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_stop));
-					navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_pause);
-				} else {
-					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
-					// Only enable start button when adapter is selected
-	
-					SharedPreferences preferences = PreferenceManager
-							.getDefaultSharedPreferences(this);
-	
-					String remoteDevice = preferences.getString(
-							org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,
-							null);
-	
-					if (remoteDevice != null) {
-						if(!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)){
-							navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-							navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
-							navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.no_sensor_selected));
-						} else {
-							navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
-							navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_play);
-							navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(preferences.getString(SettingsActivity.BLUETOOTH_NAME, ""));
-						}
-					} else {
-						navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-						navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
-						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.pref_summary_chose_adapter));
-					}
-
-				}
-			} catch (NullPointerException e) {
-				logger.warn(e.getMessage(), e);
-				navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-				navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
-			}
-		} else {
-			navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
-			navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.pref_bluetooth_disabled));
-			navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-			navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
-		}
-	
 		if (UserManager.instance().isLoggedIn()) {
 			navDrawerItems[LOGIN].setTitle(getResources().getString(R.string.menu_logout));
 			navDrawerItems[LOGIN].setSubtitle(String.format(getResources().getString(R.string.logged_in_as),UserManager.instance().getUser().getUsername()));
@@ -195,10 +156,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
-        autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
-        handler_connect = new Handler();
         handler_upload = new Handler();
-        application.setImperialUnits(preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT, false));
 
 		actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
@@ -225,6 +183,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		drawerList = (ListView) findViewById(R.id.left_drawer);
 		navDrawerAdapter = new NavAdapter();
 		prepareNavDrawerItems();
+		updateStartStopButton();
 		drawerList.setAdapter(navDrawerAdapter);
 		ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(
 				this, drawer, R.drawable.ic_drawer, R.string.open_drawer,
@@ -242,85 +201,37 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 		manager.executePendingTransactions();
 
-		/*
-		 * Auto connect to bluetooth adapter every 10 minutes
-		 */
-
-		ScheduledExecutorService autoConnectTaskExecutor = Executors.newScheduledThreadPool(1);
-		autoConnectTaskExecutor.scheduleAtFixedRate(new Runnable() {
-
+		receiver = new BroadcastReceiver() {
+			
 			@Override
-			public void run() {
-				if (autoConnect) {
-					logger.info("User wants to auto-connect");
-					try {
-						if (!application.getServiceConnector().isRunning()) {
-							logger.info("starting connection 1");
-
-							String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY, null);
-
-							if (application.requirementsFulfilled() && remoteDevice != null) {
-								if (!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)) {
-									if (UserManager.instance().isLoggedIn()) {
-										MyGarage garageFragment = new MyGarage();
-										getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
-									} else {
-										LoginFragment loginFragment = new LoginFragment();
-										getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
-									}
-								} else {
-									if (!application.getServiceConnector().isRunning()) {
-
-										handler_connect.post(new Runnable() {
-											public void run() {
-												application.startConnection();
-											}
-										});
-									}
-								}
-							} else {
-								Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
-								startActivity(settingsIntent);
-							}
-						}
-					} catch (NullPointerException e) {
-						logger.info("starting connection 2");
-
-						String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY, null);
-
-						if (application.requirementsFulfilled() && remoteDevice != null) {
-							if (!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)) {
-								if (UserManager.instance().isLoggedIn()) {
-									MyGarage garageFragment = new MyGarage();
-									getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
-								} else {
-									LoginFragment loginFragment = new LoginFragment();
-									getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
-								}
-							} else {
-								if (!application.getServiceConnector().isRunning()) {
-									handler_connect.post(new Runnable() {
-										public void run() {
-											application.startConnection();
-										}
-									});
-								}
-							}
-						} else {
-							Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
-							startActivity(settingsIntent);
-						}
-					}
+			public void onReceive(Context context, Intent intent) {
+				if (intent.getAction().equals(BackgroundService.SERVICE_STATE)) {
+					serviceRunning = intent.getBooleanExtra(BackgroundService.SERVICE_STATE, false);
+					updateStartStopButton();
 				}
-
 			}
-		}, 1, 10, TimeUnit.MINUTES);
+		};
+		registerReceiver(receiver, new IntentFilter(BackgroundService.SERVICE_STATE));
+
+		settingsReceiver = new OnSharedPreferenceChangeListener() {
+			@Override
+			public void onSharedPreferenceChanged(
+					SharedPreferences sharedPreferences, String key) {
+				if (key.equals(SettingsActivity.BLUETOOTH_KEY)) {
+					updateStartStopButton();
+				}
+				else if (key.equals(ECApplication.PREF_KEY_SENSOR_ID)) {
+					updateStartStopButton();
+				}
+			}
+		};
+		preferences.registerOnSharedPreferenceChangeListener(settingsReceiver);
 		
 		/*
 		 * Auto-Uploader of tracks. Uploads complete tracks every 10 minutes.
 		 */
 
-		ScheduledExecutorService uploadTaskExecutor = Executors.newScheduledThreadPool(1);
+		ScheduledExecutorService uploadTaskExecutor = Executors.newScheduledThreadPool(1, new NamedThreadFactory(getClass().getName()+"-Factory"));
 		uploadTaskExecutor.scheduleAtFixedRate(new Runnable() {
 
 			@Override
@@ -332,7 +243,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 					logger.info("Automatic upload will start");
 					if (UserManager.instance().isLoggedIn()) {
 						try {
-							if (!application.getServiceConnector().isRunning()) {
+							if (!serviceRunning) {
 								logger.info("Service connector not running");
 								if (uploadOnlyInWlan == true) {
 									if (mWifi.isConnected()) {
@@ -387,19 +298,65 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			}
 		}, 0, 10, TimeUnit.MINUTES);
 		
-		//bluetooth change listener
-	    IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-	    this.registerReceiver(application.bluetoothChangeReceiver, filter);
 	}
+
+	protected void updateStartStopButton() {
+		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+		if (adapter != null && adapter.isEnabled()) { // was requirementsFulfilled
+			try {
+				if (serviceRunning) {
+					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_stop));
+					navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_pause);
+				} else {
+					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
+					// Only enable start button when adapter is selected
+	
+					SharedPreferences preferences = PreferenceManager
+							.getDefaultSharedPreferences(this);
+	
+					String remoteDevice = preferences.getString(
+							org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,
+							null);
+	
+					if (remoteDevice != null) {
+						if(!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)){
+							navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
+							navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
+							navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.no_sensor_selected));
+						} else {
+							navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
+							navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_play);
+							navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(preferences.getString(SettingsActivity.BLUETOOTH_NAME, ""));
+						}
+					} else {
+						navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
+						navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
+						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.pref_summary_chose_adapter));
+					}
+
+				}
+			} catch (NullPointerException e) {
+				logger.warn(e.getMessage(), e);
+				navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
+				navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
+			}
+		} else {
+			navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
+			navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.pref_bluetooth_disabled));
+			navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
+			navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
+		}
+		
+		navDrawerAdapter.notifyDataSetChanged();
+	}
+
 	/**
 	 * Helper method for the automatic upload of local tracks via the scheduler.
 	 */
     private void uploadTracks() {
-        DbAdapterLocal dbAdapter = (DbAdapterLocal) application
-                .getDbAdapterLocal();
-        
+        DbAdapter dbAdapter = application.getDBAdapter();
             try {
-                if (dbAdapter.getNumberOfStoredTracks() > 0
+                if (dbAdapter.getNumberOfLocalTracks() > 0
                         && dbAdapter.getLastUsedTrack()
                                 .getNumberOfMeasurements() > 0) {
                     UploadManager uploadManager = new UploadManager(
@@ -472,6 +429,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
     private void openFragment(int position) {
         FragmentManager manager = getSupportFragmentManager();
+
         switch (position) {
         
         // Go to the dashboard
@@ -515,16 +473,17 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         // Start or stop the measurement process
             
 		case START_STOP_MEASUREMENT:
-			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
 
 			String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,null);
 
-			if (application.requirementsFulfilled() && remoteDevice != null) {
+			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+			if (adapter != null && adapter.isEnabled() && remoteDevice != null) {
 				if(!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)){
 			        MyGarage garageFragment = new MyGarage();
 			        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
 				} else {
-					if (application.getServiceConnector()!= null && !application.getServiceConnector().isRunning()) {
+					if (!serviceRunning) {
 						application.startConnection();
 						Crouton.makeText(this, R.string.start_measuring, Style.INFO).show();
 					} else {
@@ -557,15 +516,15 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 		// Close db connection
 
-		application.closeDb();
+//		application.closeDb();
 
 		// Remove the services etc.
 
-		application.destroyStuff();
+//		application.destroyStuff();
 		
 		Crouton.cancelAllCroutons();
 		
-		this.unregisterReceiver(application.bluetoothChangeReceiver);
+//		this.unregisterReceiver(application.getBluetoothChangeReceiver());
 
 	}
 	
@@ -586,8 +545,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	    
 		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
-        autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
-        application.setImperialUnits(preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT, false));
 	}
 
 

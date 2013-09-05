@@ -56,11 +56,11 @@ public class Logger {
 		} catch (Exception e) {
 			Log.e(AndroidHandler.DEFAULT_TAG, e.getMessage(), e);
 		}
-		try {
-			handlers.add(new AndroidHandler());
-		} catch (Exception e) {
-			Log.e(AndroidHandler.DEFAULT_TAG, e.getMessage(), e);
-		}
+//		try {
+//			handlers.add(new AndroidHandler());
+//		} catch (Exception e) {
+//			Log.e(AndroidHandler.DEFAULT_TAG, e.getMessage(), e);
+//		}
 	}
 
 	private String name;

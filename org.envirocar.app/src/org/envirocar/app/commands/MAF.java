@@ -34,7 +34,8 @@ import org.envirocar.app.logging.Logger;
 public class MAF extends CommonCommand {
 	
 	private static final Logger logger = Logger.getLogger(MAF.class);
-
+	public static final String NAME = "Mass Air Flow";
+	
 	public MAF() {
 		super("01 10");
 	}
@@ -61,6 +62,6 @@ public class MAF extends CommonCommand {
 
 	@Override
 	public String getCommandName() {
-		return "Mass Air Flow";
+		return NAME;
 	}
 }
