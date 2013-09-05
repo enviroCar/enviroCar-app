@@ -83,11 +83,11 @@ public abstract class CommonCommand {
 	}
 
 	private void waitForResult(final InputStream in) throws IOException {
-		try {
-			Thread.sleep(SLEEP_TIME);
-		} catch (InterruptedException e) {
-			logger.warn(e.getMessage(), e);
-		}
+//		try {
+//			Thread.sleep(SLEEP_TIME);
+//		} catch (InterruptedException e) {
+//			logger.warn(e.getMessage(), e);
+//		}
 		
 		if (!awaitsResults()) return; 
 		try {
