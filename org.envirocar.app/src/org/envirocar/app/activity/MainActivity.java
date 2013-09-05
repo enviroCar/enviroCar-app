@@ -220,6 +220,9 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				if (key.equals(SettingsActivity.BLUETOOTH_KEY) || key.equals(ECApplication.PREF_KEY_SENSOR_ID)) {
 					updateStartStopButton();
 				}
+				else if (key.equals(ECApplication.PREF_KEY_SENSOR_ID)) {
+					updateStartStopButton();
+				}
 			}
 		};
 		preferences.registerOnSharedPreferenceChangeListener(settingsReceiver);
@@ -296,8 +299,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		}, 0, 10, TimeUnit.MINUTES);
 		
 	}
+
 	protected void updateStartStopButton() {
-		if (BluetoothAdapter.getDefaultAdapter().isEnabled()) { // was requirementsFulfilled
+		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+		if (adapter != null && adapter.isEnabled()) { // was requirementsFulfilled
 			try {
 				if (serviceRunning) {
 					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_stop));
@@ -424,6 +429,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
     private void openFragment(int position) {
         FragmentManager manager = getSupportFragmentManager();
+
         switch (position) {
         
         // Go to the dashboard
@@ -471,7 +477,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 			String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,null);
 
-			if (BluetoothAdapter.getDefaultAdapter().isEnabled() && remoteDevice != null) {
+			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+			if (adapter != null && adapter.isEnabled() && remoteDevice != null) {
 				if(!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)){
 			        MyGarage garageFragment = new MyGarage();
 			        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
