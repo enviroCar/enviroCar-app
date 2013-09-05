@@ -81,18 +81,15 @@ public class OBDCommandLooper extends HandlerThread {
 				
 				synchronized (shutdownMutex) {
 					if (!running || shutdownComplete) {
-						shutdownComplete = true;
-						shutdownMutex.notifyAll();
+						notifyWaitersOnShutdown();
 						return;
 					}
 				}
+				
 				commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
 			}
 			else {
-				synchronized (shutdownMutex) {
-					shutdownComplete = true;
-					shutdownMutex.notifyAll();
-				}
+				notifyWaitersOnShutdown();
 			}
 		}
 	};
@@ -110,15 +107,14 @@ public class OBDCommandLooper extends HandlerThread {
 				} catch (IOException e) {
 					logger.warn(e.getMessage(), e);
 					running = false;
-					shutdownComplete = true;
+					notifyWaitersOnShutdown();
 					connectionListener.onConnectionException(e);
 					return;
 				}
 				
 				synchronized (shutdownMutex) {
 					if (!running || shutdownComplete) {
-						shutdownComplete = true;
-						shutdownMutex.notifyAll();
+						notifyWaitersOnShutdown();
 						return;
 					}
 				}
@@ -126,12 +122,10 @@ public class OBDCommandLooper extends HandlerThread {
 				commandExecutionHandler.postDelayed(initializationCommandsRunnable, ADAPTER_TRY_PERIOD);
 			}
 			else {
-				synchronized (shutdownMutex) {
-					shutdownComplete = true;
-					shutdownMutex.notifyAll();
-				}
+				notifyWaitersOnShutdown();
 			}
 		}
+
 	};
 	private ConnectionListener connectionListener;
 	private Object shutdownMutex = new Object();
@@ -170,6 +164,12 @@ public class OBDCommandLooper extends HandlerThread {
 		obdAdapter = adapterCandidates.get(0);
 	}
 	
+	private void notifyWaitersOnShutdown() {
+		synchronized (shutdownMutex) {
+			shutdownComplete = true;
+			shutdownMutex.notifyAll();
+		}
+	}
 	
 	/**
 	 * stop the command looper. this removes all pending commands.
@@ -182,19 +182,18 @@ public class OBDCommandLooper extends HandlerThread {
 		commandExecutionHandler.removeCallbacks(initializationCommandsRunnable);
 		commandExecutionHandler.getLooper().quit();
 		
-		logger.info("I am here!");
-		
 		synchronized (shutdownMutex) {
 			while (!shutdownComplete) {
+				logger.info("shutdown not completed. waiting...");
 				try {
 					shutdownMutex.wait();
 				} catch (InterruptedException e) {
 					logger.warn(e.getMessage(), e);
 				}
 			}
+			logger.info("I finished waiting for shutdown!");
 		}
 		
-		logger.info("I finished waiting!");
 	}
 
 	private void executeInitializationRequests() throws IOException {
