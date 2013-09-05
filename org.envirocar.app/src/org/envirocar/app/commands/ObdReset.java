@@ -29,7 +29,7 @@ import java.io.InputStream;
 /**
  * This method will reset the OBD connection.
  */
-public class ObdReset extends CommonCommand {
+public class ObdReset extends StringResultCommand {
 
 	public ObdReset() {
 		super("AT Z");
@@ -49,11 +49,6 @@ public class ObdReset extends CommonCommand {
 	@Override
 	protected boolean awaitsResults() {
 		return false;
-	}
-
-	@Override
-	public String getRawData() {
-		return "";
 	}
 
 	@Override

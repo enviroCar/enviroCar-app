@@ -23,6 +23,7 @@ public class CarManager {
 
 	public CarManager(SharedPreferences prefs) {
 		this.preferences = prefs;
+		createCar();
 	}
 	
 	public static synchronized CarManager instance() {
@@ -54,17 +55,24 @@ public class CarManager {
 		edit.putString(PREF_KEY_CAR_MANUFACTURER, car.getManufacturer());
 		edit.putString(PREF_KEY_CAR_MODEL, car.getModel());
 		edit.putString(PREF_KEY_SENSOR_ID, car.getId());
-		edit.putFloat(PREF_KEY_CAR_ENGINE_DISPLACEMENT, (float) car.getEngineDisplacement());
+		edit.putString(PREF_KEY_CAR_ENGINE_DISPLACEMENT, Double.toString(car.getEngineDisplacement()));
 		edit.commit();
 	}
 	
 	public void createCar() {
-		String fuelType = preferences.getString(PREF_KEY_FUEL_TYPE, "undefined");
-		String carManufacturer = preferences.getString(PREF_KEY_CAR_MANUFACTURER, "undefined");
-		String carModel = preferences.getString(PREF_KEY_CAR_MODEL, "undefined");
-		String sensorId = preferences.getString(PREF_KEY_SENSOR_ID, "undefined");
+		String fuelType = preferences.getString(PREF_KEY_FUEL_TYPE, null);
+		String carManufacturer = preferences.getString(PREF_KEY_CAR_MANUFACTURER, null);
+		String carModel = preferences.getString(PREF_KEY_CAR_MODEL, null);
+		String sensorId = preferences.getString(PREF_KEY_SENSOR_ID, null);
+		
+		/*
+		 * this is not a real car, must be reloaded from server
+		 */
+		if (fuelType == null || carManufacturer == null || carModel == null || sensorId == null)
+			return;
+		
 		int year = this.preferences.getInt(PREF_KEY_CAR_CONSTRUCTION_YEAR, 2000);
-		double displacement = preferences.getFloat(PREF_KEY_CAR_ENGINE_DISPLACEMENT, 2.0f);
+		double displacement = Float.valueOf(preferences.getString(PREF_KEY_CAR_ENGINE_DISPLACEMENT, "2.0f"));
 		FuelType type = null;
 		if (fuelType.equalsIgnoreCase(FuelType.GASOLINE.toString())) {
 			type = FuelType.GASOLINE;

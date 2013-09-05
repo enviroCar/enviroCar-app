@@ -25,7 +25,7 @@ package org.envirocar.app.commands;
 /**
  * This command will turn-off memory.
  */
-public class MemoryOff extends CommonCommand {
+public class MemoryOff extends StringResultCommand {
 
 	/**
 	 * @param command

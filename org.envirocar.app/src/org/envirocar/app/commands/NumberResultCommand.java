@@ -18,30 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-
 package org.envirocar.app.commands;
 
+import org.envirocar.app.logging.Logger;
 
-/**
- * Turns off line-feed.
- */
-public class PIDSupported extends NumberResultCommand {
+public abstract class NumberResultCommand extends CommonCommand {
 
-	/**
-	 * @param command
-	 */
-	public PIDSupported() {
-		super("01 00");
+	private static final Logger logger = Logger.getLogger(NumberResultCommand.class);
+	
+	public NumberResultCommand(String command) {
+		super(command);
 	}
 
 	@Override
-	public String getResult() {
-		return getRawData();
+	protected void parseRawData() {
+		int index = 0;
+		int length = 2;
+		while (index + length <= rawData.length()) {
+			try {
+				buffer.add(Integer.parseInt(rawData.substring(index, index + length), 16));
+			} catch (NumberFormatException e) {
+				logger.warn(e.getMessage());
+			}
+			index += length;
+		}		
 	}
-
-	@Override
-	public String getCommandName() {
-		return "01 00"; 
-	}
-
+	
 }

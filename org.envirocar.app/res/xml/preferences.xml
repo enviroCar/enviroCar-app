@@ -36,7 +36,8 @@
             android:title="@string/pref_engine_displacement" 
             android:key="pref_engine_displacement" 
             android:summary="@string/pref_in_liters"
-            android:inputType="numberDecimal"/>
+            android:inputType="numberDecimal"
+            android:numeric="decimal"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_about" >
         <Preference 

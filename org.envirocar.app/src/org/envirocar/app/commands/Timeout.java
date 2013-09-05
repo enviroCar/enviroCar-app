@@ -26,7 +26,7 @@ package org.envirocar.app.commands;
  * This will set the value of time in milliseconds (ms) that the OBD interface
  * will wait for a response from the ECU. If exceeds, the response is "NO DATA".
  */
-public class Timeout extends CommonCommand {
+public class Timeout extends StringResultCommand {
 
 	/**
 	 * @param a

@@ -27,7 +27,7 @@ package org.envirocar.app.commands;
  * @author jakob
  * 
  */
-public class TPS extends CommonCommand {
+public class TPS extends NumberResultCommand {
 
 	public TPS() {
 		super("01 11");

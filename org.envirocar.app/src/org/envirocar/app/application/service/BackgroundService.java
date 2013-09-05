@@ -29,6 +29,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.TroubleshootingActivity;
+import org.envirocar.app.application.CarManager;
+import org.envirocar.app.application.CommandListener;
 import org.envirocar.app.application.Listener;
 import org.envirocar.app.application.LocationUpdateListener;
 import org.envirocar.app.commands.CommonCommand;
@@ -195,6 +197,7 @@ public class BackgroundService extends Service {
 		ConnectThread t = new ConnectThread(bluetoothDevice, true);
 		t.start();
 		
+		commandListener = new CommandListener(CarManager.instance().getCar());
 		commandListener.createNewTrackIfNecessary();
 	}
 	

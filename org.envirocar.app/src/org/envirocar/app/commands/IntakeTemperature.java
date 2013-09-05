@@ -27,7 +27,7 @@ package org.envirocar.app.commands;
  * @author jakob
  * 
  */
-public class IntakeTemperature extends CommonCommand {
+public class IntakeTemperature extends NumberResultCommand {
 
 	public static final String NAME = "Air Intake Temperature";
 

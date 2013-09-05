@@ -25,6 +25,7 @@ package org.envirocar.app.logging;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.FileHandler;
+import java.util.logging.Level;
 import java.util.logging.SimpleFormatter;
 
 import org.envirocar.app.util.Util;
@@ -56,6 +57,7 @@ public class LocalFileHandler implements Handler {
 		this.logger = java.util.logging.Logger.getLogger("org.envirocar.app");
 		String finalPath = ensureFileIsAvailable();
 		this.logger.addHandler(createHandler(finalPath));
+		this.logger.setLevel(Level.ALL);
 	}
 	
 	@Override

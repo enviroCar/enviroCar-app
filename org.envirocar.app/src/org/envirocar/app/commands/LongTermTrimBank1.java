@@ -27,7 +27,7 @@ package org.envirocar.app.commands;
  * @author jakob
  * 
  */
-public class LongTermTrimBank1 extends CommonCommand {
+public class LongTermTrimBank1 extends NumberResultCommand {
 
 	public LongTermTrimBank1() {
 		super("01 07");
