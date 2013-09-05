@@ -335,9 +335,11 @@ public class DbAdapterImpl implements DbAdapter {
 			try {
 				JSONObject json = new JSONObject(rawData);
 				JSONArray names = json.names();
-				for (int j = 0; j < names.length(); j++) {
-					String key = names.getString(j);
-					measurement.addProperty(PropertyKey.valueOf(key), json.getDouble(key));
+				if (names != null) {
+					for (int j = 0; j < names.length(); j++) {
+						String key = names.getString(j);
+						measurement.addProperty(PropertyKey.valueOf(key), json.getDouble(key));
+					}
 				}
 			} catch (JSONException e) {
 				logger.severe("could not load properties", e);
