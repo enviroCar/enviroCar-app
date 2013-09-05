@@ -24,7 +24,7 @@ package org.envirocar.app.activity;
 import java.text.DecimalFormat;
 
 import org.envirocar.app.R;
-import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.application.CarManager;
 import org.envirocar.app.event.CO2Event;
 import org.envirocar.app.event.CO2EventListener;
 import org.envirocar.app.event.EventBus;
@@ -32,6 +32,7 @@ import org.envirocar.app.event.LocationEvent;
 import org.envirocar.app.event.LocationEventListener;
 import org.envirocar.app.event.SpeedEvent;
 import org.envirocar.app.event.SpeedEventListener;
+import org.envirocar.app.model.Car;
 import org.envirocar.app.views.RoundProgress;
 import org.envirocar.app.views.TypefaceEC;
 
@@ -101,29 +102,12 @@ public class DashboardFragment extends SherlockFragment {
 	 * @return
 	 */
 	private String getCurrentSensorString() {
-		String nonsens = "nosensor";
-		if (preferences.contains(ECApplication.PREF_KEY_SENSOR_ID) && 
-				preferences.contains(ECApplication.PREF_KEY_FUEL_TYPE) &&
-				preferences.contains(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR) &&
-				preferences.contains(ECApplication.PREF_KEY_CAR_MODEL) &&
-				preferences.contains(ECApplication.PREF_KEY_CAR_MANUFACTURER)) {
-			
-			String prefSensorid = preferences.getString(ECApplication.PREF_KEY_SENSOR_ID, nonsens);
-			String prefFuelType = preferences.getString(ECApplication.PREF_KEY_FUEL_TYPE, nonsens);
-			String prefYear = preferences.getString(ECApplication.PREF_KEY_CAR_CONSTRUCTION_YEAR, nonsens);
-			String prefModel = preferences.getString(ECApplication.PREF_KEY_CAR_MODEL, nonsens);
-			String prefManu = preferences.getString(ECApplication.PREF_KEY_CAR_MANUFACTURER, nonsens);
-			
-			if (prefSensorid.equals(nonsens) == false ||
-					prefYear.equals(nonsens) == false ||
-					prefFuelType.equals(nonsens) == false ||
-					prefModel.equals(nonsens) == false ||
-					prefManu.equals(nonsens) == false ) {
-				return prefManu+" "+prefModel+" ("+prefFuelType+" "+prefYear+")";
-			}
+		if (CarManager.instance().isCarSet()) {
+			Car car = CarManager.instance().getCar();
+			return car.getManufacturer()+" "+car.getModel()+" ("+car.getFuelType().toString()+" "+car.getConstructionYear()+")";
+		} else {
+			return getResources().getString(R.string.no_sensor_selected);
 		}
-		return getResources().getString(R.string.no_sensor_selected);
-
 	}
 
 	@Override

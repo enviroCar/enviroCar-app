@@ -44,7 +44,6 @@ import org.envirocar.app.event.UploadTrackEvent;
 import org.envirocar.app.event.UploadTrackListener;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
-import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.network.RestClient;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Measurement;
@@ -59,7 +58,6 @@ import org.json.JSONObject;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -520,20 +518,21 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						}catch (JSONException e) {
 							logger.warn(e.getMessage(), e);
 						}
-						FuelType fuelType = null; // TODO check fueltype better
+						String ft = "undefined"; // TODO check fueltype better
 						try{
-							String ft = sensorProperties.getString("fuelType");
-							if (ft.equalsIgnoreCase(FuelType.GASOLINE.name())) {
-								fuelType = FuelType.GASOLINE;
-							} else if (ft.equalsIgnoreCase(FuelType.DIESEL.name())) {
-								fuelType = FuelType.DIESEL;
-							}
+							ft = sensorProperties.getString("fuelType");
 						} catch (JSONException e) {
 							logger.warn(e.getMessage(), e);
 						}
-						SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-						double displacement = preferences.getFloat(ECApplication.PREF_KEY_CAR_ENGINE_DISPLACEMENT, 2.0f);
-						t.setCar(new Car(fuelType, manufacturer, carModel, sensorId, displacement)); // TODO get EngineDisplacement
+						int year = 2000;
+						try{
+							year = sensorProperties.getInt("constructionYear");
+						} catch (JSONException e) {
+							logger.warn(e.getMessage(), e);
+						}
+						// TODO get EngineDisplacement from server!!!
+						double displacement = 2.0;
+						t.setCar(new Car(ft, manufacturer, carModel, sensorId, year, displacement)); 
 						//include server properties tracks created, modified?
 						
 						dbAdapter.updateTrack(t);
