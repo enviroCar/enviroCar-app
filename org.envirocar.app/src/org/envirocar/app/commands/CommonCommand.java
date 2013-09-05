@@ -78,7 +78,6 @@ public abstract class CommonCommand {
 	public void run(InputStream in, OutputStream out) throws IOException {
 		sendCommand(out);
 		waitForResult(in);
-		logger.info(Long.toString(System.currentTimeMillis()));
 	}
 
 	private void waitForResult(final InputStream in) throws IOException {
@@ -97,6 +96,7 @@ public abstract class CommonCommand {
 				
 				Thread.sleep(SLEEP_TIME);
 			}
+			logger.debug(getCommandName().concat(Long.toString(System.currentTimeMillis())));
 			readResult(in);
 		} catch (InterruptedException e) {
 			logger.warn(e.getMessage(), e);
