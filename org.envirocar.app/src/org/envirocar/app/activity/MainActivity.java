@@ -217,7 +217,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			@Override
 			public void onSharedPreferenceChanged(
 					SharedPreferences sharedPreferences, String key) {
-				if (key.equals(SettingsActivity.BLUETOOTH_KEY)) {
+				if (key.equals(SettingsActivity.BLUETOOTH_KEY) || key.equals(ECApplication.PREF_KEY_SENSOR_ID)) {
 					updateStartStopButton();
 				}
 			}
