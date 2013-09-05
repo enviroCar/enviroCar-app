@@ -27,7 +27,7 @@ package org.envirocar.app.commands;
  * @author jakob
  * 
  */
-public class Speed extends CommonCommand {
+public class Speed extends NumberResultCommand {
 
 	public static final String NAME = "Vehicle Speed";
 

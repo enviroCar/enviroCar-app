@@ -27,7 +27,7 @@ package org.envirocar.app.commands;
  * @author jakob
  * 
  */
-public class RPM extends CommonCommand {
+public class RPM extends NumberResultCommand {
 
 	public static final String NAME = "Engine RPM";
 

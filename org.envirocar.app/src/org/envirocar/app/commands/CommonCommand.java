@@ -49,6 +49,7 @@ public abstract class CommonCommand {
 	private static final String COMMAND_SEND_END = "\r";
 	private static final char COMMAND_RECEIVE_END = '>';
 	private static final char COMMAND_RECEIVE_SPACE = ' ';
+	private static final String NODATA = "NODATA";
 
 	/**
 	 * Default constructor to use
@@ -77,6 +78,7 @@ public abstract class CommonCommand {
 	public void run(InputStream in, OutputStream out) throws IOException {
 		sendCommand(out);
 		waitForResult(in);
+		logger.info(Long.toString(System.currentTimeMillis()));
 	}
 
 	private void waitForResult(final InputStream in) throws IOException {
@@ -158,13 +160,10 @@ public abstract class CommonCommand {
 //		logger.info("Command name: " + getCommandName() + ", Send '" + getCommand() + "', get raw data '" + rawData + "'");
 
 		// read string each two chars
-		int index = 0;
-		int length = 2;
-		while (index + length <= rawData.length()) {
-			buffer.add(Integer.parseInt(rawData.substring(index, index + length), 16));
-			index += length;
-		}
+		parseRawData();
 	}
+
+	protected abstract void parseRawData();
 
 	/**
 	 * @return the raw command response in string representation.
@@ -173,10 +172,10 @@ public abstract class CommonCommand {
 	 */
 	public String getRawData() {
 		if (rawData == null || rawData.contains("SEARCHING") || rawData.contains("DATA")
-				//TODO check if cars do this!!
-				|| rawData.contains("OK")
+//				//TODO check if cars do this!!
+//				|| rawData.contains("OK")
 				) {
-			rawData = "NODATA";
+			rawData = NODATA;
 		}
 		return rawData;
 	}
@@ -245,10 +244,10 @@ public abstract class CommonCommand {
 	}
 
 	public boolean isNoDataCommand() {
-		if (getRawData() != null && (getRawData().equals("NODATA") ||
+		if (getRawData() != null && (getRawData().equals(NODATA) ||
 				getRawData().equals(""))) return true;
 		
-		if (getResult() != null && (getResult().equals("NODATA") ||
+		if (getResult() != null && (getResult().equals(NODATA) ||
 				getResult().equals(""))) return true;
 		
 		if (getResult() == null || getRawData() == null) return true;

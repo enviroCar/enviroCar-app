@@ -25,7 +25,7 @@ package org.envirocar.app.commands;
 /**
  * This command will turn-off echo.
  */
-public class SpacesOff extends CommonCommand {
+public class SpacesOff extends StringResultCommand {
 
 	/**
 	 * @param command

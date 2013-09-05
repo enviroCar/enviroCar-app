@@ -28,7 +28,7 @@ package org.envirocar.app.commands;
  * 
  */
 
-public class IntakePressure extends CommonCommand {
+public class IntakePressure extends NumberResultCommand {
 
 	public static final String NAME = "Intake Manifold Pressure";
 
