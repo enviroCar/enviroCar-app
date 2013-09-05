@@ -246,6 +246,15 @@ public class OBDCommandLooper extends HandlerThread {
 		// Finished if no more job is in the waiting-list
 
 		if (cmd != null) {
+			if (cmd.getCommandState() == CommonCommandState.SEARCHING) {
+				logger.info("Adapter still searching. Waiting a bit.");
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					logger.warn(e.getMessage(), e);
+				}
+				return;
+			}
 			cmd.setCommandState(CommonCommandState.FINISHED);
 			if (commandListener != null) {
 				commandListener.receiveUpdate(cmd);
@@ -270,7 +279,7 @@ public class OBDCommandLooper extends HandlerThread {
 		/*
 		 * switch to common command execution phase
 		 */
-		commandExecutionHandler.post(commonCommandsRunnable);
+		commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
 	}
 
 	private void selectAdapter() throws AllAdaptersFailedException {

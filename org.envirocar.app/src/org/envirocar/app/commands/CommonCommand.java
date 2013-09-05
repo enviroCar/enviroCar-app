@@ -50,6 +50,8 @@ public abstract class CommonCommand {
 	private static final char COMMAND_RECEIVE_END = '>';
 	private static final char COMMAND_RECEIVE_SPACE = ' ';
 	private static final String NODATA = "NODATA";
+	private static final CharSequence STOPPED = "STOPPED";
+	private static final CharSequence SEARCHING = "SEARCHING";
 
 	/**
 	 * Default constructor to use
@@ -67,7 +69,7 @@ public abstract class CommonCommand {
 	 * The state of the command.
 	 */
 	public enum CommonCommandState {
-		NEW, RUNNING, FINISHED, EXECUTION_ERROR, QUEUE_ERROR
+		NEW, RUNNING, FINISHED, EXECUTION_ERROR, QUEUE_ERROR, SEARCHING
 	}
 
 	/**
@@ -96,7 +98,7 @@ public abstract class CommonCommand {
 				
 				Thread.sleep(SLEEP_TIME);
 			}
-			logger.debug(getCommandName().concat(Long.toString(System.currentTimeMillis())));
+			logger.info(getCommandName().concat(Long.toString(System.currentTimeMillis())));
 			readResult(in);
 		} catch (InterruptedException e) {
 			logger.warn(e.getMessage(), e);
@@ -143,24 +145,32 @@ public abstract class CommonCommand {
 	 * Reads the OBD-II response.
 	 */
 	protected void readResult(InputStream in) throws IOException {
-		char b = 0;
-		
+		byte b = 0;
 		StringBuilder sb = new StringBuilder();
 
 		// read until '>' arrives
-		while (in.available() > 0) {
-			b = (char) in.read();
-			if (b == COMMAND_RECEIVE_END) break;
-			
-			if (b != COMMAND_RECEIVE_SPACE)
-				sb.append(b);
-		}
+		while ((char) (b = (byte) in.read()) != COMMAND_RECEIVE_END)
+			if ((char) b != COMMAND_RECEIVE_SPACE)
+				sb.append((char) b);
 
 		rawData = sb.toString().trim();
-//		logger.info("Command name: " + getCommandName() + ", Send '" + getCommand() + "', get raw data '" + rawData + "'");
+		
+		// clear buffer
+		buffer.clear();
 
+		logger.info(getCommandName() +": "+ rawData);
+
+		if (isSearching(rawData)) {
+			setCommandState(CommonCommandState.SEARCHING);
+			return;
+		}
+		
 		// read string each two chars
 		parseRawData();
+	}
+
+	private boolean isSearching(String rawData2) {
+		return rawData2.contains(SEARCHING) || rawData2.contains(STOPPED);
 	}
 
 	protected abstract void parseRawData();
