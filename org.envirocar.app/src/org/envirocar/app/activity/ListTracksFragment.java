@@ -90,23 +90,30 @@ import de.keyboardsurfer.android.widget.crouton.Style;
  * @author gerald
  *
  */
-public class ListMeasurementsFragment extends SherlockFragment {
+public class ListTracksFragment extends SherlockFragment {
 
 	// Measurements and tracks
 	
 	private List<Track> tracksList;
-	private TracksListAdapter elvAdapter;
+	private TracksListAdapter trackListAdapter;
 	private DbAdapter dbAdapter;
 	
 	// UI Elements
 	
-	private ExpandableListView elv;
+	private ExpandableListView trackListView;
 	private ProgressBar progress;
 	private int itemSelect;
 	
 	private Menu menu;
 	
-	protected static final Logger logger = Logger.getLogger(ListMeasurementsFragment.class);
+	protected static final Logger logger = Logger.getLogger(ListTracksFragment.class);
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		
+		dbAdapter = ((ECApplication) getActivity().getApplication()).getDBAdapter();
+	}
 
 	public View onCreateView(android.view.LayoutInflater inflater,
 			android.view.ViewGroup container,
@@ -114,16 +121,14 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		
 		setHasOptionsMenu(true);
 
-		dbAdapter = ((ECApplication) getActivity().getApplication()).getDBAdapter();
-
 		View v = inflater.inflate(R.layout.list_tracks_layout, null);
-		elv = (ExpandableListView) v.findViewById(R.id.list);
+		trackListView = (ExpandableListView) v.findViewById(R.id.list);
 		progress = (ProgressBar) v.findViewById(R.id.listprogress);
-		elv.setEmptyView(v.findViewById(android.R.id.empty));
+		trackListView.setEmptyView(v.findViewById(android.R.id.empty));
 		
-		registerForContextMenu(elv);
+		registerForContextMenu(trackListView);
 
-		elv.setOnItemLongClickListener(new OnItemLongClickListener() {
+		trackListView.setOnItemLongClickListener(new OnItemLongClickListener() {
 
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
@@ -140,20 +145,20 @@ public class ListMeasurementsFragment extends SherlockFragment {
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		initializeEventListener();
 		
-		logger.info("Create view ListMeasurementsFragment");
+		logger.info("Create view ListTracksFragment");
 		super.onViewCreated(view, savedInstanceState);
-		elv.setGroupIndicator(getResources().getDrawable(
+		trackListView.setGroupIndicator(getResources().getDrawable(
 				R.drawable.list_indicator));
-		elv.setChildDivider(getResources().getDrawable(
+		trackListView.setChildDivider(getResources().getDrawable(
 				android.R.color.transparent));
 		
 		//fetch local tracks // TODO load tracks with async thread
 		this.tracksList = dbAdapter.getAllTracks();
 		logger.info("Number of tracks in the List: " + tracksList.size());
-		if (elvAdapter == null)
-			elvAdapter = new TracksListAdapter();
-		elv.setAdapter(elvAdapter);
-		elvAdapter.notifyDataSetChanged();
+		if (trackListAdapter == null)
+			trackListAdapter = new TracksListAdapter();
+		trackListView.setAdapter(trackListAdapter);
+		trackListAdapter.notifyDataSetChanged();
 	
 		//if logged in, download tracks from server
 		if(UserManager.instance().isLoggedIn()){
@@ -211,12 +216,12 @@ public class ListMeasurementsFragment extends SherlockFragment {
 			clearRemoteTracks();
 		}
 		dbAdapter.deleteAllRemoteTracks();
-		elvAdapter.notifyDataSetChanged();
+		trackListAdapter.notifyDataSetChanged();
 	}
 	
 	public void notifyDataSetChanged(Track track){
 		updateUsabilityOfMenuItems();
-		elvAdapter.notifyDataSetChanged();
+		trackListAdapter.notifyDataSetChanged();
 	}
 	
 	/**
@@ -283,7 +288,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						track.setName(value);
 						dbAdapter.updateTrack(track);
 						tracksList.get(itemSelect).setName(value);
-						elvAdapter.notifyDataSetChanged();
+						trackListAdapter.notifyDataSetChanged();
 						Crouton.showText(getActivity(), getString(R.string.nameChanged), Style.INFO);
 					}
 				}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -307,9 +312,9 @@ public class ListMeasurementsFragment extends SherlockFragment {
 						logger.info("New description: " + value.toString());
 						track.setDescription(value);
 						dbAdapter.updateTrack(track);
-						elv.collapseGroup(itemSelect);
+						trackListView.collapseGroup(itemSelect);
 						tracksList.get(itemSelect).setDescription(value);
-						elvAdapter.notifyDataSetChanged();
+						trackListAdapter.notifyDataSetChanged();
 						// TODO Bug: update the description when it is changed.
 						Crouton.showText(getActivity(), getString(R.string.descriptionChanged), Style.INFO);
 					}
@@ -357,7 +362,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				dbAdapter.deleteTrack(track.getId());
 				Crouton.showText(getActivity(), getString(R.string.trackDeleted), Style.INFO);
 				tracksList.remove(itemSelect);
-				elvAdapter.notifyDataSetChanged();
+				trackListAdapter.notifyDataSetChanged();
 			} else {
 				createRemoteDeleteDialog(track);
 			}
@@ -423,7 +428,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 		if (track.isRemoteTrack()) {
 			if (tracksList.remove(track)) {
 				dbAdapter.deleteTrack(track.getId());
-				elvAdapter.notifyDataSetChanged();
+				trackListAdapter.notifyDataSetChanged();
 				Crouton.showText(
 						getActivity(),
 						getString(R.string.remoteTrackDeleted),
@@ -576,7 +581,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					super.onPostExecute(t);
 					if(t != null){
 						tracksList.add(t);
-						elvAdapter.notifyDataSetChanged();
+						trackListAdapter.notifyDataSetChanged();
 					}
 					ct--;
 					if (ct == 0) {
@@ -593,11 +598,11 @@ public class ListMeasurementsFragment extends SherlockFragment {
 					progress.setVisibility(View.GONE);
 					//sort the tracks bubblesort ?
 					Collections.sort(tracksList);
-					elvAdapter.notifyDataSetChanged();
+					trackListAdapter.notifyDataSetChanged();
 					updateUsabilityOfMenuItems();
 				}
-				if (elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))) {
-					elv.setAdapter(elvAdapter);
+				if (trackListView.getAdapter() == null || (trackListView.getAdapter() != null && !trackListView.getAdapter().equals(trackListAdapter))) {
+					trackListView.setAdapter(trackListAdapter);
 				}
 			}
 
@@ -606,8 +611,8 @@ public class ListMeasurementsFragment extends SherlockFragment {
 				super.onStart();
 				if (tracksList == null)
 					tracksList = new ArrayList<Track>();
-				if (elvAdapter == null)
-					elvAdapter = new TracksListAdapter();
+				if (trackListAdapter == null)
+					trackListAdapter = new TracksListAdapter();
 				progress.setVisibility(View.VISIBLE);
 			}
 
@@ -639,7 +644,7 @@ public class ListMeasurementsFragment extends SherlockFragment {
 //							
 //							protected void onPostExecute(Track result) {
 //								tracksList.add(result);
-//								elvAdapter.notifyDataSetChanged();
+//								trackListAdapter.notifyDataSetChanged();
 //								afterOneTrack();
 //							}
 //							
@@ -659,10 +664,10 @@ public class ListMeasurementsFragment extends SherlockFragment {
 										@Override
 										public void onFinish() {
 											super.onFinish();
-											if (elv.getAdapter() == null || (elv.getAdapter() != null && !elv.getAdapter().equals(elvAdapter))) {
-												elv.setAdapter(elvAdapter);
+											if (trackListView.getAdapter() == null || (trackListView.getAdapter() != null && !trackListView.getAdapter().equals(trackListAdapter))) {
+												trackListView.setAdapter(trackListAdapter);
 											}
-											elvAdapter.notifyDataSetChanged();
+											trackListAdapter.notifyDataSetChanged();
 										}
 
 										@Override

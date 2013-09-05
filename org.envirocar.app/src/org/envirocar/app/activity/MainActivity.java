@@ -445,7 +445,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         case LOGIN:
         	if(UserManager.instance().isLoggedIn()){
         		UserManager.instance().logOut();
-    			ListMeasurementsFragment listMeasurementsFragment = (ListMeasurementsFragment) getSupportFragmentManager().findFragmentByTag("MY_TRACKS");
+    			ListTracksFragment listMeasurementsFragment = (ListTracksFragment) getSupportFragmentManager().findFragmentByTag("MY_TRACKS");
     			// check if this fragment is initialized
     			if (listMeasurementsFragment != null) {
     				listMeasurementsFragment.clearRemoteTracks();
@@ -467,7 +467,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         // Go to the track list
             
         case MY_TRACKS:
-            ListMeasurementsFragment listMeasurementFragment = new ListMeasurementsFragment();
+            ListTracksFragment listMeasurementFragment = new ListTracksFragment();
             manager.beginTransaction().replace(R.id.content_frame, listMeasurementFragment, "MY_TRACKS").addToBackStack(null).commit();
             break;
             
