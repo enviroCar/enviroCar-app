@@ -50,6 +50,8 @@ public abstract class CommonCommand {
 	private static final char COMMAND_RECEIVE_END = '>';
 	private static final char COMMAND_RECEIVE_SPACE = ' ';
 	private static final String NODATA = "NODATA";
+	private static final CharSequence SEARCHING = "SEARCHING";
+	private static final CharSequence STOPPED = "STOPPED";
 
 	/**
 	 * Default constructor to use
@@ -157,10 +159,20 @@ public abstract class CommonCommand {
 		}
 
 		rawData = sb.toString().trim();
-//		logger.info("Command name: " + getCommandName() + ", Send '" + getCommand() + "', get raw data '" + rawData + "'");
+		logger.info(getCommandName() +" Response: "+rawData);
+		
+		if (staleModeResponse(rawData)) {
+			setCommandState(CommonCommandState.EXECUTION_ERROR);
+			logger.info("Still in Stale mode!");
+			return;
+		}
 
 		// read string each two chars
 		parseRawData();
+	}
+
+	private boolean staleModeResponse(String rawData2) {
+		return rawData2.contains(SEARCHING) || rawData2.contains(STOPPED);
 	}
 
 	protected abstract void parseRawData();

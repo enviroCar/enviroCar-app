@@ -246,6 +246,10 @@ public class OBDCommandLooper extends HandlerThread {
 		// Finished if no more job is in the waiting-list
 
 		if (cmd != null) {
+			if (cmd.getCommandState() == CommonCommandState.EXECUTION_ERROR) {
+				return;
+			}
+			
 			cmd.setCommandState(CommonCommandState.FINISHED);
 			if (commandListener != null) {
 				commandListener.receiveUpdate(cmd);
