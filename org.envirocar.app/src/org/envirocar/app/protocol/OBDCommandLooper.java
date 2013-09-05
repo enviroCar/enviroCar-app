@@ -78,9 +78,22 @@ public class OBDCommandLooper extends HandlerThread {
 					connectionListener.onConnectionException(e);
 					return;
 				}
+				
+				synchronized (shutdownMutex) {
+					if (!running || shutdownComplete) {
+						shutdownComplete = true;
+						shutdownMutex.notifyAll();
+						return;
+					}
+				}
+				commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
 			}
-
-			commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
+			else {
+				synchronized (shutdownMutex) {
+					shutdownComplete = true;
+					shutdownMutex.notifyAll();
+				}
+			}
 		}
 	};
 
@@ -97,15 +110,32 @@ public class OBDCommandLooper extends HandlerThread {
 				} catch (IOException e) {
 					logger.warn(e.getMessage(), e);
 					running = false;
+					shutdownComplete = true;
 					connectionListener.onConnectionException(e);
 					return;
 				}
 				
+				synchronized (shutdownMutex) {
+					if (!running || shutdownComplete) {
+						shutdownComplete = true;
+						shutdownMutex.notifyAll();
+						return;
+					}
+				}
+				
 				commandExecutionHandler.postDelayed(initializationCommandsRunnable, ADAPTER_TRY_PERIOD);
+			}
+			else {
+				synchronized (shutdownMutex) {
+					shutdownComplete = true;
+					shutdownMutex.notifyAll();
+				}
 			}
 		}
 	};
 	private ConnectionListener connectionListener;
+	private Object shutdownMutex = new Object();
+	private boolean shutdownComplete;
 
 	/**
 	 * same as OBDCommandLooper#OBDCommandLooper(InputStream, OutputStream, Listener, ConnectionListener, int) with NORM_PRIORITY
@@ -151,6 +181,20 @@ public class OBDCommandLooper extends HandlerThread {
 		commandExecutionHandler.removeCallbacks(commonCommandsRunnable);
 		commandExecutionHandler.removeCallbacks(initializationCommandsRunnable);
 		commandExecutionHandler.getLooper().quit();
+		
+		logger.info("I am here!");
+		
+		synchronized (shutdownMutex) {
+			while (!shutdownComplete) {
+				try {
+					shutdownMutex.wait();
+				} catch (InterruptedException e) {
+					logger.warn(e.getMessage(), e);
+				}
+			}
+		}
+		
+		logger.info("I finished waiting!");
 	}
 
 	private void executeInitializationRequests() throws IOException {
