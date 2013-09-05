@@ -67,18 +67,16 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	private Track track;
 	private String trackDescription = "Description of the track";
 	private Car car;
-	private DbAdapter dbAdapterLocal;
+	private DbAdapter dbAdapter;
 	private Collector collector;
 	private Location location;
-
 	
-	public CommandListener(Car car, DbAdapter dbAdapterLocal) {
+	public CommandListener(Car car, DbAdapter dbAdapter) {
 		this.car = car;
-		this.dbAdapterLocal = dbAdapterLocal;
+		this.dbAdapter = dbAdapter;
 		this.collector = new Collector(this, this.car);
 		EventBus.getInstance().registerListener(this);
 	}
-	
 
 	public void receiveUpdate(CommonCommand command) {
 		logger.debug("update received");
@@ -195,10 +193,10 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	 * Helper method to insert track measurement into the database (ensures that
 	 * track measurement is only stored every 5 seconds and not faster...)
 	 * 
-	 * @param insertMeasurement
+	 * @param measurement
 	 *            The measurement you want to insert
 	 */
-	public void insertMeasurement(Measurement insertMeasurement) {
+	public void insertMeasurement(Measurement measurement) {
 
 		// TODO: This has to be added with the following conditions:
 		/*
@@ -211,10 +209,9 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		 * sec) as well.)
 		 */
 
-		track.addMeasurement(insertMeasurement);
-
-		logger.info("Add new measurement to track: " + insertMeasurement.toString());
-
+		track.addMeasurement(measurement);
+		dbAdapter.insertMeasurement(measurement);
+		logger.info("Add new measurement to track: " + measurement.toString());
 	}
 	
 	/**
@@ -236,7 +233,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 			Track lastUsedTrack;
 
 			try {
-				lastUsedTrack = dbAdapterLocal.getLastUsedTrack();
+				lastUsedTrack = dbAdapter.getLastUsedTrack();
 
 				try {
 
@@ -244,12 +241,12 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 					// ago
 
 					if ((System.currentTimeMillis() - lastUsedTrack
-							.getLastMeasurement().getMeasurementTime()) > 3600000) {
+							.getLastMeasurement().getTime()) > 3600000) {
 						logger.info("I create a new track because the last measurement is more than 60 mins ago");
-						track = new Track("123456", car, dbAdapterLocal);
+						track = new Track("123456", car, dbAdapter);
 						track.setName("Track " + date);
 						track.setDescription(trackDescription);
-						track.commitTrackToDatabase();
+						dbAdapter.updateTrack(track);
 						return;
 					}
 
@@ -258,10 +255,10 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 					if (location == null || Utils.getDistance(lastUsedTrack.getLastMeasurement().getLatitude(),lastUsedTrack.getLastMeasurement().getLongitude(),
 							location.getLatitude(), location.getLongitude()) > 3.0) {
 						logger.info("The last measurement's position is more than 3 km away. I will create a new track");
-						track = new Track("123456", car, dbAdapterLocal); 
+						track = new Track("123456", car, dbAdapter); 
 						track.setName("Track " + date);
 						track.setDescription(trackDescription);
-						track.commitTrackToDatabase();
+						dbAdapter.updateTrack(track);
 						return;
 
 					}
@@ -278,19 +275,19 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 				} catch (MeasurementsException e) {
 					logger.warn("The last track contains no measurements. I will delete it and create a new one.");
-					dbAdapterLocal.deleteTrack(lastUsedTrack.getId());
-					track = new Track("123456", car, dbAdapterLocal); 
+					dbAdapter.deleteTrack(lastUsedTrack.getId());
+					track = new Track("123456", car, dbAdapter); 
 					track.setName("Track " + date);
 					track.setDescription(trackDescription);
-					track.commitTrackToDatabase();
+					dbAdapter.updateTrack(track);
 				}
 
 			} catch (TracksException e) {
 				logger.warn("There was no track in the database so I created a new one");
-				track = new Track("123456", car, dbAdapterLocal); 
+				track = new Track("123456", car, dbAdapter); 
 				track.setName("Track " + date);
 				track.setDescription(trackDescription);
-				track.commitTrackToDatabase();
+				dbAdapter.updateTrack(track);
 			}
 
 			return;
@@ -311,11 +308,11 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 				// New track if last measurement is more than 60 minutes
 				// ago
 				if ((System.currentTimeMillis() - currentTrack
-						.getLastMeasurement().getMeasurementTime()) > 3600000) {
-					track = new Track("123456", car, dbAdapterLocal);
+						.getLastMeasurement().getTime()) > 3600000) {
+					track = new Track("123456", car, dbAdapter);
 					track.setName("Track " + date);
 					track.setDescription(trackDescription);
-					track.commitTrackToDatabase();
+					dbAdapter.updateTrack(track);
 					logger.info("I create a new track because the last measurement is more than 60 mins ago");
 					return;
 				}
@@ -327,10 +324,10 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 				if (Utils.getDistance(currentTrack.getLastMeasurement().getLatitude(),currentTrack.getLastMeasurement().getLongitude(),
 						location.getLatitude(), location.getLongitude()) > 3.0) {
-					track = new Track("123456", car, dbAdapterLocal); 
+					track = new Track("123456", car, dbAdapter); 
 					track.setName("Track " + date);
 					track.setDescription(trackDescription);
-					track.commitTrackToDatabase();
+					dbAdapter.updateTrack(track);
 					logger.info("The last measurement's position is more than 3 km away. I will create a new track");
 					return;
 
@@ -345,11 +342,11 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 			} catch (MeasurementsException e) {
 				logger.warn("The last track contains no measurements. I will delete it and create a new one.");
-				dbAdapterLocal.deleteTrack(currentTrack.getId());
-				track = new Track("123456", car, dbAdapterLocal); 
+				dbAdapter.deleteTrack(currentTrack.getId());
+				track = new Track("123456", car, dbAdapter); 
 				track.setName("Track " + date);
 				track.setDescription(trackDescription);
-				track.commitTrackToDatabase();
+				dbAdapter.updateTrack(track);
 			}
 		}
 	}

@@ -32,7 +32,6 @@ import org.envirocar.app.event.LocationEvent;
 import org.envirocar.app.event.LocationEventListener;
 import org.envirocar.app.event.SpeedEvent;
 import org.envirocar.app.event.SpeedEventListener;
-import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.views.RoundProgress;
 import org.envirocar.app.views.TypefaceEC;
 
@@ -65,7 +64,6 @@ public class DashboardFragment extends SherlockFragment {
 	TextView co2TextView;
 	TextView positionTextView;
 	RoundProgress roundProgressCO2;
-	DbAdapter dbAdapter;
 	private TextView sensor;
 	View dashboardView;
 
@@ -138,10 +136,6 @@ public class DashboardFragment extends SherlockFragment {
 		dashboardView = getView();
 
 		preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-		// Include application and adapter
-		
-		dbAdapter = ((ECApplication) getActivity().getApplication())
-				.getDbAdapterLocal();
 		
 		// Setup UI elements
 

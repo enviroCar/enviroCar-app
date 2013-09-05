@@ -21,6 +21,8 @@
 
 package org.envirocar.app.storage;
 
+import static org.envirocar.app.storage.Measurement.PropertyKey.CONSUMPTION;
+
 import java.util.ArrayList;
 
 import org.envirocar.app.exception.FuelConsumptionException;
@@ -42,45 +44,35 @@ public class Track implements Comparable<Track> {
 	
 	private static final Logger logger = Logger.getLogger(Track.class);
 
-	private String id;
+	private long id;
 	private String name;
 	private String description;
-	private ArrayList<Measurement> measurements;
+	private ArrayList<Measurement> measurements = new ArrayList<Measurement>();
 	private Car car;
 	private AbstractConsumptionAlgorithm consumptionAlgorithm;
 	private String vin;
-	private boolean localTrack;
+	private String remoteID;
 	private Double consumptionPerHour;
 
-	/**
-	 * @return the localTrack
-	 */
-	public boolean isLocalTrack() {
-		return localTrack;
+	public static Track createDbTrack(long id) {
+		Track track = new Track(id);
+		return track;
 	}
-
-	/**
-	 * @param localTrack
-	 *            the localTrack to set
-	 */
-	public void setLocalTrack(boolean localTrack) {
-		this.localTrack = localTrack;
-	}
-
-	private DbAdapter dbAdapter;
-
-	/**
-	 * Constructor for creating a Track from the Database. Use this constructor
-	 * when you want to rebuild tracks from the database.
-	 */
-	public Track(String id) {
+	
+	private Track(long id) {
 		this.id = id;
-		this.name = "";
-		this.description = "";
-		this.vin = "";
-		this.measurements = new ArrayList<Measurement>();
 	}
-
+	
+	public static Track createRemoteTrack(String remoteID, DbAdapter dbAdapter) {
+		Track track = new Track(remoteID, dbAdapter);
+		return track;
+	}
+	
+	private Track(String remoteID, DbAdapter dbAdapter) {
+		this.remoteID = remoteID;
+		this.id = dbAdapter.insertTrack(this);
+	}
+	
 	/**
 	 * Constructor for creating "fresh" new track. Use this for new measurements
 	 * that were captured from the OBD-II adapter.
@@ -90,31 +82,20 @@ public class Track implements Comparable<Track> {
 		this.name = "";
 		this.description = "";
 		this.measurements = new ArrayList<Measurement>();
-		this.dbAdapter = dbAdapter;
 		this.car = car;
 		this.consumptionAlgorithm = new BasicConsumptionAlgorithm(car);
-		id = String.valueOf(dbAdapter.insertTrack(this));
+		id = dbAdapter.insertTrack(this);
 	}
 
 	/**
-	 * Set the db adpater for the track. This method is needed when you want to
-	 * update a track in the database because when you get the track, the
-	 * dbadapter is not returned.
-	 * 
-	 * @param dbAdapter
-	 *            the dbapapter
+	 * @return the localTrack
 	 */
-	public void setDatabaseAdapter(DbAdapter dbAdapter) {
-		this.dbAdapter = dbAdapter;
+	public boolean isLocalTrack() {
+		return (remoteID == null ? true : false);
 	}
 
-	/**
-	 * Updates the Track in the database
-	 * 
-	 * @return
-	 */
-	public boolean commitTrackToDatabase() {
-		return dbAdapter.updateTrack(this);
+	public boolean isRemoteTrack() {
+		return (remoteID != null ? true : false);
 	}
 
 	/**
@@ -171,7 +152,7 @@ public class Track implements Comparable<Track> {
 	 */
 	public long getStartTime() throws MeasurementsException {
 		if (this.getMeasurements().size() > 0)
-			return this.getMeasurements().get(0).getMeasurementTime();
+			return this.getMeasurements().get(0).getTime();
 		else
 			throw new MeasurementsException("No measurements in the track");
 	}
@@ -184,7 +165,7 @@ public class Track implements Comparable<Track> {
 	 */
 	public long getEndTime() throws MeasurementsException {
 		if (this.getMeasurements().size() > 0)
-			return this.getMeasurements().get(this.getMeasurements().size() - 1).getMeasurementTime();
+			return this.getMeasurements().get(this.getMeasurements().size() - 1).getTime();
 		else
 			throw new MeasurementsException("No measurements in the track");
 	}
@@ -210,7 +191,6 @@ public class Track implements Comparable<Track> {
 	public void addMeasurement(Measurement measurement) {
 		measurement.setTrack(Track.this);
 		this.measurements.add(measurement);
-		dbAdapter.insertMeasurement(measurement);
 	}
 
 	/**
@@ -225,7 +205,7 @@ public class Track implements Comparable<Track> {
 	/**
 	 * @return the id
 	 */
-	public String getId() {
+	public long getId() {
 		return id;
 	}
 
@@ -233,7 +213,7 @@ public class Track implements Comparable<Track> {
 	 * @param id
 	 *            the id to set
 	 */
-	public void setId(String id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
@@ -253,6 +233,14 @@ public class Track implements Comparable<Track> {
 	 */
 	public void setVin(String vin) {
 		this.vin = vin;
+	}
+
+	public String getRemoteID() {
+		return remoteID;
+	}
+
+	public void setRemoteID(String remoteID) {
+		this.remoteID = remoteID;
 	}
 
 	/**
@@ -309,8 +297,10 @@ public class Track implements Comparable<Track> {
 	public double getCO2Average() {
 		double co2Average = 0.0;
 		try {
-			for (int i = 0; i < measurements.size(); i++) {
-				co2Average = co2Average + consumptionAlgorithm.calculateCO2FromConsumption(measurements.get(i).getConsumption());
+			for (Measurement measurement : measurements) {
+				if (measurement.getProperty(CONSUMPTION) != null){
+					co2Average = co2Average + consumptionAlgorithm.calculateCO2FromConsumption(measurement.getProperty(CONSUMPTION));
+				}
 			}
 			co2Average = co2Average / measurements.size();
 		} catch (FuelConsumptionException e) {
@@ -337,7 +327,7 @@ public class Track implements Comparable<Track> {
 	@Override
 	public int compareTo(Track t) {
 		try {
-			return (this.getFirstMeasurement().getMeasurementTime() < t.getFirstMeasurement().getMeasurementTime() ? 1 : -1);
+			return (this.getFirstMeasurement().getTime() < t.getFirstMeasurement().getTime() ? 1 : -1);
 		} catch (MeasurementsException e) {
 			logger.warn(e.getMessage(), e);
 		} 

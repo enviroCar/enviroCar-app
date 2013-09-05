@@ -39,8 +39,7 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.storage.DbAdapterLocal;
-import org.envirocar.app.storage.DbAdapterRemote;
+import org.envirocar.app.storage.DbAdapterImpl;
 
 import android.app.Activity;
 import android.app.Application;
@@ -84,8 +83,9 @@ public class ECApplication extends Application {
 	
 	// Helpers and objects
 
-	private DbAdapter dbAdapterLocal;
-	private DbAdapter dbAdapterRemote;
+//	private DbAdapter dbAdapterLocal;
+//	private DbAdapter dbAdapterRemote;
+	private DbAdapter dbAdapter;
 	private final ScheduledExecutorService scheduleTaskExecutor = Executors
 			.newScheduledThreadPool(1);
 	private BluetoothAdapter bluetoothAdapter = BluetoothAdapter
@@ -201,39 +201,15 @@ public class ECApplication extends Application {
 	 * This method opens both dbadapters or also gets them and opens them afterwards.
 	 */
 	private void initDbAdapter() {
-		if (dbAdapterLocal == null) {
-			dbAdapterLocal = new DbAdapterLocal(this.getApplicationContext());
-			dbAdapterLocal.open();
-		} else {
-			if (!dbAdapterLocal.isOpen())
-				dbAdapterLocal.open();
-		}
-		if (dbAdapterRemote == null) {
-			dbAdapterRemote = new DbAdapterRemote(this.getApplicationContext());
-			dbAdapterRemote.open();
-		} else {
-			if (!dbAdapterRemote.isOpen())
-				dbAdapterRemote.open();
+		if (dbAdapter == null) {
+			dbAdapter = new DbAdapterImpl(this.getApplicationContext());
+			dbAdapter.open();
 		}
 	}
 
-	/**
-	 * Returns the local db adadpter. This has to be called by other
-	 * functions in order to work with the data (change tracks and measurements).
-	 * @return the local db adapter
-	 */
-	public DbAdapter getDbAdapterLocal() {
+	public DbAdapter getDBAdapter() {
 		initDbAdapter();
-		return dbAdapterLocal;
-	}
-
-	/**
-	 * Get the remote db adapter (to work with the measurements from the server).
-	 * @return the remote dbadapter
-	 */
-	public DbAdapter getDbAdapterRemote() {
-		initDbAdapter();
-		return dbAdapterRemote;
+		return dbAdapter;
 	}
 
 
@@ -279,7 +255,7 @@ public class ECApplication extends Application {
 	 */
 	public void createListeners() {
 		//TODO de-couple dbAdapterLocal
-		commandListener = new CommandListener(createCar(), dbAdapterLocal);
+		commandListener = new CommandListener(createCar(), dbAdapter);
 	}
 
 	private Car createCar() {
@@ -332,8 +308,7 @@ public class ECApplication extends Application {
 			stopService(backgroundService);
 			serviceConnector.shutdownBackgroundService();
 		}
-
-		closeDb();
+//		closeDb();
 	}
 
 
@@ -349,17 +324,10 @@ public class ECApplication extends Application {
 	 * Closes both databases.
 	 */
 	public void closeDb() {
-		if (dbAdapterLocal != null) {
-			dbAdapterLocal.close();
-			// dbAdapterLocal = null;
+		if (dbAdapter != null) {
+			dbAdapter.close();
 		}
-		if (dbAdapterRemote != null) {
-			dbAdapterRemote.close();
-			// dbAdapterRemote = null;
-		}
-
 	}
-
 	
 	/**
 	 * 
