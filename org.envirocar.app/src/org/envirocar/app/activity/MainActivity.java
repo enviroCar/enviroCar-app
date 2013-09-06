@@ -221,7 +221,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			@Override
 			public void onSharedPreferenceChanged(
 					SharedPreferences sharedPreferences, String key) {
-				if (key.equals(SettingsActivity.BLUETOOTH_KEY)) {
+				if (key.equals(SettingsActivity.BLUETOOTH_NAME)) {
 					updateStartStopButton();
 				}
 				else if (key.equals(CarManager.PREF_KEY_SENSOR_ID)) {
@@ -303,6 +303,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		}, 0, 10, TimeUnit.MINUTES);
 		
 	}
+
 
 	protected void updateStartStopButton() {
 		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
