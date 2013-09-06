@@ -4,8 +4,15 @@
     android:id="@+id/vehicle_view"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:tag="Dashboard" >
+
+<LinearLayout
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_weight="2"
+    android:layout_marginLeft="10dp"
+    android:orientation="vertical" layout_width="0dp">
 
     <TextView
         android:id="@+id/textView4"
@@ -97,4 +104,15 @@
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp" />
 
+</LinearLayout>
+    
+    <ImageView
+        android:id="@+id/connectionStateImage"
+        android:layout_width="80dp"
+        android:layout_height="120dp"
+        android:layout_gravity="right"
+        android:layout_weight="0.10"
+        android:src="@drawable/connection_state_false" 
+        android:contentDescription="@string/connection_state" />
+    
 </LinearLayout>

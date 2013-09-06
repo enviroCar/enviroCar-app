@@ -24,6 +24,11 @@ package org.envirocar.app.application.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -38,19 +43,23 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.ConnectionListener;
 import org.envirocar.app.protocol.OBDCommandLooper;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 /**
  * Service for connection to Bluetooth device and running commands. Imported
@@ -194,8 +203,7 @@ public class BackgroundService extends Service {
 				.getDefaultAdapter();
 		BluetoothDevice bluetoothDevice = bluetoothAdapter.getRemoteDevice(remoteDevice);
 
-		ConnectThread t = new ConnectThread(bluetoothDevice, true);
-		t.start();
+		new ConnectThread(bluetoothDevice, true);
 		
 		commandListener = new CommandListener(CarManager.instance().getCar());
 		commandListener.createNewTrackIfNecessary();
@@ -302,55 +310,201 @@ public class BackgroundService extends Service {
 	}
 	
     private class ConnectThread extends Thread {
-        private String socketType;
 		private BluetoothAdapter adapter;
+		private boolean secure;
+		private BluetoothDevice device;
+		private List<UUID> uuidCandidates;
+		private int candidate;
+		protected boolean started;
 
         public ConnectThread(BluetoothDevice device, boolean secure) {
+        	logger.info("initiliasing connection to device "+device.getName() +" / "+ device.getAddress());
         	adapter = BluetoothAdapter.getDefaultAdapter();
-            BluetoothSocket tmp = null;
-            socketType = secure ? "Secure" : "Insecure";
+            this.secure = secure;
+            this.device = device;
 
-            try {
+            setName("BluetoothConnectThread");
+            
+            if (!startQueryingForUUIDs()) {
+            	this.uuidCandidates = Collections.singletonList(EMBEDDED_BOARD_SPP);
+            	this.start();
+            	logger.info("UUID discovery for device not supported.");
+            } else{
+            	logger.info("Using UUID discovery mechanism.");
+            }
+            /*
+             * it will start upon the broadcast receive otherwise
+             */
+        }
+        
+    	private boolean startQueryingForUUIDs() {
+			Class<?> cl = BluetoothDevice.class;
+			
+			Class<?>[] par = {};
+			Method fetchUuidsWithSdpMethod;
+			try {
+				fetchUuidsWithSdpMethod = cl.getMethod("fetchUuidsWithSdp", par);
+			} catch (NoSuchMethodException e) {
+				logger.warn(e.getMessage());
+				return false;
+			}
+			
+			Object[] args = {};
+			try {
+				BroadcastReceiver receiver = new BroadcastReceiver() {
+				    @Override
+				    public void onReceive(Context context, Intent intent) {
+				        BluetoothDevice deviceExtra = intent.getParcelableExtra("android.bluetooth.device.extra.DEVICE");
+				        Parcelable[] uuidExtra = intent.getParcelableArrayExtra("android.bluetooth.device.extra.UUID");
+				        //Parse the UUIDs and get the one you are interested in
+				        
+				        logger.info("Found the following UUIDs for device "+deviceExtra.getName());
+				        uuidCandidates = new ArrayList<UUID>();
+				        for (Parcelable uuid : uuidExtra) {
+				        	logger.info(uuid.toString());
+				        	uuidCandidates.add(UUID.fromString(uuid.toString()));
+						}
+
+				        synchronized (ConnectThread.this) {
+				        	if (!ConnectThread.this.started) {
+				        		ConnectThread.this.start();
+				        		ConnectThread.this.started = true;
+				        		unregisterReceiver(this);
+				        		logDeviceMetadata(deviceExtra);
+				        	}
+				        	
+				        }
+				    }
+
+				};
+				registerReceiver(receiver, new IntentFilter("android.bleutooth.device.action.UUID"));
+				registerReceiver(receiver, new IntentFilter("android.bluetooth.device.action.UUID"));
+				
+				fetchUuidsWithSdpMethod.invoke(device, args);
+			} catch (IllegalArgumentException e) {
+				logger.warn(e.getMessage());
+				return false;
+			} catch (IllegalAccessException e) {
+				logger.warn(e.getMessage());
+				return false;
+			} catch (InvocationTargetException e) {
+				logger.warn(e.getMessage());
+				return false;
+			}			
+			
+			return true;
+		}
+
+        @SuppressLint("NewApi")
+		protected void logDeviceMetadata(BluetoothDevice deviceExtra) {
+        	String sep = System.getProperty("line.separator");
+        	StringBuilder sb = new StringBuilder();
+        	sb.append("Bluetooth Device '");
+        	sb.append(deviceExtra.getName());
+        	sb.append("'");
+			sb.append(sep);
+			sb.append("Address: ");
+			sb.append(deviceExtra.getAddress());
+			sb.append(sep);
+			sb.append("Bond state: ");
+			sb.append(deviceExtra.getBondState());
+			sb.append(sep);
+			try {
+				if (deviceExtra.getClass().getMethod("getType", new Class<?>[] {}) != null) {
+					sb.append("Type: ");
+					sb.append(deviceExtra.getType());
+				}
+			} catch (NoSuchMethodException e) {
+			}
+			sb.append(sep);
+			BluetoothClass clazz = deviceExtra.getBluetoothClass();
+			sb.append("Class major version: ");
+			sb.append(clazz.getMajorDeviceClass());
+			sb.append(sep);
+			sb.append("Class minor version: ");
+			sb.append(clazz.getDeviceClass());
+			sb.append(sep);
+			sb.append("Class Contents: ");
+			sb.append(clazz.describeContents());
+			sb.append(sep);
+			try {
+				if (deviceExtra.getClass().getMethod("getUuids", new Class<?>[] {}) != null) {
+					sb.append("UUIDs: ");
+					sb.append(deviceExtra.getUuids());
+				}
+			} catch (NoSuchMethodException e) {
+			}
+			sb.append(sep);
+			sb.append("Contents: ");
+			sb.append(deviceExtra.describeContents());
+			sb.append(sep);
+			logger.info(sb.toString());
+		}
+
+		public void run() {
+			boolean success = false;
+			while (selectSocket()) {
+            
+	            if (bluetoothSocket == null) {
+	            	logger.warn("Socket is null! Cancelling!");
+	            	deviceDisconnected();
+	                openTroubleshootingActivity(TroubleshootingActivity.BLUETOOTH_EXCEPTION);
+	            }
+	            
+	            // Always cancel discovery because it will slow down a connection
+	            adapter.cancelDiscovery();
+	
+	            // Make a connection to the BluetoothSocket
+	            try {
+					// This is a blocking call and will only return on a
+	                // successful connection or an exception
+            		bluetoothSocket.connect();
+            		success = true;
+	            	break;
+		            		
+	            } catch (IOException e) {
+	                // Close the socket
+	                try {
+	                	shutdownSocket();
+	                } catch (IOException e2) {
+	                    logger.warn(e2.getMessage(), e2);
+	                }
+	            }
+        	}
+			
+			if (success) {
+				deviceConnected();
+			} else {
+				deviceDisconnected();
+                openTroubleshootingActivity(TroubleshootingActivity.BLUETOOTH_EXCEPTION);
+			}
+        }
+
+		private boolean selectSocket() {
+			if (candidate >= uuidCandidates.size()) {
+				return false;
+			}
+			
+			BluetoothSocket tmp;
+			UUID uuid = uuidCandidates.get(candidate++);
+			logger.info("Attempting to connect to SDP "+ uuid);
+			try {
                 if (secure) {
                     tmp = device.createRfcommSocketToServiceRecord(
-                            EMBEDDED_BOARD_SPP);
+                            uuid);
                 } else {
                     tmp = device.createInsecureRfcommSocketToServiceRecord(
-                            EMBEDDED_BOARD_SPP);
+                    		uuid);
                 }
+                bluetoothSocket = tmp;
+                return true;
             } catch (IOException e) {
-                Log.e("ec", "Socket Type: " + socketType + "create() failed", e);
+            	logger.warn(e.getMessage() ,e);
             }
-            bluetoothSocket = tmp;
-        }
+			
+			return false;
+		}
 
-        public void run() {
-            setName("ConnectThread" + socketType);
-            logger.info("Running ConnectThread");
-
-            // Always cancel discovery because it will slow down a connection
-            adapter.cancelDiscovery();
-
-            // Make a connection to the BluetoothSocket
-            try {
-                // This is a blocking call and will only return on a
-                // successful connection or an exception
-            	bluetoothSocket.connect();
-            } catch (IOException e) {
-                // Close the socket
-                try {
-                	shutdownSocket();
-                } catch (IOException e2) {
-                    logger.warn(e2.getMessage(), e2);
-                }
-                deviceDisconnected();
-                openTroubleshootingActivity(TroubleshootingActivity.BLUETOOTH_EXCEPTION);
-                return;
-            }
-
-            deviceConnected();
-
-        }
     }
 
 }
