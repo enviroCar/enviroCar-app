@@ -160,6 +160,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
         handler_upload = new Handler();
 
+        checkKeepScreenOn();
+        
 		actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setHomeButtonEnabled(true);
@@ -219,7 +221,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			@Override
 			public void onSharedPreferenceChanged(
 					SharedPreferences sharedPreferences, String key) {
-				if (key.equals(SettingsActivity.BLUETOOTH_KEY)) {
+				if (key.equals(SettingsActivity.BLUETOOTH_NAME)) {
 					updateStartStopButton();
 				}
 				else if (key.equals(CarManager.PREF_KEY_SENSOR_ID)) {
@@ -301,6 +303,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		}, 0, 10, TimeUnit.MINUTES);
 		
 	}
+
 
 	protected void updateStartStopButton() {
 		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
@@ -539,16 +542,20 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	    
 	    application.setActivity(this);
 	    
-		if (preferences.getBoolean(SettingsActivity.DISPLAY_STAYS_ACTIV, false)) {
-			getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		} else {
-			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		}
+	    checkKeepScreenOn();
 	    
 		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
 	}
 
+
+	private void checkKeepScreenOn() {
+		if (preferences.getBoolean(SettingsActivity.DISPLAY_STAYS_ACTIV, false)) {
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		} else {
+			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		}		
+	}
 
 	/**
 	 * Determine what the menu buttons do

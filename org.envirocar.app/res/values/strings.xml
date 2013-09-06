@@ -158,5 +158,6 @@
 	<string name="troubleshootingParagraph">The enviroCar app was not able to establish the bluetooth connection to
 	    the OBD-II adapter. You could try to unplug and plug the adapter, then restart measurements.</string>
 	<string name="title_activity_troubleshooting">Troubleshooting</string>
+	<string name="connection_state">State</string>
 	
 </resources>
