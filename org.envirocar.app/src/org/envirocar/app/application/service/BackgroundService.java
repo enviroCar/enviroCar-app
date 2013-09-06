@@ -50,7 +50,6 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 /**
  * Service for connection to Bluetooth device and running commands. Imported
@@ -306,6 +305,7 @@ public class BackgroundService extends Service {
 		private BluetoothAdapter adapter;
 
         public ConnectThread(BluetoothDevice device, boolean secure) {
+        	logger.info("initiliasing connection to device "+device.getName() +" / "+ device.getAddress());
         	adapter = BluetoothAdapter.getDefaultAdapter();
             BluetoothSocket tmp = null;
             socketType = secure ? "Secure" : "Insecure";
@@ -319,14 +319,21 @@ public class BackgroundService extends Service {
                             EMBEDDED_BOARD_SPP);
                 }
             } catch (IOException e) {
-                Log.e("ec", "Socket Type: " + socketType + "create() failed", e);
+            	logger.warn(e.getMessage() ,e);
             }
             bluetoothSocket = tmp;
         }
 
         public void run() {
-            setName("ConnectThread" + socketType);
-            logger.info("Running ConnectThread");
+            setName("BluetoothConnectThread-" + socketType);
+            
+            if (bluetoothSocket == null) {
+            	logger.warn("Socket is null! Cancelling!");
+            	deviceDisconnected();
+                openTroubleshootingActivity(TroubleshootingActivity.BLUETOOTH_EXCEPTION);
+            }
+            
+            logger.info("Connecting to Device...");
 
             // Always cancel discovery because it will slow down a connection
             adapter.cancelDiscovery();
@@ -349,7 +356,6 @@ public class BackgroundService extends Service {
             }
 
             deviceConnected();
-
         }
     }
 
