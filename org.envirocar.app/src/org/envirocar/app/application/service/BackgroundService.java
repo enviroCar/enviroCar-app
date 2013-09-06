@@ -43,8 +43,10 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.ConnectionListener;
 import org.envirocar.app.protocol.OBDCommandLooper;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
@@ -308,7 +310,6 @@ public class BackgroundService extends Service {
 	}
 	
     private class ConnectThread extends Thread {
-        private String socketType;
 		private BluetoothAdapter adapter;
 		private boolean secure;
 		private BluetoothDevice device;
@@ -322,7 +323,7 @@ public class BackgroundService extends Service {
             this.secure = secure;
             this.device = device;
 
-            setName("BluetoothConnectThread-" + socketType);
+            setName("BluetoothConnectThread");
             
             if (!startQueryingForUUIDs()) {
             	this.uuidCandidates = Collections.singletonList(EMBEDDED_BOARD_SPP);
@@ -368,6 +369,8 @@ public class BackgroundService extends Service {
 				        	if (!ConnectThread.this.started) {
 				        		ConnectThread.this.start();
 				        		ConnectThread.this.started = true;
+				        		unregisterReceiver(this);
+				        		logDeviceMetadata(deviceExtra);
 				        	}
 				        	
 				        }
@@ -392,7 +395,53 @@ public class BackgroundService extends Service {
 			return true;
 		}
 
-        public void run() {
+        @SuppressLint("NewApi")
+		protected void logDeviceMetadata(BluetoothDevice deviceExtra) {
+        	String sep = System.getProperty("line.separator");
+        	StringBuilder sb = new StringBuilder();
+        	sb.append("Bluetooth Device '");
+        	sb.append(deviceExtra.getName());
+        	sb.append("'");
+			sb.append(sep);
+			sb.append("Address: ");
+			sb.append(deviceExtra.getAddress());
+			sb.append(sep);
+			sb.append("Bond state: ");
+			sb.append(deviceExtra.getBondState());
+			sb.append(sep);
+			try {
+				if (deviceExtra.getClass().getMethod("getType", new Class<?>[] {}) != null) {
+					sb.append("Type: ");
+					sb.append(deviceExtra.getType());
+				}
+			} catch (NoSuchMethodException e) {
+			}
+			sb.append(sep);
+			BluetoothClass clazz = deviceExtra.getBluetoothClass();
+			sb.append("Class major version: ");
+			sb.append(clazz.getMajorDeviceClass());
+			sb.append(sep);
+			sb.append("Class minor version: ");
+			sb.append(clazz.getDeviceClass());
+			sb.append(sep);
+			sb.append("Class Contents: ");
+			sb.append(clazz.describeContents());
+			sb.append(sep);
+			try {
+				if (deviceExtra.getClass().getMethod("getUuids", new Class<?>[] {}) != null) {
+					sb.append("UUIDs: ");
+					sb.append(deviceExtra.getUuids());
+				}
+			} catch (NoSuchMethodException e) {
+			}
+			sb.append(sep);
+			sb.append("Contents: ");
+			sb.append(deviceExtra.describeContents());
+			sb.append(sep);
+			logger.info(sb.toString());
+		}
+
+		public void run() {
 			boolean success = false;
 			while (selectSocket()) {
             
@@ -407,11 +456,12 @@ public class BackgroundService extends Service {
 	
 	            // Make a connection to the BluetoothSocket
 	            try {
-	                // This is a blocking call and will only return on a
+					// This is a blocking call and will only return on a
 	                // successful connection or an exception
-	            	bluetoothSocket.connect();
-	            	success = true;
+            		bluetoothSocket.connect();
+            		success = true;
 	            	break;
+		            		
 	            } catch (IOException e) {
 	                // Close the socket
 	                try {
