@@ -111,7 +111,7 @@ public class Collector {
 			EventBus.getInstance().fireEvent(new ConsumptionEvent(consumption));
 			EventBus.getInstance().fireEvent(new CO2Event(co2));
 		} catch (FuelConsumptionException e) {
-			logger.warn(e.getMessage(), e);
+			logger.warn(e.getMessage());
 		}
 		
 	}
@@ -146,7 +146,7 @@ public class Collector {
 				this.measurement.setProperty(CONSUMPTION, consumption);
 				this.measurement.setProperty(CO2, co2);
 			} catch (FuelConsumptionException e) {
-				logger.warn(e.getMessage(), e);
+				logger.warn(e.getMessage());
 			}
 			
 			insertMeasurement(measurement);

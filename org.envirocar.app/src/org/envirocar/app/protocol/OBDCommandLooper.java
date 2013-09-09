@@ -66,34 +66,35 @@ public class OBDCommandLooper extends HandlerThread {
 	private int tries;
 	private int adapterIndex;
 	private ConnectionListener connectionListener;
-	private Object shutdownMutex = new Object();
-	private boolean shutdownComplete;
+	private Object socketMutex;
 	
 	private Runnable commonCommandsRunnable = new Runnable() {
 		public void run() {
+			if (!running) {
+				logger.info("Exiting commandHandler.");
+				return;
+			}
 			logger.info("Executing Command Commands!");
 			
 			try {
 				executeCommandRequests();
 			} catch (IOException e) {
-				logger.warn(e.getMessage(), e);
 				running = false;
-				notifyWaitersOnShutdown();
 				connectionListener.onConnectionException(e);
+				logger.info("Exiting commandHandler.");
 				return;
 			}
 			
-			synchronized (shutdownMutex) {
-				if (!running || shutdownComplete) {
-					notifyWaitersOnShutdown();
-					return;
-				}
+			if (!running) {
+				logger.info("Exiting commandHandler.");
+				return;
 			}
 			
 			logger.info("Scheduling the Executiion of Command Commands!");
 			commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
 		}
 	};
+
 
 	private Runnable initializationCommandsRunnable = new Runnable() {
 		public void run() {
@@ -106,24 +107,18 @@ public class OBDCommandLooper extends HandlerThread {
 					}
 					executeInitializationRequests();
 				} catch (IOException e) {
-					logger.warn(e.getMessage(), e);
 					running = false;
-					notifyWaitersOnShutdown();
 					connectionListener.onConnectionException(e);
+					logger.info("Exiting commandHandler.");
 					return;
 				}
 				
-				synchronized (shutdownMutex) {
-					if (!running || shutdownComplete) {
-						notifyWaitersOnShutdown();
-						return;
-					}
+				if (!running) {
+					logger.info("Exiting commandHandler.");
+					return;
 				}
 				
 				commandExecutionHandler.postDelayed(initializationCommandsRunnable, ADAPTER_TRY_PERIOD);
-			}
-			else {
-				notifyWaitersOnShutdown();
 			}
 		}
 
@@ -131,30 +126,39 @@ public class OBDCommandLooper extends HandlerThread {
 
 
 	/**
-	 * same as OBDCommandLooper#OBDCommandLooper(InputStream, OutputStream, Listener, ConnectionListener, int) with NORM_PRIORITY
+	 * same as OBDCommandLooper#OBDCommandLooper(InputStream, OutputStream, Object, Listener, ConnectionListener, int) with NORM_PRIORITY
 	 */
-	public OBDCommandLooper(InputStream in, OutputStream out, Listener l, ConnectionListener cl) {
-		this(in, out, l, cl, NORM_PRIORITY);
+	public OBDCommandLooper(InputStream in, OutputStream out, Object socketMutex, Listener l, ConnectionListener cl) {
+		this(in, out, socketMutex, l, cl, NORM_PRIORITY);
 	}
 	
+
 	/**
+	 * An application shutting down the streams ({@link InputStream#close()} and
+	 * the like) SHALL synchronize on the socketMutex object when doing so.
+	 * Otherwise, the app might crash.
+	 * 
 	 * @param in the inputStream of the connection
 	 * @param out the outputStream of the connection
+	 * @param socketMutex the mutex object to use when shutting down the streams
 	 * @param l the listener which receives command responses
 	 * @param cl the connection listener which receives connection state changes
 	 * @param priority thread priority
 	 * @throws IllegalArgumentException if one of the inputs equals null
 	 */
-	public OBDCommandLooper(InputStream in, OutputStream out, Listener l, ConnectionListener cl, int priority) {
+	public OBDCommandLooper(InputStream in, OutputStream out, Object socketMutex,
+			Listener l, ConnectionListener cl, int priority) {
 		super("OBD-CommandLooper-Handler", priority);
 		
 		if (in == null) throw new IllegalArgumentException("in must not be null!");
 		if (out == null) throw new IllegalArgumentException("out must not be null!");
+		if (socketMutex == null) throw new IllegalArgumentException("socketMutex must not be null!");
 		if (l == null) throw new IllegalArgumentException("l must not be null!");
 		if (cl == null) throw new IllegalArgumentException("cl must not be null!");
 		
 		this.inputStream = in;
 		this.outputStream = out;
+		this.socketMutex = socketMutex;
 		
 		this.commandListener = l;
 		this.connectionListener = cl;
@@ -163,36 +167,16 @@ public class OBDCommandLooper extends HandlerThread {
 		obdAdapter = adapterCandidates.get(0);
 	}
 	
-	private void notifyWaitersOnShutdown() {
-		synchronized (shutdownMutex) {
-			shutdownComplete = true;
-			shutdownMutex.notifyAll();
-		}
-	}
-	
 	/**
 	 * stop the command looper. this removes all pending commands.
 	 * This object is no longer executable, a new instance has to
 	 * be created.
 	 */
 	public void stopLooper() {
+		logger.info("stopping the command execution!");
 		this.running = false;
-		
-		synchronized (shutdownMutex) {
-			while (!shutdownComplete) {
-				logger.info("shutdown not completed. waiting...");
-				try {
-					shutdownMutex.wait();
-				} catch (InterruptedException e) {
-					logger.warn(e.getMessage(), e);
-				}
-			}
-			logger.info("I finished waiting for shutdown!");
-		}
-		
-		commandExecutionHandler.removeCallbacks(commonCommandsRunnable);
-		commandExecutionHandler.removeCallbacks(initializationCommandsRunnable);
-		commandExecutionHandler.getLooper().quit();
+		this.inputStream = null;
+		this.outputStream = null;
 	}
 
 	private void executeInitializationRequests() throws IOException {
@@ -221,11 +205,14 @@ public class OBDCommandLooper extends HandlerThread {
 
 				// Run the job
 				cmd.setCommandState(CommonCommandState.RUNNING);
-				cmd.run(inputStream, outputStream);
+				synchronized (socketMutex) {
+					cmd.run(inputStream, outputStream);
+				}
 			}
 		} catch (IOException e) {
-			notifyWaitersOnShutdown();
 			connectionListener.onConnectionException(e);
+			running = false;
+			return;
 		} catch (Exception e) {
 			logger.warn("Error while sending command '" + cmd.toString() + "'", e);
 			cmd.setCommandState(CommonCommandState.EXECUTION_ERROR);

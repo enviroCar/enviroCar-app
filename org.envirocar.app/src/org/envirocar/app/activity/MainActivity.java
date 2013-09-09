@@ -471,6 +471,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         // Start or stop the measurement process
             
 		case START_STOP_MEASUREMENT:
+			if (!navDrawerItems[position].isEnabled()) return;
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
 
 			String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,null);

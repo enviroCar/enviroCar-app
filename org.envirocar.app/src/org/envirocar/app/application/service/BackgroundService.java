@@ -90,6 +90,8 @@ public class BackgroundService extends Service {
 
 	private OBDCommandLooper commandLooper;
 
+	private Object socketMutex = new Object();
+
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -145,21 +147,27 @@ public class BackgroundService extends Service {
 	 * Method that stops the service, removes everything from the waiting list
 	 */
 	private void stopBackgroundService() {
-		if (this.commandLooper != null) {
-			this.commandLooper.stopLooper();
-		}
-		
-		sendStateBroadcast(SERVICE_STOPPED);
-		
-		if (bluetoothSocket != null) {
-			try {
-				shutdownSocket();
-			} catch (Exception e) {
-				logger.warn(e.getMessage(), e);
-			}
-		}
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				if (BackgroundService.this.commandLooper != null) {
+					BackgroundService.this.commandLooper.stopLooper();
+				}
+				
+				sendStateBroadcast(SERVICE_STOPPED);
+				
+				if (bluetoothSocket != null) {
+					try {
+						shutdownSocket();
+					} catch (Exception e) {
+						logger.warn(e.getMessage(), e);
+					}
+				}
 
-		LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
+				LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));				
+			}
+		}).start();
 	}
 	
 	private void sendStateBroadcast(int state) {
@@ -169,23 +177,26 @@ public class BackgroundService extends Service {
 	}
 
 	private void shutdownSocket() throws IOException {
-		if (bluetoothSocket.getInputStream() != null) {
+		synchronized (socketMutex) {
+			logger.info("Shutting down bluetooth socket.");
+			if (bluetoothSocket.getInputStream() != null) {
+				try {
+					bluetoothSocket.getInputStream().close();
+				} catch (Exception e) {}
+			}
+			
+			if (bluetoothSocket.getOutputStream() != null) {
+				try {
+					bluetoothSocket.getOutputStream().close();
+				} catch (Exception e) {}
+			}
+			
 			try {
-				bluetoothSocket.getInputStream().close();
+				bluetoothSocket.close();
 			} catch (Exception e) {}
+			
+			bluetoothSocket = null;	
 		}
-		
-		if (bluetoothSocket.getOutputStream() != null) {
-			try {
-				bluetoothSocket.getOutputStream().close();
-			} catch (Exception e) {}
-		}
-		
-		try {
-			bluetoothSocket.close();
-		} catch (Exception e) {}
-		
-		bluetoothSocket = null;
 	}
 
 	/**
@@ -247,7 +258,7 @@ public class BackgroundService extends Service {
 
 	protected void initializeCommandLooper(InputStream in, OutputStream out) {
 		this.commandLooper = new OBDCommandLooper(
-				in, out,
+				in, out, socketMutex,
 				this.commandListener, new ConnectionListener() {
 					@Override
 					public void onConnectionVerified() {
@@ -256,6 +267,7 @@ public class BackgroundService extends Service {
 					
 					@Override
 					public void onConnectionException(IOException e) {
+						logger.warn(e.getMessage(), e);
 						BackgroundService.this.deviceDisconnected();
 					}
 

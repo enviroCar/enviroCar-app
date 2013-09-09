@@ -73,23 +73,17 @@ public class DashboardFragment extends SherlockFragment {
 	View dashboardView;
 
 	private LocationEventListener locationListener;
-
 	private SpeedEventListener speedListener;
-
 	private CO2EventListener co2Listener;
 
 	private SharedPreferences preferences;
 
 	private long lastUIUpdate;
-
 	private int speed;
-
 	private Location location;
-
 	private double co2;
 
 	private BroadcastReceiver receiver;
-
 	protected int serviceState;
 
 	@Override
@@ -218,12 +212,16 @@ public class DashboardFragment extends SherlockFragment {
 		}
 		else {
 			connectionStateImage.setImageResource(R.drawable.connection_state_false);
-			roundProgressCO2.setProgress(0);
-			roundProgressSpeed.setProgress(0);
+			co2 = 0.0;
+			speed = 0;
+			updateCo2Value();
+			updateSpeedValue();
 		}
 	}
 	
 	private synchronized void checkUIUpdate() {
+		if (serviceState == AbstractBackgroundServiceStateReceiver.SERVICE_STOPPED) return;
+		
 		if (getActivity() == null || System.currentTimeMillis() - lastUIUpdate < 250) return;
 		
 		lastUIUpdate = System.currentTimeMillis();
