@@ -183,6 +183,8 @@ public class OBDCommandLooper extends HandlerThread {
 				return;
 			}
 		}
+		
+		this.obdAdapter = adapterCandidates.get(0);
 	}
 
 
@@ -227,7 +229,7 @@ public class OBDCommandLooper extends HandlerThread {
 				// Run the job
 				cmd.setCommandState(CommonCommandState.RUNNING);
 				synchronized (socketMutex) {
-					cmd.run(inputStream, outputStream);
+					this.obdAdapter.runCommand(cmd, inputStream, outputStream);
 				}
 			}
 		} catch (IOException e) {
