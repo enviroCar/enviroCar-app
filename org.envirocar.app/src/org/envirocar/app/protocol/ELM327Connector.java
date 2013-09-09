@@ -32,6 +32,8 @@ import org.envirocar.app.commands.Timeout;
 
 public class ELM327Connector extends AbstractOBDConnector {
 
+	protected int succesfulCount;
+
 	/*
 	 * This is what Torque does:
 	 */
@@ -85,6 +87,47 @@ public class ELM327Connector extends AbstractOBDConnector {
 		result.add(new Timeout(62));
 		result.add(new SelectAutoProtocol());
 		return result;
+	}
+
+	@Override
+	public boolean supportsDevice(String deviceName) {
+		return deviceName.contains("OBDII") || deviceName.contains("ELM327");
+	}
+
+	@Override
+	public void processInitializationCommand(CommonCommand cmd) {
+		String content = cmd.getResult();
+		if (cmd instanceof EchoOff) {
+			if (content.contains("ELM327v1.")) {
+				succesfulCount++;
+			}
+			else if (content.contains("ATE0") && content.contains("OK")) {
+				succesfulCount++;
+			}
+		}
+		
+		else if (cmd instanceof LineFeedOff) {
+			if (content.contains("OK")) {
+				succesfulCount++;
+			}
+		}
+		
+		else if (cmd instanceof Timeout) {
+			if (content.contains("OK")) {
+				succesfulCount++;
+			}
+		}
+		
+		else if (cmd instanceof SelectAutoProtocol) {
+			if (content.contains("OK")) {
+				succesfulCount++;
+			}
+		}
+	}
+
+	@Override
+	public boolean connectionVerified() {
+		return succesfulCount >= 5;
 	}
 
 }

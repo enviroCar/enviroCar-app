@@ -44,5 +44,11 @@ public abstract class AbstractOBDConnector {
 		return result;
 	}
 
+	public abstract boolean supportsDevice(String deviceName);
+
+	public abstract void processInitializationCommand(CommonCommand cmd);
+
+	public abstract boolean connectionVerified();
+
 	
 }

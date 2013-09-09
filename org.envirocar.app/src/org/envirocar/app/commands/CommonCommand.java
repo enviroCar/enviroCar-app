@@ -78,6 +78,7 @@ public abstract class CommonCommand {
 	 * This method CAN be overriden in fake commands.
 	 */
 	public void run(InputStream in, OutputStream out) throws IOException {
+		logger.info("Sending command " +getCommandName()+ " / "+ getCommand());
 		sendCommand(out);
 		waitForResult(in);
 	}
@@ -93,8 +94,14 @@ public abstract class CommonCommand {
 		try {
 			int tries = 0;
 			while (in.available() <= 0) {
-				if (tries++ * SLEEP_TIME > MAX_SLEEP_TIME)
-					throw new IOException("OBD-II Request Timeout of "+MAX_SLEEP_TIME +" ms exceeded.");
+				if (tries++ * SLEEP_TIME > MAX_SLEEP_TIME) {
+					if (responseAlwaysRequired()) {
+						throw new IOException("OBD-II Request Timeout of "+MAX_SLEEP_TIME +" ms exceeded.");
+					}
+					else {
+						return;
+					}
+				}
 				
 				Thread.sleep(SLEEP_TIME);
 			}
@@ -103,6 +110,10 @@ public abstract class CommonCommand {
 		} catch (InterruptedException e) {
 			logger.warn(e.getMessage(), e);
 		}	
+	}
+
+	protected boolean responseAlwaysRequired() {
+		return true;
 	}
 
 	/**
@@ -145,6 +156,7 @@ public abstract class CommonCommand {
 	 * Reads the OBD-II response.
 	 */
 	protected void readResult(InputStream in) throws IOException {
+		logger.info("Reading response...");
 		byte b = 0;
 		StringBuilder sb = new StringBuilder();
 

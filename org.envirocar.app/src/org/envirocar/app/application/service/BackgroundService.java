@@ -253,12 +253,12 @@ public class BackgroundService extends Service {
 			return;
 		}
 		
-		initializeCommandLooper(in, out);
+		initializeCommandLooper(in, out, bluetoothSocket.getRemoteDevice().getName());
 	}
 
-	protected void initializeCommandLooper(InputStream in, OutputStream out) {
+	protected void initializeCommandLooper(InputStream in, OutputStream out, String deviceName) {
 		this.commandLooper = new OBDCommandLooper(
-				in, out, socketMutex,
+				in, out, socketMutex, deviceName,
 				this.commandListener, new ConnectionListener() {
 					@Override
 					public void onConnectionVerified() {

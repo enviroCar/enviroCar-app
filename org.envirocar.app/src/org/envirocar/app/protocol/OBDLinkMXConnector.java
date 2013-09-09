@@ -18,31 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.commands;
+package org.envirocar.app.protocol;
 
-import org.envirocar.app.logging.Logger;
+public class OBDLinkMXConnector extends ELM327Connector {
 
-public abstract class NumberResultCommand extends CommonCommand {
-
-	private static final Logger logger = Logger.getLogger(NumberResultCommand.class);
-	
-	public NumberResultCommand(String command) {
-		super(command);
-	}
 
 	@Override
-	protected void parseRawData() {
-		int index = 0;
-		int length = 2;
-		while (index + length <= rawData.length()) {
-			try {
-				buffer.add(Integer.parseInt(rawData.substring(index, index + length), 16));
-			} catch (NumberFormatException e) {
-				logger.warn(e.getMessage());
-				setCommandState(CommonCommandState.EXECUTION_ERROR);
-			}
-			index += length;
-		}		
+	public boolean supportsDevice(String deviceName) {
+		return deviceName.equalsIgnoreCase("OBDLink MX");
 	}
-	
+
 }
