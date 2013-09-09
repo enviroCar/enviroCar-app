@@ -65,6 +65,9 @@ public class OBDCommandLooper extends HandlerThread {
 	protected long requestPeriod = 500;
 	private int tries;
 	private int adapterIndex;
+	private ConnectionListener connectionListener;
+	private Object shutdownMutex = new Object();
+	private boolean shutdownComplete;
 	
 	private Runnable commonCommandsRunnable = new Runnable() {
 		public void run() {
@@ -125,9 +128,7 @@ public class OBDCommandLooper extends HandlerThread {
 		}
 
 	};
-	private ConnectionListener connectionListener;
-	private Object shutdownMutex = new Object();
-	private boolean shutdownComplete;
+
 
 	/**
 	 * same as OBDCommandLooper#OBDCommandLooper(InputStream, OutputStream, Listener, ConnectionListener, int) with NORM_PRIORITY
@@ -176,9 +177,6 @@ public class OBDCommandLooper extends HandlerThread {
 	 */
 	public void stopLooper() {
 		this.running = false;
-		commandExecutionHandler.removeCallbacks(commonCommandsRunnable);
-		commandExecutionHandler.removeCallbacks(initializationCommandsRunnable);
-		commandExecutionHandler.getLooper().quit();
 		
 		synchronized (shutdownMutex) {
 			while (!shutdownComplete) {
@@ -192,6 +190,9 @@ public class OBDCommandLooper extends HandlerThread {
 			logger.info("I finished waiting for shutdown!");
 		}
 		
+		commandExecutionHandler.removeCallbacks(commonCommandsRunnable);
+		commandExecutionHandler.removeCallbacks(initializationCommandsRunnable);
+		commandExecutionHandler.getLooper().quit();
 	}
 
 	private void executeInitializationRequests() throws IOException {
@@ -223,6 +224,7 @@ public class OBDCommandLooper extends HandlerThread {
 				cmd.run(inputStream, outputStream);
 			}
 		} catch (IOException e) {
+			notifyWaitersOnShutdown();
 			connectionListener.onConnectionException(e);
 		} catch (Exception e) {
 			logger.warn("Error while sending command '" + cmd.toString() + "'", e);

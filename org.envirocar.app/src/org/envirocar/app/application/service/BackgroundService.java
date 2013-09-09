@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.TroubleshootingActivity;
@@ -38,7 +37,6 @@ import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.CommandListener;
 import org.envirocar.app.application.Listener;
 import org.envirocar.app.application.LocationUpdateListener;
-import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.ConnectionListener;
 import org.envirocar.app.protocol.OBDCommandLooper;
@@ -75,22 +73,18 @@ public class BackgroundService extends Service {
 	private static final Logger logger = Logger.getLogger(BackgroundService.class);
 	
 	public static final String CONNECTION_VERIFIED_INTENT = BackgroundService.class.getName()+".CONNECTION_VERIFIED";
-	public static final String DISCONNECTED_INTENT = BackgroundService.class.getName()+".DISCONNECTED";
 	public static final String CONNECTION_PERMANENTLY_FAILED_INTENT =
 			BackgroundServiceInteractor.class.getName()+".CONNECTION_PERMANENTLY_FAILED";
 	
 	protected static final long CONNECTION_CHECK_INTERVAL = 1000 * 5;
 	// Properties
 
-	private AtomicBoolean isTheServiceRunning = new AtomicBoolean(false);
-	
 	// Bluetooth devices and connection items
 
 	private BluetoothSocket bluetoothSocket;
 	private static final UUID EMBEDDED_BOARD_SPP = UUID
 			.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-	
 	private Listener commandListener;
 	private final Binder binder = new LocalBinder();
 
@@ -99,22 +93,36 @@ public class BackgroundService extends Service {
 
 	@Override
 	public IBinder onBind(Intent intent) {
+		logger.info("onBind " + getClass().getName() +" "+this.hashCode());
 		return binder;
 	}
 
 	@Override
 	public void onCreate() {
+		logger.info("onCreate " + getClass().getName() +" "+this.hashCode());
+	}
+	
+	@Override
+	public void onRebind(Intent intent) {
+		super.onRebind(intent);
+		logger.info("onRebind " + getClass().getName() +" "+this.hashCode());
+	}
+	
+	@Override
+	public boolean onUnbind(Intent intent) {
+		logger.info("onUnbind " + getClass().getName() +" "+this.hashCode());
+		return super.onUnbind(intent);
 	}
 
 	@Override
 	public void onDestroy() {
-		logger.info("Stops the background service");
+		logger.info("onDestroy " + getClass().getName() +" "+this.hashCode());
 		stopBackgroundService();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		logger.info("Starts the background service");
+		logger.info("onStartCommand " + getClass().getName() +" "+this.hashCode());
 		startBackgroundService();
 		return START_STICKY;
 	}
@@ -141,7 +149,6 @@ public class BackgroundService extends Service {
 			this.commandLooper.stopLooper();
 		}
 		
-		isTheServiceRunning.set(false);
 		sendStateBroadcast(SERVICE_STOPPED);
 		
 		if (bluetoothSocket != null) {
@@ -153,7 +160,6 @@ public class BackgroundService extends Service {
 		}
 
 		LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
-		sendBroadcast(new Intent(DISCONNECTED_INTENT));
 	}
 	
 	private void sendStateBroadcast(int state) {
@@ -210,6 +216,12 @@ public class BackgroundService extends Service {
 		sendStateBroadcast(SERVICE_STARTING);
 	}
 	
+	
+	private void deviceDisconnected() {
+		logger.info("Bluetooth device disconnected.");
+		stopBackgroundService();
+	}
+	
 	/**
 	 * method gets called when the bluetooth device connection
 	 * has been established. 
@@ -217,7 +229,6 @@ public class BackgroundService extends Service {
 	private void deviceConnected() {
 		logger.info("Bluetooth device connected.");
         // Service is running..
-		isTheServiceRunning.set(true);		
 		sendStateBroadcast(SERVICE_STARTED);
 		
 		InputStream in;
@@ -231,17 +242,21 @@ public class BackgroundService extends Service {
 			return;
 		}
 		
+		initializeCommandLooper(in, out);
+	}
+
+	protected void initializeCommandLooper(InputStream in, OutputStream out) {
 		this.commandLooper = new OBDCommandLooper(
 				in, out,
 				this.commandListener, new ConnectionListener() {
 					@Override
 					public void onConnectionVerified() {
-						sendBroadcast(new Intent(CONNECTION_VERIFIED_INTENT));
+						BackgroundService.this.sendBroadcast(new Intent(CONNECTION_VERIFIED_INTENT));
 					}
 					
 					@Override
 					public void onConnectionException(IOException e) {
-						deviceDisconnected();
+						BackgroundService.this.deviceDisconnected();
 					}
 
 					@Override
@@ -250,11 +265,6 @@ public class BackgroundService extends Service {
 					}
 				});
 		this.commandLooper.start();
-	}
-	
-	private void deviceDisconnected() {
-		logger.info("Bluetooth device disconnected.");
-		stopBackgroundService();
 	}
 
 	public void onAllAdaptersFailed() {
@@ -281,31 +291,19 @@ public class BackgroundService extends Service {
 	private class LocalBinder extends Binder implements BackgroundServiceInteractor {
 	
 		@Override
-		public void setListener(Listener callback) {
-			commandListener = callback;
-		}
-
-		@Override
-		public boolean isRunning() {
-			return isTheServiceRunning.get();
-		}
-
-		@Override
-		public void newJobToWaitingList(CommonCommand job) {
-		}
-
-		@Override
 		public void initializeConnection() {
 //			startBackgroundService();
 		}
 		
 		@Override
 		public void shutdownConnection() {
+			logger.info("stopping service!");
 			stopBackgroundService();
 		}
 
 		@Override
 		public void allAdaptersFailed() {
+			logger.info("all adapters failed!");
 			onAllAdaptersFailed();
 		}
 	}
