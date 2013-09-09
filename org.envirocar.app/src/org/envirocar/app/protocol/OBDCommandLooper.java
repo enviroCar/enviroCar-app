@@ -252,8 +252,18 @@ public class OBDCommandLooper extends HandlerThread {
 
 		if (cmd != null) {
 			if (cmd.getCommandState() == CommonCommandState.EXECUTION_ERROR) {
-				logger.info("Execution Error for" +cmd.getCommandName() +" / "+cmd.getCommand());
+				logger.warn("Execution Error for" +cmd.getCommandName() +" / "+cmd.getCommand());
 				return;
+			}
+			
+			if (cmd.getCommandState() == CommonCommandState.UNMATCHED_RESULT) {
+				logger.warn("Did not receive the expected result! Expected: "+cmd.getResponseByte());
+				try {
+					logger.info("Trying to read another command.");
+					CommonCommand.readResponseLine(inputStream);
+				} catch (IOException e) {
+					logger.warn(e.getMessage(), e);
+				}
 			}
 			
 			if (cmd.getCommandState() == CommonCommandState.SEARCHING) {
