@@ -25,7 +25,7 @@ import java.text.DecimalFormat;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
-import org.envirocar.app.application.service.BackgroundService;
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
 import org.envirocar.app.event.CO2Event;
 import org.envirocar.app.event.CO2EventListener;
 import org.envirocar.app.event.EventBus;
@@ -38,8 +38,6 @@ import org.envirocar.app.views.RoundProgress;
 import org.envirocar.app.views.TypefaceEC;
 
 import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -92,7 +90,7 @@ public class DashboardFragment extends SherlockFragment {
 
 	private BroadcastReceiver receiver;
 
-	protected boolean serviceRunning;
+	protected int serviceState;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -157,17 +155,15 @@ public class DashboardFragment extends SherlockFragment {
 		TypefaceEC.applyCustomFont((ViewGroup) view,
 				TypefaceEC.Newscycle(getActivity()));
 		
-		receiver = new BroadcastReceiver() {
-			
+		receiver = new AbstractBackgroundServiceStateReceiver() {
+
 			@Override
-			public void onReceive(Context context, Intent intent) {
-				if (intent.getAction().equals(BackgroundService.SERVICE_STATE)) {
-					serviceRunning = intent.getBooleanExtra(BackgroundService.SERVICE_STATE, false);
-					updateStatusElements();
-				}
+			public void onStateChanged(int state) {
+				serviceState = state;
+				updateStatusElements();
 			}
 		};
-		getActivity().registerReceiver(receiver, new IntentFilter(BackgroundService.SERVICE_STATE));
+		getActivity().registerReceiver(receiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 
 	}
 
@@ -214,8 +210,11 @@ public class DashboardFragment extends SherlockFragment {
 	
 	protected void updateStatusElements() {
 		ImageView connectionStateImage = (ImageView) getActivity().findViewById(R.id.connectionStateImage);
-		if (serviceRunning) {
+		if (serviceState == AbstractBackgroundServiceStateReceiver.SERVICE_STARTED) {
 			connectionStateImage.setImageResource(R.drawable.connection_state_true);
+		}
+		else if (serviceState == AbstractBackgroundServiceStateReceiver.SERVICE_STARTING) {
+			connectionStateImage.setImageResource(R.drawable.connection_state_stale);
 		}
 		else {
 			connectionStateImage.setImageResource(R.drawable.connection_state_false);

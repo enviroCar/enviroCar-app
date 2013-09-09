@@ -68,40 +68,27 @@ public class OBDCommandLooper extends HandlerThread {
 	
 	private Runnable commonCommandsRunnable = new Runnable() {
 		public void run() {
-			/*
-			 * we can do a while (running) here as we are the
-			 * only ones occupying the Handler and will always
-			 * be!
-			 */
-			while (running) {
-				logger.info("Executing Command Commands!");
-				
-				try {
-					executeCommandRequests();
-				} catch (IOException e) {
-					logger.warn(e.getMessage(), e);
-					running = false;
+			logger.info("Executing Command Commands!");
+			
+			try {
+				executeCommandRequests();
+			} catch (IOException e) {
+				logger.warn(e.getMessage(), e);
+				running = false;
+				notifyWaitersOnShutdown();
+				connectionListener.onConnectionException(e);
+				return;
+			}
+			
+			synchronized (shutdownMutex) {
+				if (!running || shutdownComplete) {
 					notifyWaitersOnShutdown();
-					connectionListener.onConnectionException(e);
 					return;
-				}
-				
-				synchronized (shutdownMutex) {
-					if (!running || shutdownComplete) {
-						notifyWaitersOnShutdown();
-						return;
-					}
-				}
-				
-				logger.info("Scheduling the Executiion of Command Commands!");
-				try {
-					Thread.sleep(requestPeriod);
-				} catch (InterruptedException e) {
-					logger.warn(e.getMessage(), e);
 				}
 			}
 			
-			notifyWaitersOnShutdown();
+			logger.info("Scheduling the Executiion of Command Commands!");
+			commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
 		}
 	};
 

@@ -52,7 +52,7 @@ public class DeviceInRangeService extends Service {
 	
 	private static final long DISCOVERY_PERIOD = 1000 * 60 * 2;
 	public static final int DEFAULT_DELAY_AFTER_STOP = 1000 * 60 * 5;
-	protected boolean backgroundServiceRunning;
+	protected int backgroundServiceState;
 	
 	private final BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
@@ -63,13 +63,13 @@ public class DeviceInRangeService extends Service {
 			if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 				verifyRemoteDevice(intent);
 			}
-			else if (action.equals(BackgroundService.SERVICE_STATE)) {
-				backgroundServiceRunning = intent.getBooleanExtra(BackgroundService.SERVICE_STATE, false);
+			else if (action.equals(AbstractBackgroundServiceStateReceiver.SERVICE_STATE)) {
+				backgroundServiceState = intent.getIntExtra(AbstractBackgroundServiceStateReceiver.SERVICE_STATE, 0);
 				
 				SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 				boolean autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
 
-				if (!backgroundServiceRunning && autoConnect) {
+				if (backgroundServiceState == AbstractBackgroundServiceStateReceiver.SERVICE_STOPPED && autoConnect) {
 					startWithDelay(DEFAULT_DELAY_AFTER_STOP);
 				}
 			}
@@ -101,7 +101,7 @@ public class DeviceInRangeService extends Service {
 	@Override
 	public void onCreate() {
 		registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
-		registerReceiver(receiver, new IntentFilter(BackgroundService.SERVICE_STATE));
+		registerReceiver(receiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 		
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		preferences.registerOnSharedPreferenceChangeListener(autoConnectPreferenceChangeReceiver);
@@ -142,7 +142,7 @@ public class DeviceInRangeService extends Service {
 	}
 
 	protected void startWithDelay(int d) {
-		if (backgroundServiceRunning) return;
+		if (backgroundServiceState == AbstractBackgroundServiceStateReceiver.SERVICE_STARTED) return;
 		
 		discoveryEnabled = true;
 		

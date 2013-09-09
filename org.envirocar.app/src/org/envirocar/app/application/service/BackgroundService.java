@@ -60,6 +60,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import static org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.*;
 
 /**
  * Service for connection to Bluetooth device and running commands. Imported
@@ -77,7 +78,6 @@ public class BackgroundService extends Service {
 	public static final String DISCONNECTED_INTENT = BackgroundService.class.getName()+".DISCONNECTED";
 	public static final String CONNECTION_PERMANENTLY_FAILED_INTENT =
 			BackgroundServiceInteractor.class.getName()+".CONNECTION_PERMANENTLY_FAILED";
-	public static final String SERVICE_STATE = BackgroundService.class.getName()+".STATE";
 	
 	protected static final long CONNECTION_CHECK_INTERVAL = 1000 * 5;
 	// Properties
@@ -142,7 +142,7 @@ public class BackgroundService extends Service {
 		}
 		
 		isTheServiceRunning.set(false);
-		sendStateBroadcast();
+		sendStateBroadcast(SERVICE_STOPPED);
 		
 		if (bluetoothSocket != null) {
 			try {
@@ -156,9 +156,9 @@ public class BackgroundService extends Service {
 		sendBroadcast(new Intent(DISCONNECTED_INTENT));
 	}
 	
-	private void sendStateBroadcast() {
+	private void sendStateBroadcast(int state) {
 		Intent intent = new Intent(SERVICE_STATE);
-		intent.putExtra(SERVICE_STATE, isTheServiceRunning.get());
+		intent.putExtra(SERVICE_STATE, state);
 		sendBroadcast(intent);
 	}
 
@@ -207,6 +207,7 @@ public class BackgroundService extends Service {
 		
 		commandListener = new CommandListener(CarManager.instance().getCar());
 		commandListener.createNewTrackIfNecessary();
+		sendStateBroadcast(SERVICE_STARTING);
 	}
 	
 	/**
@@ -217,7 +218,7 @@ public class BackgroundService extends Service {
 		logger.info("Bluetooth device connected.");
         // Service is running..
 		isTheServiceRunning.set(true);		
-		sendStateBroadcast();
+		sendStateBroadcast(SERVICE_STARTED);
 		
 		InputStream in;
 		OutputStream out;
