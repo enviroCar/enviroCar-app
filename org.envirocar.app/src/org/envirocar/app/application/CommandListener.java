@@ -85,7 +85,6 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 		String commandName = command.getCommandName();
 		String commandResult = command.getResult();
-		logger.debug(commandName + " " + commandResult);
 		if (isNoDataCommand(command))
 			return;
 

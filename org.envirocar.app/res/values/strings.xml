@@ -63,6 +63,7 @@
     <string name="positioning_Info">The positioning is based on GPS, to have a precised positions for the measurement. Please wait until you get GPS coordinates.</string>
     <string name="no_current_position">none</string>
     <string name="menu_start">Start</string>
+    <string name="menu_starting">Starting</string>
     <string name="menu_stop">Stop</string>
     <string name="menu_upload">Upload</string>
     <string name="menu_delete">Delete</string>

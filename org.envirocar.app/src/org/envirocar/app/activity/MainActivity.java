@@ -21,38 +21,25 @@
 
 package org.envirocar.app.activity;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.NavMenuItem;
-import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.UserManager;
-import org.envirocar.app.application.service.BackgroundService;
-import org.envirocar.app.exception.TracksException;
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.storage.DbAdapterImpl;
-import org.envirocar.app.util.NamedThreadFactory;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.FragmentManager;
@@ -118,10 +105,9 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private SharedPreferences preferences = null;
 	boolean alwaysUpload = false;
 	boolean uploadOnlyInWlan = true;
-	private Handler handler_upload;
-	private boolean serviceRunning;
 	private BroadcastReceiver receiver;
 	private OnSharedPreferenceChangeListener settingsReceiver;
+	protected int serviceState;
 		
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
@@ -158,7 +144,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
-        handler_upload = new Handler();
 
         checkKeepScreenOn();
         
@@ -205,17 +190,15 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 		manager.executePendingTransactions();
 
-		receiver = new BroadcastReceiver() {
-			
+		receiver = new AbstractBackgroundServiceStateReceiver() {
 			@Override
-			public void onReceive(Context context, Intent intent) {
-				if (intent.getAction().equals(BackgroundService.SERVICE_STATE)) {
-					serviceRunning = intent.getBooleanExtra(BackgroundService.SERVICE_STATE, false);
-					updateStartStopButton();
-				}
+			public void onStateChanged(int state) {
+				serviceState = state;
+				updateStartStopButton();
 			}
 		};
-		registerReceiver(receiver, new IntentFilter(BackgroundService.SERVICE_STATE));
+		
+		registerReceiver(receiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 
 		settingsReceiver = new OnSharedPreferenceChangeListener() {
 			@Override
@@ -231,88 +214,115 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		};
 		preferences.registerOnSharedPreferenceChangeListener(settingsReceiver);
 		
-		/*
-		 * Auto-Uploader of tracks. Uploads complete tracks every 10 minutes.
-		 */
-
-		ScheduledExecutorService uploadTaskExecutor = Executors.newScheduledThreadPool(1, new NamedThreadFactory(getClass().getName()+"-Factory"));
-		uploadTaskExecutor.scheduleAtFixedRate(new Runnable() {
-
-			@Override
-			public void run() {
-				ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-				NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-				if (alwaysUpload) {
-					logger.info("Automatic upload will start");
-					if (UserManager.instance().isLoggedIn()) {
-						try {
-							if (!serviceRunning) {
-								logger.info("Service connector not running");
-								if (uploadOnlyInWlan == true) {
-									if (mWifi.isConnected()) {
-										logger.info("Uploading tracks 1");
-										handler_upload.post(new Runnable() {
-
-											@Override
-											public void run() {
-												uploadTracks();
-											}
-										});
-									}
-								} else {
-									logger.info("Uploading tracks 2");
-									handler_upload.post(new Runnable() {
-
-										@Override
-										public void run() {
-											uploadTracks();
-										}
-									});
-								}
-							}
-						} catch (NullPointerException e) {
-							logger.warn(e.getMessage(), e);
-							if (uploadOnlyInWlan == true) {
-								if (mWifi.isConnected()) {
-									logger.info("Uploading tracks 3 ");
-									handler_upload.post(new Runnable() {
-
-										@Override
-										public void run() {
-											uploadTracks();
-										}
-									});
-								}
-							} else {
-								logger.info("Uploading tracks 4");
-								handler_upload.post(new Runnable() {
-
-									@Override
-									public void run() {
-										uploadTracks();
-									}
-								});
-							}
-						}
-					}
-				} else {
-					logger.info("automatic upload not wanted by user");
-				}
-			}
-		}, 0, 10, TimeUnit.MINUTES);
+//		/*
+//		 * Auto-Uploader of tracks. Uploads complete tracks every 10 minutes.
+//		 */
+//
+//		ScheduledExecutorService uploadTaskExecutor = Executors.newScheduledThreadPool(1, new NamedThreadFactory(getClass().getName()+"-Factory"));
+//		uploadTaskExecutor.scheduleAtFixedRate(new Runnable() {
+//
+//			@Override
+//			public void run() {
+//				ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
+//				NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+//
+//				if (alwaysUpload) {
+//					logger.info("Automatic upload will start");
+//					if (UserManager.instance().isLoggedIn()) {
+//						try {
+//							if (!serviceRunning) {
+//								logger.info("Service connector not running");
+//								if (uploadOnlyInWlan == true) {
+//									if (mWifi.isConnected()) {
+//										logger.info("Uploading tracks 1");
+//										handler_upload.post(new Runnable() {
+//
+//											@Override
+//											public void run() {
+//												uploadTracks();
+//											}
+//										});
+//									}
+//								} else {
+//									logger.info("Uploading tracks 2");
+//									handler_upload.post(new Runnable() {
+//
+//										@Override
+//										public void run() {
+//											uploadTracks();
+//										}
+//									});
+//								}
+//							}
+//						} catch (NullPointerException e) {
+//							logger.warn(e.getMessage(), e);
+//							if (uploadOnlyInWlan == true) {
+//								if (mWifi.isConnected()) {
+//									logger.info("Uploading tracks 3 ");
+//									handler_upload.post(new Runnable() {
+//
+//										@Override
+//										public void run() {
+//											uploadTracks();
+//										}
+//									});
+//								}
+//							} else {
+//								logger.info("Uploading tracks 4");
+//								handler_upload.post(new Runnable() {
+//
+//									@Override
+//									public void run() {
+//										uploadTracks();
+//									}
+//								});
+//							}
+//						}
+//					}
+//				} else {
+//					logger.info("automatic upload not wanted by user");
+//				}
+//			}
+//		}, 0, 10, TimeUnit.MINUTES);
 		
 	}
 
-
+//	/**
+//	 * Helper method for the automatic upload of local tracks via the scheduler.
+//	 */
+//    private void uploadTracks() {
+//        DbAdapter dbAdapter = DbAdapterImpl.instance();
+//            try {
+//                if (dbAdapter.getNumberOfLocalTracks() > 0
+//                        && dbAdapter.getLastUsedTrack()
+//                                .getNumberOfMeasurements() > 0) {
+//                    UploadManager uploadManager = new UploadManager(
+//                            application.getApplicationContext());
+//                    uploadManager.uploadAllTracks();
+//                } else {
+//                	logger.info("Uploading does not make sense right now");
+//                }
+//            } catch (TracksException e) {
+//            	logger.warn("Upload Failed!", e);
+//            }
+//        
+//    }
+	
 	protected void updateStartStopButton() {
 		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if (adapter != null && adapter.isEnabled()) { // was requirementsFulfilled
 			try {
-				if (serviceRunning) {
+				switch (serviceState) {
+				case AbstractBackgroundServiceStateReceiver.SERVICE_STARTED:
 					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_stop));
 					navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_pause);
-				} else {
+					navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
+					break;
+				case AbstractBackgroundServiceStateReceiver.SERVICE_STARTING:
+					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_starting));
+					navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
+					break;
+				case AbstractBackgroundServiceStateReceiver.SERVICE_STOPPED:
 					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
 					// Only enable start button when adapter is selected
 	
@@ -338,8 +348,11 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 						navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
 						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.pref_summary_chose_adapter));
 					}
-
+					break;
+				default:
+					break;
 				}
+				
 			} catch (NullPointerException e) {
 				logger.warn(e.getMessage(), e);
 				navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
@@ -355,26 +368,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		navDrawerAdapter.notifyDataSetChanged();
 	}
 
-	/**
-	 * Helper method for the automatic upload of local tracks via the scheduler.
-	 */
-    private void uploadTracks() {
-        DbAdapter dbAdapter = DbAdapterImpl.instance();
-            try {
-                if (dbAdapter.getNumberOfLocalTracks() > 0
-                        && dbAdapter.getLastUsedTrack()
-                                .getNumberOfMeasurements() > 0) {
-                    UploadManager uploadManager = new UploadManager(
-                            application.getApplicationContext());
-                    uploadManager.uploadAllTracks();
-                } else {
-                	logger.info("Uploading does not make sense right now");
-                }
-            } catch (TracksException e) {
-            	logger.warn("Upload Failed!", e);
-            }
-        
-    }
 
 	private class NavAdapter extends BaseAdapter {
 		
@@ -478,6 +471,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         // Start or stop the measurement process
             
 		case START_STOP_MEASUREMENT:
+			if (!navDrawerItems[position].isEnabled()) return;
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
 
 			String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,null);
@@ -488,7 +482,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			        MyGarage garageFragment = new MyGarage();
 			        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
 				} else {
-					if (!serviceRunning) {
+					if (serviceState == AbstractBackgroundServiceStateReceiver.SERVICE_STOPPED) {
 						application.startConnection();
 						Crouton.makeText(this, R.string.start_measuring, Style.INFO).show();
 					} else {

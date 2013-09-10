@@ -23,6 +23,7 @@ package org.envirocar.app.application.service;
 import java.util.ArrayList;
 
 import org.envirocar.app.activity.SettingsActivity;
+import org.envirocar.app.logging.Logger;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -46,13 +47,15 @@ import android.preference.PreferenceManager;
  *
  */
 public class DeviceInRangeService extends Service {
+	
+	private static final Logger logger = Logger.getLogger(DeviceInRangeService.class);
 
 	public static final String DEVICE_FOUND = DeviceInRangeService.class.getName().concat(".DEVICE_FOUND");
 	public static final String DELAY_EXTRA = DeviceInRangeService.class.getName().concat(".INITIAL_DELAY");
 	
 	private static final long DISCOVERY_PERIOD = 1000 * 60 * 2;
 	public static final int DEFAULT_DELAY_AFTER_STOP = 1000 * 60 * 5;
-	protected boolean backgroundServiceRunning;
+	protected int backgroundServiceState;
 	
 	private final BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
@@ -63,13 +66,13 @@ public class DeviceInRangeService extends Service {
 			if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 				verifyRemoteDevice(intent);
 			}
-			else if (action.equals(BackgroundService.SERVICE_STATE)) {
-				backgroundServiceRunning = intent.getBooleanExtra(BackgroundService.SERVICE_STATE, false);
+			else if (action.equals(AbstractBackgroundServiceStateReceiver.SERVICE_STATE)) {
+				backgroundServiceState = intent.getIntExtra(AbstractBackgroundServiceStateReceiver.SERVICE_STATE, 0);
 				
 				SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 				boolean autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
 
-				if (!backgroundServiceRunning && autoConnect) {
+				if (backgroundServiceState == AbstractBackgroundServiceStateReceiver.SERVICE_STOPPED && autoConnect) {
 					startWithDelay(DEFAULT_DELAY_AFTER_STOP);
 				}
 			}
@@ -100,8 +103,9 @@ public class DeviceInRangeService extends Service {
 
 	@Override
 	public void onCreate() {
+		logger.info("onCreate " + getClass().getName() +" "+this.hashCode());
 		registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
-		registerReceiver(receiver, new IntentFilter(BackgroundService.SERVICE_STATE));
+		registerReceiver(receiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 		
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		preferences.registerOnSharedPreferenceChangeListener(autoConnectPreferenceChangeReceiver);
@@ -113,6 +117,24 @@ public class DeviceInRangeService extends Service {
 			startWithDelay(0);
 		}
 	}
+	
+	@Override
+	public void onRebind(Intent intent) {
+		super.onRebind(intent);
+		logger.info("onRebind " + getClass().getName() +" "+this.hashCode());
+	}
+	
+	@Override
+	public boolean onUnbind(Intent intent) {
+		logger.info("onUnbind " + getClass().getName() +" "+this.hashCode());
+		return super.onUnbind(intent);
+	}
+
+	@Override
+	public void onDestroy() {
+		logger.info("onDestroy " + getClass().getName() +" "+this.hashCode());
+	}
+
 
 	protected void verifyRemoteDevice(Intent intent) {
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -138,11 +160,12 @@ public class DeviceInRangeService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		logger.info("onStartCommand " + getClass().getName() +" "+this.hashCode());
 		return super.onStartCommand(intent, flags, startId);
 	}
 
 	protected void startWithDelay(int d) {
-		if (backgroundServiceRunning) return;
+		if (backgroundServiceState == AbstractBackgroundServiceStateReceiver.SERVICE_STARTED) return;
 		
 		discoveryEnabled = true;
 		
@@ -174,6 +197,7 @@ public class DeviceInRangeService extends Service {
 	
 	@Override
 	public IBinder onBind(Intent intent) {
+		logger.info("onBind " + getClass().getName() +" "+this.hashCode());
 		/*
 		 * we do not need a binder, as we are autonomous
 		 */

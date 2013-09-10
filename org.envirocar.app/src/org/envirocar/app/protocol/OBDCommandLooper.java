@@ -51,7 +51,7 @@ import android.os.Looper;
 public class OBDCommandLooper extends HandlerThread {
 
 	private static final Logger logger = Logger.getLogger(OBDCommandLooper.class);
-	private static final int MAX_TRIES_PER_ADAPTER = 2;
+	private static final int MAX_TRIES_PER_ADAPTER = 1;
 	protected static final long ADAPTER_TRY_PERIOD = 5000;
 	
 	private List<AbstractOBDConnector> adapterCandidates = new ArrayList<AbstractOBDConnector>();
@@ -65,149 +65,140 @@ public class OBDCommandLooper extends HandlerThread {
 	protected long requestPeriod = 500;
 	private int tries;
 	private int adapterIndex;
+	private ConnectionListener connectionListener;
+	private Object socketMutex;
 	
 	private Runnable commonCommandsRunnable = new Runnable() {
 		public void run() {
-			/*
-			 * we can do a while (running) here as we are the
-			 * only ones occupying the Handler and will always
-			 * be!
-			 */
-			while (running) {
-				logger.info("Executing Command Commands!");
-				
-				try {
-					executeCommandRequests();
-				} catch (IOException e) {
-					logger.warn(e.getMessage(), e);
-					running = false;
-					notifyWaitersOnShutdown();
-					connectionListener.onConnectionException(e);
-					return;
-				}
-				
-				synchronized (shutdownMutex) {
-					if (!running || shutdownComplete) {
-						notifyWaitersOnShutdown();
-						return;
-					}
-				}
-				
-				logger.info("Scheduling the Executiion of Command Commands!");
-				try {
-					Thread.sleep(requestPeriod);
-				} catch (InterruptedException e) {
-					logger.warn(e.getMessage(), e);
-				}
+			if (!running) {
+				logger.info("Exiting commandHandler.");
+				return;
+			}
+			logger.info("Executing Command Commands!");
+			
+			try {
+				executeCommandRequests();
+			} catch (IOException e) {
+				running = false;
+				connectionListener.onConnectionException(e);
+				logger.info("Exiting commandHandler.");
+				return;
 			}
 			
-			notifyWaitersOnShutdown();
+			if (!running) {
+				logger.info("Exiting commandHandler.");
+				return;
+			}
+			
+			logger.info("Scheduling the Executiion of Command Commands!");
+			commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
 		}
 	};
+
 
 	private Runnable initializationCommandsRunnable = new Runnable() {
 		public void run() {
 			if (running && !connectionEstablished) {
+				logger.info("Using "+obdAdapter.getClass().getName() +" connector.");
 				try {
-					try {
-						selectAdapter();
-					} catch (AllAdaptersFailedException e) {
-						connectionListener.onAllAdaptersFailed();
-					}
 					executeInitializationRequests();
 				} catch (IOException e) {
-					logger.warn(e.getMessage(), e);
 					running = false;
-					notifyWaitersOnShutdown();
 					connectionListener.onConnectionException(e);
+					logger.info("Exiting commandHandler.");
+					return;
+				} catch (AdapterFailedException e) {
+					logger.warn(e.getMessage());
+				}
+				
+				if (!running) {
+					logger.info("Exiting commandHandler.");
 					return;
 				}
 				
-				synchronized (shutdownMutex) {
-					if (!running || shutdownComplete) {
-						notifyWaitersOnShutdown();
-						return;
-					}
+				try {
+					selectAdapter();
+				} catch (AllAdaptersFailedException e) {
+					connectionListener.onAllAdaptersFailed();
 				}
 				
 				commandExecutionHandler.postDelayed(initializationCommandsRunnable, ADAPTER_TRY_PERIOD);
 			}
-			else {
-				notifyWaitersOnShutdown();
-			}
 		}
 
 	};
-	private ConnectionListener connectionListener;
-	private Object shutdownMutex = new Object();
-	private boolean shutdownComplete;
+
 
 	/**
-	 * same as OBDCommandLooper#OBDCommandLooper(InputStream, OutputStream, Listener, ConnectionListener, int) with NORM_PRIORITY
+	 * same as OBDCommandLooper#OBDCommandLooper(InputStream, OutputStream, Object, Listener, ConnectionListener, int) with NORM_PRIORITY
 	 */
-	public OBDCommandLooper(InputStream in, OutputStream out, Listener l, ConnectionListener cl) {
-		this(in, out, l, cl, NORM_PRIORITY);
+	public OBDCommandLooper(InputStream in, OutputStream out, Object socketMutex, String deviceName,
+			Listener l, ConnectionListener cl) {
+		this(in, out, socketMutex, deviceName, l, cl, NORM_PRIORITY);
 	}
 	
+
 	/**
+	 * An application shutting down the streams ({@link InputStream#close()} and
+	 * the like) SHALL synchronize on the socketMutex object when doing so.
+	 * Otherwise, the app might crash.
+	 * 
 	 * @param in the inputStream of the connection
 	 * @param out the outputStream of the connection
+	 * @param socketMutex the mutex object to use when shutting down the streams
 	 * @param l the listener which receives command responses
 	 * @param cl the connection listener which receives connection state changes
 	 * @param priority thread priority
 	 * @throws IllegalArgumentException if one of the inputs equals null
 	 */
-	public OBDCommandLooper(InputStream in, OutputStream out, Listener l, ConnectionListener cl, int priority) {
+	public OBDCommandLooper(InputStream in, OutputStream out, Object socketMutex,
+			String deviceName, Listener l, ConnectionListener cl, int priority) {
 		super("OBD-CommandLooper-Handler", priority);
 		
 		if (in == null) throw new IllegalArgumentException("in must not be null!");
 		if (out == null) throw new IllegalArgumentException("out must not be null!");
+		if (socketMutex == null) throw new IllegalArgumentException("socketMutex must not be null!");
 		if (l == null) throw new IllegalArgumentException("l must not be null!");
 		if (cl == null) throw new IllegalArgumentException("cl must not be null!");
 		
 		this.inputStream = in;
 		this.outputStream = out;
+		this.socketMutex = socketMutex;
 		
 		this.commandListener = l;
 		this.connectionListener = cl;
 		
 		adapterCandidates.add(new ELM327Connector());
-		obdAdapter = adapterCandidates.get(0);
+		adapterCandidates.add(new AposW3Connector());
+		adapterCandidates.add(new OBDLinkMXConnector());
+		
+		determinePreferredAdapter(deviceName);
 	}
 	
-	private void notifyWaitersOnShutdown() {
-		synchronized (shutdownMutex) {
-			shutdownComplete = true;
-			shutdownMutex.notifyAll();
+	private void determinePreferredAdapter(String deviceName) {
+		for (AbstractOBDConnector ac : adapterCandidates) {
+			if (ac.supportsDevice(deviceName)) {
+				this.obdAdapter = ac;
+				logger.info("Using "+this.obdAdapter.getClass().getName() +" connector.");
+				return;
+			}
 		}
+		
+		this.obdAdapter = adapterCandidates.get(0);
 	}
-	
+
+
 	/**
 	 * stop the command looper. this removes all pending commands.
 	 * This object is no longer executable, a new instance has to
 	 * be created.
 	 */
 	public void stopLooper() {
+		logger.info("stopping the command execution!");
 		this.running = false;
-		commandExecutionHandler.removeCallbacks(commonCommandsRunnable);
-		commandExecutionHandler.removeCallbacks(initializationCommandsRunnable);
-		commandExecutionHandler.getLooper().quit();
-		
-		synchronized (shutdownMutex) {
-			while (!shutdownComplete) {
-				logger.info("shutdown not completed. waiting...");
-				try {
-					shutdownMutex.wait();
-				} catch (InterruptedException e) {
-					logger.warn(e.getMessage(), e);
-				}
-			}
-			logger.info("I finished waiting for shutdown!");
-		}
-		
 	}
 
-	private void executeInitializationRequests() throws IOException {
+	private void executeInitializationRequests() throws IOException, AdapterFailedException {
 		List<CommonCommand> cmds = this.obdAdapter.getInitializationCommands();
 		
 		executeCommands(cmds);
@@ -216,10 +207,14 @@ public class OBDCommandLooper extends HandlerThread {
 	private void executeCommandRequests() throws IOException {
 		List<CommonCommand> cmds = this.obdAdapter.getRequestCommands();
 		
-		executeCommands(cmds);
+		try {
+			executeCommands(cmds);
+		} catch (AdapterFailedException e) {
+			logger.severe("This should never happen!", e);
+		}
 	}
 
-	private void executeCommands(List<CommonCommand> cmds) throws IOException {
+	private void executeCommands(List<CommonCommand> cmds) throws IOException, AdapterFailedException {
 		for (CommonCommand c : cmds) {
 			verifyConnectionState();
 			executeCommand(c);
@@ -227,27 +222,50 @@ public class OBDCommandLooper extends HandlerThread {
 	}
 
 	
-	private void executeCommand(CommonCommand cmd) {
+	private void executeCommand(CommonCommand cmd) throws AdapterFailedException {
 		try {
 			if (cmd.getCommandState().equals(CommonCommandState.NEW)) {
 
 				// Run the job
 				cmd.setCommandState(CommonCommandState.RUNNING);
-				cmd.run(inputStream, outputStream);
+				synchronized (socketMutex) {
+					this.obdAdapter.runCommand(cmd, inputStream, outputStream);
+				}
 			}
 		} catch (IOException e) {
-			connectionListener.onConnectionException(e);
+			if (!connectionEstablished) {
+				/*
+				 * lets first try a different adapter before we fail!
+				 */
+				throw new AdapterFailedException(this.obdAdapter.getClass().getName());
+			} else {
+				connectionListener.onConnectionException(e);
+				running = false;
+				return;	
+			}
+			
+			
 		} catch (Exception e) {
 			logger.warn("Error while sending command '" + cmd.toString() + "'", e);
 			cmd.setCommandState(CommonCommandState.EXECUTION_ERROR);
-			return;
 		}
 
 		// Finished if no more job is in the waiting-list
 
 		if (cmd != null) {
 			if (cmd.getCommandState() == CommonCommandState.EXECUTION_ERROR) {
+				logger.warn("Execution Error for" +cmd.getCommandName() +" / "+cmd.getCommand());
 				return;
+			}
+			
+			if (cmd.getCommandState() == CommonCommandState.UNMATCHED_RESULT) {
+				logger.warn("Did not receive the expected result! Expected: "+cmd.getResponseByte());
+				try {
+					logger.info("Trying to read another command.");
+					CommonCommand.readResponseLine(inputStream);
+				} catch (IOException e) {
+					logger.warn(e.getMessage(), e);
+				}
 			}
 			
 			if (cmd.getCommandState() == CommonCommandState.SEARCHING) {
@@ -260,12 +278,15 @@ public class OBDCommandLooper extends HandlerThread {
 				return;
 			}
 			cmd.setCommandState(CommonCommandState.FINISHED);
-			if (commandListener != null) {
-				commandListener.receiveUpdate(cmd);
-			}
-			
+
 			if (!connectionEstablished && !cmd.isNoDataCommand()) {
-				connectionEstablished();
+				this.obdAdapter.processInitializationCommand(cmd);
+				if (this.obdAdapter.connectionVerified()) {
+					connectionEstablished();
+				}
+			}
+			else {
+				commandListener.receiveUpdate(cmd);
 			}
 		}
 		
@@ -277,6 +298,8 @@ public class OBDCommandLooper extends HandlerThread {
 	}
 	
 	private void connectionEstablished() {
+		logger.info("OBD Adapter " + this.obdAdapter.getClass().getName() +
+				" verified the responses. Connection Established!");
 		this.connectionEstablished = true;
 		this.connectionListener.onConnectionVerified();
 		
@@ -286,12 +309,13 @@ public class OBDCommandLooper extends HandlerThread {
 		commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
 	}
 
+
 	private void selectAdapter() throws AllAdaptersFailedException {
-		if (tries++ > MAX_TRIES_PER_ADAPTER) {
-			if (adapterIndex++ >= adapterCandidates.size()) {
+		if (++tries >= MAX_TRIES_PER_ADAPTER) {
+			if (adapterIndex+1 >= adapterCandidates.size()) {
 				throw new AllAdaptersFailedException(adapterCandidates.toString());
 			}
-			this.obdAdapter = adapterCandidates.get(adapterIndex % adapterCandidates.size());
+			this.obdAdapter = adapterCandidates.get(adapterIndex++ % adapterCandidates.size());
 			tries = 0;
 		}
 	}

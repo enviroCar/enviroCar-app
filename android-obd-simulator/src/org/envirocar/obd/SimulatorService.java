@@ -444,29 +444,29 @@ public class SimulatorService {
 		}
 		else if (s.equals("AT E0")) {
 			//echo off
-			rawData = s;
+			rawData = "ELM327v1.OKATE0";
 		}
 		else if (s.equals("AT L0")) {
 			//Line feed off
-			rawData = s;
+			rawData = "OK";
 		}
 		else if (s.startsWith("AT SP")) {
 			//select protocol
-			rawData = s;
+			rawData = "OK";
 		}
 		else if (s.startsWith("AT ST")) {
 			//timeout
-			rawData = s;
+			rawData = "OK";
 		}
 		else if(s.startsWith("01 0D")) {
 			//Speed
-			rawData = "0000" + (23+random.nextInt(45));
+			rawData = "000D" + (23+random.nextInt(45));
 		}
 		else if (s.equals("01 10")) {
 			int bytethree = (1+random.nextInt(8));
 			int bytefour = (80+random.nextInt(19));
 			//MAF
-			rawData = "00000"+ bytethree+""+ bytefour;
+			rawData = "00100"+ bytethree+""+ bytefour;
 			lastMaf = (bytethree * 256 + bytefour) / 100.0f;
 		}
 		else if (s.equals("01 0B")) {
@@ -474,14 +474,14 @@ public class SimulatorService {
 			double press = getPressureFromLastMAFCalculation();
 			String tmp = Integer.toHexString((int) press);
 			if (tmp.length() == 1) tmp = "0"+tmp;
-			rawData = "0000" +tmp; 
+			rawData = "000B" +tmp; 
 		}
 		else if (s.equals("01 0F")) {
 			//temp
 			double temp = getTemperatureFromLastMAFCalcuation();
 			String tmp = Integer.toHexString((int) (temp + 40));
 			if (tmp.length() == 1) tmp = "0"+tmp;
-			rawData = "0000" +tmp;
+			rawData = "000F" +tmp;
 		}
 		else if (s.equals("01 0C")) {
 			//rpm
@@ -490,9 +490,16 @@ public class SimulatorService {
 			if (rawData.length() != 8) {
 				Log.i("obd-sim", rawData);	
 			}
+			else {
+				rawData = "410C"+rawData.substring(4);
+			}
 		}
 		else {
-			rawData = "0000000000";
+			String[] result = s.split(" ");
+			rawData = "";
+			for (String string : result) {
+				rawData += string;
+			}
 		}
 		
 		if (rawData !=null) {

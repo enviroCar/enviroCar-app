@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.TroubleshootingActivity;
@@ -38,7 +37,6 @@ import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.CommandListener;
 import org.envirocar.app.application.Listener;
 import org.envirocar.app.application.LocationUpdateListener;
-import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.ConnectionListener;
 import org.envirocar.app.protocol.OBDCommandLooper;
@@ -60,6 +58,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import static org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.*;
 
 /**
  * Service for connection to Bluetooth device and running commands. Imported
@@ -74,47 +73,58 @@ public class BackgroundService extends Service {
 	private static final Logger logger = Logger.getLogger(BackgroundService.class);
 	
 	public static final String CONNECTION_VERIFIED_INTENT = BackgroundService.class.getName()+".CONNECTION_VERIFIED";
-	public static final String DISCONNECTED_INTENT = BackgroundService.class.getName()+".DISCONNECTED";
 	public static final String CONNECTION_PERMANENTLY_FAILED_INTENT =
 			BackgroundServiceInteractor.class.getName()+".CONNECTION_PERMANENTLY_FAILED";
-	public static final String SERVICE_STATE = BackgroundService.class.getName()+".STATE";
 	
 	protected static final long CONNECTION_CHECK_INTERVAL = 1000 * 5;
 	// Properties
 
-	private AtomicBoolean isTheServiceRunning = new AtomicBoolean(false);
-	
 	// Bluetooth devices and connection items
 
 	private BluetoothSocket bluetoothSocket;
 	private static final UUID EMBEDDED_BOARD_SPP = UUID
 			.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
-	
 	private Listener commandListener;
 	private final Binder binder = new LocalBinder();
 
 	private OBDCommandLooper commandLooper;
 
+	private Object socketMutex = new Object();
+
 
 	@Override
 	public IBinder onBind(Intent intent) {
+		logger.info("onBind " + getClass().getName() +" "+this.hashCode());
 		return binder;
 	}
 
 	@Override
 	public void onCreate() {
+		logger.info("onCreate " + getClass().getName() +" "+this.hashCode());
+	}
+	
+	@Override
+	public void onRebind(Intent intent) {
+		super.onRebind(intent);
+		logger.info("onRebind " + getClass().getName() +" "+this.hashCode());
+	}
+	
+	@Override
+	public boolean onUnbind(Intent intent) {
+		logger.info("onUnbind " + getClass().getName() +" "+this.hashCode());
+		return super.onUnbind(intent);
 	}
 
 	@Override
 	public void onDestroy() {
-		logger.info("Stops the background service");
+		logger.info("onDestroy " + getClass().getName() +" "+this.hashCode());
 		stopBackgroundService();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		logger.info("Starts the background service");
+		logger.info("onStartCommand " + getClass().getName() +" "+this.hashCode());
 		startBackgroundService();
 		return START_STICKY;
 	}
@@ -137,49 +147,56 @@ public class BackgroundService extends Service {
 	 * Method that stops the service, removes everything from the waiting list
 	 */
 	private void stopBackgroundService() {
-		if (this.commandLooper != null) {
-			this.commandLooper.stopLooper();
-		}
-		
-		isTheServiceRunning.set(false);
-		sendStateBroadcast();
-		
-		if (bluetoothSocket != null) {
-			try {
-				shutdownSocket();
-			} catch (Exception e) {
-				logger.warn(e.getMessage(), e);
-			}
-		}
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				if (BackgroundService.this.commandLooper != null) {
+					BackgroundService.this.commandLooper.stopLooper();
+				}
+				
+				sendStateBroadcast(SERVICE_STOPPED);
+				
+				if (bluetoothSocket != null) {
+					try {
+						shutdownSocket();
+					} catch (Exception e) {
+						logger.warn(e.getMessage(), e);
+					}
+				}
 
-		LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
-		sendBroadcast(new Intent(DISCONNECTED_INTENT));
+				LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));				
+			}
+		}).start();
 	}
 	
-	private void sendStateBroadcast() {
+	private void sendStateBroadcast(int state) {
 		Intent intent = new Intent(SERVICE_STATE);
-		intent.putExtra(SERVICE_STATE, isTheServiceRunning.get());
+		intent.putExtra(SERVICE_STATE, state);
 		sendBroadcast(intent);
 	}
 
 	private void shutdownSocket() throws IOException {
-		if (bluetoothSocket.getInputStream() != null) {
+		synchronized (socketMutex) {
+			logger.info("Shutting down bluetooth socket.");
+			if (bluetoothSocket.getInputStream() != null) {
+				try {
+					bluetoothSocket.getInputStream().close();
+				} catch (Exception e) {}
+			}
+			
+			if (bluetoothSocket.getOutputStream() != null) {
+				try {
+					bluetoothSocket.getOutputStream().close();
+				} catch (Exception e) {}
+			}
+			
 			try {
-				bluetoothSocket.getInputStream().close();
+				bluetoothSocket.close();
 			} catch (Exception e) {}
+			
+			bluetoothSocket = null;	
 		}
-		
-		if (bluetoothSocket.getOutputStream() != null) {
-			try {
-				bluetoothSocket.getOutputStream().close();
-			} catch (Exception e) {}
-		}
-		
-		try {
-			bluetoothSocket.close();
-		} catch (Exception e) {}
-		
-		bluetoothSocket = null;
 	}
 
 	/**
@@ -207,6 +224,13 @@ public class BackgroundService extends Service {
 		
 		commandListener = new CommandListener(CarManager.instance().getCar());
 		commandListener.createNewTrackIfNecessary();
+		sendStateBroadcast(SERVICE_STARTING);
+	}
+	
+	
+	private void deviceDisconnected() {
+		logger.info("Bluetooth device disconnected.");
+		stopBackgroundService();
 	}
 	
 	/**
@@ -216,8 +240,7 @@ public class BackgroundService extends Service {
 	private void deviceConnected() {
 		logger.info("Bluetooth device connected.");
         // Service is running..
-		isTheServiceRunning.set(true);		
-		sendStateBroadcast();
+		sendStateBroadcast(SERVICE_STARTED);
 		
 		InputStream in;
 		OutputStream out;
@@ -230,17 +253,22 @@ public class BackgroundService extends Service {
 			return;
 		}
 		
+		initializeCommandLooper(in, out, bluetoothSocket.getRemoteDevice().getName());
+	}
+
+	protected void initializeCommandLooper(InputStream in, OutputStream out, String deviceName) {
 		this.commandLooper = new OBDCommandLooper(
-				in, out,
+				in, out, socketMutex, deviceName,
 				this.commandListener, new ConnectionListener() {
 					@Override
 					public void onConnectionVerified() {
-						sendBroadcast(new Intent(CONNECTION_VERIFIED_INTENT));
+						BackgroundService.this.sendBroadcast(new Intent(CONNECTION_VERIFIED_INTENT));
 					}
 					
 					@Override
 					public void onConnectionException(IOException e) {
-						deviceDisconnected();
+						logger.warn(e.getMessage(), e);
+						BackgroundService.this.deviceDisconnected();
 					}
 
 					@Override
@@ -249,11 +277,6 @@ public class BackgroundService extends Service {
 					}
 				});
 		this.commandLooper.start();
-	}
-	
-	private void deviceDisconnected() {
-		logger.info("Bluetooth device disconnected.");
-		stopBackgroundService();
 	}
 
 	public void onAllAdaptersFailed() {
@@ -280,31 +303,19 @@ public class BackgroundService extends Service {
 	private class LocalBinder extends Binder implements BackgroundServiceInteractor {
 	
 		@Override
-		public void setListener(Listener callback) {
-			commandListener = callback;
-		}
-
-		@Override
-		public boolean isRunning() {
-			return isTheServiceRunning.get();
-		}
-
-		@Override
-		public void newJobToWaitingList(CommonCommand job) {
-		}
-
-		@Override
 		public void initializeConnection() {
 //			startBackgroundService();
 		}
 		
 		@Override
 		public void shutdownConnection() {
+			logger.info("stopping service!");
 			stopBackgroundService();
 		}
 
 		@Override
 		public void allAdaptersFailed() {
+			logger.info("all adapters failed!");
 			onAllAdaptersFailed();
 		}
 	}

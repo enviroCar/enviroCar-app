@@ -318,7 +318,7 @@ public class Track implements Comparable<Track> {
 				}
 				consumptionPerHour = consumptionPerHour / measurements.size();
 			} catch (FuelConsumptionException e) {
-				logger.warn(e.getMessage(),e);
+				logger.warn(e.getMessage());
 			}
 		}
 		return consumptionPerHour;
