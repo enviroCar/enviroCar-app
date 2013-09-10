@@ -72,7 +72,7 @@ public class OBDCommandLooper extends HandlerThread {
 		public void run() {
 			if (!running) {
 				logger.info("Exiting commandHandler.");
-				return;
+				throw new CommandLoopStoppedException();
 			}
 			logger.info("Executing Command Commands!");
 			
@@ -82,12 +82,12 @@ public class OBDCommandLooper extends HandlerThread {
 				running = false;
 				connectionListener.onConnectionException(e);
 				logger.info("Exiting commandHandler.");
-				return;
+				throw new CommandLoopStoppedException();
 			}
 			
 			if (!running) {
 				logger.info("Exiting commandHandler.");
-				return;
+				throw new CommandLoopStoppedException();
 			}
 			
 			logger.info("Scheduling the Executiion of Command Commands!");
@@ -103,19 +103,21 @@ public class OBDCommandLooper extends HandlerThread {
 				logger.info(stmt);
 				connectionListener.onStatusUpdate(stmt);
 				try {
+					obdAdapter.preInitialization(inputStream, outputStream);
+					
 					executeInitializationRequests();
 				} catch (IOException e) {
 					running = false;
 					connectionListener.onConnectionException(e);
 					logger.info("Exiting commandHandler.");
-					return;
+					throw new CommandLoopStoppedException();
 				} catch (AdapterFailedException e) {
 					logger.warn(e.getMessage());
 				}
 				
 				if (!running) {
 					logger.info("Exiting commandHandler.");
-					return;
+					throw new CommandLoopStoppedException();
 				}
 				
 				try {
@@ -125,6 +127,10 @@ public class OBDCommandLooper extends HandlerThread {
 				}
 				
 				commandExecutionHandler.postDelayed(initializationCommandsRunnable, ADAPTER_TRY_PERIOD);
+			}
+			
+			if (!running) {
+				throw new CommandLoopStoppedException();
 			}
 		}
 
@@ -327,7 +333,11 @@ public class OBDCommandLooper extends HandlerThread {
 		Looper.prepare();
 		commandExecutionHandler = new Handler();
 		commandExecutionHandler.post(initializationCommandsRunnable);
-		Looper.loop();
+		try {
+			Looper.loop();
+		} catch (CommandLoopStoppedException e) {
+			logger.info("Command loop stopped.");
+		}
 	}
 
 }

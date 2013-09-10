@@ -26,9 +26,59 @@ import java.io.OutputStream;
 import java.util.List;
 
 import org.envirocar.app.commands.CommonCommand;
+import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.AbstractOBDConnector;
 
 public class DriveDeckSportConnector extends AbstractOBDConnector {
+
+	private static final Logger logger = Logger.getLogger(DriveDeckSportConnector.class);
+	private static final char CARRIAGE_RETURN = '\r';
+	private static final int SLEEP_TIME = 25;
+	private static final int TIMEOUT = 5000;
+	
+	@Override
+	public void preInitialization(final InputStream in, final OutputStream out)
+			throws IOException {
+		try {
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			logger.warn(e.getMessage(), e);
+		}
+		
+		logger.info("Sending out initial CR.");
+		out.write(CARRIAGE_RETURN);
+		out.flush();
+		
+		waitForInitialResponses(in);
+	}
+	
+	private void waitForInitialResponses(InputStream in) throws IOException {
+		logger.info("waiting for initial responses...");
+		int i;
+		while ((i = in.read()) <= 0) {
+			try {
+				int tries = 0;
+				while (in.available() <= 0) {
+					if (tries++ * SLEEP_TIME > TIMEOUT) {
+						logger.info("could not receive anything from DriveDeck adapter.");
+						return;
+					}
+					
+					Thread.sleep(getSleepTime());
+				}
+			} catch (InterruptedException e) {
+				logger.warn(e.getMessage(), e);
+			}	
+		}
+		
+		byte[] buffer = new byte[1024];
+		int index = 0;
+		do {
+			buffer[index++] = (byte) i; 
+		} while ((i = in.read()) > 0);
+		
+		logger.info("Received result: "+ new String(buffer));
+	}
 
 	@Override
 	public void runCommand(CommonCommand cmd, InputStream in, OutputStream out)

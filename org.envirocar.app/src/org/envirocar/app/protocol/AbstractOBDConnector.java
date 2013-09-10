@@ -152,6 +152,18 @@ public abstract class AbstractOBDConnector {
 		return SLEEP_TIME;
 	}
 	
+	/**
+	 * A connector can override this method to send out
+	 * some adapter specific commands.
+	 * 
+	 * @param in the inputStream
+	 * @param out the outputStream
+	 * @throws IOException on error
+	 */
+	public void preInitialization(final InputStream in, final OutputStream out) throws IOException {
+		//not required by default
+	}
+	
 	public abstract List<CommonCommand> getInitializationCommands();
 	
 	public abstract boolean supportsDevice(String deviceName);
