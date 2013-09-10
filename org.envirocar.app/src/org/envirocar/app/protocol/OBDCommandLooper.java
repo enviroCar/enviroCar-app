@@ -104,12 +104,11 @@ public class OBDCommandLooper extends HandlerThread {
 				logger.info(stmt);
 				connectionListener.onStatusUpdate(stmt);
 				try {
-					obdAdapter.preInitialization(inputStream, outputStream);
-					
 					executeInitializationRequests();
 					
 					if (obdAdapter.connectionVerified()) {
 						connectionEstablished();
+						return;
 					}
 				} catch (IOException e) {
 					running = false;

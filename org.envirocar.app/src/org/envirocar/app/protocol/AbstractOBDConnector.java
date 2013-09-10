@@ -70,7 +70,7 @@ public abstract class AbstractOBDConnector implements OBDConnector {
 	protected void runCommand(CommonCommand cmd)
 			throws IOException {
 		synchronized (socketMutex) {
-			logger.info("Sending command " +cmd.getCommandName()+ " / "+ cmd.getCommand());
+			logger.debug("Sending command " +cmd.getCommandName()+ " / "+ cmd.getCommand());
 			sendCommand(cmd);
 			waitForResult(cmd);	
 		}
@@ -113,7 +113,7 @@ public abstract class AbstractOBDConnector implements OBDConnector {
 				
 				Thread.sleep(getSleepTime());
 			}
-			logger.info(cmd.getCommandName().concat(Long.toString(System.currentTimeMillis())));
+			logger.debug(cmd.getCommandName().concat(Long.toString(System.currentTimeMillis())));
 			readResult(cmd);
 		} catch (InterruptedException e) {
 			logger.warn(e.getMessage(), e);
@@ -125,12 +125,12 @@ public abstract class AbstractOBDConnector implements OBDConnector {
 	 * @param cmd 
 	 */
 	protected void readResult(CommonCommand cmd) throws IOException {
-		logger.info("Reading response...");
+		logger.debug("Reading response...");
 		
 		String rawData = readResponseLine(inputStream);
 		cmd.setRawData(rawData);
 
-		logger.info(cmd.getCommandName() +": "+ rawData);
+		logger.debug(cmd.getCommandName() +": "+ rawData);
 
 		if (isSearching(rawData)) {
 			cmd.setCommandState(CommonCommandState.SEARCHING);
@@ -164,19 +164,6 @@ public abstract class AbstractOBDConnector implements OBDConnector {
 
 	public int getSleepTime() {
 		return SLEEP_TIME;
-	}
-	
-	/**
-	 * A connector can override this method to send out
-	 * some adapter specific commands.
-	 * 
-	 * @param in the inputStream
-	 * @param out the outputStream
-	 * @throws IOException on error
-	 */
-	@Override
-	public void preInitialization(final InputStream in, final OutputStream out) throws IOException {
-		//not required by default
 	}
 	
 	protected abstract List<CommonCommand> getInitializationCommands();
@@ -255,6 +242,8 @@ public abstract class AbstractOBDConnector implements OBDConnector {
 				}
 				return;
 			}
+			
+			if (!cmd.awaitsResults()) return;
 
 			if (!connectionEstablished && !cmd.isNoDataCommand()) {
 				processInitializationCommand(cmd);

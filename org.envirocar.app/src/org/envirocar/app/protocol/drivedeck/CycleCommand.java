@@ -76,35 +76,34 @@ public class CycleCommand extends CommonCommand {
 			return result;
 		}
 	}
+
+	private static final String NAME = "A17";
 	
 
-	private String commandName;
-
 	public CycleCommand(List<PID> pidList) {
-		super("");
+		super(NAME);
 		StringBuilder sb = new StringBuilder();
 		sb.append("A17");
 		for (PID pid : pidList) {
 			sb.append(pid.toString());
 		}
-		this.commandName = sb.toString(); 
+		this.command = sb.toString(); 
 	}
 
 	@Override
 	public void parseRawData() {
-		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public String getCommandName() {
-		return this.commandName;
 	}
 
 	@Override
 	public String getResult() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public String getCommandName() {
+		return NAME;
 	}
 
 }

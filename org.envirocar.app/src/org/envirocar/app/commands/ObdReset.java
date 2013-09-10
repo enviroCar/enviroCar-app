@@ -46,4 +46,8 @@ public class ObdReset extends StringResultCommand {
 		return "Reset OBD";
 	}
 
+	@Override
+	public boolean isNoDataCommand() {
+		return true;
+	}
 }
