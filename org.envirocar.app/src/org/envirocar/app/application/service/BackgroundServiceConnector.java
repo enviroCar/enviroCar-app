@@ -21,8 +21,6 @@
 
 package org.envirocar.app.application.service;
 
-import org.envirocar.app.commands.CommonCommand;
-
 import android.content.ComponentName;
 import android.content.ServiceConnection;
 import android.os.IBinder;
@@ -53,32 +51,6 @@ public class BackgroundServiceConnector implements ServiceConnection {
 
 	public void onServiceDisconnected(ComponentName name) {
 		interactor.shutdownConnection();
-	}
-
-	/**
-	 * Check whether service is running
-	 * 
-	 * @return True if running
-	 */
-	public boolean isRunning() {
-		if (interactor == null) {
-			return false;
-		}
-
-		return interactor.isRunning();
-	}
-
-	/**
-	 * Add a new CommandJob to the waiting List
-	 * 
-	 * @param newJob
-	 *            New CommandJob
-	 * @deprecated this should not be the responsibility of the service connector!
-	 */
-	@Deprecated
-	public void addJobToWaitingList(CommonCommand newJob) {
-		if (null != interactor && interactor.isRunning())
-			interactor.newJobToWaitingList(newJob);
 	}
 
 

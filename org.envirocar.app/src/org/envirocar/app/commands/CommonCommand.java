@@ -42,6 +42,7 @@ public abstract class CommonCommand {
 	protected String rawData = null;
 	private Long commandId;
 	private CommonCommandState commandState;
+	private String responseByte;
 	
 	private static final Logger logger = Logger.getLogger(CommonCommand.class);
 	private static final long SLEEP_TIME = 25;
@@ -61,15 +62,23 @@ public abstract class CommonCommand {
 	 */
 	public CommonCommand(String command) {
 		this.command = command;
+		determineResponseByte();
 		setCommandState(CommonCommandState.NEW);
 		this.buffer = new ArrayList<Integer>();
+	}
+
+	private void determineResponseByte() {
+		String[] array = this.command.split(" ");
+		if (array != null && array.length > 1) {
+			this.responseByte = array[1];
+		}
 	}
 
 	/**
 	 * The state of the command.
 	 */
 	public enum CommonCommandState {
-		NEW, RUNNING, FINISHED, EXECUTION_ERROR, QUEUE_ERROR, SEARCHING
+		NEW, RUNNING, FINISHED, EXECUTION_ERROR, QUEUE_ERROR, SEARCHING, UNMATCHED_RESULT
 	}
 
 	/**
@@ -78,8 +87,14 @@ public abstract class CommonCommand {
 	 * This method CAN be overriden in fake commands.
 	 */
 	public void run(InputStream in, OutputStream out) throws IOException {
+		logger.info("Sending command " +getCommandName()+ " / "+ getCommand());
 		sendCommand(out);
 		waitForResult(in);
+	}
+	
+
+	public String getResponseByte() {
+		return responseByte;
 	}
 
 	private void waitForResult(final InputStream in) throws IOException {
@@ -93,8 +108,14 @@ public abstract class CommonCommand {
 		try {
 			int tries = 0;
 			while (in.available() <= 0) {
-				if (tries++ * SLEEP_TIME > MAX_SLEEP_TIME)
-					throw new IOException("OBD-II Request Timeout of "+MAX_SLEEP_TIME +" ms exceeded.");
+				if (tries++ * SLEEP_TIME > MAX_SLEEP_TIME) {
+					if (responseAlwaysRequired()) {
+						throw new IOException("OBD-II Request Timeout of "+MAX_SLEEP_TIME +" ms exceeded.");
+					}
+					else {
+						return;
+					}
+				}
 				
 				Thread.sleep(SLEEP_TIME);
 			}
@@ -103,6 +124,10 @@ public abstract class CommonCommand {
 		} catch (InterruptedException e) {
 			logger.warn(e.getMessage(), e);
 		}	
+	}
+
+	protected boolean responseAlwaysRequired() {
+		return true;
 	}
 
 	/**
@@ -145,15 +170,9 @@ public abstract class CommonCommand {
 	 * Reads the OBD-II response.
 	 */
 	protected void readResult(InputStream in) throws IOException {
-		byte b = 0;
-		StringBuilder sb = new StringBuilder();
-
-		// read until '>' arrives
-		while ((char) (b = (byte) in.read()) != COMMAND_RECEIVE_END)
-			if ((char) b != COMMAND_RECEIVE_SPACE)
-				sb.append((char) b);
-
-		rawData = sb.toString().trim();
+		logger.info("Reading response...");
+		
+		rawData = readResponseLine(in);
 
 		logger.info(getCommandName() +": "+ rawData);
 
@@ -164,6 +183,18 @@ public abstract class CommonCommand {
 		
 		// read string each two chars
 		parseRawData();
+	}
+
+	public static String readResponseLine(InputStream in) throws IOException {
+		byte b = 0;
+		StringBuilder sb = new StringBuilder();
+
+		// read until '>' arrives
+		while ((char) (b = (byte) in.read()) != COMMAND_RECEIVE_END)
+			if ((char) b != COMMAND_RECEIVE_SPACE)
+				sb.append((char) b);
+
+		return sb.toString().trim();
 	}
 
 

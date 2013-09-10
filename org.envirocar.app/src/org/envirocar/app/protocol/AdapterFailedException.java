@@ -18,37 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
+package org.envirocar.app.protocol;
 
-package org.envirocar.app.application.service;
-
-import android.content.Intent;
-
-/**
- * Interface that adds jobs to the waiting list and executes it
- * 
- * @author jakob
- * 
- */
-public interface BackgroundServiceInteractor {
-	
+public class AdapterFailedException extends Exception {
 
 	/**
-	 * this method shall create all required resources (e.g. bluetooth connection)
+	 * 
 	 */
-	void initializeConnection();
+	private static final long serialVersionUID = 1L;
 
-	
-	/**
-	 * this method shall free all resources created in {@link #initializeConnection()}
-	 */
-	void shutdownConnection();
-	
-	/**
-	 * an implementation shall invoke the shutdown of the underlying service as
-	 * we could not receive any data. An {@link Intent} with action {@link #CONNECTION_PERMANENTLY_FAILED_INTENT}
-	 * shall be broadcasted.
-	 */
-	void allAdaptersFailed();
-
+	public AdapterFailedException(String name) {
+		super("Adapter failed: "+ name);
+	}
 
 }

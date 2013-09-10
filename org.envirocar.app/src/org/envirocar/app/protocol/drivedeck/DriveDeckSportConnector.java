@@ -18,42 +18,46 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol;
+package org.envirocar.app.protocol.drivedeck;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.envirocar.app.commands.CommonCommand;
-import org.envirocar.app.commands.IntakePressure;
-import org.envirocar.app.commands.IntakeTemperature;
-import org.envirocar.app.commands.MAF;
-import org.envirocar.app.commands.RPM;
-import org.envirocar.app.commands.Speed;
+import org.envirocar.app.protocol.AbstractOBDConnector;
 
-public abstract class AbstractOBDConnector {
+public class DriveDeckSportConnector extends AbstractOBDConnector {
 
-	public List<CommonCommand> getRequestCommands() {
-		List<CommonCommand> result = new ArrayList<CommonCommand>();
-		result.add(new Speed());
-		result.add(new MAF());
-		result.add(new RPM());
-		result.add(new IntakePressure());
-		result.add(new IntakeTemperature());
-		return result;
+	@Override
+	public void runCommand(CommonCommand cmd, InputStream in, OutputStream out)
+			throws IOException {
+		// TODO Auto-generated method stub
+		
 	}
-	
-	public abstract void runCommand(CommonCommand cmd, InputStream in, OutputStream out) throws IOException;
-	
-	public abstract List<CommonCommand> getInitializationCommands();
-	
-	public abstract boolean supportsDevice(String deviceName);
 
-	public abstract void processInitializationCommand(CommonCommand cmd);
+	@Override
+	public List<CommonCommand> getInitializationCommands() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-	public abstract boolean connectionVerified();
+	@Override
+	public boolean supportsDevice(String deviceName) {
+		return deviceName.contains("DRIVEDECK") && deviceName.contains("W4");
+	}
 
-	
+	@Override
+	public void processInitializationCommand(CommonCommand cmd) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public boolean connectionVerified() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }

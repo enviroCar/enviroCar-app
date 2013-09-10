@@ -31,6 +31,7 @@ import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
 import org.envirocar.app.application.service.BackgroundService;
 import org.envirocar.app.application.service.BackgroundServiceConnector;
 import org.envirocar.app.application.service.DeviceInRangeService;
@@ -207,21 +208,32 @@ public class ECApplication extends Application {
 			receiver = new BroadcastReceiver() {
 				@Override
 				public void onReceive(Context context, Intent intent) {
-					if (intent.getAction().equals(BackgroundService.CONNECTION_VERIFIED_INTENT)) {
-						onAdapterConnected();
-					}
-					else if (intent.getAction().equals(BackgroundService.DISCONNECTED_INTENT)) {
-						onAdapterDisconnected();
-					}
-					else if (intent.getAction().equals(BackgroundService.CONNECTION_PERMANENTLY_FAILED_INTENT)) {
+					if (intent.getAction().equals(BackgroundService.CONNECTION_PERMANENTLY_FAILED_INTENT)) {
 						connectionPermanentlyFailed();
 					}
 				}
 			};
 			
-			registerReceiver(receiver, new IntentFilter(BackgroundService.CONNECTION_VERIFIED_INTENT));
 			registerReceiver(receiver, new IntentFilter(BackgroundService.CONNECTION_PERMANENTLY_FAILED_INTENT));
-			registerReceiver(receiver, new IntentFilter(BackgroundService.DISCONNECTED_INTENT));
+
+			registerReceiver(new AbstractBackgroundServiceStateReceiver() {
+				@Override
+				public void onStateChanged(int state) {
+					switch (state) {
+					case AbstractBackgroundServiceStateReceiver.SERVICE_STARTING:
+						onAdapterConnecting();
+						break;
+					case AbstractBackgroundServiceStateReceiver.SERVICE_STARTED:
+						onAdapterConnected();
+						break;
+					case AbstractBackgroundServiceStateReceiver.SERVICE_STOPPED:
+						onAdapterDisconnected();
+						break;
+					default:
+						break;
+					}
+				}
+			}, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 		} else {
 			logger.warn("bluetooth not activated!");
 		}
@@ -238,27 +250,25 @@ public class ECApplication extends Application {
 
 	/**
 	 * Connects to the Bluetooth Adapter and starts the execution of the
-	 * commands. also opens the db and starts the gps.
+	 * commands. this method does not do a sanity check - callers must
+	 * verify the state of the service (e.g. through {@link AbstractBackgroundServiceStateReceiver}.)
 	 */
 	public void startConnection() {
-		logger.info("Starts the recording of a track");
-		//createNewTrackIfNecessary();
-		if (!serviceConnector.isRunning()) {
-			startService(backgroundService);
-		}
-
+		logger.info("ECApplication startConnection");
+		startService(backgroundService);
 	}
 
 	/**
 	 * Ends the connection with the Bluetooth Adapter. also stops gps and closes the db.
+	 * this method does not do a sanity check - callers must
+	 * verify the state of the service (e.g. through {@link AbstractBackgroundServiceStateReceiver}.)
 	 */
 	public void stopConnection() {
-		logger.info("Stops the recording of a track");
-		if (serviceConnector != null && serviceConnector.isRunning()) {
-			stopService(backgroundService);
+		logger.info("ECApplication stopConnection");
+		if (serviceConnector != null) {
 			serviceConnector.shutdownBackgroundService();
+			stopService(backgroundService);
 		}
-//		closeDb();
 	}
 
 
@@ -338,6 +348,10 @@ public class ECApplication extends Application {
 		//TODO somehow let the CommandListener know of the reset
 	}
 
+	private void onAdapterConnecting() {
+		displayToast("Attempting to connect to OBD-II Adapter");
+	}
+	
 	private void onAdapterConnected() {
 		displayToast("OBD-II Adapter connected");
 	}

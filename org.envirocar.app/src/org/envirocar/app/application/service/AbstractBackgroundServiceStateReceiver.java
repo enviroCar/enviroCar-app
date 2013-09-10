@@ -18,37 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-
 package org.envirocar.app.application.service;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 
-/**
- * Interface that adds jobs to the waiting list and executes it
- * 
- * @author jakob
- * 
- */
-public interface BackgroundServiceInteractor {
-	
+public abstract class AbstractBackgroundServiceStateReceiver extends BroadcastReceiver {
 
-	/**
-	 * this method shall create all required resources (e.g. bluetooth connection)
-	 */
-	void initializeConnection();
-
+	public static final String SERVICE_STATE = BackgroundService.class.getName()+".STATE";
+	public static final int SERVICE_STOPPED = 0;
+	public static final int SERVICE_STARTING = 1;
+	public static final int SERVICE_STARTED = 2;
 	
-	/**
-	 * this method shall free all resources created in {@link #initializeConnection()}
-	 */
-	void shutdownConnection();
-	
-	/**
-	 * an implementation shall invoke the shutdown of the underlying service as
-	 * we could not receive any data. An {@link Intent} with action {@link #CONNECTION_PERMANENTLY_FAILED_INTENT}
-	 * shall be broadcasted.
-	 */
-	void allAdaptersFailed();
+	@Override
+	public void onReceive(Context context, Intent intent) {
+		if (!intent.getAction().equals(SERVICE_STATE)) return;
+		
+		int state = intent.getIntExtra(SERVICE_STATE, SERVICE_STOPPED);
+		
+		onStateChanged(state);
+	}
 
+	public abstract void onStateChanged(int state);
 
 }
