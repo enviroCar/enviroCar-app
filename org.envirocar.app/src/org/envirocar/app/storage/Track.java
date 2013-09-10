@@ -30,8 +30,8 @@ import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
-import org.envirocar.app.protocol.AbstractConsumptionAlgorithm;
-import org.envirocar.app.protocol.BasicConsumptionAlgorithm;
+import org.envirocar.app.protocol.algorithm.AbstractConsumptionAlgorithm;
+import org.envirocar.app.protocol.algorithm.BasicConsumptionAlgorithm;
 import org.envirocar.app.views.Utils;
 
 /**
