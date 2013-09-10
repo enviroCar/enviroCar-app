@@ -81,8 +81,10 @@ public interface OBDConnector {
 	 * @return the parsed command responses
 	 * @throws IOException
 	 * @throws AdapterFailedException
+	 * @throws UnmatchedCommandResponseException 
+	 * @throws ConnectionLostException 
 	 */
 	public List<CommonCommand> executeRequestCommands() throws IOException,
-			AdapterFailedException;
+			AdapterFailedException, UnmatchedCommandResponseException, ConnectionLostException;
 
 }

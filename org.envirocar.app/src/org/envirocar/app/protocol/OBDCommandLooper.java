@@ -234,6 +234,14 @@ public class OBDCommandLooper extends HandlerThread {
 		List<CommonCommand> cmds;
 		try {
 			cmds = this.obdAdapter.executeRequestCommands();
+		} catch (UnmatchedCommandResponseException e) {
+			logger.warn("Unmatched Response detected! Consuming all contents and trying again.");
+			consumeAllContents();
+			return;
+		} catch (ConnectionLostException e) {
+			connectionListener.onConnectionException(new IOException(e));
+			running = false;
+			return;
 		} catch (AdapterFailedException e) {
 			logger.severe("This should never happen!", e);
 			return;
@@ -248,6 +256,21 @@ public class OBDCommandLooper extends HandlerThread {
 	}
 
 	
+	private void consumeAllContents() throws IOException {
+		synchronized (socketMutex) {
+			while (inputStream.available() > 0) {
+				inputStream.read();
+			}
+		}
+		
+		try {
+			Thread.sleep(ADAPTER_TRY_PERIOD);
+		} catch (InterruptedException e) {
+			logger.warn(e.getMessage(), e);
+		}
+	}
+
+
 	private void connectionEstablished() {
 		logger.info("OBD Adapter " + this.obdAdapter.getClass().getName() +
 				" verified the responses. Connection Established!");

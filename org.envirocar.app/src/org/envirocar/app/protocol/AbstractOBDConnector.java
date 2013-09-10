@@ -44,10 +44,13 @@ public abstract class AbstractOBDConnector implements OBDConnector {
 	private static final char COMMAND_RECEIVE_SPACE = ' ';
 	private static final CharSequence SEARCHING = "SEARCHING";
 	private static final CharSequence STOPPED = "STOPPED";
+	private static final int MAX_INVALID_RESPONSE_COUNT = 5;
 	protected InputStream inputStream;
 	protected OutputStream outputStream;
 	protected Object socketMutex;
 	private boolean connectionEstablished;
+	private boolean staleConnection;
+	private int invalidResponseCount;
 
 	@Override
 	public void provideStreamObjects(InputStream inputStream,
@@ -180,16 +183,34 @@ public abstract class AbstractOBDConnector implements OBDConnector {
 	public void executeInitializationCommands() throws IOException, AdapterFailedException {
 		List<CommonCommand> cmds = this.getInitializationCommands();
 		
-		executeCommands(cmds);		
+		try {
+			executeCommands(cmds);
+		} catch (UnmatchedCommandResponseException e) {
+			logger.warn("This should never happen!", e);
+		} catch (ConnectionLostException e) {
+			logger.warn("This should never happen!", e);
+		}		
 	}
 	
-	private void executeCommands(List<CommonCommand> cmds) throws IOException, AdapterFailedException {
+
+	@Override
+	public List<CommonCommand> executeRequestCommands() throws IOException, AdapterFailedException, UnmatchedCommandResponseException, ConnectionLostException {
+		List<CommonCommand> list = getRequestCommands();
+		
+		for (CommonCommand cmd : list) {
+			executeCommand(cmd);
+		}
+		
+		return list;
+	}
+	
+	private void executeCommands(List<CommonCommand> cmds) throws IOException, AdapterFailedException, UnmatchedCommandResponseException, ConnectionLostException {
 		for (CommonCommand c : cmds) {
 			executeCommand(c);
 		}
 	}
 
-	private void executeCommand(CommonCommand cmd) throws AdapterFailedException, IOException {
+	private void executeCommand(CommonCommand cmd) throws AdapterFailedException, IOException, UnmatchedCommandResponseException, ConnectionLostException {
 		try {
 			if (cmd.getCommandState().equals(CommonCommandState.NEW)) {
 
@@ -225,12 +246,15 @@ public abstract class AbstractOBDConnector implements OBDConnector {
 			
 			else if (cmd.getCommandState() == CommonCommandState.UNMATCHED_RESULT) {
 				logger.warn("Did not receive the expected result! Expected: "+cmd.getResponseByte());
-				try {
-					logger.info("Trying to read another command.");
-					AbstractOBDConnector.readResponseLine(inputStream);
-				} catch (IOException e) {
-					logger.warn(e.getMessage(), e);
+				
+				if (staleConnection && invalidResponseCount++ > MAX_INVALID_RESPONSE_COUNT) {
+					throw new ConnectionLostException();
 				}
+				else {
+					staleConnection = true;
+					throw new UnmatchedCommandResponseException();	
+				}
+				
 			}
 			
 			else if (cmd.getCommandState() == CommonCommandState.SEARCHING) {
@@ -253,20 +277,14 @@ public abstract class AbstractOBDConnector implements OBDConnector {
 			}
 			else {
 				cmd.setCommandState(CommonCommandState.FINISHED);
+				if (staleConnection) {
+					staleConnection = false;
+					invalidResponseCount = 0;
+				}
 			}
 		}
 		
 	}
 
-	@Override
-	public List<CommonCommand> executeRequestCommands() throws IOException, AdapterFailedException {
-		List<CommonCommand> list = getRequestCommands();
-		
-		for (CommonCommand cmd : list) {
-			executeCommand(cmd);
-		}
-		
-		return list;
-	}
 	
 }
