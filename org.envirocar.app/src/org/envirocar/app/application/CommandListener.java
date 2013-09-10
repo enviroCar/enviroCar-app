@@ -208,7 +208,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		 * therefore, we should include a minimum time between measurements (1
 		 * sec) as well.)
 		 */
-
+		logger.info("inserting measurement to Track: "+track.getName());
 		track.addMeasurement(measurement);
 		dbAdapter.insertMeasurement(measurement);
 		logger.info("Add new measurement to track: " + measurement.toString());
@@ -220,7 +220,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	 */
 	@Override
 	public void createNewTrackIfNecessary() {
-
+		logger.info("createNewTrackIfNecessary");
 		// if track is null, create a new one or take the last one from the
 		// database
 		
@@ -247,6 +247,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 						track.setName("Track " + date);
 						track.setDescription(trackDescription);
 						dbAdapter.updateTrack(track);
+						logger.info("Using Track: "+ track.getName());
 						return;
 					}
 
@@ -259,6 +260,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 						track.setName("Track " + date);
 						track.setDescription(trackDescription);
 						dbAdapter.updateTrack(track);
+						logger.info("Using Track: "+ track.getName());
 						return;
 
 					}
@@ -270,6 +272,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 					else {
 						logger.info("I will append to the last track because that still makes sense");
 						track = lastUsedTrack;
+						logger.info("Using Track: "+ track.getName());
 						return;
 					}
 
@@ -290,6 +293,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 				dbAdapter.updateTrack(track);
 			}
 
+			logger.info("Using Track: "+ track.getName());
 			return;
 
 		}
@@ -314,6 +318,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 					track.setDescription(trackDescription);
 					dbAdapter.updateTrack(track);
 					logger.info("I create a new track because the last measurement is more than 60 mins ago");
+					logger.info("Using Track: "+ track.getName());
 					return;
 				}
 				// TODO: New track if user clicks on create new track button
@@ -329,6 +334,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 					track.setDescription(trackDescription);
 					dbAdapter.updateTrack(track);
 					logger.info("The last measurement's position is more than 3 km away. I will create a new track");
+					logger.info("Using Track: "+ track.getName());
 					return;
 
 				}
@@ -337,6 +343,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 				else {
 					logger.info("I will append to the last track because that still makes sense");
+					logger.info("Using Track: "+ track.getName());
 					return;
 				}
 
@@ -347,13 +354,16 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 				track.setName("Track " + date);
 				track.setDescription(trackDescription);
 				dbAdapter.updateTrack(track);
+				logger.info("Using Track: "+ track.getName());
 			}
 		}
+		
 	}
 
 
 	@Override
 	public void resetTrack() {
+		logger.info("resetTrack");
 		this.track = null;
 	}
 

@@ -116,7 +116,6 @@ public abstract class AbstractOBDConnector implements OBDConnector {
 				
 				Thread.sleep(getSleepTime());
 			}
-			logger.debug(cmd.getCommandName().concat(Long.toString(System.currentTimeMillis())));
 			readResult(cmd);
 		} catch (InterruptedException e) {
 			logger.warn(e.getMessage(), e);
@@ -128,12 +127,11 @@ public abstract class AbstractOBDConnector implements OBDConnector {
 	 * @param cmd 
 	 */
 	protected void readResult(CommonCommand cmd) throws IOException {
-		logger.debug("Reading response...");
-		
 		String rawData = readResponseLine(inputStream);
 		cmd.setRawData(rawData);
+		cmd.setResultTime(System.currentTimeMillis());
 
-		logger.debug(cmd.getCommandName() +": "+ rawData);
+		logger.debug(cmd.toString());
 
 		if (isSearching(rawData)) {
 			cmd.setCommandState(CommonCommandState.SEARCHING);

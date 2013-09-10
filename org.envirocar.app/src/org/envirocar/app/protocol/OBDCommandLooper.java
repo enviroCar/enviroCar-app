@@ -75,7 +75,7 @@ public class OBDCommandLooper extends HandlerThread {
 				logger.info("Exiting commandHandler.");
 				throw new CommandLoopStoppedException();
 			}
-			logger.info("Executing Command Commands!");
+			logger.debug("Executing Command Commands!");
 			
 			try {
 				executeCommandRequests();
@@ -91,7 +91,7 @@ public class OBDCommandLooper extends HandlerThread {
 				throw new CommandLoopStoppedException();
 			}
 			
-			logger.info("Scheduling the Executiion of Command Commands!");
+			logger.debug("Scheduling the Executiion of Command Commands!");
 			commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
 		}
 	};

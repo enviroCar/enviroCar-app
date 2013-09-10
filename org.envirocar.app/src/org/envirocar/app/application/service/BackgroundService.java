@@ -226,6 +226,7 @@ public class BackgroundService extends Service {
 		
 		commandListener = new CommandListener(CarManager.instance().getCar());
 		commandListener.createNewTrackIfNecessary();
+		
 		sendStateBroadcast(ServiceState.SERVICE_STARTING);
 	}
 	

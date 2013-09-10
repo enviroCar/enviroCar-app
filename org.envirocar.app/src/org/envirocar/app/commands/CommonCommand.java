@@ -41,6 +41,7 @@ public abstract class CommonCommand {
 	private Long commandId;
 	private CommonCommandState commandState;
 	private String responseByte;
+	private long resultTime;
 	
 	private static final String COMMAND_SEND_END = "\r";
 	private static final String NODATA = "NODATA";
@@ -182,8 +183,8 @@ public abstract class CommonCommand {
 		sb.append(getCommand());
 		sb.append(", RawData: ");
 		sb.append(getRawData());
-		sb.append(", Result: ");
-		sb.append(getResult());
+		sb.append(", Result Time: ");
+		sb.append(getResultTime());
 		return sb.toString();
 	}
 
@@ -203,5 +204,12 @@ public abstract class CommonCommand {
 		rawData = r;
 	}
 
+	public void setResultTime(long currentTimeMillis) {
+		this.resultTime = currentTimeMillis;
+	}
+
+	public long getResultTime() {
+		return resultTime;
+	}
 
 }
