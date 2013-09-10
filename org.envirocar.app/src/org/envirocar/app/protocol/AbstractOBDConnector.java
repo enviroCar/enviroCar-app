@@ -32,8 +32,18 @@ import org.envirocar.app.commands.IntakeTemperature;
 import org.envirocar.app.commands.MAF;
 import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.Speed;
+import org.envirocar.app.commands.CommonCommand.CommonCommandState;
+import org.envirocar.app.logging.Logger;
 
 public abstract class AbstractOBDConnector {
+	
+	private static final Logger logger = Logger.getLogger(AbstractOBDConnector.class.getName());
+	private static final int SLEEP_TIME = 25;
+	private static final int MAX_SLEEP_TIME = 5000;
+	private static final char COMMAND_RECEIVE_END = '>';
+	private static final char COMMAND_RECEIVE_SPACE = ' ';
+	private static final CharSequence SEARCHING = "SEARCHING";
+	private static final CharSequence STOPPED = "STOPPED";
 
 	public List<CommonCommand> getRequestCommands() {
 		List<CommonCommand> result = new ArrayList<CommonCommand>();
@@ -45,7 +55,102 @@ public abstract class AbstractOBDConnector {
 		return result;
 	}
 	
-	public abstract void runCommand(CommonCommand cmd, InputStream in, OutputStream out) throws IOException;
+	public void runCommand(CommonCommand cmd, final InputStream in, final OutputStream out)
+			throws IOException {
+		logger.info("Sending command " +cmd.getCommandName()+ " / "+ cmd.getCommand());
+		sendCommand(cmd, out);
+		waitForResult(cmd, in);
+	}
+	
+	/**
+	 * Sends the OBD-II request.
+	 * 
+	 * This method may be overriden in subclasses, such as ObMultiCommand or
+	 * TroubleCodesObdCommand.
+	 * 
+	 * @param cmd
+	 *            The command to send.
+	 */
+	protected void sendCommand(CommonCommand cmd, final OutputStream out) throws IOException {
+		// write to OutputStream, or in this case a BluetoothSocket
+		out.write(cmd.getCommand().concat(cmd.getEndOfLineSend()).getBytes());
+		out.flush();
+	}
+	
+	protected void waitForResult(CommonCommand cmd, final InputStream in) throws IOException {
+//		try {
+//			Thread.sleep(SLEEP_TIME);
+//		} catch (InterruptedException e) {
+//			logger.warn(e.getMessage(), e);
+//		}
+		
+		if (!cmd.awaitsResults()) return; 
+		try {
+			int tries = 0;
+			while (in.available() <= 0) {
+				if (tries++ * getSleepTime() > getMaxTimeout()) {
+					if (cmd.responseAlwaysRequired()) {
+						throw new IOException("OBD-II Request Timeout of "+ getMaxTimeout() +" ms exceeded.");
+					}
+					else {
+						return;
+					}
+				}
+				
+				Thread.sleep(getSleepTime());
+			}
+			logger.info(cmd.getCommandName().concat(Long.toString(System.currentTimeMillis())));
+			readResult(cmd, in);
+		} catch (InterruptedException e) {
+			logger.warn(e.getMessage(), e);
+		}	
+	}
+	
+	/**
+	 * Reads the OBD-II response.
+	 * @param cmd 
+	 */
+	protected void readResult(CommonCommand cmd, InputStream in) throws IOException {
+		logger.info("Reading response...");
+		
+		String rawData = readResponseLine(in);
+		cmd.setRawData(rawData);
+
+		logger.info(cmd.getCommandName() +": "+ rawData);
+
+		if (isSearching(rawData)) {
+			cmd.setCommandState(CommonCommandState.SEARCHING);
+			return;
+		}
+		
+		// read string each two chars
+		cmd.parseRawData();
+	}
+
+	public static String readResponseLine(InputStream in) throws IOException {
+		byte b = 0;
+		StringBuilder sb = new StringBuilder();
+
+		// read until '>' arrives
+		while ((char) (b = (byte) in.read()) != COMMAND_RECEIVE_END)
+			if ((char) b != COMMAND_RECEIVE_SPACE)
+				sb.append((char) b);
+
+		return sb.toString().trim();
+	}
+
+
+	private boolean isSearching(String rawData2) {
+		return rawData2.contains(SEARCHING) || rawData2.contains(STOPPED);
+	}
+
+	public int getMaxTimeout() {
+		return MAX_SLEEP_TIME;
+	}
+
+	public int getSleepTime() {
+		return SLEEP_TIME;
+	}
 	
 	public abstract List<CommonCommand> getInitializationCommands();
 	

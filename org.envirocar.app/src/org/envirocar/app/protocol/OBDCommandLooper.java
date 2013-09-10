@@ -264,7 +264,7 @@ public class OBDCommandLooper extends HandlerThread {
 				logger.warn("Did not receive the expected result! Expected: "+cmd.getResponseByte());
 				try {
 					logger.info("Trying to read another command.");
-					CommonCommand.readResponseLine(inputStream);
+					AbstractOBDConnector.readResponseLine(inputStream);
 				} catch (IOException e) {
 					logger.warn(e.getMessage(), e);
 				}

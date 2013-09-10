@@ -69,7 +69,7 @@ public class AposW3Connector extends ELM327Connector {
 	private static class AposEchoOff extends EchoOff {
 		
 		@Override
-		protected boolean responseAlwaysRequired() {
+		public boolean responseAlwaysRequired() {
 			return false;
 		}
 		

@@ -20,9 +20,6 @@
  */
 package org.envirocar.app.protocol;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +31,7 @@ import org.envirocar.app.commands.SelectAutoProtocol;
 import org.envirocar.app.commands.Timeout;
 
 public class ELM327Connector extends AbstractOBDConnector {
-
+	
 	protected int succesfulCount;
 
 	/*
@@ -133,9 +130,6 @@ public class ELM327Connector extends AbstractOBDConnector {
 		return succesfulCount >= 5;
 	}
 
-	@Override
-	public void runCommand(CommonCommand cmd, InputStream in, OutputStream out) throws IOException {
-		cmd.run(in, out);
-	}
+
 
 }
