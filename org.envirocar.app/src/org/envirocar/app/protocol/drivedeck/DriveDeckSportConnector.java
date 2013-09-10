@@ -77,34 +77,32 @@ public class DriveDeckSportConnector extends AbstractOBDConnector {
 	private void waitForInitialResponses(InputStream in) throws IOException {
 		logger.info("waiting for initial responses...");
 		int i;
-		while ((i = in.read()) <= 0) {
-			try {
-				int tries = 0;
-				while (in.available() <= 0) {
-					if (tries++ * SLEEP_TIME > TIMEOUT) {
-						logger.info("could not receive anything from DriveDeck adapter.");
-						return;
-					}
-					
-					Thread.sleep(SLEEP_TIME);
+		try {
+			int tries = 0;
+			while (in.available() <= 0) {
+				if (tries++ * SLEEP_TIME > TIMEOUT) {
+					logger.info("could not receive anything from DriveDeck adapter.");
+					return;
 				}
-			} catch (InterruptedException e) {
-				logger.warn(e.getMessage(), e);
-			}	
-		}
+				
+				Thread.sleep(SLEEP_TIME);
+			}
+		} catch (InterruptedException e) {
+			logger.warn(e.getMessage(), e);
+		}	
 		
 		logger.info("Reading response...");
 		
 		byte[] buffer = new byte[1024];
 		int index = 0;
-		do {
+		while ((i = in.read()) > 0 && !hasReceivedAllMetadata()) {
 			buffer[index++] = (byte) i; 
 			if (i == END_OF_LINE_RESPONSE) {
 				String response = new String(buffer, 0, index-1);
 				if (!processResponse(response)) return;;
 				index = 0;
 			}
-		} while ((i = in.read()) > 0 && !hasReceivedAllMetadata());
+		}
 		
 		logger.info("Connecteion established!");
 	}

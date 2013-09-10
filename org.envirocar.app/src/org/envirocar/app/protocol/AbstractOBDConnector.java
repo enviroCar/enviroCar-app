@@ -35,7 +35,7 @@ import org.envirocar.app.commands.Speed;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.logging.Logger;
 
-public abstract class AbstractOBDConnector {
+public abstract class AbstractOBDConnector implements OBDConnector {
 	
 	private static final Logger logger = Logger.getLogger(AbstractOBDConnector.class.getName());
 	private static final int SLEEP_TIME = 25;
@@ -47,7 +47,9 @@ public abstract class AbstractOBDConnector {
 	protected InputStream inputStream;
 	protected OutputStream outputStream;
 	protected Object socketMutex;
+	private boolean connectionEstablished;
 
+	@Override
 	public void provideStreamObjects(InputStream inputStream,
 			OutputStream outputStream, Object socketMutex) {
 		this.inputStream = inputStream;
@@ -55,7 +57,7 @@ public abstract class AbstractOBDConnector {
 		this.socketMutex = socketMutex;
 	}
 	
-	public List<CommonCommand> getRequestCommands() {
+	protected List<CommonCommand> getRequestCommands() {
 		List<CommonCommand> result = new ArrayList<CommonCommand>();
 		result.add(new Speed());
 		result.add(new MAF());
@@ -65,7 +67,7 @@ public abstract class AbstractOBDConnector {
 		return result;
 	}
 	
-	public void runCommand(CommonCommand cmd)
+	protected void runCommand(CommonCommand cmd)
 			throws IOException {
 		synchronized (socketMutex) {
 			logger.info("Sending command " +cmd.getCommandName()+ " / "+ cmd.getCommand());
@@ -172,17 +174,110 @@ public abstract class AbstractOBDConnector {
 	 * @param out the outputStream
 	 * @throws IOException on error
 	 */
+	@Override
 	public void preInitialization(final InputStream in, final OutputStream out) throws IOException {
 		//not required by default
 	}
 	
-	public abstract List<CommonCommand> getInitializationCommands();
+	protected abstract List<CommonCommand> getInitializationCommands();
 	
+	@Override
 	public abstract boolean supportsDevice(String deviceName);
 
-	public abstract void processInitializationCommand(CommonCommand cmd);
+	protected abstract void processInitializationCommand(CommonCommand cmd);
 
+	@Override
 	public abstract boolean connectionVerified();
 
+	@Override
+	public void executeInitializationCommands() throws IOException, AdapterFailedException {
+		List<CommonCommand> cmds = this.getInitializationCommands();
+		
+		executeCommands(cmds);		
+	}
+	
+	private void executeCommands(List<CommonCommand> cmds) throws IOException, AdapterFailedException {
+		for (CommonCommand c : cmds) {
+			executeCommand(c);
+		}
+	}
+
+	private void executeCommand(CommonCommand cmd) throws AdapterFailedException, IOException {
+		try {
+			if (cmd.getCommandState().equals(CommonCommandState.NEW)) {
+
+				// Run the job
+				synchronized (socketMutex) {
+					cmd.setCommandState(CommonCommandState.RUNNING);
+					runCommand(cmd);
+				}
+			}
+		} catch (IOException e) {
+			if (!connectionEstablished) {
+				/*
+				 * lets first try a different adapter before we fail!
+				 */
+				throw new AdapterFailedException(getClass().getName());
+			} else {
+				throw e;
+			}
+			
+			
+		} catch (Exception e) {
+			logger.warn("Error while sending command '" + cmd.toString() + "'", e);
+			cmd.setCommandState(CommonCommandState.EXECUTION_ERROR);
+		}
+
+		// Finished if no more job is in the waiting-list
+
+		if (cmd != null) {
+			if (cmd.getCommandState() == CommonCommandState.EXECUTION_ERROR) {
+				logger.warn("Execution Error for" +cmd.getCommandName() +" / "+cmd.getCommand());
+				return;
+			}
+			
+			else if (cmd.getCommandState() == CommonCommandState.UNMATCHED_RESULT) {
+				logger.warn("Did not receive the expected result! Expected: "+cmd.getResponseByte());
+				try {
+					logger.info("Trying to read another command.");
+					AbstractOBDConnector.readResponseLine(inputStream);
+				} catch (IOException e) {
+					logger.warn(e.getMessage(), e);
+				}
+			}
+			
+			else if (cmd.getCommandState() == CommonCommandState.SEARCHING) {
+				logger.info("Adapter still searching. Waiting a bit.");
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					logger.warn(e.getMessage(), e);
+				}
+				return;
+			}
+
+			if (!connectionEstablished && !cmd.isNoDataCommand()) {
+				processInitializationCommand(cmd);
+				if (connectionVerified()) {
+					connectionEstablished = true;
+				}
+			}
+			else {
+				cmd.setCommandState(CommonCommandState.FINISHED);
+			}
+		}
+		
+	}
+
+	@Override
+	public List<CommonCommand> executeRequestCommands() throws IOException, AdapterFailedException {
+		List<CommonCommand> list = getRequestCommands();
+		
+		for (CommonCommand cmd : list) {
+			executeCommand(cmd);
+		}
+		
+		return list;
+	}
 	
 }
