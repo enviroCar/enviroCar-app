@@ -99,7 +99,9 @@ public class OBDCommandLooper extends HandlerThread {
 	private Runnable initializationCommandsRunnable = new Runnable() {
 		public void run() {
 			if (running && !connectionEstablished) {
-				logger.info("Using "+obdAdapter.getClass().getName() +" connector.");
+				String stmt = "Trying "+obdAdapter.getClass().getSimpleName() +".";
+				logger.info(stmt);
+				connectionListener.onStatusUpdate(stmt);
 				try {
 					executeInitializationRequests();
 				} catch (IOException e) {

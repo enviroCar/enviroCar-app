@@ -58,6 +58,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.widget.Toast;
 import static org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.*;
 
 /**
@@ -72,7 +73,6 @@ public class BackgroundService extends Service {
 
 	private static final Logger logger = Logger.getLogger(BackgroundService.class);
 	
-	public static final String CONNECTION_VERIFIED_INTENT = BackgroundService.class.getName()+".CONNECTION_VERIFIED";
 	public static final String CONNECTION_PERMANENTLY_FAILED_INTENT =
 			BackgroundServiceInteractor.class.getName()+".CONNECTION_PERMANENTLY_FAILED";
 	
@@ -134,6 +134,7 @@ public class BackgroundService extends Service {
 	 * to start sending the obd commands for initialization.
 	 */
 	private void startBackgroundService() {
+		logger.info("startBackgroundService called");
 		LocationUpdateListener.startLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
 		
 		try {
@@ -147,6 +148,7 @@ public class BackgroundService extends Service {
 	 * Method that stops the service, removes everything from the waiting list
 	 */
 	private void stopBackgroundService() {
+		logger.info("stopBackgroundService called");
 		new Thread(new Runnable() {
 			
 			@Override
@@ -155,7 +157,7 @@ public class BackgroundService extends Service {
 					BackgroundService.this.commandLooper.stopLooper();
 				}
 				
-				sendStateBroadcast(SERVICE_STOPPED);
+				sendStateBroadcast(ServiceState.SERVICE_STOPPED);
 				
 				if (bluetoothSocket != null) {
 					try {
@@ -170,7 +172,7 @@ public class BackgroundService extends Service {
 		}).start();
 	}
 	
-	private void sendStateBroadcast(int state) {
+	private void sendStateBroadcast(ServiceState state) {
 		Intent intent = new Intent(SERVICE_STATE);
 		intent.putExtra(SERVICE_STATE, state);
 		sendBroadcast(intent);
@@ -205,7 +207,7 @@ public class BackgroundService extends Service {
 	 * @throws IOException
 	 */
 	private void startConnection() throws IOException {
-
+		logger.info("startConnection called");
 		// Connect to bluetooth device
 		// Init bluetooth
 		SharedPreferences preferences = PreferenceManager
@@ -224,7 +226,7 @@ public class BackgroundService extends Service {
 		
 		commandListener = new CommandListener(CarManager.instance().getCar());
 		commandListener.createNewTrackIfNecessary();
-		sendStateBroadcast(SERVICE_STARTING);
+		sendStateBroadcast(ServiceState.SERVICE_STARTING);
 	}
 	
 	
@@ -239,8 +241,6 @@ public class BackgroundService extends Service {
 	 */
 	private void deviceConnected() {
 		logger.info("Bluetooth device connected.");
-        // Service is running..
-		sendStateBroadcast(SERVICE_STARTED);
 		
 		InputStream in;
 		OutputStream out;
@@ -262,12 +262,12 @@ public class BackgroundService extends Service {
 				this.commandListener, new ConnectionListener() {
 					@Override
 					public void onConnectionVerified() {
-						BackgroundService.this.sendBroadcast(new Intent(CONNECTION_VERIFIED_INTENT));
+						BackgroundService.this.sendStateBroadcast(ServiceState.SERVICE_STARTED);
 					}
 					
 					@Override
 					public void onConnectionException(IOException e) {
-						logger.warn(e.getMessage(), e);
+						logger.warn("onConnectionException", e);
 						BackgroundService.this.deviceDisconnected();
 					}
 
@@ -275,11 +275,17 @@ public class BackgroundService extends Service {
 					public void onAllAdaptersFailed() {
 						BackgroundService.this.onAllAdaptersFailed();
 					}
+
+					@Override
+					public void onStatusUpdate(String message) {
+						Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+					}
 				});
 		this.commandLooper.start();
 	}
 
 	public void onAllAdaptersFailed() {
+		logger.info("all adapters failed!");
 		stopBackgroundService();
 		sendBroadcast(new Intent(CONNECTION_PERMANENTLY_FAILED_INTENT));		
 	}

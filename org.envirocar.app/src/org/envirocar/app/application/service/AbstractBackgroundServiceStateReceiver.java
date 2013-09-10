@@ -31,15 +31,18 @@ public abstract class AbstractBackgroundServiceStateReceiver extends BroadcastRe
 	public static final int SERVICE_STARTING = 1;
 	public static final int SERVICE_STARTED = 2;
 	
+	public static enum ServiceState {
+		SERVICE_STOPPED, SERVICE_STARTING, SERVICE_STARTED, SERVICE_STOPPING;
+	}
+	
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		if (!intent.getAction().equals(SERVICE_STATE)) return;
-		
-		int state = intent.getIntExtra(SERVICE_STATE, SERVICE_STOPPED);
+		ServiceState state = (ServiceState) intent.getSerializableExtra(SERVICE_STATE);
 		
 		onStateChanged(state);
 	}
 
-	public abstract void onStateChanged(int state);
+	public abstract void onStateChanged(ServiceState state);
 
 }

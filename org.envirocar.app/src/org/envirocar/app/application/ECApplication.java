@@ -218,15 +218,15 @@ public class ECApplication extends Application {
 
 			registerReceiver(new AbstractBackgroundServiceStateReceiver() {
 				@Override
-				public void onStateChanged(int state) {
+				public void onStateChanged(ServiceState state) {
 					switch (state) {
-					case AbstractBackgroundServiceStateReceiver.SERVICE_STARTING:
+					case SERVICE_STARTING:
 						onAdapterConnecting();
 						break;
-					case AbstractBackgroundServiceStateReceiver.SERVICE_STARTED:
+					case SERVICE_STARTED:
 						onAdapterConnected();
 						break;
-					case AbstractBackgroundServiceStateReceiver.SERVICE_STOPPED:
+					case SERVICE_STOPPED:
 						onAdapterDisconnected();
 						break;
 					default:

@@ -23,6 +23,7 @@ package org.envirocar.app.application.service;
 import java.util.ArrayList;
 
 import org.envirocar.app.activity.SettingsActivity;
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 import org.envirocar.app.logging.Logger;
 
 import android.app.Service;
@@ -55,7 +56,7 @@ public class DeviceInRangeService extends Service {
 	
 	private static final long DISCOVERY_PERIOD = 1000 * 60 * 2;
 	public static final int DEFAULT_DELAY_AFTER_STOP = 1000 * 60 * 5;
-	protected int backgroundServiceState;
+	protected ServiceState backgroundServiceState = ServiceState.SERVICE_STOPPED;
 	
 	private final BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
@@ -67,12 +68,13 @@ public class DeviceInRangeService extends Service {
 				verifyRemoteDevice(intent);
 			}
 			else if (action.equals(AbstractBackgroundServiceStateReceiver.SERVICE_STATE)) {
-				backgroundServiceState = intent.getIntExtra(AbstractBackgroundServiceStateReceiver.SERVICE_STATE, 0);
+				backgroundServiceState = (ServiceState) intent.getSerializableExtra(
+						AbstractBackgroundServiceStateReceiver.SERVICE_STATE);
 				
 				SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 				boolean autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
 
-				if (backgroundServiceState == AbstractBackgroundServiceStateReceiver.SERVICE_STOPPED && autoConnect) {
+				if (backgroundServiceState == ServiceState.SERVICE_STOPPED && autoConnect) {
 					startWithDelay(DEFAULT_DELAY_AFTER_STOP);
 				}
 			}
@@ -165,7 +167,7 @@ public class DeviceInRangeService extends Service {
 	}
 
 	protected void startWithDelay(int d) {
-		if (backgroundServiceState == AbstractBackgroundServiceStateReceiver.SERVICE_STARTED) return;
+		if (backgroundServiceState == ServiceState.SERVICE_STARTED) return;
 		
 		discoveryEnabled = true;
 		

@@ -26,6 +26,7 @@ import java.text.DecimalFormat;
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 import org.envirocar.app.event.CO2Event;
 import org.envirocar.app.event.CO2EventListener;
 import org.envirocar.app.event.EventBus;
@@ -84,7 +85,7 @@ public class DashboardFragment extends SherlockFragment {
 	private double co2;
 
 	private BroadcastReceiver receiver;
-	protected int serviceState;
+	protected ServiceState serviceState = ServiceState.SERVICE_STOPPED;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -152,7 +153,7 @@ public class DashboardFragment extends SherlockFragment {
 		receiver = new AbstractBackgroundServiceStateReceiver() {
 
 			@Override
-			public void onStateChanged(int state) {
+			public void onStateChanged(ServiceState state) {
 				serviceState = state;
 				updateStatusElements();
 			}
@@ -204,10 +205,10 @@ public class DashboardFragment extends SherlockFragment {
 	
 	protected void updateStatusElements() {
 		ImageView connectionStateImage = (ImageView) getActivity().findViewById(R.id.connectionStateImage);
-		if (serviceState == AbstractBackgroundServiceStateReceiver.SERVICE_STARTED) {
+		if (serviceState == ServiceState.SERVICE_STARTED) {
 			connectionStateImage.setImageResource(R.drawable.connection_state_true);
 		}
-		else if (serviceState == AbstractBackgroundServiceStateReceiver.SERVICE_STARTING) {
+		else if (serviceState == ServiceState.SERVICE_STARTING) {
 			connectionStateImage.setImageResource(R.drawable.connection_state_stale);
 		}
 		else {
@@ -220,7 +221,7 @@ public class DashboardFragment extends SherlockFragment {
 	}
 	
 	private synchronized void checkUIUpdate() {
-		if (serviceState == AbstractBackgroundServiceStateReceiver.SERVICE_STOPPED) return;
+		if (serviceState == ServiceState.SERVICE_STOPPED) return;
 		
 		if (getActivity() == null || System.currentTimeMillis() - lastUIUpdate < 250) return;
 		
