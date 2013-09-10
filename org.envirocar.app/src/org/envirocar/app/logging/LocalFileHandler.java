@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.SimpleFormatter;
 
 import org.envirocar.app.util.Util;
@@ -48,6 +49,13 @@ public class LocalFileHandler implements Handler {
 		} catch (IOException e) {
 			LOG.warn(e.getMessage(), e);
 		}
+		java.util.logging.Logger rootLogger = LogManager.getLogManager().getLogger("");
+		java.util.logging.Handler[] handlers = rootLogger.getHandlers();
+		for (java.util.logging.Handler handler : handlers) {
+			rootLogger.removeHandler(handler);
+		}
+		LogManager.getLogManager().getLogger("").addHandler(new AndroidJULHandler());
+		
 	}
 
 	
@@ -56,8 +64,8 @@ public class LocalFileHandler implements Handler {
 	public LocalFileHandler() throws Exception {
 		this.logger = java.util.logging.Logger.getLogger("org.envirocar.app");
 		String finalPath = ensureFileIsAvailable();
-		this.logger.addHandler(createHandler(finalPath));
 		this.logger.setLevel(Level.ALL);
+		this.logger.addHandler(createHandler(finalPath));
 	}
 	
 	@Override
@@ -68,6 +76,7 @@ public class LocalFileHandler implements Handler {
 	protected FileHandler createHandler(String finalPath) throws IOException {
 		FileHandler h = new FileHandler(finalPath, MAX_SIZE, 3, true);
 		h.setFormatter(new SimpleFormatter());
+		h.setLevel(Level.ALL);
 		return h;
 	}
 
