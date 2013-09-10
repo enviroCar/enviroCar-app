@@ -59,6 +59,8 @@ public abstract class CommonCommand {
 	}
 
 	private void determineResponseByte() {
+		if (this.command == null || this.command.isEmpty()) return;
+		
 		String[] array = this.command.split(" ");
 		if (array != null && array.length > 1) {
 			this.responseByte = array[1];

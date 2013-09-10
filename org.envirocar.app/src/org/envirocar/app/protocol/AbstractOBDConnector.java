@@ -44,7 +44,17 @@ public abstract class AbstractOBDConnector {
 	private static final char COMMAND_RECEIVE_SPACE = ' ';
 	private static final CharSequence SEARCHING = "SEARCHING";
 	private static final CharSequence STOPPED = "STOPPED";
+	protected InputStream inputStream;
+	protected OutputStream outputStream;
+	protected Object socketMutex;
 
+	public void provideStreamObjects(InputStream inputStream,
+			OutputStream outputStream, Object socketMutex) {
+		this.inputStream = inputStream;
+		this.outputStream = outputStream;
+		this.socketMutex = socketMutex;
+	}
+	
 	public List<CommonCommand> getRequestCommands() {
 		List<CommonCommand> result = new ArrayList<CommonCommand>();
 		result.add(new Speed());
@@ -55,11 +65,13 @@ public abstract class AbstractOBDConnector {
 		return result;
 	}
 	
-	public void runCommand(CommonCommand cmd, final InputStream in, final OutputStream out)
+	public void runCommand(CommonCommand cmd)
 			throws IOException {
-		logger.info("Sending command " +cmd.getCommandName()+ " / "+ cmd.getCommand());
-		sendCommand(cmd, out);
-		waitForResult(cmd, in);
+		synchronized (socketMutex) {
+			logger.info("Sending command " +cmd.getCommandName()+ " / "+ cmd.getCommand());
+			sendCommand(cmd);
+			waitForResult(cmd);	
+		}
 	}
 	
 	/**
@@ -71,13 +83,13 @@ public abstract class AbstractOBDConnector {
 	 * @param cmd
 	 *            The command to send.
 	 */
-	protected void sendCommand(CommonCommand cmd, final OutputStream out) throws IOException {
+	protected void sendCommand(CommonCommand cmd) throws IOException {
 		// write to OutputStream, or in this case a BluetoothSocket
-		out.write(cmd.getCommand().concat(cmd.getEndOfLineSend()).getBytes());
-		out.flush();
+		outputStream.write(cmd.getCommand().concat(cmd.getEndOfLineSend()).getBytes());
+		outputStream.flush();
 	}
 	
-	protected void waitForResult(CommonCommand cmd, final InputStream in) throws IOException {
+	protected void waitForResult(CommonCommand cmd) throws IOException {
 //		try {
 //			Thread.sleep(SLEEP_TIME);
 //		} catch (InterruptedException e) {
@@ -87,7 +99,7 @@ public abstract class AbstractOBDConnector {
 		if (!cmd.awaitsResults()) return; 
 		try {
 			int tries = 0;
-			while (in.available() <= 0) {
+			while (inputStream.available() <= 0) {
 				if (tries++ * getSleepTime() > getMaxTimeout()) {
 					if (cmd.responseAlwaysRequired()) {
 						throw new IOException("OBD-II Request Timeout of "+ getMaxTimeout() +" ms exceeded.");
@@ -100,7 +112,7 @@ public abstract class AbstractOBDConnector {
 				Thread.sleep(getSleepTime());
 			}
 			logger.info(cmd.getCommandName().concat(Long.toString(System.currentTimeMillis())));
-			readResult(cmd, in);
+			readResult(cmd);
 		} catch (InterruptedException e) {
 			logger.warn(e.getMessage(), e);
 		}	
@@ -110,10 +122,10 @@ public abstract class AbstractOBDConnector {
 	 * Reads the OBD-II response.
 	 * @param cmd 
 	 */
-	protected void readResult(CommonCommand cmd, InputStream in) throws IOException {
+	protected void readResult(CommonCommand cmd) throws IOException {
 		logger.info("Reading response...");
 		
-		String rawData = readResponseLine(in);
+		String rawData = readResponseLine(inputStream);
 		cmd.setRawData(rawData);
 
 		logger.info(cmd.getCommandName() +": "+ rawData);

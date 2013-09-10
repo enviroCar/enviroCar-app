@@ -30,6 +30,7 @@ import org.envirocar.app.application.Listener;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.protocol.drivedeck.DriveDeckSportConnector;
 
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -106,6 +107,10 @@ public class OBDCommandLooper extends HandlerThread {
 					obdAdapter.preInitialization(inputStream, outputStream);
 					
 					executeInitializationRequests();
+					
+					if (obdAdapter.connectionVerified()) {
+						connectionEstablished();
+					}
 				} catch (IOException e) {
 					running = false;
 					connectionListener.onConnectionException(e);
@@ -176,6 +181,7 @@ public class OBDCommandLooper extends HandlerThread {
 		this.commandListener = l;
 		this.connectionListener = cl;
 		
+		adapterCandidates.add(new DriveDeckSportConnector());
 		adapterCandidates.add(new ELM327Connector());
 		adapterCandidates.add(new AposW3Connector());
 		adapterCandidates.add(new OBDLinkMXConnector());
@@ -187,6 +193,7 @@ public class OBDCommandLooper extends HandlerThread {
 		for (AbstractOBDConnector ac : adapterCandidates) {
 			if (ac.supportsDevice(deviceName)) {
 				this.obdAdapter = ac;
+				this.obdAdapter.provideStreamObjects(inputStream, outputStream, socketMutex);
 				logger.info("Using "+this.obdAdapter.getClass().getName() +" connector.");
 				return;
 			}
@@ -237,7 +244,7 @@ public class OBDCommandLooper extends HandlerThread {
 				// Run the job
 				cmd.setCommandState(CommonCommandState.RUNNING);
 				synchronized (socketMutex) {
-					this.obdAdapter.runCommand(cmd, inputStream, outputStream);
+					this.obdAdapter.runCommand(cmd);
 				}
 			}
 		} catch (IOException e) {
@@ -266,7 +273,7 @@ public class OBDCommandLooper extends HandlerThread {
 				return;
 			}
 			
-			if (cmd.getCommandState() == CommonCommandState.UNMATCHED_RESULT) {
+			else if (cmd.getCommandState() == CommonCommandState.UNMATCHED_RESULT) {
 				logger.warn("Did not receive the expected result! Expected: "+cmd.getResponseByte());
 				try {
 					logger.info("Trying to read another command.");
@@ -276,7 +283,7 @@ public class OBDCommandLooper extends HandlerThread {
 				}
 			}
 			
-			if (cmd.getCommandState() == CommonCommandState.SEARCHING) {
+			else if (cmd.getCommandState() == CommonCommandState.SEARCHING) {
 				logger.info("Adapter still searching. Waiting a bit.");
 				try {
 					Thread.sleep(1000);
@@ -285,7 +292,6 @@ public class OBDCommandLooper extends HandlerThread {
 				}
 				return;
 			}
-			cmd.setCommandState(CommonCommandState.FINISHED);
 
 			if (!connectionEstablished && !cmd.isNoDataCommand()) {
 				this.obdAdapter.processInitializationCommand(cmd);
