@@ -21,7 +21,10 @@
 
 package org.envirocar.app.activity;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -44,6 +47,7 @@ import org.envirocar.app.event.UploadTrackEvent;
 import org.envirocar.app.event.UploadTrackListener;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
+import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.network.RestClient;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
@@ -59,6 +63,7 @@ import org.json.JSONObject;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -166,6 +171,78 @@ public class ListTracksFragment extends SherlockFragment {
 			downloadTracks();
 		}
 		
+	}
+
+	/**
+	 * This method requests the current fuel price of a given fuel type from a
+	 * WPS that caches prices from export.benzinpreis-aktuell.de, calculates the
+	 * total fuel price using the fuel consumption and length of track and sets
+	 * the text of the respective <code>Textview</code>.
+	 * 
+	 * @param fuelCostView
+	 *            The <code>Textview</code> the fuel price will be written to.
+	 * @param twoDForm
+	 *            Used for rounding the fuel price.
+	 * @param litersPerHundredKm
+	 *            Used to calculate the total fuel costs.
+	 * @param lengthOfTrack
+	 *            Used to calculate the total fuel costs.
+	 * @param fuelType
+	 *            The price depends on the type of fuel (e.g. diesel or
+	 *            gasoline).
+	 */
+	private void getEstimatedFuelCost(final TextView fuelCostView,
+			final DecimalFormat twoDForm, final double litersPerHundredKm,
+			final double lengthOfTrack, final FuelType fuelType) {
+
+		new AsyncTask<Void, Void, Double>() {
+
+			@Override
+			protected Double doInBackground(Void... params) {
+
+				try {
+
+					URL url = new URL(
+							"http://geoprocessing.demo.52north.org:8080/wps/WebProcessingService?Service=WPS&Request=Execute&Version=1.0.0&Identifier=org.n52.wps.extension.GetFuelPriceProcess&DataInputs=fuelType="
+									+ fuelType + "&RawDataOutput=fuelPrice");
+
+					BufferedReader reader = new BufferedReader(
+							new InputStreamReader(url.openStream()));
+
+					String content = "";
+					String line = "";
+
+					while ((line = reader.readLine()) != null) {
+						content = content.concat(line);
+					}
+					return Double.parseDouble(content);
+				} catch (Exception e) {
+					logger.warn(e.getMessage(), e);
+					return Double.NaN;
+				}
+
+			}
+
+			@Override
+			protected void onPostExecute(Double result) {
+
+				double estimatedFuelCosts = result * (litersPerHundredKm / 100)
+						* lengthOfTrack;
+
+				if (result.equals(Double.NaN)) {
+					fuelCostView.setText(R.string.error_calculating_fuel_costs);
+
+					fuelCostView.setTextColor(Color.RED);
+
+				} else {
+
+					fuelCostView.setText(twoDForm.format(estimatedFuelCosts)
+							+ " €");
+				}
+			}
+
+		}.execute();
+
 	}
 
 	private void initializeEventListener() {
@@ -769,6 +846,8 @@ public class ListTracksFragment extends SherlockFragment {
 						.findViewById(R.id.track_details_co2_textview);
 				TextView consumptionView = (TextView) row
 						.findViewById(R.id.track_details_consumption_textview);
+				TextView fuelCostView = (TextView) row
+						.findViewById(R.id.track_details_fuel_cost_textview);
 				TextView descriptionView = (TextView) row.findViewById(R.id.track_details_description_textview);
 
 				try {
@@ -792,6 +871,10 @@ public class ListTracksFragment extends SherlockFragment {
 					double literOn100km = currTrack.getLiterPerHundredKm();
 					co2View.setText(twoDForm.format(currTrack.getGramsPerKm()) + "g/km");
 					consumptionView.setText(twoDForm.format(consumption) + " l/h (" + twoDForm.format(literOn100km) + " l/100 km)");
+					if(fuelCostView.getText() == null || fuelCostView.getText().equals("")){
+						fuelCostView.setText(R.string.calculating);
+						getEstimatedFuelCost(fuelCostView, twoDForm, literOn100km, currTrack.getLengthOfTrack(), currTrack.getCar().getFuelType());
+					}
 				} catch (Exception e) {
 					logger.warn(e.getMessage(), e);
 				}

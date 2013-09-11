@@ -57,7 +57,10 @@
     <string name="length">"Length: "</string>
     <string name="Co2emission">"CO\u2082 emission: "</string>
     <string name="consumption">"Consumption: "</string>
-    <string name="title_activity_settings">Einstellungen</string>
+    <string name="fuel_cost">"Estimated fuel cost: "</string>
+    <string name="calculating">"Calculating&#8230;"</string>
+    <string name="error_calculating_fuel_costs">"Error during calculation."</string>
+    <string name="title_activity_settings">Settings</string>
     <string name="currentSpeed">Current Speed</string>
     <string name="currentPosition">Current Position</string>
     <string name="positioning_Info">The positioning is based on GPS, to have a precised positions for the measurement. Please wait until you get GPS coordinates.</string>
