@@ -323,11 +323,25 @@ public class Track implements Comparable<Track> {
 	@Override
 	public int compareTo(Track t) {
 		
-		if (this.getFirstMeasurement() == null || t.getFirstMeasurement() == null) {
+		if (t.getFirstMeasurement() == null && this.getFirstMeasurement() == null) {
 			/*
 			 * we cannot assume any ordering
 			 */
 			return 0;
+		}
+		
+		if (this.getFirstMeasurement() == null) {
+			/*
+			 * no measurements, this is probably a relatively new track
+			 */
+			return -1;
+		}
+		
+		if (t.getFirstMeasurement() == null) {
+			/*
+			 * no measurements, this is probably a relatively new track
+			 */
+			return -1;
 		}
 
 		return (this.getFirstMeasurement().getTime() < t.getFirstMeasurement().getTime() ? 1 : -1);
