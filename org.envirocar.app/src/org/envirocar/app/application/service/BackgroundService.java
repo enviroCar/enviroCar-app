@@ -90,7 +90,8 @@ public class BackgroundService extends Service {
 
 	private OBDCommandLooper commandLooper;
 
-	private Object socketMutex = new Object();
+	private Object inputMutex = new Object();
+	private Object outputMutex = new Object();
 
 
 	@Override
@@ -179,26 +180,28 @@ public class BackgroundService extends Service {
 	}
 
 	private void shutdownSocket() throws IOException {
-		synchronized (socketMutex) {
+		synchronized (inputMutex) {
 			logger.info("Shutting down bluetooth socket.");
 			if (bluetoothSocket.getInputStream() != null) {
 				try {
 					bluetoothSocket.getInputStream().close();
 				} catch (Exception e) {}
 			}
-			
+		}
+		
+		synchronized (outputMutex) {
 			if (bluetoothSocket.getOutputStream() != null) {
 				try {
 					bluetoothSocket.getOutputStream().close();
 				} catch (Exception e) {}
 			}
-			
-			try {
-				bluetoothSocket.close();
-			} catch (Exception e) {}
-			
-			bluetoothSocket = null;	
 		}
+		
+		try {
+			bluetoothSocket.close();
+		} catch (Exception e) {}
+		
+		bluetoothSocket = null;	
 	}
 
 	/**
@@ -258,7 +261,7 @@ public class BackgroundService extends Service {
 
 	protected void initializeCommandLooper(InputStream in, OutputStream out, String deviceName) {
 		this.commandLooper = new OBDCommandLooper(
-				in, out, socketMutex, deviceName,
+				in, out, inputMutex, outputMutex,  deviceName,
 				this.commandListener, new ConnectionListener() {
 					@Override
 					public void onConnectionVerified() {

@@ -33,7 +33,7 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.drivedeck.DriveDeckSportConnector;
 import org.envirocar.app.protocol.exception.AdapterFailedException;
 import org.envirocar.app.protocol.exception.AllAdaptersFailedException;
-import org.envirocar.app.protocol.exception.CommandLoopStoppedException;
+import org.envirocar.app.protocol.exception.LooperStoppedException;
 import org.envirocar.app.protocol.exception.ConnectionLostException;
 import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
 import org.envirocar.app.protocol.sequential.AposW3Connector;
@@ -75,13 +75,13 @@ public class OBDCommandLooper extends HandlerThread {
 	private int tries;
 	private int adapterIndex;
 	private ConnectionListener connectionListener;
-	private Object socketMutex;
+	private Object inputMutex;
 	
 	private Runnable commonCommandsRunnable = new Runnable() {
 		public void run() {
 			if (!running) {
 				logger.info("Exiting commandHandler.");
-				throw new CommandLoopStoppedException();
+				throw new LooperStoppedException();
 			}
 			logger.debug("Executing Command Commands!");
 			
@@ -91,12 +91,12 @@ public class OBDCommandLooper extends HandlerThread {
 				running = false;
 				connectionListener.onConnectionException(e);
 				logger.info("Exiting commandHandler.");
-				throw new CommandLoopStoppedException();
+				throw new LooperStoppedException();
 			}
 			
 			if (!running) {
 				logger.info("Exiting commandHandler.");
-				throw new CommandLoopStoppedException();
+				throw new LooperStoppedException();
 			}
 			
 			logger.debug("Scheduling the Executiion of Command Commands!");
@@ -122,14 +122,14 @@ public class OBDCommandLooper extends HandlerThread {
 					running = false;
 					connectionListener.onConnectionException(e);
 					logger.info("Exiting commandHandler.");
-					throw new CommandLoopStoppedException();
+					throw new LooperStoppedException();
 				} catch (AdapterFailedException e) {
 					logger.warn(e.getMessage());
 				}
 				
 				if (!running) {
 					logger.info("Exiting commandHandler.");
-					throw new CommandLoopStoppedException();
+					throw new LooperStoppedException();
 				}
 				
 				try {
@@ -142,48 +142,54 @@ public class OBDCommandLooper extends HandlerThread {
 			}
 			
 			if (!running) {
-				throw new CommandLoopStoppedException();
+				throw new LooperStoppedException();
 			}
 		}
 
 	};
+	private Object outputMutex;
 
 
 	/**
 	 * same as OBDCommandLooper#OBDCommandLooper(InputStream, OutputStream, Object, Listener, ConnectionListener, int) with NORM_PRIORITY
+	 * @param outputMutex 
 	 */
-	public OBDCommandLooper(InputStream in, OutputStream out, Object socketMutex, String deviceName,
+	public OBDCommandLooper(InputStream in, OutputStream out,
+			Object inputMutex, Object outputMutex, String deviceName,
 			Listener l, ConnectionListener cl) {
-		this(in, out, socketMutex, deviceName, l, cl, NORM_PRIORITY);
+		this(in, out, inputMutex, outputMutex, deviceName, l, cl, NORM_PRIORITY);
 	}
 	
 
 	/**
 	 * An application shutting down the streams ({@link InputStream#close()} and
-	 * the like) SHALL synchronize on the socketMutex object when doing so.
+	 * the like) SHALL synchronize on the inputMutex object when doing so.
 	 * Otherwise, the app might crash.
 	 * 
 	 * @param in the inputStream of the connection
 	 * @param out the outputStream of the connection
-	 * @param socketMutex the mutex object to use when shutting down the streams
+	 * @param inputMutex the mutex object to use when shutting down the streams
+	 * @param outputMutex 
 	 * @param l the listener which receives command responses
 	 * @param cl the connection listener which receives connection state changes
 	 * @param priority thread priority
 	 * @throws IllegalArgumentException if one of the inputs equals null
 	 */
-	public OBDCommandLooper(InputStream in, OutputStream out, Object socketMutex,
-			String deviceName, Listener l, ConnectionListener cl, int priority) {
+	public OBDCommandLooper(InputStream in, OutputStream out, Object inputMutex,
+			Object outputMutex, String deviceName, Listener l, ConnectionListener cl, int priority) {
 		super("OBD-CommandLooper-Handler", priority);
 		
 		if (in == null) throw new IllegalArgumentException("in must not be null!");
 		if (out == null) throw new IllegalArgumentException("out must not be null!");
-		if (socketMutex == null) throw new IllegalArgumentException("socketMutex must not be null!");
+		if (inputMutex == null) throw new IllegalArgumentException("inputMutex must not be null!");
+		if (outputMutex == null) throw new IllegalArgumentException("outputMutex must not be null!");
 		if (l == null) throw new IllegalArgumentException("l must not be null!");
 		if (cl == null) throw new IllegalArgumentException("cl must not be null!");
 		
 		this.inputStream = in;
 		this.outputStream = out;
-		this.socketMutex = socketMutex;
+		this.inputMutex = inputMutex;
+		this.outputMutex = outputMutex;
 		
 		this.commandListener = l;
 		this.connectionListener = cl;
@@ -208,7 +214,7 @@ public class OBDCommandLooper extends HandlerThread {
 			this.obdAdapter = adapterCandidates.get(0);
 		}
 		
-		this.obdAdapter.provideStreamObjects(inputStream, outputStream, socketMutex);
+		this.obdAdapter.provideStreamObjects(inputStream, outputStream, inputMutex, outputMutex);
 		logger.info("Using "+this.obdAdapter.getClass().getName() +" connector as the preferred adapter.");
 	}
 
@@ -268,7 +274,7 @@ public class OBDCommandLooper extends HandlerThread {
 			logger.warn(e.getMessage(), e);
 		}
 		
-		synchronized (socketMutex) {
+		synchronized (inputMutex) {
 			while (inputStream.available() > 0) {
 				inputStream.read();
 			}
@@ -295,7 +301,7 @@ public class OBDCommandLooper extends HandlerThread {
 				throw new AllAdaptersFailedException(adapterCandidates.toString());
 			}
 			this.obdAdapter = adapterCandidates.get(adapterIndex++ % adapterCandidates.size());
-			this.obdAdapter.provideStreamObjects(inputStream, outputStream, socketMutex);
+			this.obdAdapter.provideStreamObjects(inputStream, outputStream, inputMutex, outputMutex);
 			tries = 0;
 		}
 	}
@@ -307,8 +313,12 @@ public class OBDCommandLooper extends HandlerThread {
 		commandExecutionHandler.post(initializationCommandsRunnable);
 		try {
 			Looper.loop();
-		} catch (CommandLoopStoppedException e) {
+		} catch (LooperStoppedException e) {
 			logger.info("Command loop stopped.");
+		}
+		
+		if (this.obdAdapter != null) {
+			this.obdAdapter.shutdown();
 		}
 	}
 

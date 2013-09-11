@@ -130,6 +130,12 @@ public class ELM327Connector extends AbstractSequentialConnector {
 		return succesfulCount >= 5;
 	}
 
+	@Override
+	public void shutdown() {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 
 }

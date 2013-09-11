@@ -59,7 +59,7 @@ public class CycleCommand extends CommonCommand {
 		};
 		
 		protected String convert(String string) {
-			return intToHex(incrementBy13(hexToInt(string)));
+			return "0x".concat(intToHex(incrementBy13(hexToInt(string))));
 		}
 
 		protected int hexToInt(String string) {

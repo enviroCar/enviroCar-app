@@ -27,12 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.envirocar.app.commands.CommonCommand;
-import org.envirocar.app.commands.IntakePressure;
-import org.envirocar.app.commands.IntakeTemperature;
-import org.envirocar.app.commands.MAF;
-import org.envirocar.app.commands.RPM;
-import org.envirocar.app.commands.Speed;
-import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.OBDConnector;
 import org.envirocar.app.protocol.drivedeck.CycleCommand.PID;
@@ -42,11 +36,11 @@ public class DriveDeckSportConnector implements OBDConnector {
 
 	private static final Logger logger = Logger.getLogger(DriveDeckSportConnector.class);
 	private static final char CARRIAGE_RETURN = '\r';
-	private static final char END_OF_LINE_RESPONSE = '>';
-	private static final String TOKEN_DELIMITER_RESPONSE = "<";
-	private static final int SLEEP_TIME = 25;
-	private static final int TIMEOUT = 1000 * 5;
-	private static final long MAX_WAITING_TIME = 1000 * 10;
+	static final char END_OF_LINE_RESPONSE = '>';
+	static final String TOKEN_DELIMITER_RESPONSE = "<";
+	static final int SLEEP_TIME = 25;
+	static final int TIMEOUT = 1000 * 5;
+	private static final long MAX_WAITING_TIME = 1000 * 30;
 	private Mode mode = Mode.OFFLINE;
 	private Protocol protocol;
 	private String vin;
@@ -54,7 +48,10 @@ public class DriveDeckSportConnector implements OBDConnector {
 	private CommonCommand cycleCommand;
 	private InputStream inputStream;
 	private OutputStream outputStream;
-	private Object socketMutex;
+	private Object inputMutex;
+	private AsynchronousResponseThread responseThread;
+	private Object outputMutex;
+	private int next = 14;
 	
 	private static enum Mode {
 		OFFLINE, CONNECTING, CONNECTED
@@ -210,15 +207,28 @@ public class DriveDeckSportConnector implements OBDConnector {
 
 	@Override
 	public boolean connectionVerified() {
-		return hasReceivedAllMetadata();
+		if (hasReceivedAllMetadata()) {
+			startResponseThread();
+			return true;
+		}
+		return false;
 	}
+
+	private void startResponseThread() {
+		if (responseThread == null) {
+			responseThread = new AsynchronousResponseThread(inputStream, inputMutex);
+			responseThread.start();
+		}
+	}
+
 
 	@Override
 	public void provideStreamObjects(InputStream inputStream,
-			OutputStream outputStream, Object socketMutex) {
+			OutputStream outputStream, Object inputMutex, Object outputMutex) {
 		this.inputStream = inputStream;
 		this.outputStream = outputStream;
-		this.socketMutex = socketMutex;
+		this.inputMutex = inputMutex;
+		this.outputMutex = outputMutex;
 	}
 
 	@Override
@@ -230,7 +240,7 @@ public class DriveDeckSportConnector implements OBDConnector {
 			logger.warn(e.getMessage(), e);
 		}
 		
-		synchronized (socketMutex) {
+		synchronized (outputMutex) {
 			logger.info("Sending out initial CR.");
 			outputStream.write(CARRIAGE_RETURN);
 			outputStream.flush();
@@ -242,92 +252,36 @@ public class DriveDeckSportConnector implements OBDConnector {
 	@Override
 	public List<CommonCommand> executeRequestCommands() throws IOException,
 			AdapterFailedException {
-		List<CommonCommand> result = new ArrayList<CommonCommand>();
-		synchronized (socketMutex) {
-			outputStream.write(cycleCommand.getCommand().concat(
-					Character.toString(CARRIAGE_RETURN)).getBytes());
+		synchronized (outputMutex) {
+			String str = next();
+			
+			logger.info("Sending CycleCommand: "+str);
+			
+			outputStream.write("A17".getBytes());
+			outputStream.write(CARRIAGE_RETURN);
+			outputStream.write(str.getBytes());
+			outputStream.write(CARRIAGE_RETURN);
 			outputStream.flush();
 		}
 		
-		synchronized (socketMutex) {
-			waitForResponse();
-			
-			CommonCommand cmd;
-			while ((cmd = readResponse()) != null) {
-				result.add(cmd);
-			}
-		}
-		
-		return result;
+		return responseThread.pullAvailableCommands();
 	}
 
 
-	private CommonCommand readResponse() throws IOException {
-		int i;
-		int index = 0;
-		byte[] buffer = new byte[128];
-		while ((i = inputStream.read()) > 0) {
-			buffer[index++] = (byte) i; 
-			if (i == END_OF_LINE_RESPONSE) {
-				String response = new String(buffer, 0, index-1);
-				
-				return processResponse(response);
-			}
-		}
-		
-		return null;
+	private String next() {
+		String s = Integer.toString(next++, 16);
+		if (s.length() == 1) s = "0"+s;
+		return s;
 	}
 
 
-	private CommonCommand processResponse(String response) {
-		if (!response.startsWith("B")) {
-			logger.warn("This is not a CycleCommand response: "+response);
-			return null;
+	@Override
+	public void shutdown() {
+		if (responseThread != null) {
+			responseThread.setRunning(false);
 		}
-		
-		logger.info("Processing CycleCommand response: "+response);
-		String[] tokens = response.substring(1).split(TOKEN_DELIMITER_RESPONSE);
-		if (tokens != null && tokens.length > 1) {
-			String pp = tokens[0];
-			String xx = tokens[1];
-			return handlePIDResponse(pp, xx);
-		}
-		
-		return null;
 	}
 
 
-	private CommonCommand handlePIDResponse(String pp, String xx) {
-		CommonCommand result = null;
-		String rawData = pp.concat(xx);
-		if (pp.equals("41")) {
-			//Speed
-			result = new Speed();
-		}
-		else if (pp.equals("42")) {
-			//MAF
-			result = new MAF();
-		}
-		else if (pp.equals("52")) {
-			//IAP
-			result = new IntakeTemperature();
-		}
-		else if (pp.equals("49")) {
-			//IAT
-			result = new IntakePressure();
-		}
-		else if (pp.equals("40") || pp.equals("51")) {
-			//RPM
-			result = new RPM();
-		}
-		
-		if (result != null) {
-			result.setRawData(rawData);
-			result.parseRawData();
-			result.setCommandState(CommonCommandState.FINISHED);
-		}
-		
-		return result;
-	}
 
 }

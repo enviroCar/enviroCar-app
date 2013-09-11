@@ -20,7 +20,7 @@
  */
 package org.envirocar.app.protocol.exception;
 
-public class CommandLoopStoppedException extends RuntimeException {
+public class LooperStoppedException extends RuntimeException {
 
 	/**
 	 * 

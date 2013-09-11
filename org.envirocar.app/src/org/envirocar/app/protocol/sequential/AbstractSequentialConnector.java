@@ -59,10 +59,11 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private static final int MAX_INVALID_RESPONSE_COUNT = 5;
 	protected InputStream inputStream;
 	protected OutputStream outputStream;
-	protected Object socketMutex;
+	protected Object inputMutex;
 	private boolean connectionEstablished;
 	private boolean staleConnection;
 	private int invalidResponseCount;
+	private Object outputMutex;
 	
 	/**
 	 * @return the list of initialization commands for the adapter
@@ -86,10 +87,11 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 
 	@Override
 	public void provideStreamObjects(InputStream inputStream,
-			OutputStream outputStream, Object socketMutex) {
+			OutputStream outputStream, Object socketMutex, Object outpuMutex) {
 		this.inputStream = inputStream;
 		this.outputStream = outputStream;
-		this.socketMutex = socketMutex;
+		this.inputMutex = socketMutex;
+		this.outputMutex = outpuMutex;
 	}
 	
 	protected List<CommonCommand> getRequestCommands() {
@@ -104,9 +106,12 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	
 	protected void runCommand(CommonCommand cmd)
 			throws IOException {
-		synchronized (socketMutex) {
-			logger.debug("Sending command " +cmd.getCommandName()+ " / "+ cmd.getCommand());
-			sendCommand(cmd);
+		logger.debug("Sending command " +cmd.getCommandName()+ " / "+ cmd.getCommand());
+		synchronized (outputMutex) {
+			sendCommand(cmd);	
+		}
+		
+		synchronized (inputMutex) {
 			waitForResult(cmd);	
 		}
 	}
@@ -250,10 +255,8 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 			if (cmd.getCommandState().equals(CommonCommandState.NEW)) {
 
 				// Run the job
-				synchronized (socketMutex) {
-					cmd.setCommandState(CommonCommandState.RUNNING);
-					runCommand(cmd);
-				}
+				cmd.setCommandState(CommonCommandState.RUNNING);
+				runCommand(cmd);
 			}
 		} catch (IOException e) {
 			if (!connectionEstablished) {

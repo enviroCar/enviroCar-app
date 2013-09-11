@@ -43,15 +43,16 @@ public interface OBDConnector {
 	 * provide the required stream objects to send and retrieve
 	 * commands.
 	 * 
-	 * An implementation shall synchronize on the socketMutex
+	 * An implementation shall synchronize on the inputMutex
 	 * when accessing the streams.
 	 * 
 	 * @param inputStream
 	 * @param outputStream
-	 * @param socketMutex
+	 * @param inputMutex
+	 * @param outputMutex 
 	 */
 	public void provideStreamObjects(InputStream inputStream,
-			OutputStream outputStream, Object socketMutex);
+			OutputStream outputStream, Object socketMutex, Object outputMutex);
 
 	/**
 	 * An implementation shall return true if it 
@@ -89,5 +90,10 @@ public interface OBDConnector {
 	 */
 	public List<CommonCommand> executeRequestCommands() throws IOException,
 			AdapterFailedException, UnmatchedCommandResponseException, ConnectionLostException;
+
+	/**
+	 * an implementation shall free all resources it has created (e.g. threads)
+	 */
+	public void shutdown();
 
 }
