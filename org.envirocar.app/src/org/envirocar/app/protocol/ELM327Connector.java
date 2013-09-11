@@ -30,7 +30,7 @@ import org.envirocar.app.commands.ObdReset;
 import org.envirocar.app.commands.SelectAutoProtocol;
 import org.envirocar.app.commands.Timeout;
 
-public class ELM327Connector extends AbstractOBDConnector {
+public class ELM327Connector extends AbstractSequentialConnector {
 	
 	protected int succesfulCount;
 

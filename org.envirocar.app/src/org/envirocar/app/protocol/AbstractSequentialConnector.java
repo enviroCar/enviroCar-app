@@ -35,9 +35,17 @@ import org.envirocar.app.commands.Speed;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.logging.Logger;
 
-public abstract class AbstractOBDConnector implements OBDConnector {
+/**
+ * This class acts as the basis for adapters which work
+ * in a request/response fashion (in particular, they do not
+ * send out data without an explicit request)
+ * 
+ * @author matthes rieke
+ *
+ */
+public abstract class AbstractSequentialConnector implements OBDConnector {
 	
-	private static final Logger logger = Logger.getLogger(AbstractOBDConnector.class.getName());
+	private static final Logger logger = Logger.getLogger(AbstractSequentialConnector.class.getName());
 	private static final int SLEEP_TIME = 25;
 	private static final int MAX_SLEEP_TIME = 5000;
 	private static final char COMMAND_RECEIVE_END = '>';
@@ -51,6 +59,26 @@ public abstract class AbstractOBDConnector implements OBDConnector {
 	private boolean connectionEstablished;
 	private boolean staleConnection;
 	private int invalidResponseCount;
+	
+	/**
+	 * @return the list of initialization commands for the adapter
+	 */
+	protected abstract List<CommonCommand> getInitializationCommands();
+
+	/**
+	 * a sub-class shall process the given command and determine
+	 * the connection state when a specific set of command results
+	 * have been rececived.
+	 * 
+	 * @param cmd the executed command
+	 */
+	protected abstract void processInitializationCommand(CommonCommand cmd);
+	
+	@Override
+	public abstract boolean supportsDevice(String deviceName);
+
+	@Override
+	public abstract boolean connectionVerified();
 
 	@Override
 	public void provideStreamObjects(InputStream inputStream,
@@ -167,16 +195,6 @@ public abstract class AbstractOBDConnector implements OBDConnector {
 		return SLEEP_TIME;
 	}
 	
-	protected abstract List<CommonCommand> getInitializationCommands();
-	
-	@Override
-	public abstract boolean supportsDevice(String deviceName);
-
-	protected abstract void processInitializationCommand(CommonCommand cmd);
-
-	@Override
-	public abstract boolean connectionVerified();
-
 	@Override
 	public void executeInitializationCommands() throws IOException, AdapterFailedException {
 		List<CommonCommand> cmds = this.getInitializationCommands();
@@ -190,7 +208,6 @@ public abstract class AbstractOBDConnector implements OBDConnector {
 		}		
 	}
 	
-
 	@Override
 	public List<CommonCommand> executeRequestCommands() throws IOException, AdapterFailedException, UnmatchedCommandResponseException, ConnectionLostException {
 		List<CommonCommand> list = getRequestCommands();
@@ -202,12 +219,28 @@ public abstract class AbstractOBDConnector implements OBDConnector {
 		return list;
 	}
 	
-	private void executeCommands(List<CommonCommand> cmds) throws IOException, AdapterFailedException, UnmatchedCommandResponseException, ConnectionLostException {
+	/**
+	 * Execute a list of commands
+	 * 
+	 * @throws AdapterFailedException if the adapter could not establish a connection
+	 * @throws IOException if an exception occurred while accessing the stream objects
+	 * @throws UnmatchedCommandResponseException if the response did not match the requested command
+	 * @throws ConnectionLostException if the maximum number of unmatched responses exceeded
+	 */
+	private void executeCommands(List<CommonCommand> cmds) throws AdapterFailedException, IOException, UnmatchedCommandResponseException, ConnectionLostException {
 		for (CommonCommand c : cmds) {
 			executeCommand(c);
 		}
 	}
 
+	/**
+	 * Execute one command using the given stream objects
+	 * 
+	 * @throws AdapterFailedException if the adapter could not establish a connection
+	 * @throws IOException if an exception occurred while accessing the stream objects
+	 * @throws UnmatchedCommandResponseException if the response did not match the requested command
+	 * @throws ConnectionLostException if the maximum number of unmatched responses exceeded
+	 */
 	private void executeCommand(CommonCommand cmd) throws AdapterFailedException, IOException, UnmatchedCommandResponseException, ConnectionLostException {
 		try {
 			if (cmd.getCommandState().equals(CommonCommandState.NEW)) {
@@ -237,6 +270,8 @@ public abstract class AbstractOBDConnector implements OBDConnector {
 		// Finished if no more job is in the waiting-list
 
 		if (cmd != null) {
+			if (!cmd.awaitsResults()) return;
+			
 			if (cmd.getCommandState() == CommonCommandState.EXECUTION_ERROR) {
 				logger.warn("Execution Error for" +cmd.getCommandName() +" / "+cmd.getCommand());
 				return;
@@ -265,8 +300,6 @@ public abstract class AbstractOBDConnector implements OBDConnector {
 				return;
 			}
 			
-			if (!cmd.awaitsResults()) return;
-
 			if (!connectionEstablished && !cmd.isNoDataCommand()) {
 				processInitializationCommand(cmd);
 				if (connectionVerified()) {

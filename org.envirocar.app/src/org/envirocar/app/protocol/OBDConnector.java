@@ -68,8 +68,8 @@ public interface OBDConnector {
 	 * an implementation shall use this method to initialize the connection
 	 * to the underlying obd adapter
 	 * 
-	 * @throws IOException
-	 * @throws AdapterFailedException
+	 * @throws IOException if an exception occurred while accessing the stream objects
+	 * @throws AdapterFailedException if the adapter could not establish a connection
 	 */
 	public void executeInitializationCommands() throws IOException,
 			AdapterFailedException;
@@ -79,10 +79,10 @@ public interface OBDConnector {
 	 * the common phenomena
 	 * 
 	 * @return the parsed command responses
-	 * @throws IOException
-	 * @throws AdapterFailedException
-	 * @throws UnmatchedCommandResponseException 
-	 * @throws ConnectionLostException 
+	 * @throws IOException if an exception occurred while accessing the stream objects
+	 * @throws AdapterFailedException if the adapter could not establish a connection
+	 * @throws UnmatchedCommandResponseException if the response did not match the requested command
+	 * @throws ConnectionLostException if the maximum number of unmatched responses exceeded
 	 */
 	public List<CommonCommand> executeRequestCommands() throws IOException,
 			AdapterFailedException, UnmatchedCommandResponseException, ConnectionLostException;
