@@ -33,10 +33,10 @@ import org.envirocar.app.event.EventBus;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
-import org.envirocar.app.protocol.AbstractCalculatedMAFAlgorithm;
-import org.envirocar.app.protocol.AbstractConsumptionAlgorithm;
-import org.envirocar.app.protocol.BasicConsumptionAlgorithm;
-import org.envirocar.app.protocol.CalculatedMAFWithStaticVolumetricEfficiency;
+import org.envirocar.app.protocol.algorithm.AbstractCalculatedMAFAlgorithm;
+import org.envirocar.app.protocol.algorithm.AbstractConsumptionAlgorithm;
+import org.envirocar.app.protocol.algorithm.BasicConsumptionAlgorithm;
+import org.envirocar.app.protocol.algorithm.CalculatedMAFWithStaticVolumetricEfficiency;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 

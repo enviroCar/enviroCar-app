@@ -23,6 +23,7 @@ package org.envirocar.app.application.service;
 import java.util.ArrayList;
 
 import org.envirocar.app.activity.SettingsActivity;
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 import org.envirocar.app.logging.Logger;
 
 import android.app.Service;
@@ -55,7 +56,7 @@ public class DeviceInRangeService extends Service {
 	
 	private static final long DISCOVERY_PERIOD = 1000 * 60 * 2;
 	public static final int DEFAULT_DELAY_AFTER_STOP = 1000 * 60 * 5;
-	protected int backgroundServiceState;
+	protected ServiceState backgroundServiceState = ServiceState.SERVICE_STOPPED;
 	
 	private final BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
@@ -67,12 +68,13 @@ public class DeviceInRangeService extends Service {
 				verifyRemoteDevice(intent);
 			}
 			else if (action.equals(AbstractBackgroundServiceStateReceiver.SERVICE_STATE)) {
-				backgroundServiceState = intent.getIntExtra(AbstractBackgroundServiceStateReceiver.SERVICE_STATE, 0);
+				backgroundServiceState = (ServiceState) intent.getSerializableExtra(
+						AbstractBackgroundServiceStateReceiver.SERVICE_STATE);
 				
 				SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 				boolean autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
 
-				if (backgroundServiceState == AbstractBackgroundServiceStateReceiver.SERVICE_STOPPED && autoConnect) {
+				if (backgroundServiceState == ServiceState.SERVICE_STOPPED && autoConnect) {
 					startWithDelay(DEFAULT_DELAY_AFTER_STOP);
 				}
 			}
@@ -103,7 +105,7 @@ public class DeviceInRangeService extends Service {
 
 	@Override
 	public void onCreate() {
-		logger.info("onCreate " + getClass().getName() +" "+this.hashCode());
+		logger.info("onCreate " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
 		registerReceiver(receiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 		
@@ -121,18 +123,18 @@ public class DeviceInRangeService extends Service {
 	@Override
 	public void onRebind(Intent intent) {
 		super.onRebind(intent);
-		logger.info("onRebind " + getClass().getName() +" "+this.hashCode());
+		logger.info("onRebind " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 	}
 	
 	@Override
 	public boolean onUnbind(Intent intent) {
-		logger.info("onUnbind " + getClass().getName() +" "+this.hashCode());
+		logger.info("onUnbind " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		return super.onUnbind(intent);
 	}
 
 	@Override
 	public void onDestroy() {
-		logger.info("onDestroy " + getClass().getName() +" "+this.hashCode());
+		logger.info("onDestroy " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 	}
 
 
@@ -160,12 +162,12 @@ public class DeviceInRangeService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		logger.info("onStartCommand " + getClass().getName() +" "+this.hashCode());
+		logger.info("onStartCommand " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		return super.onStartCommand(intent, flags, startId);
 	}
 
 	protected void startWithDelay(int d) {
-		if (backgroundServiceState == AbstractBackgroundServiceStateReceiver.SERVICE_STARTED) return;
+		if (backgroundServiceState == ServiceState.SERVICE_STARTED) return;
 		
 		discoveryEnabled = true;
 		
@@ -197,7 +199,7 @@ public class DeviceInRangeService extends Service {
 	
 	@Override
 	public IBinder onBind(Intent intent) {
-		logger.info("onBind " + getClass().getName() +" "+this.hashCode());
+		logger.info("onBind " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		/*
 		 * we do not need a binder, as we are autonomous
 		 */

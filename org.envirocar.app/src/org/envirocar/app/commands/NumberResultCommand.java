@@ -31,7 +31,7 @@ public abstract class NumberResultCommand extends CommonCommand {
 	}
 
 	@Override
-	protected void parseRawData() {
+	public void parseRawData() {
 		
 		int index = 0;
 		int length = 2;

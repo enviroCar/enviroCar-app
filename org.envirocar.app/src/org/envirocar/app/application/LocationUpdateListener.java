@@ -42,7 +42,7 @@ public class LocationUpdateListener implements LocationListener {
 	@Override
 	public void onLocationChanged(Location location) {
 		EventBus.getInstance().fireEvent(new LocationEvent(location));
-		logger.info("Get new position of " + location.getProvider() + " : lat " + location.getLatitude() + " long: " + location.getLongitude());
+		logger.debug("Get new position of " + location.getProvider() + " : lat " + location.getLatitude() + " long: " + location.getLongitude());
 	}
 
 	@Override

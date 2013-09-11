@@ -30,8 +30,8 @@ import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
-import org.envirocar.app.protocol.AbstractConsumptionAlgorithm;
-import org.envirocar.app.protocol.BasicConsumptionAlgorithm;
+import org.envirocar.app.protocol.algorithm.AbstractConsumptionAlgorithm;
+import org.envirocar.app.protocol.algorithm.BasicConsumptionAlgorithm;
 import org.envirocar.app.views.Utils;
 
 /**
@@ -264,29 +264,25 @@ public class Track implements Comparable<Track> {
 	/**
 	 * Returns the last measurement of this track
 	 * 
-	 * @return
-	 * @throws MeasurementsException
-	 *             If there are no measurements in the track
+	 * @return the last measurement or null if there are no measurements
 	 */
-	public Measurement getLastMeasurement() throws MeasurementsException {
+	public Measurement getLastMeasurement() {
 		if (this.measurements.size() > 0) {
 			return this.measurements.get(this.measurements.size() - 1);
-		} else
-			throw new MeasurementsException("No Measurements in this track!");
+		}
+		return null;
 	}
 	
 	/**
 	 * Returns the first measurement of this track
 	 * 
-	 * @return
-	 * @throws MeasurementsException
-	 *             If there are no measurements in the track
+	 * @return Returns the last measurement or null if there are no measurements
 	 */
-	public Measurement getFirstMeasurement() throws MeasurementsException {
+	public Measurement getFirstMeasurement() {
 		if (this.measurements.size() > 0) {
 			return this.measurements.get(0);
-		} else
-			throw new MeasurementsException("No measurements in this track!");
+		}
+		return null;
 	}
 	
 	/**
@@ -326,12 +322,29 @@ public class Track implements Comparable<Track> {
 
 	@Override
 	public int compareTo(Track t) {
-		try {
-			return (this.getFirstMeasurement().getTime() < t.getFirstMeasurement().getTime() ? 1 : -1);
-		} catch (MeasurementsException e) {
-			logger.warn(e.getMessage(), e);
-		} 
-		return 0;
+		
+		if (t.getFirstMeasurement() == null && this.getFirstMeasurement() == null) {
+			/*
+			 * we cannot assume any ordering
+			 */
+			return 0;
+		}
+		
+		if (this.getFirstMeasurement() == null) {
+			/*
+			 * no measurements, this is probably a relatively new track
+			 */
+			return -1;
+		}
+		
+		if (t.getFirstMeasurement() == null) {
+			/*
+			 * no measurements, this is probably a relatively new track
+			 */
+			return -1;
+		}
+
+		return (this.getFirstMeasurement().getTime() < t.getFirstMeasurement().getTime() ? 1 : -1);
 	}
 
 	public double getLiterPerHundredKm() throws MeasurementsException {

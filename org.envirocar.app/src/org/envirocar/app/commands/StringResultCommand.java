@@ -27,7 +27,7 @@ public abstract class StringResultCommand extends CommonCommand {
 	}
 	
 	@Override
-	protected void parseRawData() {
+	public void parseRawData() {
 	}
 
 }
