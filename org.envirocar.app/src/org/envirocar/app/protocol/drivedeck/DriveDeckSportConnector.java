@@ -34,9 +34,9 @@ import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.Speed;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.protocol.AdapterFailedException;
 import org.envirocar.app.protocol.OBDConnector;
 import org.envirocar.app.protocol.drivedeck.CycleCommand.PID;
+import org.envirocar.app.protocol.exception.AdapterFailedException;
 
 public class DriveDeckSportConnector implements OBDConnector {
 

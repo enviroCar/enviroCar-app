@@ -18,13 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol;
+package org.envirocar.app.protocol.exception;
 
-public class UnmatchedCommandResponseException extends Exception {
+public class AllAdaptersFailedException extends Exception {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
+	public AllAdaptersFailedException(String string) {
+		super(string);
+	}
 
 }

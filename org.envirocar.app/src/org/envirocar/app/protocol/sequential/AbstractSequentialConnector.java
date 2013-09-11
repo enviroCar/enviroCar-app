@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol;
+package org.envirocar.app.protocol.sequential;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,6 +34,10 @@ import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.Speed;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.protocol.OBDConnector;
+import org.envirocar.app.protocol.exception.AdapterFailedException;
+import org.envirocar.app.protocol.exception.ConnectionLostException;
+import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
 
 /**
  * This class acts as the basis for adapters which work

@@ -31,6 +31,14 @@ import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.drivedeck.DriveDeckSportConnector;
+import org.envirocar.app.protocol.exception.AdapterFailedException;
+import org.envirocar.app.protocol.exception.AllAdaptersFailedException;
+import org.envirocar.app.protocol.exception.CommandLoopStoppedException;
+import org.envirocar.app.protocol.exception.ConnectionLostException;
+import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
+import org.envirocar.app.protocol.sequential.AposW3Connector;
+import org.envirocar.app.protocol.sequential.ELM327Connector;
+import org.envirocar.app.protocol.sequential.OBDLinkMXConnector;
 
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -201,7 +209,7 @@ public class OBDCommandLooper extends HandlerThread {
 		}
 		
 		this.obdAdapter.provideStreamObjects(inputStream, outputStream, socketMutex);
-		logger.info("Using "+this.obdAdapter.getClass().getName() +" connector.");
+		logger.info("Using "+this.obdAdapter.getClass().getName() +" connector as the preferred adapter.");
 	}
 
 
@@ -254,16 +262,16 @@ public class OBDCommandLooper extends HandlerThread {
 
 	
 	private void consumeAllContents() throws IOException {
-		synchronized (socketMutex) {
-			while (inputStream.available() > 0) {
-				inputStream.read();
-			}
-		}
-		
 		try {
 			Thread.sleep(ADAPTER_TRY_PERIOD);
 		} catch (InterruptedException e) {
 			logger.warn(e.getMessage(), e);
+		}
+		
+		synchronized (socketMutex) {
+			while (inputStream.available() > 0) {
+				inputStream.read();
+			}
 		}
 	}
 

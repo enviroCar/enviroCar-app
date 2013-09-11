@@ -18,17 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol;
+package org.envirocar.app.protocol.exception;
 
-public class AdapterFailedException extends Exception {
+public class CommandLoopStoppedException extends RuntimeException {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	public AdapterFailedException(String name) {
-		super("Adapter failed: "+ name);
-	}
 
 }
