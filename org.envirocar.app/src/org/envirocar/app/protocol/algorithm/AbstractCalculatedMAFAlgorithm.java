@@ -18,17 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol;
+package org.envirocar.app.protocol.algorithm;
 
-public class AdapterFailedException extends Exception {
+import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_PRESSURE;
+import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_TEMPERATURE;
+import static org.envirocar.app.storage.Measurement.PropertyKey.RPM;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+import org.envirocar.app.storage.Measurement;
 
-	public AdapterFailedException(String name) {
-		super("Adapter failed: "+ name);
+public abstract class AbstractCalculatedMAFAlgorithm {
+	
+	public abstract double calculateMAF(double rpm, double intakeTemperature, double intakePressure);
+	
+	public double calculateMAF(Measurement m) {
+		return calculateMAF(m.getProperty(RPM), m.getProperty(INTAKE_TEMPERATURE), m.getProperty(INTAKE_PRESSURE));
 	}
 
 }

@@ -49,4 +49,9 @@ public interface ConnectionListener {
 	 */
 	public void onAllAdaptersFailed();
 
+	/**
+	 * @param message the status update message
+	 */
+	public void onStatusUpdate(String message);
+
 }

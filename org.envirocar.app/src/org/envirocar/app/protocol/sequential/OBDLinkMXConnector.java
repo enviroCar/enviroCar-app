@@ -18,20 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol;
+package org.envirocar.app.protocol.sequential;
 
-import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_PRESSURE;
-import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_TEMPERATURE;
-import static org.envirocar.app.storage.Measurement.PropertyKey.RPM;
+public class OBDLinkMXConnector extends ELM327Connector {
 
-import org.envirocar.app.storage.Measurement;
 
-public abstract class AbstractCalculatedMAFAlgorithm {
-	
-	public abstract double calculateMAF(double rpm, double intakeTemperature, double intakePressure);
-	
-	public double calculateMAF(Measurement m) {
-		return calculateMAF(m.getProperty(RPM), m.getProperty(INTAKE_TEMPERATURE), m.getProperty(INTAKE_PRESSURE));
+	@Override
+	public boolean supportsDevice(String deviceName) {
+		return deviceName.equalsIgnoreCase("OBDLink MX");
 	}
 
 }

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol;
+package org.envirocar.app.protocol.algorithm;
 
 import static org.envirocar.app.storage.Measurement.PropertyKey.CALCULATED_MAF;
 import static org.envirocar.app.storage.Measurement.PropertyKey.MAF;

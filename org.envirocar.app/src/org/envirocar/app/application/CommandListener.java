@@ -20,10 +20,7 @@
  */
 package org.envirocar.app.application;
 
-import java.text.DateFormat;
 import java.text.NumberFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 
 import org.envirocar.app.commands.CommonCommand;
@@ -39,8 +36,6 @@ import org.envirocar.app.event.LocationEvent;
 import org.envirocar.app.event.LocationEventListener;
 import org.envirocar.app.event.RPMEvent;
 import org.envirocar.app.event.SpeedEvent;
-import org.envirocar.app.exception.MeasurementsException;
-import org.envirocar.app.exception.TracksException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.storage.DbAdapter;
@@ -63,24 +58,24 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	
 	private static final Logger logger = Logger.getLogger(CommandListener.class);
 
-	private static final DateFormat format = SimpleDateFormat.getDateTimeInstance();
+	private static final long MAX_TIME_BETWEEN_MEASUREMENTS = 1000 * 60 * 15;
+
+	private static final double MAX_DISTANCE_BETWEEN_MEASUREMENTS = 3.0;
 
 	private Track track;
-	private String trackDescription = "Description of the track";
-	private Car car;
 	private DbAdapter dbAdapter;
 	private Collector collector;
 	private Location location;
 	
 	public CommandListener(Car car) {
-		this.car = car;
 		this.dbAdapter = DbAdapterImpl.instance();
-		this.collector = new Collector(this, this.car);
+		this.collector = new Collector(this, car);
 		EventBus.getInstance().registerListener(this);
+		createNewTrackIfNecessary();
+		logger.debug("Initialized. Hash: "+System.identityHashCode(this));
 	}
 
 	public void receiveUpdate(CommonCommand command) {
-		logger.debug("update received");
 		// Get the name and the result of the Command
 
 		String commandName = command.getCommandName();
@@ -197,7 +192,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	 *            The measurement you want to insert
 	 */
 	public void insertMeasurement(Measurement measurement) {
-
+		if (track == null) return;
 		// TODO: This has to be added with the following conditions:
 		/*
 		 * 1)New measurement if more than 50 meters away 2)New measurement if
@@ -208,7 +203,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		 * therefore, we should include a minimum time between measurements (1
 		 * sec) as well.)
 		 */
-
+		logger.info("inserting measurement to Track: "+track.getName());
 		track.addMeasurement(measurement);
 		dbAdapter.insertMeasurement(measurement);
 		logger.info("Add new measurement to track: " + measurement.toString());
@@ -218,144 +213,57 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	 * This method determines whether it is necessary to create a new track or
 	 * of the current/last used track should be reused
 	 */
-	@Override
-	public void createNewTrackIfNecessary() {
-
+	private void createNewTrackIfNecessary() {
+		logger.info("createNewTrackIfNecessary");
 		// if track is null, create a new one or take the last one from the
 		// database
-		
-		String date = format.format(new Date());
 
+		Track lastUsedTrack;
 		if (track == null) {
-
-			logger.info("The track was null");
-
-			Track lastUsedTrack;
-
-			try {
-				lastUsedTrack = dbAdapter.getLastUsedTrack();
-
-				try {
-
-					// New track if last measurement is more than 60 minutes
-					// ago
-
-					if ((System.currentTimeMillis() - lastUsedTrack
-							.getLastMeasurement().getTime()) > 3600000) {
-						logger.info("I create a new track because the last measurement is more than 60 mins ago");
-						track = new Track("123456", car, dbAdapter);
-						track.setName("Track " + date);
-						track.setDescription(trackDescription);
-						dbAdapter.updateTrack(track);
-						return;
-					}
-
-					// new track if last position is significantly different
-					// from the current position (more than 3 km)
-					if (location == null || Utils.getDistance(lastUsedTrack.getLastMeasurement().getLatitude(),lastUsedTrack.getLastMeasurement().getLongitude(),
-							location.getLatitude(), location.getLongitude()) > 3.0) {
-						logger.info("The last measurement's position is more than 3 km away. I will create a new track");
-						track = new Track("123456", car, dbAdapter); 
-						track.setName("Track " + date);
-						track.setDescription(trackDescription);
-						dbAdapter.updateTrack(track);
-						return;
-
-					}
-
-					// TODO: New track if user clicks on create new track button
-
-					// TODO: new track if VIN changed
-
-					else {
-						logger.info("I will append to the last track because that still makes sense");
-						track = lastUsedTrack;
-						return;
-					}
-
-				} catch (MeasurementsException e) {
-					logger.warn("The last track contains no measurements. I will delete it and create a new one.");
-					dbAdapter.deleteTrack(lastUsedTrack.getId());
-					track = new Track("123456", car, dbAdapter); 
-					track.setName("Track " + date);
-					track.setDescription(trackDescription);
-					dbAdapter.updateTrack(track);
-				}
-
-			} catch (TracksException e) {
-				logger.warn("There was no track in the database so I created a new one");
-				track = new Track("123456", car, dbAdapter); 
-				track.setName("Track " + date);
-				track.setDescription(trackDescription);
-				dbAdapter.updateTrack(track);
-			}
-
-			return;
-
+			lastUsedTrack = dbAdapter.getLastUsedTrack();
+		}
+		else {
+			lastUsedTrack = track;
 		}
 
-		// if track is not null, determine whether it is useful to create a new
-		// track and store the current one
+		// New track if last measurement is more than 60 minutes
+		// ago
 
-		if (track != null) {
-
-			logger.info("the track was not null");
-
-			Track currentTrack = track;
-
-			try {
-
-				// New track if last measurement is more than 60 minutes
-				// ago
-				if ((System.currentTimeMillis() - currentTrack
-						.getLastMeasurement().getTime()) > 3600000) {
-					track = new Track("123456", car, dbAdapter);
-					track.setName("Track " + date);
-					track.setDescription(trackDescription);
-					dbAdapter.updateTrack(track);
-					logger.info("I create a new track because the last measurement is more than 60 mins ago");
-					return;
-				}
-				// TODO: New track if user clicks on create new track button
-
-				// new track if last position is significantly different from
-				// the
-				// current position (more than 3 km)
-
-				if (Utils.getDistance(currentTrack.getLastMeasurement().getLatitude(),currentTrack.getLastMeasurement().getLongitude(),
-						location.getLatitude(), location.getLongitude()) > 3.0) {
-					track = new Track("123456", car, dbAdapter); 
-					track.setName("Track " + date);
-					track.setDescription(trackDescription);
-					dbAdapter.updateTrack(track);
-					logger.info("The last measurement's position is more than 3 km away. I will create a new track");
-					return;
-
-				}
-
-				// TODO: new track if VIN changed
-
-				else {
-					logger.info("I will append to the last track because that still makes sense");
-					return;
-				}
-
-			} catch (MeasurementsException e) {
-				logger.warn("The last track contains no measurements. I will delete it and create a new one.");
-				dbAdapter.deleteTrack(currentTrack.getId());
-				track = new Track("123456", car, dbAdapter); 
-				track.setName("Track " + date);
-				track.setDescription(trackDescription);
-				dbAdapter.updateTrack(track);
+		if (lastUsedTrack != null) {
+			
+			if ((System.currentTimeMillis() - lastUsedTrack
+					.getLastMeasurement().getTime()) > MAX_TIME_BETWEEN_MEASUREMENTS) {
+				logger.info(String.format("Create a new track: last measurement is more than %d mins ago",
+						(int) (MAX_TIME_BETWEEN_MEASUREMENTS / 1000 / 60)));
+				track = dbAdapter.createNewTrack();
 			}
+
+			// new track if last position is significantly different
+			// from the current position (more than 3 km)
+			else if (location == null || Utils.getDistance(lastUsedTrack.getLastMeasurement().getLatitude(),lastUsedTrack.getLastMeasurement().getLongitude(),
+					location.getLatitude(), location.getLongitude()) > MAX_DISTANCE_BETWEEN_MEASUREMENTS) {
+				logger.info(String.format("Create a new track: last measurement's position is more than %f km away",
+						MAX_DISTANCE_BETWEEN_MEASUREMENTS));
+				track = dbAdapter.createNewTrack();
+			}
+
+			// TODO: New track if user clicks on create new track button
+
+			// TODO: new track if VIN changed
+
+			else {
+				logger.info("Append to the last track: last measurement is close enough in space/time");
+				track = lastUsedTrack;
+			}
+			
 		}
+		else {
+			track = dbAdapter.createNewTrack();
+		}
+			
+		logger.info(String.format("Using Track: %s / %d", track.getName(), track.getId()));
 	}
 
-
-	@Override
-	public void resetTrack() {
-		this.track = null;
-	}
 
 	@Override
 	public void receiveEvent(LocationEvent event) {

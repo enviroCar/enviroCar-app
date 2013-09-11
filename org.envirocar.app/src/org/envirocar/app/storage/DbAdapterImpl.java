@@ -1,11 +1,14 @@
 package org.envirocar.app.storage;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.envirocar.app.exception.TracksException;
+import org.envirocar.app.application.CarManager;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
@@ -87,6 +90,10 @@ public class DbAdapterImpl implements DbAdapter {
 			KEY_TRACK_CAR_VIN + " BLOB, " +
 			KEY_TRACK_CAR_ID + " BLOB);";
 
+	private static final DateFormat format = SimpleDateFormat.getDateTimeInstance();
+
+	private static final String DEFAULT_TRACK_DESCRIPTION = "Track of Car '%s'";
+
 	private static DbAdapterImpl instance;
 	
 	private DatabaseHelper mDbHelper;
@@ -99,10 +106,12 @@ public class DbAdapterImpl implements DbAdapter {
 	
 	public static void init(Context ctx) {
 		instance = new DbAdapterImpl(ctx);
-		instance.open();
+		instance.openConnection();
+		logger.info("init DbAdapterImpl; Hash: "+System.identityHashCode(instance));
 	}
 	
 	public static DbAdapter instance() {
+		logger.info("Returning DbAdapterImpl; Hash: "+System.identityHashCode(instance));
 		return instance;
 	}
 	
@@ -130,9 +139,13 @@ public class DbAdapterImpl implements DbAdapter {
 	
 	@Override
 	public DbAdapter open() {
+		// deprecated
+		return null;
+	}
+	
+	private void openConnection() {
 		mDbHelper = new DatabaseHelper(mCtx);
 		mDb = mDbHelper.getWritableDatabase();
-		return this;
 	}
 
 	@Override
@@ -162,6 +175,7 @@ public class DbAdapterImpl implements DbAdapter {
 	
 	@Override
 	public long insertTrack(Track track) {
+		logger.debug("insertTrack: "+track.getId());
 		ContentValues values = createDbEntry(track);
 
 		return mDb.insert(TABLE_TRACK, null, values);
@@ -169,6 +183,7 @@ public class DbAdapterImpl implements DbAdapter {
 
 	@Override
 	public boolean updateTrack(Track track) {
+		logger.debug("updateTrack: "+track.getId());
 		ContentValues values = createDbEntry(track);
 		long result = mDb.replace(TABLE_TRACK, null, values);
 		return (result != -1 ? true : false);
@@ -241,16 +256,23 @@ public class DbAdapterImpl implements DbAdapter {
 	}
 
 	@Override
-	public Track getLastUsedTrack() throws TracksException {
+	public Track getLastUsedTrack() {
 		ArrayList<Track> trackList = getAllTracks();
 		if (trackList.size() > 0) {
-			return trackList.get(trackList.size() - 1);
-		} else
-			throw new TracksException("No tracks in local database!");
+			Track track = trackList.get(trackList.size() - 1);
+			if (track.getLastMeasurement() != null) {
+				return track;
+			}
+			else {
+				deleteTrack(track.getId());
+			}
+		}
+		return null;
 	}
 
 	@Override
 	public void deleteTrack(long id) {
+		logger.debug("deleteTrack: "+id);
 		mDb.delete(TABLE_MEASUREMENT, KEY_MEASUREMENT_TRACK + "='" + id + "'", null);
 		mDb.delete(TABLE_TRACK, KEY_TRACK_ID + "='" + id + "'", null);
 	}
@@ -364,6 +386,18 @@ public class DbAdapterImpl implements DbAdapter {
 	
 		c.close();
 		return allMeasurements;
+	}
+
+	@Override
+	public Track createNewTrack() {
+		String date = format.format(new Date());
+		Car car = CarManager.instance().getCar();
+		Track track = new Track("123456", car, this);
+		track.setName("Track " + date);
+		track.setDescription(String.format(DEFAULT_TRACK_DESCRIPTION, car.getId()));
+		updateTrack(track);
+		logger.info("createNewTrack: "+ track.getName());
+		return track;
 	}
 
 }

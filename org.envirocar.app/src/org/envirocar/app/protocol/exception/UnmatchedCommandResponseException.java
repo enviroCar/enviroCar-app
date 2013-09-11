@@ -18,14 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol;
+package org.envirocar.app.protocol.exception;
 
-public class OBDLinkMXConnector extends ELM327Connector {
+public class UnmatchedCommandResponseException extends Exception {
 
-
-	@Override
-	public boolean supportsDevice(String deviceName) {
-		return deviceName.equalsIgnoreCase("OBDLink MX");
-	}
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 }

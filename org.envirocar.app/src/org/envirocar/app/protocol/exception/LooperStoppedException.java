@@ -18,36 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
+package org.envirocar.app.protocol.exception;
 
-package org.envirocar.app.commands;
+public class LooperStoppedException extends RuntimeException {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-/**
- * This method will reset the OBD connection.
- */
-public class ObdReset extends StringResultCommand {
-
-	public ObdReset() {
-		super("AT Z");
-	}
-
-	@Override
-	public boolean awaitsResults() {
-		return false;
-	}
-
-	@Override
-	public String getResult() {
-		return getRawData();
-	}
-
-	@Override
-	public String getCommandName() {
-		return "Reset OBD";
-	}
-
-	@Override
-	public boolean isNoDataCommand() {
-		return true;
-	}
 }

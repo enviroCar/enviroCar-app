@@ -24,9 +24,6 @@ package org.envirocar.app.storage;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.envirocar.app.exception.MeasurementsException;
-import org.envirocar.app.exception.TracksException;
-
 
 /**
  * DB Adapter Interface that saves measurements in a local SQLite Database
@@ -41,7 +38,9 @@ public interface DbAdapter {
 	 * Method to open the DB connection
 	 * 
 	 * @return DbAdapter Object that can be used to call the other methods
+	 * @deprecated implementations should take care of that on their own
 	 */
+	@Deprecated
 	public DbAdapter open();
 
 	/**
@@ -119,11 +118,9 @@ public interface DbAdapter {
 	/**
 	 * Retruns the track that was last inserted into the database
 	 * 
-	 * @return
-	 * @throws MeasurementsException
-	 *             If there are no tracks in the local database
+	 * @return the latest track of the DB or null if there are no tracks
 	 */
-	public Track getLastUsedTrack() throws TracksException;
+	public Track getLastUsedTrack();
 	
 	/**
 	 * Delete track specified by id.
@@ -142,5 +139,7 @@ public interface DbAdapter {
 	public void deleteAllRemoteTracks();
 
 	public List<Track> getAllLocalTracks();
+
+	public Track createNewTrack();
 	
 }

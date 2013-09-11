@@ -18,17 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol;
+package org.envirocar.app.protocol.exception;
 
-public class AllAdaptersFailedException extends Exception {
+public class AdapterFailedException extends Exception {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public AllAdaptersFailedException(String string) {
-		super(string);
+	public AdapterFailedException(String name) {
+		super("Adapter failed: "+ name);
 	}
 
 }

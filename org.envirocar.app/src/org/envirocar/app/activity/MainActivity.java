@@ -27,6 +27,7 @@ import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.NavMenuItem;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
@@ -107,7 +108,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	boolean uploadOnlyInWlan = true;
 	private BroadcastReceiver receiver;
 	private OnSharedPreferenceChangeListener settingsReceiver;
-	protected int serviceState;
+	protected ServiceState serviceState = ServiceState.SERVICE_STOPPED;
 		
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
@@ -192,7 +193,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 		receiver = new AbstractBackgroundServiceStateReceiver() {
 			@Override
-			public void onStateChanged(int state) {
+			public void onStateChanged(ServiceState state) {
 				serviceState = state;
 				updateStartStopButton();
 			}
@@ -313,16 +314,16 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		if (adapter != null && adapter.isEnabled()) { // was requirementsFulfilled
 			try {
 				switch (serviceState) {
-				case AbstractBackgroundServiceStateReceiver.SERVICE_STARTED:
+				case SERVICE_STARTED:
 					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_stop));
 					navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_pause);
 					navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
 					break;
-				case AbstractBackgroundServiceStateReceiver.SERVICE_STARTING:
+				case SERVICE_STARTING:
 					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_starting));
 					navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
 					break;
-				case AbstractBackgroundServiceStateReceiver.SERVICE_STOPPED:
+				case SERVICE_STOPPED:
 					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
 					// Only enable start button when adapter is selected
 	
@@ -482,12 +483,12 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			        MyGarage garageFragment = new MyGarage();
 			        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
 				} else {
-					if (serviceState == AbstractBackgroundServiceStateReceiver.SERVICE_STOPPED) {
+					if (serviceState == ServiceState.SERVICE_STOPPED) {
 						application.startConnection();
-						Crouton.makeText(this, R.string.start_measuring, Style.INFO).show();
+						Crouton.makeText(this, R.string.start_connection, Style.INFO).show();
 					} else {
 						application.stopConnection();
-						Crouton.makeText(this, R.string.stop_measuring, Style.INFO).show();
+						Crouton.makeText(this, R.string.stop_connection, Style.INFO).show();
 					}
 				}
 			} else {
