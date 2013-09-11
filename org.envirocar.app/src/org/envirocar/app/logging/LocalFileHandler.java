@@ -24,13 +24,18 @@ package org.envirocar.app.logging;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
-import java.util.logging.SimpleFormatter;
+import java.util.logging.LogRecord;
 
 import org.envirocar.app.util.Util;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 public class LocalFileHandler implements Handler {
@@ -73,9 +78,23 @@ public class LocalFileHandler implements Handler {
 		LOG.info("Using file "+ effectiveFile);
 	}
 
+	@SuppressLint("SimpleDateFormat")
 	protected FileHandler createHandler(String finalPath) throws IOException {
 		FileHandler h = new FileHandler(finalPath, MAX_SIZE, 3, true);
-		h.setFormatter(new SimpleFormatter());
+		
+		final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+		final String sep = System.getProperty("line.separator");
+		
+		h.setFormatter(new Formatter() {
+			
+			@Override
+			public String format(LogRecord r) {
+				String date = format.format(new Date(r.getMillis()));
+				return String.format("%s: %s%s", date, r.getMessage(), sep);
+			}
+			
+		});
+		
 		h.setLevel(Level.ALL);
 		return h;
 	}
