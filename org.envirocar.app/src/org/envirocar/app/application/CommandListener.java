@@ -192,7 +192,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	 *            The measurement you want to insert
 	 */
 	public void insertMeasurement(Measurement measurement) {
-
+		if (track == null) return;
 		// TODO: This has to be added with the following conditions:
 		/*
 		 * 1)New measurement if more than 50 meters away 2)New measurement if

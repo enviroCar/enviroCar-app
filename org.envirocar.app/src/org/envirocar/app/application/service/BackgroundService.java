@@ -227,8 +227,6 @@ public class BackgroundService extends Service {
 
 		new ConnectThread(bluetoothDevice, true);
 		
-		commandListener = new CommandListener(CarManager.instance().getCar());
-		
 		sendStateBroadcast(ServiceState.SERVICE_STARTING);
 	}
 	
@@ -260,6 +258,7 @@ public class BackgroundService extends Service {
 	}
 
 	protected void initializeCommandLooper(InputStream in, OutputStream out, String deviceName) {
+		commandListener = new CommandListener(CarManager.instance().getCar());
 		this.commandLooper = new OBDCommandLooper(
 				in, out, inputMutex, outputMutex,  deviceName,
 				this.commandListener, new ConnectionListener() {
