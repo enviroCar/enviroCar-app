@@ -232,7 +232,7 @@ public class DashboardFragment extends SherlockFragment {
 
 	protected void updateSpeedValue() {
 		int speedProgress;
-		if (preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT,
+		if (!preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT,
 				false)) {
 			speedTextView.setText(speed + " km/h");
 			if (speed <= 0)
