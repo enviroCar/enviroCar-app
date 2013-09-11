@@ -225,7 +225,6 @@ public class BackgroundService extends Service {
 		new ConnectThread(bluetoothDevice, true);
 		
 		commandListener = new CommandListener(CarManager.instance().getCar());
-		commandListener.createNewTrackIfNecessary();
 		
 		sendStateBroadcast(ServiceState.SERVICE_STARTING);
 	}
