@@ -224,9 +224,6 @@ public class OBDCommandLooper extends HandlerThread {
 			return;
 		}
 		
-		if (this.obdAdapter.connectionVerified()) {
-			connectionEstablished();
-		}
 	}
 
 	private void executeCommandRequests() throws IOException {
