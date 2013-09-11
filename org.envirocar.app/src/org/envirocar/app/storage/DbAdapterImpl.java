@@ -259,7 +259,13 @@ public class DbAdapterImpl implements DbAdapter {
 	public Track getLastUsedTrack() {
 		ArrayList<Track> trackList = getAllTracks();
 		if (trackList.size() > 0) {
-			return trackList.get(trackList.size() - 1);
+			Track track = trackList.get(trackList.size() - 1);
+			if (track.getLastMeasurement() != null) {
+				return track;
+			}
+			else {
+				deleteTrack(track.getId());
+			}
 		}
 		return null;
 	}

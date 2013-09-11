@@ -371,7 +371,7 @@ public class ECApplication extends Application {
 		getCurrentActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Crouton.makeText(getCurrentActivity(), string, Style.INFO);
+				Crouton.makeText(getCurrentActivity(), string, Style.INFO).show();
 			}
 		});		
 	}
