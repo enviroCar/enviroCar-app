@@ -39,6 +39,9 @@ import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapterImpl;
 
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
+
 import android.app.Activity;
 import android.app.Application;
 import android.app.NotificationManager;
@@ -220,9 +223,6 @@ public class ECApplication extends Application {
 				@Override
 				public void onStateChanged(ServiceState state) {
 					switch (state) {
-					case SERVICE_STARTING:
-						onAdapterConnecting();
-						break;
 					case SERVICE_STARTED:
 						onAdapterConnected();
 						break;
@@ -348,13 +348,10 @@ public class ECApplication extends Application {
 		//TODO somehow let the CommandListener know of the reset
 	}
 
-	private void onAdapterConnecting() {
-		displayToast("Attempting to connect to OBD-II Adapter");
-	}
-	
 	private void onAdapterConnected() {
-		displayToast("OBD-II Adapter connected");
+		displayCrouton("OBD-II Adapter connected");
 	}
+
 
 	private void onAdapterDisconnected() {
 		displayToast("OBD-II Adapter disconnected");	
@@ -365,12 +362,16 @@ public class ECApplication extends Application {
 	}
 
 	private void displayToast(final String string) {
+		Toast.makeText(getApplicationContext(), string, Toast.LENGTH_LONG).show();
+	}
+	
+	private void displayCrouton(final String string) {
 		if (getCurrentActivity() == null) return;
 		
 		getCurrentActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(getApplicationContext(), string, Toast.LENGTH_LONG).show();				
+				Crouton.makeText(getCurrentActivity(), string, Style.INFO);
 			}
 		});		
 	}

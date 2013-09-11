@@ -95,36 +95,36 @@ public class BackgroundService extends Service {
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		logger.info("onBind " + getClass().getName() +" "+this.hashCode());
+		logger.info("onBind " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		return binder;
 	}
 
 	@Override
 	public void onCreate() {
-		logger.info("onCreate " + getClass().getName() +" "+this.hashCode());
+		logger.info("onCreate " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 	}
 	
 	@Override
 	public void onRebind(Intent intent) {
 		super.onRebind(intent);
-		logger.info("onRebind " + getClass().getName() +" "+this.hashCode());
+		logger.info("onRebind " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 	}
 	
 	@Override
 	public boolean onUnbind(Intent intent) {
-		logger.info("onUnbind " + getClass().getName() +" "+this.hashCode());
+		logger.info("onUnbind " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		return super.onUnbind(intent);
 	}
 
 	@Override
 	public void onDestroy() {
-		logger.info("onDestroy " + getClass().getName() +" "+this.hashCode());
+		logger.info("onDestroy " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		stopBackgroundService();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		logger.info("onStartCommand " + getClass().getName() +" "+this.hashCode());
+		logger.info("onStartCommand " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		startBackgroundService();
 		return START_STICKY;
 	}

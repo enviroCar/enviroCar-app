@@ -105,7 +105,7 @@ public class DeviceInRangeService extends Service {
 
 	@Override
 	public void onCreate() {
-		logger.info("onCreate " + getClass().getName() +" "+this.hashCode());
+		logger.info("onCreate " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
 		registerReceiver(receiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 		
@@ -123,18 +123,18 @@ public class DeviceInRangeService extends Service {
 	@Override
 	public void onRebind(Intent intent) {
 		super.onRebind(intent);
-		logger.info("onRebind " + getClass().getName() +" "+this.hashCode());
+		logger.info("onRebind " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 	}
 	
 	@Override
 	public boolean onUnbind(Intent intent) {
-		logger.info("onUnbind " + getClass().getName() +" "+this.hashCode());
+		logger.info("onUnbind " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		return super.onUnbind(intent);
 	}
 
 	@Override
 	public void onDestroy() {
-		logger.info("onDestroy " + getClass().getName() +" "+this.hashCode());
+		logger.info("onDestroy " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 	}
 
 
@@ -162,7 +162,7 @@ public class DeviceInRangeService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		logger.info("onStartCommand " + getClass().getName() +" "+this.hashCode());
+		logger.info("onStartCommand " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		return super.onStartCommand(intent, flags, startId);
 	}
 
@@ -199,7 +199,7 @@ public class DeviceInRangeService extends Service {
 	
 	@Override
 	public IBinder onBind(Intent intent) {
-		logger.info("onBind " + getClass().getName() +" "+this.hashCode());
+		logger.info("onBind " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		/*
 		 * we do not need a binder, as we are autonomous
 		 */

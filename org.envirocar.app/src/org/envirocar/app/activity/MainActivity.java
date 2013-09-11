@@ -485,10 +485,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				} else {
 					if (serviceState == ServiceState.SERVICE_STOPPED) {
 						application.startConnection();
-						Crouton.makeText(this, R.string.start_measuring, Style.INFO).show();
+						Crouton.makeText(this, R.string.start_connection, Style.INFO).show();
 					} else {
 						application.stopConnection();
-						Crouton.makeText(this, R.string.stop_measuring, Style.INFO).show();
+						Crouton.makeText(this, R.string.stop_connection, Style.INFO).show();
 					}
 				}
 			} else {

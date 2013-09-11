@@ -77,6 +77,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		this.dbAdapter = DbAdapterImpl.instance();
 		this.collector = new Collector(this, this.car);
 		EventBus.getInstance().registerListener(this);
+		logger.debug("Initialized. Hash: "+System.identityHashCode(this));
 	}
 
 	public void receiveUpdate(CommonCommand command) {
