@@ -45,13 +45,12 @@ public class DriveDeckSportConnector implements OBDConnector {
 	private Protocol protocol;
 	private String vin;
 	private long firstConnectinResponse;
-	private CommonCommand cycleCommand;
+	private CycleCommand cycleCommand;
 	private InputStream inputStream;
 	private OutputStream outputStream;
 	private Object inputMutex;
 	private AsynchronousResponseThread responseThread;
 	private Object outputMutex;
-	private int next = 14;
 	
 	private static enum Mode {
 		OFFLINE, CONNECTING, CONNECTED
@@ -63,6 +62,7 @@ public class DriveDeckSportConnector implements OBDConnector {
 	
 	public DriveDeckSportConnector() {
 		createCycleCommand();
+		logger.info("Static CycleCommand: "+new String(cycleCommand.getOutgoingBytes()));
 	}
 	
 	
@@ -253,13 +253,9 @@ public class DriveDeckSportConnector implements OBDConnector {
 	public List<CommonCommand> executeRequestCommands() throws IOException,
 			AdapterFailedException {
 		synchronized (outputMutex) {
-			String str = next();
+			logger.info("Sending CycleCommand: "+new String(cycleCommand.getOutgoingBytes()));
 			
-			logger.info("Sending CycleCommand: "+str);
-			
-			outputStream.write("A17".getBytes());
-			outputStream.write(CARRIAGE_RETURN);
-			outputStream.write(str.getBytes());
+			outputStream.write(cycleCommand.getOutgoingBytes());
 			outputStream.write(CARRIAGE_RETURN);
 			outputStream.flush();
 		}
@@ -267,12 +263,6 @@ public class DriveDeckSportConnector implements OBDConnector {
 		return responseThread.pullAvailableCommands();
 	}
 
-
-	private String next() {
-		String s = Integer.toString(next++, 16);
-		if (s.length() == 1) s = "0"+s;
-		return s;
-	}
 
 
 	@Override
