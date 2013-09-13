@@ -55,6 +55,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.view.View;
@@ -107,6 +108,12 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	static final int SETTINGS = 4;
 	static final int HELP = 5;
 	static final int SEND_LOG = 6;
+	
+	static final String DASHBOARD_TAG = "DASHBOARD";
+	static final String LOGIN_TAG = "LOGIN";
+	static final String MY_TRACKS_TAG = "MY_TRACKS";
+	static final String HELP_TAG = "HELP";
+	static final String SEND_LOG_TAG = "SEND_LOG";
 
 	public static final int REQUEST_MY_GARAGE = 1336;
 	public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
@@ -122,7 +129,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private boolean serviceRunning;
 	private BroadcastReceiver receiver;
 	private OnSharedPreferenceChangeListener settingsReceiver;
-		
+	
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
 			navDrawerItems = new NavMenuItem[7];
@@ -178,7 +185,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		manager = getSupportFragmentManager();
 
 		DashboardFragment initialFragment = new DashboardFragment();
-		manager.beginTransaction().replace(R.id.content_frame, initialFragment)
+		manager.beginTransaction().replace(R.id.content_frame, initialFragment, DASHBOARD_TAG)
 				.commit();
 		
 		drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -431,14 +438,19 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
     private void openFragment(int position) {
         FragmentManager manager = getSupportFragmentManager();
-
+        
         switch (position) {
         
         // Go to the dashboard
         
         case DASHBOARD:
+        	
+        	if(isFragmentVisible(DASHBOARD_TAG)){
+            	break;
+            }
         	DashboardFragment dashboardFragment = new DashboardFragment();
-            manager.beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
+        	manager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            manager.beginTransaction().replace(R.id.content_frame, dashboardFragment, DASHBOARD_TAG).commit();
             break;
             
         //Start the Login activity
@@ -446,15 +458,21 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         case LOGIN:
         	if(UserManager.instance().isLoggedIn()){
         		UserManager.instance().logOut();
-    			ListTracksFragment listMeasurementsFragment = (ListTracksFragment) getSupportFragmentManager().findFragmentByTag("MY_TRACKS");
+    			ListTracksFragment listMeasurementsFragment = (ListTracksFragment) getSupportFragmentManager().findFragmentByTag(MY_TRACKS_TAG);
     			// check if this fragment is initialized
     			if (listMeasurementsFragment != null) {
     				listMeasurementsFragment.clearRemoteTracks();
-    			} 
+    			}else{
+    				//the remote tracks need to be removed in any case
+            		DbAdapterImpl.instance().deleteAllRemoteTracks();
+    			}
         		Crouton.makeText(this, R.string.bye_bye, Style.CONFIRM).show();
         	} else {
+            	if(isFragmentVisible(LOGIN_TAG)){
+                	break;
+                }
                 LoginFragment loginFragment = new LoginFragment();
-                manager.beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
+                manager.beginTransaction().replace(R.id.content_frame, loginFragment, LOGIN_TAG).addToBackStack(null).commit();
         	}
             break;
             
@@ -468,8 +486,13 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         // Go to the track list
             
         case MY_TRACKS:
-            ListTracksFragment listMeasurementFragment = new ListTracksFragment();
-            manager.beginTransaction().replace(R.id.content_frame, listMeasurementFragment, "MY_TRACKS").addToBackStack(null).commit();
+        	
+        	if(isFragmentVisible(MY_TRACKS_TAG)){
+            	break;
+            }
+            
+        	ListTracksFragment listMeasurementFragment = new ListTracksFragment();
+            manager.beginTransaction().replace(R.id.content_frame, listMeasurementFragment, MY_TRACKS_TAG).addToBackStack(null).commit();
             break;
             
         // Start or stop the measurement process
@@ -499,12 +522,20 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			}
 			break;
 		case HELP:
+        	
+        	if(isFragmentVisible(HELP_TAG)){
+            	break;
+            }
 			HelpFragment helpFragment = new HelpFragment();
-            manager.beginTransaction().replace(R.id.content_frame, helpFragment, "HELP").addToBackStack(null).commit();
+            manager.beginTransaction().replace(R.id.content_frame, helpFragment, HELP_TAG).addToBackStack(null).commit();
 			break;
 		case SEND_LOG:
+        	
+        	if(isFragmentVisible(SEND_LOG_TAG)){
+            	break;
+            }
 			SendLogFileFragment logFragment = new SendLogFileFragment();
-			manager.beginTransaction().replace(R.id.content_frame, logFragment, "SEND_LOG").addToBackStack(null).commit();
+			manager.beginTransaction().replace(R.id.content_frame, logFragment, SEND_LOG_TAG).addToBackStack(null).commit();
         default:
             break;
         }
@@ -512,6 +543,23 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
     }
 
+    /**
+     * This method checks, whether a Fragment with a certain tag is visible.
+     * @param tag The tag of the Fragment.
+     * @return True if the Fragment is visible, false if not.
+     */
+    public boolean isFragmentVisible(String tag){
+        
+    	Fragment tmpFragment = getSupportFragmentManager().findFragmentByTag(tag);
+        if(tmpFragment != null && tmpFragment.isVisible()){
+        	logger.info("Fragment with tag: " + tag + " is already visible.");
+        	return true;
+        }
+        return false;
+    	
+    }
+    
+    
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
