@@ -79,7 +79,7 @@
         
 
         <service
-            android:name="org.envirocar.app.application.service.BackgroundService"
+            android:name="org.envirocar.app.application.service.BackgroundServiceImpl"
             android:exported="false" />
         
         <service android:name="org.envirocar.app.application.service.DeviceInRangeService"

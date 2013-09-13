@@ -32,7 +32,7 @@ import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
-import org.envirocar.app.application.service.BackgroundService;
+import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.BackgroundServiceConnector;
 import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.logging.ACRACustomSender;
@@ -203,7 +203,7 @@ public class ECApplication extends Application {
 			logger.info("requirements met");
 			deviceInRangeService = new Intent(this, DeviceInRangeService.class);
 			startService(deviceInRangeService);
-			backgroundService = new Intent(this, BackgroundService.class);
+			backgroundService = new Intent(this, BackgroundServiceImpl.class);
 			serviceConnector = new BackgroundServiceConnector();
 			bindService(backgroundService, serviceConnector,
 					Context.BIND_AUTO_CREATE);
@@ -211,13 +211,13 @@ public class ECApplication extends Application {
 			receiver = new BroadcastReceiver() {
 				@Override
 				public void onReceive(Context context, Intent intent) {
-					if (intent.getAction().equals(BackgroundService.CONNECTION_PERMANENTLY_FAILED_INTENT)) {
+					if (intent.getAction().equals(BackgroundServiceImpl.CONNECTION_PERMANENTLY_FAILED_INTENT)) {
 						connectionPermanentlyFailed();
 					}
 				}
 			};
 			
-			registerReceiver(receiver, new IntentFilter(BackgroundService.CONNECTION_PERMANENTLY_FAILED_INTENT));
+			registerReceiver(receiver, new IntentFilter(BackgroundServiceImpl.CONNECTION_PERMANENTLY_FAILED_INTENT));
 
 			registerReceiver(new AbstractBackgroundServiceStateReceiver() {
 				@Override
