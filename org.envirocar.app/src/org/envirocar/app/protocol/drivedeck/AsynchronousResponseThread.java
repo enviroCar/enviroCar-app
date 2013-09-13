@@ -50,6 +50,8 @@ public class AsynchronousResponseThread extends HandlerThread {
 	
 	private List<CommonCommand> buffer = new ArrayList<CommonCommand>();
 	protected boolean running = true;
+	private int[] globalBuffer = new int[128];
+	private int globalIndex;
 
 	public AsynchronousResponseThread(final InputStream in, Object sm) {
 		super("AsynchronousResponseThread");
@@ -115,6 +117,14 @@ public class AsynchronousResponseThread extends HandlerThread {
 		byte[] buffer = new byte[128];
 		while ((i = inputStream.read()) > 0) {
 			buffer[index++] = (byte) i; 
+			globalBuffer[globalIndex++] = i;
+			
+			if (globalIndex % 128 == 0) {
+				logGlobalBuffer(globalIndex);
+				if (globalIndex >= globalBuffer.length)
+					globalIndex = 0;
+			}
+			
 			if (i == DriveDeckSportConnector.END_OF_LINE_RESPONSE) {
 				String response = new String(buffer, 0, index-1);
 				
@@ -125,6 +135,18 @@ public class AsynchronousResponseThread extends HandlerThread {
 		return null;
 	}
 	
+	private void logGlobalBuffer(int limit) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[ ");
+		for (int i : globalBuffer) {
+			if (i > limit) break;
+			sb.append(i);
+			sb.append(", ");
+		}
+		sb.append(" ]");
+		logger.info(sb.toString());
+	}
+
 	private CommonCommand processResponse(String response) {
 		if (!response.startsWith("B")) {
 			logger.warn("This is not a CycleCommand response: "+response);

@@ -35,7 +35,7 @@ import java.util.ArrayList;
  */
 public abstract class CommonCommand {
 
-	protected ArrayList<Integer> buffer = null;
+	protected int[] buffer = null;
 	protected String command = null;
 	protected String rawData = null;
 	private Long commandId;
@@ -56,7 +56,7 @@ public abstract class CommonCommand {
 		this.command = command;
 		determineResponseByte();
 		setCommandState(CommonCommandState.NEW);
-		this.buffer = new ArrayList<Integer>();
+		this.buffer = new int[16];
 	}
 
 	private void determineResponseByte() {

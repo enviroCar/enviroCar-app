@@ -109,10 +109,10 @@ public class DriveDeckSportConnector implements OBDConnector {
 	private void createCycleCommand() {
 		List<PID> pidList = new ArrayList<PID>();
 		pidList.add(PID.SPEED);
-		pidList.add(PID.MAF);
-		pidList.add(PID.RPM);
-		pidList.add(PID.IAP);
-		pidList.add(PID.IAT);
+//		pidList.add(PID.MAF);
+//		pidList.add(PID.RPM);
+//		pidList.add(PID.IAP);
+//		pidList.add(PID.IAT);
 		this.cycleCommand = new CycleCommand(pidList);
 	}
 

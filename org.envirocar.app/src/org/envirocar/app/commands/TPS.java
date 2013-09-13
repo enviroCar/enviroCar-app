@@ -29,6 +29,8 @@ package org.envirocar.app.commands;
  */
 public class TPS extends NumberResultCommand {
 
+	private float value;
+
 	public TPS() {
 		super("01 11");
 	}
@@ -43,10 +45,15 @@ public class TPS extends NumberResultCommand {
 		String result = getRawData();
 
 		if (!"NODATA".equals(result)) {
-			float tempValue = (buffer.get(2) * 100.0f) / 255.0f;
-			result = String.format("%.1f%s", tempValue, "");
+			value = (buffer[2] * 100.0f) / 255.0f;
+			result = String.format("%.1f%s", value, "");
 		}
 		return result;
+	}
+
+	@Override
+	public Number getNumberResult() {
+		return value;
 	}
 
 }

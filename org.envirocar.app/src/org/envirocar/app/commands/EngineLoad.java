@@ -29,6 +29,8 @@ package org.envirocar.app.commands;
  */
 public class EngineLoad extends NumberResultCommand {
 
+	private float value;
+
 	/**
 	 * Create the Command
 	 */
@@ -47,11 +49,16 @@ public class EngineLoad extends NumberResultCommand {
 
 		if (!"NODATA".equals(result)) {
 
-			float tempValue = (buffer.get(2) * 100.0f) / 255.0f;
-			result = String.format("%.1f%s", tempValue, "");
+			value = (buffer[2] * 100.0f) / 255.0f;
+			result = String.format("%.1f%s", value, "");
 		}
 
 		return result;
+	}
+
+	@Override
+	public Number getNumberResult() {
+		return value;
 	}
 
 }

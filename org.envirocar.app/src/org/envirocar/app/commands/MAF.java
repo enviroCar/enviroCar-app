@@ -35,6 +35,7 @@ public class MAF extends NumberResultCommand {
 	
 	private static final Logger logger = Logger.getLogger(MAF.class);
 	public static final String NAME = "Mass Air Flow";
+	private float maf;
 	
 	public MAF() {
 		super("01 10");
@@ -43,12 +44,10 @@ public class MAF extends NumberResultCommand {
 	@Override
 	public String getResult() {
 
-		float maf = 0.0f;
-
 		try {
 			if (!"NODATA".equals(getRawData())) {
-				int bytethree = buffer.get(2);
-				int bytefour = buffer.get(3);
+				int bytethree = buffer[2];
+				int bytefour = buffer[3];
 				maf = (bytethree * 256 + bytefour) / 100.0f;
 			}
 		} catch (IndexOutOfBoundsException ioobe){
@@ -63,5 +62,10 @@ public class MAF extends NumberResultCommand {
 	@Override
 	public String getCommandName() {
 		return NAME;
+	}
+
+	@Override
+	public Number getNumberResult() {
+		return maf;
 	}
 }
