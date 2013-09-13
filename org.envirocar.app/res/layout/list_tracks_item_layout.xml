@@ -167,6 +167,28 @@
             android:layout_height="wrap_content" >
 
             <TextView
+                android:id="@+id/track_fuel_cost_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="2dp"
+                android:text="@string/fuel_cost"
+                android:textSize="18sp" >
+            </TextView>
+
+            <TextView
+                android:id="@+id/track_details_fuel_cost_textview"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="2dp"
+                android:textSize="18sp" >
+            </TextView>
+        </TableRow>
+        
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <TextView
                 android:id="@+id/track_details_co2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

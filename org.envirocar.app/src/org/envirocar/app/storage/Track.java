@@ -191,6 +191,7 @@ public class Track implements Comparable<Track> {
 	public void addMeasurement(Measurement measurement) {
 		measurement.setTrack(Track.this);
 		this.measurements.add(measurement);
+		DbAdapterImpl.instance().insertMeasurement(measurement);
 	}
 
 	/**
