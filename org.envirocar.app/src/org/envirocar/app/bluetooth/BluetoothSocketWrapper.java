@@ -18,16 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.application.service;
+package org.envirocar.app.bluetooth;
 
-import org.envirocar.app.bluetooth.BluetoothSocketWrapper;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-public interface BackgroundService {
+import android.bluetooth.BluetoothSocket;
 
-	void deviceDisconnected();
+public interface BluetoothSocketWrapper {
 
-	void openTroubleshootingActivity(int errorType);
+	InputStream getInputStream() throws IOException;
 
-	void deviceConnected(BluetoothSocketWrapper bluetoothSocket);
+	OutputStream getOutputStream() throws IOException;
+
+	String getRemoteDeviceName();
+
+	void connect() throws IOException;
+
+	String getRemoteDeviceAddress();
+
+	void close() throws IOException;
+
+	BluetoothSocket getUnderlyingSocket();
 
 }

@@ -170,7 +170,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 
 		logger.debug(cmd.toString());
 
-		if (isSearching(rawData)) {
+		if (isSearching(rawData) || cmd.isNoDataCommand()) {
 			cmd.setCommandState(CommonCommandState.SEARCHING);
 			return;
 		}
@@ -270,7 +270,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 			
 			
 		} catch (Exception e) {
-			logger.warn("Error while sending command '" + cmd.toString() + "'", e);
+			logger.warn("Error while sending command '" + cmd.toString() + "': "+e.getMessage(), e);
 			cmd.setCommandState(CommonCommandState.EXECUTION_ERROR);
 		}
 

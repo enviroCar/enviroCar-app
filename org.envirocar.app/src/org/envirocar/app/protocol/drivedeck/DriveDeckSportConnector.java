@@ -51,6 +51,7 @@ public class DriveDeckSportConnector implements OBDConnector {
 	private Object inputMutex;
 	private AsynchronousResponseThread responseThread;
 	private Object outputMutex;
+	private boolean send;
 	
 	private static enum Mode {
 		OFFLINE, CONNECTING, CONNECTED
@@ -253,11 +254,14 @@ public class DriveDeckSportConnector implements OBDConnector {
 	public List<CommonCommand> executeRequestCommands() throws IOException,
 			AdapterFailedException {
 		synchronized (outputMutex) {
-			logger.info("Sending CycleCommand: "+new String(cycleCommand.getOutgoingBytes()));
-			
-			outputStream.write(cycleCommand.getOutgoingBytes());
-			outputStream.write(CARRIAGE_RETURN);
-			outputStream.flush();
+			if (!send) {
+				logger.info("Sending CycleCommand: "+new String(cycleCommand.getOutgoingBytes()));
+				
+				outputStream.write(cycleCommand.getOutgoingBytes());
+				outputStream.write(CARRIAGE_RETURN);
+				outputStream.flush();
+				send = true;
+			}
 		}
 		
 		return responseThread.pullAvailableCommands();
