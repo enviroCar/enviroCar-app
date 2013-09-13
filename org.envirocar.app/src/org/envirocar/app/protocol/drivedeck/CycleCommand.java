@@ -59,7 +59,7 @@ public class CycleCommand extends CommonCommand {
 		};
 		
 		protected String convert(String string) {
-			return "0x".concat(intToHex(incrementBy13(hexToInt(string))));
+			return Integer.toString(incrementBy13(hexToInt(string)));
 		}
 
 		protected int hexToInt(String string) {
@@ -73,21 +73,27 @@ public class CycleCommand extends CommonCommand {
 		protected String intToHex(int val) {
 			String result = Integer.toString(val, 16);
 			if (result.length() == 1) result = "0"+result;
-			return result;
+			return "0x".concat(result);
 		}
 	}
 
 	private static final String NAME = "A17";
+	private byte[] bytes;
 	
 
 	public CycleCommand(List<PID> pidList) {
 		super(NAME);
-		StringBuilder sb = new StringBuilder();
-		sb.append("A17");
-		for (PID pid : pidList) {
-			sb.append(pid.toString());
+		bytes = new byte[3+pidList.size()];
+		byte[] prefix = "a17".getBytes();
+		
+		for (int i = 0; i < prefix.length; i++) {
+			bytes[i] = prefix[i];
 		}
-		this.command = sb.toString(); 
+		
+		int i = 0;
+		for (PID pid : pidList) {
+			bytes[prefix.length + i++] = (byte) Integer.valueOf(pid.toString()).intValue();
+		}
 	}
 
 	@Override
@@ -104,6 +110,10 @@ public class CycleCommand extends CommonCommand {
 	@Override
 	public String getCommandName() {
 		return NAME;
+	}
+	
+	public byte[] getOutgoingBytes() {
+		return bytes;
 	}
 
 }

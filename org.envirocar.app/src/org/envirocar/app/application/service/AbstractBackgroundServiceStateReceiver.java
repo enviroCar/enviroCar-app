@@ -26,7 +26,7 @@ import android.content.Intent;
 
 public abstract class AbstractBackgroundServiceStateReceiver extends BroadcastReceiver {
 
-	public static final String SERVICE_STATE = BackgroundService.class.getName()+".STATE";
+	public static final String SERVICE_STATE = BackgroundServiceImpl.class.getName()+".STATE";
 	public static final int SERVICE_STOPPED = 0;
 	public static final int SERVICE_STARTING = 1;
 	public static final int SERVICE_STARTED = 2;
