@@ -279,9 +279,11 @@ public class DbAdapterImpl implements DbAdapter {
 	
 	@Override
 	public int getNumberOfRemoteTracks() {
-		// TODO Auto-generated method stub
-		logger.warn("implement it!!!");
-		return 0;
+		Cursor cursor = mDb.rawQuery("SELECT COUNT(" + KEY_TRACK_REMOTE + ") FROM " + TABLE_TRACK, null);		
+		cursor.moveToFirst();
+		int count = cursor.getInt(0);
+		cursor.close();
+		return count;
 	}
 
 	@Override
@@ -299,8 +301,12 @@ public class DbAdapterImpl implements DbAdapter {
 
 	@Override
 	public void deleteAllRemoteTracks() {
-		// TODO Auto-generated method stub
-		logger.warn("implement it!!!");
+		Cursor cursor = mDb.rawQuery("SELECT COUNT(" + KEY_TRACK_REMOTE + ") FROM " + TABLE_TRACK, null);		
+		cursor.moveToFirst();
+		int count = cursor.getInt(0);
+		cursor.close();
+		logger.info("" + count);
+		mDb.delete(TABLE_TRACK, KEY_TRACK_REMOTE + " IS NOT NULL", null);
 	}
 
 	@Override
