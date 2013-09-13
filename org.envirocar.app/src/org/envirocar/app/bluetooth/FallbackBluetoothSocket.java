@@ -35,13 +35,11 @@ public class FallbackBluetoothSocket extends NativeBluetoothSocket {
 		super(tmp);
         try
         {
-          Class<?> localClass = tmp.getRemoteDevice().getClass();
-          Class<?>[] arrayOfClass = new Class[1];
-          arrayOfClass[0] = Integer.TYPE;
-          Method localMethod = localClass.getMethod("createRfcommSocket", arrayOfClass);
-          Object[] arrayOfObject = new Object[1];
-          arrayOfObject[0] = Integer.valueOf(1);
-          fallbackSocket = (BluetoothSocket) localMethod.invoke(tmp.getRemoteDevice(), arrayOfObject);
+          Class<?> clazz = tmp.getRemoteDevice().getClass();
+          Class<?>[] paramTypes = new Class<?>[] {Integer.TYPE};
+          Method m = clazz.getMethod("createRfcommSocket", paramTypes);
+          Object[] params = new Object[] {Integer.valueOf(1)};
+          fallbackSocket = (BluetoothSocket) m.invoke(tmp.getRemoteDevice(), params);
         }
         catch (Exception e)
         {
@@ -63,7 +61,6 @@ public class FallbackBluetoothSocket extends NativeBluetoothSocket {
 	@Override
 	public void connect() throws IOException {
 		fallbackSocket.connect();
-
 	}
 
 

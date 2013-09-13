@@ -28,9 +28,7 @@ import java.util.List;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.IntakePressure;
 import org.envirocar.app.commands.IntakeTemperature;
-import org.envirocar.app.commands.MAF;
 import org.envirocar.app.commands.RPM;
-import org.envirocar.app.commands.Speed;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.exception.LooperStoppedException;
@@ -50,8 +48,9 @@ public class AsynchronousResponseThread extends HandlerThread {
 	
 	private List<CommonCommand> buffer = new ArrayList<CommonCommand>();
 	protected boolean running = true;
-	private int[] globalBuffer = new int[128];
+	private int[] globalBuffer = new int[64];
 	private int globalIndex;
+	private int previousEOLIndex = -1;
 
 	public AsynchronousResponseThread(final InputStream in, Object sm) {
 		super("AsynchronousResponseThread");
@@ -70,23 +69,24 @@ public class AsynchronousResponseThread extends HandlerThread {
 						}
 					} catch (IOException e) {
 						logger.warn(e.getMessage(), e);
+						break;
 					}
 					
 					CommonCommand cmd;
 					try {
-						while (true) {
-							synchronized (socketMutex) {
-								cmd = readResponse();	
-							}
-							
-							if (cmd == null) break;
-							
+						synchronized (socketMutex) {
+							cmd = readResponse();	
+						}
+						
+						if (cmd != null) {
 							synchronized (AsynchronousResponseThread.this) {
 								buffer.add(cmd);	
-							}
+							}	
 						}
+						
 					} catch (IOException e) {
 						logger.warn(e.getMessage(), e);
+						break;
 					}
 				}
 				
@@ -97,13 +97,7 @@ public class AsynchronousResponseThread extends HandlerThread {
 	
 	protected void waitForResponse() throws IOException {
 		try {
-			int tries = 0;
 			while (inputStream.available() <= 0) {
-				if (tries++ * DriveDeckSportConnector.SLEEP_TIME > DriveDeckSportConnector.TIMEOUT) {
-					logger.info("could not receive anything from DriveDeck adapter.");
-					return;
-				}
-				
 				Thread.sleep(DriveDeckSportConnector.SLEEP_TIME);
 			}
 		} catch (InterruptedException e) {
@@ -112,86 +106,83 @@ public class AsynchronousResponseThread extends HandlerThread {
 	}
 	
 	private CommonCommand readResponse() throws IOException {
-		int i;
-		int index = 0;
-		byte[] buffer = new byte[128];
-		while ((i = inputStream.read()) > 0) {
-			buffer[index++] = (byte) i; 
-			globalBuffer[globalIndex++] = i;
-			
-			if (globalIndex % 128 == 0) {
-				logGlobalBuffer(globalIndex);
-				if (globalIndex >= globalBuffer.length)
-					globalIndex = 0;
+		int byteIn;
+		while (true) {
+			byteIn = inputStream.read();
+			if (byteIn <= 0) {
+				break;
 			}
+			globalBuffer[globalIndex++] = byteIn;
 			
-			if (i == DriveDeckSportConnector.END_OF_LINE_RESPONSE) {
-				String response = new String(buffer, 0, index-1);
-				
-				return processResponse(response);
+			if (byteIn == DriveDeckSportConnector.END_OF_LINE_RESPONSE) {
+				if (previousEOLIndex != -1) {
+					CommonCommand result = processResponse(globalBuffer, previousEOLIndex, globalIndex);
+					previousEOLIndex = 0;
+					globalIndex = 0;
+					return result;
+				} else {
+					previousEOLIndex = globalIndex;
+				}
 			}
 		}
 		
 		return null;
 	}
 	
-	private void logGlobalBuffer(int limit) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("[ ");
-		for (int i : globalBuffer) {
-			if (i > limit) break;
-			sb.append(i);
-			sb.append(", ");
-		}
-		sb.append(" ]");
-		logger.info(sb.toString());
-	}
-
-	private CommonCommand processResponse(String response) {
-		if (!response.startsWith("B")) {
-			logger.warn("This is not a CycleCommand response: "+response);
-			return null;
-		}
+	private CommonCommand processResponse(int[] bytes, int start, int end) {
+		if (start >= end) return null;
 		
-		logger.info("Processing CycleCommand response: "+response);
-		String[] tokens = response.substring(1).split(DriveDeckSportConnector.TOKEN_DELIMITER_RESPONSE);
-		if (tokens != null && tokens.length > 1) {
-			String pp = tokens[0];
-			String xx = tokens[1];
-			return handlePIDResponse(pp, xx);
-		}
+		logGlobalBuffer(end);
 		
-		return null;
-	}
-
-
-	private CommonCommand handlePIDResponse(String pp, String xx) {
+		if (bytes[start+0] != CycleCommand.RESPONSE_PREFIX_CHAR_AS_INT) return null;
+		
+		if (bytes[start+4] == CycleCommand.TOKEN_SEPARATOR_CHAR_AS_INT) return null;
+		
 		long now = System.currentTimeMillis();
+		
+		String pid = new String(bytes, start+1, 2);
+		
+		int[] pidResponseValue = new int[2];
+		int target;
+		for (int i = start+4; i <= end; i++) {
+			if (bytes[i] == CycleCommand.TOKEN_SEPARATOR_CHAR_AS_INT)
+				break;
+			
+			target = i-start-4;
+			if (target >= pidResponseValue.length) break;
+			pidResponseValue[target] = bytes[i];
+		}
+		
+		return parseCommandReponse(pid, pidResponseValue, now);
+	}
+
+	private CommonCommand parseCommandReponse(String pid,
+			int[] pidResponseValue, long now) {
+		
 		CommonCommand result = null;
-		String rawData = pp.concat(xx);
-		if (pp.equals("41")) {
+		if (pid.equals("41")) {
 			//Speed
-			result = new Speed();
+			result = new SpeedDriveDeck();
 		}
-		else if (pp.equals("42")) {
+		else if (pid.equals("42")) {
 			//MAF
-			result = new MAF();
+			result = new MAFDriveDeck();
 		}
-		else if (pp.equals("52")) {
+		else if (pid.equals("52")) {
 			//IAP
 			result = new IntakeTemperature();
 		}
-		else if (pp.equals("49")) {
+		else if (pid.equals("49")) {
 			//IAT
 			result = new IntakePressure();
 		}
-		else if (pp.equals("40") || pp.equals("51")) {
+		else if (pid.equals("40") || pid.equals("51")) {
 			//RPM
 			result = new RPM();
 		}
 		
 		if (result != null) {
-			result.setRawData(rawData);
+			result.setResponseBytes(pidResponseValue);
 			result.parseRawData();
 			result.setCommandState(CommonCommandState.FINISHED);
 			result.setResultTime(now);
@@ -199,6 +190,26 @@ public class AsynchronousResponseThread extends HandlerThread {
 		
 		return result;
 	}
+
+	private void logGlobalBuffer(int limit) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("[ ");
+		
+		byte[] bytes = new byte[limit];
+		
+		int c = 0;
+		for (int i : globalBuffer) {
+			bytes[c++] = (byte) i;
+			if (c >= limit) break;
+			sb.append(i);
+			sb.append(", ");
+		}
+		sb.append(" ]");
+		logger.info(sb.toString());
+		logger.info(new String(bytes));
+	}
+
+
 
 	@Override
 	public void run() {

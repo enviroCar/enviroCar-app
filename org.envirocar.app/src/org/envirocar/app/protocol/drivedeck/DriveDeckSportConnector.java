@@ -36,8 +36,7 @@ public class DriveDeckSportConnector implements OBDConnector {
 
 	private static final Logger logger = Logger.getLogger(DriveDeckSportConnector.class);
 	private static final char CARRIAGE_RETURN = '\r';
-	static final char END_OF_LINE_RESPONSE = '>';
-	static final String TOKEN_DELIMITER_RESPONSE = "<";
+	static final int END_OF_LINE_RESPONSE = (int) '>';
 	static final int SLEEP_TIME = 25;
 	static final int TIMEOUT = 1000 * 5;
 	private static final long MAX_WAITING_TIME = 1000 * 30;
@@ -51,7 +50,6 @@ public class DriveDeckSportConnector implements OBDConnector {
 	private Object inputMutex;
 	private AsynchronousResponseThread responseThread;
 	private Object outputMutex;
-	private boolean send;
 	
 	private static enum Mode {
 		OFFLINE, CONNECTING, CONNECTED
@@ -109,7 +107,7 @@ public class DriveDeckSportConnector implements OBDConnector {
 	private void createCycleCommand() {
 		List<PID> pidList = new ArrayList<PID>();
 		pidList.add(PID.SPEED);
-//		pidList.add(PID.MAF);
+		pidList.add(PID.MAF);
 //		pidList.add(PID.RPM);
 //		pidList.add(PID.IAP);
 //		pidList.add(PID.IAT);
@@ -254,14 +252,11 @@ public class DriveDeckSportConnector implements OBDConnector {
 	public List<CommonCommand> executeRequestCommands() throws IOException,
 			AdapterFailedException {
 		synchronized (outputMutex) {
-			if (!send) {
-				logger.info("Sending CycleCommand: "+new String(cycleCommand.getOutgoingBytes()));
-				
-				outputStream.write(cycleCommand.getOutgoingBytes());
-				outputStream.write(CARRIAGE_RETURN);
-				outputStream.flush();
-				send = true;
-			}
+			logger.info("Sending CycleCommand: "+new String(cycleCommand.getOutgoingBytes()));
+			
+			outputStream.write(cycleCommand.getOutgoingBytes());
+			outputStream.write(CARRIAGE_RETURN);
+			outputStream.flush();
 		}
 		
 		return responseThread.pullAvailableCommands();

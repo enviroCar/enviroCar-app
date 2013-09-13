@@ -111,6 +111,10 @@ public class BluetoothConnection extends Thread {
 			        	logger.info(uuid.toString());
 			        	uuidCandidates.add(UUID.fromString(uuid.toString()));
 					}
+			        
+			        if (uuidCandidates.isEmpty()) {
+			        	uuidCandidates.add(EMBEDDED_BOARD_SPP);
+			        }
 
 			        synchronized (BluetoothConnection.this) {
 			        	if (!BluetoothConnection.this.started) {
@@ -159,7 +163,11 @@ public class BluetoothConnection extends Thread {
             try {
 				// This is a blocking call and will only return on a
                 // successful connection or an exception
+            	
+            	logger.info("Connecting to socket...");
+            	//TODO this might block VERY LONG! create a simple listening thread -> timeout -> call BackgroundService.deviceDisconnected()
         		bluetoothSocket.connect();
+        		logger.info("Connected!");
         		success = true;
             	break;
 	            		

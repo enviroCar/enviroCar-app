@@ -23,7 +23,6 @@ package org.envirocar.app.bluetooth;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 
 import android.bluetooth.BluetoothSocket;
 
@@ -33,9 +32,6 @@ public class NativeBluetoothSocket implements BluetoothSocketWrapper {
 
 	public NativeBluetoothSocket(BluetoothSocket tmp) {
 		this.socket = tmp;
-		for (Method m : socket.getClass().getMethods()) {
-			System.out.println(m);
-		}
 	}
 
 	@Override

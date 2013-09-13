@@ -24,7 +24,6 @@ package org.envirocar.app.commands;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 
 /**
  * Abstract command class that the other commands have to extend. Many things
@@ -42,6 +41,7 @@ public abstract class CommonCommand {
 	private CommonCommandState commandState;
 	private String responseByte;
 	private long resultTime;
+	protected int[] responseBytes;
 	
 	private static final String COMMAND_SEND_END = "\r";
 	private static final String NODATA = "NODATA";
@@ -200,9 +200,6 @@ public abstract class CommonCommand {
 		return false;
 	}
 
-	public void setRawData(String r) {
-		rawData = r;
-	}
 
 	public void setResultTime(long currentTimeMillis) {
 		this.resultTime = currentTimeMillis;
@@ -210,6 +207,14 @@ public abstract class CommonCommand {
 
 	public long getResultTime() {
 		return resultTime;
+	}
+
+	public void setResponseBytes(int[] pidResponseValue) {
+		this.responseBytes = pidResponseValue;
+	}
+
+	public void setRawData(String rawData2) {
+		this.rawData = rawData2;
 	}
 
 }
