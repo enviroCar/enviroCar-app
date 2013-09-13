@@ -33,10 +33,10 @@ import org.envirocar.app.event.EventBus;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
-import org.envirocar.app.protocol.AbstractCalculatedMAFAlgorithm;
-import org.envirocar.app.protocol.AbstractConsumptionAlgorithm;
-import org.envirocar.app.protocol.BasicConsumptionAlgorithm;
-import org.envirocar.app.protocol.CalculatedMAFWithStaticVolumetricEfficiency;
+import org.envirocar.app.protocol.algorithm.AbstractCalculatedMAFAlgorithm;
+import org.envirocar.app.protocol.algorithm.AbstractConsumptionAlgorithm;
+import org.envirocar.app.protocol.algorithm.BasicConsumptionAlgorithm;
+import org.envirocar.app.protocol.algorithm.CalculatedMAFWithStaticVolumetricEfficiency;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 
@@ -111,7 +111,7 @@ public class Collector {
 			EventBus.getInstance().fireEvent(new ConsumptionEvent(consumption));
 			EventBus.getInstance().fireEvent(new CO2Event(co2));
 		} catch (FuelConsumptionException e) {
-			logger.warn(e.getMessage(), e);
+			logger.warn(e.getMessage());
 		}
 		
 	}
@@ -146,7 +146,7 @@ public class Collector {
 				this.measurement.setProperty(CONSUMPTION, consumption);
 				this.measurement.setProperty(CO2, co2);
 			} catch (FuelConsumptionException e) {
-				logger.warn(e.getMessage(), e);
+				logger.warn(e.getMessage());
 			}
 			
 			insertMeasurement(measurement);

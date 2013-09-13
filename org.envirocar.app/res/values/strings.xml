@@ -66,6 +66,7 @@
     <string name="positioning_Info">The positioning is based on GPS, to have a precised positions for the measurement. Please wait until you get GPS coordinates.</string>
     <string name="no_current_position">none</string>
     <string name="menu_start">Start</string>
+    <string name="menu_starting">Starting</string>
     <string name="menu_stop">Stop</string>
     <string name="menu_upload">Upload</string>
     <string name="menu_delete">Delete</string>
@@ -117,8 +118,10 @@
 	
 	<string name="welcome_message">Welcome, </string>
 	<string name="no_tracks">You have no tracks</string>
-	<string name="start_measuring">Start measuring.</string>
-	<string name="stop_measuring">Stopped measuring.</string>
+	<string name="start_connection">Start device connection</string>
+	<string name="stop_connection">Stop device connection</string>
+	<string name="start_measuring">Start measuring</string>
+	<string name="stop_measuring">Stopped measuring</string>
 	<string name="bye_bye">Bye Bye!</string>
 	<string name="all_local_tracks_deleted">All local tracks deleted.</string>
 	<string name="not_possible_for_remote">Not yet possible for remote tracks.</string>
@@ -161,5 +164,6 @@
 	<string name="troubleshootingParagraph">The enviroCar app was not able to establish the bluetooth connection to
 	    the OBD-II adapter. You could try to unplug and plug the adapter, then restart measurements.</string>
 	<string name="title_activity_troubleshooting">Troubleshooting</string>
+	<string name="connection_state">State</string>
 	
 </resources>

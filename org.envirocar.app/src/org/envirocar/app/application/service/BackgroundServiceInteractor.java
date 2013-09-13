@@ -21,9 +21,6 @@
 
 package org.envirocar.app.application.service;
 
-import org.envirocar.app.application.Listener;
-import org.envirocar.app.commands.CommonCommand;
-
 import android.content.Intent;
 
 /**
@@ -34,21 +31,7 @@ import android.content.Intent;
  */
 public interface BackgroundServiceInteractor {
 	
-	/**
-	 * Set the listener for this monitor
-	 * 
-	 * @param listener
-	 *            the listener
-	 */
-	void setListener(Listener listener);
 
-	/**
-	 * Check whether the monitor is running
-	 * 
-	 * @return true if monitori running
-	 */
-	boolean isRunning();
-	
 	/**
 	 * this method shall create all required resources (e.g. bluetooth connection)
 	 */
@@ -60,16 +43,6 @@ public interface BackgroundServiceInteractor {
 	 */
 	void shutdownConnection();
 	
-	/**
-	 * adds a new DommonCommand to the waiting list
-	 * 
-	 * @param newCommand
-	 *            the new CommonCommand to add
-	 * @deprecated this should not be the responsibility of the interactor!
-	 */
-	@Deprecated
-	void newJobToWaitingList(CommonCommand newCommand);
-
 	/**
 	 * an implementation shall invoke the shutdown of the underlying service as
 	 * we could not receive any data. An {@link Intent} with action {@link #CONNECTION_PERMANENTLY_FAILED_INTENT}

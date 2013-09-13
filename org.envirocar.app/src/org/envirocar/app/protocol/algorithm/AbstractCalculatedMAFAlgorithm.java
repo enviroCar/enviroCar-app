@@ -18,36 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
+package org.envirocar.app.protocol.algorithm;
 
-package org.envirocar.app.commands;
+import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_PRESSURE;
+import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_TEMPERATURE;
+import static org.envirocar.app.storage.Measurement.PropertyKey.RPM;
 
+import org.envirocar.app.storage.Measurement;
 
-/**
- * This method will reset the OBD connection.
- */
-public class ObdReset extends StringResultCommand {
-
-	public ObdReset() {
-		super("AT Z");
+public abstract class AbstractCalculatedMAFAlgorithm {
+	
+	public abstract double calculateMAF(double rpm, double intakeTemperature, double intakePressure);
+	
+	public double calculateMAF(Measurement m) {
+		return calculateMAF(m.getProperty(RPM), m.getProperty(INTAKE_TEMPERATURE), m.getProperty(INTAKE_PRESSURE));
 	}
 
-	@Override
-	public boolean awaitsResults() {
-		return false;
-	}
-
-	@Override
-	public String getResult() {
-		return getRawData();
-	}
-
-	@Override
-	public String getCommandName() {
-		return "Reset OBD";
-	}
-
-	@Override
-	public boolean isNoDataCommand() {
-		return true;
-	}
 }

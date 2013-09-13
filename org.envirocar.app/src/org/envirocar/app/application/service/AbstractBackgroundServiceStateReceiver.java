@@ -20,21 +20,29 @@
  */
 package org.envirocar.app.application.service;
 
-import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 
-public interface BackgroundService {
+public abstract class AbstractBackgroundServiceStateReceiver extends BroadcastReceiver {
 
-	void unregisterReceiver(BroadcastReceiver broadcastReceiver);
+	public static final String SERVICE_STATE = BackgroundServiceImpl.class.getName()+".STATE";
+	public static final int SERVICE_STOPPED = 0;
+	public static final int SERVICE_STARTING = 1;
+	public static final int SERVICE_STARTED = 2;
+	
+	public static enum ServiceState {
+		SERVICE_STOPPED, SERVICE_STARTING, SERVICE_STARTED, SERVICE_STOPPING;
+	}
+	
+	@Override
+	public void onReceive(Context context, Intent intent) {
+		if (!intent.getAction().equals(SERVICE_STATE)) return;
+		ServiceState state = (ServiceState) intent.getSerializableExtra(SERVICE_STATE);
+		
+		onStateChanged(state);
+	}
 
-	Intent registerReceiver(BroadcastReceiver receiver, IntentFilter intentFilter);
-
-	void deviceDisconnected();
-
-	void openTroubleshootingActivity(int errorType);
-
-	void deviceConnected(BluetoothSocket bluetoothSocket);
+	public abstract void onStateChanged(ServiceState state);
 
 }

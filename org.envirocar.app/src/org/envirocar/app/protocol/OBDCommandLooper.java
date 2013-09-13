@@ -30,6 +30,15 @@ import org.envirocar.app.application.Listener;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.protocol.drivedeck.DriveDeckSportConnector;
+import org.envirocar.app.protocol.exception.AdapterFailedException;
+import org.envirocar.app.protocol.exception.AllAdaptersFailedException;
+import org.envirocar.app.protocol.exception.LooperStoppedException;
+import org.envirocar.app.protocol.exception.ConnectionLostException;
+import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
+import org.envirocar.app.protocol.sequential.AposW3Connector;
+import org.envirocar.app.protocol.sequential.ELM327Connector;
+import org.envirocar.app.protocol.sequential.OBDLinkMXConnector;
 
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -51,11 +60,11 @@ import android.os.Looper;
 public class OBDCommandLooper extends HandlerThread {
 
 	private static final Logger logger = Logger.getLogger(OBDCommandLooper.class);
-	private static final int MAX_TRIES_PER_ADAPTER = 2;
+	private static final int MAX_TRIES_PER_ADAPTER = 1;
 	protected static final long ADAPTER_TRY_PERIOD = 5000;
 	
-	private List<AbstractOBDConnector> adapterCandidates = new ArrayList<AbstractOBDConnector>();
-	private AbstractOBDConnector obdAdapter;
+	private List<OBDConnector> adapterCandidates = new ArrayList<OBDConnector>();
+	private OBDConnector obdAdapter;
 	private Listener commandListener;
 	private InputStream inputStream;
 	private OutputStream outputStream;
@@ -65,218 +74,217 @@ public class OBDCommandLooper extends HandlerThread {
 	protected long requestPeriod = 500;
 	private int tries;
 	private int adapterIndex;
+	private ConnectionListener connectionListener;
+	private Object inputMutex;
 	
 	private Runnable commonCommandsRunnable = new Runnable() {
 		public void run() {
-			/*
-			 * we can do a while (running) here as we are the
-			 * only ones occupying the Handler and will always
-			 * be!
-			 */
-			while (running) {
-				logger.info("Executing Command Commands!");
-				
-				try {
-					executeCommandRequests();
-				} catch (IOException e) {
-					logger.warn(e.getMessage(), e);
-					running = false;
-					notifyWaitersOnShutdown();
-					connectionListener.onConnectionException(e);
-					return;
-				}
-				
-				synchronized (shutdownMutex) {
-					if (!running || shutdownComplete) {
-						notifyWaitersOnShutdown();
-						return;
-					}
-				}
-				
-				logger.info("Scheduling the Executiion of Command Commands!");
-				try {
-					Thread.sleep(requestPeriod);
-				} catch (InterruptedException e) {
-					logger.warn(e.getMessage(), e);
-				}
+			if (!running) {
+				logger.info("Exiting commandHandler.");
+				throw new LooperStoppedException();
+			}
+			logger.debug("Executing Command Commands!");
+			
+			try {
+				executeCommandRequests();
+			} catch (IOException e) {
+				running = false;
+				connectionListener.onConnectionException(e);
+				logger.info("Exiting commandHandler.");
+				throw new LooperStoppedException();
 			}
 			
-			notifyWaitersOnShutdown();
+			if (!running) {
+				logger.info("Exiting commandHandler.");
+				throw new LooperStoppedException();
+			}
+			
+			logger.debug("Scheduling the Executiion of Command Commands!");
+			commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
 		}
 	};
+
 
 	private Runnable initializationCommandsRunnable = new Runnable() {
 		public void run() {
 			if (running && !connectionEstablished) {
+				String stmt = "Trying "+obdAdapter.getClass().getSimpleName() +".";
+				logger.info(stmt);
+				connectionListener.onStatusUpdate(stmt);
 				try {
-					try {
-						selectAdapter();
-					} catch (AllAdaptersFailedException e) {
-						connectionListener.onAllAdaptersFailed();
-					}
 					executeInitializationRequests();
-				} catch (IOException e) {
-					logger.warn(e.getMessage(), e);
-					running = false;
-					notifyWaitersOnShutdown();
-					connectionListener.onConnectionException(e);
-					return;
-				}
-				
-				synchronized (shutdownMutex) {
-					if (!running || shutdownComplete) {
-						notifyWaitersOnShutdown();
+					
+					if (obdAdapter.connectionVerified()) {
+						connectionEstablished();
 						return;
 					}
+				} catch (IOException e) {
+					running = false;
+					connectionListener.onConnectionException(e);
+					logger.info("Exiting commandHandler.");
+					throw new LooperStoppedException();
+				} catch (AdapterFailedException e) {
+					logger.warn(e.getMessage());
+				}
+				
+				if (!running) {
+					logger.info("Exiting commandHandler.");
+					throw new LooperStoppedException();
+				}
+				
+				try {
+					selectAdapter();
+				} catch (AllAdaptersFailedException e) {
+					connectionListener.onAllAdaptersFailed();
 				}
 				
 				commandExecutionHandler.postDelayed(initializationCommandsRunnable, ADAPTER_TRY_PERIOD);
 			}
-			else {
-				notifyWaitersOnShutdown();
+			
+			if (!running) {
+				throw new LooperStoppedException();
 			}
 		}
 
 	};
-	private ConnectionListener connectionListener;
-	private Object shutdownMutex = new Object();
-	private boolean shutdownComplete;
+	private Object outputMutex;
+
 
 	/**
-	 * same as OBDCommandLooper#OBDCommandLooper(InputStream, OutputStream, Listener, ConnectionListener, int) with NORM_PRIORITY
+	 * same as OBDCommandLooper#OBDCommandLooper(InputStream, OutputStream, Object, Listener, ConnectionListener, int) with NORM_PRIORITY
+	 * @param outputMutex 
 	 */
-	public OBDCommandLooper(InputStream in, OutputStream out, Listener l, ConnectionListener cl) {
-		this(in, out, l, cl, NORM_PRIORITY);
+	public OBDCommandLooper(InputStream in, OutputStream out,
+			Object inputMutex, Object outputMutex, String deviceName,
+			Listener l, ConnectionListener cl) {
+		this(in, out, inputMutex, outputMutex, deviceName, l, cl, NORM_PRIORITY);
 	}
 	
+
 	/**
+	 * An application shutting down the streams ({@link InputStream#close()} and
+	 * the like) SHALL synchronize on the inputMutex object when doing so.
+	 * Otherwise, the app might crash.
+	 * 
 	 * @param in the inputStream of the connection
 	 * @param out the outputStream of the connection
+	 * @param inputMutex the mutex object to use when shutting down the streams
+	 * @param outputMutex 
 	 * @param l the listener which receives command responses
 	 * @param cl the connection listener which receives connection state changes
 	 * @param priority thread priority
 	 * @throws IllegalArgumentException if one of the inputs equals null
 	 */
-	public OBDCommandLooper(InputStream in, OutputStream out, Listener l, ConnectionListener cl, int priority) {
+	public OBDCommandLooper(InputStream in, OutputStream out, Object inputMutex,
+			Object outputMutex, String deviceName, Listener l, ConnectionListener cl, int priority) {
 		super("OBD-CommandLooper-Handler", priority);
 		
 		if (in == null) throw new IllegalArgumentException("in must not be null!");
 		if (out == null) throw new IllegalArgumentException("out must not be null!");
+		if (inputMutex == null) throw new IllegalArgumentException("inputMutex must not be null!");
+		if (outputMutex == null) throw new IllegalArgumentException("outputMutex must not be null!");
 		if (l == null) throw new IllegalArgumentException("l must not be null!");
 		if (cl == null) throw new IllegalArgumentException("cl must not be null!");
 		
 		this.inputStream = in;
 		this.outputStream = out;
+		this.inputMutex = inputMutex;
+		this.outputMutex = outputMutex;
 		
 		this.commandListener = l;
 		this.connectionListener = cl;
 		
 		adapterCandidates.add(new ELM327Connector());
-		obdAdapter = adapterCandidates.get(0);
+		adapterCandidates.add(new AposW3Connector());
+		adapterCandidates.add(new OBDLinkMXConnector());
+		adapterCandidates.add(new DriveDeckSportConnector());
+		
+		determinePreferredAdapter(deviceName);
 	}
 	
-	private void notifyWaitersOnShutdown() {
-		synchronized (shutdownMutex) {
-			shutdownComplete = true;
-			shutdownMutex.notifyAll();
+	private void determinePreferredAdapter(String deviceName) {
+		for (OBDConnector ac : adapterCandidates) {
+			if (ac.supportsDevice(deviceName)) {
+				this.obdAdapter = ac;
+				break;
+			}
 		}
+
+		if (this.obdAdapter == null) {
+			this.obdAdapter = adapterCandidates.get(0);
+		}
+		
+		this.obdAdapter.provideStreamObjects(inputStream, outputStream, inputMutex, outputMutex);
+		logger.info("Using "+this.obdAdapter.getClass().getName() +" connector as the preferred adapter.");
 	}
-	
+
+
 	/**
 	 * stop the command looper. this removes all pending commands.
 	 * This object is no longer executable, a new instance has to
 	 * be created.
 	 */
 	public void stopLooper() {
+		logger.info("stopping the command execution!");
 		this.running = false;
-		commandExecutionHandler.removeCallbacks(commonCommandsRunnable);
-		commandExecutionHandler.removeCallbacks(initializationCommandsRunnable);
-		commandExecutionHandler.getLooper().quit();
-		
-		synchronized (shutdownMutex) {
-			while (!shutdownComplete) {
-				logger.info("shutdown not completed. waiting...");
-				try {
-					shutdownMutex.wait();
-				} catch (InterruptedException e) {
-					logger.warn(e.getMessage(), e);
-				}
-			}
-			logger.info("I finished waiting for shutdown!");
-		}
-		
 	}
 
-	private void executeInitializationRequests() throws IOException {
-		List<CommonCommand> cmds = this.obdAdapter.getInitializationCommands();
+	private void executeInitializationRequests() throws IOException, AdapterFailedException {
+		try {
+			this.obdAdapter.executeInitializationCommands();
+		} catch (IOException e) {
+			connectionListener.onConnectionException(e);
+			running = false;
+			return;
+		}
 		
-		executeCommands(cmds);
 	}
 
 	private void executeCommandRequests() throws IOException {
-		List<CommonCommand> cmds = this.obdAdapter.getRequestCommands();
 		
-		executeCommands(cmds);
-	}
-
-	private void executeCommands(List<CommonCommand> cmds) throws IOException {
-		for (CommonCommand c : cmds) {
-			verifyConnectionState();
-			executeCommand(c);
-		}
-	}
-
-	
-	private void executeCommand(CommonCommand cmd) {
+		List<CommonCommand> cmds;
 		try {
-			if (cmd.getCommandState().equals(CommonCommandState.NEW)) {
-
-				// Run the job
-				cmd.setCommandState(CommonCommandState.RUNNING);
-				cmd.run(inputStream, outputStream);
-			}
-		} catch (IOException e) {
-			connectionListener.onConnectionException(e);
-		} catch (Exception e) {
-			logger.warn("Error while sending command '" + cmd.toString() + "'", e);
-			cmd.setCommandState(CommonCommandState.EXECUTION_ERROR);
+			cmds = this.obdAdapter.executeRequestCommands();
+		} catch (UnmatchedCommandResponseException e) {
+			logger.warn("Unmatched Response detected! Consuming all contents and trying again.");
+			consumeAllContents();
+			return;
+		} catch (ConnectionLostException e) {
+			connectionListener.onConnectionException(new IOException(e));
+			running = false;
+			return;
+		} catch (AdapterFailedException e) {
+			logger.severe("This should never happen!", e);
 			return;
 		}
-
-		// Finished if no more job is in the waiting-list
-
-		if (cmd != null) {
-			if (cmd.getCommandState() == CommonCommandState.EXECUTION_ERROR) {
-				return;
-			}
-			
-			if (cmd.getCommandState() == CommonCommandState.SEARCHING) {
-				logger.info("Adapter still searching. Waiting a bit.");
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					logger.warn(e.getMessage(), e);
-				}
-				return;
-			}
-			cmd.setCommandState(CommonCommandState.FINISHED);
-			if (commandListener != null) {
+		
+		for (CommonCommand cmd : cmds) {
+			if (cmd.getCommandState() == CommonCommandState.FINISHED) {
 				commandListener.receiveUpdate(cmd);
-			}
-			
-			if (!connectionEstablished && !cmd.isNoDataCommand()) {
-				connectionEstablished();
 			}
 		}
 		
 	}
 
-	private void verifyConnectionState() throws IOException {
-		if (this.inputStream == null || this.outputStream == null)
-			throw new IOException("IO Streams not available.");
-	}
 	
+	private void consumeAllContents() throws IOException {
+		try {
+			Thread.sleep(ADAPTER_TRY_PERIOD);
+		} catch (InterruptedException e) {
+			logger.warn(e.getMessage(), e);
+		}
+		
+		synchronized (inputMutex) {
+			while (inputStream.available() > 0) {
+				inputStream.read();
+			}
+		}
+	}
+
+
 	private void connectionEstablished() {
+		logger.info("OBD Adapter " + this.obdAdapter.getClass().getName() +
+				" verified the responses. Connection Established!");
 		this.connectionEstablished = true;
 		this.connectionListener.onConnectionVerified();
 		
@@ -286,12 +294,14 @@ public class OBDCommandLooper extends HandlerThread {
 		commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
 	}
 
+
 	private void selectAdapter() throws AllAdaptersFailedException {
-		if (tries++ > MAX_TRIES_PER_ADAPTER) {
-			if (adapterIndex++ >= adapterCandidates.size()) {
+		if (++tries >= MAX_TRIES_PER_ADAPTER) {
+			if (adapterIndex+1 >= adapterCandidates.size()) {
 				throw new AllAdaptersFailedException(adapterCandidates.toString());
 			}
-			this.obdAdapter = adapterCandidates.get(adapterIndex % adapterCandidates.size());
+			this.obdAdapter = adapterCandidates.get(adapterIndex++ % adapterCandidates.size());
+			this.obdAdapter.provideStreamObjects(inputStream, outputStream, inputMutex, outputMutex);
 			tries = 0;
 		}
 	}
@@ -301,7 +311,15 @@ public class OBDCommandLooper extends HandlerThread {
 		Looper.prepare();
 		commandExecutionHandler = new Handler();
 		commandExecutionHandler.post(initializationCommandsRunnable);
-		Looper.loop();
+		try {
+			Looper.loop();
+		} catch (LooperStoppedException e) {
+			logger.info("Command loop stopped.");
+		}
+		
+		if (this.obdAdapter != null) {
+			this.obdAdapter.shutdown();
+		}
 	}
 
 }

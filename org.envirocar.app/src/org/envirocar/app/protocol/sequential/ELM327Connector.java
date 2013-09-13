@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol;
+package org.envirocar.app.protocol.sequential;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,9 @@ import org.envirocar.app.commands.ObdReset;
 import org.envirocar.app.commands.SelectAutoProtocol;
 import org.envirocar.app.commands.Timeout;
 
-public class ELM327Connector extends AbstractOBDConnector {
+public class ELM327Connector extends AbstractSequentialConnector {
+	
+	protected int succesfulCount;
 
 	/*
 	 * This is what Torque does:
@@ -86,5 +88,54 @@ public class ELM327Connector extends AbstractOBDConnector {
 		result.add(new SelectAutoProtocol());
 		return result;
 	}
+
+	@Override
+	public boolean supportsDevice(String deviceName) {
+		return deviceName.contains("OBDII") || deviceName.contains("ELM327");
+	}
+
+	@Override
+	public void processInitializationCommand(CommonCommand cmd) {
+		String content = cmd.getResult();
+		if (cmd instanceof EchoOff) {
+			if (content.contains("ELM327v1.")) {
+				succesfulCount++;
+			}
+			else if (content.contains("ATE0") && content.contains("OK")) {
+				succesfulCount++;
+			}
+		}
+		
+		else if (cmd instanceof LineFeedOff) {
+			if (content.contains("OK")) {
+				succesfulCount++;
+			}
+		}
+		
+		else if (cmd instanceof Timeout) {
+			if (content.contains("OK")) {
+				succesfulCount++;
+			}
+		}
+		
+		else if (cmd instanceof SelectAutoProtocol) {
+			if (content.contains("OK")) {
+				succesfulCount++;
+			}
+		}
+	}
+
+	@Override
+	public boolean connectionVerified() {
+		return succesfulCount >= 5;
+	}
+
+	@Override
+	public void shutdown() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
 
 }

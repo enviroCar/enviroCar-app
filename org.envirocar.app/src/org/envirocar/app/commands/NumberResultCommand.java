@@ -31,17 +31,27 @@ public abstract class NumberResultCommand extends CommonCommand {
 	}
 
 	@Override
-	protected void parseRawData() {
+	public void parseRawData() {
+		
 		int index = 0;
 		int length = 2;
 		while (index + length <= rawData.length()) {
 			try {
-				buffer.add(Integer.parseInt(rawData.substring(index, index + length), 16));
+				String tmp = rawData.substring(index, index + length);
+				if (index == 2) {
+					// this is the ID byte
+					if (!tmp.equals(this.getResponseByte())) {
+						setCommandState(CommonCommandState.UNMATCHED_RESULT);
+						return;
+					}
+				}
+				buffer.add(Integer.parseInt(tmp, 16));
 			} catch (NumberFormatException e) {
 				logger.warn(e.getMessage());
+				setCommandState(CommonCommandState.EXECUTION_ERROR);
 			}
 			index += length;
-		}		
+		}
 	}
 	
 }

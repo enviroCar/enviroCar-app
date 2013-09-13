@@ -25,6 +25,8 @@ import java.text.DecimalFormat;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 import org.envirocar.app.event.CO2Event;
 import org.envirocar.app.event.CO2EventListener;
 import org.envirocar.app.event.EventBus;
@@ -36,6 +38,8 @@ import org.envirocar.app.model.Car;
 import org.envirocar.app.views.RoundProgress;
 import org.envirocar.app.views.TypefaceEC;
 
+import android.content.BroadcastReceiver;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
@@ -45,6 +49,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -69,20 +74,18 @@ public class DashboardFragment extends SherlockFragment {
 	View dashboardView;
 
 	private LocationEventListener locationListener;
-
 	private SpeedEventListener speedListener;
-
 	private CO2EventListener co2Listener;
 
 	private SharedPreferences preferences;
 
 	private long lastUIUpdate;
-
 	private int speed;
-
 	private Location location;
-
 	private double co2;
+
+	private BroadcastReceiver receiver;
+	protected ServiceState serviceState = ServiceState.SERVICE_STOPPED;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -146,6 +149,16 @@ public class DashboardFragment extends SherlockFragment {
 		
 		TypefaceEC.applyCustomFont((ViewGroup) view,
 				TypefaceEC.Newscycle(getActivity()));
+		
+		receiver = new AbstractBackgroundServiceStateReceiver() {
+
+			@Override
+			public void onStateChanged(ServiceState state) {
+				serviceState = state;
+				updateStatusElements();
+			}
+		};
+		getActivity().registerReceiver(receiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 
 	}
 
@@ -190,7 +203,26 @@ public class DashboardFragment extends SherlockFragment {
 		checkUIUpdate();
 	}
 	
+	protected void updateStatusElements() {
+		ImageView connectionStateImage = (ImageView) getActivity().findViewById(R.id.connectionStateImage);
+		if (serviceState == ServiceState.SERVICE_STARTED) {
+			connectionStateImage.setImageResource(R.drawable.connection_state_true);
+		}
+		else if (serviceState == ServiceState.SERVICE_STARTING) {
+			connectionStateImage.setImageResource(R.drawable.connection_state_stale);
+		}
+		else {
+			connectionStateImage.setImageResource(R.drawable.connection_state_false);
+			co2 = 0.0;
+			speed = 0;
+			updateCo2Value();
+			updateSpeedValue();
+		}
+	}
+	
 	private synchronized void checkUIUpdate() {
+		if (serviceState == ServiceState.SERVICE_STOPPED) return;
+		
 		if (getActivity() == null || System.currentTimeMillis() - lastUIUpdate < 250) return;
 		
 		lastUIUpdate = System.currentTimeMillis();

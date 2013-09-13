@@ -18,31 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol;
+package org.envirocar.app.protocol.sequential;
 
-import java.util.ArrayList;
-import java.util.List;
+public class OBDLinkMXConnector extends ELM327Connector {
 
-import org.envirocar.app.commands.CommonCommand;
-import org.envirocar.app.commands.IntakePressure;
-import org.envirocar.app.commands.IntakeTemperature;
-import org.envirocar.app.commands.MAF;
-import org.envirocar.app.commands.RPM;
-import org.envirocar.app.commands.Speed;
 
-public abstract class AbstractOBDConnector {
-
-	public abstract List<CommonCommand> getInitializationCommands();
-	
-	public List<CommonCommand> getRequestCommands() {
-		List<CommonCommand> result = new ArrayList<CommonCommand>();
-		result.add(new Speed());
-		result.add(new MAF());
-		result.add(new RPM());
-		result.add(new IntakePressure());
-		result.add(new IntakeTemperature());
-		return result;
+	@Override
+	public boolean supportsDevice(String deviceName) {
+		return deviceName.equalsIgnoreCase("OBDLink MX");
 	}
 
-	
 }

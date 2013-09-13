@@ -26,8 +26,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-import org.envirocar.app.logging.Logger;
-
 /**
  * Abstract command class that the other commands have to extend. Many things
  * are imported from Android OBD Reader project!
@@ -42,16 +40,11 @@ public abstract class CommonCommand {
 	protected String rawData = null;
 	private Long commandId;
 	private CommonCommandState commandState;
+	private String responseByte;
+	private long resultTime;
 	
-	private static final Logger logger = Logger.getLogger(CommonCommand.class);
-	private static final long SLEEP_TIME = 25;
-	private static final int MAX_SLEEP_TIME = 5000;
 	private static final String COMMAND_SEND_END = "\r";
-	private static final char COMMAND_RECEIVE_END = '>';
-	private static final char COMMAND_RECEIVE_SPACE = ' ';
 	private static final String NODATA = "NODATA";
-	private static final CharSequence SEARCHING = "SEARCHING";
-	private static final CharSequence STOPPED = "STOPPED";
 
 	/**
 	 * Default constructor to use
@@ -61,15 +54,25 @@ public abstract class CommonCommand {
 	 */
 	public CommonCommand(String command) {
 		this.command = command;
+		determineResponseByte();
 		setCommandState(CommonCommandState.NEW);
 		this.buffer = new ArrayList<Integer>();
+	}
+
+	private void determineResponseByte() {
+		if (this.command == null || this.command.isEmpty()) return;
+		
+		String[] array = this.command.split(" ");
+		if (array != null && array.length > 1) {
+			this.responseByte = array[1];
+		}
 	}
 
 	/**
 	 * The state of the command.
 	 */
 	public enum CommonCommandState {
-		NEW, RUNNING, FINISHED, EXECUTION_ERROR, QUEUE_ERROR, SEARCHING
+		NEW, RUNNING, FINISHED, EXECUTION_ERROR, QUEUE_ERROR, SEARCHING, UNMATCHED_RESULT
 	}
 
 	/**
@@ -78,31 +81,17 @@ public abstract class CommonCommand {
 	 * This method CAN be overriden in fake commands.
 	 */
 	public void run(InputStream in, OutputStream out) throws IOException {
-		sendCommand(out);
-		waitForResult(in);
+
+	}
+	
+
+	public String getResponseByte() {
+		return responseByte;
 	}
 
-	private void waitForResult(final InputStream in) throws IOException {
-//		try {
-//			Thread.sleep(SLEEP_TIME);
-//		} catch (InterruptedException e) {
-//			logger.warn(e.getMessage(), e);
-//		}
-		
-		if (!awaitsResults()) return; 
-		try {
-			int tries = 0;
-			while (in.available() <= 0) {
-				if (tries++ * SLEEP_TIME > MAX_SLEEP_TIME)
-					throw new IOException("OBD-II Request Timeout of "+MAX_SLEEP_TIME +" ms exceeded.");
-				
-				Thread.sleep(SLEEP_TIME);
-			}
-			logger.info(getCommandName().concat(Long.toString(System.currentTimeMillis())));
-			readResult(in);
-		} catch (InterruptedException e) {
-			logger.warn(e.getMessage(), e);
-		}	
+
+	public boolean responseAlwaysRequired() {
+		return true;
 	}
 
 	/**
@@ -110,68 +99,16 @@ public abstract class CommonCommand {
 	 * 
 	 * @return if the command awaits raw data as a result
 	 */
-	protected boolean awaitsResults() {
+	public boolean awaitsResults() {
 		return true;
 	}
 
-	/**
-	 * Sends the OBD-II request.
-	 * 
-	 * This method may be overriden in subclasses, such as ObMultiCommand or
-	 * TroubleCodesObdCommand.
-	 * 
-	 * @param command
-	 *            The command to send.
-	 */
-	protected void sendCommand(OutputStream outputStream) throws IOException {
-		// write to OutputStream, or in this case a BluetoothSocket
-		outputStream.write(command.concat(COMMAND_SEND_END).getBytes());
-		outputStream.flush();
-
-	}
-
-	/**
-	 * Resends this command.
-	 * @deprecated never used!
-	 */
-	@Deprecated
-	protected void resendCommand(OutputStream outputStream) throws IOException,
-			InterruptedException {
-		outputStream.write("\r".getBytes());
-		outputStream.flush();
-	}
-
-	/**
-	 * Reads the OBD-II response.
-	 */
-	protected void readResult(InputStream in) throws IOException {
-		byte b = 0;
-		StringBuilder sb = new StringBuilder();
-
-		// read until '>' arrives
-		while ((char) (b = (byte) in.read()) != COMMAND_RECEIVE_END)
-			if ((char) b != COMMAND_RECEIVE_SPACE)
-				sb.append((char) b);
-
-		rawData = sb.toString().trim();
-
-		logger.info(getCommandName() +": "+ rawData);
-
-		if (isSearching(rawData)) {
-			setCommandState(CommonCommandState.SEARCHING);
-			return;
-		}
-		
-		// read string each two chars
-		parseRawData();
+	public String getEndOfLineSend() {
+		return COMMAND_SEND_END;
 	}
 
 
-	private boolean isSearching(String rawData2) {
-		return rawData2.contains(SEARCHING) || rawData2.contains(STOPPED);
-	}
-
-	protected abstract void parseRawData();
+	public abstract void parseRawData();
 
 	/**
 	 * @return the raw command response in string representation.
@@ -246,8 +183,8 @@ public abstract class CommonCommand {
 		sb.append(getCommand());
 		sb.append(", RawData: ");
 		sb.append(getRawData());
-		sb.append(", Result: ");
-		sb.append(getResult());
+		sb.append(", Result Time: ");
+		sb.append(getResultTime());
 		return sb.toString();
 	}
 
@@ -263,5 +200,16 @@ public abstract class CommonCommand {
 		return false;
 	}
 
+	public void setRawData(String r) {
+		rawData = r;
+	}
+
+	public void setResultTime(long currentTimeMillis) {
+		this.resultTime = currentTimeMillis;
+	}
+
+	public long getResultTime() {
+		return resultTime;
+	}
 
 }

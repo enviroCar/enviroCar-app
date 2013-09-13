@@ -31,12 +31,16 @@ import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
-import org.envirocar.app.application.service.BackgroundService;
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
+import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.BackgroundServiceConnector;
 import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapterImpl;
+
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 
 import android.app.Activity;
 import android.app.Application;
@@ -199,7 +203,7 @@ public class ECApplication extends Application {
 			logger.info("requirements met");
 			deviceInRangeService = new Intent(this, DeviceInRangeService.class);
 			startService(deviceInRangeService);
-			backgroundService = new Intent(this, BackgroundService.class);
+			backgroundService = new Intent(this, BackgroundServiceImpl.class);
 			serviceConnector = new BackgroundServiceConnector();
 			bindService(backgroundService, serviceConnector,
 					Context.BIND_AUTO_CREATE);
@@ -207,21 +211,29 @@ public class ECApplication extends Application {
 			receiver = new BroadcastReceiver() {
 				@Override
 				public void onReceive(Context context, Intent intent) {
-					if (intent.getAction().equals(BackgroundService.CONNECTION_VERIFIED_INTENT)) {
-						onAdapterConnected();
-					}
-					else if (intent.getAction().equals(BackgroundService.DISCONNECTED_INTENT)) {
-						onAdapterDisconnected();
-					}
-					else if (intent.getAction().equals(BackgroundService.CONNECTION_PERMANENTLY_FAILED_INTENT)) {
+					if (intent.getAction().equals(BackgroundServiceImpl.CONNECTION_PERMANENTLY_FAILED_INTENT)) {
 						connectionPermanentlyFailed();
 					}
 				}
 			};
 			
-			registerReceiver(receiver, new IntentFilter(BackgroundService.CONNECTION_VERIFIED_INTENT));
-			registerReceiver(receiver, new IntentFilter(BackgroundService.CONNECTION_PERMANENTLY_FAILED_INTENT));
-			registerReceiver(receiver, new IntentFilter(BackgroundService.DISCONNECTED_INTENT));
+			registerReceiver(receiver, new IntentFilter(BackgroundServiceImpl.CONNECTION_PERMANENTLY_FAILED_INTENT));
+
+			registerReceiver(new AbstractBackgroundServiceStateReceiver() {
+				@Override
+				public void onStateChanged(ServiceState state) {
+					switch (state) {
+					case SERVICE_STARTED:
+						onAdapterConnected();
+						break;
+					case SERVICE_STOPPED:
+						onAdapterDisconnected();
+						break;
+					default:
+						break;
+					}
+				}
+			}, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 		} else {
 			logger.warn("bluetooth not activated!");
 		}
@@ -238,27 +250,25 @@ public class ECApplication extends Application {
 
 	/**
 	 * Connects to the Bluetooth Adapter and starts the execution of the
-	 * commands. also opens the db and starts the gps.
+	 * commands. this method does not do a sanity check - callers must
+	 * verify the state of the service (e.g. through {@link AbstractBackgroundServiceStateReceiver}.)
 	 */
 	public void startConnection() {
-		logger.info("Starts the recording of a track");
-		//createNewTrackIfNecessary();
-		if (!serviceConnector.isRunning()) {
-			startService(backgroundService);
-		}
-
+		logger.info("ECApplication startConnection");
+		startService(backgroundService);
 	}
 
 	/**
 	 * Ends the connection with the Bluetooth Adapter. also stops gps and closes the db.
+	 * this method does not do a sanity check - callers must
+	 * verify the state of the service (e.g. through {@link AbstractBackgroundServiceStateReceiver}.)
 	 */
 	public void stopConnection() {
-		logger.info("Stops the recording of a track");
-		if (serviceConnector != null && serviceConnector.isRunning()) {
-			stopService(backgroundService);
+		logger.info("ECApplication stopConnection");
+		if (serviceConnector != null) {
 			serviceConnector.shutdownBackgroundService();
+			stopService(backgroundService);
 		}
-//		closeDb();
 	}
 
 
@@ -339,8 +349,9 @@ public class ECApplication extends Application {
 	}
 
 	private void onAdapterConnected() {
-		displayToast("OBD-II Adapter connected");
+		displayCrouton("OBD-II Adapter connected");
 	}
+
 
 	private void onAdapterDisconnected() {
 		displayToast("OBD-II Adapter disconnected");	
@@ -351,12 +362,16 @@ public class ECApplication extends Application {
 	}
 
 	private void displayToast(final String string) {
+		Toast.makeText(getApplicationContext(), string, Toast.LENGTH_LONG).show();
+	}
+	
+	private void displayCrouton(final String string) {
 		if (getCurrentActivity() == null) return;
 		
 		getCurrentActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Toast.makeText(getApplicationContext(), string, Toast.LENGTH_LONG).show();				
+				Crouton.makeText(getCurrentActivity(), string, Style.INFO).show();
 			}
 		});		
 	}

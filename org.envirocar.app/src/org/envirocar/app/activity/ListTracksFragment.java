@@ -326,7 +326,6 @@ public class ListTracksFragment extends SherlockFragment {
 
 		case R.id.menu_delete_all:
 			DbAdapterImpl.instance().deleteAllLocalTracks();
-			((ECApplication) getActivity().getApplication()).resetTrack();
 			Crouton.makeText(getActivity(), R.string.all_local_tracks_deleted,Style.CONFIRM).show();
 			return true;
 			
