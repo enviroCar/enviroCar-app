@@ -42,6 +42,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -272,6 +273,7 @@ public class LoginFragment extends SherlockFragment {
 						getActivity(),
 						getResources().getString(R.string.welcome_message)
 								+ " " + mUsername, Style.CONFIRM).show();
+				getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 				DashboardFragment dashboardFragment = new DashboardFragment();
 				getActivity().getSupportFragmentManager().beginTransaction()
 						.replace(R.id.content_frame, dashboardFragment)

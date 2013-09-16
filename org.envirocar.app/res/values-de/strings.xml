@@ -62,6 +62,9 @@
     <string name="length">"Länge: "</string>
     <string name="Co2emission">"CO\u2082 Ausstoß: "</string>
     <string name="consumption">"Verbrauch: "</string>
+    <string name="fuel_cost">"Treibstoffkosten: "</string>
+    <string name="calculating">"Wird berechnet&#8230;"</string>
+    <string name="error_calculating_fuel_costs">"Fehler bei der Berechnung."</string>
     <string name="title_activity_settings">Einstellungen</string>
     <string name="currentSpeed">Aktuelle Geschwindigkeit</string>
     <string name="currentPosition">Aktuelle Position</string>
