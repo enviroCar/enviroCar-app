@@ -31,6 +31,7 @@ package org.envirocar.app.commands;
 public class IntakePressure extends NumberResultCommand {
 
 	public static final String NAME = "Intake Manifold Pressure";
+	private int pressure;
 
 	public IntakePressure() {
 		super("01 0B");
@@ -46,12 +47,17 @@ public class IntakePressure extends NumberResultCommand {
 		String result = getRawData();
 
 		if (!"NODATA".equals(result)) {
-			int pressure = buffer.get(2);
+			pressure = buffer[2];
 			result = String.format("%d%s", pressure, "");
 
 		}
 
 		return result;
+	}
+
+	@Override
+	public Number getNumberResult() {
+		return pressure;
 	}
 
 }

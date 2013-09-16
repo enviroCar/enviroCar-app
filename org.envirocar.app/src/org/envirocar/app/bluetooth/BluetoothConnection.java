@@ -18,10 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.application.service;
+package org.envirocar.app.bluetooth;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -30,8 +29,11 @@ import java.util.List;
 import java.util.UUID;
 
 import org.envirocar.app.activity.TroubleshootingActivity;
+import org.envirocar.app.application.service.BackgroundService;
+import org.envirocar.app.bluetooth.FallbackBluetoothSocket.FallbackException;
 import org.envirocar.app.logging.Logger;
 
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -41,6 +43,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Parcelable;
 
+@SuppressLint("NewApi")
 public class BluetoothConnection extends Thread {
 
 	private static final Logger logger = Logger.getLogger(BluetoothConnection.class);
@@ -55,12 +58,15 @@ public class BluetoothConnection extends Thread {
 	protected boolean started;
 	private UUID uuid;
 	private BackgroundService owner;
-	private BluetoothSocket bluetoothSocket;
+	private BluetoothSocketWrapper bluetoothSocket;
+	private Context context;
 
-    public BluetoothConnection(BluetoothDevice device, boolean secure, BackgroundService owner) {
+    public BluetoothConnection(BluetoothDevice device, boolean secure, BackgroundService owner,
+    		Context ctx) {
     	logger.info("initiliasing connection to device "+device.getName() +" / "+ device.getAddress());
     	adapter = BluetoothAdapter.getDefaultAdapter();
     	this.owner = owner;
+    	this.context = ctx;
         this.secure = secure;
         this.device = device;
 
@@ -105,20 +111,24 @@ public class BluetoothConnection extends Thread {
 			        	logger.info(uuid.toString());
 			        	uuidCandidates.add(UUID.fromString(uuid.toString()));
 					}
+			        
+			        if (uuidCandidates.isEmpty()) {
+			        	uuidCandidates.add(EMBEDDED_BOARD_SPP);
+			        }
 
 			        synchronized (BluetoothConnection.this) {
 			        	if (!BluetoothConnection.this.started) {
 			        		BluetoothConnection.this.start();
 			        		BluetoothConnection.this.started = true;
-			        		owner.unregisterReceiver(this);
+			        		context.unregisterReceiver(this);
 			        	}
 			        	
 			        }
 			    }
 
 			};
-			owner.registerReceiver(receiver, new IntentFilter("android.bleutooth.device.action.UUID"));
-			owner.registerReceiver(receiver, new IntentFilter("android.bluetooth.device.action.UUID"));
+			context.registerReceiver(receiver, new IntentFilter("android.bleutooth.device.action.UUID"));
+			context.registerReceiver(receiver, new IntentFilter("android.bluetooth.device.action.UUID"));
 			
 			fetchUuidsWithSdpMethod.invoke(device, args);
 		} catch (IllegalArgumentException e) {
@@ -153,19 +163,35 @@ public class BluetoothConnection extends Thread {
             try {
 				// This is a blocking call and will only return on a
                 // successful connection or an exception
+            	
+            	logger.info("Connecting to socket...");
+            	//TODO this might block VERY LONG! create a simple listening thread -> timeout -> call BackgroundService.deviceDisconnected()
         		bluetoothSocket.connect();
-//            	alternativeConnect();
+        		logger.info("Connected!");
         		success = true;
             	break;
 	            		
             } catch (IOException e) {
-                // Close the socket
-                try {
-                	shutdownSocket(bluetoothSocket, new Object(), new Object());
-                } catch (IOException e2) {
-                    logger.warn(e2.getMessage(), e2);
-                }
-            }
+            	//try the fallback
+            	try {
+					bluetoothSocket = new FallbackBluetoothSocket(bluetoothSocket.getUnderlyingSocket());
+					Thread.sleep(500);					
+					bluetoothSocket.connect();
+	        		success = true;
+	            	break;
+				} catch (FallbackException e1) {
+					logger.warn("Could not initialize FallbackBluetoothSocket classes.", e);
+				} catch (InterruptedException e1) {
+					logger.warn(e1.getMessage(), e1);
+				} catch (IOException e1) {
+					 // Close the socket
+	                try {
+	                	shutdownSocket(bluetoothSocket, new Object(), new Object());
+	                } catch (IOException e2) {
+	                    logger.warn(e2.getMessage(), e2);
+	                }
+				}
+			}
     	}
 		
 		if (success) {
@@ -192,7 +218,7 @@ public class BluetoothConnection extends Thread {
                 tmp = device.createInsecureRfcommSocketToServiceRecord(
                 		uuid);
             }
-            bluetoothSocket = tmp;
+            bluetoothSocket = new NativeBluetoothSocket(tmp);
             return true;
         } catch (IOException e) {
         	logger.warn(e.getMessage() ,e);
@@ -201,53 +227,8 @@ public class BluetoothConnection extends Thread {
 		return false;
 	}
 	
-    private void alternativeConnect() throws IOException {
-    	Class<?> rfSocketClass;
-    	Object rfSocket;
-    	try {
-    		rfSocketClass = Class.forName("android.bluetooth.RfcommSocket");
-            rfSocket = rfSocketClass.newInstance();
-            rfSocketClass.getMethod("create", new Class<?>[0]).invoke(rfSocket, new Object[0]);	
-    	}
-    	catch (ClassNotFoundException e) {
-    		throw new IOException(e);
-    	} catch (InstantiationException e) {
-    		throw new IOException(e);
-		} catch (IllegalAccessException e) {
-			throw new IOException(e);
-		} catch (IllegalArgumentException e) {
-			throw new IOException(e);
-		} catch (InvocationTargetException e) {
-			throw new IOException(e);
-		} catch (NoSuchMethodException e) {
-			throw new IOException(e);
-		}
-    	
-        try
-        {
-          Class<?>[] arrayOfClass = new Class[2];
-          arrayOfClass[0] = String.class;
-          arrayOfClass[1] = Integer.TYPE;
-          Method localMethod = rfSocketClass.getMethod("connect", arrayOfClass);
-          Object localObject = rfSocket;
-          Object[] arrayOfObject = new Object[2]; 
-          arrayOfObject[0] = bluetoothSocket.getRemoteDevice().getAddress();
-          arrayOfObject[1] = Integer.valueOf(0);
-          if (!((Boolean)localMethod.invoke(localObject, arrayOfObject)).booleanValue()) {
-        	  throw new IOException("Can't connect to device " + bluetoothSocket.getRemoteDevice().getAddress());
-          }
-          OutputStream out = (OutputStream) rfSocketClass.getMethod("getOutputStream", new Class<?>[0]).invoke(localObject, new Object[0]);
-          out.write("HI!".getBytes());
-          out.flush();
-          
-        }
-        catch (Exception e)
-        {
-          throw new IOException(e);
-        }
-    }
     
-	public static void shutdownSocket(BluetoothSocket socket, Object inputMutex, Object outputMutex)
+	public static void shutdownSocket(BluetoothSocketWrapper socket, Object inputMutex, Object outputMutex)
 			throws IOException {
 		synchronized (inputMutex) {
 			logger.info("Shutting down bluetooth socket.");

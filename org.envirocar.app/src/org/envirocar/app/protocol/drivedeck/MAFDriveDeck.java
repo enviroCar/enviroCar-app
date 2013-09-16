@@ -18,42 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
+package org.envirocar.app.protocol.drivedeck;
 
-package org.envirocar.app.commands;
+import org.envirocar.app.commands.MAF;
 
-/**
- * Throttle position on PID 01 11
- * 
- * @author jakob
- * 
- */
-public class TPS extends NumberResultCommand {
-
-	private float value;
-
-	public TPS() {
-		super("01 11");
-	}
+public class MAFDriveDeck extends MAF {
 
 	@Override
-	public String getCommandName() {
-		return "Throttle Position";
+	public void parseRawData() {
+		buffer[2] = responseBytes[0];
+		buffer[3] = responseBytes[1];
 	}
-
+	
 	@Override
-	public String getResult() {
-		String result = getRawData();
-
-		if (!"NODATA".equals(result)) {
-			value = (buffer[2] * 100.0f) / 255.0f;
-			result = String.format("%.1f%s", value, "");
-		}
-		return result;
+	public String getRawData() {
+		return "41"+getCommand();
 	}
-
-	@Override
-	public Number getNumberResult() {
-		return value;
-	}
-
+	
 }

@@ -78,6 +78,8 @@ public class CycleCommand extends CommonCommand {
 	}
 
 	private static final String NAME = "A17";
+	public static final int RESPONSE_PREFIX_CHAR_AS_INT = (int) 'B';
+	public static final char TOKEN_SEPARATOR_CHAR_AS_INT = (int) '<';
 	private byte[] bytes;
 	
 

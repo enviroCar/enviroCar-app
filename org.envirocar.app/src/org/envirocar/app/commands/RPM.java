@@ -30,6 +30,7 @@ package org.envirocar.app.commands;
 public class RPM extends NumberResultCommand {
 
 	public static final String NAME = "Engine RPM";
+	private int rpm;
 
 	public RPM() {
 		super("01 0C");
@@ -38,11 +39,9 @@ public class RPM extends NumberResultCommand {
 	@Override
 	public String getResult() {
 
-		int rpm = -1;
-
 		if (!"NODATA".equals(getRawData())) {
-			int bytethree = buffer.get(2);
-			int bytefour = buffer.get(3);
+			int bytethree = buffer[2];
+			int bytefour = buffer[3];
 			rpm = (bytethree * 256 + bytefour) / 4;
 		}
 
@@ -52,6 +51,11 @@ public class RPM extends NumberResultCommand {
 	@Override
 	public String getCommandName() {
 		return NAME;
+	}
+
+	@Override
+	public Number getNumberResult() {
+		return rpm;
 	}
 
 }

@@ -20,21 +20,14 @@
  */
 package org.envirocar.app.application.service;
 
-import android.bluetooth.BluetoothSocket;
-import android.content.BroadcastReceiver;
-import android.content.Intent;
-import android.content.IntentFilter;
+import org.envirocar.app.bluetooth.BluetoothSocketWrapper;
 
 public interface BackgroundService {
-
-	void unregisterReceiver(BroadcastReceiver broadcastReceiver);
-
-	Intent registerReceiver(BroadcastReceiver receiver, IntentFilter intentFilter);
 
 	void deviceDisconnected();
 
 	void openTroubleshootingActivity(int errorType);
 
-	void deviceConnected(BluetoothSocket bluetoothSocket);
+	void deviceConnected(BluetoothSocketWrapper bluetoothSocket);
 
 }

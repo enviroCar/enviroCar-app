@@ -30,6 +30,7 @@ package org.envirocar.app.commands;
 public class IntakeTemperature extends NumberResultCommand {
 
 	public static final String NAME = "Air Intake Temperature";
+	private int temperature;
 
 	public IntakeTemperature() {
 		super("01 0F");
@@ -45,11 +46,16 @@ public class IntakeTemperature extends NumberResultCommand {
 		String result = getRawData();
 
 		if (!"NODATA".equals(result)) {
-			float temperature = buffer.get(2) - 40;
-			result = String.format("%.0f%s", temperature, "");
+			temperature = buffer[2] - 40;
+			result = String.format("%.0f%s", (float) temperature, "");
 		}
 
 		return result;
+	}
+
+	@Override
+	public Number getNumberResult() {
+		return temperature;
 	}
 
 }

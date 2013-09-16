@@ -29,6 +29,8 @@ package org.envirocar.app.commands;
  */
 public class LongTermTrimBank1 extends NumberResultCommand {
 
+	private double perc;
+
 	public LongTermTrimBank1() {
 		super("01 07");
 	}
@@ -39,18 +41,22 @@ public class LongTermTrimBank1 extends NumberResultCommand {
 		float fuelTrimValue = 0.0f;
 
 		if (!"NODATA".equals(getRawData())) {
-			int tmpValue = buffer.get(2);
-			Double perc = (tmpValue - 128) * (100.0 / 128);
-			fuelTrimValue = Float.parseFloat(perc.toString());
+			int tmpValue = buffer[2];
+			perc = (tmpValue - 128) * (100.0 / 128);
 		}
 
-		return String.format("%.2f%s", fuelTrimValue, "");
+		return String.format("%.2f%s", perc, "");
 	}
 
 	@Override
 	public String getCommandName() {
 
 		return "Long Term Fuel Trim Bank 1";
+	}
+
+	@Override
+	public Number getNumberResult() {
+		return perc;
 	}
 
 }

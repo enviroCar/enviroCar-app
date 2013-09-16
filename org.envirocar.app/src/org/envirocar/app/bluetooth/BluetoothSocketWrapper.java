@@ -18,42 +18,28 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
+package org.envirocar.app.bluetooth;
 
-package org.envirocar.app.commands;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-/**
- * Throttle position on PID 01 11
- * 
- * @author jakob
- * 
- */
-public class TPS extends NumberResultCommand {
+import android.bluetooth.BluetoothSocket;
 
-	private float value;
+public interface BluetoothSocketWrapper {
 
-	public TPS() {
-		super("01 11");
-	}
+	InputStream getInputStream() throws IOException;
 
-	@Override
-	public String getCommandName() {
-		return "Throttle Position";
-	}
+	OutputStream getOutputStream() throws IOException;
 
-	@Override
-	public String getResult() {
-		String result = getRawData();
+	String getRemoteDeviceName();
 
-		if (!"NODATA".equals(result)) {
-			value = (buffer[2] * 100.0f) / 255.0f;
-			result = String.format("%.1f%s", value, "");
-		}
-		return result;
-	}
+	void connect() throws IOException;
 
-	@Override
-	public Number getNumberResult() {
-		return value;
-	}
+	String getRemoteDeviceAddress();
+
+	void close() throws IOException;
+
+	BluetoothSocket getUnderlyingSocket();
 
 }
