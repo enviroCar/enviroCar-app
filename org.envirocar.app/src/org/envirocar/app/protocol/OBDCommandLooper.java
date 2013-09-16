@@ -60,7 +60,6 @@ import android.os.Looper;
 public class OBDCommandLooper extends HandlerThread {
 
 	private static final Logger logger = Logger.getLogger(OBDCommandLooper.class);
-	private static final int MAX_TRIES_PER_ADAPTER = 1;
 	protected static final long ADAPTER_TRY_PERIOD = 5000;
 	
 	private List<OBDConnector> adapterCandidates = new ArrayList<OBDConnector>();
@@ -108,16 +107,23 @@ public class OBDCommandLooper extends HandlerThread {
 	private Runnable initializationCommandsRunnable = new Runnable() {
 		public void run() {
 			if (running && !connectionEstablished) {
+				if (obdAdapter != null && obdAdapter.connectionVerified()) {
+					connectionEstablished();
+					return;
+				}
+				
+				try {
+					selectAdapter();
+				} catch (AllAdaptersFailedException e) {
+					connectionListener.onAllAdaptersFailed();
+				}
+				
 				String stmt = "Trying "+obdAdapter.getClass().getSimpleName() +".";
 				logger.info(stmt);
 				connectionListener.onStatusUpdate(stmt);
+			
 				try {
 					executeInitializationRequests();
-					
-					if (obdAdapter.connectionVerified()) {
-						connectionEstablished();
-						return;
-					}
 				} catch (IOException e) {
 					running = false;
 					connectionListener.onConnectionException(e);
@@ -127,15 +133,14 @@ public class OBDCommandLooper extends HandlerThread {
 					logger.warn(e.getMessage());
 				}
 				
+				if (obdAdapter != null && obdAdapter.connectionVerified()) {
+					connectionEstablished();
+					return;
+				}
+				
 				if (!running) {
 					logger.info("Exiting commandHandler.");
 					throw new LooperStoppedException();
-				}
-				
-				try {
-					selectAdapter();
-				} catch (AllAdaptersFailedException e) {
-					connectionListener.onAllAdaptersFailed();
 				}
 				
 				commandExecutionHandler.postDelayed(initializationCommandsRunnable, ADAPTER_TRY_PERIOD);
@@ -296,7 +301,7 @@ public class OBDCommandLooper extends HandlerThread {
 
 
 	private void selectAdapter() throws AllAdaptersFailedException {
-		if (++tries >= MAX_TRIES_PER_ADAPTER) {
+		if (++tries > this.obdAdapter.getMaximumTriesForInitialization()) {
 			if (adapterIndex+1 >= adapterCandidates.size()) {
 				throw new AllAdaptersFailedException(adapterCandidates.toString());
 			}

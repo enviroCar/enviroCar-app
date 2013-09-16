@@ -18,20 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.commands;
+package org.envirocar.app.protocol;
 
-public abstract class StringResultCommand extends CommonCommand {
+import org.envirocar.app.commands.CommonCommand;
 
-	public StringResultCommand(String command) {
-		super(command);
-	}
+public interface ResponseParser {
+
 	
-	@Override
-	public void parseRawData() {
-	}
-	
-	public String getStringResult() {
-		return new String(getRawData());
-	}
+	/**
+	 * @param bytes the byte buffer
+	 * @param start offset index
+	 * @param end last byte index
+	 * @return the parsed command response
+	 */
+	public CommonCommand processResponse(byte[] bytes, int start, int end);
+
+	/**
+	 * @return the end of line character
+	 */
+	public char getEndOfLine();
 
 }

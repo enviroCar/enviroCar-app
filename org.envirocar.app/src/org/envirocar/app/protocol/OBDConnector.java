@@ -96,4 +96,10 @@ public interface OBDConnector {
 	 */
 	public void shutdown();
 
+	/**
+	 * @return the number of maximum tries an adapter sends out
+	 * the initial set of commands
+	 */
+	public int getMaximumTriesForInitialization();
+
 }

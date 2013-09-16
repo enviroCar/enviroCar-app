@@ -21,8 +21,6 @@
 
 package org.envirocar.app.commands;
 
-import java.util.Locale;
-
 import org.envirocar.app.logging.Logger;
 
 /**
@@ -35,29 +33,12 @@ public class MAF extends NumberResultCommand {
 	
 	private static final Logger logger = Logger.getLogger(MAF.class);
 	public static final String NAME = "Mass Air Flow";
-	private float maf;
+	private float maf = Float.NaN;
 	
 	public MAF() {
 		super("01 10");
 	}
 
-	@Override
-	public String getResult() {
-
-		try {
-			if (!"NODATA".equals(getRawData())) {
-				int bytethree = buffer[2];
-				int bytefour = buffer[3];
-				maf = (bytethree * 256 + bytefour) / 100.0f;
-			}
-		} catch (IndexOutOfBoundsException ioobe){
-			logger.warn("Get wrong result of the obd adapter");
-		} catch (Exception e) {
-			logger.warn("Error while creating the mass air flow value", e);
-		}
-
-		return String.format(Locale.getDefault(),"%.2f%s", maf, "");
-	}
 
 	@Override
 	public String getCommandName() {
@@ -66,6 +47,21 @@ public class MAF extends NumberResultCommand {
 
 	@Override
 	public Number getNumberResult() {
+		if (Float.isNaN(maf)) {
+			int[] buffer = getBuffer();
+			try {
+				if (getCommandState() != CommonCommandState.EXECUTION_ERROR) {
+					int bytethree = buffer[2];
+					int bytefour = buffer[3];
+					maf = (bytethree * 256 + bytefour) / 100.0f;
+				}
+			} catch (IndexOutOfBoundsException ioobe){
+				logger.warn("Get wrong result of the obd adapter");
+			} catch (Exception e) {
+				logger.warn("Error while creating the mass air flow value", e);
+			}
+
+		}
 		return maf;
 	}
 }

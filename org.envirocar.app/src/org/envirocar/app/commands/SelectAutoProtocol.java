@@ -34,10 +34,6 @@ public class SelectAutoProtocol extends StringResultCommand {
 		super("AT SP " + 0);
 	}
 
-	@Override
-	public String getResult() {
-		return getRawData();
-	}
 
 	@Override
 	public String getCommandName() {

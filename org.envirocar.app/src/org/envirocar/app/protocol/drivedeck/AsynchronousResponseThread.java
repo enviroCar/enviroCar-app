@@ -26,11 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.envirocar.app.commands.CommonCommand;
-import org.envirocar.app.commands.IntakePressure;
-import org.envirocar.app.commands.IntakeTemperature;
-import org.envirocar.app.commands.RPM;
-import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.protocol.ResponseParser;
 import org.envirocar.app.protocol.exception.LooperStoppedException;
 
 import android.os.Handler;
@@ -40,6 +37,7 @@ import android.os.Looper;
 public class AsynchronousResponseThread extends HandlerThread {
 	
 	private static final Logger logger = Logger.getLogger(AsynchronousResponseThread.class);
+	private static final long SLEEP_TIME = 25;
 	private Handler handler;
 	private InputStream inputStream;
 	
@@ -48,14 +46,17 @@ public class AsynchronousResponseThread extends HandlerThread {
 	
 	private List<CommonCommand> buffer = new ArrayList<CommonCommand>();
 	protected boolean running = true;
-	private int[] globalBuffer = new int[64];
+	private byte[] globalBuffer = new byte[64];
 	private int globalIndex;
 	private int previousEOLIndex = -1;
+	private ResponseParser responseParser;
 
-	public AsynchronousResponseThread(final InputStream in, Object sm) {
+	public AsynchronousResponseThread(final InputStream in, Object sm, ResponseParser responseParser) {
 		super("AsynchronousResponseThread");
 		this.inputStream = in;
 		this.socketMutex = sm;
+		
+		this.responseParser = responseParser;
 		
 		this.readInputStreamRunnable = new Runnable() {
 			
@@ -98,7 +99,7 @@ public class AsynchronousResponseThread extends HandlerThread {
 	protected void waitForResponse() throws IOException {
 		try {
 			while (inputStream.available() <= 0) {
-				Thread.sleep(DriveDeckSportConnector.SLEEP_TIME);
+				Thread.sleep(SLEEP_TIME);
 			}
 		} catch (InterruptedException e) {
 			logger.warn(e.getMessage(), e);
@@ -106,17 +107,20 @@ public class AsynchronousResponseThread extends HandlerThread {
 	}
 	
 	private CommonCommand readResponse() throws IOException {
-		int byteIn;
+		byte byteIn;
 		while (true) {
-			byteIn = inputStream.read();
-			if (byteIn <= 0) {
+			byteIn = (byte) inputStream.read();
+			
+			if ((int) byteIn <= 0) {
 				break;
 			}
+			
 			globalBuffer[globalIndex++] = byteIn;
 			
-			if (byteIn == DriveDeckSportConnector.END_OF_LINE_RESPONSE) {
+			if (byteIn == (byte) responseParser.getEndOfLine()) {
 				if (previousEOLIndex != -1) {
-					CommonCommand result = processResponse(globalBuffer, previousEOLIndex, globalIndex);
+					CommonCommand result = responseParser.processResponse(globalBuffer,
+							previousEOLIndex, globalIndex);
 					previousEOLIndex = 0;
 					globalIndex = 0;
 					return result;
@@ -129,87 +133,6 @@ public class AsynchronousResponseThread extends HandlerThread {
 		return null;
 	}
 	
-	private CommonCommand processResponse(int[] bytes, int start, int end) {
-		if (start >= end) return null;
-		
-		logGlobalBuffer(end);
-		
-		if (bytes[start+0] != CycleCommand.RESPONSE_PREFIX_CHAR_AS_INT) return null;
-		
-		if (bytes[start+4] == CycleCommand.TOKEN_SEPARATOR_CHAR_AS_INT) return null;
-		
-		long now = System.currentTimeMillis();
-		
-		String pid = new String(bytes, start+1, 2);
-		
-		int[] pidResponseValue = new int[2];
-		int target;
-		for (int i = start+4; i <= end; i++) {
-			if (bytes[i] == CycleCommand.TOKEN_SEPARATOR_CHAR_AS_INT)
-				break;
-			
-			target = i-start-4;
-			if (target >= pidResponseValue.length) break;
-			pidResponseValue[target] = bytes[i];
-		}
-		
-		return parseCommandReponse(pid, pidResponseValue, now);
-	}
-
-	private CommonCommand parseCommandReponse(String pid,
-			int[] pidResponseValue, long now) {
-		
-		CommonCommand result = null;
-		if (pid.equals("41")) {
-			//Speed
-			result = new SpeedDriveDeck();
-		}
-		else if (pid.equals("42")) {
-			//MAF
-			result = new MAFDriveDeck();
-		}
-		else if (pid.equals("52")) {
-			//IAP
-			result = new IntakeTemperature();
-		}
-		else if (pid.equals("49")) {
-			//IAT
-			result = new IntakePressure();
-		}
-		else if (pid.equals("40") || pid.equals("51")) {
-			//RPM
-			result = new RPM();
-		}
-		
-		if (result != null) {
-			result.setResponseBytes(pidResponseValue);
-			result.parseRawData();
-			result.setCommandState(CommonCommandState.FINISHED);
-			result.setResultTime(now);
-		}
-		
-		return result;
-	}
-
-	private void logGlobalBuffer(int limit) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("[ ");
-		
-		byte[] bytes = new byte[limit];
-		
-		int c = 0;
-		for (int i : globalBuffer) {
-			bytes[c++] = (byte) i;
-			if (c >= limit) break;
-			sb.append(i);
-			sb.append(", ");
-		}
-		sb.append(" ]");
-		logger.info(sb.toString());
-		logger.info(new String(bytes));
-	}
-
-
 
 	@Override
 	public void run() {

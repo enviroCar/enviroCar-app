@@ -34,10 +34,6 @@ public class Defaults extends StringResultCommand {
 		super("AT D");
 	}
 
-	@Override
-	public String getResult() {
-		return getRawData();
-	}
 
 	@Override
 	public String getCommandName() {

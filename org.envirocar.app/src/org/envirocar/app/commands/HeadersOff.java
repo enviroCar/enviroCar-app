@@ -34,10 +34,6 @@ public class HeadersOff extends StringResultCommand {
 		super("AT H0");
 	}
 
-	@Override
-	public String getResult() {
-		return getRawData();
-	}
 
 	@Override
 	public String getCommandName() {

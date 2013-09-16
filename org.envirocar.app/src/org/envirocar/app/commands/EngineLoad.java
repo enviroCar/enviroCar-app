@@ -29,7 +29,7 @@ package org.envirocar.app.commands;
  */
 public class EngineLoad extends NumberResultCommand {
 
-	private float value;
+	private float value = Float.NaN;
 
 	/**
 	 * Create the Command
@@ -43,21 +43,13 @@ public class EngineLoad extends NumberResultCommand {
 		return "Engine Load";
 	}
 
-	@Override
-	public String getResult() {
-		String result = getRawData();
-
-		if (!"NODATA".equals(result)) {
-
-			value = (buffer[2] * 100.0f) / 255.0f;
-			result = String.format("%.1f%s", value, "");
-		}
-
-		return result;
-	}
 
 	@Override
 	public Number getNumberResult() {
+		if (value == Float.NaN) {
+			int[] buffer = getBuffer();
+			value = (buffer[2] * 100.0f) / 255.0f;
+		}
 		return value;
 	}
 

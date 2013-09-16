@@ -24,15 +24,5 @@ import org.envirocar.app.commands.MAF;
 
 public class MAFDriveDeck extends MAF {
 
-	@Override
-	public void parseRawData() {
-		buffer[2] = responseBytes[0];
-		buffer[3] = responseBytes[1];
-	}
-	
-	@Override
-	public String getRawData() {
-		return "41"+getCommand();
-	}
 	
 }
