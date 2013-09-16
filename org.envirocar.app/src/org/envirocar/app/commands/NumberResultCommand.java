@@ -45,7 +45,7 @@ public abstract class NumberResultCommand extends CommonCommand {
 						return;
 					}
 				}
-				buffer.add(Integer.parseInt(tmp, 16));
+				buffer[index/2] = Integer.parseInt(tmp, 16);
 			} catch (NumberFormatException e) {
 				logger.warn(e.getMessage());
 				setCommandState(CommonCommandState.EXECUTION_ERROR);
@@ -53,5 +53,7 @@ public abstract class NumberResultCommand extends CommonCommand {
 			index += length;
 		}
 	}
+	
+	public abstract Number getNumberResult();
 	
 }

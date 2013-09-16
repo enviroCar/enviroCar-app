@@ -31,6 +31,8 @@ import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.CommandListener;
 import org.envirocar.app.application.Listener;
 import org.envirocar.app.application.LocationUpdateListener;
+import org.envirocar.app.bluetooth.BluetoothConnection;
+import org.envirocar.app.bluetooth.BluetoothSocketWrapper;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.ConnectionListener;
 import org.envirocar.app.protocol.OBDCommandLooper;
@@ -38,7 +40,6 @@ import org.envirocar.app.protocol.OBDCommandLooper;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -70,7 +71,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 
 	// Bluetooth devices and connection items
 
-	private BluetoothSocket bluetoothSocket;
+	private BluetoothSocketWrapper bluetoothSocket;
 
 	private Listener commandListener;
 	private final Binder binder = new LocalBinder();
@@ -187,7 +188,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 				.getDefaultAdapter();
 		BluetoothDevice bluetoothDevice = bluetoothAdapter.getRemoteDevice(remoteDevice);
 
-		new BluetoothConnection(bluetoothDevice, true, this);
+		new BluetoothConnection(bluetoothDevice, true, this, getApplicationContext());
 		
 		sendStateBroadcast(ServiceState.SERVICE_STARTING);
 	}
@@ -202,7 +203,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	 * method gets called when the bluetooth device connection
 	 * has been established. 
 	 */
-	public void deviceConnected(BluetoothSocket sock) {
+	public void deviceConnected(BluetoothSocketWrapper sock) {
 		logger.info("Bluetooth device connected.");
 		bluetoothSocket = sock;
 		
@@ -217,7 +218,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 			return;
 		}
 		
-		initializeCommandLooper(in, out, bluetoothSocket.getRemoteDevice().getName());
+		initializeCommandLooper(in, out, bluetoothSocket.getRemoteDeviceName());
 	}
 
 	protected void initializeCommandLooper(InputStream in, OutputStream out, String deviceName) {

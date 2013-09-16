@@ -36,8 +36,7 @@ public class DriveDeckSportConnector implements OBDConnector {
 
 	private static final Logger logger = Logger.getLogger(DriveDeckSportConnector.class);
 	private static final char CARRIAGE_RETURN = '\r';
-	static final char END_OF_LINE_RESPONSE = '>';
-	static final String TOKEN_DELIMITER_RESPONSE = "<";
+	static final int END_OF_LINE_RESPONSE = (int) '>';
 	static final int SLEEP_TIME = 25;
 	static final int TIMEOUT = 1000 * 5;
 	private static final long MAX_WAITING_TIME = 1000 * 30;
@@ -109,9 +108,9 @@ public class DriveDeckSportConnector implements OBDConnector {
 		List<PID> pidList = new ArrayList<PID>();
 		pidList.add(PID.SPEED);
 		pidList.add(PID.MAF);
-		pidList.add(PID.RPM);
-		pidList.add(PID.IAP);
-		pidList.add(PID.IAT);
+//		pidList.add(PID.RPM);
+//		pidList.add(PID.IAP);
+//		pidList.add(PID.IAT);
 		this.cycleCommand = new CycleCommand(pidList);
 	}
 

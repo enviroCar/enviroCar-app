@@ -25,7 +25,7 @@ package org.envirocar.app.commands;
 /**
  * Turns off line-feed.
  */
-public class PIDSupported extends NumberResultCommand {
+public class PIDSupported extends StringResultCommand {
 
 	/**
 	 * @param command
