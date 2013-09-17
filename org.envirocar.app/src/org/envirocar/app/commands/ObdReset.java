@@ -36,18 +36,10 @@ public class ObdReset extends StringResultCommand {
 		return false;
 	}
 
-	@Override
-	public String getResult() {
-		return getRawData();
-	}
 
 	@Override
 	public String getCommandName() {
 		return "Reset OBD";
 	}
 
-	@Override
-	public boolean isNoDataCommand() {
-		return true;
-	}
 }

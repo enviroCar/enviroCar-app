@@ -30,24 +30,12 @@ package org.envirocar.app.commands;
 public class Speed extends NumberResultCommand {
 
 	public static final String NAME = "Vehicle Speed";
-	private int metricSpeed;
+	private int metricSpeed = Short.MIN_VALUE;
 
 	public Speed() {
 		super("01 0D");
 	}
 
-	@Override
-	public String getResult() {
-		String result = getRawData();
-
-		if (!"NODATA".equals(result)) {
-			metricSpeed = buffer[2];
-			result = String.format("%d%s", metricSpeed, "");
-
-		}
-
-		return result;
-	}
 
 	@Override
 	public String getCommandName() {
@@ -56,6 +44,10 @@ public class Speed extends NumberResultCommand {
 
 	@Override
 	public Number getNumberResult() {
+		int[] buffer = getBuffer();
+		if (metricSpeed == Short.MIN_VALUE) {
+			metricSpeed = buffer[2];
+		}
 		return metricSpeed;
 	}
 

@@ -42,19 +42,11 @@ public class IntakeTemperature extends NumberResultCommand {
 	}
 
 	@Override
-	public String getResult() {
-		String result = getRawData();
-
-		if (!"NODATA".equals(result)) {
-			temperature = buffer[2] - 40;
-			result = String.format("%.0f%s", (float) temperature, "");
-		}
-
-		return result;
-	}
-
-	@Override
 	public Number getNumberResult() {
+		if (temperature == Short.MIN_VALUE) {
+			int[] buffer = getBuffer();
+			temperature = buffer[2] - 40;
+		}
 		return temperature;
 	}
 

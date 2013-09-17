@@ -186,7 +186,7 @@ public class BluetoothConnection extends Thread {
 				} catch (IOException e1) {
 					 // Close the socket
 	                try {
-	                	shutdownSocket(bluetoothSocket, new Object(), new Object());
+	                	shutdownSocket(bluetoothSocket);
 	                } catch (IOException e2) {
 	                    logger.warn(e2.getMessage(), e2);
 	                }
@@ -228,23 +228,19 @@ public class BluetoothConnection extends Thread {
 	}
 	
     
-	public static void shutdownSocket(BluetoothSocketWrapper socket, Object inputMutex, Object outputMutex)
+	public static void shutdownSocket(BluetoothSocketWrapper socket)
 			throws IOException {
-		synchronized (inputMutex) {
-			logger.info("Shutting down bluetooth socket.");
-			if (socket.getInputStream() != null) {
-				try {
-					socket.getInputStream().close();
-				} catch (Exception e) {}
-			}
+		logger.info("Shutting down bluetooth socket.");
+		if (socket.getInputStream() != null) {
+			try {
+				socket.getInputStream().close();
+			} catch (Exception e) {}
 		}
-		
-		synchronized (outputMutex) {
-			if (socket.getOutputStream() != null) {
-				try {
-					socket.getOutputStream().close();
-				} catch (Exception e) {}
-			}
+	
+		if (socket.getOutputStream() != null) {
+			try {
+				socket.getOutputStream().close();
+			} catch (Exception e) {}
 		}
 		
 		try {

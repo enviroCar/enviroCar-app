@@ -35,11 +35,6 @@ public class EchoOff extends StringResultCommand {
 	}
 
 	@Override
-	public String getResult() {
-		return getRawData();
-	}
-
-	@Override
 	public String getCommandName() {
 		return "Echo Off";
 	}

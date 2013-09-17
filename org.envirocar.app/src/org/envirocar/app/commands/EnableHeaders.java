@@ -34,10 +34,6 @@ public class EnableHeaders extends StringResultCommand {
 		super("AT H1");
 	}
 
-	@Override
-	public String getResult() {
-		return getRawData();
-	}
 
 	@Override
 	public String getCommandName() {

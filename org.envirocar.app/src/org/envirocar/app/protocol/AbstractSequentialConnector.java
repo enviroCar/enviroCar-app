@@ -18,13 +18,15 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol.sequential;
+package org.envirocar.app.protocol;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.IntakePressure;
@@ -34,7 +36,6 @@ import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.Speed;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.protocol.OBDConnector;
 import org.envirocar.app.protocol.exception.AdapterFailedException;
 import org.envirocar.app.protocol.exception.ConnectionLostException;
 import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
@@ -45,25 +46,20 @@ import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
  * send out data without an explicit request)
  * 
  * @author matthes rieke
- *
  */
 public abstract class AbstractSequentialConnector implements OBDConnector {
 	
 	private static final Logger logger = Logger.getLogger(AbstractSequentialConnector.class.getName());
 	private static final int SLEEP_TIME = 25;
 	private static final int MAX_SLEEP_TIME = 5000;
-	private static final char COMMAND_RECEIVE_END = '>';
-	private static final char COMMAND_RECEIVE_SPACE = ' ';
 	private static final CharSequence SEARCHING = "SEARCHING";
 	private static final CharSequence STOPPED = "STOPPED";
 	private static final int MAX_INVALID_RESPONSE_COUNT = 5;
-	protected InputStream inputStream;
-	protected OutputStream outputStream;
-	protected Object inputMutex;
+	private InputStream inputStream;
+	private OutputStream outputStream;
 	private boolean connectionEstablished;
 	private boolean staleConnection;
 	private int invalidResponseCount;
-	private Object outputMutex;
 	
 	/**
 	 * @return the list of initialization commands for the adapter
@@ -83,15 +79,13 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	public abstract boolean supportsDevice(String deviceName);
 
 	@Override
-	public abstract boolean connectionVerified();
+	public abstract ConnectionState connectionState();
 
 	@Override
 	public void provideStreamObjects(InputStream inputStream,
-			OutputStream outputStream, Object socketMutex, Object outpuMutex) {
+			OutputStream outputStream) {
 		this.inputStream = inputStream;
 		this.outputStream = outputStream;
-		this.inputMutex = socketMutex;
-		this.outputMutex = outpuMutex;
 	}
 	
 	protected List<CommonCommand> getRequestCommands() {
@@ -104,16 +98,17 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 		return result;
 	}
 	
-	protected void runCommand(CommonCommand cmd)
+	private void runCommand(CommonCommand cmd)
 			throws IOException {
-		logger.debug("Sending command " +cmd.getCommandName()+ " / "+ cmd.getCommand());
-		synchronized (outputMutex) {
-			sendCommand(cmd);	
-		}
+		logger.debug("Sending command " +cmd.getCommandName()+ " / "+ new String(cmd.getOutgoingBytes()));
+		sendCommand(cmd);
 		
-		synchronized (inputMutex) {
-			waitForResult(cmd);	
-		}
+		if (!cmd.awaitsResults()) return; 
+		
+		// waiting with InputStream#available() does not work on all devices (and cars?!)
+//		waitForResult(cmd);
+		
+		readResult(cmd);	
 	}
 	
 	/**
@@ -125,13 +120,20 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	 * @param cmd
 	 *            The command to send.
 	 */
-	protected void sendCommand(CommonCommand cmd) throws IOException {
+	private void sendCommand(CommonCommand cmd) throws IOException {
 		// write to OutputStream, or in this case a BluetoothSocket
-		outputStream.write(cmd.getCommand().concat(cmd.getEndOfLineSend()).getBytes());
+		outputStream.write(cmd.getOutgoingBytes());
+		outputStream.write(cmd.getEndOfLineSend());
 		outputStream.flush();
 	}
 	
-	protected void waitForResult(CommonCommand cmd) throws IOException {
+	/**
+	 * @deprecated some devices (and cars?!) do not implement #available()
+	 * reliably
+	 */
+	@SuppressWarnings("unused")
+	@Deprecated
+	private void waitForResult(CommonCommand cmd) throws IOException {
 //		try {
 //			Thread.sleep(SLEEP_TIME);
 //		} catch (InterruptedException e) {
@@ -153,7 +155,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 				
 				Thread.sleep(getSleepTime());
 			}
-			readResult(cmd);
+			
 		} catch (InterruptedException e) {
 			logger.warn(e.getMessage(), e);
 		}	
@@ -163,14 +165,17 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	 * Reads the OBD-II response.
 	 * @param cmd 
 	 */
-	protected void readResult(CommonCommand cmd) throws IOException {
-		String rawData = readResponseLine(inputStream);
+	private void readResult(CommonCommand cmd) throws IOException {
+		byte[] rawData = readResponseLine(cmd);
+		String str = new String(rawData);
+		logger.info(str);
 		cmd.setRawData(rawData);
 		cmd.setResultTime(System.currentTimeMillis());
 
 		logger.debug(cmd.toString());
+		String dataString = new String(rawData);
 
-		if (isSearching(rawData) || cmd.isNoDataCommand()) {
+		if (isSearching(dataString) || isNoDataCommand(dataString)) {
 			cmd.setCommandState(CommonCommandState.SEARCHING);
 			return;
 		}
@@ -179,21 +184,30 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 		cmd.parseRawData();
 	}
 
-	public static String readResponseLine(InputStream in) throws IOException {
+	private byte[] readResponseLine(CommonCommand cmd) throws IOException {
 		byte b = 0;
-		StringBuilder sb = new StringBuilder();
 
+		Set<Character> ignored = cmd.getIgnoredChars();
+		
+		byte[] buffer = new byte[32];
+		int index = 0;
 		// read until '>' arrives
-		while ((char) (b = (byte) in.read()) != COMMAND_RECEIVE_END)
-			if ((char) b != COMMAND_RECEIVE_SPACE)
-				sb.append((char) b);
+		while ((char) (b = (byte) inputStream.read()) != cmd.getEndOfLineReceive()) {
+			if (!ignored.contains((char) b)){
+				buffer[index++] = b;
+			}
+		}
 
-		return sb.toString().trim();
+		return Arrays.copyOf(buffer, index);
 	}
 
 
-	private boolean isSearching(String rawData2) {
-		return rawData2.contains(SEARCHING) || rawData2.contains(STOPPED);
+	private boolean isSearching(String dataString) {
+		return dataString.contains(SEARCHING) || dataString.contains(STOPPED);
+	}
+	
+	private boolean isNoDataCommand(String dataString) {
+		return "NODATA".equals(dataString);
 	}
 
 	public int getMaxTimeout() {
@@ -218,11 +232,16 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	}
 	
 	@Override
-	public List<CommonCommand> executeRequestCommands() throws IOException, AdapterFailedException, UnmatchedCommandResponseException, ConnectionLostException {
+	public List<CommonCommand> executeRequestCommands() throws IOException, AdapterFailedException, ConnectionLostException {
 		List<CommonCommand> list = getRequestCommands();
 		
 		for (CommonCommand cmd : list) {
-			executeCommand(cmd);
+			try {
+				executeCommand(cmd);
+			} catch (UnmatchedCommandResponseException e) {
+				logger.warn("Unmatched Response detected! trying to read another line.");
+				readResponseLine(cmd);
+			}
 		}
 		
 		return list;
@@ -280,12 +299,12 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 			if (!cmd.awaitsResults()) return;
 			
 			if (cmd.getCommandState() == CommonCommandState.EXECUTION_ERROR) {
-				logger.warn("Execution Error for" +cmd.getCommandName() +" / "+cmd.getCommand());
+				logger.debug("Execution Error for" +cmd.getCommandName() +" / "+new String(cmd.getOutgoingBytes()));
 				return;
 			}
 			
 			else if (cmd.getCommandState() == CommonCommandState.UNMATCHED_RESULT) {
-				logger.warn("Did not receive the expected result! Expected: "+cmd.getResponseByte());
+				logger.warn("Did not receive the expected result! Expected: "+cmd.getResponseTypeID());
 				
 				if (staleConnection && invalidResponseCount++ > MAX_INVALID_RESPONSE_COUNT) {
 					throw new ConnectionLostException();
@@ -307,9 +326,9 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 				return;
 			}
 			
-			if (!connectionEstablished && !cmd.isNoDataCommand()) {
+			if (!connectionEstablished && !isNoDataCommand(new String(cmd.getRawData()))) {
 				processInitializationCommand(cmd);
-				if (connectionVerified()) {
+				if (connectionState() == ConnectionState.CONNECTED) {
 					connectionEstablished = true;
 				}
 			}

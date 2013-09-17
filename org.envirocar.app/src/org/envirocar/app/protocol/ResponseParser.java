@@ -18,21 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol.drivedeck;
+package org.envirocar.app.protocol;
 
-import org.envirocar.app.commands.Speed;
+import org.envirocar.app.commands.CommonCommand;
 
-public class SpeedDriveDeck extends Speed {
+public interface ResponseParser {
 
-	@Override
-	public void parseRawData() {
-		buffer[2] = responseBytes[0];
-		buffer[3] = responseBytes[1];
-	}
 	
-	@Override
-	public String getRawData() {
-		return "41"+getCommand();
-	}
-	
+	/**
+	 * @param bytes the byte buffer
+	 * @param start offset index
+	 * @param count byte count
+	 * @return the parsed command response
+	 */
+	public CommonCommand processResponse(byte[] bytes, int start, int count);
+
+	/**
+	 * @return the end of line character
+	 */
+	public char getEndOfLine();
+
+
 }

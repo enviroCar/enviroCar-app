@@ -39,6 +39,30 @@ import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
  */
 public interface OBDConnector {
 
+	
+	public enum ConnectionState {
+		
+		/**
+		 * used to indicate a state when the connector could
+		 * not understand any response received
+		 */
+		DISCONNECTED,
+		
+		/**
+		 * used to indicate a state when the connector understood
+		 * at least one command. Return this state only if the
+		 * adapter is sure, that it can interact with the device
+		 * - but the device yet did not return measurements
+		 */
+		CONNECTED,
+		
+		/**
+		 * used to indicate a state where the connector received
+		 * a parseable measurement
+		 */
+		VERIFIED
+	}
+	
 	/**
 	 * provide the required stream objects to send and retrieve
 	 * commands.
@@ -48,11 +72,9 @@ public interface OBDConnector {
 	 * 
 	 * @param inputStream
 	 * @param outputStream
-	 * @param inputMutex
-	 * @param outputMutex 
 	 */
 	public void provideStreamObjects(InputStream inputStream,
-			OutputStream outputStream, Object socketMutex, Object outputMutex);
+			OutputStream outputStream);
 
 	/**
 	 * An implementation shall return true if it 
@@ -66,7 +88,7 @@ public interface OBDConnector {
 	/**
 	 * @return true if the implementation established a meaningful connection
 	 */
-	public boolean connectionVerified();
+	public ConnectionState connectionState();
 
 	/**
 	 * an implementation shall use this method to initialize the connection
@@ -89,11 +111,24 @@ public interface OBDConnector {
 	 * @throws ConnectionLostException if the maximum number of unmatched responses exceeded
 	 */
 	public List<CommonCommand> executeRequestCommands() throws IOException,
-			AdapterFailedException, UnmatchedCommandResponseException, ConnectionLostException;
+			AdapterFailedException, ConnectionLostException;
 
+	
+	/**
+	 * an implementation shall prepare the freeing of resources (e.g. set running flags to false)
+	 */
+	public void prepareShutdown();
+	
 	/**
 	 * an implementation shall free all resources it has created (e.g. threads)
 	 */
 	public void shutdown();
+
+	/**
+	 * @return the number of maximum tries an adapter sends out
+	 * the initial set of commands
+	 */
+	public int getMaximumTriesForInitialization();
+
 
 }

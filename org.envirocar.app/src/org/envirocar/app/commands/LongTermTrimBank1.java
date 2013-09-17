@@ -29,23 +29,10 @@ package org.envirocar.app.commands;
  */
 public class LongTermTrimBank1 extends NumberResultCommand {
 
-	private double perc;
+	private double perc = Double.NaN;
 
 	public LongTermTrimBank1() {
 		super("01 07");
-	}
-
-	@Override
-	public String getResult() {
-
-		float fuelTrimValue = 0.0f;
-
-		if (!"NODATA".equals(getRawData())) {
-			int tmpValue = buffer[2];
-			perc = (tmpValue - 128) * (100.0 / 128);
-		}
-
-		return String.format("%.2f%s", perc, "");
 	}
 
 	@Override
@@ -56,6 +43,11 @@ public class LongTermTrimBank1 extends NumberResultCommand {
 
 	@Override
 	public Number getNumberResult() {
+		if (Double.isNaN(perc)) {
+			int[] buffer = getBuffer();
+			int tmpValue = buffer[2];
+			perc = (tmpValue - 128) * (100.0 / 128);
+		}
 		return perc;
 	}
 

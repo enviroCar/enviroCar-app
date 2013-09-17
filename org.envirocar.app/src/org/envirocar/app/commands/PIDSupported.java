@@ -34,10 +34,6 @@ public class PIDSupported extends StringResultCommand {
 		super("01 00");
 	}
 
-	@Override
-	public String getResult() {
-		return getRawData();
-	}
 
 	@Override
 	public String getCommandName() {

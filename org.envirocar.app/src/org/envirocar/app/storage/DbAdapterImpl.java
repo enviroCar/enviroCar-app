@@ -17,6 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.R.raw;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -373,17 +374,19 @@ public class DbAdapterImpl implements DbAdapter {
 			measurement.setTime(Long.valueOf(time));
 			measurement.setTrack(track);
 			
-			try {
-				JSONObject json = new JSONObject(rawData);
-				JSONArray names = json.names();
-				if (names != null) {
-					for (int j = 0; j < names.length(); j++) {
-						String key = names.getString(j);
-						measurement.addProperty(PropertyKey.valueOf(key), json.getDouble(key));
+			if (rawData != null) {
+				try {
+					JSONObject json = new JSONObject(rawData);
+					JSONArray names = json.names();
+					if (names != null) {
+						for (int j = 0; j < names.length(); j++) {
+							String key = names.getString(j);
+							measurement.addProperty(PropertyKey.valueOf(key), json.getDouble(key));
+						}
 					}
+				} catch (JSONException e) {
+					logger.severe("could not load properties", e);
 				}
-			} catch (JSONException e) {
-				logger.severe("could not load properties", e);
 			}
 	
 			allMeasurements.add(measurement);

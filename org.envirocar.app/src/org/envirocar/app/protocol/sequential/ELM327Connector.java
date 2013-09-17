@@ -28,7 +28,9 @@ import org.envirocar.app.commands.EchoOff;
 import org.envirocar.app.commands.LineFeedOff;
 import org.envirocar.app.commands.ObdReset;
 import org.envirocar.app.commands.SelectAutoProtocol;
+import org.envirocar.app.commands.StringResultCommand;
 import org.envirocar.app.commands.Timeout;
+import org.envirocar.app.protocol.AbstractSequentialConnector;
 
 public class ELM327Connector extends AbstractSequentialConnector {
 	
@@ -96,42 +98,59 @@ public class ELM327Connector extends AbstractSequentialConnector {
 
 	@Override
 	public void processInitializationCommand(CommonCommand cmd) {
-		String content = cmd.getResult();
-		if (cmd instanceof EchoOff) {
-			if (content.contains("ELM327v1.")) {
-				succesfulCount++;
+		if (cmd instanceof StringResultCommand) {
+			String content = ((StringResultCommand) cmd).getStringResult();
+			
+			if (cmd instanceof EchoOff) {
+				if (content.contains("ELM327v1.")) {
+					succesfulCount++;
+				}
+				else if (content.contains("ATE0") && content.contains("OK")) {
+					succesfulCount++;
+				}
 			}
-			else if (content.contains("ATE0") && content.contains("OK")) {
-				succesfulCount++;
+			
+			else if (cmd instanceof LineFeedOff) {
+				if (content.contains("OK")) {
+					succesfulCount++;
+				}
+			}
+			
+			else if (cmd instanceof Timeout) {
+				if (content.contains("OK")) {
+					succesfulCount++;
+				}
+			}
+			
+			else if (cmd instanceof SelectAutoProtocol) {
+				if (content.contains("OK")) {
+					succesfulCount++;
+				}
 			}
 		}
 		
-		else if (cmd instanceof LineFeedOff) {
-			if (content.contains("OK")) {
-				succesfulCount++;
-			}
-		}
-		
-		else if (cmd instanceof Timeout) {
-			if (content.contains("OK")) {
-				succesfulCount++;
-			}
-		}
-		
-		else if (cmd instanceof SelectAutoProtocol) {
-			if (content.contains("OK")) {
-				succesfulCount++;
-			}
-		}
 	}
 
 	@Override
-	public boolean connectionVerified() {
-		return succesfulCount >= 5;
+	public ConnectionState connectionState() {
+		if (succesfulCount >= 5) {
+			return ConnectionState.CONNECTED;
+		}
+		return ConnectionState.DISCONNECTED;
 	}
 
 	@Override
 	public void shutdown() {
+		
+	}
+
+	@Override
+	public int getMaximumTriesForInitialization() {
+		return 1;
+	}
+
+	@Override
+	public void prepareShutdown() {
 		// TODO Auto-generated method stub
 		
 	}

@@ -28,6 +28,11 @@ public abstract class StringResultCommand extends CommonCommand {
 	
 	@Override
 	public void parseRawData() {
+		setCommandState(CommonCommandState.FINISHED);
+	}
+	
+	public String getStringResult() {
+		return new String(getRawData());
 	}
 
 }

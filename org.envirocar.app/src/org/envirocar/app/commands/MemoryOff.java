@@ -34,10 +34,6 @@ public class MemoryOff extends StringResultCommand {
 		super("AT M0");
 	}
 
-	@Override
-	public String getResult() {
-		return getRawData();
-	}
 
 	@Override
 	public String getCommandName() {

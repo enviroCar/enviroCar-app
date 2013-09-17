@@ -77,9 +77,9 @@ public class CycleCommand extends CommonCommand {
 		}
 	}
 
-	private static final String NAME = "A17";
-	public static final int RESPONSE_PREFIX_CHAR_AS_INT = (int) 'B';
-	public static final char TOKEN_SEPARATOR_CHAR_AS_INT = (int) '<';
+	private static final String NAME = "a17";
+	public static final char RESPONSE_PREFIX_CHAR = 'B';
+	public static final char TOKEN_SEPARATOR_CHAR = '<';
 	private byte[] bytes;
 	
 
@@ -101,12 +101,6 @@ public class CycleCommand extends CommonCommand {
 	@Override
 	public void parseRawData() {
 		
-	}
-
-	@Override
-	public String getResult() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	@Override
