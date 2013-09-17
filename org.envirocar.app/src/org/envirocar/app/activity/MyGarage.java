@@ -40,10 +40,10 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -192,8 +192,7 @@ public class MyGarage extends SherlockFragment {
 								((JSONObject) parent.getItemAtPosition(pos)).getString("model"),
 								((JSONObject) parent.getItemAtPosition(pos)).getString("fuelType"),
 								((JSONObject) parent.getItemAtPosition(pos)).getInt("constructionYear"));
-			        	DashboardFragment dashboardFragment = new DashboardFragment();
-			            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
+			        	hide();
 					} catch (JSONException e) {
 						logger.warn(e.getMessage(), e);
 					}
@@ -391,9 +390,7 @@ public class MyGarage extends SherlockFragment {
 				Car car = new Car(carFuelType, carManufacturer, carModel, sensorId, year, engineDisplacement);
 				CarManager.instance().setCat(car);
 				//go back to the dashboard
-				// TODO use existing dashboard, dont create a new!
-	        	DashboardFragment dashboardFragment = new DashboardFragment();
-	            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
+				hide();
 			}
 		});
 
@@ -486,5 +483,10 @@ public class MyGarage extends SherlockFragment {
             return text;
         }
 
-    }		
+    }	
+	
+	private void hide(){
+		getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+		getActivity().getSupportFragmentManager().beginTransaction().hide(this).commit();
+	}
 }
