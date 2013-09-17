@@ -78,9 +78,6 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 
 	private OBDCommandLooper commandLooper;
 
-	private Object inputMutex = new Object();
-	private Object outputMutex = new Object();
-
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -150,7 +147,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 				
 				if (bluetoothSocket != null) {
 					try {
-						BluetoothConnection.shutdownSocket(bluetoothSocket, inputMutex, outputMutex);
+						BluetoothConnection.shutdownSocket(bluetoothSocket);
 					} catch (Exception e) {
 						logger.warn(e.getMessage(), e);
 					}
@@ -224,7 +221,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	protected void initializeCommandLooper(InputStream in, OutputStream out, String deviceName) {
 		commandListener = new CommandListener(CarManager.instance().getCar());
 		this.commandLooper = new OBDCommandLooper(
-				in, out, inputMutex, outputMutex,  deviceName,
+				in, out, deviceName,
 				this.commandListener, new ConnectionListener() {
 					@Override
 					public void onConnectionVerified() {

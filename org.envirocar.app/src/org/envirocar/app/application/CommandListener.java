@@ -20,13 +20,11 @@
  */
 package org.envirocar.app.application;
 
-import java.text.NumberFormat;
-import java.util.Locale;
-
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.IntakePressure;
 import org.envirocar.app.commands.IntakeTemperature;
 import org.envirocar.app.commands.MAF;
+import org.envirocar.app.commands.NumberResultCommand;
 import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.Speed;
 import org.envirocar.app.event.EventBus;
@@ -45,7 +43,6 @@ import org.envirocar.app.storage.Track;
 import org.envirocar.app.views.Utils;
 
 import android.location.Location;
-import android.net.ParseException;
 
 /**
  * Standalone listener class for OBDII commands. It provides all
@@ -77,9 +74,12 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 	public void receiveUpdate(CommonCommand command) {
 		// Get the name and the result of the Command
+		
+		if (!(command instanceof NumberResultCommand)) return;
+		
+		NumberResultCommand numberCommand = (NumberResultCommand) command;
 
 		String commandName = command.getCommandName();
-		String commandResult = command.getResult();
 		if (isNoDataCommand(command))
 			return;
 
@@ -93,7 +93,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		if (commandName.equals(Speed.NAME)) {
 
 			try {
-				Integer speedMeasurement = Integer.valueOf(commandResult);
+				Integer speedMeasurement = (Integer) numberCommand.getNumberResult();
 				this.collector.newSpeed(speedMeasurement);
 				EventBus.getInstance().fireEvent(new SpeedEvent(speedMeasurement));
 			} catch (NumberFormatException e) {
@@ -109,7 +109,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 			// speedTextView.setText(commandResult + " km/h");
 
 			try {
-				Integer rpmMeasurement = Integer.valueOf(commandResult);
+				Integer rpmMeasurement = (Integer) numberCommand.getNumberResult();
 				this.collector.newRPM(rpmMeasurement);
 				EventBus.getInstance().fireEvent(new RPMEvent(rpmMeasurement));
 			} catch (NumberFormatException e) {
@@ -125,7 +125,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 			// speedTextView.setText(commandResult + " km/h");
 
 			try {
-				Integer intakePressureMeasurement = Integer.valueOf(commandResult);
+				Integer intakePressureMeasurement = (Integer) numberCommand.getNumberResult();
 				this.collector.newIntakePressure(intakePressureMeasurement);
 				EventBus.getInstance().fireEvent(new IntakePressureEvent(intakePressureMeasurement));
 			} catch (NumberFormatException e) {
@@ -141,7 +141,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 			// speedTextView.setText(commandResult + " km/h");
 
 			try {
-				Integer intakeTemperatureMeasurement = Integer.valueOf(commandResult);
+				Integer intakeTemperatureMeasurement = (Integer) numberCommand.getNumberResult();
 				this.collector.newIntakeTemperature(intakeTemperatureMeasurement);
 				EventBus.getInstance().fireEvent(new IntakeTemperatureEvent(intakeTemperatureMeasurement));
 			} catch (NumberFormatException e) {
@@ -150,19 +150,8 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		}
 						
 		else if (commandName.equals(MAF.NAME)) {
-			String maf = commandResult;
-
-			try {
-				NumberFormat format = NumberFormat.getInstance(Locale.getDefault());
-				Number number;
-				number = format.parse(maf);
-				double mafMeasurement = number.doubleValue();
-				this.collector.newMAF(mafMeasurement);
-			} catch (ParseException e) {
-				logger.warn("parse exception maf", e);
-			} catch (java.text.ParseException e) {
-				logger.warn("parse exception maf", e);
-			}
+			float mafMeasurement = (Float) numberCommand.getNumberResult();
+			this.collector.newMAF(mafMeasurement);
 		}
 		else {
 			return;
@@ -175,10 +164,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		if (command.getRawData() != null && (command.getRawData().equals("NODATA") ||
 				command.getRawData().equals(""))) return true;
 		
-		if (command.getResult() != null && (command.getResult().equals("NODATA") ||
-				command.getResult().equals(""))) return true;
-		
-		if (command.getResult() == null || command.getRawData() == null) return true;
+		if (command.getRawData() == null) return true;
 		
 		return false;
 	}

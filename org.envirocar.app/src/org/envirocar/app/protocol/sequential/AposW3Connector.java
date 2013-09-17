@@ -28,6 +28,7 @@ import org.envirocar.app.commands.EchoOff;
 import org.envirocar.app.commands.LineFeedOff;
 import org.envirocar.app.commands.ObdReset;
 import org.envirocar.app.commands.SelectAutoProtocol;
+import org.envirocar.app.commands.StringResultCommand;
 import org.envirocar.app.commands.Timeout;
 
 public class AposW3Connector extends ELM327Connector {
@@ -43,35 +44,42 @@ public class AposW3Connector extends ELM327Connector {
 		result.add(new SelectAutoProtocol());
 		return result;
 	}
-	
+
 	@Override
 	public boolean supportsDevice(String deviceName) {
 		return deviceName.contains("APOS") && deviceName.contains("OBD_W3");
 	}
-	
+
 	@Override
 	public void processInitializationCommand(CommonCommand cmd) {
-		String content = cmd.getResult();
+
 		if (cmd instanceof AposEchoOff) {
-			if (content.contains("OK")) {
-				succesfulCount++;
+			if (cmd instanceof StringResultCommand) {
+				String content = ((StringResultCommand) cmd).getStringResult();
+				if (content.contains("OK")) {
+					succesfulCount++;
+				}
 			}
 		} else {
 			super.processInitializationCommand(cmd);
 		}
+
 	}
-	
+
 	@Override
-	public boolean connectionVerified() {
-		return succesfulCount >= 4;
+	public ConnectionState connectionState() {
+		if (succesfulCount >= 4) {
+			return ConnectionState.CONNECTED;
+		}
+		return ConnectionState.DISCONNECTED;
 	}
 
 	private static class AposEchoOff extends EchoOff {
-		
+
 		@Override
 		public boolean responseAlwaysRequired() {
 			return false;
 		}
-		
+
 	}
 }

@@ -316,7 +316,7 @@ public class UploadManager {
 	private File savetoSdCard(JSONObject obj, long fileid) {
 		File log = new File(context.getExternalFilesDir(null),"envirocar_track"+fileid+".json");
 		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(log.getAbsolutePath(), true));
+			BufferedWriter out = new BufferedWriter(new FileWriter(log.getAbsolutePath(), false));
 			out.write(obj.toString());
 			out.flush();
 			out.close();

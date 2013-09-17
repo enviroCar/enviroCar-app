@@ -20,19 +20,30 @@
  */
 package org.envirocar.app.protocol.drivedeck;
 
-import org.envirocar.app.commands.MAF;
+import org.envirocar.app.commands.CommonCommand;
 
-public class MAFDriveDeck extends MAF {
+public class CarriageReturnCommand extends CommonCommand {
+
+	private static final String NAME = "DriveDeck CR";
+
+	public CarriageReturnCommand() {
+		super(NAME);
+	}
 
 	@Override
 	public void parseRawData() {
-		buffer[2] = responseBytes[0];
-		buffer[3] = responseBytes[1];
+		
+	}
+
+	@Override
+	public String getCommandName() {
+		return NAME;
 	}
 	
 	@Override
-	public String getRawData() {
-		return "41"+getCommand();
+	public byte[] getOutgoingBytes() {
+		return new byte[0];
 	}
-	
+
+
 }

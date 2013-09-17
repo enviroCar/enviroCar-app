@@ -37,10 +37,6 @@ public class Timeout extends StringResultCommand {
 		super("AT ST " + Integer.toHexString(0xFF & timeout));
 	}
 
-	@Override
-	public String getResult() {
-		return getRawData();
-	}
 
 	@Override
 	public String getCommandName() {

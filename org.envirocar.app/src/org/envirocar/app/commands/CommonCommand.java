@@ -21,9 +21,8 @@
 
 package org.envirocar.app.commands;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Abstract command class that the other commands have to extend. Many things
@@ -34,17 +33,25 @@ import java.io.OutputStream;
  */
 public abstract class CommonCommand {
 
-	protected int[] buffer = null;
-	protected String command = null;
-	protected String rawData = null;
+	private static Set<Character> ignoredChars;
+	private static final char COMMAND_SEND_END = '\r';
+	private static final char COMMAND_RECEIVE_END = '>';
+	private static final char COMMAND_RECEIVE_SPACE = ' ';
+	
+	static {
+		ignoredChars = new HashSet<Character>();
+		ignoredChars.add(COMMAND_RECEIVE_SPACE);
+		ignoredChars.add(COMMAND_SEND_END);
+	}
+	
+	private byte[] rawData = null;
+	private String command = null;
 	private Long commandId;
 	private CommonCommandState commandState;
-	private String responseByte;
+	private String responseTypeId;
 	private long resultTime;
-	protected int[] responseBytes;
 	
-	private static final String COMMAND_SEND_END = "\r";
-	private static final String NODATA = "NODATA";
+
 
 	/**
 	 * Default constructor to use
@@ -56,7 +63,6 @@ public abstract class CommonCommand {
 		this.command = command;
 		determineResponseByte();
 		setCommandState(CommonCommandState.NEW);
-		this.buffer = new int[16];
 	}
 
 	private void determineResponseByte() {
@@ -64,7 +70,7 @@ public abstract class CommonCommand {
 		
 		String[] array = this.command.split(" ");
 		if (array != null && array.length > 1) {
-			this.responseByte = array[1];
+			this.responseTypeId = array[1];
 		}
 	}
 
@@ -75,18 +81,9 @@ public abstract class CommonCommand {
 		NEW, RUNNING, FINISHED, EXECUTION_ERROR, QUEUE_ERROR, SEARCHING, UNMATCHED_RESULT
 	}
 
-	/**
-	 * Sends the OBD-II request and deals with the response.
-	 * 
-	 * This method CAN be overriden in fake commands.
-	 */
-	public void run(InputStream in, OutputStream out) throws IOException {
 
-	}
-	
-
-	public String getResponseByte() {
-		return responseByte;
+	public String getResponseTypeID() {
+		return responseTypeId;
 	}
 
 
@@ -94,43 +91,15 @@ public abstract class CommonCommand {
 		return true;
 	}
 
-	/**
-	 * Override if the sub-command does not get data back from the OBD-II interface
-	 * 
-	 * @return if the command awaits raw data as a result
-	 */
-	public boolean awaitsResults() {
-		return true;
-	}
-
-	public String getEndOfLineSend() {
-		return COMMAND_SEND_END;
-	}
-
-
 	public abstract void parseRawData();
 
-	/**
-	 * @return the raw command response in string representation.
-	 * 
-	 * TODO rawData is null, when car switch. What should be done in this case?
-	 */
-	public String getRawData() {
-		if (rawData == null || rawData.contains("SEARCHING") || rawData.contains("DATA")
-//				//TODO check if cars do this!!
-//				|| rawData.contains("OK")
-				) {
-			rawData = NODATA;
-		}
-		return rawData;
-	}
 
 	/**
 	 * Returns this command in string representation.
 	 * 
 	 * @return the command
 	 */
-	public String getCommand() {
+	private String getCommand() {
 		return command;
 	}
 
@@ -140,24 +109,12 @@ public abstract class CommonCommand {
 	public abstract String getCommandName();
 
 	/**
-	 * @return a formatted command response in string representation.
-	 */
-	public abstract String getResult();
-
-	/**
 	 * @return the commandId
 	 */
 	public Long getCommandId() {
 		return commandId;
 	}
 
-	/**
-	 * @param commandId
-	 *            the commandId to set
-	 */
-	public void setCommandId(Long commandId) {
-		this.commandId = commandId;
-	}
 
 	/**
 	 * @return the commandState
@@ -181,23 +138,9 @@ public abstract class CommonCommand {
 		sb.append(getCommandName());
 		sb.append(", Command: ");
 		sb.append(getCommand());
-		sb.append(", RawData: ");
-		sb.append(getRawData());
 		sb.append(", Result Time: ");
 		sb.append(getResultTime());
 		return sb.toString();
-	}
-
-	public boolean isNoDataCommand() {
-		if (getRawData() != null && (getRawData().equals(NODATA) ||
-				getRawData().equals(""))) return true;
-		
-		if (getResult() != null && (getResult().equals(NODATA) ||
-				getResult().equals(""))) return true;
-		
-		if (getResult() == null || getRawData() == null) return true;
-		
-		return false;
 	}
 
 
@@ -209,12 +152,36 @@ public abstract class CommonCommand {
 		return resultTime;
 	}
 
-	public void setResponseBytes(int[] pidResponseValue) {
-		this.responseBytes = pidResponseValue;
+	public byte[] getOutgoingBytes() {
+		return getCommand().getBytes();
 	}
 
-	public void setRawData(String rawData2) {
-		this.rawData = rawData2;
+	public void setRawData(byte[] rawData) {
+		this.rawData = rawData;
+	}
+
+	public char getEndOfLineReceive() {
+		return COMMAND_RECEIVE_END;
+	}
+
+	public char getIgnoreCharReceive() {
+		return COMMAND_RECEIVE_SPACE;
+	}
+
+	public char getEndOfLineSend() {
+		return COMMAND_SEND_END;
+	}
+
+	public boolean awaitsResults() {
+		return true;
+	}
+
+	public byte[] getRawData() {
+		return this.rawData;
+	}
+
+	public Set<Character> getIgnoredChars() {
+		return ignoredChars;
 	}
 
 }

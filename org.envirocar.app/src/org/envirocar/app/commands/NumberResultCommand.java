@@ -20,11 +20,10 @@
  */
 package org.envirocar.app.commands;
 
-import org.envirocar.app.logging.Logger;
-
 public abstract class NumberResultCommand extends CommonCommand {
 
-	private static final Logger logger = Logger.getLogger(NumberResultCommand.class);
+	private static final String STATUS_OK = "41";
+	private int[] buffr;
 	
 	public NumberResultCommand(String command) {
 		super(command);
@@ -35,25 +34,44 @@ public abstract class NumberResultCommand extends CommonCommand {
 		
 		int index = 0;
 		int length = 2;
-		while (index + length <= rawData.length()) {
-			try {
-				String tmp = rawData.substring(index, index + length);
-				if (index == 2) {
-					// this is the ID byte
-					if (!tmp.equals(this.getResponseByte())) {
-						setCommandState(CommonCommandState.UNMATCHED_RESULT);
-						return;
-					}
+		byte[] data = getRawData();
+		buffr = new int[data.length / 2];
+		while (index + length <= data.length) {
+			String tmp = new String(data, index, length);
+			
+			if (index == 0) {
+				// this is the status
+				if (!tmp.equals(STATUS_OK)) {
+					setCommandState(CommonCommandState.EXECUTION_ERROR);
+					return;
 				}
-				buffer[index/2] = Integer.parseInt(tmp, 16);
-			} catch (NumberFormatException e) {
-				logger.warn(e.getMessage());
+			}
+			else if (index == 2) {
+				// this is the ID byte
+				if (!tmp.equals(this.getResponseTypeID())) {
+					setCommandState(CommonCommandState.UNMATCHED_RESULT);
+					return;
+				}
+			}
+			
+			/*
+			 * this is a hex number
+			 */
+			buffr[index/2] = Integer.parseInt(tmp, 16);
+			if (buffr[index/2] < 0){
 				setCommandState(CommonCommandState.EXECUTION_ERROR);
+				return;
 			}
 			index += length;
 		}
+		
+		setCommandState(CommonCommandState.FINISHED);
 	}
 	
 	public abstract Number getNumberResult();
+
+	public int[] getBuffer() {
+		return buffr;
+	}
 	
 }
