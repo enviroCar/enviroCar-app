@@ -460,13 +460,13 @@ public class SimulatorService {
 		}
 		else if(s.startsWith("01 0D")) {
 			//Speed
-			rawData = "000D" + (23+random.nextInt(45));
+			rawData = "410D" + (23+random.nextInt(45));
 		}
 		else if (s.equals("01 10")) {
 			int bytethree = (1+random.nextInt(8));
 			int bytefour = (80+random.nextInt(19));
 			//MAF
-			rawData = "00100"+ bytethree+""+ bytefour;
+			rawData = "41100"+ bytethree+""+ bytefour;
 			lastMaf = (bytethree * 256 + bytefour) / 100.0f;
 		}
 		else if (s.equals("01 0B")) {
@@ -474,14 +474,14 @@ public class SimulatorService {
 			double press = getPressureFromLastMAFCalculation();
 			String tmp = Integer.toHexString((int) press);
 			if (tmp.length() == 1) tmp = "0"+tmp;
-			rawData = "000B" +tmp; 
+			rawData = "410B" +tmp; 
 		}
 		else if (s.equals("01 0F")) {
 			//temp
 			double temp = getTemperatureFromLastMAFCalcuation();
 			String tmp = Integer.toHexString((int) (temp + 40));
 			if (tmp.length() == 1) tmp = "0"+tmp;
-			rawData = "000F" +tmp;
+			rawData = "410F" +tmp;
 		}
 		else if (s.equals("01 0C")) {
 			//rpm
