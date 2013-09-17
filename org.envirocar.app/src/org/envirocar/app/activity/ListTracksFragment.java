@@ -31,8 +31,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.ConcurrentModificationException;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -81,6 +81,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -284,14 +285,14 @@ public class ListTracksFragment extends SherlockFragment {
 	 * Tracks which are locally on the device, are not removed.
 	 */
 	public void clearRemoteTracks(){
-		try{
-			for(Track t : tracksList){
-				if(!t.isLocalTrack())
-					tracksList.remove(t);
+		//remove tracks in a safe way
+		Iterator<Track> trackIterator = tracksList.iterator();
+		
+		while (trackIterator.hasNext()) {
+			Track track = (Track) trackIterator.next();
+			if(!track.isLocalTrack()){
+				trackIterator.remove();
 			}
-		} catch (ConcurrentModificationException e) {
-			logger.warn(e.getMessage(), e);
-			clearRemoteTracks();
 		}
 		dbAdapter.deleteAllRemoteTracks();
 		trackListAdapter.notifyDataSetChanged();
@@ -300,6 +301,7 @@ public class ListTracksFragment extends SherlockFragment {
 	public void notifyDataSetChanged(Track track){
 		updateUsabilityOfMenuItems();
 		trackListAdapter.notifyDataSetChanged();
+		//TODO: refresh tracks?! after they got uploaded, the (now remote) tracks still have the L-marker
 	}
 	
 	/**
@@ -815,7 +817,13 @@ public class ListTracksFragment extends SherlockFragment {
 				Track currTrack = (Track) getGroup(i);
 				View groupRow = ViewGroup.inflate(getActivity(), R.layout.list_tracks_group_layout, null);
 				TextView textView = (TextView) groupRow.findViewById(R.id.track_name_textview);
-				textView.setText((currTrack.isLocalTrack() ? "L" : "R")+" "+currTrack.getName());
+				textView.setText(currTrack.getName());
+				
+				if(currTrack.isLocalTrack()){
+					ImageView imageView = (ImageView) groupRow.findViewById(R.id.track_icon_view);
+					imageView.setImageDrawable(getResources().getDrawable( R.drawable.mobile ));
+				}
+				
 				groupRow.setId(10000000 + i);
 				TypefaceEC.applyCustomFont((ViewGroup) groupRow,
 						TypefaceEC.Newscycle(getActivity()));
