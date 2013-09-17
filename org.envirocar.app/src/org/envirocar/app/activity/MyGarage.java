@@ -21,8 +21,6 @@
 
 package org.envirocar.app.activity;
 
-import java.util.ArrayList;
-
 import org.apache.http.Header;
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
@@ -66,7 +64,6 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -211,7 +208,7 @@ public class MyGarage extends SherlockFragment {
 		sensorRetryButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				downloadSensors();
+				getSensors();
 			}
 		});
 		
@@ -225,7 +222,7 @@ public class MyGarage extends SherlockFragment {
 			((TextView) view.findViewById(R.id.title_create_new_sensor)).setText(R.string.garage_not_signed_in);
 		}
 
-		downloadSensors();
+		getSensors();
 		
 		TypefaceEC.applyCustomFont((ViewGroup) view.findViewById(R.id.mygaragelayout), TypefaceEC.Raleway(getActivity()));
 		
@@ -280,56 +277,23 @@ public class MyGarage extends SherlockFragment {
 	}
 	
 	/**
-	 * Download sensors from the server
+	 * Get sensors from the MainActivity
 	 */
-	private void downloadSensors(){
+	private void getSensors() {
 		sensorDlProgress.setVisibility(View.VISIBLE);
 		sensorSpinner.setVisibility(View.GONE);
 		sensorRetryButton.setVisibility(View.GONE);
-		
-		RestClient.downloadSensors(new JsonHttpResponseHandler() {
-			
-			
-			@Override
-			public void onFailure(Throwable error, String content) {
-				super.onFailure(error, content);
-				sensorDlProgress.setVisibility(View.GONE);
-				sensorRetryButton.setVisibility(View.VISIBLE);
-				Crouton.makeText(getActivity(), getResources().getString(R.string.error_host_not_found), Style.ALERT).show();
-			}
-			
-			@Override
-			public void onSuccess(JSONObject response) {
-				super.onSuccess(response);
-				ArrayList<JSONObject> a = new ArrayList<JSONObject>();
-				try {					
-					JSONArray res = response.getJSONArray("sensors");
-					for(int i = 0; i<res.length(); i++){
-						if(((JSONObject) res.get(i)).optString("type", "none").equals("car")){
-							a.add(((JSONObject) res.get(i)).getJSONObject("properties"));
-						}
-					}
-					
-		
+		sensors = ((MainActivity<?>)getActivity()).getCars();
+		sensorSpinner.setAdapter(new SensorAdapter());
+		sensorDlProgress.setVisibility(View.GONE);
+		sensorSpinner.setVisibility(View.VISIBLE);
+		try {
+			selectSensorFromSharedPreferences();
+		} catch (JSONException e) {
+			logger.warn(e.getMessage(), e);
+		}
 
-				} catch (JSONException e) {
-					logger.warn(e.getMessage(), e);
-				} finally {
-					sensors = new JSONArray(a);
-					sensorSpinner.setAdapter(new SensorAdapter());
-					sensorDlProgress.setVisibility(View.GONE);
-					sensorSpinner.setVisibility(View.VISIBLE);
-					try {
-						selectSensorFromSharedPreferences();
-					} catch (JSONException e) {
-						logger.warn(e.getMessage(), e);
-					}
-				}
-				
-			}
-		});
-		
-	}	
+	}
 
 	/**
 	 * Register a new sensor (car) at the server

@@ -21,6 +21,14 @@
 
 package org.envirocar.app.activity;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.ECApplication;
@@ -29,18 +37,26 @@ import org.envirocar.app.application.UserManager;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.network.RestClient;
 import org.envirocar.app.storage.DbAdapterImpl;
+import org.envirocar.app.util.Util;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -60,6 +76,7 @@ import android.widget.TextView;
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -106,6 +123,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 	public static final int REQUEST_MY_GARAGE = 1336;
 	public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
+	
+	private final String carCacheFileName = "cars";
+	
+	private JSONArray cars = null;
 	
 	private static final Logger logger = Logger.getLogger(MainActivity.class);
 	
@@ -223,6 +244,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		};
 		preferences.registerOnSharedPreferenceChangeListener(settingsReceiver);
 		
+		getCars();
+		
 //		/*
 //		 * Auto-Uploader of tracks. Uploads complete tracks every 10 minutes.
 //		 */
@@ -317,6 +340,106 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 //        
 //    }
 	
+	public JSONArray getCars() {
+
+		if (cars == null) {
+
+			if (isConnectedToInternet()) {
+				getCarsFromServer(true);
+			} else {
+				getCarsFromCache();
+			}
+		}
+		return cars;
+
+	}
+
+	private void getCarsFromCache() {
+		File directory;
+		try {
+			directory = Util.resolveExternalStorageBaseFolder();
+
+			File f = new File(directory, carCacheFileName);
+
+			if (f.isFile()) {
+				BufferedReader bufferedReader = new BufferedReader(new FileReader(f));
+				
+				String content = "";
+				String line = "";
+				
+				while((line = bufferedReader.readLine()) != null){
+					content = content.concat(line);
+				}
+				
+				bufferedReader.close();
+				
+				cars = new JSONArray(content);
+			}
+		} catch (IOException e) {
+			logger.warn(e.getMessage(), e);
+		} catch (JSONException e) {
+			logger.warn(e.getMessage(), e);
+		}
+	}
+
+	private void getCarsFromServer(final boolean updateLocalCache) {
+
+		RestClient.downloadSensors(new JsonHttpResponseHandler() {
+
+			@Override
+			public void onFailure(Throwable error, String content) {
+				super.onFailure(error, content);
+				Crouton.makeText(
+						MainActivity.this,
+						getResources().getString(R.string.error_host_not_found),
+						Style.ALERT).show();
+			}
+
+			@Override
+			public void onSuccess(JSONObject response) {
+				super.onSuccess(response);
+				ArrayList<JSONObject> a = new ArrayList<JSONObject>();
+				try {
+					JSONArray res = response.getJSONArray("sensors");
+					for (int i = 0; i < res.length(); i++) {
+						if (((JSONObject) res.get(i)).optString("type", "none")
+								.equals("car")) {
+							a.add(((JSONObject) res.get(i))
+									.getJSONObject("properties"));
+						}
+					}
+
+				} catch (JSONException e) {
+					logger.warn(e.getMessage(), e);
+				} finally {
+					cars = new JSONArray(a);
+					
+					if(updateLocalCache){
+						saveCarsToExternalStorage();
+					}
+				}
+			}
+		});
+
+	}
+	
+	private void saveCarsToExternalStorage(){
+		
+		try {
+			File carCacheFile = Util.createFileOnExternalStorage(carCacheFileName);
+			
+			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(carCacheFile));
+			
+			bufferedWriter.write(cars.toString());
+			
+			bufferedWriter.close();
+			
+		} catch (IOException e) {
+			logger.warn(e.getMessage(), e);
+		}
+		
+	}
+
 	protected void updateStartStopButton() {
 		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if (adapter != null && adapter.isEnabled()) { // was requirementsFulfilled
@@ -625,6 +748,16 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			e.putBoolean("pref_privacy", true);
 			e.commit();
 		}
+	}
+	
+	public boolean isConnectedToInternet() {
+	    ConnectivityManager cm =
+	        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+	        return true;
+	    }
+	    return false;
 	}
 
 }
