@@ -40,8 +40,8 @@ public abstract class NumberResultCommand extends CommonCommand {
 			if (index == 2) {
 				// this is the ID byte
 				if (!tmp.equals(this.getResponseTypeID())) {
-				setCommandState(CommonCommandState.UNMATCHED_RESULT);
-				return;
+					setCommandState(CommonCommandState.UNMATCHED_RESULT);
+					return;
 				}
 			}
 			

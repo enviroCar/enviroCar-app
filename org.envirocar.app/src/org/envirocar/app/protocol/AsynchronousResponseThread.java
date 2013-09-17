@@ -90,7 +90,7 @@ public class AsynchronousResponseThread extends HandlerThread {
 	private CommonCommand readResponse() throws IOException {
 		byte byteIn;
 		int intIn;
-		while (true) {
+		while (running) {
 			intIn = inputStream.read();
 			
 			if (intIn < 0) {
@@ -106,11 +106,8 @@ public class AsynchronousResponseThread extends HandlerThread {
 				return result;
 			} else {
 				globalBuffer[globalIndex++] = byteIn;
-				logger.debug("adding to globalBuffer, now: "+new String(globalBuffer, 0, globalIndex));
 			}
 		}
-		
-		logger.debug("BREAKING. globalBuffer was: "+new String(globalBuffer, 0, globalIndex));
 		
 		return null;
 	}
@@ -125,7 +122,6 @@ public class AsynchronousResponseThread extends HandlerThread {
 			Looper.loop();
 		} catch (LooperStoppedException e) {
 			logger.info("AsynchronousResponseThread stopped.");
-			responseParser.onDisconnected();
 		}
 	}
 
@@ -140,7 +136,13 @@ public class AsynchronousResponseThread extends HandlerThread {
 	}
 
 	public void shutdown() {
+		logger.info("SHUTDOWN!");
 		running = false;
 	}
+
+	public boolean isRunning() {
+		return running;
+	}
+	
 	
 }

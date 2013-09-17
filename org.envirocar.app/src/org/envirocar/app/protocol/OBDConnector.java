@@ -89,6 +89,12 @@ public interface OBDConnector {
 	public List<CommonCommand> executeRequestCommands() throws IOException,
 			AdapterFailedException, UnmatchedCommandResponseException, ConnectionLostException;
 
+	
+	/**
+	 * an implementation shall prepare the freeing of resources (e.g. set running flags to false)
+	 */
+	public void prepareShutdown();
+	
 	/**
 	 * an implementation shall free all resources it has created (e.g. threads)
 	 */
@@ -99,5 +105,6 @@ public interface OBDConnector {
 	 * the initial set of commands
 	 */
 	public int getMaximumTriesForInitialization();
+
 
 }

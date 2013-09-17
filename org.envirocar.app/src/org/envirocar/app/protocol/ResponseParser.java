@@ -38,9 +38,5 @@ public interface ResponseParser {
 	 */
 	public char getEndOfLine();
 
-	/**
-	 * called when the connection was lost or a timeout occurred
-	 */
-	public void onDisconnected();
 
 }

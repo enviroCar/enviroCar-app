@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.IntakePressure;
@@ -45,9 +46,7 @@ import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
  * send out data without an explicit request)
  * 
  * @author matthes rieke
- * @deprecated sequential processing is not very efficient. use {@link AbstractAsynchronousConnector} instead
  */
-@Deprecated
 public abstract class AbstractSequentialConnector implements OBDConnector {
 	
 	private static final Logger logger = Logger.getLogger(AbstractSequentialConnector.class.getName());
@@ -178,11 +177,13 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private byte[] readResponseLine(CommonCommand cmd) throws IOException {
 		byte b = 0;
 
+		Set<Character> ignored = cmd.getIgnoredChars();
+		
 		byte[] buffer = new byte[32];
 		int index = 0;
 		// read until '>' arrives
 		while ((char) (b = (byte) inputStream.read()) != cmd.getEndOfLineReceive()) {
-			if ((char) b != cmd.getIgnoreCharReceive()){
+			if (!ignored.contains((char) b)){
 				buffer[index++] = b;
 			}
 		}

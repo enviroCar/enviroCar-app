@@ -23,6 +23,7 @@ package org.envirocar.app.protocol;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collections;
 import java.util.List;
 
 import org.envirocar.app.commands.CommonCommand;
@@ -46,6 +47,8 @@ public abstract class AbstractAsynchronousConnector implements OBDConnector {
 	
 	protected abstract ResponseParser getResponseParser();
 	
+	protected abstract long getSleepTimeBetweenCommands();
+	
 	@Override
 	public void provideStreamObjects(InputStream inputStream,
 			OutputStream outputStream) {
@@ -59,24 +62,43 @@ public abstract class AbstractAsynchronousConnector implements OBDConnector {
 	public void executeInitializationCommands() throws IOException,
 			AdapterFailedException {
 		for (CommonCommand cmd : getInitializationCommands()) {
-			executeCommand(cmd);
 			try {
 				Thread.sleep(250);
 			} catch (InterruptedException e) {
 				logger.warn(e.getMessage(), e);
 			}
+			
+			executeCommand(cmd);
 		}
 	}
+
 
 	@Override
 	public List<CommonCommand> executeRequestCommands() throws IOException,
 			AdapterFailedException, UnmatchedCommandResponseException,
 			ConnectionLostException {
+		long sleep = getSleepTimeBetweenCommands();
 		for (CommonCommand cmd : getRequestCommands()) {
 			executeCommand(cmd);
+			
+			if (sleep > 0) {
+				try {
+					Thread.sleep(sleep);
+				} catch (InterruptedException e) {
+					logger.warn(e.getMessage(), e);
+				}
+			}
 		}
 		
-		return responseThread.pullAvailableCommands();
+		if (responseThread != null) {
+			if (responseThread.isRunning()) {
+				return responseThread.pullAvailableCommands();
+			}
+			else {
+				throw new ConnectionLostException();
+			}
+		}
+		return Collections.emptyList();
 	}
 
 	private void executeCommand(CommonCommand cmd) throws IOException {
@@ -88,13 +110,24 @@ public abstract class AbstractAsynchronousConnector implements OBDConnector {
 	}
 
 	@Override
+	public void prepareShutdown() {
+		if (responseThread != null) {
+			responseThread.shutdown();			
+		}
+	}
+	
+	@Override
 	public void shutdown() {
 		if (responseThread != null) {
-			responseThread.shutdown();
+			try {
+				responseThread.join();
+			} catch (InterruptedException e) {
+				logger.warn(e.getMessage(), e);
+			}
 		}		
 	}
 	
-	private void startResponseThread() {
+	protected void startResponseThread() {
 		if (responseThread == null) {
 			responseThread = new AsynchronousResponseThread(inputStream, getResponseParser());
 			responseThread.start();

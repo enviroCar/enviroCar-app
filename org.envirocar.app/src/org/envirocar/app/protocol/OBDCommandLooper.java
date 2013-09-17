@@ -309,7 +309,19 @@ public class OBDCommandLooper extends HandlerThread {
 		
 		else if (++tries >= this.obdAdapter.getMaximumTriesForInitialization()) {
 			if (this.obdAdapter != null) {
-				this.obdAdapter.shutdown();
+				this.obdAdapter.prepareShutdown();
+				try {
+					/*
+					 * we need to push some stuff on the outputStream in
+					 * order to receive something on the inputStream which might
+					 * be blocked in InputStream#read()
+					 */
+					this.obdAdapter.executeInitializationCommands();
+				} catch (IOException e) {
+					logger.warn(e.getMessage(), e);
+				} catch (AdapterFailedException e) {
+					logger.warn(e.getMessage(), e);
+				}
 			}
 			
 			if (adapterIndex+1 >= adapterCandidates.size()) {

@@ -21,6 +21,9 @@
 
 package org.envirocar.app.commands;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Abstract command class that the other commands have to extend. Many things
  * are imported from Android OBD Reader project!
@@ -30,6 +33,17 @@ package org.envirocar.app.commands;
  */
 public abstract class CommonCommand {
 
+	private static Set<Character> ignoredChars;
+	private static final char COMMAND_SEND_END = '\r';
+	private static final char COMMAND_RECEIVE_END = '>';
+	private static final char COMMAND_RECEIVE_SPACE = ' ';
+	
+	static {
+		ignoredChars = new HashSet<Character>();
+		ignoredChars.add(COMMAND_RECEIVE_SPACE);
+		ignoredChars.add(COMMAND_SEND_END);
+	}
+	
 	private byte[] rawData = null;
 	private String command = null;
 	private Long commandId;
@@ -37,9 +51,7 @@ public abstract class CommonCommand {
 	private String responseTypeId;
 	private long resultTime;
 	
-	private static final char COMMAND_SEND_END = '\r';
-	private static final char COMMAND_RECEIVE_END = '>';
-	private static final char COMMAND_RECEIVE_SPACE = ' ';
+
 
 	/**
 	 * Default constructor to use
@@ -166,6 +178,10 @@ public abstract class CommonCommand {
 
 	public byte[] getRawData() {
 		return this.rawData;
+	}
+
+	public Set<Character> getIgnoredChars() {
+		return ignoredChars;
 	}
 
 }

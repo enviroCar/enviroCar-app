@@ -45,7 +45,6 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	private long firstConnectinResponse;
 	private CycleCommand cycleCommand;
 	private ResponseParser responseParser = new LocalResponseParser();
-	private boolean disconnected;
 	
 	private static enum Mode {
 		OFFLINE, CONNECTING, CONNECTED
@@ -72,7 +71,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 
 	@Override
 	public boolean connectionVerified() {
-		return !disconnected && protocol != null && vin != null;
+		return protocol != null && vin != null;
 	}
 
 	private void processDiscoveredControlUnits(String substring) {
@@ -273,10 +272,13 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 			return END_OF_LINE_RESPONSE;
 		}
 
-		@Override
-		public void onDisconnected() {
-			disconnected = true;
-		}
+
+	}
+
+
+	@Override
+	protected long getSleepTimeBetweenCommands() {
+		return 0;
 	}
 
 }
