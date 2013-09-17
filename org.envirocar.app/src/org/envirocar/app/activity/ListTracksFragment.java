@@ -169,7 +169,7 @@ public class ListTracksFragment extends SherlockFragment {
 	
 		//if logged in, download tracks from server
 		if(UserManager.instance().isLoggedIn()){
-//			downloadTracks();
+			downloadTracks();
 		}
 		
 	}
