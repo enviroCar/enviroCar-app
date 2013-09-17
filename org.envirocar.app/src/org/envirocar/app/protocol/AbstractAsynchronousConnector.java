@@ -27,7 +27,6 @@ import java.util.List;
 
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.protocol.drivedeck.AsynchronousResponseThread;
 import org.envirocar.app.protocol.exception.AdapterFailedException;
 import org.envirocar.app.protocol.exception.ConnectionLostException;
 import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
@@ -35,10 +34,8 @@ import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
 public abstract class AbstractAsynchronousConnector implements OBDConnector {
 
 	private static final Logger logger = Logger.getLogger(AbstractAsynchronousConnector.class);
-	private Object inputMutex;
 	private InputStream inputStream;
 	private OutputStream outputStream;
-	private Object outputMutex;
 	private AsynchronousResponseThread responseThread;
 
 	protected abstract List<CommonCommand> getRequestCommands();
@@ -51,11 +48,9 @@ public abstract class AbstractAsynchronousConnector implements OBDConnector {
 	
 	@Override
 	public void provideStreamObjects(InputStream inputStream,
-			OutputStream outputStream, Object socketMutex, Object outputMutex) {
+			OutputStream outputStream) {
 		this.inputStream = inputStream;
 		this.outputStream = outputStream;
-		this.inputMutex = socketMutex;
-		this.outputMutex = outputMutex;
 		
 		startResponseThread();
 	}
@@ -65,6 +60,11 @@ public abstract class AbstractAsynchronousConnector implements OBDConnector {
 			AdapterFailedException {
 		for (CommonCommand cmd : getInitializationCommands()) {
 			executeCommand(cmd);
+			try {
+				Thread.sleep(250);
+			} catch (InterruptedException e) {
+				logger.warn(e.getMessage(), e);
+			}
 		}
 	}
 
@@ -80,25 +80,23 @@ public abstract class AbstractAsynchronousConnector implements OBDConnector {
 	}
 
 	private void executeCommand(CommonCommand cmd) throws IOException {
-		synchronized (outputMutex) {
-			logger.info("Sending CycleCommand: "+new String(cmd.getOutgoingBytes()));
-			
-			outputStream.write(cmd.getOutgoingBytes());
-			outputStream.write(getRequestEndOfLine());
-			outputStream.flush();		
-		}
+		logger.debug("Sending command: "+new String(cmd.getOutgoingBytes()));
+		
+		outputStream.write(cmd.getOutgoingBytes());
+		outputStream.write(getRequestEndOfLine());
+		outputStream.flush();		
 	}
 
 	@Override
 	public void shutdown() {
 		if (responseThread != null) {
-			responseThread.setRunning(false);
+			responseThread.shutdown();
 		}		
 	}
 	
 	private void startResponseThread() {
 		if (responseThread == null) {
-			responseThread = new AsynchronousResponseThread(inputStream, inputMutex, getResponseParser());
+			responseThread = new AsynchronousResponseThread(inputStream, getResponseParser());
 			responseThread.start();
 		}
 	}

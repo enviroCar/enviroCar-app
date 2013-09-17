@@ -45,6 +45,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	private long firstConnectinResponse;
 	private CycleCommand cycleCommand;
 	private ResponseParser responseParser = new LocalResponseParser();
+	private boolean disconnected;
 	
 	private static enum Mode {
 		OFFLINE, CONNECTING, CONNECTED
@@ -71,7 +72,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 
 	@Override
 	public boolean connectionVerified() {
-		return protocol != null && vin != null;
+		return !disconnected && protocol != null && vin != null;
 	}
 
 	private void processDiscoveredControlUnits(String substring) {
@@ -210,8 +211,8 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 
 	private class LocalResponseParser implements ResponseParser {
 		@Override
-		public CommonCommand processResponse(byte[] bytes, int start, int end) {
-			if (start >= end) return null;
+		public CommonCommand processResponse(byte[] bytes, int start, int count) {
+			if (count <= 0) return null;
 			
 			char type = (char) bytes[start+0];
 			
@@ -228,13 +229,13 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 					logger.info("Mode: "+ mode.toString());
 				}
 				else if (pid.equals("15")) {
-					processVIN(new String(bytes, start+3, end));
+					processVIN(new String(bytes, start+3, count));
 				}
 				else if (pid.equals("70")) {
-					processSupportedPID(new String(bytes, start+3, end));
+					processSupportedPID(new String(bytes, start+3, count));
 				}
 				else if (pid.equals("71")) {
-					processDiscoveredControlUnits(new String(bytes, start+3, end));
+					processDiscoveredControlUnits(new String(bytes, start+3, count));
 				}
 				
 				else {
@@ -247,7 +248,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 					pidResponseValue[0] = bytes[start+1];
 					pidResponseValue[1] = bytes[start+2];
 					int target;
-					for (int i = start+4; i <= end; i++) {
+					for (int i = start+4; i <= count+start; i++) {
 						if ((char) bytes[i] == CycleCommand.TOKEN_SEPARATOR_CHAR)
 							break;
 						
@@ -261,7 +262,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 				
 			}
 			else if (type == 'C') {
-				determineProtocol(new String(bytes, start+1, end));
+				determineProtocol(new String(bytes, start+1, count));
 			}
 			
 			return null;
@@ -270,6 +271,11 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		@Override
 		public char getEndOfLine() {
 			return END_OF_LINE_RESPONSE;
+		}
+
+		@Override
+		public void onDisconnected() {
+			disconnected = true;
 		}
 	}
 

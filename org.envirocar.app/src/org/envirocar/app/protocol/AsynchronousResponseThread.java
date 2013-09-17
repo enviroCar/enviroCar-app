@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol.drivedeck;
+package org.envirocar.app.protocol;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +27,6 @@ import java.util.List;
 
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.protocol.ResponseParser;
 import org.envirocar.app.protocol.exception.LooperStoppedException;
 
 import android.os.Handler;
@@ -37,24 +36,21 @@ import android.os.Looper;
 public class AsynchronousResponseThread extends HandlerThread {
 	
 	private static final Logger logger = Logger.getLogger(AsynchronousResponseThread.class);
-	private static final long SLEEP_TIME = 25;
+	private static final long SLEEP_TIME = 250;
 	private Handler handler;
 	private InputStream inputStream;
 	
 	private Runnable readInputStreamRunnable;
-	private Object socketMutex;
 	
 	private List<CommonCommand> buffer = new ArrayList<CommonCommand>();
 	protected boolean running = true;
 	private byte[] globalBuffer = new byte[64];
 	private int globalIndex;
-	private int previousEOLIndex = -1;
 	private ResponseParser responseParser;
 
-	public AsynchronousResponseThread(final InputStream in, Object sm, ResponseParser responseParser) {
+	public AsynchronousResponseThread(final InputStream in, ResponseParser responseParser) {
 		super("AsynchronousResponseThread");
 		this.inputStream = in;
-		this.socketMutex = sm;
 		
 		this.responseParser = responseParser;
 		
@@ -64,25 +60,20 @@ public class AsynchronousResponseThread extends HandlerThread {
 			public void run() {
 				while (running) {
 					
-					try {
-						synchronized (socketMutex) {
-							waitForResponse();
-						}
-					} catch (IOException e) {
-						logger.warn(e.getMessage(), e);
-						break;
-					}
-					
 					CommonCommand cmd;
 					try {
-						synchronized (socketMutex) {
-							cmd = readResponse();	
-						}
+						cmd = readResponse();	
 						
 						if (cmd != null) {
 							synchronized (AsynchronousResponseThread.this) {
 								buffer.add(cmd);	
 							}	
+						} else {
+							try {
+								Thread.sleep(SLEEP_TIME);
+							} catch (InterruptedException e) {
+								logger.warn(e.getMessage(), e);
+							}
 						}
 						
 					} catch (IOException e) {
@@ -96,39 +87,30 @@ public class AsynchronousResponseThread extends HandlerThread {
 		};
 	}
 	
-	protected void waitForResponse() throws IOException {
-		try {
-			while (inputStream.available() <= 0) {
-				Thread.sleep(SLEEP_TIME);
-			}
-		} catch (InterruptedException e) {
-			logger.warn(e.getMessage(), e);
-		}
-	}
-	
 	private CommonCommand readResponse() throws IOException {
 		byte byteIn;
+		int intIn;
 		while (true) {
-			byteIn = (byte) inputStream.read();
+			intIn = inputStream.read();
 			
-			if ((int) byteIn <= 0) {
+			if (intIn < 0) {
 				break;
 			}
-			
-			globalBuffer[globalIndex++] = byteIn;
+
+			byteIn = (byte) intIn;
 			
 			if (byteIn == (byte) responseParser.getEndOfLine()) {
-				if (previousEOLIndex != -1) {
-					CommonCommand result = responseParser.processResponse(globalBuffer,
-							previousEOLIndex, globalIndex);
-					previousEOLIndex = 0;
-					globalIndex = 0;
-					return result;
-				} else {
-					previousEOLIndex = globalIndex;
-				}
+				CommonCommand result = responseParser.processResponse(globalBuffer,
+						0, globalIndex);
+				globalIndex = 0;
+				return result;
+			} else {
+				globalBuffer[globalIndex++] = byteIn;
+				logger.debug("adding to globalBuffer, now: "+new String(globalBuffer, 0, globalIndex));
 			}
 		}
+		
+		logger.debug("BREAKING. globalBuffer was: "+new String(globalBuffer, 0, globalIndex));
 		
 		return null;
 	}
@@ -143,6 +125,7 @@ public class AsynchronousResponseThread extends HandlerThread {
 			Looper.loop();
 		} catch (LooperStoppedException e) {
 			logger.info("AsynchronousResponseThread stopped.");
+			responseParser.onDisconnected();
 		}
 	}
 
@@ -156,7 +139,7 @@ public class AsynchronousResponseThread extends HandlerThread {
 		return result;
 	}
 
-	public void setRunning(boolean b) {
+	public void shutdown() {
 		running = false;
 	}
 	

@@ -28,14 +28,19 @@ public interface ResponseParser {
 	/**
 	 * @param bytes the byte buffer
 	 * @param start offset index
-	 * @param end last byte index
+	 * @param count byte count
 	 * @return the parsed command response
 	 */
-	public CommonCommand processResponse(byte[] bytes, int start, int end);
+	public CommonCommand processResponse(byte[] bytes, int start, int count);
 
 	/**
 	 * @return the end of line character
 	 */
 	public char getEndOfLine();
+
+	/**
+	 * called when the connection was lost or a timeout occurred
+	 */
+	public void onDisconnected();
 
 }

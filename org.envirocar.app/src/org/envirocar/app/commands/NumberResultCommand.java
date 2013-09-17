@@ -55,6 +55,8 @@ public abstract class NumberResultCommand extends CommonCommand {
 			}
 			index += length;
 		}
+		
+		setCommandState(CommonCommandState.FINISHED);
 	}
 	
 	public abstract Number getNumberResult();

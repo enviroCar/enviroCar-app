@@ -48,11 +48,9 @@ public interface OBDConnector {
 	 * 
 	 * @param inputStream
 	 * @param outputStream
-	 * @param inputMutex
-	 * @param outputMutex 
 	 */
 	public void provideStreamObjects(InputStream inputStream,
-			OutputStream outputStream, Object socketMutex, Object outputMutex);
+			OutputStream outputStream);
 
 	/**
 	 * An implementation shall return true if it 

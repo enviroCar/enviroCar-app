@@ -45,8 +45,9 @@ import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
  * send out data without an explicit request)
  * 
  * @author matthes rieke
- *
+ * @deprecated sequential processing is not very efficient. use {@link AbstractAsynchronousConnector} instead
  */
+@Deprecated
 public abstract class AbstractSequentialConnector implements OBDConnector {
 	
 	private static final Logger logger = Logger.getLogger(AbstractSequentialConnector.class.getName());
@@ -57,11 +58,9 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private static final int MAX_INVALID_RESPONSE_COUNT = 5;
 	private InputStream inputStream;
 	private OutputStream outputStream;
-	private Object inputMutex;
 	private boolean connectionEstablished;
 	private boolean staleConnection;
 	private int invalidResponseCount;
-	private Object outputMutex;
 	
 	/**
 	 * @return the list of initialization commands for the adapter
@@ -85,11 +84,9 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 
 	@Override
 	public void provideStreamObjects(InputStream inputStream,
-			OutputStream outputStream, Object socketMutex, Object outpuMutex) {
+			OutputStream outputStream) {
 		this.inputStream = inputStream;
 		this.outputStream = outputStream;
-		this.inputMutex = socketMutex;
-		this.outputMutex = outpuMutex;
 	}
 	
 	protected List<CommonCommand> getRequestCommands() {
@@ -105,13 +102,9 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private void runCommand(CommonCommand cmd)
 			throws IOException {
 		logger.debug("Sending command " +cmd.getCommandName()+ " / "+ new String(cmd.getOutgoingBytes()));
-		synchronized (outputMutex) {
-			sendCommand(cmd);
-		}
+		sendCommand(cmd);
 		
-		synchronized (inputMutex) {
-			waitForResult(cmd);	
-		}
+		waitForResult(cmd);	
 	}
 	
 	/**
