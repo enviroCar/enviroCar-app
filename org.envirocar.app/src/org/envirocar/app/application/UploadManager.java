@@ -99,14 +99,10 @@ public class UploadManager {
 		new UploadAsyncTask().execute(track);
 	}
 
-	private class UploadAsyncTask extends AsyncTask<Track, Void, Track> {
+	private class UploadAsyncTask extends AsyncTask<Track, Track, Track> {
 		
 		@Override
 		protected Track doInBackground(Track... params) {
-			
-			//probably unnecessary
-			if(dbAdapter.getNumberOfRemoteTracks() == 0)
-				this.cancel(true);
 			
 			User user = UserManager.instance().getUser();
 			String username = user.getUsername();
@@ -136,13 +132,20 @@ public class UploadManager {
 					((ECApplication) context).createNotification("success");
 					track.setRemoteID(httpResult);
 					dbAdapter.updateTrack(track);
-					EventBus.getInstance().fireEvent(new UploadTrackEvent(track));
 				} else {
 					((ECApplication) context).createNotification("General Track error. Please contact envirocar.org");
 				}
-			}
-			return null;
+			}		
+			
+			return track;
 		}
+		
+		@Override
+		protected void onPostExecute(Track track) {
+			EventBus.getInstance().fireEvent(new UploadTrackEvent(track));			
+		}
+			
+
 	}
 
 	public String getTrackJSON(Track track) throws JSONException{

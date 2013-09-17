@@ -3,10 +3,19 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft" >
+
+    <ImageView
+        android:id="@+id/track_icon_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:contentDescription="server icon"
+        android:src="@drawable/server" />
     
     <TextView
         android:id="@+id/track_name_textview"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="48dp"
         android:ellipsize="marquee"
         android:freezesText="true"
@@ -14,8 +23,9 @@
         android:marqueeRepeatLimit="marquee_forever"
         android:scrollHorizontally="true"
         android:singleLine="true"
-        android:textSize="22sp" >
+        android:textSize="22sp" 
+        android:paddingLeft="5dp"
+        android:layout_toRightOf="@+id/track_icon_view">
     </TextView>
-
-
+    
 </RelativeLayout>
