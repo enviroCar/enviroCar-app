@@ -20,9 +20,30 @@
  */
 package org.envirocar.app.protocol.drivedeck;
 
-import org.envirocar.app.commands.Speed;
+import org.envirocar.app.commands.CommonCommand;
 
-public class SpeedDriveDeck extends Speed {
+public class CarriageReturnCommand extends CommonCommand {
 
+	private static final String NAME = "DriveDeck CR";
+
+	public CarriageReturnCommand() {
+		super(NAME);
+	}
+
+	@Override
+	public void parseRawData() {
+		
+	}
+
+	@Override
+	public String getCommandName() {
+		return NAME;
+	}
 	
+	@Override
+	public byte[] getOutgoingBytes() {
+		return new byte[0];
+	}
+
+
 }

@@ -79,7 +79,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	public abstract boolean supportsDevice(String deviceName);
 
 	@Override
-	public abstract boolean connectionVerified();
+	public abstract ConnectionState connectionState();
 
 	@Override
 	public void provideStreamObjects(InputStream inputStream,
@@ -103,7 +103,12 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 		logger.debug("Sending command " +cmd.getCommandName()+ " / "+ new String(cmd.getOutgoingBytes()));
 		sendCommand(cmd);
 		
-		waitForResult(cmd);	
+		if (!cmd.awaitsResults()) return; 
+		
+		// waiting with InputStream#available() does not work on all devices (and cars?!)
+//		waitForResult(cmd);
+		
+		readResult(cmd);	
 	}
 	
 	/**
@@ -122,6 +127,12 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 		outputStream.flush();
 	}
 	
+	/**
+	 * @deprecated some devices (and cars?!) do not implement #available()
+	 * reliably
+	 */
+	@SuppressWarnings("unused")
+	@Deprecated
 	private void waitForResult(CommonCommand cmd) throws IOException {
 //		try {
 //			Thread.sleep(SLEEP_TIME);
@@ -145,7 +156,6 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 				Thread.sleep(getSleepTime());
 			}
 			
-			readResult(cmd);
 		} catch (InterruptedException e) {
 			logger.warn(e.getMessage(), e);
 		}	
@@ -222,11 +232,16 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	}
 	
 	@Override
-	public List<CommonCommand> executeRequestCommands() throws IOException, AdapterFailedException, UnmatchedCommandResponseException, ConnectionLostException {
+	public List<CommonCommand> executeRequestCommands() throws IOException, AdapterFailedException, ConnectionLostException {
 		List<CommonCommand> list = getRequestCommands();
 		
 		for (CommonCommand cmd : list) {
-			executeCommand(cmd);
+			try {
+				executeCommand(cmd);
+			} catch (UnmatchedCommandResponseException e) {
+				logger.warn("Unmatched Response detected! trying to read another line.");
+				readResponseLine(cmd);
+			}
 		}
 		
 		return list;
@@ -284,7 +299,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 			if (!cmd.awaitsResults()) return;
 			
 			if (cmd.getCommandState() == CommonCommandState.EXECUTION_ERROR) {
-				logger.warn("Execution Error for" +cmd.getCommandName() +" / "+new String(cmd.getOutgoingBytes()));
+				logger.debug("Execution Error for" +cmd.getCommandName() +" / "+new String(cmd.getOutgoingBytes()));
 				return;
 			}
 			
@@ -313,7 +328,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 			
 			if (!connectionEstablished && !isNoDataCommand(new String(cmd.getRawData()))) {
 				processInitializationCommand(cmd);
-				if (connectionVerified()) {
+				if (connectionState() == ConnectionState.CONNECTED) {
 					connectionEstablished = true;
 				}
 			}

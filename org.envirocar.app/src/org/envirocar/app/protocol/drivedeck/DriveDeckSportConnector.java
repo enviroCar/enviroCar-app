@@ -27,8 +27,10 @@ import java.util.List;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.IntakePressure;
 import org.envirocar.app.commands.IntakeTemperature;
+import org.envirocar.app.commands.MAF;
 import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
+import org.envirocar.app.commands.Speed;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.AbstractAsynchronousConnector;
 import org.envirocar.app.protocol.ResponseParser;
@@ -39,16 +41,12 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	private static final Logger logger = Logger.getLogger(DriveDeckSportConnector.class);
 	private static final char CARRIAGE_RETURN = '\r';
 	static final char END_OF_LINE_RESPONSE = '>';
-	private Mode mode = Mode.OFFLINE;
 	private Protocol protocol;
 	private String vin;
-	private long firstConnectinResponse;
+	private long firstConnectionResponse;
 	private CycleCommand cycleCommand;
 	private ResponseParser responseParser = new LocalResponseParser();
-	
-	private static enum Mode {
-		OFFLINE, CONNECTING, CONNECTED
-	}
+	private ConnectionState state = ConnectionState.DISCONNECTED;
 	
 	private static enum Protocol {
 		CAN11500, CAN11250, CAN29500, CAN29250, KWP_SLOW, KWP_FAST, ISO9141
@@ -63,15 +61,15 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		List<PID> pidList = new ArrayList<PID>();
 		pidList.add(PID.SPEED);
 		pidList.add(PID.MAF);
-//		pidList.add(PID.RPM);
-//		pidList.add(PID.IAP);
-//		pidList.add(PID.IAT);
+		pidList.add(PID.RPM);
+		pidList.add(PID.IAP);
+		pidList.add(PID.IAT);
 		this.cycleCommand = new CycleCommand(pidList);
 	}
 
 	@Override
-	public boolean connectionVerified() {
-		return protocol != null && vin != null;
+	public ConnectionState connectionState() {
+		return this.state;
 	}
 
 	private void processDiscoveredControlUnits(String substring) {
@@ -85,6 +83,18 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	private void processVIN(String vinInt) {
 		this.vin = vinInt;
 		logger.info("VIN is: "+this.vin);
+		
+		updateConnectionState();
+	}
+
+	private void updateConnectionState() {
+		if (state == ConnectionState.VERIFIED) {
+			return;
+		}
+		
+		if (protocol != null && vin != null) {
+			state = ConnectionState.CONNECTED;
+		}
 	}
 
 	private void determineProtocol(String protocolInt) {
@@ -116,8 +126,9 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		}
 
 		logger.info("Protocol is: "+ protocol.toString());
-		logger.info("Connected in "+ (System.currentTimeMillis() - firstConnectinResponse) +" ms.");
-		mode = Mode.CONNECTED;
+		logger.info("Connected in "+ (System.currentTimeMillis() - firstConnectionResponse) +" ms.");
+		
+		updateConnectionState();
 	}
 
 
@@ -133,11 +144,11 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		CommonCommand result = null;
 		if (pid.equals("41")) {
 			//Speed
-			result = new SpeedDriveDeck();
+			result = new Speed();
 		}
 		else if (pid.equals("42")) {
 			//MAF
-			result = new MAFDriveDeck();
+			result = new MAF();
 		}
 		else if (pid.equals("52")) {
 			//IAP
@@ -153,12 +164,37 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		}
 		
 		if (result != null) {
-			result.setRawData(rawBytes);
+			byte[] rawData = createRawData(rawBytes, result.getResponseTypeID());
+			result.setRawData(rawData);
 			result.parseRawData();
 			result.setCommandState(CommonCommandState.FINISHED);
 			result.setResultTime(now);
+			this.state = ConnectionState.VERIFIED;
 		}
 		
+		return result;
+	}
+
+	private byte[] createRawData(byte[] rawBytes, String type) {
+		byte[] result = new byte[4 + rawBytes.length*2];
+		byte[] typeBytes = type.getBytes();
+		result[0] = (byte) '4';
+		result[1] = (byte) '1';
+		result[2] = typeBytes[0];
+		result[3] = typeBytes[1];
+		for (int i = 0; i < rawBytes.length; i++) {
+			String hex = byteToHex(rawBytes[i]);
+			result[(i*2)+4] = (byte) hex.charAt(0);
+			result[(i*2)+1+4] = (byte) hex.charAt(1);
+		}
+		return result;
+	}
+
+	private String byteToHex(byte b) {
+		String result = Integer.toString((int) b, 16);
+		if (result.length() == 1) {
+			result = "0".concat(result);
+		}
 		return result;
 	}
 
@@ -187,19 +223,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 			logger.warn(e.getMessage(), e);
 		}
 		
-		return Collections.singletonList((CommonCommand) new CommonCommand("") {
-			@Override
-			public void parseRawData() {
-			}
-			@Override
-			public String getCommandName() {
-				return "";
-			}
-			@Override
-			public byte[] getOutgoingBytes() {
-				return new byte[] {(byte) CARRIAGE_RETURN};
-			}
-		});
+		return Collections.singletonList((CommonCommand) new CarriageReturnCommand());
 	}
 
 	@Override
@@ -213,6 +237,8 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		public CommonCommand processResponse(byte[] bytes, int start, int count) {
 			if (count <= 0) return null;
 			
+			logger.info("Processing Response: "+ new String(bytes, start, count));
+			
 			char type = (char) bytes[start+0];
 			
 			if (type == CycleCommand.RESPONSE_PREFIX_CHAR) {
@@ -224,17 +250,16 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 				 * METADATA Stuff
 				 */
 				if (pid.equals("14")) {
-					mode = Mode.CONNECTING;
-					logger.info("Mode: "+ mode.toString());
+					logger.debug("Status: CONNECTING");
 				}
 				else if (pid.equals("15")) {
-					processVIN(new String(bytes, start+3, count));
+					processVIN(new String(bytes, start+3, count-3));
 				}
 				else if (pid.equals("70")) {
-					processSupportedPID(new String(bytes, start+3, count));
+					processSupportedPID(new String(bytes, start+3, count-3));
 				}
 				else if (pid.equals("71")) {
-					processDiscoveredControlUnits(new String(bytes, start+3, count));
+					processDiscoveredControlUnits(new String(bytes, start+3, count-3));
 				}
 				
 				else {
@@ -243,15 +268,13 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 					 */
 					long now = System.currentTimeMillis();
 					
-					byte[] pidResponseValue = new byte[4];
-					pidResponseValue[0] = bytes[start+1];
-					pidResponseValue[1] = bytes[start+2];
+					byte[] pidResponseValue = new byte[2];
 					int target;
 					for (int i = start+4; i <= count+start; i++) {
 						if ((char) bytes[i] == CycleCommand.TOKEN_SEPARATOR_CHAR)
 							break;
 						
-						target = i-(start+4) + 2;
+						target = i-(start+4);
 						if (target >= pidResponseValue.length) break;
 						pidResponseValue[target] = bytes[i];
 					}
@@ -261,7 +284,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 				
 			}
 			else if (type == 'C') {
-				determineProtocol(new String(bytes, start+1, count));
+				determineProtocol(new String(bytes, start+1, count-1));
 			}
 			
 			return null;

@@ -30,7 +30,6 @@ import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.exception.AdapterFailedException;
 import org.envirocar.app.protocol.exception.ConnectionLostException;
-import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
 
 public abstract class AbstractAsynchronousConnector implements OBDConnector {
 
@@ -75,8 +74,7 @@ public abstract class AbstractAsynchronousConnector implements OBDConnector {
 
 	@Override
 	public List<CommonCommand> executeRequestCommands() throws IOException,
-			AdapterFailedException, UnmatchedCommandResponseException,
-			ConnectionLostException {
+			AdapterFailedException, ConnectionLostException {
 		long sleep = getSleepTimeBetweenCommands();
 		for (CommonCommand cmd : getRequestCommands()) {
 			executeCommand(cmd);
@@ -104,7 +102,10 @@ public abstract class AbstractAsynchronousConnector implements OBDConnector {
 	private void executeCommand(CommonCommand cmd) throws IOException {
 		logger.debug("Sending command: "+new String(cmd.getOutgoingBytes()));
 		
-		outputStream.write(cmd.getOutgoingBytes());
+		byte[] bytes = cmd.getOutgoingBytes();
+		if (bytes != null && bytes.length > 0) {
+			outputStream.write(bytes);
+		}
 		outputStream.write(getRequestEndOfLine());
 		outputStream.flush();		
 	}
@@ -128,7 +129,7 @@ public abstract class AbstractAsynchronousConnector implements OBDConnector {
 	}
 	
 	protected void startResponseThread() {
-		if (responseThread == null) {
+		if (responseThread == null || !responseThread.isRunning()) {
 			responseThread = new AsynchronousResponseThread(inputStream, getResponseParser());
 			responseThread.start();
 		}

@@ -30,12 +30,12 @@ import org.envirocar.app.application.Listener;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.protocol.OBDConnector.ConnectionState;
 import org.envirocar.app.protocol.drivedeck.DriveDeckSportConnector;
 import org.envirocar.app.protocol.exception.AdapterFailedException;
 import org.envirocar.app.protocol.exception.AllAdaptersFailedException;
 import org.envirocar.app.protocol.exception.LooperStoppedException;
 import org.envirocar.app.protocol.exception.ConnectionLostException;
-import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
 import org.envirocar.app.protocol.sequential.AposW3Connector;
 import org.envirocar.app.protocol.sequential.ELM327Connector;
 import org.envirocar.app.protocol.sequential.OBDLinkMXConnector;
@@ -111,7 +111,7 @@ public class OBDCommandLooper extends HandlerThread {
 				 * an async connector will probably only verify its connection
 				 * after one try cycle of executeInitializationRequests.
 				 */
-				if (obdAdapter != null && obdAdapter.connectionVerified()) {
+				if (obdAdapter != null && obdAdapter.connectionState() == ConnectionState.CONNECTED) {
 					connectionEstablished();
 					return;
 				}
@@ -143,7 +143,7 @@ public class OBDCommandLooper extends HandlerThread {
 				 * a sequential connector might already have a satisfied
 				 * connection
 				 */
-				if (obdAdapter != null && obdAdapter.connectionVerified()) {
+				if (obdAdapter != null && obdAdapter.connectionState() == ConnectionState.CONNECTED) {
 					connectionEstablished();
 					return;
 				}
@@ -255,10 +255,6 @@ public class OBDCommandLooper extends HandlerThread {
 		List<CommonCommand> cmds;
 		try {
 			cmds = this.obdAdapter.executeRequestCommands();
-		} catch (UnmatchedCommandResponseException e) {
-			logger.warn("Unmatched Response detected! Consuming all contents and trying again.");
-			consumeAllContents();
-			return;
 		} catch (ConnectionLostException e) {
 			connectionListener.onConnectionException(new IOException(e));
 			running = false;
@@ -277,17 +273,6 @@ public class OBDCommandLooper extends HandlerThread {
 	}
 
 	
-	private void consumeAllContents() throws IOException {
-		try {
-			Thread.sleep(ADAPTER_TRY_PERIOD);
-		} catch (InterruptedException e) {
-			logger.warn(e.getMessage(), e);
-		}
-		
-		while (inputStream.read() >= 0);
-	}
-
-
 	private void connectionEstablished() {
 		logger.info("OBD Adapter " + this.obdAdapter.getClass().getName() +
 				" verified the responses. Connection Established!");
@@ -310,17 +295,13 @@ public class OBDCommandLooper extends HandlerThread {
 		else if (++tries >= this.obdAdapter.getMaximumTriesForInitialization()) {
 			if (this.obdAdapter != null) {
 				this.obdAdapter.prepareShutdown();
-				try {
+				this.obdAdapter.shutdown();
+				if (this.obdAdapter.connectionState() == ConnectionState.CONNECTED) {
 					/*
-					 * we need to push some stuff on the outputStream in
-					 * order to receive something on the inputStream which might
-					 * be blocked in InputStream#read()
+					 * the adapter was sure that it fits the device, so
+					 * we do not need to try others
 					 */
-					this.obdAdapter.executeInitializationCommands();
-				} catch (IOException e) {
-					logger.warn(e.getMessage(), e);
-				} catch (AdapterFailedException e) {
-					logger.warn(e.getMessage(), e);
+					throw new AllAdaptersFailedException(this.obdAdapter.getClass().getSimpleName());
 				}
 			}
 			

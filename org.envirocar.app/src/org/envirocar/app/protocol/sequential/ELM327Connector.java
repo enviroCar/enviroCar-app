@@ -132,8 +132,11 @@ public class ELM327Connector extends AbstractSequentialConnector {
 	}
 
 	@Override
-	public boolean connectionVerified() {
-		return succesfulCount >= 5;
+	public ConnectionState connectionState() {
+		if (succesfulCount >= 5) {
+			return ConnectionState.CONNECTED;
+		}
+		return ConnectionState.DISCONNECTED;
 	}
 
 	@Override

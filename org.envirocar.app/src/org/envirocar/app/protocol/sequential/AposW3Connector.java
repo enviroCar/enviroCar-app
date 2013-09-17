@@ -67,8 +67,11 @@ public class AposW3Connector extends ELM327Connector {
 	}
 
 	@Override
-	public boolean connectionVerified() {
-		return succesfulCount >= 4;
+	public ConnectionState connectionState() {
+		if (succesfulCount >= 4) {
+			return ConnectionState.CONNECTED;
+		}
+		return ConnectionState.DISCONNECTED;
 	}
 
 	private static class AposEchoOff extends EchoOff {

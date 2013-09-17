@@ -39,6 +39,30 @@ import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
  */
 public interface OBDConnector {
 
+	
+	public enum ConnectionState {
+		
+		/**
+		 * used to indicate a state when the connector could
+		 * not understand any response received
+		 */
+		DISCONNECTED,
+		
+		/**
+		 * used to indicate a state when the connector understood
+		 * at least one command. Return this state only if the
+		 * adapter is sure, that it can interact with the device
+		 * - but the device yet did not return measurements
+		 */
+		CONNECTED,
+		
+		/**
+		 * used to indicate a state where the connector received
+		 * a parseable measurement
+		 */
+		VERIFIED
+	}
+	
 	/**
 	 * provide the required stream objects to send and retrieve
 	 * commands.
@@ -64,7 +88,7 @@ public interface OBDConnector {
 	/**
 	 * @return true if the implementation established a meaningful connection
 	 */
-	public boolean connectionVerified();
+	public ConnectionState connectionState();
 
 	/**
 	 * an implementation shall use this method to initialize the connection
@@ -87,7 +111,7 @@ public interface OBDConnector {
 	 * @throws ConnectionLostException if the maximum number of unmatched responses exceeded
 	 */
 	public List<CommonCommand> executeRequestCommands() throws IOException,
-			AdapterFailedException, UnmatchedCommandResponseException, ConnectionLostException;
+			AdapterFailedException, ConnectionLostException;
 
 	
 	/**

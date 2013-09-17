@@ -22,6 +22,7 @@ package org.envirocar.app.commands;
 
 public abstract class NumberResultCommand extends CommonCommand {
 
+	private static final String STATUS_OK = "41";
 	private int[] buffr;
 	
 	public NumberResultCommand(String command) {
@@ -37,7 +38,15 @@ public abstract class NumberResultCommand extends CommonCommand {
 		buffr = new int[data.length / 2];
 		while (index + length <= data.length) {
 			String tmp = new String(data, index, length);
-			if (index == 2) {
+			
+			if (index == 0) {
+				// this is the status
+				if (!tmp.equals(STATUS_OK)) {
+					setCommandState(CommonCommandState.EXECUTION_ERROR);
+					return;
+				}
+			}
+			else if (index == 2) {
 				// this is the ID byte
 				if (!tmp.equals(this.getResponseTypeID())) {
 					setCommandState(CommonCommandState.UNMATCHED_RESULT);
