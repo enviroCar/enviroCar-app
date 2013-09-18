@@ -30,6 +30,7 @@ import org.envirocar.app.application.UserManager;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
 import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
+import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.views.TypefaceEC;
@@ -606,7 +607,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
     }
 
     private void createStopTrackDialog() {
-    	switch (trackMode) {
+    	Intent intent;
+		switch (trackMode) {
 		case TRACK_MODE_SINGLE:
 			DialogUtil.createTitleMessageDialog(
 					R.string.finish_track,
@@ -624,7 +626,12 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 					}, MainActivity.this);	
 			break;
 		case TRACK_MODE_AUTO:
-			Crouton.makeText(MainActivity.this, "not supported yet", Style.INFO).show();
+			/*
+			 * TODO DIALOG!!
+			 */
+			intent = new Intent(DeviceInRangeService.STATE_CHANGE);
+			intent.putExtra(DeviceInRangeService.STATE_CHANGE, false);
+			sendBroadcast(intent);
 			break;
 		default:
 			Crouton.makeText(MainActivity.this, "not supported", Style.INFO).show();
@@ -642,13 +649,18 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				new DialogCallback() {
 					@Override
 					public void itemSelected(int which) {
+						Intent intent;
 						switch (which) {
 						case 0:
 							application.startConnection();
 							Crouton.makeText(MainActivity.this, R.string.start_connection, Style.INFO).show();
 							break;
 						case 1:
-							Crouton.makeText(MainActivity.this, "not supported yet", Style.INFO).show();
+							application.startConnection();
+							intent = new Intent(DeviceInRangeService.STATE_CHANGE);
+							intent.putExtra(DeviceInRangeService.STATE_CHANGE, true);
+							sendBroadcast(intent);
+							Crouton.makeText(MainActivity.this, R.string.start_connection, Style.INFO).show();
 							break;
 						}
 					}

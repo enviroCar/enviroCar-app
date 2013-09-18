@@ -9,9 +9,6 @@
             android:title="@string/pref_title_chose_adapter" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_general_settings" >
-        <CheckBoxPreference
-            android:key="pref_auto_connect"
-            android:title="@string/pref_auto_connect" />
         <!-- <CheckBoxPreference
             android:key="pref_auto_bluetooth"
             android:title="@string/pref_auto_enable_bluetooth" /> -->

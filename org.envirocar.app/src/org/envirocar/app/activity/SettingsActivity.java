@@ -54,7 +54,6 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 
 	public static final String BLUETOOTH_KEY = "bluetooth_list";
 	public static final String BLUETOOTH_NAME = "bluetooth_name";
-	public static final String AUTOCONNECT = "pref_auto_connect";
 	public static final String AUTO_BLUETOOH = "pref_auto_bluetooth";
 	public static final String WIFI_UPLOAD = "pref_wifi_upload";
 	public static final String ALWAYS_UPLOAD = "pref_always_upload";
