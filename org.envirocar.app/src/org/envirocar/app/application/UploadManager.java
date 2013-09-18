@@ -39,8 +39,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
-import org.envirocar.app.event.EventBus;
-import org.envirocar.app.event.UploadTrackEvent;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.network.HTTPClient;
@@ -142,7 +140,9 @@ public class UploadManager {
 		
 		@Override
 		protected void onPostExecute(Track track) {
-			EventBus.getInstance().fireEvent(new UploadTrackEvent(track));			
+			/*
+			 * TODO inform possible interested components about the upload
+			 */
 		}
 			
 

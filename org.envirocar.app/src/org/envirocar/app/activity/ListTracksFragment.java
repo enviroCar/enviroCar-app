@@ -42,9 +42,6 @@ import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
-import org.envirocar.app.event.EventBus;
-import org.envirocar.app.event.UploadTrackEvent;
-import org.envirocar.app.event.UploadTrackListener;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
@@ -150,7 +147,10 @@ public class ListTracksFragment extends SherlockFragment {
 	
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
-		initializeEventListener();
+		/*
+		 * TODO create a mechanism to get informed when a track
+		 * has been uploaded
+		 */
 		
 		logger.info("Create view ListTracksFragment");
 		super.onViewCreated(view, savedInstanceState);
@@ -238,7 +238,7 @@ public class ListTracksFragment extends SherlockFragment {
 				} else {
 
 					fuelCostView.setText(twoDForm.format(estimatedFuelCosts)
-							+ " €");
+							+ " ï¿½");
 				}
 			}
 
@@ -246,15 +246,6 @@ public class ListTracksFragment extends SherlockFragment {
 
 	}
 
-	private void initializeEventListener() {
-		UploadTrackListener uploadTrackListener = new UploadTrackListener() {
-			@Override
-			public void receiveEvent(UploadTrackEvent event) {
-				notifyDataSetChanged(event.getPayload());
-			}
-		};
-		EventBus.getInstance().registerListener(uploadTrackListener);
-	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, com.actionbarsherlock.view.MenuInflater inflater) {

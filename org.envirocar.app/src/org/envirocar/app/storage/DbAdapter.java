@@ -24,6 +24,8 @@ package org.envirocar.app.storage;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.envirocar.app.storage.Track.TrackStatus;
+
 
 /**
  * DB Adapter Interface that saves measurements in a local SQLite Database
@@ -140,6 +142,23 @@ public interface DbAdapter {
 
 	public List<Track> getAllLocalTracks();
 
+	/**
+	 * an implementation shall create a new track. if there is a previously
+	 * used track ({@link #getLastUsedTrack()} != null), that track shall
+	 * be finialized ({@link Track#setStatus(org.envirocar.app.storage.Track.TrackStatus)} 
+	 * with status {@link TrackStatus#FINISHED} - e.g. through the {@link #finishCurrentTrack()}
+	 * implementation).
+	 * 
+	 * @return the new track
+	 */
 	public Track createNewTrack();
+
+	/**
+	 * an implemetation shall finialize the currrent
+	 * track ({@link #getLastUsedTrack()}). set the {@link Track#setStatus(org.envirocar.app.storage.Track.TrackStatus)} 
+	 * with status {@link TrackStatus#FINISHED}.
+	 * @return the finished track or null if there was no track
+	 */
+	public Track finishCurrentTrack();
 	
 }

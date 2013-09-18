@@ -40,6 +40,7 @@ import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.storage.Track.TrackStatus;
 import org.envirocar.app.views.Utils;
 
 import android.location.Location;
@@ -215,7 +216,8 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		// New track if last measurement is more than 60 minutes
 		// ago
 
-		if (lastUsedTrack != null) {
+		if (lastUsedTrack != null && lastUsedTrack.getStatus() != TrackStatus.FINISHED &&
+				lastUsedTrack.getLastMeasurement() != null) {
 			
 			if ((System.currentTimeMillis() - lastUsedTrack
 					.getLastMeasurement().getTime()) > MAX_TIME_BETWEEN_MEASUREMENTS) {
@@ -257,6 +259,9 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		this.location = event.getPayload();
 	}
 
+	public void shutdown() {
+		EventBus.getInstance().unregisterListener(this);
+	}
 
 	
 }

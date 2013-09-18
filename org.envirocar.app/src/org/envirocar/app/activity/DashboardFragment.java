@@ -34,6 +34,7 @@ import org.envirocar.app.event.LocationEvent;
 import org.envirocar.app.event.LocationEventListener;
 import org.envirocar.app.event.SpeedEvent;
 import org.envirocar.app.event.SpeedEventListener;
+import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.views.RoundProgress;
 import org.envirocar.app.views.TypefaceEC;
@@ -61,7 +62,12 @@ import com.actionbarsherlock.app.SherlockFragment;
  */
 public class DashboardFragment extends SherlockFragment {
 
+	private static final Logger logger = Logger.getLogger(DashboardFragment.class);
 	public static final int SENSOR_CHANGED_RESULT = 1337;
+	private static final String SERVICE_STATE = "serviceState";
+	private static final String LOCATION = "location";
+	private static final String SPEED = "speed";
+	private static final String CO2 = "co2";
 	
 	// UI Items
 	
@@ -90,6 +96,7 @@ public class DashboardFragment extends SherlockFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
+		logger.info("onCreateView. hash="+System.identityHashCode(this));
 		return inflater.inflate(R.layout.dashboard, container, false);
 	}
 	
@@ -115,8 +122,11 @@ public class DashboardFragment extends SherlockFragment {
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
-
 		super.onViewCreated(view, savedInstanceState);
+		
+		readSavedState(savedInstanceState);
+		
+		logger.info("onViewCreated. hash="+System.identityHashCode(this));
 		
 		initializeEventListeners();
 		
@@ -139,6 +149,8 @@ public class DashboardFragment extends SherlockFragment {
 		
 		updateSensorOnDashboard();
 		
+		updateStatusElements();
+		
 		sensor.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -160,6 +172,74 @@ public class DashboardFragment extends SherlockFragment {
 		};
 		getActivity().registerReceiver(receiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 
+	}
+	
+
+	@Override
+	public void onDestroy() {
+		logger.info("onDestroy. hash="+System.identityHashCode(this));
+		super.onDestroy();
+		
+		getActivity().unregisterReceiver(receiver);
+		
+		EventBus.getInstance().unregisterListener(this.locationListener);
+		EventBus.getInstance().unregisterListener(this.speedListener);
+		EventBus.getInstance().unregisterListener(this.co2Listener);
+	}
+	
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		
+		outState.putSerializable(SERVICE_STATE, serviceState);
+		outState.putParcelable(LOCATION, location);
+		outState.putInt(SPEED, speed);
+		outState.putDouble(CO2, co2);
+	}
+
+	private void readSavedState(Bundle savedInstanceState) {
+		if (savedInstanceState == null) return;
+		
+		this.serviceState = (ServiceState) savedInstanceState.getSerializable(SERVICE_STATE);
+		this.location = savedInstanceState.getParcelable(LOCATION);
+		this.speed = savedInstanceState.getInt(SPEED);
+		this.co2 = savedInstanceState.getDouble(CO2);
+	}
+	
+	@Override
+	public void onStop() {
+		logger.info("onStop. hash="+System.identityHashCode(this));
+		super.onStop();
+	}
+	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		logger.info("onCreate. hash="+System.identityHashCode(this));
+		super.onCreate(savedInstanceState);
+	}
+	
+	@Override
+	public void onPause() {
+		logger.info("onPause. hash="+System.identityHashCode(this));
+		super.onPause();
+	}
+	
+	@Override
+	public void onDestroyView() {
+		logger.info("onDestroyView. hash="+System.identityHashCode(this));
+		super.onDestroyView();
+	}
+	
+	@Override
+	public void onStart() {
+		logger.info("onStart. hash="+System.identityHashCode(this));
+		super.onStart();
+	}
+	
+	@Override
+	public void onResume() {
+		logger.info("onResume. hash="+System.identityHashCode(this));
+		super.onResume();
 	}
 
 	private void initializeEventListeners() {
@@ -204,7 +284,12 @@ public class DashboardFragment extends SherlockFragment {
 	}
 	
 	protected void updateStatusElements() {
-		ImageView connectionStateImage = (ImageView) getActivity().findViewById(R.id.connectionStateImage);
+		if (getView() == null) return;
+		
+		ImageView connectionStateImage = (ImageView) getView().findViewById(R.id.connectionStateImage);
+		
+		if (connectionStateImage == null) return;
+		
 		if (serviceState == ServiceState.SERVICE_STARTED) {
 			connectionStateImage.setImageResource(R.drawable.connection_state_true);
 		}
@@ -218,6 +303,7 @@ public class DashboardFragment extends SherlockFragment {
 			updateCo2Value();
 			updateSpeedValue();
 		}
+		
 	}
 	
 	private synchronized void checkUIUpdate() {

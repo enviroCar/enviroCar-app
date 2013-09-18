@@ -147,7 +147,11 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 				
 				sendStateBroadcast(ServiceState.SERVICE_STOPPED);
 				
-				LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));				
+				LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
+				
+				if (BackgroundServiceImpl.this.commandListener != null) {
+					BackgroundServiceImpl.this.commandListener.shutdown();
+				}
 			}
 		}).start();
 	}

@@ -42,6 +42,24 @@ import org.envirocar.app.views.Utils;
  */
 public class Track implements Comparable<Track> {
 	
+	public enum TrackStatus {
+		ONGOING {
+			@Override
+			public String toString() {
+				return "ONGOING";
+			}
+			
+		},
+		
+		FINISHED {
+			@Override
+			public String toString() {
+				return "FINISHED";
+			}
+		}
+		
+	}
+	
 	private static final Logger logger = Logger.getLogger(Track.class);
 
 	private long id;
@@ -53,6 +71,7 @@ public class Track implements Comparable<Track> {
 	private String vin;
 	private String remoteID;
 	private Double consumptionPerHour;
+	private TrackStatus status = TrackStatus.ONGOING;
 
 	public static Track createDbTrack(long id) {
 		Track track = new Track(id);
@@ -364,6 +383,14 @@ public class Track implements Comparable<Track> {
 			return getLiterPerHundredKm() * 26.4;
 		} else
 			throw new FuelConsumptionException();
+	}
+
+	public void setStatus(TrackStatus s) {
+		this.status = s;
+	}
+
+	public TrackStatus getStatus() {
+		return status;
 	}
 
 }

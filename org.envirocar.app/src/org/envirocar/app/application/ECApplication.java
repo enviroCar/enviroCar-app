@@ -38,6 +38,7 @@ import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapterImpl;
+import org.envirocar.app.storage.Track;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -374,6 +375,23 @@ public class ECApplication extends Application {
 				Crouton.makeText(getCurrentActivity(), string, Style.INFO).show();
 			}
 		});		
+	}
+
+
+	public void finishTrack() {
+		Track track = DbAdapterImpl.instance().finishCurrentTrack();
+		if (track != null) {
+			if (track.getLastMeasurement() == null) {
+				Crouton.makeText(getCurrentActivity(), R.string.track_finished_no_measurements, Style.ALERT).show();
+			} else {
+				String text = getString(R.string.track_finished).concat(track.getName());
+				Crouton.makeText(getCurrentActivity(), text, Style.INFO).show();				
+			}
+		}
+		else {
+			Crouton.makeText(getCurrentActivity(), R.string.track_finishing_failed, Style.ALERT).show();
+		}
+		
 	}
 
 

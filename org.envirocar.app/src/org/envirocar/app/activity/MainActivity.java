@@ -22,6 +22,7 @@
 package org.envirocar.app.activity;
 
 import org.envirocar.app.R;
+import org.envirocar.app.activity.DialogUtil.DialogCallback;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.NavMenuItem;
@@ -475,7 +476,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         	if(isFragmentVisible(DASHBOARD_TAG)){
             	break;
             }
-        	DashboardFragment dashboardFragment = new DashboardFragment();
+        	Fragment dashboardFragment = getSupportFragmentManager().findFragmentByTag(DASHBOARD_TAG);
+        	if (dashboardFragment == null) {
+        		dashboardFragment = new DashboardFragment();
+        	}
         	manager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
             manager.beginTransaction().replace(R.id.content_frame, dashboardFragment, DASHBOARD_TAG).commit();
             break;
@@ -538,16 +542,14 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				} else {
 					switch (serviceState) {
 					case SERVICE_STOPPED:
-						application.startConnection();
-						Crouton.makeText(this, R.string.start_connection, Style.INFO).show();
+						createStartTrackDialog();
 						break;
 					case SERVICE_STARTING:
 						application.stopConnection();
 						Crouton.makeText(this, R.string.stop_connection, Style.INFO).show();
 						break;
 					case SERVICE_STARTED:
-						application.stopConnection();
-						Crouton.makeText(this, R.string.stop_connection, Style.INFO).show();
+						createStopTrackDialog();
 						break;
 					default:
 						break;
@@ -580,7 +582,62 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
     }
 
-    /**
+    private void createStopTrackDialog() {
+    	switch (trackMode) {
+		case TRACK_MODE_SINGLE:
+			DialogUtil.createTitleMessageDialog(
+					R.string.finish_track,
+					R.string.finish_track_long,
+					new DialogUtil.PositiveNegativeCallback() {
+						@Override
+						public void positive() {
+							application.stopConnection();
+							application.finishTrack();
+						}
+						
+						@Override
+						public void negative() {
+						}
+					}, MainActivity.this);	
+			break;
+		case TRACK_MODE_AUTO:
+			Crouton.makeText(MainActivity.this, "not supported yet", Style.INFO).show();
+			break;
+		default:
+			Crouton.makeText(MainActivity.this, "not supported", Style.INFO).show();
+			break;
+		}
+    	
+	}
+
+	private void createStartTrackDialog() {
+    	String[] items = new String[] {getResources().getString(R.string.track_mode_single),
+				getResources().getString(R.string.track_mode_auto)};
+		DialogUtil.createSingleChoiceItemsDialog(
+				getString(R.string.question_track_mode),
+				items,
+				new DialogCallback() {
+					@Override
+					public void itemSelected(int which) {
+						switch (which) {
+						case 0:
+							application.startConnection();
+							Crouton.makeText(MainActivity.this, R.string.start_connection, Style.INFO).show();
+							break;
+						case 1:
+							Crouton.makeText(MainActivity.this, "not supported yet", Style.INFO).show();
+							break;
+						}
+					}
+					
+					@Override
+					public void cancelled() {
+						
+					}
+				}, MainActivity.this);		
+	}
+
+	/**
      * This method checks, whether a Fragment with a certain tag is visible.
      * @param tag The tag of the Fragment.
      * @return True if the Fragment is visible, false if not.

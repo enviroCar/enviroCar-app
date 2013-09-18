@@ -13,11 +13,11 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.storage.Measurement.PropertyKey;
+import org.envirocar.app.storage.Track.TrackStatus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.R.raw;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -49,6 +49,7 @@ public class DbAdapterImpl implements DbAdapter {
 	public static final String KEY_TRACK_NAME = "name";
 	public static final String KEY_TRACK_DESCRIPTION = "descr";
 	public static final String KEY_TRACK_REMOTE = "remoteId";
+	public static final String KEY_TRACK_STATE = "state";
 	public static final String KEY_TRACK_CAR_MANUFACTURER = "car_manufacturer";
 	public static final String KEY_TRACK_CAR_MODEL = "car_model";
 	public static final String KEY_TRACK_CAR_FUEL_TYPE = "fuel_type";
@@ -84,6 +85,7 @@ public class DbAdapterImpl implements DbAdapter {
 			KEY_TRACK_NAME + " BLOB, " + 
 			KEY_TRACK_DESCRIPTION + " BLOB, " +
 			KEY_TRACK_REMOTE + " BLOB, " +
+			KEY_TRACK_STATE + " BLOB, " +
 			KEY_TRACK_CAR_MANUFACTURER + " BLOB, " + 
 			KEY_TRACK_CAR_MODEL + " BLOB, " +
 			KEY_TRACK_CAR_FUEL_TYPE + " BLOB, " +
@@ -141,7 +143,7 @@ public class DbAdapterImpl implements DbAdapter {
 	@Override
 	public DbAdapter open() {
 		// deprecated
-		return null;
+		return this;
 	}
 	
 	private void openConnection() {
@@ -215,6 +217,24 @@ public class DbAdapterImpl implements DbAdapter {
 		track.setVin(c.getString(c.getColumnIndex(KEY_TRACK_CAR_VIN)));
 		track.setRemoteID(c.getString(c.getColumnIndex(KEY_TRACK_REMOTE)));
 		
+		if (track.isRemoteTrack()) {
+			/*
+			 * remote tracks are always finished
+			 */
+			track.setStatus(TrackStatus.FINISHED);
+		}
+		
+		int statusColumn = c.getColumnIndex(KEY_TRACK_STATE);
+		if (statusColumn != -1) {
+			track.setStatus(TrackStatus.valueOf(c.getString(statusColumn)));
+		}
+		else {
+			/*
+			 * if its a legacy track (column not there), set to finished
+			 */
+			track.setStatus(TrackStatus.FINISHED);
+		}
+		
 		String manufacturer = c.getString(c.getColumnIndex(KEY_TRACK_CAR_MANUFACTURER));
 		String model = c.getString(c.getColumnIndex(KEY_TRACK_CAR_MODEL));
 		String carId = c.getString(c.getColumnIndex(KEY_TRACK_CAR_ID));
@@ -261,12 +281,7 @@ public class DbAdapterImpl implements DbAdapter {
 		ArrayList<Track> trackList = getAllTracks();
 		if (trackList.size() > 0) {
 			Track track = trackList.get(trackList.size() - 1);
-			if (track.getLastMeasurement() != null) {
-				return track;
-			}
-			else {
-				deleteTrack(track.getId());
-			}
+			return track;
 		}
 		return null;
 	}
@@ -399,6 +414,8 @@ public class DbAdapterImpl implements DbAdapter {
 
 	@Override
 	public Track createNewTrack() {
+		finishCurrentTrack();
+		
 		String date = format.format(new Date());
 		Car car = CarManager.instance().getCar();
 		Track track = new Track("123456", car, this);
@@ -407,6 +424,18 @@ public class DbAdapterImpl implements DbAdapter {
 		updateTrack(track);
 		logger.info("createNewTrack: "+ track.getName());
 		return track;
+	}
+
+	@Override
+	public Track finishCurrentTrack() {
+		Track last = getLastUsedTrack();
+		if (last != null) {
+			if (last.getLastMeasurement() == null) {
+				deleteTrack(last.getId());
+			}
+			last.setStatus(TrackStatus.FINISHED);
+		}
+		return last;
 	}
 
 }
