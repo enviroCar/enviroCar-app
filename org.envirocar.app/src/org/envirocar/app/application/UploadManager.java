@@ -32,17 +32,21 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.event.EventBus;
 import org.envirocar.app.event.UploadTrackEvent;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.Car;
 import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
@@ -75,6 +79,7 @@ public class UploadManager {
 
 	private DbAdapter dbAdapter;
 	private Context context;
+	private final String sensorType = "car";
 	
 	/**
 	 * Normal constructor for this manager. Specify the context and the dbadapter.
@@ -90,15 +95,146 @@ public class UploadManager {
 	 * This methods uploads all local tracks to the server
 	 */
 	public void uploadAllTracks() {
-		for (Track track : dbAdapter.getAllLocalTracks()) {
-			new UploadAsyncTask().execute(track);
-		}
+		//check, whether a track has car with id lsi
+		//upload car, save id, update the car id of the track
+		//search other tracks, whether they have car with id lsi
+		//update the car id of the track with the saved one from above
+		//upload tracks
+		checkCarBeforeUpload(null);
+//		for (Track track : dbAdapter.getAllLocalTracks()) {
+//			new UploadAsyncTask().execute(track);
+//		}
 	}
 	
 	public void uploadSingleTrack(Track track){
-		new UploadAsyncTask().execute(track);
+		//same as above, update all tracks with local car id
+		//afterwards upload track
+		checkCarBeforeUpload(track);
+//		new UploadAsyncTask().execute(track);
 	}
+	
+	private void checkCarBeforeUpload(Track track){
+		
+		if(track == null){
 
+			for (Track tmpTrack : dbAdapter.getAllLocalTracks()) {
+				//check, whether track has car with id lsi
+				if(isCarOfTrackSavedLocallyOnly(tmpTrack)){					
+					track = tmpTrack;
+					break;
+				}
+			}
+			
+		}else if(!isCarOfTrackSavedLocallyOnly(track)){
+			return;
+		}
+
+		Car car = track.getCar();
+		String sensorString = String
+				.format("{ \"type\": \"%s\", \"properties\": {\"manufacturer\": \"%s\", \"model\": \"%s\", \"fuelType\": \"%s\", \"constructionYear\": %s } }",
+						sensorType, car.getManufacturer(), car.getModel(),
+						car.getFuelType(), car.getConstructionYear());
+		try {
+			String sensorIdFromServer = new SensorUploadTask().execute(
+					sensorString).get();
+
+			car.setId(sensorIdFromServer);
+
+			logger.info("Car id tmpTrack: " + track.getCar().getId());
+
+			DbAdapterImpl.instance().updateTrack(track);
+			
+			/*
+			 * we need to update all other local tracks with the local car id.
+			 */
+			updateTracksWithLocalCar(sensorIdFromServer);
+			
+		} catch (InterruptedException e) {
+			logger.warn(e.getMessage(), e);
+		} catch (ExecutionException e) {
+			logger.warn(e.getMessage(), e);
+		}
+
+	}
+	
+	private void updateTracksWithLocalCar(String sensorIdFromServer){
+		
+		for (Track tmpTrack : dbAdapter.getAllLocalTracks()) {
+			//check, whether track has car with id lsi
+			if(isCarOfTrackSavedLocallyOnly(tmpTrack)){
+				
+				Car car = tmpTrack.getCar();
+										
+				car.setId(sensorIdFromServer);
+				
+				DbAdapterImpl.instance().updateTrack(tmpTrack);
+			}
+		}
+		
+	}
+	
+	private boolean isCarOfTrackSavedLocallyOnly(Track track){		
+		return track.getCar().getId().equals(Car.LOCAL_SENSOR_ID);
+	}
+	
+	private String registerSensor(String sensorString) throws IOException{
+		
+		User user = UserManager.instance().getUser();
+		String username = user.getUsername();
+		String token = user.getToken();
+		
+		HttpPost postRequest = new HttpPost(
+				ECApplication.BASE_URL+"/sensors");
+		
+		postRequest.addHeader("Content-Type", "application/json");
+		
+		postRequest.addHeader("Accept-Encoding", "gzip");
+		
+		if (user != null)
+			postRequest.addHeader("X-User", username);
+		
+		if (token != null)
+			postRequest.addHeader("X-Token", token);
+		
+		StringEntity se = new StringEntity(sensorString);
+		se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+		
+		HttpResponse response = HTTPClient.execute(postRequest);
+		
+		int httpStatusCode = response.getStatusLine().getStatusCode();
+		
+		Header[] h = response.getAllHeaders();
+
+		String location = "";
+		for (int i = 0; i < h.length; i++) {
+			if (h[i].getName().equals("Location")) {
+				location += h[i].getValue();
+				break;
+			}
+		}
+		logger.info(httpStatusCode + " " + location);
+
+		return location.substring(
+				location.lastIndexOf("/") + 1,
+				location.length());
+	}
+	
+	private class SensorUploadTask extends AsyncTask<String, String, String>{
+
+		@Override
+		protected String doInBackground(String... params) {
+			
+			try {				
+//				return "lkbfwef82352";
+				return registerSensor(params[0]);
+			} catch (IOException e) {
+				logger.warn(e.getMessage(), e);
+			}
+			return "";
+		}
+		
+	}
+	
 	private class UploadAsyncTask extends AsyncTask<Track, Track, Track> {
 		
 		@Override

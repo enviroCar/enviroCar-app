@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
@@ -91,8 +92,6 @@ public class DbAdapterImpl implements DbAdapter {
 			KEY_TRACK_CAR_ID + " BLOB);";
 
 	private static final DateFormat format = SimpleDateFormat.getDateTimeInstance();
-
-	private static final String DEFAULT_TRACK_DESCRIPTION = "Track of Car '%s'";
 
 	private static DbAdapterImpl instance;
 	
@@ -400,7 +399,7 @@ public class DbAdapterImpl implements DbAdapter {
 		Car car = CarManager.instance().getCar();
 		Track track = new Track("123456", car, this);
 		track.setName("Track " + date);
-		track.setDescription(String.format(DEFAULT_TRACK_DESCRIPTION, car.getId()));
+		track.setDescription(String.format(mCtx.getString(R.string.default_track_description), car.getModel()));
 		updateTrack(track);
 		logger.info("createNewTrack: "+ track.getName());
 		return track;

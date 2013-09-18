@@ -97,6 +97,8 @@ public class MyGarage extends SherlockFragment {
 	private ProgressBar sensorDlProgress;
 	private Button sensorRetryButton;
 	
+	private String sensorId = Car.LOCAL_SENSOR_ID;
+	
 	private JSONArray sensors;
 	
 	@Override
@@ -297,11 +299,16 @@ public class MyGarage extends SherlockFragment {
 
 	/**
 	 * Register a new sensor (car) at the server
-	 * @param sensorType 
-	 * @param carManufacturer Car manufacturer
-	 * @param carModel Car model
-	 * @param carConstructionYear Construction year of the car
-	 * @param carFuelType Fuel type of the car
+	 * 
+	 * @param sensorType
+	 * @param carManufacturer
+	 *            Car manufacturer
+	 * @param carModel
+	 *            Car model
+	 * @param carConstructionYear
+	 *            Construction year of the car
+	 * @param carFuelType
+	 *            Fuel type of the car
 	 */
 	private void registerSensorAtServer(final String sensorType,
 			final String carManufacturer, final String carModel,
@@ -311,53 +318,72 @@ public class MyGarage extends SherlockFragment {
 				.format("{ \"type\": \"%s\", \"properties\": {\"manufacturer\": \"%s\", \"model\": \"%s\", \"fuelType\": \"%s\", \"constructionYear\": %s } }",
 						sensorType, carManufacturer, carModel, carFuelType,
 						carConstructionYear);
-		
+
 		User user = UserManager.instance().getUser();
 		String username = user.getUsername();
 		String token = user.getToken();
-		
-		RestClient.createSensor(sensorString, username, token, new AsyncHttpResponseHandler(){
-			
-			@Override
-			public void onStart() {
-				super.onStart();
-				showProgress(true);
-			}
 
-			@Override
-			public void onFailure(Throwable error, String content) {
-				super.onFailure(error, content);
-				if(content.equals("can't resolve host") ){
-					Crouton.makeText(getActivity(), getResources().getString(R.string.error_host_not_found), Style.ALERT).show();
-				}
-				showProgress(false);
-			}
-			
-			
-			@Override
-			public void onSuccess(int httpStatusCode, Header[] h, String response) {
-				super.onSuccess(httpStatusCode, h, response);
-				String location = "";
-				for (int i = 0; i< h.length; i++){
-					if( h[i].getName().equals("Location")){
-						location += h[i].getValue();
-						break;
-					}
-				}
-				logger.info(httpStatusCode+" "+location);
-				
-				String sensorId = location.substring(location.lastIndexOf("/")+1, location.length());
-				//put the sensor id into shared preferences
-				// TODO set EngineDisplacement
-				double engineDisplacement = 2.0;
-				int year = Integer.parseInt(carConstructionYear);
-				Car car = new Car(carFuelType, carManufacturer, carModel, sensorId, year, engineDisplacement);
-				CarManager.instance().setCat(car);
-				//go back to the dashboard
-				hide();
-			}
-		});
+		if (((MainActivity<?>) getActivity()).isConnectedToInternet()) {
 
+			RestClient.createSensor(sensorString, username, token,
+					new AsyncHttpResponseHandler() {
+
+						@Override
+						public void onStart() {
+							super.onStart();
+							showProgress(true);
+						}
+
+						@Override
+						public void onFailure(Throwable error, String content) {
+							super.onFailure(error, content);
+							if (content.equals("can't resolve host")) {
+								Crouton.makeText(
+										getActivity(),
+										getResources().getString(
+												R.string.error_host_not_found),
+										Style.ALERT).show();
+							}
+							showProgress(false);
+						}
+
+						@Override
+						public void onSuccess(int httpStatusCode, Header[] h,
+								String response) {
+							super.onSuccess(httpStatusCode, h, response);
+							String location = "";
+							for (int i = 0; i < h.length; i++) {
+								if (h[i].getName().equals("Location")) {
+									location += h[i].getValue();
+									break;
+								}
+							}
+							logger.info(httpStatusCode + " " + location);
+
+							sensorId = location.substring(
+									location.lastIndexOf("/") + 1,
+									location.length());
+							hide();
+						}
+					});
+		} else {
+			// use local id
+			createNewCar(sensorId);
+		}
+
+	}
+	
+	private void createNewCar(String sensorId){
+
+		// put the sensor id into shared preferences
+		// TODO set EngineDisplacement
+		double engineDisplacement = 2.0;
+		int year = Integer.parseInt(carConstructionYear);
+		Car car = new Car(carFuelType, carManufacturer,
+				carModel, sensorId, year,
+				engineDisplacement);
+		CarManager.instance().setCat(car);
+		// go back to the dashboard
 	}
 	
 	/**

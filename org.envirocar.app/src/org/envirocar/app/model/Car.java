@@ -28,6 +28,8 @@ package org.envirocar.app.model;
  */
 public class Car {
 
+	public static final String LOCAL_SENSOR_ID = "lsi";
+	
 	public enum FuelType {
 		GASOLINE {
 		    public String toString() {
@@ -84,6 +86,10 @@ public class Car {
 
 	public String getId() {
 		return id;
+	}
+	
+	public void setId(String newID){
+		this.id = newID;
 	}
 
 	public int getConstructionYear() {
