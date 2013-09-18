@@ -69,14 +69,12 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	protected static final long CONNECTION_CHECK_INTERVAL = 1000 * 5;
 	// Properties
 
-	// Bluetooth devices and connection items
-
-	private BluetoothSocketWrapper bluetoothSocket;
-
 	private Listener commandListener;
 	private final Binder binder = new LocalBinder();
 
 	private OBDCommandLooper commandLooper;
+
+	private BluetoothConnection bluetoothConnection;
 
 
 	@Override
@@ -139,20 +137,16 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 			
 			@Override
 			public void run() {
+				if (BackgroundServiceImpl.this.bluetoothConnection != null) {
+					BackgroundServiceImpl.this.bluetoothConnection.cancelConnection();
+				}
+				
 				if (BackgroundServiceImpl.this.commandLooper != null) {
 					BackgroundServiceImpl.this.commandLooper.stopLooper();
 				}
 				
 				sendStateBroadcast(ServiceState.SERVICE_STOPPED);
 				
-				if (bluetoothSocket != null) {
-					try {
-						BluetoothConnection.shutdownSocket(bluetoothSocket);
-					} catch (Exception e) {
-						logger.warn(e.getMessage(), e);
-					}
-				}
-
 				LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));				
 			}
 		}).start();
@@ -185,7 +179,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 				.getDefaultAdapter();
 		BluetoothDevice bluetoothDevice = bluetoothAdapter.getRemoteDevice(remoteDevice);
 
-		new BluetoothConnection(bluetoothDevice, true, this, getApplicationContext());
+		bluetoothConnection = new BluetoothConnection(bluetoothDevice, true, this, getApplicationContext());
 		
 		sendStateBroadcast(ServiceState.SERVICE_STARTING);
 	}
@@ -200,9 +194,8 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	 * method gets called when the bluetooth device connection
 	 * has been established. 
 	 */
-	public void deviceConnected(BluetoothSocketWrapper sock) {
+	public void deviceConnected(BluetoothSocketWrapper bluetoothSocket) {
 		logger.info("Bluetooth device connected.");
-		bluetoothSocket = sock;
 		
 		InputStream in;
 		OutputStream out;

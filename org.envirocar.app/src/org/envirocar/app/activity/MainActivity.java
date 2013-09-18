@@ -77,6 +77,9 @@ import de.keyboardsurfer.android.widget.crouton.Style;
  */
 public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity implements OnItemClickListener {
 
+	public static final int TRACK_MODE_SINGLE = 0;
+	public static final int TRACK_MODE_AUTO = 1;
+	
 	private int actionBarTitleID = 0;
 	private ActionBar actionBar;
 
@@ -119,6 +122,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private OnSharedPreferenceChangeListener settingsReceiver;
 	protected ServiceState serviceState = ServiceState.SERVICE_STOPPED;
 	private BroadcastReceiver bluetoothStateReceiver;
+	private int trackMode = TRACK_MODE_SINGLE;
 		
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
@@ -336,12 +340,25 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				switch (serviceState) {
 				case SERVICE_STARTED:
 					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_stop));
-					navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_pause);
+					switch (trackMode) {
+					case TRACK_MODE_SINGLE:
+						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.track_mode_single));
+						break;
+					case TRACK_MODE_AUTO:
+						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.track_mode_auto));
+						break;
+					default:
+						break;
+					}
+						
+					navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_stop);
 					navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
 					break;
 				case SERVICE_STARTING:
-					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_starting));
-					navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
+					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_cancel));
+					navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.menu_starting));
+					navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_cancel);
+					navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
 					break;
 				case SERVICE_STOPPED:
 					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
@@ -508,6 +525,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
             
 		case START_STOP_MEASUREMENT:
 			if (!navDrawerItems[position].isEnabled()) return;
+			
 			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
 
 			String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,null);
@@ -518,12 +536,21 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			        MyGarage garageFragment = new MyGarage();
 			        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
 				} else {
-					if (serviceState == ServiceState.SERVICE_STOPPED) {
+					switch (serviceState) {
+					case SERVICE_STOPPED:
 						application.startConnection();
 						Crouton.makeText(this, R.string.start_connection, Style.INFO).show();
-					} else {
+						break;
+					case SERVICE_STARTING:
 						application.stopConnection();
 						Crouton.makeText(this, R.string.stop_connection, Style.INFO).show();
+						break;
+					case SERVICE_STARTED:
+						application.stopConnection();
+						Crouton.makeText(this, R.string.stop_connection, Style.INFO).show();
+						break;
+					default:
+						break;
 					}
 				}
 			} else {

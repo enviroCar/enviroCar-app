@@ -60,6 +60,7 @@ public class BluetoothConnection extends Thread {
 	private BackgroundService owner;
 	private BluetoothSocketWrapper bluetoothSocket;
 	private Context context;
+	private boolean running = true;
 
     public BluetoothConnection(BluetoothDevice device, boolean secure, BackgroundService owner,
     		Context ctx) {
@@ -148,7 +149,7 @@ public class BluetoothConnection extends Thread {
 
 	public void run() {
 		boolean success = false;
-		while (selectSocket()) {
+		while (running && selectSocket()) {
         
             if (bluetoothSocket == null) {
             	logger.warn("Socket is null! Cancelling!");
@@ -184,15 +185,12 @@ public class BluetoothConnection extends Thread {
 				} catch (InterruptedException e1) {
 					logger.warn(e1.getMessage(), e1);
 				} catch (IOException e1) {
-					 // Close the socket
-	                try {
-	                	shutdownSocket(bluetoothSocket);
-	                } catch (IOException e2) {
-	                    logger.warn(e2.getMessage(), e2);
-	                }
+                	shutdownSocket(bluetoothSocket);
 				}
 			}
     	}
+		
+		if (!running) return;
 		
 		if (success) {
 			owner.deviceConnected(bluetoothSocket);
@@ -228,25 +226,32 @@ public class BluetoothConnection extends Thread {
 	}
 	
     
-	public static void shutdownSocket(BluetoothSocketWrapper socket)
-			throws IOException {
+	public static void shutdownSocket(BluetoothSocketWrapper socket) {
 		logger.info("Shutting down bluetooth socket.");
-		if (socket.getInputStream() != null) {
-			try {
+		
+		try {
+			if (socket.getInputStream() != null) {
 				socket.getInputStream().close();
-			} catch (Exception e) {}
-		}
+			}
+		} catch (Exception e) {}
+		
 	
-		if (socket.getOutputStream() != null) {
-			try {
+		try {
+			if (socket.getOutputStream() != null) {
 				socket.getOutputStream().close();
-			} catch (Exception e) {}
-		}
+			}
+		} catch (Exception e) {}
+		
 		
 		try {
 			socket.close();
 		} catch (Exception e) {}
 		
+	}
+
+	public void cancelConnection() {
+		running = false;
+		shutdownSocket(bluetoothSocket);
 	}
 
 }

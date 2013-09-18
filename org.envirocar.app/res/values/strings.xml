@@ -66,11 +66,14 @@
     <string name="positioning_Info">The positioning is based on GPS, to have a precised positions for the measurement. Please wait until you get GPS coordinates.</string>
     <string name="no_current_position">none</string>
     <string name="menu_start">Start</string>
+    <string name="menu_cancel">Cancel</string>
     <string name="menu_starting">Starting</string>
     <string name="menu_stop">Stop</string>
     <string name="menu_upload">Upload</string>
     <string name="menu_delete">Delete</string>
     <string name="menu_login">Sign in/Register</string>
+    <string name="track_mode_single">Single Track</string>
+    <string name="track_mode_auto">Automatic Track</string>
     <string name="gasoline">Gasoline</string>
     <string name="diesel">Diesel</string>
     <string name="register_car">Register Car</string>
