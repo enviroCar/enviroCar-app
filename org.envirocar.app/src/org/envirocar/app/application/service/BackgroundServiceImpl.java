@@ -31,6 +31,7 @@ import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.CommandListener;
 import org.envirocar.app.application.Listener;
 import org.envirocar.app.application.LocationUpdateListener;
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 import org.envirocar.app.bluetooth.BluetoothConnection;
 import org.envirocar.app.bluetooth.BluetoothSocketWrapper;
 import org.envirocar.app.logging.Logger;
@@ -40,8 +41,10 @@ import org.envirocar.app.protocol.OBDCommandLooper;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.Binder;
@@ -64,10 +67,13 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	private static final Logger logger = Logger.getLogger(BackgroundServiceImpl.class);
 	
 	public static final String CONNECTION_PERMANENTLY_FAILED_INTENT =
-			BackgroundServiceInteractor.class.getName()+".CONNECTION_PERMANENTLY_FAILED";
+			BackgroundServiceImpl.class.getName()+".CONNECTION_PERMANENTLY_FAILED";
 	
 	protected static final long CONNECTION_CHECK_INTERVAL = 1000 * 5;
 	// Properties
+
+	private static final String SERVICE_STATE_REQUEST = BackgroundServiceImpl.class.getName()+
+			".SERVICE_STATE_REQUEST";
 
 	private Listener commandListener;
 	private final Binder binder = new LocalBinder();
@@ -75,6 +81,8 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	private OBDCommandLooper commandLooper;
 
 	private BluetoothConnection bluetoothConnection;
+
+	protected ServiceState state;
 
 
 	@Override
@@ -86,6 +94,15 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	@Override
 	public void onCreate() {
 		logger.info("onCreate " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
+		
+		BroadcastReceiver stateRequestReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				sendStateBroadcast();
+			}
+		};
+		
+		registerReceiver(stateRequestReceiver, new IntentFilter(SERVICE_STATE_REQUEST));
 	}
 	
 	@Override
@@ -145,7 +162,8 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 					BackgroundServiceImpl.this.commandLooper.stopLooper();
 				}
 				
-				sendStateBroadcast(ServiceState.SERVICE_STOPPED);
+				state = ServiceState.SERVICE_STOPPED;
+				sendStateBroadcast();
 				
 				LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
 				
@@ -156,7 +174,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 		}).start();
 	}
 	
-	private void sendStateBroadcast(ServiceState state) {
+	private void sendStateBroadcast() {
 		Intent intent = new Intent(SERVICE_STATE);
 		intent.putExtra(SERVICE_STATE, state);
 		sendBroadcast(intent);
@@ -185,7 +203,8 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 
 		bluetoothConnection = new BluetoothConnection(bluetoothDevice, true, this, getApplicationContext());
 		
-		sendStateBroadcast(ServiceState.SERVICE_STARTING);
+		state = ServiceState.SERVICE_STARTING;
+		sendStateBroadcast();
 	}
 	
 	
@@ -222,7 +241,8 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 				this.commandListener, new ConnectionListener() {
 					@Override
 					public void onConnectionVerified() {
-						BackgroundServiceImpl.this.sendStateBroadcast(ServiceState.SERVICE_STARTED);
+						state = ServiceState.SERVICE_STARTED;
+						BackgroundServiceImpl.this.sendStateBroadcast();
 					}
 					
 					@Override
@@ -284,6 +304,10 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 			logger.info("all adapters failed!");
 			onAllAdaptersFailed();
 		}
+	}
+
+	public static void requestServiceStateBroadcast(Context ctx) {
+		ctx.sendBroadcast(new Intent(SERVICE_STATE_REQUEST));
 	}
 	
 }

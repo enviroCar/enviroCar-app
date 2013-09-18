@@ -28,6 +28,7 @@ import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.NavMenuItem;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
+import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapterImpl;
@@ -113,6 +114,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
 	
 	private static final Logger logger = Logger.getLogger(MainActivity.class);
+	private static final String SERVICE_STATE = "serviceState";
+	private static final String TRACK_MODE = "trackMode";
 	
 	// Include settings for auto upload and auto-connect
 	
@@ -152,6 +155,9 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		readSavedState(savedInstanceState);
+		
 		this.setContentView(R.layout.main_layout);
 
 		application = ((ECApplication) getApplication());
@@ -334,6 +340,23 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 //        
 //    }
 	
+	private void readSavedState(Bundle savedInstanceState) {
+		if (savedInstanceState == null) return;
+		
+		this.serviceState = (ServiceState) savedInstanceState.getSerializable(SERVICE_STATE);
+		this.trackMode = savedInstanceState.getInt(TRACK_MODE);
+		
+		BackgroundServiceImpl.requestServiceStateBroadcast(getApplicationContext());
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		
+		outState.putSerializable(SERVICE_STATE, serviceState);
+		outState.putInt(TRACK_MODE, trackMode);
+	}
+
 	protected void updateStartStopButton() {
 		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if (adapter != null && adapter.isEnabled()) { // was requirementsFulfilled
