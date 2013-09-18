@@ -53,6 +53,7 @@ public class DeviceInRangeService extends Service {
 	public static final String DEVICE_FOUND = DeviceInRangeService.class.getName().concat(".DEVICE_FOUND");
 	public static final String DELAY_EXTRA = DeviceInRangeService.class.getName().concat(".INITIAL_DELAY");
 	public static final String STATE_CHANGE = DeviceInRangeService.class.getName().concat(".STATE_CHANGE");
+	public static final String TARGET_CONNECTION_TIME = DeviceInRangeService.class.getName().concat(".TARGET_CONNECTION_TIME");
 	
 	private static final long DISCOVERY_PERIOD = 1000 * 60 * 2;
 	public static final int DEFAULT_DELAY_AFTER_STOP = 1000 * 60 * 5;
@@ -179,6 +180,9 @@ public class DeviceInRangeService extends Service {
 		};
 		
 		discoveryHandler.postDelayed(discoveryRunnable, DISCOVERY_PERIOD + d);
+		Intent intent = new Intent(TARGET_CONNECTION_TIME);
+		intent.putExtra(TARGET_CONNECTION_TIME, System.currentTimeMillis()+DISCOVERY_PERIOD+d);
+		sendBroadcast(intent);
 	}
 
 	

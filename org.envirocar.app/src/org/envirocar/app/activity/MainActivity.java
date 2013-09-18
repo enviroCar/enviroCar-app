@@ -46,6 +46,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
@@ -128,6 +129,11 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	protected ServiceState serviceState = ServiceState.SERVICE_STOPPED;
 	private BroadcastReceiver bluetoothStateReceiver;
 	private int trackMode = TRACK_MODE_SINGLE;
+	private Runnable remainingTimeThread;
+	private long targetTime;
+	private Handler remainingTimeHandler;
+	private BroadcastReceiver deviceInRangReceiver;
+	private boolean deviceDiscoveryActive;
 		
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
@@ -229,6 +235,18 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				updateStartStopButton();
 			}
 		};
+		
+		deviceInRangReceiver = new BroadcastReceiver() {
+			
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				targetTime = intent.getLongExtra(DeviceInRangeService.TARGET_CONNECTION_TIME, 0);
+				invokeRemainingTimeThread();
+				deviceDiscoveryActive = true;
+			}
+		};
+		
+		registerReceiver(deviceInRangReceiver, new IntentFilter(DeviceInRangeService.TARGET_CONNECTION_TIME));
 		
 		registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
 		
@@ -364,53 +382,30 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			try {
 				switch (serviceState) {
 				case SERVICE_STARTED:
-					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_stop));
+					configureStopButton();
+					break;
+				case SERVICE_STARTING:
+					configureCancelButton();
+					break;
+				case SERVICE_STOPPED:
+	
 					switch (trackMode) {
 					case TRACK_MODE_SINGLE:
-						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.track_mode_single));
+						resetToStartButtonState();
 						break;
 					case TRACK_MODE_AUTO:
-						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.track_mode_auto));
+						if (deviceDiscoveryActive) {
+							navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_cancel));
+							navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
+							navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_stop);
+						} else {
+							resetToStartButtonState();
+						}
 						break;
 					default:
 						break;
 					}
-						
-					navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_stop);
-					navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
-					break;
-				case SERVICE_STARTING:
-					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_cancel));
-					navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.menu_starting));
-					navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_cancel);
-					navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
-					break;
-				case SERVICE_STOPPED:
-					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
-					// Only enable start button when adapter is selected
-	
-					SharedPreferences preferences = PreferenceManager
-							.getDefaultSharedPreferences(this);
-	
-					String remoteDevice = preferences.getString(
-							org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,
-							null);
-	
-					if (remoteDevice != null) {
-						if(!CarManager.instance().isCarSet()){
-							navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-							navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
-							navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.no_sensor_selected));
-						} else {
-							navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
-							navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_play);
-							navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(preferences.getString(SettingsActivity.BLUETOOTH_NAME, ""));
-						}
-					} else {
-						navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-						navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
-						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.pref_summary_chose_adapter));
-					}
+					
 					break;
 				default:
 					break;
@@ -429,6 +424,89 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		}
 		
 		navDrawerAdapter.notifyDataSetChanged();
+	}
+
+
+	private void configureCancelButton() {
+		navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_cancel));
+		navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.menu_starting));
+		navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_cancel);
+		navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);		
+	}
+
+	private void configureStopButton() {
+		navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_stop));
+		
+		switch (trackMode) {
+		case TRACK_MODE_SINGLE:
+			navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.track_mode_single));
+			break;
+		case TRACK_MODE_AUTO:
+			navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.track_mode_auto));
+			break;
+		default:
+			break;
+		}
+			
+		navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_stop);
+		navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);		
+	}
+
+	private void resetToStartButtonState() {
+		navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
+		SharedPreferences preferences = PreferenceManager
+		.getDefaultSharedPreferences(this);
+
+		String remoteDevice = preferences.getString(
+				org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,
+				null);
+
+		if (remoteDevice != null) {
+			if(!CarManager.instance().isCarSet()){
+				navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
+				navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
+				navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.no_sensor_selected));
+			} else {
+				navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
+				navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_play);
+				navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(preferences.getString(SettingsActivity.BLUETOOTH_NAME, ""));
+			}
+		} else {
+			navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
+			navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
+			navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.pref_summary_chose_adapter));
+		}		
+	}
+
+	private void invokeRemainingTimeThread() {
+		if (remainingTimeThread == null || targetTime > System.currentTimeMillis()) {
+			remainingTimeHandler = new Handler();
+			remainingTimeThread = new Runnable() {
+				@Override
+				public void run() {
+					final long deltaSec = (targetTime - System.currentTimeMillis()) / 1000;
+					final long minutes = deltaSec / 60;
+					final long secs = deltaSec - (minutes*60);
+					if (deltaSec > 0 && drawer.isShown()) {
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(
+										getString(R.string.track_mode_auto).concat(
+												String.format(getString(R.string.seconds_until_try), 
+														String.format("%02d", minutes), String.format("%02d", secs)
+												)));
+								navDrawerAdapter.notifyDataSetChanged();
+							}
+						});
+						remainingTimeHandler.postDelayed(remainingTimeThread, 1000*5);
+					} else {
+						logger.info("NOT SHOWING!");
+					}
+				}
+			};
+			remainingTimeHandler.post(remainingTimeThread);
+		}
 	}
 
 
@@ -566,7 +644,16 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				} else {
 					switch (serviceState) {
 					case SERVICE_STOPPED:
-						createStartTrackDialog();
+						if (trackMode == TRACK_MODE_AUTO && deviceDiscoveryActive) {
+							Intent intent = new Intent(DeviceInRangeService.STATE_CHANGE);
+							intent.putExtra(DeviceInRangeService.STATE_CHANGE, false);
+							sendBroadcast(intent);
+							deviceDiscoveryActive = false;
+							targetTime = 0;
+							updateStartStopButton();
+						} else {
+							createStartTrackDialog();
+						}
 						break;
 					case SERVICE_STARTING:
 						application.stopConnection();
@@ -607,7 +694,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
     }
 
     private void createStopTrackDialog() {
-    	Intent intent;
 		switch (trackMode) {
 		case TRACK_MODE_SINGLE:
 			DialogUtil.createTitleMessageDialog(
@@ -626,12 +712,23 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 					}, MainActivity.this);	
 			break;
 		case TRACK_MODE_AUTO:
-			/*
-			 * TODO DIALOG!!
-			 */
-			intent = new Intent(DeviceInRangeService.STATE_CHANGE);
-			intent.putExtra(DeviceInRangeService.STATE_CHANGE, false);
-			sendBroadcast(intent);
+			DialogUtil.createTitleMessageDialog(
+					R.string.stop_automatic_mode,
+					R.string.stop_automatic_mode_long,
+					new DialogUtil.PositiveNegativeCallback() {
+						@Override
+						public void positive() {
+							application.stopConnection();
+							application.finishTrack();
+							Intent intent = new Intent(DeviceInRangeService.STATE_CHANGE);
+							intent.putExtra(DeviceInRangeService.STATE_CHANGE, false);
+							sendBroadcast(intent);
+						}
+						
+						@Override
+						public void negative() {
+						}
+					}, MainActivity.this);	
 			break;
 		default:
 			Crouton.makeText(MainActivity.this, "not supported", Style.INFO).show();
@@ -654,6 +751,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 						case 0:
 							application.startConnection();
 							Crouton.makeText(MainActivity.this, R.string.start_connection, Style.INFO).show();
+							trackMode = TRACK_MODE_SINGLE;
 							break;
 						case 1:
 							application.startConnection();
@@ -661,6 +759,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 							intent.putExtra(DeviceInRangeService.STATE_CHANGE, true);
 							sendBroadcast(intent);
 							Crouton.makeText(MainActivity.this, R.string.start_connection, Style.INFO).show();
+							trackMode = TRACK_MODE_AUTO;
 							break;
 						}
 					}

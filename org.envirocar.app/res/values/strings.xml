@@ -75,11 +75,15 @@
     <string name="track_mode_single">Single Track</string>
     <string name="track_mode_auto">Automatic Track Creation</string>
     <string name="question_track_mode">Do you want to record a single track or start automatic creation?</string>
+    <string name="seconds_until_try"> %1$s:%2$s minutes until next try</string>
     <string name="track_finished">Track Finished: </string>
     <string name="track_finishing_failed">Finishing the Track failed</string>
     <string name="track_finished_no_measurements">The created track did not contain any measurements</string>
     <string name="finish_track">Finish Track?</string>
     <string name="finish_track_long">Do you really want to finish this track?</string>
+    <string name="stop_automatic_mode">Stop Automatic Track Creation?</string>
+    <string name="stop_automatic_mode_long">Do you want to stop the Automatic Track Creation? This
+        will finish the current track as well.</string>
     <string name="gasoline">Gasoline</string>
     <string name="diesel">Diesel</string>
     <string name="register_car">Register Car</string>
