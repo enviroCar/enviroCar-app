@@ -35,6 +35,7 @@ import org.envirocar.app.views.Utils;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -114,9 +115,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private SharedPreferences preferences = null;
 	boolean alwaysUpload = false;
 	boolean uploadOnlyInWlan = true;
-	private BroadcastReceiver receiver;
+	private BroadcastReceiver serviceStateReceiver;
 	private OnSharedPreferenceChangeListener settingsReceiver;
 	protected ServiceState serviceState = ServiceState.SERVICE_STOPPED;
+	private BroadcastReceiver bluetoothStateReceiver;
 		
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
@@ -199,7 +201,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 		manager.executePendingTransactions();
 
-		receiver = new AbstractBackgroundServiceStateReceiver() {
+		serviceStateReceiver = new AbstractBackgroundServiceStateReceiver() {
 			@Override
 			public void onStateChanged(ServiceState state) {
 				serviceState = state;
@@ -207,8 +209,17 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			}
 		};
 		
-		registerReceiver(receiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
+		registerReceiver(serviceStateReceiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 
+		bluetoothStateReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				updateStartStopButton();
+			}
+		};
+		
+		registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+		
 		settingsReceiver = new OnSharedPreferenceChangeListener() {
 			@Override
 			public void onSharedPreferenceChanged(
@@ -221,6 +232,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				}
 			}
 		};
+		
 		preferences.registerOnSharedPreferenceChangeListener(settingsReceiver);
 		
 //		/*
