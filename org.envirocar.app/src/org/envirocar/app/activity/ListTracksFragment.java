@@ -540,6 +540,10 @@ public class ListTracksFragment extends SherlockFragment {
 	 */
 	private void downloadTracks() {
 		
+		if(!((MainActivity<?>)getActivity()).isConnectedToInternet()){
+			return;
+		}
+		
 		User user = UserManager.instance().getUser();
 		final String username = user.getUsername();
 		final String token = user.getToken();
