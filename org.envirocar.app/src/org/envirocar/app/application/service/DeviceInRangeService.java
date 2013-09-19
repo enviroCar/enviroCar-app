@@ -55,9 +55,7 @@ public class DeviceInRangeService extends Service {
 	public static final String STATE_CHANGE = DeviceInRangeService.class.getName().concat(".STATE_CHANGE");
 	public static final String TARGET_CONNECTION_TIME = DeviceInRangeService.class.getName().concat(".TARGET_CONNECTION_TIME");
 	
-	private static final long DISCOVERY_PERIOD = 1000 * 60 * 2;
-	public static final int DEFAULT_DELAY_AFTER_STOP = 1000 * 60 * 5;
-
+	private static final long DISCOVERY_PERIOD = 1000 * 10 * 2;
 	
 	protected ServiceState backgroundServiceState = ServiceState.SERVICE_STOPPED;
 
@@ -72,19 +70,11 @@ public class DeviceInRangeService extends Service {
 			if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 				verifyRemoteDevice(intent);
 			}
-			else if (action.equals(AbstractBackgroundServiceStateReceiver.SERVICE_STATE)) {
-				backgroundServiceState = (ServiceState) intent.getSerializableExtra(
-						AbstractBackgroundServiceStateReceiver.SERVICE_STATE);
-				
-				if (backgroundServiceState == ServiceState.SERVICE_STOPPED && discoveryEnabled) {
-					startWithDelay(DEFAULT_DELAY_AFTER_STOP);
-				}
-			}
-			else if (action.equals(DeviceInRangeService.STATE_CHANGE)) {
-				autoConnect = intent.getBooleanExtra(STATE_CHANGE, false);
-				
-				if (backgroundServiceState == ServiceState.SERVICE_STOPPED && discoveryEnabled) {
-					startWithDelay(DEFAULT_DELAY_AFTER_STOP);
+			
+			else if (action.equals(STATE_CHANGE)) {
+				if (!intent.getBooleanExtra(STATE_CHANGE, false)) {
+					discoveryEnabled = false;
+					stopSelf();	
 				}
 			}
 
@@ -101,7 +91,7 @@ public class DeviceInRangeService extends Service {
 	public void onCreate() {
 		logger.info("onCreate " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
-		registerReceiver(receiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
+		registerReceiver(receiver, new IntentFilter(STATE_CHANGE));
 		
 		discoveryHandler = new Handler();
 	}
@@ -126,11 +116,12 @@ public class DeviceInRangeService extends Service {
 
 	protected void verifyRemoteDevice(Intent intent) {
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		String remoteDevice = preferences.getString(SettingsActivity.BLUETOOTH_KEY, null);
+		String targetDeviceFromSettings = preferences.getString(SettingsActivity.BLUETOOTH_KEY, null);
 		
-		if (remoteDevice != null) {
+		if (targetDeviceFromSettings != null) {
 			BluetoothDevice discoveredDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-			if (remoteDevice.equals(discoveredDevice.getAddress())) {
+			logger.info("Found Device: "+discoveredDevice.getName() +" / "+discoveredDevice.getAddress());
+			if (targetDeviceFromSettings.equals(discoveredDevice.getAddress())) {
 				initializeConnection(discoveredDevice);
 			}
 		}
@@ -144,15 +135,17 @@ public class DeviceInRangeService extends Service {
 		list.add(discoveredDevice);
 		intent.putParcelableArrayListExtra(DEVICE_FOUND, list);
 		sendBroadcast(intent);
+		stopSelf();
 	}
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		logger.info("onStartCommand " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
+		startWithDelay(DISCOVERY_PERIOD);
 		return super.onStartCommand(intent, flags, startId);
 	}
 
-	protected void startWithDelay(int d) {
+	protected void startWithDelay(long d) {
 		if (backgroundServiceState == ServiceState.SERVICE_STARTED) return;
 		
 		discoveryEnabled = true;
@@ -175,16 +168,23 @@ public class DeviceInRangeService extends Service {
 				/*
 				 * re-schedule ourselves
 				 */
-				discoveryHandler.postDelayed(this, DISCOVERY_PERIOD);
+				invokeDiscoveryRunnable(DISCOVERY_PERIOD);
 			}
+
 		};
 		
-		discoveryHandler.postDelayed(discoveryRunnable, DISCOVERY_PERIOD + d);
-		Intent intent = new Intent(TARGET_CONNECTION_TIME);
-		intent.putExtra(TARGET_CONNECTION_TIME, System.currentTimeMillis()+DISCOVERY_PERIOD+d);
+		invokeDiscoveryRunnable(d);
+		Intent intent = new Intent(AbstractBackgroundServiceStateReceiver.SERVICE_STATE);
+		intent.putExtra(AbstractBackgroundServiceStateReceiver.SERVICE_STATE, ServiceState.SERVICE_DEVICE_DISCOVERY_PENDING);
 		sendBroadcast(intent);
 	}
 
+	private void invokeDiscoveryRunnable(long delay) {
+		discoveryHandler.postDelayed(discoveryRunnable, delay);
+		Intent intent = new Intent(TARGET_CONNECTION_TIME);
+		intent.putExtra(TARGET_CONNECTION_TIME, System.currentTimeMillis()+delay);
+		sendBroadcast(intent);
+	}
 	
 	@Override
 	public IBinder onBind(Intent intent) {

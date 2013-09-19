@@ -202,8 +202,7 @@ public class ECApplication extends Application {
 	private void initializeBackgroundServices() {
 		if (bluetoothActivated()) {
 			logger.info("requirements met");
-			deviceInRangeService = new Intent(this, DeviceInRangeService.class);
-			startService(deviceInRangeService);
+			
 			backgroundService = new Intent(this, BackgroundServiceImpl.class);
 			serviceConnector = new BackgroundServiceConnector();
 			bindService(backgroundService, serviceConnector,
@@ -392,6 +391,15 @@ public class ECApplication extends Application {
 			Crouton.makeText(getCurrentActivity(), R.string.track_finishing_failed, Style.ALERT).show();
 		}
 		
+	}
+
+
+	public void startDeviceDiscoveryService() {
+		if (deviceInRangeService != null) {
+			stopService(deviceInRangeService);
+		}
+		deviceInRangeService = new Intent(ECApplication.this, DeviceInRangeService.class);
+		startService(deviceInRangeService);		
 	}
 
 

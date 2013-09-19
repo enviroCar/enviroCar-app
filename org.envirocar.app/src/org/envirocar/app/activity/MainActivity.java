@@ -22,7 +22,6 @@
 package org.envirocar.app.activity;
 
 import org.envirocar.app.R;
-import org.envirocar.app.activity.StartStopButtonUtil.OnDeviceDiscoveryChangeListener;
 import org.envirocar.app.activity.StartStopButtonUtil.OnTrackModeChangeListener;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.ECApplication;
@@ -224,6 +223,28 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			@Override
 			public void onStateChanged(ServiceState state) {
 				serviceState = state;
+				
+				if (serviceState == ServiceState.SERVICE_STOPPED && trackMode == TRACK_MODE_AUTO) {
+					/*
+					 * lets see if we need to start the DeviceInRangeService
+					 */
+					synchronized (MainActivity.this) {
+						if (!deviceDiscoveryActive) {
+							application.startDeviceDiscoveryService();
+							deviceDiscoveryActive = true;
+						}	
+					}
+					
+				}
+				else if (serviceState == ServiceState.SERVICE_STARTED ||
+						serviceState == ServiceState.SERVICE_STARTING) {
+					/*
+					 * we are currently connected, disable
+					 * deviceDiscoverey related stuff
+					 */
+					deviceDiscoveryActive = false;
+				}
+				
 				updateStartStopButton();
 			}
 		};
@@ -243,7 +264,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			public void onReceive(Context context, Intent intent) {
 				targetTime = intent.getLongExtra(DeviceInRangeService.TARGET_CONNECTION_TIME, 0);
 				invokeRemainingTimeThread();
-				deviceDiscoveryActive = true;
+				createStartStopUtil().updateStartStopButtonOnServiceStateChange(navDrawerItems[START_STOP_MEASUREMENT]);
 			}
 		};
 		
@@ -288,7 +309,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	protected void updateStartStopButton() {
 		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if (adapter != null && adapter.isEnabled()) { // was requirementsFulfilled
-			createStartStopUtil().updateStartStopButton(navDrawerItems[START_STOP_MEASUREMENT]);
+			createStartStopUtil().updateStartStopButtonOnServiceStateChange(navDrawerItems[START_STOP_MEASUREMENT]);
 		} else {
 			createStartStopUtil().defineButtonContents(navDrawerItems[START_STOP_MEASUREMENT],
 					false, R.drawable.not_available, getString(R.string.pref_bluetooth_disabled),
@@ -298,6 +319,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		navDrawerAdapter.notifyDataSetChanged();
 	}
 
+	/**
+	 * start a thread that updates the UI until the device was
+	 * discovered
+	 */
 	private void invokeRemainingTimeThread() {
 		if (remainingTimeThread == null || targetTime > System.currentTimeMillis()) {
 			remainingTimeHandler = new Handler();
@@ -307,19 +332,18 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 					final long deltaSec = (targetTime - System.currentTimeMillis()) / 1000;
 					final long minutes = deltaSec / 60;
 					final long secs = deltaSec - (minutes*60);
-					if (deltaSec > 0 && drawer.isShown()) {
+					if (deviceDiscoveryActive && deltaSec > 0) {
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
 								navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(
-										getString(R.string.track_mode_auto).concat(
-												String.format(getString(R.string.seconds_until_try), 
+												String.format(getString(R.string.device_discovery_next_try), 
 														String.format("%02d", minutes), String.format("%02d", secs)
-												)));
+												));
 								navDrawerAdapter.notifyDataSetChanged();
 							}
 						});
-						remainingTimeHandler.postDelayed(remainingTimeThread, 1000*5);
+						remainingTimeHandler.postDelayed(remainingTimeThread, 1000);
 					} else {
 						logger.info("NOT SHOWING!");
 					}
@@ -462,33 +486,17 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			        MyGarage garageFragment = new MyGarage();
 			        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
 				} else {
-					switch (serviceState) {
-					case SERVICE_STOPPED:
-						createStartStopUtil().handleStopStateClick(new OnTrackModeChangeListener() {
-							@Override
-							public void onTrackModeChange(int tm) {
-								trackMode = tm;
-							}
-						},
-						new OnDeviceDiscoveryChangeListener() {
-							@Override
-							public void onDeviceDiscoveryChange(boolean discoveryState,
-									int targetTimeMillis) {
-								deviceDiscoveryActive = discoveryState;
-								targetTime = targetTimeMillis;
-								updateStartStopButton();								
-							}
-						});
-						break;
-					case SERVICE_STARTING:
-						createStartStopUtil().handleStartStateClick();
-						break;
-					case SERVICE_STARTED:
-						createStartStopUtil().handleStartedStateClick();
-						break;
-					default:
-						break;
-					}
+					/*
+					 * We are good to go. process the state and stuff
+					 */
+					OnTrackModeChangeListener trackModeListener = new OnTrackModeChangeListener() {
+						@Override
+						public void onTrackModeChange(int tm) {
+							trackMode = tm;
+						}
+					};
+					
+					createStartStopUtil().processButtonClick(trackModeListener);
 				}
 			} else {
 				Intent settingsIntent = new Intent(this, SettingsActivity.class);
