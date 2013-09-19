@@ -22,7 +22,7 @@
 package org.envirocar.app.activity;
 
 import org.envirocar.app.R;
-import org.envirocar.app.activity.DialogUtil.DialogCallback;
+import org.envirocar.app.activity.StartStopButtonUtil.OnTrackModeChangeListener;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.NavMenuItem;
@@ -30,7 +30,6 @@ import org.envirocar.app.application.UserManager;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
 import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
-import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.views.TypefaceEC;
@@ -361,71 +360,11 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	protected void updateStartStopButton() {
 		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		if (adapter != null && adapter.isEnabled()) { // was requirementsFulfilled
-			try {
-				switch (serviceState) {
-				case SERVICE_STARTED:
-					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_stop));
-					switch (trackMode) {
-					case TRACK_MODE_SINGLE:
-						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.track_mode_single));
-						break;
-					case TRACK_MODE_AUTO:
-						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.track_mode_auto));
-						break;
-					default:
-						break;
-					}
-						
-					navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_stop);
-					navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
-					break;
-				case SERVICE_STARTING:
-					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_cancel));
-					navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.menu_starting));
-					navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_cancel);
-					navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
-					break;
-				case SERVICE_STOPPED:
-					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
-					// Only enable start button when adapter is selected
-	
-					SharedPreferences preferences = PreferenceManager
-							.getDefaultSharedPreferences(this);
-	
-					String remoteDevice = preferences.getString(
-							org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,
-							null);
-	
-					if (remoteDevice != null) {
-						if(!CarManager.instance().isCarSet()){
-							navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-							navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
-							navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.no_sensor_selected));
-						} else {
-							navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
-							navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_play);
-							navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(preferences.getString(SettingsActivity.BLUETOOTH_NAME, ""));
-						}
-					} else {
-						navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-						navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
-						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.pref_summary_chose_adapter));
-					}
-					break;
-				default:
-					break;
-				}
-				
-			} catch (NullPointerException e) {
-				logger.warn(e.getMessage(), e);
-				navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-				navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
-			}
+			createDrawerUtil().updateStartStopButton(navDrawerItems[START_STOP_MEASUREMENT]);
 		} else {
-			navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
-			navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.pref_bluetooth_disabled));
-			navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-			navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
+			createDrawerUtil().defineButtonContents(navDrawerItems[START_STOP_MEASUREMENT],
+					false, R.drawable.not_available, getString(R.string.pref_bluetooth_disabled),
+					getString(R.string.menu_start));
 		}
 		
 		navDrawerAdapter.notifyDataSetChanged();
@@ -566,14 +505,19 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				} else {
 					switch (serviceState) {
 					case SERVICE_STOPPED:
-						createStartTrackDialog();
+						createDrawerUtil().createStartTrackDialog(new OnTrackModeChangeListener() {
+							@Override
+							public void onTrackModeChange(int tm) {
+								trackMode = tm;
+							}
+						});
 						break;
 					case SERVICE_STARTING:
 						application.stopConnection();
 						Crouton.makeText(this, R.string.stop_connection, Style.INFO).show();
 						break;
 					case SERVICE_STARTED:
-						createStopTrackDialog();
+						createDrawerUtil().createStopTrackDialog();
 						break;
 					default:
 						break;
@@ -606,70 +550,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
     }
 
-    private void createStopTrackDialog() {
-    	Intent intent;
-		switch (trackMode) {
-		case TRACK_MODE_SINGLE:
-			DialogUtil.createTitleMessageDialog(
-					R.string.finish_track,
-					R.string.finish_track_long,
-					new DialogUtil.PositiveNegativeCallback() {
-						@Override
-						public void positive() {
-							application.stopConnection();
-							application.finishTrack();
-						}
-						
-						@Override
-						public void negative() {
-						}
-					}, MainActivity.this);	
-			break;
-		case TRACK_MODE_AUTO:
-			/*
-			 * TODO DIALOG!!
-			 */
-			intent = new Intent(DeviceInRangeService.STATE_CHANGE);
-			intent.putExtra(DeviceInRangeService.STATE_CHANGE, false);
-			sendBroadcast(intent);
-			break;
-		default:
-			Crouton.makeText(MainActivity.this, "not supported", Style.INFO).show();
-			break;
-		}
-    	
-	}
+    
 
-	private void createStartTrackDialog() {
-    	String[] items = new String[] {getResources().getString(R.string.track_mode_single),
-				getResources().getString(R.string.track_mode_auto)};
-		DialogUtil.createSingleChoiceItemsDialog(
-				getString(R.string.question_track_mode),
-				items,
-				new DialogCallback() {
-					@Override
-					public void itemSelected(int which) {
-						Intent intent;
-						switch (which) {
-						case 0:
-							application.startConnection();
-							Crouton.makeText(MainActivity.this, R.string.start_connection, Style.INFO).show();
-							break;
-						case 1:
-							application.startConnection();
-							intent = new Intent(DeviceInRangeService.STATE_CHANGE);
-							intent.putExtra(DeviceInRangeService.STATE_CHANGE, true);
-							sendBroadcast(intent);
-							Crouton.makeText(MainActivity.this, R.string.start_connection, Style.INFO).show();
-							break;
-						}
-					}
-					
-					@Override
-					public void cancelled() {
-						
-					}
-				}, MainActivity.this);		
+	private StartStopButtonUtil createDrawerUtil() {
+		return new StartStopButtonUtil(application, this, trackMode, serviceState);
 	}
 
 	/**
