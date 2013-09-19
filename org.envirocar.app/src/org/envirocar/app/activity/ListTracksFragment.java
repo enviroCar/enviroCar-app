@@ -627,7 +627,7 @@ public class ListTracksFragment extends SherlockFragment {
 							for (PropertyKey key : PropertyKey.values()) {
 								if (phenomenons.has(key.toString())) {
 									Double value = phenomenons.getJSONObject(key.toString()).getDouble("value"); 
-									recycleMeasurement.addProperty(key, value);
+									recycleMeasurement.setProperty(key, value);
 								}
 							}
 							recycleMeasurement.setTrack(t);

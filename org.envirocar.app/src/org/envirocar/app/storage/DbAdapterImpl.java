@@ -396,7 +396,7 @@ public class DbAdapterImpl implements DbAdapter {
 					if (names != null) {
 						for (int j = 0; j < names.length(); j++) {
 							String key = names.getString(j);
-							measurement.addProperty(PropertyKey.valueOf(key), json.getDouble(key));
+							measurement.setProperty(PropertyKey.valueOf(key), json.getDouble(key));
 						}
 					}
 				} catch (JSONException e) {
