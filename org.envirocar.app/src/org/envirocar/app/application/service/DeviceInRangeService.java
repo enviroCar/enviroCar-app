@@ -55,7 +55,7 @@ public class DeviceInRangeService extends Service {
 	public static final String STATE_CHANGE = DeviceInRangeService.class.getName().concat(".STATE_CHANGE");
 	public static final String TARGET_CONNECTION_TIME = DeviceInRangeService.class.getName().concat(".TARGET_CONNECTION_TIME");
 	
-	private static final long DISCOVERY_PERIOD = 1000 * 10 * 2;
+	private static final long DISCOVERY_PERIOD = 1000 * 60 * 2;
 	
 	protected ServiceState backgroundServiceState = ServiceState.SERVICE_STOPPED;
 
