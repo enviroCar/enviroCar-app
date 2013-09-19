@@ -33,7 +33,6 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
@@ -61,6 +60,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	public static final String IMPERIAL_UNIT = "pref_imperial_unit";
 	public static final String OBFUSCATE_POSITION = "pref_privacy";
 	public static final String ENGINE_DISPLACEMENT = "pref_engine_displacement";
+	public static final String CAR = "pref_selected_car";
 	
 	private Preference about;
 	
@@ -181,17 +181,6 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 			}
 		});		
 
-		final EditTextPreference displacementPref = (EditTextPreference) getPreferenceScreen().findPreference(ENGINE_DISPLACEMENT);
-		displacementPref.setSummary(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(ENGINE_DISPLACEMENT, "") + " Liter");
-		displacementPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-			
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				preference.setSummary(newValue.toString() + " Liter");
-				PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString(ENGINE_DISPLACEMENT, (String) newValue).commit();
-				return false;
-			}
-		});
 	}
 
 	/**

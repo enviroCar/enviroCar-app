@@ -41,8 +41,10 @@ import org.envirocar.app.views.RoundProgress;
 import org.envirocar.app.views.TypefaceEC;
 
 import android.content.BroadcastReceiver;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
@@ -93,6 +95,7 @@ public class DashboardFragment extends SherlockFragment {
 
 	private BroadcastReceiver receiver;
 	protected ServiceState serviceState = ServiceState.SERVICE_STOPPED;
+	private OnSharedPreferenceChangeListener preferenceListener;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -113,9 +116,9 @@ public class DashboardFragment extends SherlockFragment {
 	 * @return
 	 */
 	private String getCurrentSensorString() {
-		if (CarManager.instance().isCarSet()) {
+		if (CarManager.instance().getCar() != null) {
 			Car car = CarManager.instance().getCar();
-			return car.getManufacturer()+" "+car.getModel()+" ("+car.getFuelType().toString()+" "+car.getConstructionYear()+")";
+			return car.toString();
 		} else {
 			return getResources().getString(R.string.no_sensor_selected);
 		}
@@ -155,8 +158,8 @@ public class DashboardFragment extends SherlockFragment {
 		sensor.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-		        MyGarage garageFragment = new MyGarage();
-		        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
+				Intent configIntent = new Intent(getActivity(), SettingsActivity.class);
+				startActivity(configIntent);
 			}
 		});
 		
@@ -173,6 +176,17 @@ public class DashboardFragment extends SherlockFragment {
 		};
 		getActivity().registerReceiver(receiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 
+		preferenceListener = new OnSharedPreferenceChangeListener() {
+			@Override
+			public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+					String key) {
+				if (key.equals(SettingsActivity.CAR)) {
+					updateSensorOnDashboard();
+				}
+			}
+		};
+		
+		preferences.registerOnSharedPreferenceChangeListener(preferenceListener);
 	}
 	
 

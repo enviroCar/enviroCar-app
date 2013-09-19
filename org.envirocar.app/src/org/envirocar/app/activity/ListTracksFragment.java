@@ -574,40 +574,9 @@ public class ListTracksFragment extends SherlockFragment {
 							logger.warn(e.getMessage(), e);
 						}
 						t.setDescription(description);
-						String manufacturer = "unknown";
 						JSONObject sensorProperties = trackProperties.getJSONObject("sensor").getJSONObject("properties");
-						try{
-							manufacturer = sensorProperties.getString("manufacturer");
-						}catch (JSONException e){
-							logger.warn(e.getMessage(), e);
-						}
-						String carModel = "unknown";
-						try{
-							carModel = sensorProperties.getString("model");
-						}catch (JSONException e){
-							logger.warn(e.getMessage(), e);
-						}
-						String sensorId = "undefined";
-						try{
-							sensorId = sensorProperties.getString("id");
-						}catch (JSONException e) {
-							logger.warn(e.getMessage(), e);
-						}
-						String ft = "undefined"; // TODO check fueltype better
-						try{
-							ft = sensorProperties.getString("fuelType");
-						} catch (JSONException e) {
-							logger.warn(e.getMessage(), e);
-						}
-						int year = 2000;
-						try{
-							year = sensorProperties.getInt("constructionYear");
-						} catch (JSONException e) {
-							logger.warn(e.getMessage(), e);
-						}
-						// TODO get EngineDisplacement from server!!!
-						double displacement = 2.0;
-						t.setCar(new Car(ft, manufacturer, carModel, sensorId, year, displacement)); 
+						
+						t.setCar(Car.fromJson(sensorProperties)); 
 						//include server properties tracks created, modified?
 						
 						dbAdapter.updateTrack(t);

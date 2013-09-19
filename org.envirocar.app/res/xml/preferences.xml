@@ -29,12 +29,11 @@
             android:title="@string/privacy"
             android:summaryOn="@string/track_obfuscation_on"
             android:defaultValue="true"/>
-        <EditTextPreference 
-            android:title="@string/pref_engine_displacement" 
-            android:key="pref_engine_displacement" 
-            android:summary="@string/pref_in_liters"
-            android:inputType="numberDecimal"
-            android:numeric="decimal"/>
+        <org.envirocar.app.activity.preference.CarSelectionPreference 
+            android:title="Select Car"
+            android:key="pref_selected_car"
+            android:summary="@string/please_select"
+            />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_about" >
         <Preference 

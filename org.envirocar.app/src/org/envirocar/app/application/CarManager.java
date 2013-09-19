@@ -1,10 +1,31 @@
+/* 
+ * enviroCar 2013
+ * Copyright (C) 2013  
+ * Martin Dueren, Jakob Moellers, Gerald Pape, Christopher Stephan
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+ * 
+ */
 package org.envirocar.app.application;
 
+import org.envirocar.app.activity.SettingsActivity;
+import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.model.Car;
-import org.envirocar.app.model.Car.FuelType;
 
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 
 public class CarManager {
 	
@@ -17,13 +38,25 @@ public class CarManager {
 	
 	private static CarManager instance = null;
 	
-	private Car car;
-	
 	private SharedPreferences preferences;
+	private Car car;
 
-	public CarManager(SharedPreferences prefs) {
+	private CarManager(SharedPreferences prefs) {
 		this.preferences = prefs;
-		createCar();
+		
+		car = CarSelectionPreference.instantiateCar(preferences.getString(SettingsActivity.CAR, null));
+		
+		this.preferences.registerOnSharedPreferenceChangeListener(
+				new OnSharedPreferenceChangeListener() {
+			
+			@Override
+			public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+					String key) {
+				if (key.equals(SettingsActivity.CAR)) {
+					car = CarSelectionPreference.instantiateCar(preferences.getString(SettingsActivity.CAR, null));
+				}
+			}
+		});
 	}
 	
 	public static synchronized CarManager instance() {
@@ -42,44 +75,5 @@ public class CarManager {
 	public Car getCar() {
 		return car;
 	}
-	
-	public boolean isCarSet() {
-		return (car != null) ? true : false; 
-	}
-	
-	public void setCat(Car car) {
-		this.car = car;
-		Editor edit = this.preferences.edit();
-		edit.putString(PREF_KEY_FUEL_TYPE, car.getFuelType().toString());
-		edit.putInt(PREF_KEY_CAR_CONSTRUCTION_YEAR, car.getConstructionYear());
-		edit.putString(PREF_KEY_CAR_MANUFACTURER, car.getManufacturer());
-		edit.putString(PREF_KEY_CAR_MODEL, car.getModel());
-		edit.putString(PREF_KEY_SENSOR_ID, car.getId());
-		edit.putString(PREF_KEY_CAR_ENGINE_DISPLACEMENT, Double.toString(car.getEngineDisplacement()));
-		edit.commit();
-	}
-	
-	public void createCar() {
-		String fuelType = preferences.getString(PREF_KEY_FUEL_TYPE, null);
-		String carManufacturer = preferences.getString(PREF_KEY_CAR_MANUFACTURER, null);
-		String carModel = preferences.getString(PREF_KEY_CAR_MODEL, null);
-		String sensorId = preferences.getString(PREF_KEY_SENSOR_ID, null);
-		
-		/*
-		 * this is not a real car, must be reloaded from server
-		 */
-		if (fuelType == null || carManufacturer == null || carModel == null || sensorId == null)
-			return;
-		
-		int year = this.preferences.getInt(PREF_KEY_CAR_CONSTRUCTION_YEAR, 2000);
-		double displacement = Float.valueOf(preferences.getString(PREF_KEY_CAR_ENGINE_DISPLACEMENT, "2.0f"));
-		FuelType type = null;
-		if (fuelType.equalsIgnoreCase(FuelType.GASOLINE.toString())) {
-			type = FuelType.GASOLINE;
-		} else {
-			type = FuelType.DIESEL;
-		}
-		this.car = new Car(type, carManufacturer, carModel, sensorId, year, displacement);
-	}
-	
+
 }

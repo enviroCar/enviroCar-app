@@ -20,25 +20,39 @@
  */
 package org.envirocar.app.model;
 
+import java.io.Serializable;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Class holding all information for a car instance
  * 
  * @author matthes rieke
  *
  */
-public class Car {
+public class Car implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6321429785990500936L;
+	private static final String GASOLINE_STRING = "gasoline";
+	private static final String DIESEL_STRING = "diesel";
 
 	public enum FuelType {
 		GASOLINE {
 		    public String toString() {
-		        return "gasoline";
+		        return GASOLINE_STRING;
 		    }
+		    
 		},
 		DIESEL {
 			public String toString() {
-		        return "diesel";
+		        return DIESEL_STRING;
 		    }
 		}
+		
 	}
 	
 	private FuelType fuelType;
@@ -46,9 +60,9 @@ public class Car {
 	private String model;
 	private String id;
 	private int constructionYear;
-	private double engineDisplacement;
+	private int engineDisplacement;
 	
-	public Car(FuelType fuelType, String manufacturer, String model, String id, int year, double engineDisplacement) {
+	public Car(FuelType fuelType, String manufacturer, String model, String id, int year, int engineDisplacement) {
 		this.fuelType = fuelType;
 		this.manufacturer = manufacturer;
 		this.model = model;
@@ -57,17 +71,8 @@ public class Car {
 		this.engineDisplacement = engineDisplacement;
 	}
 	
-	public Car(String fuelType, String manufacturer, String model, String id, int year, double engineDisplacement) {
-		if (fuelType.equalsIgnoreCase(FuelType.GASOLINE.toString())) {
-			this.fuelType = FuelType.GASOLINE;
-		} else if (fuelType.equalsIgnoreCase(FuelType.DIESEL.toString())){
-			this.fuelType = FuelType.DIESEL;
-		}
-		this.manufacturer = manufacturer;
-		this.model = model;
-		this.id = id;
-		this.constructionYear = year;
-		this.engineDisplacement = engineDisplacement;
+	private Car(String fuelType, String manufacturer, String model, String id, int year, int engineDisplacement) {
+		this(resolveFuelType(fuelType), manufacturer, model, id, year, engineDisplacement);
 	}
 
 	public FuelType getFuelType() {
@@ -94,7 +99,81 @@ public class Car {
 		this.constructionYear = year;
 	}
 
-	public double getEngineDisplacement() {
+	/**
+	 * @return the engine displacement in cubic centimeters
+	 */
+	public int getEngineDisplacement() {
 		return engineDisplacement;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(manufacturer);
+		sb.append(" ");
+		sb.append(model);
+		sb.append(" (");
+		sb.append(fuelType);
+		sb.append(" / ");
+		sb.append(constructionYear);
+		sb.append(")");
+		return sb.toString();
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		boolean result = false;
+		if (o instanceof Car) {
+			Car c = (Car) o;
+			result = this.fuelType == c.fuelType 
+					&& this.manufacturer.equals(c.manufacturer)
+					&& this.model.equals(c.model)
+					&& this.id.equals(c.id)
+					&& this.constructionYear == c.constructionYear
+					&& this.engineDisplacement == c.engineDisplacement;
+		}
+		return result;
+	}
+
+	public static Car fromJsonWithStrictEngineDisplacement(JSONObject jsonObject) throws JSONException {
+		String manu = jsonObject.getString("manufacturer");
+		String modl = jsonObject.getString("model");
+		String foolType = jsonObject.getString("fuelType");
+		int decon = jsonObject.getInt("constructionYear");
+		String eyeD = jsonObject.getString("id");
+		
+		int engineDiss;
+		try {
+			engineDiss = jsonObject.getInt("engineDisplacement"); 
+		} catch (JSONException e) {
+			throw e;
+		}
+		
+		return new Car(foolType, manu, modl, eyeD, decon, engineDiss);
+	}
+	
+	public static Car fromJson(JSONObject jsonObject) throws JSONException {
+		String manu = jsonObject.getString("manufacturer");
+		String modl = jsonObject.getString("model");
+		String foolType = jsonObject.getString("fuelType");
+		int decon = jsonObject.getInt("constructionYear");
+		String eyeD = jsonObject.getString("id");
+		
+		int engineDiss = jsonObject.optInt("engineDisplacement", 2000); 
+		
+		return new Car(foolType, manu, modl, eyeD, decon, engineDiss);
+	}
+
+	public static FuelType resolveFuelType(String foolType) {
+		if (foolType.equals(GASOLINE_STRING)) {
+			return FuelType.GASOLINE;
+		} else if (foolType.equals(DIESEL_STRING)) {
+			return FuelType.DIESEL;
+		}
+		return FuelType.GASOLINE;
+	}
+
+	public static double ccmToLiter(int ccm) {
+		return ccm / 100.0f;
 	}
 }

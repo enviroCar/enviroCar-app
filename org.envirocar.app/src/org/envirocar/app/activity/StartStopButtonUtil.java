@@ -268,7 +268,7 @@ public class StartStopButtonUtil {
 				null);
 
 		if (remoteDevice != null) {
-			if(!CarManager.instance().isCarSet()){
+			if(CarManager.instance().getCar() == null){
 				defineButtonContents(button, false, R.drawable.not_available, R.string.no_sensor_selected);
 			} else {
 				defineButtonContents(button, true, R.drawable.av_play, preferences.getString(SettingsActivity.BLUETOOTH_NAME, ""));

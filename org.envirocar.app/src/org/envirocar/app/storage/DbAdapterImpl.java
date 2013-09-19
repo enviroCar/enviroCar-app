@@ -239,7 +239,7 @@ public class DbAdapterImpl implements DbAdapter {
 		String model = c.getString(c.getColumnIndex(KEY_TRACK_CAR_MODEL));
 		String carId = c.getString(c.getColumnIndex(KEY_TRACK_CAR_ID));
 		FuelType fuelType = FuelType.valueOf(c.getString(c.getColumnIndex(KEY_TRACK_CAR_FUEL_TYPE)));
-		double engineDisplacement = c.getDouble(c.getColumnIndex(KEY_TRACK_CAR_ENGINE_DISPLACEMENT));
+		int engineDisplacement = c.getInt(c.getColumnIndex(KEY_TRACK_CAR_ENGINE_DISPLACEMENT));
 		// TODO add construction year to DB
 		int year = 2000;
 		track.setCar(new Car(fuelType, manufacturer, model, carId, year, engineDisplacement));
