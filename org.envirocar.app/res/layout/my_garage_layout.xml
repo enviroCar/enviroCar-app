@@ -1,8 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mygaragelayout"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     tools:context=".MyGarage" >
 
     <LinearLayout
@@ -12,12 +12,6 @@
         android:layout_centerInParent="true"
         android:orientation="vertical"
         android:visibility="gone" >
-
-        <ProgressBar
-            style="?android:attr/progressBarStyleLarge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp" />
 
         <TextView
             android:id="@+id/addCarToGarage_status_message"
@@ -42,7 +36,7 @@
             
 			<View
                 android:layout_width="match_parent"
-                android:layout_height="2px"
+                android:layout_height="2dp"
                 android:background="@color/blue_dark_cario"
                 android:layout_marginBottom="5dp"
                 android:layout_marginTop="5dp" />
@@ -80,7 +74,7 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="2px"
+                android:layout_height="2dp"
                 android:background="@color/blue_dark_cario"
                 android:layout_marginBottom="5dp"
                 android:layout_marginTop="5dp" />

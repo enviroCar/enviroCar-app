@@ -482,9 +482,9 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 			if (adapter != null && adapter.isEnabled() && remoteDevice != null) {
-				if(!CarManager.instance().isCarSet()){
-			        MyGarage garageFragment = new MyGarage();
-			        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
+				if(CarManager.instance().getCar() == null){
+					Intent settingsIntent = new Intent(this, SettingsActivity.class);
+					startActivity(settingsIntent);
 				} else {
 					/*
 					 * We are good to go. process the state and stuff

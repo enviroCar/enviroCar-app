@@ -35,6 +35,10 @@
             android:summary="@string/pref_in_liters"
             android:inputType="numberDecimal"
             android:numeric="decimal"/>
+        <org.envirocar.app.activity.preference.CarSelectionPreference 
+            android:title="Select Car"
+            android:key="pref_selected_car"
+            />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_about" >
         <Preference 

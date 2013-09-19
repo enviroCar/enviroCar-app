@@ -20,13 +20,20 @@
  */
 package org.envirocar.app.model;
 
+import java.io.Serializable;
+
 /**
  * Class holding all information for a car instance
  * 
  * @author matthes rieke
  *
  */
-public class Car {
+public class Car implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 6321429785990500936L;
 
 	public enum FuelType {
 		GASOLINE {
