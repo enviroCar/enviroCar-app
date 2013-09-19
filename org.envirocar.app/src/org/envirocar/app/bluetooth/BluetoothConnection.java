@@ -105,13 +105,16 @@ public class BluetoothConnection extends Thread {
 			        BluetoothDevice deviceExtra = intent.getParcelableExtra("android.bluetooth.device.extra.DEVICE");
 			        Parcelable[] uuidExtra = intent.getParcelableArrayExtra("android.bluetooth.device.extra.UUID");
 			        //Parse the UUIDs and get the one you are interested in
-			        
-			        logger.info("Found the following UUIDs for device "+deviceExtra.getName());
+
 			        uuidCandidates = new ArrayList<UUID>();
-			        for (Parcelable uuid : uuidExtra) {
-			        	logger.info(uuid.toString());
-			        	uuidCandidates.add(UUID.fromString(uuid.toString()));
-					}
+			        if (uuidExtra != null && uuidExtra.length > 0) {
+			        	logger.info("Found the following UUIDs for device "+deviceExtra.getName());
+
+				        for (Parcelable uuid : uuidExtra) {
+				        	logger.info(uuid.toString());
+				        	uuidCandidates.add(UUID.fromString(uuid.toString()));
+						}	
+			        }
 			        
 			        if (uuidCandidates.isEmpty()) {
 			        	uuidCandidates.add(EMBEDDED_BOARD_SPP);
