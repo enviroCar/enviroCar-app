@@ -27,6 +27,7 @@ import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.NavMenuItem;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 import org.envirocar.app.application.service.DeviceInRangeService;
+import org.envirocar.app.logging.Logger;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -45,6 +46,8 @@ import de.keyboardsurfer.android.widget.crouton.Style;
  */
 public class StartStopButtonUtil {
 
+	private static final Logger logger = Logger.getLogger(StartStopButtonUtil.class);
+	
 	private ECApplication application;
 	private int trackMode;
 	private ServiceState serviceState;
@@ -67,6 +70,8 @@ public class StartStopButtonUtil {
 	 * @param button the drawer button
 	 */
 	public void updateStartStopButtonOnServiceStateChange(NavMenuItem button) {
+		logger.info("updateStartStopButtonOnServiceStateChange called with state: "+ serviceState +" / trackMode: "+ trackMode+
+				" discovery: "+deviceDiscoveryActive);;
 		switch (serviceState) {
 			case SERVICE_STOPPED:
 				handleServiceStoppedState(button);
@@ -93,6 +98,8 @@ public class StartStopButtonUtil {
 	 * @param trackModeListener a callback to handle the inputs of the user
 	 */
 	public void processButtonClick(OnTrackModeChangeListener trackModeListener) {
+		logger.info("processButtonClick called with state: "+ serviceState +" / trackMode: "+ trackMode+
+				" discovery: "+deviceDiscoveryActive);;
 		switch (serviceState) {
 			case SERVICE_STOPPED:
 				processStoppedStateClick(trackModeListener);
