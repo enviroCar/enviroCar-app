@@ -178,11 +178,13 @@ public class BluetoothConnection extends Thread {
             } catch (IOException e) {
             	//try the fallback
             	try {
-					bluetoothSocket = new FallbackBluetoothSocket(bluetoothSocket.getUnderlyingSocket());
-					Thread.sleep(500);					
-					bluetoothSocket.connect();
-	        		success = true;
-	            	break;
+            		if (running) {
+            			bluetoothSocket = new FallbackBluetoothSocket(bluetoothSocket.getUnderlyingSocket());
+    					Thread.sleep(500);					
+    					bluetoothSocket.connect();
+    	        		success = true;
+    	            	break;	
+            		}
 				} catch (FallbackException e1) {
 					logger.warn("Could not initialize FallbackBluetoothSocket classes.", e);
 				} catch (InterruptedException e1) {

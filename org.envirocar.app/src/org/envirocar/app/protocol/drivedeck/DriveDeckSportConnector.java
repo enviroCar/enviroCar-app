@@ -228,7 +228,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 
 	@Override
 	public int getMaximumTriesForInitialization() {
-		return 5;
+		return 15;
 	}
 
 
