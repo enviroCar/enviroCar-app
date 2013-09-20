@@ -42,9 +42,6 @@ import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
-import org.envirocar.app.event.EventBus;
-import org.envirocar.app.event.UploadTrackEvent;
-import org.envirocar.app.event.UploadTrackListener;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
@@ -150,7 +147,10 @@ public class ListTracksFragment extends SherlockFragment {
 	
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
-		initializeEventListener();
+		/*
+		 * TODO create a mechanism to get informed when a track
+		 * has been uploaded
+		 */
 		
 		logger.info("Create view ListTracksFragment");
 		super.onViewCreated(view, savedInstanceState);
@@ -238,7 +238,7 @@ public class ListTracksFragment extends SherlockFragment {
 				} else {
 
 					fuelCostView.setText(twoDForm.format(estimatedFuelCosts)
-							+ " €");
+							+ " ï¿½");
 				}
 			}
 
@@ -246,15 +246,6 @@ public class ListTracksFragment extends SherlockFragment {
 
 	}
 
-	private void initializeEventListener() {
-		UploadTrackListener uploadTrackListener = new UploadTrackListener() {
-			@Override
-			public void receiveEvent(UploadTrackEvent event) {
-				notifyDataSetChanged(event.getPayload());
-			}
-		};
-		EventBus.getInstance().registerListener(uploadTrackListener);
-	}
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, com.actionbarsherlock.view.MenuInflater inflater) {
@@ -583,40 +574,9 @@ public class ListTracksFragment extends SherlockFragment {
 							logger.warn(e.getMessage(), e);
 						}
 						t.setDescription(description);
-						String manufacturer = "unknown";
 						JSONObject sensorProperties = trackProperties.getJSONObject("sensor").getJSONObject("properties");
-						try{
-							manufacturer = sensorProperties.getString("manufacturer");
-						}catch (JSONException e){
-							logger.warn(e.getMessage(), e);
-						}
-						String carModel = "unknown";
-						try{
-							carModel = sensorProperties.getString("model");
-						}catch (JSONException e){
-							logger.warn(e.getMessage(), e);
-						}
-						String sensorId = "undefined";
-						try{
-							sensorId = sensorProperties.getString("id");
-						}catch (JSONException e) {
-							logger.warn(e.getMessage(), e);
-						}
-						String ft = "undefined"; // TODO check fueltype better
-						try{
-							ft = sensorProperties.getString("fuelType");
-						} catch (JSONException e) {
-							logger.warn(e.getMessage(), e);
-						}
-						int year = 2000;
-						try{
-							year = sensorProperties.getInt("constructionYear");
-						} catch (JSONException e) {
-							logger.warn(e.getMessage(), e);
-						}
-						// TODO get EngineDisplacement from server!!!
-						double displacement = 2.0;
-						t.setCar(new Car(ft, manufacturer, carModel, sensorId, year, displacement)); 
+						
+						t.setCar(Car.fromJson(sensorProperties)); 
 						//include server properties tracks created, modified?
 						
 						dbAdapter.updateTrack(t);
@@ -636,7 +596,7 @@ public class ListTracksFragment extends SherlockFragment {
 							for (PropertyKey key : PropertyKey.values()) {
 								if (phenomenons.has(key.toString())) {
 									Double value = phenomenons.getJSONObject(key.toString()).getDouble("value"); 
-									recycleMeasurement.addProperty(key, value);
+									recycleMeasurement.setProperty(key, value);
 								}
 							}
 							recycleMeasurement.setTrack(t);

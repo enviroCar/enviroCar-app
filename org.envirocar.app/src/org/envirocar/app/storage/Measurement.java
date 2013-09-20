@@ -34,6 +34,8 @@ import org.envirocar.app.exception.LocationInvalidException;
  */
 
 public class Measurement {
+	
+	public static final String NA_VALUE = "null";
 
 	// All measurement values
 	public enum PropertyKey {
@@ -105,10 +107,6 @@ public class Measurement {
 			this.time = System.currentTimeMillis();
 	}
 	
-	public void addProperty(PropertyKey key, Double value) {
-		propertyMap.put(key, value);
-	}
-
 	public Double getProperty(PropertyKey key) {
 		return (Double) propertyMap.get(key);
 	}
@@ -124,11 +122,18 @@ public class Measurement {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		sb.append("Measurement [");
-		sb.append("latitude=" + latitude + ",");
-		sb.append("longitude=" + longitude + ",");
-		sb.append("time=" + time + ",");
+		sb.append("latitude=");
+		sb.append(latitude);
+		sb.append(", longitude=");
+		sb.append(longitude);
+		sb.append(", time=");
+		sb.append(time);
+		sb.append(", ");
 		for (PropertyKey key : propertyMap.keySet()) {
-			sb.append(key.toString() + "=" + propertyMap.get(key) + ",");
+			sb.append(key.toString());
+			sb.append("=");
+			sb.append(propertyMap.get(key));
+			sb.append(", ");
 		}
 		return sb.toString();
 	}

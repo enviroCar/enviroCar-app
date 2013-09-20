@@ -9,7 +9,6 @@
 	<string name="pref_summary_chose_adapter">Bitte einen OBD Adapter auswählen</string>
 	<string name="pref_title_chose_adapter">Bluetooth Gerät</string>
 	
-	<string name="pref_auto_connect">Automatische Verbindung mit OBD Adapter</string>
     <string name="pref_upload_only_in_wifi">Nur in WLan hochladen</string>
     <string name="pref_always_upload">Automatisch hochladen</string>
     <string name="pref_display_always_activ">Dashboard bleibt aktiv</string>

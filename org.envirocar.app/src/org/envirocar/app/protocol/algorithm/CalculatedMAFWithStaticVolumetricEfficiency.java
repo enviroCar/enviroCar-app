@@ -40,7 +40,7 @@ public class CalculatedMAFWithStaticVolumetricEfficiency extends
 		//calculate alternative maf from iat (convert to °K), map, rpm
 		double imap = rpm * intakePressure / (intakeTemperature + 273.15d);
 		//VE = 85 in most modern cars
-		double calculatedMaf = imap / 120.0d * this.volumetricEfficiency / 100.0d * this.car.getEngineDisplacement() * MOLECULAR_MASS_OF_AIR / GAS_CONSTANT;	
+		double calculatedMaf = imap / 120.0d * this.volumetricEfficiency / 100.0d * Car.ccmToLiter(this.car.getEngineDisplacement()) * MOLECULAR_MASS_OF_AIR / GAS_CONSTANT;	
 
 		return calculatedMaf;
 	}

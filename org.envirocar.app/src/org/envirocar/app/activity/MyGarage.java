@@ -25,11 +25,11 @@ import java.util.ArrayList;
 
 import org.apache.http.Header;
 import org.envirocar.app.R;
+import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.Car;
 import org.envirocar.app.network.RestClient;
 import org.envirocar.app.views.TypefaceEC;
 import org.json.JSONArray;
@@ -39,10 +39,8 @@ import org.json.JSONObject;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -74,13 +72,13 @@ import de.keyboardsurfer.android.widget.crouton.Style;
  * Garage class that cares about the sensor type "car" and its properties.
  * 
  * @author gerald
- * 
+ * @deprecated Converted to {@link CarSelectionPreference}
  */
+@Deprecated
 public class MyGarage extends SherlockFragment {
 	
 	private static final Logger logger = Logger.getLogger(MyGarage.class);
 	
-	private SharedPreferences sharedPreferences;
 
 	private final String sensorType = "car";
 	private String carFuelType;
@@ -104,8 +102,6 @@ public class MyGarage extends SherlockFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		
-		sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
 		
 		View view = inflater.inflate(R.layout.my_garage_layout, null);
 		//TODO !fancy! search for sensors
@@ -243,9 +239,9 @@ public class MyGarage extends SherlockFragment {
 	public void updateCurrentSensor(String sensorid, String carManufacturer,
 			String carModel, String fuelType, int year) {
 		// TODO engine Displacement
-		double engineDisplacement = 2.0;
-		Car car = new Car(fuelType, carManufacturer, carModel, sensorid, year, engineDisplacement);
-		CarManager.instance().setCat(car);
+//		double engineDisplacement = 2.0;
+//		Car car = new Car(fuelType, carManufacturer, carModel, sensorid, year, engineDisplacement);
+//		CarManager.instance().setCat(car);
 	}
 
 	/**
@@ -264,7 +260,7 @@ public class MyGarage extends SherlockFragment {
 	}
 	
 	private void selectSensorFromSharedPreferences() throws JSONException{
-		if(CarManager.instance().isCarSet()){
+		if(CarManager.instance().getCar() != null){
 			String prefSensorid = CarManager.instance().getCar().getId();
 			if(prefSensorid.equals("nosensor") == false){
 				for(int i = 0; i<sensors.length(); i++){
@@ -382,13 +378,13 @@ public class MyGarage extends SherlockFragment {
 				}
 				logger.info(httpStatusCode+" "+location);
 				
-				String sensorId = location.substring(location.lastIndexOf("/")+1, location.length());
+//				String sensorId = location.substring(location.lastIndexOf("/")+1, location.length());
 				//put the sensor id into shared preferences
 				// TODO set EngineDisplacement
-				double engineDisplacement = 2.0;
-				int year = Integer.parseInt(carConstructionYear);
-				Car car = new Car(carFuelType, carManufacturer, carModel, sensorId, year, engineDisplacement);
-				CarManager.instance().setCat(car);
+//				double engineDisplacement = 2.0;
+//				int year = Integer.parseInt(carConstructionYear);
+//				Car car = new Car(carFuelType, carManufacturer, carModel, sensorId, year, engineDisplacement);
+//				CarManager.instance().setCat(car);
 				//go back to the dashboard
 				// TODO use existing dashboard, dont create a new!
 	        	DashboardFragment dashboardFragment = new DashboardFragment();
@@ -467,7 +463,7 @@ public class MyGarage extends SherlockFragment {
         @Override
         public View getView(int position, View view, ViewGroup parent) {
             TextView text = new TextView(getActivity());
-            if(firstTime && !CarManager.instance().isCarSet()){
+            if(firstTime && CarManager.instance().getCar() == null){
             	text.setText(getResources().getString(R.string.please_select));
             	firstTime = false;
             } else {

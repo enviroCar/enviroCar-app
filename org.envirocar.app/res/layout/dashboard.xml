@@ -12,7 +12,7 @@
     android:layout_height="fill_parent"
     android:layout_weight="2"
     android:layout_marginLeft="10dp"
-    android:orientation="vertical" layout_width="0dp">
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/textView4"
@@ -72,7 +72,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="10dp"
         android:text="@string/dashboard_sensor_title"
         android:textAppearance="?android:attr/textAppearanceLarge" />
     
@@ -81,7 +81,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="5dp"
         android:drawableRight="@drawable/content_edit"
         android:clickable="true"
         android:textAppearance="?android:attr/textAppearanceMedium" />

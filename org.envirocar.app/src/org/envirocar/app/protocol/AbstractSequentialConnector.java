@@ -25,8 +25,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.IntakePressure;
@@ -55,11 +59,14 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private static final CharSequence SEARCHING = "SEARCHING";
 	private static final CharSequence STOPPED = "STOPPED";
 	private static final int MAX_INVALID_RESPONSE_COUNT = 5;
+	private static final int MIN_BACKLIST_COUNT = 5;
 	private InputStream inputStream;
 	private OutputStream outputStream;
 	private boolean connectionEstablished;
 	private boolean staleConnection;
 	private int invalidResponseCount;
+	private Map<String, AtomicInteger> blacklistCandidates = new HashMap<String, AtomicInteger>();
+	private Set<String> blacklistedCommandNames = new HashSet<String>();
 	
 	/**
 	 * @return the list of initialization commands for the adapter
@@ -109,6 +116,25 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 //		waitForResult(cmd);
 		
 		readResult(cmd);	
+	}
+	
+	private void onBlacklistCandidate(CommonCommand cmd) {
+		String name = cmd.getCommandName();
+		
+		if (blacklistedCommandNames.contains(name)) return;
+		
+		AtomicInteger candidate = blacklistCandidates.get(name);
+		
+		if (candidate != null) {
+			int count = candidate.incrementAndGet();
+			if (count > MIN_BACKLIST_COUNT) {
+				logger.info("Blacklisting command: "+name);
+				blacklistedCommandNames.add(name);
+			}
+		}
+		else {
+			blacklistCandidates.put(name, new AtomicInteger(0));
+		}
 	}
 	
 	/**
@@ -168,7 +194,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private void readResult(CommonCommand cmd) throws IOException {
 		byte[] rawData = readResponseLine(cmd);
 		String str = new String(rawData);
-		logger.info(str);
+		logger.info("Raw Response: ".concat(str));
 		cmd.setRawData(rawData);
 		cmd.setResultTime(System.currentTimeMillis());
 
@@ -236,6 +262,13 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 		List<CommonCommand> list = getRequestCommands();
 		
 		for (CommonCommand cmd : list) {
+			if (blacklistedCommandNames.contains(cmd.getCommandName())) {
+				/*
+				 * we have received enough failed responses for this command
+				 */
+				continue;
+			}
+			
 			try {
 				executeCommand(cmd);
 			} catch (UnmatchedCommandResponseException e) {
@@ -300,6 +333,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 			
 			if (cmd.getCommandState() == CommonCommandState.EXECUTION_ERROR) {
 				logger.debug("Execution Error for" +cmd.getCommandName() +" / "+new String(cmd.getOutgoingBytes()));
+				this.onBlacklistCandidate(cmd);
 				return;
 			}
 			
@@ -317,12 +351,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 			}
 			
 			else if (cmd.getCommandState() == CommonCommandState.SEARCHING) {
-				logger.info("Adapter still searching. Waiting a bit.");
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					logger.warn(e.getMessage(), e);
-				}
+				logger.info("Adapter still searching. Waiting a bit. Continuing.");
 				return;
 			}
 			
