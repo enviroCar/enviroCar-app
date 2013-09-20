@@ -47,6 +47,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	private CycleCommand cycleCommand;
 	private ResponseParser responseParser = new LocalResponseParser();
 	private ConnectionState state = ConnectionState.DISCONNECTED;
+	private boolean send;
 	
 	private static enum Protocol {
 		CAN11500, CAN11250, CAN29500, CAN29250, KWP_SLOW, KWP_FAST, ISO9141
@@ -73,11 +74,11 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	}
 
 	private void processDiscoveredControlUnits(String substring) {
-		logger.info("Discovered CUs: "+ substring);
+		logger.info("Discovered CUs... ");
 	}
 
 	private void processSupportedPID(String substring) {
-		logger.info("Supported PIDs: "+ substring);
+		logger.info("Supported PIDs...");
 	}
 
 	private void processVIN(String vinInt) {
@@ -200,7 +201,13 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 
 	@Override
 	protected List<CommonCommand> getRequestCommands() {
-		return Collections.singletonList((CommonCommand) cycleCommand);
+		if (!send) {
+			send = true;
+			return Collections.singletonList((CommonCommand) cycleCommand);
+		}
+		else {
+			return Collections.emptyList();
+		}
 	}
 
 
@@ -237,8 +244,6 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		public CommonCommand processResponse(byte[] bytes, int start, int count) {
 			if (count <= 0) return null;
 			
-			logger.info("Processing Response: "+ new String(bytes, start, count));
-			
 			char type = (char) bytes[start+0];
 			
 			if (type == CycleCommand.RESPONSE_PREFIX_CHAR) {
@@ -267,6 +272,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 					 * A PID response
 					 */
 					long now = System.currentTimeMillis();
+					logger.info("Processing PID Response:" +pid);
 					
 					byte[] pidResponseValue = new byte[2];
 					int target;
