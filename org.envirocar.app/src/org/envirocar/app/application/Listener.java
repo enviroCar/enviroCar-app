@@ -40,5 +40,7 @@ public interface Listener {
 	 */
 	void receiveUpdate(CommonCommand currentJob);
 
+	void shutdown();
+
 
 }

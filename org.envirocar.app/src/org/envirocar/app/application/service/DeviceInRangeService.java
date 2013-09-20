@@ -34,7 +34,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcelable;
@@ -53,10 +52,14 @@ public class DeviceInRangeService extends Service {
 
 	public static final String DEVICE_FOUND = DeviceInRangeService.class.getName().concat(".DEVICE_FOUND");
 	public static final String DELAY_EXTRA = DeviceInRangeService.class.getName().concat(".INITIAL_DELAY");
+	public static final String STATE_CHANGE = DeviceInRangeService.class.getName().concat(".STATE_CHANGE");
+	public static final String TARGET_CONNECTION_TIME = DeviceInRangeService.class.getName().concat(".TARGET_CONNECTION_TIME");
 	
 	private static final long DISCOVERY_PERIOD = 1000 * 60 * 2;
-	public static final int DEFAULT_DELAY_AFTER_STOP = 1000 * 60 * 5;
+	
 	protected ServiceState backgroundServiceState = ServiceState.SERVICE_STOPPED;
+
+	protected boolean autoConnect;
 	
 	private final BroadcastReceiver receiver = new BroadcastReceiver() {
 		@Override
@@ -67,36 +70,17 @@ public class DeviceInRangeService extends Service {
 			if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 				verifyRemoteDevice(intent);
 			}
-			else if (action.equals(AbstractBackgroundServiceStateReceiver.SERVICE_STATE)) {
-				backgroundServiceState = (ServiceState) intent.getSerializableExtra(
-						AbstractBackgroundServiceStateReceiver.SERVICE_STATE);
-				
-				SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-				boolean autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
-
-				if (backgroundServiceState == ServiceState.SERVICE_STOPPED && autoConnect) {
-					startWithDelay(DEFAULT_DELAY_AFTER_STOP);
+			
+			else if (action.equals(STATE_CHANGE)) {
+				if (!intent.getBooleanExtra(STATE_CHANGE, false)) {
+					discoveryEnabled = false;
+					stopSelf();	
 				}
 			}
 
 		}
 	};
 	
-	private final OnSharedPreferenceChangeListener autoConnectPreferenceChangeReceiver =
-			new OnSharedPreferenceChangeListener() {
-		@Override
-		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-				String key) {
-			if (key.equals(SettingsActivity.AUTOCONNECT)) {
-				boolean autoConnect = sharedPreferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
-				if (autoConnect) {
-					startWithDelay(0);
-				} else {
-					discoveryEnabled = false;
-				}
-			}
-		}
-	};
 
 	
 	private Runnable discoveryRunnable;
@@ -107,17 +91,9 @@ public class DeviceInRangeService extends Service {
 	public void onCreate() {
 		logger.info("onCreate " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		registerReceiver(receiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));
-		registerReceiver(receiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
-		
-		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		preferences.registerOnSharedPreferenceChangeListener(autoConnectPreferenceChangeReceiver);
+		registerReceiver(receiver, new IntentFilter(STATE_CHANGE));
 		
 		discoveryHandler = new Handler();
-		
-		boolean autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
-		if (autoConnect) {
-			startWithDelay(0);
-		}
 	}
 	
 	@Override
@@ -135,16 +111,17 @@ public class DeviceInRangeService extends Service {
 	@Override
 	public void onDestroy() {
 		logger.info("onDestroy " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
+		unregisterReceiver(receiver);
 	}
-
 
 	protected void verifyRemoteDevice(Intent intent) {
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-		String remoteDevice = preferences.getString(SettingsActivity.BLUETOOTH_KEY, null);
+		String targetDeviceFromSettings = preferences.getString(SettingsActivity.BLUETOOTH_KEY, null);
 		
-		if (remoteDevice != null) {
+		if (targetDeviceFromSettings != null) {
 			BluetoothDevice discoveredDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-			if (remoteDevice.equals(discoveredDevice.getAddress())) {
+			logger.info("Found Device: "+discoveredDevice.getName() +" / "+discoveredDevice.getAddress());
+			if (targetDeviceFromSettings.equals(discoveredDevice.getAddress())) {
 				initializeConnection(discoveredDevice);
 			}
 		}
@@ -158,15 +135,17 @@ public class DeviceInRangeService extends Service {
 		list.add(discoveredDevice);
 		intent.putParcelableArrayListExtra(DEVICE_FOUND, list);
 		sendBroadcast(intent);
+		stopSelf();
 	}
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		logger.info("onStartCommand " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
+		startWithDelay(DISCOVERY_PERIOD);
 		return super.onStartCommand(intent, flags, startId);
 	}
 
-	protected void startWithDelay(int d) {
+	protected void startWithDelay(long d) {
 		if (backgroundServiceState == ServiceState.SERVICE_STARTED) return;
 		
 		discoveryEnabled = true;
@@ -189,13 +168,23 @@ public class DeviceInRangeService extends Service {
 				/*
 				 * re-schedule ourselves
 				 */
-				discoveryHandler.postDelayed(this, DISCOVERY_PERIOD);
+				invokeDiscoveryRunnable(DISCOVERY_PERIOD);
 			}
+
 		};
 		
-		discoveryHandler.postDelayed(discoveryRunnable, DISCOVERY_PERIOD + d);
+		invokeDiscoveryRunnable(d);
+		Intent intent = new Intent(AbstractBackgroundServiceStateReceiver.SERVICE_STATE);
+		intent.putExtra(AbstractBackgroundServiceStateReceiver.SERVICE_STATE, ServiceState.SERVICE_DEVICE_DISCOVERY_PENDING);
+		sendBroadcast(intent);
 	}
 
+	private void invokeDiscoveryRunnable(long delay) {
+		discoveryHandler.postDelayed(discoveryRunnable, delay);
+		Intent intent = new Intent(TARGET_CONNECTION_TIME);
+		intent.putExtra(TARGET_CONNECTION_TIME, System.currentTimeMillis()+delay);
+		sendBroadcast(intent);
+	}
 	
 	@Override
 	public IBinder onBind(Intent intent) {

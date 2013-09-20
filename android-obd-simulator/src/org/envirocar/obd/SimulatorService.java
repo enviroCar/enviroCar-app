@@ -466,7 +466,7 @@ public class SimulatorService {
 			int bytethree = (1+random.nextInt(8));
 			int bytefour = (80+random.nextInt(19));
 			//MAF
-			rawData = "41100"+ bytethree+""+ bytefour;
+			rawData = "7F100"+ bytethree+""+ bytefour;
 			lastMaf = (bytethree * 256 + bytefour) / 100.0f;
 		}
 		else if (s.equals("01 0B")) {

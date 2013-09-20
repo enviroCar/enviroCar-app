@@ -98,6 +98,20 @@ public class EventBus {
 			((EventListener<AbstractEvent<?>>) eventListener).receiveEvent(event);
 		}
 	}
+
+	public void unregisterListener(EventListener<?> el) {
+		if (el == null) return;
+		
+		Class<?> type;
+		try {
+			type = resolveEventType(el);
+		} catch (UnsupportedEventListenerException e) {
+			return;
+		}
+		
+		List<EventListener<?>> candidates = listeners.get(type);
+		candidates.remove(el);
+	}
 	
 	
 }

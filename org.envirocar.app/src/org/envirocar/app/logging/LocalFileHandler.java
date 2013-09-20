@@ -90,7 +90,7 @@ public class LocalFileHandler implements Handler {
 			@Override
 			public String format(LogRecord r) {
 				String date = format.format(new Date(r.getMillis()));
-				return String.format("%s: %s%s", date, r.getMessage(), sep);
+				return String.format("%s [%s]: %s%s", date, r.getLevel(), r.getMessage(), sep);
 			}
 			
 		});

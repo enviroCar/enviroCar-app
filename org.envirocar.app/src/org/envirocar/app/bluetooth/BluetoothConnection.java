@@ -60,6 +60,7 @@ public class BluetoothConnection extends Thread {
 	private BackgroundService owner;
 	private BluetoothSocketWrapper bluetoothSocket;
 	private Context context;
+	private boolean running = true;
 
     public BluetoothConnection(BluetoothDevice device, boolean secure, BackgroundService owner,
     		Context ctx) {
@@ -104,13 +105,16 @@ public class BluetoothConnection extends Thread {
 			        BluetoothDevice deviceExtra = intent.getParcelableExtra("android.bluetooth.device.extra.DEVICE");
 			        Parcelable[] uuidExtra = intent.getParcelableArrayExtra("android.bluetooth.device.extra.UUID");
 			        //Parse the UUIDs and get the one you are interested in
-			        
-			        logger.info("Found the following UUIDs for device "+deviceExtra.getName());
+
 			        uuidCandidates = new ArrayList<UUID>();
-			        for (Parcelable uuid : uuidExtra) {
-			        	logger.info(uuid.toString());
-			        	uuidCandidates.add(UUID.fromString(uuid.toString()));
-					}
+			        if (uuidExtra != null && uuidExtra.length > 0) {
+			        	logger.info("Found the following UUIDs for device "+deviceExtra.getName());
+
+				        for (Parcelable uuid : uuidExtra) {
+				        	logger.info(uuid.toString());
+				        	uuidCandidates.add(UUID.fromString(uuid.toString()));
+						}	
+			        }
 			        
 			        if (uuidCandidates.isEmpty()) {
 			        	uuidCandidates.add(EMBEDDED_BOARD_SPP);
@@ -148,7 +152,7 @@ public class BluetoothConnection extends Thread {
 
 	public void run() {
 		boolean success = false;
-		while (selectSocket()) {
+		while (running && selectSocket()) {
         
             if (bluetoothSocket == null) {
             	logger.warn("Socket is null! Cancelling!");
@@ -174,25 +178,24 @@ public class BluetoothConnection extends Thread {
             } catch (IOException e) {
             	//try the fallback
             	try {
-					bluetoothSocket = new FallbackBluetoothSocket(bluetoothSocket.getUnderlyingSocket());
-					Thread.sleep(500);					
-					bluetoothSocket.connect();
-	        		success = true;
-	            	break;
+            		if (running) {
+            			bluetoothSocket = new FallbackBluetoothSocket(bluetoothSocket.getUnderlyingSocket());
+    					Thread.sleep(500);					
+    					bluetoothSocket.connect();
+    	        		success = true;
+    	            	break;	
+            		}
 				} catch (FallbackException e1) {
 					logger.warn("Could not initialize FallbackBluetoothSocket classes.", e);
 				} catch (InterruptedException e1) {
 					logger.warn(e1.getMessage(), e1);
 				} catch (IOException e1) {
-					 // Close the socket
-	                try {
-	                	shutdownSocket(bluetoothSocket);
-	                } catch (IOException e2) {
-	                    logger.warn(e2.getMessage(), e2);
-	                }
+                	shutdownSocket(bluetoothSocket);
 				}
 			}
     	}
+		
+		if (!running) return;
 		
 		if (success) {
 			owner.deviceConnected(bluetoothSocket);
@@ -228,25 +231,32 @@ public class BluetoothConnection extends Thread {
 	}
 	
     
-	public static void shutdownSocket(BluetoothSocketWrapper socket)
-			throws IOException {
+	public static void shutdownSocket(BluetoothSocketWrapper socket) {
 		logger.info("Shutting down bluetooth socket.");
-		if (socket.getInputStream() != null) {
-			try {
+		
+		try {
+			if (socket.getInputStream() != null) {
 				socket.getInputStream().close();
-			} catch (Exception e) {}
-		}
+			}
+		} catch (Exception e) {}
+		
 	
-		if (socket.getOutputStream() != null) {
-			try {
+		try {
+			if (socket.getOutputStream() != null) {
 				socket.getOutputStream().close();
-			} catch (Exception e) {}
-		}
+			}
+		} catch (Exception e) {}
+		
 		
 		try {
 			socket.close();
 		} catch (Exception e) {}
 		
+	}
+
+	public void cancelConnection() {
+		running = false;
+		shutdownSocket(bluetoothSocket);
 	}
 
 }

@@ -299,9 +299,6 @@ public class RegisterFragment extends SherlockFragment {
 				Crouton.makeText(getActivity(), getResources().getString(R.string.welcome_message)+mUsername, Style.CONFIRM).show();
 				UserManager.instance().setUser(new User(mUsername, mPassword));
 				
-				//open the Garage
-	        	MyGarage garageFragment = new MyGarage();
-	            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).commit();
 			} else if (httpStatus == HttpStatus.SC_FORBIDDEN) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
                 alertDialogBuilder.setTitle("Sorry");

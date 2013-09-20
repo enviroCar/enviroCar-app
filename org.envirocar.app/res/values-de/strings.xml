@@ -154,6 +154,6 @@
     <string name="help_8">Die Buchstaben L (für local) und R (für remote) kennzeichnen ob ein Track nur lokal auf dem Gerät vorhanden ist oder ob der Track schon zum Server (Remote) hochgeladen wurde. Das Hochladen von Tracks löscht den Track aus dem lokalen Speicher. Das Drücken des Löschen-Buttons löscht alle lokalen Tracks. Das Drücken des Upload-Buttons lädt alle lokalen Tracks hoch.</string>
     <string name="help_9">Ein langer Klick auf einen Track öffnet ein Optionsmenü zum bearbeiten und anschauen eines Tracks. Für die Kartendarstellung wird eine SD-Karte benötigt:</string>
     
-    <string name="track_obfuscation_on">Nur Messungen die 250 meter und 1 Minute nach Beginn der Messung und vor Ende der Messung hochladen.</string>
+    <string name="track_obfuscation_on">Nur Messungen, die ab einer Entfernung von 250 Metern zum Start/Ziel sowie eine Minute nach Beginn und vor Ende der Route stattfanden, hochladen.</string>
 	
 </resources>

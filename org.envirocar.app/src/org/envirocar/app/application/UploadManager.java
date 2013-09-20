@@ -30,7 +30,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.http.Header;
@@ -39,8 +39,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
-import org.envirocar.app.event.EventBus;
-import org.envirocar.app.event.UploadTrackEvent;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.network.HTTPClient;
@@ -142,7 +140,9 @@ public class UploadManager {
 		
 		@Override
 		protected void onPostExecute(Track track) {
-			EventBus.getInstance().fireEvent(new UploadTrackEvent(track));			
+			/*
+			 * TODO inform possible interested components about the upload
+			 */
 		}
 			
 
@@ -228,9 +228,11 @@ public class UploadManager {
 		dateFormat2.setTimeZone(TimeZone.getTimeZone("UTC"));
 		String time = dateFormat1.format(measurement.getTime()) + "T" + dateFormat2.format(measurement.getTime()) + "Z";
 		StringBuilder phenoms = new StringBuilder();
-		Map<PropertyKey, Double> properties = measurement.getAllProperties();
-		for (PropertyKey key : properties.keySet()) {
-			String propertyJson = String.format("\"%s\":{\"value\":%s},", key.toString(), properties.get(key));
+		
+		Set<PropertyKey> properties = track.getAllOccurringProperties();
+		for (PropertyKey key : properties) {
+			Double value = measurement.getProperty(key);
+			String propertyJson = String.format("\"%s\":{\"value\":%s},", key.toString(), value != null ? value.toString() : Measurement.NA_VALUE);
 			phenoms.append(propertyJson);
 		}
 		// remove last comma
