@@ -193,12 +193,9 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	 */
 	private void readResult(CommonCommand cmd) throws IOException {
 		byte[] rawData = readResponseLine(cmd);
-		String str = new String(rawData);
-		logger.info("Raw Response: ".concat(str));
 		cmd.setRawData(rawData);
 		cmd.setResultTime(System.currentTimeMillis());
 
-		logger.debug(cmd.toString());
 		String dataString = new String(rawData);
 
 		if (isSearching(dataString) || isNoDataCommand(dataString)) {

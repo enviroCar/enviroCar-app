@@ -36,13 +36,14 @@ import android.os.Looper;
 public class AsynchronousResponseThread extends HandlerThread {
 	
 	private static final Logger logger = Logger.getLogger(AsynchronousResponseThread.class);
-	private static final long SLEEP_TIME = 250;
+	private static final int MAX_BUFFER_SIZE = 32;
 	private Handler handler;
 	private InputStream inputStream;
 	
 	private Runnable readInputStreamRunnable;
 	
 	private List<CommonCommand> buffer = new ArrayList<CommonCommand>();
+	
 	protected boolean running = true;
 	private byte[] globalBuffer = new byte[64];
 	private int globalIndex;
@@ -68,12 +69,6 @@ public class AsynchronousResponseThread extends HandlerThread {
 							synchronized (AsynchronousResponseThread.this) {
 								buffer.add(cmd);	
 							}	
-						} else {
-							try {
-								Thread.sleep(SLEEP_TIME);
-							} catch (InterruptedException e) {
-								logger.warn(e.getMessage(), e);
-							}
 						}
 						
 					} catch (IOException e) {
@@ -100,8 +95,20 @@ public class AsynchronousResponseThread extends HandlerThread {
 			byteIn = (byte) intIn;
 			
 			if (byteIn == (byte) responseParser.getEndOfLine()) {
-				CommonCommand result = responseParser.processResponse(globalBuffer,
-						0, globalIndex);
+				boolean isReplete = false;
+				synchronized (this) {
+					/*
+					 * are we fed?
+					 */
+					isReplete = buffer.size() > MAX_BUFFER_SIZE;
+				}
+				
+				CommonCommand result = null;
+				if (!isReplete) {
+					result = responseParser.processResponse(globalBuffer,
+							0, globalIndex);	
+				}
+				
 				globalIndex = 0;
 				return result;
 			} else {
@@ -128,6 +135,7 @@ public class AsynchronousResponseThread extends HandlerThread {
 	public List<CommonCommand> pullAvailableCommands() {
 		List<CommonCommand> result;
 		synchronized (this) {
+			logger.info("Buffer Size On pull: "+buffer.size());
 			result = new ArrayList<CommonCommand>(buffer.size());
 			result.addAll(buffer);
 			buffer.clear();
