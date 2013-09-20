@@ -160,6 +160,7 @@
                 android:paddingRight="32dp"
                 android:text="@string/register_car" />
         </LinearLayout>
+        
     </ScrollView>
 
 </RelativeLayout>

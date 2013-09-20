@@ -172,6 +172,7 @@ public class CarSelectionPreference extends DialogPreference {
 		view.findViewById(R.id.mygaragelayout).requestFocus();
 		view.findViewById(R.id.mygaragelayout).requestFocusFromTouch();
 	}
+	
 
 	private void setupCarCreationItems(View view) {
 		modelEditText = (EditText) view.findViewById(R.id.addCarToGarage_car_model);
