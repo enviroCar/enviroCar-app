@@ -100,7 +100,7 @@ public abstract class AbstractAsynchronousConnector implements OBDConnector {
 	}
 
 	private void executeCommand(CommonCommand cmd) throws IOException {
-		logger.debug("Sending command: "+new String(cmd.getOutgoingBytes()));
+		logger.debug("Sending command: "+cmd.getCommandName());
 		
 		byte[] bytes = cmd.getOutgoingBytes();
 		if (bytes != null && bytes.length > 0) {

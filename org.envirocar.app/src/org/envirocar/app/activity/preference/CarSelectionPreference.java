@@ -455,7 +455,7 @@ public class CarSelectionPreference extends DialogPreference {
 	@Override
 	protected void onDialogClosed(boolean positiveResult) {
 		if (positiveResult) {
-	        persistString(serializeCar());
+	        persistString(serializeCar(car));
 	        setSummary(car.toString());
 		}
 	}
@@ -505,7 +505,7 @@ public class CarSelectionPreference extends DialogPreference {
 	    
 	}
 
-	private String serializeCar() {
+	public static String serializeCar(Car car) {
 		ObjectOutputStream oos = null;
 		Base64OutputStream b64 = null;
 		try {
