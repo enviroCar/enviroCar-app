@@ -181,4 +181,6 @@
 	<string name="title_activity_troubleshooting">Troubleshooting</string>
 	<string name="connection_state">State</string>
 	
+	<string name="connection_lost_info">Connection lost. Reconnecting&#8230;</string>
+	
 </resources>

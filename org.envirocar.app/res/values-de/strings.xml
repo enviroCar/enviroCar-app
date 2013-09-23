@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <string name="app_name">enviroCar</string>
     <string name="menu_settings">Einstellungen</string>
@@ -174,7 +174,7 @@
 	    Dies ermöglicht beispielsweise das einsenden des Berichts mit Ihrem Email-Client. Falls Ihr Gerät über
 	    keine Email-Client verfügt, können Sie den Bericht manuell von Ihrem Gerät laden, z.B per Bluetooth oder USB.
 	    In diesem Fall begrüßen wir eine manuelle Übermittlung des Fehlerberichts per Email. Der Bericht ist an folgender Stelle abgelegt:</string>
-	<string name="send_log_when_label">Ungefähre Anzahl Minuten seit dem Problem:</string>
+	<string name="send_log_when_label" tools:ignore="Typos">Ungefähre Anzahl Minuten seit dem Problem:</string>
 	<string name="send_log_comments_label">(Kommentar)</string>
 	<string name="send_log_time_past_hint">(vergangene Zeit seit Problem)</string>
 	
@@ -196,5 +196,7 @@
     
     <string name="start_connection">Starte Verbindung zum Gerät</string>
 	<string name="stop_connection">Stoppe Verbindung zum Gerät</string>
+	
+	<string name="connection_lost_info">Verbindung verloren. Versuche erneut&#8230;</string>
     
 </resources>

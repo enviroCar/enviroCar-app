@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.TroubleshootingActivity;
 import org.envirocar.app.application.CarManager;
@@ -75,6 +76,8 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	private static final String SERVICE_STATE_REQUEST = BackgroundServiceImpl.class.getName()+
 			".SERVICE_STATE_REQUEST";
 
+	protected static final int MAX_RECONNECT_COUNT = 2;
+
 	private Listener commandListener;
 	private final Binder binder = new LocalBinder();
 
@@ -83,6 +86,8 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	private BluetoothConnection bluetoothConnection;
 
 	protected ServiceState state;
+
+	protected int reconnectCount;
 
 
 	@Override
@@ -154,13 +159,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 			
 			@Override
 			public void run() {
-				if (BackgroundServiceImpl.this.bluetoothConnection != null) {
-					BackgroundServiceImpl.this.bluetoothConnection.cancelConnection();
-				}
-				
-				if (BackgroundServiceImpl.this.commandLooper != null) {
-					BackgroundServiceImpl.this.commandLooper.stopLooper();
-				}
+				shutdownConnectionAndHandler();
 				
 				state = ServiceState.SERVICE_STOPPED;
 				sendStateBroadcast();
@@ -171,7 +170,19 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 					BackgroundServiceImpl.this.commandListener.shutdown();
 				}
 			}
+
+
 		}).start();
+	}
+	
+	private void shutdownConnectionAndHandler() {
+		if (BackgroundServiceImpl.this.bluetoothConnection != null) {
+			BackgroundServiceImpl.this.bluetoothConnection.cancelConnection();
+		}
+		
+		if (BackgroundServiceImpl.this.commandLooper != null) {
+			BackgroundServiceImpl.this.commandLooper.stopLooper();
+		}
 	}
 	
 	private void sendStateBroadcast() {
@@ -189,6 +200,14 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 		logger.info("startConnection called");
 		// Connect to bluetooth device
 		// Init bluetooth
+		
+		startBluetoothConnection();
+		
+		state = ServiceState.SERVICE_STARTING;
+		sendStateBroadcast();
+	}
+
+	private void startBluetoothConnection() {
 		SharedPreferences preferences = PreferenceManager
 				.getDefaultSharedPreferences(this);
 		String remoteDevice = preferences.getString(SettingsActivity.BLUETOOTH_KEY, null);
@@ -197,14 +216,12 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 		if (remoteDevice == null || "".equals(remoteDevice)) {
 			return;
 		}
+		
 		BluetoothAdapter bluetoothAdapter = BluetoothAdapter
 				.getDefaultAdapter();
 		BluetoothDevice bluetoothDevice = bluetoothAdapter.getRemoteDevice(remoteDevice);
 
 		bluetoothConnection = new BluetoothConnection(bluetoothDevice, true, this, getApplicationContext());
-		
-		state = ServiceState.SERVICE_STARTING;
-		sendStateBroadcast();
 	}
 	
 	
@@ -259,6 +276,21 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 					@Override
 					public void onStatusUpdate(String message) {
 						Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+					}
+
+					@Override
+					public void requestConnectionRetry(IOException reason) {
+						Toast.makeText(getApplicationContext(), R.string.connection_lost_info, Toast.LENGTH_LONG).show();
+						
+						if (reconnectCount++ > MAX_RECONNECT_COUNT) {
+							onConnectionException(reason);
+						}
+						else {
+							logger.info("Restarting Device Connection...");
+							shutdownConnectionAndHandler();
+							startBluetoothConnection();	
+						}
+						
 					}
 				});
 		this.commandLooper.start();

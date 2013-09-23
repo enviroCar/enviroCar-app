@@ -22,6 +22,10 @@ package org.envirocar.app.protocol.exception;
 
 public class ConnectionLostException extends Exception {
 
+	public ConnectionLostException(String string) {
+		super(string);
+	}
+
 	/**
 	 * 
 	 */
