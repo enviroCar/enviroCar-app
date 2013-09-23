@@ -30,7 +30,7 @@ package org.envirocar.app.commands;
 public class IntakeTemperature extends NumberResultCommand {
 
 	public static final String NAME = "Air Intake Temperature";
-	private int temperature;
+	private int temperature = Short.MIN_VALUE;
 
 	public IntakeTemperature() {
 		super("01 0F");
