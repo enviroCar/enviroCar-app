@@ -58,7 +58,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private static final int MAX_SLEEP_TIME = 5000;
 	private static final int MAX_INVALID_RESPONSE_COUNT = 5;
 	private static final int MIN_BACKLIST_COUNT = 5;
-	private static final int MAX_SEARCHING_COUNT_IN_A_ROW = 25;
+	private static final int MAX_SEARCHING_COUNT_IN_A_ROW = 10;
 	private InputStream inputStream;
 	private OutputStream outputStream;
 	private boolean connectionEstablished;

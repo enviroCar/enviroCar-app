@@ -282,7 +282,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 					public void requestConnectionRetry(IOException reason) {
 						Toast.makeText(getApplicationContext(), R.string.connection_lost_info, Toast.LENGTH_LONG).show();
 						
-						if (reconnectCount++ > MAX_RECONNECT_COUNT) {
+						if (reconnectCount++ >= MAX_RECONNECT_COUNT) {
 							onConnectionException(reason);
 						}
 						else {

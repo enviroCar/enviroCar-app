@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.envirocar.app.application.Listener;
 import org.envirocar.app.commands.CommonCommand;
@@ -68,7 +69,7 @@ public class OBDCommandLooper extends HandlerThread {
 	
 	private static final Logger logger = Logger.getLogger(OBDCommandLooper.class);
 	protected static final long ADAPTER_TRY_PERIOD = 5000;
-	private static final Integer MAX_PHASE_COUNT = 3;
+	private static final Integer MAX_PHASE_COUNT = 2;
 	
 	private List<OBDConnector> adapterCandidates = new ArrayList<OBDConnector>();
 	private OBDConnector obdAdapter;
@@ -83,7 +84,7 @@ public class OBDCommandLooper extends HandlerThread {
 	private int adapterIndex;
 	private ConnectionListener connectionListener;
 	private String deviceName;
-	private Map<Phase, Integer> phaseCountMap = new HashMap<Phase, Integer>();
+	private Map<Phase, AtomicInteger> phaseCountMap = new HashMap<Phase, AtomicInteger>();
 	
 	private Runnable commonCommandsRunnable = new Runnable() {
 		public void run() {
@@ -213,8 +214,8 @@ public class OBDCommandLooper extends HandlerThread {
 		
 		this.deviceName = deviceName;
 	
-		this.phaseCountMap.put(Phase.INITIALIZATION, 0);
-		this.phaseCountMap.put(Phase.COMMAND_EXECUTION, 0);
+		this.phaseCountMap.put(Phase.INITIALIZATION, new AtomicInteger());
+		this.phaseCountMap.put(Phase.COMMAND_EXECUTION, new AtomicInteger());
 	}
 	
 	private void determinePreferredAdapter(String deviceName) {
@@ -281,14 +282,12 @@ public class OBDCommandLooper extends HandlerThread {
 	private void switchPhase(Phase phase, IOException reason) {
 		logger.info("Switching to Phase: " +phase + (reason != null ? " / Reason: "+reason.getMessage() : ""));
 		
-		Integer phaseCount = phaseCountMap.get(phase);
-		
-		phaseCount++;
+		int phaseCount = phaseCountMap.get(phase).incrementAndGet();
 		
 		commandExecutionHandler.removeCallbacks(initializationCommandsRunnable);
 		commandExecutionHandler.removeCallbacks(commonCommandsRunnable);
 		
-		if (phaseCount > MAX_PHASE_COUNT) {
+		if (phaseCount >= MAX_PHASE_COUNT) {
 			logger.warn("Too often in phase "+phaseCount);
 			connectionListener.requestConnectionRetry(reason);
 			
