@@ -21,6 +21,8 @@
 
 package org.envirocar.app.commands;
 
+import org.envirocar.app.commands.PIDUtil.PID;
+
 /**
  * Throttle position on PID 01 11
  * 
@@ -29,10 +31,10 @@ package org.envirocar.app.commands;
  */
 public class TPS extends NumberResultCommand {
 
-	private float value = Float.NaN;
+	private int value = Short.MIN_VALUE;
 
 	public TPS() {
-		super("01 11");
+		super("01 ".concat(PID.TPS.toString()));
 	}
 
 	@Override
@@ -42,9 +44,9 @@ public class TPS extends NumberResultCommand {
 
 	@Override
 	public Number getNumberResult() {
-		if (Float.isNaN(value)) {
+		if (value == Short.MIN_VALUE) {
 			int[] buffer = getBuffer();
-			value = (buffer[2] * 100.0f) / 255.0f;
+			value = (buffer[2] * 100) / 255;
 		}
 		return value;
 	}

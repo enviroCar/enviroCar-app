@@ -21,6 +21,7 @@
 
 package org.envirocar.app.commands;
 
+import org.envirocar.app.commands.PIDUtil.PID;
 import org.envirocar.app.logging.Logger;
 
 /**
@@ -36,7 +37,7 @@ public class MAF extends NumberResultCommand {
 	private float maf = Float.NaN;
 	
 	public MAF() {
-		super("01 10");
+		super("01 ".concat(PID.MAF.toString()));
 	}
 
 

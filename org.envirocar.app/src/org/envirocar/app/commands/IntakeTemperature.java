@@ -21,6 +21,8 @@
 
 package org.envirocar.app.commands;
 
+import org.envirocar.app.commands.PIDUtil.PID;
+
 /**
  * Intake temperature on PID 01 0F
  * 
@@ -33,7 +35,7 @@ public class IntakeTemperature extends NumberResultCommand {
 	private int temperature = Short.MIN_VALUE;
 
 	public IntakeTemperature() {
-		super("01 0F");
+		super("01 ".concat(PID.INTAKE_AIR_TEMP.toString()));
 	}
 
 	@Override

@@ -33,9 +33,14 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.envirocar.app.commands.CommonCommand;
+import org.envirocar.app.commands.EngineLoad;
 import org.envirocar.app.commands.IntakePressure;
 import org.envirocar.app.commands.IntakeTemperature;
 import org.envirocar.app.commands.MAF;
+import org.envirocar.app.commands.PIDSupported;
+import org.envirocar.app.commands.PIDUtil;
+import org.envirocar.app.commands.TPS;
+import org.envirocar.app.commands.PIDUtil.PID;
 import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.Speed;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
@@ -67,6 +72,8 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private Map<String, AtomicInteger> blacklistCandidates = new HashMap<String, AtomicInteger>();
 	private Set<String> blacklistedCommandNames = new HashSet<String>();
 	private int searchingCountInARow;
+	private Set<PID> supportedPIDs;
+	private List<CommonCommand> requestCommands;
 	
 	/**
 	 * @return the list of initialization commands for the adapter
@@ -88,6 +95,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	@Override
 	public abstract ConnectionState connectionState();
 
+	
 	@Override
 	public void provideStreamObjects(InputStream inputStream,
 			OutputStream outputStream) {
@@ -96,15 +104,39 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	}
 	
 	protected List<CommonCommand> getRequestCommands() {
-		List<CommonCommand> result = new ArrayList<CommonCommand>();
-		result.add(new Speed());
-		result.add(new MAF());
-		result.add(new RPM());
-		result.add(new IntakePressure());
-		result.add(new IntakeTemperature());
-		return result;
+		if (requestCommands == null) {
+			requestCommands = new ArrayList<CommonCommand>();
+			requestCommands.add(new Speed());
+			requestCommands.add(new MAF());
+			requestCommands.add(new RPM());
+			requestCommands.add(new IntakePressure());
+			requestCommands.add(new IntakeTemperature());
+			requestCommands.add(new EngineLoad());
+			requestCommands.add(new TPS());
+		}
+		
+		return requestCommands;
+	}
+
+	private void onInitializationCommand(CommonCommand cmd) {
+		if (cmd instanceof PIDSupported) {
+			this.supportedPIDs = ((PIDSupported) cmd).getSupportedPIDs();
+			prepareRequestCommands();
+		}
 	}
 	
+	private void prepareRequestCommands() {
+		if (supportedPIDs != null && supportedPIDs.size() != 0) {
+			this.requestCommands = new ArrayList<CommonCommand>();
+			for (PID pid : supportedPIDs) {
+				CommonCommand cmd = PIDUtil.instantiateCommand(pid);
+				if (cmd != null) {
+					this.requestCommands.add(cmd);
+				}
+			}
+		}
+	}
+
 	private void runCommand(CommonCommand cmd)
 			throws IOException {
 		logger.debug("Sending command " +cmd.getCommandName()+ " / "+ new String(cmd.getOutgoingBytes()));
@@ -244,6 +276,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 		
 		try {
 			executeCommands(cmds);
+			executeCommand(new PIDSupported());
 		} catch (UnmatchedCommandResponseException e) {
 			logger.warn("This should never happen!", e);
 		} catch (ConnectionLostException e) {
@@ -321,7 +354,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 			switch (cmd.getCommandState()) {
 			case FINISHED:
 				if (!connectionEstablished) {
-					processInitializationCommand(cmd);
+					onInitializationCommand(cmd);
 					if (connectionState() == ConnectionState.CONNECTED) {
 						connectionEstablished = true;
 					}

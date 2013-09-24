@@ -18,71 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-
 package org.envirocar.app.commands;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import org.envirocar.app.commands.PIDUtil.PID;
 
+public class FuelSystemStatus extends CommonCommand {
 
-/**
- * Turns off line-feed.
- */
-public class PIDSupported extends CommonCommand {
+	public static final String NAME = "Fuel System Status";
+	private int setBit;
 
-	private Set<PID> pids;
-	private byte[] bytes;
-
-	/**
-	 * @param command
-	 */
-	public PIDSupported() {
-		super("01 00");
+	public FuelSystemStatus() {
+		super("01 ".concat(PID.FUEL_SYSTEM_STATUS.toString()));
 	}
-
-
-	@Override
-	public String getCommandName() {
-		return "01 00"; 
-	}
-
-
-	/**
-	 * @return the set of PIDs that are supported by a car,
-	 * encoded as their HEX byte strings
-	 */
-	public Set<PID> getSupportedPIDs() {
-		if (pids == null) {
-			pids = new HashSet<PID>();
-			
-			for (int i = 0; i < bytes.length; i++) {
-				int current = bytes[i];
-				
-				for (int bit = 3; bit >= 0; bit--) {
-					boolean is = ((current >> bit) & 1 ) == 1;
-					if (is) {
-						/*
-						 * we are starting at PID 01 and not 00
-						 */
-						pids.add(PIDUtil.fromString(createHex(i*4 + (3-bit) + 1)));
-					}
-				}
-				
-			}
-		}
-		
-		return pids;
-	}
-
-
-	private String createHex(int i) {
-		String result = Integer.toString(i, 16);
-		if (result.length() == 1) result = "0".concat(result);
-		return result;
-	}
-
 
 	@Override
 	public void parseRawData() {
@@ -90,9 +37,8 @@ public class PIDSupported extends CommonCommand {
 		int length = 2;
 		byte[] data = getRawData();
 		
-		bytes = new byte[data.length-4];
 		
-		if (bytes.length != 8) {
+		if (data.length != 6) {
 			setCommandState(CommonCommandState.EXECUTION_ERROR);
 		}
 		
@@ -117,19 +63,48 @@ public class PIDSupported extends CommonCommand {
 				index += length;
 				continue;
 			}
-			
-			/*
-			 * this is a hex number
-			 */
-			bytes[index-4] = (byte) Integer.valueOf(String.valueOf((char) data[index]), 16).intValue();
-			if (bytes[index-4] < 0){
-				setCommandState(CommonCommandState.EXECUTION_ERROR);
-				return;
+			else if (index == 4) {
+				byte current = data[index];
+				for (int bit = 4; bit >= 0; bit--) {
+					boolean is = ((current >> bit) & 1 ) == 1;
+					if (is) {
+						setBit = bit;
+					}
+				}
+				index++;
 			}
-			index++;
+			else {
+				index++;
+			}
+			
 		}
-		
-		setCommandState(CommonCommandState.FINISHED);
+	}
+
+	public boolean isInClosedLoop() {
+		switch (setBit) {
+		case 0:
+			//Open loop due to insufficient engine temperature
+			return false;
+		case 1:
+			//Closed loop, using oxygen sensor feedback to determine fuel mix
+			return true;
+		case 2:
+			//Open loop due to engine load OR fuel cut due to deceleration
+			return false;
+		case 3:
+			//Open loop due to system failure
+			return false;
+		case 4:
+			//Closed loop, using at least one oxygen sensor but there is a fault in the feedback system
+			return true;
+		default:
+			return false;
+		}
+	}
+
+	@Override
+	public String getCommandName() {
+		return NAME;
 	}
 
 }

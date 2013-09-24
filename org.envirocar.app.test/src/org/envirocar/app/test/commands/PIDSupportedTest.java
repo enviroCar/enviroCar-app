@@ -28,6 +28,7 @@ import java.util.Set;
 import junit.framework.Assert;
 
 import org.envirocar.app.commands.PIDSupported;
+import org.envirocar.app.commands.PIDUtil.PID;
 
 import android.test.AndroidTestCase;
 
@@ -39,27 +40,27 @@ public class PIDSupportedTest extends AndroidTestCase {
 		cmd.setRawData(createResponseMockup(cmd));
 		cmd.parseRawData();
 		
-		Set<String> result = cmd.getSupportedPIDs();
+		Set<PID> result = cmd.getSupportedPIDs();
 		
 		assertResult(result);
 	}
 
-	private void assertResult(Set<String> result) {
-		Set<String> expected = new HashSet<String>();
-		expected.add("01");
-		expected.add("03");
-		expected.add("04");
-		expected.add("05");
-		expected.add("06");
-		expected.add("07");
-		expected.add("20");
+	private void assertResult(Set<PID> result) {
+		Set<PID> expected = new HashSet<PID>();
+		expected.add(PID.CALCULATED_ENGINE_LOAD);
+		expected.add(PID.FUEL_PRESSURE);
+		expected.add(PID.INTAKE_AIR_TEMP);
+		expected.add(PID.INTAKE_MAP);
+		expected.add(PID.MAF);
+		expected.add(PID.RPM);
+		expected.add(PID.SPEED);
 		
 		Assert.assertTrue(String.format(Locale.US, "Size is different. Expected %d, Received %d.",
 				expected.size(),
 				result.size()),
 				result.size() == expected.size());
 		
-		for (String string : expected) {
+		for (PID string : expected) {
 			Assert.assertTrue(result.contains(string));
 		}
 	}
@@ -68,7 +69,7 @@ public class PIDSupportedTest extends AndroidTestCase {
 		StringBuilder sb = new StringBuilder();
 		sb.append("41");
 		sb.append(cmd.getResponseTypeID());
-		sb.append("BE000001");
+		sb.append("107B0000");
 		return sb.toString().getBytes();
 	}
 	

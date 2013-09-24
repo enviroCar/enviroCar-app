@@ -18,39 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-
 package org.envirocar.app.commands;
 
 import org.envirocar.app.commands.PIDUtil.PID;
 
-/**
- * Speed Command PID 01 0D
- * 
- * @author jakob
- * 
- */
-public class Speed extends NumberResultCommand {
+public class FuelPressure extends NumberResultCommand {
 
-	public static final String NAME = "Vehicle Speed";
-	private int metricSpeed = Short.MIN_VALUE;
-
-	public Speed() {
-		super("01 ".concat(PID.SPEED.toString()));
-	}
-
-
-	@Override
-	public String getCommandName() {
-		return NAME;
+	public static final String NAME = "Fuel Pressure";
+	private int pressure = Short.MIN_VALUE;
+	
+	public FuelPressure() {
+		super("01 ".concat(PID.FUEL_PRESSURE.toString()));
 	}
 
 	@Override
 	public Number getNumberResult() {
-		int[] buffer = getBuffer();
-		if (metricSpeed == Short.MIN_VALUE) {
-			metricSpeed = buffer[2];
+		if (pressure == Short.MIN_VALUE) {
+			pressure = getBuffer()[2] * 3;
 		}
-		return metricSpeed;
+		return pressure;
+	}
+
+	@Override
+	public String getCommandName() {
+		return NAME;
 	}
 
 }
