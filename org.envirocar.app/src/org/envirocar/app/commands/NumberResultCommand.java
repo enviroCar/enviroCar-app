@@ -25,7 +25,7 @@ public abstract class NumberResultCommand extends CommonCommand {
 	private static final CharSequence SEARCHING = "SEARCHING";
 	private static final CharSequence STOPPED = "STOPPED";
 	
-	private static final String STATUS_OK = "41";
+	static final String STATUS_OK = "41";
 	private int[] buffr;
 	
 	public NumberResultCommand(String command) {
