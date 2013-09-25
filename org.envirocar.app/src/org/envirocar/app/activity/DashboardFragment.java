@@ -107,8 +107,10 @@ public class DashboardFragment extends SherlockFragment {
 	/**
 	 * Updates the sensor-textview
 	 */
-	public void updateSensorOnDashboard(){
-		sensor.setText(getCurrentSensorString());
+	public void updateSensorOnDashboard() {
+		if (isAdded()) {
+			sensor.setText(getCurrentSensorString());
+		}
 	}
 	
 	/**
@@ -152,7 +154,6 @@ public class DashboardFragment extends SherlockFragment {
 		positionTextView = (TextView) getView().findViewById(R.id.positionTextView);
 		
 		updateSensorOnDashboard();
-		
 		updateStatusElements();
 		
 		sensor.setOnClickListener(new OnClickListener() {
@@ -302,7 +303,7 @@ public class DashboardFragment extends SherlockFragment {
 	}
 	
 	protected void updateStatusElements() {
-		if (getView() == null) return;
+		if (getView() == null || !isAdded()) return;
 		
 		ImageView connectionStateImage = (ImageView) getView().findViewById(R.id.connectionStateImage);
 		

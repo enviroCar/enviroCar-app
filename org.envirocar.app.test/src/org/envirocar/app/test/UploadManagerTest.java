@@ -37,7 +37,7 @@ import android.test.AndroidTestCase;
 public class UploadManagerTest extends AndroidTestCase {
 	
 	private Car car = new Car(FuelType.GASOLINE, "manuf", "modl", "iddddd", 1234, 2345);
-	private String expectedJson = "{\"features\":[{\"type\":\"Feature\",\"properties\":{\"phenomenons\":{\"MAF\":{\"value\":12.4},\"Speed\":{\"value\":12}},\"sensor\":\"iddddd\",\"time\":\"2013-09-25T10:30:00Z\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[-89,-89]}}],\"type\":\"FeatureCollection\",\"properties\":{\"sensor\":\"iddddd\",\"description\":\"desc\",\"name\":\"test-track\"}}";
+	private String expectedJson = "{\"features\":[{\"type\":\"Feature\",\"properties\":{\"phenomenons\":{\"MAF\":{\"value\":12.4},\"Speed\":{\"value\":12}},\"sensor\":\"iddddd\",\"time\":\"2013-09-25T10:30:00Z\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[-89.1,-87.1]}}],\"type\":\"FeatureCollection\",\"properties\":{\"sensor\":\"iddddd\",\"description\":\"desc\",\"name\":\"test-track\"}}";
 
 	public void testTrackJsonCreation() throws JSONException {
 		UploadManager um = new UploadManager(getContext());
@@ -62,7 +62,7 @@ public class UploadManagerTest extends AndroidTestCase {
 	}
 
 	private Measurement createMeasurement() {
-		Measurement m = new Measurement(-89.0, -89.0);
+		Measurement m = new Measurement(-87.1, -89.1);
 		m.setProperty(PropertyKey.MAF, 12.4);
 		m.setProperty(PropertyKey.SPEED, 12.0);
 		m.setTime(1380105000000L);
