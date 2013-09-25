@@ -30,7 +30,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Locale;
-import java.util.Set;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.http.Header;
@@ -49,6 +49,7 @@ import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.views.Utils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -56,7 +57,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
 /**
  * Manager that can upload a track to the server. 
  * Use the uploadAllTracks function to upload all local tracks. 
@@ -125,7 +125,11 @@ public class UploadManager {
 				logger.warn(e.getMessage(), e);
 				//the track wasn't JSON serializable. shouldn't occur.
 				this.cancel(true);
-				((ECApplication) context).createNotification("General Track error (JSON) Please contact envirocar.org");
+				((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
+			} catch (RuntimeException e) {
+				logger.warn(e.getMessage(), e);
+				this.cancel(true);
+				((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
 			}
 			// don upload track if it has no measurements
 			if(track.getNumberOfMeasurements() != 0) {
@@ -136,7 +140,7 @@ public class UploadManager {
 				if (httpResult.equals(NET_ERROR)){
 					((ECApplication) context).createNotification(context.getResources().getString(R.string.error_host_not_found));
 				} else if (httpResult.equals(GENERAL_ERROR)) {
-					((ECApplication) context).createNotification("General Track error. Please contact envirocar.org");
+					((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
 				} else {
 					/*
 					 * success, we got an ID
@@ -171,17 +175,12 @@ public class UploadManager {
 	 * @throws JSONException 
 	 */
 	private JSONObject createTrackJson(Track track) throws JSONException {
-
-		String trackName = track.getName();
-		String trackDescription = track.getDescription();
+		JSONObject result = new JSONObject();
+		
 		String trackSensorName = track.getCar().getId();
 
-		String trackElementJson = String
-				.format("{\"type\":\"FeatureCollection\",\"properties\":{\"name\":\"%s\",\"description\":\"%s\",\"sensor\":\"%s\"},\"features\":[",
-						trackName, trackDescription, trackSensorName);
-
 		ArrayList<Measurement> measurements = track.getMeasurements();
-		ArrayList<String> measurementElements = new ArrayList<String>();
+		ArrayList<JSONObject> measurementElements = new ArrayList<JSONObject>();
 		
 		// Cut-off first and last minute of tracks that are longer than 3
 		// minutes. Also cut of these measurements if they are closer than 250m
@@ -216,44 +215,93 @@ public class UploadManager {
 		}
 
 		for (Measurement measurement : measurements) {
-			String measurementJson = createMeasurementJson(track, trackSensorName, measurement);
+			JSONObject measurementJson = createMeasurementJson(track, trackSensorName, measurement);
 			measurementElements.add(measurementJson);
 		}
+		
+		result.put("type", "FeatureCollection");
+		result.put("features", new JSONArray(measurementElements));
+		result.put("properties", createTrackProperties(track, trackSensorName));
 
-		String measurementElementsJson = TextUtils.join(",", measurementElements);
-		String closingElementJson = "]}";
-
-		String trackString = String.format("%s %s %s", trackElementJson,
-				measurementElementsJson, closingElementJson);
-
-		return new JSONObject(trackString);
+		return result;
 	}
 
-	private String createMeasurementJson(Track track, String trackSensorName, Measurement measurement) {
-		String lat = String.valueOf(measurement.getLatitude());
-		String lon = String.valueOf(measurement.getLongitude());
+	private JSONObject createTrackProperties(Track track, String trackSensorName) throws JSONException {
+		JSONObject result = new JSONObject();
 		
-		String time = iso8601Format.format(measurement.getTime());
+		result.put("sensor", trackSensorName);
+		result.put("description", track.getDescription());
+		result.put("name", track.getName());
 		
-		StringBuilder phenoms = new StringBuilder();
+		return result;
+	}
+
+	private JSONObject createMeasurementJson(Track track, String trackSensorName, Measurement measurement) throws JSONException {
+		JSONObject result = new JSONObject();
+		result.put("type", "Feature");
 		
-		Set<PropertyKey> properties = track.getAllOccurringProperties();
-		for (PropertyKey key : properties) {
-			Double value = measurement.getProperty(key);
-			phenoms.append("\"");
-			phenoms.append(key.toString());
-			phenoms.append("\":{\"value\":");
-			phenoms.append(value != null ? value.toString() : Measurement.NA_VALUE);
-			phenoms.append("},");
-//			String propertyJson = String.format("\"%s\":{\"value\":%s},", key.toString(), value != null ? value.toString() : Measurement.NA_VALUE);
-//			phenoms.append(propertyJson);
+		result.put("geometry", createGeometry(measurement));
+		result.put("properties", createMeasurementProperties(measurement, trackSensorName));
+		
+//		String lat = String.valueOf(measurement.getLatitude());
+//		String lon = String.valueOf(measurement.getLongitude());
+//		
+//		String time = iso8601Format.format(measurement.getTime());
+//		
+//		StringBuilder phenoms = new StringBuilder();
+//		
+//		Set<PropertyKey> properties = track.getAllOccurringProperties();
+//		for (PropertyKey key : properties) {
+//			Double value = measurement.getProperty(key);
+//			phenoms.append("\"");
+//			phenoms.append(key.toString());
+//			phenoms.append("\":{\"value\":");
+//			phenoms.append(value != null ? value.toString() : Measurement.NA_VALUE);
+//			phenoms.append("},");
+////			String propertyJson = String.format("\"%s\":{\"value\":%s},", key.toString(), value != null ? value.toString() : Measurement.NA_VALUE);
+////			phenoms.append(propertyJson);
+//		}
+//		// remove last comma
+//		String phenomsJson = phenoms.length() > 0 ? phenoms.substring(0, phenoms.length() - 1) : ""; 
+//		String measurementJson = String
+//				.format("{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[%s,%s]},\"properties\":{\"time\":\"%s\",\"sensor\":\"%s\",\"phenomenons\":{%s}}}",
+//						lon, lat, time, trackSensorName, phenomsJson);
+		return result;
+	}
+
+	private JSONObject createGeometry(Measurement measurement) throws JSONException {
+		JSONObject result = new JSONObject();
+		result.put("type", "Point");
+		
+		ArrayList<Double> coords = new ArrayList<Double>(2);
+		coords.add(measurement.getLongitude());
+		coords.add(measurement.getLatitude());
+		
+		result.put("coordinates", new JSONArray(coords));
+		return result;
+	}
+
+	private JSONObject createMeasurementProperties(Measurement measurement, String trackSensorName) throws JSONException {
+		JSONObject result = new JSONObject();
+		result.put("sensor", trackSensorName);
+		result.put("phenomenons", createPhenomenons(measurement));
+		result.put("time", iso8601Format.format(measurement.getTime()));
+		return result;
+	}
+
+	private JSONObject createPhenomenons(Measurement measurement) throws JSONException {
+		JSONObject result = new JSONObject();
+		Map<PropertyKey, Double> props = measurement.getAllProperties();
+		for (PropertyKey key : props.keySet()) {
+				result.put(key.toString(), createValue(props.get(key)));
 		}
-		// remove last comma
-		String phenomsJson = phenoms.length() > 0 ? phenoms.substring(0, phenoms.length() - 1) : ""; 
-		String measurementJson = String
-				.format("{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[%s,%s]},\"properties\":{\"time\":\"%s\",\"sensor\":\"%s\",\"phenomenons\":{%s}}}",
-						lon, lat, time, trackSensorName, phenomsJson);
-		return measurementJson;
+		return result;
+	}
+
+	private JSONObject createValue(Double double1) throws JSONException {
+		JSONObject result = new JSONObject();
+		result.put("value", double1);
+		return result;
 	}
 
 	/**

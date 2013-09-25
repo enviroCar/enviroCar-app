@@ -183,4 +183,6 @@
 	
 	<string name="connection_lost_info">Connection lost. Reconnecting&#8230;</string>
 	
+	<string name="general_error_please_report">General Track Error - Please report this issue</string>
+	
 </resources>

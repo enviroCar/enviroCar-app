@@ -73,7 +73,6 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private Set<String> blacklistedCommandNames = new HashSet<String>();
 	private int searchingCountInARow;
 	private Set<PID> supportedPIDs;
-	private List<CommonCommand> requestCommands;
 	
 	/**
 	 * @return the list of initialization commands for the adapter
@@ -104,7 +103,16 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	}
 	
 	protected List<CommonCommand> getRequestCommands() {
-		if (requestCommands == null) {
+		List<CommonCommand> requestCommands;
+		if (supportedPIDs != null && supportedPIDs.size() != 0) {
+			requestCommands = new ArrayList<CommonCommand>();
+			for (PID pid : supportedPIDs) {
+				CommonCommand cmd = PIDUtil.instantiateCommand(pid);
+				if (cmd != null) {
+					requestCommands.add(cmd);
+				}
+			}
+		} else {
 			requestCommands = new ArrayList<CommonCommand>();
 			requestCommands.add(new Speed());
 			requestCommands.add(new MAF());
@@ -121,21 +129,10 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private void onInitializationCommand(CommonCommand cmd) {
 		if (cmd instanceof PIDSupported) {
 			this.supportedPIDs = ((PIDSupported) cmd).getSupportedPIDs();
-			prepareRequestCommands();
 		}
+		processInitializationCommand(cmd);
 	}
 	
-	private void prepareRequestCommands() {
-		if (supportedPIDs != null && supportedPIDs.size() != 0) {
-			this.requestCommands = new ArrayList<CommonCommand>();
-			for (PID pid : supportedPIDs) {
-				CommonCommand cmd = PIDUtil.instantiateCommand(pid);
-				if (cmd != null) {
-					this.requestCommands.add(cmd);
-				}
-			}
-		}
-	}
 
 	private void runCommand(CommonCommand cmd)
 			throws IOException {
@@ -360,6 +357,9 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 					}
 				}
 				else {
+					if (cmd instanceof PIDSupported) {
+						onInitializationCommand(cmd);
+					}
 					if (staleConnection) {
 						staleConnection = false;
 						invalidResponseCount = 0;
