@@ -78,6 +78,8 @@ public class Track implements Comparable<Track> {
 
 	private HashSet<PropertyKey> occurringProperties;
 
+	private DbAdapter dbAdapter;
+
 	public static Track createDbTrack(long id) {
 		Track track = new Track(id);
 		return track;
@@ -95,6 +97,7 @@ public class Track implements Comparable<Track> {
 	private Track(String remoteID, DbAdapter dbAdapter) {
 		this.remoteID = remoteID;
 		this.id = dbAdapter.insertTrack(this);
+		this.dbAdapter = dbAdapter;
 	}
 	
 	/**
@@ -109,6 +112,7 @@ public class Track implements Comparable<Track> {
 		this.car = car;
 		this.consumptionAlgorithm = new BasicConsumptionAlgorithm(car);
 		id = dbAdapter.insertTrack(this);
+		this.dbAdapter = dbAdapter;
 	}
 
 	/**
@@ -215,7 +219,9 @@ public class Track implements Comparable<Track> {
 	public void addMeasurement(Measurement measurement) {
 		measurement.setTrack(Track.this);
 		this.measurements.add(measurement);
-		DbAdapterImpl.instance().insertMeasurement(measurement);
+		if (this.dbAdapter != null) {
+			this.dbAdapter.insertMeasurement(measurement);	
+		}
 	}
 
 	/**
