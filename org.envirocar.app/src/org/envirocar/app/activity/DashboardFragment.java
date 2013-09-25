@@ -195,7 +195,8 @@ public class DashboardFragment extends SherlockFragment {
 		logger.info("onDestroy. hash="+System.identityHashCode(this));
 		super.onDestroy();
 		
-		getActivity().unregisterReceiver(receiver);
+		//TODO do unregistration of the receiver if and only if it was registered before
+//		getActivity().unregisterReceiver(receiver);
 		
 		EventBus.getInstance().unregisterListener(this.locationListener);
 		EventBus.getInstance().unregisterListener(this.speedListener);

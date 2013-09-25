@@ -30,6 +30,8 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
 import org.envirocar.app.logging.Logger;
 
 /**
@@ -92,6 +94,22 @@ public class HTTPClient {
 		SSLSocketFactory factory = SSLSocketFactory.getSocketFactory();
 		factory.setHostnameVerifier(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
 		client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", factory, 443));		
+	}
+
+	public static String readResponse(HttpEntity entity) throws IOException {
+//		if (entity == null || entity.getContent() == null || entity.getContentLength() == 0)
+//			return null;
+//		
+//		StringBuilder sb = new StringBuilder();
+//		
+//		Scanner sc = new Scanner(entity.getContent());
+//		while (sc.hasNext()) {
+//			sb.append(sc.nextLine());
+//			sb.append(System.getProperty("line.separator"));
+//		}
+//		sc.close();
+//		
+		return EntityUtils.toString(entity, HTTP.UTF_8);
 	}
 	
 }

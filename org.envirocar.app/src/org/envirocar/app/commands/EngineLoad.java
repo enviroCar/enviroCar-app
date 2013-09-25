@@ -21,6 +21,8 @@
 
 package org.envirocar.app.commands;
 
+import org.envirocar.app.commands.PIDUtil.PID;
+
 /**
  * EngineLoad Value on PID 01 04
  * 
@@ -35,7 +37,7 @@ public class EngineLoad extends NumberResultCommand {
 	 * Create the Command
 	 */
 	public EngineLoad() {
-		super("01 04");
+		super("01 ".concat(PID.CALCULATED_ENGINE_LOAD.toString()));
 	}
 
 	@Override

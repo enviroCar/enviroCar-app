@@ -93,7 +93,7 @@ public abstract class AbstractAsynchronousConnector implements OBDConnector {
 				return responseThread.pullAvailableCommands();
 			}
 			else {
-				throw new ConnectionLostException();
+				throw new ConnectionLostException("ResponseThread has been shutdown");
 			}
 		}
 		return Collections.emptyList();

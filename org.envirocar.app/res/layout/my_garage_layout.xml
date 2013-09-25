@@ -3,6 +3,7 @@
     android:id="@+id/mygaragelayout"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:background="@color/abs__background_holo_light"
     tools:context=".MyGarage" 
         android:descendantFocusability="beforeDescendants"
 		android:focusableInTouchMode="true">

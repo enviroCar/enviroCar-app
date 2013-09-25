@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <string name="app_name">enviroCar</string>
     <string name="menu_settings">Einstellungen</string>
@@ -90,7 +90,7 @@
 	<string name="yes">Ja</string>
 	<string name="deleteRemoteTrackQuestion">Soll die Fahrt auf dem Server gelöscht werden?</string>
     <string name="no_sensor_selected">Kein Auto ausgewählt.</string>
-    <string name="title_create_new_sensor">&#8230;oder erstelle ein neues Auto:</string>
+    <string name="title_create_new_sensor">&#8230; oder erstelle ein neues Auto:</string>
     <string name="title_select_sensor">Wähle ein bestehendes Auto,</string>
 	<string name="upload_notification">Versuche lokale Tracks hochzuladen.</string>
     <string name="upload_notification_success">Lokale Tracks wurden erfolgreich hochgeladen.</string>
@@ -134,7 +134,7 @@
     
     <string name="imperial_unit">Imperiale Maßeinheiten?</string>
     <string name="shareTrack">Fahrt als JSON-Datei teilen</string>
-    <string name="garage_not_signed_in">&#8230;oder <b>einloggen</b>um Auto zu erstellen:</string>
+    <string name="garage_not_signed_in">&#8230; oder <b>einloggen</b>um Auto zu erstellen:</string>
     <string name="error_json">Interner Fehler beim JSON generieren.</string>
 	<string name="privacy">Position verbergen?</string>
 	
@@ -156,4 +156,47 @@
     
     <string name="track_obfuscation_on">Nur Messungen, die ab einer Entfernung von 250 Metern zum Start/Ziel sowie eine Minute nach Beginn und vor Ende der Route stattfanden, hochladen.</string>
 	
+    <string name="action_send_log">Senden</string>
+    <string name="connection_state">Status</string>
+    
+    <string name="device_discovery_next_try">Geräte-Scan - %1$s:%2$s Minuten verbleibend</string>
+    <string name="device_discovery_pending">Geräte-Scan - Warten&#8230;</string>
+    
+    <string name="finish_track">Track beenden?</string>
+    <string name="finish_track_long">Wollen Sie wirklich diesen Track abschließen?</string>
+    
+    <string name="menu_cancel">Abbrechen</string>
+    <string name="menu_send_log">Problem Melden</string>
+    
+    <string name="send_log_0">Mit Hilfe dieses Features lassen sich Fehler und Missverhalten der App reproduzieren.
+	    Wenn Sie ein Problem-Bericht einsenden, helfen sie aktiv mit, die enviroCar app zu verbessern.</string>
+	<string name="send_log_1">Dieses Feature nutzt den \"Senden an\" Mechanismus.
+	    Dies ermöglicht beispielsweise das einsenden des Berichts mit Ihrem Email-Client. Falls Ihr Gerät über
+	    keine Email-Client verfügt, können Sie den Bericht manuell von Ihrem Gerät laden, z.B per Bluetooth oder USB.
+	    In diesem Fall begrüßen wir eine manuelle Übermittlung des Fehlerberichts per Email. Der Bericht ist an folgender Stelle abgelegt:</string>
+	<string name="send_log_when_label" tools:ignore="Typos">Ungefähre Anzahl Minuten seit dem Problem:</string>
+	<string name="send_log_comments_label">(Kommentar)</string>
+	<string name="send_log_time_past_hint">(vergangene Zeit seit Problem)</string>
+	
+	<string name="menu_starting">Starte</string>
+	
+	<string name="prompt_car_engineDisplacement">Hubraum (ccm)</string>
+	
+	<string name="track_mode_single">Einzelner Track</string>
+    <string name="track_mode_auto">Automatische Track-Erstellung</string>
+    <string name="question_track_mode">Möchten Sie einen einzelnen Track aufnehmen oder die automatische Track-Erstellung aktivieren?</string>
+    
+    <string name="stop_automatic_mode">Automatische Track-Erstellung beenden?</string>
+    <string name="stop_automatic_mode_long">Möchten Sie die automatische Track-Erstellung beenden? Dies wird
+        den aktuellen Track abschließen.</string>
+    
+    <string name="track_finished">Track abgeschlossen: </string>
+    <string name="track_finishing_failed">Abschließen des Tracks fehlgeschlagen</string>
+    <string name="track_finished_no_measurements">Der abzuschließende Track enthielt keine Messungen</string>
+    
+    <string name="start_connection">Starte Verbindung zum Gerät</string>
+	<string name="stop_connection">Stoppe Verbindung zum Gerät</string>
+	
+	<string name="connection_lost_info">Verbindung verloren. Versuche erneut&#8230;</string>
+    
 </resources>

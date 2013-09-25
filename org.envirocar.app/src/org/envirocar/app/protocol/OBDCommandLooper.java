@@ -24,7 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.envirocar.app.application.Listener;
 import org.envirocar.app.commands.CommonCommand;
@@ -59,8 +62,14 @@ import android.os.Looper;
  */
 public class OBDCommandLooper extends HandlerThread {
 
+	private enum Phase {
+		INITIALIZATION,
+		COMMAND_EXECUTION
+	}
+	
 	private static final Logger logger = Logger.getLogger(OBDCommandLooper.class);
 	protected static final long ADAPTER_TRY_PERIOD = 5000;
+	private static final Integer MAX_PHASE_COUNT = 2;
 	
 	private List<OBDConnector> adapterCandidates = new ArrayList<OBDConnector>();
 	private OBDConnector obdAdapter;
@@ -75,6 +84,7 @@ public class OBDCommandLooper extends HandlerThread {
 	private int adapterIndex;
 	private ConnectionListener connectionListener;
 	private String deviceName;
+	private Map<Phase, AtomicInteger> phaseCountMap = new HashMap<Phase, AtomicInteger>();
 	
 	private Runnable commonCommandsRunnable = new Runnable() {
 		public void run() {
@@ -163,7 +173,6 @@ public class OBDCommandLooper extends HandlerThread {
 
 	};
 
-
 	/**
 	 * same as OBDCommandLooper#OBDCommandLooper(InputStream, OutputStream, Object, Listener, ConnectionListener, int) with NORM_PRIORITY
 	 * @param outputMutex 
@@ -204,12 +213,9 @@ public class OBDCommandLooper extends HandlerThread {
 		this.connectionListener = cl;
 		
 		this.deviceName = deviceName;
-		
-		adapterCandidates.add(new ELM327Connector());
-		adapterCandidates.add(new AposW3Connector());
-		adapterCandidates.add(new OBDLinkMXConnector());
-		adapterCandidates.add(new DriveDeckSportConnector());
-		
+	
+		this.phaseCountMap.put(Phase.INITIALIZATION, new AtomicInteger());
+		this.phaseCountMap.put(Phase.COMMAND_EXECUTION, new AtomicInteger());
 	}
 	
 	private void determinePreferredAdapter(String deviceName) {
@@ -256,8 +262,8 @@ public class OBDCommandLooper extends HandlerThread {
 		try {
 			cmds = this.obdAdapter.executeRequestCommands();
 		} catch (ConnectionLostException e) {
-			connectionListener.onConnectionException(new IOException(e));
-			running = false;
+			switchPhase(Phase.INITIALIZATION, new IOException(e));
+			
 			return;
 		} catch (AdapterFailedException e) {
 			logger.severe("This should never happen!", e);
@@ -273,16 +279,54 @@ public class OBDCommandLooper extends HandlerThread {
 	}
 
 	
+	private void switchPhase(Phase phase, IOException reason) {
+		logger.info("Switching to Phase: " +phase + (reason != null ? " / Reason: "+reason.getMessage() : ""));
+		
+		int phaseCount = phaseCountMap.get(phase).incrementAndGet();
+		
+		commandExecutionHandler.removeCallbacks(initializationCommandsRunnable);
+		commandExecutionHandler.removeCallbacks(commonCommandsRunnable);
+		
+		if (phaseCount >= MAX_PHASE_COUNT) {
+			logger.warn("Too often in phase "+phaseCount);
+			connectionListener.requestConnectionRetry(reason);
+			
+			running = false;
+			return;
+		}
+		
+		switch (phase) {
+		case INITIALIZATION:
+			connectionEstablished = false;
+			obdAdapter = null;
+			
+			adapterCandidates.clear();
+			adapterCandidates.add(new ELM327Connector());
+			adapterCandidates.add(new AposW3Connector());
+			adapterCandidates.add(new OBDLinkMXConnector());
+			adapterCandidates.add(new DriveDeckSportConnector());
+			
+			commandExecutionHandler.post(initializationCommandsRunnable);
+			break;
+		case COMMAND_EXECUTION:
+			this.connectionEstablished = true;
+			this.connectionListener.onConnectionVerified();
+			commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
+			break;
+		default:
+			break;
+		}
+	}
+
+
 	private void connectionEstablished() {
 		logger.info("OBD Adapter " + this.obdAdapter.getClass().getName() +
 				" verified the responses. Connection Established!");
-		this.connectionEstablished = true;
-		this.connectionListener.onConnectionVerified();
-		
+
 		/*
 		 * switch to common command execution phase
 		 */
-		commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
+		switchPhase(Phase.COMMAND_EXECUTION, null);
 	}
 
 
@@ -319,7 +363,7 @@ public class OBDCommandLooper extends HandlerThread {
 	public void run() {
 		Looper.prepare();
 		commandExecutionHandler = new Handler();
-		commandExecutionHandler.post(initializationCommandsRunnable);
+		switchPhase(Phase.INITIALIZATION, null);
 		try {
 			Looper.loop();
 		} catch (LooperStoppedException e) {

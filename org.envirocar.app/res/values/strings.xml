@@ -76,7 +76,7 @@
     <string name="track_mode_auto">Automatic Track Creation</string>
     <string name="question_track_mode">Do you want to record a single track or start automatic creation?</string>
     <string name="device_discovery_next_try">Device Discovery - %1$s:%2$s minutes until next try</string>
-    <string name="device_discovery_pending">Device Discovery - Pending...</string>
+    <string name="device_discovery_pending">Device Discovery - Pending&#8230;</string>
     <string name="track_finished">Track Finished: </string>
     <string name="track_finishing_failed">Finishing the Track failed</string>
     <string name="track_finished_no_measurements">The created track did not contain any measurements</string>
@@ -114,7 +114,7 @@
 	<string name="upload_notification">Attempting to upload local tracks.</string>
 	<string name="upload_notification_success">Successfully uploaded local tracks.</string>
 	<string name="no_sensor_selected">No Car selected</string>
-	<string name="title_create_new_sensor">&#8230;or create a new car:</string>
+	<string name="title_create_new_sensor">&#8230; or create a new car:</string>
 	<string name="startMap">View in map</string>
 	<string name="title_select_sensor">Select an existing car,</string>
 	<string name="please_select">&#8230;</string>
@@ -143,7 +143,7 @@
 	
 	<string name="envirocar.org">http://www.envirocar.org</string>
 	
-	<string name="garage_not_signed_in">&#8230;or <b>sign in</b> to create a new car:</string>
+	<string name="garage_not_signed_in">&#8230; or <b>sign in</b> to create a new car:</string>
 	<string name="imperial_unit">Imperial units?</string>
 	<string name="privacy">Obfuscate positions?</string>
 	<string name="shareTrack">Share Track as JSON file</string>
@@ -180,5 +180,7 @@
 	    the OBD-II adapter. You could try to unplug and plug the adapter, then restart measurements.</string>
 	<string name="title_activity_troubleshooting">Troubleshooting</string>
 	<string name="connection_state">State</string>
+	
+	<string name="connection_lost_info">Connection lost. Reconnecting&#8230;</string>
 	
 </resources>

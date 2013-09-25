@@ -23,11 +23,13 @@ package org.envirocar.app.protocol.drivedeck;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.IntakePressure;
 import org.envirocar.app.commands.IntakeTemperature;
 import org.envirocar.app.commands.MAF;
+import org.envirocar.app.commands.PIDSupported;
 import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.commands.Speed;
@@ -77,8 +79,38 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		logger.info("Discovered CUs... ");
 	}
 
-	private void processSupportedPID(String substring) {
-		logger.info("Supported PIDs...");
+	private void processSupportedPID(byte[] bytes, int start, int count) {
+		String group = new String(bytes, start+7, 2);
+		
+		if (group.equals("00")) {
+			/*
+			 * this is the first group containing the PIDs of major interest
+			 */
+			PIDSupported pidCmd = new PIDSupported();
+			byte[] rawBytes = new byte[12];
+			rawBytes[0] = '4';
+			rawBytes[1] = '1';
+			rawBytes[2] = (byte) pidCmd.getResponseTypeID().charAt(0);
+			rawBytes[3] = (byte) pidCmd.getResponseTypeID().charAt(1);
+			int target = 4;
+			String hexTmp;
+			for (int i = 10; i < 15; i++) {
+				if (i == 12) continue;
+				hexTmp = oneByteToHex(bytes[i]);
+				rawBytes[target++] = (byte) hexTmp.charAt(0);
+				rawBytes[target++] = (byte) hexTmp.charAt(1);
+			}
+			
+			pidCmd.setRawData(rawBytes);
+			pidCmd.parseRawData();
+			logger.info(pidCmd.getSupportedPIDs().toArray().toString());
+		}
+	}
+
+	private String oneByteToHex(byte b) {
+		String result = Integer.toString(b, 16).toUpperCase(Locale.US);
+		if (result.length() == 1) result = "0".concat(result);
+		return result;
 	}
 
 	private void processVIN(String vinInt) {
@@ -261,7 +293,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 					processVIN(new String(bytes, start+3, count-3));
 				}
 				else if (pid.equals("70")) {
-					processSupportedPID(new String(bytes, start+3, count-3));
+					processSupportedPID(bytes, start, count);
 				}
 				else if (pid.equals("71")) {
 					processDiscoveredControlUnits(new String(bytes, start+3, count-3));
