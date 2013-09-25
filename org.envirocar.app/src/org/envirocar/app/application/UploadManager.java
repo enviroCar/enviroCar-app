@@ -35,6 +35,7 @@ import java.util.TimeZone;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.envirocar.app.R;
@@ -66,14 +67,22 @@ import android.text.TextUtils;
  */
 public class UploadManager {
 
-	private static Logger logger = Logger.getLogger(UploadManager.class);
-	
+	public static final String NET_ERROR = "net_error";
+	public static final String GENERAL_ERROR = "-1";
 
+	private static Logger logger = Logger.getLogger(UploadManager.class);
+	private static DateFormat iso8601Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+	
+	static {
+		iso8601Format.setTimeZone(TimeZone.getTimeZone("UTC"));
+	}
+	
 	private String url = ECApplication.BASE_URL + "/users/%1$s/tracks";
 
 	private DbAdapter dbAdapter;
 	private Context context;
-	
+
+
 	/**
 	 * Normal constructor for this manager. Specify the context and the dbadapter.
 	 * @param dbAdapter The dbadapter (most likely the local one)
@@ -124,14 +133,17 @@ public class UploadManager {
 				savetoSdCard(trackJSONObject,track.getId());
 				//upload
 				String httpResult = sendHttpPost(urlL, trackJSONObject, token, username);
-				if (httpResult.equals("net_error")){
+				if (httpResult.equals(NET_ERROR)){
 					((ECApplication) context).createNotification(context.getResources().getString(R.string.error_host_not_found));
-				} else if (!httpResult.equals("-1")) {
+				} else if (httpResult.equals(GENERAL_ERROR)) {
+					((ECApplication) context).createNotification("General Track error. Please contact envirocar.org");
+				} else {
+					/*
+					 * success, we got an ID
+					 */
 					((ECApplication) context).createNotification("success");
 					track.setRemoteID(httpResult);
 					dbAdapter.updateTrack(track);
-				} else {
-					((ECApplication) context).createNotification("General Track error. Please contact envirocar.org");
 				}
 			}		
 			
@@ -209,12 +221,10 @@ public class UploadManager {
 		}
 
 		String measurementElementsJson = TextUtils.join(",", measurementElements);
-		logger.debug("measurementElem "+measurementElementsJson);
 		String closingElementJson = "]}";
 
 		String trackString = String.format("%s %s %s", trackElementJson,
 				measurementElementsJson, closingElementJson);
-		logger.debug("Track "+trackString);
 
 		return new JSONObject(trackString);
 	}
@@ -222,18 +232,21 @@ public class UploadManager {
 	private String createMeasurementJson(Track track, String trackSensorName, Measurement measurement) {
 		String lat = String.valueOf(measurement.getLatitude());
 		String lon = String.valueOf(measurement.getLongitude());
-		DateFormat dateFormat1 = new SimpleDateFormat("y-MM-d", Locale.ENGLISH);
-		DateFormat dateFormat2 = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
-		dateFormat1.setTimeZone(TimeZone.getTimeZone("UTC"));
-		dateFormat2.setTimeZone(TimeZone.getTimeZone("UTC"));
-		String time = dateFormat1.format(measurement.getTime()) + "T" + dateFormat2.format(measurement.getTime()) + "Z";
+		
+		String time = iso8601Format.format(measurement.getTime());
+		
 		StringBuilder phenoms = new StringBuilder();
 		
 		Set<PropertyKey> properties = track.getAllOccurringProperties();
 		for (PropertyKey key : properties) {
 			Double value = measurement.getProperty(key);
-			String propertyJson = String.format("\"%s\":{\"value\":%s},", key.toString(), value != null ? value.toString() : Measurement.NA_VALUE);
-			phenoms.append(propertyJson);
+			phenoms.append("\"");
+			phenoms.append(key.toString());
+			phenoms.append("\":{\"value\":");
+			phenoms.append(value != null ? value.toString() : Measurement.NA_VALUE);
+			phenoms.append("},");
+//			String propertyJson = String.format("\"%s\":{\"value\":%s},", key.toString(), value != null ? value.toString() : Measurement.NA_VALUE);
+//			phenoms.append(propertyJson);
 		}
 		// remove last comma
 		String phenomsJson = phenoms.length() > 0 ? phenoms.substring(0, phenoms.length() - 1) : ""; 
@@ -264,7 +277,6 @@ public class UploadManager {
 
 			StringEntity se = new StringEntity(jsonObjSend.toString());
 			se.setContentType("application/json");
-			logger.debug("SE"+ jsonObjSend.toString());
 
 			// Set HTTP parameters
 			httpPostRequest.setEntity(se);
@@ -287,25 +299,26 @@ public class UploadManager {
 			String trackid = location.substring(location.lastIndexOf("/")+1, location.length());
 
 
-			String statusCode = String.valueOf(response.getStatusLine()
-					.getStatusCode());
+			int statusCode = response.getStatusLine()
+					.getStatusCode();
 			
-			HTTPClient.consumeEntity(response.getEntity());
+			logger.debug("Status Code: "+ statusCode);
 
-			logger.debug(statusCode);
-
-			if(statusCode.equals("201")){
+			if (statusCode < HttpStatus.SC_MULTIPLE_CHOICES){
+				HTTPClient.consumeEntity(response.getEntity());
 				return trackid;
 			} else {
-				return "-1";
+				String errorResponse = HTTPClient.readResponse(response.getEntity());
+				logger.warn("Server response: "+ errorResponse);
+				return GENERAL_ERROR;
 			}
 
 		} catch (UnsupportedEncodingException e) {
 			logger.warn(e.getMessage(), e);
-			return "-1";
+			return GENERAL_ERROR;
 		} catch (IOException e) {
 			logger.warn(e.getMessage(), e);
-			return "net_error";
+			return NET_ERROR;
 		}
 	}
 

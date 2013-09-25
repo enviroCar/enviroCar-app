@@ -21,6 +21,8 @@
 
 package org.envirocar.app.commands;
 
+import org.envirocar.app.commands.PIDUtil.PID;
+
 /**
  * Engine RPM on PID 01 0C
  * 
@@ -33,7 +35,7 @@ public class RPM extends NumberResultCommand {
 	private int rpm = Short.MIN_VALUE;
 
 	public RPM() {
-		super("01 0C");
+		super("01 ".concat(PID.RPM.toString()));
 	}
 
 

@@ -54,4 +54,10 @@ public interface ConnectionListener {
 	 */
 	public void onStatusUpdate(String message);
 
+	/**
+	 * called when the underlying adpater wants to re-establish the connection
+	 * @param reason 
+	 */
+	public void requestConnectionRetry(IOException reason);
+
 }

@@ -35,7 +35,7 @@ import org.envirocar.app.exception.LocationInvalidException;
 
 public class Measurement {
 	
-	public static final String NA_VALUE = "null";
+	public static final String NA_VALUE = "\"null\"";
 
 	// All measurement values
 	public enum PropertyKey {

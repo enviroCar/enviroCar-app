@@ -33,9 +33,14 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.envirocar.app.commands.CommonCommand;
+import org.envirocar.app.commands.EngineLoad;
 import org.envirocar.app.commands.IntakePressure;
 import org.envirocar.app.commands.IntakeTemperature;
 import org.envirocar.app.commands.MAF;
+import org.envirocar.app.commands.PIDSupported;
+import org.envirocar.app.commands.PIDUtil;
+import org.envirocar.app.commands.TPS;
+import org.envirocar.app.commands.PIDUtil.PID;
 import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.Speed;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
@@ -56,10 +61,9 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private static final Logger logger = Logger.getLogger(AbstractSequentialConnector.class.getName());
 	private static final int SLEEP_TIME = 25;
 	private static final int MAX_SLEEP_TIME = 5000;
-	private static final CharSequence SEARCHING = "SEARCHING";
-	private static final CharSequence STOPPED = "STOPPED";
 	private static final int MAX_INVALID_RESPONSE_COUNT = 5;
 	private static final int MIN_BACKLIST_COUNT = 5;
+	private static final int MAX_SEARCHING_COUNT_IN_A_ROW = 10;
 	private InputStream inputStream;
 	private OutputStream outputStream;
 	private boolean connectionEstablished;
@@ -67,6 +71,9 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private int invalidResponseCount;
 	private Map<String, AtomicInteger> blacklistCandidates = new HashMap<String, AtomicInteger>();
 	private Set<String> blacklistedCommandNames = new HashSet<String>();
+	private int searchingCountInARow;
+	private Set<PID> supportedPIDs;
+	private List<CommonCommand> requestCommands;
 	
 	/**
 	 * @return the list of initialization commands for the adapter
@@ -88,6 +95,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	@Override
 	public abstract ConnectionState connectionState();
 
+	
 	@Override
 	public void provideStreamObjects(InputStream inputStream,
 			OutputStream outputStream) {
@@ -96,26 +104,62 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	}
 	
 	protected List<CommonCommand> getRequestCommands() {
-		List<CommonCommand> result = new ArrayList<CommonCommand>();
-		result.add(new Speed());
-		result.add(new MAF());
-		result.add(new RPM());
-		result.add(new IntakePressure());
-		result.add(new IntakeTemperature());
-		return result;
+		if (requestCommands == null) {
+			requestCommands = new ArrayList<CommonCommand>();
+			requestCommands.add(new Speed());
+			requestCommands.add(new MAF());
+			requestCommands.add(new RPM());
+			requestCommands.add(new IntakePressure());
+			requestCommands.add(new IntakeTemperature());
+			requestCommands.add(new EngineLoad());
+			requestCommands.add(new TPS());
+		}
+		
+		return requestCommands;
+	}
+
+	private void onInitializationCommand(CommonCommand cmd) {
+		if (cmd instanceof PIDSupported) {
+			this.supportedPIDs = ((PIDSupported) cmd).getSupportedPIDs();
+			prepareRequestCommands();
+		}
 	}
 	
+	private void prepareRequestCommands() {
+		if (supportedPIDs != null && supportedPIDs.size() != 0) {
+			this.requestCommands = new ArrayList<CommonCommand>();
+			for (PID pid : supportedPIDs) {
+				CommonCommand cmd = PIDUtil.instantiateCommand(pid);
+				if (cmd != null) {
+					this.requestCommands.add(cmd);
+				}
+			}
+		}
+	}
+
 	private void runCommand(CommonCommand cmd)
 			throws IOException {
 		logger.debug("Sending command " +cmd.getCommandName()+ " / "+ new String(cmd.getOutgoingBytes()));
-		sendCommand(cmd);
+		
+		try {
+			sendCommand(cmd);	
+		} catch (RuntimeException e) {
+			logger.warn("Error while sending command '" + cmd.toString() + "': "+e.getMessage(), e);
+			cmd.setCommandState(CommonCommandState.EXECUTION_ERROR);
+			return;
+		}
 		
 		if (!cmd.awaitsResults()) return; 
 		
 		// waiting with InputStream#available() does not work on all devices (and cars?!)
 //		waitForResult(cmd);
 		
-		readResult(cmd);	
+		try {
+			readResult(cmd);	
+		} catch (RuntimeException e) {
+			logger.warn("Error while sending command '" + cmd.toString() + "': "+e.getMessage(), e);
+			cmd.setCommandState(CommonCommandState.EXECUTION_ERROR);
+		}
 	}
 	
 	private void onBlacklistCandidate(CommonCommand cmd) {
@@ -196,13 +240,6 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 		cmd.setRawData(rawData);
 		cmd.setResultTime(System.currentTimeMillis());
 
-		String dataString = new String(rawData);
-
-		if (isSearching(dataString) || isNoDataCommand(dataString)) {
-			cmd.setCommandState(CommonCommandState.SEARCHING);
-			return;
-		}
-		
 		// read string each two chars
 		cmd.parseRawData();
 	}
@@ -225,14 +262,6 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	}
 
 
-	private boolean isSearching(String dataString) {
-		return dataString.contains(SEARCHING) || dataString.contains(STOPPED);
-	}
-	
-	private boolean isNoDataCommand(String dataString) {
-		return "NODATA".equals(dataString);
-	}
-
 	public int getMaxTimeout() {
 		return MAX_SLEEP_TIME;
 	}
@@ -247,6 +276,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 		
 		try {
 			executeCommands(cmds);
+			executeCommand(new PIDSupported());
 		} catch (UnmatchedCommandResponseException e) {
 			logger.warn("This should never happen!", e);
 		} catch (ConnectionLostException e) {
@@ -316,55 +346,55 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 			} else {
 				throw e;
 			}
-			
-			
-		} catch (Exception e) {
-			logger.warn("Error while sending command '" + cmd.toString() + "': "+e.getMessage(), e);
-			cmd.setCommandState(CommonCommandState.EXECUTION_ERROR);
 		}
-
-		// Finished if no more job is in the waiting-list
 
 		if (cmd != null) {
 			if (!cmd.awaitsResults()) return;
 			
-			if (cmd.getCommandState() == CommonCommandState.EXECUTION_ERROR) {
+			switch (cmd.getCommandState()) {
+			case FINISHED:
+				if (!connectionEstablished) {
+					onInitializationCommand(cmd);
+					if (connectionState() == ConnectionState.CONNECTED) {
+						connectionEstablished = true;
+					}
+				}
+				else {
+					if (staleConnection) {
+						staleConnection = false;
+						invalidResponseCount = 0;
+						searchingCountInARow = 0;
+					}
+				}
+				break;
+			case EXECUTION_ERROR:
 				logger.debug("Execution Error for" +cmd.getCommandName() +" / "+new String(cmd.getOutgoingBytes()));
 				this.onBlacklistCandidate(cmd);
-				return;
-			}
-			
-			else if (cmd.getCommandState() == CommonCommandState.UNMATCHED_RESULT) {
+				break;
+				
+			case SEARCHING:
+				logger.info("Adapter searching. Continuing. Response was: "+new String(cmd.getRawData()));
+				staleConnection = true;
+				
+				if (searchingCountInARow++ > MAX_SEARCHING_COUNT_IN_A_ROW) {
+					throw new ConnectionLostException("Adapter is SEARCHING mode for too long.");
+				}
+				
+				break;
+			case UNMATCHED_RESULT:
 				logger.warn("Did not receive the expected result! Expected: "+cmd.getResponseTypeID());
 				
 				if (staleConnection && invalidResponseCount++ > MAX_INVALID_RESPONSE_COUNT) {
-					throw new ConnectionLostException();
+					throw new ConnectionLostException("Received too many unmatched responses.");
 				}
 				else {
 					staleConnection = true;
 					throw new UnmatchedCommandResponseException();	
 				}
-				
+			default:
+				break;
 			}
 			
-			else if (cmd.getCommandState() == CommonCommandState.SEARCHING) {
-				logger.info("Adapter still searching. Waiting a bit. Continuing.");
-				return;
-			}
-			
-			if (!connectionEstablished && !isNoDataCommand(new String(cmd.getRawData()))) {
-				processInitializationCommand(cmd);
-				if (connectionState() == ConnectionState.CONNECTED) {
-					connectionEstablished = true;
-				}
-			}
-			else {
-				cmd.setCommandState(CommonCommandState.FINISHED);
-				if (staleConnection) {
-					staleConnection = false;
-					invalidResponseCount = 0;
-				}
-			}
 		}
 		
 	}

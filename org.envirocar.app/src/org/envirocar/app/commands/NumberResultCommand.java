@@ -22,7 +22,10 @@ package org.envirocar.app.commands;
 
 public abstract class NumberResultCommand extends CommonCommand {
 
-	private static final String STATUS_OK = "41";
+	private static final CharSequence SEARCHING = "SEARCHING";
+	private static final CharSequence STOPPED = "STOPPED";
+	
+	static final String STATUS_OK = "41";
 	private int[] buffr;
 	
 	public NumberResultCommand(String command) {
@@ -35,6 +38,14 @@ public abstract class NumberResultCommand extends CommonCommand {
 		int index = 0;
 		int length = 2;
 		byte[] data = getRawData();
+		
+		String dataString = new String(data);
+
+		if (isSearching(dataString) || isNoDataCommand(dataString)) {
+			setCommandState(CommonCommandState.SEARCHING);
+			return;
+		}
+		
 		buffr = new int[data.length / 2];
 		while (index + length <= data.length) {
 			String tmp = new String(data, index, length);
@@ -72,6 +83,14 @@ public abstract class NumberResultCommand extends CommonCommand {
 
 	public int[] getBuffer() {
 		return buffr;
+	}
+	
+	private boolean isSearching(String dataString) {
+		return dataString.contains(SEARCHING) || dataString.contains(STOPPED);
+	}
+	
+	private boolean isNoDataCommand(String dataString) {
+		return "NODATA".equals(dataString);
 	}
 	
 }

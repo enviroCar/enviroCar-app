@@ -66,7 +66,7 @@ public class LocalFileHandler implements Handler {
 	
 	private java.util.logging.Logger logger;
 
-	public LocalFileHandler() throws Exception {
+	public LocalFileHandler() throws IOException {
 		this.logger = java.util.logging.Logger.getLogger("org.envirocar.app");
 		String finalPath = ensureFileIsAvailable();
 		this.logger.setLevel(Level.ALL);

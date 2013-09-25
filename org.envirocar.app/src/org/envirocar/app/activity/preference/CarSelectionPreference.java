@@ -323,9 +323,12 @@ public class CarSelectionPreference extends DialogPreference {
 			@Override
 			public void onFailure(Throwable error, String content) {
 				super.onFailure(error, content);
-				if(content.equals("can't resolve host") ){
+				if (content != null && content.equals("can't resolve host") ){
 					Toast.makeText(getContext(),
 							getContext().getString(R.string.error_host_not_found), Toast.LENGTH_SHORT).show();
+				} else {
+					logger.warn("Received error response: "+ content +"; "+error.getMessage(), error);
+					Toast.makeText(getContext(), "Server Error: "+content, Toast.LENGTH_SHORT).show();
 				}
 				showProgress(false);
 			}
