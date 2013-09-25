@@ -106,5 +106,9 @@ public class FuelSystemStatus extends CommonCommand {
 	public String getCommandName() {
 		return NAME;
 	}
+	
+	public int getStatus() {
+		return setBit;
+	}
 
 }

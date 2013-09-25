@@ -198,5 +198,6 @@
 	<string name="stop_connection">Stoppe Verbindung zum Gerät</string>
 	
 	<string name="connection_lost_info">Verbindung verloren. Versuche erneut&#8230;</string>
+	<string name="general_error_please_report">Programmfehler - Bitte melden Sie das Problem</string>
     
 </resources>

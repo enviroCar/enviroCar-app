@@ -21,12 +21,15 @@
 package org.envirocar.app.application;
 
 import org.envirocar.app.commands.CommonCommand;
+import org.envirocar.app.commands.EngineLoad;
+import org.envirocar.app.commands.FuelSystemStatus;
 import org.envirocar.app.commands.IntakePressure;
 import org.envirocar.app.commands.IntakeTemperature;
 import org.envirocar.app.commands.MAF;
 import org.envirocar.app.commands.NumberResultCommand;
 import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.Speed;
+import org.envirocar.app.commands.TPS;
 import org.envirocar.app.event.EventBus;
 import org.envirocar.app.event.IntakePressureEvent;
 import org.envirocar.app.event.IntakeTemperatureEvent;
@@ -80,7 +83,6 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		
 		NumberResultCommand numberCommand = (NumberResultCommand) command;
 
-		String commandName = command.getCommandName();
 		if (isNoDataCommand(command))
 			return;
 
@@ -91,7 +93,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 		// Speed
 
-		if (commandName.equals(Speed.NAME)) {
+		if (command instanceof Speed) {
 
 			try {
 				Integer speedMeasurement = (Integer) numberCommand.getNumberResult();
@@ -105,7 +107,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		
 		//RPM
 		
-		else if (commandName.equals(RPM.NAME)) {
+		else if (command instanceof RPM) {
 			// TextView speedTextView = (TextView)
 			// findViewById(R.id.spd_text);
 			// speedTextView.setText(commandResult + " km/h");
@@ -122,7 +124,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 		//IntakePressure
 		
-		else if (commandName.equals(IntakePressure.NAME)) {
+		else if (command instanceof IntakePressure) {
 			// TextView speedTextView = (TextView)
 			// findViewById(R.id.spd_text);
 			// speedTextView.setText(commandResult + " km/h");
@@ -139,7 +141,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		
 		//IntakeTemperature
 		
-		else if (commandName.equals(IntakeTemperature.NAME)) {
+		else if (command instanceof IntakeTemperature) {
 			// TextView speedTextView = (TextView)
 			// findViewById(R.id.spd_text);
 			// speedTextView.setText(commandResult + " km/h");
@@ -154,12 +156,30 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 			}
 		}
 						
-		else if (commandName.equals(MAF.NAME)) {
+		else if (command instanceof MAF) {
 			float mafMeasurement = (Float) numberCommand.getNumberResult();
 			this.collector.newMAF(mafMeasurement);
 			logger.info("Processed MAF Response: "+mafMeasurement +" time: "+command.getResultTime());
 		}
 		
+		
+		else if (command instanceof TPS) {
+			int tps = (Integer) numberCommand.getNumberResult();
+			this.collector.newTPS(tps);
+			logger.info("Processed TPS Response: "+tps +" time: "+command.getResultTime());
+		}
+
+		else if (command instanceof EngineLoad) {
+			double load = (Float) numberCommand.getNumberResult();
+			this.collector.newEngineLoad(load);
+			logger.info("Processed EngineLoad Response: "+load +" time: "+command.getResultTime());
+		}
+		
+		else if (command instanceof FuelSystemStatus) {
+			boolean loop = ((FuelSystemStatus) command).isInClosedLoop();
+			int status = ((FuelSystemStatus) command).getStatus();
+			logger.info("Processed FuekSystemStatus Response: Closed? "+loop +" Status: "+ status +"; time: "+command.getResultTime());
+		}
 	}
 	
 
