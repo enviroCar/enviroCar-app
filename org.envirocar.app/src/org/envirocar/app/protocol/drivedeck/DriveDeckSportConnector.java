@@ -80,7 +80,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	}
 
 	private void processSupportedPID(byte[] bytes, int start, int count) {
-		String group = new String(bytes, start+7, 2);
+		String group = new String(bytes, start+6, 2);
 		
 		if (group.equals("00")) {
 			/*
@@ -94,9 +94,9 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 			rawBytes[3] = (byte) pidCmd.getResponseTypeID().charAt(1);
 			int target = 4;
 			String hexTmp;
-			for (int i = 10; i < 15; i++) {
-				if (i == 12) continue;
-				hexTmp = oneByteToHex(bytes[i]);
+			for (int i = 9; i < 14; i++) {
+				if (i == 11) continue;
+				hexTmp = oneByteToHex(bytes[i+start]);
 				rawBytes[target++] = (byte) hexTmp.charAt(0);
 				rawBytes[target++] = (byte) hexTmp.charAt(1);
 			}

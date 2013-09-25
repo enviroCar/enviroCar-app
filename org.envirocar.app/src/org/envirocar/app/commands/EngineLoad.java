@@ -48,7 +48,7 @@ public class EngineLoad extends NumberResultCommand {
 
 	@Override
 	public Number getNumberResult() {
-		if (value == Float.NaN) {
+		if (Float.isNaN(value)) {
 			int[] buffer = getBuffer();
 			value = (buffer[2] * 100.0f) / 255.0f;
 		}

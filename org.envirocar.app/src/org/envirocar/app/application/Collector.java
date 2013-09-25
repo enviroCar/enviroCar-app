@@ -26,6 +26,8 @@ import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_PRESSURE;
 import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_TEMPERATURE;
 import static org.envirocar.app.storage.Measurement.PropertyKey.MAF;
 import static org.envirocar.app.storage.Measurement.PropertyKey.SPEED;
+import static org.envirocar.app.storage.Measurement.PropertyKey.THROTTLE_POSITON;
+import static org.envirocar.app.storage.Measurement.PropertyKey.ENGINE_LOAD;
 
 import org.envirocar.app.event.CO2Event;
 import org.envirocar.app.event.ConsumptionEvent;
@@ -126,6 +128,14 @@ public class Collector {
 		this.measurement.setProperty(INTAKE_PRESSURE, Double.valueOf(p));
 		checkAndCreateCalculatedMAF();
 //		checkStateAndPush();
+	}
+	
+	public void newTPS(int tps) {
+		this.measurement.setProperty(THROTTLE_POSITON, Double.valueOf(tps));
+	}
+	
+	public void newEngineLoad(double load) {
+		this.measurement.setProperty(ENGINE_LOAD, load);
 	}
 	
 	/**

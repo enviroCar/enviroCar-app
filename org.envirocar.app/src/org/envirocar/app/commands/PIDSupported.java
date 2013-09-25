@@ -21,6 +21,7 @@
 
 package org.envirocar.app.commands;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -66,7 +67,10 @@ public class PIDSupported extends CommonCommand {
 						/*
 						 * we are starting at PID 01 and not 00
 						 */
-						pids.add(PIDUtil.fromString(createHex(i*4 + (3-bit) + 1)));
+						PID pid = PIDUtil.fromString(createHex(i*4 + (3-bit) + 1));
+						if (pid != null) {
+							pids.add(pid);
+						}
 					}
 				}
 				
@@ -88,6 +92,9 @@ public class PIDSupported extends CommonCommand {
 	public void parseRawData() {
 		int index = 0;
 		int length = 2;
+
+		preprocessRawData();
+		
 		byte[] data = getRawData();
 		
 		bytes = new byte[data.length-4];
@@ -130,6 +137,16 @@ public class PIDSupported extends CommonCommand {
 		}
 		
 		setCommandState(CommonCommandState.FINISHED);
+	}
+
+
+	private void preprocessRawData() {
+		byte[] data = getRawData();
+		String str = new String(data);
+		if (str.contains("4100")) {
+			int index = str.indexOf("4100");
+			setRawData(Arrays.copyOfRange(data, index, data.length));
+		}
 	}
 
 }
