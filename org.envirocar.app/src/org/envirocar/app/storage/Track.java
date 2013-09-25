@@ -24,8 +24,6 @@ package org.envirocar.app.storage;
 import static org.envirocar.app.storage.Measurement.PropertyKey.CONSUMPTION;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
@@ -34,7 +32,6 @@ import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.protocol.algorithm.AbstractConsumptionAlgorithm;
 import org.envirocar.app.protocol.algorithm.BasicConsumptionAlgorithm;
-import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.envirocar.app.views.Utils;
 
 /**
@@ -75,8 +72,6 @@ public class Track implements Comparable<Track> {
 	private String remoteID;
 	private Double consumptionPerHour;
 	private TrackStatus status = TrackStatus.ONGOING;
-
-	private HashSet<PropertyKey> occurringProperties;
 
 	private DbAdapter dbAdapter;
 
@@ -404,16 +399,4 @@ public class Track implements Comparable<Track> {
 		return status;
 	}
 	
-	public synchronized Set<PropertyKey> getAllOccurringProperties() {
-		if (occurringProperties == null) {
-			occurringProperties = new HashSet<PropertyKey>();
-			
-			for (Measurement m : getMeasurements()) {
-				occurringProperties.addAll(m.getAllProperties().keySet());
-			}
-		}
-		
-		return occurringProperties;
-	}
-
 }
