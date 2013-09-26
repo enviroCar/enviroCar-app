@@ -63,7 +63,7 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 /**
- * Manager that can upload a track to the server. 
+ * Manager that can upload tracks and cars to the server. 
  * Use the uploadAllTracks function to upload all local tracks. 
  * Make sure that you specify the dbAdapter when instantiating.
  * The default constructor should only be used when there is no
@@ -94,40 +94,23 @@ public class UploadManager {
 	/**
 	 * This methods uploads all local tracks to the server
 	 */
-	public void uploadAllTracks() {
-		//check, whether a track has car with id lsi
-		//upload car, save id, update the car id of the track
-		//search other tracks, whether they have car with id lsi
-		//update the car id of the track with the saved one from above
-		//upload tracks
-		checkCarBeforeUpload(null);
-//		for (Track track : dbAdapter.getAllLocalTracks()) {
+	public void uploadAllTracks(){
+		for (Track track : dbAdapter.getAllLocalTracks()) {
+			if(isCarOfTrackSavedLocallyOnly(track)){
+				registerCarBeforeUpload(track);
+			}
 //			new UploadAsyncTask().execute(track);
-//		}
+		}
 	}
 	
 	public void uploadSingleTrack(Track track){
-		//same as above, update all tracks with local car id
-		//afterwards upload track
-		checkCarBeforeUpload(track);
+		if(isCarOfTrackSavedLocallyOnly(track)){
+			registerCarBeforeUpload(track);
+		}
 //		new UploadAsyncTask().execute(track);
 	}
 	
-	private void checkCarBeforeUpload(Track track){
-		
-		if(track == null){
-
-			for (Track tmpTrack : dbAdapter.getAllLocalTracks()) {
-				//check, whether track has car with id lsi
-				if(isCarOfTrackSavedLocallyOnly(tmpTrack)){					
-					track = tmpTrack;
-					break;
-				}
-			}
-			
-		}else if(!isCarOfTrackSavedLocallyOnly(track)){
-			return;
-		}
+	private void registerCarBeforeUpload(Track track){
 
 		Car car = track.getCar();
 		String sensorString = String
@@ -144,11 +127,6 @@ public class UploadManager {
 
 			DbAdapterImpl.instance().updateTrack(track);
 			
-			/*
-			 * we need to update all other local tracks with the local car id.
-			 */
-			updateTracksWithLocalCar(sensorIdFromServer);
-			
 		} catch (InterruptedException e) {
 			logger.warn(e.getMessage(), e);
 		} catch (ExecutionException e) {
@@ -157,24 +135,8 @@ public class UploadManager {
 
 	}
 	
-	private void updateTracksWithLocalCar(String sensorIdFromServer){
-		
-		for (Track tmpTrack : dbAdapter.getAllLocalTracks()) {
-			//check, whether track has car with id lsi
-			if(isCarOfTrackSavedLocallyOnly(tmpTrack)){
-				
-				Car car = tmpTrack.getCar();
-										
-				car.setId(sensorIdFromServer);
-				
-				DbAdapterImpl.instance().updateTrack(tmpTrack);
-			}
-		}
-		
-	}
-	
 	private boolean isCarOfTrackSavedLocallyOnly(Track track){		
-		return track.getCar().getId().equals(Car.LOCAL_SENSOR_ID);
+		return track.getCar().getId().startsWith(Car.TEMPORARY_SENSOR_ID);
 	}
 	
 	private String registerSensor(String sensorString) throws IOException{
@@ -198,6 +160,8 @@ public class UploadManager {
 		
 		StringEntity se = new StringEntity(sensorString);
 		se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+		
+		postRequest.setEntity(se);
 		
 		HttpResponse response = HTTPClient.execute(postRequest);
 		

@@ -28,7 +28,7 @@ package org.envirocar.app.model;
  */
 public class Car {
 
-	public static final String LOCAL_SENSOR_ID = "lsi";
+	public static final String TEMPORARY_SENSOR_ID = "%TMP_ID%";
 	
 	public enum FuelType {
 		GASOLINE {

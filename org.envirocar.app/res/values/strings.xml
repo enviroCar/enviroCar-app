@@ -107,6 +107,7 @@
 	<string name="noSdCard">"Map cannot be shown without SD card."</string>
 	<string name="hint_login_first">Please login first</string>
 	<string name="default_track_description">Track with Car %s.</string>
+	<string name="creating_temp_car">Creating temporary car.</string>
 	
 	<string name="open_drawer">Open</string>
 	<string name="close_drawer">Close</string>

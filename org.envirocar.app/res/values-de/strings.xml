@@ -100,6 +100,7 @@
     <string name="noSdCard">"Karte wird ohne SD-Karte nicht angezeigt."</string>
     <string name="hint_login_first">Bitte erst einloggen</string>
 	<string name="default_track_description">Fahrt mit Auto %s.</string>
+	<string name="creating_temp_car">Erzeuge temporäres Auto.</string>
     
     <string name="menu_login">Einloggen/Registrieren</string>
     <string name="gasoline">Benzin</string>

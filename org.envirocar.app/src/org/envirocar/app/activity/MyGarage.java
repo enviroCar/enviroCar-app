@@ -21,6 +21,8 @@
 
 package org.envirocar.app.activity;
 
+import java.util.UUID;
+
 import org.apache.http.Header;
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
@@ -97,8 +99,6 @@ public class MyGarage extends SherlockFragment {
 	private ProgressBar sensorDlProgress;
 	private Button sensorRetryButton;
 	
-	private String sensorId = Car.LOCAL_SENSOR_ID;
-	
 	private JSONArray sensors;
 	
 	@Override
@@ -161,16 +161,11 @@ public class MyGarage extends SherlockFragment {
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View view) {
-						if(UserManager.instance().isLoggedIn()){
-							if (carModel != null && carManufacturer != null
-									&& carConstructionYear != null
-									&& carFuelType != null) {
-								registerSensorAtServer(sensorType, carManufacturer,
-										carModel, carConstructionYear, carFuelType);
-							}
-						} else {
-							LoginFragment loginFragment = new LoginFragment();
-			                getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
+						if (carModel != null && carManufacturer != null
+								&& carConstructionYear != null
+								&& carFuelType != null) {
+							registerSensorAtServer(sensorType, carManufacturer,
+									carModel, carConstructionYear, carFuelType);
 						}
 					}
 				});
@@ -213,16 +208,6 @@ public class MyGarage extends SherlockFragment {
 				getSensors();
 			}
 		});
-		
-		if(!UserManager.instance().isLoggedIn()){
-			carManufacturerView.setEnabled(false);
-			carConstructionYearView.setEnabled(false);
-			carModelView.setEnabled(false);
-			rbGasoline.setEnabled(false);
-			rbDiesel.setEnabled(false);
-			((Button) view.findViewById(R.id.register_car_button)).setText(R.string.action_sign_in_short);
-			((TextView) view.findViewById(R.id.title_create_new_sensor)).setText(R.string.garage_not_signed_in);
-		}
 
 		getSensors();
 		
@@ -343,6 +328,14 @@ public class MyGarage extends SherlockFragment {
 										getResources().getString(
 												R.string.error_host_not_found),
 										Style.ALERT).show();
+							}else if(content.contains("Unauthorized")){
+								logger.info("Tried to register new car while not logged in. Creating temporary car.");
+								Crouton.makeText(
+										getActivity(),
+										getResources().getString(
+												R.string.creating_temp_car),
+										Style.INFO).show();
+								createTemporaryCar();
 							}
 							showProgress(false);
 						}
@@ -360,17 +353,21 @@ public class MyGarage extends SherlockFragment {
 							}
 							logger.info(httpStatusCode + " " + location);
 
-							sensorId = location.substring(
+							String sensorId = location.substring(
 									location.lastIndexOf("/") + 1,
 									location.length());
-							hide();
+							createNewCar(sensorId);
 						}
 					});
 		} else {
-			// use local id
-			createNewCar(sensorId);
+			createTemporaryCar();
 		}
 
+	}
+	
+	private void createTemporaryCar(){
+		String sensorId = Car.TEMPORARY_SENSOR_ID + UUID.randomUUID().toString().substring(0, 5);
+		createNewCar(sensorId);
 	}
 	
 	private void createNewCar(String sensorId){
@@ -384,6 +381,7 @@ public class MyGarage extends SherlockFragment {
 				engineDisplacement);
 		CarManager.instance().setCat(car);
 		// go back to the dashboard
+		hide();
 	}
 	
 	/**
