@@ -40,6 +40,8 @@ public class Car implements Serializable {
 	private static final String GASOLINE_STRING = "gasoline";
 	private static final String DIESEL_STRING = "diesel";
 
+	public static final String TEMPORARY_SENSOR_ID = "%TMP_ID%";
+	
 	public enum FuelType {
 		GASOLINE {
 		    public String toString() {
@@ -89,6 +91,10 @@ public class Car implements Serializable {
 
 	public String getId() {
 		return id;
+	}
+	
+	public void setId(String newID){
+		this.id = newID;
 	}
 
 	public int getConstructionYear() {

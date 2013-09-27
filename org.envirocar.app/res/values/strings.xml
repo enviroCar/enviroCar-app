@@ -59,6 +59,7 @@
     <string name="consumption">"Consumption: "</string>
     <string name="fuel_cost">"Estimated fuel cost: "</string>
     <string name="calculating">"Calculating&#8230;"</string>
+    <string name="euro_sign">"&#8364;"</string>
     <string name="error_calculating_fuel_costs">"Error during calculation."</string>
     <string name="title_activity_settings">Settings</string>
     <string name="currentSpeed">Current Speed</string>
@@ -121,6 +122,8 @@
 	<string name="trackContainsNoCoordinates">Track contains no coordinates.</string>
 	<string name="noSdCard">"Map cannot be shown without SD card."</string>
 	<string name="hint_login_first">Please login first</string>
+	<string name="default_track_description">Track with Car %s.</string>
+	<string name="creating_temp_car">Creating temporary car.</string>
 	
 	<string name="open_drawer">Open</string>
 	<string name="close_drawer">Close</string>
