@@ -97,7 +97,7 @@
     <string name="logged_in_as">Signed in as %1$s</string>
     <string name="editName">Edit Name</string>
     <string name="deleteTrack">Delete Track</string>
-    <string name="uploadTrack">Upload Track</string>
+    <string name="uploadTrack">Upload Track as Open Data</string>
 	<string name="dashboard_sensor_title">Current Car:</string>
 	<string name="retry">Retry</string>
 	<string name="description">Description:</string>
