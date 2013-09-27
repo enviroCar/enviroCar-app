@@ -21,20 +21,31 @@
 
 package org.envirocar.app.activity;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
 import org.envirocar.app.R;
 import org.envirocar.app.activity.StartStopButtonUtil.OnTrackModeChangeListener;
+import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.NavMenuItem;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
-import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
+import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.network.RestClient;
 import org.envirocar.app.storage.DbAdapterImpl;
+import org.envirocar.app.util.Util;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -45,6 +56,8 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -61,10 +74,12 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -287,6 +302,82 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 		preferences.registerOnSharedPreferenceChangeListener(settingsReceiver);
 		
+		if(isConnectedToInternet()){
+			getCarsFromServer();
+		}
+		
+	}
+	
+	private void getCarsFromServer() {
+		
+		RestClient.downloadSensors(new JsonHttpResponseHandler() {
+
+			@Override
+			public void onFailure(Throwable error, String content) {
+				super.onFailure(error, content);
+				Toast.makeText(
+						MainActivity.this,
+						MainActivity.this
+								.getString(R.string.error_host_not_found),
+						Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onSuccess(JSONObject response) {
+				super.onSuccess(response);
+
+				JSONArray res;
+				try {
+					res = response.getJSONArray("sensors");
+				} catch (JSONException e) {
+					logger.warn(e.getMessage(), e);
+					// TODO i18n
+					Toast.makeText(MainActivity.this,
+							"Could not retrieve cars from server",
+							Toast.LENGTH_SHORT).show();
+					return;
+				}
+
+				JSONArray cars = new JSONArray();
+
+				for (int i = 0; i < res.length(); i++) {
+					String typeString;
+					try {
+						typeString = ((JSONObject) res.get(i)).optString(
+								"type", "none");
+						if (typeString
+								.equals(CarSelectionPreference.SENSOR_TYPE)) {
+							cars.put(res.get(i));
+						}
+					} catch (JSONException e) {
+						logger.warn(e.getMessage(), e);
+						continue;
+					}
+
+				}
+				saveCarsToExternalStorage(cars);
+			}
+		});
+
+	}
+
+	private void saveCarsToExternalStorage(JSONArray cars) {
+
+		try {
+			File carCacheFile = Util
+					.createFileOnExternalStorage(CarManager.CAR_CACHE_FILE_NAME);
+
+			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(
+					carCacheFile));
+
+			bufferedWriter.write(cars.toString());
+
+			bufferedWriter.close();
+
+		} catch (IOException e) {
+			logger.warn(e.getMessage(), e);
+		}
+
 	}
 	
 	private void readSavedState(Bundle savedInstanceState) {
@@ -615,6 +706,16 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			e.putBoolean("pref_privacy", true);
 			e.commit();
 		}
+	}
+	
+	public boolean isConnectedToInternet() {
+	    ConnectivityManager cm =
+	        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+	        return true;
+	    }
+	    return false;
 	}
 
 }
