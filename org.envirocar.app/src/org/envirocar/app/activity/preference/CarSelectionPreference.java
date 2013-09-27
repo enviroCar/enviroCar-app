@@ -20,8 +20,11 @@
  */
 package org.envirocar.app.activity.preference;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -29,26 +32,33 @@ import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.envirocar.app.R;
+import org.envirocar.app.activity.SettingsActivity;
+import org.envirocar.app.application.CarManager;
+import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
+import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.network.RestClient;
+import org.envirocar.app.util.Util;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.JsonHttpResponseHandler;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -60,9 +70,10 @@ import android.util.Base64;
 import android.util.Base64InputStream;
 import android.util.Base64OutputStream;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -75,11 +86,15 @@ import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemSelectedListener;
+
+import com.loopj.android.http.AsyncHttpResponseHandler;
+
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class CarSelectionPreference extends DialogPreference {
 
-	private static final String SENSOR_TYPE = "car";
+	public static final String SENSOR_TYPE = "car";
 	private static final Logger logger = Logger.getLogger(CarSelectionPreference.class);
 	private static final String DEFAULT_VALUE = "null";
 	private Car car;
@@ -152,27 +167,15 @@ public class CarSelectionPreference extends DialogPreference {
 		sensorRetryButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				downloadSensors();
+				getCarList();
 			}
 		});
-		
-		if(!UserManager.instance().isLoggedIn()){
-			manufacturerEditText.setEnabled(false);
-			constructionYearEditText.setEnabled(false);
-			modelEditText.setEnabled(false);
-			gasolineRadioButton.setEnabled(false);
-			dieselRadioButton.setEnabled(false);
-			engineDisplacementEditText.setEnabled(false);
-			((Button) view.findViewById(R.id.register_car_button)).setText(R.string.action_sign_in_short);
-			((TextView) view.findViewById(R.id.title_create_new_sensor)).setText(R.string.garage_not_signed_in);
-		}
 
-		downloadSensors();
+		getCarList();
 		
 		view.findViewById(R.id.mygaragelayout).requestFocus();
 		view.findViewById(R.id.mygaragelayout).requestFocusFromTouch();
 	}
-	
 
 	private void setupCarCreationItems(View view) {
 		modelEditText = (EditText) view.findViewById(R.id.addCarToGarage_car_model);
@@ -226,14 +229,14 @@ public class CarSelectionPreference extends DialogPreference {
 				new View.OnClickListener() {
 					@Override
 					public void onClick(View view) {
-						if(UserManager.instance().isLoggedIn()){
+//						if(UserManager.instance().isLoggedIn()){
 							registerSensorAtServer(SENSOR_TYPE, carManufacturer,
 									carModel, carConstructionYear, carFuelType, carEngineDisplacement);
-						}
-						else {
-							Toast.makeText(getDialog().getContext(),
-									"Please log in", Toast.LENGTH_SHORT).show();
-						}
+//						}
+//						else {
+//							Toast.makeText(getDialog().getContext(),
+//									"Please log in", Toast.LENGTH_SHORT).show();
+//						}
 					}
 				});
 	}
@@ -298,6 +301,7 @@ public class CarSelectionPreference extends DialogPreference {
 			checkEmpty(sensorType, carManufacturer, carModel, carConstructionYear,
 					carConstructionYear, carFuelType, carEngineDisplacement);
 		} catch (Exception e) {
+			//TODO i18n
 			Toast.makeText(getContext(), "Not all values were defined.", Toast.LENGTH_SHORT).show();
 			return;
 		}
@@ -311,6 +315,8 @@ public class CarSelectionPreference extends DialogPreference {
 		User user = UserManager.instance().getUser();
 		String username = user.getUsername();
 		String token = user.getToken();
+		
+		if (((SettingsActivity) getContext()).isConnectedToInternet()) {
 		
 		RestClient.createSensor(sensorString, username, token, new AsyncHttpResponseHandler(){
 			
@@ -326,8 +332,17 @@ public class CarSelectionPreference extends DialogPreference {
 				if (content != null && content.equals("can't resolve host") ){
 					Toast.makeText(getContext(),
 							getContext().getString(R.string.error_host_not_found), Toast.LENGTH_SHORT).show();
-				} else {
+				}else if(content.contains("Unauthorized")){
+						logger.info("Tried to register new car while not logged in. Creating temporary car.");
+						Crouton.makeText(
+								(Activity) getContext(),
+								getContext().getResources().getString(
+										R.string.creating_temp_car),
+								Style.INFO).show();
+						createTemporaryCar();
+				}else {
 					logger.warn("Received error response: "+ content +"; "+error.getMessage(), error);
+					//TODO i18n
 					Toast.makeText(getContext(), "Server Error: "+content, Toast.LENGTH_SHORT).show();
 				}
 				showProgress(false);
@@ -354,9 +369,27 @@ public class CarSelectionPreference extends DialogPreference {
 				car = new Car(Car.resolveFuelType(carFuelType), carManufacturer, carModel, sensorId, year, engineDisplacement);
 			}
 		});
+		}else{
+			createTemporaryCar();
+		}
 
 	}
 
+	private void createTemporaryCar(){
+		String sensorId = Car.TEMPORARY_SENSOR_ID + UUID.randomUUID().toString().substring(0, 5);
+		createNewCar(sensorId);
+	}
+	
+	private void createNewCar(String sensorId){
+		
+		int year = Integer.parseInt(carConstructionYear);
+		car = new Car(Car.resolveFuelType(carFuelType), carManufacturer,
+				carModel, sensorId, year,
+				Integer.parseInt(carEngineDisplacement));
+		CarManager.instance().setCar(car);
+		Toast.makeText(getContext(), getContext().getString(R.string.creating_temp_car), Toast.LENGTH_SHORT).show();
+	}
+	
 	private void checkEmpty(String... values) throws Exception {
 		for (String string : values) {
 			if (string == null || string.isEmpty()) {
@@ -380,67 +413,120 @@ public class CarSelectionPreference extends DialogPreference {
 		return "none";
 	}
 
-	protected void downloadSensors() {
+	protected String downloadSensors() throws Exception{
+		
+		HttpGet getRequest = new HttpGet(ECApplication.BASE_URL+"/sensors");
+		
+		getRequest.addHeader("Accept-Encoding", "application/json");
+		
+		try {
+			HttpResponse response = HTTPClient.execute(getRequest);
+			
+			String content = HTTPClient.readResponse(response.getEntity());
+		
+			JSONObject parentObject = new JSONObject(content);
+			
+			JSONArray res = (JSONArray) parentObject.get("sensors");
+			
+			addSensorsToList(res);
+			
+		} catch (Exception e) {
+			logger.warn(e.getMessage(), e);
+			throw e;
+		}
+		
+		return "";
+	}
+
+	private void addSensorsToList(JSONArray res){
+		
+		for (int i = 0; i<res.length(); i++){
+			String typeString;
+			JSONObject properties;
+			String carId;
+			try {
+				typeString = ((JSONObject) res.get(i)).optString("type", "none");
+				properties = ((JSONObject) res.get(i)).getJSONObject("properties");
+				carId = properties.getString("id");
+			} catch (JSONException e) {
+				logger.warn(e.getMessage(), e);
+				continue;
+			}
+			if (typeString.equals(SENSOR_TYPE)) {
+				try {
+					sensors.add(Car.fromJsonWithStrictEngineDisplacement(properties));
+				} catch (JSONException e) {
+					logger.warn(String.format("Car '%s' not supported: %s", carId != null ? carId : "null", e.getMessage()));
+				}
+			}	
+			
+		}
+		
+		SensorAdapter adapter = new SensorAdapter();
+		sensorSpinner.setAdapter(adapter);
+		int index = adapter.getInitialSelectedItem();
+		sensorSpinner.setSelection(index);
+	}
+	
+	public void getCarList() {
+		
 		sensorDlProgress.setVisibility(View.VISIBLE);
 		sensorSpinner.setVisibility(View.GONE);
 		sensorRetryButton.setVisibility(View.GONE);
 		
-		RestClient.downloadSensors(new JsonHttpResponseHandler() {
-			
-			
-			@Override
-			public void onFailure(Throwable error, String content) {
-				super.onFailure(error, content);
-				sensorDlProgress.setVisibility(View.GONE);
-				sensorRetryButton.setVisibility(View.VISIBLE);
-				Toast.makeText(getContext(),
-						getContext().getString(R.string.error_host_not_found), Toast.LENGTH_SHORT).show();
-			}
-			
-			@Override
-			public void onSuccess(JSONObject response) {
-				super.onSuccess(response);
-				sensors = new ArrayList<Car>();
-				
-				JSONArray res;
-				try {
-					res = response.getJSONArray("sensors");
-				} catch (JSONException e) {
-					logger.warn(e.getMessage(), e);
-					Toast.makeText(getContext(), "Could not retrieve cars from server", Toast.LENGTH_SHORT).show();
-					return;
+		sensors = new ArrayList<Car>();
+
+		if (((SettingsActivity) getContext()).isConnectedToInternet()) {
+			try {
+				new SensorDownloadTask().execute().get();
+			} catch (Exception e) {
+				logger.warn(e.getMessage(), e);
+				Toast.makeText(getContext(), "Could not retrieve cars from server", Toast.LENGTH_SHORT).show();				
+			} 
+			//TODO add possibility to update cache
+//			downloadSensors(true);
+		} else {
+			getCarsFromCache();
+		}		
+		if(sensors.isEmpty()){
+			logger.warn("Got no cars neither from server nor from cache.");
+			//TODO show warning that no cars were found i18n
+			Toast.makeText(getContext(), "Could not retrieve cars from server or local cache", Toast.LENGTH_SHORT).show();
+		}
+		sensorDlProgress.setVisibility(View.GONE);
+		sensorSpinner.setVisibility(View.VISIBLE);
+
+	}
+	
+	private void getCarsFromCache() {
+		File directory;
+		try {
+			directory = Util.resolveExternalStorageBaseFolder();
+
+			File f = new File(directory, CarManager.CAR_CACHE_FILE_NAME);
+
+			if (f.isFile()) {
+				BufferedReader bufferedReader = new BufferedReader(
+						new FileReader(f));
+
+				String content = "";
+				String line = "";
+
+				while ((line = bufferedReader.readLine()) != null) {
+					content = content.concat(line);
 				}
 
-				for (int i = 0; i<res.length(); i++){
-					String typeString;
-					JSONObject properties;
-					String carId;
-					try {
-						typeString = ((JSONObject) res.get(i)).optString("type", "none");
-						properties = ((JSONObject) res.get(i)).getJSONObject("properties");
-						carId = properties.getString("id");
-					} catch (JSONException e) {
-						logger.warn(e.getMessage(), e);
-						continue;
-					}
-					if (typeString.equals(SENSOR_TYPE)) {
-						try {
-							sensors.add(Car.fromJsonWithStrictEngineDisplacement(properties));
-						} catch (JSONException e) {
-							logger.warn(String.format("Car '%s' not supported: %s", carId != null ? carId : "null", e.getMessage()));
-						}
-					}	
-					
-				}
-				
-				SensorAdapter adapter = new SensorAdapter();
-				sensorSpinner.setAdapter(adapter);
-				int index = adapter.getInitialSelectedItem();
-				sensorSpinner.setSelection(index);
-				sensorDlProgress.setVisibility(View.GONE);
-				sensorSpinner.setVisibility(View.VISIBLE);
+				bufferedReader.close();
+
+				JSONArray cars = new JSONArray(content);
+
+				addSensorsToList(cars);
 			}
-		});
+		} catch (IOException e) {
+			logger.warn(e.getMessage(), e);
+		} catch (JSONException e) {
+			logger.warn(e.getMessage(), e);
+		}
 	}
 
 	/**
@@ -458,7 +544,10 @@ public class CarSelectionPreference extends DialogPreference {
 	@Override
 	protected void onDialogClosed(boolean positiveResult) {
 		if (positiveResult) {
-	        persistString(serializeCar(car));
+			//this fixes issue #166
+			CarManager.instance().setCar(car);
+	        
+			persistString(serializeCar(car));
 	        setSummary(car.toString());
 		}
 	}
@@ -566,7 +655,22 @@ public class CarSelectionPreference extends DialogPreference {
 		}
 		return null;
 	}
-
+	
+	private class SensorDownloadTask extends AsyncTask<Void, String, String>{
+		
+		@Override
+		protected String doInBackground(Void... params){
+			
+			try {
+				return downloadSensors();
+			} catch (Exception e) {
+				logger.warn(e.getMessage(), e);
+			}
+			return "";
+		}
+		
+	}
+	
 	public static class SavedState extends BaseSavedState {
 	    // Member that holds the setting's value
 	    // Change this data type to match the type saved by your Preference

@@ -30,7 +30,10 @@ import org.envirocar.app.application.ECApplication;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -189,5 +192,15 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	protected void onStop() {
 	    super.onStop();
 	    finish();
+	}
+	
+	public boolean isConnectedToInternet() {
+	    ConnectivityManager cm =
+	        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+	        return true;
+	    }
+	    return false;
 	}
 }

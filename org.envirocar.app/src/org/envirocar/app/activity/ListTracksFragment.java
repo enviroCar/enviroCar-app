@@ -238,7 +238,7 @@ public class ListTracksFragment extends SherlockFragment {
 				} else {
 
 					fuelCostView.setText(twoDForm.format(estimatedFuelCosts)
-							+ " �");
+							+ " " + getActivity().getString(R.string.euro_sign));
 				}
 			}
 
@@ -530,6 +530,10 @@ public class ListTracksFragment extends SherlockFragment {
 	 * Download remote tracks from the server and include them in the track list
 	 */
 	private void downloadTracks() {
+		
+		if(!((MainActivity<?>)getActivity()).isConnectedToInternet()){
+			return;
+		}
 		
 		User user = UserManager.instance().getUser();
 		final String username = user.getUsername();
