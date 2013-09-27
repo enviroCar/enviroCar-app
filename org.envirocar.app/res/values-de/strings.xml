@@ -113,7 +113,7 @@
     
     <string name="editName">Namen ändern</string>
     <string name="deleteTrack">Fahrt löschen</string>
-    <string name="uploadTrack">Fahrt hochladen</string>
+    <string name="uploadTrack">Fahrt als Open Data hochladen</string>
     
    	<string name="open_drawer">Open</string>
 	<string name="close_drawer">Close</string>
