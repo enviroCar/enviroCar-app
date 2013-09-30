@@ -29,8 +29,10 @@ import java.io.UnsupportedEncodingException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
@@ -38,6 +40,7 @@ import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
@@ -74,12 +77,22 @@ public class UploadManager {
 
 	public static final String NET_ERROR = "net_error";
 	public static final String GENERAL_ERROR = "-1";
+	private static final Set<PropertyKey> supportedPhenomenons = new HashSet<PropertyKey>();
 
 	private static Logger logger = Logger.getLogger(UploadManager.class);
 	private static DateFormat iso8601Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
 	
 	static {
 		iso8601Format.setTimeZone(TimeZone.getTimeZone("UTC"));
+		supportedPhenomenons.add(PropertyKey.CALCULATED_MAF);
+		supportedPhenomenons.add(PropertyKey.CO2);
+		supportedPhenomenons.add(PropertyKey.SPEED);
+		supportedPhenomenons.add(PropertyKey.RPM);
+		supportedPhenomenons.add(PropertyKey.INTAKE_PRESSURE);
+		supportedPhenomenons.add(PropertyKey.INTAKE_TEMPERATURE);
+		supportedPhenomenons.add(PropertyKey.CONSUMPTION);
+		supportedPhenomenons.add(PropertyKey.ENGINE_LOAD);
+		supportedPhenomenons.add(PropertyKey.THROTTLE_POSITON);
 	}
 	
 	private String url = ECApplication.BASE_URL + "/users/%1$s/tracks";
@@ -208,6 +221,7 @@ public class UploadManager {
 	
 	private class UploadAsyncTask extends AsyncTask<Track, Track, Track> {
 		
+		
 		@Override
 		protected Track doInBackground(Track... params) {
 			
@@ -217,6 +231,7 @@ public class UploadManager {
 			String urlL = String.format(url, username);
 			
 			Track track = params[0];
+			Thread.currentThread().setName("TrackUploaderTast-"+track.getId());
 
 			JSONObject trackJSONObject = null;
 			try {
@@ -234,9 +249,15 @@ public class UploadManager {
 			// don upload track if it has no measurements
 			if(track.getNumberOfMeasurements() != 0) {
 				//save the track into a json file
-				savetoSdCard(trackJSONObject,track.getId());
+				File file = savetoSdCard(trackJSONObject, track.isRemoteTrack() ? track.getRemoteID() : Long.toString(track.getId()));
+
+				if (file == null) {
+					this.cancel(true);
+					((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
+				}
+				
 				//upload
-				String httpResult = sendHttpPost(urlL, trackJSONObject, token, username);
+				String httpResult = sendHttpPost(urlL, file, token, username);
 				if (httpResult.equals(NET_ERROR)){
 					((ECApplication) context).createNotification(context.getResources().getString(R.string.error_host_not_found));
 				} else if (httpResult.equals(GENERAL_ERROR)) {
@@ -396,7 +417,9 @@ public class UploadManager {
 		JSONObject result = new JSONObject();
 		Map<PropertyKey, Double> props = measurement.getAllProperties();
 		for (PropertyKey key : props.keySet()) {
+			if (supportedPhenomenons.contains(key)) {
 				result.put(key.toString(), createValue(props.get(key)));
+			}
 		}
 		return result;
 	}
@@ -412,7 +435,7 @@ public class UploadManager {
 	 * 
 	 * @param url
 	 *            Url
-	 * @param jsonObjSend
+	 * @param contents
 	 *            The Json Object
 	 * @param xToken
 	 *            Token
@@ -420,13 +443,13 @@ public class UploadManager {
 	 *            Username
 	 * @return Server response status code
 	 */
-	private String sendHttpPost(String url, JSONObject jsonObjSend, String xToken,
+	private String sendHttpPost(String url, File contents, String xToken,
 			String xUser) {
 
 		try {
 			HttpPost httpPostRequest = new HttpPost(url);
 
-			StringEntity se = new StringEntity(jsonObjSend.toString());
+			FileEntity se = new FileEntity(contents, "application/json");
 			se.setContentType("application/json");
 
 			// Set HTTP parameters
@@ -478,23 +501,24 @@ public class UploadManager {
 	 * 
 	 * @param obj
 	 *            the object to save
+	 * @param id 
 	 */
-	private File savetoSdCard(JSONObject obj, long fileid) {
-		File log = new File(context.getExternalFilesDir(null),"envirocar_track"+fileid+".json");
+	private File savetoSdCard(JSONObject obj, String id) {
+		File log = new File(context.getExternalFilesDir(null),"enviroCar-track-"+id+".json");
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(log.getAbsolutePath(), false));
 			out.write(obj.toString());
 			out.flush();
 			out.close();
 			return log;
-		} catch (Exception e) {
+		} catch (IOException e) {
 			logger.warn(e.getMessage(), e);
 		}
 		return null;
 	}
 	
-	public File saveTrackAndReturnUri(Track t) throws JSONException{
-		return savetoSdCard(createTrackJson(t), t.getId());
+	public File saveTrackAndReturnFile(Track t) throws JSONException{
+		return savetoSdCard(createTrackJson(t), (t.isRemoteTrack() ? t.getRemoteID() : Long.toString(t.getId())));
 	}
 
 }
