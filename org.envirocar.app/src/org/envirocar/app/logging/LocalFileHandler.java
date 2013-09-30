@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.logging.FileHandler;
 import java.util.logging.Formatter;
 import java.util.logging.Level;
@@ -90,7 +91,7 @@ public class LocalFileHandler implements Handler {
 			@Override
 			public String format(LogRecord r) {
 				String date = format.format(new Date(r.getMillis()));
-				return String.format("%s [%s]: %s%s", date, r.getLevel(), r.getMessage(), sep);
+				return String.format(Locale.US, "%s [%s]: (%d) %s%s", date, r.getLevel(), r.getThreadID(), r.getMessage(), sep);
 			}
 			
 		});
