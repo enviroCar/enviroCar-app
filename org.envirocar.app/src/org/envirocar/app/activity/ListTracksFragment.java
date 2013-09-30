@@ -238,7 +238,7 @@ public class ListTracksFragment extends SherlockFragment {
 				} else {
 
 					fuelCostView.setText(twoDForm.format(estimatedFuelCosts)
-							+ " �");
+							+ " " + getActivity().getString(R.string.euro_sign));
 				}
 			}
 
@@ -443,7 +443,7 @@ public class ListTracksFragment extends SherlockFragment {
 			try{
 				Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 				sharingIntent.setType("application/json");
-				Uri shareBody = Uri.fromFile(new UploadManager(getActivity().getApplication()).saveTrackAndReturnUri(track));
+				Uri shareBody = Uri.fromFile(new UploadManager(getActivity().getApplication()).saveTrackAndReturnFile(track));
 				sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "EnviroCar Track "+track.getName());
 				sharingIntent.putExtra(android.content.Intent.EXTRA_STREAM,shareBody);
 				startActivity(Intent.createChooser(sharingIntent, "Share via"));
@@ -530,6 +530,10 @@ public class ListTracksFragment extends SherlockFragment {
 	 * Download remote tracks from the server and include them in the track list
 	 */
 	private void downloadTracks() {
+		
+		if(!((MainActivity<?>)getActivity()).isConnectedToInternet()){
+			return;
+		}
 		
 		User user = UserManager.instance().getUser();
 		final String username = user.getUsername();
@@ -631,7 +635,10 @@ public class ListTracksFragment extends SherlockFragment {
 			
 			
 			private void afterOneTrack(){
-				getView().findViewById(android.R.id.empty).setVisibility(View.GONE);
+				View empty = getView().findViewById(android.R.id.empty);
+				if (empty != null) {
+					empty.setVisibility(View.GONE);
+				}
 				ct--;
 				if (ct == 0) {
 					progress.setVisibility(View.GONE);

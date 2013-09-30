@@ -108,9 +108,8 @@ public class DashboardFragment extends SherlockFragment {
 	 * Updates the sensor-textview
 	 */
 	public void updateSensorOnDashboard() {
-		if (isAdded()) {
-			sensor.setText(getCurrentSensorString());
-		}
+		//this fixes issue #166
+		sensor.setText(getCurrentSensorString());		
 	}
 	
 	/**
@@ -121,8 +120,11 @@ public class DashboardFragment extends SherlockFragment {
 		if (CarManager.instance().getCar() != null) {
 			Car car = CarManager.instance().getCar();
 			return car.toString();
-		} else {
-			return getResources().getString(R.string.no_sensor_selected);
+		} else if (isAdded()) {//this fixes issue #166
+			return getResources().getString(R.string.no_sensor_selected);			
+		}else{
+			logger.warn("Returning empty string for getCurrentSensorString()");
+			return "";
 		}
 	}
 
