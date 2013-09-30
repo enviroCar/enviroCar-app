@@ -384,7 +384,10 @@ public class UploadManager {
 	private JSONObject createMeasurementProperties(Measurement measurement, String trackSensorName) throws JSONException {
 		JSONObject result = new JSONObject();
 		result.put("sensor", trackSensorName);
-		result.put("phenomenons", createPhenomenons(measurement));
+		JSONObject phens = createPhenomenons(measurement);
+		if (phens != null && phens.length() > 0) {
+			result.put("phenomenons", phens);
+		}
 		result.put("time", iso8601Format.format(measurement.getTime()));
 		return result;
 	}
