@@ -33,6 +33,7 @@ import org.envirocar.app.event.CO2Event;
 import org.envirocar.app.event.ConsumptionEvent;
 import org.envirocar.app.event.EventBus;
 import org.envirocar.app.exception.FuelConsumptionException;
+import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.protocol.algorithm.AbstractCalculatedMAFAlgorithm;
@@ -101,8 +102,12 @@ public class Collector {
 		if (this.measurement.getProperty(PropertyKey.RPM) != null &&
 				this.measurement.getProperty(PropertyKey.INTAKE_PRESSURE) != null &&
 				this.measurement.getProperty(PropertyKey.INTAKE_TEMPERATURE) != null) {
-			this.measurement.setProperty(PropertyKey.CALCULATED_MAF, this.mafAlgorithm.calculateMAF(this.measurement));
-			fireConsumptionEvent();
+			try {
+				this.measurement.setProperty(PropertyKey.CALCULATED_MAF, this.mafAlgorithm.calculateMAF(this.measurement));
+				fireConsumptionEvent();
+			} catch (MeasurementsException e) {
+				logger.warn(e.getMessage(), e);
+			}
 		}
 	}
 

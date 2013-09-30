@@ -24,13 +24,15 @@ import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_PRESSURE;
 import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_TEMPERATURE;
 import static org.envirocar.app.storage.Measurement.PropertyKey.RPM;
 
+import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.storage.Measurement;
 
 public abstract class AbstractCalculatedMAFAlgorithm {
 	
 	public abstract double calculateMAF(double rpm, double intakeTemperature, double intakePressure);
 	
-	public double calculateMAF(Measurement m) {
+	public double calculateMAF(Measurement m) throws MeasurementsException {
+		if (m == null) throw new MeasurementsException("Measurement was null!");
 		return calculateMAF(m.getProperty(RPM), m.getProperty(INTAKE_TEMPERATURE), m.getProperty(INTAKE_PRESSURE));
 	}
 
