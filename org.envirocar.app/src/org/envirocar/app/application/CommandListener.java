@@ -64,12 +64,10 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	private static final double MAX_DISTANCE_BETWEEN_MEASUREMENTS = 3.0;
 
 	private Track track;
-	private DbAdapter dbAdapter;
 	private Collector collector;
 	private Location location;
 	
 	public CommandListener(Car car) {
-		this.dbAdapter = DbAdapterImpl.instance();
 		this.collector = new Collector(this, car);
 		EventBus.getInstance().registerListener(this);
 		createNewTrackIfNecessary();
@@ -214,7 +212,6 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		 */
 		logger.info("inserting measurement to Track: "+track.getName());
 		track.addMeasurement(measurement);
-		dbAdapter.insertMeasurement(measurement);
 		logger.info("Add new measurement to track: " + measurement.toString());
 	}
 	
@@ -224,6 +221,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	 */
 	private void createNewTrackIfNecessary() {
 		logger.info("createNewTrackIfNecessary");
+		DbAdapter dbAdapter = DbAdapterImpl.instance();
 		// if track is null, create a new one or take the last one from the
 		// database
 
