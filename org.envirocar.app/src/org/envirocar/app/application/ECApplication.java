@@ -302,7 +302,7 @@ public class ECApplication extends Application {
 		NotificationCompat.Builder mBuilder =
 		        new NotificationCompat.Builder(this)
 		        .setSmallIcon(R.drawable.ic_launcher)
-		        .setContentTitle("EnviroCar")
+		        .setContentTitle("enviroCar")
 		        .setContentText(notification_text)
 		        .setContentIntent(pintent)
 		        .setTicker(notification_text)

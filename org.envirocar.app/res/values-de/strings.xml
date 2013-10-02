@@ -203,5 +203,9 @@
 	<string name="general_error_please_report">Programmfehler - Bitte melden Sie das Problem</string>
 	
 	<string name="server_error_please_try_later">Server Fehler - Bitte versuchen Sie es später erneut</string>
+	
+	<string name="terms_of_use_title">Nutzungsbedingungen</string>
+	<string name="terms_of_use_info">Bevor Sie fortfahren, müssen Sie unsere Nutzungsbedingungen akzeptieren:</string>
+	<string name="terms_of_use_sorry">Entschuldigen Sie die erneute Störung. Wir haben unsere Nutzungsbedingungen geändert:</string>
     
 </resources>

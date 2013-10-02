@@ -38,7 +38,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.envirocar.app.R;
-import org.envirocar.app.activity.DialogUtil.DialogCallback;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UploadManager;
@@ -311,9 +310,7 @@ public class ListTracksFragment extends SherlockFragment {
 		
 		case R.id.menu_upload:
 			if (UserManager.instance().isLoggedIn()) {
-				((ECApplication) getActivity().getApplicationContext()).createNotification("start");
-				UploadManager uploadManager = new UploadManager(((ECApplication) getActivity().getApplication()));
-				uploadManager.uploadAllTracks();
+				startTrackUpload(true, null);
 			} else {
 				Crouton.showText(getActivity(), R.string.hint_login_first, Style.INFO);
 			}
@@ -460,7 +457,7 @@ public class ListTracksFragment extends SherlockFragment {
 		// Upload track
 		case R.id.uploadTrack:
 			if (UserManager.instance().isLoggedIn()) {
-				startTrackUpload(track);
+				startTrackUpload(false, track);
 			} else {
 				Crouton.showText(getActivity(), R.string.hint_login_first, Style.INFO);
 			}
@@ -470,19 +467,26 @@ public class ListTracksFragment extends SherlockFragment {
 		}
 	}
 
-	private void startTrackUpload(final Track track) {
-		User user = UserManager.instance().getUser();
+	/**
+	 * starts the uploading mechanism. It asserts the Terms of Use
+	 * acceptance state.
+	 * 
+	 * @param all if all local tracks should be uploaded
+	 * @param track a single track to upload
+	 */
+	private void startTrackUpload(final boolean all, final Track track) {
+		final User user = UserManager.instance().getUser();
 		boolean verified = false;
 		try {
 			verified = verifyTermsUseOfVersion(user.getAcceptedTermsOfUseVersion());
 		} catch (ServerException e) {
 			logger.warn(e.getMessage(), e);
-			Crouton.makeText(getActivity(), getString(R.string.server_error_please_try_later), Style.ALERT);
+			Crouton.makeText(getActivity(), getString(R.string.server_error_please_try_later), Style.ALERT).show();
 			return;
 		}
 		if (!verified) {
 			
-			TermsOfUseInstance current;
+			final TermsOfUseInstance current;
 			try {
 				current = TermsOfUseManager.instance().getCurrentTermsOfUse();
 			} catch (ServerException e) {
@@ -490,27 +494,50 @@ public class ListTracksFragment extends SherlockFragment {
 				return;
 			}
 			
-			DialogUtil.createTitleMessageDialog("Terms Of Use", 
-					current.getContents(), new DialogCallback() {
+			DialogUtil.createTermsOfUseDialog(current,
+					user.getAcceptedTermsOfUseVersion() == null, new DialogUtil.PositiveNegativeCallback() {
+
+				@Override
+				public void negative() {
+					logger.info("User did not accept the ToU.");
+					Crouton.makeText(getActivity(), getString(R.string.terms_of_use_info), Style.ALERT).show();
+				}
+
+				@Override
+				public void positive() {
+					TermsOfUseManager.instance().userAcceptedTermsOfUse(user, current.getIssuedDate());
+					uploadTracks(all, track);
+				}
 						
-						@Override
-						public void itemSelected(int which) {
-							// TODO Auto-generated method stub
-							
-						}
-						
-						@Override
-						public void cancelled() {
-							// TODO Auto-generated method stub
-							
-						}
-					}, getActivity());
+			}, getActivity());
 		} else {
-			new UploadManager(((ECApplication) getActivity().getApplication())).uploadSingleTrack(track);	
+			uploadTracks(all, track);
 		}
 		
 	}
 
+	/**
+	 * executes the actual track uploading
+	 * 
+	 * @param all if all local tracks should be uploaded
+	 * @param track a single track to upload
+	 */
+	private void uploadTracks(boolean all, Track track) {
+		if (all) {
+			new UploadManager(((ECApplication) getActivity().getApplication())).uploadAllTracks();
+		} else {
+			new UploadManager(((ECApplication) getActivity().getApplication())).uploadSingleTrack(track);		
+		}
+	}
+
+	/**
+	 * verify the users accepted terms of use version
+	 * against the latest from the server
+	 * 
+	 * @param acceptedTermsOfUseVersion the accepted version of the current user
+	 * @return true, if the provided version is the latest
+	 * @throws ServerException if the server did not respond (as expected)
+	 */
 	private boolean verifyTermsUseOfVersion(String acceptedTermsOfUseVersion) throws ServerException {
 		if (acceptedTermsOfUseVersion == null) return false;
 		

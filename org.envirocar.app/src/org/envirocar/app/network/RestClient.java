@@ -27,6 +27,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.application.User;
 import org.envirocar.app.logging.Logger;
 
 import com.loopj.android.http.AsyncHttpClient;
@@ -77,6 +78,16 @@ public class RestClient {
 		
 		client.get(url, handler);
 	}
+	
+	private static void put(String url, AsyncHttpResponseHandler handler, String contents, String user, String token) throws UnsupportedEncodingException {		
+		client.addHeader("Content-Type", "application/json");
+		setHeaders(user, token);
+		
+		StringEntity se = new StringEntity(contents);
+		se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+
+		client.put(null, url, se, "application/json", handler);
+	}
 
 	private static void setHeaders(String user, String token) {
 		client.addHeader("Accept-Encoding", "gzip");
@@ -106,7 +117,17 @@ public class RestClient {
 	public static void downloadTermsOfUseInstance(String id,
 			JsonHttpResponseHandler handler) {
 		String url = "http://geoprocessing.demo.52north.org:8081/xyz/termsOfUseInstance.json";
-//		String url = ECApplication.BASE_URL+"/termsOfUse/+id";
+//		String url = ECApplication.BASE_URL+"/termsOfUse/"+id;
 		get(url, handler);
+	}
+
+	public static void updateAcceptedTermsOfUseVersion(User user,
+			String issuedDate, AsyncHttpResponseHandler handler) {
+		String contents = String.format("{\"%s\": \"%s\"}", "acceptedTermsOfUseVersion", issuedDate);
+		try {
+			put(ECApplication.BASE_URL+"/users/"+user.getUsername(), handler, contents, user.getUsername(), user.getToken());
+		} catch (UnsupportedEncodingException e) {
+			logger.warn(e.getMessage(), e);
+		}
 	}
 }
