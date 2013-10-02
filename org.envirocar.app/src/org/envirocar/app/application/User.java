@@ -21,6 +21,9 @@
 
 package org.envirocar.app.application;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Class that represents a user with a name and a password.
  * 
@@ -29,6 +32,7 @@ public class User {
 
 	private String username;
 	private String token;
+	private String acceptedTermsOfUseVersion;
 
 	/**
 	 * Creates a new user with given parameters
@@ -57,5 +61,31 @@ public class User {
 	public String getToken() {
 		return token;
 	}
+	
+	public void setToken(String token2) {
+		this.token = token2;
+	}
 
+	public String getAcceptedTermsOfUseVersion() {
+		return acceptedTermsOfUseVersion;
+	}
+
+	public void setAcceptedTermsOfUseVersion(String acceptedTermsOfUseVersion) {
+		this.acceptedTermsOfUseVersion = acceptedTermsOfUseVersion;
+	}
+
+	public static User fromJson(String json) throws JSONException {
+		JSONObject jsonObject = new JSONObject(json);
+		return fromJson(jsonObject);
+	}
+
+	public static User fromJson(JSONObject json) throws JSONException {
+		String name = json.getString("name");
+		String touVersion = json.optString("acceptedTermsOfUseVersion", null);
+		User result = new User(name, null);
+		result.setAcceptedTermsOfUseVersion(touVersion);
+		return result;
+	}
+
+	
 }

@@ -34,6 +34,7 @@ import org.envirocar.app.application.UserManager;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.views.TypefaceEC;
+import org.json.JSONException;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -255,20 +256,20 @@ public class LoginFragment extends SherlockFragment {
 	 * Represents an asynchronous login/registration task used to authenticate
 	 * the user.
 	 */
-	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+	public class UserLoginTask extends AsyncTask<Void, Void, User> {
 		@Override
-		protected Boolean doInBackground(Void... params) {
+		protected User doInBackground(Void... params) {
 			return authenticateHttp(mUsername, mPassword);
 
 		}
 
 		@Override
-		protected void onPostExecute(final Boolean success) {
+		protected void onPostExecute(final User newUser) {
 			mAuthTask = null;
 			showProgress(false);
 
-			if (success) {
-				UserManager.instance().setUser(new User(mUsername, mPassword));
+			if (newUser != null) {
+				UserManager.instance().setUser(newUser);
 				Crouton.makeText(
 						getActivity(),
 						getResources().getString(R.string.welcome_message)
@@ -298,7 +299,7 @@ public class LoginFragment extends SherlockFragment {
 	 * Method used for authentication (e.g. at loginscreen to verify user
 	 * credentials
 	 */
-	private boolean authenticateHttp(String user, String token) {
+	private User authenticateHttp(String user, String token) {
 		HttpGet httpget = new HttpGet(ECApplication.BASE_URL + "/users/" + user);
 		httpget.addHeader(new BasicHeader("X-User", user));
 		httpget.addHeader(new BasicHeader("X-Token", token));
@@ -307,20 +308,29 @@ public class LoginFragment extends SherlockFragment {
 			response = HTTPClient.execute(httpget);
 		} catch (IOException e) {
 			logger.warn(e.getMessage(), e);
-			return false;
+			return null;
 		}
 
 		int status = response.getStatusLine().getStatusCode();
-		
-		HTTPClient.consumeEntity(response.getEntity());
-		
-		// TODO finer errors..
-		if (status != HttpStatus.SC_OK) {
-			mPasswordView
-					.setError(getString(R.string.error_incorrect_password));
-			return false;
+
+		if (status < HttpStatus.SC_MULTIPLE_CHOICES) {
+			try {
+				User u = User.fromJson(HTTPClient.readResponse(response.getEntity()));
+				if (user.equals(u.getUsername())) {
+					u.setToken(token);
+				}
+				return u;
+			} catch (JSONException e) {
+				logger.warn(e.getMessage(), e);
+			} catch (IOException e) {
+				logger.warn(e.getMessage(), e);
+			}
 		} else {
-			return true;
+			HTTPClient.consumeEntity(response.getEntity());
+			mPasswordView.setError(getString(R.string.error_incorrect_password));
+			return null;
 		}
+		
+		return null;
 	}
 }
