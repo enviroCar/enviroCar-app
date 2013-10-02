@@ -85,6 +85,8 @@ public class UserManager {
 			e.remove(USERNAME);
 		if (prefs.contains(TOKEN))
 			e.remove(TOKEN);
+		if (prefs.contains(ACCEPTED_TERMS_OF_USE_VERSION))
+			e.remove(ACCEPTED_TERMS_OF_USE_VERSION);
 		e.commit();
 	}
 
