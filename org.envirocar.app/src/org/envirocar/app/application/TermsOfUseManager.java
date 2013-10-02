@@ -31,6 +31,7 @@ import org.envirocar.app.network.RestClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 public class TermsOfUseManager {
@@ -145,6 +146,23 @@ public class TermsOfUseManager {
 	private void setList(TermsOfUse termsOfUse) throws JSONException {
 		logger.info("List of TermsOfUse size: "+termsOfUse.getInstances().size());
 		list = termsOfUse;
+	}
+
+	public void userAcceptedTermsOfUse(final User user, final String issuedDate) {
+		RestClient.updateAcceptedTermsOfUseVersion(user, issuedDate, new AsyncHttpResponseHandler() {
+			@Override
+			public void onSuccess(int statusCode, String content) {
+				user.setAcceptedTermsOfUseVersion(issuedDate);
+				//TODO verify the user resource on the server
+				UserManager.instance().setUser(user);
+				logger.info("User successfully updated.");
+			}
+			
+			@Override
+			public void onFailure(Throwable error, String content) {
+				logger.warn(content, error);
+			}
+		});
 	}
 	
 

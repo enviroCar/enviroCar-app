@@ -225,7 +225,7 @@ public class UploadManager {
 		
 		@Override
 		protected Track doInBackground(Track... params) {
-			
+			((ECApplication) context).createNotification("start");
 			User user = UserManager.instance().getUser();
 			String username = user.getUsername();
 			String token = user.getToken();
