@@ -96,4 +96,17 @@ public class RestClient {
 	private static void get(String url, JsonHttpResponseHandler handler) {
 		get(url, handler, null, null);
 	}
+
+	public static void downloadTermsOfUse(JsonHttpResponseHandler handler) {
+		String url = "http://geoprocessing.demo.52north.org:8081/xyz/termsOfUse.json";
+//		String url = ECApplication.BASE_URL+"/termsOfUse";
+		get(url, handler);
+	}
+
+	public static void downloadTermsOfUseInstance(String id,
+			JsonHttpResponseHandler handler) {
+		String url = "http://geoprocessing.demo.52north.org:8081/xyz/termsOfUseInstance.json";
+//		String url = ECApplication.BASE_URL+"/termsOfUse/+id";
+		get(url, handler);
+	}
 }

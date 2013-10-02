@@ -38,13 +38,17 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.envirocar.app.R;
+import org.envirocar.app.activity.DialogUtil.DialogCallback;
 import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
+import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
+import org.envirocar.app.model.TermsOfUseInstance;
 import org.envirocar.app.network.RestClient;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
@@ -456,7 +460,7 @@ public class ListTracksFragment extends SherlockFragment {
 		// Upload track
 		case R.id.uploadTrack:
 			if (UserManager.instance().isLoggedIn()) {
-				new UploadManager(((ECApplication) getActivity().getApplication())).uploadSingleTrack(track);
+				startTrackUpload(track);
 			} else {
 				Crouton.showText(getActivity(), R.string.hint_login_first, Style.INFO);
 			}
@@ -464,6 +468,55 @@ public class ListTracksFragment extends SherlockFragment {
 		default:
 			return super.onContextItemSelected(item);
 		}
+	}
+
+	private void startTrackUpload(final Track track) {
+		User user = UserManager.instance().getUser();
+		boolean verified = false;
+		try {
+			verified = verifyTermsUseOfVersion(user.getAcceptedTermsOfUseVersion());
+		} catch (ServerException e) {
+			logger.warn(e.getMessage(), e);
+			Crouton.makeText(getActivity(), getString(R.string.server_error_please_try_later), Style.ALERT);
+			return;
+		}
+		if (!verified) {
+			
+			TermsOfUseInstance current;
+			try {
+				current = TermsOfUseManager.instance().getCurrentTermsOfUse();
+			} catch (ServerException e) {
+				logger.warn("This should never happen!", e);
+				return;
+			}
+			
+			DialogUtil.createTitleMessageDialog("Terms Of Use", 
+					current.getContents(), new DialogCallback() {
+						
+						@Override
+						public void itemSelected(int which) {
+							// TODO Auto-generated method stub
+							
+						}
+						
+						@Override
+						public void cancelled() {
+							// TODO Auto-generated method stub
+							
+						}
+					}, getActivity());
+		} else {
+			new UploadManager(((ECApplication) getActivity().getApplication())).uploadSingleTrack(track);	
+		}
+		
+	}
+
+	private boolean verifyTermsUseOfVersion(String acceptedTermsOfUseVersion) throws ServerException {
+		if (acceptedTermsOfUseVersion == null) return false;
+		
+		TermsOfUseInstance current = TermsOfUseManager.instance().getCurrentTermsOfUse();
+		
+		return current.getIssuedDate().equals(acceptedTermsOfUseVersion);
 	}
 
 	private void createRemoteDeleteDialog(final Track track) {

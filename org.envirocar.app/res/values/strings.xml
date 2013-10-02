@@ -188,4 +188,6 @@
 	
 	<string name="general_error_please_report">General Track Error - Please report this issue</string>
 	
+	<string name="server_error_please_try_later">Server Error - Please try again later</string>
+	
 </resources>
