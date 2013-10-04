@@ -32,6 +32,7 @@ import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.protocol.algorithm.AbstractConsumptionAlgorithm;
 import org.envirocar.app.protocol.algorithm.BasicConsumptionAlgorithm;
+import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
 import org.envirocar.app.views.Utils;
 
 /**
@@ -333,7 +334,7 @@ public class Track implements Comparable<Track> {
 		return co2Average;
 	}
 	
-	public double getFuelConsumptionPerHour() {
+	public double getFuelConsumptionPerHour() throws UnsupportedFuelTypeException {
 		if (consumptionPerHour == null) {
 			consumptionPerHour = 0.0;
 			try {

@@ -109,15 +109,13 @@ public class RestClient {
 	}
 
 	public static void downloadTermsOfUse(JsonHttpResponseHandler handler) {
-		String url = "http://geoprocessing.demo.52north.org:8081/xyz/termsOfUse.json";
-//		String url = ECApplication.BASE_URL+"/termsOfUse";
+		String url = ECApplication.BASE_URL_DEV+"/termsOfUse";
 		get(url, handler);
 	}
 
 	public static void downloadTermsOfUseInstance(String id,
 			JsonHttpResponseHandler handler) {
-		String url = "http://geoprocessing.demo.52north.org:8081/xyz/termsOfUseInstance.json";
-//		String url = ECApplication.BASE_URL+"/termsOfUse/"+id;
+		String url = ECApplication.BASE_URL_DEV+"/termsOfUse/"+id;
 		get(url, handler);
 	}
 
@@ -125,7 +123,7 @@ public class RestClient {
 			String issuedDate, AsyncHttpResponseHandler handler) {
 		String contents = String.format("{\"%s\": \"%s\"}", "acceptedTermsOfUseVersion", issuedDate);
 		try {
-			put(ECApplication.BASE_URL+"/users/"+user.getUsername(), handler, contents, user.getUsername(), user.getToken());
+			put(ECApplication.BASE_URL_DEV+"/users/"+user.getUsername(), handler, contents, user.getUsername(), user.getToken());
 		} catch (UnsupportedEncodingException e) {
 			logger.warn(e.getMessage(), e);
 		}

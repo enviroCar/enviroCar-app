@@ -29,6 +29,7 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.message.BasicHeader;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.logging.Logger;
@@ -274,11 +275,15 @@ public class LoginFragment extends SherlockFragment {
 						getActivity(),
 						getResources().getString(R.string.welcome_message)
 								+ " " + mUsername, Style.CONFIRM).show();
+				
+				TermsOfUseManager.askForTermsOfUseAcceptance(newUser, getActivity(), null);
+				
 				getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 				DashboardFragment dashboardFragment = new DashboardFragment();
 				getActivity().getSupportFragmentManager().beginTransaction()
 						.replace(R.id.content_frame, dashboardFragment)
 						.commit();
+				
 			} else {
 				if (mUsernameView.getError() != null) {
 					mUsernameView.requestFocus();
@@ -300,7 +305,7 @@ public class LoginFragment extends SherlockFragment {
 	 * credentials
 	 */
 	private User authenticateHttp(String user, String token) {
-		HttpGet httpget = new HttpGet(ECApplication.BASE_URL + "/users/" + user);
+		HttpGet httpget = new HttpGet(ECApplication.BASE_URL_DEV + "/users/" + user);
 		httpget.addHeader(new BasicHeader("X-User", user));
 		httpget.addHeader(new BasicHeader("X-Token", token));
 		HttpResponse response;
@@ -333,4 +338,5 @@ public class LoginFragment extends SherlockFragment {
 		
 		return null;
 	}
+
 }

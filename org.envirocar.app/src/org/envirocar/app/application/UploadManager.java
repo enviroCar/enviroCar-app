@@ -30,6 +30,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -125,6 +126,8 @@ public class UploadManager {
 	}
 	
 	public void uploadSingleTrack(Track track){
+		if (track == null ) return;
+		
 		if(isCarOfTrackSavedLocallyOnly(track)){
 			registerCarBeforeUpload(track);
 		}
@@ -301,40 +304,9 @@ public class UploadManager {
 		
 		String trackSensorName = track.getCar().getId();
 
-		ArrayList<Measurement> measurements = track.getMeasurements();
 		ArrayList<JSONObject> measurementElements = new ArrayList<JSONObject>();
 		
-		// Cut-off first and last minute of tracks that are longer than 3
-		// minutes. Also cut of these measurements if they are closer than 250m
-		// to the start and the end.
-		SharedPreferences preferences = PreferenceManager
-				.getDefaultSharedPreferences(context.getApplicationContext());
-		boolean obfuscatePositions = preferences.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
-		
-		try {
-			if (track.getEndTime() - track.getStartTime() > 180000) {
-				ArrayList<Measurement> privateMeasurements = new ArrayList<Measurement>();
-				for (Measurement measurement : measurements) {
-					try {
-						if (obfuscatePositions) {
-							if (measurement.getTime() - track.getStartTime() > 60000 && track.getEndTime() - measurement.getTime() > 60000) {
-								if ((Utils.getDistance(track.getFirstMeasurement().getLatitude(), track.getFirstMeasurement().getLongitude(), measurement.getLatitude(), measurement.getLongitude()) > 0.25) && (Utils.getDistance(track.getLastMeasurement().getLatitude(), track.getLastMeasurement().getLongitude(), measurement.getLatitude(), measurement.getLongitude()) > 0.25)) {
-									privateMeasurements.add(measurement);
-								}
-							}
-						} else {
-							privateMeasurements.add(measurement);
-						}
-
-					} catch (MeasurementsException e) {
-						logger.warn(e.getMessage(), e);
-					}
-				}
-				measurements = privateMeasurements;
-			}
-		} catch (MeasurementsException e) {
-			logger.warn(e.getMessage(), e);
-		}
+		List<Measurement> measurements = getNonObfuscatedMeasurements(track);
 
 		for (Measurement measurement : measurements) {
 			JSONObject measurementJson = createMeasurementJson(track, trackSensorName, measurement);
@@ -346,6 +318,89 @@ public class UploadManager {
 		result.put("properties", createTrackProperties(track, trackSensorName));
 
 		return result;
+	}
+
+	private boolean isSpatialObfuscationCandidate(Measurement measurement,
+			Track track) {
+		return (Utils.getDistance(track.getFirstMeasurement(), measurement) <= 0.25)
+				|| (Utils.getDistance(track.getLastMeasurement(), measurement) <= 0.25);
+	}
+
+	private boolean isTemporalObfuscationCandidate(Measurement measurement,
+			Track track) throws MeasurementsException {
+		return (measurement.getTime() - track.getStartTime() <= 60000 ||
+				track.getEndTime() - measurement.getTime() <= 60000);
+	}
+	
+	/**
+	 * resolve all not obfuscated measurements of a track.
+	 * 
+	 * This returns all measurements, if obfuscation is disabled. Otherwise
+	 * measurements within the first and last minute and those within the start/end
+	 * radius of 250 m are ignored (only if they are in the beginning/end of the track).
+	 * 
+	 * @param track
+	 * @return
+	 */
+	public List<Measurement> getNonObfuscatedMeasurements(Track track) {
+		ArrayList<Measurement> measurements = track.getMeasurements();
+		
+		SharedPreferences preferences = PreferenceManager
+				.getDefaultSharedPreferences(context.getApplicationContext());
+		boolean obfuscatePositions = preferences.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
+		
+		if (obfuscatePositions) {
+			boolean wasAtLeastOneTimeNotObfuscated = false;
+			ArrayList<Measurement> privateCandidates = new ArrayList<Measurement>();
+			ArrayList<Measurement> nonPrivateMeasurements = new ArrayList<Measurement>();
+			for (Measurement measurement : measurements) {
+				try {
+					/*
+					 * ignore early and late
+					 */
+					if (isTemporalObfuscationCandidate(measurement, track)) {
+						continue;
+					}
+
+					/*
+					 * ignore distance
+					 */
+					if (isSpatialObfuscationCandidate(measurement, track)) {
+						if (wasAtLeastOneTimeNotObfuscated) {
+							privateCandidates.add(measurement);
+							nonPrivateMeasurements.add(measurement);
+						}
+						continue;
+					}
+
+					/*
+					 * we may have found obfuscation candidates in the middle of the track
+					 * (may cross start or end point) in a PRIOR iteration
+					 * of this loop. these candidates can be removed now as we are again
+					 * out of obfuscation scope
+					 */
+					if (wasAtLeastOneTimeNotObfuscated) {
+						privateCandidates.clear();
+					}
+					else {
+						wasAtLeastOneTimeNotObfuscated = true;
+					}
+					
+					nonPrivateMeasurements.add(measurement);
+				} catch (MeasurementsException e) {
+					logger.warn(e.getMessage(), e);
+				}
+				
+			}
+			/*
+			 * the private candidates which have made it until here
+			 * shall be ignored
+			 */
+			nonPrivateMeasurements.removeAll(privateCandidates);
+			return nonPrivateMeasurements;
+		}
+		
+		return measurements;
 	}
 
 	private JSONObject createTrackProperties(Track track, String trackSensorName) throws JSONException {

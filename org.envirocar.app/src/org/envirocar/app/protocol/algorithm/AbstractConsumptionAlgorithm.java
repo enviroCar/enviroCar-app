@@ -26,7 +26,7 @@ import org.envirocar.app.storage.Measurement;
 
 public abstract class AbstractConsumptionAlgorithm {
 	
-	public abstract double calculateConsumption(Measurement measurement) throws FuelConsumptionException;
+	public abstract double calculateConsumption(Measurement measurement) throws FuelConsumptionException, UnsupportedFuelTypeException;
 	
 	public abstract double calculateCO2FromConsumption(double consumption) throws FuelConsumptionException;
 	
