@@ -216,6 +216,8 @@ public class Track implements Comparable<Track> {
 		this.measurements.add(measurement);
 		if (this.dbAdapter != null) {
 			this.dbAdapter.insertMeasurement(measurement);	
+		} else {
+			logger.warn("DbAdapter was null! Could not insert measurement");
 		}
 	}
 

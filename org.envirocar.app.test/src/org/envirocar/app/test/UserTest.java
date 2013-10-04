@@ -18,22 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol.algorithm;
+package org.envirocar.app.test;
 
-import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_PRESSURE;
-import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_TEMPERATURE;
-import static org.envirocar.app.storage.Measurement.PropertyKey.RPM;
+import java.io.IOException;
+import java.io.InputStream;
 
-import org.envirocar.app.exception.MeasurementsException;
-import org.envirocar.app.storage.Measurement;
+import junit.framework.Assert;
 
-public abstract class AbstractCalculatedMAFAlgorithm {
-	
-	public abstract double calculateMAF(double rpm, double intakeTemperature, double intakePressure);
-	
-	public double calculateMAF(Measurement m) throws MeasurementsException {
-		if (m == null) throw new MeasurementsException("Measurement was null!");
-		return calculateMAF(m.getProperty(RPM), m.getProperty(INTAKE_TEMPERATURE), m.getProperty(INTAKE_PRESSURE));
+import org.envirocar.app.application.User;
+import org.json.JSONException;
+
+
+public class UserTest extends ResourceLoadingTestCase {
+
+	public void testUserParsing() throws IOException, JSONException {
+		InputStream is = getInstrumentation().getContext().getAssets().open("user_mockup.json");
+		User user = User.fromJson(readJson(is));
+		
+		Assert.assertTrue("missing acceptedTermsOfUseVersion", user.getAcceptedTermsOfUseVersion() != null);
+		Assert.assertTrue("unexpected acceptedTermsOfUseVersion", user.getAcceptedTermsOfUseVersion().equals("2013-10-02"));
+		Assert.assertTrue("unexpected username", user.getUsername().equals("matthes"));
 	}
-
+	
 }

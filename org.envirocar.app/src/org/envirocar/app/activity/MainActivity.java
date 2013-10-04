@@ -58,6 +58,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -303,11 +304,24 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		preferences.registerOnSharedPreferenceChangeListener(settingsReceiver);
 		
 		if(isConnectedToInternet()){
-			getCarsFromServer();
+			loadCacheResources();
 		}
 		
 	}
 	
+	private void loadCacheResources() {
+		new AsyncTask<Void, Void, Void>() {
+
+			@Override
+			protected Void doInBackground(Void... arg0) {
+				getCarsFromServer();
+				return null;
+			}
+			
+		}.execute();
+		
+	}
+
 	private void getCarsFromServer() {
 		
 		RestClient.downloadSensors(new JsonHttpResponseHandler() {
