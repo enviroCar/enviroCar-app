@@ -40,7 +40,7 @@
     <string name="maf">MAF</string>
     <string name="engine_load">Engine Load</string>
     <string name="car">Car</string>
-    <string name="currentCO2">Current Co2 Emissions</string>
+    <string name="currentCO2">Co2 Emissions</string>
     <string name="drivingStyleRating">Driving Style Rating</string>
     <string name="moneySpent">Money spent for this trip</string>
     <string name="title_activity_map">Driven Route</string>
@@ -62,8 +62,8 @@
     <string name="euro_sign">"&#8364;"</string>
     <string name="error_calculating_fuel_costs">"Error during calculation."</string>
     <string name="title_activity_settings">Settings</string>
-    <string name="currentSpeed">Current Speed</string>
-    <string name="currentPosition">Current Position</string>
+    <string name="currentSpeed">Speed</string>
+    <string name="currentPosition">Position</string>
     <string name="positioning_Info">The positioning is based on GPS, to have a precised positions for the measurement. Please wait until you get GPS coordinates.</string>
     <string name="no_current_position">none</string>
     <string name="menu_start">Start</string>
@@ -98,7 +98,7 @@
     <string name="editName">Edit Name</string>
     <string name="deleteTrack">Delete Track</string>
     <string name="uploadTrack">Upload Track as Open Data</string>
-	<string name="dashboard_sensor_title">Current Car:</string>
+	<string name="dashboard_sensor_title">Car:</string>
 	<string name="retry">Retry</string>
 	<string name="description">Description:</string>
 	<string name="editDescription">Edit Description</string>
@@ -212,5 +212,9 @@
 	<string name="terms_of_use_title">Accpt the Terms Of Use?</string>
 	<string name="terms_of_use_info">Before you proceed, you have to accept our Terms Of Use</string>
 	<string name="terms_of_use_sorry">Sorry to bother you again. We have changed our Terms Of Use</string>
+	<string name="terms_of_use_cant_continue">Before you upload any Track, you have to accept the Terms Of Use</string>
+	<string name="terms_of_use_updating_server">Updating Terms Of Use State on Server</string>
+	
+	<string name="diesel_not_yet_supported">Please note that consumption/CO2 calculation for Diesel cars is not yet supported</string>
 	
 </resources>

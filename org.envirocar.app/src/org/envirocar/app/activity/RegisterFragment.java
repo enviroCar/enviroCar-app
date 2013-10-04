@@ -30,6 +30,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.protocol.HTTP;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.logging.Logger;
@@ -47,6 +48,7 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -297,7 +299,16 @@ public class RegisterFragment extends SherlockFragment {
 
 			if (httpStatus == HttpStatus.SC_CREATED) {
 				Crouton.makeText(getActivity(), getResources().getString(R.string.welcome_message)+mUsername, Style.CONFIRM).show();
-				UserManager.instance().setUser(new User(mUsername, mPassword));
+				User user = new User(mUsername, mPassword);
+				UserManager.instance().setUser(user);
+				
+				TermsOfUseManager.askForTermsOfUseAcceptance(user, getActivity(), null);
+				
+				getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+				DashboardFragment dashboardFragment = new DashboardFragment();
+				getActivity().getSupportFragmentManager().beginTransaction()
+						.replace(R.id.content_frame, dashboardFragment)
+						.commit();
 				
 			} else if (httpStatus == HttpStatus.SC_FORBIDDEN) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());

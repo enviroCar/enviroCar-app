@@ -23,6 +23,9 @@ package org.envirocar.app.application;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.http.Header;
+import org.envirocar.app.R;
+import org.envirocar.app.activity.DialogUtil;
+import org.envirocar.app.activity.DialogUtil.PositiveNegativeCallback;
 import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.TermsOfUse;
@@ -31,8 +34,13 @@ import org.envirocar.app.network.RestClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Activity;
+
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
+
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class TermsOfUseManager {
 
@@ -164,6 +172,78 @@ public class TermsOfUseManager {
 			}
 		});
 	}
+
 	
+	/**
+	 * verify the user's accepted terms of use version
+	 * against the latest from the server
+	 * 
+	 * @param acceptedTermsOfUseVersion the accepted version of the current user
+	 * @return true, if the provided version is the latest
+	 * @throws ServerException if the server did not respond (as expected)
+	 */
+	public static boolean verifyTermsUseOfVersion(
+			String acceptedTermsOfUseVersion) throws ServerException {
+		if (acceptedTermsOfUseVersion == null) return false;
+		
+		TermsOfUseInstance current = TermsOfUseManager.instance().getCurrentTermsOfUse();
+		
+		return current.getIssuedDate().equals(acceptedTermsOfUseVersion);
+	}
+	
+	/**
+	 * Checks if the Terms are accepted. If not, open Dialog. On positive
+	 * feedback, update the User.
+	 * 
+	 * @param user
+	 * @param activity
+	 * @param callback
+	 */
+	public static void askForTermsOfUseAcceptance(final User user, final Activity activity,
+			final PositiveNegativeCallback callback) {
+		boolean verified = false;
+		try {
+			verified = TermsOfUseManager.verifyTermsUseOfVersion(user.getAcceptedTermsOfUseVersion());
+		} catch (ServerException e) {
+			logger.warn(e.getMessage(), e);
+			return;
+		}
+		if (!verified) {
+			
+			final TermsOfUseInstance current;
+			try {
+				current = TermsOfUseManager.instance().getCurrentTermsOfUse();
+			} catch (ServerException e) {
+				logger.warn("This should never happen!", e);
+				return;
+			}
+			
+			DialogUtil.createTermsOfUseDialog(current,
+					user.getAcceptedTermsOfUseVersion() == null, new DialogUtil.PositiveNegativeCallback() {
+
+				@Override
+				public void negative() {
+					logger.info("User did not accept the ToU.");
+					Crouton.makeText(activity, activity.getString(R.string.terms_of_use_cant_continue), Style.ALERT).show();
+					if (callback != null) {
+						callback.negative();
+					}
+				}
+
+				@Override
+				public void positive() {
+					TermsOfUseManager.instance().userAcceptedTermsOfUse(user, current.getIssuedDate());
+					Crouton.makeText(activity, activity.getString(R.string.terms_of_use_updating_server), Style.INFO).show();
+					if (callback != null) {
+						callback.positive();
+					}
+				}
+						
+			}, activity);
+		}
+		else {
+			logger.info("User has accpeted ToU in current version.");
+		}
+	}
 
 }
