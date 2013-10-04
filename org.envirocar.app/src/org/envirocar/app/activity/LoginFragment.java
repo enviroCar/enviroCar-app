@@ -300,7 +300,7 @@ public class LoginFragment extends SherlockFragment {
 	 * credentials
 	 */
 	private User authenticateHttp(String user, String token) {
-		HttpGet httpget = new HttpGet(ECApplication.BASE_URL + "/users/" + user);
+		HttpGet httpget = new HttpGet(ECApplication.BASE_URL_DEV + "/users/" + user);
 		httpget.addHeader(new BasicHeader("X-User", user));
 		httpget.addHeader(new BasicHeader("X-Token", token));
 		HttpResponse response;

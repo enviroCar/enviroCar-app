@@ -125,6 +125,8 @@ public class UploadManager {
 	}
 	
 	public void uploadSingleTrack(Track track){
+		if (track == null ) return;
+		
 		if(isCarOfTrackSavedLocallyOnly(track)){
 			registerCarBeforeUpload(track);
 		}

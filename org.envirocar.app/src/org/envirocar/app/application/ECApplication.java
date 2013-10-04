@@ -73,6 +73,7 @@ public class ECApplication extends Application {
 	// Strings
 
 	public static final String BASE_URL = "https://giv-car.uni-muenster.de/stable/rest";
+	public static final String BASE_URL_DEV = "https://giv-car.uni-muenster.de/dev/rest";
 
 	private SharedPreferences preferences = null;
 	
