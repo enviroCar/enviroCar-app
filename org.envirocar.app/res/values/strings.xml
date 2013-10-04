@@ -171,6 +171,7 @@
 	<string name="help_view_track_head_1">4.TODO</string>
 	<string name="help_view_track_text_1">TODO</string>
 	<string name="help_upload_track_head_1">5. TODO</string>
+	<!-- 	I split this text up, so the icon fits better, see the german text  -->
 	<string name="help_upload_track_text_1">TODO</string>
 	<string name="help_upload_track_text_1_1">TODO</string>
 	<string name="help_upload_track_text_2">TODO</string>
