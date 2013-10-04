@@ -18,7 +18,8 @@
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="left"
+        android:layout_marginLeft="5dp"
         android:layout_marginTop="15dp"
         android:text="@string/currentSpeed"
         android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -45,7 +46,8 @@
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="left"
+        android:layout_marginLeft="5dp"
         android:layout_marginTop="15dp"
         android:text="@string/currentCO2"
         android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -71,7 +73,8 @@
         android:id="@+id/dashboard_current_sensor_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="left"
+        android:layout_marginLeft="5dp"
         android:layout_marginTop="10dp"
         android:text="@string/dashboard_sensor_title"
         android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -89,7 +92,8 @@
         android:id="@+id/positionInfoTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="left"
+        android:layout_marginLeft="5dp"
         android:layout_marginTop="15dp"
         android:text="@string/currentPosition"
         android:textAppearance="?android:attr/textAppearanceLarge" />

@@ -126,6 +126,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	static final String LOGIN_TAG = "LOGIN";
 	static final String MY_TRACKS_TAG = "MY_TRACKS";
 	static final String HELP_TAG = "HELP";
+	static final String TROUBLESHOOTING_TAG = "TROUBLESHOOTING";
 	static final String SEND_LOG_TAG = "SEND_LOG";
 
 	public static final int REQUEST_MY_GARAGE = 1336;
@@ -134,6 +135,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private static final Logger logger = Logger.getLogger(MainActivity.class);
 	private static final String SERVICE_STATE = "serviceState";
 	private static final String TRACK_MODE = "trackMode";
+	
 	
 	// Include settings for auto upload and auto-connect
 	
@@ -150,6 +152,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private Handler remainingTimeHandler;
 	private BroadcastReceiver deviceInRangReceiver;
 	private boolean deviceDiscoveryActive;
+	private BroadcastReceiver errorInformationReceiver;
 		
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
@@ -302,6 +305,23 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		};
 		
 		preferences.registerOnSharedPreferenceChangeListener(settingsReceiver);
+		
+		errorInformationReceiver = new BroadcastReceiver() {
+			
+			@Override
+			public void onReceive(Context context, Intent intent) {
+	        	Fragment fragment = getSupportFragmentManager().findFragmentByTag(TROUBLESHOOTING_TAG);
+	        	if (fragment == null) {
+	        		fragment = new TroubleshootingFragment();
+	        	}
+	        	fragment.setArguments(intent.getExtras());
+				getSupportFragmentManager().beginTransaction()
+						.replace(R.id.content_frame, fragment)
+						.commit();
+			}
+		};
+		
+		registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment.INTENT));
 		
 		if(isConnectedToInternet()){
 			loadCacheResources();

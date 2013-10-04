@@ -28,7 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import org.envirocar.app.activity.TroubleshootingActivity;
+import org.envirocar.app.activity.TroubleshootingFragment;
 import org.envirocar.app.application.service.BackgroundService;
 import org.envirocar.app.bluetooth.FallbackBluetoothSocket.FallbackException;
 import org.envirocar.app.logging.Logger;
@@ -157,7 +157,7 @@ public class BluetoothConnection extends Thread {
             if (bluetoothSocket == null) {
             	logger.warn("Socket is null! Cancelling!");
             	owner.deviceDisconnected();
-            	owner.openTroubleshootingActivity(TroubleshootingActivity.BLUETOOTH_EXCEPTION);
+            	owner.openTroubleshootingFragment(TroubleshootingFragment.BLUETOOTH_EXCEPTION);
             }
             
             // Always cancel discovery because it will slow down a connection
@@ -201,7 +201,7 @@ public class BluetoothConnection extends Thread {
 			owner.deviceConnected(bluetoothSocket);
 		} else {
 			owner.deviceDisconnected();
-			owner.openTroubleshootingActivity(TroubleshootingActivity.BLUETOOTH_EXCEPTION);
+			owner.openTroubleshootingFragment(TroubleshootingFragment.BLUETOOTH_EXCEPTION);
 		}
     }
 

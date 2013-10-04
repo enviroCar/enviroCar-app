@@ -67,7 +67,7 @@
                 android:value="org.envirocar.app.activity.MainActivity" />
         </activity>     
         <activity
-            android:name="org.envirocar.app.activity.TroubleshootingActivity"
+            android:name="org.envirocar.app.activity.TroubleshootingFragment"
             android:label="@string/title_activity_troubleshooting"
             android:parentActivityName="org.envirocar.app.activity.MainActivity"
             android:screenOrientation="portrait"
