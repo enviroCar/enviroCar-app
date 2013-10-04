@@ -153,22 +153,41 @@
 	<string name="error_json">Internal Error creating your JSON string</string>
 	
 	<string name="help">Help</string>
-	<string name="help_0">QUICK START GUIDE</string>
-	<string name="help_1">The dashboard shows the current speed of the vehicle and the CO2 emission. In addition to that, the user can specify and edit his car in the "Current Car" section.</string>
-	<string name="help_2">All options and features can be accessed by swiping in the menu from the left side of the screen:</string>
-	<string name="help_3">Before a user can use the app, for example for taking measurements, he/she has to register at first:</string>
-	<string name="help_4">After registering and logging in, the user has to specify his/her car. When the car is new to the system (not already created by another user), the user has to add a new car via the form:</string>
-	<string name="help_5">Before starting the measurement process, an already paired OBD-2 adapter has to be selected in the settings:</string>
-	<string name="help_6">Here, one can also specify whether:</string>
-	<string name="help_6_1">-The app should automatically connect to the adapter when in range and start measuring automatically</string>
-	<string name="help_6_2">-The app should automatically enable Bluetooth when started</string>
-	<string name="help_6_3">-Uploads of tracks should only be performed via a W-Lan/Wifi connection</string>
-	<string name="help_6_4">-Tracks should automatically be uploaded whenever a track is finished</string>
-	<string name="help_7">Completed Tracks can be inspected in the track view:</string>
-	<string name="help_8">The letters "L" and "R" indicate whether a track is already uploaded (Remote) or still only available on the local device. Pushing the delete button will delete all local tracks. Pushing the upload button will upload all local tracks that are not already uploaded.</string>
-	<string name="help_9">A long-click on a track gives the user the possibility to edit the track or view the track on a map. You will need an SD card for the map visualization:</string>
+
+    <string name="help_about_head_1">1. Über enviroCar</string>
+    <string name="help_about_text_1">This app is part of the Citizen Science platform enviroCar (<a href="www.enviroCar.org">www.enviroCar.org</a>)). You can use it to collect and analyze test drive/runs as well as provide the measured data as Open Data.</string>
+    <string name="help_getting_started_head_1">2. Die ersten Schritte</string>
+    <string name="help_getting_started_text_1">The initial screen displays the current measured values of speed, CO2 emission and location. In addition, it also shows the type of car you have specified.
+\n\nBefore you can start recording your test drive/run data, you must complete the following steps.</string>
+    <string name="help_getting_started_text_2">Click on the main menu icon (top left) to access all enviroCar functions.</string>
+	<string name="help_getting_started_head_1">2.1 Register</string>
+	<string name="help_getting_started_text_1_1">If you have not yet registered as an enviroCar user, you can do so with the function “create user account”.</string>
+	<string name="help_getting_started_head_2">2.2 Enter car data</string>
+	<string name="help_getting_started_text_1_2">TODO</string>
+	<string name="help_getting_started_head_3">2.3 TODO</string>
+	<string name="help_getting_started_text_1_3">TODO</string>
+    <string name="help_record_track_head_1">3. TODO</string>
+    <string name="help_record_track_text_1">TODO</string>
+	<string name="help_view_track_head_1">4.TODO</string>
+	<string name="help_view_track_text_1">TODO</string>
+	<string name="help_upload_track_head_1">5. TODO</string>
+	<!-- 	I split this text up, so the icon fits better, see the german text  -->
+	<string name="help_upload_track_text_1">TODO</string>
+	<string name="help_upload_track_text_1_1">TODO</string>
+	<string name="help_upload_track_text_2">TODO</string>
+	<string name="help_upload_track_image_description">data privacy</string>
+	<string name="help_settings_head_1">6. Settings</string>
+	<string name="help_settings_head_1_1">6.1 TODO</string>
+	<string name="help_settings_text_1_1">TODO</string>
+	<string name="help_settings_head_1_2">6.2 TODO</string>
+	<string name="help_settings_text_1_2">TODO</string>
+	<string name="help_settings_head_1_3">6.3 TODO</string>
+	<string name="help_settings_text_1_3">TODO</string>
+	<string name="help_settings_text_1">TODO</string>
+	<string name="help_feedback_head_1">7. FeedBack</string>
+	<string name="help_feedback_text_1">TODO</string>
 	
-	<string name="track_obfuscation_on">Only upload measurements which are taken 250 meter (820 feet) and one minute after start and before end of each track</string>
+    <string name="track_obfuscation_on">Only upload measurements which are taken 250 meter (820 feet) and one minute after start and before end of each track</string>
 	<string name="action_send_log">Send</string>
 	<string name="send_log_0">This feature helps us to reproduce unexpected behavior or program crashes.
 	    When sending in the Log file of the enviroCar app you help to improve it.</string>
