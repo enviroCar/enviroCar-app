@@ -45,7 +45,7 @@
     <string name="maf">MAF (Luftmassenströmung)</string>
     <string name="engine_load">Motorlast</string>
     <string name="car">Auto</string>
-    <string name="currentCO2">Aktueller Co2 Ausstoß</string>
+    <string name="currentCO2">Co2 Ausstoß</string>
     <string name="drivingStyleRating">Fahrstilbewertung</string>
     <string name="moneySpent">Fahrtkosten</string>
     <string name="title_activity_map">Gefahrene Route</string>
@@ -66,8 +66,8 @@
     <string name="calculating">"Wird berechnet&#8230;"</string>
     <string name="error_calculating_fuel_costs">"Fehler bei der Berechnung."</string>
     <string name="title_activity_settings">Einstellungen</string>
-    <string name="currentSpeed">Aktuelle Geschwindigkeit</string>
-    <string name="currentPosition">Aktuelle Position</string>
+    <string name="currentSpeed">Geschwindigkeit</string>
+    <string name="currentPosition">Position</string>
     <string name="positioning_Info">Die Positionsermittlung wird durch GPS durchgeführt. Damit sind präzise Messpunkte sichergestellt. Bitte warten bis Position ermittelt wird.</string>
     <string name="no_current_position">keine</string>
     <string name="menu_start">Start</string>
@@ -75,7 +75,7 @@
     <string name="menu_upload">Hochladen</string>
     <string name="menu_delete">Löschen</string>
     <string name="logged_in_as">Eingeloggt als %1$s</string>
-    <string name="dashboard_sensor_title">Aktuelles Auto:</string>
+    <string name="dashboard_sensor_title">Auto:</string>
     <string name="retry">Erneut versuchen</string>
     <string name="description">Beschreibung:</string>
     <string name="editDescription">Beschreibung bearbeiten</string>
@@ -210,4 +210,6 @@
 	<string name="terms_of_use_cant_continue">Sie müssen die Nutzungsbedingungen akzeptieren, bevor Sie Tracks hochladen können</string>
 	<string name="terms_of_use_updating_server">Speichere Nutzungsbedingungs-Status auf Server</string>
     
+    <string name="diesel_not_yet_supported">Bitte beachten Sie, dass die Berechnung von Verbrauch/CO2 für Diesel-Fahrzeuge nocht nicht unterstützt wird</string>
+	
 </resources>

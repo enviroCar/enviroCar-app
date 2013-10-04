@@ -37,7 +37,10 @@ public class BasicConsumptionAlgorithm extends AbstractConsumptionAlgorithm {
 	}
 
 	@Override
-	public double calculateConsumption(Measurement measurement) throws FuelConsumptionException {
+	public double calculateConsumption(Measurement measurement) throws FuelConsumptionException, UnsupportedFuelTypeException {
+		if (car.getFuelType() == FuelType.DIESEL)
+			throw new UnsupportedFuelTypeException(FuelType.DIESEL);
+		
 		double maf;
 		if (measurement.hasProperty(MAF)) {
 			maf = measurement.getProperty(MAF);	

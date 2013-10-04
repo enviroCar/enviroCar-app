@@ -37,6 +37,7 @@ import org.envirocar.app.event.SpeedEvent;
 import org.envirocar.app.event.SpeedEventListener;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
+import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.views.RoundProgress;
 import org.envirocar.app.views.TypefaceEC;
 
@@ -57,6 +58,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
+
+import de.keyboardsurfer.android.widget.crouton.Crouton;
 /**
  * Dashboard page that displays the current speed, co2 and car.
  * @author jakob
@@ -190,6 +193,7 @@ public class DashboardFragment extends SherlockFragment {
 		};
 		
 		preferences.registerOnSharedPreferenceChangeListener(preferenceListener);
+		
 	}
 	
 
@@ -261,6 +265,12 @@ public class DashboardFragment extends SherlockFragment {
 	public void onResume() {
 		logger.info("onResume. hash="+System.identityHashCode(this));
 		super.onResume();
+		
+		Car car = CarManager.instance().getCar();
+		if (car != null && car.getFuelType() == FuelType.DIESEL) {
+			Crouton.makeText(getActivity(), R.string.diesel_not_yet_supported,
+					de.keyboardsurfer.android.widget.crouton.Style.ALERT).show();
+		}
 	}
 
 	private void initializeEventListeners() {

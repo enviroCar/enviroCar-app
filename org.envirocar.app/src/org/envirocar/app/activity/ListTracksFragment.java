@@ -43,12 +43,15 @@ import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
+import org.envirocar.app.exception.FuelConsumptionException;
+import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.model.TermsOfUseInstance;
 import org.envirocar.app.network.RestClient;
+import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
@@ -905,15 +908,25 @@ public class ListTracksFragment extends SherlockFragment {
 					Car car = currTrack.getCar();
 					carView.setText(car.getManufacturer() + " " + car.getModel());
 					descriptionView.setText(currTrack.getDescription());
-					double consumption = currTrack.getFuelConsumptionPerHour();
-					double literOn100km = currTrack.getLiterPerHundredKm();
-					co2View.setText(twoDForm.format(currTrack.getGramsPerKm()) + "g/km");
-					consumptionView.setText(twoDForm.format(consumption) + " l/h (" + twoDForm.format(literOn100km) + " l/100 km)");
-					if(fuelCostView.getText() == null || fuelCostView.getText().equals("")){
-						fuelCostView.setText(R.string.calculating);
-						getEstimatedFuelCost(fuelCostView, twoDForm, literOn100km, currTrack.getLengthOfTrack(), currTrack.getCar().getFuelType());
+					try {
+						double consumption = currTrack.getFuelConsumptionPerHour();
+						double literOn100km = currTrack.getLiterPerHundredKm();
+						co2View.setText(twoDForm.format(currTrack.getGramsPerKm()) + " g/km");
+						consumptionView.setText(twoDForm.format(consumption) + " l/h (" + twoDForm.format(literOn100km) + " l/100 km)");
+						if(fuelCostView.getText() == null || fuelCostView.getText().equals("")){
+							fuelCostView.setText(R.string.calculating);
+							getEstimatedFuelCost(fuelCostView, twoDForm, literOn100km, currTrack.getLengthOfTrack(), currTrack.getCar().getFuelType());
+						}
+					} catch (UnsupportedFuelTypeException e) {
+						logger.warn(e.getMessage());
+					} catch (MeasurementsException e) {
+						logger.warn(e.getMessage());
+					} catch (FuelConsumptionException e) {
+						logger.warn(e.getMessage());
 					}
-				} catch (Exception e) {
+					
+					
+				} catch (MeasurementsException e) {
 					logger.warn(e.getMessage(), e);
 				}
 
