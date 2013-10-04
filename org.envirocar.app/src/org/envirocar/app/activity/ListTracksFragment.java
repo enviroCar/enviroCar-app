@@ -478,7 +478,7 @@ public class ListTracksFragment extends SherlockFragment {
 		final User user = UserManager.instance().getUser();
 		boolean verified = false;
 		try {
-			verified = verifyTermsUseOfVersion(user.getAcceptedTermsOfUseVersion());
+			verified = TermsOfUseManager.verifyTermsUseOfVersion(user.getAcceptedTermsOfUseVersion());
 		} catch (ServerException e) {
 			logger.warn(e.getMessage(), e);
 			Crouton.makeText(getActivity(), getString(R.string.server_error_please_try_later), Style.ALERT).show();
@@ -528,22 +528,6 @@ public class ListTracksFragment extends SherlockFragment {
 		} else {
 			new UploadManager(((ECApplication) getActivity().getApplication())).uploadSingleTrack(track);		
 		}
-	}
-
-	/**
-	 * verify the users accepted terms of use version
-	 * against the latest from the server
-	 * 
-	 * @param acceptedTermsOfUseVersion the accepted version of the current user
-	 * @return true, if the provided version is the latest
-	 * @throws ServerException if the server did not respond (as expected)
-	 */
-	private boolean verifyTermsUseOfVersion(String acceptedTermsOfUseVersion) throws ServerException {
-		if (acceptedTermsOfUseVersion == null) return false;
-		
-		TermsOfUseInstance current = TermsOfUseManager.instance().getCurrentTermsOfUse();
-		
-		return current.getIssuedDate().equals(acceptedTermsOfUseVersion);
 	}
 
 	private void createRemoteDeleteDialog(final Track track) {
