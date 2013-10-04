@@ -39,12 +39,15 @@ import java.util.TimeZone;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
+import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
+import org.envirocar.app.model.TermsOfUseInstance;
 import org.envirocar.app.network.RestClient;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
@@ -307,9 +310,7 @@ public class ListTracksFragment extends SherlockFragment {
 		
 		case R.id.menu_upload:
 			if (UserManager.instance().isLoggedIn()) {
-				((ECApplication) getActivity().getApplicationContext()).createNotification("start");
-				UploadManager uploadManager = new UploadManager(((ECApplication) getActivity().getApplication()));
-				uploadManager.uploadAllTracks();
+				startTrackUpload(true, null);
 			} else {
 				Crouton.showText(getActivity(), R.string.hint_login_first, Style.INFO);
 			}
@@ -456,7 +457,7 @@ public class ListTracksFragment extends SherlockFragment {
 		// Upload track
 		case R.id.uploadTrack:
 			if (UserManager.instance().isLoggedIn()) {
-				new UploadManager(((ECApplication) getActivity().getApplication())).uploadSingleTrack(track);
+				startTrackUpload(false, track);
 			} else {
 				Crouton.showText(getActivity(), R.string.hint_login_first, Style.INFO);
 			}
@@ -464,6 +465,85 @@ public class ListTracksFragment extends SherlockFragment {
 		default:
 			return super.onContextItemSelected(item);
 		}
+	}
+
+	/**
+	 * starts the uploading mechanism. It asserts the Terms of Use
+	 * acceptance state.
+	 * 
+	 * @param all if all local tracks should be uploaded
+	 * @param track a single track to upload
+	 */
+	private void startTrackUpload(final boolean all, final Track track) {
+		final User user = UserManager.instance().getUser();
+		boolean verified = false;
+		try {
+			verified = verifyTermsUseOfVersion(user.getAcceptedTermsOfUseVersion());
+		} catch (ServerException e) {
+			logger.warn(e.getMessage(), e);
+			Crouton.makeText(getActivity(), getString(R.string.server_error_please_try_later), Style.ALERT).show();
+			return;
+		}
+		if (!verified) {
+			
+			final TermsOfUseInstance current;
+			try {
+				current = TermsOfUseManager.instance().getCurrentTermsOfUse();
+			} catch (ServerException e) {
+				logger.warn("This should never happen!", e);
+				return;
+			}
+			
+			DialogUtil.createTermsOfUseDialog(current,
+					user.getAcceptedTermsOfUseVersion() == null, new DialogUtil.PositiveNegativeCallback() {
+
+				@Override
+				public void negative() {
+					logger.info("User did not accept the ToU.");
+					Crouton.makeText(getActivity(), getString(R.string.terms_of_use_info), Style.ALERT).show();
+				}
+
+				@Override
+				public void positive() {
+					TermsOfUseManager.instance().userAcceptedTermsOfUse(user, current.getIssuedDate());
+					uploadTracks(all, track);
+				}
+						
+			}, getActivity());
+		} else {
+			uploadTracks(all, track);
+		}
+		
+	}
+
+	/**
+	 * executes the actual track uploading
+	 * 
+	 * @param all if all local tracks should be uploaded
+	 * @param track a single track to upload
+	 */
+	private void uploadTracks(boolean all, Track track) {
+		if (all) {
+			new UploadManager(((ECApplication) getActivity().getApplication())).uploadAllTracks();
+		} else {
+			new UploadManager(((ECApplication) getActivity().getApplication())).uploadSingleTrack(track);		
+		}
+	}
+
+	/**
+	 * verify the users accepted terms of use version
+	 * against the latest from the server
+	 * 
+	 * @param acceptedTermsOfUseVersion the accepted version of the current user
+	 * @return true, if the provided version is the latest
+	 * @throws ServerException if the server did not respond (as expected)
+	 */
+	private boolean verifyTermsUseOfVersion(String acceptedTermsOfUseVersion) throws ServerException {
+		if (acceptedTermsOfUseVersion == null) return false;
+		
+		TermsOfUseInstance current = TermsOfUseManager.instance().getCurrentTermsOfUse();
+		
+		return current.getIssuedDate().equals(acceptedTermsOfUseVersion);
 	}
 
 	private void createRemoteDeleteDialog(final Track track) {

@@ -339,6 +339,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 				/*
 				 * lets first try a different adapter before we fail!
 				 */
+				logger.warn(e.getMessage(), e);
 				throw new AdapterFailedException(getClass().getName());
 			} else {
 				throw e;

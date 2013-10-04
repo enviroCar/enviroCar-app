@@ -21,6 +21,7 @@
 package org.envirocar.app.activity;
 
 import org.envirocar.app.R;
+import org.envirocar.app.model.TermsOfUseInstance;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -28,6 +29,9 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnDismissListener;
+import android.text.Html;
+import android.text.SpannableString;
+import android.text.Spanned;
 
 public class DialogUtil {
 
@@ -49,11 +53,11 @@ public class DialogUtil {
 			DialogCallback callback, Activity activity) {
 		createTitleMessageDialog(
 				activity.getString(titleIde),
-				activity.getString(messageId),
+				new SpannableString(activity.getString(messageId)),
 				callback, activity);
 	}
 	
-	public static void createTitleMessageDialog(String title, String message,
+	public static void createTitleMessageDialog(String title, Spanned message,
 			DialogCallback callback, Activity activity) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
@@ -66,6 +70,7 @@ public class DialogUtil {
 		builder.setOnCancelListener(callback);
 		
 		AlertDialog dialog = builder.create();
+		
 		dialog.show();
 	}
 	
@@ -118,6 +123,32 @@ public class DialogUtil {
 		public abstract void negative();
 		
 		public abstract void positive();
+	}
+
+
+	public static void createTermsOfUseDialog(TermsOfUseInstance current,
+			boolean firstTime, DialogCallback callback,
+			Activity activity) {
+		createTitleMessageDialog(activity.getResources().getString(R.string.terms_of_use_title),
+				createTermsOfUseMarkup(current, firstTime, activity), callback, activity);
+	}
+
+
+	private static Spanned createTermsOfUseMarkup(TermsOfUseInstance current,
+			boolean firstTime, Activity activity) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("<p>");
+		if (!firstTime) {
+			sb.append(activity.getString(R.string.terms_of_use_sorry));
+		}
+		else {
+			sb.append(activity.getString(R.string.terms_of_use_info));
+		}
+		sb.append(":</p>");
+		sb.append(current.getContents().replace("</li>", "<br/></li>"));
+		
+		return Html.fromHtml(sb.toString());
 	}
 	
 	

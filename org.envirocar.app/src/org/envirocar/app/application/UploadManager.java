@@ -85,6 +85,7 @@ public class UploadManager {
 	static {
 		iso8601Format.setTimeZone(TimeZone.getTimeZone("UTC"));
 		supportedPhenomenons.add(PropertyKey.CALCULATED_MAF);
+		supportedPhenomenons.add(PropertyKey.MAF);
 		supportedPhenomenons.add(PropertyKey.CO2);
 		supportedPhenomenons.add(PropertyKey.SPEED);
 		supportedPhenomenons.add(PropertyKey.RPM);
@@ -224,7 +225,7 @@ public class UploadManager {
 		
 		@Override
 		protected Track doInBackground(Track... params) {
-			
+			((ECApplication) context).createNotification("start");
 			User user = UserManager.instance().getUser();
 			String username = user.getUsername();
 			String token = user.getToken();

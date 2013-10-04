@@ -18,22 +18,39 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol.algorithm;
+package org.envirocar.app.model;
 
-import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_PRESSURE;
-import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_TEMPERATURE;
-import static org.envirocar.app.storage.Measurement.PropertyKey.RPM;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.envirocar.app.exception.MeasurementsException;
-import org.envirocar.app.storage.Measurement;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public abstract class AbstractCalculatedMAFAlgorithm {
+public class TermsOfUse {
+
+	public static TermsOfUse fromJson(JSONObject json) throws JSONException {
+		JSONArray array = json.getJSONArray("termsOfUse");
+		
+		List<TermsOfUseInstance> list = new ArrayList<TermsOfUseInstance>(array.length());
+		for (int i = 0; i < array.length(); i++) {
+			list.add(TermsOfUseInstance.fromJson(array.getJSONObject(i)));
+		}
+		
+		return new TermsOfUse(list);
+	}
 	
-	public abstract double calculateMAF(double rpm, double intakeTemperature, double intakePressure);
 	
-	public double calculateMAF(Measurement m) throws MeasurementsException {
-		if (m == null) throw new MeasurementsException("Measurement was null!");
-		return calculateMAF(m.getProperty(RPM), m.getProperty(INTAKE_TEMPERATURE), m.getProperty(INTAKE_PRESSURE));
+	private List<TermsOfUseInstance> instances;
+
+	private TermsOfUse(List<TermsOfUseInstance> instances) {
+		this.instances = instances;
 	}
 
+	public List<TermsOfUseInstance> getInstances() {
+		return instances;
+	}
+	
+	
+	
 }

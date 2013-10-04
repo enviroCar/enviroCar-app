@@ -18,22 +18,26 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol.algorithm;
+package org.envirocar.app.test;
 
-import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_PRESSURE;
-import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_TEMPERATURE;
-import static org.envirocar.app.storage.Measurement.PropertyKey.RPM;
+import java.io.InputStream;
+import java.util.Scanner;
 
-import org.envirocar.app.exception.MeasurementsException;
-import org.envirocar.app.storage.Measurement;
+import android.test.InstrumentationTestCase;
 
-public abstract class AbstractCalculatedMAFAlgorithm {
-	
-	public abstract double calculateMAF(double rpm, double intakeTemperature, double intakePressure);
-	
-	public double calculateMAF(Measurement m) throws MeasurementsException {
-		if (m == null) throw new MeasurementsException("Measurement was null!");
-		return calculateMAF(m.getProperty(RPM), m.getProperty(INTAKE_TEMPERATURE), m.getProperty(INTAKE_PRESSURE));
+public class ResourceLoadingTestCase extends InstrumentationTestCase {
+
+	protected String readJson(InputStream in) {
+		Scanner sc = new Scanner(in, "UTF-8");
+		
+		StringBuilder sb = new StringBuilder();
+		while (sc.hasNext()) {
+			sb.append(sc.nextLine());
+			sb.append(System.getProperty("line.separator"));
+		}
+		
+		sc.close();
+		return sb.toString();
 	}
-
+	
 }
