@@ -190,8 +190,8 @@
 	
 	<string name="server_error_please_try_later">Server Error - Please try again later</string>
 	
-	<string name="terms_of_use_title">Terms Of Use</string>
-	<string name="terms_of_use_info">Before you proceed, you have to accept our Terms Of Use:</string>
-	<string name="terms_of_use_sorry">Sorry to bother you again. We have changed our Terms Of Use:</string>
+	<string name="terms_of_use_title">Accpt the Terms Of Use?</string>
+	<string name="terms_of_use_info">Before you proceed, you have to accept our Terms Of Use</string>
+	<string name="terms_of_use_sorry">Sorry to bother you again. We have changed our Terms Of Use</string>
 	
 </resources>
