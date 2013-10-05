@@ -45,14 +45,15 @@ public class ObfuscationTest extends AndroidTestCase {
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getContext());
 		boolean oldSetting = pref.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
 		
-		pref.edit().putBoolean(SettingsActivity.OBFUSCATE_POSITION, true);
+		pref.edit().putBoolean(SettingsActivity.OBFUSCATE_POSITION, true).commit();
+		
 		UploadManager um = new UploadManager(getContext());
 		Track t = createTrack();
 		List<Measurement> result = um.getNonObfuscatedMeasurements(t);
 		
 		Assert.assertTrue("Unexpected element count", result.size() == TARGET_LENGTH);
 		
-		pref.edit().putBoolean(SettingsActivity.OBFUSCATE_POSITION, oldSetting);
+		pref.edit().putBoolean(SettingsActivity.OBFUSCATE_POSITION, oldSetting).commit();
 	}
 
 	private Track createTrack() {
