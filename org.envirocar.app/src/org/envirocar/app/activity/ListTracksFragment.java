@@ -32,10 +32,17 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
@@ -57,12 +64,15 @@ import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.util.NamedThreadFactory;
+import org.envirocar.app.util.Util;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -79,13 +89,15 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
@@ -111,10 +123,12 @@ public class ListTracksFragment extends SherlockFragment {
 	// UI Elements
 	
 	private ExpandableListView trackListView;
-	private ProgressBar progress;
 	private int itemSelect;
 	
 	private Menu menu;
+	private View progressLayout;
+	private TextView progressStatusText;
+	private View parentLayout;
 	
 	protected static final Logger logger = Logger.getLogger(ListTracksFragment.class);
 	
@@ -123,18 +137,27 @@ public class ListTracksFragment extends SherlockFragment {
 		super.onCreate(savedInstanceState);
 		
 		dbAdapter = DbAdapterImpl.instance();
+		
 	}
 
 	public View onCreateView(android.view.LayoutInflater inflater,
 			android.view.ViewGroup container,
 			android.os.Bundle savedInstanceState) {
+		super.onCreateView(inflater, container, savedInstanceState);
 		
 		setHasOptionsMenu(true);
 
 		View v = inflater.inflate(R.layout.list_tracks_layout, null);
+		
+		parentLayout = v.findViewById(R.id.list_tracks_parent);
+		
 		trackListView = (ExpandableListView) v.findViewById(R.id.list);
-		progress = (ProgressBar) v.findViewById(R.id.listprogress);
-		trackListView.setEmptyView(v.findViewById(android.R.id.empty));
+		progressLayout = v.findViewById(R.id.progress_layout);
+		progressStatusText = (TextView) v.findViewById(R.id.progress_status);
+		
+		setProgressStatusText(R.string.fetching_tracks);
+		
+		trackListView.setEmptyView(v.findViewById(R.id.empty));
 		
 		registerForContextMenu(trackListView);
 
@@ -153,6 +176,7 @@ public class ListTracksFragment extends SherlockFragment {
 	
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
 		/*
 		 * TODO create a mechanism to get informed when a track
 		 * has been uploaded
@@ -165,21 +189,24 @@ public class ListTracksFragment extends SherlockFragment {
 		trackListView.setChildDivider(getResources().getDrawable(
 				android.R.color.transparent));
 		
-		//fetch local tracks // TODO load tracks with async thread
-		this.tracksList = dbAdapter.getAllTracks();
-		logger.info("Number of tracks in the List: " + tracksList.size());
-		if (trackListAdapter == null)
+		tracksList = new ArrayList<Track>();
+		
+		if (trackListAdapter == null) {
 			trackListAdapter = new TracksListAdapter();
-		trackListView.setAdapter(trackListAdapter);
-		trackListAdapter.notifyDataSetChanged();
-	
-		//if logged in, download tracks from server
-		if(UserManager.instance().isLoggedIn()){
-			downloadTracks();
+			trackListView.setAdapter(trackListAdapter);
 		}
 		
+		
+	}
+	
+	@Override
+	public void onStart() {
+		startTracksRetrieval();
+		super.onStart();
 	}
 
+	
+	
 	/**
 	 * This method requests the current fuel price of a given fuel type from a
 	 * WPS that caches prices from export.benzinpreis-aktuell.de, calculates the
@@ -202,11 +229,11 @@ public class ListTracksFragment extends SherlockFragment {
 			final DecimalFormat twoDForm, final double litersPerHundredKm,
 			final double lengthOfTrack, final FuelType fuelType) {
 
-		new AsyncTask<Void, Void, Double>() {
+		AsyncTask<Void, Void, Double> task = new AsyncTask<Void, Void, Double>() {
 
 			@Override
 			protected Double doInBackground(Void... params) {
-
+				Thread.currentThread().setName("TrackList-WPSCaller-"+Thread.currentThread().getId());
 				try {
 
 					URL url = new URL(
@@ -248,7 +275,9 @@ public class ListTracksFragment extends SherlockFragment {
 				}
 			}
 
-		}.execute();
+		};
+		
+		Util.execute(task);
 
 	}
 
@@ -263,10 +292,11 @@ public class ListTracksFragment extends SherlockFragment {
 	public void onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
 		this.menu = menu;
-		updateUsabilityOfMenuItems();
 	}
 
 	private void updateUsabilityOfMenuItems() {
+		if (menu == null) return;
+		
 		if (dbAdapter.getAllLocalTracks().size() > 0) {
 			menu.findItem(R.id.menu_delete_all).setEnabled(true);
 			if(UserManager.instance().isLoggedIn())
@@ -292,13 +322,12 @@ public class ListTracksFragment extends SherlockFragment {
 			}
 		}
 		dbAdapter.deleteAllRemoteTracks();
-		trackListAdapter.notifyDataSetChanged();
+		updateTrackListView();
 	}
 	
 	public void notifyDataSetChanged(Track track){
 		updateUsabilityOfMenuItems();
-		trackListAdapter.notifyDataSetChanged();
-		//TODO: refresh tracks?! after they got uploaded, the (now remote) tracks still have the L-marker
+		updateTrackListView();
 	}
 	
 	/**
@@ -307,7 +336,7 @@ public class ListTracksFragment extends SherlockFragment {
 	@Override
 	public boolean onOptionsItemSelected(
 			com.actionbarsherlock.view.MenuItem item) {
-		switch(item.getItemId()){
+		switch (item.getItemId()) {
 		
 		//Upload all tracks
 		
@@ -323,7 +352,7 @@ public class ListTracksFragment extends SherlockFragment {
 
 		case R.id.menu_delete_all:
 			DbAdapterImpl.instance().deleteAllLocalTracks();
-			Crouton.makeText(getActivity(), R.string.all_local_tracks_deleted,Style.CONFIRM).show();
+			Crouton.makeText(getActivity(), R.string.not_yet_supported, Style.CONFIRM).show();
 			return true;
 			
 		}
@@ -347,7 +376,10 @@ public class ListTracksFragment extends SherlockFragment {
 	 */
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-		final Track track = tracksList.get(itemSelect);
+		final Track track;
+		synchronized (this) {
+			track = tracksList.get(itemSelect);	
+		}
 		switch (item.getItemId()) {
 		
 		// Edit the trackname
@@ -362,7 +394,7 @@ public class ListTracksFragment extends SherlockFragment {
 						track.setName(value);
 						dbAdapter.updateTrack(track);
 						tracksList.get(itemSelect).setName(value);
-						trackListAdapter.notifyDataSetChanged();
+						updateTrackListView();
 						Crouton.showText(getActivity(), getString(R.string.nameChanged), Style.INFO);
 					}
 				}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -388,7 +420,7 @@ public class ListTracksFragment extends SherlockFragment {
 						dbAdapter.updateTrack(track);
 						trackListView.collapseGroup(itemSelect);
 						tracksList.get(itemSelect).setDescription(value);
-						trackListAdapter.notifyDataSetChanged();
+						updateTrackListView();
 						// TODO Bug: update the description when it is changed.
 						Crouton.showText(getActivity(), getString(R.string.descriptionChanged), Style.INFO);
 					}
@@ -408,13 +440,13 @@ public class ListTracksFragment extends SherlockFragment {
 			logger.info(Environment.getExternalStorageDirectory().toString());
 			File f = new File(Environment.getExternalStorageDirectory() + "/Android");
 			if (f.isDirectory()) {
-				ArrayList<Measurement> measurements = track.getMeasurements();
+				List<Measurement> measurements = track.getMeasurements();
 				logger.info("Count of measurements in the track: " + String.valueOf(measurements.size()));
 				String[] trackCoordinates = extractCoordinates(measurements);
 				
 				if (trackCoordinates.length != 0){
 					logger.info(String.valueOf(trackCoordinates.length));
-					Intent intent = new Intent(getActivity().getApplicationContext(), Map.class);
+					Intent intent = new Intent(getActivity().getApplicationContext(), org.envirocar.app.activity.Map.class);
 					Bundle bundle = new Bundle();
 					bundle.putStringArray("coordinates", trackCoordinates);
 					intent.putExtras(bundle);
@@ -436,7 +468,7 @@ public class ListTracksFragment extends SherlockFragment {
 				dbAdapter.deleteTrack(track.getId());
 				Crouton.showText(getActivity(), getString(R.string.trackDeleted), Style.INFO);
 				tracksList.remove(itemSelect);
-				trackListAdapter.notifyDataSetChanged();
+				updateTrackListView();
 			} else {
 				createRemoteDeleteDialog(track);
 			}
@@ -547,7 +579,7 @@ public class ListTracksFragment extends SherlockFragment {
 										new JsonHttpResponseHandler() {
 											@Override
 											protected void handleMessage(Message msg) {
-												removeRemoteTrack(track);
+												removeRemoteTrackFromViewAndDB(track);
 											}
 										});
 							}
@@ -561,11 +593,11 @@ public class ListTracksFragment extends SherlockFragment {
 		builder.create().show();
 	}
 	
-	private void removeRemoteTrack(final Track track) {
+	private void removeRemoteTrackFromViewAndDB(final Track track) {
 		if (track.isRemoteTrack()) {
 			if (tracksList.remove(track)) {
 				dbAdapter.deleteTrack(track.getId());
-				trackListAdapter.notifyDataSetChanged();
+				updateTrackListView();
 				Crouton.showText(
 						getActivity(),
 						getString(R.string.remoteTrackDeleted),
@@ -581,7 +613,7 @@ public class ListTracksFragment extends SherlockFragment {
 	 *            arraylist with all measurements
 	 * @return string array with coordinates
 	 */
-	private String[] extractCoordinates(ArrayList<Measurement> measurements) {
+	private String[] extractCoordinates(List<Measurement> measurements) {
 		ArrayList<String> coordinates = new ArrayList<String>();
 
 		for (Measurement measurement : measurements) {
@@ -596,16 +628,115 @@ public class ListTracksFragment extends SherlockFragment {
 	/**
 	 * Download remote tracks from the server and include them in the track list
 	 */
-	private void downloadTracks() {
+	@SuppressLint("NewApi")
+	private void startTracksRetrieval() {
 		
-		if(!((MainActivity<?>)getActivity()).isConnectedToInternet()){
-			return;
+		AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+
+			@Override
+			protected Void doInBackground(Void... params) {
+				Thread.currentThread().setName("TrackList-TrackRetriever"+Thread.currentThread().getId());
+				
+				setProgressStatusText(R.string.fetching_tracks_local);
+				
+				//fetch db tracks (local+remote)
+				
+				for (Track t : dbAdapter.getAllTracks(true)) {
+					synchronized (ListTracksFragment.this) {
+						tracksList.add(t);
+					}	
+				}
+				
+				updateTrackListView();
+				
+				logger.info("Number of tracks in the List: " + tracksList.size());
+				
+				if (UserManager.instance().isLoggedIn()) {
+					setProgressStatusText(R.string.fetching_tracks_remote);
+					if (((MainActivity<?>)getActivity()).isConnectedToInternet()) {
+						User user = UserManager.instance().getUser();
+						final String username = user.getUsername();
+						final String token = user.getToken();
+						logger.info("On thread "+ Thread.currentThread().getId());
+						
+						logger.info("On thread "+ Thread.currentThread().getId());
+						downloadTracks(username, token);					
+					}
+						
+				} else {
+					removeProgressLayout();
+				}
+				
+				return null;
+			}
+			
+		};
+		
+		Util.execute(task);
+		
+	}
+
+	protected void removeProgressLayout() {
+		if (!isAdded()) return;
+		
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				TranslateAnimation animate = new TranslateAnimation(0,0,0,-progressLayout.getHeight());
+				animate.setDuration(500);
+				animate.setAnimationListener(new AnimationListener() {
+					@Override
+					public void onAnimationStart(Animation animation) {
+						
+					}
+					@Override
+					public void onAnimationRepeat(Animation animation) {
+					}
+					
+					@Override
+					public void onAnimationEnd(Animation animation) {
+						progressLayout.setVisibility(View.GONE);
+					}
+				});
+				parentLayout.startAnimation(animate);
+				
+			}
+		});
+		
+	}
+
+	protected void setProgressStatusText(int resId) {
+		if (isAdded()) {
+			final String str = getString(resId);
+			getActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					progressStatusText.setText(str);	
+					TypefaceEC.applyCustomFont(progressStatusText,
+							TypefaceEC.Newscycle(getActivity()));
+				}
+			});
+		}
+	}
+
+	protected void updateTrackListView() {
+		if (!isAdded()) return;
+		
+		synchronized (this) {
+			Collections.shuffle(tracksList);
+			Collections.sort(tracksList);	
 		}
 		
-		User user = UserManager.instance().getUser();
-		final String username = user.getUsername();
-		final String token = user.getToken();
-		RestClient.downloadTracks(username,token, new JsonHttpResponseHandler() {
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				trackListAdapter.notifyDataSetChanged();				
+			}
+		});
+	}
+
+	private void downloadTracks(final String username, final String token) {
+		RestClient.downloadTracks(username, token, new JsonHttpResponseHandler() {
 			
 			
 			@Override
@@ -621,194 +752,189 @@ public class ListTracksFragment extends SherlockFragment {
 			}
 			
 			// Variable that holds the number of trackdl requests
-			private int ct = 0;
+			private int remoteTrackCount;
 			
-			class AsyncOnSuccessTask extends AsyncTask<JSONObject, Void, Track>{
-				
-				@Override
-				protected Track doInBackground(JSONObject... trackJson) {
-					Track t;
+			protected void processDownloadedTrack(JSONObject... trackJson) {
+				logger.info("On thread "+ Thread.currentThread().getId());
+				Track t;
+				try {
+					JSONObject trackProperties = trackJson[0].getJSONObject("properties");
+					
+					t = Track.createRemoteTrack(trackProperties.getString("id"), dbAdapter);
+					String trackName = "unnamed Track #"+remoteTrackCount;
 					try {
-						JSONObject trackProperties = trackJson[0].getJSONObject("properties");
-						t = Track.createRemoteTrack(trackProperties.getString("id"), dbAdapter);
-						String trackName = "unnamed Track #"+ct;
-						try{
-							trackName = trackProperties.getString("name");
-						}catch (JSONException e){
-							logger.warn(e.getMessage(), e);
-						}
-						t.setName(trackName);
-						String description = "";
-						try{
-							description = trackProperties.getString("description");
-						}catch (JSONException e){
-							logger.warn(e.getMessage(), e);
-						}
-						t.setDescription(description);
-						JSONObject sensorProperties = trackProperties.getJSONObject("sensor").getJSONObject("properties");
+						trackName = trackProperties.getString("name");
+					} catch (JSONException e){
+						logger.warn(e.getMessage(), e);
+					}
+					
+					t.setName(trackName);
+					String description = "";
+					try {
+						description = trackProperties.getString("description");
+					} catch (JSONException e){
+						logger.warn(e.getMessage(), e);
+					}
+					
+					t.setDescription(description);
+					JSONObject sensorProperties = trackProperties.getJSONObject("sensor").getJSONObject("properties");
+					
+					t.setCar(Car.fromJson(sensorProperties)); 
+					//include server properties tracks created, modified?
+					
+					dbAdapter.updateTrack(t);
+					//Log.i("track_id",t.getId()+" "+((DbAdapterRemote) dbAdapter).trackExistsInDatabase(t.getId())+" "+dbAdapter.getNumberOfStoredTracks());
+					
+					Measurement recycleMeasurement;
+					
+					List<Measurement> measurements = new ArrayList<Measurement>();
+					
+					for (int j = 0; j < trackJson[0].getJSONArray("features").length(); j++) {
 						
-						t.setCar(Car.fromJson(sensorProperties)); 
-						//include server properties tracks created, modified?
-						
-						dbAdapter.updateTrack(t);
-						//Log.i("track_id",t.getId()+" "+((DbAdapterRemote) dbAdapter).trackExistsInDatabase(t.getId())+" "+dbAdapter.getNumberOfStoredTracks());
-						
-						Measurement recycleMeasurement;
-						
-						for (int j = 0; j < trackJson[0].getJSONArray("features").length(); j++) {
-							
-							JSONObject measurementJsonObject = trackJson[0].getJSONArray("features").getJSONObject(j);
-							recycleMeasurement = new Measurement(
-									Float.valueOf(measurementJsonObject.getJSONObject("geometry").getJSONArray("coordinates").getString(1)),
-									Float.valueOf(measurementJsonObject.getJSONObject("geometry").getJSONArray("coordinates").getString(0)));
-							JSONObject properties = measurementJsonObject.getJSONObject("properties");
-							recycleMeasurement.setTime(Utils.isoDateToLong((properties.getString("time"))));
-							JSONObject phenomenons = properties.getJSONObject("phenomenons");
-							for (PropertyKey key : PropertyKey.values()) {
-								if (phenomenons.has(key.toString())) {
-									Double value = phenomenons.getJSONObject(key.toString()).getDouble("value"); 
-									recycleMeasurement.setProperty(key, value);
-								}
+						JSONObject measurementJsonObject = trackJson[0].getJSONArray("features").getJSONObject(j);
+						recycleMeasurement = new Measurement(
+								Float.valueOf(measurementJsonObject.getJSONObject("geometry").getJSONArray("coordinates").getString(1)),
+								Float.valueOf(measurementJsonObject.getJSONObject("geometry").getJSONArray("coordinates").getString(0)));
+						JSONObject properties = measurementJsonObject.getJSONObject("properties");
+						recycleMeasurement.setTime(Utils.isoDateToLong((properties.getString("time"))));
+						JSONObject phenomenons = properties.getJSONObject("phenomenons");
+						for (PropertyKey key : PropertyKey.values()) {
+							if (phenomenons.has(key.toString())) {
+								Double value = phenomenons.getJSONObject(key.toString()).getDouble("value"); 
+								recycleMeasurement.setProperty(key, value);
 							}
-							recycleMeasurement.setTrack(t);
-							t.addMeasurement(recycleMeasurement);
 						}
+						recycleMeasurement.setTrack(t);
+						measurements.add(recycleMeasurement);
+					}
+					t.setMeasurementsAsArrayList(measurements);
+					t.storeMeasurementsInDbAdapter();
 
-						return t;
-					} catch (JSONException e) {
-						logger.warn(e.getMessage(), e);
-					} catch (NumberFormatException e) {
-						logger.warn(e.getMessage(), e);
-					} catch (ParseException e) {
-						logger.warn(e.getMessage(), e);
+					synchronized (ListTracksFragment.this) {
+						tracksList.add(t);	
 					}
-					return null;
-				}
-
-				@Override
-				protected void onPostExecute(
-						Track t) {
-					super.onPostExecute(t);
-					if(t != null){
-						tracksList.add(t);
-						trackListAdapter.notifyDataSetChanged();
-					}
-					ct--;
-					if (ct == 0) {
-						progress.setVisibility(View.GONE);
-					}
+					
+					afterOneTrack();
+					
+				} catch (JSONException e) {
+					logger.warn(e.getMessage(), e);
+				} catch (NumberFormatException e) {
+					logger.warn(e.getMessage(), e);
+				} catch (ParseException e) {
+					logger.warn(e.getMessage(), e);
 				}
 			}
+
 			
-			
-			private void afterOneTrack(){
+			private synchronized void afterOneTrack() {
+				logger.info("On thread "+ Thread.currentThread().getId());
 				View empty = getView().findViewById(android.R.id.empty);
 				if (empty != null) {
 					empty.setVisibility(View.GONE);
 				}
-				ct--;
-				if (ct == 0) {
-					progress.setVisibility(View.GONE);
-					//sort the tracks bubblesort ?
-					Collections.sort(tracksList);
-					trackListAdapter.notifyDataSetChanged();
+				
+				if (--remoteTrackCount == 0) {
+					removeProgressLayout();
+					updateTrackListView();
 					updateUsabilityOfMenuItems();
-				}
-				if (trackListView.getAdapter() == null || (trackListView.getAdapter() != null && !trackListView.getAdapter().equals(trackListAdapter))) {
-					trackListView.setAdapter(trackListAdapter);
 				}
 			}
 
-			@Override
-			public void onStart() {
-				super.onStart();
-				if (tracksList == null)
-					tracksList = new ArrayList<Track>();
-				if (trackListAdapter == null)
-					trackListAdapter = new TracksListAdapter();
-				progress.setVisibility(View.VISIBLE);
-			}
 
 			@Override
 			public void onSuccess(int httpStatus, JSONObject json) {
 				super.onSuccess(httpStatus, json);
+				
+				logger.info("On thread "+ Thread.currentThread().getId());
 
 				try {
 					JSONArray tracks = json.getJSONArray("tracks");
-					if(tracks.length()==0) progress.setVisibility(View.GONE);
-					ct = tracks.length();
-					for (int i = 0; i < tracks.length(); i++) {
-						boolean trackInList = false;
-
-						// check if track is listed
+					if (tracks.length() == 0) {
+						removeProgressLayout();
+					}
+					
+					Set<String> localRemoteIds = new HashSet<String>();
+					synchronized (ListTracksFragment.this) {
 						for (Track t : tracksList) {
-							if (t.getRemoteID() != null && t.getRemoteID().equals(((JSONObject) tracks.get(i)).getString("id"))) {
-								afterOneTrack();
-								trackInList = true;
+							if (t.getRemoteID() != null) {
+								localRemoteIds.add(t.getRemoteID());
 							}
+						}	
+					}
+					
+					List<String> tracksToDownload = new ArrayList<String>();
+					remoteTrackCount = tracks.length();
+					for (int i = 0; i < tracks.length(); i++) {
+
+						String remoteId = ((JSONObject) tracks.get(i)).getString("id");
+						// check if track is listed. if, continue
+						if (localRemoteIds.contains(remoteId)) {
+							afterOneTrack();
+							continue;
 						}
-//						//AsyncTask to retrieve a Track from the database
-//						class RetrieveTrackfromDbAsyncTask extends AsyncTask<Long, Void, Track> {
-//							
-//							@Override
-//							protected Track doInBackground(Long... params) {
-//								return dbAdapter.getTrack(params[0]);
-//							}
-//							
-//							protected void onPostExecute(Track result) {
-//								tracksList.add(result);
-//								trackListAdapter.notifyDataSetChanged();
-//								afterOneTrack();
-//							}
-//							
-//						}
-//						if (dbAdapter.hasTrack(((JSONObject) tracks.get(i)).getString("id"))) {
-//							// if the track already exists in the db, skip and load from db.
-//							new RetrieveTrackfromDbAsyncTask().execute(((JSONObject) tracks.get(i)).getString("id"));
-//							continue;
-//						}
-
-						// else
-						// download the track
-						if (!trackInList) {
-							RestClient.downloadTrack(username, token, ((JSONObject) tracks.get(i)).getString("id"),
-									new JsonHttpResponseHandler() {
-										
-										@Override
-										public void onFinish() {
-											super.onFinish();
-											if (trackListView.getAdapter() == null || (trackListView.getAdapter() != null && !trackListView.getAdapter().equals(trackListAdapter))) {
-												trackListView.setAdapter(trackListAdapter);
-											}
-											trackListAdapter.notifyDataSetChanged();
-										}
-
-										@Override
-										public void onSuccess(JSONObject trackJson) {
-											super.onSuccess(trackJson);
-
-											// start the AsyncTask to handle the downloaded trackjson
-											new AsyncOnSuccessTask().execute(trackJson);
-
-										}
-
-										public void onFailure(Throwable arg0, String arg1) {
-											logger.warn(arg1,arg0);
-												};
-											});
-
-								}
-							}
+						
+						tracksToDownload.add(remoteId);
+					}
+					
+					if (!tracksToDownload.isEmpty()) {
+						final AtomicInteger index = new AtomicInteger(0);
+						downloadTrack(tracksToDownload, index);
+					}
 						
 				} catch (JSONException e) {
 					logger.warn(e.getMessage(), e);
 				}
 			}
-		});
+
+			private void downloadTrack(final List<String> tracksToDownload,
+					final AtomicInteger index) {
+				String id = tracksToDownload.get(index.get());
+				// download the track
+				RestClient.downloadTrack(username, token, id,
+					new JsonHttpResponseHandler() {
+						
+						@Override
+						public void onFinish() {
+							super.onFinish();
+							updateTrackListView();
+							
+							/*
+							 * on finish, start the next track download
+							 */
+							if (index.getAndIncrement() < tracksToDownload.size()) {
+								downloadTrack(tracksToDownload, index);
+							}
+						}
+
+						@Override
+						public void onSuccess(JSONObject trackJson) {
+							super.onSuccess(trackJson);
+
+							processDownloadedTrack(trackJson);
+						}
+
+						public void onFailure(Throwable arg0, String arg1) {
+							logger.warn(arg1,arg0);
+						};
+					}
+				);				
+			}
+		});		
 	}
 
 	private class TracksListAdapter extends BaseExpandableListAdapter {
 
+		private ExecutorService lazyLoader = Executors.newSingleThreadScheduledExecutor(new NamedThreadFactory("MeasurementLazyLoader"));
+		private static final int GROUP_VIEW_BASE_ID = 10000000;
+		private static final int CHILD_VIEW_BASE_ID = 10001000;
+		private java.util.Map<Track, View> trackToGroupViewMap;
+		private Map<Track,View> trackToChildViewMap;
+
+		public TracksListAdapter() {
+			trackToGroupViewMap = new HashMap<Track, View>();
+			trackToChildViewMap = new HashMap<Track, View>();
+		}
+		
 		@Override
 		public int getGroupCount() {
 			return tracksList.size();
@@ -847,75 +973,129 @@ public class ListTracksFragment extends SherlockFragment {
 		@Override
 		public View getGroupView(int i, boolean b, View view,
 				ViewGroup viewGroup) {
-			if (view == null || view.getId() != 10000000 + i) {
-				Track currTrack = (Track) getGroup(i);
-				View groupRow = ViewGroup.inflate(getActivity(), R.layout.list_tracks_group_layout, null);
-				TextView textView = (TextView) groupRow.findViewById(R.id.track_name_textview);
-				textView.setText(currTrack.getName());
-				
-				if(currTrack.isLocalTrack()){
-					ImageView imageView = (ImageView) groupRow.findViewById(R.id.track_icon_view);
-					imageView.setImageDrawable(getResources().getDrawable( R.drawable.mobile ));
+			Track t;
+			synchronized (ListTracksFragment.this) {
+				t = tracksList.get(i);
+				if (!trackToGroupViewMap.containsKey(t)) {
+					View groupRow = ViewGroup.inflate(getActivity(), R.layout.list_tracks_group_layout, null);
+					TextView textView = (TextView) groupRow.findViewById(R.id.track_name_textview);
+					textView.setText(t.getName());
+					if(t.isLocalTrack()){
+						ImageView imageView = (ImageView) groupRow.findViewById(R.id.track_icon_view);
+						imageView.setImageDrawable(getResources().getDrawable( R.drawable.mobile ));
+					}
+					
+					groupRow.setId(GROUP_VIEW_BASE_ID + i);
+					TypefaceEC.applyCustomFont((ViewGroup) groupRow,
+							TypefaceEC.Newscycle(getActivity()));
+
+					trackToGroupViewMap.put(t, groupRow);
 				}
-				
-				groupRow.setId(10000000 + i);
-				TypefaceEC.applyCustomFont((ViewGroup) groupRow,
-						TypefaceEC.Newscycle(getActivity()));
-				return groupRow;
 			}
-			return view;
+			
+			return trackToGroupViewMap.get(t);
 		}
 
 		@Override
-		public View getChildView(int i, int i1, boolean b, View view, ViewGroup viewGroup) {
-			logger.info("Selects a track");
-			//if (view == null || view.getId() != 10000100 + i + i1) {
-				Track currTrack = (Track) getChild(i, i1);
-				View row = ViewGroup.inflate(getActivity(),
-						R.layout.list_tracks_item_layout, null);
-				TextView startView = (TextView) row
-						.findViewById(R.id.track_details_start_textview);
-				TextView endView = (TextView) row
-						.findViewById(R.id.track_details_end_textview);
-				TextView lengthView = (TextView) row
-						.findViewById(R.id.track_details_length_textview);
-				TextView carView = (TextView) row
-						.findViewById(R.id.track_details_car_textview);
-				TextView durationView = (TextView) row
-						.findViewById(R.id.track_details_duration_textview);
-				TextView co2View = (TextView) row
-						.findViewById(R.id.track_details_co2_textview);
-				TextView consumptionView = (TextView) row
-						.findViewById(R.id.track_details_consumption_textview);
-				TextView fuelCostView = (TextView) row
-						.findViewById(R.id.track_details_fuel_cost_textview);
-				TextView descriptionView = (TextView) row.findViewById(R.id.track_details_description_textview);
+		public View getChildView(int position, int i1, boolean b, View view, ViewGroup viewGroup) {
+			final Track t;
+			synchronized (ListTracksFragment.this) {
+				t = tracksList.get(position);
+				if (!trackToChildViewMap.containsKey(t)) {
+					View row = ViewGroup.inflate(getActivity(),
+							R.layout.list_tracks_item_layout, null);
+					final TextView startView = (TextView) row
+							.findViewById(R.id.track_details_start_textview);
+					final TextView endView = (TextView) row
+							.findViewById(R.id.track_details_end_textview);
+					final TextView lengthView = (TextView) row
+							.findViewById(R.id.track_details_length_textview);
+					final TextView carView = (TextView) row
+							.findViewById(R.id.track_details_car_textview);
+					final TextView durationView = (TextView) row
+							.findViewById(R.id.track_details_duration_textview);
+					final TextView co2View = (TextView) row
+							.findViewById(R.id.track_details_co2_textview);
+					final TextView consumptionView = (TextView) row
+							.findViewById(R.id.track_details_consumption_textview);
+					final TextView fuelCostView = (TextView) row
+							.findViewById(R.id.track_details_fuel_cost_textview);
+					final TextView descriptionView = (TextView) row.findViewById(R.id.track_details_description_textview);
 
+					setTrackChildFields(t, startView, endView, lengthView,
+							carView, durationView, co2View,
+							consumptionView, fuelCostView, descriptionView);
+					if (t.isLazyLoadingMeasurements()) {
+						lazyLoader.submit(new Runnable() {
+							@Override
+							public void run() {
+								t.setLazyLoadingMeasurements(false);
+								t.getMeasurements();
+								getActivity().runOnUiThread(new Runnable() {
+									
+									@Override
+									public void run() {
+										setTrackChildFields(t, startView, endView, lengthView,
+												carView, durationView, co2View,
+												consumptionView, fuelCostView, descriptionView);										
+									}
+								});
+								
+							}
+						});
+					}
+
+					row.setId(CHILD_VIEW_BASE_ID + position + i1);
+					TypefaceEC.applyCustomFont((ViewGroup) row,
+							TypefaceEC.Newscycle(getActivity()));
+					trackToChildViewMap.put(t, row);
+				}
+			}
+			
+			return trackToChildViewMap.get(t);
+		}
+
+		private void setTrackChildFields(Track t, TextView startView,
+				TextView endView, TextView lengthView, TextView carView,
+				TextView durationView, TextView co2View,
+				TextView consumptionView, TextView fuelCostView,
+				TextView descriptionView) {
+			Car car = t.getCar();
+			carView.setText(car.toString());
+			descriptionView.setText(t.getDescription());
+			if (t.isLazyLoadingMeasurements()) {
+				String loading = "loading...";
+				setTextViewContent(startView, loading);
+				setTextViewContent(endView, loading);
+				setTextViewContent(lengthView, loading);
+				setTextViewContent(durationView, loading);
+				setTextViewContent(co2View, loading);
+				setTextViewContent(consumptionView, loading);
+			}
+			else {
 				try {
 					DateFormat sdf = DateFormat.getDateTimeInstance();
 					DecimalFormat twoDForm = new DecimalFormat("#.##");
 					DateFormat dfDuration = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
 					dfDuration.setTimeZone(TimeZone.getTimeZone("UTC"));
-					startView.setText(sdf.format(currTrack.getStartTime()) + "");
-					endView.setText(sdf.format(currTrack.getEndTime()) + "");
-					Date durationMillis = new Date(currTrack.getDurationInMillis());
+					startView.setText(sdf.format(t.getStartTime()) + "");
+					endView.setText(sdf.format(t.getEndTime()) + "");
+					Date durationMillis = new Date(t.getDurationInMillis());
 					durationView.setText(dfDuration.format(durationMillis) + "");
 					if (!PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).getBoolean(SettingsActivity.IMPERIAL_UNIT, false)) {
-						lengthView.setText(twoDForm.format(currTrack.getLengthOfTrack()) + " km");
+						lengthView.setText(twoDForm.format(t.getLengthOfTrack()) + " km");
 					} else {
-						lengthView.setText(twoDForm.format(currTrack.getLengthOfTrack()/1.6) + " miles");
+						lengthView.setText(twoDForm.format(t.getLengthOfTrack()/1.6) + " miles");
 					}
-					Car car = currTrack.getCar();
-					carView.setText(car.getManufacturer() + " " + car.getModel());
-					descriptionView.setText(currTrack.getDescription());
+					
 					try {
-						double consumption = currTrack.getFuelConsumptionPerHour();
-						double literOn100km = currTrack.getLiterPerHundredKm();
-						co2View.setText(twoDForm.format(currTrack.getGramsPerKm()) + " g/km");
+						double consumption = t.getFuelConsumptionPerHour();
+						double literOn100km = t.getLiterPerHundredKm();
+						co2View.setText(twoDForm.format(t.getGramsPerKm()) + " g/km");
 						consumptionView.setText(twoDForm.format(consumption) + " l/h (" + twoDForm.format(literOn100km) + " l/100 km)");
 						if(fuelCostView.getText() == null || fuelCostView.getText().equals("")){
 							fuelCostView.setText(R.string.calculating);
-							getEstimatedFuelCost(fuelCostView, twoDForm, literOn100km, currTrack.getLengthOfTrack(), currTrack.getCar().getFuelType());
+							getEstimatedFuelCost(fuelCostView, twoDForm, literOn100km, t.getLengthOfTrack(), t.getCar().getFuelType());
 						}
 					} catch (UnsupportedFuelTypeException e) {
 						logger.warn(e.getMessage());
@@ -925,24 +1105,28 @@ public class ListTracksFragment extends SherlockFragment {
 						logger.warn(e.getMessage());
 					}
 					
-					
 				} catch (MeasurementsException e) {
 					logger.warn(e.getMessage(), e);
 				}
+			}
+			
+		}
 
-				row.setId(10000100 + i + i1);
-				TypefaceEC.applyCustomFont((ViewGroup) row,
-						TypefaceEC.Newscycle(getActivity()));
-				return row;
-			//}
-			//return view;
+		private void setTextViewContent(TextView tv, String string) {
+			tv.setText(string);
 		}
 
 		@Override
 		public boolean isChildSelectable(int i, int i1) {
 			return false;
 		}
-
+		
 	}
-
+	
+	@Override
+	public void onDestroy() {
+		// TODO Auto-generated method stub
+		super.onDestroy();
+	}
+	
 }
