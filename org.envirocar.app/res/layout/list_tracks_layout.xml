@@ -1,27 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical" >
+    android:orientation="vertical" 
+    android:id="@+id/list_tracks_parent">
 
-    <ExpandableListView
-        android:id="@+id/list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <ProgressBar
-        android:id="@+id/listprogress"
+    <LinearLayout 
+        android:id="@+id/progress_layout"
+        android:orientation="horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:visibility="gone" >
-    </ProgressBar>
+        android:layout_gravity="center_horizontal">
+        <TextView 
+            android:id="@+id/progress_status"
+            android:text="@string/fetching_tracks"
+            android:layout_width="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_height="wrap_content"/>
+        
+	    <ProgressBar
+	        android:id="@+id/listprogress"
+	        style="@android:style/Widget.ProgressBar.Small"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_margin="5dp"
+	        android:indeterminate="true" />
+    
+    </LinearLayout>
+    
+    
+    <RelativeLayout
+        android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:orientation="vertical" >
 
-    <TextView
-        android:id="@android:id/empty"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="@string/no_tracks" />
+        <ExpandableListView
+	        android:id="@+id/list"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent" 
+	        android:groupIndicator="@drawable/list_indicator"
+	        android:childIndicator="@drawable/list_indicator"
+	        />
+    
+	    <TextView
+	        android:id="@+id/empty"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_centerInParent="true"
+	        android:text="@string/no_tracks"
+	        android:visibility="gone" />
+        
+    </RelativeLayout>
 
-</RelativeLayout>
+</LinearLayout>

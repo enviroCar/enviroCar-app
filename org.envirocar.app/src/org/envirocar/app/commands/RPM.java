@@ -21,35 +21,38 @@
 
 package org.envirocar.app.commands;
 
+import org.envirocar.app.commands.PIDUtil.PID;
+
 /**
  * Engine RPM on PID 01 0C
  * 
  * @author jakob
  * 
  */
-public class RPM extends CommonCommand {
+public class RPM extends NumberResultCommand {
+
+	public static final String NAME = "Engine RPM";
+	private int rpm = Short.MIN_VALUE;
 
 	public RPM() {
-		super("01 0C");
+		super("01 ".concat(PID.RPM.toString()));
 	}
 
-	@Override
-	public String getResult() {
-
-		int rpm = -1;
-
-		if (!"NODATA".equals(getRawData())) {
-			int bytethree = buffer.get(2);
-			int bytefour = buffer.get(3);
-			rpm = (bytethree * 256 + bytefour) / 4;
-		}
-
-		return String.format("%d%s", rpm, "");
-	}
 
 	@Override
 	public String getCommandName() {
-		return "Engine RPM";
+		return NAME;
+	}
+
+	@Override
+	public Number getNumberResult() {
+		if (rpm == Short.MIN_VALUE) {
+			int[] buffer = getBuffer();
+			int bytethree = buffer[2];
+			int bytefour = buffer[3];
+			rpm = (bytethree * 256 + bytefour) / 4;
+		}
+		return rpm;
 	}
 
 }

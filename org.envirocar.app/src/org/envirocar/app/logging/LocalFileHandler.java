@@ -24,11 +24,19 @@ package org.envirocar.app.logging;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.logging.FileHandler;
-import java.util.logging.SimpleFormatter;
+import java.util.logging.Formatter;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.LogRecord;
 
 import org.envirocar.app.util.Util;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 
 public class LocalFileHandler implements Handler {
@@ -47,14 +55,22 @@ public class LocalFileHandler implements Handler {
 		} catch (IOException e) {
 			LOG.warn(e.getMessage(), e);
 		}
+		java.util.logging.Logger rootLogger = LogManager.getLogManager().getLogger("");
+		java.util.logging.Handler[] handlers = rootLogger.getHandlers();
+		for (java.util.logging.Handler handler : handlers) {
+			rootLogger.removeHandler(handler);
+		}
+		LogManager.getLogManager().getLogger("").addHandler(new AndroidJULHandler());
+		
 	}
 
 	
 	private java.util.logging.Logger logger;
 
-	public LocalFileHandler() throws Exception {
+	public LocalFileHandler() throws IOException {
 		this.logger = java.util.logging.Logger.getLogger("org.envirocar.app");
 		String finalPath = ensureFileIsAvailable();
+		this.logger.setLevel(Level.ALL);
 		this.logger.addHandler(createHandler(finalPath));
 	}
 	
@@ -63,9 +79,24 @@ public class LocalFileHandler implements Handler {
 		LOG.info("Using file "+ effectiveFile);
 	}
 
+	@SuppressLint("SimpleDateFormat")
 	protected FileHandler createHandler(String finalPath) throws IOException {
 		FileHandler h = new FileHandler(finalPath, MAX_SIZE, 3, true);
-		h.setFormatter(new SimpleFormatter());
+		
+		final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+		final String sep = System.getProperty("line.separator");
+		
+		h.setFormatter(new Formatter() {
+			
+			@Override
+			public String format(LogRecord r) {
+				String date = format.format(new Date(r.getMillis()));
+				return String.format(Locale.US, "%s [%s]: (%d) %s%s", date, r.getLevel(), r.getThreadID(), r.getMessage(), sep);
+			}
+			
+		});
+		
+		h.setLevel(Level.ALL);
 		return h;
 	}
 

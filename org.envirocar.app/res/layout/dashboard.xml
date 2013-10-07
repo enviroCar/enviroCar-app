@@ -4,14 +4,22 @@
     android:id="@+id/vehicle_view"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:tag="Dashboard" >
+
+<LinearLayout
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_weight="2"
+    android:layout_marginLeft="10dp"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/textView4"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="left"
+        android:layout_marginLeft="5dp"
         android:layout_marginTop="15dp"
         android:text="@string/currentSpeed"
         android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -38,7 +46,8 @@
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="left"
+        android:layout_marginLeft="5dp"
         android:layout_marginTop="15dp"
         android:text="@string/currentCO2"
         android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -64,8 +73,9 @@
         android:id="@+id/dashboard_current_sensor_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="15dp"
+        android:layout_gravity="left"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="10dp"
         android:text="@string/dashboard_sensor_title"
         android:textAppearance="?android:attr/textAppearanceLarge" />
     
@@ -74,7 +84,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="5dp"
         android:drawableRight="@drawable/content_edit"
         android:clickable="true"
         android:textAppearance="?android:attr/textAppearanceMedium" />
@@ -83,7 +92,8 @@
         android:id="@+id/positionInfoTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="left"
+        android:layout_marginLeft="5dp"
         android:layout_marginTop="15dp"
         android:text="@string/currentPosition"
         android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -97,4 +107,15 @@
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp" />
 
+</LinearLayout>
+    
+    <ImageView
+        android:id="@+id/connectionStateImage"
+        android:layout_width="80dp"
+        android:layout_height="120dp"
+        android:layout_gravity="right"
+        android:layout_weight="0.10"
+        android:src="@drawable/connection_state_false" 
+        android:contentDescription="@string/connection_state" />
+    
 </LinearLayout>
