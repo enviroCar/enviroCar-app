@@ -196,13 +196,7 @@ public class ListTracksFragment extends SherlockFragment {
 			trackListView.setAdapter(trackListAdapter);
 		}
 		
-		
-	}
-	
-	@Override
-	public void onStart() {
 		startTracksRetrieval();
-		super.onStart();
 	}
 
 	
