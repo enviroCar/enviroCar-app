@@ -337,14 +337,18 @@ public class Track implements Comparable<Track> {
 	public double getFuelConsumptionPerHour() throws UnsupportedFuelTypeException {
 		if (consumptionPerHour == null) {
 			consumptionPerHour = 0.0;
-			try {
-				for (int i = 0; i < measurements.size(); i++) {
+			
+			int consideredCount = 0;
+			for (int i = 0; i < measurements.size(); i++) {
+				try {
 					consumptionPerHour = consumptionPerHour + consumptionAlgorithm.calculateConsumption(measurements.get(i));
+					consideredCount++;
+				} catch (FuelConsumptionException e) {
+					logger.warn(e.getMessage());
 				}
-				consumptionPerHour = consumptionPerHour / measurements.size();
-			} catch (FuelConsumptionException e) {
-				logger.warn(e.getMessage());
 			}
+			consumptionPerHour = consumptionPerHour / consideredCount;
+			
 		}
 		return consumptionPerHour;
 	}
@@ -368,9 +372,9 @@ public class Track implements Comparable<Track> {
 		
 		if (t.getFirstMeasurement() == null) {
 			/*
-			 * no measurements, this is probably a relatively new track
+			 * no measurements, that is probably a relatively new track
 			 */
-			return -1;
+			return 1;
 		}
 
 		return (this.getFirstMeasurement().getTime() < t.getFirstMeasurement().getTime() ? 1 : -1);
