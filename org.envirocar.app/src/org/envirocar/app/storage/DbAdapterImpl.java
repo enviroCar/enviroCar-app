@@ -380,12 +380,12 @@ public class DbAdapterImpl implements DbAdapter {
 	
 		for (int i = 0; i < c.getCount(); i++) {
 	
-			String lat = c.getString(c.getColumnIndex(KEY_MEASUREMENT_LATITUDE));
-			String lon = c.getString(c.getColumnIndex(KEY_MEASUREMENT_LONGITUDE));
-			String time = c.getString(c.getColumnIndex(KEY_MEASUREMENT_TIME));
+			double lat = c.getDouble(c.getColumnIndex(KEY_MEASUREMENT_LATITUDE));
+			double lon = c.getDouble(c.getColumnIndex(KEY_MEASUREMENT_LONGITUDE));
+			long time = c.getLong(c.getColumnIndex(KEY_MEASUREMENT_TIME));
 			String rawData = c.getString(c.getColumnIndex(KEY_MEASUREMENT_PROPERTIES));
-			Measurement measurement = new Measurement(Float.valueOf(lat), Float.valueOf(lon));
-			measurement.setTime(Long.valueOf(time));
+			Measurement measurement = new Measurement(lat, lon);
+			measurement.setTime(time);
 			measurement.setTrack(track);
 			
 			if (rawData != null) {
