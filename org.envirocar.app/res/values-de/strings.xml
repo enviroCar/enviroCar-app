@@ -90,12 +90,13 @@
 	<string name="yes">Ja</string>
 	<string name="deleteRemoteTrackQuestion">Soll die Fahrt auf dem Server gelöscht werden?</string>
     <string name="no_sensor_selected">Kein Auto ausgewählt.</string>
-    <string name="title_create_new_sensor">&#8230; oder erstelle ein neues Auto:</string>
-    <string name="title_select_sensor">Wähle ein bestehendes Auto,</string>
+    <string name="title_create_new_sensor">Neues Fahrzeugprofil</string>
+    <string name="title_select_sensor">Fahrzeug auswählen</string>
 	<string name="upload_notification">Versuche lokale Tracks hochzuladen.</string>
     <string name="upload_notification_success">Lokale Tracks wurden erfolgreich hochgeladen.</string>
     <string name="please_select">&#8230;</string>
-    <string name="startMap">In Karte betrachten</string>
+    <string name="select_car">Fahrzeug</string>
+    <string name="startMap">KArte</string>
     <string name="trackContainsNoCoordinates">Track enthält keine Koordinaten.</string>
     <string name="noSdCard">"Karte wird ohne SD-Karte nicht angezeigt."</string>
     <string name="hint_login_first">Bitte erst einloggen</string>
@@ -111,8 +112,8 @@
     <string name="prompt_car_manufacturer">Hersteller</string>
     <string name="prompt_car_constructionYear">Baujahr</string>
     
-    <string name="editName">Namen ändern</string>
-    <string name="deleteTrack">Fahrt löschen</string>
+    <string name="editName">Bezeichnung</string>
+    <string name="deleteTrack">Löschen</string>
     <string name="uploadTrack">Fahrt als Open Data hochladen</string>
     
    	<string name="open_drawer">Open</string>
@@ -135,8 +136,7 @@
     <string name="envirocar.org">http://www.envirocar.org</string>
     
     <string name="imperial_unit">Imperiale Maßeinheiten?</string>
-    <string name="shareTrack">Fahrt als JSON-Datei teilen</string>
-    <string name="garage_not_signed_in">&#8230; oder <b>einloggen</b>um Auto zu erstellen:</string>
+    <string name="shareTrack">Export</string>
     <string name="error_json">Interner Fehler beim JSON generieren.</string>
 	<string name="privacy">Position verbergen?</string>
 	

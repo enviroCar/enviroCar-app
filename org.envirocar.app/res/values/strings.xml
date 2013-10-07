@@ -115,9 +115,9 @@
 	<string name="upload_notification">Attempting to upload local tracks.</string>
 	<string name="upload_notification_success">Successfully uploaded local tracks.</string>
 	<string name="no_sensor_selected">No Car selected</string>
-	<string name="title_create_new_sensor">&#8230; or create a new car:</string>
+	<string name="title_create_new_sensor">New car profile</string>
 	<string name="startMap">View in map</string>
-	<string name="title_select_sensor">Select an existing car,</string>
+	<string name="title_select_sensor">Select car</string>
 	<string name="please_select">&#8230;</string>
 	<string name="trackContainsNoCoordinates">Track contains no coordinates.</string>
 	<string name="noSdCard">"Map cannot be shown without SD card."</string>
@@ -134,7 +134,7 @@
 	
 	<string name="dashboard">Dashboard</string>
 	<string name="my_tracks">My Tracks</string>
-	
+	<string name="select_car">Car</string>
 	<string name="welcome_message">Welcome, </string>
 	<string name="no_tracks">You have no tracks</string>
 	<string name="fetching_tracks">fetching your tracks&#8230;</string>
@@ -150,10 +150,9 @@
 	
 	<string name="envirocar.org">http://www.envirocar.org</string>
 	
-	<string name="garage_not_signed_in">&#8230; or <b>sign in</b> to create a new car:</string>
-	<string name="imperial_unit">Imperial units?</string>
-	<string name="privacy">Obfuscate positions?</string>
-	<string name="shareTrack">Share Track as JSON file</string>
+	<string name="imperial_unit">Use Imperial units</string>
+	<string name="privacy">Obfuscate positions</string>
+	<string name="shareTrack">Export</string>
 	<string name="error_json">Internal Error creating your JSON string</string>
 	
 	<string name="help">Help</string>

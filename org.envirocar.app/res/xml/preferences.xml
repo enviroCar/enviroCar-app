@@ -30,9 +30,9 @@
             android:summaryOn="@string/track_obfuscation_on"
             android:defaultValue="true"/>
         <org.envirocar.app.activity.preference.CarSelectionPreference 
-            android:title="Select Car"
+            android:title="@string/select_car"
             android:key="pref_selected_car"
-            android:summary="@string/please_select"
+            android:summary="@string/pref_select_car"
             />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_about" >
