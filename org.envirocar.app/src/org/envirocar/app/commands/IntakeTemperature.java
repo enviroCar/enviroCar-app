@@ -21,33 +21,35 @@
 
 package org.envirocar.app.commands;
 
+import org.envirocar.app.commands.PIDUtil.PID;
+
 /**
  * Intake temperature on PID 01 0F
  * 
  * @author jakob
  * 
  */
-public class IntakeTemperature extends CommonCommand {
+public class IntakeTemperature extends NumberResultCommand {
+
+	public static final String NAME = "Air Intake Temperature";
+	private int temperature = Short.MIN_VALUE;
 
 	public IntakeTemperature() {
-		super("01 0F");
+		super("01 ".concat(PID.INTAKE_AIR_TEMP.toString()));
 	}
 
 	@Override
 	public String getCommandName() {
-		return "Air Intake Temperature";
+		return NAME;
 	}
 
 	@Override
-	public String getResult() {
-		String result = getRawData();
-
-		if (!"NODATA".equals(result)) {
-			float temperature = buffer.get(2) - 40;
-			result = String.format("%.0f%s", temperature, "");
+	public Number getNumberResult() {
+		if (temperature == Short.MIN_VALUE) {
+			int[] buffer = getBuffer();
+			temperature = buffer[2] - 40;
 		}
-
-		return result;
+		return temperature;
 	}
 
 }

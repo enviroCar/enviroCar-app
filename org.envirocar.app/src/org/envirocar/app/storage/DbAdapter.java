@@ -22,9 +22,9 @@
 package org.envirocar.app.storage;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import org.envirocar.app.exception.MeasurementsException;
-import org.envirocar.app.exception.TracksException;
+import org.envirocar.app.storage.Track.TrackStatus;
 
 
 /**
@@ -40,7 +40,9 @@ public interface DbAdapter {
 	 * Method to open the DB connection
 	 * 
 	 * @return DbAdapter Object that can be used to call the other methods
+	 * @deprecated implementations should take care of that on their own
 	 */
+	@Deprecated
 	public DbAdapter open();
 
 	/**
@@ -88,13 +90,20 @@ public interface DbAdapter {
 	public ArrayList<Track> getAllTracks();
 
 	/**
+	 * @param lazyMeasurements if true, an implementation shall return
+	 * {@link Track} objects that load their measurements in lazy fashion
+	 * @return all tracks
+	 */
+	public List<Track> getAllTracks(boolean lazyMeasurements);
+	
+	/**
 	 * Returns one track specified by the id
 	 * 
 	 * @param id
 	 *            The id of the track that should be returned
 	 * @return The desired track
 	 */
-	public Track getTrack(String id);
+	public Track getTrack(long id);
 	
 	/**
 	 * Returns <code>true</code> if a track with the given id is in the Database
@@ -103,7 +112,7 @@ public interface DbAdapter {
 	 * 		The id id ot the checked track
 	 * @return exists a track with the id
 	 */
-	public boolean hasTrack(String id);
+	public boolean hasTrack(long id);
 
 	/**
 	 * Deletes all tracks and measurements in the database
@@ -118,11 +127,9 @@ public interface DbAdapter {
 	/**
 	 * Retruns the track that was last inserted into the database
 	 * 
-	 * @return
-	 * @throws MeasurementsException
-	 *             If there are no tracks in the local database
+	 * @return the latest track of the DB or null if there are no tracks
 	 */
-	public Track getLastUsedTrack() throws TracksException;
+	public Track getLastUsedTrack();
 	
 	/**
 	 * Delete track specified by id.
@@ -130,6 +137,51 @@ public interface DbAdapter {
 	 * @param id
 	 *            id of the track to be deleted.
 	 */
-	public void deleteTrack(String id);
+	public void deleteTrack(long id);
+
+	public int getNumberOfRemoteTracks();
+
+	public int getNumberOfLocalTracks();
+
+	/**
+	 * an implementation shall delete (!) all
+	 * local tracks from the underlying persistence
+	 * layer.
+	 * 
+	 * Friendly warning: every local track (= not yet
+	 * uploaded) will be lost irreversible. 
+	 */
+	public void deleteAllLocalTracks();
+
+	/**
+	 * an implementation shall remove
+	 * all local representations of remote tracks from
+	 * the underlying persistence layer.
+	 */
+	public void deleteAllRemoteTracks();
+
+	public List<Track> getAllLocalTracks();
+
+	/**
+	 * an implementation shall create a new track. if there is a previously
+	 * used track ({@link #getLastUsedTrack()} != null), that track shall
+	 * be finialized ({@link Track#setStatus(org.envirocar.app.storage.Track.TrackStatus)} 
+	 * with status {@link TrackStatus#FINISHED} - e.g. through the {@link #finishCurrentTrack()}
+	 * implementation).
+	 * 
+	 * @return the new track
+	 */
+	public Track createNewTrack();
+
+	/**
+	 * an implemetation shall finialize the currrent
+	 * track ({@link #getLastUsedTrack()}). set the {@link Track#setStatus(org.envirocar.app.storage.Track.TrackStatus)} 
+	 * with status {@link TrackStatus#FINISHED}.
+	 * @return the finished track or null if there was no track
+	 */
+	public Track finishCurrentTrack();
+
+	List<Measurement> getAllMeasurementsForTrack(Track track);
+	
 	
 }

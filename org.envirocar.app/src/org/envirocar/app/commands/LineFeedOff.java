@@ -25,18 +25,13 @@ package org.envirocar.app.commands;
 /**
  * Turns off line-feed.
  */
-public class LineFeedOff extends CommonCommand {
+public class LineFeedOff extends StringResultCommand {
 
 	/**
 	 * @param command
 	 */
 	public LineFeedOff() {
 		super("AT L0");
-	}
-
-	@Override
-	public String getResult() {
-		return getRawData();
 	}
 
 	@Override

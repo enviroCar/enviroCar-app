@@ -2,11 +2,13 @@
 <resources>
 
     <string name="app_name">enviroCar</string>
+    
     <string name="menu_settings">Settings</string>
     <string name="menu_help">Help</string>
     <string name="menu_about">About</string>
     <string name="menu_send_log">Report Issue</string>
     <string name="menu_garage">My Garage</string>
+    
     <string name="activity_checklist_title">Checklist</string>
     <string name="checklist_item_bluetooth_enabled">Bluetooth enabled</string>
     <string name="checklist_item_bluetooth_disabled">Bluetooth not enabled</string>
@@ -38,7 +40,7 @@
     <string name="maf">MAF</string>
     <string name="engine_load">Engine Load</string>
     <string name="car">Car</string>
-    <string name="currentCO2">Current Co2 Emissions</string>
+    <string name="currentCO2">Co2 Emissions</string>
     <string name="drivingStyleRating">Driving Style Rating</string>
     <string name="moneySpent">Money spent for this trip</string>
     <string name="title_activity_map">Driven Route</string>
@@ -55,16 +57,35 @@
     <string name="length">"Length: "</string>
     <string name="Co2emission">"CO\u2082 emission: "</string>
     <string name="consumption">"Consumption: "</string>
-    <string name="title_activity_settings">Einstellungen</string>
-    <string name="currentSpeed">Current Speed</string>
-    <string name="currentPosition">Current Position</string>
+    <string name="fuel_cost">"Estimated fuel cost: "</string>
+    <string name="calculating">"Calculating&#8230;"</string>
+    <string name="euro_sign">"&#8364;"</string>
+    <string name="error_calculating_fuel_costs">"Error during calculation."</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="currentSpeed">Speed</string>
+    <string name="currentPosition">Position</string>
     <string name="positioning_Info">The positioning is based on GPS, to have a precised positions for the measurement. Please wait until you get GPS coordinates.</string>
     <string name="no_current_position">none</string>
     <string name="menu_start">Start</string>
+    <string name="menu_cancel">Cancel</string>
+    <string name="menu_starting">Starting</string>
     <string name="menu_stop">Stop</string>
     <string name="menu_upload">Upload</string>
     <string name="menu_delete">Delete</string>
     <string name="menu_login">Sign in/Register</string>
+    <string name="track_mode_single">Single Track</string>
+    <string name="track_mode_auto">Automatic Track Creation</string>
+    <string name="question_track_mode">Do you want to record a single track or start automatic creation?</string>
+    <string name="device_discovery_next_try">Device Discovery - %1$s:%2$s minutes until next try</string>
+    <string name="device_discovery_pending">Device Discovery - Pending&#8230;</string>
+    <string name="track_finished">Track Finished: </string>
+    <string name="track_finishing_failed">Finishing the Track failed</string>
+    <string name="track_finished_no_measurements">The created track did not contain any measurements</string>
+    <string name="finish_track">Finish Track?</string>
+    <string name="finish_track_long">Do you really want to finish this track?</string>
+    <string name="stop_automatic_mode">Stop Automatic Track Creation?</string>
+    <string name="stop_automatic_mode_long">Do you want to stop the Automatic Track Creation? This
+        will finish the current track as well.</string>
     <string name="gasoline">Gasoline</string>
     <string name="diesel">Diesel</string>
     <string name="register_car">Register Car</string>
@@ -72,11 +93,12 @@
     <string name="prompt_car_model">Car model</string>
     <string name="prompt_car_manufacturer">Car manufacturer</string>
     <string name="prompt_car_constructionYear">Construction year</string>
+    <string name="prompt_car_engineDisplacement">Engine displacement (ccm)</string>
     <string name="logged_in_as">Signed in as %1$s</string>
     <string name="editName">Edit Name</string>
     <string name="deleteTrack">Delete Track</string>
-    <string name="uploadTrack">Upload Track</string>
-	<string name="dashboard_sensor_title">Current Car:</string>
+    <string name="uploadTrack">Upload Track as Open Data</string>
+	<string name="dashboard_sensor_title">Car:</string>
 	<string name="retry">Retry</string>
 	<string name="description">Description:</string>
 	<string name="editDescription">Edit Description</string>
@@ -89,16 +111,20 @@
 	<string name="remoteTrackDeleted">Remote track deleted</string>
 	<string name="no">No</string>
 	<string name="yes">Yes</string>
-	<string name="deleteRemoteTrackQuestion">Do you realy want to delete this remote track?</string>
+	<string name="deleteRemoteTrackQuestion">Do you really want to delete this remote track?</string>
 	<string name="upload_notification">Attempting to upload local tracks.</string>
 	<string name="upload_notification_success">Successfully uploaded local tracks.</string>
 	<string name="no_sensor_selected">No Car selected</string>
-	<string name="title_create_new_sensor">&#8230;or create a new car:</string>
+	<string name="title_create_new_sensor">New car profile</string>
 	<string name="startMap">View in map</string>
-	<string name="title_select_sensor">Select an existing car,</string>
+	<string name="title_select_sensor">Select car</string>
 	<string name="please_select">&#8230;</string>
 	<string name="trackContainsNoCoordinates">Track contains no coordinates.</string>
 	<string name="noSdCard">"Map cannot be shown without SD card."</string>
+	<string name="hint_login_first">Please login first</string>
+	<string name="not_yet_supported">not yet supported</string>
+	<string name="default_track_description">Track with Car %s.</string>
+	<string name="creating_temp_car">Creating temporary car.</string>
 	
 	<string name="open_drawer">Open</string>
 	<string name="close_drawer">Close</string>
@@ -108,40 +134,91 @@
 	
 	<string name="dashboard">Dashboard</string>
 	<string name="my_tracks">My Tracks</string>
-	
+	<string name="select_car">Car</string>
 	<string name="welcome_message">Welcome, </string>
 	<string name="no_tracks">You have no tracks</string>
-	<string name="start_measuring">Start measuring.</string>
-	<string name="stop_measuring">Stopped measuring.</string>
+	<string name="fetching_tracks">fetching your tracks&#8230;</string>
+	<string name="fetching_tracks_local">fetching local tracks&#8230;</string>
+	<string name="fetching_tracks_remote">fetching remote tracks&#8230;</string>
+	<string name="start_connection">Start device connection</string>
+	<string name="stop_connection">Stop device connection</string>
+	<string name="start_measuring">Start measuring</string>
+	<string name="stop_measuring">Stopped measuring</string>
 	<string name="bye_bye">Bye Bye!</string>
 	<string name="all_local_tracks_deleted">All local tracks deleted.</string>
 	<string name="not_possible_for_remote">Not yet possible for remote tracks.</string>
 	
 	<string name="envirocar.org">http://www.envirocar.org</string>
 	
-	<string name="garage_not_signed_in">&#8230;or <b>sign in</b> to create a new car:</string>
-	<string name="imperial_unit">Imperial units?</string>
-	<string name="privacy">Obfuscate positions?</string>
-	<string name="shareTrack">Share Track as JSON file</string>
+	<string name="imperial_unit">Use Imperial units</string>
+	<string name="privacy">Obfuscate positions</string>
+	<string name="shareTrack">Export</string>
 	<string name="error_json">Internal Error creating your JSON string</string>
 	
 	<string name="help">Help</string>
-	<string name="help_0">QUICK START GUIDE</string>
-	<string name="help_1">The dashboard shows the current speed of the vehicle and the CO2 emission. In addition to that, the user can specify and edit his car in the "Current Car" section.</string>
-	<string name="help_2">All options and features can be accessed by swiping in the menu from the left side of the screen:</string>
-	<string name="help_3">Before a user can use the app, for example for taking measurements, he/she has to register at first:</string>
-	<string name="help_4">After registering and logging in, the user has to specify his/her car. When the car is new to the system (not already created by another user), the user has to add a new car via the form:</string>
-	<string name="help_5">Before starting the measurement process, an already paired OBD-2 adapter has to be selected in the settings:</string>
-	<string name="help_6">Here, one can also specify whether:</string>
-	<string name="help_6_1">-The app should automatically connect to the adapter when in range and start measuring automatically</string>
-	<string name="help_6_2">-The app should automatically enable Bluetooth when started</string>
-	<string name="help_6_3">-Uploads of tracks should only be performed via a W-Lan/Wifi connection</string>
-	<string name="help_6_4">-Tracks should automatically be uploaded whenever a track is finished</string>
-	<string name="help_7">Completed Tracks can be inspected in the track view:</string>
-	<string name="help_8">The letters "L" and "R" indicate whether a track is already uploaded (Remote) or still only available on the local device. Pushing the delete button will delete all local tracks. Pushing the upload button will upload all local tracks that are not already uploaded.</string>
-	<string name="help_9">A long-click on a track gives the user the possibility to edit the track or view the track on a map. You will need an SD card for the map visualization:</string>
+
+<string name="help_head_1">1. About enviroCar</string>
+    <string name="help_text_1">This app is part of the Citizen Science platform enviroCar (<a href="www.enviroCar.org">www.enviroCar.org</a>). You can use it to collect and analyze test drives, as well as provide the measured data as Open Data.</string>
+    <string name="help_head_2">2. Getting Started</string>
+    <string name="help_text_2">The initial screen displays the current measured values of speed, CO2 emission and geographic location (position). In addition, it shows the type of car you have specified.
+\n\n
+Before you can start recording your track data, you must complete the following steps.
+\n\n
+Click on the main menu  (icon top left) to access the functions needed to do this.</string> 
+	<string name="help_head_2_1">2.1 Register</string>
+	<string name="help_text_2_1">If you have not yet registered as an enviroCar user, you can do so with the function “create user account”.</string>
+	<string name="help_head_2_2">2.2 Enter car data</string>
+	<string name="help_text_2_2">Various information about the car is required in order to calculate certain parameters based on the automotive sensor data. Choose either an existing car profile for create a new car profile. You must be signed in in order to create a new profile.</string>
+	<string name="help_head_2_3">2.3 Connect to car</string>
+	<string name="help_text_2_3">Plug the OBD-II adapter into the ODB-II port in your car. The port is usually found in the footwell on the driver’s side, sometimes under a cover in the dashboard or in the console. Follow the Bluetooth adapter instructions for connecting your smartphone and the adapter.
+\n\n
+Under Settings, select -> ODB SETTINGS -> choose the ODB adapter you have connected to your car.</string>
+    <string name="help_head_3">3. Record track</string>
+    <string name="help_text_3">As soon as you have connected the ODB-II adapter, started the motor and the GPS positioning in your smartphone is available, enviroCar starts to record measurements every few seconds and save them on your smartphone .
+\n\n
+The antenna symbol on the main screen is green when all requirements have been fulfilled and measurements have occurred.</string>
+	<string name="help_head_4">4. Observe tracks</string>
+	<string name="help_text_4">Click on “My tracks” in the main menu to get a list of all tracks.
+\n\n
+This symbol shows that the track has only been saved locally and not yet uploaded to the enviroCar server.
+\n\n
+All other tracks have been saved to the enviroCar server. The last ten tracks are downloaded from the enviroCar server to the smartphone when the enviroCar app is restarted or newly installed.
+\n\n
+If you lightly tap one of the tracks in the list of tracks, you will see several parameters, such as length and duration of the track and fuel consumption (the latter only for gasoline vehicles).
+\n\n
+If you rest your finger on the list entry for approximately a second, a new list appears with additional functions for processing and visualizing the track:
+\n\n
+&#8226; <b>Map</b> - view track in an interactive map.
+\n&#8226; <b>Identification</b> - change identifier (only possible when the track has not yet been uploaded to the enviroCar server).
+\n&#8226; <b>Description</b> - enter or change track description (only possible when the track has not yet been uploaded to the enviroCar server).
+\n&#8226; <b>Export</b> - export track data in JSON format
+\n&#8226; <b>Delete</b> - delete data from this track 
+</string>
+	<string name="help_head_5">5. Upload track</string>
+	<string name="help_text_5">Use this function to upload your measured data to the enviroCar server. The enviroCar web site enables you to analyze your data in a variety of ways and compare it to data from other user groups.
+\n\n
+Important: When you upload your enviroCar data, you agree to publish the data as anonymized, Open Data under an open data license. User data, as well as information about which track belongs to which user, is hidden from other users.</string>
+	<string name="help_head_6">6. Settings</string>
+	<string name="help_head_6_1">6.1 OBD Settings</string>
+	<string name="help_text_6_1">Choose ODB adapter - connect the app with the adapter that is plugged in to the ODB-II port.</string>
+	<string name="help_head_6_2">6.2 General Settings</string>
+	<string name="help_text_6_2">&#8226; <b>automatic upload</b> - The data should be automatically uploaded to the enviroCar server at the completion of each track
+\n&#8226; <b>WiFi upload</b> - The data should be automatically uploaded to the enviroCar server only when there is a WiFi connection  to the Internet.
+\n&#8226; <b>screen remains active</b> - The smartphone should not go into sleep mode while the enviroCar app is active.
+\n&#8226; <b>imperial units of measurement</b> - By default, enviroCar uses metric measurements (km, liter, etc.), alternately you can use imperial units of measurement (mph). 
+\n&#8226; <b>Obfuscation</b> - The beginning and the end of tracks are hidden from other users so that the information can not be used to draw conclusions about the car owner. During data upload, the first and the last 250 meters of each track (at least the first and the last measured minute) are cut off.      
+\n&#8226; <b>car data</b> - Various information about the car is required in order to calculate certain parameters based on the automotive sensor data. Choose either an existing car profile for create a new car profile. You must signed in in order to create a new profile.</string>
+	<string name="help_head_6_3">6.3 enviroCar Version</string>
+	<string name="help_text_6_3">You are using version</string>
+	<string name="help_head_7">7. FeedBack</string>
+	<string name="help_text_7">enviroCar is currently in a beta phase, in other words, in an early and very dynamic development phase. We immediately provide you with all new developments for testing purposes. As a result, the software’s stability is not yet comparable to standards associated with mature software.
+\n\n
+We welcome your feedback (enviroCar@52north.org)! Your advice and suggestions help us to improve the software.
+\n\n
+If you discover and problems, please send us an error log (-> report problem). The error log contains information about the course of processes within the system. It helps us to recognize the causes of malfunctions and to fix them.</string>
+    
 	
-	<string name="track_obfuscation_on">Only upload measurements which are taken 250 meter (820 feet) and one minute after start and before end of each track</string>
+    <string name="track_obfuscation_on">Only upload measurements which are taken 250 meter (820 feet) and one minute after start and before end of each track</string>
 	<string name="action_send_log">Send</string>
 	<string name="send_log_0">This feature helps us to reproduce unexpected behavior or program crashes.
 	    When sending in the Log file of the enviroCar app you help to improve it.</string>
@@ -152,5 +229,23 @@
 	<string name="send_log_when_label">Approximate minutes past since issue:</string>
 	<string name="send_log_comments_label">(additional comments)</string>
 	<string name="send_log_time_past_hint">(time past since issue)</string>
+	<string name="troubleshootingParagraph">The enviroCar app was not able to establish the bluetooth connection to
+	    the OBD-II adapter. You could try to unplug and plug the adapter, then restart measurements.</string>
+	<string name="title_activity_troubleshooting">Troubleshooting</string>
+	<string name="connection_state">State</string>
+	
+	<string name="connection_lost_info">Connection lost. Reconnecting&#8230;</string>
+	
+	<string name="general_error_please_report">General Track Error - Please report this issue</string>
+	
+	<string name="server_error_please_try_later">Server Error - Please try again later</string>
+	
+	<string name="terms_of_use_title">Accpt the Terms Of Use?</string>
+	<string name="terms_of_use_info">Before you proceed, you have to accept our Terms Of Use</string>
+	<string name="terms_of_use_sorry">Sorry to bother you again. We have changed our Terms Of Use</string>
+	<string name="terms_of_use_cant_continue">Before you upload any Track, you have to accept the Terms Of Use</string>
+	<string name="terms_of_use_updating_server">Updating Terms Of Use State on Server</string>
+	
+	<string name="diesel_not_yet_supported">Please note that consumption/CO2 calculation for Diesel cars is not yet supported</string>
 	
 </resources>

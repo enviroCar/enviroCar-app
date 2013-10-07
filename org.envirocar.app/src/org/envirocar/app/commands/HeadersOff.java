@@ -25,7 +25,7 @@ package org.envirocar.app.commands;
 /**
  * Turns off line-feed.
  */
-public class HeadersOff extends CommonCommand {
+public class HeadersOff extends StringResultCommand {
 
 	/**
 	 * @param command
@@ -34,10 +34,6 @@ public class HeadersOff extends CommonCommand {
 		super("AT H0");
 	}
 
-	@Override
-	public String getResult() {
-		return getRawData();
-	}
 
 	@Override
 	public String getCommandName() {

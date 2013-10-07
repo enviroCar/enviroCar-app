@@ -25,18 +25,13 @@ package org.envirocar.app.commands;
 /**
  * This command will turn-off echo.
  */
-public class SpacesOff extends CommonCommand {
+public class SpacesOff extends StringResultCommand {
 
 	/**
 	 * @param command
 	 */
 	public SpacesOff() {
 		super("AT S0");
-	}
-
-	@Override
-	public String getResult() {
-		return getRawData();
 	}
 
 	@Override

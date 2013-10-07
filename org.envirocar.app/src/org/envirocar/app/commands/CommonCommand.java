@@ -21,12 +21,8 @@
 
 package org.envirocar.app.commands;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-
-import org.envirocar.app.logging.Logger;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Abstract command class that the other commands have to extend. Many things
@@ -37,13 +33,25 @@ import org.envirocar.app.logging.Logger;
  */
 public abstract class CommonCommand {
 
-	protected ArrayList<Integer> buffer = null;
-	protected String command = null;
-	protected String rawData = null;
+	private static Set<Character> ignoredChars;
+	private static final char COMMAND_SEND_END = '\r';
+	private static final char COMMAND_RECEIVE_END = '>';
+	private static final char COMMAND_RECEIVE_SPACE = ' ';
+	
+	static {
+		ignoredChars = new HashSet<Character>();
+		ignoredChars.add(COMMAND_RECEIVE_SPACE);
+		ignoredChars.add(COMMAND_SEND_END);
+	}
+	
+	private byte[] rawData = null;
+	private String command = null;
 	private Long commandId;
 	private CommonCommandState commandState;
+	private String responseTypeId;
+	private long resultTime;
 	
-	private static final Logger logger = Logger.getLogger(CommonCommand.class);
+
 
 	/**
 	 * Default constructor to use
@@ -53,108 +61,45 @@ public abstract class CommonCommand {
 	 */
 	public CommonCommand(String command) {
 		this.command = command;
+		determineResponseByte();
 		setCommandState(CommonCommandState.NEW);
-		this.buffer = new ArrayList<Integer>();
+	}
+
+	private void determineResponseByte() {
+		if (this.command == null || this.command.isEmpty()) return;
+		
+		String[] array = this.command.split(" ");
+		if (array != null && array.length > 1) {
+			this.responseTypeId = array[1];
+		}
 	}
 
 	/**
 	 * The state of the command.
 	 */
 	public enum CommonCommandState {
-		NEW, RUNNING, FINISHED, EXECUTION_ERROR, QUEUE_ERROR
+		NEW, RUNNING, FINISHED, EXECUTION_ERROR, QUEUE_ERROR, SEARCHING, UNMATCHED_RESULT
 	}
 
-	/**
-	 * Sends the OBD-II request and deals with the response.
-	 * 
-	 * This method CAN be overriden in fake commands.
-	 */
-	public void run(InputStream in, OutputStream out) throws IOException,
-			InterruptedException {
-		sendCommand(out);
-		readResult(in);
+
+	public String getResponseTypeID() {
+		return responseTypeId;
 	}
 
-	/**
-	 * Sends the OBD-II request.
-	 * 
-	 * This method may be overriden in subclasses, such as ObMultiCommand or
-	 * TroubleCodesObdCommand.
-	 * 
-	 * @param command
-	 *            The command to send.
-	 */
-	protected void sendCommand(OutputStream outputStream) throws IOException,
-			InterruptedException {
-		// add the carriage return char
-		command += "\r";
 
-		// write to OutputStream, or in this case a BluetoothSocket
-		outputStream.write(command.getBytes());
-		outputStream.flush();
-
-		Thread.sleep(200);
+	public boolean responseAlwaysRequired() {
+		return true;
 	}
 
-	/**
-	 * Resends this command.
-	 */
-	protected void resendCommand(OutputStream outputStream) throws IOException,
-			InterruptedException {
-		outputStream.write("\r".getBytes());
-		outputStream.flush();
-	}
+	public abstract void parseRawData();
 
-	/**
-	 * Reads the OBD-II response.
-	 */
-	protected void readResult(InputStream inputStream) throws IOException {
-		byte b = 0;
-		StringBuilder stringbuilder = new StringBuilder();
-
-		// read until '>' arrives
-		while ((char) (b = (byte) inputStream.read()) != '>')
-			if ((char) b != ' ')
-				stringbuilder.append((char) b);
-
-		rawData = stringbuilder.toString().trim();
-		logger.info("Command name: " + getCommandName() + ", Send '" + getCommand() + "', get raw data '" + rawData + "'");
-		
-		// clear buffer
-		buffer.clear();
-
-		// read string each two chars
-		int begin = 0;
-		int end = 2;
-		while (end <= rawData.length()) {
-			String temp = "0x" + rawData.substring(begin, end);
-			buffer.add(Integer.decode(temp));
-			begin = end;
-			end += 2;
-		}
-	}
-
-	/**
-	 * @return the raw command response in string representation.
-	 * 
-	 * TODO rawData is null, when car switch. What should be done in this case?
-	 */
-	public String getRawData() {
-		if (rawData == null || rawData.contains("SEARCHING") || rawData.contains("DATA")
-				//TODO check if cars do this!!
-				|| rawData.contains("OK")
-				) {
-			rawData = "NODATA";
-		}
-		return rawData;
-	}
 
 	/**
 	 * Returns this command in string representation.
 	 * 
 	 * @return the command
 	 */
-	public String getCommand() {
+	private String getCommand() {
 		return command;
 	}
 
@@ -164,24 +109,12 @@ public abstract class CommonCommand {
 	public abstract String getCommandName();
 
 	/**
-	 * @return a formatted command response in string representation.
-	 */
-	public abstract String getResult();
-
-	/**
 	 * @return the commandId
 	 */
 	public Long getCommandId() {
 		return commandId;
 	}
 
-	/**
-	 * @param commandId
-	 *            the commandId to set
-	 */
-	public void setCommandId(Long commandId) {
-		this.commandId = commandId;
-	}
 
 	/**
 	 * @return the commandState
@@ -201,11 +134,54 @@ public abstract class CommonCommand {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("Commandname: " + getCommandName());
-		sb.append(", Command: " + getCommand());
-		sb.append(", RawData: " + getRawData());
-		sb.append(", Result: " + getResult());
-		return super.toString();
+		sb.append("Commandname: ");
+		sb.append(getCommandName());
+		sb.append(", Command: ");
+		sb.append(getCommand());
+		sb.append(", Result Time: ");
+		sb.append(getResultTime());
+		return sb.toString();
+	}
+
+
+	public void setResultTime(long currentTimeMillis) {
+		this.resultTime = currentTimeMillis;
+	}
+
+	public long getResultTime() {
+		return resultTime;
+	}
+
+	public byte[] getOutgoingBytes() {
+		return getCommand().getBytes();
+	}
+
+	public void setRawData(byte[] rawData) {
+		this.rawData = rawData;
+	}
+
+	public char getEndOfLineReceive() {
+		return COMMAND_RECEIVE_END;
+	}
+
+	public char getIgnoreCharReceive() {
+		return COMMAND_RECEIVE_SPACE;
+	}
+
+	public char getEndOfLineSend() {
+		return COMMAND_SEND_END;
+	}
+
+	public boolean awaitsResults() {
+		return true;
+	}
+
+	public byte[] getRawData() {
+		return this.rawData;
+	}
+
+	public Set<Character> getIgnoredChars() {
+		return ignoredChars;
 	}
 
 }

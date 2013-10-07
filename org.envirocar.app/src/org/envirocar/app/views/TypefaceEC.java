@@ -48,8 +48,12 @@ public final class TypefaceEC {
 			if (view instanceof ViewGroup) {
 				applyCustomFont((ViewGroup) view, customTypeface);
 			} else if (view instanceof TextView) {
-				((TextView) view).setTypeface(customTypeface);
+				applyCustomFont((TextView) view, customTypeface);
 			}
 		}
+	}
+
+	public static void applyCustomFont(TextView view, Typeface customTypeface) {
+		view.setTypeface(customTypeface);
 	}
 }

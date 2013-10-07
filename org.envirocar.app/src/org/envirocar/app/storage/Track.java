@@ -21,11 +21,19 @@
 
 package org.envirocar.app.storage;
 
+import static org.envirocar.app.storage.Measurement.PropertyKey.CONSUMPTION;
+
 import java.util.ArrayList;
+import java.util.List;
 
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.Car;
+import org.envirocar.app.model.Car.FuelType;
+import org.envirocar.app.protocol.algorithm.AbstractConsumptionAlgorithm;
+import org.envirocar.app.protocol.algorithm.BasicConsumptionAlgorithm;
+import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
 import org.envirocar.app.views.Utils;
 
 /**
@@ -36,104 +44,89 @@ import org.envirocar.app.views.Utils;
  */
 public class Track implements Comparable<Track> {
 	
+	public enum TrackStatus {
+		ONGOING {
+			@Override
+			public String toString() {
+				return "ONGOING";
+			}
+			
+		},
+		
+		FINISHED {
+			@Override
+			public String toString() {
+				return "FINISHED";
+			}
+		}
+		
+	}
+	
 	private static final Logger logger = Logger.getLogger(Track.class);
 
-	private String id;
+	private long id;
 	private String name;
 	private String description;
-	private ArrayList<Measurement> measurements;
-	private String carManufacturer;
-	private String carModel;
+	private List<Measurement> measurements = new ArrayList<Measurement>();
+	private Car car;
+	private AbstractConsumptionAlgorithm consumptionAlgorithm;
 	private String vin;
-	private String fuelType;
-	private String sensorID;
-	private boolean localTrack;
+	private String remoteID;
 	private Double consumptionPerHour;
+	private TrackStatus status = TrackStatus.ONGOING;
+
+	private DbAdapter dbAdapter;
+
+	private boolean lazyLoadingMeasurements;
+
+	private Long startTime = null;
+	private Long endTime = null;
+
+	public static Track createDbTrack(long id, DbAdapter dbAdapterImpl) {
+		Track track = new Track(id);
+		track.dbAdapter = dbAdapterImpl;
+		return track;
+	}
+	
+	private Track(long id) {
+		this.id = id;
+	}
+	
+	public static Track createRemoteTrack(String remoteID, DbAdapter dbAdapter) {
+		Track track = new Track(remoteID, dbAdapter);
+		return track;
+	}
+	
+	private Track(String remoteID, DbAdapter dbAdapter) {
+		this.remoteID = remoteID;
+		this.id = dbAdapter.insertTrack(this);
+		this.dbAdapter = dbAdapter;
+	}
+	
+	/**
+	 * Constructor for creating "fresh" new track. Use this for new measurements
+	 * that were captured from the OBD-II adapter.
+	 */
+	public Track(String vin, Car car, DbAdapter dbAdapter) {
+		this.vin = vin;
+		this.name = "";
+		this.description = "";
+		this.measurements = new ArrayList<Measurement>();
+		this.car = car;
+		this.consumptionAlgorithm = new BasicConsumptionAlgorithm(car);
+		id = dbAdapter.insertTrack(this);
+		this.dbAdapter = dbAdapter;
+	}
 
 	/**
 	 * @return the localTrack
 	 */
 	public boolean isLocalTrack() {
-		return localTrack;
+		return (remoteID == null ? true : false);
 	}
 
-	/**
-	 * @param localTrack
-	 *            the localTrack to set
-	 */
-	public void setLocalTrack(boolean localTrack) {
-		this.localTrack = localTrack;
-	}
-
-	/**
-	 * @return the sensorID
-	 */
-	public String getSensorID() {
-		return sensorID;
-	}
-
-	/**
-	 * @param sensorID
-	 *            the sensorID to set
-	 */
-	public void setSensorID(String sensorID) {
-		this.sensorID = sensorID;
-	}
-
-	private DbAdapter dbAdapter;
-
-	/**
-	 * Constructor for creating a Track from the Database. Use this constructor
-	 * when you want to rebuild tracks from the database.
-	 */
-	public Track(String id) {
-		this.id = id;
-		this.name = "";
-		this.description = "";
-		this.carManufacturer = "";
-		this.carModel = "";
-		this.vin = "";
-		this.fuelType = "";
-		this.sensorID = "";
-		this.measurements = new ArrayList<Measurement>();
-	}
-
-	/**
-	 * Constructor for creating "fresh" new track. Use this for new measurements
-	 * that were captured from the OBD-II adapter.
-	 */
-	public Track(String vin, String fuelType, String carManufacturer, String carModel, String sensorId, DbAdapter dbAdapter) {
-		this.vin = vin;
-		this.name = "";
-		this.description = "";
-		this.carManufacturer = carManufacturer;
-		this.carModel = carModel;
-		this.fuelType = fuelType;
-		this.sensorID = sensorId;
-		this.measurements = new ArrayList<Measurement>();
-		this.dbAdapter = dbAdapter;
-		id = String.valueOf(dbAdapter.insertTrack(this));
-	}
-
-	/**
-	 * Set the db adpater for the track. This method is needed when you want to
-	 * update a track in the database because when you get the track, the
-	 * dbadapter is not returned.
-	 * 
-	 * @param dbAdapter
-	 *            the dbapapter
-	 */
-	public void setDatabaseAdapter(DbAdapter dbAdapter) {
-		this.dbAdapter = dbAdapter;
-	}
-
-	/**
-	 * Updates the Track in the database
-	 * 
-	 * @return
-	 */
-	public boolean commitTrackToDatabase() {
-		return dbAdapter.updateTrack(this);
+	public boolean isRemoteTrack() {
+		return (remoteID != null ? true : false);
 	}
 
 	/**
@@ -167,40 +160,22 @@ public class Track implements Comparable<Track> {
 	}
 
 	/**
-	 * @return the carManufacturer
-	 */
-	public String getCarManufacturer() {
-		return carManufacturer;
-	}
-
-	/**
-	 * @param carManufacturer
-	 *            the carManufacturer to set
-	 */
-	public void setCarManufacturer(String carManufacturer) {
-		this.carManufacturer = carManufacturer;
-	}
-
-	/**
-	 * @return the carModel
-	 */
-	public String getCarModel() {
-		return carModel;
-	}
-
-	/**
-	 * @param carModel
-	 *            the carModel to set
-	 */
-	public void setCarModel(String carModel) {
-		this.carModel = carModel;
-	}
-
-	/**
 	 * @return the measurements
 	 */
-	public ArrayList<Measurement> getMeasurements() {
+	public List<Measurement> getMeasurements() {
+		if ((measurements == null || measurements.isEmpty()) && dbAdapter != null) {
+			this.measurements = dbAdapter.getAllMeasurementsForTrack(this);
+		}
 		return measurements;
+	}
+
+	public Car getCar() {
+		return car;
+	}
+
+	public void setCar(Car car) {
+		this.car = car;
+		this.consumptionAlgorithm = new BasicConsumptionAlgorithm(car);
 	}
 
 	/**
@@ -209,34 +184,54 @@ public class Track implements Comparable<Track> {
 	 * @return start time of track as unix long
 	 * @throws MeasurementsException
 	 */
-	public long getStartTime() throws MeasurementsException {
+	public Long getStartTime() throws MeasurementsException {
+		if (startTime != null) return startTime;
+		
 		if (this.getMeasurements().size() > 0)
-			return this.getMeasurements().get(0).getMeasurementTime();
+			return this.getMeasurements().get(0).getTime();
 		else
 			throw new MeasurementsException("No measurements in the track");
 	}
 
+	public void setStartTime(Long time) {
+		this.startTime = time;
+	}
+	
 	/**
 	 * get the time where the track ended
 	 * 
 	 * @return end time of track as unix long
 	 * @throws MeasurementsException
 	 */
-	public long getEndTime() throws MeasurementsException {
+	public Long getEndTime() throws MeasurementsException {
+		if (endTime != null) return endTime;
+		
 		if (this.getMeasurements().size() > 0)
-			return this.getMeasurements().get(this.getMeasurements().size() - 1).getMeasurementTime();
+			return this.getMeasurements().get(this.getMeasurements().size() - 1).getTime();
 		else
 			throw new MeasurementsException("No measurements in the track");
 	}
-
+	
+	public void setEndTime(Long time) {
+		this.endTime = time;
+	}
+	
 	/**
 	 * Sets the measurements with an arraylist of measurements
 	 * 
 	 * @param measurements
 	 *            the measurements of a track
 	 */
-	public void setMeasurementsAsArrayList(ArrayList<Measurement> measurements) {
+	public void setMeasurementsAsArrayList(List<Measurement> measurements) {
 		this.measurements = measurements;
+	}
+	
+	public void storeMeasurementsInDbAdapter() {
+		if (this.dbAdapter != null) {
+			for (Measurement measurement : measurements) {
+				this.dbAdapter.insertMeasurement(measurement);
+			}
+		}
 	}
 
 	/**
@@ -250,7 +245,11 @@ public class Track implements Comparable<Track> {
 	public void addMeasurement(Measurement measurement) {
 		measurement.setTrack(Track.this);
 		this.measurements.add(measurement);
-		dbAdapter.insertMeasurement(measurement);
+		if (this.dbAdapter != null) {
+			this.dbAdapter.insertMeasurement(measurement);	
+		} else {
+			logger.warn("DbAdapter was null! Could not insert measurement");
+		}
 	}
 
 	/**
@@ -265,16 +264,8 @@ public class Track implements Comparable<Track> {
 	/**
 	 * @return the id
 	 */
-	public String getId() {
+	public long getId() {
 		return id;
-	}
-
-	/**
-	 * @param id
-	 *            the id to set
-	 */
-	public void setId(String id) {
-		this.id = id;
 	}
 
 	/**
@@ -295,77 +286,12 @@ public class Track implements Comparable<Track> {
 		this.vin = vin;
 	}
 
-	/**
-	 * set the fuel type
-	 * 
-	 * @param fuelType
-	 */
-	public void setFuelType(String fuelType) {
-		this.fuelType = fuelType;
+	public String getRemoteID() {
+		return remoteID;
 	}
 
-	/**
-	 * get the fuel type
-	 * 
-	 * @return
-	 */
-	public String getFuelType() {
-		return fuelType;
-	}
-
-	/**
-	 * Returns the fuel consumption for a measurement
-	 * 
-	 * @param measurement
-	 *            The measurement with the fuel consumption
-	 * @return The fuel consumption in l/h. 0.0 if MAF is -1.0 (no MAF sensor)
-	 * @throws FuelConsumptionException
-	 */
-
-	public double getFuelConsumptionOfMeasurement(int measurement) throws FuelConsumptionException {
-
-		Measurement m = getMeasurements().get(measurement);
-
-		double maf = m.getMaf();
-		double calculatedMaf = m.getCalculatedMaf();
-
-		if (maf > 0) {
-			if (this.fuelType.equals("gasoline")) {
-				return (maf / 14.7) / 747 * 3600;
-			} else if (this.fuelType.equals("diesel")) {
-				return (maf / 14.5) / 832 * 3600;
-			} else
-				throw new FuelConsumptionException();
-		} else {
-			if (this.fuelType.equals("gasoline")) {
-				return (calculatedMaf / 14.7) / 747 * 3600;
-			} else if (this.fuelType.equals("diesel")) {
-				return (calculatedMaf / 14.5) / 832 * 3600;
-			} else
-				throw new FuelConsumptionException();
-		}
-
-	}
-
-	/**
-	 * Returns the Co2 emission of a measurement
-	 * 
-	 * @param measurement
-	 * @return co2 emission in kg/h
-	 * @throws FuelConsumptionException
-	 */
-	public double getCO2EmissionOfMeasurement(int measurement) throws FuelConsumptionException {
-
-		double fuelCon;
-		fuelCon = getFuelConsumptionOfMeasurement(measurement);
-
-		if (this.fuelType.equals("gasoline")) {
-			return fuelCon * 2.35;
-		} else if (this.fuelType.equals("diesel")) {
-			return fuelCon * 2.65;
-		} else
-			throw new FuelConsumptionException();
-
+	public void setRemoteID(String remoteID) {
+		this.remoteID = remoteID;
 	}
 
 	/**
@@ -374,7 +300,7 @@ public class Track implements Comparable<Track> {
 	 * @return
 	 */
 	public double getLengthOfTrack() {
-		ArrayList<Measurement> measurements = this.getMeasurements();
+		List<Measurement> measurements = this.getMeasurements();
 
 		double distance = 0.0;
 
@@ -386,34 +312,28 @@ public class Track implements Comparable<Track> {
 		return distance;
 	}
 
-	
-
 	/**
 	 * Returns the last measurement of this track
 	 * 
-	 * @return
-	 * @throws MeasurementsException
-	 *             If there are no measurements in the track
+	 * @return the last measurement or null if there are no measurements
 	 */
-	public Measurement getLastMeasurement() throws MeasurementsException {
+	public Measurement getLastMeasurement() {
 		if (this.measurements.size() > 0) {
 			return this.measurements.get(this.measurements.size() - 1);
-		} else
-			throw new MeasurementsException("No Measurements in this track!");
+		}
+		return null;
 	}
 	
 	/**
 	 * Returns the first measurement of this track
 	 * 
-	 * @return
-	 * @throws MeasurementsException
-	 *             If there are no measurements in the track
+	 * @return Returns the last measurement or null if there are no measurements
 	 */
-	public Measurement getFirstMeasurement() throws MeasurementsException {
+	public Measurement getFirstMeasurement() {
 		if (this.measurements.size() > 0) {
 			return this.measurements.get(0);
-		} else
-			throw new MeasurementsException("No measurements in this track!");
+		}
+		return null;
 	}
 	
 	/**
@@ -424,8 +344,10 @@ public class Track implements Comparable<Track> {
 	public double getCO2Average() {
 		double co2Average = 0.0;
 		try {
-			for (int i = 0; i < measurements.size(); i++) {
-				co2Average = co2Average + getCO2EmissionOfMeasurement(i);
+			for (Measurement measurement : measurements) {
+				if (measurement.getProperty(CONSUMPTION) != null){
+					co2Average = co2Average + consumptionAlgorithm.calculateCO2FromConsumption(measurement.getProperty(CONSUMPTION));
+				}
 			}
 			co2Average = co2Average / measurements.size();
 		} catch (FuelConsumptionException e) {
@@ -434,17 +356,21 @@ public class Track implements Comparable<Track> {
 		return co2Average;
 	}
 	
-	public double getFuelConsumptionPerHour() {
+	public double getFuelConsumptionPerHour() throws UnsupportedFuelTypeException {
 		if (consumptionPerHour == null) {
 			consumptionPerHour = 0.0;
-			try {
-				for (int i = 0; i < measurements.size(); i++) {
-					consumptionPerHour = consumptionPerHour + getFuelConsumptionOfMeasurement(i);
+			
+			int consideredCount = 0;
+			for (int i = 0; i < measurements.size(); i++) {
+				try {
+					consumptionPerHour = consumptionPerHour + consumptionAlgorithm.calculateConsumption(measurements.get(i));
+					consideredCount++;
+				} catch (FuelConsumptionException e) {
+					logger.warn(e.getMessage());
 				}
-				consumptionPerHour = consumptionPerHour / measurements.size();
-			} catch (FuelConsumptionException e) {
-				logger.warn(e.getMessage(),e);
 			}
+			consumptionPerHour = consumptionPerHour / consideredCount;
+			
 		}
 		return consumptionPerHour;
 	}
@@ -452,11 +378,47 @@ public class Track implements Comparable<Track> {
 	@Override
 	public int compareTo(Track t) {
 		try {
-			return (this.getFirstMeasurement().getMeasurementTime() < t.getFirstMeasurement().getMeasurementTime() ? 1 : -1);
+			if (t.getStartTime() == null && t.getEndTime() == null) {
+				/*
+				 * we cannot assume any ordering
+				 */
+				return 0;
+			}
+		}
+		catch (MeasurementsException e) {
+			return 0;
+		}
+			
+		try {
+			if (this.getStartTime() == null) {
+				/*
+				 * no measurements, this is probably a relatively new track
+				 */
+				return -1;
+			}
+		}
+		catch (MeasurementsException e) {
+			return -1;
+		}
+		
+		try {
+			if (t.getStartTime() == null) {
+				/*
+				 * no measurements, that is probably a relatively new track
+				 */
+				return 1;
+			}
+		}
+		catch (MeasurementsException e) {
+			return 1;
+		}
+
+		try {
+			return (this.getStartTime() < t.getStartTime() ? 1 : -1);
 		} catch (MeasurementsException e) {
-			logger.warn(e.getMessage(), e);
-		} 
-		return 0;
+			return 0;
+		}	
+		
 	}
 
 	public double getLiterPerHundredKm() throws MeasurementsException {
@@ -469,12 +431,28 @@ public class Track implements Comparable<Track> {
 
 	public double getGramsPerKm() throws FuelConsumptionException, MeasurementsException {
 
-		if (this.fuelType.equals("gasoline")) {
+		if (this.car.getFuelType().equals(FuelType.GASOLINE)) {
 			return getLiterPerHundredKm() * 23.3;
-		} else if (this.fuelType.equals("diesel")) {
+		} else if (this.car.getFuelType().equals(FuelType.DIESEL)) {
 			return getLiterPerHundredKm() * 26.4;
 		} else
 			throw new FuelConsumptionException();
+	}
+
+	public void setStatus(TrackStatus s) {
+		this.status = s;
+	}
+
+	public TrackStatus getStatus() {
+		return status;
+	}
+
+	public void setLazyLoadingMeasurements(boolean b) {
+		this.lazyLoadingMeasurements = b;
+	}
+
+	public boolean isLazyLoadingMeasurements() {
+		return lazyLoadingMeasurements;
 	}
 
 }

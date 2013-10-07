@@ -22,20 +22,20 @@
 package org.envirocar.app.activity;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicHeader;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.views.TypefaceEC;
+import org.json.JSONException;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -44,6 +44,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -86,9 +87,9 @@ public class LoginFragment extends SherlockFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		
+
 		setHasOptionsMenu(true);
-		
+
 		View view = inflater.inflate(R.layout.login_layout, null);
 
 		mUsernameView = (EditText) view.findViewById(R.id.login_username);
@@ -128,37 +129,41 @@ public class LoginFragment extends SherlockFragment {
 				TypefaceEC.Raleway(getActivity()));
 		mUsernameView.requestFocus();
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(
 			com.actionbarsherlock.view.MenuItem item) {
-		switch(item.getItemId()){
+		switch (item.getItemId()) {
 		case R.id.menu_register:
-            RegisterFragment registerFragment = new RegisterFragment();
-            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, registerFragment, "REGISTER").addToBackStack(null).commit();
+			RegisterFragment registerFragment = new RegisterFragment();
+			getActivity().getSupportFragmentManager().beginTransaction()
+					.replace(R.id.content_frame, registerFragment, "REGISTER")
+					.addToBackStack(null).commit();
 			return true;
-			
+
 		}
 		return false;
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, com.actionbarsherlock.view.MenuInflater inflater) {
-    	inflater.inflate(R.menu.menu_login, (com.actionbarsherlock.view.Menu) menu);
-    	super.onCreateOptionsMenu(menu, inflater);
+	public void onCreateOptionsMenu(Menu menu,
+			com.actionbarsherlock.view.MenuInflater inflater) {
+		inflater.inflate(R.menu.menu_login,
+				(com.actionbarsherlock.view.Menu) menu);
+		super.onCreateOptionsMenu(menu, inflater);
 	}
-	
+
 	/**
 	 * Attempts to sign in or register the account specified by the login form.
 	 * If there are form errors (invalid email, missing fields, etc.), the
 	 * errors are presented and no actual login attempt is made.
 	 */
 	private void attemptLogin() {
-		
+
 		// Reset errors.
 		mUsernameView.setError(null);
 		mPasswordView.setError(null);
-		
+
 		if (mAuthTask != null) {
 			return;
 		}
@@ -193,11 +198,11 @@ public class LoginFragment extends SherlockFragment {
 			// form field with an error.
 			focusView.requestFocus();
 		} else {
-			//hide the keyboard
-			InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(
-				      Context.INPUT_METHOD_SERVICE);
-				imm.hideSoftInputFromWindow(mPasswordView.getWindowToken(), 0);
-			
+			// hide the keyboard
+			InputMethodManager imm = (InputMethodManager) getActivity()
+					.getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.hideSoftInputFromWindow(mPasswordView.getWindowToken(), 0);
+
 			// Show a progress spinner, and kick off a background task to
 			// perform the user login attempt.
 			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
@@ -252,25 +257,35 @@ public class LoginFragment extends SherlockFragment {
 	 * Represents an asynchronous login/registration task used to authenticate
 	 * the user.
 	 */
-	public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
+	public class UserLoginTask extends AsyncTask<Void, Void, User> {
 		@Override
-		protected Boolean doInBackground(Void... params) {
+		protected User doInBackground(Void... params) {
 			return authenticateHttp(mUsername, mPassword);
 
 		}
 
 		@Override
-		protected void onPostExecute(final Boolean success) {
+		protected void onPostExecute(final User newUser) {
 			mAuthTask = null;
 			showProgress(false);
 
-			if (success) {
-				UserManager.instance().setUser(new User(mUsername, mPassword));
-				Crouton.makeText(getActivity(), getResources().getString(R.string.welcome_message) + " " + mUsername, Style.CONFIRM).show();
+			if (newUser != null) {
+				UserManager.instance().setUser(newUser);
+				Crouton.makeText(
+						getActivity(),
+						getResources().getString(R.string.welcome_message)
+								+ " " + mUsername, Style.CONFIRM).show();
+				
+				TermsOfUseManager.askForTermsOfUseAcceptance(newUser, getActivity(), null);
+				
+				getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
 				DashboardFragment dashboardFragment = new DashboardFragment();
-	            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
+				getActivity().getSupportFragmentManager().beginTransaction()
+						.replace(R.id.content_frame, dashboardFragment)
+						.commit();
+				
 			} else {
-				if(mUsernameView.getError() != null) {
+				if (mUsernameView.getError() != null) {
 					mUsernameView.requestFocus();
 				} else {
 					mPasswordView.requestFocus();
@@ -289,38 +304,39 @@ public class LoginFragment extends SherlockFragment {
 	 * Method used for authentication (e.g. at loginscreen to verify user
 	 * credentials
 	 */
-	private boolean authenticateHttp(String user, String token) {
-		DefaultHttpClient httpclient = new DefaultHttpClient();
+	private User authenticateHttp(String user, String token) {
+		HttpGet httpget = new HttpGet(ECApplication.BASE_URL_DEV + "/users/" + user);
+		httpget.addHeader(new BasicHeader("X-User", user));
+		httpget.addHeader(new BasicHeader("X-Token", token));
+		HttpResponse response;
 		try {
-			HttpGet httpget = new HttpGet(
-					ECApplication.BASE_URL+"/users/"
-							+ user);
-			httpget.addHeader(new BasicHeader("X-User", user));
-			httpget.addHeader(new BasicHeader("X-Token", token));
-			HttpResponse response = httpclient.execute(httpget);
-
-			int status = response.getStatusLine().getStatusCode();
-			// TODO finer errors..
-			if (status != HttpStatus.SC_OK) {
-				mPasswordView.setError(getString(R.string.error_incorrect_password));
-				return false;
-			} else {
-				return true;
-
-			}
-		} catch (UnknownHostException e){
-			logger.warn(e.getMessage(), e);
-			mUsernameView.setError(getString(R.string.error_host_not_found));
-		} catch (ClientProtocolException e) {
-			logger.warn(e.getMessage(), e);
+			response = HTTPClient.execute(httpget);
 		} catch (IOException e) {
 			logger.warn(e.getMessage(), e);
-		} finally {
-			// When HttpClient instance is no longer needed,
-			// shut down the connection manager to ensure
-			// immediate deallocation of all system resources
-			httpclient.getConnectionManager().shutdown();
+			return null;
 		}
-		return false;
+
+		int status = response.getStatusLine().getStatusCode();
+
+		if (status < HttpStatus.SC_MULTIPLE_CHOICES) {
+			try {
+				User u = User.fromJson(HTTPClient.readResponse(response.getEntity()));
+				if (user.equals(u.getUsername())) {
+					u.setToken(token);
+				}
+				return u;
+			} catch (JSONException e) {
+				logger.warn(e.getMessage(), e);
+			} catch (IOException e) {
+				logger.warn(e.getMessage(), e);
+			}
+		} else {
+			HTTPClient.consumeEntity(response.getEntity());
+			mPasswordView.setError(getString(R.string.error_incorrect_password));
+			return null;
+		}
+		
+		return null;
 	}
+
 }

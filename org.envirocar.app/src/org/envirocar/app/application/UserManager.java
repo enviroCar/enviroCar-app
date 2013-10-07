@@ -13,6 +13,8 @@ public class UserManager {
 	
 	private static final String TOKEN = "token";
 	
+	private static final String ACCEPTED_TERMS_OF_USE_VERSION = "acceptedTermsOfUseVersion";
+	
 	private static final String USER_PREFERENCES = "userPrefs";
 	
 	private Context context;
@@ -42,6 +44,7 @@ public class UserManager {
 		Editor e = getUserPreferences().edit();
 		e.putString(USERNAME, user.getUsername());
 		e.putString(TOKEN, user.getToken());
+		e.putString(ACCEPTED_TERMS_OF_USE_VERSION, user.getAcceptedTermsOfUseVersion());
 		e.commit();
 	}
 
@@ -53,7 +56,9 @@ public class UserManager {
 		SharedPreferences prefs = getUserPreferences();
 		String username = prefs.getString(USERNAME, null);
 		String token = prefs.getString(TOKEN, null);
-		return new User(username, token);
+		User result = new User(username, token);
+		result.setAcceptedTermsOfUseVersion(prefs.getString(ACCEPTED_TERMS_OF_USE_VERSION, null));
+		return result;
 	}
 
 	/**
@@ -76,10 +81,12 @@ public class UserManager {
 	public void logOut() {
 		SharedPreferences prefs = getUserPreferences();
 		Editor e = prefs.edit();
-		if (prefs.contains("username"))
-			e.remove("username");
-		if (prefs.contains("token"))
-			e.remove("token");
+		if (prefs.contains(USERNAME))
+			e.remove(USERNAME);
+		if (prefs.contains(TOKEN))
+			e.remove(TOKEN);
+		if (prefs.contains(ACCEPTED_TERMS_OF_USE_VERSION))
+			e.remove(ACCEPTED_TERMS_OF_USE_VERSION);
 		e.commit();
 	}
 

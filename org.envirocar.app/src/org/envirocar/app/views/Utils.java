@@ -24,8 +24,10 @@ package org.envirocar.app.views;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.storage.Measurement;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -90,7 +92,7 @@ public class Utils {
 		} catch (IndexOutOfBoundsException e) {
 			throw new ParseException("Invalid length", 0);
 		}
-		Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ").parse(s);
+		Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(s);
 
 		return date.getTime();
 	}
@@ -102,7 +104,7 @@ public class Utils {
 	 * @param lng1
 	 * @param lat2
 	 * @param lng2
-	 * @return
+	 * @return distance in km
 	 */
 	public static double getDistance(double lat1, double lng1, double lat2, double lng2) {
 
@@ -115,6 +117,17 @@ public class Utils {
 
 		return dist;
 
+	}
+	
+	/**
+	 * Returns the distance of two measurements in kilometers.
+	 * 
+	 * @param m1 first {@link Measurement}
+	 * @param m2 second {@link Measurement}
+	 * @return distance in km
+	 */
+	public static double getDistance(Measurement m1, Measurement m2) {
+		return getDistance(m1.getLatitude(), m1.getLongitude(), m2.getLatitude(), m2.getLongitude());
 	}
 
 }
