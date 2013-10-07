@@ -157,38 +157,66 @@
 	
 	<string name="help">Help</string>
 
-    <string name="help_about_head_1">1. Über enviroCar</string>
-    <string name="help_about_text_1">This app is part of the Citizen Science platform enviroCar (<a href="www.enviroCar.org">www.enviroCar.org</a>)). You can use it to collect and analyze test drive/runs as well as provide the measured data as Open Data.</string>
-    <string name="help_getting_started_head_1">2. Die ersten Schritte</string>
-    <string name="help_getting_started_text_1">The initial screen displays the current measured values of speed, CO2 emission and location. In addition, it also shows the type of car you have specified.
-\n\nBefore you can start recording your test drive/run data, you must complete the following steps.</string>
-    <string name="help_getting_started_text_2">Click on the main menu icon (top left) to access all enviroCar functions.</string>
-	<string name="help_getting_started_head_1">2.1 Register</string>
-	<string name="help_getting_started_text_1_1">If you have not yet registered as an enviroCar user, you can do so with the function “create user account”.</string>
-	<string name="help_getting_started_head_2">2.2 Enter car data</string>
-	<string name="help_getting_started_text_1_2">TODO</string>
-	<string name="help_getting_started_head_3">2.3 TODO</string>
-	<string name="help_getting_started_text_1_3">TODO</string>
-    <string name="help_record_track_head_1">3. TODO</string>
-    <string name="help_record_track_text_1">TODO</string>
-	<string name="help_view_track_head_1">4.TODO</string>
-	<string name="help_view_track_text_1">TODO</string>
-	<string name="help_upload_track_head_1">5. TODO</string>
-	<!-- 	I split this text up, so the icon fits better, see the german text  -->
-	<string name="help_upload_track_text_1">TODO</string>
-	<string name="help_upload_track_text_1_1">TODO</string>
-	<string name="help_upload_track_text_2">TODO</string>
-	<string name="help_upload_track_image_description">data privacy</string>
-	<string name="help_settings_head_1">6. Settings</string>
-	<string name="help_settings_head_1_1">6.1 TODO</string>
-	<string name="help_settings_text_1_1">TODO</string>
-	<string name="help_settings_head_1_2">6.2 TODO</string>
-	<string name="help_settings_text_1_2">TODO</string>
-	<string name="help_settings_head_1_3">6.3 TODO</string>
-	<string name="help_settings_text_1_3">TODO</string>
-	<string name="help_settings_text_1">TODO</string>
-	<string name="help_feedback_head_1">7. FeedBack</string>
-	<string name="help_feedback_text_1">TODO</string>
+<string name="help_head_1">1. About enviroCar</string>
+    <string name="help_text_1">This app is part of the Citizen Science platform enviroCar (<a href="www.enviroCar.org">www.enviroCar.org</a>). You can use it to collect and analyze test drives, as well as provide the measured data as Open Data.</string>
+    <string name="help_head_2">2. Getting Started</string>
+    <string name="help_text_2">The initial screen displays the current measured values of speed, CO2 emission and geographic location (position). In addition, it shows the type of car you have specified.
+\n\n
+Before you can start recording your track data, you must complete the following steps.
+\n\n
+Click on the main menu  (icon top left) to access the functions needed to do this.</string> 
+	<string name="help_head_2_1">2.1 Register</string>
+	<string name="help_text_2_1">If you have not yet registered as an enviroCar user, you can do so with the function “create user account”.</string>
+	<string name="help_head_2_2">2.2 Enter car data</string>
+	<string name="help_text_2_2">Various information about the car is required in order to calculate certain parameters based on the automotive sensor data. Choose either an existing car profile for create a new car profile. You must be signed in in order to create a new profile.</string>
+	<string name="help_head_2_3">2.3 Connect to car</string>
+	<string name="help_text_2_3">Plug the OBD-II adapter into the ODB-II port in your car. The port is usually found in the footwell on the driver’s side, sometimes under a cover in the dashboard or in the console. Follow the Bluetooth adapter instructions for connecting your smartphone and the adapter.
+\n\n
+Under Settings, select -> ODB SETTINGS -> choose the ODB adapter you have connected to your car.</string>
+    <string name="help_head_3">3. Record track</string>
+    <string name="help_text_3">As soon as you have connected the ODB-II adapter, started the motor and the GPS positioning in your smartphone is available, enviroCar starts to record measurements every few seconds and save them on your smartphone .
+\n\n
+The antenna symbol on the main screen is green when all requirements have been fulfilled and measurements have occurred.</string>
+	<string name="help_head_4">4. Observe tracks</string>
+	<string name="help_text_4">Click on “My tracks” in the main menu to get a list of all tracks.
+\n\n
+This symbol shows that the track has only been saved locally and not yet uploaded to the enviroCar server.
+\n\n
+All other tracks have been saved to the enviroCar server. The last ten tracks are downloaded from the enviroCar server to the smartphone when the enviroCar app is restarted or newly installed.
+\n\n
+If you lightly tap one of the tracks in the list of tracks, you will see several parameters, such as length and duration of the track and fuel consumption (the latter only for gasoline vehicles).
+\n\n
+If you rest your finger on the list entry for approximately a second, a new list appears with additional functions for processing and visualizing the track:
+\n\n
+&#8226; <b>Map</b> - view track in an interactive map.
+\n&#8226; <b>Identification</b> - change identifier (only possible when the track has not yet been uploaded to the enviroCar server).
+\n&#8226; <b>Description</b> - enter or change track description (only possible when the track has not yet been uploaded to the enviroCar server).
+\n&#8226; <b>Export</b> - export track data in JSON format
+\n&#8226; <b>Delete</b> - delete data from this track 
+</string>
+	<string name="help_head_5">5. Upload track</string>
+	<string name="help_text_5">Use this function to upload your measured data to the enviroCar server. The enviroCar web site enables you to analyze your data in a variety of ways and compare it to data from other user groups.
+\n\n
+Important: When you upload your enviroCar data, you agree to publish the data as anonymized, Open Data under an open data license. User data, as well as information about which track belongs to which user, is hidden from other users.</string>
+	<string name="help_head_6">6. Settings</string>
+	<string name="help_head_6_1">6.1 OBD Settings</string>
+	<string name="help_text_6_1">Choose ODB adapter - connect the app with the adapter that is plugged in to the ODB-II port.</string>
+	<string name="help_head_6_2">6.2 General Settings</string>
+	<string name="help_text_6_2">&#8226; <b>automatic upload</b> - The data should be automatically uploaded to the enviroCar server at the completion of each track
+\n&#8226; <b>WiFi upload</b> - The data should be automatically uploaded to the enviroCar server only when there is a WiFi connection  to the Internet.
+\n&#8226; <b>screen remains active</b> - The smartphone should not go into sleep mode while the enviroCar app is active.
+\n&#8226; <b>imperial units of measurement</b> - By default, enviroCar uses metric measurements (km, liter, etc.), alternately you can use imperial units of measurement (mph). 
+\n&#8226; <b>Obfuscation</b> - The beginning and the end of tracks are hidden from other users so that the information can not be used to draw conclusions about the car owner. During data upload, the first and the last 250 meters of each track (at least the first and the last measured minute) are cut off.      
+\n&#8226; <b>car data</b> - Various information about the car is required in order to calculate certain parameters based on the automotive sensor data. Choose either an existing car profile for create a new car profile. You must signed in in order to create a new profile.</string>
+	<string name="help_head_6_3">6.3 enviroCar Version</string>
+	<string name="help_text_6_3">You are using version</string>
+	<string name="help_head_7">7. FeedBack</string>
+	<string name="help_text_7">enviroCar is currently in a beta phase, in other words, in an early and very dynamic development phase. We immediately provide you with all new developments for testing purposes. As a result, the software’s stability is not yet comparable to standards associated with mature software.
+\n\n
+We welcome your feedback (enviroCar@52north.org)! Your advice and suggestions help us to improve the software.
+\n\n
+If you discover and problems, please send us an error log (-> report problem). The error log contains information about the course of processes within the system. It helps us to recognize the causes of malfunctions and to fix them.</string>
+    
 	
     <string name="track_obfuscation_on">Only upload measurements which are taken 250 meter (820 feet) and one minute after start and before end of each track</string>
 	<string name="action_send_log">Send</string>

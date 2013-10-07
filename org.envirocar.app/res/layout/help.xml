@@ -9,6 +9,7 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="2dp"
         android:contentDescription="@string/help"
         android:orientation="vertical" >
 
@@ -16,14 +17,14 @@
             android:id="@+id/textView_help_about_head"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/help_about_head_1" 
+            android:text="@string/help_head_1" 
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <TextView
             android:id="@+id/textView_help_about_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/help_about_text_1" />
+            android:text="@string/help_text_1" />
 
 		<View
   			android:layout_width="1dp"
@@ -34,37 +35,26 @@
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/help_getting_started_head_1"
+            android:text="@string/help_head_2"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <TextView
             android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/help_getting_started_text_1" />
+            android:text="@string/help_text_2" />
 
 		<View
   			android:layout_width="1dp"
   			android:layout_height="10dp">
 		</View>
         		
-        <TextView
-            android:id="@+id/textView1_help"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/menu_button"
-            android:text="@string/help_getting_started_text_2" />
-
-		<View
-  			android:layout_width="1dp"
-  			android:layout_height="30dp">
-		</View>
 
 		<TextView
 		    android:id="@+id/textView1"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_getting_started_head_1"
+		    android:text="@string/help_head_2_1"
 		    android:textAppearance="?android:attr/textAppearanceMedium" />
 
 		<TextView
@@ -72,7 +62,7 @@
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
             android:drawableLeft="@drawable/register_button"
-		    android:text="@string/help_getting_started_text_1_1" />
+		    android:text="@string/help_text_2_1" />
 
 		<View
   			android:layout_width="1dp"
@@ -83,14 +73,14 @@
 		    android:id="@+id/textView4"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_getting_started_head_2"
+		    android:text="@string/help_head_2_2"
 		    android:textAppearance="?android:attr/textAppearanceMedium" />
 
 		<TextView
 		    android:id="@+id/textView7"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_getting_started_text_1_2" />
+		    android:text="@string/help_text_2_2" />
 
 		<View
   			android:layout_width="1dp"
@@ -101,14 +91,14 @@
 		    android:id="@+id/textView5"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_getting_started_head_3"
+		    android:text="@string/help_head_2_3"
 		    android:textAppearance="?android:attr/textAppearanceMedium" />
 
 		<TextView
 		    android:id="@+id/textView8"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_getting_started_text_1_3" />
+		    android:text="@string/help_text_2_3" />
 
 		<View
   			android:layout_width="1dp"
@@ -119,14 +109,14 @@
 		    android:id="@+id/textView9"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_record_track_head_1"
+		    android:text="@string/help_head_3"
 		    android:textAppearance="?android:attr/textAppearanceLarge" />
 
 		<TextView
 		    android:id="@+id/textView10"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_record_track_text_1" />
+		    android:text="@string/help_text_3" />
 		
 		<View
   			android:layout_width="1dp"
@@ -137,14 +127,14 @@
 		    android:id="@+id/textView11"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_view_track_head_1"
+		    android:text="@string/help_head_4"
 		    android:textAppearance="?android:attr/textAppearanceLarge" />
 
 		<TextView
 		    android:id="@+id/textView12"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_view_track_text_1" />
+		    android:text="@string/help_text_4" />
 
 		<View
   			android:layout_width="1dp"
@@ -155,7 +145,7 @@
 		    android:id="@+id/textView13"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_upload_track_head_1"
+		    android:text="@string/help_head_5"
 		    android:textAppearance="?android:attr/textAppearanceLarge" />
 
 		<TextView
@@ -163,25 +153,14 @@
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
             android:drawableLeft="@drawable/upload_button"
-		    android:text="@string/help_upload_track_text_1" />
+		    android:text="@string/help_text_5" />
 
-		<TextView
-		    android:id="@+id/textView143"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:text="@string/help_upload_track_text_1_1" />
 		
-		<TextView
-		    android:id="@+id/textView142"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:text="@string/help_upload_track_text_2" />
-
 		<ImageView
 		    android:id="@+id/imageView1"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:src="@drawable/data_privacy" android:contentDescription="@string/help_upload_track_image_description"/>
+		    android:src="@drawable/data_privacy" android:contentDescription="privacy"/>
 
 		<View
   			android:layout_width="1dp"
@@ -192,57 +171,51 @@
 		    android:id="@+id/textView15"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_settings_head_1"
+		    android:text="@string/help_head_6"
 		    android:textAppearance="?android:attr/textAppearanceLarge" />
+		
+		<TextView
+		    android:id="@+id/textView15b"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:text="@string/help_head_6_1"
+		    android:textAppearance="?android:attr/textAppearanceMedium" />
 
 		<TextView
 		    android:id="@+id/textView16"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_settings_head_1_1"
-		    android:textAppearance="?android:attr/textAppearanceMedium" />
+		    android:text="@string/help_text_6_1"
+		     />
 
 		<TextView
 		    android:id="@+id/textView19"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_settings_text_1_1" />
+		    android:text="@string/help_head_6_2"
+		    android:textAppearance="?android:attr/textAppearanceMedium" />
 
-		<View
-  			android:layout_width="1dp"
-  			android:layout_height="10dp">
-		</View>
 
 		<TextView
 		    android:id="@+id/textView20"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_settings_head_1_2"
-		    android:textAppearance="?android:attr/textAppearanceMedium" />
+		    android:text="@string/help_text_6_2"
+		    />
 
 		<TextView
 		    android:id="@+id/textView21"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_settings_text_1_2" />
+		    android:text="@string/help_head_6_3"
+		    android:textAppearance="?android:attr/textAppearanceMedium" />
 
-		<View
-  			android:layout_width="1dp"
-  			android:layout_height="10dp">
-		</View>
-
+		
 		<TextView
 		    android:id="@+id/textView22"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_settings_head_1_3"
-		    android:textAppearance="?android:attr/textAppearanceMedium" />
-
-		<TextView
-		    android:id="@+id/textView23"
-		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
-		    android:text="@string/help_settings_text_1_3" />
+		    android:text="@string/help_text_6_3" />
 
 		<View
   			android:layout_width="1dp"
@@ -253,14 +226,14 @@
 		    android:id="@+id/textView17"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_feedback_head_1"
+		    android:text="@string/help_head_7"
 		    android:textAppearance="?android:attr/textAppearanceLarge" />
 
 		<TextView
 		    android:id="@+id/textView18"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
-		    android:text="@string/help_feedback_text_1" />
+		    android:text="@string/help_text_7" />
 
 		<View
   			android:layout_width="1dp"

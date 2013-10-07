@@ -1,12 +1,10 @@
 package org.envirocar.app.activity;
 
-import java.util.Locale;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
 
 import android.os.Bundle;
-import android.text.SpannableString;
 import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,36 +33,33 @@ public class HelpFragment extends SherlockFragment {
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 
-	    TextView viewTrackTextView = (TextView) getActivity().findViewById(R.id.textView12);
 	    //TODO: this could possibly be used to make links in the text able to be opened in the browser
 	    //gave me an error at first try, though...
 	    //t2.setMovementMethod(LinkMovementMethod.getInstance());
 		
 		ImageSpan is = new ImageSpan(getActivity(), R.drawable.mobile);
 		
-		SpannableString text = new SpannableString(getActivity().getText(R.string.help_view_track_text_1));
+//		SpannableString text = new SpannableString(getActivity().getText(R.string.help_view_track_text_1));
+//		
+//		Locale locale = Locale.getDefault();
+//		
+//		//add symbol in text (position differs depending on language)
+//		//TODO you will probably also have to change the data_privacy image here (text on the image is in german right now) 
+//		if(locale.equals(Locale.GERMANY)){
+//			text.setSpan(is, 103, 117, 0);
+//		}else if(locale.equals(Locale.UK) || locale.equals(Locale.US)){
+//			text.setSpan(is, 103, 117, 0);
+//			
+//		}
 		
-		Locale locale = Locale.getDefault();
 		
-		//add symbol in text (position differs depending on language)
-		//TODO you will probably also have to change the data_privacy image here (text on the image is in german right now) 
-		if(locale.equals(Locale.GERMANY)){
-			text.setSpan(is, 103, 117, 0);
-		}else if(locale.equals(Locale.UK) || locale.equals(Locale.US)){
-			text.setSpan(is, 103, 117, 0);
-			
-		}
-		
-		viewTrackTextView.setText(text);
-		
-	    TextView versionTextview = (TextView) getActivity().findViewById(R.id.textView23);
+	    TextView versionTextview = (TextView) getActivity().findViewById(R.id.textView22);
 
-	    CharSequence versionString = getActivity().getText(R.string.help_settings_text_1_3);
+	    CharSequence versionString = getActivity().getText(R.string.help_text_6_3);
 	    
 	    versionString = versionString + " " + ((ECApplication) getActivity().getApplication()).getVersionString();
 	    
 	    versionTextview.setText(versionString);	    
-
 	    
 	}
 }
