@@ -26,7 +26,7 @@ public interface BackgroundService {
 
 	void deviceDisconnected();
 
-	void openTroubleshootingActivity(int errorType);
+	void openTroubleshootingFragment(int errorType);
 
 	void deviceConnected(BluetoothSocketWrapper bluetoothSocket);
 

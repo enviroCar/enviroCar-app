@@ -158,7 +158,6 @@ public class DashboardFragment extends SherlockFragment {
 		
 		positionTextView = (TextView) getView().findViewById(R.id.positionTextView);
 		
-		updateSensorOnDashboard();
 		updateStatusElements();
 		
 		sensor.setOnClickListener(new OnClickListener() {
@@ -195,6 +194,7 @@ public class DashboardFragment extends SherlockFragment {
 		preferences.registerOnSharedPreferenceChangeListener(preferenceListener);
 		
 	}
+	
 	
 
 	@Override
@@ -258,6 +258,7 @@ public class DashboardFragment extends SherlockFragment {
 	@Override
 	public void onStart() {
 		logger.info("onStart. hash="+System.identityHashCode(this));
+		
 		super.onStart();
 	}
 	
@@ -266,6 +267,7 @@ public class DashboardFragment extends SherlockFragment {
 		logger.info("onResume. hash="+System.identityHashCode(this));
 		super.onResume();
 		
+		updateSensorOnDashboard();
 		Car car = CarManager.instance().getCar();
 		if (car != null && car.getFuelType() == FuelType.DIESEL) {
 			Crouton.makeText(getActivity(), R.string.diesel_not_yet_supported,

@@ -90,6 +90,13 @@ public interface DbAdapter {
 	public ArrayList<Track> getAllTracks();
 
 	/**
+	 * @param lazyMeasurements if true, an implementation shall return
+	 * {@link Track} objects that load their measurements in lazy fashion
+	 * @return all tracks
+	 */
+	public List<Track> getAllTracks(boolean lazyMeasurements);
+	
+	/**
 	 * Returns one track specified by the id
 	 * 
 	 * @param id
@@ -136,8 +143,21 @@ public interface DbAdapter {
 
 	public int getNumberOfLocalTracks();
 
+	/**
+	 * an implementation shall delete (!) all
+	 * local tracks from the underlying persistence
+	 * layer.
+	 * 
+	 * Friendly warning: every local track (= not yet
+	 * uploaded) will be lost irreversible. 
+	 */
 	public void deleteAllLocalTracks();
 
+	/**
+	 * an implementation shall remove
+	 * all local representations of remote tracks from
+	 * the underlying persistence layer.
+	 */
 	public void deleteAllRemoteTracks();
 
 	public List<Track> getAllLocalTracks();
@@ -160,5 +180,8 @@ public interface DbAdapter {
 	 * @return the finished track or null if there was no track
 	 */
 	public Track finishCurrentTrack();
+
+	List<Measurement> getAllMeasurementsForTrack(Track track);
+	
 	
 }

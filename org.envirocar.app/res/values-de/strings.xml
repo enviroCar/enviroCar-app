@@ -90,12 +90,13 @@
 	<string name="yes">Ja</string>
 	<string name="deleteRemoteTrackQuestion">Soll die Fahrt auf dem Server gelöscht werden?</string>
     <string name="no_sensor_selected">Kein Auto ausgewählt.</string>
-    <string name="title_create_new_sensor">&#8230; oder erstelle ein neues Auto:</string>
-    <string name="title_select_sensor">Wähle ein bestehendes Auto,</string>
+    <string name="title_create_new_sensor">Neues Fahrzeugprofil</string>
+    <string name="title_select_sensor">Fahrzeug auswählen</string>
 	<string name="upload_notification">Versuche lokale Tracks hochzuladen.</string>
     <string name="upload_notification_success">Lokale Tracks wurden erfolgreich hochgeladen.</string>
     <string name="please_select">&#8230;</string>
-    <string name="startMap">In Karte betrachten</string>
+    <string name="select_car">Fahrzeug</string>
+    <string name="startMap">KArte</string>
     <string name="trackContainsNoCoordinates">Track enthält keine Koordinaten.</string>
     <string name="noSdCard">"Karte wird ohne SD-Karte nicht angezeigt."</string>
     <string name="hint_login_first">Bitte erst einloggen</string>
@@ -111,8 +112,8 @@
     <string name="prompt_car_manufacturer">Hersteller</string>
     <string name="prompt_car_constructionYear">Baujahr</string>
     
-    <string name="editName">Namen ändern</string>
-    <string name="deleteTrack">Fahrt löschen</string>
+    <string name="editName">Bezeichnung</string>
+    <string name="deleteTrack">Löschen</string>
     <string name="uploadTrack">Fahrt als Open Data hochladen</string>
     
    	<string name="open_drawer">Open</string>
@@ -135,71 +136,62 @@
     <string name="envirocar.org">http://www.envirocar.org</string>
     
     <string name="imperial_unit">Imperiale Maßeinheiten?</string>
-    <string name="shareTrack">Fahrt als JSON-Datei teilen</string>
-    <string name="garage_not_signed_in">&#8230; oder <b>einloggen</b>um Auto zu erstellen:</string>
+    <string name="shareTrack">Export</string>
     <string name="error_json">Interner Fehler beim JSON generieren.</string>
 	<string name="privacy">Position verbergen?</string>
 	
 	<string name="help">Hilfe</string>
 
-    <string name="help_about_head_1">1. Über enviroCar</string>
-    <string name="help_about_text_1">Diese App ist Teil der Citizen Science Plattform enviroCar (<a href="www.enviroCar.org">www.enviroCar.org</a>). Sie ermöglicht die Erfassung und Analyse von Messfahrten und die Bereitstellung von Messdaten als Open Data.</string>
-    <string name="help_getting_started_head_1">2. Die ersten Schritte</string>
-    <string name="help_getting_started_text_1">Auf dem Start-Bildschirm sehen Sie die Anzeige der aktuellen Messwerte für die Geschwindigkeit, die CO2-Emission und die geografische Position. Darüber hinaus wird der Fahrzeugtyp angezeigt, den Sie für Ihr Fahrzeug angegeben haben. \n\nBevor Sie aber mit der Aufnahme von Messfahrten  starten können, müssen Sie die nachfolgenden Schritte durchführen.</string>
-    <string name="help_getting_started_text_2">Über das Hauptmenue (Icon oben links) erreichen Sie alle Funktionen von enviroCar.</string>
-	<string name="help_getting_started_head_1">2.1 Registrieren</string>
-	<string name="help_getting_started_text_1_1">Sofern Sie noch nicht als enviroCar Nutzer registriert sind, können sie über diese Funktion ein enviroCar Nutzerkonto anlegen.</string>
-	<string name="help_getting_started_head_2">2.2 Fahrzeugdaten eingeben</string>
-	<string name="help_getting_started_text_1_2">Für die Berechnung von Daten aus der Fahrzeugsensorik werden einige Angaben zum Fahrzeug benötigt. Sie können entweder ein vorhandenes Fahrzeugprofil wählen oder ein neues Fahrzeugprofil anlegen. Für das Anlegen eines neuen Profils müssen Sie beim enviroCar Server angemeldet sein.</string>
-	<string name="help_getting_started_head_3">2.3 Verbindung mit dem Fahrzeug herstellen</string>
-	<string name="help_getting_started_text_1_3">Stecken Sie den Bluetooth OBD-II Adapter auf den OBD-II Anschluss Ihres Fahrzeuges. Dieser befindet sich in der Regel im Fußraum des Fahrers, seltener unter einer Abdeckung im Armaturenbrett oder in der Konsole. Folgen Sie den Anweisungen der Bedienungsanleitung des Bluetooth-Adapters, um eine Verbindung zwischen Ihrem SmartPhone und dem Adapter herzustellen.\n\nWählen Sie nun unter Einstellungen -> OBD EINSTELLUNGEN -> OBD Adapter auswählen den Adapter aus, den Sie im Fahrzeug angebracht haben.</string>
-    <string name="help_record_track_head_1">3. Messfahrt aufnehmen</string>
-    <string name="help_record_track_text_1">Sobald eine Verbindung zum Fahrzeug hergestellt, der Motor gestartet und die GPS-Positionsmessung des Smartphones verfügbar ist, werden im Abstand von wenigen Sekunden Messpunkte aufgenommen und auf dem Smartphone gespeichert.\n\nDie grüne Farbe des Antennensymbols auf dem Hauptbildschirm zeigt an, dass alle Voraussetzungen erfüllt sind und Messungen vorgenommen werden.</string>
-	<string name="help_view_track_head_1">4. Messfahrt betrachten</string>
-	<string name="help_view_track_text_1">Über die Funktion „Meine Fahrten“ im Hauptmenue erreichen Sie eine Liste aller Messfahrten. Das Symbol %auto_replace% zeigt an, dass diese Messfahrt lediglich lokal gespeichert ist und noch nicht auf den enviroCar Server hochgeladen wurde.
+    <string name="help_head_1">1. Über enviroCar</string>
+    <string name="help_text_1">Diese App ist Teil der Citizen Science Plattform enviroCar (<a href="www.enviroCar.org">www.enviroCar.org</a>). Sie ermöglicht die Erfassung und Analyse von Messfahrten und die Bereitstellung von Messdaten als Open Data.</string>
+    <string name="help_head_2">2. Die ersten Schritte</string>
+    <string name="help_text_2">Auf dem Start-Bildschirm sehen Sie die Anzeige der aktuellen Messwerte für die Geschwindigkeit, die CO2-Emission und die geografische Position. Darüber hinaus wird der Fahrzeugtyp angezeigt, den Sie für Ihr Fahrzeug angegeben haben. \n\nBevor Sie aber mit der Aufnahme von Messfahrten starten können, müssen Sie die nachfolgenden Schritte durchführen. Über das Hauptmenü (Icon oben links) erreichen Sie alle Funktionen, die Sie hierfür benötigen.</string> 
+	<string name="help_head_2_1">2.1 Registrieren</string>
+	<string name="help_text_2_1">Sofern Sie noch nicht als enviroCar Nutzer registriert sind, können sie über diese Funktion ein enviroCar Nutzerkonto anlegen.</string>
+	<string name="help_head_2_2">2.2 Fahrzeugdaten eingeben</string>
+	<string name="help_text_2_2">Für die Berechnung von Daten aus der Fahrzeugsensorik werden einige Angaben zum Fahrzeug benötigt. Sie können entweder ein vorhandenes Fahrzeugprofil wählen oder ein neues Fahrzeugprofil anlegen. Für das Anlegen eines neuen Profils müssen Sie beim enviroCar Server angemeldet sein.</string>
+	<string name="help_head_2_3">2.3 Verbindung mit dem Fahrzeug herstellen</string>
+	<string name="help_text_2_3">Stecken Sie den Bluetooth OBD-II Adapter auf den OBD-II Anschluss Ihres Fahrzeuges. Dieser befindet sich in der Regel im Fußraum des Fahrers, seltener unter einer Abdeckung im Armaturenbrett oder in der Konsole. Folgen Sie den Anweisungen der Bedienungsanleitung des Bluetooth-Adapters, um eine Verbindung zwischen Ihrem SmartPhone und dem Adapter herzustellen.\n\nWählen Sie nun unter Einstellungen -> OBD EINSTELLUNGEN -> OBD Adapter auswählen den Adapter aus, den Sie im Fahrzeug angebracht haben.</string>
+    <string name="help_head_3">3. Messfahrt aufnehmen</string>
+    <string name="help_text_3">Sobald eine Verbindung zum Fahrzeug hergestellt, der Motor gestartet und die GPS-Positionsmessung des Smartphones verfügbar ist, werden im Abstand von wenigen Sekunden Messpunkte aufgenommen und auf dem Smartphone gespeichert.\n\nDie grüne Farbe des Antennensymbols auf dem Hauptbildschirm zeigt an, dass alle Voraussetzungen erfüllt sind und Messungen vorgenommen werden.</string>
+	<string name="help_head_4">4. Messfahrt betrachten</string>
+	<string name="help_text_4">Über die Funktion „Meine Fahrten“ im Hauptmenue erreichen Sie eine Liste aller Messfahrten. Das Symbol %auto_replace% zeigt an, dass diese Messfahrt lediglich lokal gespeichert ist und noch nicht auf den enviroCar Server hochgeladen wurde.
 \nAlle anderen Messfahrten sind bereits auf dem envirCar Server gespeichert. Beim Neustart nach einer Neuinstallation der enviroCar App werden die letzten zehn Messfahrten vom enviorCar Server auf das Smartphone heruntergeladen. 
 \n\n
 Wenn Sie eine Messfahrt in der Liste antippen, werden mehrere Kennwerte wie die Länge und Dauer der Messfahrt und der Kraftstoffverbrauch (zunächt nur bei Benzinfahrzeugen) angezeigt.
 \n\n
 Wenn Sie den Finger ca eine Sekunde auf dem Listeneintrag belassen, erscheint eine Liste weiterer Funktionen zur Bearbeitung und Visualisierung der Messfahrt:
 \n\n
-&#8226; Karte - Verlauf der Messfahrt in einer interaktiven Karte betrachten.
-\n&#8226; Bezeichnung- Änderung des Bezeichners (nur möglich, wenn die Messfahrt noch nicht auf den enviroCar-Server hochgeladen wurde)
-\n&#8226; Beschreibung - Eingabe oder Änderung der Beschreibung der Messfahrt (nur möglich, wenn die Messfahrt noch nicht auf den enviroCar-Server hochgeladen wurde)
-\n&#8226; Export - Ausgabe der Daten der Messfahrt im JSON-Format
-\n&#8226; Löschen - Löschung der Daten dieser Messfahrt
+\n&#8226; <b>Karte</b> - Verlauf der Messfahrt in einer interaktiven Karte betrachten.
+\n&#8226; <b>Bezeichnung</b> - Änderung des Bezeichners (nur möglich, wenn die Messfahrt noch nicht auf den enviroCar-Server hochgeladen wurde)
+\n&#8226; <b>Beschreibung</b> - Eingabe oder Änderung der Beschreibung der Messfahrt (nur möglich, wenn die Messfahrt noch nicht auf den enviroCar-Server hochgeladen wurde)
+\n&#8226; <b>Export</b> - Ausgabe der Daten der Messfahrt im JSON-Format
+\n&#8226; <b>Löschen</b> - Löschung der Daten dieser Messfahrt
 </string>
-	<string name="help_upload_track_head_1">5. Messfahrt hochladen</string>
-	<string name="help_upload_track_text_1">Mit dieser Funktion haben Sie die Möglichkeit, Ihre Messdaten auf den enviroCar Server hochzuladen.</string>
-	<string name="help_upload_track_text_1_1">Mit der enviroCar WebSite können Sie Ihre Daten dann auf vielfältige Art analysieren und mit den Daten anderer Nutzergruppen vergleichen.</string>
-	<string name="help_upload_track_text_2">Wichtig: Mit dem Hochladen von enviroCar Daten stimmen Sie zu, dass die Daten der Messfahrten anonymisiert unter einer offenen Datenlizenz als Open Data publiziert werden. Die Nutzerdaten und auch die Information, welche Messfahrten von welchem Nutzer stammen, bleiben für andere Nutzer verborgen.</string>
-	<string name="help_upload_track_image_description">data privacy</string>
-	<string name="help_settings_head_1">6. Einstellungen</string>
-	<string name="help_settings_head_1_1">6.1 OBD EINSTELLUNGEN</string>
-	<string name="help_settings_text_1_1">&#8226;<b>OBD Adapter auswählen</b> – verbinden Sie die App mit dem Adapter, der sich derzeit auf dem OBD-II Anschluss befindet.</string>
-	<string name="help_settings_head_1_2">6.2 Allgemeine Einstellungen</string>
-	<string name="help_settings_text_1_2">&#8226;<b>Automatisch hochladen</b> – Die Messdaten sollen nach Abschluss jeder Messfahrt automatisch auf den enviroCar Server hochgeladen werden
-\n&#8226;<b>Nur in WLAN hochladen</b> – Messdaten sollen nur dann automatisch auf den envirCar Server hochgeladen werden, wenn eine WLAN-Verbindung zum Internet existiert
-\n&#8226;<b>Bildschirm bleibt aktiv</b> – Das Smartphone soll nicht in den Schlafmodus wechseln, so lange die envirCar App aktiv ist.
-\n&#8226;<b>Imperiale Maßeinheiten</b> – enviroCar verwendet in der Grundeinstellung metrische Maße (Km, Liter etc.), alternativ können imperiale Maßeinheiten (mph) verwendet werden.
-\n&#8226;<b>Messfahrten  beschneiden</b> – Beginn und Ende der Messfahrten werden vor anderen Nutzern verborgen, damit häufig angefahrene Standorte keinen Rückschluss auf den Fahrzeughalter ermöglichen. Beim Hochladen der Messfahrt auf den enviroCar Server werden hierzu die ersten und letzten 250 Meter (mindestens aber die erste und letzte Minute der Messfahrt) abgeschnitten. 
-\n&#8226;<b>Daten zum Fahrzeug..</b> - Für die Berechnung von Daten aus der Fahrzeugsensorik werden einige Angaben zum Fahrzeug benötigt. Sie können entweder ein vorhandenes Fahrzeugprofil wählen oder ein neues Fahrzeugprofil anlegen. Für das Anlegen eines neuen Profils müssen Sie beim enviroCar Server angemeldet sein.</string>
-	<string name="help_settings_head_1_3">6.3 enviroCar Version</string>
-	<string name="help_settings_text_1_3">Sie nutzen die</string>
-	<string name="help_settings_text_1">
-&#8226; Karten-Sicht - Verlauf der Messfahrt in einer interaktiven Karte betrachten.
-&#8226; Bezeichnung ändern - Änderung des Bezeichners (nur möglich, wenn die Messfahrt noch nicht auf den enviroCar-Server hochgeladen wurde)
-&#8226; Beschreibung bearbeiten - Eingabe oder Änderung der Beschreibung der Messfahrt (nur möglich, wenn die Messfahrt noch nicht auf den enviroCar-Server hochgeladen wurde)
-&#8226; Messfahrt löschen - Löschung der Daten dieser Messfahrt
-&#8226; Export als JSON - Ausgabe der Daten der Messfahrt im JSON-Format\n
-</string>
-	<string name="help_feedback_head_1">7. FeedBack</string>
-	<string name="help_feedback_text_1">enviroCar befindet sich derzeit in einer Beta-Phase der Software, also in einer frühen und sehr dynamischen Entwicklungsphase. Die Stabilität der Software entspricht in dieser Phase noch nicht dem Standard, den Sie von reifer Software gewohnt sind, da Ihnen alle neuen Entwicklungen umgehend für Tests zur Verfügung gestellt werden.
-\n\nIhr FeedBack [mailto: enviroCar@52north.org] ist sehr willkommen! Ihre Hinweise und Anregungen helfen uns, die Software zu verbessern.
-\n\nBei festgestellten Problemen möchten wir Sie bitten, uns ein Fehlerprotokoll zu senden. (-> Problem melden). Das Fehlerprotokoll enthält Informationen über Prozessverläufe im System. Es unterstützt uns dabei, die Ursachen von Fehlfunktionen zu erkennen und zu beheben.</string>
+	<string name="help_head_5">5. Messfahrt hochladen</string>
+	<string name="help_text_5">Mit dieser Funktion haben Sie die Möglichkeit, Ihre Messdaten auf den enviroCar Server hochzuladen. Mit der enviroCar WebSite können Sie Ihre Daten dann auf vielfältige Art analysieren und mit den Daten anderer Nutzergruppen vergleichen.\n\nWichtig: Mit dem Hochladen von enviroCar Daten stimmen Sie zu, dass die Daten der Messfahrten anonymisiert unter einer offenen Datenlizenz als Open Data publiziert werden. Die Nutzerdaten und auch die Information, welche Messfahrten von welchem Nutzer stammen, bleiben für andere Nutzer verborgen.</string>
+	<string name="help_head_6">6. Einstellungen</string>
+	<string name="help_head_6_1">6.1 OBD EINSTELLUNGEN</string>
+	<string name="help_text_6_1">&#8226;<b>OBD Adapter auswählen</b> - verbinden Sie die App mit dem Adapter, der sich derzeit auf dem OBD-II Anschluss befindet.</string>
+	<string name="help_head_6_2">6.2 Allgemeine Einstellungen</string>
+	<string name="help_text_6_2">&#8226; <b>Automatisch hochladen</b> - Die Messdaten sollen nach Abschluss jeder Messfahrt automatisch auf den enviroCar Server hochgeladen werden
+\n&#8226; <b>Nur in WLAN hochladen</b> - Messdaten sollen nur dann automatisch auf den envirCar Server hochgeladen werden, wenn eine WLAN-Verbindung zum Internet existiert
+\n&#8226; <b>Bildschirm bleibt aktiv</b> - Das Smartphone soll nicht in den Schlafmodus wechseln, so lange die envirCar App aktiv ist.
+\n&#8226; <b>Imperiale Maßeinheiten</b> - enviroCar verwendet in der Grundeinstellung metrische Maße (Km, Liter etc.), alternativ können imperiale Maßeinheiten (mph) verwendet werden.
+\n&#8226; <b>Messfahrten  beschneiden</b> - Beginn und Ende der Messfahrten werden vor anderen Nutzern verborgen, damit häufig angefahrene Standorte keinen Rückschluss auf den Fahrzeughalter ermöglichen. Beim Hochladen der Messfahrt auf den enviroCar Server werden hierzu die ersten und letzten 250 Meter (mindestens aber die erste und letzte Minute der Messfahrt) abgeschnitten. 
+\n&#8226; <b>Daten zum Fahrzeug</b> - Für die Berechnung von Daten aus der Fahrzeugsensorik werden einige Angaben zum Fahrzeug benötigt. Sie können entweder ein vorhandenes Fahrzeugprofil wählen oder ein neues Fahrzeugprofil anlegen. Für das Anlegen eines neuen Profils müssen Sie beim enviroCar Server angemeldet sein.</string>
+	<string name="help_head_6_3">6.3 enviroCar Version</string>
+	<string name="help_text_6_3">Sie nutzen die</string>
+
+	<string name="help_head_7">7. FeedBack</string>
+	<string name="help_text_7">enviroCar befindet sich derzeit in einer Beta-Phase, also in einer frühen und sehr dynamischen Entwicklungsphase. Die Stabilität der Software entspricht noch nicht dem Standard, den Sie von reifer Software gewohnt sind, da Ihnen alle neuen Entwicklungen umgehend für Tests zur Verfügung gestellt werden.
+\n\n
+Ihr FeedBack (enviroCar@52north.org) ist sehr willkommen! Ihre Hinweise und Anregungen helfen uns, die Software zu verbessern.
+\n\n
+Bei festgestellten Problemen möchten wir Sie bitten, uns ein Fehlerprotokoll zu senden. (-> Problem melden). Das Fehlerprotokoll enthält Informationen über Prozessverläufe im System. Es unterstützt uns dabei, die Ursachen von Fehlfunktionen zu erkennen und zu beheben.</string>
     
     <string name="track_obfuscation_on">Nur Messungen, die ab einer Entfernung von 250 Metern zum Start/Ziel sowie eine Minute nach Beginn und vor Ende der Route stattfanden, hochladen.</string>
-	
+	<string name="imperial_unit_summary">Imperiale Maßeinheiten (Meilen) für die Anzeige nutzen</string>
     <string name="action_send_log">Senden</string>
     <string name="connection_state">Status</string>
     

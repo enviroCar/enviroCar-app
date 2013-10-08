@@ -39,6 +39,7 @@ import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.util.NamedThreadFactory;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -82,7 +83,7 @@ public class ECApplication extends Application {
 //	private DbAdapter dbAdapterLocal;
 //	private DbAdapter dbAdapterRemote;
 	private final ScheduledExecutorService scheduleTaskExecutor = Executors
-			.newScheduledThreadPool(1);
+			.newScheduledThreadPool(1, new NamedThreadFactory("ECApplication-Factory"));
 	private BluetoothAdapter bluetoothAdapter = BluetoothAdapter
 			.getDefaultAdapter();
 

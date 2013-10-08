@@ -169,6 +169,12 @@ public class Collector {
 				logger.warn(e.getMessage());
 			}
 			
+			/*
+			 * update the time as the latest values represent
+			 * this measurement
+			 */
+			measurement.setTime(System.currentTimeMillis());
+			
 			insertMeasurement(measurement);
 			resetMeasurement();
 		}

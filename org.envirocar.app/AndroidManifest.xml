@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.envirocar.app"
     android:versionCode="18"
-    android:versionName="20130815">
+    android:versionName="0.7.0">
 
     <uses-sdk
         android:minSdkVersion="10"
@@ -67,7 +67,7 @@
                 android:value="org.envirocar.app.activity.MainActivity" />
         </activity>     
         <activity
-            android:name="org.envirocar.app.activity.TroubleshootingActivity"
+            android:name="org.envirocar.app.activity.TroubleshootingFragment"
             android:label="@string/title_activity_troubleshooting"
             android:parentActivityName="org.envirocar.app.activity.MainActivity"
             android:screenOrientation="portrait"
