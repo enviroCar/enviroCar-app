@@ -25,18 +25,13 @@ package org.envirocar.app.commands;
 /**
  * This command will turn-off echo.
  */
-public class EchoOff extends CommonCommand {
+public class EchoOff extends StringResultCommand {
 
 	/**
 	 * @param command
 	 */
 	public EchoOff() {
 		super("AT E0");
-	}
-
-	@Override
-	public String getResult() {
-		return getRawData();
 	}
 
 	@Override

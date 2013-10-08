@@ -7,18 +7,19 @@
 	
 	<string name="pref_prompt_chose_adapter">Choose OBD adapter</string>
 	<string name="pref_summary_chose_adapter">Please select an OBD adapter</string>
-	<string name="pref_title_chose_adapter">Bluetooth Device</string>
+	<string name="pref_title_chose_adapter">Select OBD adapter</string>
 	
-	<string name="pref_auto_connect">Autoconnect to OBD adapter</string>
-    <string name="pref_upload_only_in_wifi">Upload only in Wifi</string>
+    <string name="pref_upload_only_in_wifi">Upload only in WiFi</string>
     <string name="pref_always_upload">Always upload tracks</string>
-    <string name="pref_display_always_activ">Dashboard stays activ</string>
+    <string name="pref_display_always_activ">Display stays active</string>
     <string name="pref_auto_enable_bluetooth">Enable Bluetooth on app start</string>
     
     <string name="pref_bluetooth_disabled">Please enable Bluetooth</string>
     <string name="pref_engine_displacement">Engine displacement</string>
 	<string name="pref_in_liters">in liters (e.g. 1.8)</string>
 
-    <string name="pref_about">About this app</string>
+    <string name="pref_about">enviroCar version</string>
+    
+    <string name="pref_select_car">Car data</string>
 	
 </resources>

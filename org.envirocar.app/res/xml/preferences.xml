@@ -9,9 +9,6 @@
             android:title="@string/pref_title_chose_adapter" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_general_settings" >
-        <CheckBoxPreference
-            android:key="pref_auto_connect"
-            android:title="@string/pref_auto_connect" />
         <!-- <CheckBoxPreference
             android:key="pref_auto_bluetooth"
             android:title="@string/pref_auto_enable_bluetooth" /> -->
@@ -26,17 +23,18 @@
             android:title="@string/pref_display_always_activ" />
         <CheckBoxPreference
             android:key="pref_imperial_unit"
-            android:title="@string/imperial_unit" />
+            android:title="@string/imperial_unit"
+            android:summary="@string/imperial_unit_summary" />
         <CheckBoxPreference 
             android:key="pref_privacy"
             android:title="@string/privacy"
-            android:summaryOn="@string/track_obfuscation_on"
+            android:summary="@string/track_obfuscation_on"
             android:defaultValue="true"/>
-        <EditTextPreference 
-            android:title="@string/pref_engine_displacement" 
-            android:key="pref_engine_displacement" 
-            android:summary="@string/pref_in_liters"
-            android:inputType="numberDecimal"/>
+        <org.envirocar.app.activity.preference.CarSelectionPreference 
+            android:title="@string/select_car"
+            android:key="pref_selected_car"
+            android:summary="@string/pref_select_car"
+            />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_about" >
         <Preference 
@@ -44,5 +42,4 @@
             android:title="@string/envirocar.org"/>
     </PreferenceCategory>
     
-
 </PreferenceScreen>

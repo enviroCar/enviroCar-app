@@ -23,19 +23,18 @@ package org.envirocar.app.activity;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.UnknownHostException;
 
 import org.apache.http.HttpStatus;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.views.TypefaceEC;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -49,6 +48,7 @@ import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -299,11 +299,17 @@ public class RegisterFragment extends SherlockFragment {
 
 			if (httpStatus == HttpStatus.SC_CREATED) {
 				Crouton.makeText(getActivity(), getResources().getString(R.string.welcome_message)+mUsername, Style.CONFIRM).show();
-				UserManager.instance().setUser(new User(mUsername, mPassword));
+				User user = new User(mUsername, mPassword);
+				UserManager.instance().setUser(user);
 				
-				//open the Garage
-	        	MyGarage garageFragment = new MyGarage();
-	            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).commit();
+				TermsOfUseManager.askForTermsOfUseAcceptance(user, getActivity(), null);
+				
+				getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+				DashboardFragment dashboardFragment = new DashboardFragment();
+				getActivity().getSupportFragmentManager().beginTransaction()
+						.replace(R.id.content_frame, dashboardFragment)
+						.commit();
+				
 			} else if (httpStatus == HttpStatus.SC_FORBIDDEN) {
                 AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
                 alertDialogBuilder.setTitle("Sorry");
@@ -351,7 +357,6 @@ public class RegisterFragment extends SherlockFragment {
 			logger.warn(e.getMessage(), e);
 		}
 
-		DefaultHttpClient httpClient = new DefaultHttpClient();
 
 		try {
 			HttpPost postRequest = new HttpPost(
@@ -363,28 +368,17 @@ public class RegisterFragment extends SherlockFragment {
 			input.setContentType("application/json");
 
 			postRequest.setEntity(input);
-			return httpClient.execute(postRequest).getStatusLine()
+			return HTTPClient.execute(postRequest).getStatusLine()
 					.getStatusCode();
 
-		} catch (UnknownHostException e){
-			logger.warn(e.getMessage(), e);
-			return ERROR_NET;
 		} catch (UnsupportedEncodingException e) {
 			// Shouldn't occur hopefully..
-			logger.warn(e.getMessage(), e);
-			return ERROR_GENERAL;
-		} catch (ClientProtocolException e) {
 			logger.warn(e.getMessage(), e);
 			return ERROR_GENERAL;
 		} catch (IOException e) {
 			logger.warn(e.getMessage(), e);
 			// probably something with the Internet..
 			return ERROR_NET;
-		} finally {
-			// When HttpClient instance is no longer needed,
-			// shut down the connection manager to ensure
-			// immediate deallocation of all system resources
-			httpClient.getConnectionManager().shutdown();
 		}
 	}
 

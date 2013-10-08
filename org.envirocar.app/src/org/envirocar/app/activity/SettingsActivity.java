@@ -30,14 +30,17 @@ import org.envirocar.app.application.ECApplication;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.Preference.OnPreferenceClickListener;
+import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
@@ -53,7 +56,6 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 
 	public static final String BLUETOOTH_KEY = "bluetooth_list";
 	public static final String BLUETOOTH_NAME = "bluetooth_name";
-	public static final String AUTOCONNECT = "pref_auto_connect";
 	public static final String AUTO_BLUETOOH = "pref_auto_bluetooth";
 	public static final String WIFI_UPLOAD = "pref_wifi_upload";
 	public static final String ALWAYS_UPLOAD = "pref_always_upload";
@@ -61,6 +63,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	public static final String IMPERIAL_UNIT = "pref_imperial_unit";
 	public static final String OBFUSCATE_POSITION = "pref_privacy";
 	public static final String ENGINE_DISPLACEMENT = "pref_engine_displacement";
+	public static final String CAR = "pref_selected_car";
 	
 	private Preference about;
 	
@@ -130,7 +133,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 			public boolean onPreferenceChange(Preference preference, Object newValue) {
 				bluetoothDeviceList.setValue(newValue.toString());
 				preference.setSummary(bluetoothDeviceList.getEntry());
-				getPreferenceManager().getDefaultSharedPreferences(thisSettingsActivity).edit().putString(BLUETOOTH_NAME, (String) bluetoothDeviceList.getEntry()).commit();
+				PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putString(BLUETOOTH_NAME, (String) bluetoothDeviceList.getEntry()).commit();
 				return false;
 			}
 		});
@@ -145,7 +148,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 		if (availablePairedDevices.size() > 0) {
 			for (BluetoothDevice device : availablePairedDevices) {
 				possibleDevices.add(device.getName() + "\n"+ device.getAddress());
-				if(device.getAddress().equals(getPreferenceManager().getDefaultSharedPreferences(thisSettingsActivity).getString(BLUETOOTH_KEY, ""))){
+				if(device.getAddress().equals(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(BLUETOOTH_KEY, ""))){
 					bluetoothDeviceList.setSummary(device.getName() + " " + device.getAddress());
 				}
 				entryValues.add(device.getAddress());
@@ -181,18 +184,6 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 			}
 		});		
 
-		final Activity thisSettingsActivity = this;
-		final EditTextPreference displacementPref = (EditTextPreference) getPreferenceScreen().findPreference(ENGINE_DISPLACEMENT);
-		displacementPref.setSummary(getPreferenceManager().getDefaultSharedPreferences(thisSettingsActivity).getString(ENGINE_DISPLACEMENT, "") + " Liter");
-		displacementPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-			
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				preference.setSummary(newValue.toString() + " Liter");
-				getPreferenceManager().getDefaultSharedPreferences(thisSettingsActivity).edit().putString(ENGINE_DISPLACEMENT, (String) newValue).commit();
-				return false;
-			}
-		});
 	}
 
 	/**
@@ -201,5 +192,15 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	protected void onStop() {
 	    super.onStop();
 	    finish();
+	}
+	
+	public boolean isConnectedToInternet() {
+	    ConnectivityManager cm =
+	        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+	        return true;
+	    }
+	    return false;
 	}
 }
