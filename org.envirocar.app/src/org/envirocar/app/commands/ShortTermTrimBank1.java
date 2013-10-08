@@ -27,30 +27,29 @@ package org.envirocar.app.commands;
  * @author jakob
  * 
  */
-public class ShortTermTrimBank1 extends CommonCommand {
+public class ShortTermTrimBank1 extends NumberResultCommand {
+
+	private float fuelTrimValue = Float.NaN;
 
 	public ShortTermTrimBank1() {
 		super("01 06");
 	}
 
-	@Override
-	public String getResult() {
-
-		float fuelTrimValue = 0.0f;
-
-		if (!"NODATA".equals(getRawData())) {
-			float tmpValue = buffer.get(2);
-			Double perc = (tmpValue - 128) * (100.0 / 128);
-			fuelTrimValue = Float.parseFloat(perc.toString());
-		}
-
-		return String.format("%.2f%s", fuelTrimValue, "");
-	}
 
 	@Override
 	public String getCommandName() {
 
 		return "Short Term Fuel Trim Bank 1";
+	}
+
+	@Override
+	public Number getNumberResult() {
+		if (Float.isNaN(fuelTrimValue)) {
+			int[] buffer = getBuffer();
+			float tmpValue = buffer[2];
+			fuelTrimValue = (float) ((tmpValue - 128) * (100.0 / 128));
+		}
+		return fuelTrimValue;
 	}
 
 }

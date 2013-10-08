@@ -21,6 +21,8 @@
 
 package org.envirocar.app.commands;
 
+import org.envirocar.app.commands.PIDUtil.PID;
+
 /**
  * Intake Manifold Pressure on PID 01 0B
  * 
@@ -28,28 +30,28 @@ package org.envirocar.app.commands;
  * 
  */
 
-public class IntakePressure extends CommonCommand {
+public class IntakePressure extends NumberResultCommand {
+
+	public static final String NAME = "Intake Manifold Pressure";
+	private int pressure = Short.MIN_VALUE;
 
 	public IntakePressure() {
-		super("01 0B");
+		super("01 ".concat(PID.INTAKE_MAP.toString()));
 	}
 
 	@Override
 	public String getCommandName() {
-		return "Intake Manifold Pressure";
+		return NAME;
 	}
 
+
 	@Override
-	public String getResult() {
-		String result = getRawData();
-
-		if (!"NODATA".equals(result)) {
-			int pressure = buffer.get(2);
-			result = String.format("%d%s", pressure, "");
-
+	public Number getNumberResult() {
+		if (pressure == Short.MIN_VALUE) {
+			int[] buffer = getBuffer();
+			pressure = buffer[2];
 		}
-
-		return result;
+		return pressure;
 	}
 
 }

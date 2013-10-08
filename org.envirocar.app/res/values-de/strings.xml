@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <string name="app_name">enviroCar</string>
     <string name="menu_settings">Einstellungen</string>
@@ -45,7 +45,7 @@
     <string name="maf">MAF (Luftmassenströmung)</string>
     <string name="engine_load">Motorlast</string>
     <string name="car">Auto</string>
-    <string name="currentCO2">Aktueller Co2 Ausstoß</string>
+    <string name="currentCO2">Co2 Ausstoß</string>
     <string name="drivingStyleRating">Fahrstilbewertung</string>
     <string name="moneySpent">Fahrtkosten</string>
     <string name="title_activity_map">Gefahrene Route</string>
@@ -62,9 +62,12 @@
     <string name="length">"Länge: "</string>
     <string name="Co2emission">"CO\u2082 Ausstoß: "</string>
     <string name="consumption">"Verbrauch: "</string>
+    <string name="fuel_cost">"Treibstoffkosten: "</string>
+    <string name="calculating">"Wird berechnet&#8230;"</string>
+    <string name="error_calculating_fuel_costs">"Fehler bei der Berechnung."</string>
     <string name="title_activity_settings">Einstellungen</string>
-    <string name="currentSpeed">Aktuelle Geschwindigkeit</string>
-    <string name="currentPosition">Aktuelle Position</string>
+    <string name="currentSpeed">Geschwindigkeit</string>
+    <string name="currentPosition">Position</string>
     <string name="positioning_Info">Die Positionsermittlung wird durch GPS durchgeführt. Damit sind präzise Messpunkte sichergestellt. Bitte warten bis Position ermittelt wird.</string>
     <string name="no_current_position">keine</string>
     <string name="menu_start">Start</string>
@@ -72,7 +75,7 @@
     <string name="menu_upload">Hochladen</string>
     <string name="menu_delete">Löschen</string>
     <string name="logged_in_as">Eingeloggt als %1$s</string>
-    <string name="dashboard_sensor_title">Aktuelles Auto:</string>
+    <string name="dashboard_sensor_title">Auto:</string>
     <string name="retry">Erneut versuchen</string>
     <string name="description">Beschreibung:</string>
     <string name="editDescription">Beschreibung bearbeiten</string>
@@ -87,15 +90,18 @@
 	<string name="yes">Ja</string>
 	<string name="deleteRemoteTrackQuestion">Soll die Fahrt auf dem Server gelöscht werden?</string>
     <string name="no_sensor_selected">Kein Auto ausgewählt.</string>
-    <string name="title_create_new_sensor">&#8230;oder erstelle ein neues Auto:</string>
-    <string name="title_select_sensor">Wähle ein bestehendes Auto,</string>
+    <string name="title_create_new_sensor">Neues Fahrzeugprofil</string>
+    <string name="title_select_sensor">Fahrzeug auswählen</string>
 	<string name="upload_notification">Versuche lokale Tracks hochzuladen.</string>
     <string name="upload_notification_success">Lokale Tracks wurden erfolgreich hochgeladen.</string>
     <string name="please_select">&#8230;</string>
-    <string name="startMap">In Karte betrachten</string>
+    <string name="select_car">Fahrzeug</string>
+    <string name="startMap">KArte</string>
     <string name="trackContainsNoCoordinates">Track enthält keine Koordinaten.</string>
     <string name="noSdCard">"Karte wird ohne SD-Karte nicht angezeigt."</string>
-    
+    <string name="hint_login_first">Bitte erst einloggen</string>
+	<string name="default_track_description">Fahrt mit Auto %s.</string>
+	<string name="creating_temp_car">Erzeuge temporäres Auto.</string>
     
     <string name="menu_login">Einloggen/Registrieren</string>
     <string name="gasoline">Benzin</string>
@@ -106,9 +112,9 @@
     <string name="prompt_car_manufacturer">Hersteller</string>
     <string name="prompt_car_constructionYear">Baujahr</string>
     
-    <string name="editName">Namen ändern</string>
-    <string name="deleteTrack">Fahrt löschen</string>
-    <string name="uploadTrack">Fahrt hochladen</string>
+    <string name="editName">Bezeichnung</string>
+    <string name="deleteTrack">Löschen</string>
+    <string name="uploadTrack">Fahrt als Open Data hochladen</string>
     
    	<string name="open_drawer">Open</string>
 	<string name="close_drawer">Close</string>
@@ -130,27 +136,114 @@
     <string name="envirocar.org">http://www.envirocar.org</string>
     
     <string name="imperial_unit">Imperiale Maßeinheiten?</string>
-    <string name="shareTrack">Fahrt als JSON-Datei teilen</string>
-    <string name="garage_not_signed_in">&#8230;oder <b>einloggen</b>um Auto zu erstellen:</string>
+    <string name="shareTrack">Export</string>
     <string name="error_json">Interner Fehler beim JSON generieren.</string>
 	<string name="privacy">Position verbergen?</string>
 	
 	<string name="help">Hilfe</string>
-    <string name="help_0">SCHNELLSTART HILFE</string>
-    <string name="help_1">Das Dashboard zeigt die aktuelle Geschwindigkeit des Fahrzeugs und den CO2 Ausstoß des Fahrzeugs an. Zusätzlich dazu wird das aktuell ausgewählte Fahrzeug dargestellt.</string>
-    <string name="help_2">Alle Optionen und Features können über das Menü erreicht werden, welches von der linken Seite aus eingezogen werden kann:</string>
-    <string name="help_3">Bevor die App benutzt werden kann muss sich der Benutzer registrieren:</string>
-    <string name="help_4">Nach dem Registrieren und Einloggen legt der Nutzer sein Fahrzeug fest. Wenn das Auto noch nicht im System ist (also nicht in der Liste vorhanden ist) muss es über die entsprechenden Felder neu angelegt werden:</string>
-    <string name="help_5">Bevor mit der Messung begonnen werden kann muss ein schon gepaarter OBD-2 Adapter ausgewählt werden:</string>
-    <string name="help_6">Hier kann man auch festlegen ob:</string>
-    <string name="help_6_1">-Die App sich automatisch mit einem Adapter verbinden soll, der in Reichweite ist</string>
-    <string name="help_6_2">-Die App automatisch Bluetooth aktivieren soll</string>
-    <string name="help_6_3">-Uploads nur über W-Lan ausgeführt werden sollen</string>
-    <string name="help_6_4">-Tracks automatisch nach Beendigung der Fahrt hochgeladen werden sollen</string>
-    <string name="help_7">Beendete Messreihen/Tracks können in der Track-Ansicht ausgewertet werden:</string>
-    <string name="help_8">Die Buchstaben L (für local) und R (für remote) kennzeichnen ob ein Track nur lokal auf dem Gerät vorhanden ist oder ob der Track schon zum Server (Remote) hochgeladen wurde. Das Hochladen von Tracks löscht den Track aus dem lokalen Speicher. Das Drücken des Löschen-Buttons löscht alle lokalen Tracks. Das Drücken des Upload-Buttons lädt alle lokalen Tracks hoch.</string>
-    <string name="help_9">Ein langer Klick auf einen Track öffnet ein Optionsmenü zum bearbeiten und anschauen eines Tracks. Für die Kartendarstellung wird eine SD-Karte benötigt:</string>
+
+    <string name="help_head_1">1. Über enviroCar</string>
+    <string name="help_text_1">Diese App ist Teil der Citizen Science Plattform enviroCar (<a href="www.enviroCar.org">www.enviroCar.org</a>). Sie ermöglicht die Erfassung und Analyse von Messfahrten und die Bereitstellung von Messdaten als Open Data.</string>
+    <string name="help_head_2">2. Die ersten Schritte</string>
+    <string name="help_text_2">Auf dem Start-Bildschirm sehen Sie die Anzeige der aktuellen Messwerte für die Geschwindigkeit, die CO2-Emission und die geografische Position. Darüber hinaus wird der Fahrzeugtyp angezeigt, den Sie für Ihr Fahrzeug angegeben haben. \n\nBevor Sie aber mit der Aufnahme von Messfahrten starten können, müssen Sie die nachfolgenden Schritte durchführen. Über das Hauptmenü (Icon oben links) erreichen Sie alle Funktionen, die Sie hierfür benötigen.</string> 
+	<string name="help_head_2_1">2.1 Registrieren</string>
+	<string name="help_text_2_1">Sofern Sie noch nicht als enviroCar Nutzer registriert sind, können sie über diese Funktion ein enviroCar Nutzerkonto anlegen.</string>
+	<string name="help_head_2_2">2.2 Fahrzeugdaten eingeben</string>
+	<string name="help_text_2_2">Für die Berechnung von Daten aus der Fahrzeugsensorik werden einige Angaben zum Fahrzeug benötigt. Sie können entweder ein vorhandenes Fahrzeugprofil wählen oder ein neues Fahrzeugprofil anlegen. Für das Anlegen eines neuen Profils müssen Sie beim enviroCar Server angemeldet sein.</string>
+	<string name="help_head_2_3">2.3 Verbindung mit dem Fahrzeug herstellen</string>
+	<string name="help_text_2_3">Stecken Sie den Bluetooth OBD-II Adapter auf den OBD-II Anschluss Ihres Fahrzeuges. Dieser befindet sich in der Regel im Fußraum des Fahrers, seltener unter einer Abdeckung im Armaturenbrett oder in der Konsole. Folgen Sie den Anweisungen der Bedienungsanleitung des Bluetooth-Adapters, um eine Verbindung zwischen Ihrem SmartPhone und dem Adapter herzustellen.\n\nWählen Sie nun unter Einstellungen -> OBD EINSTELLUNGEN -> OBD Adapter auswählen den Adapter aus, den Sie im Fahrzeug angebracht haben.</string>
+    <string name="help_head_3">3. Messfahrt aufnehmen</string>
+    <string name="help_text_3">Sobald eine Verbindung zum Fahrzeug hergestellt, der Motor gestartet und die GPS-Positionsmessung des Smartphones verfügbar ist, werden im Abstand von wenigen Sekunden Messpunkte aufgenommen und auf dem Smartphone gespeichert.\n\nDie grüne Farbe des Antennensymbols auf dem Hauptbildschirm zeigt an, dass alle Voraussetzungen erfüllt sind und Messungen vorgenommen werden.</string>
+	<string name="help_head_4">4. Messfahrt betrachten</string>
+	<string name="help_text_4">Über die Funktion „Meine Fahrten“ im Hauptmenue erreichen Sie eine Liste aller Messfahrten. Das Symbol %auto_replace% zeigt an, dass diese Messfahrt lediglich lokal gespeichert ist und noch nicht auf den enviroCar Server hochgeladen wurde.
+\nAlle anderen Messfahrten sind bereits auf dem envirCar Server gespeichert. Beim Neustart nach einer Neuinstallation der enviroCar App werden die letzten zehn Messfahrten vom enviorCar Server auf das Smartphone heruntergeladen. 
+\n\n
+Wenn Sie eine Messfahrt in der Liste antippen, werden mehrere Kennwerte wie die Länge und Dauer der Messfahrt und der Kraftstoffverbrauch (zunächt nur bei Benzinfahrzeugen) angezeigt.
+\n\n
+Wenn Sie den Finger ca eine Sekunde auf dem Listeneintrag belassen, erscheint eine Liste weiterer Funktionen zur Bearbeitung und Visualisierung der Messfahrt:
+\n\n
+\n&#8226; <b>Karte</b> - Verlauf der Messfahrt in einer interaktiven Karte betrachten.
+\n&#8226; <b>Bezeichnung</b> - Änderung des Bezeichners (nur möglich, wenn die Messfahrt noch nicht auf den enviroCar-Server hochgeladen wurde)
+\n&#8226; <b>Beschreibung</b> - Eingabe oder Änderung der Beschreibung der Messfahrt (nur möglich, wenn die Messfahrt noch nicht auf den enviroCar-Server hochgeladen wurde)
+\n&#8226; <b>Export</b> - Ausgabe der Daten der Messfahrt im JSON-Format
+\n&#8226; <b>Löschen</b> - Löschung der Daten dieser Messfahrt
+</string>
+	<string name="help_head_5">5. Messfahrt hochladen</string>
+	<string name="help_text_5">Mit dieser Funktion haben Sie die Möglichkeit, Ihre Messdaten auf den enviroCar Server hochzuladen. Mit der enviroCar WebSite können Sie Ihre Daten dann auf vielfältige Art analysieren und mit den Daten anderer Nutzergruppen vergleichen.\n\nWichtig: Mit dem Hochladen von enviroCar Daten stimmen Sie zu, dass die Daten der Messfahrten anonymisiert unter einer offenen Datenlizenz als Open Data publiziert werden. Die Nutzerdaten und auch die Information, welche Messfahrten von welchem Nutzer stammen, bleiben für andere Nutzer verborgen.</string>
+	<string name="help_head_6">6. Einstellungen</string>
+	<string name="help_head_6_1">6.1 OBD EINSTELLUNGEN</string>
+	<string name="help_text_6_1">&#8226;<b>OBD Adapter auswählen</b> - verbinden Sie die App mit dem Adapter, der sich derzeit auf dem OBD-II Anschluss befindet.</string>
+	<string name="help_head_6_2">6.2 Allgemeine Einstellungen</string>
+	<string name="help_text_6_2">&#8226; <b>Automatisch hochladen</b> - Die Messdaten sollen nach Abschluss jeder Messfahrt automatisch auf den enviroCar Server hochgeladen werden
+\n&#8226; <b>Nur in WLAN hochladen</b> - Messdaten sollen nur dann automatisch auf den envirCar Server hochgeladen werden, wenn eine WLAN-Verbindung zum Internet existiert
+\n&#8226; <b>Bildschirm bleibt aktiv</b> - Das Smartphone soll nicht in den Schlafmodus wechseln, so lange die envirCar App aktiv ist.
+\n&#8226; <b>Imperiale Maßeinheiten</b> - enviroCar verwendet in der Grundeinstellung metrische Maße (Km, Liter etc.), alternativ können imperiale Maßeinheiten (mph) verwendet werden.
+\n&#8226; <b>Messfahrten  beschneiden</b> - Beginn und Ende der Messfahrten werden vor anderen Nutzern verborgen, damit häufig angefahrene Standorte keinen Rückschluss auf den Fahrzeughalter ermöglichen. Beim Hochladen der Messfahrt auf den enviroCar Server werden hierzu die ersten und letzten 250 Meter (mindestens aber die erste und letzte Minute der Messfahrt) abgeschnitten. 
+\n&#8226; <b>Daten zum Fahrzeug</b> - Für die Berechnung von Daten aus der Fahrzeugsensorik werden einige Angaben zum Fahrzeug benötigt. Sie können entweder ein vorhandenes Fahrzeugprofil wählen oder ein neues Fahrzeugprofil anlegen. Für das Anlegen eines neuen Profils müssen Sie beim enviroCar Server angemeldet sein.</string>
+	<string name="help_head_6_3">6.3 enviroCar Version</string>
+	<string name="help_text_6_3">Sie nutzen die</string>
+
+	<string name="help_head_7">7. FeedBack</string>
+	<string name="help_text_7">enviroCar befindet sich derzeit in einer Beta-Phase, also in einer frühen und sehr dynamischen Entwicklungsphase. Die Stabilität der Software entspricht noch nicht dem Standard, den Sie von reifer Software gewohnt sind, da Ihnen alle neuen Entwicklungen umgehend für Tests zur Verfügung gestellt werden.
+\n\n
+Ihr FeedBack (enviroCar@52north.org) ist sehr willkommen! Ihre Hinweise und Anregungen helfen uns, die Software zu verbessern.
+\n\n
+Bei festgestellten Problemen möchten wir Sie bitten, uns ein Fehlerprotokoll zu senden. (-> Problem melden). Das Fehlerprotokoll enthält Informationen über Prozessverläufe im System. Es unterstützt uns dabei, die Ursachen von Fehlfunktionen zu erkennen und zu beheben.</string>
     
-    <string name="track_obfuscation_on">Nur Messungen die 250 meter und 1 Minute nach Beginn der Messung und vor Ende der Messung hochladen.</string>
+    <string name="track_obfuscation_on">Nur Messungen, die ab einer Entfernung von 250 Metern zum Start/Ziel sowie eine Minute nach Beginn und vor Ende der Route stattfanden, hochladen.</string>
+	<string name="imperial_unit_summary">Imperiale Maßeinheiten (Meilen) für die Anzeige nutzen</string>
+    <string name="action_send_log">Senden</string>
+    <string name="connection_state">Status</string>
+    
+    <string name="device_discovery_next_try">Geräte-Scan - %1$s:%2$s Minuten verbleibend</string>
+    <string name="device_discovery_pending">Geräte-Scan - Warten&#8230;</string>
+    
+    <string name="finish_track">Track beenden?</string>
+    <string name="finish_track_long">Wollen Sie wirklich diesen Track abschließen?</string>
+    
+    <string name="menu_cancel">Abbrechen</string>
+    <string name="menu_send_log">Problem Melden</string>
+    
+    <string name="send_log_0">Mit Hilfe dieses Features lassen sich Fehler und Missverhalten der App reproduzieren.
+	    Wenn Sie ein Problem-Bericht einsenden, helfen sie aktiv mit, die enviroCar app zu verbessern.</string>
+	<string name="send_log_1">Dieses Feature nutzt den \"Senden an\" Mechanismus.
+	    Dies ermöglicht beispielsweise das einsenden des Berichts mit Ihrem Email-Client. Falls Ihr Gerät über
+	    keine Email-Client verfügt, können Sie den Bericht manuell von Ihrem Gerät laden, z.B per Bluetooth oder USB.
+	    In diesem Fall begrüßen wir eine manuelle Übermittlung des Fehlerberichts per Email. Der Bericht ist an folgender Stelle abgelegt:</string>
+	<string name="send_log_when_label" tools:ignore="Typos">Ungefähre Anzahl Minuten seit dem Problem:</string>
+	<string name="send_log_comments_label">(Kommentar)</string>
+	<string name="send_log_time_past_hint">(vergangene Zeit seit Problem)</string>
+	
+	<string name="menu_starting">Starte</string>
+	
+	<string name="prompt_car_engineDisplacement">Hubraum (ccm)</string>
+	
+	<string name="track_mode_single">Einzelner Track</string>
+    <string name="track_mode_auto">Automatische Track-Erstellung</string>
+    <string name="question_track_mode">Möchten Sie einen einzelnen Track aufnehmen oder die automatische Track-Erstellung aktivieren?</string>
+    
+    <string name="stop_automatic_mode">Automatische Track-Erstellung beenden?</string>
+    <string name="stop_automatic_mode_long">Möchten Sie die automatische Track-Erstellung beenden? Dies wird
+        den aktuellen Track abschließen.</string>
+    
+    <string name="track_finished">Track abgeschlossen: </string>
+    <string name="track_finishing_failed">Abschließen des Tracks fehlgeschlagen</string>
+    <string name="track_finished_no_measurements">Der abzuschließende Track enthielt keine Messungen</string>
+    
+    <string name="start_connection">Starte Verbindung zum Gerät</string>
+	<string name="stop_connection">Stoppe Verbindung zum Gerät</string>
+	
+	<string name="connection_lost_info">Verbindung verloren. Versuche erneut&#8230;</string>
+	<string name="general_error_please_report">Programmfehler - Bitte melden Sie das Problem</string>
+	
+	<string name="server_error_please_try_later">Server Fehler - Bitte versuchen Sie es später erneut</string>
+	
+	<string name="terms_of_use_title">Nutzungsbedingungen akzeptieren?</string>
+	<string name="terms_of_use_info">Bevor Sie fortfahren, müssen Sie unsere Nutzungsbedingungen akzeptieren</string>
+	<string name="terms_of_use_sorry">Entschuldigen Sie die erneute Störung. Wir haben unsere Nutzungsbedingungen geändert</string>
+	<string name="terms_of_use_cant_continue">Sie müssen die Nutzungsbedingungen akzeptieren, bevor Sie Tracks hochladen können</string>
+	<string name="terms_of_use_updating_server">Speichere Nutzungsbedingungs-Status auf Server</string>
+    
+    <string name="diesel_not_yet_supported">Bitte beachten Sie, dass die Berechnung von Verbrauch/CO2 für Diesel-Fahrzeuge nocht nicht unterstützt wird</string>
 	
 </resources>

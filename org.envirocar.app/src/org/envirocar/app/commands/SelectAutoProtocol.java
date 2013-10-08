@@ -25,7 +25,7 @@ package org.envirocar.app.commands;
 /**
  * Select the protocol to use.
  */
-public class SelectAutoProtocol extends CommonCommand {
+public class SelectAutoProtocol extends StringResultCommand {
 
 	/**
 	 * @param command
@@ -34,10 +34,6 @@ public class SelectAutoProtocol extends CommonCommand {
 		super("AT SP " + 0);
 	}
 
-	@Override
-	public String getResult() {
-		return getRawData();
-	}
 
 	@Override
 	public String getCommandName() {
