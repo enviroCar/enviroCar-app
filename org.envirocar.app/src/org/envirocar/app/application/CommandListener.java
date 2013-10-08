@@ -210,7 +210,6 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		 * therefore, we should include a minimum time between measurements (1
 		 * sec) as well.)
 		 */
-		logger.info("inserting measurement to Track: "+track.getName());
 		track.addMeasurement(measurement);
 		logger.info("Add new measurement to track: " + measurement.toString());
 	}

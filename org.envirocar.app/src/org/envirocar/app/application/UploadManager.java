@@ -343,7 +343,7 @@ public class UploadManager {
 	 * @return
 	 */
 	public List<Measurement> getNonObfuscatedMeasurements(Track track) {
-		ArrayList<Measurement> measurements = track.getMeasurements();
+		List<Measurement> measurements = track.getMeasurements();
 		
 		SharedPreferences preferences = PreferenceManager
 				.getDefaultSharedPreferences(context.getApplicationContext());

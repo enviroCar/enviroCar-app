@@ -22,19 +22,28 @@ package org.envirocar.app.activity;
 
 import org.envirocar.app.R;
 
-import android.app.Activity;
-import android.os.Bundle;
+import com.actionbarsherlock.app.SherlockFragment;
 
-public class TroubleshootingActivity extends Activity {
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+public class TroubleshootingFragment extends SherlockFragment {
 
 	public static final int BLUETOOTH_EXCEPTION = 0;
-	public static final String ERROR_TYPE = TroubleshootingActivity.class.getName()+".ERROR_TYPE";
+	public static final String ERROR_TYPE = TroubleshootingFragment.class.getName()+".ERROR_TYPE";
+	public static final String INTENT = TroubleshootingFragment.class.getName()+".INTENT";
 
+	
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
+		View view = inflater.inflate(R.layout.troubleshooting_layout, null);
 		
-		this.setContentView(R.layout.troubleshooting_layout);
+		Bundle bundle = getArguments();
+		
+		return view;
 	}
 	
 }

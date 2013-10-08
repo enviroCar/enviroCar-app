@@ -27,7 +27,7 @@ import java.io.OutputStream;
 
 import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
-import org.envirocar.app.activity.TroubleshootingActivity;
+import org.envirocar.app.activity.TroubleshootingFragment;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.CommandListener;
 import org.envirocar.app.application.Listener;
@@ -49,7 +49,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
@@ -247,7 +246,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 			deviceDisconnected();
 			return;
 		}
-		
+
 		initializeCommandLooper(in, out, bluetoothSocket.getRemoteDeviceName());
 	}
 
@@ -302,13 +301,9 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 		sendBroadcast(new Intent(CONNECTION_PERMANENTLY_FAILED_INTENT));		
 	}
 	
-	public void openTroubleshootingActivity(int type) {
-		Intent intent = new Intent(getApplicationContext(), TroubleshootingActivity.class);
-		Bundle bundle = new Bundle();
-		bundle.putInt(TroubleshootingActivity.ERROR_TYPE, type);
-		intent.putExtras(bundle);
-		intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		getApplication().startActivity(intent);
+	public void openTroubleshootingFragment(int type) {
+		Intent intent = new Intent(TroubleshootingFragment.INTENT);
+		sendBroadcast(intent);
 	}
 	
 	/**

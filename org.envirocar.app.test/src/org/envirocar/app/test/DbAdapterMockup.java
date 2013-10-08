@@ -150,4 +150,16 @@ public class DbAdapterMockup implements DbAdapter {
 		return null;
 	}
 
+	@Override
+	public List<Track> getAllTracks(boolean lazyMeasurements) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<Measurement> getAllMeasurementsForTrack(Track track) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

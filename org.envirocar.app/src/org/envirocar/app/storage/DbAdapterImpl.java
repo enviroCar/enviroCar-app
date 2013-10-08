@@ -162,7 +162,7 @@ public class DbAdapterImpl implements DbAdapter {
 	}
 
 	@Override
-	public void insertMeasurement(Measurement measurement) {
+	public synchronized void insertMeasurement(Measurement measurement) {
 		ContentValues values = new ContentValues();
 		
 		values.put(KEY_MEASUREMENT_LATITUDE, measurement.getLatitude());
@@ -176,15 +176,23 @@ public class DbAdapterImpl implements DbAdapter {
 	}
 	
 	@Override
-	public long insertTrack(Track track) {
+	public synchronized long insertTrack(Track track) {
 		logger.debug("insertTrack: "+track.getId());
 		ContentValues values = createDbEntry(track);
 
-		return mDb.insert(TABLE_TRACK, null, values);
+		long result = mDb.insert(TABLE_TRACK, null, values);
+		
+		removeMeasurementArtifacts(result);
+		
+		return result;
+	}
+
+	private void removeMeasurementArtifacts(long id) {
+		mDb.delete(TABLE_MEASUREMENT, KEY_MEASUREMENT_TRACK + "='" + id + "'", null);		
 	}
 
 	@Override
-	public boolean updateTrack(Track track) {
+	public synchronized boolean updateTrack(Track track) {
 		logger.debug("updateTrack: "+track.getId());
 		ContentValues values = createDbEntry(track);
 		long result = mDb.replace(TABLE_TRACK, null, values);
@@ -193,24 +201,28 @@ public class DbAdapterImpl implements DbAdapter {
 
 	@Override
 	public ArrayList<Track> getAllTracks() {
+		return getAllTracks(false);
+	}
+	
+	@Override
+	public ArrayList<Track> getAllTracks(boolean lazyMeasurements) {
 		ArrayList<Track> tracks = new ArrayList<Track>();
 		Cursor c = mDb.query(TABLE_TRACK, null, null, null, null, null, null);
 		c.moveToFirst();
 		for (int i = 0; i < c.getCount(); i++) {
 			long id = c.getLong(c.getColumnIndex(KEY_TRACK_ID));
-			tracks.add(getTrack(id));
+			tracks.add(getTrack(id, lazyMeasurements));
 			c.moveToNext();
 		}
 		c.close();
 		return tracks;
 	}
-
-	@Override
-	public Track getTrack(long id) {
+	
+	private Track getTrack(long id, boolean lazyMeasurements) {
 		Cursor c = getCursorForTrackID(id);
 		c.moveToFirst();
 
-		Track track = Track.createDbTrack(c.getLong(c.getColumnIndex(KEY_TRACK_ID)));
+		Track track = Track.createDbTrack(c.getLong(c.getColumnIndex(KEY_TRACK_ID)), this);
 		track.setName(c.getString(c.getColumnIndex(KEY_TRACK_NAME)));
 		track.setDescription(c.getString(c.getColumnIndex(KEY_TRACK_DESCRIPTION)));
 		track.setVin(c.getString(c.getColumnIndex(KEY_TRACK_CAR_VIN)));
@@ -245,9 +257,71 @@ public class DbAdapterImpl implements DbAdapter {
 
 		c.close();
 
-		ArrayList<Measurement> measurements = getAllMeasurementsForTrack(track);
-		track.setMeasurementsAsArrayList(measurements);
+		if (!lazyMeasurements) {
+			List<Measurement> measurements = getAllMeasurementsForTrack(track);
+			track.setMeasurementsAsArrayList(measurements);	
+		} else {
+			track.setLazyLoadingMeasurements(true);
+			Measurement first = getFirstMeasurementForTrack(track);
+			Measurement last = getLastMeasurementForTrack(track);
+			track.setStartTime(first.getTime());
+			track.setEndTime(last.getTime());
+		}
+		
 		return track;
+	}
+
+	private Measurement getLastMeasurementForTrack(Track track) {
+		Cursor c = mDb.query(TABLE_MEASUREMENT, ALL_MEASUREMENT_KEYS,
+				KEY_MEASUREMENT_TRACK + "=\"" + track.getId() + "\"", null, null, null, KEY_MEASUREMENT_TIME + " DESC", "1");
+	
+		c.moveToFirst();
+	
+		Measurement measurement = buildMeasurementFromCursor(track, c);
+	
+		return measurement;
+	}
+
+	private Measurement getFirstMeasurementForTrack(Track track) {
+		Cursor c = mDb.query(TABLE_MEASUREMENT, ALL_MEASUREMENT_KEYS,
+				KEY_MEASUREMENT_TRACK + "=\"" + track.getId() + "\"", null, null, null, KEY_MEASUREMENT_TIME + " ASC", "1");
+	
+		c.moveToFirst();
+	
+		Measurement measurement = buildMeasurementFromCursor(track, c);
+	
+		return measurement;
+	}
+
+	private Measurement buildMeasurementFromCursor(Track track, Cursor c) {
+		double lat = c.getDouble(c.getColumnIndex(KEY_MEASUREMENT_LATITUDE));
+		double lon = c.getDouble(c.getColumnIndex(KEY_MEASUREMENT_LONGITUDE));
+		long time = c.getLong(c.getColumnIndex(KEY_MEASUREMENT_TIME));
+		String rawData = c.getString(c.getColumnIndex(KEY_MEASUREMENT_PROPERTIES));
+		Measurement measurement = new Measurement(lat, lon);
+		measurement.setTime(time);
+		measurement.setTrack(track);
+		
+		if (rawData != null) {
+			try {
+				JSONObject json = new JSONObject(rawData);
+				JSONArray names = json.names();
+				if (names != null) {
+					for (int j = 0; j < names.length(); j++) {
+						String key = names.getString(j);
+						measurement.setProperty(PropertyKey.valueOf(key), json.getDouble(key));
+					}
+				}
+			} catch (JSONException e) {
+				logger.severe("could not load properties", e);
+			}
+		}
+		return measurement;
+	}
+
+	@Override
+	public Track getTrack(long id) {
+		return getTrack(id, false);
 	}
 
 	@Override
@@ -288,8 +362,8 @@ public class DbAdapterImpl implements DbAdapter {
 	@Override
 	public void deleteTrack(long id) {
 		logger.debug("deleteTrack: "+id);
-		mDb.delete(TABLE_MEASUREMENT, KEY_MEASUREMENT_TRACK + "='" + id + "'", null);
 		mDb.delete(TABLE_TRACK, KEY_TRACK_ID + "='" + id + "'", null);
+		removeMeasurementArtifacts(id);
 	}
 	
 	@Override
@@ -370,7 +444,8 @@ public class DbAdapterImpl implements DbAdapter {
 		return cursor;
 	}
 
-	private ArrayList<Measurement> getAllMeasurementsForTrack(Track track) {
+	@Override
+	public List<Measurement> getAllMeasurementsForTrack(Track track) {
 		ArrayList<Measurement> allMeasurements = new ArrayList<Measurement>();
 	
 		Cursor c = mDb.query(TABLE_MEASUREMENT, ALL_MEASUREMENT_KEYS,
@@ -380,28 +455,7 @@ public class DbAdapterImpl implements DbAdapter {
 	
 		for (int i = 0; i < c.getCount(); i++) {
 	
-			String lat = c.getString(c.getColumnIndex(KEY_MEASUREMENT_LATITUDE));
-			String lon = c.getString(c.getColumnIndex(KEY_MEASUREMENT_LONGITUDE));
-			String time = c.getString(c.getColumnIndex(KEY_MEASUREMENT_TIME));
-			String rawData = c.getString(c.getColumnIndex(KEY_MEASUREMENT_PROPERTIES));
-			Measurement measurement = new Measurement(Float.valueOf(lat), Float.valueOf(lon));
-			measurement.setTime(Long.valueOf(time));
-			measurement.setTrack(track);
-			
-			if (rawData != null) {
-				try {
-					JSONObject json = new JSONObject(rawData);
-					JSONArray names = json.names();
-					if (names != null) {
-						for (int j = 0; j < names.length(); j++) {
-							String key = names.getString(j);
-							measurement.setProperty(PropertyKey.valueOf(key), json.getDouble(key));
-						}
-					}
-				} catch (JSONException e) {
-					logger.severe("could not load properties", e);
-				}
-			}
+			Measurement measurement = buildMeasurementFromCursor(track, c);
 	
 			allMeasurements.add(measurement);
 			c.moveToNext();

@@ -24,6 +24,7 @@ package org.envirocar.app.storage;
 import static org.envirocar.app.storage.Measurement.PropertyKey.CONSUMPTION;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
@@ -66,7 +67,7 @@ public class Track implements Comparable<Track> {
 	private long id;
 	private String name;
 	private String description;
-	private ArrayList<Measurement> measurements = new ArrayList<Measurement>();
+	private List<Measurement> measurements = new ArrayList<Measurement>();
 	private Car car;
 	private AbstractConsumptionAlgorithm consumptionAlgorithm;
 	private String vin;
@@ -76,8 +77,14 @@ public class Track implements Comparable<Track> {
 
 	private DbAdapter dbAdapter;
 
-	public static Track createDbTrack(long id) {
+	private boolean lazyLoadingMeasurements;
+
+	private Long startTime = null;
+	private Long endTime = null;
+
+	public static Track createDbTrack(long id, DbAdapter dbAdapterImpl) {
 		Track track = new Track(id);
+		track.dbAdapter = dbAdapterImpl;
 		return track;
 	}
 	
@@ -155,7 +162,10 @@ public class Track implements Comparable<Track> {
 	/**
 	 * @return the measurements
 	 */
-	public ArrayList<Measurement> getMeasurements() {
+	public List<Measurement> getMeasurements() {
+		if ((measurements == null || measurements.isEmpty()) && dbAdapter != null) {
+			this.measurements = dbAdapter.getAllMeasurementsForTrack(this);
+		}
 		return measurements;
 	}
 
@@ -174,34 +184,54 @@ public class Track implements Comparable<Track> {
 	 * @return start time of track as unix long
 	 * @throws MeasurementsException
 	 */
-	public long getStartTime() throws MeasurementsException {
+	public Long getStartTime() throws MeasurementsException {
+		if (startTime != null) return startTime;
+		
 		if (this.getMeasurements().size() > 0)
 			return this.getMeasurements().get(0).getTime();
 		else
 			throw new MeasurementsException("No measurements in the track");
 	}
 
+	public void setStartTime(Long time) {
+		this.startTime = time;
+	}
+	
 	/**
 	 * get the time where the track ended
 	 * 
 	 * @return end time of track as unix long
 	 * @throws MeasurementsException
 	 */
-	public long getEndTime() throws MeasurementsException {
+	public Long getEndTime() throws MeasurementsException {
+		if (endTime != null) return endTime;
+		
 		if (this.getMeasurements().size() > 0)
 			return this.getMeasurements().get(this.getMeasurements().size() - 1).getTime();
 		else
 			throw new MeasurementsException("No measurements in the track");
 	}
-
+	
+	public void setEndTime(Long time) {
+		this.endTime = time;
+	}
+	
 	/**
 	 * Sets the measurements with an arraylist of measurements
 	 * 
 	 * @param measurements
 	 *            the measurements of a track
 	 */
-	public void setMeasurementsAsArrayList(ArrayList<Measurement> measurements) {
+	public void setMeasurementsAsArrayList(List<Measurement> measurements) {
 		this.measurements = measurements;
+	}
+	
+	public void storeMeasurementsInDbAdapter() {
+		if (this.dbAdapter != null) {
+			for (Measurement measurement : measurements) {
+				this.dbAdapter.insertMeasurement(measurement);
+			}
+		}
 	}
 
 	/**
@@ -239,14 +269,6 @@ public class Track implements Comparable<Track> {
 	}
 
 	/**
-	 * @param id
-	 *            the id to set
-	 */
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	/**
 	 * get the VIN
 	 * 
 	 * @return
@@ -278,7 +300,7 @@ public class Track implements Comparable<Track> {
 	 * @return
 	 */
 	public double getLengthOfTrack() {
-		ArrayList<Measurement> measurements = this.getMeasurements();
+		List<Measurement> measurements = this.getMeasurements();
 
 		double distance = 0.0;
 
@@ -337,43 +359,66 @@ public class Track implements Comparable<Track> {
 	public double getFuelConsumptionPerHour() throws UnsupportedFuelTypeException {
 		if (consumptionPerHour == null) {
 			consumptionPerHour = 0.0;
-			try {
-				for (int i = 0; i < measurements.size(); i++) {
+			
+			int consideredCount = 0;
+			for (int i = 0; i < measurements.size(); i++) {
+				try {
 					consumptionPerHour = consumptionPerHour + consumptionAlgorithm.calculateConsumption(measurements.get(i));
+					consideredCount++;
+				} catch (FuelConsumptionException e) {
+					logger.warn(e.getMessage());
 				}
-				consumptionPerHour = consumptionPerHour / measurements.size();
-			} catch (FuelConsumptionException e) {
-				logger.warn(e.getMessage());
 			}
+			consumptionPerHour = consumptionPerHour / consideredCount;
+			
 		}
 		return consumptionPerHour;
 	}
 
 	@Override
 	public int compareTo(Track t) {
-		
-		if (t.getFirstMeasurement() == null && this.getFirstMeasurement() == null) {
-			/*
-			 * we cannot assume any ordering
-			 */
+		try {
+			if (t.getStartTime() == null && t.getEndTime() == null) {
+				/*
+				 * we cannot assume any ordering
+				 */
+				return 0;
+			}
+		}
+		catch (MeasurementsException e) {
 			return 0;
 		}
-		
-		if (this.getFirstMeasurement() == null) {
-			/*
-			 * no measurements, this is probably a relatively new track
-			 */
+			
+		try {
+			if (this.getStartTime() == null) {
+				/*
+				 * no measurements, this is probably a relatively new track
+				 */
+				return -1;
+			}
+		}
+		catch (MeasurementsException e) {
 			return -1;
 		}
 		
-		if (t.getFirstMeasurement() == null) {
-			/*
-			 * no measurements, this is probably a relatively new track
-			 */
-			return -1;
+		try {
+			if (t.getStartTime() == null) {
+				/*
+				 * no measurements, that is probably a relatively new track
+				 */
+				return 1;
+			}
+		}
+		catch (MeasurementsException e) {
+			return 1;
 		}
 
-		return (this.getFirstMeasurement().getTime() < t.getFirstMeasurement().getTime() ? 1 : -1);
+		try {
+			return (this.getStartTime() < t.getStartTime() ? 1 : -1);
+		} catch (MeasurementsException e) {
+			return 0;
+		}	
+		
 	}
 
 	public double getLiterPerHundredKm() throws MeasurementsException {
@@ -401,5 +446,13 @@ public class Track implements Comparable<Track> {
 	public TrackStatus getStatus() {
 		return status;
 	}
-	
+
+	public void setLazyLoadingMeasurements(boolean b) {
+		this.lazyLoadingMeasurements = b;
+	}
+
+	public boolean isLazyLoadingMeasurements() {
+		return lazyLoadingMeasurements;
+	}
+
 }

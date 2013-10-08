@@ -332,7 +332,7 @@ public class CarSelectionPreference extends DialogPreference {
 				if (content != null && content.equals("can't resolve host") ){
 					Toast.makeText(getContext(),
 							getContext().getString(R.string.error_host_not_found), Toast.LENGTH_SHORT).show();
-				}else if(content.contains("Unauthorized")){
+				} else if (content != null && content.contains("Unauthorized")){
 						logger.info("Tried to register new car while not logged in. Creating temporary car.");
 						Crouton.makeText(
 								(Activity) getContext(),
@@ -340,7 +340,7 @@ public class CarSelectionPreference extends DialogPreference {
 										R.string.creating_temp_car),
 								Style.INFO).show();
 						createTemporaryCar();
-				}else {
+				} else {
 					logger.warn("Received error response: "+ content +"; "+error.getMessage(), error);
 					//TODO i18n
 					Toast.makeText(getContext(), "Server Error: "+content, Toast.LENGTH_SHORT).show();
@@ -367,6 +367,7 @@ public class CarSelectionPreference extends DialogPreference {
 				int engineDisplacement = Integer.parseInt(carEngineDisplacement);
 				int year = Integer.parseInt(carConstructionYear);
 				car = new Car(Car.resolveFuelType(carFuelType), carManufacturer, carModel, sensorId, year, engineDisplacement);
+				persistCar();
 			}
 		});
 		}else{
@@ -386,7 +387,7 @@ public class CarSelectionPreference extends DialogPreference {
 		car = new Car(Car.resolveFuelType(carFuelType), carManufacturer,
 				carModel, sensorId, year,
 				Integer.parseInt(carEngineDisplacement));
-		CarManager.instance().setCar(car);
+		persistCar();
 		Toast.makeText(getContext(), getContext().getString(R.string.creating_temp_car), Toast.LENGTH_SHORT).show();
 	}
 	
@@ -545,13 +546,16 @@ public class CarSelectionPreference extends DialogPreference {
 	protected void onDialogClosed(boolean positiveResult) {
 		if (positiveResult) {
 			//this fixes issue #166
-			CarManager.instance().setCar(car);
-	        
-			persistString(serializeCar(car));
-	        setSummary(car.toString());
+			persistCar();
 		}
 	}
 	
+	private void persistCar() {
+		persistString(serializeCar(car));
+        setSummary(car.toString());	
+        CarManager.instance().setCar(car);
+	}
+
 	@Override
 	protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
 	    if (restorePersistedValue) {
