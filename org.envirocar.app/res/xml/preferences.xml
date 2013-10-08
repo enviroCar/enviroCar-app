@@ -23,11 +23,12 @@
             android:title="@string/pref_display_always_activ" />
         <CheckBoxPreference
             android:key="pref_imperial_unit"
-            android:title="@string/imperial_unit" />
+            android:title="@string/imperial_unit"
+            android:summary="@string/imperial_unit_summary" />
         <CheckBoxPreference 
             android:key="pref_privacy"
             android:title="@string/privacy"
-            android:summaryOn="@string/track_obfuscation_on"
+            android:summary="@string/track_obfuscation_on"
             android:defaultValue="true"/>
         <org.envirocar.app.activity.preference.CarSelectionPreference 
             android:title="@string/select_car"
