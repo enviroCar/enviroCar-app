@@ -21,33 +21,49 @@
 
 package org.envirocar.app.activity;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import org.envirocar.app.R;
+import org.envirocar.app.activity.StartStopButtonUtil.OnTrackModeChangeListener;
+import org.envirocar.app.activity.preference.CarSelectionPreference;
+import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.NavMenuItem;
-import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.UserManager;
-import org.envirocar.app.exception.TracksException;
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
+import org.envirocar.app.application.service.BackgroundServiceImpl;
+import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.DbAdapterLocal;
+import org.envirocar.app.network.RestClient;
+import org.envirocar.app.storage.DbAdapterImpl;
+import org.envirocar.app.util.Util;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
 import android.view.View;
@@ -59,10 +75,12 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
+import com.loopj.android.http.JsonHttpResponseHandler;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -79,6 +97,9 @@ import de.keyboardsurfer.android.widget.crouton.Style;
  */
 public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity implements OnItemClickListener {
 
+	public static final int TRACK_MODE_SINGLE = 0;
+	public static final int TRACK_MODE_AUTO = 1;
+	
 	private int actionBarTitleID = 0;
 	private ActionBar actionBar;
 
@@ -100,20 +121,38 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	static final int SETTINGS = 4;
 	static final int HELP = 5;
 	static final int SEND_LOG = 6;
+	
+	static final String DASHBOARD_TAG = "DASHBOARD";
+	static final String LOGIN_TAG = "LOGIN";
+	static final String MY_TRACKS_TAG = "MY_TRACKS";
+	static final String HELP_TAG = "HELP";
+	static final String TROUBLESHOOTING_TAG = "TROUBLESHOOTING";
+	static final String SEND_LOG_TAG = "SEND_LOG";
 
 	public static final int REQUEST_MY_GARAGE = 1336;
 	public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
 	
 	private static final Logger logger = Logger.getLogger(MainActivity.class);
+	private static final String SERVICE_STATE = "serviceState";
+	private static final String TRACK_MODE = "trackMode";
+	
 	
 	// Include settings for auto upload and auto-connect
 	
 	private SharedPreferences preferences = null;
 	boolean alwaysUpload = false;
 	boolean uploadOnlyInWlan = true;
-	boolean autoConnect = false;
-	private Handler handler_connect;
-	private Handler handler_upload;
+	private BroadcastReceiver serviceStateReceiver;
+	private OnSharedPreferenceChangeListener settingsReceiver;
+	protected ServiceState serviceState = ServiceState.SERVICE_STOPPED;
+	private BroadcastReceiver bluetoothStateReceiver;
+	private int trackMode = TRACK_MODE_SINGLE;
+	private Runnable remainingTimeThread;
+	private long targetTime;
+	private Handler remainingTimeHandler;
+	private BroadcastReceiver deviceInRangReceiver;
+	private boolean deviceDiscoveryActive;
+	private BroadcastReceiver errorInformationReceiver;
 		
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
@@ -127,51 +166,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			navDrawerItems[SEND_LOG] = new NavMenuItem(SEND_LOG, getResources().getString(R.string.menu_send_log), R.drawable.action_report);
 		}
 		
-		if (application.requirementsFulfilled()) { // was requirementsFulfilled
-			try {
-				if (application.getServiceConnector().isRunning()) {
-					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_stop));
-					navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_pause);
-				} else {
-					navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
-					// Only enable start button when adapter is selected
-	
-					SharedPreferences preferences = PreferenceManager
-							.getDefaultSharedPreferences(this);
-	
-					String remoteDevice = preferences.getString(
-							org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,
-							null);
-	
-					if (remoteDevice != null) {
-						if(!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)){
-							navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-							navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
-							navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.no_sensor_selected));
-						} else {
-							navDrawerItems[START_STOP_MEASUREMENT].setEnabled(true);
-							navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.av_play);
-							navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(preferences.getString(SettingsActivity.BLUETOOTH_NAME, ""));
-						}
-					} else {
-						navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-						navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
-						navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.pref_summary_chose_adapter));
-					}
-
-				}
-			} catch (NullPointerException e) {
-				logger.warn(e.getMessage(), e);
-				navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-				navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
-			}
-		} else {
-			navDrawerItems[START_STOP_MEASUREMENT].setTitle(getResources().getString(R.string.menu_start));
-			navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(getResources().getString(R.string.pref_bluetooth_disabled));
-			navDrawerItems[START_STOP_MEASUREMENT].setEnabled(false);
-			navDrawerItems[START_STOP_MEASUREMENT].setIconRes(R.drawable.not_available);
-		}
-	
 		if (UserManager.instance().isLoggedIn()) {
 			navDrawerItems[LOGIN].setTitle(getResources().getString(R.string.menu_logout));
 			navDrawerItems[LOGIN].setSubtitle(String.format(getResources().getString(R.string.logged_in_as),UserManager.instance().getUser().getUsername()));
@@ -187,6 +181,9 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		readSavedState(savedInstanceState);
+		
 		this.setContentView(R.layout.main_layout);
 
 		application = ((ECApplication) getApplication());
@@ -195,11 +192,9 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
-        autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
-        handler_connect = new Handler();
-        handler_upload = new Handler();
-        application.setImperialUnits(preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT, false));
 
+        checkKeepScreenOn();
+        
 		actionBar = getSupportActionBar();
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
 		actionBar.setHomeButtonEnabled(true);
@@ -218,13 +213,14 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		manager = getSupportFragmentManager();
 
 		DashboardFragment initialFragment = new DashboardFragment();
-		manager.beginTransaction().replace(R.id.content_frame, initialFragment)
-				.commit();
+		manager.beginTransaction().replace(R.id.content_frame, initialFragment, DASHBOARD_TAG)
+		.commit();
 		
 		drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
 		drawerList = (ListView) findViewById(R.id.left_drawer);
 		navDrawerAdapter = new NavAdapter();
 		prepareNavDrawerItems();
+		updateStartStopButton();
 		drawerList.setAdapter(navDrawerAdapter);
 		ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(
 				this, drawer, R.drawable.ic_drawer, R.string.open_drawer,
@@ -242,177 +238,246 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 		manager.executePendingTransactions();
 
-		/*
-		 * Auto connect to bluetooth adapter every 10 minutes
-		 */
-
-		ScheduledExecutorService autoConnectTaskExecutor = Executors.newScheduledThreadPool(1);
-		autoConnectTaskExecutor.scheduleAtFixedRate(new Runnable() {
-
+		serviceStateReceiver = new AbstractBackgroundServiceStateReceiver() {
 			@Override
-			public void run() {
-				if (autoConnect) {
-					logger.info("User wants to auto-connect");
-					try {
-						if (!application.getServiceConnector().isRunning()) {
-							logger.info("starting connection 1");
-
-							String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY, null);
-
-							if (application.requirementsFulfilled() && remoteDevice != null) {
-								if (!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)) {
-									if (UserManager.instance().isLoggedIn()) {
-										MyGarage garageFragment = new MyGarage();
-										getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
-									} else {
-										LoginFragment loginFragment = new LoginFragment();
-										getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
-									}
-								} else {
-									if (!application.getServiceConnector().isRunning()) {
-
-										handler_connect.post(new Runnable() {
-											public void run() {
-												application.startConnection();
-											}
-										});
-									}
-								}
-							} else {
-								Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
-								startActivity(settingsIntent);
-							}
-						}
-					} catch (NullPointerException e) {
-						logger.info("starting connection 2");
-
-						String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY, null);
-
-						if (application.requirementsFulfilled() && remoteDevice != null) {
-							if (!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)) {
-								if (UserManager.instance().isLoggedIn()) {
-									MyGarage garageFragment = new MyGarage();
-									getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
-								} else {
-									LoginFragment loginFragment = new LoginFragment();
-									getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
-								}
-							} else {
-								if (!application.getServiceConnector().isRunning()) {
-									handler_connect.post(new Runnable() {
-										public void run() {
-											application.startConnection();
-										}
-									});
-								}
-							}
-						} else {
-							Intent settingsIntent = new Intent(getApplicationContext(), SettingsActivity.class);
-							startActivity(settingsIntent);
-						}
+			public void onStateChanged(ServiceState state) {
+				serviceState = state;
+				
+				if (serviceState == ServiceState.SERVICE_STOPPED && trackMode == TRACK_MODE_AUTO) {
+					/*
+					 * lets see if we need to start the DeviceInRangeService
+					 */
+					synchronized (MainActivity.this) {
+						if (!deviceDiscoveryActive) {
+							application.startDeviceDiscoveryService();
+							deviceDiscoveryActive = true;
+						}	
 					}
+					
 				}
-
+				else if (serviceState == ServiceState.SERVICE_STARTED ||
+						serviceState == ServiceState.SERVICE_STARTING) {
+					/*
+					 * we are currently connected, disable
+					 * deviceDiscoverey related stuff
+					 */
+					deviceDiscoveryActive = false;
+				}
+				
+				updateStartStopButton();
 			}
-		}, 1, 10, TimeUnit.MINUTES);
+		};
 		
-		/*
-		 * Auto-Uploader of tracks. Uploads complete tracks every 10 minutes.
-		 */
+		registerReceiver(serviceStateReceiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 
-		ScheduledExecutorService uploadTaskExecutor = Executors.newScheduledThreadPool(1);
-		uploadTaskExecutor.scheduleAtFixedRate(new Runnable() {
-
+		bluetoothStateReceiver = new BroadcastReceiver() {
 			@Override
-			public void run() {
-				ConnectivityManager connManager = (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE);
-				NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-
-				if (alwaysUpload) {
-					logger.info("Automatic upload will start");
-					if (UserManager.instance().isLoggedIn()) {
-						try {
-							if (!application.getServiceConnector().isRunning()) {
-								logger.info("Service connector not running");
-								if (uploadOnlyInWlan == true) {
-									if (mWifi.isConnected()) {
-										logger.info("Uploading tracks 1");
-										handler_upload.post(new Runnable() {
-
-											@Override
-											public void run() {
-												uploadTracks();
-											}
-										});
-									}
-								} else {
-									logger.info("Uploading tracks 2");
-									handler_upload.post(new Runnable() {
-
-										@Override
-										public void run() {
-											uploadTracks();
-										}
-									});
-								}
-							}
-						} catch (NullPointerException e) {
-							logger.warn(e.getMessage(), e);
-							if (uploadOnlyInWlan == true) {
-								if (mWifi.isConnected()) {
-									logger.info("Uploading tracks 3 ");
-									handler_upload.post(new Runnable() {
-
-										@Override
-										public void run() {
-											uploadTracks();
-										}
-									});
-								}
-							} else {
-								logger.info("Uploading tracks 4");
-								handler_upload.post(new Runnable() {
-
-									@Override
-									public void run() {
-										uploadTracks();
-									}
-								});
-							}
-						}
-					}
-				} else {
-					logger.info("automatic upload not wanted by user");
+			public void onReceive(Context context, Intent intent) {
+				updateStartStopButton();
+			}
+		};
+		
+		deviceInRangReceiver = new BroadcastReceiver() {
+			
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				targetTime = intent.getLongExtra(DeviceInRangeService.TARGET_CONNECTION_TIME, 0);
+				invokeRemainingTimeThread();
+				createStartStopUtil().updateStartStopButtonOnServiceStateChange(navDrawerItems[START_STOP_MEASUREMENT]);
+			}
+		};
+		
+		registerReceiver(deviceInRangReceiver, new IntentFilter(DeviceInRangeService.TARGET_CONNECTION_TIME));
+		
+		registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+		
+		settingsReceiver = new OnSharedPreferenceChangeListener() {
+			@Override
+			public void onSharedPreferenceChanged(
+					SharedPreferences sharedPreferences, String key) {
+				if (key.equals(SettingsActivity.BLUETOOTH_NAME)) {
+					updateStartStopButton();
+				}
+				else if (key.equals(SettingsActivity.CAR)) {
+					updateStartStopButton();
 				}
 			}
-		}, 0, 10, TimeUnit.MINUTES);
+		};
 		
-		//bluetooth change listener
-	    IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-	    this.registerReceiver(application.bluetoothChangeReceiver, filter);
+		preferences.registerOnSharedPreferenceChangeListener(settingsReceiver);
+		
+		errorInformationReceiver = new BroadcastReceiver() {
+			
+			@Override
+			public void onReceive(Context context, Intent intent) {
+	        	Fragment fragment = getSupportFragmentManager().findFragmentByTag(TROUBLESHOOTING_TAG);
+	        	if (fragment == null) {
+	        		fragment = new TroubleshootingFragment();
+	        	}
+	        	fragment.setArguments(intent.getExtras());
+				getSupportFragmentManager().beginTransaction()
+						.replace(R.id.content_frame, fragment)
+						.commit();
+			}
+		};
+		
+		registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment.INTENT));
+		
+		if(isConnectedToInternet()){
+			loadCacheResources();
+		}
+		
 	}
+	
+	private void loadCacheResources() {
+		new AsyncTask<Void, Void, Void>() {
+
+			@Override
+			protected Void doInBackground(Void... arg0) {
+				getCarsFromServer();
+				return null;
+			}
+			
+		}.execute();
+		
+	}
+
+	private void getCarsFromServer() {
+		
+		RestClient.downloadSensors(new JsonHttpResponseHandler() {
+
+			@Override
+			public void onFailure(Throwable error, String content) {
+				super.onFailure(error, content);
+				Toast.makeText(
+						MainActivity.this,
+						MainActivity.this
+								.getString(R.string.error_host_not_found),
+						Toast.LENGTH_SHORT).show();
+			}
+
+			@Override
+			public void onSuccess(JSONObject response) {
+				super.onSuccess(response);
+
+				JSONArray res;
+				try {
+					res = response.getJSONArray("sensors");
+				} catch (JSONException e) {
+					logger.warn(e.getMessage(), e);
+					// TODO i18n
+					Toast.makeText(MainActivity.this,
+							"Could not retrieve cars from server",
+							Toast.LENGTH_SHORT).show();
+					return;
+				}
+
+				JSONArray cars = new JSONArray();
+
+				for (int i = 0; i < res.length(); i++) {
+					String typeString;
+					try {
+						typeString = ((JSONObject) res.get(i)).optString(
+								"type", "none");
+						if (typeString
+								.equals(CarSelectionPreference.SENSOR_TYPE)) {
+							cars.put(res.get(i));
+						}
+					} catch (JSONException e) {
+						logger.warn(e.getMessage(), e);
+						continue;
+					}
+
+				}
+				saveCarsToExternalStorage(cars);
+			}
+		});
+
+	}
+
+	private void saveCarsToExternalStorage(JSONArray cars) {
+
+		try {
+			File carCacheFile = Util
+					.createFileOnExternalStorage(CarManager.CAR_CACHE_FILE_NAME);
+
+			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(
+					carCacheFile));
+
+			bufferedWriter.write(cars.toString());
+
+			bufferedWriter.close();
+
+		} catch (IOException e) {
+			logger.warn(e.getMessage(), e);
+		}
+
+	}
+	
+	private void readSavedState(Bundle savedInstanceState) {
+		if (savedInstanceState == null) return;
+		
+		this.serviceState = (ServiceState) savedInstanceState.getSerializable(SERVICE_STATE);
+		this.trackMode = savedInstanceState.getInt(TRACK_MODE);
+		
+		BackgroundServiceImpl.requestServiceStateBroadcast(getApplicationContext());
+	}
+	
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		
+		outState.putSerializable(SERVICE_STATE, serviceState);
+		outState.putInt(TRACK_MODE, trackMode);
+	}
+
+	protected void updateStartStopButton() {
+		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+		if (adapter != null && adapter.isEnabled()) { // was requirementsFulfilled
+			createStartStopUtil().updateStartStopButtonOnServiceStateChange(navDrawerItems[START_STOP_MEASUREMENT]);
+		} else {
+			createStartStopUtil().defineButtonContents(navDrawerItems[START_STOP_MEASUREMENT],
+					false, R.drawable.not_available, getString(R.string.pref_bluetooth_disabled),
+					getString(R.string.menu_start));
+		}
+		
+		navDrawerAdapter.notifyDataSetChanged();
+	}
+
 	/**
-	 * Helper method for the automatic upload of local tracks via the scheduler.
+	 * start a thread that updates the UI until the device was
+	 * discovered
 	 */
-    private void uploadTracks() {
-        DbAdapterLocal dbAdapter = (DbAdapterLocal) application
-                .getDbAdapterLocal();
-        
-            try {
-                if (dbAdapter.getNumberOfStoredTracks() > 0
-                        && dbAdapter.getLastUsedTrack()
-                                .getNumberOfMeasurements() > 0) {
-                    UploadManager uploadManager = new UploadManager(
-                            application.getApplicationContext());
-                    uploadManager.uploadAllTracks();
-                } else {
-                	logger.info("Uploading does not make sense right now");
-                }
-            } catch (TracksException e) {
-            	logger.warn("Upload Failed!", e);
-            }
-        
-    }
+	private void invokeRemainingTimeThread() {
+		if (remainingTimeThread == null || targetTime > System.currentTimeMillis()) {
+			remainingTimeHandler = new Handler();
+			remainingTimeThread = new Runnable() {
+				@Override
+				public void run() {
+					final long deltaSec = (targetTime - System.currentTimeMillis()) / 1000;
+					final long minutes = deltaSec / 60;
+					final long secs = deltaSec - (minutes*60);
+					if (deviceDiscoveryActive && deltaSec > 0) {
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(
+												String.format(getString(R.string.device_discovery_next_try), 
+														String.format("%02d", minutes), String.format("%02d", secs)
+												));
+								navDrawerAdapter.notifyDataSetChanged();
+							}
+						});
+						remainingTimeHandler.postDelayed(remainingTimeThread, 1000);
+					} else {
+						logger.info("NOT SHOWING!");
+					}
+				}
+			};
+			remainingTimeHandler.post(remainingTimeThread);
+		}
+	}
+
 
 	private class NavAdapter extends BaseAdapter {
 		
@@ -472,13 +537,22 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
     private void openFragment(int position) {
         FragmentManager manager = getSupportFragmentManager();
+
         switch (position) {
         
         // Go to the dashboard
         
         case DASHBOARD:
-        	DashboardFragment dashboardFragment = new DashboardFragment();
-            manager.beginTransaction().replace(R.id.content_frame, dashboardFragment).commit();
+        	
+        	if(isFragmentVisible(DASHBOARD_TAG)){
+            	break;
+            }
+        	Fragment dashboardFragment = getSupportFragmentManager().findFragmentByTag(DASHBOARD_TAG);
+        	if (dashboardFragment == null) {
+        		dashboardFragment = new DashboardFragment();
+        	}
+        	manager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            manager.beginTransaction().replace(R.id.content_frame, dashboardFragment, DASHBOARD_TAG).commit();
             break;
             
         //Start the Login activity
@@ -486,15 +560,21 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         case LOGIN:
         	if(UserManager.instance().isLoggedIn()){
         		UserManager.instance().logOut();
-    			ListMeasurementsFragment listMeasurementsFragment = (ListMeasurementsFragment) getSupportFragmentManager().findFragmentByTag("MY_TRACKS");
+    			ListTracksFragment listMeasurementsFragment = (ListTracksFragment) getSupportFragmentManager().findFragmentByTag("MY_TRACKS");
     			// check if this fragment is initialized
     			if (listMeasurementsFragment != null) {
     				listMeasurementsFragment.clearRemoteTracks();
-    			} 
+    			}else{
+    				//the remote tracks need to be removed in any case
+            		DbAdapterImpl.instance().deleteAllRemoteTracks();
+    			}
         		Crouton.makeText(this, R.string.bye_bye, Style.CONFIRM).show();
         	} else {
+            	if(isFragmentVisible(LOGIN_TAG)){
+                	break;
+                }
                 LoginFragment loginFragment = new LoginFragment();
-                manager.beginTransaction().replace(R.id.content_frame, loginFragment, "LOGIN").addToBackStack(null).commit();
+                manager.beginTransaction().replace(R.id.content_frame, loginFragment, LOGIN_TAG).addToBackStack(null).commit();
         	}
             break;
             
@@ -508,29 +588,40 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         // Go to the track list
             
         case MY_TRACKS:
-            ListMeasurementsFragment listMeasurementFragment = new ListMeasurementsFragment();
-            manager.beginTransaction().replace(R.id.content_frame, listMeasurementFragment, "MY_TRACKS").addToBackStack(null).commit();
+        	
+        	if(isFragmentVisible(MY_TRACKS_TAG)){
+            	break;
+            }
+            ListTracksFragment listMeasurementFragment = new ListTracksFragment();
+            manager.beginTransaction().replace(R.id.content_frame, listMeasurementFragment, MY_TRACKS_TAG).addToBackStack(null).commit();
             break;
             
         // Start or stop the measurement process
             
 		case START_STOP_MEASUREMENT:
-			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+			if (!navDrawerItems[position].isEnabled()) return;
+			
+			SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
 
 			String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,null);
 
-			if (application.requirementsFulfilled() && remoteDevice != null) {
-				if(!preferences.contains(ECApplication.PREF_KEY_SENSOR_ID)){
-			        MyGarage garageFragment = new MyGarage();
-			        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, garageFragment).addToBackStack(null).commit();
+			BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+			if (adapter != null && adapter.isEnabled() && remoteDevice != null) {
+				if(CarManager.instance().getCar() == null){
+					Intent settingsIntent = new Intent(this, SettingsActivity.class);
+					startActivity(settingsIntent);
 				} else {
-					if (application.getServiceConnector()!= null && !application.getServiceConnector().isRunning()) {
-						application.startConnection();
-						Crouton.makeText(this, R.string.start_measuring, Style.INFO).show();
-					} else {
-						application.stopConnection();
-						Crouton.makeText(this, R.string.stop_measuring, Style.INFO).show();
-					}
+					/*
+					 * We are good to go. process the state and stuff
+					 */
+					OnTrackModeChangeListener trackModeListener = new OnTrackModeChangeListener() {
+						@Override
+						public void onTrackModeChange(int tm) {
+							trackMode = tm;
+						}
+					};
+					
+					createStartStopUtil().processButtonClick(trackModeListener);
 				}
 			} else {
 				Intent settingsIntent = new Intent(this, SettingsActivity.class);
@@ -538,17 +629,47 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			}
 			break;
 		case HELP:
+        	
+        	if(isFragmentVisible(HELP_TAG)){
+            	break;
+            }
 			HelpFragment helpFragment = new HelpFragment();
-            manager.beginTransaction().replace(R.id.content_frame, helpFragment, "HELP").addToBackStack(null).commit();
+            manager.beginTransaction().replace(R.id.content_frame, helpFragment, HELP_TAG).addToBackStack(null).commit();
 			break;
 		case SEND_LOG:
+        	
+        	if(isFragmentVisible(SEND_LOG_TAG)){
+            	break;
+            }
 			SendLogFileFragment logFragment = new SendLogFileFragment();
-			manager.beginTransaction().replace(R.id.content_frame, logFragment, "SEND_LOG").addToBackStack(null).commit();
+			manager.beginTransaction().replace(R.id.content_frame, logFragment, SEND_LOG_TAG).addToBackStack(null).commit();
         default:
             break;
         }
         drawer.closeDrawer(drawerList);
 
+    }
+
+
+    	
+	private StartStopButtonUtil createStartStopUtil() {
+		return new StartStopButtonUtil(application, this, trackMode, serviceState, deviceDiscoveryActive);
+	}
+
+	/**
+     * This method checks, whether a Fragment with a certain tag is visible.
+     * @param tag The tag of the Fragment.
+     * @return True if the Fragment is visible, false if not.
+     */
+    public boolean isFragmentVisible(String tag){
+        
+    	Fragment tmpFragment = getSupportFragmentManager().findFragmentByTag(tag);
+        if(tmpFragment != null && tmpFragment.isVisible()){
+        	logger.info("Fragment with tag: " + tag + " is already visible.");
+        	return true;
+        }
+        return false;
+    	
     }
 
 	@Override
@@ -557,15 +678,15 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 		// Close db connection
 
-		application.closeDb();
+//		application.closeDb();
 
 		// Remove the services etc.
 
-		application.destroyStuff();
+//		application.destroyStuff();
 		
 		Crouton.cancelAllCroutons();
 		
-		this.unregisterReceiver(application.bluetoothChangeReceiver);
+//		this.unregisterReceiver(application.getBluetoothChangeReceiver());
 
 	}
 	
@@ -578,18 +699,20 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	    
 	    application.setActivity(this);
 	    
+	    checkKeepScreenOn();
+	    
+		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
+        uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
+	}
+
+
+	private void checkKeepScreenOn() {
 		if (preferences.getBoolean(SettingsActivity.DISPLAY_STAYS_ACTIV, false)) {
 			getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 		} else {
 			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-		}
-	    
-		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
-        uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
-        autoConnect = preferences.getBoolean(SettingsActivity.AUTOCONNECT, false);
-        application.setImperialUnits(preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT, false));
+		}		
 	}
-
 
 	/**
 	 * Determine what the menu buttons do
@@ -617,6 +740,16 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			e.putBoolean("pref_privacy", true);
 			e.commit();
 		}
+	}
+	
+	public boolean isConnectedToInternet() {
+	    ConnectivityManager cm =
+	        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+	        return true;
+	    }
+	    return false;
 	}
 
 }

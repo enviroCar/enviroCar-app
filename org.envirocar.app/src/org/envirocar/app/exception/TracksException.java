@@ -21,12 +21,15 @@
 
 package org.envirocar.app.exception;
 
+import org.envirocar.app.storage.DbAdapter;
+
 /**
  * This exception is thrown when there are no tracks in the local database.
  * 
  * @author jakob
- * 
+ * @deprecated replaced by invariants of Interface {@link DbAdapter#getLastUsedTrack()}
  */
+@Deprecated
 public class TracksException extends Exception {
 
 	/**
@@ -34,6 +37,7 @@ public class TracksException extends Exception {
 	 */
 	private static final long serialVersionUID = 5754700912732803345L;
 
+	@Deprecated
 	public TracksException(String e) {
 		super(e);
 	}

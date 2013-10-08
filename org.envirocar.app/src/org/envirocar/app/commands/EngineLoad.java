@@ -21,19 +21,23 @@
 
 package org.envirocar.app.commands;
 
+import org.envirocar.app.commands.PIDUtil.PID;
+
 /**
  * EngineLoad Value on PID 01 04
  * 
  * @author jakob
  * 
  */
-public class EngineLoad extends CommonCommand {
+public class EngineLoad extends NumberResultCommand {
+
+	private float value = Float.NaN;
 
 	/**
 	 * Create the Command
 	 */
 	public EngineLoad() {
-		super("01 04");
+		super("01 ".concat(PID.CALCULATED_ENGINE_LOAD.toString()));
 	}
 
 	@Override
@@ -41,17 +45,14 @@ public class EngineLoad extends CommonCommand {
 		return "Engine Load";
 	}
 
+
 	@Override
-	public String getResult() {
-		String result = getRawData();
-
-		if (!"NODATA".equals(result)) {
-
-			float tempValue = (buffer.get(2) * 100.0f) / 255.0f;
-			result = String.format("%.1f%s", tempValue, "");
+	public Number getNumberResult() {
+		if (Float.isNaN(value)) {
+			int[] buffer = getBuffer();
+			value = (buffer[2] * 100.0f) / 255.0f;
 		}
-
-		return result;
+		return value;
 	}
 
 }

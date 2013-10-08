@@ -21,16 +21,20 @@
 
 package org.envirocar.app.commands;
 
+import org.envirocar.app.commands.PIDUtil.PID;
+
 /**
  * Throttle position on PID 01 11
  * 
  * @author jakob
  * 
  */
-public class TPS extends CommonCommand {
+public class TPS extends NumberResultCommand {
+
+	private int value = Short.MIN_VALUE;
 
 	public TPS() {
-		super("01 11");
+		super("01 ".concat(PID.TPS.toString()));
 	}
 
 	@Override
@@ -39,14 +43,12 @@ public class TPS extends CommonCommand {
 	}
 
 	@Override
-	public String getResult() {
-		String result = getRawData();
-
-		if (!"NODATA".equals(result)) {
-			float tempValue = (buffer.get(2) * 100.0f) / 255.0f;
-			result = String.format("%.1f%s", tempValue, "");
+	public Number getNumberResult() {
+		if (value == Short.MIN_VALUE) {
+			int[] buffer = getBuffer();
+			value = (buffer[2] * 100) / 255;
 		}
-		return result;
+		return value;
 	}
 
 }

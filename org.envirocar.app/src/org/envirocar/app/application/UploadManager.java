@@ -26,43 +26,48 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.UnknownHostException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
-import java.util.prefs.Preferences;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.FileEntity;
 import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicHeader;
+import org.apache.http.protocol.HTTP;
 import org.envirocar.app.R;
-import org.envirocar.app.activity.ListMeasurementsFragment;
 import org.envirocar.app.activity.SettingsActivity;
-import org.envirocar.app.exception.FuelConsumptionException;
+import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.DbAdapterLocal;
-import org.envirocar.app.storage.DbAdapterRemote;
+import org.envirocar.app.model.Car;
+import org.envirocar.app.network.HTTPClient;
+import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
+import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.views.Utils;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.support.v4.app.FragmentActivity;
-import android.text.TextUtils;
-import android.util.Log;
 /**
- * Manager that can upload a track to the server. 
+ * Manager that can upload tracks and cars to the server. 
  * Use the uploadAllTracks function to upload all local tracks. 
  * Make sure that you specify the dbAdapter when instantiating.
  * The default constructor should only be used when there is no
@@ -71,16 +76,33 @@ import android.util.Log;
  */
 public class UploadManager {
 
-	private static Logger logger = Logger.getLogger(UploadManager.class);
-	
-	private static final String TAG = "uploadmanager";
+	public static final String NET_ERROR = "net_error";
+	public static final String GENERAL_ERROR = "-1";
+	private static final Set<PropertyKey> supportedPhenomenons = new HashSet<PropertyKey>();
 
+	private static Logger logger = Logger.getLogger(UploadManager.class);
+	private static DateFormat iso8601Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+	
+	static {
+		iso8601Format.setTimeZone(TimeZone.getTimeZone("UTC"));
+		supportedPhenomenons.add(PropertyKey.CALCULATED_MAF);
+		supportedPhenomenons.add(PropertyKey.MAF);
+		supportedPhenomenons.add(PropertyKey.CO2);
+		supportedPhenomenons.add(PropertyKey.SPEED);
+		supportedPhenomenons.add(PropertyKey.RPM);
+		supportedPhenomenons.add(PropertyKey.INTAKE_PRESSURE);
+		supportedPhenomenons.add(PropertyKey.INTAKE_TEMPERATURE);
+		supportedPhenomenons.add(PropertyKey.CONSUMPTION);
+		supportedPhenomenons.add(PropertyKey.ENGINE_LOAD);
+		supportedPhenomenons.add(PropertyKey.THROTTLE_POSITON);
+	}
+	
 	private String url = ECApplication.BASE_URL + "/users/%1$s/tracks";
 
-	private DbAdapterLocal dbAdapterLocal;
-	private DbAdapterRemote dbAdapterRemote;
+	private DbAdapter dbAdapter;
 	private Context context;
-	
+
+
 	/**
 	 * Normal constructor for this manager. Specify the context and the dbadapter.
 	 * @param dbAdapter The dbadapter (most likely the local one)
@@ -88,79 +110,182 @@ public class UploadManager {
 	 */
 	public UploadManager(Context ctx) {
 		this.context = ctx;
-		this.dbAdapterLocal = (DbAdapterLocal) ((ECApplication) context).getDbAdapterLocal();
-		this.dbAdapterRemote = (DbAdapterRemote) ((ECApplication) context).getDbAdapterRemote();
+		this.dbAdapter = DbAdapterImpl.instance();
 	}
 
 	/**
 	 * This methods uploads all local tracks to the server
 	 */
-	public void uploadAllTracks() {
-		new UploadAsyncTask().execute(dbAdapterLocal.getAllTracks());
+	public void uploadAllTracks(){
+		for (Track track : dbAdapter.getAllLocalTracks()) {
+			if(isCarOfTrackSavedLocallyOnly(track)){
+				registerCarBeforeUpload(track);
+			}
+			new UploadAsyncTask().execute(track);
+		}
 	}
 	
 	public void uploadSingleTrack(Track track){
-		ArrayList<Track> t = new ArrayList<Track>(1);
-		t.add(track);
-		new UploadAsyncTask().execute(t);
+		if (track == null ) return;
+		
+		if(isCarOfTrackSavedLocallyOnly(track)){
+			registerCarBeforeUpload(track);
+		}
+		new UploadAsyncTask().execute(track);
 	}
 	
+	private void registerCarBeforeUpload(Track track){
 
-	private class UploadAsyncTask extends AsyncTask<ArrayList<Track>, Void, Void> {
-		
-		@Override
-		protected void onPostExecute(Void result) {
-			super.onPostExecute(result);
-			((ListMeasurementsFragment) ((FragmentActivity) ((ECApplication) context).getCurrentActivity()).getSupportFragmentManager().findFragmentByTag("MY_TRACKS")).notifyDataSetChanged();
+		Car car = track.getCar();
+		String sensorString = String
+				.format(Locale.ENGLISH,
+						"{ \"type\": \"%s\", \"properties\": {\"manufacturer\": \"%s\", \"model\": \"%s\", \"fuelType\": \"%s\", \"constructionYear\": %s, \"engineDisplacement\": %s } }",
+						CarSelectionPreference.SENSOR_TYPE, car.getManufacturer(), car.getModel(), car.getFuelType(),
+						car.getConstructionYear(), car.getEngineDisplacement());
+		try {
+			String sensorIdFromServer = new SensorUploadTask().execute(
+					sensorString).get();
+
+			car.setId(sensorIdFromServer);
+
+			logger.info("Car id tmpTrack: " + track.getCar().getId());
+
+			DbAdapterImpl.instance().updateTrack(track);
+			
+		} catch (InterruptedException e) {
+			logger.warn(e.getMessage(), e);
+		} catch (ExecutionException e) {
+			logger.warn(e.getMessage(), e);
 		}
 
+	}
+	
+	private boolean isCarOfTrackSavedLocallyOnly(Track track){		
+		return track.getCar().getId().startsWith(Car.TEMPORARY_SENSOR_ID);
+	}
+	
+	private String registerSensor(String sensorString) throws IOException{
+		
+		User user = UserManager.instance().getUser();
+		String username = user.getUsername();
+		String token = user.getToken();
+		
+		HttpPost postRequest = new HttpPost(
+				ECApplication.BASE_URL+"/sensors");
+		
+		postRequest.addHeader("Content-Type", "application/json");
+		
+		postRequest.addHeader("Accept-Encoding", "gzip");
+		
+		if (user != null)
+			postRequest.addHeader("X-User", username);
+		
+		if (token != null)
+			postRequest.addHeader("X-Token", token);
+		
+		StringEntity se = new StringEntity(sensorString);
+		se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+		
+		postRequest.setEntity(se);
+		
+		HttpResponse response = HTTPClient.execute(postRequest);
+		
+		int httpStatusCode = response.getStatusLine().getStatusCode();
+		
+		Header[] h = response.getAllHeaders();
+
+		String location = "";
+		for (int i = 0; i < h.length; i++) {
+			if (h[i].getName().equals("Location")) {
+				location += h[i].getValue();
+				break;
+			}
+		}
+		logger.info(httpStatusCode + " " + location);
+
+		return location.substring(
+				location.lastIndexOf("/") + 1,
+				location.length());
+	}
+	
+	private class SensorUploadTask extends AsyncTask<String, String, String>{
+
 		@Override
-		protected Void doInBackground(ArrayList<Track>... params) {
+		protected String doInBackground(String... params) {
 			
-			//probably unnecessary
-			if(dbAdapterLocal.getNumberOfStoredTracks() == 0)
-				this.cancel(true);
-			
+			try {
+				return registerSensor(params[0]);
+			} catch (IOException e) {
+				logger.warn(e.getMessage(), e);
+			}
+			return "";
+		}
+		
+	}
+	
+	private class UploadAsyncTask extends AsyncTask<Track, Track, Track> {
+		
+		
+		@Override
+		protected Track doInBackground(Track... params) {
+			((ECApplication) context).createNotification("start");
 			User user = UserManager.instance().getUser();
 			String username = user.getUsername();
 			String token = user.getToken();
 			String urlL = String.format(url, username);
+			
+			Track track = params[0];
+			Thread.currentThread().setName("TrackUploaderTast-"+track.getId());
 
-
-			//iterate through the list of tracks :)
-			for(Track t : params[0]){
-				JSONObject trackJSONObject = null;
-				try {
-					trackJSONObject = createTrackJson(t);
-				} catch (JSONException e) {
-					logger.warn(e.getMessage(), e);
-					//the track wasn't JSON serializable. shouldn't occur.
-					this.cancel(true);
-					((ECApplication) context).createNotification("General Track error (JSON) Please contact envirocar.org");
-				}
-				//try next track if the track has no measurements
-				if(t.getNumberOfMeasurements() == 0)
-					continue;
-				
-				//save the track into a json file
-				savetoSdCard(trackJSONObject,t.getId());
-				//upload
-				String httpResult = sendHttpPost(urlL, trackJSONObject, token, username);
-				if (httpResult.equals("net_error")){
-					((ECApplication) context).createNotification(context.getResources().getString(R.string.error_host_not_found));
-				} else if (!httpResult.equals("-1")) {
-					((ECApplication) context).createNotification("success");
-					dbAdapterLocal.deleteTrack(t.getId());
-					t.setId(httpResult);
-					dbAdapterRemote.insertTrackWithMeasurements(t);
-				} else {
-					((ECApplication) context).createNotification("General Track error. Please contact envirocar.org");
-				}
-				
+			JSONObject trackJSONObject = null;
+			try {
+				trackJSONObject = createTrackJson(track);
+			} catch (JSONException e) {
+				logger.warn(e.getMessage(), e);
+				//the track wasn't JSON serializable. shouldn't occur.
+				this.cancel(true);
+				((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
+			} catch (RuntimeException e) {
+				logger.warn(e.getMessage(), e);
+				this.cancel(true);
+				((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
 			}
+			// don upload track if it has no measurements
+			if(track.getNumberOfMeasurements() != 0) {
+				//save the track into a json file
+				File file = savetoSdCard(trackJSONObject, track.isRemoteTrack() ? track.getRemoteID() : Long.toString(track.getId()));
 
-			return null;
+				if (file == null) {
+					this.cancel(true);
+					((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
+				}
+				
+				//upload
+				String httpResult = sendHttpPost(urlL, file, token, username);
+				if (httpResult.equals(NET_ERROR)){
+					((ECApplication) context).createNotification(context.getResources().getString(R.string.error_host_not_found));
+				} else if (httpResult.equals(GENERAL_ERROR)) {
+					((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
+				} else {
+					/*
+					 * success, we got an ID
+					 */
+					((ECApplication) context).createNotification("success");
+					track.setRemoteID(httpResult);
+					dbAdapter.updateTrack(track);
+				}
+			}		
+			
+			return track;
 		}
+		
+		@Override
+		protected void onPostExecute(Track track) {
+			/*
+			 * TODO inform possible interested components about the upload
+			 */
+		}
+			
 
 	}
 
@@ -175,122 +300,190 @@ public class UploadManager {
 	 * @throws JSONException 
 	 */
 	private JSONObject createTrackJson(Track track) throws JSONException {
-
-		String trackName = track.getName();
-		String trackDescription = track.getDescription();
-		String trackSensorName = track.getSensorID();
-
-		String trackElementJson = String
-				.format("{\"type\":\"FeatureCollection\",\"properties\":{\"name\":\"%s\",\"description\":\"%s\",\"sensor\":\"%s\"},\"features\":[",
-						trackName, trackDescription, trackSensorName);
-
-		ArrayList<Measurement> measurements = track.getMeasurements();
-		ArrayList<String> measurementElements = new ArrayList<String>();
+		JSONObject result = new JSONObject();
 		
-		// Cut-off first and last minute of tracks that are longer than 3
-		// minutes. Also cut of these measurements if they are closer than 250m
-		// to the start and the end.
+		String trackSensorName = track.getCar().getId();
+
+		ArrayList<JSONObject> measurementElements = new ArrayList<JSONObject>();
+		
+		List<Measurement> measurements = getNonObfuscatedMeasurements(track);
+
+		for (Measurement measurement : measurements) {
+			JSONObject measurementJson = createMeasurementJson(track, trackSensorName, measurement);
+			measurementElements.add(measurementJson);
+		}
+		
+		result.put("type", "FeatureCollection");
+		result.put("features", new JSONArray(measurementElements));
+		result.put("properties", createTrackProperties(track, trackSensorName));
+
+		return result;
+	}
+
+	private boolean isSpatialObfuscationCandidate(Measurement measurement,
+			Track track) {
+		return (Utils.getDistance(track.getFirstMeasurement(), measurement) <= 0.25)
+				|| (Utils.getDistance(track.getLastMeasurement(), measurement) <= 0.25);
+	}
+
+	private boolean isTemporalObfuscationCandidate(Measurement measurement,
+			Track track) throws MeasurementsException {
+		return (measurement.getTime() - track.getStartTime() <= 60000 ||
+				track.getEndTime() - measurement.getTime() <= 60000);
+	}
+	
+	/**
+	 * resolve all not obfuscated measurements of a track.
+	 * 
+	 * This returns all measurements, if obfuscation is disabled. Otherwise
+	 * measurements within the first and last minute and those within the start/end
+	 * radius of 250 m are ignored (only if they are in the beginning/end of the track).
+	 * 
+	 * @param track
+	 * @return
+	 */
+	public List<Measurement> getNonObfuscatedMeasurements(Track track) {
+		List<Measurement> measurements = track.getMeasurements();
+		
 		SharedPreferences preferences = PreferenceManager
 				.getDefaultSharedPreferences(context.getApplicationContext());
 		boolean obfuscatePositions = preferences.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
 		
-		try {
-			if (track.getEndTime() - track.getStartTime() > 180000) {
-				ArrayList<Measurement> privateMeasurements = new ArrayList<Measurement>();
-				for (Measurement measurement : measurements) {
-					try {
-						if (obfuscatePositions) {
-							if (measurement.getMeasurementTime() - track.getStartTime() > 60000 && track.getEndTime() - measurement.getMeasurementTime() > 60000) {
-								if ((Utils.getDistance(track.getFirstMeasurement().getLatitude(), track.getFirstMeasurement().getLongitude(), measurement.getLatitude(), measurement.getLongitude()) > 0.25) && (Utils.getDistance(track.getLastMeasurement().getLatitude(), track.getLastMeasurement().getLongitude(), measurement.getLatitude(), measurement.getLongitude()) > 0.25)) {
-									privateMeasurements.add(measurement);
-								}
-							}
-						} else {
-							privateMeasurements.add(measurement);
-						}
-
-					} catch (MeasurementsException e) {
-						logger.warn(e.getMessage(), e);
+		if (obfuscatePositions) {
+			boolean wasAtLeastOneTimeNotObfuscated = false;
+			ArrayList<Measurement> privateCandidates = new ArrayList<Measurement>();
+			ArrayList<Measurement> nonPrivateMeasurements = new ArrayList<Measurement>();
+			for (Measurement measurement : measurements) {
+				try {
+					/*
+					 * ignore early and late
+					 */
+					if (isTemporalObfuscationCandidate(measurement, track)) {
+						continue;
 					}
-				}
-				measurements = privateMeasurements;
-			}
-		} catch (MeasurementsException e) {
-			logger.warn(e.getMessage(), e);
-		}
 
-		for (int i = 0; i < measurements.size(); i++) {
-			String lat = String.valueOf(measurements.get(i).getLatitude());
-			String lon = String.valueOf(measurements.get(i).getLongitude());
-			DateFormat dateFormat1 = new SimpleDateFormat("y-MM-d");
-			DateFormat dateFormat2 = new SimpleDateFormat("HH:mm:ss");
-			dateFormat1.setTimeZone(TimeZone.getTimeZone("UTC"));
-			dateFormat2.setTimeZone(TimeZone.getTimeZone("UTC"));
-			String time = dateFormat1.format(measurements.get(i)
-					.getMeasurementTime())
-					+ "T"
-					+ dateFormat2.format(measurements.get(i)
-							.getMeasurementTime()) + "Z";
-			
-			String speed = String.valueOf(measurements.get(i).getSpeed());
-			String rpm = String.valueOf(measurements.get(i).getRpm());
-			String intake_temperature = String.valueOf(measurements.get(i).getIntakeTemperature());
-			String intake_pressure = String.valueOf(measurements.get(i).getIntakePressure());
-			//no maf? no json! :)
-			if(measurements.get(i).getMaf() > 0){
-				String co2 = "0", consumption = "0";
-				try {
-					//TODO
-					//Why get this here when it is already set in ECApplication.java?
-					//Also if this wasn't set in ECApplication we should get FIRST consumption then co2 because of the way the methods are defined in Track.java
+					/*
+					 * ignore distance
+					 */
+					if (isSpatialObfuscationCandidate(measurement, track)) {
+						if (wasAtLeastOneTimeNotObfuscated) {
+							privateCandidates.add(measurement);
+							nonPrivateMeasurements.add(measurement);
+						}
+						continue;
+					}
+
+					/*
+					 * we may have found obfuscation candidates in the middle of the track
+					 * (may cross start or end point) in a PRIOR iteration
+					 * of this loop. these candidates can be removed now as we are again
+					 * out of obfuscation scope
+					 */
+					if (wasAtLeastOneTimeNotObfuscated) {
+						privateCandidates.clear();
+					}
+					else {
+						wasAtLeastOneTimeNotObfuscated = true;
+					}
 					
-					co2 = String.valueOf(track.getCO2EmissionOfMeasurement(i));
-					consumption = String.valueOf(track
-							.getFuelConsumptionOfMeasurement(i));
-				} catch (FuelConsumptionException e) {
+					nonPrivateMeasurements.add(measurement);
+				} catch (MeasurementsException e) {
 					logger.warn(e.getMessage(), e);
 				}
-
-				String maf = String.valueOf(measurements.get(i).getMaf());
-				String measurementJson = String
-						.format("{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[%s,%s]},\"properties\":{\"time\":\"%s\",\"sensor\":\"%s\",\"phenomenons\":{\"CO2\":{\"value\":%s},\"Consumption\":{\"value\":%s},\"MAF\":{\"value\":%s},\"Speed\":{\"value\":%s}, \"Rpm\": { \"value\": %s}, \"Intake Temperature\": { \"value\": %s}, \"Intake Pressure\": { \"value\": %s}}}}",
-								lon, lat, time, trackSensorName, co2, consumption,
-								maf, speed, rpm, intake_temperature, intake_pressure);
-				measurementElements.add(measurementJson);
-			} else {
-				String co2 = "0", consumption = "0";
-				try {
-					consumption = String.valueOf(track
-							.getFuelConsumptionOfMeasurement(i));
-					co2 = String.valueOf(track.getCO2EmissionOfMeasurement(i));
-				} catch (FuelConsumptionException e) {
-					logger.warn(e.getMessage(), e);
-				}
-
-				String calculatedMaf = String.valueOf(measurements.get(i).getCalculatedMaf());
-				String measurementJson = String
-						.format("{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[%s,%s]},\"properties\":{\"time\":\"%s\",\"sensor\":\"%s\",\"phenomenons\":{\"CO2\":{\"value\":%s},\"Consumption\":{\"value\":%s},\"Calculated MAF\":{\"value\":%s},\"Speed\":{\"value\":%s}, \"Rpm\": { \"value\": %s}, \"Intake Temperature\": { \"value\": %s}, \"Intake Pressure\": { \"value\": %s}}}}",
-								lon, lat, time, trackSensorName, co2, consumption,
-								calculatedMaf, speed, rpm, intake_temperature, intake_pressure);
-				measurementElements.add(measurementJson);
+				
 			}
-			
-
-			
-
-			
+			/*
+			 * the private candidates which have made it until here
+			 * shall be ignored
+			 */
+			nonPrivateMeasurements.removeAll(privateCandidates);
+			return nonPrivateMeasurements;
 		}
+		
+		return measurements;
+	}
 
-		String measurementElementsJson = TextUtils.join(",",
-				measurementElements);
-		logger.debug("measurementElem "+measurementElementsJson);
-		String closingElementJson = "]}";
+	private JSONObject createTrackProperties(Track track, String trackSensorName) throws JSONException {
+		JSONObject result = new JSONObject();
+		
+		result.put("sensor", trackSensorName);
+		result.put("description", track.getDescription());
+		result.put("name", track.getName());
+		
+		return result;
+	}
 
-		String trackString = String.format("%s %s %s", trackElementJson,
-				measurementElementsJson, closingElementJson);
-		logger.debug("Track "+trackString);
+	private JSONObject createMeasurementJson(Track track, String trackSensorName, Measurement measurement) throws JSONException {
+		JSONObject result = new JSONObject();
+		result.put("type", "Feature");
+		
+		result.put("geometry", createGeometry(measurement));
+		result.put("properties", createMeasurementProperties(measurement, trackSensorName));
+		
+//		String lat = String.valueOf(measurement.getLatitude());
+//		String lon = String.valueOf(measurement.getLongitude());
+//		
+//		String time = iso8601Format.format(measurement.getTime());
+//		
+//		StringBuilder phenoms = new StringBuilder();
+//		
+//		Set<PropertyKey> properties = track.getAllOccurringProperties();
+//		for (PropertyKey key : properties) {
+//			Double value = measurement.getProperty(key);
+//			phenoms.append("\"");
+//			phenoms.append(key.toString());
+//			phenoms.append("\":{\"value\":");
+//			phenoms.append(value != null ? value.toString() : Measurement.NA_VALUE);
+//			phenoms.append("},");
+////			String propertyJson = String.format("\"%s\":{\"value\":%s},", key.toString(), value != null ? value.toString() : Measurement.NA_VALUE);
+////			phenoms.append(propertyJson);
+//		}
+//		// remove last comma
+//		String phenomsJson = phenoms.length() > 0 ? phenoms.substring(0, phenoms.length() - 1) : ""; 
+//		String measurementJson = String
+//				.format("{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[%s,%s]},\"properties\":{\"time\":\"%s\",\"sensor\":\"%s\",\"phenomenons\":{%s}}}",
+//						lon, lat, time, trackSensorName, phenomsJson);
+		return result;
+	}
 
-		return new JSONObject(trackString);
+	private JSONObject createGeometry(Measurement measurement) throws JSONException {
+		JSONObject result = new JSONObject();
+		result.put("type", "Point");
+		
+		ArrayList<Double> coords = new ArrayList<Double>(2);
+		coords.add(measurement.getLongitude());
+		coords.add(measurement.getLatitude());
+		
+		result.put("coordinates", new JSONArray(coords));
+		return result;
+	}
+
+	private JSONObject createMeasurementProperties(Measurement measurement, String trackSensorName) throws JSONException {
+		JSONObject result = new JSONObject();
+		result.put("sensor", trackSensorName);
+		JSONObject phens = createPhenomenons(measurement);
+		if (phens != null && phens.length() > 0) {
+			result.put("phenomenons", phens);
+		}
+		result.put("time", iso8601Format.format(measurement.getTime()));
+		return result;
+	}
+
+	private JSONObject createPhenomenons(Measurement measurement) throws JSONException {
+		JSONObject result = new JSONObject();
+		Map<PropertyKey, Double> props = measurement.getAllProperties();
+		for (PropertyKey key : props.keySet()) {
+			if (supportedPhenomenons.contains(key)) {
+				result.put(key.toString(), createValue(props.get(key)));
+			}
+		}
+		return result;
+	}
+
+	private JSONObject createValue(Double double1) throws JSONException {
+		JSONObject result = new JSONObject();
+		result.put("value", double1);
+		return result;
 	}
 
 	/**
@@ -298,7 +491,7 @@ public class UploadManager {
 	 * 
 	 * @param url
 	 *            Url
-	 * @param jsonObjSend
+	 * @param contents
 	 *            The Json Object
 	 * @param xToken
 	 *            Token
@@ -306,16 +499,14 @@ public class UploadManager {
 	 *            Username
 	 * @return Server response status code
 	 */
-	private String sendHttpPost(String url, JSONObject jsonObjSend, String xToken,
+	private String sendHttpPost(String url, File contents, String xToken,
 			String xUser) {
 
 		try {
-			DefaultHttpClient httpclient = new DefaultHttpClient();
 			HttpPost httpPostRequest = new HttpPost(url);
 
-			StringEntity se = new StringEntity(jsonObjSend.toString());
+			FileEntity se = new FileEntity(contents, "application/json");
 			se.setContentType("application/json");
-			logger.debug("SE"+ jsonObjSend.toString());
 
 			// Set HTTP parameters
 			httpPostRequest.setEntity(se);
@@ -323,7 +514,7 @@ public class UploadManager {
 			httpPostRequest.setHeader("X-Token", xToken);
 			httpPostRequest.setHeader("X-User", xUser);
 
-			HttpResponse response = (HttpResponse) httpclient
+			HttpResponse response = (HttpResponse) HTTPClient
 					.execute(httpPostRequest);
 			
 			String location = "";
@@ -338,29 +529,26 @@ public class UploadManager {
 			String trackid = location.substring(location.lastIndexOf("/")+1, location.length());
 
 
-			String statusCode = String.valueOf(response.getStatusLine()
-					.getStatusCode());
+			int statusCode = response.getStatusLine()
+					.getStatusCode();
+			
+			logger.debug("Status Code: "+ statusCode);
 
-			logger.debug(String.format("%s", statusCode));
-
-			if(statusCode.equals("201")){
+			if (statusCode < HttpStatus.SC_MULTIPLE_CHOICES){
+				HTTPClient.consumeEntity(response.getEntity());
 				return trackid;
 			} else {
-				return "-1";
+				String errorResponse = HTTPClient.readResponse(response.getEntity());
+				logger.warn("Server response: "+ errorResponse);
+				return GENERAL_ERROR;
 			}
 
-		} catch (UnknownHostException e) {
-			logger.warn(e.getMessage(), e);
-			return "net_error";
 		} catch (UnsupportedEncodingException e) {
 			logger.warn(e.getMessage(), e);
-			return "-1";
-		} catch (ClientProtocolException e) {
-			logger.warn(e.getMessage(), e);
-			return "net_error";
+			return GENERAL_ERROR;
 		} catch (IOException e) {
 			logger.warn(e.getMessage(), e);
-			return "net_error";
+			return NET_ERROR;
 		}
 	}
 
@@ -369,23 +557,24 @@ public class UploadManager {
 	 * 
 	 * @param obj
 	 *            the object to save
+	 * @param id 
 	 */
-	private File savetoSdCard(JSONObject obj, String fileid) {
-		File log = new File(context.getExternalFilesDir(null),"envirocar_track"+fileid+".json");
+	private File savetoSdCard(JSONObject obj, String id) {
+		File log = new File(context.getExternalFilesDir(null),"enviroCar-track-"+id+".json");
 		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(log.getAbsolutePath(), true));
+			BufferedWriter out = new BufferedWriter(new FileWriter(log.getAbsolutePath(), false));
 			out.write(obj.toString());
 			out.flush();
 			out.close();
 			return log;
-		} catch (Exception e) {
+		} catch (IOException e) {
 			logger.warn(e.getMessage(), e);
 		}
 		return null;
 	}
 	
-	public File saveTrackAndReturnUri(Track t) throws JSONException{
-		return savetoSdCard(createTrackJson(t), t.getId());
+	public File saveTrackAndReturnFile(Track t) throws JSONException{
+		return savetoSdCard(createTrackJson(t), (t.isRemoteTrack() ? t.getRemoteID() : Long.toString(t.getId())));
 	}
 
 }

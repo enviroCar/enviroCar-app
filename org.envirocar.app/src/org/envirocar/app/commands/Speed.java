@@ -21,34 +21,36 @@
 
 package org.envirocar.app.commands;
 
+import org.envirocar.app.commands.PIDUtil.PID;
+
 /**
  * Speed Command PID 01 0D
  * 
  * @author jakob
  * 
  */
-public class Speed extends CommonCommand {
+public class Speed extends NumberResultCommand {
+
+	public static final String NAME = "Vehicle Speed";
+	private int metricSpeed = Short.MIN_VALUE;
 
 	public Speed() {
-		super("01 0D");
+		super("01 ".concat(PID.SPEED.toString()));
 	}
 
-	@Override
-	public String getResult() {
-		String result = getRawData();
-
-		if (!"NODATA".equals(result)) {
-			Integer metricSpeed = buffer.get(2);
-			result = String.format("%d%s", metricSpeed, "");
-
-		}
-
-		return result;
-	}
 
 	@Override
 	public String getCommandName() {
-		return "Vehicle Speed";
+		return NAME;
+	}
+
+	@Override
+	public Number getNumberResult() {
+		int[] buffer = getBuffer();
+		if (metricSpeed == Short.MIN_VALUE) {
+			metricSpeed = buffer[2];
+		}
+		return metricSpeed;
 	}
 
 }
