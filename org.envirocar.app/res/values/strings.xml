@@ -125,7 +125,7 @@
 	<string name="not_yet_supported">not yet supported</string>
 	<string name="default_track_description">Track with Car %s.</string>
 	<string name="creating_temp_car">Creating temporary car.</string>
-	
+	<string name="imperial_unit_summary">Use imperial units (miles) for displaying values</string>
 	<string name="open_drawer">Open</string>
 	<string name="close_drawer">Close</string>
 	
