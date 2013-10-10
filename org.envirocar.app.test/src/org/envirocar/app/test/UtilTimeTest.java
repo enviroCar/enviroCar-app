@@ -38,4 +38,10 @@ public class UtilTimeTest extends AndroidTestCase {
 		Assert.assertTrue("Unexpected millis value.", result == 1380125804000L);
 	}
 	
+	public void testLongToIsoDate() {
+		String stringResult = Util.longToIsoDate(1380125804000L);
+		
+		Assert.assertTrue("Unexpected formatted date value.", stringResult.equals("2013-09-25T16:16:44Z"));
+	}
+	
 }
