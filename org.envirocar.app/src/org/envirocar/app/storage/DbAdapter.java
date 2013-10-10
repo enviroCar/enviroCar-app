@@ -93,6 +93,7 @@ public interface DbAdapter {
 	 * @param lazyMeasurements if true, an implementation shall return
 	 * {@link Track} objects that load their measurements in lazy fashion
 	 * @return all tracks
+	 * @throws TrackWithoutMeasurementsException 
 	 */
 	public List<Track> getAllTracks(boolean lazyMeasurements);
 	
@@ -101,9 +102,21 @@ public interface DbAdapter {
 	 * 
 	 * @param id
 	 *            The id of the track that should be returned
-	 * @return The desired track
+	 * @return The desired track or null if it does not exist
+	 * @throws TrackWithoutMeasurementsException 
 	 */
-	public Track getTrack(long id);
+	public Track getTrack(long id) throws TrackWithoutMeasurementsException;
+	
+	/**
+	 * Returns one track specified by the id
+	 * 
+	 * @param id the tracks internal id
+	 * @param lazyMeasurements if true, an implementation shall return a
+	 * {@link Track} that loads its measurements in lazy fashion
+	 * @return the desired track
+	 * @throws TrackWithoutMeasurementsException 
+	 */
+	public Track getTrack(long id, boolean lazyMeasurements) throws TrackWithoutMeasurementsException;
 	
 	/**
 	 * Returns <code>true</code> if a track with the given id is in the Database
@@ -181,7 +194,9 @@ public interface DbAdapter {
 	 */
 	public Track finishCurrentTrack();
 
-	List<Measurement> getAllMeasurementsForTrack(Track track);
+	List<Measurement> getAllMeasurementsForTrack(Track track) throws TrackWithoutMeasurementsException;
+
+	
 	
 	
 }
