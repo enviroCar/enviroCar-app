@@ -28,6 +28,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -38,6 +40,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.storage.Measurement;
 
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
@@ -50,6 +53,7 @@ public class Util {
 	public static final String NEW_LINE_CHAR = System
 			.getProperty("line.separator");
 	public static final String EXTERNAL_SUB_FOLDER = "enviroCar";
+	private static ISO8601DateFormat jacksonFormat = new ISO8601DateFormat();
 
 	/**
 	 * Create a file in the .enviroCar folder of the external storage.
@@ -227,5 +231,54 @@ public class Util {
             task.execute(params);
         }
     }
+    
+	/**
+	 * Transform ISO 8601 string to Calendar.
+	 * @param iso8601string 
+	 * @return 
+	 * @throws ParseException
+	 */
+	public static long isoDateToLong(final String iso8601string) throws ParseException {
+//		Date date = isoDateFormat.parse(iso8601string.replace("Z", "+00:00"));
+//		return date.getTime();
+		return jacksonFormat.parse(iso8601string).getTime();
+	}
+	
+	/**
+	 * Returns the distance of two points in kilometers.
+	 * 
+	 * @param lat1
+	 * @param lng1
+	 * @param lat2
+	 * @param lng2
+	 * @return distance in km
+	 */
+	public static double getDistance(double lat1, double lng1, double lat2, double lng2) {
+
+		double earthRadius = 6369;
+		double dLat = Math.toRadians(lat2 - lat1);
+		double dLng = Math.toRadians(lng2 - lng1);
+		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		double dist = earthRadius * c;
+
+		return dist;
+
+	}
+	
+	/**
+	 * Returns the distance of two measurements in kilometers.
+	 * 
+	 * @param m1 first {@link Measurement}
+	 * @param m2 second {@link Measurement}
+	 * @return distance in km
+	 */
+	public static double getDistance(Measurement m1, Measurement m2) {
+		return getDistance(m1.getLatitude(), m1.getLongitude(), m2.getLatitude(), m2.getLongitude());
+	}
+
+	public static String longToIsoDate(long time) {
+		return jacksonFormat.format(new Date(time));
+	}
 
 }

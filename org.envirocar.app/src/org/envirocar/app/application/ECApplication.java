@@ -164,7 +164,12 @@ public class ECApplication extends Application {
 		Logger.initialize(getVersionString());
 		super.onCreate();
 		
-		DbAdapterImpl.init(getApplicationContext());
+		try {
+			DbAdapterImpl.init(getApplicationContext());
+		} catch (InstantiationException e) {
+			logger.warn("Could not initalize the database layer. The app will probably work unstable.");
+			logger.warn(e.getMessage(), e);
+		}
 		
 		initializeErrorHandling();
 		

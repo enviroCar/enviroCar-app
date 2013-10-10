@@ -66,8 +66,6 @@ public class Map extends MapActivity {
 		String[] coordinates = bundle.getStringArray("coordinates");
 		GeoPoint[][] overlayPoints = getOverlayPoints(coordinates);
 
-		logger.debug(Arrays.deepToString(coordinates));
-
 		Paint wayDefaultPaintFill = new Paint(Paint.ANTI_ALIAS_FLAG);
 		wayDefaultPaintFill.setStyle(Paint.Style.STROKE);
 		wayDefaultPaintFill.setColor(Color.BLUE);

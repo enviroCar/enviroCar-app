@@ -26,6 +26,7 @@ import java.util.List;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 
 public class DbAdapterMockup implements DbAdapter {
 
@@ -157,7 +158,12 @@ public class DbAdapterMockup implements DbAdapter {
 	}
 
 	@Override
-	public List<Measurement> getAllMeasurementsForTrack(Track track) {
+	public List<Measurement> getAllMeasurementsForTrack(Track track) throws TrackWithoutMeasurementsException {
+		throw new TrackWithoutMeasurementsException(track);
+	}
+
+	@Override
+	public Track getTrack(long id, boolean lazyMeasurements) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -106,7 +106,7 @@ public class DbAdapterImpl implements DbAdapter {
 		this.mCtx = ctx;
 	}
 	
-	public static void init(Context ctx) {
+	public static void init(Context ctx) throws InstantiationException {
 		instance = new DbAdapterImpl(ctx);
 		instance.openConnection();
 		logger.info("init DbAdapterImpl; Hash: "+System.identityHashCode(instance));
@@ -145,9 +145,11 @@ public class DbAdapterImpl implements DbAdapter {
 		return this;
 	}
 	
-	private void openConnection() {
+	private void openConnection() throws InstantiationException {
 		mDbHelper = new DatabaseHelper(mCtx);
 		mDb = mDbHelper.getWritableDatabase();
+		
+		if (mDb == null) throw new InstantiationException("Database object is null");
 	}
 
 	@Override
@@ -211,16 +213,24 @@ public class DbAdapterImpl implements DbAdapter {
 		c.moveToFirst();
 		for (int i = 0; i < c.getCount(); i++) {
 			long id = c.getLong(c.getColumnIndex(KEY_TRACK_ID));
-			tracks.add(getTrack(id, lazyMeasurements));
+			try {
+				tracks.add(getTrack(id, lazyMeasurements));
+			} catch (TrackWithoutMeasurementsException e) {
+				logger.warn("Could not find any measurements for the track in the database. Removing.");
+				deleteTrack(id);
+			}
 			c.moveToNext();
 		}
 		c.close();
 		return tracks;
 	}
 	
-	private Track getTrack(long id, boolean lazyMeasurements) {
+	@Override
+	public Track getTrack(long id, boolean lazyMeasurements) throws TrackWithoutMeasurementsException {
 		Cursor c = getCursorForTrackID(id);
-		c.moveToFirst();
+		if (!c.moveToFirst()) {
+			return null;
+		}
 
 		Track track = Track.createDbTrack(c.getLong(c.getColumnIndex(KEY_TRACK_ID)), this);
 		track.setName(c.getString(c.getColumnIndex(KEY_TRACK_NAME)));
@@ -246,14 +256,7 @@ public class DbAdapterImpl implements DbAdapter {
 			track.setStatus(TrackStatus.FINISHED);
 		}
 		
-		String manufacturer = c.getString(c.getColumnIndex(KEY_TRACK_CAR_MANUFACTURER));
-		String model = c.getString(c.getColumnIndex(KEY_TRACK_CAR_MODEL));
-		String carId = c.getString(c.getColumnIndex(KEY_TRACK_CAR_ID));
-		FuelType fuelType = FuelType.valueOf(c.getString(c.getColumnIndex(KEY_TRACK_CAR_FUEL_TYPE)));
-		int engineDisplacement = c.getInt(c.getColumnIndex(KEY_TRACK_CAR_ENGINE_DISPLACEMENT));
-		// TODO add construction year to DB
-		int year = 2000;
-		track.setCar(new Car(fuelType, manufacturer, model, carId, year, engineDisplacement));
+		track.setCar(createCarFromCursor(c));
 
 		c.close();
 
@@ -271,26 +274,54 @@ public class DbAdapterImpl implements DbAdapter {
 		return track;
 	}
 
-	private Measurement getLastMeasurementForTrack(Track track) {
+	private Car createCarFromCursor(Cursor c) {
+		if (c.getString(c.getColumnIndex(KEY_TRACK_CAR_MANUFACTURER)) == null ||
+				c.getString(c.getColumnIndex(KEY_TRACK_CAR_MODEL)) == null ||
+				c.getString(c.getColumnIndex(KEY_TRACK_CAR_ID)) == null ||
+				c.getString(c.getColumnIndex(KEY_TRACK_CAR_FUEL_TYPE)) == null ||
+				c.getString(c.getColumnIndex(KEY_TRACK_CAR_ENGINE_DISPLACEMENT)) == null) {
+			return null;
+		}
+		
+		String manufacturer = c.getString(c.getColumnIndex(KEY_TRACK_CAR_MANUFACTURER));
+		String model = c.getString(c.getColumnIndex(KEY_TRACK_CAR_MODEL));
+		String carId = c.getString(c.getColumnIndex(KEY_TRACK_CAR_ID));
+		FuelType fuelType = FuelType.valueOf(c.getString(c.getColumnIndex(KEY_TRACK_CAR_FUEL_TYPE)));
+		int engineDisplacement = c.getInt(c.getColumnIndex(KEY_TRACK_CAR_ENGINE_DISPLACEMENT));
+		// TODO add construction year to DB
+		int year = 2000;
+		return new Car(fuelType, manufacturer, model, carId, year, engineDisplacement);
+	}
+
+	private Measurement getLastMeasurementForTrack(Track track) throws TrackWithoutMeasurementsException {
 		Cursor c = mDb.query(TABLE_MEASUREMENT, ALL_MEASUREMENT_KEYS,
 				KEY_MEASUREMENT_TRACK + "=\"" + track.getId() + "\"", null, null, null, KEY_MEASUREMENT_TIME + " DESC", "1");
 	
-		c.moveToFirst();
+		if (!c.moveToFirst()) {
+			deleteTrackAndThrowException(track);
+		}
 	
 		Measurement measurement = buildMeasurementFromCursor(track, c);
 	
 		return measurement;
 	}
 
-	private Measurement getFirstMeasurementForTrack(Track track) {
+	private Measurement getFirstMeasurementForTrack(Track track) throws TrackWithoutMeasurementsException {
 		Cursor c = mDb.query(TABLE_MEASUREMENT, ALL_MEASUREMENT_KEYS,
 				KEY_MEASUREMENT_TRACK + "=\"" + track.getId() + "\"", null, null, null, KEY_MEASUREMENT_TIME + " ASC", "1");
 	
-		c.moveToFirst();
+		if (!c.moveToFirst()) {
+			deleteTrackAndThrowException(track);
+		}
 	
 		Measurement measurement = buildMeasurementFromCursor(track, c);
 	
 		return measurement;
+	}
+
+	private void deleteTrackAndThrowException(Track track) throws TrackWithoutMeasurementsException {
+		deleteTrack(track.getId());
+		throw new TrackWithoutMeasurementsException(track);		
 	}
 
 	private Measurement buildMeasurementFromCursor(Track track, Cursor c) {
@@ -320,7 +351,7 @@ public class DbAdapterImpl implements DbAdapter {
 	}
 
 	@Override
-	public Track getTrack(long id) {
+	public Track getTrack(long id) throws TrackWithoutMeasurementsException {
 		return getTrack(id, false);
 	}
 
@@ -356,6 +387,7 @@ public class DbAdapterImpl implements DbAdapter {
 			Track track = trackList.get(trackList.size() - 1);
 			return track;
 		}
+		
 		return null;
 	}
 
@@ -404,7 +436,11 @@ public class DbAdapterImpl implements DbAdapter {
 		Cursor c = mDb.query(TABLE_TRACK, ALL_TRACK_KEYS, KEY_TRACK_REMOTE + " IS NULL", null, null, null, null);
 		c.moveToFirst();
 		for (int i = 0; i < c.getCount(); i++) {
-			tracks.add(getTrack(c.getLong(c.getColumnIndex(KEY_TRACK_ID))));
+			try {
+				tracks.add(getTrack(c.getLong(c.getColumnIndex(KEY_TRACK_ID))));
+			} catch (TrackWithoutMeasurementsException e) {
+				logger.warn(e.getMessage());
+			}
 			c.moveToNext();
 		}
 		c.close();
@@ -445,13 +481,15 @@ public class DbAdapterImpl implements DbAdapter {
 	}
 
 	@Override
-	public List<Measurement> getAllMeasurementsForTrack(Track track) {
+	public List<Measurement> getAllMeasurementsForTrack(Track track) throws TrackWithoutMeasurementsException {
 		ArrayList<Measurement> allMeasurements = new ArrayList<Measurement>();
 	
 		Cursor c = mDb.query(TABLE_MEASUREMENT, ALL_MEASUREMENT_KEYS,
 				KEY_MEASUREMENT_TRACK + "=\"" + track.getId() + "\"", null, null, null, KEY_MEASUREMENT_TIME + " ASC");
 	
-		c.moveToFirst();
+		if (!c.moveToFirst()) {
+			deleteTrackAndThrowException(track);
+		}
 	
 		for (int i = 0; i < c.getCount(); i++) {
 	
