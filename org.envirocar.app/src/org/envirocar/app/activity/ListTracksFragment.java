@@ -62,12 +62,10 @@ import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
-import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.util.NamedThreadFactory;
 import org.envirocar.app.util.Util;
 import org.envirocar.app.views.TypefaceEC;
-import org.envirocar.app.views.Utils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -651,9 +649,7 @@ public class ListTracksFragment extends SherlockFragment {
 						User user = UserManager.instance().getUser();
 						final String username = user.getUsername();
 						final String token = user.getToken();
-						logger.info("On thread "+ Thread.currentThread().getId());
 						
-						logger.info("On thread "+ Thread.currentThread().getId());
 						downloadTracks(username, token);					
 					}
 						
@@ -749,61 +745,11 @@ public class ListTracksFragment extends SherlockFragment {
 			private int remoteTrackCount;
 			
 			protected void processDownloadedTrack(JSONObject... trackJson) {
-				logger.info("On thread "+ Thread.currentThread().getId());
+				
 				Track t;
 				try {
-					JSONObject trackProperties = trackJson[0].getJSONObject("properties");
+					t = Track.fromJson(trackJson[0], dbAdapter);
 					
-					t = Track.createRemoteTrack(trackProperties.getString("id"), dbAdapter);
-					String trackName = "unnamed Track #"+remoteTrackCount;
-					try {
-						trackName = trackProperties.getString("name");
-					} catch (JSONException e){
-						logger.warn(e.getMessage(), e);
-					}
-					
-					t.setName(trackName);
-					String description = "";
-					try {
-						description = trackProperties.getString("description");
-					} catch (JSONException e){
-						logger.warn(e.getMessage(), e);
-					}
-					
-					t.setDescription(description);
-					JSONObject sensorProperties = trackProperties.getJSONObject("sensor").getJSONObject("properties");
-					
-					t.setCar(Car.fromJson(sensorProperties)); 
-					//include server properties tracks created, modified?
-					
-					dbAdapter.updateTrack(t);
-					//Log.i("track_id",t.getId()+" "+((DbAdapterRemote) dbAdapter).trackExistsInDatabase(t.getId())+" "+dbAdapter.getNumberOfStoredTracks());
-					
-					Measurement recycleMeasurement;
-					
-					List<Measurement> measurements = new ArrayList<Measurement>();
-					
-					for (int j = 0; j < trackJson[0].getJSONArray("features").length(); j++) {
-						
-						JSONObject measurementJsonObject = trackJson[0].getJSONArray("features").getJSONObject(j);
-						recycleMeasurement = new Measurement(
-								Float.valueOf(measurementJsonObject.getJSONObject("geometry").getJSONArray("coordinates").getString(1)),
-								Float.valueOf(measurementJsonObject.getJSONObject("geometry").getJSONArray("coordinates").getString(0)));
-						JSONObject properties = measurementJsonObject.getJSONObject("properties");
-						recycleMeasurement.setTime(Utils.isoDateToLong((properties.getString("time"))));
-						JSONObject phenomenons = properties.getJSONObject("phenomenons");
-						for (PropertyKey key : PropertyKey.values()) {
-							if (phenomenons.has(key.toString())) {
-								Double value = phenomenons.getJSONObject(key.toString()).getDouble("value"); 
-								recycleMeasurement.setProperty(key, value);
-							}
-						}
-						recycleMeasurement.setTrack(t);
-						measurements.add(recycleMeasurement);
-					}
-					t.setMeasurementsAsArrayList(measurements);
-					t.storeMeasurementsInDbAdapter();
-
 					synchronized (ListTracksFragment.this) {
 						tracksList.add(t);	
 					}
@@ -821,13 +767,14 @@ public class ListTracksFragment extends SherlockFragment {
 
 			
 			private synchronized void afterOneTrack() {
-				logger.info("On thread "+ Thread.currentThread().getId());
+				
 				View empty = getView().findViewById(android.R.id.empty);
 				if (empty != null) {
 					empty.setVisibility(View.GONE);
 				}
 				
 				if (--remoteTrackCount == 0) {
+					logger.info("Finished fetching tracks.");
 					removeProgressLayout();
 					updateTrackListView();
 					updateUsabilityOfMenuItems();
@@ -838,8 +785,6 @@ public class ListTracksFragment extends SherlockFragment {
 			@Override
 			public void onSuccess(int httpStatus, JSONObject json) {
 				super.onSuccess(httpStatus, json);
-				
-				logger.info("On thread "+ Thread.currentThread().getId());
 
 				try {
 					JSONArray tracks = json.getJSONArray("tracks");
@@ -856,6 +801,8 @@ public class ListTracksFragment extends SherlockFragment {
 						}	
 					}
 					
+					logger.info("found "+localRemoteIds.size()+" local tracks which have remoteIds.");
+					
 					List<String> tracksToDownload = new ArrayList<String>();
 					remoteTrackCount = tracks.length();
 					for (int i = 0; i < tracks.length(); i++) {
@@ -863,6 +810,7 @@ public class ListTracksFragment extends SherlockFragment {
 						String remoteId = ((JSONObject) tracks.get(i)).getString("id");
 						// check if track is listed. if, continue
 						if (localRemoteIds.contains(remoteId)) {
+							logger.info("Skipping track with remoteId "+remoteId);
 							afterOneTrack();
 							continue;
 						}
@@ -871,6 +819,7 @@ public class ListTracksFragment extends SherlockFragment {
 					}
 					
 					if (!tracksToDownload.isEmpty()) {
+						logger.info("Starting download of "+ tracksToDownload.size() +" tracks");
 						final AtomicInteger index = new AtomicInteger(0);
 						downloadTrack(tracksToDownload, index);
 					}
@@ -882,7 +831,10 @@ public class ListTracksFragment extends SherlockFragment {
 
 			private void downloadTrack(final List<String> tracksToDownload,
 					final AtomicInteger index) {
-				String id = tracksToDownload.get(index.get());
+				
+				final String id = tracksToDownload.get(index.get());
+				logger.info("downloading track with remoteId "+id);
+				
 				// download the track
 				RestClient.downloadTrack(username, token, id,
 					new JsonHttpResponseHandler() {
@@ -903,7 +855,7 @@ public class ListTracksFragment extends SherlockFragment {
 						@Override
 						public void onSuccess(JSONObject trackJson) {
 							super.onSuccess(trackJson);
-
+							logger.info("Download of track " +id+ " succeeded. Processing...");
 							processDownloadedTrack(trackJson);
 						}
 
@@ -1072,10 +1024,10 @@ public class ListTracksFragment extends SherlockFragment {
 					DecimalFormat twoDForm = new DecimalFormat("#.##");
 					DateFormat dfDuration = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
 					dfDuration.setTimeZone(TimeZone.getTimeZone("UTC"));
-					startView.setText(sdf.format(t.getStartTime()) + "");
-					endView.setText(sdf.format(t.getEndTime()) + "");
+					startView.setText(sdf.format(t.getStartTime()));
+					endView.setText(sdf.format(t.getEndTime()));
 					Date durationMillis = new Date(t.getDurationInMillis());
-					durationView.setText(dfDuration.format(durationMillis) + "");
+					durationView.setText(dfDuration.format(durationMillis));
 					if (!PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).getBoolean(SettingsActivity.IMPERIAL_UNIT, false)) {
 						lengthView.setText(twoDForm.format(t.getLengthOfTrack()) + " km");
 					} else {

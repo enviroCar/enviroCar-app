@@ -26,15 +26,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.http.Header;
@@ -57,7 +54,7 @@ import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.views.Utils;
+import org.envirocar.app.util.Util;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -81,10 +78,8 @@ public class UploadManager {
 	private static final Set<PropertyKey> supportedPhenomenons = new HashSet<PropertyKey>();
 
 	private static Logger logger = Logger.getLogger(UploadManager.class);
-	private static DateFormat iso8601Format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
 	
 	static {
-		iso8601Format.setTimeZone(TimeZone.getTimeZone("UTC"));
 		supportedPhenomenons.add(PropertyKey.CALCULATED_MAF);
 		supportedPhenomenons.add(PropertyKey.MAF);
 		supportedPhenomenons.add(PropertyKey.CO2);
@@ -322,8 +317,8 @@ public class UploadManager {
 
 	private boolean isSpatialObfuscationCandidate(Measurement measurement,
 			Track track) {
-		return (Utils.getDistance(track.getFirstMeasurement(), measurement) <= 0.25)
-				|| (Utils.getDistance(track.getLastMeasurement(), measurement) <= 0.25);
+		return (Util.getDistance(track.getFirstMeasurement(), measurement) <= 0.25)
+				|| (Util.getDistance(track.getLastMeasurement(), measurement) <= 0.25);
 	}
 
 	private boolean isTemporalObfuscationCandidate(Measurement measurement,
@@ -346,7 +341,7 @@ public class UploadManager {
 		List<Measurement> measurements = track.getMeasurements();
 		
 		SharedPreferences preferences = PreferenceManager
-				.getDefaultSharedPreferences(context.getApplicationContext());
+				.getDefaultSharedPreferences(context);
 		boolean obfuscatePositions = preferences.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
 		
 		if (obfuscatePositions) {
@@ -465,7 +460,7 @@ public class UploadManager {
 		if (phens != null && phens.length() > 0) {
 			result.put("phenomenons", phens);
 		}
-		result.put("time", iso8601Format.format(measurement.getTime()));
+		result.put("time", Util.longToIsoDate(measurement.getTime()));
 		return result;
 	}
 
