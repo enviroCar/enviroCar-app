@@ -44,7 +44,7 @@ import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Track.TrackStatus;
-import org.envirocar.app.views.Utils;
+import org.envirocar.app.util.Util;
 
 import android.location.Location;
 
@@ -247,7 +247,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 			// new track if last position is significantly different
 			// from the current position (more than 3 km)
-			else if (location == null || Utils.getDistance(lastUsedTrack.getLastMeasurement().getLatitude(),lastUsedTrack.getLastMeasurement().getLongitude(),
+			else if (location == null || Util.getDistance(lastUsedTrack.getLastMeasurement().getLatitude(),lastUsedTrack.getLastMeasurement().getLongitude(),
 					location.getLatitude(), location.getLongitude()) > MAX_DISTANCE_BETWEEN_MEASUREMENTS) {
 				logger.info(String.format("Create a new track: last measurement's position is more than %f km away",
 						MAX_DISTANCE_BETWEEN_MEASUREMENTS));

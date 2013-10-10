@@ -23,6 +23,7 @@ package org.envirocar.app.test;
 
 import junit.framework.Assert;
 
+import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
@@ -32,6 +33,8 @@ import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.test.AndroidTestCase;
 
 public class UploadManagerTest extends AndroidTestCase {
@@ -42,6 +45,11 @@ public class UploadManagerTest extends AndroidTestCase {
 	public void testTrackJsonCreation() throws JSONException {
 		UploadManager um = new UploadManager(getContext());
 		
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getContext());
+		boolean oldPref = pref.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
+		
+		pref.edit().putBoolean(SettingsActivity.OBFUSCATE_POSITION, false).commit();
+		
 		Track t = createTrack(); 
 		String json = um.getTrackJSON(t);
 		
@@ -51,6 +59,7 @@ public class UploadManagerTest extends AndroidTestCase {
 		Assert.assertTrue("The JSON was null!", json != null);
 		Assert.assertTrue("The JSON was not as expected!", result.toString().equals(expected.toString()));
 		
+		pref.edit().putBoolean(SettingsActivity.OBFUSCATE_POSITION, oldPref).commit();
 	}
 
 	private Track createTrack() {

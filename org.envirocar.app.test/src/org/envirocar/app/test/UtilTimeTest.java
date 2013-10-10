@@ -20,29 +20,28 @@
  */
 package org.envirocar.app.test;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Scanner;
+import java.text.ParseException;
 
-import android.test.InstrumentationTestCase;
+import junit.framework.Assert;
 
-public class ResourceLoadingTestCase extends InstrumentationTestCase {
+import org.envirocar.app.util.Util;
 
-	protected String readJson(InputStream in) {
-		Scanner sc = new Scanner(in, "UTF-8");
+import android.test.AndroidTestCase;
+
+public class UtilTimeTest extends AndroidTestCase {
+
+	public void testIsoDateToLong() throws ParseException {
+		String dateString = "2013-09-25T16:16:44Z";
+
+		long result = Util.isoDateToLong(dateString);
 		
-		StringBuilder sb = new StringBuilder();
-		while (sc.hasNext()) {
-			sb.append(sc.nextLine());
-			sb.append(System.getProperty("line.separator"));
-		}
-		
-		sc.close();
-		return sb.toString();
+		Assert.assertTrue("Unexpected millis value.", result == 1380125804000L);
 	}
 	
-	protected String readAsset(String assetRes) throws IOException {
-		return readJson(getInstrumentation().getContext().getAssets().open(assetRes));
+	public void testLongToIsoDate() {
+		String stringResult = Util.longToIsoDate(1380125804000L);
+		
+		Assert.assertTrue("Unexpected formatted date value.", stringResult.equals("2013-09-25T16:16:44Z"));
 	}
 	
 }

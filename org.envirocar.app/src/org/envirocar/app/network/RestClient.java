@@ -54,7 +54,7 @@ public class RestClient {
 		client.delete(ECApplication.BASE_URL+"/users/"+user+"/tracks/" + id, handler);
 	}
 	
-	public static void downloadTrack(String user, String token, String id, JsonHttpResponseHandler handler){
+	public static void downloadTrack(String user, String token, String id, AsyncHttpResponseHandler handler){
 		get(ECApplication.BASE_URL+"/tracks/"+id, handler, user, token);
 	}
 	
@@ -73,7 +73,7 @@ public class RestClient {
 		return true;
 	}
 	
-	private static void get(String url, JsonHttpResponseHandler handler, String user, String token) {		
+	private static void get(String url, AsyncHttpResponseHandler handler, String user, String token) {		
 		setHeaders(user, token);
 		
 		client.get(url, handler);
