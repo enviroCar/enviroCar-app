@@ -14,33 +14,40 @@
     android:layout_marginLeft="10dp"
     android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/textView4"
+    <org.envirocar.app.views.LayeredImageRotateView
+        xmlns:enviroCar="http://envirocar.org"
+        android:id="@+id/speedometerView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="left"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="15dp"
-        android:text="@string/currentSpeed"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        android:layout_margin="5dp"
+        enviroCar:maximumDegree="270.0"
+        enviroCar:maximumScaleValue="250.0"
+        enviroCar:minimumDegree="10.0"
+        enviroCar:minimumScaleValue="0.0"
+        enviroCar:rotatableImageViewid="@+id/arrowImage" >
 
-    <org.envirocar.app.views.RoundProgress
-        android:id="@+id/blue_progress_bar2"
-        android:layout_width="fill_parent"
-        android:layout_height="35dip"
-        android:padding="3dip"
-        myNamespace:max="100"
-        myNamespace:progress="0"
-        myNamespace:progressDrawable="@drawable/red_progress_clip"
-        myNamespace:track="@drawable/progress_bar_fill_bg"
-    />
-    
-    <TextView
-        android:id="@+id/textViewSpeedDashboard"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right"
-        android:layout_marginRight="10dp" />
+        <ImageView
+            android:id="@+id/imageView1"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:contentDescription="@string/speed"
+            android:src="@drawable/speedometer" />
+
+        <ImageView
+            android:id="@+id/arrowImage"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:contentDescription="@string/speed"
+            android:src="@drawable/speedometer_arrow" />
+
+        <TextView
+            android:id="@+id/textViewSpeedDashboard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/imageView1"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="26dp" />
+    </org.envirocar.app.views.LayeredImageRotateView>
     
     <TextView
         android:id="@+id/textView1"
