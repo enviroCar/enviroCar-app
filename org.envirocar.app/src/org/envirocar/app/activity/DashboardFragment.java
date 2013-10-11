@@ -38,7 +38,7 @@ import org.envirocar.app.event.SpeedEventListener;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
-import org.envirocar.app.views.RoundProgress;
+import org.envirocar.app.views.LayeredImageRotateView;
 import org.envirocar.app.views.TypefaceEC;
 
 import android.content.BroadcastReceiver;
@@ -78,10 +78,8 @@ public class DashboardFragment extends SherlockFragment {
 	// UI Items
 	
 	TextView speedTextView;
-	RoundProgress roundProgressSpeed;
 	TextView co2TextView;
 	TextView positionTextView;
-	RoundProgress roundProgressCO2;
 	private TextView sensor;
 	View dashboardView;
 
@@ -99,6 +97,8 @@ public class DashboardFragment extends SherlockFragment {
 	private BroadcastReceiver receiver;
 	protected ServiceState serviceState = ServiceState.SERVICE_STOPPED;
 	private OnSharedPreferenceChangeListener preferenceListener;
+	private LayeredImageRotateView speedRotatableView;
+	private LayeredImageRotateView co2RotableView;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -150,10 +150,9 @@ public class DashboardFragment extends SherlockFragment {
 		co2TextView = (TextView) getView().findViewById(R.id.co2TextView);
 		speedTextView = (TextView) getView().findViewById(
 				R.id.textViewSpeedDashboard);
-		roundProgressCO2 = (RoundProgress) getView().findViewById(
-				R.id.blue_progress_bar);
-		roundProgressSpeed = (RoundProgress) getView().findViewById(
-				R.id.blue_progress_bar2);
+		co2RotableView = (LayeredImageRotateView) getView().findViewById(
+				R.id.co2meterView);
+		speedRotatableView = (LayeredImageRotateView) getView().findViewById(R.id.speedometerView);
 		sensor = (TextView) getView().findViewById(R.id.dashboard_current_sensor);
 		
 		positionTextView = (TextView) getView().findViewById(R.id.positionTextView);
@@ -361,20 +360,13 @@ public class DashboardFragment extends SherlockFragment {
 	}
 
 	protected void updateCo2Value() {
-		double co2Progress;
 		
 		DecimalFormat twoDForm = new DecimalFormat("#.##");
 		
 		co2TextView.setText(twoDForm.format(co2) + " kg/h"); 
-		if (co2 <= 0)
-			co2Progress = 0;
-		else if (co2 > 100)
-			co2Progress = 100;
-		else
-			co2Progress = co2;
-		roundProgressCO2.setProgress(co2Progress);
+		co2RotableView.submitScaleValue((float) co2);
 		
-		if (co2Progress>30){
+		if (co2 > 30){
 			dashboardView.setBackgroundColor(Color.RED);
 		} else {
 			dashboardView.setBackgroundColor(Color.WHITE);
@@ -382,26 +374,13 @@ public class DashboardFragment extends SherlockFragment {
 	}
 
 	protected void updateSpeedValue() {
-		int speedProgress;
 		if (!preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT,
 				false)) {
 			speedTextView.setText(speed + " km/h");
-			if (speed <= 0)
-				speedProgress = 0;
-			else if (speed > 200)
-				speedProgress = 100;
-			else
-				speedProgress = speed / 2;
-			roundProgressSpeed.setProgress(speedProgress);
+			speedRotatableView.submitScaleValue(speed);
 		} else {
-			speedTextView.setText(speed / 1.6 + " mph");
-			if (speed <= 0)
-				speedProgress = 0;
-			else if (speed > 150)
-				speedProgress = 100;
-			else
-				speedProgress = (int) (speed / 1.5);
-			roundProgressSpeed.setProgress(speedProgress);
+			speedTextView.setText(speed / 1.6f + " mph");
+			speedRotatableView.submitScaleValue(speed/1.6f);
 		}
 	}
 
