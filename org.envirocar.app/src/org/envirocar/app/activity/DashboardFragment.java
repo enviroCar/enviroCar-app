@@ -100,6 +100,7 @@ public class DashboardFragment extends SherlockFragment {
 	private LayeredImageRotateView speedRotatableView;
 	private LayeredImageRotateView co2RotableView;
 
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {

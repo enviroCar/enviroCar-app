@@ -5,7 +5,7 @@
     android:layout_height="fill_parent"
     android:background="@drawable/envirocar_background"
     android:orientation="horizontal"
-    android:tag="Dashboard" >
+    android:tag="Dashboard">
 
     <LinearLayout
         android:layout_width="fill_parent"
