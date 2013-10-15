@@ -248,4 +248,8 @@ If you discover and problems, please send us an error log (-> report problem). T
 	
 	<string name="diesel_not_yet_supported">Please note that consumption/CO2 calculation for Diesel cars is not yet supported</string>
 	
+	<string name="co2_initial_value">0 kg/h</string>
+	
+	<string name="speed_initial_value">0 mph</string>
+	
 </resources>

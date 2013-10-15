@@ -31,28 +31,33 @@
                 enviroCar:minimumScaleValue="0.0"
                 enviroCar:rotatableImageViewid="@+id/arrowImage">
 
-                <ImageView
+                <org.envirocar.app.views.HalfViewWidthImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/speed"
-                    android:src="@drawable/phenometer_speed" />
+                    android:src="@drawable/phenometer_speed"
+                    enviroCar:widthRelatedPredecessingView="@+id/vehicle_view" />
 
-                <ImageView
+                <org.envirocar.app.views.HalfViewWidthImageView
                     android:id="@+id/arrowImage"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/speed"
-                    android:src="@drawable/phenometer_speed_arrow" />
+                    android:src="@drawable/phenometer_speed_arrow"
+                    enviroCar:widthRelatedPredecessingView="@+id/vehicle_view" />
 
-                <TextView
+                <org.envirocar.app.views.SizeRelatedTextView
                     android:id="@+id/textViewSpeedDashboard"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignBottom="@+id/arrowImage"
                     android:layout_centerHorizontal="true"
                     android:textColor="#8bbb3f"
-                    android:text="0 km/h"
-                    android:textAppearance="@android:style/TextAppearance.Large" />
+                    android:text="@string/speed_initial_value"
+                    android:textSize="24pt"
+                    android:textAppearance="@android:style/TextAppearance.Large"
+                    enviroCar:sizeRelatedPredecessingView="@+id/arrowImage" 
+                    enviroCar:targetTextString="0123456789"/>
             </org.envirocar.app.views.LayeredImageRotateView>
 
             <View
@@ -83,28 +88,34 @@
             enviroCar:minimumScaleValue="0.0"
             enviroCar:rotatableImageViewid="@+id/co2arrowImage" >
 
-            <ImageView
+            <org.envirocar.app.views.HalfViewWidthImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/Co2emission"
-                android:src="@drawable/phenometer_co2" />
+                android:src="@drawable/phenometer_co2"
+                enviroCar:widthRelatedPredecessingView="@+id/vehicle_view" />
 
-            <ImageView
+            <org.envirocar.app.views.HalfViewWidthImageView
                 android:id="@+id/co2arrowImage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/Co2emission"
-                android:src="@drawable/phenometer_co2_arrow" />
+                android:src="@drawable/phenometer_co2_arrow"
+                enviroCar:widthRelatedPredecessingView="@+id/vehicle_view" />
 
-            <TextView
+            <org.envirocar.app.views.SizeRelatedTextView
                 android:id="@+id/co2TextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignBottom="@+id/co2arrowImage"
                 android:layout_centerHorizontal="true"
                 android:textColor="#44a2d3"
-                android:text="0 kg/h"
-                android:textAppearance="@android:style/TextAppearance.Large" />
+                android:text="@string/co2_initial_value"
+                android:textSize="24pt"
+                android:textAppearance="@android:style/TextAppearance.Large"
+                enviroCar:sizeRelatedPredecessingView="@+id/co2arrowImage"
+                enviroCar:targetTextString="0123456789" />
+            
         </org.envirocar.app.views.LayeredImageRotateView>
 
         <TextView
