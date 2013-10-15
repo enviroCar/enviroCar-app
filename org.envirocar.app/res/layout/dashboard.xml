@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/vehicle_view"
+    android:baselineAligned="false"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@drawable/envirocar_background"
@@ -8,7 +9,7 @@
     android:tag="Dashboard">
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="0dp"
         android:layout_height="fill_parent"
         android:layout_marginLeft="5dp"
         android:layout_weight="2"
@@ -24,7 +25,8 @@
                 android:id="@+id/speedometerView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_margin="5dp"
+                android:layout_marginTop="10dp"
+            	android:layout_marginLeft="5dp"
                 enviroCar:maximumDegree="170.0"
                 enviroCar:maximumScaleValue="250.0"
                 enviroCar:minimumDegree="10.0"
@@ -54,10 +56,8 @@
                     android:layout_centerHorizontal="true"
                     android:textColor="#8bbb3f"
                     android:text="@string/speed_initial_value"
-                    android:textSize="24pt"
-                    android:textAppearance="@android:style/TextAppearance.Large"
                     enviroCar:sizeRelatedPredecessingView="@+id/arrowImage" 
-                    enviroCar:targetTextString="0123456789"/>
+                    enviroCar:targetTextString="01234567890"/>
             </org.envirocar.app.views.LayeredImageRotateView>
 
             <View
@@ -67,8 +67,8 @@
 
             <ImageView
                 android:id="@+id/connectionStateImage"
-                android:layout_width="80dp"
-                android:layout_height="120dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="right"
                 android:contentDescription="@string/connection_state"
                 android:src="@drawable/connection_state_false" />
@@ -80,7 +80,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="right"
-            android:layout_marginTop="-20dp"
+            android:layout_marginTop="-30dp"
             android:layout_marginRight="5dp"
             enviroCar:maximumDegree="170.0"
             enviroCar:maximumScaleValue="100.0"
@@ -111,10 +111,8 @@
                 android:layout_centerHorizontal="true"
                 android:textColor="#44a2d3"
                 android:text="@string/co2_initial_value"
-                android:textSize="24pt"
-                android:textAppearance="@android:style/TextAppearance.Large"
                 enviroCar:sizeRelatedPredecessingView="@+id/co2arrowImage"
-                enviroCar:targetTextString="0123456789" />
+                enviroCar:targetTextString="01234567890" />
             
         </org.envirocar.app.views.LayeredImageRotateView>
 

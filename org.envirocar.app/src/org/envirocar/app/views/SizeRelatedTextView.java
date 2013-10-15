@@ -20,23 +20,21 @@
  */
 package org.envirocar.app.views;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewParent;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-public class SizeRelatedTextView extends TextView {
+public class SizeRelatedTextView extends TextView implements OnParentDrawnListener {
 
 	private static final String NAMESPACE = "http://envirocar.org";
 	private static final String RELATED_VIEW_KEY = "sizeRelatedPredecessingView";
 	private static final String TARGET_TEXT_STRING = "targetTextString";
 	
-	private AtomicBoolean firstRun = new AtomicBoolean(true);
 	private int relatedLayoutId = Integer.MIN_VALUE;
 	private String targetTextString;
 	
@@ -52,7 +50,6 @@ public class SizeRelatedTextView extends TextView {
 	
 	public SizeRelatedTextView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		
 		parseAttributes(attrs);
 	}
 
@@ -67,21 +64,18 @@ public class SizeRelatedTextView extends TextView {
 	
 	@Override
 	protected void onDraw(Canvas canvas) {
-		applyTextSize();
 		super.onDraw(canvas);
 	}
+	
 
 	private void applyTextSize() {
-		if (!firstRun.getAndSet(false)) {
-			return;
-		}
-		
 		if (relatedLayoutId == Integer.MIN_VALUE)
 			return;
 		
 		try {
 			int relatedWidth = resolveRelatedWidth();
-			setTextSize(computeSize(relatedWidth));
+			float resolvedSize = computeSize(relatedWidth);
+			setTextSize(resolvedSize);
 		} catch (IllegalStateException e) {
 		}
 		
@@ -104,6 +98,13 @@ public class SizeRelatedTextView extends TextView {
 			throw new IllegalStateException("Could not resolve related view.");
 		}
 		
+		if (resultView instanceof ImageView) {
+			ImageView iv = (ImageView) resultView;
+			if (iv.getLayoutParams() != null && iv.getLayoutParams().width != 0) {
+				return iv.getLayoutParams().width;
+			}
+			return iv.getMeasuredWidth();
+		}
 		return resultView.getWidth();
 	}
 
@@ -112,14 +113,22 @@ public class SizeRelatedTextView extends TextView {
 			return getTextSize();
 		
 		TextPaint tp = new TextPaint(getPaint());
-		float textSize = 8f;
+		float textSize = getTextSize();
 		float calculatedWidth = 0.0f;
+		
+		float densityMultiplier = getContext().getResources().getDisplayMetrics().density;
+		
 		while (calculatedWidth < relatedWidth) {
-			tp.setTextSize(textSize++);
+			tp.setTextSize((textSize+=4) * densityMultiplier);
 			calculatedWidth = tp.measureText(targetTextString);
 		}
 		
 		return textSize;
+	}
+
+	@Override
+	public void onParentDrawn(View parentView) {
+		applyTextSize();		
 	}
 
 }

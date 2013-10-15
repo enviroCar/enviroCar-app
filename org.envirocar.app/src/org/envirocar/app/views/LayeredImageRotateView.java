@@ -20,7 +20,10 @@
  */
 package org.envirocar.app.views;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import android.content.Context;
+import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -85,6 +88,7 @@ public class LayeredImageRotateView extends RelativeLayout {
 	private int rotatableId = Integer.MIN_VALUE;
 	private float minimumScaleValue = 0f;
 	private float maximumScaleValue = 360f;
+	private AtomicBoolean firstRun = new AtomicBoolean(true);
 
 	public LayeredImageRotateView(Context context) {
 		super(context);
@@ -120,6 +124,24 @@ public class LayeredImageRotateView extends RelativeLayout {
 			} catch (IllegalArgumentException e) {
 				Log.w("enviroCar", e.getMessage());
 			}
+		}
+		
+		setWillNotDraw(false);
+	}
+	
+	@Override
+	protected void onDraw(Canvas canvas) {
+		super.onDraw(canvas);
+		
+		if (firstRun.getAndSet(false)) {
+			for (int i = 0; i < getChildCount(); i++) {
+				View child = getChildAt(i);
+				if (child instanceof OnParentDrawnListener) {
+					((OnParentDrawnListener) child).onParentDrawn(this);
+					child.invalidate();
+				}
+			}
+			setWillNotDraw(true);
 		}
 	}
 	
@@ -227,7 +249,11 @@ public class LayeredImageRotateView extends RelativeLayout {
 	private synchronized void executeQueuedAnimation() {
 		if (nextAnimation == null) return;
 		
-		rotatableView.startAnimation(createAnimation(nextAnimation));
+		Animation anim = createAnimation(nextAnimation);
+		
+		if (anim == null) return;
+		
+		rotatableView.startAnimation(anim);
 		previosAnimation = nextAnimation;
 		nextAnimation = null;
 		animationListener.currentlyAnimating = true;
@@ -240,6 +266,11 @@ public class LayeredImageRotateView extends RelativeLayout {
 		} else {
 			start = minimumDegree;
 		}
+		
+		if (start == candidate.finalDegree) {
+			return null;
+		}
+		
 		RotateAnimation anim = new RotateAnimation(start, candidate.finalDegree, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
 		anim.setInterpolator(new AccelerateDecelerateInterpolator());
 		anim.setDuration(500);

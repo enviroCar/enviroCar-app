@@ -26,12 +26,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewParent;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
-public class HalfViewWidthImageView extends ImageView {
+public class HalfViewWidthImageView extends ImageView implements OnParentDrawnListener {
 
 	private static final String NAMESPACE = "http://envirocar.org";
 	private static final String RELATED_VIEW_KEY = "widthRelatedPredecessingView";
@@ -62,7 +63,6 @@ public class HalfViewWidthImageView extends ImageView {
 	
 	@Override
 	protected void onDraw(Canvas canvas) {
-		applyWidth();
 		super.onDraw(canvas);
 	}
 
@@ -83,6 +83,8 @@ public class HalfViewWidthImageView extends ImageView {
 		
 		int newHeight = imgHeight * newWidth / imgWidth;
 
+		Log.i("", newWidth+" newWidth");
+		
 		//Use RelativeLayout.LayoutParams if your parent is a RelativeLayout
 		RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
 		    newWidth, newHeight);
@@ -113,6 +115,11 @@ public class HalfViewWidthImageView extends ImageView {
 		}
 		
 		return result.getWidth();
+	}
+
+	@Override
+	public void onParentDrawn(View parentView) {
+		applyWidth();
 	}
 	
 }
