@@ -300,7 +300,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				if (key.equals(SettingsActivity.BLUETOOTH_NAME)) {
 					updateStartStopButton();
 				}
-				else if (key.equals(SettingsActivity.CAR)) {
+				if (key.equals(SettingsActivity.CAR) || key.equals(SettingsActivity.CAR_HASH_CODE)) {
 					updateStartStopButton();
 				}
 			}

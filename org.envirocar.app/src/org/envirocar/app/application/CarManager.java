@@ -53,8 +53,8 @@ public class CarManager {
 			@Override
 			public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 					String key) {
-				if (key.equals(SettingsActivity.CAR)) {
-					car = CarSelectionPreference.instantiateCar(preferences.getString(SettingsActivity.CAR, null));
+				if (key.equals(SettingsActivity.CAR) || key.equals(SettingsActivity.CAR_HASH_CODE)) {
+					setCar(CarSelectionPreference.instantiateCar(preferences.getString(SettingsActivity.CAR, null)));
 				}
 			}
 		});
@@ -78,6 +78,9 @@ public class CarManager {
 	}
 	
 	public void setCar(Car c) {
+		if (c == null) {
+			return;
+		}
 		this.car = c;
 	}
 
