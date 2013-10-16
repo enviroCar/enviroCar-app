@@ -204,8 +204,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		// font stuff
 		actionBarTitleID = Utils.getActionBarId();
 		if (Utils.getActionBarId() != 0) {
-			((TextView) this.findViewById(actionBarTitleID))
-					.setTypeface(TypefaceEC.Newscycle(this));
+			TextView view = (TextView) this.findViewById(actionBarTitleID);
+			if (view != null) {
+				view.setTypeface(TypefaceEC.Newscycle(this));
+			}
 		}
 
 		actionBar.setLogo(getResources().getDrawable(R.drawable.actionbarlogo_with_padding));
@@ -298,7 +300,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				if (key.equals(SettingsActivity.BLUETOOTH_NAME)) {
 					updateStartStopButton();
 				}
-				else if (key.equals(SettingsActivity.CAR)) {
+				if (key.equals(SettingsActivity.CAR) || key.equals(SettingsActivity.CAR_HASH_CODE)) {
 					updateStartStopButton();
 				}
 			}

@@ -312,8 +312,7 @@ public class ECApplication extends Application {
 		        .setContentTitle("enviroCar")
 		        .setContentText(notification_text)
 		        .setContentIntent(pintent)
-		        .setTicker(notification_text)
-		        .setProgress(0, 0, !action.equals("success"));
+		        .setTicker(notification_text);
 		
 		NotificationManager mNotificationManager =
 		    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

@@ -551,9 +551,10 @@ public class CarSelectionPreference extends DialogPreference {
 	}
 	
 	private void persistCar() {
+		CarManager.instance().setCar(car);
 		persistString(serializeCar(car));
+		getSharedPreferences().edit().putInt(SettingsActivity.CAR_HASH_CODE, car.hashCode()).commit();
         setSummary(car.toString());	
-        CarManager.instance().setCar(car);
 	}
 
 	@Override
