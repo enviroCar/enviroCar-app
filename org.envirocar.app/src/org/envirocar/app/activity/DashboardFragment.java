@@ -185,7 +185,7 @@ public class DashboardFragment extends SherlockFragment {
 			@Override
 			public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 					String key) {
-				if (key.equals(SettingsActivity.CAR)) {
+				if (key.equals(SettingsActivity.CAR) || key.equals(SettingsActivity.CAR_HASH_CODE)) {
 					updateSensorOnDashboard();
 				}
 			}
