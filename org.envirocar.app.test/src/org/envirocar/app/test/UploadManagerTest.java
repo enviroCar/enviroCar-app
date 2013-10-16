@@ -43,7 +43,7 @@ public class UploadManagerTest extends AndroidTestCase {
 	private Car car = new Car(FuelType.GASOLINE, "manuf", "modl", "iddddd", 1234, 2345);
 	private String expectedJson = "{\"features\":[{\"type\":\"Feature\",\"properties\":{\"phenomenons\":{\"MAF\":{\"value\":12.4},\"Speed\":{\"value\":12}},\"sensor\":\"iddddd\",\"time\":\"2013-09-25T10:30:00Z\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[-89.1,-87.1]}}],\"type\":\"FeatureCollection\",\"properties\":{\"sensor\":\"iddddd\",\"description\":\"desc\",\"name\":\"test-track\"}}";
 
-	public void testTrackJsonCreation() throws JSONException, TrackWithoutMeasurementsException {
+	public void testTrackJsonCreation() throws JSONException {
 		UploadManager um = new UploadManager(getContext());
 		
 		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getContext());
@@ -51,16 +51,43 @@ public class UploadManagerTest extends AndroidTestCase {
 		
 		pref.edit().putBoolean(SettingsActivity.OBFUSCATE_POSITION, false).commit();
 		
-		Track t = createTrack(); 
-		String json = um.getTrackJSON(t);
+		Track t = createTrack();
+		String json;
+		try {
+			json = um.getTrackJSON(t);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		} finally {
+			pref.edit().putBoolean(SettingsActivity.OBFUSCATE_POSITION, oldPref).commit();
+		}
 		
 		JSONObject result = new JSONObject(json);
 		JSONObject expected = new JSONObject(expectedJson);
-		
+
 		Assert.assertTrue("The JSON was null!", json != null);
 		Assert.assertTrue("The JSON was not as expected!", result.toString().equals(expected.toString()));
 		
-		pref.edit().putBoolean(SettingsActivity.OBFUSCATE_POSITION, oldPref).commit();
+	}
+	
+
+	public void testObfuscationNoMeasurements() throws JSONException {
+		UploadManager um = new UploadManager(getContext());
+		
+		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getContext());
+		boolean oldPref = pref.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
+		
+		pref.edit().putBoolean(SettingsActivity.OBFUSCATE_POSITION, true).commit();
+		
+		Track t = createTrack(); 
+		try {
+			um.getTrackJSON(t);
+		} catch (TrackWithoutMeasurementsException e) {
+			Assert.assertNotNull("Expected an exception!", e);
+		} catch (JSONException e) {
+			throw e;
+		} finally {
+			pref.edit().putBoolean(SettingsActivity.OBFUSCATE_POSITION, oldPref).commit();
+		}
 	}
 
 	private Track createTrack() {
