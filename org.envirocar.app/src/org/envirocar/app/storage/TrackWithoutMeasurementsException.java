@@ -26,6 +26,10 @@ public class TrackWithoutMeasurementsException extends Exception {
 		super(String.format("The Track with id '%d' does not have measurements in the database!", track.getId()));
 	}
 
+	public TrackWithoutMeasurementsException(String string) {
+		super(string);
+	}
+
 	/**
 	 * 
 	 */

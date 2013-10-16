@@ -54,11 +54,16 @@ import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 import org.envirocar.app.util.Util;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
+
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -244,32 +249,50 @@ public class UploadManager {
 				logger.warn(e.getMessage(), e);
 				this.cancel(true);
 				((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
-			}
-			// don upload track if it has no measurements
-			if(track.getNumberOfMeasurements() != 0) {
-				//save the track into a json file
-				File file = savetoSdCard(trackJSONObject, track.isRemoteTrack() ? track.getRemoteID() : Long.toString(track.getId()));
-
-				if (file == null) {
-					this.cancel(true);
-					((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
-				}
-				
-				//upload
-				String httpResult = sendHttpPost(urlL, file, token, username);
-				if (httpResult.equals(NET_ERROR)){
-					((ECApplication) context).createNotification(context.getResources().getString(R.string.error_host_not_found));
-				} else if (httpResult.equals(GENERAL_ERROR)) {
-					((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
-				} else {
+			} catch (TrackWithoutMeasurementsException e) {
+				if (track.getNumberOfMeasurements() != 0) {
 					/*
-					 * success, we got an ID
+					 * obfuscation removed all measurements
 					 */
-					((ECApplication) context).createNotification("success");
-					track.setRemoteID(httpResult);
-					dbAdapter.updateTrack(track);
+					final Activity ac = ((ECApplication) context).getCurrentActivity();
+					if (ac != null) {
+						ac.runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								Crouton.makeText(ac, R.string.uploading_track_no_measurements_after_obfuscation_long, Style.ALERT).show();								
+							}
+						});
+					}
+					((ECApplication) context).createNotification(context.getResources().getString(R.string.uploading_track_no_measurements_after_obfuscation));
 				}
-			}		
+				else {
+					logger.warn(e.getMessage(), e);
+				}
+				this.cancel(true);
+			}
+			
+			//save the track into a json file
+			File file = savetoSdCard(trackJSONObject, track.isRemoteTrack() ? track.getRemoteID() : Long.toString(track.getId()));
+
+			if (file == null) {
+				this.cancel(true);
+				((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
+			}
+			
+			//upload
+			String httpResult = sendHttpPost(urlL, file, token, username);
+			if (httpResult.equals(NET_ERROR)){
+				((ECApplication) context).createNotification(context.getResources().getString(R.string.error_host_not_found));
+			} else if (httpResult.equals(GENERAL_ERROR)) {
+				((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
+			} else {
+				/*
+				 * success, we got an ID
+				 */
+				((ECApplication) context).createNotification("success");
+				track.setRemoteID(httpResult);
+				dbAdapter.updateTrack(track);
+			}
 			
 			return track;
 		}
@@ -284,7 +307,7 @@ public class UploadManager {
 
 	}
 
-	public String getTrackJSON(Track track) throws JSONException{
+	public String getTrackJSON(Track track) throws JSONException, TrackWithoutMeasurementsException {
 		return createTrackJson(track).toString();
 	}
 	
@@ -293,8 +316,9 @@ public class UploadManager {
 	 * 
 	 * @return
 	 * @throws JSONException 
+	 * @throws TrackWithoutMeasurementsException 
 	 */
-	private JSONObject createTrackJson(Track track) throws JSONException {
+	private JSONObject createTrackJson(Track track) throws JSONException, TrackWithoutMeasurementsException {
 		JSONObject result = new JSONObject();
 		
 		String trackSensorName = track.getCar().getId();
@@ -303,6 +327,11 @@ public class UploadManager {
 		
 		List<Measurement> measurements = getNonObfuscatedMeasurements(track);
 
+		if (measurements == null || measurements.isEmpty()) {
+			throw new TrackWithoutMeasurementsException("Track did not contain any non obfuscated measurements.");
+		}
+			
+		
 		for (Measurement measurement : measurements) {
 			JSONObject measurementJson = createMeasurementJson(track, trackSensorName, measurement);
 			measurementElements.add(measurementJson);
@@ -568,7 +597,7 @@ public class UploadManager {
 		return null;
 	}
 	
-	public File saveTrackAndReturnFile(Track t) throws JSONException{
+	public File saveTrackAndReturnFile(Track t) throws JSONException, TrackWithoutMeasurementsException{
 		return savetoSdCard(createTrackJson(t), (t.isRemoteTrack() ? t.getRemoteID() : Long.toString(t.getId())));
 	}
 
