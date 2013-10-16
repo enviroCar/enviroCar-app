@@ -245,7 +245,9 @@ Bei festgestellten Problemen möchten wir Sie bitten, uns ein Fehlerprotokoll zu
 	<string name="terms_of_use_updating_server">Speichere Nutzungsbedingungs-Status auf Server</string>
     
     <string name="diesel_not_yet_supported">Bitte beachten Sie, dass die Berechnung von Verbrauch/CO2 für Diesel-Fahrzeuge nocht nicht unterstützt wird</string>
-	
+	<string name="uploading_track_no_measurements_after_obfuscation_long">Ein hochzuladende Track enthielt keine Messungen nach Verbergen der Start- und Endpunkte. Er wurde nicht hochgeladen, ist aber weiterhin lokal verfügbar.</string>
+	<string name="uploading_track_no_measurements_after_obfuscation">Ein hochzuladende Track enthielt keine Messungen.</string>
+    
     <string name="co2_initial_value">0 kg/h</string>
     <string name="speed_initial_value">0 km/h</string>
 </resources>
