@@ -26,6 +26,7 @@ import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.model.Car;
+import org.envirocar.app.model.Car.FuelType;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -49,5 +50,9 @@ public class CarManagerTest extends AndroidTestCase {
 					carObject);
 		} 
 
+		Car c1 = new Car(FuelType.DIESEL, "test", "test", "test", 1234, 1);
+		Car c2 = new Car(FuelType.GASOLINE, "test", "test", "test", 1234, 1);
+		
+		Assert.assertTrue("HashCodes of different car objects were the same!", c1.hashCode() != c2.hashCode());
 	}
 }

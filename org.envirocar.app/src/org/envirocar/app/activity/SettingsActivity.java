@@ -62,8 +62,8 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	public static final String DISPLAY_STAYS_ACTIV = "pref_display_always_activ";
 	public static final String IMPERIAL_UNIT = "pref_imperial_unit";
 	public static final String OBFUSCATE_POSITION = "pref_privacy";
-	public static final String ENGINE_DISPLACEMENT = "pref_engine_displacement";
 	public static final String CAR = "pref_selected_car";
+	public static final String CAR_HASH_CODE = "pref_selected_car_hash_code";
 	
 	private Preference about;
 	
