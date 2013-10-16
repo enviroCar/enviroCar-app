@@ -18,21 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.storage;
+package org.envirocar.app.views;
 
-public class TrackWithoutMeasurementsException extends Exception {
+import android.view.View;
 
-	public TrackWithoutMeasurementsException(Track track) {
-		super(String.format("The Track with id '%d' does not have measurements in the database!", track.getId()));
-	}
+public interface OnParentDrawnListener {
 
-	public TrackWithoutMeasurementsException(String string) {
-		super(string);
-	}
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
+	public void onParentDrawn(View parentView);
+	
 }

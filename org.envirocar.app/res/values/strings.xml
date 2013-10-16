@@ -237,7 +237,8 @@ If you discover and problems, please send us an error log (-> report problem). T
 	<string name="connection_lost_info">Connection lost. Reconnecting&#8230;</string>
 	
 	<string name="general_error_please_report">General Track Error - Please report this issue</string>
-	
+	<string name="uploading_track_no_measurements_after_obfuscation_long">A track to be uploaded did not contain measurements after obfuscation. It has not been uploaded, but is still available locally.</string>
+	<string name="uploading_track_no_measurements_after_obfuscation">A track to be uploaded did not contain measurements.</string>
 	<string name="server_error_please_try_later">Server Error - Please try again later</string>
 	
 	<string name="terms_of_use_title">Accpt the Terms Of Use?</string>
@@ -247,5 +248,9 @@ If you discover and problems, please send us an error log (-> report problem). T
 	<string name="terms_of_use_updating_server">Updating Terms Of Use State on Server</string>
 	
 	<string name="diesel_not_yet_supported">Please note that consumption/CO2 calculation for Diesel cars is not yet supported</string>
+	
+	<string name="co2_initial_value">0 kg/h</string>
+	
+	<string name="speed_initial_value">0 mph</string>
 	
 </resources>
