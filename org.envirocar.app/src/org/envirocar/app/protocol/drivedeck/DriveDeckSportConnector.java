@@ -293,7 +293,10 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 					processVIN(new String(bytes, start+3, count-3));
 				}
 				else if (pid.equals("70")) {
-					processSupportedPID(bytes, start, count);
+					/*
+					 * short term fix for #192: disable
+					 */
+//					processSupportedPID(bytes, start, count);
 				}
 				else if (pid.equals("71")) {
 					processDiscoveredControlUnits(new String(bytes, start+3, count-3));
