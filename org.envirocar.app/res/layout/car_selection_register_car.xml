@@ -22,9 +22,7 @@
                 android:inputType="text"
                 android:maxLines="1"
                 android:singleLine="true" 
-                >
-                <requestFocus />
-               </EditText>
+                />
 
             <EditText
                 android:id="@+id/addCarToGarage_car_model"

@@ -75,15 +75,12 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
-import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TableLayout;
@@ -120,7 +117,6 @@ public class CarSelectionPreference extends DialogPreference {
 	private RadioButton gasolineRadioButton;
 	private RadioButton dieselRadioButton;
 	private EditText engineDisplacementEditText;
-	private ExpandableListView listView;
 	private TableLayout selectedCarDetails;
 	
 	
@@ -132,7 +128,6 @@ public class CarSelectionPreference extends DialogPreference {
         setNegativeButtonText(android.R.string.cancel);
         
         setDialogIcon(null);
-        
 	}
 	
 	@Override
@@ -140,15 +135,11 @@ public class CarSelectionPreference extends DialogPreference {
 		setupUIItems(view);
 	}
 	
+	
 	private void setupUIItems(View rootView) {
 		//TODO !fancy! search for sensors
-		LinearLayout selectCarView = (LinearLayout) LinearLayout.inflate(getContext(), R.layout.car_selection_select_car, null);
-		LinearLayout registerCarView = (LinearLayout) LinearLayout.inflate(getContext(), R.layout.car_selection_register_car, null);
-		
-		listView = (ExpandableListView) rootView.findViewById(R.id.car_selection_expandable_list);
-		listView.setGroupIndicator(getContext().getResources().getDrawable(R.drawable.group_indicator));
-		listView.setAdapter(new LocalListAdapter(selectCarView, registerCarView));
-		listView.expandGroup(0);
+		LinearLayout selectCarView = (LinearLayout) rootView.findViewById(R.id.car_selection_select_car);
+		LinearLayout registerCarView = (LinearLayout) rootView.findViewById(R.id.car_selection_register_car);
 		
 		selectedCarDetails = (TableLayout) selectCarView.findViewById(R.id.selected_car_details);
 		
@@ -789,98 +780,5 @@ public class CarSelectionPreference extends DialogPreference {
 
     }
 	
-	private class LocalListAdapter extends BaseExpandableListAdapter {
-
-		private LinearLayout firstView;
-		private LinearLayout secondView;
-		private View firstGroupView;
-		private View secondGroupView;
-		private int lastExpandedGroupPosition;
-
-		public LocalListAdapter(LinearLayout firstView, LinearLayout secondView) {
-			this.firstView = firstView;
-			this.secondView = secondView;
-			this.firstGroupView = RelativeLayout.inflate(getContext(), R.layout.car_selection_group_view, null);
-			((TextView) this.firstGroupView.findViewById(R.id.function)).setText(R.string.title_select_sensor);
-			this.secondGroupView = RelativeLayout.inflate(getContext(), R.layout.car_selection_group_view, null);
-			((TextView) this.secondGroupView.findViewById(R.id.function)).setText(R.string.title_create_new_sensor);
-		}
-
-		@Override
-		public Object getChild(int groupPosition, int childPosition) {
-			return getChildView(groupPosition, childPosition, false, null, null);
-		}
-
-		@Override
-		public long getChildId(int groupPosition, int childPosition) {
-			return getChild(groupPosition, childPosition).hashCode();
-		}
-
-		@Override
-		public View getChildView(int groupPosition, int childPosition,
-				boolean isLastChild, View convertView, ViewGroup parent) {
-			if (groupPosition == 0) {
-				return firstView;
-			}
-			else if (groupPosition == 1) {
-				return secondView;
-			}
-			return null;
-		}
-		
-	    @Override
-	    public void onGroupExpanded(int groupPosition){
-	        if (groupPosition != lastExpandedGroupPosition){
-	            listView.collapseGroup(lastExpandedGroupPosition);
-	        }
-
-	        super.onGroupExpanded(groupPosition);           
-	        lastExpandedGroupPosition = groupPosition;
-	    }
-
-		@Override
-		public int getChildrenCount(int groupPosition) {
-			return 1;
-		}
-
-		@Override
-		public Object getGroup(int groupPosition) {
-			return getGroupView(groupPosition, false, null, null);
-		}
-
-		@Override
-		public int getGroupCount() {
-			return 2;
-		}
-
-		@Override
-		public long getGroupId(int groupPosition) {
-			return getGroup(groupPosition).hashCode();
-		}
-
-		@Override
-		public View getGroupView(int groupPosition, boolean isExpanded,
-				View convertView, ViewGroup parent) {
-			if (groupPosition == 0) {
-				return firstGroupView;
-			}
-			else if (groupPosition == 1) {
-				return secondGroupView;
-			}
-			return null;
-		}
-
-		@Override
-		public boolean hasStableIds() {
-			return true;
-		}
-
-		@Override
-		public boolean isChildSelectable(int groupPosition, int childPosition) {
-			return true;
-		}
-		
-	}
-
 	
 }
