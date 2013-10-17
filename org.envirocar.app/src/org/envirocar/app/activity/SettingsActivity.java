@@ -21,17 +21,20 @@
 
 package org.envirocar.app.activity;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Set;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.application.UserManager;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -202,5 +205,20 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	        return true;
 	    }
 	    return false;
+	}
+
+	public static String[] resolveIndividualKeys() {
+		UserManager o = UserManager.instance();
+		try {
+			Method m = o.getClass().getDeclaredMethod("getUserPreferences", new Class<?>[0]);
+			m.setAccessible(true);
+			SharedPreferences p = (SharedPreferences) m.invoke(o, new Object[0]);
+			m.setAccessible(false);
+			String[] result = new String[0];
+			result = p.getAll().keySet().toArray(result);
+			return result;
+		} catch (Exception e) {
+		}
+		return new String[0];
 	}
 }

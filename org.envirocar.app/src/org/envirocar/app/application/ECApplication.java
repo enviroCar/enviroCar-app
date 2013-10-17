@@ -31,6 +31,7 @@ import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
+import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
 import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.BackgroundServiceConnector;
@@ -171,11 +172,10 @@ public class ECApplication extends Application {
 			logger.warn(e.getMessage(), e);
 		}
 		
-		initializeErrorHandling();
-		
 		preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
 		UserManager.init(getApplicationContext());
+		initializeErrorHandling();
 		CarManager.init(preferences);
 		TermsOfUseManager.instance();
 		
@@ -197,6 +197,7 @@ public class ECApplication extends Application {
 		ACRA.init(this);
 		ACRACustomSender yourSender = new ACRACustomSender();
 		ACRA.getErrorReporter().setReportSender(yourSender);
+		ACRA.getConfig().setExcludeMatchingSharedPreferencesKeys(SettingsActivity.resolveIndividualKeys());
 	}
 
 	/**
