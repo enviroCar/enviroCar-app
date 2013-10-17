@@ -562,6 +562,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
         case LOGIN:
         	if(UserManager.instance().isLoggedIn()){
         		UserManager.instance().logOut();
+        		RestClient.removeUserSpecificHeaders();
     			ListTracksFragment listMeasurementsFragment = (ListTracksFragment) getSupportFragmentManager().findFragmentByTag("MY_TRACKS");
     			// check if this fragment is initialized
     			if (listMeasurementsFragment != null) {

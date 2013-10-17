@@ -31,6 +31,9 @@ import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.Speed;
 import org.envirocar.app.commands.TPS;
 import org.envirocar.app.event.EventBus;
+import org.envirocar.app.event.GpsDOP;
+import org.envirocar.app.event.GpsDOPEvent;
+import org.envirocar.app.event.GpsDOPEventListener;
 import org.envirocar.app.event.IntakePressureEvent;
 import org.envirocar.app.event.IntakeTemperatureEvent;
 import org.envirocar.app.event.LocationEvent;
@@ -66,10 +69,20 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	private Track track;
 	private Collector collector;
 	private Location location;
+
+	private GpsDOPEventListener dopListener;
 	
 	public CommandListener(Car car) {
 		this.collector = new Collector(this, car);
 		EventBus.getInstance().registerListener(this);
+		dopListener = new GpsDOPEventListener() {
+			@Override
+			public void receiveEvent(GpsDOPEvent event) {
+				GpsDOP dop = event.getPayload();
+				collector.newDop(dop);
+			}
+		};
+		EventBus.getInstance().registerListener(dopListener);
 		createNewTrackIfNecessary();
 		logger.debug("Initialized. Hash: "+System.identityHashCode(this));
 	}
@@ -280,6 +293,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 	public void shutdown() {
 		EventBus.getInstance().unregisterListener(this);
+		EventBus.getInstance().unregisterListener(dopListener);
 	}
 
 	

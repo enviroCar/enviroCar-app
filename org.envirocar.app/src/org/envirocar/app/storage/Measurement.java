@@ -94,6 +94,48 @@ public class Measurement {
 			public String toString() {
 				return "Engine Load";
 			}
+		},
+		GPS_ACCURACY {
+			@Override
+			public String toString() {
+				return "GPS Accuracy";
+			}
+		},
+		GPS_SPEED {
+			@Override
+			public String toString() {
+				return "GPS Speed";
+			}
+		},
+		GPS_BEARING {
+			@Override
+			public String toString() {
+				return "GPS Bearing";
+			}
+		},
+		GPS_ALTITUDE {
+			@Override
+			public String toString() {
+				return "GPS Altitude";
+			}
+		},
+		GPS_PDOP {
+			@Override
+			public String toString() {
+				return "GPS PDOP";
+			}
+		},
+		GPS_HDOP {
+			@Override
+			public String toString() {
+				return "GPS HDOP";
+			}
+		},
+		GPS_VDOP {
+			@Override
+			public String toString() {
+				return "GPS VDOP";
+			}
 		}
 		
 	}
