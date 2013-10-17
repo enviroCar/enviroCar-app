@@ -41,14 +41,18 @@ public class RestClient {
 	private static AsyncHttpClient client;
 	
 	static {
-		client = new AsyncHttpClient();
-		HTTPClient.setupClient(client.getHttpClient());
+		resetClient();
 	}
 	
 	public static void downloadTracks(String user, String token, JsonHttpResponseHandler handler){
 		get(ECApplication.BASE_URL+"/users/"+user+"/tracks?limit=5&page=0", handler, user, token);
 	}
 	
+	private static void resetClient() {
+		client = new AsyncHttpClient();
+		HTTPClient.setupClient(client.getHttpClient());		
+	}
+
 	public static void deleteRemoteTrack(String user, String token, String id, JsonHttpResponseHandler handler){
 		setHeaders(user, token);
 		client.delete(ECApplication.BASE_URL+"/users/"+user+"/tracks/" + id, handler);
@@ -127,5 +131,9 @@ public class RestClient {
 		} catch (UnsupportedEncodingException e) {
 			logger.warn(e.getMessage(), e);
 		}
+	}
+
+	public static void removeUserSpecificHeaders() {
+		resetClient();
 	}
 }
