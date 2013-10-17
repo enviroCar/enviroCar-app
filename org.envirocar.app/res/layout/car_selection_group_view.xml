@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft" >
+   
+    <TextView
+        android:id="@+id/function"
+        android:layout_width="wrap_content"
+        android:layout_height="48dp"
+        android:ellipsize="marquee"
+        android:freezesText="true"
+        android:gravity="center_vertical"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:scrollHorizontally="true"
+        android:singleLine="true"
+        android:textSize="14sp"
+        android:text="@string/title_select_sensor"
+        android:paddingLeft="5dp">
+    </TextView>
+    
+</RelativeLayout>

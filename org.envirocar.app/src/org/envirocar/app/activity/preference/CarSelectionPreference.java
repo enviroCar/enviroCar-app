@@ -75,15 +75,18 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
+import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.ScrollView;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -113,16 +116,18 @@ public class CarSelectionPreference extends DialogPreference {
 	private Button sensorRetryButton;
 	
 	protected List<Car> sensors;
-	private ScrollView garageForm;
+//	private ScrollView garageForm;
 	private RadioButton gasolineRadioButton;
 	private RadioButton dieselRadioButton;
 	private EditText engineDisplacementEditText;
+	private ExpandableListView listView;
+	private TableLayout selectedCarDetails;
 	
 	
 	public CarSelectionPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
         
-        setDialogLayoutResource(R.layout.my_garage_layout);
+        setDialogLayoutResource(R.layout.car_selection_main);
         setPositiveButtonText(android.R.string.ok);
         setNegativeButtonText(android.R.string.cancel);
         
@@ -135,14 +140,24 @@ public class CarSelectionPreference extends DialogPreference {
 		setupUIItems(view);
 	}
 	
-	private void setupUIItems(View view) {
+	private void setupUIItems(View rootView) {
 		//TODO !fancy! search for sensors
-		garageForm = (ScrollView) view.findViewById(R.id.garage_form);
-		garageProgress = (LinearLayout) view.findViewById(R.id.addCarToGarage_status);
+		LinearLayout selectCarView = (LinearLayout) LinearLayout.inflate(getContext(), R.layout.car_selection_select_car, null);
+		LinearLayout registerCarView = (LinearLayout) LinearLayout.inflate(getContext(), R.layout.car_selection_register_car, null);
 		
-		setupCarCreationItems(view);
+		listView = (ExpandableListView) rootView.findViewById(R.id.car_selection_expandable_list);
+		listView.setGroupIndicator(getContext().getResources().getDrawable(R.drawable.group_indicator));
+		listView.setAdapter(new LocalListAdapter(selectCarView, registerCarView));
+		listView.expandGroup(0);
+		
+		selectedCarDetails = (TableLayout) selectCarView.findViewById(R.id.selected_car_details);
+		
+//		garageForm = (ScrollView) rootView.findViewById(R.id.garage_form);
+		garageProgress = (LinearLayout) rootView.findViewById(R.id.addCarToGarage_status);
+		
+		setupCarCreationItems(registerCarView);
 
-		sensorSpinner = (Spinner) view.findViewById(R.id.dashboard_current_sensor_spinner);
+		sensorSpinner = (Spinner) selectCarView.findViewById(R.id.dashboard_current_sensor_spinner);
 		sensorSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 			private boolean firstSelect = true;
 			@Override
@@ -162,8 +177,8 @@ public class CarSelectionPreference extends DialogPreference {
 				logger.info("no change detected");
 			}
 		});
-		sensorDlProgress = (ProgressBar) view.findViewById(R.id.sensor_dl_progress);
-		sensorRetryButton = (Button) view.findViewById(R.id.retrybutton);
+		sensorDlProgress = (ProgressBar) selectCarView.findViewById(R.id.sensor_dl_progress);
+		sensorRetryButton = (Button) selectCarView.findViewById(R.id.retrybutton);
 		sensorRetryButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -173,8 +188,8 @@ public class CarSelectionPreference extends DialogPreference {
 
 		getCarList();
 		
-		view.findViewById(R.id.mygaragelayout).requestFocus();
-		view.findViewById(R.id.mygaragelayout).requestFocusFromTouch();
+//		rootView.findViewById(R.id.mygaragelayout).requestFocus();
+//		rootView.findViewById(R.id.mygaragelayout).requestFocusFromTouch();
 	}
 
 	private void setupCarCreationItems(View view) {
@@ -265,21 +280,21 @@ public class CarSelectionPreference extends DialogPreference {
 						}
 					});
 
-			garageForm.setVisibility(View.VISIBLE);
-			garageForm.animate().setDuration(shortAnimTime)
-					.alpha(show ? 0 : 1)
-					.setListener(new AnimatorListenerAdapter() {
-						@Override
-						public void onAnimationEnd(Animator animation) {
-							garageForm.setVisibility(show ? View.GONE
-									: View.VISIBLE);
-						}
-					});
+//			garageForm.setVisibility(View.VISIBLE);
+//			garageForm.animate().setDuration(shortAnimTime)
+//					.alpha(show ? 0 : 1)
+//					.setListener(new AnimatorListenerAdapter() {
+//						@Override
+//						public void onAnimationEnd(Animator animation) {
+//							garageForm.setVisibility(show ? View.GONE
+//									: View.VISIBLE);
+//						}
+//					});
 		} else {
 			// The ViewPropertyAnimator APIs are not available, so simply show
 			// and hide the relevant UI components.
 			garageProgress.setVisibility(show ? View.VISIBLE : View.GONE);
-			garageForm.setVisibility(show ? View.GONE : View.VISIBLE);
+//			garageForm.setVisibility(show ? View.GONE : View.VISIBLE);
 		}
 	}
 
@@ -467,6 +482,9 @@ public class CarSelectionPreference extends DialogPreference {
 		sensorSpinner.setAdapter(adapter);
 		int index = adapter.getInitialSelectedItem();
 		sensorSpinner.setSelection(index);
+		if (index > 0) {
+			updateCurrentSensor(car);
+		}
 	}
 	
 	public void getCarList() {
@@ -540,6 +558,18 @@ public class CarSelectionPreference extends DialogPreference {
 	 */
 	private void updateCurrentSensor(Car car) {
 		this.car = car;
+		
+		if (car != null) {
+			((TextView) selectedCarDetails.findViewById(R.id.car_constructionYear_value)).setText(car.getConstructionYear()+"");
+			((TextView) selectedCarDetails.findViewById(R.id.car_engineDisplacement_value)).setText(car.getEngineDisplacement()+"");
+			((TextView) selectedCarDetails.findViewById(R.id.car_manufacturer_value)).setText(car.getManufacturer());
+			((TextView) selectedCarDetails.findViewById(R.id.car_model_value)).setText(car.getModel());
+			selectedCarDetails.setVisibility(View.VISIBLE);
+		}
+		else {
+			selectedCarDetails.setVisibility(View.GONE);
+		}
+		
 	}
 
 	@Override
@@ -757,7 +787,100 @@ public class CarSelectionPreference extends DialogPreference {
         	return text;
         }
 
-    }		
+    }
+	
+	private class LocalListAdapter extends BaseExpandableListAdapter {
+
+		private LinearLayout firstView;
+		private LinearLayout secondView;
+		private View firstGroupView;
+		private View secondGroupView;
+		private int lastExpandedGroupPosition;
+
+		public LocalListAdapter(LinearLayout firstView, LinearLayout secondView) {
+			this.firstView = firstView;
+			this.secondView = secondView;
+			this.firstGroupView = RelativeLayout.inflate(getContext(), R.layout.car_selection_group_view, null);
+			((TextView) this.firstGroupView.findViewById(R.id.function)).setText(R.string.title_select_sensor);
+			this.secondGroupView = RelativeLayout.inflate(getContext(), R.layout.car_selection_group_view, null);
+			((TextView) this.secondGroupView.findViewById(R.id.function)).setText(R.string.title_create_new_sensor);
+		}
+
+		@Override
+		public Object getChild(int groupPosition, int childPosition) {
+			return getChildView(groupPosition, childPosition, false, null, null);
+		}
+
+		@Override
+		public long getChildId(int groupPosition, int childPosition) {
+			return getChild(groupPosition, childPosition).hashCode();
+		}
+
+		@Override
+		public View getChildView(int groupPosition, int childPosition,
+				boolean isLastChild, View convertView, ViewGroup parent) {
+			if (groupPosition == 0) {
+				return firstView;
+			}
+			else if (groupPosition == 1) {
+				return secondView;
+			}
+			return null;
+		}
+		
+	    @Override
+	    public void onGroupExpanded(int groupPosition){
+	        if (groupPosition != lastExpandedGroupPosition){
+	            listView.collapseGroup(lastExpandedGroupPosition);
+	        }
+
+	        super.onGroupExpanded(groupPosition);           
+	        lastExpandedGroupPosition = groupPosition;
+	    }
+
+		@Override
+		public int getChildrenCount(int groupPosition) {
+			return 1;
+		}
+
+		@Override
+		public Object getGroup(int groupPosition) {
+			return getGroupView(groupPosition, false, null, null);
+		}
+
+		@Override
+		public int getGroupCount() {
+			return 2;
+		}
+
+		@Override
+		public long getGroupId(int groupPosition) {
+			return getGroup(groupPosition).hashCode();
+		}
+
+		@Override
+		public View getGroupView(int groupPosition, boolean isExpanded,
+				View convertView, ViewGroup parent) {
+			if (groupPosition == 0) {
+				return firstGroupView;
+			}
+			else if (groupPosition == 1) {
+				return secondGroupView;
+			}
+			return null;
+		}
+
+		@Override
+		public boolean hasStableIds() {
+			return true;
+		}
+
+		@Override
+		public boolean isChildSelectable(int groupPosition, int childPosition) {
+			return true;
+		}
+		
+	}
 
 	
 }

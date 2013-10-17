@@ -151,6 +151,7 @@ public class ListTracksFragment extends SherlockFragment {
 		parentLayout = v.findViewById(R.id.list_tracks_parent);
 		
 		trackListView = (ExpandableListView) v.findViewById(R.id.list);
+		
 		progressLayout = v.findViewById(R.id.progress_layout);
 		progressStatusText = (TextView) v.findViewById(R.id.progress_status);
 		
@@ -170,6 +171,7 @@ public class ListTracksFragment extends SherlockFragment {
 			}
 
 		});
+		
 		return v;
 	};
 	
@@ -183,8 +185,7 @@ public class ListTracksFragment extends SherlockFragment {
 		
 		logger.info("Create view ListTracksFragment");
 		super.onViewCreated(view, savedInstanceState);
-		trackListView.setGroupIndicator(getResources().getDrawable(
-				R.drawable.list_indicator));
+		trackListView.setGroupIndicator(getResources().getDrawable(R.drawable.group_indicator));
 		trackListView.setChildDivider(getResources().getDrawable(
 				android.R.color.transparent));
 		

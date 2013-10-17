@@ -1,0 +1,43 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mygaragelayout"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/abs__background_holo_light"
+    tools:context=".MyGarage" 
+        android:descendantFocusability="beforeDescendants"
+		android:focusableInTouchMode="true">
+
+    <LinearLayout
+        android:id="@+id/addCarToGarage_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:orientation="vertical"
+        android:visibility="gone" >
+
+        <TextView
+            android:id="@+id/addCarToGarage_status_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:fontFamily="sans-serif-light"
+            android:text="@string/register_progress_signing_in"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    </LinearLayout>
+
+    <!-- register car at server form -->
+
+
+        <ExpandableListView 
+            android:id="@+id/car_selection_expandable_list"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent" 
+	        android:groupIndicator="@drawable/list_indicator"
+	        android:childIndicator="@drawable/list_indicator"
+	        android:descendantFocusability="afterDescendants">
+        
+        </ExpandableListView>
+        
+
+</RelativeLayout>
