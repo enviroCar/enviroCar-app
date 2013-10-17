@@ -95,6 +95,13 @@ public class UploadManager {
 		supportedPhenomenons.add(PropertyKey.CONSUMPTION);
 		supportedPhenomenons.add(PropertyKey.ENGINE_LOAD);
 		supportedPhenomenons.add(PropertyKey.THROTTLE_POSITON);
+		supportedPhenomenons.add(PropertyKey.GPS_ACCURACY);
+		supportedPhenomenons.add(PropertyKey.GPS_ALTITUDE);
+		supportedPhenomenons.add(PropertyKey.GPS_BEARING);
+		supportedPhenomenons.add(PropertyKey.GPS_HDOP);
+		supportedPhenomenons.add(PropertyKey.GPS_PDOP);
+		supportedPhenomenons.add(PropertyKey.GPS_VDOP);
+		supportedPhenomenons.add(PropertyKey.GPS_SPEED);
 	}
 	
 	private String url = ECApplication.BASE_URL + "/users/%1$s/tracks";
