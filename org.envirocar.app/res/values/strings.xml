@@ -90,6 +90,7 @@
     <string name="diesel">Diesel</string>
     <string name="register_car">Register Car</string>
     <string name="register_car_progress">Register Car Progress</string>
+    <string name="register_car_success">successfully registered.</string>
     <string name="prompt_car_model">Car model</string>
     <string name="prompt_car_manufacturer">Car manufacturer</string>
     <string name="prompt_car_constructionYear">Construction year</string>

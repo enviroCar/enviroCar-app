@@ -53,13 +53,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Build;
+import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.DialogPreference;
@@ -98,7 +96,6 @@ public class CarSelectionPreference extends DialogPreference {
 	private static final Logger logger = Logger.getLogger(CarSelectionPreference.class);
 	private static final String DEFAULT_VALUE = "null";
 	private Car car;
-	private LinearLayout garageProgress;
 	private EditText modelEditText;
 	private EditText manufacturerEditText;
 	private EditText constructionYearEditText;
@@ -118,6 +115,10 @@ public class CarSelectionPreference extends DialogPreference {
 	private RadioButton dieselRadioButton;
 	private EditText engineDisplacementEditText;
 	private TableLayout selectedCarDetails;
+	private View registerButton;
+	private ProgressBar carRegisterProgress;
+	private TextView carRegisterStatusText;
+	private View carRegisterForm;
 	
 	
 	public CarSelectionPreference(Context context, AttributeSet attrs) {
@@ -133,6 +134,8 @@ public class CarSelectionPreference extends DialogPreference {
 	@Override
 	protected void onBindDialogView(View view) {
 		setupUIItems(view);
+		
+		getCarList();
 	}
 	
 	
@@ -143,10 +146,7 @@ public class CarSelectionPreference extends DialogPreference {
 		
 		selectedCarDetails = (TableLayout) selectCarView.findViewById(R.id.selected_car_details);
 		
-//		garageForm = (ScrollView) rootView.findViewById(R.id.garage_form);
-		garageProgress = (LinearLayout) rootView.findViewById(R.id.addCarToGarage_status);
-		
-		setupCarCreationItems(registerCarView);
+		setupCarRegistrationItems(registerCarView);
 
 		sensorSpinner = (Spinner) selectCarView.findViewById(R.id.dashboard_current_sensor_spinner);
 		sensorSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -177,13 +177,11 @@ public class CarSelectionPreference extends DialogPreference {
 			}
 		});
 
-		getCarList();
-		
 //		rootView.findViewById(R.id.mygaragelayout).requestFocus();
 //		rootView.findViewById(R.id.mygaragelayout).requestFocusFromTouch();
 	}
-
-	private void setupCarCreationItems(View view) {
+	
+	private void setupCarRegistrationItems(View view) {
 		modelEditText = (EditText) view.findViewById(R.id.addCarToGarage_car_model);
 		manufacturerEditText = (EditText) view.findViewById(R.id.addCarToGarage_car_manufacturer);
 		constructionYearEditText = (EditText) view.findViewById(R.id.addCarToGarage_car_constructionYear);
@@ -231,61 +229,37 @@ public class CarSelectionPreference extends DialogPreference {
 		dieselRadioButton = (RadioButton) view.findViewById(R.id.radio_diesel);
 		dieselRadioButton.setOnClickListener(listener);
 		
-		view.findViewById(R.id.register_car_button).setOnClickListener(
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View view) {
-//						if(UserManager.instance().isLoggedIn()){
-							registerSensorAtServer(SENSOR_TYPE, carManufacturer,
-									carModel, carConstructionYear, carFuelType, carEngineDisplacement);
-//						}
-//						else {
-//							Toast.makeText(getDialog().getContext(),
-//									"Please log in", Toast.LENGTH_SHORT).show();
-//						}
-					}
-				});
+		carRegisterProgress = (ProgressBar) view.findViewById(R.id.car_register_progress);
+		carRegisterStatusText = (TextView) view.findViewById(R.id.car_register_status_text);
+		carRegisterForm = view.findViewById(R.id.car_register_form);
+		
+		registerButton = view.findViewById(R.id.register_car_button);
+		registerButton.setOnClickListener(
+			new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					registerSensorAtServer(SENSOR_TYPE, carManufacturer,
+								carModel, carConstructionYear, carFuelType, carEngineDisplacement);
+				}
+			});
 	}
 	
 	/**
 	 * Shows the progress UI and hides the register form.
 	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-	private void showProgress(final boolean show) {
-		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-		// for very easy animations. If available, use these APIs to fade-in
-		// the progress spinner.
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-			int shortAnimTime = getContext().getResources().getInteger(
-					android.R.integer.config_shortAnimTime);
-
-			garageProgress.setVisibility(View.VISIBLE);
-			garageProgress.animate().setDuration(shortAnimTime)
-					.alpha(show ? 1 : 0)
-					.setListener(new AnimatorListenerAdapter() {
-						@Override
-						public void onAnimationEnd(Animator animation) {
-							garageProgress
-									.setVisibility(show ? View.VISIBLE
-											: View.GONE);
-						}
-					});
-
-//			garageForm.setVisibility(View.VISIBLE);
-//			garageForm.animate().setDuration(shortAnimTime)
-//					.alpha(show ? 0 : 1)
-//					.setListener(new AnimatorListenerAdapter() {
-//						@Override
-//						public void onAnimationEnd(Animator animation) {
-//							garageForm.setVisibility(show ? View.GONE
-//									: View.VISIBLE);
-//						}
-//					});
-		} else {
-			// The ViewPropertyAnimator APIs are not available, so simply show
-			// and hide the relevant UI components.
-			garageProgress.setVisibility(show ? View.VISIBLE : View.GONE);
-//			garageForm.setVisibility(show ? View.GONE : View.VISIBLE);
+	private void changeProgress(final boolean show, String statusText) {
+		registerButton.setEnabled(!show && statusText == null);
+		carRegisterForm.setVisibility(show || statusText != null ? View.INVISIBLE: View.VISIBLE);
+		carRegisterForm.invalidate();
+		
+		if (statusText != null) {
+			carRegisterStatusText.setText(statusText);
+			carRegisterStatusText.setVisibility(View.VISIBLE);
+			carRegisterProgress.setVisibility(View.GONE);
+		}
+		else {
+			carRegisterProgress.setIndeterminate(true);
+			carRegisterProgress.setVisibility(show ? View.VISIBLE : View.GONE);
 		}
 	}
 
@@ -322,61 +296,81 @@ public class CarSelectionPreference extends DialogPreference {
 		String username = user.getUsername();
 		String token = user.getToken();
 		
-		if (((SettingsActivity) getContext()).isConnectedToInternet()) {
+		if (((SettingsActivity) getContext()).isConnectedToInternet() && UserManager.instance().isLoggedIn()) {
 		
-		RestClient.createSensor(sensorString, username, token, new AsyncHttpResponseHandler(){
-			
-			@Override
-			public void onStart() {
-				super.onStart();
-				showProgress(true);
-			}
-
-			@Override
-			public void onFailure(Throwable error, String content) {
-				super.onFailure(error, content);
-				if (content != null && content.equals("can't resolve host") ){
-					Toast.makeText(getContext(),
-							getContext().getString(R.string.error_host_not_found), Toast.LENGTH_SHORT).show();
-				} else if (content != null && content.contains("Unauthorized")){
-						logger.info("Tried to register new car while not logged in. Creating temporary car.");
-						Crouton.makeText(
-								(Activity) getContext(),
-								getContext().getResources().getString(
-										R.string.creating_temp_car),
-								Style.INFO).show();
-						createTemporaryCar();
-				} else {
-					logger.warn("Received error response: "+ content +"; "+error.getMessage(), error);
-					//TODO i18n
-					Toast.makeText(getContext(), "Server Error: "+content, Toast.LENGTH_SHORT).show();
-				}
-				showProgress(false);
-			}
-			
-			
-			@Override
-			public void onSuccess(int httpStatusCode, Header[] h, String response) {
-				super.onSuccess(httpStatusCode, h, response);
-				String location = "";
-				for (int i = 0; i< h.length; i++){
-					if( h[i].getName().equals("Location")){
-						location += h[i].getValue();
-						break;
-					}
-				}
-				logger.info(httpStatusCode+" "+location);
+			RestClient.createSensor(sensorString, username, token, new AsyncHttpResponseHandler(){
 				
-				String sensorId = location.substring(location.lastIndexOf("/")+1, location.length());
+				@Override
+				public void onStart() {
+					super.onStart();
+					changeProgress(true, null);
+				}
+	
+				@Override
+				public void onFailure(Throwable error, String content) {
+					super.onFailure(error, content);
+					if (content != null && content.equals("can't resolve host") ){
+						Toast.makeText(getContext(),
+								getContext().getString(R.string.error_host_not_found), Toast.LENGTH_SHORT).show();
+					} else if (content != null && content.contains("Unauthorized")){
+							logger.info("Tried to register new car while not logged in. Creating temporary car.");
+							Crouton.makeText(
+									(Activity) getContext(),
+									getContext().getResources().getString(
+											R.string.creating_temp_car),
+									Style.INFO).show();
+							createTemporaryCar();
+					} else {
+						logger.warn("Received error response: "+ content +"; "+error.getMessage(), error);
+						//TODO i18n
+						Toast.makeText(getContext(), "Server Error: "+error.getMessage(), Toast.LENGTH_SHORT).show();
+					}
+					changeProgress(false, error.getMessage());
+				}
+				
+				
+				@Override
+				public void onSuccess(int httpStatusCode, Header[] h, String response) {
+					super.onSuccess(httpStatusCode, h, response);
+					
+					String location = "";
+					for (int i = 0; i< h.length; i++){
+						if( h[i].getName().equals("Location")){
+							location += h[i].getValue();
+							break;
+						}
+					}
+					logger.info(httpStatusCode+" "+location);
+					
+					String sensorId = location.substring(location.lastIndexOf("/")+1, location.length());
+	
+					//put the sensor id into shared preferences
+					int engineDisplacement = Integer.parseInt(carEngineDisplacement);
+					int year = Integer.parseInt(carConstructionYear);
+					car = new Car(Car.resolveFuelType(carFuelType), carManufacturer, carModel, sensorId, year, engineDisplacement);
+					persistCar();
+					changeProgress(false, String.format("%s %s", car.toString(), resolveSuccesString()));
+					new Handler().postDelayed(new Runnable() {
+						@Override
+						public void run() {
+							Dialog dialog = getDialog();
+							if (dialog != null) {
+								dialog.dismiss();
+							}
+						}
+					}, 2000);
+				}
 
-				//put the sensor id into shared preferences
-				int engineDisplacement = Integer.parseInt(carEngineDisplacement);
-				int year = Integer.parseInt(carConstructionYear);
-				car = new Car(Car.resolveFuelType(carFuelType), carManufacturer, carModel, sensorId, year, engineDisplacement);
-				persistCar();
-			}
-		});
-		}else{
+				private String resolveSuccesString() {
+					try {
+						return getContext().getResources().getString(R.string.register_car_success);
+					} catch (RuntimeException e) {
+					}
+					return "succesfully registered.";
+				}
+			});
+		}
+		else {
 			createTemporaryCar();
 		}
 

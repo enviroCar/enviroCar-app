@@ -108,6 +108,7 @@
     <string name="diesel">Diesel</string>
     <string name="register_car">Auto neu erstellen</string>
     <string name="register_car_progress">Auto erstellen Fortschritt</string>
+    <string name="register_car_success">erfolgreich registriert.</string>
     <string name="prompt_car_model">Modell</string>
     <string name="prompt_car_manufacturer">Hersteller</string>
     <string name="prompt_car_constructionYear">Baujahr</string>

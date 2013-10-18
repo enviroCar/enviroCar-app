@@ -39,11 +39,14 @@ public class FakeExpandableListGroupView extends LinearLayout {
 	private static final String NAMESPACE = "http://envirocar.org";
 	private static final String LINKED_VIEW_KEY = "linkedView";
 	private static final String INDICATOR_KEY = "indicatorImageView";
+	private static final String INITIAL_STATE = "expanded";
 
 	private View linkedView;
 	private int linkedViewId;
 	private int indicatorId;
 	protected ImageView indicatorView;
+	private boolean initialState;
+	private boolean firstRun = true;
 
 	public FakeExpandableListGroupView(Context context) {
 		super(context);
@@ -55,24 +58,17 @@ public class FakeExpandableListGroupView extends LinearLayout {
 		this.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				if (linkedView == null) {
-					if (linkedViewId != Integer.MIN_VALUE) {
-						try {
-							linkedView = resolveLinkedView(linkedViewId);
-						} catch (IllegalStateException e) {
-							return;
-						}
-					}
+				try {
+					linkedView = resolveLinkedView(linkedViewId, linkedView);
+				} catch (IllegalStateException e) {
+					return;
 				}
 
-				if (indicatorView == null) {
-					try {
-						indicatorView = (ImageView) resolveLinkedView(indicatorId);
-					} catch (IllegalStateException e) {
-						return;
-					}
+				try {
+					indicatorView = (ImageView) resolveLinkedView(indicatorId, indicatorView);
+				} catch (IllegalStateException e) {
+					return;
 				}
-
 
 				changeState(linkedView.getVisibility());
 			}
@@ -83,19 +79,20 @@ public class FakeExpandableListGroupView extends LinearLayout {
 		switch (visibility) {
 		case View.GONE:
 			linkedView.setVisibility(View.VISIBLE);
-			indicatorView.getDrawable().setState(new int[] {android.R.attr.state_expanded});
+			indicatorView.setImageState(new int[] {android.R.attr.state_expanded}, false);
 			break;
 		case View.VISIBLE:
 			linkedView.setVisibility(View.GONE);
-			indicatorView.getDrawable().setState(new int[] {-android.R.attr.state_expanded});
+			indicatorView.setImageState(new int[] {}, false);
 			break;
 		case View.INVISIBLE:
 			linkedView.setVisibility(View.VISIBLE);
-			indicatorView.getDrawable().setState(new int[] {android.R.attr.state_expanded});
+			indicatorView.setImageState(new int[] {android.R.attr.state_expanded}, false);
 			break;
 		default:
 			break;
 		}
+		
 		
 		createColorAnimation();		
 	}
@@ -159,20 +156,53 @@ public class FakeExpandableListGroupView extends LinearLayout {
 				LINKED_VIEW_KEY, Integer.MIN_VALUE);
 		indicatorId = attrs.getAttributeResourceValue(NAMESPACE, INDICATOR_KEY,
 				Integer.MIN_VALUE);
+		initialState = attrs.getAttributeBooleanValue(NAMESPACE, INITIAL_STATE, false);
+	}
+	
+	@Override
+	protected void onLayout(boolean changed, int l, int t, int r, int b) {
+		super.onLayout(changed, l, t, r, b);
+		
+		synchronized (this) {
+			if (firstRun) {
+				try {
+					linkedView = resolveLinkedView(linkedViewId, linkedView);
+					indicatorView = (ImageView) resolveLinkedView(indicatorId, indicatorView);
+					
+					if (initialState) {
+						linkedView.setVisibility(View.VISIBLE);
+						indicatorView.setImageState(new int[] {android.R.attr.state_expanded}, false);
+					}
+					else {
+						linkedView.setVisibility(View.GONE);
+						indicatorView.setImageState(new int[] {}, false);
+					}
+					
+					firstRun = false;
+				} catch (IllegalStateException e) {
+				}		
+			}
+		}
+		
 	}
 
-	private View resolveLinkedView(int linkedViewId) {
-		int depth = 10;
-		ViewParent tmp = getParent();
+	private View resolveLinkedView(int targetViewId, View target) {
+		if (target != null) return target;
+		
 		View resultView = null;
-		while (tmp != null && resultView == null && depth-- > 0) {
-			if (tmp instanceof View) {
-				resultView = ((View) tmp).findViewById(linkedViewId);
+		if (targetViewId != Integer.MIN_VALUE) {
+			int depth = 10;
+			ViewParent tmp = getParent();
+			
+			while (tmp != null && resultView == null && depth-- > 0) {
+				if (tmp instanceof View) {
+					resultView = ((View) tmp).findViewById(targetViewId);
+				}
+
+				tmp = tmp.getParent();
 			}
-
-			tmp = tmp.getParent();
 		}
-
+		
 		if (resultView == null) {
 			throw new IllegalStateException("Could not resolve related view.");
 		}

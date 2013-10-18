@@ -4,33 +4,16 @@
     android:id="@+id/mygaragelayout"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="@color/abs__background_holo_light"
     android:descendantFocusability="beforeDescendants"
     android:focusableInTouchMode="true"
     tools:context=".MyGarage">
 
-    <LinearLayout
-        android:id="@+id/addCarToGarage_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:orientation="vertical"
-        android:visibility="gone" >
-
-        <TextView
-            android:id="@+id/addCarToGarage_status_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:fontFamily="sans-serif-light"
-            android:text="@string/register_progress_signing_in"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-    </LinearLayout>
-
     <ScrollView
         android:fillViewport="true"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
+        android:layout_height="fill_parent"
+        android:background="@color/abs__background_holo_light"
+        >
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -44,7 +27,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 enviroCar:linkedView="@+id/car_selection_select_car"
-                enviroCar:indicatorImageView="@+id/indicator_select" >
+                enviroCar:indicatorImageView="@+id/indicator_select"
+                enviroCar:expanded="true">
 
 			    <ImageView    
 			        android:id="@+id/indicator_select"
@@ -52,7 +36,7 @@
 			        android:layout_height="wrap_content"
 			        android:layout_alignParentLeft="true"
 			        android:layout_centerVertical="true"
-			        android:contentDescription="expand"
+			        android:contentDescription="@string/title_select_sensor"
 			        android:src="@drawable/group_indicator" />
 			    
 			    <TextView
@@ -83,7 +67,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 enviroCar:linkedView="@+id/car_selection_register_car" 
-                enviroCar:indicatorImageView="@+id/indicator_register">
+                enviroCar:indicatorImageView="@+id/indicator_register"
+                >
 
 			    <ImageView    
 			        android:id="@+id/indicator_register"
@@ -91,7 +76,7 @@
 			        android:layout_height="wrap_content"
 			        android:layout_alignParentLeft="true"
 			        android:layout_centerVertical="true"
-			        android:contentDescription="expand"
+			        android:contentDescription="@string/title_create_new_sensor"
 			        android:src="@drawable/group_indicator" />
 			    
 			    <TextView
@@ -104,7 +89,7 @@
 			        android:scrollHorizontally="true"
 			        android:singleLine="true"
 			        android:textSize="14sp"
-			        android:text="@string/title_select_sensor"
+			        android:text="@string/title_create_new_sensor"
 			        android:paddingLeft="5dp">
 			    </TextView>
                 
