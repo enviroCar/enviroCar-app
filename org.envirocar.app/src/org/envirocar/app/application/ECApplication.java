@@ -73,7 +73,8 @@ public class ECApplication extends Application {
 	private static final Logger logger = Logger.getLogger(ECApplication.class);
 	
 	// Strings
-
+	
+//	public static final String BASE_URL = "http://192.168.1.142:8080/webapp-1.1.0-SNAPSHOT/rest";
 	public static final String BASE_URL = "https://giv-car.uni-muenster.de/stable/rest";
 
 	private SharedPreferences preferences = null;

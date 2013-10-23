@@ -126,7 +126,7 @@ public class ListTracksFragment extends SherlockFragment {
 	private TextView statusText;
 	private View statusProgressBar;
 	
-	private int remoteTrackCount;
+	private AtomicInteger remoteTrackCount = new AtomicInteger(-1);
 	
 	protected static final Logger logger = Logger.getLogger(ListTracksFragment.class);
 	
@@ -557,6 +557,8 @@ public class ListTracksFragment extends SherlockFragment {
 			@Override
 			public void onSuccessfulUpload(Track track) {
 				trackListAdapter.updateTrackGroupView(track);
+				remoteTrackCount.getAndIncrement();
+				updateStatusLayout();
 			}
 		};
 		
@@ -694,8 +696,11 @@ public class ListTracksFragment extends SherlockFragment {
 	}
 
 	protected String createRemoteTrackCountString() {
-		if (remoteTrackCount < 100) {
-			return Integer.toString(remoteTrackCount);
+		if (remoteTrackCount.get() < 100) {
+			return Integer.toString(remoteTrackCount.get());
+		}
+		else if (remoteTrackCount.get() < 0) {
+			return "?";
 		}
 		return "100+";
 	}
@@ -752,7 +757,7 @@ public class ListTracksFragment extends SherlockFragment {
 
 				try {
 					JSONArray tracks = response.getJSONArray("tracks");
-					remoteTrackCount = tracks.length();
+					remoteTrackCount.set(tracks.length());
 				}
 				catch (JSONException e) {
 					logger.warn(e.getMessage(), e);
@@ -957,12 +962,31 @@ public class ListTracksFragment extends SherlockFragment {
 			return true;
 		}
 		
-		public void updateTrackGroupView(Track t) {
+		public void updateTrackGroupView(final Track t) {
 			View groupRow = trackToGroupViewMap.get(t);
 			
+			if (groupRow == null) {
+				/*
+				 * fallback, unknown object id, but could be in the db
+				 */
+				for (Track tmp : trackToGroupViewMap.keySet()) {
+					if (tmp.getId() == t.getId()) {
+						groupRow = trackToGroupViewMap.get(tmp);
+						break;
+					}
+				}
+			}
+			
+			final View groupToAdjut = groupRow;
+			
 			if (groupRow != null) {
-				setTrackTypeImage(t, groupRow);
-				groupRow.invalidate();
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						setTrackTypeImage(t, groupToAdjut);
+						groupToAdjut.invalidate();
+					}
+				});
 			}
 		}
 
@@ -990,9 +1014,12 @@ public class ListTracksFragment extends SherlockFragment {
 		private void setTrackTypeImage(Track t, View groupRow) {
 			TextView textView = (TextView) groupRow.findViewById(R.id.track_name_textview);
 			textView.setText(t.getName());
+			
+			ImageView imageView = (ImageView) groupRow.findViewById(R.id.track_icon_view);
 			if (t.isLocalTrack()){
-				ImageView imageView = (ImageView) groupRow.findViewById(R.id.track_icon_view);
 				imageView.setImageDrawable(getResources().getDrawable( R.drawable.mobile ));
+			} else {
+				imageView.setImageDrawable(getResources().getDrawable( R.drawable.server ));
 			}
 		}
 
