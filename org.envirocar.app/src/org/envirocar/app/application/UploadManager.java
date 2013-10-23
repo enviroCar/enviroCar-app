@@ -123,25 +123,22 @@ public class UploadManager {
 	/**
 	 * This methods uploads all local tracks to the server
 	 */
-	public void uploadAllTracks(){
+	public void uploadAllTracks(TrackUploadFinishedHandler callback) {
 		for (Track track : dbAdapter.getAllLocalTracks()) {
-			if(isCarOfTrackSavedLocallyOnly(track)){
-				registerCarBeforeUpload(track);
-			}
-			new UploadAsyncTask().execute(track);
+			uploadSingleTrack(track, callback);
 		}
 	}
 	
-	public void uploadSingleTrack(Track track){
+	public void uploadSingleTrack(Track track, TrackUploadFinishedHandler callback) {
 		if (track == null ) return;
 		
-		if(isCarOfTrackSavedLocallyOnly(track)){
+		if (isCarOfTrackSavedLocallyOnly(track)) {
 			registerCarBeforeUpload(track);
 		}
-		new UploadAsyncTask().execute(track);
+		new UploadAsyncTask(callback).execute(track);
 	}
 	
-	private void registerCarBeforeUpload(Track track){
+	private void registerCarBeforeUpload(Track track) {
 
 		Car car = track.getCar();
 		String sensorString = String
@@ -167,11 +164,11 @@ public class UploadManager {
 
 	}
 	
-	private boolean isCarOfTrackSavedLocallyOnly(Track track){		
+	private boolean isCarOfTrackSavedLocallyOnly(Track track) {		
 		return track.getCar().getId().startsWith(Car.TEMPORARY_SENSOR_ID);
 	}
 	
-	private String registerSensor(String sensorString) throws IOException{
+	private String registerSensor(String sensorString) throws IOException {
 		
 		User user = UserManager.instance().getUser();
 		String username = user.getUsername();
@@ -215,7 +212,7 @@ public class UploadManager {
 				location.length());
 	}
 	
-	private class SensorUploadTask extends AsyncTask<String, String, String>{
+	private class SensorUploadTask extends AsyncTask<String, String, String> {
 
 		@Override
 		protected String doInBackground(String... params) {
@@ -233,6 +230,12 @@ public class UploadManager {
 	private class UploadAsyncTask extends AsyncTask<Track, Track, Track> {
 		
 		
+		private TrackUploadFinishedHandler callback;
+
+		public UploadAsyncTask(TrackUploadFinishedHandler callback) {
+			this.callback = callback;
+		}
+
 		@Override
 		protected Track doInBackground(Track... params) {
 			((ECApplication) context).createNotification("start");
@@ -299,19 +302,15 @@ public class UploadManager {
 				((ECApplication) context).createNotification("success");
 				track.setRemoteID(httpResult);
 				dbAdapter.updateTrack(track);
+				
+				if (callback != null) {
+					callback.onSuccessfulUpload(track);
+				}
 			}
 			
 			return track;
 		}
 		
-		@Override
-		protected void onPostExecute(Track track) {
-			/*
-			 * TODO inform possible interested components about the upload
-			 */
-		}
-			
-
 	}
 
 	public String getTrackJSON(Track track) throws JSONException, TrackWithoutMeasurementsException {

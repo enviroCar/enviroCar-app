@@ -47,6 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.TermsOfUseManager;
+import org.envirocar.app.application.TrackUploadFinishedHandler;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
@@ -551,10 +552,18 @@ public class ListTracksFragment extends SherlockFragment {
 	 * @param track a single track to upload
 	 */
 	private void uploadTracks(boolean all, Track track) {
+		
+		TrackUploadFinishedHandler callback = new TrackUploadFinishedHandler() {
+			@Override
+			public void onSuccessfulUpload(Track track) {
+				trackListAdapter.updateTrackGroupView(track);
+			}
+		};
+		
 		if (all) {
-			new UploadManager(((ECApplication) getActivity().getApplication())).uploadAllTracks();
+			new UploadManager(((ECApplication) getActivity().getApplication())).uploadAllTracks(callback);
 		} else {
-			new UploadManager(((ECApplication) getActivity().getApplication())).uploadSingleTrack(track);		
+			new UploadManager(((ECApplication) getActivity().getApplication())).uploadSingleTrack(track, callback);		
 		}
 	}
 
@@ -833,7 +842,6 @@ public class ListTracksFragment extends SherlockFragment {
 							
 							List<String> tracksToDownload = new ArrayList<String>();
 							unprocessedTrackCount = tracks.length();
-							remoteTrackCount = tracks.length();
 							for (int i = 0; i < tracks.length(); i++) {
 
 								String remoteId = ((JSONObject) tracks.get(i)).getString("id");
@@ -948,6 +956,15 @@ public class ListTracksFragment extends SherlockFragment {
 		public boolean hasStableIds() {
 			return true;
 		}
+		
+		public void updateTrackGroupView(Track t) {
+			View groupRow = trackToGroupViewMap.get(t);
+			
+			if (groupRow != null) {
+				setTrackTypeImage(t, groupRow);
+				groupRow.invalidate();
+			}
+		}
 
 		@Override
 		public View getGroupView(int i, boolean b, View view,
@@ -957,12 +974,7 @@ public class ListTracksFragment extends SherlockFragment {
 				t = tracksList.get(i);
 				if (!trackToGroupViewMap.containsKey(t)) {
 					View groupRow = ViewGroup.inflate(getActivity(), R.layout.list_tracks_group_layout, null);
-					TextView textView = (TextView) groupRow.findViewById(R.id.track_name_textview);
-					textView.setText(t.getName());
-					if(t.isLocalTrack()){
-						ImageView imageView = (ImageView) groupRow.findViewById(R.id.track_icon_view);
-						imageView.setImageDrawable(getResources().getDrawable( R.drawable.mobile ));
-					}
+					setTrackTypeImage(t, groupRow);
 					
 					groupRow.setId(GROUP_VIEW_BASE_ID + i);
 					TypefaceEC.applyCustomFont((ViewGroup) groupRow,
@@ -973,6 +985,15 @@ public class ListTracksFragment extends SherlockFragment {
 			}
 			
 			return trackToGroupViewMap.get(t);
+		}
+
+		private void setTrackTypeImage(Track t, View groupRow) {
+			TextView textView = (TextView) groupRow.findViewById(R.id.track_name_textview);
+			textView.setText(t.getName());
+			if (t.isLocalTrack()){
+				ImageView imageView = (ImageView) groupRow.findViewById(R.id.track_icon_view);
+				imageView.setImageDrawable(getResources().getDrawable( R.drawable.mobile ));
+			}
 		}
 
 		@Override
