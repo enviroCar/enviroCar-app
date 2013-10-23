@@ -126,7 +126,7 @@ public class Track implements Comparable<Track> {
 	 * @return the localTrack
 	 */
 	public boolean isLocalTrack() {
-		return (remoteID == null ? true : false);
+		return !isRemoteTrack();
 	}
 
 	public boolean isRemoteTrack() {

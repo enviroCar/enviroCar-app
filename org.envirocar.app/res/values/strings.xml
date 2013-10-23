@@ -253,5 +253,6 @@ If you discover and problems, please send us an error log (-> report problem). T
 	<string name="co2_initial_value">0 kg/h</string>
 	
 	<string name="speed_initial_value">0 mph</string>
-	
+
+	<string name="track_list_count_text">Showing %1$d local Tracks, %2$d/%3$s remote Tracks:</string>	
 </resources>

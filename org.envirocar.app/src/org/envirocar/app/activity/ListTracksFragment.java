@@ -88,9 +88,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseExpandableListAdapter;
@@ -125,9 +122,10 @@ public class ListTracksFragment extends SherlockFragment {
 	private int itemSelect;
 	
 	private Menu menu;
-	private View progressLayout;
-	private TextView progressStatusText;
-	private View parentLayout;
+	private TextView statusText;
+	private View statusProgressBar;
+	
+	private int remoteTrackCount;
 	
 	protected static final Logger logger = Logger.getLogger(ListTracksFragment.class);
 	
@@ -148,12 +146,10 @@ public class ListTracksFragment extends SherlockFragment {
 
 		View v = inflater.inflate(R.layout.list_tracks_layout, null);
 		
-		parentLayout = v.findViewById(R.id.list_tracks_parent);
-		
 		trackListView = (ExpandableListView) v.findViewById(R.id.list);
 		
-		progressLayout = v.findViewById(R.id.progress_layout);
-		progressStatusText = (TextView) v.findViewById(R.id.progress_status);
+		statusProgressBar = v.findViewById(R.id.list_tracks_status_progress);
+		statusText = (TextView) v.findViewById(R.id.list_tracks_status_text);
 		
 		setProgressStatusText(R.string.fetching_tracks);
 		
@@ -659,7 +655,7 @@ public class ListTracksFragment extends SherlockFragment {
 					}
 						
 				} else {
-					removeProgressLayout();
+					updateStatusLayout();
 				}
 				
 				return null;
@@ -671,33 +667,43 @@ public class ListTracksFragment extends SherlockFragment {
 		
 	}
 
-	protected void removeProgressLayout() {
+	protected void updateStatusLayout() {
 		if (!isAdded()) return;
 		
 		getActivity().runOnUiThread(new Runnable() {
+			
 			@Override
 			public void run() {
-				TranslateAnimation animate = new TranslateAnimation(0,0,0,-progressLayout.getHeight());
-				animate.setDuration(500);
-				animate.setAnimationListener(new AnimationListener() {
-					@Override
-					public void onAnimationStart(Animation animation) {
-						
-					}
-					@Override
-					public void onAnimationRepeat(Animation animation) {
-					}
-					
-					@Override
-					public void onAnimationEnd(Animation animation) {
-						progressLayout.setVisibility(View.GONE);
-					}
-				});
-				parentLayout.startAnimation(animate);
+				statusProgressBar.setVisibility(View.INVISIBLE);
 				
+				statusText.setText(getResources().getString(R.string.track_list_count_text,
+						resolveTrackCount(false),
+						resolveTrackCount(true), createRemoteTrackCountString()));				
 			}
 		});
 		
+	}
+
+	protected String createRemoteTrackCountString() {
+		if (remoteTrackCount < 100) {
+			return Integer.toString(remoteTrackCount);
+		}
+		return "100+";
+	}
+
+	private int resolveTrackCount(boolean remote) {
+		int result = 0;
+		
+		for (Track t : tracksList) {
+			if (t.isRemoteTrack() && remote) {
+				result++;
+			}
+			else if (t.isLocalTrack() && !remote) {
+				result++;
+			}
+		}
+		
+		return result;
 	}
 
 	protected void setProgressStatusText(int resId) {
@@ -706,8 +712,8 @@ public class ListTracksFragment extends SherlockFragment {
 			getActivity().runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					progressStatusText.setText(str);	
-					TypefaceEC.applyCustomFont(progressStatusText,
+					statusText.setText(str);	
+					TypefaceEC.applyCustomFont(statusText,
 							TypefaceEC.Newscycle(getActivity()));
 				}
 			});
@@ -718,7 +724,6 @@ public class ListTracksFragment extends SherlockFragment {
 		if (!isAdded()) return;
 		
 		synchronized (this) {
-			Collections.shuffle(tracksList);
 			Collections.sort(tracksList);	
 		}
 		
@@ -731,146 +736,169 @@ public class ListTracksFragment extends SherlockFragment {
 	}
 
 	private void downloadTracks(final String username, final String token) {
-		RestClient.downloadTracks(username, token, new JsonHttpResponseHandler() {
-			
-			
+		RestClient.downloadTracks(username, token, 100, 1, new JsonHttpResponseHandler() {
 			@Override
-			public void onFailure(Throwable e, JSONObject errorResponse) {
-				super.onFailure(e, errorResponse);
-				logger.warn(e.getMessage(), e);
-			}
-			
-			@Override
-			public void onFailure(Throwable error, String content) {
-				super.onFailure(error, content);
-				logger.warn(content, error);
-			}
-			
-			// Variable that holds the number of trackdl requests
-			private int remoteTrackCount;
-			
-			protected void processDownloadedTrack(JSONObject... trackJson) {
-				
-				Track t;
-				try {
-					t = Track.fromJson(trackJson[0], dbAdapter);
-					
-					synchronized (ListTracksFragment.this) {
-						tracksList.add(t);	
-					}
-					
-					afterOneTrack();
-					
-				} catch (JSONException e) {
-					logger.warn(e.getMessage(), e);
-				} catch (NumberFormatException e) {
-					logger.warn(e.getMessage(), e);
-				} catch (ParseException e) {
-					logger.warn(e.getMessage(), e);
-				}
-			}
-
-			
-			private synchronized void afterOneTrack() {
-				
-				View empty = getView().findViewById(android.R.id.empty);
-				if (empty != null) {
-					empty.setVisibility(View.GONE);
-				}
-				
-				if (--remoteTrackCount == 0) {
-					logger.info("Finished fetching tracks.");
-					removeProgressLayout();
-					updateTrackListView();
-					updateUsabilityOfMenuItems();
-				}
-			}
-
-
-			@Override
-			public void onSuccess(int httpStatus, JSONObject json) {
-				super.onSuccess(httpStatus, json);
+			public void onSuccess(int statusCode, JSONObject response) {
+				super.onSuccess(statusCode, response);
 
 				try {
-					JSONArray tracks = json.getJSONArray("tracks");
-					if (tracks.length() == 0) {
-						removeProgressLayout();
-					}
-					
-					Set<String> localRemoteIds = new HashSet<String>();
-					synchronized (ListTracksFragment.this) {
-						for (Track t : tracksList) {
-							if (t.getRemoteID() != null) {
-								localRemoteIds.add(t.getRemoteID());
-							}
-						}	
-					}
-					
-					logger.info("found "+localRemoteIds.size()+" local tracks which have remoteIds.");
-					
-					List<String> tracksToDownload = new ArrayList<String>();
+					JSONArray tracks = response.getJSONArray("tracks");
 					remoteTrackCount = tracks.length();
-					for (int i = 0; i < tracks.length(); i++) {
-
-						String remoteId = ((JSONObject) tracks.get(i)).getString("id");
-						// check if track is listed. if, continue
-						if (localRemoteIds.contains(remoteId)) {
-							logger.info("Skipping track with remoteId "+remoteId);
+				}
+				catch (JSONException e) {
+					logger.warn(e.getMessage(), e);
+				}
+			}
+			
+			@Override
+			public void onFinish() {
+				super.onFinish();
+				
+				RestClient.downloadTracks(username, token, new JsonHttpResponseHandler() {
+					
+					
+					@Override
+					public void onFailure(Throwable e, JSONObject errorResponse) {
+						super.onFailure(e, errorResponse);
+						logger.warn(e.getMessage(), e);
+					}
+					
+					@Override
+					public void onFailure(Throwable error, String content) {
+						super.onFailure(error, content);
+						logger.warn(content, error);
+					}
+					
+					// Variable that holds the number of trackdl requests
+					private int unprocessedTrackCount;
+					
+					protected void processDownloadedTrack(JSONObject... trackJson) {
+						
+						Track t;
+						try {
+							t = Track.fromJson(trackJson[0], dbAdapter);
+							
+							synchronized (ListTracksFragment.this) {
+								tracksList.add(t);	
+							}
+							
 							afterOneTrack();
-							continue;
+							
+						} catch (JSONException e) {
+							logger.warn(e.getMessage(), e);
+						} catch (NumberFormatException e) {
+							logger.warn(e.getMessage(), e);
+						} catch (ParseException e) {
+							logger.warn(e.getMessage(), e);
+						}
+					}
+
+					
+					private synchronized void afterOneTrack() {
+						
+						View empty = getView().findViewById(android.R.id.empty);
+						if (empty != null) {
+							empty.setVisibility(View.GONE);
 						}
 						
-						tracksToDownload.add(remoteId);
-					}
-					
-					if (!tracksToDownload.isEmpty()) {
-						logger.info("Starting download of "+ tracksToDownload.size() +" tracks");
-						final AtomicInteger index = new AtomicInteger(0);
-						downloadTrack(tracksToDownload, index);
-					}
-						
-				} catch (JSONException e) {
-					logger.warn(e.getMessage(), e);
-				}
-			}
-
-			private void downloadTrack(final List<String> tracksToDownload,
-					final AtomicInteger index) {
-				
-				final String id = tracksToDownload.get(index.get());
-				logger.info("downloading track with remoteId "+id);
-				
-				// download the track
-				RestClient.downloadTrack(username, token, id,
-					new JsonHttpResponseHandler() {
-						
-						@Override
-						public void onFinish() {
-							super.onFinish();
+						if (--unprocessedTrackCount == 0) {
+							logger.info("Finished fetching tracks.");
+							updateStatusLayout();
 							updateTrackListView();
+							updateUsabilityOfMenuItems();
+						}
+					}
+
+
+					@Override
+					public void onSuccess(int httpStatus, JSONObject json) {
+						super.onSuccess(httpStatus, json);
+
+						try {
+							JSONArray tracks = json.getJSONArray("tracks");
+							if (tracks.length() == 0) {
+								updateStatusLayout();
+							}
 							
-							/*
-							 * on finish, start the next track download
-							 */
-							if (index.getAndIncrement() < tracksToDownload.size()) {
+							Set<String> localRemoteIds = new HashSet<String>();
+							synchronized (ListTracksFragment.this) {
+								for (Track t : tracksList) {
+									if (t.getRemoteID() != null) {
+										localRemoteIds.add(t.getRemoteID());
+									}
+								}	
+							}
+							
+							logger.info("found "+localRemoteIds.size()+" local tracks which have remoteIds.");
+							
+							List<String> tracksToDownload = new ArrayList<String>();
+							unprocessedTrackCount = tracks.length();
+							remoteTrackCount = tracks.length();
+							for (int i = 0; i < tracks.length(); i++) {
+
+								String remoteId = ((JSONObject) tracks.get(i)).getString("id");
+								// check if track is listed. if, continue
+								if (localRemoteIds.contains(remoteId)) {
+									logger.info("Skipping track with remoteId "+remoteId);
+									afterOneTrack();
+									continue;
+								}
+								
+								tracksToDownload.add(remoteId);
+							}
+							
+							if (!tracksToDownload.isEmpty()) {
+								logger.info("Starting download of "+ tracksToDownload.size() +" tracks");
+								final AtomicInteger index = new AtomicInteger(0);
 								downloadTrack(tracksToDownload, index);
 							}
+								
+						} catch (JSONException e) {
+							logger.warn(e.getMessage(), e);
 						}
-
-						@Override
-						public void onSuccess(JSONObject trackJson) {
-							super.onSuccess(trackJson);
-							logger.info("Download of track " +id+ " succeeded. Processing...");
-							processDownloadedTrack(trackJson);
-						}
-
-						public void onFailure(Throwable arg0, String arg1) {
-							logger.warn(arg1,arg0);
-						};
 					}
-				);				
+
+					private void downloadTrack(final List<String> tracksToDownload,
+							final AtomicInteger index) {
+						
+						final String id = tracksToDownload.get(index.get());
+						logger.info("downloading track with remoteId "+id);
+						
+						// download the track
+						RestClient.downloadTrack(username, token, id,
+							new JsonHttpResponseHandler() {
+								
+								@Override
+								public void onFinish() {
+									super.onFinish();
+									updateTrackListView();
+									
+									/*
+									 * on finish, start the next track download
+									 */
+									if (index.getAndIncrement() < tracksToDownload.size()) {
+										downloadTrack(tracksToDownload, index);
+									}
+								}
+
+								@Override
+								public void onSuccess(JSONObject trackJson) {
+									super.onSuccess(trackJson);
+									logger.info("Download of track " +id+ " succeeded. Processing...");
+									processDownloadedTrack(trackJson);
+								}
+
+								public void onFailure(Throwable arg0, String arg1) {
+									logger.warn(arg1,arg0);
+								};
+							}
+						);				
+					}
+				});	
+				
 			}
-		});		
+		});
+			
 	}
 
 	private class TracksListAdapter extends BaseExpandableListAdapter {
