@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/navigation_expand" android:state_expanded="false"></item>
+    <item android:drawable="@drawable/navigation_collapse" android:state_expanded="true"></item>
+</selector>

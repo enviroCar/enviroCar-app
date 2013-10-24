@@ -23,8 +23,7 @@ package org.envirocar.app.test;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.activity.SettingsActivity;
-import org.envirocar.app.application.UploadManager;
+import org.envirocar.app.json.TrackEncoder;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.storage.Measurement;
@@ -34,31 +33,20 @@ import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.test.AndroidTestCase;
 
-public class UploadManagerTest extends AndroidTestCase {
+public class TrackEncoderTest extends AndroidTestCase {
 	
 	private Car car = new Car(FuelType.GASOLINE, "manuf", "modl", "iddddd", 1234, 2345);
 	private String expectedJson = "{\"features\":[{\"type\":\"Feature\",\"properties\":{\"phenomenons\":{\"MAF\":{\"value\":12.4},\"Speed\":{\"value\":12}},\"sensor\":\"iddddd\",\"time\":\"2013-09-25T10:30:00Z\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[-89.1,-87.1]}}],\"type\":\"FeatureCollection\",\"properties\":{\"sensor\":\"iddddd\",\"description\":\"desc\",\"name\":\"test-track\"}}";
 
 	public void testTrackJsonCreation() throws JSONException {
-		UploadManager um = new UploadManager(getContext());
-		
-		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getContext());
-		boolean oldPref = pref.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
-		
-		pref.edit().putBoolean(SettingsActivity.OBFUSCATE_POSITION, false).commit();
-		
 		Track t = createTrack();
 		String json;
 		try {
-			json = um.getTrackJSON(t);
+			json = new TrackEncoder().createTrackJson(t, false).toString();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
-		} finally {
-			pref.edit().putBoolean(SettingsActivity.OBFUSCATE_POSITION, oldPref).commit();
 		}
 		
 		JSONObject result = new JSONObject(json);
@@ -71,22 +59,12 @@ public class UploadManagerTest extends AndroidTestCase {
 	
 
 	public void testObfuscationNoMeasurements() throws JSONException {
-		UploadManager um = new UploadManager(getContext());
-		
-		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getContext());
-		boolean oldPref = pref.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
-		
-		pref.edit().putBoolean(SettingsActivity.OBFUSCATE_POSITION, true).commit();
 		
 		Track t = createTrack(); 
 		try {
-			um.getTrackJSON(t);
+			new TrackEncoder().createTrackJson(t, true);
 		} catch (TrackWithoutMeasurementsException e) {
 			Assert.assertNotNull("Expected an exception!", e);
-		} catch (JSONException e) {
-			throw e;
-		} finally {
-			pref.edit().putBoolean(SettingsActivity.OBFUSCATE_POSITION, oldPref).commit();
 		}
 	}
 

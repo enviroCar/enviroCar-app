@@ -22,6 +22,7 @@
 package org.envirocar.app.network;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Locale;
 
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
@@ -44,8 +45,29 @@ public class RestClient {
 		resetClient();
 	}
 	
+	/**
+	 * start downloading the latest 5 tracks of the given user.
+	 * 
+	 * @param user the user
+	 * @param token the users token
+	 * @param limit the maximum track count
+	 * @param page the page (/tracks/ is a paging-enabled resource)
+	 * @param handler called on success or failure
+	 */
+	public static void downloadTracks(String user, String token, int limit, int page, JsonHttpResponseHandler handler){
+		get(String.format(Locale.ENGLISH, "%s/users/%s/tracks?limit=%d&page=%d", ECApplication.BASE_URL, user, limit, page),
+			handler, user, token);
+	}
+	
+	/**
+	 * start downloading the latest 5 tracks of the given user.
+	 * 
+	 * @param user the user
+	 * @param token the users token
+	 * @param handler called on success or failure
+	 */
 	public static void downloadTracks(String user, String token, JsonHttpResponseHandler handler){
-		get(ECApplication.BASE_URL+"/users/"+user+"/tracks?limit=5&page=0", handler, user, token);
+		downloadTracks(user, token, 5, 1, handler);
 	}
 	
 	private static void resetClient() {
@@ -113,13 +135,13 @@ public class RestClient {
 	}
 
 	public static void downloadTermsOfUse(JsonHttpResponseHandler handler) {
-		String url = ECApplication.BASE_URL_DEV+"/termsOfUse";
+		String url = ECApplication.BASE_URL+"/termsOfUse";
 		get(url, handler);
 	}
 
 	public static void downloadTermsOfUseInstance(String id,
 			JsonHttpResponseHandler handler) {
-		String url = ECApplication.BASE_URL_DEV+"/termsOfUse/"+id;
+		String url = ECApplication.BASE_URL+"/termsOfUse/"+id;
 		get(url, handler);
 	}
 
@@ -127,7 +149,7 @@ public class RestClient {
 			String issuedDate, AsyncHttpResponseHandler handler) {
 		String contents = String.format("{\"%s\": \"%s\"}", "acceptedTermsOfUseVersion", issuedDate);
 		try {
-			put(ECApplication.BASE_URL_DEV+"/users/"+user.getUsername(), handler, contents, user.getUsername(), user.getToken());
+			put(ECApplication.BASE_URL+"/users/"+user.getUsername(), handler, contents, user.getUsername(), user.getToken());
 		} catch (UnsupportedEncodingException e) {
 			logger.warn(e.getMessage(), e);
 		}

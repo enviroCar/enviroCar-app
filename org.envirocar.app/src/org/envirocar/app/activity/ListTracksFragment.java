@@ -21,10 +21,7 @@
 
 package org.envirocar.app.activity;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -47,6 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.TermsOfUseManager;
+import org.envirocar.app.application.TrackUploadFinishedHandler;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
@@ -55,9 +53,10 @@ import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
-import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.model.TermsOfUseInstance;
 import org.envirocar.app.network.RestClient;
+import org.envirocar.app.network.WPSClient;
+import org.envirocar.app.network.WPSClient.ResultCallback;
 import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
@@ -88,9 +87,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.BaseExpandableListAdapter;
@@ -125,9 +121,10 @@ public class ListTracksFragment extends SherlockFragment {
 	private int itemSelect;
 	
 	private Menu menu;
-	private View progressLayout;
-	private TextView progressStatusText;
-	private View parentLayout;
+	private TextView statusText;
+	private View statusProgressBar;
+	
+	private AtomicInteger remoteTrackCount = new AtomicInteger(-1);
 	
 	protected static final Logger logger = Logger.getLogger(ListTracksFragment.class);
 	
@@ -136,7 +133,6 @@ public class ListTracksFragment extends SherlockFragment {
 		super.onCreate(savedInstanceState);
 		
 		dbAdapter = DbAdapterImpl.instance();
-		
 	}
 
 	public View onCreateView(android.view.LayoutInflater inflater,
@@ -148,11 +144,10 @@ public class ListTracksFragment extends SherlockFragment {
 
 		View v = inflater.inflate(R.layout.list_tracks_layout, null);
 		
-		parentLayout = v.findViewById(R.id.list_tracks_parent);
-		
 		trackListView = (ExpandableListView) v.findViewById(R.id.list);
-		progressLayout = v.findViewById(R.id.progress_layout);
-		progressStatusText = (TextView) v.findViewById(R.id.progress_status);
+		
+		statusProgressBar = v.findViewById(R.id.list_tracks_status_progress);
+		statusText = (TextView) v.findViewById(R.id.list_tracks_status_text);
 		
 		setProgressStatusText(R.string.fetching_tracks);
 		
@@ -170,21 +165,17 @@ public class ListTracksFragment extends SherlockFragment {
 			}
 
 		});
+		
 		return v;
 	};
 	
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		/*
-		 * TODO create a mechanism to get informed when a track
-		 * has been uploaded
-		 */
 		
 		logger.info("Create view ListTracksFragment");
 		super.onViewCreated(view, savedInstanceState);
-		trackListView.setGroupIndicator(getResources().getDrawable(
-				R.drawable.list_indicator));
+		trackListView.setGroupIndicator(getResources().getDrawable(R.drawable.group_indicator));
 		trackListView.setChildDivider(getResources().getDrawable(
 				android.R.color.transparent));
 		
@@ -197,83 +188,6 @@ public class ListTracksFragment extends SherlockFragment {
 		
 		startTracksRetrieval();
 	}
-
-	
-	
-	/**
-	 * This method requests the current fuel price of a given fuel type from a
-	 * WPS that caches prices from export.benzinpreis-aktuell.de, calculates the
-	 * total fuel price using the fuel consumption and length of track and sets
-	 * the text of the respective <code>Textview</code>.
-	 * 
-	 * @param fuelCostView
-	 *            The <code>Textview</code> the fuel price will be written to.
-	 * @param twoDForm
-	 *            Used for rounding the fuel price.
-	 * @param litersPerHundredKm
-	 *            Used to calculate the total fuel costs.
-	 * @param lengthOfTrack
-	 *            Used to calculate the total fuel costs.
-	 * @param fuelType
-	 *            The price depends on the type of fuel (e.g. diesel or
-	 *            gasoline).
-	 */
-	private void getEstimatedFuelCost(final TextView fuelCostView,
-			final DecimalFormat twoDForm, final double litersPerHundredKm,
-			final double lengthOfTrack, final FuelType fuelType) {
-
-		AsyncTask<Void, Void, Double> task = new AsyncTask<Void, Void, Double>() {
-
-			@Override
-			protected Double doInBackground(Void... params) {
-				Thread.currentThread().setName("TrackList-WPSCaller-"+Thread.currentThread().getId());
-				try {
-
-					URL url = new URL(
-							"http://geoprocessing.demo.52north.org:8080/wps/WebProcessingService?Service=WPS&Request=Execute&Version=1.0.0&Identifier=org.n52.wps.extension.GetFuelPriceProcess&DataInputs=fuelType="
-									+ fuelType + "&RawDataOutput=fuelPrice");
-
-					BufferedReader reader = new BufferedReader(
-							new InputStreamReader(url.openStream()));
-
-					String content = "";
-					String line = "";
-
-					while ((line = reader.readLine()) != null) {
-						content = content.concat(line);
-					}
-					return Double.parseDouble(content);
-				} catch (Exception e) {
-					logger.warn(e.getMessage(), e);
-					return Double.NaN;
-				}
-
-			}
-
-			@Override
-			protected void onPostExecute(Double result) {
-
-				double estimatedFuelCosts = result * (litersPerHundredKm / 100)
-						* lengthOfTrack;
-
-				if (result.equals(Double.NaN)) {
-					fuelCostView.setText(R.string.error_calculating_fuel_costs);
-
-					fuelCostView.setTextColor(Color.RED);
-
-				} else {
-
-					fuelCostView.setText(twoDForm.format(estimatedFuelCosts)
-							+ " " + getActivity().getString(R.string.euro_sign));
-				}
-			}
-
-		};
-		
-		Util.execute(task);
-
-	}
-
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, com.actionbarsherlock.view.MenuInflater inflater) {
@@ -318,7 +232,7 @@ public class ListTracksFragment extends SherlockFragment {
 		updateTrackListView();
 	}
 	
-	public void notifyDataSetChanged(Track track){
+	public void notifyDataSetChanged(Track track) {
 		updateUsabilityOfMenuItems();
 		updateTrackListView();
 	}
@@ -412,9 +326,8 @@ public class ListTracksFragment extends SherlockFragment {
 						track.setDescription(value);
 						dbAdapter.updateTrack(track);
 						trackListView.collapseGroup(itemSelect);
-						tracksList.get(itemSelect).setDescription(value);
 						updateTrackListView();
-						// TODO Bug: update the description when it is changed.
+						trackListAdapter.updateTrackChildView(track);
 						Crouton.showText(getActivity(), getString(R.string.descriptionChanged), Style.INFO);
 					}
 				}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -554,10 +467,20 @@ public class ListTracksFragment extends SherlockFragment {
 	 * @param track a single track to upload
 	 */
 	private void uploadTracks(boolean all, Track track) {
+		
+		TrackUploadFinishedHandler callback = new TrackUploadFinishedHandler() {
+			@Override
+			public void onSuccessfulUpload(Track track) {
+				trackListAdapter.updateTrackGroupView(track);
+				remoteTrackCount.getAndIncrement();
+				updateStatusLayout();
+			}
+		};
+		
 		if (all) {
-			new UploadManager(((ECApplication) getActivity().getApplication())).uploadAllTracks();
+			new UploadManager(((ECApplication) getActivity().getApplication())).uploadAllTracks(callback);
 		} else {
-			new UploadManager(((ECApplication) getActivity().getApplication())).uploadSingleTrack(track);		
+			new UploadManager(((ECApplication) getActivity().getApplication())).uploadSingleTrack(track, callback);		
 		}
 	}
 
@@ -621,6 +544,78 @@ public class ListTracksFragment extends SherlockFragment {
 		return coordinates.toArray(new String[coordinates.size()]);
 	}
 
+
+	protected void updateStatusLayout() {
+		if (!isAdded()) return;
+		
+		getActivity().runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				statusProgressBar.setVisibility(View.INVISIBLE);
+				
+				statusText.setText(getResources().getString(R.string.track_list_count_text,
+						resolveTrackCount(false),
+						resolveTrackCount(true), createRemoteTrackCountString()));				
+			}
+		});
+		
+	}
+
+	protected String createRemoteTrackCountString() {
+		if (remoteTrackCount.get() < 100) {
+			return Integer.toString(remoteTrackCount.get());
+		}
+		else if (remoteTrackCount.get() < 0) {
+			return "?";
+		}
+		return "100+";
+	}
+
+	private int resolveTrackCount(boolean remote) {
+		int result = 0;
+		
+		for (Track t : tracksList) {
+			if (t.isRemoteTrack() && remote) {
+				result++;
+			}
+			else if (t.isLocalTrack() && !remote) {
+				result++;
+			}
+		}
+		
+		return result;
+	}
+
+	protected void setProgressStatusText(int resId) {
+		if (isAdded()) {
+			final String str = getString(resId);
+			getActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					statusText.setText(str);	
+					TypefaceEC.applyCustomFont(statusText,
+							TypefaceEC.Newscycle(getActivity()));
+				}
+			});
+		}
+	}
+
+	protected void updateTrackListView() {
+		if (!isAdded()) return;
+		
+		synchronized (this) {
+			Collections.sort(tracksList);	
+		}
+		
+		getActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				trackListAdapter.notifyDataSetChanged();				
+			}
+		});
+	}
+	
 	/**
 	 * Download remote tracks from the server and include them in the track list
 	 */
@@ -658,7 +653,7 @@ public class ListTracksFragment extends SherlockFragment {
 					}
 						
 				} else {
-					removeProgressLayout();
+					updateStatusLayout();
 				}
 				
 				return null;
@@ -669,75 +664,43 @@ public class ListTracksFragment extends SherlockFragment {
 		Util.execute(task);
 		
 	}
-
-	protected void removeProgressLayout() {
-		if (!isAdded()) return;
-		
-		getActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				TranslateAnimation animate = new TranslateAnimation(0,0,0,-progressLayout.getHeight());
-				animate.setDuration(500);
-				animate.setAnimationListener(new AnimationListener() {
-					@Override
-					public void onAnimationStart(Animation animation) {
-						
-					}
-					@Override
-					public void onAnimationRepeat(Animation animation) {
-					}
-					
-					@Override
-					public void onAnimationEnd(Animation animation) {
-						progressLayout.setVisibility(View.GONE);
-					}
-				});
-				parentLayout.startAnimation(animate);
-				
-			}
-		});
-		
-	}
-
-	protected void setProgressStatusText(int resId) {
-		if (isAdded()) {
-			final String str = getString(resId);
-			getActivity().runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					progressStatusText.setText(str);	
-					TypefaceEC.applyCustomFont(progressStatusText,
-							TypefaceEC.Newscycle(getActivity()));
-				}
-			});
-		}
-	}
-
-	protected void updateTrackListView() {
-		if (!isAdded()) return;
-		
-		synchronized (this) {
-			Collections.shuffle(tracksList);
-			Collections.sort(tracksList);	
-		}
-		
-		getActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				trackListAdapter.notifyDataSetChanged();				
-			}
-		});
-	}
-
+	
 	private void downloadTracks(final String username, final String token) {
-		RestClient.downloadTracks(username, token, new JsonHttpResponseHandler() {
-			
+		
+		resolveTotalRemoteTrackCount(username, token, new JsonHttpResponseHandler() {
+			@Override
+			public void onFinish() {
+				downloadTracks(username, token, 5, 1);
+			}
+		});
+		
+	}
+	
+	private void resolveTotalRemoteTrackCount(String username, String token,
+			final JsonHttpResponseHandler callback) {
+		RestClient.downloadTracks(username, token, 100, 1, new JsonHttpResponseHandler() {
+			@Override
+			public void onSuccess(int statusCode, JSONObject response) {
+				super.onSuccess(statusCode, response);
+
+				try {
+					JSONArray tracks = response.getJSONArray("tracks");
+					remoteTrackCount.set(tracks.length());
+				}
+				catch (JSONException e) {
+					logger.warn(e.getMessage(), e);
+				}
+			}
 			
 			@Override
-			public void onFailure(Throwable e, JSONObject errorResponse) {
-				super.onFailure(e, errorResponse);
-				logger.warn(e.getMessage(), e);
+			public void onFinish() {
+				callback.onFinish();
 			}
+		});
+	}
+
+	private void downloadTracks(final String username, final String token, int limit, int page) {
+		RestClient.downloadTracks(username, token, limit, page, new JsonHttpResponseHandler() {
 			
 			@Override
 			public void onFailure(Throwable error, String content) {
@@ -746,13 +709,12 @@ public class ListTracksFragment extends SherlockFragment {
 			}
 			
 			// Variable that holds the number of trackdl requests
-			private int remoteTrackCount;
+			private int unprocessedTrackCount;
 			
 			protected void processDownloadedTrack(JSONObject... trackJson) {
 				
-				Track t;
 				try {
-					t = Track.fromJson(trackJson[0], dbAdapter);
+					Track t = Track.fromJson(trackJson[0], dbAdapter);
 					
 					synchronized (ListTracksFragment.this) {
 						tracksList.add(t);	
@@ -777,9 +739,9 @@ public class ListTracksFragment extends SherlockFragment {
 					empty.setVisibility(View.GONE);
 				}
 				
-				if (--remoteTrackCount == 0) {
+				if (--unprocessedTrackCount == 0) {
 					logger.info("Finished fetching tracks.");
-					removeProgressLayout();
+					updateStatusLayout();
 					updateTrackListView();
 					updateUsabilityOfMenuItems();
 				}
@@ -793,7 +755,7 @@ public class ListTracksFragment extends SherlockFragment {
 				try {
 					JSONArray tracks = json.getJSONArray("tracks");
 					if (tracks.length() == 0) {
-						removeProgressLayout();
+						updateStatusLayout();
 					}
 					
 					Set<String> localRemoteIds = new HashSet<String>();
@@ -808,7 +770,7 @@ public class ListTracksFragment extends SherlockFragment {
 					logger.info("found "+localRemoteIds.size()+" local tracks which have remoteIds.");
 					
 					List<String> tracksToDownload = new ArrayList<String>();
-					remoteTrackCount = tracks.length();
+					unprocessedTrackCount = tracks.length();
 					for (int i = 0; i < tracks.length(); i++) {
 
 						String remoteId = ((JSONObject) tracks.get(i)).getString("id");
@@ -833,10 +795,16 @@ public class ListTracksFragment extends SherlockFragment {
 				}
 			}
 
-			private void downloadTrack(final List<String> tracksToDownload,
-					final AtomicInteger index) {
+			/**
+			 * downloads a track of the list and
+			 * increments the downloadListIndex.
+			 * calls itself recursively until downloadListIndex
+			 * reaches the bounds of the list.
+			 */
+			private void downloadTrack(final List<String> downloadList,
+					final AtomicInteger downloadListIndex) {
 				
-				final String id = tracksToDownload.get(index.get());
+				final String id = downloadList.get(downloadListIndex.get());
 				logger.info("downloading track with remoteId "+id);
 				
 				// download the track
@@ -851,8 +819,8 @@ public class ListTracksFragment extends SherlockFragment {
 							/*
 							 * on finish, start the next track download
 							 */
-							if (index.getAndIncrement() < tracksToDownload.size()) {
-								downloadTrack(tracksToDownload, index);
+							if (downloadListIndex.getAndIncrement() < downloadList.size()) {
+								downloadTrack(downloadList, downloadListIndex);
 							}
 						}
 
@@ -869,7 +837,41 @@ public class ListTracksFragment extends SherlockFragment {
 					}
 				);				
 			}
-		});		
+		});			
+	}
+	
+	/**
+	 * This method requests the current fuel price of a given fuel type from a
+	 * WPS that caches prices from export.benzinpreis-aktuell.de, calculates the
+	 * total fuel price using the fuel consumption and length of track and sets
+	 * the text of the respective <code>Textview</code>.
+	 * 
+	 * @param fuelCostView
+	 *            The <code>Textview</code> the fuel price will be written to.
+	 * @param twoDForm
+	 *            Used for rounding the fuel price.
+	 * @param t
+	 * 			  the track
+	 */
+	private void getEstimatedFuelCost(final TextView fuelCostView,
+			final DecimalFormat twoDForm, Track t) {
+
+		WPSClient.calculateFuelCosts(t, new ResultCallback<Double>() {
+			
+			@Override
+			public void onResultAvailable(Double result) {
+				if (result.equals(Double.NaN)) {
+					fuelCostView.setText(R.string.error_calculating_fuel_costs);
+
+					fuelCostView.setTextColor(Color.RED);
+
+				} else {
+					fuelCostView.setText(twoDForm.format(result)
+							+ " " + getActivity().getString(R.string.euro_sign));
+				}				
+			}
+		});
+
 	}
 
 	private class TracksListAdapter extends BaseExpandableListAdapter {
@@ -885,6 +887,7 @@ public class ListTracksFragment extends SherlockFragment {
 			trackToChildViewMap = new HashMap<Track, View>();
 		}
 		
+
 		@Override
 		public int getGroupCount() {
 			return tracksList.size();
@@ -919,6 +922,62 @@ public class ListTracksFragment extends SherlockFragment {
 		public boolean hasStableIds() {
 			return true;
 		}
+		
+		public void updateTrackGroupView(final Track t) {
+			View groupRow = trackToGroupViewMap.get(t);
+			
+			if (groupRow == null) {
+				/*
+				 * fallback, unknown object id, but could be in the db
+				 */
+				for (Track tmp : trackToGroupViewMap.keySet()) {
+					if (tmp.getId() == t.getId()) {
+						groupRow = trackToGroupViewMap.get(tmp);
+						break;
+					}
+				}
+			}
+			
+			final View groupToAdjut = groupRow;
+			
+			if (groupRow != null) {
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						setTrackTypeImage(t, groupToAdjut);
+						groupToAdjut.invalidate();
+					}
+				});
+			}
+		}
+		
+		public void updateTrackChildView(final Track t) {
+			View childView = trackToChildViewMap.get(t);
+			
+			if (childView == null) {
+				/*
+				 * fallback, unknown object id, but could be in the db
+				 */
+				for (Track tmp : trackToChildViewMap.keySet()) {
+					if (tmp.getId() == t.getId()) {
+						childView = trackToChildViewMap.get(tmp);
+						break;
+					}
+				}
+			}
+			
+			final View viewoAdjust = childView;
+			
+			if (viewoAdjust != null) {
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						setTrackChildFields(t, viewoAdjust);
+						viewoAdjust.invalidate();
+					}
+				});
+			}
+		}
 
 		@Override
 		public View getGroupView(int i, boolean b, View view,
@@ -928,12 +987,7 @@ public class ListTracksFragment extends SherlockFragment {
 				t = tracksList.get(i);
 				if (!trackToGroupViewMap.containsKey(t)) {
 					View groupRow = ViewGroup.inflate(getActivity(), R.layout.list_tracks_group_layout, null);
-					TextView textView = (TextView) groupRow.findViewById(R.id.track_name_textview);
-					textView.setText(t.getName());
-					if(t.isLocalTrack()){
-						ImageView imageView = (ImageView) groupRow.findViewById(R.id.track_icon_view);
-						imageView.setImageDrawable(getResources().getDrawable( R.drawable.mobile ));
-					}
+					setTrackTypeImage(t, groupRow);
 					
 					groupRow.setId(GROUP_VIEW_BASE_ID + i);
 					TypefaceEC.applyCustomFont((ViewGroup) groupRow,
@@ -946,35 +1000,29 @@ public class ListTracksFragment extends SherlockFragment {
 			return trackToGroupViewMap.get(t);
 		}
 
+		private void setTrackTypeImage(Track t, View groupRow) {
+			TextView textView = (TextView) groupRow.findViewById(R.id.track_name_textview);
+			textView.setText(t.getName());
+			
+			ImageView imageView = (ImageView) groupRow.findViewById(R.id.track_icon_view);
+			if (t.isLocalTrack()){
+				imageView.setImageDrawable(getResources().getDrawable( R.drawable.mobile ));
+			} else {
+				imageView.setImageDrawable(getResources().getDrawable( R.drawable.server ));
+			}
+		}
+
 		@Override
 		public View getChildView(int position, int i1, boolean b, View view, ViewGroup viewGroup) {
 			final Track t;
 			synchronized (ListTracksFragment.this) {
 				t = tracksList.get(position);
 				if (!trackToChildViewMap.containsKey(t)) {
-					View row = ViewGroup.inflate(getActivity(),
+					final View row = ViewGroup.inflate(getActivity(),
 							R.layout.list_tracks_item_layout, null);
-					final TextView startView = (TextView) row
-							.findViewById(R.id.track_details_start_textview);
-					final TextView endView = (TextView) row
-							.findViewById(R.id.track_details_end_textview);
-					final TextView lengthView = (TextView) row
-							.findViewById(R.id.track_details_length_textview);
-					final TextView carView = (TextView) row
-							.findViewById(R.id.track_details_car_textview);
-					final TextView durationView = (TextView) row
-							.findViewById(R.id.track_details_duration_textview);
-					final TextView co2View = (TextView) row
-							.findViewById(R.id.track_details_co2_textview);
-					final TextView consumptionView = (TextView) row
-							.findViewById(R.id.track_details_consumption_textview);
-					final TextView fuelCostView = (TextView) row
-							.findViewById(R.id.track_details_fuel_cost_textview);
-					final TextView descriptionView = (TextView) row.findViewById(R.id.track_details_description_textview);
 
-					setTrackChildFields(t, startView, endView, lengthView,
-							carView, durationView, co2View,
-							consumptionView, fuelCostView, descriptionView);
+					setTrackChildFields(t, row);
+					
 					if (t.isLazyLoadingMeasurements()) {
 						lazyLoader.submit(new Runnable() {
 							@Override
@@ -985,9 +1033,7 @@ public class ListTracksFragment extends SherlockFragment {
 									
 									@Override
 									public void run() {
-										setTrackChildFields(t, startView, endView, lengthView,
-												carView, durationView, co2View,
-												consumptionView, fuelCostView, descriptionView);										
+										setTrackChildFields(t, row);										
 									}
 								});
 								
@@ -1005,11 +1051,25 @@ public class ListTracksFragment extends SherlockFragment {
 			return trackToChildViewMap.get(t);
 		}
 
-		private void setTrackChildFields(Track t, TextView startView,
-				TextView endView, TextView lengthView, TextView carView,
-				TextView durationView, TextView co2View,
-				TextView consumptionView, TextView fuelCostView,
-				TextView descriptionView) {
+		private void setTrackChildFields(Track t, View childView) {
+			TextView startView = (TextView) childView
+					.findViewById(R.id.track_details_start_textview);
+			TextView endView = (TextView) childView
+					.findViewById(R.id.track_details_end_textview);
+			TextView lengthView = (TextView) childView
+					.findViewById(R.id.track_details_length_textview);
+			TextView carView = (TextView) childView
+					.findViewById(R.id.track_details_car_textview);
+			TextView durationView = (TextView) childView
+					.findViewById(R.id.track_details_duration_textview);
+			TextView co2View = (TextView) childView
+					.findViewById(R.id.track_details_co2_textview);
+			TextView consumptionView = (TextView) childView
+					.findViewById(R.id.track_details_consumption_textview);
+			TextView fuelCostView = (TextView) childView
+					.findViewById(R.id.track_details_fuel_cost_textview);
+			TextView descriptionView = (TextView) childView.findViewById(R.id.track_details_description_textview);
+			
 			Car car = t.getCar();
 			carView.setText(car.toString());
 			descriptionView.setText(t.getDescription());
@@ -1045,7 +1105,7 @@ public class ListTracksFragment extends SherlockFragment {
 						consumptionView.setText(twoDForm.format(consumption) + " l/h (" + twoDForm.format(literOn100km) + " l/100 km)");
 						if(fuelCostView.getText() == null || fuelCostView.getText().equals("")){
 							fuelCostView.setText(R.string.calculating);
-							getEstimatedFuelCost(fuelCostView, twoDForm, literOn100km, t.getLengthOfTrack(), t.getCar().getFuelType());
+							getEstimatedFuelCost(fuelCostView, twoDForm, t);
 						}
 					} catch (UnsupportedFuelTypeException e) {
 						logger.warn(e.getMessage());
@@ -1071,12 +1131,6 @@ public class ListTracksFragment extends SherlockFragment {
 			return false;
 		}
 		
-	}
-	
-	@Override
-	public void onDestroy() {
-		// TODO Auto-generated method stub
-		super.onDestroy();
 	}
 	
 }

@@ -18,30 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.application.service;
+package org.envirocar.app.application;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
+import org.envirocar.app.storage.Track;
 
-public abstract class AbstractBackgroundServiceStateReceiver extends BroadcastReceiver {
+public interface TrackUploadFinishedHandler {
 
-	public static final String SERVICE_STATE = BackgroundServiceImpl.class.getName()+".STATE";
-	
-	public static enum ServiceState {
-		SERVICE_STOPPED, SERVICE_DEVICE_DISCOVERY_PENDING, SERVICE_STARTING, SERVICE_STARTED, SERVICE_STOPPING;
-	}
-	
-	@Override
-	public void onReceive(Context context, Intent intent) {
-		if (!intent.getAction().equals(SERVICE_STATE)) return;
-		ServiceState state = (ServiceState) intent.getSerializableExtra(SERVICE_STATE);
-		
-		if (state != null) {
-			onStateChanged(state);
-		}
-	}
-
-	public abstract void onStateChanged(ServiceState state);
+	void onSuccessfulUpload(Track track);
 
 }
