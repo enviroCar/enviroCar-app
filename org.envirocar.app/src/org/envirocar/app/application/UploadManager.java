@@ -26,12 +26,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.http.Header;
@@ -45,29 +40,24 @@ import org.apache.http.protocol.HTTP;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
-import org.envirocar.app.exception.MeasurementsException;
+import org.envirocar.app.json.TrackEncoder;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
-import org.envirocar.app.storage.Measurement;
-import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.TrackWithoutMeasurementsException;
-import org.envirocar.app.util.Util;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 /**
  * Manager that can upload tracks and cars to the server. 
  * Use the uploadAllTracks function to upload all local tracks. 
@@ -80,32 +70,9 @@ public class UploadManager {
 
 	public static final String NET_ERROR = "net_error";
 	public static final String GENERAL_ERROR = "-1";
-	private static final Set<PropertyKey> supportedPhenomenons = new HashSet<PropertyKey>();
-
-	private static Logger logger = Logger.getLogger(UploadManager.class);
-	
-	static {
-		supportedPhenomenons.add(PropertyKey.CALCULATED_MAF);
-		supportedPhenomenons.add(PropertyKey.MAF);
-		supportedPhenomenons.add(PropertyKey.CO2);
-		supportedPhenomenons.add(PropertyKey.SPEED);
-		supportedPhenomenons.add(PropertyKey.RPM);
-		supportedPhenomenons.add(PropertyKey.INTAKE_PRESSURE);
-		supportedPhenomenons.add(PropertyKey.INTAKE_TEMPERATURE);
-		supportedPhenomenons.add(PropertyKey.CONSUMPTION);
-		supportedPhenomenons.add(PropertyKey.ENGINE_LOAD);
-		supportedPhenomenons.add(PropertyKey.THROTTLE_POSITON);
-		supportedPhenomenons.add(PropertyKey.GPS_ACCURACY);
-		supportedPhenomenons.add(PropertyKey.GPS_ALTITUDE);
-		supportedPhenomenons.add(PropertyKey.GPS_BEARING);
-		supportedPhenomenons.add(PropertyKey.GPS_HDOP);
-		supportedPhenomenons.add(PropertyKey.GPS_PDOP);
-		supportedPhenomenons.add(PropertyKey.GPS_VDOP);
-		supportedPhenomenons.add(PropertyKey.GPS_SPEED);
-	}
 	
 	private String url = ECApplication.BASE_URL + "/users/%1$s/tracks";
-
+	private static Logger logger = Logger.getLogger(UploadManager.class);
 	private DbAdapter dbAdapter;
 	private Context context;
 
@@ -249,7 +216,7 @@ public class UploadManager {
 
 			JSONObject trackJSONObject = null;
 			try {
-				trackJSONObject = createTrackJson(track);
+				trackJSONObject = new TrackEncoder().createTrackJson(track, isObfuscationEnabled());
 			} catch (JSONException e) {
 				logger.warn(e.getMessage(), e);
 				//the track wasn't JSON serializable. shouldn't occur.
@@ -282,7 +249,7 @@ public class UploadManager {
 			}
 			
 			//save the track into a json file
-			File file = savetoSdCard(trackJSONObject, track.isRemoteTrack() ? track.getRemoteID() : Long.toString(track.getId()));
+			File file = savetoSdCard(trackJSONObject.toString(), track.isRemoteTrack() ? track.getRemoteID() : Long.toString(track.getId()));
 
 			if (file == null) {
 				this.cancel(true);
@@ -314,206 +281,15 @@ public class UploadManager {
 	}
 
 	public String getTrackJSON(Track track) throws JSONException, TrackWithoutMeasurementsException {
-		return createTrackJson(track).toString();
+		return new TrackEncoder().createTrackJson(track, isObfuscationEnabled()).toString();
 	}
 	
-	/**
-	 * Converts Track Object into track.create.json string
-	 * 
-	 * @return
-	 * @throws JSONException 
-	 * @throws TrackWithoutMeasurementsException 
-	 */
-	private JSONObject createTrackJson(Track track) throws JSONException, TrackWithoutMeasurementsException {
-		JSONObject result = new JSONObject();
-		
-		String trackSensorName = track.getCar().getId();
 
-		ArrayList<JSONObject> measurementElements = new ArrayList<JSONObject>();
-		
-		List<Measurement> measurements = getNonObfuscatedMeasurements(track);
 
-		if (measurements == null || measurements.isEmpty()) {
-			throw new TrackWithoutMeasurementsException("Track did not contain any non obfuscated measurements.");
-		}
-			
-		
-		for (Measurement measurement : measurements) {
-			JSONObject measurementJson = createMeasurementJson(track, trackSensorName, measurement);
-			measurementElements.add(measurementJson);
-		}
-		
-		result.put("type", "FeatureCollection");
-		result.put("features", new JSONArray(measurementElements));
-		result.put("properties", createTrackProperties(track, trackSensorName));
 
-		return result;
-	}
-
-	private boolean isSpatialObfuscationCandidate(Measurement measurement,
-			Track track) {
-		return (Util.getDistance(track.getFirstMeasurement(), measurement) <= 0.25)
-				|| (Util.getDistance(track.getLastMeasurement(), measurement) <= 0.25);
-	}
-
-	private boolean isTemporalObfuscationCandidate(Measurement measurement,
-			Track track) throws MeasurementsException {
-		return (measurement.getTime() - track.getStartTime() <= 60000 ||
-				track.getEndTime() - measurement.getTime() <= 60000);
-	}
-	
-	/**
-	 * resolve all not obfuscated measurements of a track.
-	 * 
-	 * This returns all measurements, if obfuscation is disabled. Otherwise
-	 * measurements within the first and last minute and those within the start/end
-	 * radius of 250 m are ignored (only if they are in the beginning/end of the track).
-	 * 
-	 * @param track
-	 * @return
-	 */
-	public List<Measurement> getNonObfuscatedMeasurements(Track track) {
-		List<Measurement> measurements = track.getMeasurements();
-		
-		SharedPreferences preferences = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		boolean obfuscatePositions = preferences.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
-		
-		if (obfuscatePositions) {
-			boolean wasAtLeastOneTimeNotObfuscated = false;
-			ArrayList<Measurement> privateCandidates = new ArrayList<Measurement>();
-			ArrayList<Measurement> nonPrivateMeasurements = new ArrayList<Measurement>();
-			for (Measurement measurement : measurements) {
-				try {
-					/*
-					 * ignore early and late
-					 */
-					if (isTemporalObfuscationCandidate(measurement, track)) {
-						continue;
-					}
-
-					/*
-					 * ignore distance
-					 */
-					if (isSpatialObfuscationCandidate(measurement, track)) {
-						if (wasAtLeastOneTimeNotObfuscated) {
-							privateCandidates.add(measurement);
-							nonPrivateMeasurements.add(measurement);
-						}
-						continue;
-					}
-
-					/*
-					 * we may have found obfuscation candidates in the middle of the track
-					 * (may cross start or end point) in a PRIOR iteration
-					 * of this loop. these candidates can be removed now as we are again
-					 * out of obfuscation scope
-					 */
-					if (wasAtLeastOneTimeNotObfuscated) {
-						privateCandidates.clear();
-					}
-					else {
-						wasAtLeastOneTimeNotObfuscated = true;
-					}
-					
-					nonPrivateMeasurements.add(measurement);
-				} catch (MeasurementsException e) {
-					logger.warn(e.getMessage(), e);
-				}
-				
-			}
-			/*
-			 * the private candidates which have made it until here
-			 * shall be ignored
-			 */
-			nonPrivateMeasurements.removeAll(privateCandidates);
-			return nonPrivateMeasurements;
-		}
-		
-		return measurements;
-	}
-
-	private JSONObject createTrackProperties(Track track, String trackSensorName) throws JSONException {
-		JSONObject result = new JSONObject();
-		
-		result.put("sensor", trackSensorName);
-		result.put("description", track.getDescription());
-		result.put("name", track.getName());
-		
-		return result;
-	}
-
-	private JSONObject createMeasurementJson(Track track, String trackSensorName, Measurement measurement) throws JSONException {
-		JSONObject result = new JSONObject();
-		result.put("type", "Feature");
-		
-		result.put("geometry", createGeometry(measurement));
-		result.put("properties", createMeasurementProperties(measurement, trackSensorName));
-		
-//		String lat = String.valueOf(measurement.getLatitude());
-//		String lon = String.valueOf(measurement.getLongitude());
-//		
-//		String time = iso8601Format.format(measurement.getTime());
-//		
-//		StringBuilder phenoms = new StringBuilder();
-//		
-//		Set<PropertyKey> properties = track.getAllOccurringProperties();
-//		for (PropertyKey key : properties) {
-//			Double value = measurement.getProperty(key);
-//			phenoms.append("\"");
-//			phenoms.append(key.toString());
-//			phenoms.append("\":{\"value\":");
-//			phenoms.append(value != null ? value.toString() : Measurement.NA_VALUE);
-//			phenoms.append("},");
-////			String propertyJson = String.format("\"%s\":{\"value\":%s},", key.toString(), value != null ? value.toString() : Measurement.NA_VALUE);
-////			phenoms.append(propertyJson);
-//		}
-//		// remove last comma
-//		String phenomsJson = phenoms.length() > 0 ? phenoms.substring(0, phenoms.length() - 1) : ""; 
-//		String measurementJson = String
-//				.format("{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[%s,%s]},\"properties\":{\"time\":\"%s\",\"sensor\":\"%s\",\"phenomenons\":{%s}}}",
-//						lon, lat, time, trackSensorName, phenomsJson);
-		return result;
-	}
-
-	private JSONObject createGeometry(Measurement measurement) throws JSONException {
-		JSONObject result = new JSONObject();
-		result.put("type", "Point");
-		
-		ArrayList<Double> coords = new ArrayList<Double>(2);
-		coords.add(measurement.getLongitude());
-		coords.add(measurement.getLatitude());
-		
-		result.put("coordinates", new JSONArray(coords));
-		return result;
-	}
-
-	private JSONObject createMeasurementProperties(Measurement measurement, String trackSensorName) throws JSONException {
-		JSONObject result = new JSONObject();
-		result.put("sensor", trackSensorName);
-		JSONObject phens = createPhenomenons(measurement);
-		if (phens != null && phens.length() > 0) {
-			result.put("phenomenons", phens);
-		}
-		result.put("time", Util.longToIsoDate(measurement.getTime()));
-		return result;
-	}
-
-	private JSONObject createPhenomenons(Measurement measurement) throws JSONException {
-		JSONObject result = new JSONObject();
-		Map<PropertyKey, Double> props = measurement.getAllProperties();
-		for (PropertyKey key : props.keySet()) {
-			if (supportedPhenomenons.contains(key)) {
-				result.put(key.toString(), createValue(props.get(key)));
-			}
-		}
-		return result;
-	}
-
-	private JSONObject createValue(Double double1) throws JSONException {
-		JSONObject result = new JSONObject();
-		result.put("value", double1);
-		return result;
+	public boolean isObfuscationEnabled() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		return prefs.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
 	}
 
 	/**
@@ -589,11 +365,11 @@ public class UploadManager {
 	 *            the object to save
 	 * @param id 
 	 */
-	private File savetoSdCard(JSONObject obj, String id) {
+	private File savetoSdCard(String obj, String id) {
 		File log = new File(context.getExternalFilesDir(null),"enviroCar-track-"+id+".json");
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(log.getAbsolutePath(), false));
-			out.write(obj.toString());
+			out.write(obj);
 			out.flush();
 			out.close();
 			return log;
@@ -604,7 +380,7 @@ public class UploadManager {
 	}
 	
 	public File saveTrackAndReturnFile(Track t) throws JSONException, TrackWithoutMeasurementsException{
-		return savetoSdCard(createTrackJson(t), (t.isRemoteTrack() ? t.getRemoteID() : Long.toString(t.getId())));
+		return savetoSdCard(getTrackJSON(t), (t.isRemoteTrack() ? t.getRemoteID() : Long.toString(t.getId())));
 	}
 
 }
