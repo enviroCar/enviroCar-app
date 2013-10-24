@@ -43,6 +43,7 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.Measurement;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
@@ -73,6 +74,10 @@ public class Util {
 			throw new IOException(fileName + " is not a file!");
 		}
 		return f;
+	}
+	
+	public static File resolveCacheFolder(Context ctx) {
+		return ctx.getCacheDir();
 	}
 	
 	public static File resolveExternalStorageBaseFolder() throws IOException {

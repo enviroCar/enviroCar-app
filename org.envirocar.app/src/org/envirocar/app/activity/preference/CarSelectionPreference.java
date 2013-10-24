@@ -20,11 +20,8 @@
  */
 package org.envirocar.app.activity.preference;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -35,23 +32,18 @@ import java.util.Locale;
 import java.util.UUID;
 
 import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.application.CarManager;
-import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.application.ContextInternetAccessProvider;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
+import org.envirocar.app.dao.DAOProvider;
+import org.envirocar.app.dao.SensorRetrievalException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
-import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.network.RestClient;
-import org.envirocar.app.util.Util;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -298,7 +290,7 @@ public class CarSelectionPreference extends DialogPreference {
 		String username = user.getUsername();
 		String token = user.getToken();
 		
-		if (((SettingsActivity) getContext()).isConnectedToInternet() && UserManager.instance().isLoggedIn()) {
+		if (new ContextInternetAccessProvider(getContext()).isConnected() && UserManager.instance().isLoggedIn()) {
 		
 			RestClient.createSensor(sensorString, username, token, new AsyncHttpResponseHandler(){
 				
@@ -416,54 +408,9 @@ public class CarSelectionPreference extends DialogPreference {
 		return "none";
 	}
 
-	protected String downloadSensors() throws Exception{
+	protected void retrieveSensorsFromDao() throws SensorRetrievalException {
 		
-		HttpGet getRequest = new HttpGet(ECApplication.BASE_URL+"/sensors");
-		
-		getRequest.addHeader("Accept-Encoding", "application/json");
-		
-		try {
-			HttpResponse response = HTTPClient.execute(getRequest);
-			
-			String content = HTTPClient.readResponse(response.getEntity());
-		
-			JSONObject parentObject = new JSONObject(content);
-			
-			JSONArray res = (JSONArray) parentObject.get("sensors");
-			
-			addSensorsToList(res);
-			
-		} catch (Exception e) {
-			logger.warn(e.getMessage(), e);
-			throw e;
-		}
-		
-		return "";
-	}
-
-	private void addSensorsToList(JSONArray res){
-		
-		for (int i = 0; i<res.length(); i++){
-			String typeString;
-			JSONObject properties;
-			String carId;
-			try {
-				typeString = ((JSONObject) res.get(i)).optString("type", "none");
-				properties = ((JSONObject) res.get(i)).getJSONObject("properties");
-				carId = properties.getString("id");
-			} catch (JSONException e) {
-				logger.warn(e.getMessage(), e);
-				continue;
-			}
-			if (typeString.equals(SENSOR_TYPE)) {
-				try {
-					sensors.add(Car.fromJsonWithStrictEngineDisplacement(properties));
-				} catch (JSONException e) {
-					logger.warn(String.format("Car '%s' not supported: %s", carId != null ? carId : "null", e.getMessage()));
-				}
-			}	
-		}
-		
+		sensors = DAOProvider.instance().getSensorDAO().getAllSensors();
 		
 		if (getContext() instanceof Activity) {
 			((Activity) getContext()).runOnUiThread(new Runnable() {
@@ -482,7 +429,7 @@ public class CarSelectionPreference extends DialogPreference {
 		}
 		
 	}
-	
+
 	public void getCarList() {
 		
 		sensorDlProgress.setVisibility(View.VISIBLE);
@@ -491,64 +438,15 @@ public class CarSelectionPreference extends DialogPreference {
 		
 		sensors = new ArrayList<Car>();
 
-		if (((SettingsActivity) getContext()).isConnectedToInternet()) {
-			try {
-				new SensorDownloadTask().execute();
-			} catch (Exception e) {
-				logger.warn(e.getMessage(), e);
-				Toast.makeText(getContext(), "Could not retrieve cars from server", Toast.LENGTH_SHORT).show();				
-			} 
-			//TODO add possibility to update cache
-//			downloadSensors(true);
-		} else {
-			getCarsFromCache();
-		}		
+		try {
+			new SensorRetrievalTask().execute();
+		} catch (Exception e) {
+			logger.warn(e.getMessage(), e);
+			Toast.makeText(getContext(), "Could not retrieve cars from server", Toast.LENGTH_SHORT).show();				
+		} 
 
 	}
 	
-	private void getCarsFromCache() {
-		new AsyncTask<Void, Void, Void>() {
-
-			@Override
-			protected Void doInBackground(Void... params) {
-				File directory;
-				try {
-					directory = Util.resolveExternalStorageBaseFolder();
-
-					File f = new File(directory, CarManager.CAR_CACHE_FILE_NAME);
-
-					if (f.isFile()) {
-						BufferedReader bufferedReader = new BufferedReader(
-								new FileReader(f));
-
-						String content = "";
-						String line = "";
-
-						while ((line = bufferedReader.readLine()) != null) {
-							content = content.concat(line);
-						}
-
-						bufferedReader.close();
-
-						JSONArray cars = new JSONArray(content);
-
-						addSensorsToList(cars);
-					}
-				} catch (IOException e) {
-					logger.warn(e.getMessage(), e);
-				} catch (JSONException e) {
-					logger.warn(e.getMessage(), e);
-				}
-				return null;
-			}
-			
-			protected void onPostExecute(Void result) {
-				updateUIOnAfterSensorRetrieval();
-			};
-			
-		}.execute();
-		
-	}
 
 	/**
 	 * This method updates the attributes of the current sensor (=car) 
@@ -693,23 +591,22 @@ public class CarSelectionPreference extends DialogPreference {
 		return null;
 	}
 	
-	private class SensorDownloadTask extends AsyncTask<Void, String, String>{
+	private class SensorRetrievalTask extends AsyncTask<Void, Void, Void>{
 		
 		@Override
-		protected String doInBackground(Void... params){
+		protected Void doInBackground(Void... params){
 			
 			try {
-				return downloadSensors();
-			} catch (Exception e) {
+				retrieveSensorsFromDao();
+			} catch (SensorRetrievalException e) {
 				logger.warn(e.getMessage(), e);
 			}
-			return "";
+			return null;
 		}
 		
 		@Override
-		protected void onPostExecute(String result) {
+		protected void onPostExecute(Void result) {
 			super.onPostExecute(result);
-			
 			updateUIOnAfterSensorRetrieval();
 		}
 		

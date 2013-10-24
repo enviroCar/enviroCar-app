@@ -42,6 +42,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.envirocar.app.R;
+import org.envirocar.app.application.ContextInternetAccessProvider;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.TrackUploadFinishedHandler;
@@ -644,13 +645,11 @@ public class ListTracksFragment extends SherlockFragment {
 				
 				if (UserManager.instance().isLoggedIn()) {
 					setProgressStatusText(R.string.fetching_tracks_remote);
-					if (((MainActivity<?>)getActivity()).isConnectedToInternet()) {
-						User user = UserManager.instance().getUser();
-						final String username = user.getUsername();
-						final String token = user.getToken();
-						
-						downloadTracks(username, token);					
-					}
+					User user = UserManager.instance().getUser();
+					final String username = user.getUsername();
+					final String token = user.getToken();
+					
+					downloadTracks(username, token);					
 						
 				} else {
 					updateStatusLayout();
@@ -666,6 +665,10 @@ public class ListTracksFragment extends SherlockFragment {
 	}
 	
 	private void downloadTracks(final String username, final String token) {
+		
+		if (!(new ContextInternetAccessProvider(getActivity()).isConnected())) {
+			return;
+		}
 		
 		resolveTotalRemoteTrackCount(username, token, new JsonHttpResponseHandler() {
 			@Override

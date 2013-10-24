@@ -21,6 +21,7 @@
 
 package org.envirocar.app.application;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -36,11 +37,14 @@ import org.envirocar.app.application.service.AbstractBackgroundServiceStateRecei
 import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.BackgroundServiceConnector;
 import org.envirocar.app.application.service.DeviceInRangeService;
+import org.envirocar.app.dao.CacheDirectoryProvider;
+import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.util.NamedThreadFactory;
+import org.envirocar.app.util.Util;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -74,7 +78,7 @@ public class ECApplication extends Application {
 	
 	// Strings
 	
-//	public static final String BASE_URL = "http://192.168.1.142:8080/webapp-1.1.0-SNAPSHOT/rest";
+//	public static final String BASE_URL = "https://dev.envirocar.org/api/dev/rest";
 	public static final String BASE_URL = "https://giv-car.uni-muenster.de/stable/rest";
 
 	private SharedPreferences preferences = null;
@@ -174,6 +178,14 @@ public class ECApplication extends Application {
 		
 		preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
+		DAOProvider.init(new ContextInternetAccessProvider(getApplicationContext()),
+				new CacheDirectoryProvider() {
+					@Override
+					public File getBaseFolder() {
+						return Util.resolveCacheFolder(getApplicationContext());
+					}
+				});
+		
 		UserManager.init(getApplicationContext());
 		initializeErrorHandling();
 		CarManager.init(preferences);
