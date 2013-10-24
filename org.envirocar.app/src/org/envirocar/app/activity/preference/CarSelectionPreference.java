@@ -70,6 +70,7 @@ import android.util.Base64OutputStream;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
@@ -176,10 +177,11 @@ public class CarSelectionPreference extends DialogPreference {
 				getCarList();
 			}
 		});
-
+		
 //		rootView.findViewById(R.id.mygaragelayout).requestFocus();
 //		rootView.findViewById(R.id.mygaragelayout).requestFocusFromTouch();
 	}
+	
 	
 	private void setupCarRegistrationItems(View view) {
 		modelEditText = (EditText) view.findViewById(R.id.addCarToGarage_car_model);
@@ -460,16 +462,25 @@ public class CarSelectionPreference extends DialogPreference {
 					logger.warn(String.format("Car '%s' not supported: %s", carId != null ? carId : "null", e.getMessage()));
 				}
 			}	
-			
 		}
 		
-		SensorAdapter adapter = new SensorAdapter();
-		sensorSpinner.setAdapter(adapter);
-		int index = adapter.getInitialSelectedItem();
-		sensorSpinner.setSelection(index);
-		if (index > 0) {
-			updateCurrentSensor(car);
+		
+		if (getContext() instanceof Activity) {
+			((Activity) getContext()).runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					SensorAdapter adapter = new SensorAdapter();
+					sensorSpinner.setAdapter(adapter);
+					int index = adapter.getInitialSelectedItem();
+					sensorSpinner.setSelection(index);
+					if (index > 0) {
+						updateCurrentSensor(car);
+					}				
+				}
+			});
 		}
+		
 	}
 	
 	public void getCarList() {
@@ -482,7 +493,7 @@ public class CarSelectionPreference extends DialogPreference {
 
 		if (((SettingsActivity) getContext()).isConnectedToInternet()) {
 			try {
-				new SensorDownloadTask().execute().get();
+				new SensorDownloadTask().execute();
 			} catch (Exception e) {
 				logger.warn(e.getMessage(), e);
 				Toast.makeText(getContext(), "Could not retrieve cars from server", Toast.LENGTH_SHORT).show();				
@@ -492,45 +503,51 @@ public class CarSelectionPreference extends DialogPreference {
 		} else {
 			getCarsFromCache();
 		}		
-		if(sensors.isEmpty()){
-			logger.warn("Got no cars neither from server nor from cache.");
-			//TODO show warning that no cars were found i18n
-			Toast.makeText(getContext(), "Could not retrieve cars from server or local cache", Toast.LENGTH_SHORT).show();
-		}
-		sensorDlProgress.setVisibility(View.GONE);
-		sensorSpinner.setVisibility(View.VISIBLE);
 
 	}
 	
 	private void getCarsFromCache() {
-		File directory;
-		try {
-			directory = Util.resolveExternalStorageBaseFolder();
+		new AsyncTask<Void, Void, Void>() {
 
-			File f = new File(directory, CarManager.CAR_CACHE_FILE_NAME);
+			@Override
+			protected Void doInBackground(Void... params) {
+				File directory;
+				try {
+					directory = Util.resolveExternalStorageBaseFolder();
 
-			if (f.isFile()) {
-				BufferedReader bufferedReader = new BufferedReader(
-						new FileReader(f));
+					File f = new File(directory, CarManager.CAR_CACHE_FILE_NAME);
 
-				String content = "";
-				String line = "";
+					if (f.isFile()) {
+						BufferedReader bufferedReader = new BufferedReader(
+								new FileReader(f));
 
-				while ((line = bufferedReader.readLine()) != null) {
-					content = content.concat(line);
+						String content = "";
+						String line = "";
+
+						while ((line = bufferedReader.readLine()) != null) {
+							content = content.concat(line);
+						}
+
+						bufferedReader.close();
+
+						JSONArray cars = new JSONArray(content);
+
+						addSensorsToList(cars);
+					}
+				} catch (IOException e) {
+					logger.warn(e.getMessage(), e);
+				} catch (JSONException e) {
+					logger.warn(e.getMessage(), e);
 				}
-
-				bufferedReader.close();
-
-				JSONArray cars = new JSONArray(content);
-
-				addSensorsToList(cars);
+				return null;
 			}
-		} catch (IOException e) {
-			logger.warn(e.getMessage(), e);
-		} catch (JSONException e) {
-			logger.warn(e.getMessage(), e);
-		}
+			
+			protected void onPostExecute(Void result) {
+				updateUIOnAfterSensorRetrieval();
+			};
+			
+		}.execute();
+		
 	}
 
 	/**
@@ -689,6 +706,13 @@ public class CarSelectionPreference extends DialogPreference {
 			return "";
 		}
 		
+		@Override
+		protected void onPostExecute(String result) {
+			super.onPostExecute(result);
+			
+			updateUIOnAfterSensorRetrieval();
+		}
+		
 	}
 	
 	public static class SavedState extends BaseSavedState {
@@ -773,6 +797,25 @@ public class CarSelectionPreference extends DialogPreference {
         }
 
     }
+
+	public void updateUIOnAfterSensorRetrieval() {
+		if(sensors.isEmpty()){
+			logger.warn("Got no cars neither from server nor from cache.");
+			//TODO show warning that no cars were found i18n
+			Toast.makeText(getContext(), "Could not retrieve cars from server or local cache", Toast.LENGTH_SHORT).show();
+		}
+		
+		sensorDlProgress.setVisibility(View.GONE);
+		sensorSpinner.setVisibility(View.VISIBLE);
+		
+		/*
+		 * workaround for getDialog() returning null in every lifecycle method
+		 */
+		Dialog dialog = getDialog();
+		if (dialog != null) {
+			dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+		}		
+	}
 	
 	
 }
