@@ -529,4 +529,12 @@ public class DbAdapterImpl implements DbAdapter {
 		return last;
 	}
 
+	@Override
+	public void updateCarIdOfTracks(String currentId, String newId) {
+		ContentValues newValues = new ContentValues();
+		newValues.put(KEY_TRACK_CAR_ID, newId);
+		
+		mDb.update(TABLE_TRACK, newValues, KEY_TRACK_CAR_ID + "=?", new String[] {currentId});
+	}
+
 }

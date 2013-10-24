@@ -79,7 +79,8 @@ public class ECApplication extends Application {
 	// Strings
 	
 //	public static final String BASE_URL = "https://dev.envirocar.org/api/dev/rest";
-	public static final String BASE_URL = "https://giv-car.uni-muenster.de/stable/rest";
+	public static final String BASE_URL = "https://giv-car.uni-muenster.de/dev/rest";
+//	public static final String BASE_URL = "https://giv-car.uni-muenster.de/stable/rest";
 
 	private SharedPreferences preferences = null;
 	

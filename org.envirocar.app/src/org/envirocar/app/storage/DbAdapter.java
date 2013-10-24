@@ -194,8 +194,25 @@ public interface DbAdapter {
 	 */
 	public Track finishCurrentTrack();
 
+	/**
+	 * an implementation shall return all meaasurements
+	 * for the given track.
+	 * 
+	 * @param track the track object
+	 * @return the list of Measurements
+	 * @throws TrackWithoutMeasurementsException
+	 */
 	List<Measurement> getAllMeasurementsForTrack(Track track) throws TrackWithoutMeasurementsException;
 
+	/**
+	 * an implementation shall update the ID
+	 * of all Track's cars which currently have the currentId
+	 * and update it to newId.
+	 * 
+	 * @param currentId
+	 * @param newId
+	 */
+	public void updateCarIdOfTracks(String currentId, String newId);
 	
 	
 	

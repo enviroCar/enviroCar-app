@@ -168,4 +168,10 @@ public class DbAdapterMockup implements DbAdapter {
 		return null;
 	}
 
+	@Override
+	public void updateCarIdOfTracks(String currentId, String newId) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
