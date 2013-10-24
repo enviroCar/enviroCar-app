@@ -21,10 +21,7 @@
 
 package org.envirocar.app.activity;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -56,9 +53,10 @@ import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
-import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.model.TermsOfUseInstance;
 import org.envirocar.app.network.RestClient;
+import org.envirocar.app.network.WPSClient;
+import org.envirocar.app.network.WPSClient.ResultCallback;
 import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
@@ -135,7 +133,6 @@ public class ListTracksFragment extends SherlockFragment {
 		super.onCreate(savedInstanceState);
 		
 		dbAdapter = DbAdapterImpl.instance();
-		
 	}
 
 	public View onCreateView(android.view.LayoutInflater inflater,
@@ -175,10 +172,6 @@ public class ListTracksFragment extends SherlockFragment {
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		/*
-		 * TODO create a mechanism to get informed when a track
-		 * has been uploaded
-		 */
 		
 		logger.info("Create view ListTracksFragment");
 		super.onViewCreated(view, savedInstanceState);
@@ -195,83 +188,6 @@ public class ListTracksFragment extends SherlockFragment {
 		
 		startTracksRetrieval();
 	}
-
-	
-	
-	/**
-	 * This method requests the current fuel price of a given fuel type from a
-	 * WPS that caches prices from export.benzinpreis-aktuell.de, calculates the
-	 * total fuel price using the fuel consumption and length of track and sets
-	 * the text of the respective <code>Textview</code>.
-	 * 
-	 * @param fuelCostView
-	 *            The <code>Textview</code> the fuel price will be written to.
-	 * @param twoDForm
-	 *            Used for rounding the fuel price.
-	 * @param litersPerHundredKm
-	 *            Used to calculate the total fuel costs.
-	 * @param lengthOfTrack
-	 *            Used to calculate the total fuel costs.
-	 * @param fuelType
-	 *            The price depends on the type of fuel (e.g. diesel or
-	 *            gasoline).
-	 */
-	private void getEstimatedFuelCost(final TextView fuelCostView,
-			final DecimalFormat twoDForm, final double litersPerHundredKm,
-			final double lengthOfTrack, final FuelType fuelType) {
-
-		AsyncTask<Void, Void, Double> task = new AsyncTask<Void, Void, Double>() {
-
-			@Override
-			protected Double doInBackground(Void... params) {
-				Thread.currentThread().setName("TrackList-WPSCaller-"+Thread.currentThread().getId());
-				try {
-
-					URL url = new URL(
-							"http://geoprocessing.demo.52north.org:8080/wps/WebProcessingService?Service=WPS&Request=Execute&Version=1.0.0&Identifier=org.n52.wps.extension.GetFuelPriceProcess&DataInputs=fuelType="
-									+ fuelType + "&RawDataOutput=fuelPrice");
-
-					BufferedReader reader = new BufferedReader(
-							new InputStreamReader(url.openStream()));
-
-					String content = "";
-					String line = "";
-
-					while ((line = reader.readLine()) != null) {
-						content = content.concat(line);
-					}
-					return Double.parseDouble(content);
-				} catch (Exception e) {
-					logger.warn(e.getMessage(), e);
-					return Double.NaN;
-				}
-
-			}
-
-			@Override
-			protected void onPostExecute(Double result) {
-
-				double estimatedFuelCosts = result * (litersPerHundredKm / 100)
-						* lengthOfTrack;
-
-				if (result.equals(Double.NaN)) {
-					fuelCostView.setText(R.string.error_calculating_fuel_costs);
-
-					fuelCostView.setTextColor(Color.RED);
-
-				} else {
-
-					fuelCostView.setText(twoDForm.format(estimatedFuelCosts)
-							+ " " + getActivity().getString(R.string.euro_sign));
-				}
-			}
-
-		};
-		
-		Util.execute(task);
-
-	}
-
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, com.actionbarsherlock.view.MenuInflater inflater) {
@@ -316,7 +232,7 @@ public class ListTracksFragment extends SherlockFragment {
 		updateTrackListView();
 	}
 	
-	public void notifyDataSetChanged(Track track){
+	public void notifyDataSetChanged(Track track) {
 		updateUsabilityOfMenuItems();
 		updateTrackListView();
 	}
@@ -410,9 +326,8 @@ public class ListTracksFragment extends SherlockFragment {
 						track.setDescription(value);
 						dbAdapter.updateTrack(track);
 						trackListView.collapseGroup(itemSelect);
-						tracksList.get(itemSelect).setDescription(value);
 						updateTrackListView();
-						// TODO Bug: update the description when it is changed.
+						trackListAdapter.updateTrackChildView(track);
 						Crouton.showText(getActivity(), getString(R.string.descriptionChanged), Style.INFO);
 					}
 				}).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -629,54 +544,6 @@ public class ListTracksFragment extends SherlockFragment {
 		return coordinates.toArray(new String[coordinates.size()]);
 	}
 
-	/**
-	 * Download remote tracks from the server and include them in the track list
-	 */
-	@SuppressLint("NewApi")
-	private void startTracksRetrieval() {
-		
-		AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-			@Override
-			protected Void doInBackground(Void... params) {
-				Thread.currentThread().setName("TrackList-TrackRetriever"+Thread.currentThread().getId());
-				
-				setProgressStatusText(R.string.fetching_tracks_local);
-				
-				//fetch db tracks (local+remote)
-				
-				for (Track t : dbAdapter.getAllTracks(true)) {
-					synchronized (ListTracksFragment.this) {
-						tracksList.add(t);
-					}	
-				}
-				
-				updateTrackListView();
-				
-				logger.info("Number of tracks in the List: " + tracksList.size());
-				
-				if (UserManager.instance().isLoggedIn()) {
-					setProgressStatusText(R.string.fetching_tracks_remote);
-					if (((MainActivity<?>)getActivity()).isConnectedToInternet()) {
-						User user = UserManager.instance().getUser();
-						final String username = user.getUsername();
-						final String token = user.getToken();
-						
-						downloadTracks(username, token);					
-					}
-						
-				} else {
-					updateStatusLayout();
-				}
-				
-				return null;
-			}
-			
-		};
-		
-		Util.execute(task);
-		
-	}
 
 	protected void updateStatusLayout() {
 		if (!isAdded()) return;
@@ -748,8 +615,69 @@ public class ListTracksFragment extends SherlockFragment {
 			}
 		});
 	}
+	
+	/**
+	 * Download remote tracks from the server and include them in the track list
+	 */
+	@SuppressLint("NewApi")
+	private void startTracksRetrieval() {
+		
+		AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
 
+			@Override
+			protected Void doInBackground(Void... params) {
+				Thread.currentThread().setName("TrackList-TrackRetriever"+Thread.currentThread().getId());
+				
+				setProgressStatusText(R.string.fetching_tracks_local);
+				
+				//fetch db tracks (local+remote)
+				
+				for (Track t : dbAdapter.getAllTracks(true)) {
+					synchronized (ListTracksFragment.this) {
+						tracksList.add(t);
+					}	
+				}
+				
+				updateTrackListView();
+				
+				logger.info("Number of tracks in the List: " + tracksList.size());
+				
+				if (UserManager.instance().isLoggedIn()) {
+					setProgressStatusText(R.string.fetching_tracks_remote);
+					if (((MainActivity<?>)getActivity()).isConnectedToInternet()) {
+						User user = UserManager.instance().getUser();
+						final String username = user.getUsername();
+						final String token = user.getToken();
+						
+						downloadTracks(username, token);					
+					}
+						
+				} else {
+					updateStatusLayout();
+				}
+				
+				return null;
+			}
+			
+		};
+		
+		Util.execute(task);
+		
+	}
+	
 	private void downloadTracks(final String username, final String token) {
+		
+		resolveTotalRemoteTrackCount(username, token, new JsonHttpResponseHandler() {
+			@Override
+			public void onFinish() {
+				downloadTracks(username, token, 5, 1);
+			}
+		});
+		
+	}
+	
+	private void resolveTotalRemoteTrackCount(String username, String token,
+			final JsonHttpResponseHandler callback) {
 		RestClient.downloadTracks(username, token, 100, 1, new JsonHttpResponseHandler() {
 			@Override
 			public void onSuccess(int statusCode, JSONObject response) {
@@ -766,152 +694,184 @@ public class ListTracksFragment extends SherlockFragment {
 			
 			@Override
 			public void onFinish() {
-				super.onFinish();
-				
-				RestClient.downloadTracks(username, token, new JsonHttpResponseHandler() {
-					
-					
-					@Override
-					public void onFailure(Throwable e, JSONObject errorResponse) {
-						super.onFailure(e, errorResponse);
-						logger.warn(e.getMessage(), e);
-					}
-					
-					@Override
-					public void onFailure(Throwable error, String content) {
-						super.onFailure(error, content);
-						logger.warn(content, error);
-					}
-					
-					// Variable that holds the number of trackdl requests
-					private int unprocessedTrackCount;
-					
-					protected void processDownloadedTrack(JSONObject... trackJson) {
-						
-						Track t;
-						try {
-							t = Track.fromJson(trackJson[0], dbAdapter);
-							
-							synchronized (ListTracksFragment.this) {
-								tracksList.add(t);	
-							}
-							
-							afterOneTrack();
-							
-						} catch (JSONException e) {
-							logger.warn(e.getMessage(), e);
-						} catch (NumberFormatException e) {
-							logger.warn(e.getMessage(), e);
-						} catch (ParseException e) {
-							logger.warn(e.getMessage(), e);
-						}
-					}
-
-					
-					private synchronized void afterOneTrack() {
-						
-						View empty = getView().findViewById(android.R.id.empty);
-						if (empty != null) {
-							empty.setVisibility(View.GONE);
-						}
-						
-						if (--unprocessedTrackCount == 0) {
-							logger.info("Finished fetching tracks.");
-							updateStatusLayout();
-							updateTrackListView();
-							updateUsabilityOfMenuItems();
-						}
-					}
-
-
-					@Override
-					public void onSuccess(int httpStatus, JSONObject json) {
-						super.onSuccess(httpStatus, json);
-
-						try {
-							JSONArray tracks = json.getJSONArray("tracks");
-							if (tracks.length() == 0) {
-								updateStatusLayout();
-							}
-							
-							Set<String> localRemoteIds = new HashSet<String>();
-							synchronized (ListTracksFragment.this) {
-								for (Track t : tracksList) {
-									if (t.getRemoteID() != null) {
-										localRemoteIds.add(t.getRemoteID());
-									}
-								}	
-							}
-							
-							logger.info("found "+localRemoteIds.size()+" local tracks which have remoteIds.");
-							
-							List<String> tracksToDownload = new ArrayList<String>();
-							unprocessedTrackCount = tracks.length();
-							for (int i = 0; i < tracks.length(); i++) {
-
-								String remoteId = ((JSONObject) tracks.get(i)).getString("id");
-								// check if track is listed. if, continue
-								if (localRemoteIds.contains(remoteId)) {
-									logger.info("Skipping track with remoteId "+remoteId);
-									afterOneTrack();
-									continue;
-								}
-								
-								tracksToDownload.add(remoteId);
-							}
-							
-							if (!tracksToDownload.isEmpty()) {
-								logger.info("Starting download of "+ tracksToDownload.size() +" tracks");
-								final AtomicInteger index = new AtomicInteger(0);
-								downloadTrack(tracksToDownload, index);
-							}
-								
-						} catch (JSONException e) {
-							logger.warn(e.getMessage(), e);
-						}
-					}
-
-					private void downloadTrack(final List<String> tracksToDownload,
-							final AtomicInteger index) {
-						
-						final String id = tracksToDownload.get(index.get());
-						logger.info("downloading track with remoteId "+id);
-						
-						// download the track
-						RestClient.downloadTrack(username, token, id,
-							new JsonHttpResponseHandler() {
-								
-								@Override
-								public void onFinish() {
-									super.onFinish();
-									updateTrackListView();
-									
-									/*
-									 * on finish, start the next track download
-									 */
-									if (index.getAndIncrement() < tracksToDownload.size()) {
-										downloadTrack(tracksToDownload, index);
-									}
-								}
-
-								@Override
-								public void onSuccess(JSONObject trackJson) {
-									super.onSuccess(trackJson);
-									logger.info("Download of track " +id+ " succeeded. Processing...");
-									processDownloadedTrack(trackJson);
-								}
-
-								public void onFailure(Throwable arg0, String arg1) {
-									logger.warn(arg1,arg0);
-								};
-							}
-						);				
-					}
-				});	
-				
+				callback.onFinish();
 			}
 		});
+	}
+
+	private void downloadTracks(final String username, final String token, int limit, int page) {
+		RestClient.downloadTracks(username, token, limit, page, new JsonHttpResponseHandler() {
 			
+			@Override
+			public void onFailure(Throwable error, String content) {
+				super.onFailure(error, content);
+				logger.warn(content, error);
+			}
+			
+			// Variable that holds the number of trackdl requests
+			private int unprocessedTrackCount;
+			
+			protected void processDownloadedTrack(JSONObject... trackJson) {
+				
+				try {
+					Track t = Track.fromJson(trackJson[0], dbAdapter);
+					
+					synchronized (ListTracksFragment.this) {
+						tracksList.add(t);	
+					}
+					
+					afterOneTrack();
+					
+				} catch (JSONException e) {
+					logger.warn(e.getMessage(), e);
+				} catch (NumberFormatException e) {
+					logger.warn(e.getMessage(), e);
+				} catch (ParseException e) {
+					logger.warn(e.getMessage(), e);
+				}
+			}
+
+			
+			private synchronized void afterOneTrack() {
+				
+				View empty = getView().findViewById(android.R.id.empty);
+				if (empty != null) {
+					empty.setVisibility(View.GONE);
+				}
+				
+				if (--unprocessedTrackCount == 0) {
+					logger.info("Finished fetching tracks.");
+					updateStatusLayout();
+					updateTrackListView();
+					updateUsabilityOfMenuItems();
+				}
+			}
+
+
+			@Override
+			public void onSuccess(int httpStatus, JSONObject json) {
+				super.onSuccess(httpStatus, json);
+
+				try {
+					JSONArray tracks = json.getJSONArray("tracks");
+					if (tracks.length() == 0) {
+						updateStatusLayout();
+					}
+					
+					Set<String> localRemoteIds = new HashSet<String>();
+					synchronized (ListTracksFragment.this) {
+						for (Track t : tracksList) {
+							if (t.getRemoteID() != null) {
+								localRemoteIds.add(t.getRemoteID());
+							}
+						}	
+					}
+					
+					logger.info("found "+localRemoteIds.size()+" local tracks which have remoteIds.");
+					
+					List<String> tracksToDownload = new ArrayList<String>();
+					unprocessedTrackCount = tracks.length();
+					for (int i = 0; i < tracks.length(); i++) {
+
+						String remoteId = ((JSONObject) tracks.get(i)).getString("id");
+						// check if track is listed. if, continue
+						if (localRemoteIds.contains(remoteId)) {
+							logger.info("Skipping track with remoteId "+remoteId);
+							afterOneTrack();
+							continue;
+						}
+						
+						tracksToDownload.add(remoteId);
+					}
+					
+					if (!tracksToDownload.isEmpty()) {
+						logger.info("Starting download of "+ tracksToDownload.size() +" tracks");
+						final AtomicInteger index = new AtomicInteger(0);
+						downloadTrack(tracksToDownload, index);
+					}
+						
+				} catch (JSONException e) {
+					logger.warn(e.getMessage(), e);
+				}
+			}
+
+			/**
+			 * downloads a track of the list and
+			 * increments the downloadListIndex.
+			 * calls itself recursively until downloadListIndex
+			 * reaches the bounds of the list.
+			 */
+			private void downloadTrack(final List<String> downloadList,
+					final AtomicInteger downloadListIndex) {
+				
+				final String id = downloadList.get(downloadListIndex.get());
+				logger.info("downloading track with remoteId "+id);
+				
+				// download the track
+				RestClient.downloadTrack(username, token, id,
+					new JsonHttpResponseHandler() {
+						
+						@Override
+						public void onFinish() {
+							super.onFinish();
+							updateTrackListView();
+							
+							/*
+							 * on finish, start the next track download
+							 */
+							if (downloadListIndex.getAndIncrement() < downloadList.size()) {
+								downloadTrack(downloadList, downloadListIndex);
+							}
+						}
+
+						@Override
+						public void onSuccess(JSONObject trackJson) {
+							super.onSuccess(trackJson);
+							logger.info("Download of track " +id+ " succeeded. Processing...");
+							processDownloadedTrack(trackJson);
+						}
+
+						public void onFailure(Throwable arg0, String arg1) {
+							logger.warn(arg1,arg0);
+						};
+					}
+				);				
+			}
+		});			
+	}
+	
+	/**
+	 * This method requests the current fuel price of a given fuel type from a
+	 * WPS that caches prices from export.benzinpreis-aktuell.de, calculates the
+	 * total fuel price using the fuel consumption and length of track and sets
+	 * the text of the respective <code>Textview</code>.
+	 * 
+	 * @param fuelCostView
+	 *            The <code>Textview</code> the fuel price will be written to.
+	 * @param twoDForm
+	 *            Used for rounding the fuel price.
+	 * @param t
+	 * 			  the track
+	 */
+	private void getEstimatedFuelCost(final TextView fuelCostView,
+			final DecimalFormat twoDForm, Track t) {
+
+		WPSClient.calculateFuelCosts(t, new ResultCallback<Double>() {
+			
+			@Override
+			public void onResultAvailable(Double result) {
+				if (result.equals(Double.NaN)) {
+					fuelCostView.setText(R.string.error_calculating_fuel_costs);
+
+					fuelCostView.setTextColor(Color.RED);
+
+				} else {
+					fuelCostView.setText(twoDForm.format(result)
+							+ " " + getActivity().getString(R.string.euro_sign));
+				}				
+			}
+		});
+
 	}
 
 	private class TracksListAdapter extends BaseExpandableListAdapter {
@@ -927,6 +887,7 @@ public class ListTracksFragment extends SherlockFragment {
 			trackToChildViewMap = new HashMap<Track, View>();
 		}
 		
+
 		@Override
 		public int getGroupCount() {
 			return tracksList.size();
@@ -989,6 +950,34 @@ public class ListTracksFragment extends SherlockFragment {
 				});
 			}
 		}
+		
+		public void updateTrackChildView(final Track t) {
+			View childView = trackToChildViewMap.get(t);
+			
+			if (childView == null) {
+				/*
+				 * fallback, unknown object id, but could be in the db
+				 */
+				for (Track tmp : trackToChildViewMap.keySet()) {
+					if (tmp.getId() == t.getId()) {
+						childView = trackToChildViewMap.get(tmp);
+						break;
+					}
+				}
+			}
+			
+			final View viewoAdjust = childView;
+			
+			if (viewoAdjust != null) {
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						setTrackChildFields(t, viewoAdjust);
+						viewoAdjust.invalidate();
+					}
+				});
+			}
+		}
 
 		@Override
 		public View getGroupView(int i, boolean b, View view,
@@ -1029,29 +1018,11 @@ public class ListTracksFragment extends SherlockFragment {
 			synchronized (ListTracksFragment.this) {
 				t = tracksList.get(position);
 				if (!trackToChildViewMap.containsKey(t)) {
-					View row = ViewGroup.inflate(getActivity(),
+					final View row = ViewGroup.inflate(getActivity(),
 							R.layout.list_tracks_item_layout, null);
-					final TextView startView = (TextView) row
-							.findViewById(R.id.track_details_start_textview);
-					final TextView endView = (TextView) row
-							.findViewById(R.id.track_details_end_textview);
-					final TextView lengthView = (TextView) row
-							.findViewById(R.id.track_details_length_textview);
-					final TextView carView = (TextView) row
-							.findViewById(R.id.track_details_car_textview);
-					final TextView durationView = (TextView) row
-							.findViewById(R.id.track_details_duration_textview);
-					final TextView co2View = (TextView) row
-							.findViewById(R.id.track_details_co2_textview);
-					final TextView consumptionView = (TextView) row
-							.findViewById(R.id.track_details_consumption_textview);
-					final TextView fuelCostView = (TextView) row
-							.findViewById(R.id.track_details_fuel_cost_textview);
-					final TextView descriptionView = (TextView) row.findViewById(R.id.track_details_description_textview);
 
-					setTrackChildFields(t, startView, endView, lengthView,
-							carView, durationView, co2View,
-							consumptionView, fuelCostView, descriptionView);
+					setTrackChildFields(t, row);
+					
 					if (t.isLazyLoadingMeasurements()) {
 						lazyLoader.submit(new Runnable() {
 							@Override
@@ -1062,9 +1033,7 @@ public class ListTracksFragment extends SherlockFragment {
 									
 									@Override
 									public void run() {
-										setTrackChildFields(t, startView, endView, lengthView,
-												carView, durationView, co2View,
-												consumptionView, fuelCostView, descriptionView);										
+										setTrackChildFields(t, row);										
 									}
 								});
 								
@@ -1082,11 +1051,25 @@ public class ListTracksFragment extends SherlockFragment {
 			return trackToChildViewMap.get(t);
 		}
 
-		private void setTrackChildFields(Track t, TextView startView,
-				TextView endView, TextView lengthView, TextView carView,
-				TextView durationView, TextView co2View,
-				TextView consumptionView, TextView fuelCostView,
-				TextView descriptionView) {
+		private void setTrackChildFields(Track t, View childView) {
+			TextView startView = (TextView) childView
+					.findViewById(R.id.track_details_start_textview);
+			TextView endView = (TextView) childView
+					.findViewById(R.id.track_details_end_textview);
+			TextView lengthView = (TextView) childView
+					.findViewById(R.id.track_details_length_textview);
+			TextView carView = (TextView) childView
+					.findViewById(R.id.track_details_car_textview);
+			TextView durationView = (TextView) childView
+					.findViewById(R.id.track_details_duration_textview);
+			TextView co2View = (TextView) childView
+					.findViewById(R.id.track_details_co2_textview);
+			TextView consumptionView = (TextView) childView
+					.findViewById(R.id.track_details_consumption_textview);
+			TextView fuelCostView = (TextView) childView
+					.findViewById(R.id.track_details_fuel_cost_textview);
+			TextView descriptionView = (TextView) childView.findViewById(R.id.track_details_description_textview);
+			
 			Car car = t.getCar();
 			carView.setText(car.toString());
 			descriptionView.setText(t.getDescription());
@@ -1122,7 +1105,7 @@ public class ListTracksFragment extends SherlockFragment {
 						consumptionView.setText(twoDForm.format(consumption) + " l/h (" + twoDForm.format(literOn100km) + " l/100 km)");
 						if(fuelCostView.getText() == null || fuelCostView.getText().equals("")){
 							fuelCostView.setText(R.string.calculating);
-							getEstimatedFuelCost(fuelCostView, twoDForm, literOn100km, t.getLengthOfTrack(), t.getCar().getFuelType());
+							getEstimatedFuelCost(fuelCostView, twoDForm, t);
 						}
 					} catch (UnsupportedFuelTypeException e) {
 						logger.warn(e.getMessage());
@@ -1148,12 +1131,6 @@ public class ListTracksFragment extends SherlockFragment {
 			return false;
 		}
 		
-	}
-	
-	@Override
-	public void onDestroy() {
-		// TODO Auto-generated method stub
-		super.onDestroy();
 	}
 	
 }
