@@ -29,6 +29,8 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.User;
+import org.envirocar.app.dao.DAOProvider;
+import org.envirocar.app.dao.SensorDAO;
 import org.envirocar.app.logging.Logger;
 
 import com.loopj.android.http.AsyncHttpClient;
@@ -84,6 +86,11 @@ public class RestClient {
 		get(ECApplication.BASE_URL+"/tracks/"+id, handler, user, token);
 	}
 	
+	/**
+	 * @deprecated Use {@link DAOProvider#getSensorDAO()} / {@link SensorDAO#saveSensor(org.envirocar.app.model.Car, User)}
+	 * instead.
+	 */
+	@Deprecated
 	public static boolean createSensor(String jsonObj, String user, String token, AsyncHttpResponseHandler handler){
 		client.addHeader("Content-Type", "application/json");
 		setHeaders(user, token);

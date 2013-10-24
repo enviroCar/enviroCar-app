@@ -20,32 +20,21 @@
  */
 package org.envirocar.app.dao;
 
-import java.util.List;
+import java.io.IOException;
 
-import org.envirocar.app.application.User;
-import org.envirocar.app.model.Car;
-
-public interface SensorDAO {
-	
-	/**
-	 * an implementation shall return the list of sensors its data backend
-	 * contains.
-	 * 
-	 * @return the list of all sensors provided through this DAO
-	 * @throws SensorRetrievalException if the data backend cannot be accessed
-	 */
-	public List<Car> getAllSensors() throws SensorRetrievalException;
+public class NotConnectedException extends Exception {
 
 	/**
-	 * an implementation shall save the given car at the underlying
-	 * data backend or throw a {@link NotConnectedException} if it cannot
-	 * store the car.
 	 * 
-	 * @param car the sensor to save
-	 * @param user the user for authentication reasons
-	 * @return the ID of the saved sensor as provided by the underlying DAO
-	 * @throws NotConnectedException
 	 */
-	public String saveSensor(Car car, User user) throws NotConnectedException;
+	private static final long serialVersionUID = 1L;
+
+	public NotConnectedException(String m) {
+		super(m);
+	}
+
+	public NotConnectedException(IOException e) {
+		super(e);
+	}
 	
 }

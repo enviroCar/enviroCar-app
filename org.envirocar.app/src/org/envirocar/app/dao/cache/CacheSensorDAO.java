@@ -28,7 +28,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
+import org.envirocar.app.application.User;
 import org.envirocar.app.dao.CacheDirectoryProvider;
+import org.envirocar.app.dao.NotConnectedException;
 import org.envirocar.app.dao.SensorRetrievalException;
 import org.envirocar.app.dao.remote.AbstractSensorDAO;
 import org.envirocar.app.logging.Logger;
@@ -94,6 +96,11 @@ public class CacheSensorDAO extends AbstractSensorDAO {
 		bufferedWriter.write(content);
 		bufferedWriter.flush();
 		bufferedWriter.close();		
+	}
+
+	@Override
+	public String saveSensor(Car car, User user) throws NotConnectedException {
+		throw new NotConnectedException("CacheSensorDAO does not support saving.");
 	}
 
 

@@ -28,22 +28,19 @@ import java.io.ObjectOutputStream;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
-import org.apache.http.Header;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.ContextInternetAccessProvider;
-import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.DAOProvider;
+import org.envirocar.app.dao.NotConnectedException;
 import org.envirocar.app.dao.SensorRetrievalException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
-import org.envirocar.app.network.RestClient;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -77,11 +74,6 @@ import android.widget.SpinnerAdapter;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.loopj.android.http.AsyncHttpResponseHandler;
-
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class CarSelectionPreference extends DialogPreference {
 
@@ -280,109 +272,97 @@ public class CarSelectionPreference extends DialogPreference {
 			return;
 		}
 		
-		String sensorString = String
-				.format(Locale.ENGLISH,
-						"{ \"type\": \"%s\", \"properties\": {\"manufacturer\": \"%s\", \"model\": \"%s\", \"fuelType\": \"%s\", \"constructionYear\": %s, \"engineDisplacement\": %s } }",
-						sensorType, carManufacturer, carModel, carFuelType,
-						carConstructionYear, carEngineDisplacement);
+		changeProgress(true, null);
 		
-		User user = UserManager.instance().getUser();
-		String username = user.getUsername();
-		String token = user.getToken();
 		
 		if (new ContextInternetAccessProvider(getContext()).isConnected() && UserManager.instance().isLoggedIn()) {
-		
-			RestClient.createSensor(sensorString, username, token, new AsyncHttpResponseHandler(){
-				
-				@Override
-				public void onStart() {
-					super.onStart();
-					changeProgress(true, null);
-				}
-	
-				@Override
-				public void onFailure(Throwable error, String content) {
-					super.onFailure(error, content);
-					if (content != null && content.equals("can't resolve host") ){
-						Toast.makeText(getContext(),
-								getContext().getString(R.string.error_host_not_found), Toast.LENGTH_SHORT).show();
-					} else if (content != null && content.contains("Unauthorized")){
-							logger.info("Tried to register new car while not logged in. Creating temporary car.");
-							Crouton.makeText(
-									(Activity) getContext(),
-									getContext().getResources().getString(
-											R.string.creating_temp_car),
-									Style.INFO).show();
-							createTemporaryCar();
-					} else {
-						logger.warn("Received error response: "+ content +"; "+error.getMessage(), error);
-						//TODO i18n
-						Toast.makeText(getContext(), "Server Error: "+error.getMessage(), Toast.LENGTH_SHORT).show();
-					}
-					changeProgress(false, error.getMessage());
-				}
-				
-				
-				@Override
-				public void onSuccess(int httpStatusCode, Header[] h, String response) {
-					super.onSuccess(httpStatusCode, h, response);
-					
-					String location = "";
-					for (int i = 0; i< h.length; i++){
-						if( h[i].getName().equals("Location")){
-							location += h[i].getValue();
-							break;
-						}
-					}
-					logger.info(httpStatusCode+" "+location);
-					
-					String sensorId = location.substring(location.lastIndexOf("/")+1, location.length());
-	
-					//put the sensor id into shared preferences
-					int engineDisplacement = Integer.parseInt(carEngineDisplacement);
-					int year = Integer.parseInt(carConstructionYear);
-					car = new Car(Car.resolveFuelType(carFuelType), carManufacturer, carModel, sensorId, year, engineDisplacement);
-					persistCar();
-					changeProgress(false, String.format("%s %s", car.toString(), resolveSuccesString()));
-					new Handler().postDelayed(new Runnable() {
-						@Override
-						public void run() {
-							Dialog dialog = getDialog();
-							if (dialog != null) {
-								dialog.dismiss();
-							}
-						}
-					}, 2000);
-				}
+			new AsyncTask<Void, Void, Void>() {
 
-				private String resolveSuccesString() {
+				@Override
+				protected Void doInBackground(Void... params) {
+					Car tmpCar = new Car(Car.resolveFuelType(carFuelType), carManufacturer, carModel, null,
+							Integer.parseInt(carConstructionYear), Integer.parseInt(carEngineDisplacement));
+					
 					try {
-						return getContext().getResources().getString(R.string.register_car_success);
-					} catch (RuntimeException e) {
+						String sensorId = DAOProvider.instance().getSensorDAO().saveSensor(tmpCar, UserManager.instance().getUser());
+						
+						//put the sensor id into shared preferences
+						tmpCar.setId(sensorId);
+						car = tmpCar;
+						persistCar();
+						
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								changeProgress(false, String.format("%s %s", car.toString(), resolveSuccesString()));
+								submitDialogClosure();								
+							}
+						});
+						
+					} catch (final NotConnectedException e1) {
+						logger.warn(e1.getMessage());
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								Toast.makeText(getContext(), "Server Error: "+e1.getMessage(), Toast.LENGTH_SHORT).show();
+								changeProgress(false, e1.getMessage());								
+							}
+						});
 					}
-					return "succesfully registered.";
+					
+					return null;
 				}
-			});
+				
+			}.execute();
+	
 		}
 		else {
 			createTemporaryCar();
-		}
+		}	
 
+	}
+	
+	protected void runOnUiThread(Runnable runnable) {
+		if (getContext() instanceof Activity) {
+			((Activity) getContext()).runOnUiThread(runnable);
+		}
+	}
+
+	private String resolveSuccesString() {
+		try {
+			return getContext().getResources().getString(R.string.register_car_success);
+		} catch (RuntimeException e) {
+		}
+		return "succesfully registered.";
 	}
 
 	private void createTemporaryCar(){
-		String sensorId = Car.TEMPORARY_SENSOR_ID + UUID.randomUUID().toString().substring(0, 5);
-		createNewCar(sensorId);
-	}
-	
-	private void createNewCar(String sensorId){
+		String uuid = UUID.randomUUID().toString();
+		String sensorId = Car.TEMPORARY_SENSOR_ID.concat(uuid.substring(0, uuid.length() - Car.TEMPORARY_SENSOR_ID.length()));
 		
 		int year = Integer.parseInt(carConstructionYear);
 		car = new Car(Car.resolveFuelType(carFuelType), carManufacturer,
 				carModel, sensorId, year,
 				Integer.parseInt(carEngineDisplacement));
+		
 		persistCar();
+		
 		Toast.makeText(getContext(), getContext().getString(R.string.creating_temp_car), Toast.LENGTH_SHORT).show();
+		changeProgress(false, getContext().getString(R.string.creating_temp_car));
+		
+		submitDialogClosure();
+	}
+
+	private void submitDialogClosure() {
+		new Handler().postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				Dialog dialog = getDialog();
+				if (dialog != null) {
+					dialog.dismiss();
+				}
+			}
+		}, 2000);
 	}
 	
 	private void checkEmpty(String... values) throws Exception {
@@ -409,11 +389,9 @@ public class CarSelectionPreference extends DialogPreference {
 	}
 
 	protected void retrieveSensorsFromDao() throws SensorRetrievalException {
-		
 		sensors = DAOProvider.instance().getSensorDAO().getAllSensors();
 		
-		if (getContext() instanceof Activity) {
-			((Activity) getContext()).runOnUiThread(new Runnable() {
+		runOnUiThread(new Runnable() {
 				
 				@Override
 				public void run() {
@@ -426,8 +404,6 @@ public class CarSelectionPreference extends DialogPreference {
 					}				
 				}
 			});
-		}
-		
 	}
 
 	public void getCarList() {
@@ -484,7 +460,13 @@ public class CarSelectionPreference extends DialogPreference {
 		CarManager.instance().setCar(car);
 		persistString(serializeCar(car));
 		getSharedPreferences().edit().putInt(SettingsActivity.CAR_HASH_CODE, car.hashCode()).commit();
-        setSummary(car.toString());	
+       
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				 setSummary(car.toString());					
+			}
+		});
 	}
 
 	@Override

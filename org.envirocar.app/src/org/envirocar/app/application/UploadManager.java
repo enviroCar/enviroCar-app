@@ -40,6 +40,8 @@ import org.apache.http.protocol.HTTP;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
+import org.envirocar.app.dao.DAOProvider;
+import org.envirocar.app.dao.NotConnectedException;
 import org.envirocar.app.json.TrackEncoder;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
@@ -99,7 +101,7 @@ public class UploadManager {
 	public void uploadSingleTrack(Track track, TrackUploadFinishedHandler callback) {
 		if (track == null ) return;
 		
-		if (isCarOfTrackSavedLocallyOnly(track)) {
+		if (hasTemporaryCar(track)) {
 			registerCarBeforeUpload(track);
 		}
 		new UploadAsyncTask(callback).execute(track);
@@ -115,7 +117,7 @@ public class UploadManager {
 						car.getConstructionYear(), car.getEngineDisplacement());
 		try {
 			String sensorIdFromServer = new SensorUploadTask().execute(
-					sensorString).get();
+					car).get();
 
 			car.setId(sensorIdFromServer);
 
@@ -131,7 +133,7 @@ public class UploadManager {
 
 	}
 	
-	private boolean isCarOfTrackSavedLocallyOnly(Track track) {		
+	private boolean hasTemporaryCar(Track track) {		
 		return track.getCar().getId().startsWith(Car.TEMPORARY_SENSOR_ID);
 	}
 	
@@ -179,14 +181,14 @@ public class UploadManager {
 				location.length());
 	}
 	
-	private class SensorUploadTask extends AsyncTask<String, String, String> {
+	private class SensorUploadTask extends AsyncTask<Car, String, String> {
 
 		@Override
-		protected String doInBackground(String... params) {
+		protected String doInBackground(Car... params) {
 			
 			try {
-				return registerSensor(params[0]);
-			} catch (IOException e) {
+				return DAOProvider.instance().getSensorDAO().saveSensor(params[0], UserManager.instance().getUser());
+			} catch (NotConnectedException e) {
 				logger.warn(e.getMessage(), e);
 			}
 			return "";
