@@ -34,12 +34,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.EngineLoad;
+import org.envirocar.app.commands.FuelSystemStatus;
 import org.envirocar.app.commands.IntakePressure;
 import org.envirocar.app.commands.IntakeTemperature;
+import org.envirocar.app.commands.LongTermTrimBank1;
 import org.envirocar.app.commands.MAF;
 import org.envirocar.app.commands.O2LambdaProbe;
 import org.envirocar.app.commands.PIDSupported;
 import org.envirocar.app.commands.PIDUtil;
+import org.envirocar.app.commands.ShortTermTrimBank1;
 import org.envirocar.app.commands.TPS;
 import org.envirocar.app.commands.PIDUtil.PID;
 import org.envirocar.app.commands.RPM;
@@ -65,6 +68,8 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private static final int MAX_INVALID_RESPONSE_COUNT = 5;
 	private static final int MIN_BACKLIST_COUNT = 5;
 	private static final int MAX_SEARCHING_COUNT_IN_A_ROW = 10;
+	private static Set<String> whitelistedCommandNames = new HashSet<String>();
+	
 	private InputStream inputStream;
 	private OutputStream outputStream;
 	private boolean connectionEstablished;
@@ -72,8 +77,14 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private int invalidResponseCount;
 	private Map<String, AtomicInteger> blacklistCandidates = new HashMap<String, AtomicInteger>();
 	private Set<String> blacklistedCommandNames = new HashSet<String>();
+	
 	private int searchingCountInARow;
 	private Set<PID> supportedPIDs;
+	private int cycle = 0;
+	
+	static {
+		whitelistedCommandNames.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_VOLTAGE).getCommandName());
+	}
 	
 	/**
 	 * @return the list of initialization commands for the adapter
@@ -127,8 +138,44 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 		/*
 		 * XXX: Tryout for Lambda probes. better: do via PIDSupported
 		 */
-		requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_VOLTAGE));
-		requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_CURRENT));
+		if (cycle % 8 == 0) {
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_VOLTAGE));
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_CURRENT));	
+		}
+		else if (cycle % 8 == 1) {
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_2_VOLTAGE));
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_2_CURRENT));
+		}
+		else if (cycle % 8 == 2) {
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_3_VOLTAGE));
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_3_CURRENT));
+		}
+		else if (cycle % 8 == 3) {
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_4_VOLTAGE));
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_4_CURRENT));
+		}
+		else if (cycle % 8 == 4) {
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_5_VOLTAGE));
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_5_CURRENT));
+		}
+		else if (cycle % 8 == 5) {
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_6_VOLTAGE));
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_6_CURRENT));
+		}
+		else if (cycle % 8 == 6) {
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_7_VOLTAGE));
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_7_CURRENT));
+		}
+		else if (cycle % 8 == 7) {
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_8_VOLTAGE));
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_8_CURRENT));
+		}
+		
+		requestCommands.add(new FuelSystemStatus());
+		requestCommands.add(new ShortTermTrimBank1());
+		requestCommands.add(new LongTermTrimBank1());
+		
+		cycle++;
 		
 		return requestCommands;
 	}
@@ -170,6 +217,11 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 		String name = cmd.getCommandName();
 		
 		if (blacklistedCommandNames.contains(name)) return;
+		
+		/*
+		 * whiteliste, basically for testing via user study
+		 */
+		if (whitelistedCommandNames.contains(name)) return;
 		
 		AtomicInteger candidate = blacklistCandidates.get(name);
 		
@@ -376,7 +428,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 				}
 				break;
 			case EXECUTION_ERROR:
-				logger.debug("Execution Error for" +cmd.getCommandName() +" / "+new String(cmd.getOutgoingBytes()));
+				logger.debug("Execution Error for " +cmd.getCommandName() +": "+new String(cmd.getRawData()));
 				this.onBlacklistCandidate(cmd);
 				break;
 				

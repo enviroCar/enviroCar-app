@@ -252,5 +252,13 @@ public class Collector {
 		}
 	}
 
+	public void newShortTermTrimBank1(Number numberResult) {
+		this.measurement.setProperty(PropertyKey.SHORT_TERM_TRIM_1, numberResult.doubleValue());
+	}
+
+	public void newLongTermTrimBank1(Number numberResult) {
+		this.measurement.setProperty(PropertyKey.LONG_TERM_TRIM_1, numberResult.doubleValue());		
+	}
+
 
 }

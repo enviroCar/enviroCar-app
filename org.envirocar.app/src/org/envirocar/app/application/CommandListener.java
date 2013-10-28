@@ -25,10 +25,12 @@ import org.envirocar.app.commands.EngineLoad;
 import org.envirocar.app.commands.FuelSystemStatus;
 import org.envirocar.app.commands.IntakePressure;
 import org.envirocar.app.commands.IntakeTemperature;
+import org.envirocar.app.commands.LongTermTrimBank1;
 import org.envirocar.app.commands.MAF;
 import org.envirocar.app.commands.NumberResultCommand;
 import org.envirocar.app.commands.O2LambdaProbe;
 import org.envirocar.app.commands.RPM;
+import org.envirocar.app.commands.ShortTermTrimBank1;
 import org.envirocar.app.commands.Speed;
 import org.envirocar.app.commands.TPS;
 import org.envirocar.app.event.EventBus;
@@ -191,12 +193,22 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 			boolean loop = ((FuelSystemStatus) command).isInClosedLoop();
 			int status = ((FuelSystemStatus) command).getStatus();
 			this.collector.newFuelSystemStatus(loop, status);
-			logger.info("Processed FuekSystemStatus Response: Closed? "+loop +" Status: "+ status +"; time: "+command.getResultTime());
+			logger.info("Processed FuelSystemStatus Response: Closed? "+loop +" Status: "+ status +"; time: "+command.getResultTime());
 		}
 		
 		else if (command instanceof O2LambdaProbe) {
 			this.collector.newLambdaProbeValue((O2LambdaProbe) command);
 			logger.info("Processed O2LambdaProbe Response: "+ command.toString());
+		}
+		
+		else if (command instanceof ShortTermTrimBank1) {
+			this.collector.newShortTermTrimBank1(((ShortTermTrimBank1) command).getNumberResult());
+			logger.info("Processed ShortTermTrimBank1: "+ command.toString());
+		}
+		
+		else if (command instanceof LongTermTrimBank1) {
+			this.collector.newLongTermTrimBank1(((LongTermTrimBank1) command).getNumberResult());
+			logger.info("Processed LongTermTrimBank1: "+ command.toString());
 		}
 	}
 	

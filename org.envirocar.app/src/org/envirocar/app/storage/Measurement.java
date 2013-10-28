@@ -136,35 +136,53 @@ public class Measurement {
 			public String toString() {
 				return "GPS VDOP";
 			}
-		}, LAMBDA_VOLTAGE {
+		},
+		LAMBDA_VOLTAGE {
 			@Override
 			public String toString() {
 				return "O2 Lambda Voltage";
 			}
-		}, LAMBDA_VOLTAGE_ER {
+		},
+		LAMBDA_VOLTAGE_ER {
 			@Override
 			public String toString() {
 				return LAMBDA_VOLTAGE.toString().concat(" ER");
 			}
-		}, LAMBDA_CURRENT {
+		},
+		LAMBDA_CURRENT {
 			@Override
 			public String toString() {
 				return "O2 Lambda Current";
 			}
-		}, LAMBDA_CURRENT_ER {
+		},
+		LAMBDA_CURRENT_ER {
 			@Override
 			public String toString() {
 				return LAMBDA_CURRENT.toString().concat(" ER");
 			}
-		}, FUEL_SYSTEM_LOOP {
+		},
+		FUEL_SYSTEM_LOOP {
 			@Override
 			public String toString() {
 				return "Fuel System Loop";
 			}
-		}, FUEL_SYSTEM_STATUS_CODE {
+		},
+		FUEL_SYSTEM_STATUS_CODE {
 			@Override
 			public String toString() {
 				return "Fuel System Status Code";
+			}
+		},
+		LONG_TERM_TRIM_1 {
+			@Override
+			public String toString() {
+				return "Long-Term Fuel Trim 1";
+			}
+		},
+		SHORT_TERM_TRIM_1 {
+			@Override
+			public String toString() {
+				return "Short-Term Fuel Trim 1";
 			}
 		}
 		

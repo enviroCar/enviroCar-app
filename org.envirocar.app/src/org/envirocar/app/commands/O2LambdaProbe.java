@@ -80,6 +80,11 @@ public abstract class O2LambdaProbe extends NumberResultCommand {
 		return null;
 	}
 	
+	@Override
+	public void parseRawData() {
+		super.parseRawData();
+	}
+	
 	public double getEquivalenceRatio() {
 		if (Double.isNaN(this.equivalenceRation)) {
 			int[] data = getBuffer();

@@ -79,7 +79,7 @@ public class OBDCommandLooper extends HandlerThread {
 	private Handler commandExecutionHandler;
 	protected boolean running = true;
 	protected boolean connectionEstablished = false;
-	protected long requestPeriod = 500;
+	protected long requestPeriod = 100;
 	private int tries;
 	private int adapterIndex;
 	private ConnectionListener connectionListener;

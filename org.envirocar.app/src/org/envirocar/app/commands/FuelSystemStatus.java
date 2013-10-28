@@ -33,50 +33,57 @@ public class FuelSystemStatus extends CommonCommand {
 
 	@Override
 	public void parseRawData() {
-		int index = 0;
-		int length = 2;
-		byte[] data = getRawData();
-		
-		
-		if (data.length != 6) {
-			setCommandState(CommonCommandState.EXECUTION_ERROR);
-		}
-		
-		while (index < data.length) {
-			if (index == 0) {
-				String tmp = new String(data, index, length);
-				// this is the status
-				if (!tmp.equals(NumberResultCommand.STATUS_OK)) {
-					setCommandState(CommonCommandState.EXECUTION_ERROR);
-					return;
-				}
-				index += length;
-				continue;
-			}
-			else if (index == 2) {
-				String tmp = new String(data, index, length);
-				// this is the ID byte
-				if (!tmp.equals(this.getResponseTypeID())) {
-					setCommandState(CommonCommandState.UNMATCHED_RESULT);
-					return;
-				}
-				index += length;
-				continue;
-			}
-			else if (index == 4) {
-				byte current = data[index];
-				for (int bit = 4; bit >= 0; bit--) {
-					boolean is = ((current >> bit) & 1 ) == 1;
-					if (is) {
-						setBit = bit;
-					}
-				}
-				index++;
-			}
-			else {
-				index++;
+		/*
+		 * big try catch as it is not robustly tested
+		 */
+		try {
+			int index = 0;
+			int length = 2;
+			byte[] data = getRawData();
+			
+			
+			if (data.length != 6) {
+				setCommandState(CommonCommandState.EXECUTION_ERROR);
 			}
 			
+			while (index < data.length) {
+				if (index == 0) {
+					String tmp = new String(data, index, length);
+					// this is the status
+					if (!tmp.equals(NumberResultCommand.STATUS_OK)) {
+						setCommandState(CommonCommandState.EXECUTION_ERROR);
+						return;
+					}
+					index += length;
+					continue;
+				}
+				else if (index == 2) {
+					String tmp = new String(data, index, length);
+					// this is the ID byte
+					if (!tmp.equals(this.getResponseTypeID())) {
+						setCommandState(CommonCommandState.UNMATCHED_RESULT);
+						return;
+					}
+					index += length;
+					continue;
+				}
+				else if (index == 4) {
+					byte current = data[index];
+					for (int bit = 4; bit >= 0; bit--) {
+						boolean is = ((current >> bit) & 1 ) == 1;
+						if (is) {
+							setBit = bit;
+						}
+					}
+					index++;
+				}
+				else {
+					index++;
+				}
+				
+			}
+		} catch (RuntimeException e) {
+			setCommandState(CommonCommandState.EXECUTION_ERROR);
 		}
 	}
 
