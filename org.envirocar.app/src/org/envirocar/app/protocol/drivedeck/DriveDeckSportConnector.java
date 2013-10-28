@@ -29,6 +29,8 @@ import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.IntakePressure;
 import org.envirocar.app.commands.IntakeTemperature;
 import org.envirocar.app.commands.MAF;
+import org.envirocar.app.commands.O2LambdaProbe;
+import org.envirocar.app.commands.O2LambdaProbeVoltage;
 import org.envirocar.app.commands.PIDSupported;
 import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
@@ -67,6 +69,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		pidList.add(PID.RPM);
 		pidList.add(PID.IAP);
 		pidList.add(PID.IAT);
+		pidList.add(PID.O2_LAMBDA_PROBE_1_VOLTAGE);
 		this.cycleCommand = new CycleCommand(pidList);
 	}
 
@@ -194,6 +197,11 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		else if (pid.equals("40") || pid.equals("51")) {
 			//RPM
 			result = new RPM();
+		}
+		else if (pid.equals("4D")) {
+			//TODO the current manual does not provide info on how to
+			//determine which probe value is returned.
+			result = O2LambdaProbe.fromPIDEnum(org.envirocar.app.commands.PIDUtil.PID.O2_LAMBDA_PROBE_1_VOLTAGE);
 		}
 		
 		if (result != null) {

@@ -28,6 +28,10 @@ public abstract class NumberResultCommand extends CommonCommand {
 	static final String STATUS_OK = "41";
 	private int[] buffr;
 	
+	/**
+	 * @param command the command to send. This will be the raw data send to the OBD device
+	 * (if a sub-class does not override {@link #getOutgoingBytes()}).
+	 */
 	public NumberResultCommand(String command) {
 		super(command);
 	}

@@ -37,6 +37,7 @@ import org.envirocar.app.commands.EngineLoad;
 import org.envirocar.app.commands.IntakePressure;
 import org.envirocar.app.commands.IntakeTemperature;
 import org.envirocar.app.commands.MAF;
+import org.envirocar.app.commands.O2LambdaProbe;
 import org.envirocar.app.commands.PIDSupported;
 import org.envirocar.app.commands.PIDUtil;
 import org.envirocar.app.commands.TPS;
@@ -122,6 +123,12 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 			requestCommands.add(new EngineLoad());
 			requestCommands.add(new TPS());
 		}
+		
+		/*
+		 * XXX: Tryout for Lambda probes. better: do via PIDSupported
+		 */
+		requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_VOLTAGE));
+		requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_CURRENT));
 		
 		return requestCommands;
 	}

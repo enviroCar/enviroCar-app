@@ -20,23 +20,24 @@
  */
 package org.envirocar.app.commands;
 
-public abstract class StringResultCommand extends CommonCommand {
+public class O2LambdaProbeCurrent extends O2LambdaProbe {
 
-	/**
-	 * @param command the command to send. This will be the raw data send to the OBD device
-	 * (if a sub-class does not override {@link #getOutgoingBytes()}).
-	 */
-	public StringResultCommand(String command) {
-		super(command);
+	private double current = Double.NaN;
+	
+	public O2LambdaProbeCurrent(String cylinderPosition) {
+		super(cylinderPosition);
+	}
+
+	public double getCurrent() {
+		if (Double.isNaN(current)) {
+			int[] data = getBuffer();
+			
+			this.current = ((data[4]*256d)+data[5])/256d - 128;
+		}
+		
+		return current;
 	}
 	
-	@Override
-	public void parseRawData() {
-		setCommandState(CommonCommandState.FINISHED);
-	}
 	
-	public String getStringResult() {
-		return new String(getRawData());
-	}
 
 }

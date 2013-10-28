@@ -56,6 +56,12 @@ public class CycleCommand extends CommonCommand {
 			public String toString() {
 				return convert("0F");
 			}
+		},
+		O2_LAMBDA_PROBE_1_VOLTAGE {
+			@Override
+			public String toString() {
+				return convert("24");
+			}
 		};
 		
 		protected String convert(String string) {
