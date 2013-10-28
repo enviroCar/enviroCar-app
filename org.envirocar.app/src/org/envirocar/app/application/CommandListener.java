@@ -27,6 +27,7 @@ import org.envirocar.app.commands.IntakePressure;
 import org.envirocar.app.commands.IntakeTemperature;
 import org.envirocar.app.commands.MAF;
 import org.envirocar.app.commands.NumberResultCommand;
+import org.envirocar.app.commands.O2LambdaProbe;
 import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.Speed;
 import org.envirocar.app.commands.TPS;
@@ -189,7 +190,13 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		else if (command instanceof FuelSystemStatus) {
 			boolean loop = ((FuelSystemStatus) command).isInClosedLoop();
 			int status = ((FuelSystemStatus) command).getStatus();
+			this.collector.newFuelSystemStatus(loop, status);
 			logger.info("Processed FuekSystemStatus Response: Closed? "+loop +" Status: "+ status +"; time: "+command.getResultTime());
+		}
+		
+		else if (command instanceof O2LambdaProbe) {
+			this.collector.newLambdaProbeValue((O2LambdaProbe) command);
+			logger.info("Processed O2LambdaProbe Response: "+ command.toString());
 		}
 	}
 	

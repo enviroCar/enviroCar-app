@@ -38,4 +38,15 @@ public class O2LambdaProbeVoltage extends O2LambdaProbe {
 		return voltage;
 	}
 	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(getClass().getSimpleName());
+		sb.append(" Voltage: ");
+		sb.append(getVoltage());
+		sb.append("; Equivalence Ratio: ");
+		sb.append(getEquivalenceRatio());
+		return sb.toString();
+	}
+	
 }

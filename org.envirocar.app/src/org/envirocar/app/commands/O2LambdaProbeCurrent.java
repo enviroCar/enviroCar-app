@@ -38,6 +38,15 @@ public class O2LambdaProbeCurrent extends O2LambdaProbe {
 		return current;
 	}
 	
-	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(getClass().getSimpleName());
+		sb.append(" Current: ");
+		sb.append(getCurrent());
+		sb.append("; Equivalence Ratio: ");
+		sb.append(getEquivalenceRatio());
+		return sb.toString();
+	}
 
 }
