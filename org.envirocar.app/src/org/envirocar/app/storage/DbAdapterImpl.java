@@ -78,12 +78,14 @@ public class DbAdapterImpl implements DbAdapter {
 	public static final String KEY_TRACK_CAR_ENGINE_DISPLACEMENT = "engine_displacement";
 	public static final String KEY_TRACK_CAR_VIN = "vin";
 	public static final String KEY_TRACK_CAR_ID = "carId"; 
+	public static final String KEY_TRACK_METADATA = "trackMetadata";
 	
 	public static final String[] ALL_TRACK_KEYS = new String[]{
 		KEY_TRACK_ID,
 		KEY_TRACK_NAME,
 		KEY_TRACK_DESCRIPTION,
 		KEY_TRACK_REMOTE,
+		KEY_TRACK_METADATA,
 		KEY_TRACK_CAR_MANUFACTURER,
 		KEY_TRACK_CAR_MODEL,
 		KEY_TRACK_CAR_FUEL_TYPE,
@@ -93,7 +95,7 @@ public class DbAdapterImpl implements DbAdapter {
 	};
 
 	private static final String DATABASE_NAME = "obd2";
-	private static final int DATABASE_VERSION = 6;
+	private static final int DATABASE_VERSION = 8;
 	
 	private static final String DATABASE_CREATE = "create table " + TABLE_MEASUREMENT + " " +
 			"(" + KEY_MEASUREMENT_ROWID + " INTEGER primary key autoincrement, " +
@@ -108,6 +110,7 @@ public class DbAdapterImpl implements DbAdapter {
 			KEY_TRACK_DESCRIPTION + " BLOB, " +
 			KEY_TRACK_REMOTE + " BLOB, " +
 			KEY_TRACK_STATE + " BLOB, " +
+			KEY_TRACK_METADATA + " BLOB, " +
 			KEY_TRACK_CAR_MANUFACTURER + " BLOB, " + 
 			KEY_TRACK_CAR_MODEL + " BLOB, " +
 			KEY_TRACK_CAR_FUEL_TYPE + " BLOB, " +
@@ -246,7 +249,7 @@ public class DbAdapterImpl implements DbAdapter {
 	@Override
 	public ArrayList<Track> getAllTracks(boolean lazyMeasurements) {
 		ArrayList<Track> tracks = new ArrayList<Track>();
-		Cursor c = mDb.query(TABLE_TRACK, null, null, null, null, null, null);
+		Cursor c = mDb.query(TABLE_TRACK, new String[] {KEY_TRACK_ID}, null, null, null, null, null);
 		c.moveToFirst();
 		for (int i = 0; i < c.getCount(); i++) {
 			long id = c.getLong(c.getColumnIndex(KEY_TRACK_ID));
@@ -269,10 +272,9 @@ public class DbAdapterImpl implements DbAdapter {
 			return null;
 		}
 
-		Track track = Track.createDbTrack(c.getLong(c.getColumnIndex(KEY_TRACK_ID)), this);
+		Track track = Track.createTrackWithId(c.getLong(c.getColumnIndex(KEY_TRACK_ID)), this);
 		track.setName(c.getString(c.getColumnIndex(KEY_TRACK_NAME)));
 		track.setDescription(c.getString(c.getColumnIndex(KEY_TRACK_DESCRIPTION)));
-		track.setVin(c.getString(c.getColumnIndex(KEY_TRACK_CAR_VIN)));
 		track.setRemoteID(c.getString(c.getColumnIndex(KEY_TRACK_REMOTE)));
 		
 		if (track.isRemoteTrack()) {
@@ -291,6 +293,12 @@ public class DbAdapterImpl implements DbAdapter {
 			 * if its a legacy track (column not there), set to finished
 			 */
 			track.setStatus(TrackStatus.FINISHED);
+		}
+		
+		try {
+			track.setMetadata(TrackMetadata.fromJson(c.getString(c.getColumnIndex(KEY_TRACK_METADATA))));
+		} catch (JSONException e) {
+			logger.warn(e.getMessage());
 		}
 		
 		track.setCar(createCarFromCursor(c));
@@ -496,10 +504,18 @@ public class DbAdapterImpl implements DbAdapter {
 			values.put(KEY_TRACK_CAR_MANUFACTURER, track.getCar().getManufacturer());
 			values.put(KEY_TRACK_CAR_MODEL, track.getCar().getModel());
 			values.put(KEY_TRACK_CAR_FUEL_TYPE, track.getCar().getFuelType().name());
-			values.put(KEY_TRACK_CAR_VIN, track.getVin());
 			values.put(KEY_TRACK_CAR_ID, track.getCar().getId());
 			values.put(KEY_TRACK_CAR_ENGINE_DISPLACEMENT, track.getCar().getEngineDisplacement());
 		}
+		
+		if (track.getMetadata() != null) {
+			try {
+				values.put(KEY_TRACK_METADATA, track.getMetadata().toJsonString());
+			} catch (JSONException e) {
+				logger.warn(e.getMessage(), e);
+			}
+		}
+		
 		return values;
 	}
 
@@ -546,7 +562,8 @@ public class DbAdapterImpl implements DbAdapter {
 		
 		String date = format.format(new Date());
 		Car car = CarManager.instance().getCar();
-		Track track = new Track("123456", car, this);
+		Track track = Track.createNewLocalTrack(this);
+		track.setCar(car);
 		track.setName("Track " + date);
 		track.setDescription(String.format(mCtx.getString(R.string.default_track_description), car.getModel()));
 		updateTrack(track);

@@ -45,9 +45,9 @@ import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.storage.TrackMetadata;
 import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -166,9 +166,9 @@ public class UploadManager {
 				
 			}
 
-			JSONObject trackJSONObject = null;
+			File file = null;
 			try {
-				trackJSONObject = new TrackEncoder().createTrackJson(track, isObfuscationEnabled());
+				file = saveTrackAndReturnFile(track);
 			} catch (JSONException e) {
 				logger.warn(e.getMessage(), e);
 				//the track wasn't JSON serializable. shouldn't occur.
@@ -200,9 +200,6 @@ public class UploadManager {
 				this.cancel(true);
 			}
 			
-			//save the track into a json file
-			File file = savetoSdCard(trackJSONObject.toString(), track.isRemoteTrack() ? track.getRemoteID() : Long.toString(track.getId()));
-
 			if (file == null) {
 				this.cancel(true);
 				((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
@@ -233,6 +230,11 @@ public class UploadManager {
 	}
 
 	public String getTrackJSON(Track track) throws JSONException, TrackWithoutMeasurementsException {
+		/*
+		 * inject track metadata
+		 */
+		track.updateMetadata(new TrackMetadata(context));
+		
 		return new TrackEncoder().createTrackJson(track, isObfuscationEnabled()).toString();
 	}
 	
@@ -325,7 +327,7 @@ public class UploadManager {
 	 *            the object to save
 	 * @param id 
 	 */
-	private File savetoSdCard(String obj, String id) {
+	private File saveToSdCard(String obj, String id) {
 		File log = new File(context.getExternalFilesDir(null),"enviroCar-track-"+id+".json");
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(log.getAbsolutePath(), false));
@@ -340,7 +342,7 @@ public class UploadManager {
 	}
 	
 	public File saveTrackAndReturnFile(Track t) throws JSONException, TrackWithoutMeasurementsException{
-		return savetoSdCard(getTrackJSON(t), (t.isRemoteTrack() ? t.getRemoteID() : Long.toString(t.getId())));
+		return saveToSdCard(getTrackJSON(t), (t.isRemoteTrack() ? t.getRemoteID() : Long.toString(t.getId())));
 	}
 
 }

@@ -312,6 +312,7 @@ public class OBDCommandLooper extends HandlerThread {
 			this.connectionEstablished = true;
 			this.connectionListener.onConnectionVerified();
 			commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
+			commandListener.onConnected(deviceName);
 			break;
 		default:
 			break;

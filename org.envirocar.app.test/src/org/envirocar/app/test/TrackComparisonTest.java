@@ -18,11 +18,11 @@ public class TrackComparisonTest extends AndroidTestCase {
 	private DbAdapter dbMock = new DbAdapterMockup();
 
 	public void testTracksWithMeasurements() throws TrackAlreadyFinishedException {
-		Track t1 = new Track(null, null, dbMock);
+		Track t1 = Track.createNewLocalTrack(dbMock);
 		t1.addMeasurement(createMeasurement(0));
-		Track t2 = new Track(null, null, dbMock);
+		Track t2 = Track.createNewLocalTrack(dbMock);
 		t2.addMeasurement(createMeasurement(1));
-		Track t3 = new Track(null, null, dbMock);
+		Track t3 = Track.createNewLocalTrack(dbMock);
 		t3.addMeasurement(createMeasurement(2));
 		
 		List<Track> list = createListAndSort(t1, t2, t3);
@@ -33,8 +33,8 @@ public class TrackComparisonTest extends AndroidTestCase {
 	}
 
 	public void testTracksWithoutMeasurements() {
-		Track t1 = new Track(null, null, dbMock);
-		Track t3 = new Track(null, null, dbMock);
+		Track t1 = Track.createNewLocalTrack(dbMock);
+		Track t3 = Track.createNewLocalTrack(dbMock);
 		
 		List<Track> list = createListAndSort(t1, t3);
 		
@@ -43,10 +43,10 @@ public class TrackComparisonTest extends AndroidTestCase {
 	}
 	
 	public void testOneTrackWithNoMeasurements() throws TrackAlreadyFinishedException {
-		Track t1 = new Track(null, null, dbMock);
+		Track t1 = Track.createNewLocalTrack(dbMock);
 		t1.addMeasurement(createMeasurement(0));
-		Track t2 = new Track(null, null, dbMock);
-		Track t3 = new Track(null, null, dbMock);
+		Track t2 = Track.createNewLocalTrack(dbMock);
+		Track t3 = Track.createNewLocalTrack(dbMock);
 		
 		List<Track> list = createListAndSort(t1, t2, t3);
 		

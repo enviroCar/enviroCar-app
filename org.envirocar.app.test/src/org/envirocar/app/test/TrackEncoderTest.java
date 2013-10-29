@@ -30,6 +30,7 @@ import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
+import org.envirocar.app.storage.TrackMetadata;
 import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -68,9 +69,32 @@ public class TrackEncoderTest extends AndroidTestCase {
 			Assert.assertNotNull("Expected an exception!", e);
 		}
 	}
+	
+	public void testMetadataEncoding() throws TrackAlreadyFinishedException, JSONException, TrackWithoutMeasurementsException {
+		Track t = createTrack();
+		TrackMetadata m1 = new TrackMetadata();
+		m1.putEntry(TrackMetadata.APP_VERSION, "v1");
+		m1.putEntry(TrackMetadata.OBD_DEVICE, "OBDIII");
+		t.setMetadata(m1);
+		
+		TrackMetadata m2 = new TrackMetadata();
+		m2.putEntry(TrackMetadata.TOU_VERSION, "2020-10-01");
+		
+		t.updateMetadata(m2);
+		
+		String result = new TrackEncoder().createTrackJson(t, false).toString();
+		
+		Assert.assertTrue(result.contains(TrackMetadata.APP_VERSION));
+		Assert.assertTrue(result.contains("v1"));
+		Assert.assertTrue(result.contains(TrackMetadata.OBD_DEVICE));
+		Assert.assertTrue(result.contains("OBDIII"));
+		Assert.assertTrue(result.contains(TrackMetadata.TOU_VERSION));
+		Assert.assertTrue(result.contains("2020-10-01"));
+	}
 
 	private Track createTrack() throws TrackAlreadyFinishedException {
-		Track result = new Track("test-id", car, new DbAdapterMockup());
+		Track result = Track.createNewLocalTrack(new DbAdapterMockup());
+		result.setCar(car);
 		result.addMeasurement(createMeasurement());
 		result.setDescription("desc");
 		result.setName("test-track");

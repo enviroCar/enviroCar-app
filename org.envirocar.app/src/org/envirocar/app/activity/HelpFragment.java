@@ -3,6 +3,7 @@ package org.envirocar.app.activity;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.util.Util;
 
 import android.os.Bundle;
 import android.text.style.ImageSpan;
@@ -57,7 +58,7 @@ public class HelpFragment extends SherlockFragment {
 
 	    CharSequence versionString = getActivity().getText(R.string.help_text_6_3);
 	    
-	    versionString = versionString + " " + ((ECApplication) getActivity().getApplication()).getVersionString();
+	    versionString = versionString + " " + Util.getVersionString(getActivity());
 	    
 	    versionTextview.setText(versionString);	    
 	    

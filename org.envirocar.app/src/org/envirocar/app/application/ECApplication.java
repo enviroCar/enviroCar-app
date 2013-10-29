@@ -22,11 +22,8 @@
 package org.envirocar.app.application;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
@@ -59,8 +56,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
@@ -167,7 +162,7 @@ public class ECApplication extends Application {
 
 	@Override
 	public void onCreate() {
-		Logger.initialize(getVersionString());
+		Logger.initialize(Util.getVersionString(this));
 		super.onCreate();
 		
 		try {
@@ -335,35 +330,6 @@ public class ECApplication extends Application {
 
 	  }
 	
-	/**
-	 * method to get the current version
-	 * 
-	 */
-	public String getVersionString() {
-		StringBuilder out = new StringBuilder("Version ");
-		try {
-			out.append(this.getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
-			out.append(" (");
-			out.append(this.getPackageManager().getPackageInfo(getPackageName(), 0).versionCode);
-			out.append("), ");
-		} catch (NameNotFoundException e) {
-			logger.warn(e.getMessage(), e);
-		}
-		try {
-			ApplicationInfo ai = getPackageManager().getApplicationInfo(
-					getPackageName(), 0);
-			ZipFile zf = new ZipFile(ai.sourceDir);
-			ZipEntry ze = zf.getEntry("classes.dex");
-			long time = ze.getTime();
-			out.append(SimpleDateFormat.getInstance().format(new java.util.Date(time)));
-
-		} catch (Exception e) {
-			logger.warn(e.getMessage(), e);
-		}
-
-		return out.toString();
-	}
-
 	
 	public void resetTrack() {
 		//TODO somehow let the CommandListener know of the reset

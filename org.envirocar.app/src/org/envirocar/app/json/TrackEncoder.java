@@ -194,6 +194,14 @@ public class TrackEncoder {
 		result.put("description", track.getDescription());
 		result.put("name", track.getName());
 		
+		if (track.getMetadata() != null) {
+			JSONObject json = track.getMetadata().toJson();
+			JSONArray names = json.names();
+			for (int i = 0; i < names.length(); i++) {
+				result.put(names.get(i).toString(), json.getString(names.get(i).toString()));
+			}
+		}
+		
 		return result;
 	}
 

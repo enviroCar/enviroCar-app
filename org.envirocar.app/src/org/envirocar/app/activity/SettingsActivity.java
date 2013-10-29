@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import org.envirocar.app.R;
-import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.UserManager;
+import org.envirocar.app.util.Util;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -173,7 +173,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 		this.getSupportActionBar().setHomeButtonEnabled(false);
 
 		about = findPreference("about_version");
-		about.setSummary(((ECApplication) getApplication()).getVersionString());
+		about.setSummary(Util.getVersionString(getApplicationContext()));
 		about.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			
 			@Override

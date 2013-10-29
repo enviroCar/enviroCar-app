@@ -47,7 +47,8 @@ public class ObfuscationTest extends AndroidTestCase {
 	}
 
 	private Track createTrack() throws TrackAlreadyFinishedException {
-		Track result = new Track("test", new Car(FuelType.DIESEL, "man", "mod", "id", 1234, 123), new DbAdapterMockup());
+		Track result = Track.createNewLocalTrack(new DbAdapterMockup());
+		result.setCar(new Car(FuelType.DIESEL, "man", "mod", "id", 1234, 123));
 		
 		List<Measurement> measurements = createMeasurements();
 		for (Measurement measurement : measurements) {

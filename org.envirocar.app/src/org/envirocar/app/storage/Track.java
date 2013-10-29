@@ -74,7 +74,6 @@ public class Track implements Comparable<Track> {
 	private List<Measurement> measurements = new ArrayList<Measurement>();
 	private Car car;
 	private AbstractConsumptionAlgorithm consumptionAlgorithm;
-	private String vin;
 	private String remoteID;
 	private Double consumptionPerHour;
 	private TrackStatus status = TrackStatus.ONGOING;
@@ -86,39 +85,43 @@ public class Track implements Comparable<Track> {
 	private Long startTime = null;
 	private Long endTime = null;
 
-	public static Track createDbTrack(long id, DbAdapter dbAdapterImpl) {
+	private TrackMetadata metadata;
+
+	public static Track createTrackWithId(long id, DbAdapter dbAdapterImpl) {
 		Track track = new Track(id);
 		track.dbAdapter = dbAdapterImpl;
 		return track;
 	}
 	
-	private Track(long id) {
-		this.id = id;
+	public static Track createNewLocalTrack(DbAdapter dbAdapterImpl) {
+		Track t = new Track(dbAdapterImpl);
+		return t;
 	}
+	
 	
 	public static Track createRemoteTrack(String remoteID, DbAdapter dbAdapter) {
 		Track track = new Track(remoteID, dbAdapter);
 		return track;
 	}
+
+	private Track(long id) {
+		this.id = id;
+	}
 	
 	private Track(String remoteID, DbAdapter dbAdapter) {
+		this(dbAdapter);
 		this.remoteID = remoteID;
-		this.id = dbAdapter.insertTrack(this);
-		this.dbAdapter = dbAdapter;
 	}
 	
 	/**
 	 * Constructor for creating "fresh" new track. Use this for new measurements
 	 * that were captured from the OBD-II adapter.
 	 */
-	public Track(String vin, Car car, DbAdapter dbAdapter) {
-		this.vin = vin;
+	private Track(DbAdapter dbAdapter) {
 		this.name = "";
 		this.description = "";
 		this.measurements = new ArrayList<Measurement>();
-		this.car = car;
-		this.consumptionAlgorithm = new BasicConsumptionAlgorithm(car);
-		id = dbAdapter.insertTrack(this);
+		this.id = dbAdapter.insertTrack(this);
 		this.dbAdapter = dbAdapter;
 	}
 
@@ -294,24 +297,6 @@ public class Track implements Comparable<Track> {
 	 */
 	public long getId() {
 		return id;
-	}
-
-	/**
-	 * get the VIN
-	 * 
-	 * @return
-	 */
-	public String getVin() {
-		return vin;
-	}
-
-	/**
-	 * set the vin
-	 * 
-	 * @param vin
-	 */
-	public void setVin(String vin) {
-		this.vin = vin;
 	}
 
 	public String getRemoteID() {
@@ -540,6 +525,32 @@ public class Track implements Comparable<Track> {
 
 	public boolean isFinished() {
 		return status != null && status == TrackStatus.FINISHED;
+	}
+
+	/**
+	 * updates the tracks metadata. if there is already metadata,
+	 * the properties are merged. the provided object overrides
+	 * existing keys.
+	 * 
+	 * @param newMetadata
+	 */
+	public void updateMetadata(TrackMetadata newMetadata) {
+		if (this.metadata != null) {
+			this.metadata.merge(newMetadata);
+		}
+		else {
+			setMetadata(newMetadata);
+		}
+		
+		dbAdapter.updateTrack(this);
+	}
+
+	public TrackMetadata getMetadata() {
+		return this.metadata;
+	}
+
+	public void setMetadata(TrackMetadata m) {
+		this.metadata = m;
 	}
 
 

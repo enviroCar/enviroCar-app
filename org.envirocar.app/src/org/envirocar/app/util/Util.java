@@ -33,9 +33,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.compress.archivers.ArchiveException;
@@ -50,6 +52,8 @@ import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
@@ -321,4 +325,33 @@ public class Util {
 		bufferedWriter.close();
 	}
 
+	/**
+	 * method to get the current version
+	 * 
+	 */
+	public static String getVersionString(Context ctx) {
+		StringBuilder out = new StringBuilder("Version ");
+		try {
+			out.append(ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName);
+			out.append(" (");
+			out.append(ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionCode);
+			out.append("), ");
+		} catch (NameNotFoundException e) {
+			logger.warn(e.getMessage(), e);
+		}
+		try {
+			ApplicationInfo ai = ctx.getPackageManager().getApplicationInfo(
+					ctx.getPackageName(), 0);
+			ZipFile zf = new ZipFile(ai.sourceDir);
+			ZipEntry ze = zf.getEntry("classes.dex");
+			long time = ze.getTime();
+			out.append(SimpleDateFormat.getInstance().format(new java.util.Date(time)));
+
+		} catch (Exception e) {
+			logger.warn(e.getMessage(), e);
+		}
+
+		return out.toString();
+	}
+	
 }

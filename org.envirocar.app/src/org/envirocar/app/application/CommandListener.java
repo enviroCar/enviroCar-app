@@ -51,6 +51,7 @@ import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Track.TrackStatus;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
+import org.envirocar.app.storage.TrackMetadata;
 import org.envirocar.app.util.Util;
 
 import android.location.Location;
@@ -322,6 +323,13 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	public void shutdown() {
 		EventBus.getInstance().unregisterListener(this);
 		EventBus.getInstance().unregisterListener(dopListener);
+	}
+
+	@Override
+	public void onConnected(String deviceName) {
+		TrackMetadata newMetadata = new TrackMetadata();
+		newMetadata.putEntry(TrackMetadata.OBD_DEVICE, deviceName);
+		this.track.updateMetadata(newMetadata);
 	}
 
 	

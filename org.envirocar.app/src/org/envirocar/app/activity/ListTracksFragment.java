@@ -563,11 +563,11 @@ public class ListTracksFragment extends SherlockFragment {
 	}
 
 	protected String createRemoteTrackCountString() {
+		if (remoteTrackCount.get() < 0) {
+			return "?";
+		}
 		if (remoteTrackCount.get() < 100) {
 			return Integer.toString(remoteTrackCount.get());
-		}
-		else if (remoteTrackCount.get() < 0) {
-			return "?";
 		}
 		return "100+";
 	}
