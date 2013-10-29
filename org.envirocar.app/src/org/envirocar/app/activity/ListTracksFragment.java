@@ -207,8 +207,7 @@ public class ListTracksFragment extends SherlockFragment {
 		
 		if (dbAdapter.getAllLocalTracks().size() > 0) {
 			menu.findItem(R.id.menu_delete_all).setEnabled(true);
-			if(UserManager.instance().isLoggedIn())
-				menu.findItem(R.id.menu_upload).setEnabled(true);
+			menu.findItem(R.id.menu_upload).setEnabled(UserManager.instance().isLoggedIn());
 		} else {
 			menu.findItem(R.id.menu_upload).setEnabled(false);
 			menu.findItem(R.id.menu_delete_all).setEnabled(false);

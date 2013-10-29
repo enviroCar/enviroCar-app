@@ -30,6 +30,7 @@ import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
+import android.view.animation.LinearInterpolator;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -272,12 +273,22 @@ public class LayeredImageRotateView extends RelativeLayout {
 		}
 		
 		RotateAnimation anim = new RotateAnimation(start, candidate.finalDegree, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-		anim.setInterpolator(new AccelerateDecelerateInterpolator());
-		anim.setDuration(500);
+		setInterpolatorAndDuration(start, candidate.finalDegree, anim);
 		anim.setFillAfter(true);
 		
 		anim.setAnimationListener(animationListener);
 		return anim;
+	}
+
+	private void setInterpolatorAndDuration(float startDegree, float endDegree, RotateAnimation anim) {
+		if (Math.abs(startDegree - endDegree) > 10) {
+			anim.setInterpolator(new AccelerateDecelerateInterpolator());
+			anim.setDuration(500);
+		}
+		else {
+			anim.setInterpolator(new LinearInterpolator());
+			anim.setDuration(50);
+		}
 	}
 
 	private class LocalAnimationListener implements AnimationListener {
