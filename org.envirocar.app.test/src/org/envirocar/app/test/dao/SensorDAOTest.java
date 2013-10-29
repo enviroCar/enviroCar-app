@@ -20,80 +20,27 @@
  */
 package org.envirocar.app.test.dao;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.List;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.dao.CacheDirectoryProvider;
 import org.envirocar.app.dao.DAOProvider;
-import org.envirocar.app.dao.InternetAccessProvider;
 import org.envirocar.app.dao.SensorDAO;
 import org.envirocar.app.dao.SensorRetrievalException;
 import org.envirocar.app.dao.cache.CacheSensorDAO;
 import org.envirocar.app.model.Car;
-import org.envirocar.app.util.Util;
 
-import android.test.InstrumentationTestCase;
-
-public class SensorDAOTest extends InstrumentationTestCase {
+public class SensorDAOTest extends CacheDAOTest {
 	
 	public void testGetAllSensorsCached() throws IOException, SensorRetrievalException {
-		MockupCacheDirectoryProvider mockupDir = new MockupCacheDirectoryProvider();
-		DAOProvider prov = DAOProvider.init(new OfflineProvider(), mockupDir);
+		DAOProvider prov = getDAOProvider();
 		
-		prepareCache(mockupDir.getBaseFolder());
+		prepareCache(getMockupDir().getBaseFolder(), "sensors_mockup.json", CacheSensorDAO.CAR_CACHE_FILE_NAME);
 		
 		SensorDAO dao = prov.getSensorDAO();
 		List<Car> sensors = dao.getAllSensors();
 		Assert.assertTrue("Expected 1 sensor. Got "+sensors.size(), sensors.size() == 1);
 	}
 	
-	
-	private void prepareCache(File baseFolder) throws IOException {
-		InputStream is = getInstrumentation().getContext().getAssets().open("sensors_mockup.json");
-		FileWriter fw = new FileWriter(new File(baseFolder, CacheSensorDAO.CAR_CACHE_FILE_NAME), false);
-		
-		InputStreamReader isr = new InputStreamReader(is);
-		
-		while (isr.ready()) {
-			fw.write(isr.read());
-		}
-		
-		fw.flush();
-		fw.close();
-		isr.close();
-	}
-
-
-	private static class OfflineProvider implements InternetAccessProvider {
-
-		@Override
-		public boolean isConnected() {
-			return false;
-		}
-		
-	}
-	
-	private class MockupCacheDirectoryProvider implements CacheDirectoryProvider {
-
-		private File base;
-
-		public MockupCacheDirectoryProvider() throws IOException {
-			File root = Util.resolveCacheFolder(getInstrumentation().getTargetContext());
-			base = new File(root, "test");
-			base.mkdir();
-		}
-		
-		@Override
-		public File getBaseFolder() {
-			return base;
-		}
-		
-	}
-
 }

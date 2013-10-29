@@ -18,31 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.test;
+package org.envirocar.app.dao;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Scanner;
+import java.util.List;
 
-import android.test.InstrumentationTestCase;
+import org.envirocar.app.model.Announcement;
 
-public class ResourceLoadingTestCase extends InstrumentationTestCase {
+public interface AnnouncementsDAO {
 
-	protected String readJson(InputStream in) {
-		Scanner sc = new Scanner(in, "UTF-8");
-		
-		StringBuilder sb = new StringBuilder();
-		while (sc.hasNext()) {
-			sb.append(sc.nextLine());
-			sb.append(System.getProperty("line.separator"));
-		}
-		
-		sc.close();
-		return sb.toString();
-	}
-	
-	protected String readJsonAsset(String assetRes) throws IOException {
-		return readJson(getInstrumentation().getContext().getAssets().open(assetRes));
-	}
-	
+	List<Announcement> getAllAnnouncements() throws AnnouncementsRetrievalException;
+
 }

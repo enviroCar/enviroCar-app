@@ -39,7 +39,7 @@ public class TrackJsonParsingTest extends ResourceLoadingTestCase {
 	}
 
 	private JSONObject createJson() throws JSONException, IOException {
-		return new JSONObject(readAsset("track_mockup.json"));
+		return new JSONObject(readJsonAsset("track_mockup.json"));
 	}
 	
 }

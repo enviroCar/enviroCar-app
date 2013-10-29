@@ -1,0 +1,13 @@
+{
+   "announcements":[
+      {
+         "id":"asdfg12345",
+         "versions":"[0, 0.8.0)",
+         "category":"app",
+         "content":{
+            "en":"english content",
+            "de":"deutscher inhalt"
+         }
+      }
+   ]
+}
