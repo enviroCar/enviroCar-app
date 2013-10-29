@@ -54,12 +54,14 @@ public class DAOProvider {
 	 * 
 	 * @param iap
 	 * @param cacheDir
+	 * @return 
 	 */
-	public static void init(InternetAccessProvider iap, CacheDirectoryProvider cacheDir) {
+	public static synchronized DAOProvider init(InternetAccessProvider iap, CacheDirectoryProvider cacheDir) {
 		_instance = new DAOProvider(iap, cacheDir);
+		return _instance;
 	}
 	
-	public static DAOProvider instance() {
+	public static synchronized DAOProvider instance() {
 		return _instance;
 	}
 	

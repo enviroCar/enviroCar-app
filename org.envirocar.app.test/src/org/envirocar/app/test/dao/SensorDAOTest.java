@@ -32,6 +32,7 @@ import junit.framework.Assert;
 import org.envirocar.app.dao.CacheDirectoryProvider;
 import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.dao.InternetAccessProvider;
+import org.envirocar.app.dao.SensorDAO;
 import org.envirocar.app.dao.SensorRetrievalException;
 import org.envirocar.app.dao.cache.CacheSensorDAO;
 import org.envirocar.app.model.Car;
@@ -43,11 +44,12 @@ public class SensorDAOTest extends InstrumentationTestCase {
 	
 	public void testGetAllSensorsCached() throws IOException, SensorRetrievalException {
 		MockupCacheDirectoryProvider mockupDir = new MockupCacheDirectoryProvider();
-		DAOProvider.init(new OfflineProvider(), mockupDir);
+		DAOProvider prov = DAOProvider.init(new OfflineProvider(), mockupDir);
 		
 		prepareCache(mockupDir.getBaseFolder());
 		
-		List<Car> sensors = DAOProvider.instance().getSensorDAO().getAllSensors();
+		SensorDAO dao = prov.getSensorDAO();
+		List<Car> sensors = dao.getAllSensors();
 		Assert.assertTrue("Expected 1 sensor. Got "+sensors.size(), sensors.size() == 1);
 	}
 	
