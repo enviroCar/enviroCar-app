@@ -47,30 +47,10 @@ public class FuelSystemStatusTest extends AndroidTestCase {
 	}
 
 	private byte[] createRawDataClosedLoop(FuelSystemStatus cmd) {
-		byte[] result = prepareBytes();
-		
-		result[4] = 2;
-		result[5] = 0;
-		
-		return result;
-	}
-
-	private byte[] prepareBytes() {
-		byte[] result = new byte[6];
-		result[0] = '4';
-		result[1] = '1';
-		result[2] = '0';
-		result[3] = '3';
-		return result;
-	}
+		return "41030100".getBytes();	}
 
 	private byte[] createRawDataOpenLoop() {
-		byte[] result = prepareBytes();
-		
-		result[4] = 1;
-		result[5] = 0;
-		
-		return result;
+		return "41030200".getBytes();
 	}
 	
 }
