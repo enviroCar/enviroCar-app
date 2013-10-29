@@ -27,7 +27,6 @@ import java.util.Locale;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
@@ -35,6 +34,7 @@ import org.apache.http.protocol.HTTP;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.User;
+import org.envirocar.app.dao.AbstractSensorDAO;
 import org.envirocar.app.dao.NotConnectedException;
 import org.envirocar.app.dao.SensorRetrievalException;
 import org.envirocar.app.dao.cache.CacheSensorDAO;
@@ -55,14 +55,9 @@ public class RemoteSensorDAO extends AbstractSensorDAO {
 
 	@Override
 	public List<Car> getAllSensors() throws SensorRetrievalException {
-		HttpGet getRequest = new HttpGet(ECApplication.BASE_URL+"/sensors");
-		
-		getRequest.addHeader("Accept-Encoding", "application/json");
 		
 		try {
-			HttpResponse response = HTTPClient.execute(getRequest);
-			
-			String content = HTTPClient.readResponse(response.getEntity());
+			String content = HTTPClient.executeAndParseJsonRequest(ECApplication.BASE_URL+"/sensors");
 		
 			if (cache != null) {
 				try {

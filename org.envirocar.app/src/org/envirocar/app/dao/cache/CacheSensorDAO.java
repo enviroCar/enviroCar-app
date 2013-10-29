@@ -20,21 +20,18 @@
  */
 package org.envirocar.app.dao.cache;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
 
 import org.envirocar.app.application.User;
+import org.envirocar.app.dao.AbstractSensorDAO;
 import org.envirocar.app.dao.CacheDirectoryProvider;
 import org.envirocar.app.dao.NotConnectedException;
 import org.envirocar.app.dao.SensorRetrievalException;
-import org.envirocar.app.dao.remote.AbstractSensorDAO;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
+import org.envirocar.app.util.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -57,19 +54,7 @@ public class CacheSensorDAO extends AbstractSensorDAO {
 			File f = new File(directory, CAR_CACHE_FILE_NAME);
 
 			if (f.isFile()) {
-				BufferedReader bufferedReader = new BufferedReader(
-						new FileReader(f));
-
-				String content = "";
-				String line = "";
-
-				while ((line = bufferedReader.readLine()) != null) {
-					content = content.concat(line);
-				}
-
-				bufferedReader.close();
-
-				JSONObject cars = new JSONObject(content);
+				JSONObject cars = Util.readJsonContents(f);
 				return createSensorList(cars);
 			} 
 			else {
@@ -86,16 +71,7 @@ public class CacheSensorDAO extends AbstractSensorDAO {
 
 	public void storeAllSensors(String content) throws IOException {
 		File carCacheFile = new File(cacheDirectoryProvider.getBaseFolder(), CAR_CACHE_FILE_NAME);
-		if (!carCacheFile.exists()) {
-			carCacheFile.createNewFile();
-		}
-
-		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(
-				carCacheFile, false));
-
-		bufferedWriter.write(content);
-		bufferedWriter.flush();
-		bufferedWriter.close();		
+		Util.saveContentsToFile(content, carCacheFile);		
 	}
 
 	@Override

@@ -21,9 +21,11 @@
 package org.envirocar.app.dao;
 
 import org.envirocar.app.dao.cache.CacheSensorDAO;
+import org.envirocar.app.dao.cache.CacheTermsOfUseDAO;
 import org.envirocar.app.dao.cache.CacheTrackDAO;
 import org.envirocar.app.dao.cache.CacheUserDAO;
 import org.envirocar.app.dao.remote.RemoteSensorDAO;
+import org.envirocar.app.dao.remote.RemoteTermsOfUseDAO;
 import org.envirocar.app.dao.remote.RemoteTrackDAO;
 import org.envirocar.app.dao.remote.RemoteUserDAO;
 
@@ -91,6 +93,16 @@ public class DAOProvider {
 			return new RemoteUserDAO();
 		}
 		return new CacheUserDAO();
+	}
+	
+	/**
+	 * @return the {@link TermsOfUseDAO}
+	 */
+	public TermsOfUseDAO getTermsOfUseDAO() {
+		if (this.internetAccessProvider.isConnected()) {
+			return new RemoteTermsOfUseDAO(new CacheTermsOfUseDAO(this.cacheDirectoryProvider));
+		}
+		return new CacheTermsOfUseDAO(this.cacheDirectoryProvider);
 	}
 
 }

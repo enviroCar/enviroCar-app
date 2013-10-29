@@ -141,16 +141,6 @@ public class RestClient {
 		get(url, handler, null, null);
 	}
 
-	public static void downloadTermsOfUse(JsonHttpResponseHandler handler) {
-		String url = ECApplication.BASE_URL+"/termsOfUse";
-		get(url, handler);
-	}
-
-	public static void downloadTermsOfUseInstance(String id,
-			JsonHttpResponseHandler handler) {
-		String url = ECApplication.BASE_URL+"/termsOfUse/"+id;
-		get(url, handler);
-	}
 
 	public static void updateAcceptedTermsOfUseVersion(User user,
 			String issuedDate, AsyncHttpResponseHandler handler) {

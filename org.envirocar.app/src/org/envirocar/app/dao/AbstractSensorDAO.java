@@ -18,13 +18,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
- */package org.envirocar.app.dao.remote;
+ */package org.envirocar.app.dao;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.envirocar.app.activity.preference.CarSelectionPreference;
-import org.envirocar.app.dao.SensorDAO;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.json.JSONArray;

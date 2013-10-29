@@ -21,10 +21,14 @@
 package org.envirocar.app.util;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -41,6 +45,8 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.Measurement;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -228,6 +234,22 @@ public class Util {
 
 	}
 	
+	public static JSONObject readJsonContents(File f) throws IOException, JSONException {
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(f));
+
+		StringBuilder content = new StringBuilder();
+		String line = "";
+
+		while ((line = bufferedReader.readLine()) != null) {
+			content.append(line);
+		}
+
+		bufferedReader.close();
+
+		JSONObject tou = new JSONObject(content.toString());
+		return tou;
+	}
+	
     @SuppressLint("NewApi")
     public static <P, T extends AsyncTask<P, ?, ?>> void execute(T task, P... params) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -284,6 +306,19 @@ public class Util {
 
 	public static String longToIsoDate(long time) {
 		return jacksonFormat.format(new Date(time));
+	}
+
+	public static void saveContentsToFile(String content, File f) throws IOException {
+		if (!f.exists()) {
+			f.createNewFile();
+		}
+
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(
+				f, false));
+
+		bufferedWriter.write(content);
+		bufferedWriter.flush();
+		bufferedWriter.close();
 	}
 
 }
