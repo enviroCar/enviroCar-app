@@ -247,7 +247,11 @@ public class Track implements Comparable<Track> {
 	private void storeMeasurementsInDbAdapter() {
 		if (this.dbAdapter != null) {
 			for (Measurement measurement : measurements) {
-				this.dbAdapter.insertMeasurement(measurement);
+				try {
+					this.dbAdapter.insertMeasurement(measurement);
+				} catch (MeasurementsException e) {
+					logger.warn(e.getMessage(), e);
+				}
 			}
 		}
 	}
@@ -259,12 +263,18 @@ public class Track implements Comparable<Track> {
 	 * Inserts measurments into the Track and into the database!
 	 * 
 	 * @param measurement
+	 * @throws TrackAlreadyFinishedException 
+	 * @throws MeasurementsException 
 	 */
-	public void addMeasurement(Measurement measurement) {
+	public void addMeasurement(Measurement measurement) throws TrackAlreadyFinishedException {
 		measurement.setTrack(Track.this);
 		this.measurements.add(measurement);
 		if (this.dbAdapter != null) {
-			this.dbAdapter.insertMeasurement(measurement);	
+			try {
+				this.dbAdapter.insertNewMeasurement(measurement);
+			} catch (MeasurementsException e) {
+				logger.severe("This should never happen", e);
+			}	
 		} else {
 			logger.warn("DbAdapter was null! Could not insert measurement");
 		}
@@ -526,6 +536,10 @@ public class Track implements Comparable<Track> {
 		logger.info("Storing measurements in database");
 		t.storeMeasurementsInDbAdapter();
 		return t;
+	}
+
+	public boolean isFinished() {
+		return status != null && status == TrackStatus.FINISHED;
 	}
 
 

@@ -50,6 +50,7 @@ import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Track.TrackStatus;
+import org.envirocar.app.storage.TrackAlreadyFinishedException;
 import org.envirocar.app.util.Util;
 
 import android.location.Location;
@@ -242,7 +243,11 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		 * therefore, we should include a minimum time between measurements (1
 		 * sec) as well.)
 		 */
-		track.addMeasurement(measurement);
+		try {
+			track.addMeasurement(measurement);
+		} catch (TrackAlreadyFinishedException e) {
+			logger.warn(e.getMessage(), e);
+		}
 		logger.info("Add new measurement to track: " + measurement.toString());
 	}
 	
@@ -297,10 +302,14 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 			
 		}
 		else {
+			logger.info(String.format("Creating new Track. Last was null? %b; Last status was: %s; Last measurement: %s",
+					lastUsedTrack == null,
+					lastUsedTrack == null ? "n/a" : lastUsedTrack.getStatus().toString(),
+					lastUsedTrack == null ? "n/a" : lastUsedTrack.getLastMeasurement()));
 			track = dbAdapter.createNewTrack();
 		}
 			
-		logger.info(String.format("Using Track: %s / %d", track.getName(), track.getId()));
+		logger.info(String.format("Using Track: %s / id: %d", track.getName(), track.getId()));
 	}
 
 

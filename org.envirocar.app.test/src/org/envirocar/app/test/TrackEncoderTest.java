@@ -29,6 +29,7 @@ import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Measurement.PropertyKey;
+import org.envirocar.app.storage.TrackAlreadyFinishedException;
 import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,7 +41,7 @@ public class TrackEncoderTest extends AndroidTestCase {
 	private Car car = new Car(FuelType.GASOLINE, "manuf", "modl", "iddddd", 1234, 2345);
 	private String expectedJson = "{\"features\":[{\"type\":\"Feature\",\"properties\":{\"phenomenons\":{\"MAF\":{\"value\":12.4},\"Speed\":{\"value\":12}},\"sensor\":\"iddddd\",\"time\":\"2013-09-25T10:30:00Z\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[-89.1,-87.1]}}],\"type\":\"FeatureCollection\",\"properties\":{\"sensor\":\"iddddd\",\"description\":\"desc\",\"name\":\"test-track\"}}";
 
-	public void testTrackJsonCreation() throws JSONException {
+	public void testTrackJsonCreation() throws JSONException, TrackAlreadyFinishedException {
 		Track t = createTrack();
 		String json;
 		try {
@@ -58,7 +59,7 @@ public class TrackEncoderTest extends AndroidTestCase {
 	}
 	
 
-	public void testObfuscationNoMeasurements() throws JSONException {
+	public void testObfuscationNoMeasurements() throws JSONException, TrackAlreadyFinishedException {
 		
 		Track t = createTrack(); 
 		try {
@@ -68,7 +69,7 @@ public class TrackEncoderTest extends AndroidTestCase {
 		}
 	}
 
-	private Track createTrack() {
+	private Track createTrack() throws TrackAlreadyFinishedException {
 		Track result = new Track("test-id", car, new DbAdapterMockup());
 		result.addMeasurement(createMeasurement());
 		result.setDescription("desc");

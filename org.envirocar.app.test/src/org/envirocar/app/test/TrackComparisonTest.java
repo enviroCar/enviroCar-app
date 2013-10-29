@@ -9,6 +9,7 @@ import junit.framework.Assert;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.storage.TrackAlreadyFinishedException;
 
 import android.test.AndroidTestCase;
 
@@ -16,7 +17,7 @@ public class TrackComparisonTest extends AndroidTestCase {
 	
 	private DbAdapter dbMock = new DbAdapterMockup();
 
-	public void testTracksWithMeasurements() {
+	public void testTracksWithMeasurements() throws TrackAlreadyFinishedException {
 		Track t1 = new Track(null, null, dbMock);
 		t1.addMeasurement(createMeasurement(0));
 		Track t2 = new Track(null, null, dbMock);
@@ -41,7 +42,7 @@ public class TrackComparisonTest extends AndroidTestCase {
 		Assert.assertTrue("Unexpected position!", list.get(1) == t3);
 	}
 	
-	public void testOneTrackWithNoMeasurements() {
+	public void testOneTrackWithNoMeasurements() throws TrackAlreadyFinishedException {
 		Track t1 = new Track(null, null, dbMock);
 		t1.addMeasurement(createMeasurement(0));
 		Track t2 = new Track(null, null, dbMock);

@@ -30,6 +30,7 @@ import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.storage.TrackAlreadyFinishedException;
 import org.json.JSONException;
 
 import android.test.AndroidTestCase;
@@ -38,14 +39,14 @@ public class ObfuscationTest extends AndroidTestCase {
 	
 	private static int TARGET_LENGTH = 10;
 	
-	public void testObfuscation() throws JSONException {
+	public void testObfuscation() throws JSONException, TrackAlreadyFinishedException {
 		Track t = createTrack();
 		List<Measurement> result = new TrackEncoder().getNonObfuscatedMeasurements(t, true);
 		
 		Assert.assertTrue("Unexpected element count", result.size() == TARGET_LENGTH);
 	}
 
-	private Track createTrack() {
+	private Track createTrack() throws TrackAlreadyFinishedException {
 		Track result = new Track("test", new Car(FuelType.DIESEL, "man", "mod", "id", 1234, 123), new DbAdapterMockup());
 		
 		List<Measurement> measurements = createMeasurements();

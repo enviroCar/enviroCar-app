@@ -1,3 +1,23 @@
+/* 
+ * enviroCar 2013
+ * Copyright (C) 2013  
+ * Martin Dueren, Jakob Moellers, Gerald Pape, Christopher Stephan
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+ * 
+ */
 package org.envirocar.app.storage;
 
 import java.text.DateFormat;
@@ -10,6 +30,7 @@ import java.util.Map;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
+import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
@@ -162,9 +183,13 @@ public class DbAdapterImpl implements DbAdapter {
 	public boolean isOpen() {
 		return mDb.isOpen();
 	}
-
+	
 	@Override
-	public synchronized void insertMeasurement(Measurement measurement) {
+	public synchronized void insertMeasurement(Measurement measurement) throws MeasurementsException {
+		if (measurement.getTrack() == null) {
+			throw new MeasurementsException("No Track is linked to this measurement.");
+		}
+		
 		ContentValues values = new ContentValues();
 		
 		values.put(KEY_MEASUREMENT_LATITUDE, measurement.getLatitude());
@@ -175,6 +200,18 @@ public class DbAdapterImpl implements DbAdapter {
 		values.put(KEY_MEASUREMENT_PROPERTIES, propertiesString);
 		
 		mDb.insert(TABLE_MEASUREMENT, null, values);
+	}
+
+	@Override
+	public synchronized void insertNewMeasurement(Measurement measurement) throws MeasurementsException, TrackAlreadyFinishedException {
+		if (measurement.getTrack() == null) {
+			throw new MeasurementsException("No Track is linked to this measurement.");
+		}
+		else if (measurement.getTrack().isFinished()) {
+			throw new TrackAlreadyFinishedException("The linked track ("+measurement.getTrack().getId()+") is already finished!");
+		}
+
+		insertMeasurement(measurement);
 	}
 	
 	@Override

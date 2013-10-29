@@ -23,6 +23,7 @@ package org.envirocar.app.test;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
@@ -50,7 +51,7 @@ public class DbAdapterMockup implements DbAdapter {
 	}
 
 	@Override
-	public void insertMeasurement(Measurement measurement) {
+	public void insertNewMeasurement(Measurement measurement) {
 		// TODO Auto-generated method stub
 
 	}
@@ -173,5 +174,13 @@ public class DbAdapterMockup implements DbAdapter {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void insertMeasurement(Measurement measurement)
+			throws MeasurementsException {
+		// TODO Auto-generated method stub
+		
+	}
+
 
 }

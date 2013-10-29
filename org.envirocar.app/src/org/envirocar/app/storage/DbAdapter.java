@@ -24,6 +24,7 @@ package org.envirocar.app.storage;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.storage.Track.TrackStatus;
 
 
@@ -61,8 +62,10 @@ public interface DbAdapter {
 	 * 
 	 * @param measurement
 	 *            The measurement that should be inserted
+	 * @throws MeasurementsException 
+	 * @throws TrackAlreadyFinishedException 
 	 */
-	public void insertMeasurement(Measurement measurement);
+	public void insertNewMeasurement(Measurement measurement) throws MeasurementsException, TrackAlreadyFinishedException;
 
 	/**
 	 * Inserts a track into the database
@@ -213,7 +216,8 @@ public interface DbAdapter {
 	 * @param newId
 	 */
 	public void updateCarIdOfTracks(String currentId, String newId);
-	
-	
+
+	void insertMeasurement(Measurement measurement) throws MeasurementsException;
+
 	
 }
