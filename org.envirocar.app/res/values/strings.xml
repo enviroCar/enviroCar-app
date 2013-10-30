@@ -257,4 +257,10 @@ If you discover and problems, please send us an error log (-> report problem). T
 	<string name="track_list_count_text">Showing %1$d local Tracks, %2$d/%3$s remote Tracks:</string>
 	<string name="not_yet_registered_question">You do not have an account, yet?</string>
 	<string name="not_yet_registered_register">Register here!</string>	
+	
+	<string name="category_low">Low</string>
+	<string name="category_normal">Important</string>
+	<string name="category_high">Critical</string>
+	<string name="announcement">Announcement</string>
+	
 </resources>

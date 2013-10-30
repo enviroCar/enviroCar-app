@@ -21,6 +21,10 @@
 
 package org.envirocar.app.activity;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.envirocar.app.R;
 import org.envirocar.app.activity.StartStopButtonUtil.OnTrackModeChangeListener;
 import org.envirocar.app.application.CarManager;
@@ -31,9 +35,14 @@ import org.envirocar.app.application.service.AbstractBackgroundServiceStateRecei
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.DeviceInRangeService;
+import org.envirocar.app.dao.AnnouncementsRetrievalException;
+import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.Announcement;
 import org.envirocar.app.network.RestClient;
 import org.envirocar.app.storage.DbAdapterImpl;
+import org.envirocar.app.util.Util;
+import org.envirocar.app.util.VersionRange.Version;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
 
@@ -45,6 +54,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -53,6 +63,7 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
+import android.text.Html;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -120,6 +131,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private static final Logger logger = Logger.getLogger(MainActivity.class);
 	private static final String SERVICE_STATE = "serviceState";
 	private static final String TRACK_MODE = "trackMode";
+	private static final String SEEN_ANNOUNCEMENTS = "seenAnnouncements";
 	
 	
 	// Include settings for auto upload and auto-connect
@@ -138,6 +150,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private BroadcastReceiver deviceInRangReceiver;
 	private boolean deviceDiscoveryActive;
 	private BroadcastReceiver errorInformationReceiver;
+	private Set<String> seenAnnouncements = new HashSet<String>();
 		
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
@@ -319,6 +332,13 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		this.serviceState = (ServiceState) savedInstanceState.getSerializable(SERVICE_STATE);
 		this.trackMode = savedInstanceState.getInt(TRACK_MODE);
 		
+		String[] arr = (String[]) savedInstanceState.getSerializable(SEEN_ANNOUNCEMENTS);
+		if (arr != null) {
+			for (String string : arr) {
+				this.seenAnnouncements.add(string);
+			}
+		}
+		
 		BackgroundServiceImpl.requestServiceStateBroadcast(getApplicationContext());
 	}
 	
@@ -328,6 +348,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 		outState.putSerializable(SERVICE_STATE, serviceState);
 		outState.putInt(TRACK_MODE, trackMode);
+		
+		outState.putSerializable(SEEN_ANNOUNCEMENTS, this.seenAnnouncements.toArray(new String[0]));
 	}
 
 	protected void updateStartStopButton() {
@@ -603,8 +625,55 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	    
 		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
+        
+        checkAffectingAnnouncements();
 	}
 
+
+	private void checkAffectingAnnouncements() {
+		List<Announcement> annos;
+		try {
+			annos = DAOProvider.instance().getAnnouncementsDAO().getAllAnnouncements();
+		} catch (AnnouncementsRetrievalException e) {
+			logger.warn(e.getMessage(), e);
+			return;
+		}
+		
+		String versionShort;
+		Version version;
+		try {
+			versionShort = Util.getVersionStringShort(getApplicationContext());
+			version = Version.fromString(versionShort);
+		} catch (NameNotFoundException e) {
+			logger.warn(e.getMessage());
+			return;
+		}
+		
+		for (Announcement announcement : annos) {
+			if (!seenAnnouncements.contains(announcement.getId())) {
+				if (!announcement.getVersionRange().isInRange(version)) {
+					showAnnouncement(announcement);
+				}
+			}
+		}
+	}
+
+	private void showAnnouncement(final Announcement announcement) {
+		String title = announcement.createUITitle(this);
+		String content = announcement.getContent();
+		
+		DialogUtil.createTitleMessageInfoDialog(title, Html.fromHtml(content), new DialogUtil.PositiveNegativeCallback() {
+			@Override
+			public void negative() {
+				seenAnnouncements.add(announcement.getId());
+			}
+
+			@Override
+			public void positive() {
+				seenAnnouncements.add(announcement.getId());
+			}
+		}, this);
+	}
 
 	private void checkKeepScreenOn() {
 		if (preferences.getBoolean(SettingsActivity.DISPLAY_STAYS_ACTIV, false)) {

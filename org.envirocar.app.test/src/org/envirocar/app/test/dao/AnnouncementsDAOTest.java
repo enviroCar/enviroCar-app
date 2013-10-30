@@ -30,6 +30,7 @@ import org.envirocar.app.dao.AnnouncementsRetrievalException;
 import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.dao.cache.CacheAnnouncementsDAO;
 import org.envirocar.app.model.Announcement;
+import org.envirocar.app.model.Announcement.Priority;
 import org.envirocar.app.util.VersionRange.Version;
 
 public class AnnouncementsDAOTest extends CacheDAOTest {
@@ -46,6 +47,7 @@ public class AnnouncementsDAOTest extends CacheDAOTest {
 		Assert.assertTrue(first.getCategory().equals("app"));
 		Assert.assertTrue(first.getId().equals("asdfg12345"));
 		Assert.assertTrue(first.getVersionRange().isInRange(Version.fromString("0.7.0")));
+		Assert.assertTrue(first.getPriority().equals(Priority.MEDIUM));
 		String enContent = first.getContent(Locale.ENGLISH);
 		String itContent = first.getContent(Locale.ITALIAN);
 		
@@ -55,6 +57,8 @@ public class AnnouncementsDAOTest extends CacheDAOTest {
 		 * cause there is no IT locale content
 		 */
 		Assert.assertTrue(enContent.equals(itContent));
+		
+		Assert.assertNotNull(first.createUITitle(getInstrumentation().getTargetContext()));
 	}
 
 }

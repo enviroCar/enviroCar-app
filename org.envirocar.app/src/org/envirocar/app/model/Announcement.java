@@ -29,7 +29,41 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import org.envirocar.app.R;
+import android.content.Context;
+
 public class Announcement {
+
+	public enum Priority {
+		LOW {
+			@Override
+			public String toString() {
+				return "low";
+			}
+		},
+		MEDIUM {
+			@Override
+			public String toString() {
+				return "medium";
+			}
+		},
+		HIGH {
+			@Override
+			public String toString() {
+				return "high";
+			}
+		};
+		
+		public static Priority fromString(String s) {
+			for (Priority p : values()) {
+				if (p.toString().equals(s)) {
+					return p;
+				}
+			}
+			
+			return LOW;
+		}
+	}
 
 	public static List<Announcement> fromJsonList(JSONObject content) throws JSONException {
 		JSONArray a = content.getJSONArray("announcements");
@@ -43,6 +77,7 @@ public class Announcement {
 		
 		return result;
 	}
+
 	
 	public static Announcement fromJson(JSONObject json) throws JSONException {
 		Announcement result = new Announcement();
@@ -51,12 +86,14 @@ public class Announcement {
 		result.versionRange = VersionRange.fromString(json.getString("versions"));
 		result.category = json.getString("category");
 		result.contents = json.getJSONObject("content");
+		result.priority = Priority.fromString(json.optString("priority", Priority.LOW.toString()));
 		
 		return result;
 	}
 
 	private String id;
 	private VersionRange versionRange;
+	private Priority priority;
 	private String category;
 	private JSONObject contents;
 
@@ -81,19 +118,38 @@ public class Announcement {
 		String result = null;
 		if (contents != null) {
 			try {
-				result = contents.getString(locale.toString());
+				result = contents.getString(locale.getLanguage());
 			} catch (JSONException e) {
 			}
 			
 			if (result == null) {
 				try {
-					result = contents.getString(Locale.ENGLISH.toString());
+					result = contents.getString(Locale.ENGLISH.getLanguage());
 				} catch (JSONException e) {
 				}
 			}
 			
 		}
 		return result;
+	}
+	
+	public String createUITitle(Context ctx) {
+		String priorityi18n;
+		if (priority.equals(Priority.HIGH)) {
+			priorityi18n = ctx.getString(R.string.category_high);
+		}
+		else if (priority.equals(Priority.MEDIUM)) {
+			priorityi18n = ctx.getString(R.string.category_normal);
+		}
+		else {
+			priorityi18n = ctx.getString(R.string.category_low);
+		}
+		return String.format("[%s] %s %s", priorityi18n, category, ctx.getString(R.string.announcement));
+	}
+
+
+	public Priority getPriority() {
+		return priority;
 	}
 
 }

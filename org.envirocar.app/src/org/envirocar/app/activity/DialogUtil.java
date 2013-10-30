@@ -74,6 +74,20 @@ public class DialogUtil {
 		dialog.show();
 	}
 	
+	public static void createTitleMessageInfoDialog(String title, Spanned message,
+			DialogCallback callback, Activity activity) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+
+		builder.setTitle(title);
+		builder.setMessage(message);
+		
+		builder.setPositiveButton("Ok", callback);
+		builder.setCancelable(false);
+		
+		AlertDialog dialog = builder.create();
+		
+		dialog.show();
+	}
 	
 	public abstract static class DialogCallback implements OnClickListener, OnCancelListener, OnDismissListener {
 

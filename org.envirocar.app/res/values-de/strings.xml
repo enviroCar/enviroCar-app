@@ -251,4 +251,13 @@ Bei festgestellten Problemen möchten wir Sie bitten, uns ein Fehlerprotokoll zu
     
     <string name="co2_initial_value">0 kg/h</string>
     <string name="speed_initial_value">0 km/h</string>
+    
+	<string name="track_list_count_text">Zeige %1$d lokale Tracks, %2$d/%3$s Remote Tracks:</string>
+    <string name="not_yet_registered_question">Sie haben noch keinen Account?</string>
+	<string name="not_yet_registered_register">Hier registrieren!</string>	
+	
+	<string name="category_low">Niedrig</string>
+	<string name="category_normal">Wichtig</string>
+	<string name="category_high">Kritisch</string>
+	<string name="announcement">Ankündigung</string>
 </resources>

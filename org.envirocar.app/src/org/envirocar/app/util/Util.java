@@ -332,7 +332,7 @@ public class Util {
 	public static String getVersionString(Context ctx) {
 		StringBuilder out = new StringBuilder("Version ");
 		try {
-			out.append(ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName);
+			out.append(getVersionStringShort(ctx));
 			out.append(" (");
 			out.append(ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionCode);
 			out.append("), ");
@@ -352,6 +352,10 @@ public class Util {
 		}
 
 		return out.toString();
+	}
+
+	public static String getVersionStringShort(Context ctx) throws NameNotFoundException {
+		return ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName;
 	}
 	
 }
