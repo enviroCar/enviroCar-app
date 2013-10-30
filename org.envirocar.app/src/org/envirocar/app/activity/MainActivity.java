@@ -56,6 +56,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -626,12 +627,20 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
         
-        checkAffectingAnnouncements();
+        new AsyncTask<Void, Void, Void>() {
+
+			@Override
+			protected Void doInBackground(Void... params) {
+				checkAffectingAnnouncements();
+				return null;
+			}
+		}.execute();
+        
 	}
 
 
 	private void checkAffectingAnnouncements() {
-		List<Announcement> annos;
+		final List<Announcement> annos;
 		try {
 			annos = DAOProvider.instance().getAnnouncementsDAO().getAllAnnouncements();
 		} catch (AnnouncementsRetrievalException e) {
@@ -639,23 +648,28 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			return;
 		}
 		
-		String versionShort;
-		Version version;
+		final Version version;
 		try {
-			versionShort = Util.getVersionStringShort(getApplicationContext());
+			String versionShort = Util.getVersionStringShort(getApplicationContext());
 			version = Version.fromString(versionShort);
 		} catch (NameNotFoundException e) {
 			logger.warn(e.getMessage());
 			return;
 		}
 		
-		for (Announcement announcement : annos) {
-			if (!seenAnnouncements.contains(announcement.getId())) {
-				if (!announcement.getVersionRange().isInRange(version)) {
-					showAnnouncement(announcement);
+		runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				for (Announcement announcement : annos) {
+					if (!seenAnnouncements.contains(announcement.getId())) {
+						if (announcement.getVersionRange().isInRange(version)) {
+							showAnnouncement(announcement);
+						}
+					}
 				}
 			}
-		}
+		});
 	}
 
 	private void showAnnouncement(final Announcement announcement) {
