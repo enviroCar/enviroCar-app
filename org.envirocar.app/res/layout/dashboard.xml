@@ -10,6 +10,7 @@
         android:id="@+id/vehicle_view"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
         android:orientation="vertical" >
 
         <LinearLayout
