@@ -64,6 +64,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	public static final String OBFUSCATE_POSITION = "pref_privacy";
 	public static final String CAR = "pref_selected_car";
 	public static final String CAR_HASH_CODE = "pref_selected_car_hash_code";
+	public static final String PERSISTENT_SEEN_ANNOUNCEMENTS = "persistent_seen_announcements";
 	
 	private Preference about;
 	

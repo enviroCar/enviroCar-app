@@ -25,13 +25,22 @@ import org.envirocar.app.model.TermsOfUseInstance;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnDismissListener;
+import android.os.Bundle;
 import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.view.ContextThemeWrapper;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 public class DialogUtil {
 
@@ -88,6 +97,24 @@ public class DialogUtil {
 		
 		dialog.show();
 	}
+	
+	public static void createTitleMessageInfoDialog(String title, Spanned message,
+			boolean doNotShowAgainField,
+			DialogCallback callback, Activity activity) {
+		if (!doNotShowAgainField) {
+			createTitleMessageInfoDialog(title, message, callback, activity);
+			return;
+		}
+		
+		DoNotShowAgainAlertDialog dialog = new DoNotShowAgainAlertDialog(
+				new ContextThemeWrapper(activity, R.style.EnviroCarAlertDialog));
+		dialog.setMessage(message);
+		dialog.setTitle(title);
+		dialog.setCallback(callback);
+		dialog.show();
+	}
+	
+	
 	
 	public abstract static class DialogCallback implements OnClickListener, OnCancelListener, OnDismissListener {
 
@@ -165,5 +192,78 @@ public class DialogUtil {
 		return Html.fromHtml(sb.toString());
 	}
 	
+	private static class DoNotShowAgainAlertDialog extends AlertDialog {
+
+		private TextView messageView;
+		private CheckBox checkboxView;
+		private CharSequence message;
+		private TextView titleView;
+		private CharSequence title;
+		private Button okButton;
+		private DialogCallback callback;
+
+		protected DoNotShowAgainAlertDialog(Context context) {
+			super(context);
+		}
+		
+		public void setCallback(DialogCallback callback) {
+			this.callback = callback;
+		}
+
+		protected DoNotShowAgainAlertDialog(Context context,
+				boolean cancelable, OnCancelListener cancelListener) {
+			super(context, cancelable, cancelListener);
+		}
+
+		protected DoNotShowAgainAlertDialog(Context context, int theme) {
+			super(context, theme);
+		}
+		
+		@Override
+		protected void onCreate(Bundle savedInstanceState) {
+			super.onCreate(savedInstanceState);
+			setCancelable(false);
+			
+			View view = View.inflate(getContext(), R.layout.do_not_show_again_dialog, null);
+			setContentView(view);
+			
+			messageView = (TextView) view.findViewById(R.id.do_not_show_again_message);
+			if (messageView != null) {
+				messageView.setText(message);
+			}
+			
+			titleView = (TextView) view.findViewById(R.id.do_not_show_again_title);
+			if (titleView != null) {
+				titleView.setText(title);
+			}
+			
+			checkboxView = (CheckBox) view.findViewById(R.id.do_not_show_again_checkbox);
+			
+			okButton = (Button) view.findViewById(R.id.do_not_show_again_ok);
+			okButton.setOnClickListener(new View.OnClickListener() {
+				
+				@Override
+				public void onClick(View v) {
+					if (checkboxView.isChecked()) {
+						callback.itemSelected(AlertDialog.BUTTON_POSITIVE);
+					} else {
+						callback.cancelled();
+					}
+					
+					dismiss();
+				}
+			});
+		}
+		
+		@Override
+		public void setMessage(CharSequence message) {
+			this.message = message;
+		}
+		
+		public void setTitle(CharSequence titl) {
+			this.title = titl;
+		}
+		
+	}
 	
 }

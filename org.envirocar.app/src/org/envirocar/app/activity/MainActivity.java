@@ -324,7 +324,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 		registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment.INTENT));
 		
-		
+		resolvePersistentSeenAnnouncements();
 	}
 	
 	private void readSavedState(Bundle savedInstanceState) {
@@ -639,6 +639,23 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	}
 
 
+	protected void resolvePersistentSeenAnnouncements() {
+		String pers = preferences.getString(SettingsActivity.PERSISTENT_SEEN_ANNOUNCEMENTS, "");
+		
+		if (!pers.isEmpty()) {
+			if (pers.contains(",")) {
+				String[] arr = pers.split(",");
+				for (String string : arr) {
+					seenAnnouncements.add(string);
+				}
+			}
+			else {
+				seenAnnouncements.add(pers);
+			}
+			
+		}
+	}
+
 	private void checkAffectingAnnouncements() {
 		final List<Announcement> annos;
 		try {
@@ -676,7 +693,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		String title = announcement.createUITitle(this);
 		String content = announcement.getContent();
 		
-		DialogUtil.createTitleMessageInfoDialog(title, Html.fromHtml(content), new DialogUtil.PositiveNegativeCallback() {
+		DialogUtil.createTitleMessageInfoDialog(title, Html.fromHtml(content), true, new DialogUtil.PositiveNegativeCallback() {
 			@Override
 			public void negative() {
 				seenAnnouncements.add(announcement.getId());
@@ -684,9 +701,22 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 			@Override
 			public void positive() {
+				addPersistentSeenAnnouncement(announcement.getId());
 				seenAnnouncements.add(announcement.getId());
 			}
 		}, this);
+	}
+
+	protected void addPersistentSeenAnnouncement(String id) {
+		String currentPersisted = preferences.getString(SettingsActivity.PERSISTENT_SEEN_ANNOUNCEMENTS, "");
+		
+		StringBuilder sb = new StringBuilder(currentPersisted);
+		if (!currentPersisted.isEmpty()) {
+			sb.append(",");
+		}
+		sb.append(id);
+		
+		preferences.edit().putString(SettingsActivity.PERSISTENT_SEEN_ANNOUNCEMENTS, sb.toString()).commit();
 	}
 
 	private void checkKeepScreenOn() {
