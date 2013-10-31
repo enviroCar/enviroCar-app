@@ -139,11 +139,9 @@ public class CarSelectionPreference extends DialogPreference {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, 
 		            int pos, long id) {
-				if(!firstSelect){
-					logger.info(parent.getItemAtPosition(pos)+"");
-					
+				if (!firstSelect && pos > 0) {
 					updateCurrentSensor((Car) parent.getItemAtPosition(pos));
-				}else{
+				} else {
 					firstSelect = false;
 				}
 			}
