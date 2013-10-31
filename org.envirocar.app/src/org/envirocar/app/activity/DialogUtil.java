@@ -36,10 +36,8 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.view.ContextThemeWrapper;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class DialogUtil {
@@ -91,7 +89,6 @@ public class DialogUtil {
 		builder.setMessage(message);
 		
 		builder.setPositiveButton("Ok", callback);
-		builder.setCancelable(false);
 		
 		AlertDialog dialog = builder.create();
 		
@@ -222,7 +219,6 @@ public class DialogUtil {
 		@Override
 		protected void onCreate(Bundle savedInstanceState) {
 			super.onCreate(savedInstanceState);
-			setCancelable(false);
 			
 			View view = View.inflate(getContext(), R.layout.do_not_show_again_dialog, null);
 			setContentView(view);
