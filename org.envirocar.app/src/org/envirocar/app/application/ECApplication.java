@@ -365,19 +365,24 @@ public class ECApplication extends Application {
 
 
 	public void finishTrack() {
-		Track track = DbAdapterImpl.instance().finishCurrentTrack();
-		if (track != null) {
-			if (track.getLastMeasurement() == null) {
-				Crouton.makeText(getCurrentActivity(), R.string.track_finished_no_measurements, Style.ALERT).show();
-			} else {
-				String text = getString(R.string.track_finished).concat(track.getName());
-				Crouton.makeText(getCurrentActivity(), text, Style.INFO).show();				
-			}
-		}
-		else {
-			Crouton.makeText(getCurrentActivity(), R.string.track_finishing_failed, Style.ALERT).show();
-		}
+		final Track track = DbAdapterImpl.instance().finishCurrentTrack();
 		
+		getCurrentActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (track != null) {
+					if (track.getLastMeasurement() == null) {
+						Crouton.makeText(getCurrentActivity(), R.string.track_finished_no_measurements, Style.ALERT).show();
+					} else {
+						String text = getString(R.string.track_finished).concat(track.getName());
+						Crouton.makeText(getCurrentActivity(), text, Style.INFO).show();				
+					}
+				}
+				else {
+					Crouton.makeText(getCurrentActivity(), R.string.track_finishing_failed, Style.ALERT).show();
+				}				
+			}
+		});
 	}
 
 
