@@ -37,6 +37,7 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 //TODO javadoc
+
 public class RestClient {
 	
 	private static final Logger logger = Logger.getLogger(RestClient.class);
@@ -77,6 +78,7 @@ public class RestClient {
 		HTTPClient.setupClient(client.getHttpClient());		
 	}
 
+	@Deprecated
 	public static void deleteRemoteTrack(String user, String token, String id, JsonHttpResponseHandler handler){
 		setHeaders(user, token);
 		client.delete(ECApplication.BASE_URL+"/users/"+user+"/tracks/" + id, handler);
@@ -133,6 +135,7 @@ public class RestClient {
 		
 	}
 
+	@Deprecated
 	public static void downloadSensors(JsonHttpResponseHandler handler){
 		get(ECApplication.BASE_URL+"/sensors", handler);
 	}

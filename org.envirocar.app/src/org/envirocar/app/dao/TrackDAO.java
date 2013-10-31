@@ -20,6 +20,18 @@
  */
 package org.envirocar.app.dao;
 
+import java.util.List;
+
+import org.envirocar.app.storage.Track;
+
 public interface TrackDAO {
+
+	void deleteTrack(String remoteID) throws DAOException;
+	
+	void storeTrack(Track track) throws DAOException;
+	
+	List<Track> getAllTracks();
+	
+	Track getTrack(String id);
 
 }

@@ -18,23 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.dao;
+package org.envirocar.app.dao.remote;
 
-import java.io.IOException;
 
-public class NotConnectedException extends DAOException {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	public NotConnectedException(String m) {
-		super(m);
-	}
-
-	public NotConnectedException(IOException e) {
-		super(e);
-	}
+/**
+ * Tagging interface. {@link BaseRemoteDAO} decides base upon this
+ * if the request should use authentication.
+ * 
+ * @author matthes rieke
+ *
+ */
+public interface AuthenticatedDAO {
 	
+
 }

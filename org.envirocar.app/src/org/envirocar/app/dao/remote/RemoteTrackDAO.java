@@ -20,8 +20,48 @@
  */
 package org.envirocar.app.dao.remote;
 
-import org.envirocar.app.dao.TrackDAO;
+import java.util.List;
 
-public class RemoteTrackDAO implements TrackDAO {
+import org.apache.http.client.methods.HttpDelete;
+import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.application.User;
+import org.envirocar.app.application.UserManager;
+import org.envirocar.app.dao.NotConnectedException;
+import org.envirocar.app.dao.TrackDAO;
+import org.envirocar.app.storage.Track;
+
+public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, AuthenticatedDAO {
+
+	@Override
+	public void deleteTrack(String remoteID) throws NotLoggedInException, NotConnectedException {
+		User user = UserManager.instance().getUser();
+		
+		if (user == null) {
+			throw new NotLoggedInException();
+		}
+		
+		HttpDelete request = new HttpDelete(ECApplication.BASE_URL+"/users/"+
+				user.getUsername()+"/tracks/" + remoteID);
+
+		super.executeHttpRequest(request);
+	}
+
+	@Override
+	public void storeTrack(Track track) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public List<Track> getAllTracks() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Track getTrack(String id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

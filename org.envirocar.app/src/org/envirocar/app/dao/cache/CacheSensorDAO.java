@@ -24,10 +24,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-import org.envirocar.app.application.User;
-import org.envirocar.app.dao.AbstractSensorDAO;
 import org.envirocar.app.dao.CacheDirectoryProvider;
 import org.envirocar.app.dao.NotConnectedException;
+import org.envirocar.app.dao.SensorDAO;
 import org.envirocar.app.dao.SensorRetrievalException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
@@ -35,7 +34,7 @@ import org.envirocar.app.util.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class CacheSensorDAO extends AbstractSensorDAO {
+public class CacheSensorDAO implements SensorDAO {
 	
 	private static final Logger logger = Logger.getLogger(CacheSensorDAO.class);
 	public static final String CAR_CACHE_FILE_NAME = "cache_cars";
@@ -55,7 +54,7 @@ public class CacheSensorDAO extends AbstractSensorDAO {
 
 			if (f.isFile()) {
 				JSONObject cars = Util.readJsonContents(f);
-				return createSensorList(cars);
+				return Car.fromJsonList(cars);
 			} 
 			else {
 				throw new SensorRetrievalException("Local cache file could not be accessed.");
@@ -75,7 +74,7 @@ public class CacheSensorDAO extends AbstractSensorDAO {
 	}
 
 	@Override
-	public String saveSensor(Car car, User user) throws NotConnectedException {
+	public String saveSensor(Car car) throws NotConnectedException {
 		throw new NotConnectedException("CacheSensorDAO does not support saving.");
 	}
 

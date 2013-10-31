@@ -21,7 +21,7 @@
 package org.envirocar.app.dao;
 
 
-public class TermsOfUseRetrievalException extends Exception {
+public class TermsOfUseRetrievalException extends DAOException {
 
 	/**
 	 * 

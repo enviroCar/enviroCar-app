@@ -104,8 +104,7 @@ public class UploadManager {
 	private void registerCarBeforeUpload(Track track) throws NotConnectedException {
 		Car car = track.getCar();
 		String tempId = car.getId();
-		String sensorIdFromServer = DAOProvider.instance().getSensorDAO().saveSensor(car,
-				UserManager.instance().getUser());
+		String sensorIdFromServer = DAOProvider.instance().getSensorDAO().saveSensor(car);
 
 		car.setId(sensorIdFromServer);
 

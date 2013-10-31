@@ -18,23 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.dao;
+package org.envirocar.app.dao.remote;
 
-import java.io.IOException;
+import org.envirocar.app.dao.DAOException;
 
-public class NotConnectedException extends DAOException {
+public class NotLoggedInException extends DAOException {
+
+	public NotLoggedInException() {
+		super("Not logged in");
+	}
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public NotConnectedException(String m) {
-		super(m);
-	}
-
-	public NotConnectedException(IOException e) {
-		super(e);
-	}
-	
 }

@@ -282,7 +282,7 @@ public class CarSelectionPreference extends DialogPreference {
 							Integer.parseInt(carConstructionYear), Integer.parseInt(carEngineDisplacement));
 					
 					try {
-						String sensorId = DAOProvider.instance().getSensorDAO().saveSensor(tmpCar, UserManager.instance().getUser());
+						String sensorId = DAOProvider.instance().getSensorDAO().saveSensor(tmpCar);
 						
 						//put the sensor id into shared preferences
 						tmpCar.setId(sensorId);

@@ -20,21 +20,20 @@
  */
 package org.envirocar.app.dao;
 
-import java.io.IOException;
+public class DAOException extends Exception {
 
-public class NotConnectedException extends DAOException {
+	public DAOException(Exception e) {
+		super(e);
+	}
+
+
+	public DAOException(String string) {
+		super(string);
+	}
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public NotConnectedException(String m) {
-		super(m);
-	}
-
-	public NotConnectedException(IOException e) {
-		super(e);
-	}
-	
 }

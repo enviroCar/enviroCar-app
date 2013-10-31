@@ -49,6 +49,10 @@ import org.envirocar.app.application.TrackUploadFinishedHandler;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
+import org.envirocar.app.dao.DAOException;
+import org.envirocar.app.dao.DAOProvider;
+import org.envirocar.app.dao.DAOProvider.AsyncExecutionWithCallback;
+import org.envirocar.app.dao.TrackDAO;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.ServerException;
@@ -80,7 +84,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -490,17 +493,31 @@ public class ListTracksFragment extends SherlockFragment {
 				.setPositiveButton(R.string.yes,
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								User user = UserManager.instance().getUser();
-								final String username = user.getUsername();
-								final String token = user.getToken();
-								RestClient.deleteRemoteTrack(username, token,
-										track.getRemoteID(),
-										new JsonHttpResponseHandler() {
-											@Override
-											protected void handleMessage(Message msg) {
-												removeRemoteTrackFromViewAndDB(track);
-											}
-										});
+								final TrackDAO dao = DAOProvider.instance().getTrackDAO();
+								
+								DAOProvider.async(new AsyncExecutionWithCallback<Void>() {
+
+									@Override
+									public Void execute()
+											throws DAOException {
+										dao.deleteTrack(track.getRemoteID());
+										return null;
+									}
+
+									@Override
+									public Void onResult(Void result,
+											boolean fail, Exception ex) {
+										if (!fail) {
+											removeRemoteTrackFromViewAndDB(track);
+										}
+										else {
+											logger.warn(ex.getMessage(), ex);
+										}
+										return null;
+									}
+									
+								});
+								
 							}
 						})
 				.setNegativeButton(R.string.no,

@@ -20,7 +20,7 @@
  */
 package org.envirocar.app.dao;
 
-public class AnnouncementsRetrievalException extends Exception {
+public class AnnouncementsRetrievalException extends DAOException {
 
 	/**
 	 * 

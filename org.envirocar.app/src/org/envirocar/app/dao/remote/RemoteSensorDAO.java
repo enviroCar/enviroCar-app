@@ -26,16 +26,14 @@ import java.util.Locale;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.application.ECApplication;
-import org.envirocar.app.application.User;
-import org.envirocar.app.dao.AbstractSensorDAO;
 import org.envirocar.app.dao.NotConnectedException;
+import org.envirocar.app.dao.SensorDAO;
 import org.envirocar.app.dao.SensorRetrievalException;
 import org.envirocar.app.dao.cache.CacheSensorDAO;
 import org.envirocar.app.logging.Logger;
@@ -44,7 +42,7 @@ import org.envirocar.app.network.HTTPClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class RemoteSensorDAO extends AbstractSensorDAO {
+public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, AuthenticatedDAO {
 	
 	static final Logger logger = Logger.getLogger(RemoteSensorDAO.class);
 	private CacheSensorDAO cache;
@@ -70,7 +68,7 @@ public class RemoteSensorDAO extends AbstractSensorDAO {
 			
 			JSONObject parentObject = new JSONObject(content);
 			
-			return createSensorList(parentObject);
+			return Car.fromJsonList(parentObject);
 		} catch (IOException e) {
 			logger.warn(e.getMessage());
 			throw new SensorRetrievalException(e);
@@ -81,22 +79,20 @@ public class RemoteSensorDAO extends AbstractSensorDAO {
 	}
 
 	@Override
-	public String saveSensor(Car car, User user) throws NotConnectedException {
+	public String saveSensor(Car car) throws NotConnectedException {
 		String sensorString = String
 				.format(Locale.ENGLISH,
 						"{ \"type\": \"%s\", \"properties\": {\"manufacturer\": \"%s\", \"model\": \"%s\", \"fuelType\": \"%s\", \"constructionYear\": %s, \"engineDisplacement\": %s } }",
 						CarSelectionPreference.SENSOR_TYPE, car.getManufacturer(), car.getModel(), car.getFuelType(),
 						car.getConstructionYear(), car.getEngineDisplacement());
 		try {
-			return registerSensor(sensorString, user);
+			return registerSensor(sensorString);
 		} catch (IOException e) {
 			throw new NotConnectedException(e);
 		}
 	}
 	
-	private String registerSensor(String sensorString, User user) throws IOException, NotConnectedException {
-		String username = user.getUsername();
-		String token = user.getToken();
+	private String registerSensor(String sensorString) throws IOException, NotConnectedException {
 		
 		HttpPost postRequest = new HttpPost(
 				ECApplication.BASE_URL+"/sensors");
@@ -105,30 +101,12 @@ public class RemoteSensorDAO extends AbstractSensorDAO {
 		
 		postRequest.addHeader("Accept-Encoding", "gzip");
 		
-		if (user != null)
-			postRequest.addHeader("X-User", username);
-		
-		if (token != null)
-			postRequest.addHeader("X-Token", token);
-		
 		StringEntity se = new StringEntity(sensorString);
 		se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
 		
 		postRequest.setEntity(se);
 		
-		HttpResponse response = HTTPClient.execute(postRequest);
-		
-		int httpStatusCode = response.getStatusLine().getStatusCode();
-		
-		if (httpStatusCode >= HttpStatus.SC_MULTIPLE_CHOICES) {
-			if (httpStatusCode == HttpStatus.SC_UNAUTHORIZED ||
-					httpStatusCode == HttpStatus.SC_FORBIDDEN) {
-				throw new UnauthorizedException("Authentication failed.");
-			}
-			else {
-				throw new NotConnectedException("Unsupported server response.");
-			}
-		}
+		HttpResponse response = super.executeHttpRequest(postRequest);
 		
 		Header[] h = response.getAllHeaders();
 
@@ -139,11 +117,12 @@ public class RemoteSensorDAO extends AbstractSensorDAO {
 				break;
 			}
 		}
-		logger.info(httpStatusCode + " " + location);
+		logger.info("location: "
+				+location);
 
 		return location.substring(
 				location.lastIndexOf("/") + 1,
 				location.length());
 	}
-	
+
 }

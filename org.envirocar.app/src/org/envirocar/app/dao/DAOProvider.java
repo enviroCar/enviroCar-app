@@ -31,6 +31,8 @@ import org.envirocar.app.dao.remote.RemoteTermsOfUseDAO;
 import org.envirocar.app.dao.remote.RemoteTrackDAO;
 import org.envirocar.app.dao.remote.RemoteUserDAO;
 
+import android.os.AsyncTask;
+
 /**
  * the {@link DAOProvider} consists a set of methods
  * to access specific DAOs. It checks the internet connection
@@ -115,6 +117,35 @@ public class DAOProvider {
 			return new RemoteAnnouncementsDAO(new CacheAnnouncementsDAO(this.cacheDirectoryProvider));
 		}
 		return new CacheAnnouncementsDAO(this.cacheDirectoryProvider);
+	}
+	
+	public static <T> void async(final AsyncExecutionWithCallback<T> callback) {
+		new AsyncTask<Void, Void, Void>() {
+			@Override
+			protected Void doInBackground(Void... params) {
+				boolean fail = true;
+				T result = null;
+				Exception ex = null;
+				try {
+					result = callback.execute();
+					fail = false;
+				} catch (RuntimeException e) {
+					ex = e;
+				} catch (DAOException e) {
+					ex = e;
+				}
+				callback.onResult(result, fail, ex);
+				return null;
+			}
+		}.execute();
+	}
+	
+	public static interface AsyncExecutionWithCallback<T> {
+		
+		public T execute() throws DAOException;
+		
+		public T onResult(T result, boolean fail, Exception exception);
+		
 	}
 
 }

@@ -20,7 +20,7 @@
  */
 package org.envirocar.app.dao;
 
-public class SensorRetrievalException extends Exception {
+public class SensorRetrievalException extends DAOException {
 
 	/**
 	 * 

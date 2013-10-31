@@ -22,7 +22,6 @@ package org.envirocar.app.dao;
 
 import java.util.List;
 
-import org.envirocar.app.application.User;
 import org.envirocar.app.model.Car;
 
 public interface SensorDAO {
@@ -46,6 +45,6 @@ public interface SensorDAO {
 	 * @return the ID of the saved sensor as provided by the underlying DAO
 	 * @throws NotConnectedException
 	 */
-	public String saveSensor(Car car, User user) throws NotConnectedException;
+	public String saveSensor(Car car) throws NotConnectedException;
 	
 }

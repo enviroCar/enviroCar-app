@@ -30,7 +30,6 @@ import org.envirocar.app.commands.IntakePressure;
 import org.envirocar.app.commands.IntakeTemperature;
 import org.envirocar.app.commands.MAF;
 import org.envirocar.app.commands.O2LambdaProbe;
-import org.envirocar.app.commands.O2LambdaProbeVoltage;
 import org.envirocar.app.commands.PIDSupported;
 import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
@@ -82,7 +81,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		logger.info("Discovered CUs... ");
 	}
 
-	private void processSupportedPID(byte[] bytes, int start, int count) {
+	protected void processSupportedPID(byte[] bytes, int start, int count) {
 		String group = new String(bytes, start+6, 2);
 		
 		if (group.equals("00")) {
