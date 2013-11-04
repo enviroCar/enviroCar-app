@@ -68,7 +68,8 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		pidList.add(PID.RPM);
 		pidList.add(PID.IAP);
 		pidList.add(PID.IAT);
-		pidList.add(PID.O2_LAMBDA_PROBE_1_VOLTAGE);
+		pidList.add(PID.SHORT_TERM_FUEL_TRIME);
+		pidList.add(PID.LONG_TERM_FUEL_TRIME);
 		this.cycleCommand = new CycleCommand(pidList);
 	}
 
@@ -127,7 +128,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 			return;
 		}
 		
-		if (protocol != null && vin != null) {
+		if (protocol != null || vin != null) {
 			state = ConnectionState.CONNECTED;
 		}
 	}
@@ -201,6 +202,9 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 			//TODO the current manual does not provide info on how to
 			//determine which probe value is returned.
 			result = O2LambdaProbe.fromPIDEnum(org.envirocar.app.commands.PIDUtil.PID.O2_LAMBDA_PROBE_1_VOLTAGE);
+		}
+		else {
+			logger.info("Parsing not yet supported for response:" +pid);
 		}
 		
 		if (result != null) {

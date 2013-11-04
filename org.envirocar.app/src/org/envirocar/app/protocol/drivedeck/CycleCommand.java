@@ -57,10 +57,16 @@ public class CycleCommand extends CommonCommand {
 				return convert("0F");
 			}
 		},
-		O2_LAMBDA_PROBE_1_VOLTAGE {
+		SHORT_TERM_FUEL_TRIME {
 			@Override
 			public String toString() {
-				return convert("24");
+				return convert("06");
+			}
+		},
+		LONG_TERM_FUEL_TRIME {
+			@Override
+			public String toString() {
+				return convert("07");
 			}
 		};
 		
