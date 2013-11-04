@@ -250,6 +250,8 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		if (track == null) {
 			if (++trackCreationTries < MAX_CREATION_TRIES) {
 				createNewTrackIfNecessary();
+			} else {
+				logger.warn("Tried "+trackCreationTries +" times to resolve the correct track. Permanentely failing.");
 			}
 			
 			if (track == null) return;
@@ -266,10 +268,11 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		 */
 		try {
 			track.addMeasurement(measurement);
+			logger.info(String.format("Add new measurement to track '%d': %s", track.getId(), measurement.toString()));
 		} catch (TrackAlreadyFinishedException e) {
 			logger.warn(e.getMessage(), e);
 		}
-		logger.info(String.format("Add new measurement to track '%d': %s", track.getId(), measurement.toString()));
+		
 	}
 	
 	/**
@@ -281,6 +284,10 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		// if track is null, create a new one or take the last one from the
 		// database
 
+		if (dbAdapter == null) {
+			return;
+		}
+		
 		Track lastUsedTrack;
 		if (track == null) {
 			lastUsedTrack = dbAdapter.getLastUsedTrack();
@@ -289,7 +296,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 			lastUsedTrack = track;
 		}
 		
-		logger.info("createNewTrackIfNecessary: last?" + lastUsedTrack == null ? "null" : ("id: "+lastUsedTrack.getId() +"/ "+lastUsedTrack.getName()));
+		logger.info("createNewTrackIfNecessary: last? " + (lastUsedTrack == null ? "null" : lastUsedTrack.toString()));
 
 		// New track if last measurement is more than 60 minutes
 		// ago

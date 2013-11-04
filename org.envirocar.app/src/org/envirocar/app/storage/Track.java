@@ -554,5 +554,9 @@ public class Track implements Comparable<Track> {
 		this.metadata = m;
 	}
 
+	@Override
+	public String toString() {
+		return "Track / id: "+getId() +" / Name: "+getName();
+	}
 
 }
