@@ -83,8 +83,8 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private int cycle = 0;
 	
 	static {
-		whitelistedCommandNames.add(new FuelSystemStatus().getCommandName());
-		whitelistedCommandNames.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_VOLTAGE).getCommandName());
+//		whitelistedCommandNames.add(new FuelSystemStatus().getCommandName());
+//		whitelistedCommandNames.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_VOLTAGE).getCommandName());
 	}
 	
 	/**

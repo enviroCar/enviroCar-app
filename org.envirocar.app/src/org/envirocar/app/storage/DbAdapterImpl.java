@@ -85,6 +85,7 @@ public class DbAdapterImpl implements DbAdapter {
 		KEY_TRACK_NAME,
 		KEY_TRACK_DESCRIPTION,
 		KEY_TRACK_REMOTE,
+		KEY_TRACK_STATE,
 		KEY_TRACK_METADATA,
 		KEY_TRACK_CAR_MANUFACTURER,
 		KEY_TRACK_CAR_MODEL,
@@ -500,6 +501,7 @@ public class DbAdapterImpl implements DbAdapter {
 		values.put(KEY_TRACK_NAME, track.getName());
 		values.put(KEY_TRACK_DESCRIPTION, track.getDescription());
 		values.put(KEY_TRACK_REMOTE, track.getRemoteID());
+		values.put(KEY_TRACK_STATE, track.getStatus().toString());
 		if (track.getCar() != null) {
 			values.put(KEY_TRACK_CAR_MANUFACTURER, track.getCar().getManufacturer());
 			values.put(KEY_TRACK_CAR_MODEL, track.getCar().getModel());
@@ -565,7 +567,7 @@ public class DbAdapterImpl implements DbAdapter {
 		Track track = Track.createNewLocalTrack(this);
 		track.setCar(car);
 		track.setName("Track " + date);
-		track.setDescription(String.format(mCtx.getString(R.string.default_track_description), car.getModel()));
+		track.setDescription(String.format(mCtx.getString(R.string.default_track_description), car != null ? car.getModel() : "null"));
 		updateTrack(track);
 		logger.info("createNewTrack: "+ track.getName());
 		return track;
@@ -579,6 +581,7 @@ public class DbAdapterImpl implements DbAdapter {
 				deleteTrack(last.getId());
 			}
 			last.setStatus(TrackStatus.FINISHED);
+			updateTrack(last);
 		}
 		return last;
 	}

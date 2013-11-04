@@ -47,8 +47,12 @@ public abstract class NumberResultCommand extends CommonCommand {
 		
 		String dataString = new String(data);
 
-		if (isSearching(dataString) || isNoDataCommand(dataString)) {
+		if (isSearching(dataString)) {
 			setCommandState(CommonCommandState.SEARCHING);
+			return;
+		}
+		else if (isNoDataCommand(dataString)) {
+			setCommandState(CommonCommandState.EXECUTION_ERROR);
 			return;
 		}
 		

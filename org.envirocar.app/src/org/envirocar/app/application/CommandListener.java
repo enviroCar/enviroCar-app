@@ -257,7 +257,6 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	 * of the current/last used track should be reused
 	 */
 	private void createNewTrackIfNecessary() {
-		logger.info("createNewTrackIfNecessary");
 		DbAdapter dbAdapter = DbAdapterImpl.instance();
 		// if track is null, create a new one or take the last one from the
 		// database
@@ -269,6 +268,8 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		else {
 			lastUsedTrack = track;
 		}
+		
+		logger.info("createNewTrackIfNecessary: last?" + lastUsedTrack == null ? "null" : ("id: "+lastUsedTrack.getId() +"/ "+lastUsedTrack.getName()));
 
 		// New track if last measurement is more than 60 minutes
 		// ago

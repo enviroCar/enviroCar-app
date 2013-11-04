@@ -111,6 +111,7 @@ public class Track implements Comparable<Track> {
 	private Track(String remoteID, DbAdapter dbAdapter) {
 		this(dbAdapter);
 		this.remoteID = remoteID;
+		this.status = TrackStatus.FINISHED;
 	}
 	
 	/**
