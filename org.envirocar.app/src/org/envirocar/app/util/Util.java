@@ -346,7 +346,7 @@ public class Util {
 			ZipEntry ze = zf.getEntry("classes.dex");
 			long time = ze.getTime();
 			out.append(SimpleDateFormat.getInstance().format(new java.util.Date(time)));
-
+			zf.close();
 		} catch (Exception e) {
 			logger.warn(e.getMessage(), e);
 		}
