@@ -68,8 +68,9 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		pidList.add(PID.RPM);
 		pidList.add(PID.IAP);
 		pidList.add(PID.IAT);
-		pidList.add(PID.SHORT_TERM_FUEL_TRIME);
-		pidList.add(PID.LONG_TERM_FUEL_TRIME);
+//		pidList.add(PID.SHORT_TERM_FUEL_TRIM);
+//		pidList.add(PID.LONG_TERM_FUEL_TRIM);
+		pidList.add(PID.O2_LAMBDA_PROBE_1_VOLTAGE);
 		this.cycleCommand = new CycleCommand(pidList);
 	}
 
@@ -211,6 +212,12 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 			byte[] rawData = createRawData(rawBytes, result.getResponseTypeID());
 			result.setRawData(rawData);
 			result.parseRawData();
+			
+			if (result.getCommandState() == CommonCommandState.EXECUTION_ERROR ||
+					result.getCommandState() == CommonCommandState.SEARCHING) {
+				return null;
+			}
+			
 			result.setCommandState(CommonCommandState.FINISHED);
 			result.setResultTime(now);
 			this.state = ConnectionState.VERIFIED;

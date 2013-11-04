@@ -21,9 +21,11 @@
 package org.envirocar.app.commands;
 
 import org.envirocar.app.commands.PIDUtil.PID;
+import org.envirocar.app.logging.Logger;
 
 public abstract class O2LambdaProbe extends NumberResultCommand {
 
+	private static final Logger logger = Logger.getLogger(O2LambdaProbe.class);
 	private String cylinderPosition;
 	private double equivalenceRation = Double.NaN;
 
@@ -83,6 +85,11 @@ public abstract class O2LambdaProbe extends NumberResultCommand {
 	@Override
 	public void parseRawData() {
 		super.parseRawData();
+		if (getBuffer() == null || getBuffer().length < 6) {
+			setCommandState(CommonCommandState.EXECUTION_ERROR);
+			logger.warn("The response did not contain the correct expected count: "+
+					(getBuffer() == null ? "null" : getBuffer().length));
+		}
 	}
 	
 	public double getEquivalenceRatio() {
