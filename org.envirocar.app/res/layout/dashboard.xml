@@ -4,13 +4,13 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@drawable/envirocar_background"
+    android:paddingTop="40dp"
     android:tag="Dashboard" >
 
     <LinearLayout
         android:id="@+id/vehicle_view"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
         android:orientation="vertical" >
 
         <LinearLayout
@@ -18,12 +18,12 @@
             android:layout_height="0dip"
             android:layout_marginLeft="5dp"
             android:layout_weight="2"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal" >
+                android:orientation="horizontal">
 
                 <org.envirocar.app.views.LayeredImageRotateView
                     android:id="@+id/speedometerView"
@@ -35,7 +35,7 @@
                     enviroCar:maximumScaleValue="250.0"
                     enviroCar:minimumDegree="10.0"
                     enviroCar:minimumScaleValue="0.0"
-                    enviroCar:rotatableImageViewid="@+id/arrowImage" >
+                    enviroCar:rotatableImageViewid="@+id/arrowImage">
 
                     <org.envirocar.app.views.HalfViewWidthImageView
                         android:layout_width="wrap_content"
@@ -85,12 +85,12 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
                 android:layout_marginRight="5dp"
-                android:layout_marginTop="-30dp"
+                android:layout_marginTop="-40dp"
                 enviroCar:maximumDegree="170.0"
                 enviroCar:maximumScaleValue="100.0"
                 enviroCar:minimumDegree="10.0"
                 enviroCar:minimumScaleValue="0.0"
-                enviroCar:rotatableImageViewid="@+id/co2arrowImage" >
+                enviroCar:rotatableImageViewid="@+id/co2arrowImage">
 
                 <org.envirocar.app.views.HalfViewWidthImageView
                     android:layout_width="wrap_content"
@@ -136,7 +136,7 @@
                 android:layout_marginTop="10dp"
                 android:text="@string/dashboard_sensor_title"
                 enviroCar:sizeRelatedPredecessingView="@+id/dashboard_general_info"
-                enviroCar:targetTextString="0123456789098765432101234567890" />
+                enviroCar:targetTextString="0123456789098765432101234567890abcdefghijklmnop" />
 
             <org.envirocar.app.views.SizeRelatedTextView
                 android:id="@+id/dashboard_current_sensor"
@@ -144,7 +144,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 enviroCar:sizeRelatedPredecessingView="@+id/dashboard_general_info"
-                enviroCar:targetTextString="0123456789098765432101234567890" />
+                enviroCar:targetTextString="0123456789098765432101234567890abcdefghijklmnop" />
             
             <View android:layout_width="0dp"
                 android:layout_height="10dp"/>
