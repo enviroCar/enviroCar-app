@@ -72,7 +72,10 @@ public class Announcement {
 		
 		for (int i = 0; i < a.length(); i++) {
 			JSONObject obj = a.getJSONObject(i);
-			result.add(fromJson(obj));
+			Announcement anno = fromJson(obj);
+			if (anno != null) {
+				result.add(anno);
+			}
 		}
 		
 		return result;
@@ -85,6 +88,13 @@ public class Announcement {
 		result.id = json.getString("id");
 		result.versionRange = VersionRange.fromString(json.getString("versions"));
 		result.category = json.getString("category");
+		
+		if (result.category == null || !(result.category.equalsIgnoreCase("app") || 
+				result.category.equalsIgnoreCase("general"))) {
+			return null;
+		}
+			
+		
 		result.contents = json.getJSONObject("content");
 		result.priority = Priority.fromString(json.optString("priority", Priority.LOW.toString()));
 		

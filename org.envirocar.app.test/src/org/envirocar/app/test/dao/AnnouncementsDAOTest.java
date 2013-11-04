@@ -41,6 +41,8 @@ public class AnnouncementsDAOTest extends CacheDAOTest {
 		prepareCache(getMockupDir().getBaseFolder(), "announcements_mockup.json", CacheAnnouncementsDAO.CACHE_FILE_NAME);
 		
 		List<Announcement> all = prov.getAnnouncementsDAO().getAllAnnouncements();
+	
+		Assert.assertTrue(all.size() == 1);
 		
 		Announcement first = all.get(0);
 		
