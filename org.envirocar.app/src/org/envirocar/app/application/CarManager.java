@@ -35,7 +35,6 @@ public class CarManager {
 	public static final String PREF_KEY_FUEL_TYPE = "fueltype";
 	public static final String PREF_KEY_SENSOR_ID = "sensorid";
 	public static final String PREF_KEY_CAR_ENGINE_DISPLACEMENT = "pref_engine_displacement";
-	public static final String CAR_CACHE_FILE_NAME = "cars";
 	
 	private static CarManager instance = null;
 	
@@ -53,8 +52,8 @@ public class CarManager {
 			@Override
 			public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 					String key) {
-				if (key.equals(SettingsActivity.CAR)) {
-					car = CarSelectionPreference.instantiateCar(preferences.getString(SettingsActivity.CAR, null));
+				if (key.equals(SettingsActivity.CAR) || key.equals(SettingsActivity.CAR_HASH_CODE)) {
+					setCar(CarSelectionPreference.instantiateCar(preferences.getString(SettingsActivity.CAR, null)));
 				}
 			}
 		});
@@ -78,6 +77,9 @@ public class CarManager {
 	}
 	
 	public void setCar(Car c) {
+		if (c == null) {
+			return;
+		}
 		this.car = c;
 	}
 

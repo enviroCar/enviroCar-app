@@ -96,7 +96,7 @@
     <string name="upload_notification_success">Lokale Tracks wurden erfolgreich hochgeladen.</string>
     <string name="please_select">&#8230;</string>
     <string name="select_car">Fahrzeug</string>
-    <string name="startMap">KArte</string>
+    <string name="startMap">Karte</string>
     <string name="trackContainsNoCoordinates">Track enthält keine Koordinaten.</string>
     <string name="noSdCard">"Karte wird ohne SD-Karte nicht angezeigt."</string>
     <string name="hint_login_first">Bitte erst einloggen</string>
@@ -108,6 +108,7 @@
     <string name="diesel">Diesel</string>
     <string name="register_car">Auto neu erstellen</string>
     <string name="register_car_progress">Auto erstellen Fortschritt</string>
+    <string name="register_car_success">erfolgreich registriert.</string>
     <string name="prompt_car_model">Modell</string>
     <string name="prompt_car_manufacturer">Hersteller</string>
     <string name="prompt_car_constructionYear">Baujahr</string>
@@ -219,7 +220,7 @@ Bei festgestellten Problemen möchten wir Sie bitten, uns ein Fehlerprotokoll zu
 	<string name="prompt_car_engineDisplacement">Hubraum (ccm)</string>
 	
 	<string name="track_mode_single">Einzelner Track</string>
-    <string name="track_mode_auto">Automatische Track-Erstellung</string>
+    <string name="track_mode_auto">Automatische Track-Erstellung (experimentell)</string>
     <string name="question_track_mode">Möchten Sie einen einzelnen Track aufnehmen oder die automatische Track-Erstellung aktivieren?</string>
     
     <string name="stop_automatic_mode">Automatische Track-Erstellung beenden?</string>
@@ -245,5 +246,18 @@ Bei festgestellten Problemen möchten wir Sie bitten, uns ein Fehlerprotokoll zu
 	<string name="terms_of_use_updating_server">Speichere Nutzungsbedingungs-Status auf Server</string>
     
     <string name="diesel_not_yet_supported">Bitte beachten Sie, dass die Berechnung von Verbrauch/CO2 für Diesel-Fahrzeuge nocht nicht unterstützt wird</string>
+	<string name="uploading_track_no_measurements_after_obfuscation_long">Ein hochzuladende Track enthielt keine Messungen nach Verbergen der Start- und Endpunkte. Er wurde nicht hochgeladen, ist aber weiterhin lokal verfügbar.</string>
+	<string name="uploading_track_no_measurements_after_obfuscation">Ein hochzuladende Track enthielt keine Messungen.</string>
+    
+    <string name="co2_initial_value">0 kg/h</string>
+    <string name="speed_initial_value">0 km/h</string>
+    
+	<string name="track_list_count_text">Zeige %1$d lokale Tracks, %2$d/%3$s Remote Tracks:</string>
+    <string name="not_yet_registered_question">Sie haben noch keinen Account?</string>
+	<string name="not_yet_registered_register">Hier registrieren!</string>	
 	
+	<string name="category_low">Niedrig</string>
+	<string name="category_normal">Wichtig</string>
+	<string name="category_high">Kritisch</string>
+	<string name="announcement">Ankündigung</string>
 </resources>

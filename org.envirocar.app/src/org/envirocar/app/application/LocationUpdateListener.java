@@ -21,17 +21,21 @@
 package org.envirocar.app.application;
 
 import org.envirocar.app.event.EventBus;
+import org.envirocar.app.event.GpsDOPEvent;
 import org.envirocar.app.event.LocationEvent;
 import org.envirocar.app.logging.Logger;
 
+import android.location.GpsStatus.NmeaListener;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 
-public class LocationUpdateListener implements LocationListener {
+public class LocationUpdateListener implements LocationListener, NmeaListener {
 
 	private static final Logger logger = Logger.getLogger(LocationUpdateListener.class);
+	private static final String GPGSA = "$GPGSA";
+	private static final String NMEA_SEP = ",";
 	private static LocationUpdateListener instance;
 	
 	public LocationUpdateListener() {
@@ -69,10 +73,69 @@ public class LocationUpdateListener implements LocationListener {
 	public static void startLocating(LocationManager lm) {
 		lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
 				0, getInstance());
+		lm.addNmeaListener(getInstance());
 	}
 	
 	public static void stopLocating(LocationManager lm) {
 		lm.removeUpdates(getInstance());
+		lm.removeNmeaListener(getInstance());
+	}
+	
+	@Override
+	public void onNmeaReceived(long timestamp, String nmea) {
+		/*
+		 * eg2.: $GPGSA,A,3,19,28,14,18,27,22,31,39,,,,,1.7,1.0,1.3*35
+		 */
+		if (nmea.startsWith(GPGSA)) {
+			if (nmea.charAt(7) == ',' || nmea.charAt(9) == '1') {
+				/*
+				 * no GPS fix, skip
+				 */
+				return;
+			}
+			
+			int checksumIndex = nmea.lastIndexOf("*");
+			String[] values;
+			if (checksumIndex > 0) {
+				values = nmea.substring(0, checksumIndex).split(NMEA_SEP);
+			}
+			else {
+				/*
+				 * no checksum, skip
+				 */
+				return;
+			}
+			
+			Double pdop = null, hdop = null, vdop = null;
+			if (values.length > 15) {
+				pdop = parseDopString(values[15]);
+			}
+			if (values.length > 16) {
+				hdop = parseDopString(values[16]);
+			}
+			if (values.length > 17) {
+				vdop = parseDopString(values[17]);
+			}
+			
+			if (pdop != null || hdop != null || vdop != null) {
+				EventBus.getInstance().fireEvent(new GpsDOPEvent(pdop, hdop, vdop));
+			}
+		}
+	}
+	
+	private Double parseDopString(String string) {
+		if (string == null || string.isEmpty()) return null;
+		
+		return parseOrReturnNull(string);
+	}
+	
+	private Double parseOrReturnNull(String trim) {
+		try {
+			return Double.parseDouble(trim.trim());
+		}
+		catch (RuntimeException e) {
+		}
+		return null;
 	}
 	
 }

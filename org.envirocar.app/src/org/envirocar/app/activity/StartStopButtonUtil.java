@@ -32,6 +32,7 @@ import org.envirocar.app.logging.Logger;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -169,8 +170,14 @@ public class StartStopButtonUtil {
 				new DialogUtil.PositiveNegativeCallback() {
 					@Override
 					public void positive() {
-						application.stopConnection();
-						application.finishTrack();
+						new AsyncTask<Void, Void, Void>() {
+							@Override
+							protected Void doInBackground(Void... params) {
+								application.stopConnection();
+								application.finishTrack();
+								return null;
+							}
+						}.execute();
 						trackModeListener.onTrackModeChange(MainActivity.TRACK_MODE_SINGLE);
 					}
 					

@@ -2,10 +2,9 @@ package org.envirocar.app.activity;
 
 
 import org.envirocar.app.R;
-import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.util.Util;
 
 import android.os.Bundle;
-import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,8 +36,6 @@ public class HelpFragment extends SherlockFragment {
 	    //gave me an error at first try, though...
 	    //t2.setMovementMethod(LinkMovementMethod.getInstance());
 		
-		ImageSpan is = new ImageSpan(getActivity(), R.drawable.mobile);
-		
 //		SpannableString text = new SpannableString(getActivity().getText(R.string.help_view_track_text_1));
 //		
 //		Locale locale = Locale.getDefault();
@@ -57,7 +54,7 @@ public class HelpFragment extends SherlockFragment {
 
 	    CharSequence versionString = getActivity().getText(R.string.help_text_6_3);
 	    
-	    versionString = versionString + " " + ((ECApplication) getActivity().getApplication()).getVersionString();
+	    versionString = versionString + " " + Util.getVersionString(getActivity());
 	    
 	    versionTextview.setText(versionString);	    
 	    

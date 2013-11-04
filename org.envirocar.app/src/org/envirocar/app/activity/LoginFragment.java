@@ -119,6 +119,14 @@ public class LoginFragment extends SherlockFragment {
 						attemptLogin();
 					}
 				});
+		
+		view.findViewById(R.id.not_yet_registered_button).setOnClickListener(
+				new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						openRegisterFragment();
+					}
+				});
 		return view;
 	}
 
@@ -135,10 +143,7 @@ public class LoginFragment extends SherlockFragment {
 			com.actionbarsherlock.view.MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_register:
-			RegisterFragment registerFragment = new RegisterFragment();
-			getActivity().getSupportFragmentManager().beginTransaction()
-					.replace(R.id.content_frame, registerFragment, "REGISTER")
-					.addToBackStack(null).commit();
+			openRegisterFragment();
 			return true;
 
 		}
@@ -305,7 +310,7 @@ public class LoginFragment extends SherlockFragment {
 	 * credentials
 	 */
 	private User authenticateHttp(String user, String token) {
-		HttpGet httpget = new HttpGet(ECApplication.BASE_URL_DEV + "/users/" + user);
+		HttpGet httpget = new HttpGet(ECApplication.BASE_URL + "/users/" + user);
 		httpget.addHeader(new BasicHeader("X-User", user));
 		httpget.addHeader(new BasicHeader("X-Token", token));
 		HttpResponse response;
@@ -337,6 +342,13 @@ public class LoginFragment extends SherlockFragment {
 		}
 		
 		return null;
+	}
+
+	private void openRegisterFragment() {
+		RegisterFragment registerFragment = new RegisterFragment();
+		getActivity().getSupportFragmentManager().beginTransaction()
+				.replace(R.id.content_frame, registerFragment, "REGISTER")
+				.addToBackStack(null).commit();
 	}
 
 }

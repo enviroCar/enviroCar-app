@@ -46,7 +46,7 @@ public class LongTermTrimBank1 extends NumberResultCommand {
 		if (Double.isNaN(perc)) {
 			int[] buffer = getBuffer();
 			int tmpValue = buffer[2];
-			perc = (tmpValue - 128) * (100.0 / 128);
+			perc = (tmpValue - 128) * (100d / 128d);
 		}
 		return perc;
 	}

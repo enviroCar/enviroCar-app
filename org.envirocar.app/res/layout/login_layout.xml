@@ -72,8 +72,26 @@
                 android:paddingRight="32dp"
                 android:text="@string/action_sign_in_short" />
 
-
-         
+            <LinearLayout android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="15dp"
+                android:gravity="center_horizontal">
+				<TextView android:id="@+id/not_yet_registered_text"
+				    android:layout_width="wrap_content"
+				    android:layout_height="wrap_content"
+				    android:text="@string/not_yet_registered_question"
+				    android:layout_marginBottom="5dp"/>
+				<TextView android:id="@+id/not_yet_registered_button"
+				    android:layout_width="wrap_content"
+				    android:layout_height="wrap_content" 
+				    android:textColor="@color/blue_light_cario"
+				    android:textAppearance="@android:style/TextAppearance.Medium"
+				    android:text="@string/not_yet_registered_register"
+				    android:focusable="true"
+				    android:importantForAccessibility="yes"
+				    />
+         	</LinearLayout>
         </LinearLayout>
     </ScrollView>
 

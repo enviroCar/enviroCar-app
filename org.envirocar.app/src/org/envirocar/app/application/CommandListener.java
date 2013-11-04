@@ -25,12 +25,18 @@ import org.envirocar.app.commands.EngineLoad;
 import org.envirocar.app.commands.FuelSystemStatus;
 import org.envirocar.app.commands.IntakePressure;
 import org.envirocar.app.commands.IntakeTemperature;
+import org.envirocar.app.commands.LongTermTrimBank1;
 import org.envirocar.app.commands.MAF;
 import org.envirocar.app.commands.NumberResultCommand;
+import org.envirocar.app.commands.O2LambdaProbe;
 import org.envirocar.app.commands.RPM;
+import org.envirocar.app.commands.ShortTermTrimBank1;
 import org.envirocar.app.commands.Speed;
 import org.envirocar.app.commands.TPS;
 import org.envirocar.app.event.EventBus;
+import org.envirocar.app.event.GpsDOP;
+import org.envirocar.app.event.GpsDOPEvent;
+import org.envirocar.app.event.GpsDOPEventListener;
 import org.envirocar.app.event.IntakePressureEvent;
 import org.envirocar.app.event.IntakeTemperatureEvent;
 import org.envirocar.app.event.LocationEvent;
@@ -44,7 +50,9 @@ import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Track.TrackStatus;
-import org.envirocar.app.views.Utils;
+import org.envirocar.app.storage.TrackAlreadyFinishedException;
+import org.envirocar.app.storage.TrackMetadata;
+import org.envirocar.app.util.Util;
 
 import android.location.Location;
 
@@ -63,15 +71,39 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 	private static final double MAX_DISTANCE_BETWEEN_MEASUREMENTS = 3.0;
 
+	private static final int MAX_CREATION_TRIES = 10;
+
 	private Track track;
 	private Collector collector;
 	private Location location;
+
+	private GpsDOPEventListener dopListener;
+
+	private int trackCreationTries;
+
+	private TrackMetadata trackMetadata;
+
+	private boolean shutdownCompleted = false;
+
+	private static int instanceCount;
 	
 	public CommandListener(Car car) {
 		this.collector = new Collector(this, car);
 		EventBus.getInstance().registerListener(this);
-		createNewTrackIfNecessary();
-		logger.debug("Initialized. Hash: "+System.identityHashCode(this));
+		dopListener = new GpsDOPEventListener() {
+			@Override
+			public void receiveEvent(GpsDOPEvent event) {
+				GpsDOP dop = event.getPayload();
+				collector.newDop(dop);
+			}
+		};
+		EventBus.getInstance().registerListener(dopListener);
+		
+		synchronized (CommandListener.class) {
+			instanceCount++;
+			logger.debug("Initialized. Hash: "+System.identityHashCode(this) +"; active instances: "+instanceCount);
+		}
+		
 	}
 
 	public void receiveUpdate(CommonCommand command) {
@@ -176,7 +208,23 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		else if (command instanceof FuelSystemStatus) {
 			boolean loop = ((FuelSystemStatus) command).isInClosedLoop();
 			int status = ((FuelSystemStatus) command).getStatus();
-			logger.info("Processed FuekSystemStatus Response: Closed? "+loop +" Status: "+ status +"; time: "+command.getResultTime());
+			this.collector.newFuelSystemStatus(loop, status);
+			logger.info("Processed FuelSystemStatus Response: Closed? "+loop +" Status: "+ status +"; time: "+command.getResultTime());
+		}
+		
+		else if (command instanceof O2LambdaProbe) {
+			this.collector.newLambdaProbeValue((O2LambdaProbe) command);
+			logger.info("Processed O2LambdaProbe Response: "+ command.toString());
+		}
+		
+		else if (command instanceof ShortTermTrimBank1) {
+			this.collector.newShortTermTrimBank1(((ShortTermTrimBank1) command).getNumberResult());
+			logger.info("Processed ShortTermTrimBank1: "+ command.toString());
+		}
+		
+		else if (command instanceof LongTermTrimBank1) {
+			this.collector.newLongTermTrimBank1(((LongTermTrimBank1) command).getNumberResult());
+			logger.info("Processed LongTermTrimBank1: "+ command.toString());
 		}
 	}
 	
@@ -199,7 +247,15 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	 *            The measurement you want to insert
 	 */
 	public void insertMeasurement(Measurement measurement) {
-		if (track == null) return;
+		if (track == null) {
+			if (++trackCreationTries < MAX_CREATION_TRIES) {
+				createNewTrackIfNecessary();
+			} else {
+				logger.warn("Tried "+trackCreationTries +" times to resolve the correct track. Permanentely failing.");
+			}
+			
+			if (track == null) return;
+		}
 		// TODO: This has to be added with the following conditions:
 		/*
 		 * 1)New measurement if more than 50 meters away 2)New measurement if
@@ -210,8 +266,13 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		 * therefore, we should include a minimum time between measurements (1
 		 * sec) as well.)
 		 */
-		track.addMeasurement(measurement);
-		logger.info("Add new measurement to track: " + measurement.toString());
+		try {
+			track.addMeasurement(measurement);
+			logger.info(String.format("Add new measurement to track '%d': %s", track.getId(), measurement.toString()));
+		} catch (TrackAlreadyFinishedException e) {
+			logger.warn(e.getMessage(), e);
+		}
+		
 	}
 	
 	/**
@@ -219,11 +280,14 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	 * of the current/last used track should be reused
 	 */
 	private void createNewTrackIfNecessary() {
-		logger.info("createNewTrackIfNecessary");
 		DbAdapter dbAdapter = DbAdapterImpl.instance();
 		// if track is null, create a new one or take the last one from the
 		// database
 
+		if (dbAdapter == null) {
+			return;
+		}
+		
 		Track lastUsedTrack;
 		if (track == null) {
 			lastUsedTrack = dbAdapter.getLastUsedTrack();
@@ -231,6 +295,8 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		else {
 			lastUsedTrack = track;
 		}
+		
+		logger.info("createNewTrackIfNecessary: last? " + (lastUsedTrack == null ? "null" : lastUsedTrack.toString()));
 
 		// New track if last measurement is more than 60 minutes
 		// ago
@@ -247,7 +313,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 			// new track if last position is significantly different
 			// from the current position (more than 3 km)
-			else if (location == null || Utils.getDistance(lastUsedTrack.getLastMeasurement().getLatitude(),lastUsedTrack.getLastMeasurement().getLongitude(),
+			else if (location == null || Util.getDistance(lastUsedTrack.getLastMeasurement().getLatitude(),lastUsedTrack.getLastMeasurement().getLongitude(),
 					location.getLatitude(), location.getLongitude()) > MAX_DISTANCE_BETWEEN_MEASUREMENTS) {
 				logger.info(String.format("Create a new track: last measurement's position is more than %f km away",
 						MAX_DISTANCE_BETWEEN_MEASUREMENTS));
@@ -265,21 +331,46 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 			
 		}
 		else {
+			logger.info(String.format("Creating new Track. Last was null? %b; Last status was: %s; Last measurement: %s",
+					lastUsedTrack == null,
+					lastUsedTrack == null ? "n/a" : lastUsedTrack.getStatus().toString(),
+					lastUsedTrack == null ? "n/a" : lastUsedTrack.getLastMeasurement()));
 			track = dbAdapter.createNewTrack();
 		}
 			
-		logger.info(String.format("Using Track: %s / %d", track.getName(), track.getId()));
+		logger.info(String.format("Using Track: %s / id: %d", track.getName(), track.getId()));
+		if (trackMetadata != null) {
+			this.track.updateMetadata(trackMetadata);
+		}
 	}
-
 
 	@Override
 	public void receiveEvent(LocationEvent event) {
-		this.collector.newLocation(event.getPayload());
 		this.location = event.getPayload();
+		this.collector.newLocation(event.getPayload());
 	}
 
 	public void shutdown() {
 		EventBus.getInstance().unregisterListener(this);
+		EventBus.getInstance().unregisterListener(dopListener);
+		
+		synchronized (CommandListener.class) {
+			if (!this.shutdownCompleted) {
+				instanceCount--;
+				this.shutdownCompleted = true;
+			}
+			
+		}
+	}
+
+	@Override
+	public void onConnected(String deviceName) {
+		trackMetadata = new TrackMetadata();
+		trackMetadata.putEntry(TrackMetadata.OBD_DEVICE, deviceName);
+		
+		if (track != null) {
+			this.track.updateMetadata(trackMetadata);
+		}
 	}
 
 	

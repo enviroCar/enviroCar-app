@@ -21,7 +21,12 @@
 package org.envirocar.app.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.envirocar.app.activity.preference.CarSelectionPreference;
+import org.envirocar.app.logging.Logger;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,6 +42,7 @@ public class Car implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 6321429785990500936L;
+	private static final Logger logger = Logger.getLogger(Car.class);
 	private static final String GASOLINE_STRING = "gasoline";
 	private static final String DIESEL_STRING = "diesel";
 
@@ -168,6 +174,35 @@ public class Car implements Serializable {
 		int engineDiss = jsonObject.optInt("engineDisplacement", 2000); 
 		
 		return new Car(foolType, manu, modl, eyeD, decon, engineDiss);
+	}
+	
+	public static List<Car> fromJsonList(JSONObject json) throws JSONException {
+		JSONArray cars = json.getJSONArray("sensors");
+		
+		List<Car> sensors = new ArrayList<Car>(cars.length());
+		
+		for (int i = 0; i < cars.length(); i++){
+			String typeString;
+			JSONObject properties;
+			String carId;
+			try {
+				typeString = ((JSONObject) cars.get(i)).optString("type", "none");
+				properties = ((JSONObject) cars.get(i)).getJSONObject("properties");
+				carId = properties.getString("id");
+			} catch (JSONException e) {
+				logger.warn(e.getMessage(), e);
+				continue;
+			}
+			if (typeString.equals(CarSelectionPreference.SENSOR_TYPE)) {
+				try {
+					sensors.add(Car.fromJsonWithStrictEngineDisplacement(properties));
+				} catch (JSONException e) {
+					logger.warn(String.format("Car '%s' not supported: %s", carId != null ? carId : "null", e.getMessage()));
+				}
+			}	
+		}
+		
+		return sensors;
 	}
 
 	public static FuelType resolveFuelType(String foolType) {

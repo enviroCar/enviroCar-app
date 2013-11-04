@@ -21,10 +21,16 @@
 
 package org.envirocar.app.storage;
 
+import java.text.ParseException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import org.envirocar.app.exception.LocationInvalidException;
+import org.envirocar.app.util.Util;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Measurement class that contains all the measured values
@@ -88,6 +94,105 @@ public class Measurement {
 			public String toString() {
 				return "Engine Load";
 			}
+		},
+		GPS_ACCURACY {
+			@Override
+			public String toString() {
+				return "GPS Accuracy";
+			}
+		},
+		GPS_SPEED {
+			@Override
+			public String toString() {
+				return "GPS Speed";
+			}
+		},
+		GPS_BEARING {
+			@Override
+			public String toString() {
+				return "GPS Bearing";
+			}
+		},
+		GPS_ALTITUDE {
+			@Override
+			public String toString() {
+				return "GPS Altitude";
+			}
+		},
+		GPS_PDOP {
+			@Override
+			public String toString() {
+				return "GPS PDOP";
+			}
+		},
+		GPS_HDOP {
+			@Override
+			public String toString() {
+				return "GPS HDOP";
+			}
+		},
+		GPS_VDOP {
+			@Override
+			public String toString() {
+				return "GPS VDOP";
+			}
+		},
+		LAMBDA_VOLTAGE {
+			@Override
+			public String toString() {
+				return "O2 Lambda Voltage";
+			}
+		},
+		LAMBDA_VOLTAGE_ER {
+			@Override
+			public String toString() {
+				return LAMBDA_VOLTAGE.toString().concat(" ER");
+			}
+		},
+		LAMBDA_CURRENT {
+			@Override
+			public String toString() {
+				return "O2 Lambda Current";
+			}
+		},
+		LAMBDA_CURRENT_ER {
+			@Override
+			public String toString() {
+				return LAMBDA_CURRENT.toString().concat(" ER");
+			}
+		},
+		FUEL_SYSTEM_LOOP {
+			@Override
+			public String toString() {
+				return "Fuel System Loop";
+			}
+		},
+		FUEL_SYSTEM_STATUS_CODE {
+			@Override
+			public String toString() {
+				return "Fuel System Status Code";
+			}
+		},
+		LONG_TERM_TRIM_1 {
+			@Override
+			public String toString() {
+				return "Long-Term Fuel Trim 1";
+			}
+		},
+		SHORT_TERM_TRIM_1 {
+			@Override
+			public String toString() {
+				return "Short-Term Fuel Trim 1";
+			}
+		}
+		
+	}
+	
+	public static final Map<String, PropertyKey> PropertyKeyValues = new HashMap<String, PropertyKey>();
+	
+	static {
+		for (PropertyKey pk : PropertyKey.values()) {
+			PropertyKeyValues.put(pk.toString(), pk);
 		}
 	}
 
@@ -216,4 +321,26 @@ public class Measurement {
 		propertyMap.put(key, value);
 	}
 
+
+	public static Measurement fromJson(JSONObject measurementJsonObject) throws JSONException, ParseException {
+		JSONArray coords = measurementJsonObject.getJSONObject("geometry").getJSONArray("coordinates");
+		Measurement result = new Measurement(
+				Float.valueOf(coords.getString(1)),
+				Float.valueOf(coords.getString(0)));
+		
+		JSONObject properties = measurementJsonObject.getJSONObject("properties");
+		result.setTime(Util.isoDateToLong((properties.getString("time"))));
+		JSONObject phenomenons = properties.getJSONObject("phenomenons");
+		Iterator<?> it = phenomenons.keys();
+		String key;
+		while (it.hasNext()) {
+			key = (String) it.next();
+			if (PropertyKeyValues.keySet().contains(key)) {
+				Double value = ((JSONObject) phenomenons.get(key)).getDouble("value"); 
+				result.setProperty(PropertyKeyValues.get(key), value);
+			}
+		}
+		
+		return result;
+	}
 }

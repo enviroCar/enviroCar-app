@@ -20,6 +20,7 @@
  */
 package org.envirocar.app.test;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Scanner;
 
@@ -38,6 +39,10 @@ public class ResourceLoadingTestCase extends InstrumentationTestCase {
 		
 		sc.close();
 		return sb.toString();
+	}
+	
+	protected String readJsonAsset(String assetRes) throws IOException {
+		return readJson(getInstrumentation().getContext().getAssets().open(assetRes));
 	}
 	
 }

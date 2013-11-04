@@ -37,7 +37,9 @@ public abstract class AbstractBackgroundServiceStateReceiver extends BroadcastRe
 		if (!intent.getAction().equals(SERVICE_STATE)) return;
 		ServiceState state = (ServiceState) intent.getSerializableExtra(SERVICE_STATE);
 		
-		onStateChanged(state);
+		if (state != null) {
+			onStateChanged(state);
+		}
 	}
 
 	public abstract void onStateChanged(ServiceState state);

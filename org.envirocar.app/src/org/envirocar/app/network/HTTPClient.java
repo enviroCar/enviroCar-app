@@ -26,6 +26,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
@@ -110,6 +111,18 @@ public class HTTPClient {
 //		sc.close();
 //		
 		return EntityUtils.toString(entity, HTTP.UTF_8);
+	}
+
+	public static String executeAndParseJsonRequest(String url) throws IOException {
+		return readResponse(executeJsonRequest(url));
+	}
+	
+	public static HttpEntity executeJsonRequest(String url) throws IOException {
+		HttpGet getRequest = new HttpGet(url);
+		getRequest.addHeader("Accept-Encoding", "application/json");
+		
+		HttpResponse response = HTTPClient.execute(getRequest);
+		return response.getEntity();
 	}
 	
 }

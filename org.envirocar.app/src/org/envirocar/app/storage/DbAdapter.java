@@ -24,6 +24,7 @@ package org.envirocar.app.storage;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.storage.Track.TrackStatus;
 
 
@@ -61,8 +62,10 @@ public interface DbAdapter {
 	 * 
 	 * @param measurement
 	 *            The measurement that should be inserted
+	 * @throws MeasurementsException 
+	 * @throws TrackAlreadyFinishedException 
 	 */
-	public void insertMeasurement(Measurement measurement);
+	public void insertNewMeasurement(Measurement measurement) throws MeasurementsException, TrackAlreadyFinishedException;
 
 	/**
 	 * Inserts a track into the database
@@ -93,6 +96,7 @@ public interface DbAdapter {
 	 * @param lazyMeasurements if true, an implementation shall return
 	 * {@link Track} objects that load their measurements in lazy fashion
 	 * @return all tracks
+	 * @throws TrackWithoutMeasurementsException 
 	 */
 	public List<Track> getAllTracks(boolean lazyMeasurements);
 	
@@ -101,9 +105,21 @@ public interface DbAdapter {
 	 * 
 	 * @param id
 	 *            The id of the track that should be returned
-	 * @return The desired track
+	 * @return The desired track or null if it does not exist
+	 * @throws TrackWithoutMeasurementsException 
 	 */
-	public Track getTrack(long id);
+	public Track getTrack(long id) throws TrackWithoutMeasurementsException;
+	
+	/**
+	 * Returns one track specified by the id
+	 * 
+	 * @param id the tracks internal id
+	 * @param lazyMeasurements if true, an implementation shall return a
+	 * {@link Track} that loads its measurements in lazy fashion
+	 * @return the desired track
+	 * @throws TrackWithoutMeasurementsException 
+	 */
+	public Track getTrack(long id, boolean lazyMeasurements) throws TrackWithoutMeasurementsException;
 	
 	/**
 	 * Returns <code>true</code> if a track with the given id is in the Database
@@ -181,7 +197,27 @@ public interface DbAdapter {
 	 */
 	public Track finishCurrentTrack();
 
-	List<Measurement> getAllMeasurementsForTrack(Track track);
-	
+	/**
+	 * an implementation shall return all meaasurements
+	 * for the given track.
+	 * 
+	 * @param track the track object
+	 * @return the list of Measurements
+	 * @throws TrackWithoutMeasurementsException
+	 */
+	List<Measurement> getAllMeasurementsForTrack(Track track) throws TrackWithoutMeasurementsException;
+
+	/**
+	 * an implementation shall update the ID
+	 * of all Track's cars which currently have the currentId
+	 * and update it to newId.
+	 * 
+	 * @param currentId
+	 * @param newId
+	 */
+	public void updateCarIdOfTracks(String currentId, String newId);
+
+	void insertMeasurement(Measurement measurement) throws MeasurementsException;
+
 	
 }

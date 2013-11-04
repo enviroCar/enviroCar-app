@@ -21,13 +21,7 @@
 
 package org.envirocar.app.views;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.Measurement;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -41,6 +35,7 @@ import android.os.Build;
 public class Utils {
 	
 	private static final Logger logger = Logger.getLogger(Utils.class);
+
 
 	public static int getActionBarId() {
 		try {
@@ -79,55 +74,5 @@ public class Utils {
 		return BluetoothAdapter.getDefaultAdapter() != null && BluetoothAdapter.getDefaultAdapter().isEnabled();
 	}
 
-	/**
-	 * Transform ISO 8601 string to Calendar.
-	 * @param iso8601string 
-	 * @return 
-	 * @throws ParseException
-	 */
-	public static long isoDateToLong(final String iso8601string) throws ParseException {
-		String s = iso8601string.replace("Z", "+00:00");
-		try {
-			s = s.substring(0, 22) + s.substring(23);
-		} catch (IndexOutOfBoundsException e) {
-			throw new ParseException("Invalid length", 0);
-		}
-		Date date = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.US).parse(s);
-
-		return date.getTime();
-	}
-	
-	/**
-	 * Returns the distance of two points in kilometers.
-	 * 
-	 * @param lat1
-	 * @param lng1
-	 * @param lat2
-	 * @param lng2
-	 * @return distance in km
-	 */
-	public static double getDistance(double lat1, double lng1, double lat2, double lng2) {
-
-		double earthRadius = 6369;
-		double dLat = Math.toRadians(lat2 - lat1);
-		double dLng = Math.toRadians(lng2 - lng1);
-		double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
-		double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		double dist = earthRadius * c;
-
-		return dist;
-
-	}
-	
-	/**
-	 * Returns the distance of two measurements in kilometers.
-	 * 
-	 * @param m1 first {@link Measurement}
-	 * @param m2 second {@link Measurement}
-	 * @return distance in km
-	 */
-	public static double getDistance(Measurement m1, Measurement m2) {
-		return getDistance(m1.getLatitude(), m1.getLongitude(), m2.getLatitude(), m2.getLongitude());
-	}
 
 }

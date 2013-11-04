@@ -24,10 +24,16 @@ public abstract class NumberResultCommand extends CommonCommand {
 
 	private static final CharSequence SEARCHING = "SEARCHING";
 	private static final CharSequence STOPPED = "STOPPED";
+	private static final CharSequence NODATA = "NODATA";
 	
 	static final String STATUS_OK = "41";
+	
 	private int[] buffr;
 	
+	/**
+	 * @param command the command to send. This will be the raw data send to the OBD device
+	 * (if a sub-class does not override {@link #getOutgoingBytes()}).
+	 */
 	public NumberResultCommand(String command) {
 		super(command);
 	}
@@ -41,8 +47,12 @@ public abstract class NumberResultCommand extends CommonCommand {
 		
 		String dataString = new String(data);
 
-		if (isSearching(dataString) || isNoDataCommand(dataString)) {
+		if (isSearching(dataString)) {
 			setCommandState(CommonCommandState.SEARCHING);
+			return;
+		}
+		else if (isNoDataCommand(dataString)) {
+			setCommandState(CommonCommandState.EXECUTION_ERROR);
 			return;
 		}
 		
@@ -90,7 +100,7 @@ public abstract class NumberResultCommand extends CommonCommand {
 	}
 	
 	private boolean isNoDataCommand(String dataString) {
-		return "NODATA".equals(dataString);
+		return dataString == null || dataString.contains(NODATA);
 	}
 	
 }

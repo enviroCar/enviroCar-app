@@ -29,6 +29,7 @@ import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.IntakePressure;
 import org.envirocar.app.commands.IntakeTemperature;
 import org.envirocar.app.commands.MAF;
+import org.envirocar.app.commands.O2LambdaProbe;
 import org.envirocar.app.commands.PIDSupported;
 import org.envirocar.app.commands.RPM;
 import org.envirocar.app.commands.CommonCommand.CommonCommandState;
@@ -67,6 +68,9 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		pidList.add(PID.RPM);
 		pidList.add(PID.IAP);
 		pidList.add(PID.IAT);
+//		pidList.add(PID.SHORT_TERM_FUEL_TRIM);
+//		pidList.add(PID.LONG_TERM_FUEL_TRIM);
+		pidList.add(PID.O2_LAMBDA_PROBE_1_VOLTAGE);
 		this.cycleCommand = new CycleCommand(pidList);
 	}
 
@@ -79,7 +83,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		logger.info("Discovered CUs... ");
 	}
 
-	private void processSupportedPID(byte[] bytes, int start, int count) {
+	protected void processSupportedPID(byte[] bytes, int start, int count) {
 		String group = new String(bytes, start+6, 2);
 		
 		if (group.equals("00")) {
@@ -125,7 +129,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 			return;
 		}
 		
-		if (protocol != null && vin != null) {
+		if (protocol != null || vin != null) {
 			state = ConnectionState.CONNECTED;
 		}
 	}
@@ -195,11 +199,25 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 			//RPM
 			result = new RPM();
 		}
+		else if (pid.equals("4D")) {
+			//TODO the current manual does not provide info on how to
+			//determine which probe value is returned.
+			result = O2LambdaProbe.fromPIDEnum(org.envirocar.app.commands.PIDUtil.PID.O2_LAMBDA_PROBE_1_VOLTAGE);
+		}
+		else {
+			logger.info("Parsing not yet supported for response:" +pid);
+		}
 		
 		if (result != null) {
 			byte[] rawData = createRawData(rawBytes, result.getResponseTypeID());
 			result.setRawData(rawData);
 			result.parseRawData();
+			
+			if (result.getCommandState() == CommonCommandState.EXECUTION_ERROR ||
+					result.getCommandState() == CommonCommandState.SEARCHING) {
+				return null;
+			}
+			
 			result.setCommandState(CommonCommandState.FINISHED);
 			result.setResultTime(now);
 			this.state = ConnectionState.VERIFIED;
@@ -293,7 +311,10 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 					processVIN(new String(bytes, start+3, count-3));
 				}
 				else if (pid.equals("70")) {
-					processSupportedPID(bytes, start, count);
+					/*
+					 * short term fix for #192: disable
+					 */
+//					processSupportedPID(bytes, start, count);
 				}
 				else if (pid.equals("71")) {
 					processDiscoveredControlUnits(new String(bytes, start+3, count-3));

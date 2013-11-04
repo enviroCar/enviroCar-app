@@ -22,18 +22,22 @@
 package org.envirocar.app.network;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Locale;
 
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.User;
+import org.envirocar.app.dao.DAOProvider;
+import org.envirocar.app.dao.SensorDAO;
 import org.envirocar.app.logging.Logger;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 //TODO javadoc
+
 public class RestClient {
 	
 	private static final Logger logger = Logger.getLogger(RestClient.class);
@@ -41,23 +45,54 @@ public class RestClient {
 	private static AsyncHttpClient client;
 	
 	static {
-		client = new AsyncHttpClient();
-		HTTPClient.setupClient(client.getHttpClient());
+		resetClient();
 	}
 	
+	/**
+	 * start downloading the latest 5 tracks of the given user.
+	 * 
+	 * @param user the user
+	 * @param token the users token
+	 * @param limit the maximum track count
+	 * @param page the page (/tracks/ is a paging-enabled resource)
+	 * @param handler called on success or failure
+	 */
+	public static void downloadTracks(String user, String token, int limit, int page, JsonHttpResponseHandler handler){
+		get(String.format(Locale.ENGLISH, "%s/users/%s/tracks?limit=%d&page=%d", ECApplication.BASE_URL, user, limit, page),
+			handler, user, token);
+	}
+	
+	/**
+	 * start downloading the latest 5 tracks of the given user.
+	 * 
+	 * @param user the user
+	 * @param token the users token
+	 * @param handler called on success or failure
+	 */
 	public static void downloadTracks(String user, String token, JsonHttpResponseHandler handler){
-		get(ECApplication.BASE_URL+"/users/"+user+"/tracks?limit=5&page=0", handler, user, token);
+		downloadTracks(user, token, 5, 1, handler);
 	}
 	
+	private static void resetClient() {
+		client = new AsyncHttpClient();
+		HTTPClient.setupClient(client.getHttpClient());		
+	}
+
+	@Deprecated
 	public static void deleteRemoteTrack(String user, String token, String id, JsonHttpResponseHandler handler){
 		setHeaders(user, token);
 		client.delete(ECApplication.BASE_URL+"/users/"+user+"/tracks/" + id, handler);
 	}
 	
-	public static void downloadTrack(String user, String token, String id, JsonHttpResponseHandler handler){
+	public static void downloadTrack(String user, String token, String id, AsyncHttpResponseHandler handler){
 		get(ECApplication.BASE_URL+"/tracks/"+id, handler, user, token);
 	}
 	
+	/**
+	 * @deprecated Use {@link DAOProvider#getSensorDAO()} / {@link SensorDAO#saveSensor(org.envirocar.app.model.Car, User)}
+	 * instead.
+	 */
+	@Deprecated
 	public static boolean createSensor(String jsonObj, String user, String token, AsyncHttpResponseHandler handler){
 		client.addHeader("Content-Type", "application/json");
 		setHeaders(user, token);
@@ -73,7 +108,7 @@ public class RestClient {
 		return true;
 	}
 	
-	private static void get(String url, JsonHttpResponseHandler handler, String user, String token) {		
+	private static void get(String url, AsyncHttpResponseHandler handler, String user, String token) {		
 		setHeaders(user, token);
 		
 		client.get(url, handler);
@@ -100,6 +135,7 @@ public class RestClient {
 		
 	}
 
+	@Deprecated
 	public static void downloadSensors(JsonHttpResponseHandler handler){
 		get(ECApplication.BASE_URL+"/sensors", handler);
 	}
@@ -108,24 +144,18 @@ public class RestClient {
 		get(url, handler, null, null);
 	}
 
-	public static void downloadTermsOfUse(JsonHttpResponseHandler handler) {
-		String url = ECApplication.BASE_URL_DEV+"/termsOfUse";
-		get(url, handler);
-	}
-
-	public static void downloadTermsOfUseInstance(String id,
-			JsonHttpResponseHandler handler) {
-		String url = ECApplication.BASE_URL_DEV+"/termsOfUse/"+id;
-		get(url, handler);
-	}
 
 	public static void updateAcceptedTermsOfUseVersion(User user,
 			String issuedDate, AsyncHttpResponseHandler handler) {
 		String contents = String.format("{\"%s\": \"%s\"}", "acceptedTermsOfUseVersion", issuedDate);
 		try {
-			put(ECApplication.BASE_URL_DEV+"/users/"+user.getUsername(), handler, contents, user.getUsername(), user.getToken());
+			put(ECApplication.BASE_URL+"/users/"+user.getUsername(), handler, contents, user.getUsername(), user.getToken());
 		} catch (UnsupportedEncodingException e) {
 			logger.warn(e.getMessage(), e);
 		}
+	}
+
+	public static void removeUserSpecificHeaders() {
+		resetClient();
 	}
 }
