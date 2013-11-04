@@ -32,6 +32,7 @@ import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 import org.envirocar.app.storage.Measurement.PropertyKey;
+import static org.envirocar.app.storage.Measurement.PropertyKey.*;
 import org.envirocar.app.util.Util;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -45,23 +46,31 @@ public class TrackEncoder {
 	public static final Set<PropertyKey> supportedPhenomenons = new HashSet<PropertyKey>();
 
 	static {
-		supportedPhenomenons.add(PropertyKey.CALCULATED_MAF);
-		supportedPhenomenons.add(PropertyKey.MAF);
-		supportedPhenomenons.add(PropertyKey.CO2);
-		supportedPhenomenons.add(PropertyKey.SPEED);
-		supportedPhenomenons.add(PropertyKey.RPM);
-		supportedPhenomenons.add(PropertyKey.INTAKE_PRESSURE);
-		supportedPhenomenons.add(PropertyKey.INTAKE_TEMPERATURE);
-		supportedPhenomenons.add(PropertyKey.CONSUMPTION);
-		supportedPhenomenons.add(PropertyKey.ENGINE_LOAD);
-		supportedPhenomenons.add(PropertyKey.THROTTLE_POSITON);
-		supportedPhenomenons.add(PropertyKey.GPS_ACCURACY);
-		supportedPhenomenons.add(PropertyKey.GPS_ALTITUDE);
-		supportedPhenomenons.add(PropertyKey.GPS_BEARING);
-		supportedPhenomenons.add(PropertyKey.GPS_HDOP);
-		supportedPhenomenons.add(PropertyKey.GPS_PDOP);
-		supportedPhenomenons.add(PropertyKey.GPS_VDOP);
-		supportedPhenomenons.add(PropertyKey.GPS_SPEED);
+		supportedPhenomenons.add(CALCULATED_MAF);
+		supportedPhenomenons.add(MAF);
+		supportedPhenomenons.add(CO2);
+		supportedPhenomenons.add(SPEED);
+		supportedPhenomenons.add(RPM);
+		supportedPhenomenons.add(INTAKE_PRESSURE);
+		supportedPhenomenons.add(INTAKE_TEMPERATURE);
+		supportedPhenomenons.add(CONSUMPTION);
+		supportedPhenomenons.add(ENGINE_LOAD);
+		supportedPhenomenons.add(THROTTLE_POSITON);
+		supportedPhenomenons.add(GPS_ACCURACY);
+		supportedPhenomenons.add(GPS_ALTITUDE);
+		supportedPhenomenons.add(GPS_BEARING);
+		supportedPhenomenons.add(GPS_HDOP);
+		supportedPhenomenons.add(GPS_PDOP);
+		supportedPhenomenons.add(GPS_VDOP);
+		supportedPhenomenons.add(GPS_SPEED);
+		supportedPhenomenons.add(SHORT_TERM_TRIM_1);
+		supportedPhenomenons.add(LONG_TERM_TRIM_1);
+		supportedPhenomenons.add(LAMBDA_CURRENT);
+		supportedPhenomenons.add(LAMBDA_CURRENT_ER);
+		supportedPhenomenons.add(LAMBDA_VOLTAGE);
+		supportedPhenomenons.add(LAMBDA_VOLTAGE_ER);
+		supportedPhenomenons.add(FUEL_SYSTEM_LOOP);
+		supportedPhenomenons.add(FUEL_SYSTEM_STATUS_CODE);
 	}
 	
 	/**
@@ -184,6 +193,14 @@ public class TrackEncoder {
 		result.put("sensor", trackSensorName);
 		result.put("description", track.getDescription());
 		result.put("name", track.getName());
+		
+		if (track.getMetadata() != null) {
+			JSONObject json = track.getMetadata().toJson();
+			JSONArray names = json.names();
+			for (int i = 0; i < names.length(); i++) {
+				result.put(names.get(i).toString(), json.getString(names.get(i).toString()));
+			}
+		}
 		
 		return result;
 	}

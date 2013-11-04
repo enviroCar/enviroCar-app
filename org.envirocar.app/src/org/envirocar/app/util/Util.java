@@ -21,17 +21,23 @@
 package org.envirocar.app.util;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.compress.archivers.ArchiveException;
@@ -41,8 +47,13 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.Measurement;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
@@ -73,6 +84,10 @@ public class Util {
 			throw new IOException(fileName + " is not a file!");
 		}
 		return f;
+	}
+	
+	public static File resolveCacheFolder(Context ctx) {
+		return ctx.getCacheDir();
 	}
 	
 	public static File resolveExternalStorageBaseFolder() throws IOException {
@@ -223,6 +238,22 @@ public class Util {
 
 	}
 	
+	public static JSONObject readJsonContents(File f) throws IOException, JSONException {
+		BufferedReader bufferedReader = new BufferedReader(new FileReader(f));
+
+		StringBuilder content = new StringBuilder();
+		String line = "";
+
+		while ((line = bufferedReader.readLine()) != null) {
+			content.append(line);
+		}
+
+		bufferedReader.close();
+
+		JSONObject tou = new JSONObject(content.toString());
+		return tou;
+	}
+	
     @SuppressLint("NewApi")
     public static <P, T extends AsyncTask<P, ?, ?>> void execute(T task, P... params) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -281,4 +312,50 @@ public class Util {
 		return jacksonFormat.format(new Date(time));
 	}
 
+	public static void saveContentsToFile(String content, File f) throws IOException {
+		if (!f.exists()) {
+			f.createNewFile();
+		}
+
+		BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(
+				f, false));
+
+		bufferedWriter.write(content);
+		bufferedWriter.flush();
+		bufferedWriter.close();
+	}
+
+	/**
+	 * method to get the current version
+	 * 
+	 */
+	public static String getVersionString(Context ctx) {
+		StringBuilder out = new StringBuilder("Version ");
+		try {
+			out.append(getVersionStringShort(ctx));
+			out.append(" (");
+			out.append(ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionCode);
+			out.append("), ");
+		} catch (NameNotFoundException e) {
+			logger.warn(e.getMessage(), e);
+		}
+		try {
+			ApplicationInfo ai = ctx.getPackageManager().getApplicationInfo(
+					ctx.getPackageName(), 0);
+			ZipFile zf = new ZipFile(ai.sourceDir);
+			ZipEntry ze = zf.getEntry("classes.dex");
+			long time = ze.getTime();
+			out.append(SimpleDateFormat.getInstance().format(new java.util.Date(time)));
+			zf.close();
+		} catch (Exception e) {
+			logger.warn(e.getMessage(), e);
+		}
+
+		return out.toString();
+	}
+
+	public static String getVersionStringShort(Context ctx) throws NameNotFoundException {
+		return ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName;
+	}
+	
 }

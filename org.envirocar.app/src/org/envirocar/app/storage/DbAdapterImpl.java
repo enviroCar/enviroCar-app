@@ -1,3 +1,23 @@
+/* 
+ * enviroCar 2013
+ * Copyright (C) 2013  
+ * Martin Dueren, Jakob Moellers, Gerald Pape, Christopher Stephan
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+ * 
+ */
 package org.envirocar.app.storage;
 
 import java.text.DateFormat;
@@ -10,6 +30,7 @@ import java.util.Map;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
+import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
@@ -57,12 +78,15 @@ public class DbAdapterImpl implements DbAdapter {
 	public static final String KEY_TRACK_CAR_ENGINE_DISPLACEMENT = "engine_displacement";
 	public static final String KEY_TRACK_CAR_VIN = "vin";
 	public static final String KEY_TRACK_CAR_ID = "carId"; 
+	public static final String KEY_TRACK_METADATA = "trackMetadata";
 	
 	public static final String[] ALL_TRACK_KEYS = new String[]{
 		KEY_TRACK_ID,
 		KEY_TRACK_NAME,
 		KEY_TRACK_DESCRIPTION,
 		KEY_TRACK_REMOTE,
+		KEY_TRACK_STATE,
+		KEY_TRACK_METADATA,
 		KEY_TRACK_CAR_MANUFACTURER,
 		KEY_TRACK_CAR_MODEL,
 		KEY_TRACK_CAR_FUEL_TYPE,
@@ -72,7 +96,7 @@ public class DbAdapterImpl implements DbAdapter {
 	};
 
 	private static final String DATABASE_NAME = "obd2";
-	private static final int DATABASE_VERSION = 6;
+	private static final int DATABASE_VERSION = 8;
 	
 	private static final String DATABASE_CREATE = "create table " + TABLE_MEASUREMENT + " " +
 			"(" + KEY_MEASUREMENT_ROWID + " INTEGER primary key autoincrement, " +
@@ -87,6 +111,7 @@ public class DbAdapterImpl implements DbAdapter {
 			KEY_TRACK_DESCRIPTION + " BLOB, " +
 			KEY_TRACK_REMOTE + " BLOB, " +
 			KEY_TRACK_STATE + " BLOB, " +
+			KEY_TRACK_METADATA + " BLOB, " +
 			KEY_TRACK_CAR_MANUFACTURER + " BLOB, " + 
 			KEY_TRACK_CAR_MODEL + " BLOB, " +
 			KEY_TRACK_CAR_FUEL_TYPE + " BLOB, " +
@@ -162,9 +187,13 @@ public class DbAdapterImpl implements DbAdapter {
 	public boolean isOpen() {
 		return mDb.isOpen();
 	}
-
+	
 	@Override
-	public synchronized void insertMeasurement(Measurement measurement) {
+	public synchronized void insertMeasurement(Measurement measurement) throws MeasurementsException {
+		if (measurement.getTrack() == null) {
+			throw new MeasurementsException("No Track is linked to this measurement.");
+		}
+		
 		ContentValues values = new ContentValues();
 		
 		values.put(KEY_MEASUREMENT_LATITUDE, measurement.getLatitude());
@@ -175,6 +204,18 @@ public class DbAdapterImpl implements DbAdapter {
 		values.put(KEY_MEASUREMENT_PROPERTIES, propertiesString);
 		
 		mDb.insert(TABLE_MEASUREMENT, null, values);
+	}
+
+	@Override
+	public synchronized void insertNewMeasurement(Measurement measurement) throws MeasurementsException, TrackAlreadyFinishedException {
+		if (measurement.getTrack() == null) {
+			throw new MeasurementsException("No Track is linked to this measurement.");
+		}
+		else if (measurement.getTrack().isFinished()) {
+			throw new TrackAlreadyFinishedException("The linked track ("+measurement.getTrack().getId()+") is already finished!");
+		}
+
+		insertMeasurement(measurement);
 	}
 	
 	@Override
@@ -209,7 +250,7 @@ public class DbAdapterImpl implements DbAdapter {
 	@Override
 	public ArrayList<Track> getAllTracks(boolean lazyMeasurements) {
 		ArrayList<Track> tracks = new ArrayList<Track>();
-		Cursor c = mDb.query(TABLE_TRACK, null, null, null, null, null, null);
+		Cursor c = mDb.query(TABLE_TRACK, new String[] {KEY_TRACK_ID}, null, null, null, null, null);
 		c.moveToFirst();
 		for (int i = 0; i < c.getCount(); i++) {
 			long id = c.getLong(c.getColumnIndex(KEY_TRACK_ID));
@@ -232,10 +273,9 @@ public class DbAdapterImpl implements DbAdapter {
 			return null;
 		}
 
-		Track track = Track.createDbTrack(c.getLong(c.getColumnIndex(KEY_TRACK_ID)), this);
+		Track track = Track.createTrackWithId(c.getLong(c.getColumnIndex(KEY_TRACK_ID)), this);
 		track.setName(c.getString(c.getColumnIndex(KEY_TRACK_NAME)));
 		track.setDescription(c.getString(c.getColumnIndex(KEY_TRACK_DESCRIPTION)));
-		track.setVin(c.getString(c.getColumnIndex(KEY_TRACK_CAR_VIN)));
 		track.setRemoteID(c.getString(c.getColumnIndex(KEY_TRACK_REMOTE)));
 		
 		if (track.isRemoteTrack()) {
@@ -254,6 +294,12 @@ public class DbAdapterImpl implements DbAdapter {
 			 * if its a legacy track (column not there), set to finished
 			 */
 			track.setStatus(TrackStatus.FINISHED);
+		}
+		
+		try {
+			track.setMetadata(TrackMetadata.fromJson(c.getString(c.getColumnIndex(KEY_TRACK_METADATA))));
+		} catch (JSONException e) {
+			logger.warn(e.getMessage());
 		}
 		
 		track.setCar(createCarFromCursor(c));
@@ -455,14 +501,23 @@ public class DbAdapterImpl implements DbAdapter {
 		values.put(KEY_TRACK_NAME, track.getName());
 		values.put(KEY_TRACK_DESCRIPTION, track.getDescription());
 		values.put(KEY_TRACK_REMOTE, track.getRemoteID());
+		values.put(KEY_TRACK_STATE, track.getStatus().toString());
 		if (track.getCar() != null) {
 			values.put(KEY_TRACK_CAR_MANUFACTURER, track.getCar().getManufacturer());
 			values.put(KEY_TRACK_CAR_MODEL, track.getCar().getModel());
 			values.put(KEY_TRACK_CAR_FUEL_TYPE, track.getCar().getFuelType().name());
-			values.put(KEY_TRACK_CAR_VIN, track.getVin());
 			values.put(KEY_TRACK_CAR_ID, track.getCar().getId());
 			values.put(KEY_TRACK_CAR_ENGINE_DISPLACEMENT, track.getCar().getEngineDisplacement());
 		}
+		
+		if (track.getMetadata() != null) {
+			try {
+				values.put(KEY_TRACK_METADATA, track.getMetadata().toJsonString());
+			} catch (JSONException e) {
+				logger.warn(e.getMessage(), e);
+			}
+		}
+		
 		return values;
 	}
 
@@ -509,9 +564,10 @@ public class DbAdapterImpl implements DbAdapter {
 		
 		String date = format.format(new Date());
 		Car car = CarManager.instance().getCar();
-		Track track = new Track("123456", car, this);
+		Track track = Track.createNewLocalTrack(this);
+		track.setCar(car);
 		track.setName("Track " + date);
-		track.setDescription(String.format(mCtx.getString(R.string.default_track_description), car.getModel()));
+		track.setDescription(String.format(mCtx.getString(R.string.default_track_description), car != null ? car.getModel() : "null"));
 		updateTrack(track);
 		logger.info("createNewTrack: "+ track.getName());
 		return track;
@@ -525,8 +581,17 @@ public class DbAdapterImpl implements DbAdapter {
 				deleteTrack(last.getId());
 			}
 			last.setStatus(TrackStatus.FINISHED);
+			updateTrack(last);
 		}
 		return last;
+	}
+
+	@Override
+	public void updateCarIdOfTracks(String currentId, String newId) {
+		ContentValues newValues = new ContentValues();
+		newValues.put(KEY_TRACK_CAR_ID, newId);
+		
+		mDb.update(TABLE_TRACK, newValues, KEY_TRACK_CAR_ID + "=?", new String[] {currentId});
 	}
 
 }

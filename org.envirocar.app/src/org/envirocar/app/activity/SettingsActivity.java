@@ -26,17 +26,14 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import org.envirocar.app.R;
-import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.UserManager;
+import org.envirocar.app.util.Util;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -67,6 +64,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	public static final String OBFUSCATE_POSITION = "pref_privacy";
 	public static final String CAR = "pref_selected_car";
 	public static final String CAR_HASH_CODE = "pref_selected_car_hash_code";
+	public static final String PERSISTENT_SEEN_ANNOUNCEMENTS = "persistent_seen_announcements";
 	
 	private Preference about;
 	
@@ -176,7 +174,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 		this.getSupportActionBar().setHomeButtonEnabled(false);
 
 		about = findPreference("about_version");
-		about.setSummary(((ECApplication) getApplication()).getVersionString());
+		about.setSummary(Util.getVersionString(getApplicationContext()));
 		about.setOnPreferenceClickListener(new OnPreferenceClickListener() {
 			
 			@Override
@@ -195,16 +193,6 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	protected void onStop() {
 	    super.onStop();
 	    finish();
-	}
-	
-	public boolean isConnectedToInternet() {
-	    ConnectivityManager cm =
-	        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
-	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
-	        return true;
-	    }
-	    return false;
 	}
 
 	public static String[] resolveIndividualKeys() {

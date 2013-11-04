@@ -42,5 +42,7 @@ public interface Listener {
 
 	void shutdown();
 
+	void onConnected(String deviceName);
+
 
 }

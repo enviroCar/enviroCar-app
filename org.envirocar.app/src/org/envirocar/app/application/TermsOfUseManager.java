@@ -22,22 +22,20 @@ package org.envirocar.app.application;
 
 import java.util.concurrent.TimeoutException;
 
-import org.apache.http.Header;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.DialogUtil;
 import org.envirocar.app.activity.DialogUtil.PositiveNegativeCallback;
+import org.envirocar.app.dao.DAOProvider;
+import org.envirocar.app.dao.TermsOfUseRetrievalException;
 import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.TermsOfUse;
 import org.envirocar.app.model.TermsOfUseInstance;
 import org.envirocar.app.network.RestClient;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Activity;
 
 import com.loopj.android.http.AsyncHttpResponseHandler;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -81,24 +79,14 @@ public class TermsOfUseManager {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
-				RestClient.downloadTermsOfUse(new JsonHttpResponseHandler() {
-					@Override
-					public void onSuccess(int statusCode, Header[] headers,
-							JSONObject response) {
-						try {
-							setList(TermsOfUse.fromJson(response));
-							retrieveLatestInstance();
-						} catch (JSONException e) {
-							logger.warn(e.getMessage(), e);
-						}
-					}
-					
-					@Override
-					public void onFailure(Throwable error, String content) {
-						logger.warn("Server error: '"+error+"'; "+content);
-					}
-					
-				});				
+				TermsOfUse response;
+				try {
+					response = DAOProvider.instance().getTermsOfUseDAO().getTermsOfUse();
+					setList(response);
+					retrieveLatestInstance();
+				} catch (TermsOfUseRetrievalException e) {
+					logger.warn(e.getMessage(), e);
+				}
 			}
 		}).start();
 		
@@ -120,22 +108,12 @@ public class TermsOfUseManager {
 	private void retrieveLatestInstance() {
 		if (list != null && list.getInstances() != null && list.getInstances().size() > 0) {
 			String id = list.getInstances().get(0).getId();
-			RestClient.downloadTermsOfUseInstance(id, new JsonHttpResponseHandler() {
-				@Override
-				public void onSuccess(int statusCode, Header[] headers,
-						JSONObject response) {
-					try {
-						setCurrent(TermsOfUseInstance.fromJson(response));
-					} catch (JSONException e) {
-						logger.warn(e.getMessage(), e);
-					}
-				}	
-				
-				@Override
-				public void onFailure(Throwable error, String content) {
-					logger.warn("Server error: '"+error+"'; "+content);
-				}
-			});
+			try {
+				TermsOfUseInstance inst = DAOProvider.instance().getTermsOfUseDAO().getTermsOfUseInstance(id);
+				setCurrent(inst);
+			} catch (TermsOfUseRetrievalException e) {
+				logger.warn(e.getMessage(), e);
+			}
 		}
 		else {
 			logger.warn("Could not retrieve latest instance as their is no list available!");
@@ -151,7 +129,7 @@ public class TermsOfUseManager {
 		}
 	}
 
-	private void setList(TermsOfUse termsOfUse) throws JSONException {
+	private void setList(TermsOfUse termsOfUse) {
 		logger.info("List of TermsOfUse size: "+termsOfUse.getInstances().size());
 		list = termsOfUse;
 	}
@@ -186,7 +164,7 @@ public class TermsOfUseManager {
 			String acceptedTermsOfUseVersion) throws ServerException {
 		if (acceptedTermsOfUseVersion == null) return false;
 		
-		TermsOfUseInstance current = TermsOfUseManager.instance().getCurrentTermsOfUse();
+		TermsOfUseInstance current = instance().getCurrentTermsOfUse();
 		
 		return current.getIssuedDate().equals(acceptedTermsOfUseVersion);
 	}

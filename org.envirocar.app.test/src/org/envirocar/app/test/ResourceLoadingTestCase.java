@@ -41,7 +41,7 @@ public class ResourceLoadingTestCase extends InstrumentationTestCase {
 		return sb.toString();
 	}
 	
-	protected String readAsset(String assetRes) throws IOException {
+	protected String readJsonAsset(String assetRes) throws IOException {
 		return readJson(getInstrumentation().getContext().getAssets().open(assetRes));
 	}
 	

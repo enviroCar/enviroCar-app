@@ -29,12 +29,15 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.User;
+import org.envirocar.app.dao.DAOProvider;
+import org.envirocar.app.dao.SensorDAO;
 import org.envirocar.app.logging.Logger;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 import com.loopj.android.http.JsonHttpResponseHandler;
 //TODO javadoc
+
 public class RestClient {
 	
 	private static final Logger logger = Logger.getLogger(RestClient.class);
@@ -75,6 +78,7 @@ public class RestClient {
 		HTTPClient.setupClient(client.getHttpClient());		
 	}
 
+	@Deprecated
 	public static void deleteRemoteTrack(String user, String token, String id, JsonHttpResponseHandler handler){
 		setHeaders(user, token);
 		client.delete(ECApplication.BASE_URL+"/users/"+user+"/tracks/" + id, handler);
@@ -84,6 +88,11 @@ public class RestClient {
 		get(ECApplication.BASE_URL+"/tracks/"+id, handler, user, token);
 	}
 	
+	/**
+	 * @deprecated Use {@link DAOProvider#getSensorDAO()} / {@link SensorDAO#saveSensor(org.envirocar.app.model.Car, User)}
+	 * instead.
+	 */
+	@Deprecated
 	public static boolean createSensor(String jsonObj, String user, String token, AsyncHttpResponseHandler handler){
 		client.addHeader("Content-Type", "application/json");
 		setHeaders(user, token);
@@ -126,6 +135,7 @@ public class RestClient {
 		
 	}
 
+	@Deprecated
 	public static void downloadSensors(JsonHttpResponseHandler handler){
 		get(ECApplication.BASE_URL+"/sensors", handler);
 	}
@@ -134,16 +144,6 @@ public class RestClient {
 		get(url, handler, null, null);
 	}
 
-	public static void downloadTermsOfUse(JsonHttpResponseHandler handler) {
-		String url = ECApplication.BASE_URL+"/termsOfUse";
-		get(url, handler);
-	}
-
-	public static void downloadTermsOfUseInstance(String id,
-			JsonHttpResponseHandler handler) {
-		String url = ECApplication.BASE_URL+"/termsOfUse/"+id;
-		get(url, handler);
-	}
 
 	public static void updateAcceptedTermsOfUseVersion(User user,
 			String issuedDate, AsyncHttpResponseHandler handler) {

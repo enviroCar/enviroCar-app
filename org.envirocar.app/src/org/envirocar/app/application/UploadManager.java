@@ -26,20 +26,18 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Locale;
-import java.util.concurrent.ExecutionException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.FileEntity;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.message.BasicHeader;
-import org.apache.http.protocol.HTTP;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
-import org.envirocar.app.activity.preference.CarSelectionPreference;
+import org.envirocar.app.dao.DAOProvider;
+import org.envirocar.app.dao.NotConnectedException;
 import org.envirocar.app.json.TrackEncoder;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
@@ -47,9 +45,9 @@ import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.storage.TrackMetadata;
 import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Context;
@@ -75,6 +73,7 @@ public class UploadManager {
 	private static Logger logger = Logger.getLogger(UploadManager.class);
 	private DbAdapter dbAdapter;
 	private Context context;
+	private static Map<String, String> temporaryAlreadyRegisteredCars = new HashMap<String, String>();
 
 
 	/**
@@ -99,100 +98,35 @@ public class UploadManager {
 	public void uploadSingleTrack(Track track, TrackUploadFinishedHandler callback) {
 		if (track == null ) return;
 		
-		if (isCarOfTrackSavedLocallyOnly(track)) {
-			registerCarBeforeUpload(track);
-		}
 		new UploadAsyncTask(callback).execute(track);
 	}
 	
-	private void registerCarBeforeUpload(Track track) {
-
+	private void registerCarBeforeUpload(Track track) throws NotConnectedException {
 		Car car = track.getCar();
-		String sensorString = String
-				.format(Locale.ENGLISH,
-						"{ \"type\": \"%s\", \"properties\": {\"manufacturer\": \"%s\", \"model\": \"%s\", \"fuelType\": \"%s\", \"constructionYear\": %s, \"engineDisplacement\": %s } }",
-						CarSelectionPreference.SENSOR_TYPE, car.getManufacturer(), car.getModel(), car.getFuelType(),
-						car.getConstructionYear(), car.getEngineDisplacement());
-		try {
-			String sensorIdFromServer = new SensorUploadTask().execute(
-					sensorString).get();
+		String tempId = car.getId();
+		String sensorIdFromServer = DAOProvider.instance().getSensorDAO().saveSensor(car);
 
-			car.setId(sensorIdFromServer);
+		car.setId(sensorIdFromServer);
 
-			logger.info("Car id tmpTrack: " + track.getCar().getId());
+		logger.info("Car id tmpTrack: " + track.getCar().getId());
 
-			DbAdapterImpl.instance().updateTrack(track);
-			
-		} catch (InterruptedException e) {
-			logger.warn(e.getMessage(), e);
-		} catch (ExecutionException e) {
-			logger.warn(e.getMessage(), e);
+		DbAdapterImpl.instance().updateTrack(track);
+		DbAdapterImpl.instance().updateCarIdOfTracks(tempId, car.getId());
+		
+		/*
+		 * we need this hack... Track objects
+		 * in memory are not informed through the DB update
+		 */
+		temporaryAlreadyRegisteredCars.put(tempId, car.getId());
+		if (CarManager.instance().getCar().getId().equals(tempId)) {
+			CarManager.instance().setCar(car);
 		}
-
 	}
 	
-	private boolean isCarOfTrackSavedLocallyOnly(Track track) {		
+	private boolean hasTemporaryCar(Track track) {		
 		return track.getCar().getId().startsWith(Car.TEMPORARY_SENSOR_ID);
 	}
 	
-	private String registerSensor(String sensorString) throws IOException {
-		
-		User user = UserManager.instance().getUser();
-		String username = user.getUsername();
-		String token = user.getToken();
-		
-		HttpPost postRequest = new HttpPost(
-				ECApplication.BASE_URL+"/sensors");
-		
-		postRequest.addHeader("Content-Type", "application/json");
-		
-		postRequest.addHeader("Accept-Encoding", "gzip");
-		
-		if (user != null)
-			postRequest.addHeader("X-User", username);
-		
-		if (token != null)
-			postRequest.addHeader("X-Token", token);
-		
-		StringEntity se = new StringEntity(sensorString);
-		se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
-		
-		postRequest.setEntity(se);
-		
-		HttpResponse response = HTTPClient.execute(postRequest);
-		
-		int httpStatusCode = response.getStatusLine().getStatusCode();
-		
-		Header[] h = response.getAllHeaders();
-
-		String location = "";
-		for (int i = 0; i < h.length; i++) {
-			if (h[i].getName().equals("Location")) {
-				location += h[i].getValue();
-				break;
-			}
-		}
-		logger.info(httpStatusCode + " " + location);
-
-		return location.substring(
-				location.lastIndexOf("/") + 1,
-				location.length());
-	}
-	
-	private class SensorUploadTask extends AsyncTask<String, String, String> {
-
-		@Override
-		protected String doInBackground(String... params) {
-			
-			try {
-				return registerSensor(params[0]);
-			} catch (IOException e) {
-				logger.warn(e.getMessage(), e);
-			}
-			return "";
-		}
-		
-	}
 	
 	private class UploadAsyncTask extends AsyncTask<Track, Track, Track> {
 		
@@ -213,10 +147,27 @@ public class UploadManager {
 			
 			Track track = params[0];
 			Thread.currentThread().setName("TrackUploaderTast-"+track.getId());
+			
+			if (hasTemporaryCar(track)) {
+				/*
+				 * perhaps we already did a registration for this temp car.
+				 * the Map is application uptime scope (static).
+				 */
+				if (!temporaryCarAlreadyRegistered(track)) {
+					try {
+						registerCarBeforeUpload(track);
+					} catch (NotConnectedException e) {
+						logger.warn(e.getMessage(), e);
+						this.cancel(true);
+						((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
+					}	
+				}
+				
+			}
 
-			JSONObject trackJSONObject = null;
+			File file = null;
 			try {
-				trackJSONObject = new TrackEncoder().createTrackJson(track, isObfuscationEnabled());
+				file = saveTrackAndReturnFile(track);
 			} catch (JSONException e) {
 				logger.warn(e.getMessage(), e);
 				//the track wasn't JSON serializable. shouldn't occur.
@@ -248,9 +199,6 @@ public class UploadManager {
 				this.cancel(true);
 			}
 			
-			//save the track into a json file
-			File file = savetoSdCard(trackJSONObject.toString(), track.isRemoteTrack() ? track.getRemoteID() : Long.toString(track.getId()));
-
 			if (file == null) {
 				this.cancel(true);
 				((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
@@ -281,11 +229,24 @@ public class UploadManager {
 	}
 
 	public String getTrackJSON(Track track) throws JSONException, TrackWithoutMeasurementsException {
+		/*
+		 * inject track metadata
+		 */
+		track.updateMetadata(new TrackMetadata(context));
+		
 		return new TrackEncoder().createTrackJson(track, isObfuscationEnabled()).toString();
 	}
 	
 
 
+
+	public boolean temporaryCarAlreadyRegistered(Track track) {
+		if (temporaryAlreadyRegisteredCars.containsKey(track.getCar().getId())) {
+			track.getCar().setId(temporaryAlreadyRegisteredCars.get(track.getCar().getId()));
+			return true;
+		}
+		return false;
+	}
 
 	public boolean isObfuscationEnabled() {
 		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -365,7 +326,7 @@ public class UploadManager {
 	 *            the object to save
 	 * @param id 
 	 */
-	private File savetoSdCard(String obj, String id) {
+	private File saveToSdCard(String obj, String id) {
 		File log = new File(context.getExternalFilesDir(null),"enviroCar-track-"+id+".json");
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(log.getAbsolutePath(), false));
@@ -380,7 +341,7 @@ public class UploadManager {
 	}
 	
 	public File saveTrackAndReturnFile(Track t) throws JSONException, TrackWithoutMeasurementsException{
-		return savetoSdCard(getTrackJSON(t), (t.isRemoteTrack() ? t.getRemoteID() : Long.toString(t.getId())));
+		return saveToSdCard(getTrackJSON(t), (t.isRemoteTrack() ? t.getRemoteID() : Long.toString(t.getId())));
 	}
 
 }

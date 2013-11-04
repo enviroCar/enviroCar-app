@@ -41,8 +41,6 @@ public class TroubleshootingFragment extends SherlockFragment {
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.troubleshooting_layout, null);
 		
-		Bundle bundle = getArguments();
-		
 		return view;
 	}
 	

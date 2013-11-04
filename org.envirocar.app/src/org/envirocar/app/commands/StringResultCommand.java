@@ -22,6 +22,10 @@ package org.envirocar.app.commands;
 
 public abstract class StringResultCommand extends CommonCommand {
 
+	/**
+	 * @param command the command to send. This will be the raw data send to the OBD device
+	 * (if a sub-class does not override {@link #getOutgoingBytes()}).
+	 */
 	public StringResultCommand(String command) {
 		super(command);
 	}

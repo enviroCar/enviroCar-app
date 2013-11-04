@@ -20,6 +20,9 @@
  */
 package org.envirocar.app.application;
 
+import org.envirocar.app.commands.O2LambdaProbe;
+import org.envirocar.app.commands.O2LambdaProbeCurrent;
+import org.envirocar.app.commands.O2LambdaProbeVoltage;
 import org.envirocar.app.event.CO2Event;
 import org.envirocar.app.event.ConsumptionEvent;
 import org.envirocar.app.event.EventBus;
@@ -231,6 +234,30 @@ public class Collector {
 
 	private void insertMeasurement(Measurement m) {
 		callback.insertMeasurement(m);
+	}
+
+	public void newFuelSystemStatus(boolean loop, int status) {
+		this.measurement.setProperty(PropertyKey.FUEL_SYSTEM_LOOP, loop ? 1d : 0d);
+		this.measurement.setProperty(PropertyKey.FUEL_SYSTEM_STATUS_CODE, (double) status);
+	}
+
+	public void newLambdaProbeValue(O2LambdaProbe command) {
+		if (command instanceof O2LambdaProbeVoltage) {
+			this.measurement.setProperty(PropertyKey.LAMBDA_VOLTAGE, ((O2LambdaProbeVoltage) command).getVoltage());	
+			this.measurement.setProperty(PropertyKey.LAMBDA_VOLTAGE_ER, command.getEquivalenceRatio());
+		}
+		else if (command instanceof O2LambdaProbeCurrent) {
+			this.measurement.setProperty(PropertyKey.LAMBDA_CURRENT, ((O2LambdaProbeCurrent) command).getCurrent());
+			this.measurement.setProperty(PropertyKey.LAMBDA_CURRENT_ER, command.getEquivalenceRatio());
+		}
+	}
+
+	public void newShortTermTrimBank1(Number numberResult) {
+		this.measurement.setProperty(PropertyKey.SHORT_TERM_TRIM_1, numberResult.doubleValue());
+	}
+
+	public void newLongTermTrimBank1(Number numberResult) {
+		this.measurement.setProperty(PropertyKey.LONG_TERM_TRIM_1, numberResult.doubleValue());		
 	}
 
 

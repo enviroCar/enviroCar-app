@@ -42,12 +42,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.envirocar.app.R;
+import org.envirocar.app.application.ContextInternetAccessProvider;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.TrackUploadFinishedHandler;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
+import org.envirocar.app.dao.DAOException;
+import org.envirocar.app.dao.DAOProvider;
+import org.envirocar.app.dao.DAOProvider.AsyncExecutionWithCallback;
+import org.envirocar.app.dao.TrackDAO;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.ServerException;
@@ -79,7 +84,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -206,8 +210,7 @@ public class ListTracksFragment extends SherlockFragment {
 		
 		if (dbAdapter.getAllLocalTracks().size() > 0) {
 			menu.findItem(R.id.menu_delete_all).setEnabled(true);
-			if(UserManager.instance().isLoggedIn())
-				menu.findItem(R.id.menu_upload).setEnabled(true);
+			menu.findItem(R.id.menu_upload).setEnabled(UserManager.instance().isLoggedIn());
 		} else {
 			menu.findItem(R.id.menu_upload).setEnabled(false);
 			menu.findItem(R.id.menu_delete_all).setEnabled(false);
@@ -490,17 +493,31 @@ public class ListTracksFragment extends SherlockFragment {
 				.setPositiveButton(R.string.yes,
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-								User user = UserManager.instance().getUser();
-								final String username = user.getUsername();
-								final String token = user.getToken();
-								RestClient.deleteRemoteTrack(username, token,
-										track.getRemoteID(),
-										new JsonHttpResponseHandler() {
-											@Override
-											protected void handleMessage(Message msg) {
-												removeRemoteTrackFromViewAndDB(track);
-											}
-										});
+								final TrackDAO dao = DAOProvider.instance().getTrackDAO();
+								
+								DAOProvider.async(new AsyncExecutionWithCallback<Void>() {
+
+									@Override
+									public Void execute()
+											throws DAOException {
+										dao.deleteTrack(track.getRemoteID());
+										return null;
+									}
+
+									@Override
+									public Void onResult(Void result,
+											boolean fail, Exception ex) {
+										if (!fail) {
+											removeRemoteTrackFromViewAndDB(track);
+										}
+										else {
+											logger.warn(ex.getMessage(), ex);
+										}
+										return null;
+									}
+									
+								});
+								
 							}
 						})
 				.setNegativeButton(R.string.no,
@@ -563,11 +580,11 @@ public class ListTracksFragment extends SherlockFragment {
 	}
 
 	protected String createRemoteTrackCountString() {
+		if (remoteTrackCount.get() < 0) {
+			return "?";
+		}
 		if (remoteTrackCount.get() < 100) {
 			return Integer.toString(remoteTrackCount.get());
-		}
-		else if (remoteTrackCount.get() < 0) {
-			return "?";
 		}
 		return "100+";
 	}
@@ -644,13 +661,11 @@ public class ListTracksFragment extends SherlockFragment {
 				
 				if (UserManager.instance().isLoggedIn()) {
 					setProgressStatusText(R.string.fetching_tracks_remote);
-					if (((MainActivity<?>)getActivity()).isConnectedToInternet()) {
-						User user = UserManager.instance().getUser();
-						final String username = user.getUsername();
-						final String token = user.getToken();
-						
-						downloadTracks(username, token);					
-					}
+					User user = UserManager.instance().getUser();
+					final String username = user.getUsername();
+					final String token = user.getToken();
+					
+					downloadTracks(username, token);					
 						
 				} else {
 					updateStatusLayout();
@@ -666,6 +681,10 @@ public class ListTracksFragment extends SherlockFragment {
 	}
 	
 	private void downloadTracks(final String username, final String token) {
+		
+		if (!(new ContextInternetAccessProvider(getActivity()).isConnected())) {
+			return;
+		}
 		
 		resolveTotalRemoteTrackCount(username, token, new JsonHttpResponseHandler() {
 			@Override

@@ -35,7 +35,6 @@ public class CarManager {
 	public static final String PREF_KEY_FUEL_TYPE = "fueltype";
 	public static final String PREF_KEY_SENSOR_ID = "sensorid";
 	public static final String PREF_KEY_CAR_ENGINE_DISPLACEMENT = "pref_engine_displacement";
-	public static final String CAR_CACHE_FILE_NAME = "cars";
 	
 	private static CarManager instance = null;
 	

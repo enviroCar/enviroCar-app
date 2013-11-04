@@ -35,18 +35,23 @@ public class PIDSupported extends CommonCommand {
 
 	private Set<PID> pids;
 	private byte[] bytes;
+	private String group;
 
-	/**
-	 * @param command
-	 */
 	public PIDSupported() {
-		super("01 00");
+		this("00");
 	}
 
+	/**
+	 * @param group the group of commands ("00", "20", "40" ...)
+	 */
+	public PIDSupported(String group) {
+		super("01 ".concat(group));
+		this.group = group;
+	}
 
 	@Override
 	public String getCommandName() {
-		return "01 00"; 
+		return "PID Supported; Group ".concat(group); 
 	}
 
 

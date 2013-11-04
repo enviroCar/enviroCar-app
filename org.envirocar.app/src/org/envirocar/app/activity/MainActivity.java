@@ -21,14 +21,12 @@
 
 package org.envirocar.app.activity;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.envirocar.app.R;
 import org.envirocar.app.activity.StartStopButtonUtil.OnTrackModeChangeListener;
-import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.NavMenuItem;
@@ -37,15 +35,16 @@ import org.envirocar.app.application.service.AbstractBackgroundServiceStateRecei
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.DeviceInRangeService;
+import org.envirocar.app.dao.AnnouncementsRetrievalException;
+import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.Announcement;
 import org.envirocar.app.network.RestClient;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.util.Util;
+import org.envirocar.app.util.VersionRange.Version;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.app.views.Utils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -55,9 +54,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -66,6 +64,7 @@ import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.DrawerLayout;
+import android.text.Html;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -75,12 +74,10 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.actionbarsherlock.app.ActionBar;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.MenuItem;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -135,6 +132,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private static final Logger logger = Logger.getLogger(MainActivity.class);
 	private static final String SERVICE_STATE = "serviceState";
 	private static final String TRACK_MODE = "trackMode";
+	private static final String SEEN_ANNOUNCEMENTS = "seenAnnouncements";
 	
 	
 	// Include settings for auto upload and auto-connect
@@ -153,6 +151,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private BroadcastReceiver deviceInRangReceiver;
 	private boolean deviceDiscoveryActive;
 	private BroadcastReceiver errorInformationReceiver;
+	private Set<String> seenAnnouncements = new HashSet<String>();
+	private BroadcastReceiver deviceDiscoveryStateReceiver;
 		
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
@@ -272,6 +272,21 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 		registerReceiver(serviceStateReceiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 
+		deviceDiscoveryStateReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if (intent.getAction().equals(DeviceInRangeService.STATE_CHANGE)) {
+					if (!intent.getBooleanExtra(DeviceInRangeService.STATE_CHANGE, false)) {
+						deviceDiscoveryActive = false;
+						trackMode = TRACK_MODE_SINGLE;
+						BackgroundServiceImpl.requestServiceStateBroadcast(getApplicationContext());
+						createStartStopUtil().updateStartStopButtonOnServiceStateChange(navDrawerItems[START_STOP_MEASUREMENT]);
+					}
+				}				
+			}
+		};
+		registerReceiver(deviceDiscoveryStateReceiver, new IntentFilter(DeviceInRangeService.STATE_CHANGE));
+		
 		bluetoothStateReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
@@ -325,95 +340,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 		registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment.INTENT));
 		
-		if(isConnectedToInternet()){
-			loadCacheResources();
-		}
-		
-	}
-	
-	private void loadCacheResources() {
-		new AsyncTask<Void, Void, Void>() {
-
-			@Override
-			protected Void doInBackground(Void... arg0) {
-				getCarsFromServer();
-				return null;
-			}
-			
-		}.execute();
-		
-	}
-
-	private void getCarsFromServer() {
-		
-		RestClient.downloadSensors(new JsonHttpResponseHandler() {
-
-			@Override
-			public void onFailure(Throwable error, String content) {
-				super.onFailure(error, content);
-				Toast.makeText(
-						MainActivity.this,
-						MainActivity.this
-								.getString(R.string.error_host_not_found),
-						Toast.LENGTH_SHORT).show();
-			}
-
-			@Override
-			public void onSuccess(JSONObject response) {
-				super.onSuccess(response);
-
-				JSONArray res;
-				try {
-					res = response.getJSONArray("sensors");
-				} catch (JSONException e) {
-					logger.warn(e.getMessage(), e);
-					// TODO i18n
-					Toast.makeText(MainActivity.this,
-							"Could not retrieve cars from server",
-							Toast.LENGTH_SHORT).show();
-					return;
-				}
-
-				JSONArray cars = new JSONArray();
-
-				for (int i = 0; i < res.length(); i++) {
-					String typeString;
-					try {
-						typeString = ((JSONObject) res.get(i)).optString(
-								"type", "none");
-						if (typeString
-								.equals(CarSelectionPreference.SENSOR_TYPE)) {
-							cars.put(res.get(i));
-						}
-					} catch (JSONException e) {
-						logger.warn(e.getMessage(), e);
-						continue;
-					}
-
-				}
-				saveCarsToExternalStorage(cars);
-			}
-		});
-
-	}
-
-	private void saveCarsToExternalStorage(JSONArray cars) {
-
-		try {
-			File carCacheFile = Util
-					.createFileOnExternalStorage(CarManager.CAR_CACHE_FILE_NAME);
-
-			BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(
-					carCacheFile));
-
-			bufferedWriter.write(cars.toString());
-
-			bufferedWriter.close();
-
-		} catch (IOException e) {
-			logger.warn(e.getMessage(), e);
-		}
-
+		resolvePersistentSeenAnnouncements();
 	}
 	
 	private void readSavedState(Bundle savedInstanceState) {
@@ -421,6 +348,13 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 		this.serviceState = (ServiceState) savedInstanceState.getSerializable(SERVICE_STATE);
 		this.trackMode = savedInstanceState.getInt(TRACK_MODE);
+		
+		String[] arr = (String[]) savedInstanceState.getSerializable(SEEN_ANNOUNCEMENTS);
+		if (arr != null) {
+			for (String string : arr) {
+				this.seenAnnouncements.add(string);
+			}
+		}
 		
 		BackgroundServiceImpl.requestServiceStateBroadcast(getApplicationContext());
 	}
@@ -431,6 +365,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 		outState.putSerializable(SERVICE_STATE, serviceState);
 		outState.putInt(TRACK_MODE, trackMode);
+		
+		outState.putSerializable(SEEN_ANNOUNCEMENTS, this.seenAnnouncements.toArray(new String[0]));
 	}
 
 	protected void updateStartStopButton() {
@@ -706,8 +642,98 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	    
 		alwaysUpload = preferences.getBoolean(SettingsActivity.ALWAYS_UPLOAD, false);
         uploadOnlyInWlan = preferences.getBoolean(SettingsActivity.WIFI_UPLOAD, true);
+        
+        new AsyncTask<Void, Void, Void>() {
+
+			@Override
+			protected Void doInBackground(Void... params) {
+				checkAffectingAnnouncements();
+				return null;
+			}
+		}.execute();
+        
 	}
 
+
+	protected void resolvePersistentSeenAnnouncements() {
+		String pers = preferences.getString(SettingsActivity.PERSISTENT_SEEN_ANNOUNCEMENTS, "");
+		
+		if (!pers.isEmpty()) {
+			if (pers.contains(",")) {
+				String[] arr = pers.split(",");
+				for (String string : arr) {
+					seenAnnouncements.add(string);
+				}
+			}
+			else {
+				seenAnnouncements.add(pers);
+			}
+			
+		}
+	}
+
+	private void checkAffectingAnnouncements() {
+		final List<Announcement> annos;
+		try {
+			annos = DAOProvider.instance().getAnnouncementsDAO().getAllAnnouncements();
+		} catch (AnnouncementsRetrievalException e) {
+			logger.warn(e.getMessage(), e);
+			return;
+		}
+		
+		final Version version;
+		try {
+			String versionShort = Util.getVersionStringShort(getApplicationContext());
+			version = Version.fromString(versionShort);
+		} catch (NameNotFoundException e) {
+			logger.warn(e.getMessage());
+			return;
+		}
+		
+		runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				for (Announcement announcement : annos) {
+					if (!seenAnnouncements.contains(announcement.getId())) {
+						if (announcement.getVersionRange().isInRange(version)) {
+							showAnnouncement(announcement);
+						}
+					}
+				}
+			}
+		});
+	}
+
+	private void showAnnouncement(final Announcement announcement) {
+		String title = announcement.createUITitle(this);
+		String content = announcement.getContent();
+		
+		DialogUtil.createTitleMessageInfoDialog(title, Html.fromHtml(content), true, new DialogUtil.PositiveNegativeCallback() {
+			@Override
+			public void negative() {
+				seenAnnouncements.add(announcement.getId());
+			}
+
+			@Override
+			public void positive() {
+				addPersistentSeenAnnouncement(announcement.getId());
+				seenAnnouncements.add(announcement.getId());
+			}
+		}, this);
+	}
+
+	protected void addPersistentSeenAnnouncement(String id) {
+		String currentPersisted = preferences.getString(SettingsActivity.PERSISTENT_SEEN_ANNOUNCEMENTS, "");
+		
+		StringBuilder sb = new StringBuilder(currentPersisted);
+		if (!currentPersisted.isEmpty()) {
+			sb.append(",");
+		}
+		sb.append(id);
+		
+		preferences.edit().putString(SettingsActivity.PERSISTENT_SEEN_ANNOUNCEMENTS, sb.toString()).commit();
+	}
 
 	private void checkKeepScreenOn() {
 		if (preferences.getBoolean(SettingsActivity.DISPLAY_STAYS_ACTIV, false)) {
@@ -735,7 +761,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	}
 	
 	private void firstInit(){
-		if(!preferences.contains("first_init")){
+		if (!preferences.contains("first_init")) {
 			drawer.openDrawer(drawerList);
 			
 			Editor e = preferences.edit();
@@ -745,14 +771,4 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		}
 	}
 	
-	public boolean isConnectedToInternet() {
-	    ConnectivityManager cm =
-	        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-	    NetworkInfo netInfo = cm.getActiveNetworkInfo();
-	    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
-	        return true;
-	    }
-	    return false;
-	}
-
 }

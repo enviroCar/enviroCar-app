@@ -33,7 +33,7 @@ public class FuelSystemStatusTest extends AndroidTestCase {
 	public void testCommandParsing() {
 		FuelSystemStatus cmd = (FuelSystemStatus) PIDUtil.instantiateCommand(PID.FUEL_SYSTEM_STATUS.toString());
 		
-		cmd.setRawData(createRawDataOpenLoop(cmd));
+		cmd.setRawData(createRawDataOpenLoop());
 		cmd.parseRawData();
 		
 		Assert.assertTrue("Expected to be in open loop.", !cmd.isInClosedLoop());
@@ -47,30 +47,10 @@ public class FuelSystemStatusTest extends AndroidTestCase {
 	}
 
 	private byte[] createRawDataClosedLoop(FuelSystemStatus cmd) {
-		byte[] result = prepareBytes(cmd);
-		
-		result[4] = 2;
-		result[5] = 0;
-		
-		return result;
-	}
+		return "41030100".getBytes();	}
 
-	private byte[] prepareBytes(FuelSystemStatus cmd) {
-		byte[] result = new byte[6];
-		result[0] = '4';
-		result[1] = '1';
-		result[2] = (byte) cmd.getResponseTypeID().charAt(0);
-		result[3] = (byte) cmd.getResponseTypeID().charAt(1);
-		return result;
-	}
-
-	private byte[] createRawDataOpenLoop(FuelSystemStatus cmd) {
-		byte[] result = prepareBytes(cmd);
-		
-		result[4] = 1;
-		result[5] = 0;
-		
-		return result;
+	private byte[] createRawDataOpenLoop() {
+		return "41030200".getBytes();
 	}
 	
 }

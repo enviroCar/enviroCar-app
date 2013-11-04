@@ -57,7 +57,8 @@ public abstract class CommonCommand {
 	 * Default constructor to use
 	 * 
 	 * @param command
-	 *            the command to send
+	 *            the command to send. This will be the raw data send to the OBD device
+	 *            (if a sub-class does not override {@link #getOutgoingBytes()}).
 	 */
 	public CommonCommand(String command) {
 		this.command = command;
@@ -95,15 +96,6 @@ public abstract class CommonCommand {
 
 
 	/**
-	 * Returns this command in string representation.
-	 * 
-	 * @return the command
-	 */
-	private String getCommand() {
-		return command;
-	}
-
-	/**
 	 * @return the OBD command name.
 	 */
 	public abstract String getCommandName();
@@ -137,7 +129,7 @@ public abstract class CommonCommand {
 		sb.append("Commandname: ");
 		sb.append(getCommandName());
 		sb.append(", Command: ");
-		sb.append(getCommand());
+		sb.append(command);
 		sb.append(", Result Time: ");
 		sb.append(getResultTime());
 		return sb.toString();
@@ -153,7 +145,7 @@ public abstract class CommonCommand {
 	}
 
 	public byte[] getOutgoingBytes() {
-		return getCommand().getBytes();
+		return command.getBytes();
 	}
 
 	public void setRawData(byte[] rawData) {

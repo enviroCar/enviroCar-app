@@ -20,6 +20,8 @@
  */
 package org.envirocar.app.views;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.text.TextPaint;
@@ -37,6 +39,7 @@ public class SizeRelatedTextView extends TextView implements OnParentDrawnListen
 	
 	private int relatedLayoutId = Integer.MIN_VALUE;
 	private String targetTextString;
+	private AtomicBoolean firstRun = new AtomicBoolean(true);
 	
 	public SizeRelatedTextView(Context context) {
 		super(context);
@@ -65,11 +68,12 @@ public class SizeRelatedTextView extends TextView implements OnParentDrawnListen
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
+		applyTextSize();
 	}
 	
 
 	private void applyTextSize() {
-		if (relatedLayoutId == Integer.MIN_VALUE)
+		if (relatedLayoutId == Integer.MIN_VALUE || !firstRun.getAndSet(false))
 			return;
 		
 		try {
@@ -128,7 +132,7 @@ public class SizeRelatedTextView extends TextView implements OnParentDrawnListen
 
 	@Override
 	public void onParentDrawn(View parentView) {
-		applyTextSize();		
+		applyTextSize();
 	}
 
 }
