@@ -71,11 +71,17 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 	private static final double MAX_DISTANCE_BETWEEN_MEASUREMENTS = 3.0;
 
+	private static final int MAX_CREATION_TRIES = 10;
+
 	private Track track;
 	private Collector collector;
 	private Location location;
 
 	private GpsDOPEventListener dopListener;
+
+	private int trackCreationTries;
+
+	private TrackMetadata trackMetadata;
 	
 	public CommandListener(Car car) {
 		this.collector = new Collector(this, car);
@@ -88,7 +94,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 			}
 		};
 		EventBus.getInstance().registerListener(dopListener);
-		createNewTrackIfNecessary();
+		
 		logger.debug("Initialized. Hash: "+System.identityHashCode(this));
 	}
 
@@ -233,7 +239,13 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	 *            The measurement you want to insert
 	 */
 	public void insertMeasurement(Measurement measurement) {
-		if (track == null) return;
+		if (track == null) {
+			if (++trackCreationTries < MAX_CREATION_TRIES) {
+				createNewTrackIfNecessary();
+			}
+			
+			if (track == null) return;
+		}
 		// TODO: This has to be added with the following conditions:
 		/*
 		 * 1)New measurement if more than 50 meters away 2)New measurement if
@@ -312,13 +324,15 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		}
 			
 		logger.info(String.format("Using Track: %s / id: %d", track.getName(), track.getId()));
+		if (trackMetadata != null) {
+			this.track.updateMetadata(trackMetadata);
+		}
 	}
-
 
 	@Override
 	public void receiveEvent(LocationEvent event) {
-		this.collector.newLocation(event.getPayload());
 		this.location = event.getPayload();
+		this.collector.newLocation(event.getPayload());
 	}
 
 	public void shutdown() {
@@ -328,9 +342,12 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 	@Override
 	public void onConnected(String deviceName) {
-		TrackMetadata newMetadata = new TrackMetadata();
-		newMetadata.putEntry(TrackMetadata.OBD_DEVICE, deviceName);
-		this.track.updateMetadata(newMetadata);
+		trackMetadata = new TrackMetadata();
+		trackMetadata.putEntry(TrackMetadata.OBD_DEVICE, deviceName);
+		
+		if (track != null) {
+			this.track.updateMetadata(trackMetadata);
+		}
 	}
 
 	
