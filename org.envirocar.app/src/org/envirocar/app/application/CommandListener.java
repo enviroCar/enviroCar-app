@@ -82,6 +82,10 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	private int trackCreationTries;
 
 	private TrackMetadata trackMetadata;
+
+	private boolean shutdownCompleted = false;
+
+	private static int instanceCount;
 	
 	public CommandListener(Car car) {
 		this.collector = new Collector(this, car);
@@ -95,7 +99,11 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		};
 		EventBus.getInstance().registerListener(dopListener);
 		
-		logger.debug("Initialized. Hash: "+System.identityHashCode(this));
+		synchronized (CommandListener.class) {
+			instanceCount++;
+			logger.debug("Initialized. Hash: "+System.identityHashCode(this) +"; active instances: "+instanceCount);
+		}
+		
 	}
 
 	public void receiveUpdate(CommonCommand command) {
@@ -261,7 +269,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		} catch (TrackAlreadyFinishedException e) {
 			logger.warn(e.getMessage(), e);
 		}
-		logger.info("Add new measurement to track: " + measurement.toString());
+		logger.info(String.format("Add new measurement to track '%d': %s", track.getId(), measurement.toString()));
 	}
 	
 	/**
@@ -338,6 +346,14 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	public void shutdown() {
 		EventBus.getInstance().unregisterListener(this);
 		EventBus.getInstance().unregisterListener(dopListener);
+		
+		synchronized (CommandListener.class) {
+			if (!this.shutdownCompleted) {
+				instanceCount--;
+				this.shutdownCompleted = true;
+			}
+			
+		}
 	}
 
 	@Override
