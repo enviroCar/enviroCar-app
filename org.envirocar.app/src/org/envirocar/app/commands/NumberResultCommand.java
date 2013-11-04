@@ -24,8 +24,10 @@ public abstract class NumberResultCommand extends CommonCommand {
 
 	private static final CharSequence SEARCHING = "SEARCHING";
 	private static final CharSequence STOPPED = "STOPPED";
+	private static final CharSequence NODATA = "NODATA";
 	
 	static final String STATUS_OK = "41";
+	
 	private int[] buffr;
 	
 	/**
@@ -94,7 +96,7 @@ public abstract class NumberResultCommand extends CommonCommand {
 	}
 	
 	private boolean isNoDataCommand(String dataString) {
-		return "NODATA".equals(dataString);
+		return dataString == null || dataString.contains(NODATA);
 	}
 	
 }

@@ -434,7 +434,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 				break;
 				
 			case SEARCHING:
-				logger.info("Adapter searching. Continuing. Response was: "+new String(cmd.getRawData()));
+				logger.info("Adapter searching. Continuing. Response for " +cmd.getCommandName() +": "+new String(cmd.getRawData()));
 				staleConnection = true;
 				
 				if (searchingCountInARow++ > MAX_SEARCHING_COUNT_IN_A_ROW) {
