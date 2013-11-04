@@ -220,7 +220,7 @@ Bei festgestellten Problemen möchten wir Sie bitten, uns ein Fehlerprotokoll zu
 	<string name="prompt_car_engineDisplacement">Hubraum (ccm)</string>
 	
 	<string name="track_mode_single">Einzelner Track</string>
-    <string name="track_mode_auto">Automatische Track-Erstellung</string>
+    <string name="track_mode_auto">Automatische Track-Erstellung (experimentell)</string>
     <string name="question_track_mode">Möchten Sie einen einzelnen Track aufnehmen oder die automatische Track-Erstellung aktivieren?</string>
     
     <string name="stop_automatic_mode">Automatische Track-Erstellung beenden?</string>

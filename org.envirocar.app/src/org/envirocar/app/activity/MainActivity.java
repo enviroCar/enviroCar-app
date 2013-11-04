@@ -152,6 +152,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private boolean deviceDiscoveryActive;
 	private BroadcastReceiver errorInformationReceiver;
 	private Set<String> seenAnnouncements = new HashSet<String>();
+	private BroadcastReceiver deviceDiscoveryStateReceiver;
 		
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
@@ -271,6 +272,21 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 		registerReceiver(serviceStateReceiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 
+		deviceDiscoveryStateReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				if (intent.getAction().equals(DeviceInRangeService.STATE_CHANGE)) {
+					if (!intent.getBooleanExtra(DeviceInRangeService.STATE_CHANGE, false)) {
+						deviceDiscoveryActive = false;
+						trackMode = TRACK_MODE_SINGLE;
+						BackgroundServiceImpl.requestServiceStateBroadcast(getApplicationContext());
+						createStartStopUtil().updateStartStopButtonOnServiceStateChange(navDrawerItems[START_STOP_MEASUREMENT]);
+					}
+				}				
+			}
+		};
+		registerReceiver(deviceDiscoveryStateReceiver, new IntentFilter(DeviceInRangeService.STATE_CHANGE));
+		
 		bluetoothStateReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {

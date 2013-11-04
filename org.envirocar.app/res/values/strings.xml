@@ -74,7 +74,7 @@
     <string name="menu_delete">Delete</string>
     <string name="menu_login">Sign in/Register</string>
     <string name="track_mode_single">Single Track</string>
-    <string name="track_mode_auto">Automatic Track Creation</string>
+    <string name="track_mode_auto">Automatic Track Creation (experimental)</string>
     <string name="question_track_mode">Do you want to record a single track or start automatic creation?</string>
     <string name="device_discovery_next_try">Device Discovery - %1$s:%2$s minutes until next try</string>
     <string name="device_discovery_pending">Device Discovery - Pending&#8230;</string>
