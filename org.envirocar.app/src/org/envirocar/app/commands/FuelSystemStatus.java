@@ -33,51 +33,78 @@ public class FuelSystemStatus extends CommonCommand {
 
 	@Override
 	public void parseRawData() {
-		int index = 0;
-		int length = 2;
-		byte[] data = getRawData();
-		
-		
-		if (data.length != 6) {
-			setCommandState(CommonCommandState.EXECUTION_ERROR);
-		}
-		
-		while (index < data.length) {
-			if (index == 0) {
-				String tmp = new String(data, index, length);
-				// this is the status
-				if (!tmp.equals(NumberResultCommand.STATUS_OK)) {
-					setCommandState(CommonCommandState.EXECUTION_ERROR);
-					return;
-				}
-				index += length;
-				continue;
-			}
-			else if (index == 2) {
-				String tmp = new String(data, index, length);
-				// this is the ID byte
-				if (!tmp.equals(this.getResponseTypeID())) {
-					setCommandState(CommonCommandState.UNMATCHED_RESULT);
-					return;
-				}
-				index += length;
-				continue;
-			}
-			else if (index == 4) {
-				byte current = data[index];
-				for (int bit = 4; bit >= 0; bit--) {
-					boolean is = ((current >> bit) & 1 ) == 1;
-					if (is) {
-						setBit = bit;
-					}
-				}
-				index++;
-			}
-			else {
-				index++;
+		/*
+		 * big try catch as it is not robustly tested
+		 */
+		try {
+			int index = 0;
+			int length = 2;
+			byte[] data = getRawData();
+			
+			
+			if (data.length != 6 && data.length != 8) {
+				setCommandState(CommonCommandState.EXECUTION_ERROR);
 			}
 			
+			while (index < data.length) {
+				String tmp = new String(data, index, length);
+				if (index == 0) {
+					
+					// this is the status
+					if (!tmp.equals(NumberResultCommand.STATUS_OK)) {
+						setCommandState(CommonCommandState.EXECUTION_ERROR);
+						return;
+					}
+					index += length;
+					continue;
+				}
+				else if (index == 2) {
+					// this is the ID byte
+					if (!tmp.equals(this.getResponseTypeID())) {
+						setCommandState(CommonCommandState.UNMATCHED_RESULT);
+						return;
+					}
+					index += length;
+					continue;
+				}
+				else if (index == 4) {
+					int value = Integer.valueOf(tmp, 16);
+					setBit = determineSetBit(value);
+					if (setBit == -1) {
+						setCommandState(CommonCommandState.EXECUTION_ERROR);
+						return;
+					}
+					index += length;
+				}
+				else if (index == 6) {
+					//TODO: Second fuel system. not supported yet
+					index += length;
+				}
+				
+			}
+		} catch (RuntimeException e) {
+			setCommandState(CommonCommandState.EXECUTION_ERROR);
 		}
+	}
+
+	private int determineSetBit(int value) {
+		if (value == 0) {
+			return 0;
+		}
+		else if (value == 1) {
+			return 1;
+		}
+		else if (value == 2) {
+			return 2;
+		}
+		else if (value == 4) {
+			return 3;
+		}
+		else if (value == 8) {
+			return 4;
+		}
+		
+		return -1;
 	}
 
 	public boolean isInClosedLoop() {

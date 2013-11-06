@@ -37,7 +37,7 @@ public class PIDSupportedTest extends AndroidTestCase {
 	public void testPIDSupportedParsing() {
 		PIDSupported cmd = new PIDSupported();
 		
-		cmd.setRawData(createResponseMockup(cmd));
+		cmd.setRawData(createResponseMockup());
 		cmd.parseRawData();
 		
 		Set<PID> result = cmd.getSupportedPIDs();
@@ -65,10 +65,9 @@ public class PIDSupportedTest extends AndroidTestCase {
 		}
 	}
 
-	private byte[] createResponseMockup(PIDSupported cmd) {
+	private byte[] createResponseMockup() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("41");
-		sb.append(cmd.getResponseTypeID());
+		sb.append("4100");
 		sb.append("107B0000");
 		return sb.toString().getBytes();
 	}

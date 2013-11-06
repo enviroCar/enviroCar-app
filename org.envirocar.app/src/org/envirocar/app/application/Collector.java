@@ -20,18 +20,13 @@
  */
 package org.envirocar.app.application;
 
-import static org.envirocar.app.storage.Measurement.PropertyKey.CO2;
-import static org.envirocar.app.storage.Measurement.PropertyKey.CONSUMPTION;
-import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_PRESSURE;
-import static org.envirocar.app.storage.Measurement.PropertyKey.INTAKE_TEMPERATURE;
-import static org.envirocar.app.storage.Measurement.PropertyKey.MAF;
-import static org.envirocar.app.storage.Measurement.PropertyKey.SPEED;
-import static org.envirocar.app.storage.Measurement.PropertyKey.THROTTLE_POSITON;
-import static org.envirocar.app.storage.Measurement.PropertyKey.ENGINE_LOAD;
-
+import org.envirocar.app.commands.O2LambdaProbe;
+import org.envirocar.app.commands.O2LambdaProbeCurrent;
+import org.envirocar.app.commands.O2LambdaProbeVoltage;
 import org.envirocar.app.event.CO2Event;
 import org.envirocar.app.event.ConsumptionEvent;
 import org.envirocar.app.event.EventBus;
+import org.envirocar.app.event.GpsDOP;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
@@ -72,19 +67,36 @@ public class Collector {
 	}
 
 	public void newLocation(Location l) {
-//		this.measurement.setLocation(l);
 		this.measurement.setLatitude(l.getLatitude());
 		this.measurement.setLongitude(l.getLongitude());
+		
+		if (l.hasAccuracy() && l.getAccuracy() != 0.0f) {
+			this.measurement.setProperty(PropertyKey.GPS_ACCURACY, (double) l.getAccuracy());
+		}
+		if (l.hasBearing()) {
+			this.measurement.setProperty(PropertyKey.GPS_BEARING, (double) l.getBearing());
+		}
+		if (l.hasAltitude()) {
+			this.measurement.setProperty(PropertyKey.GPS_ALTITUDE, l.getAltitude());
+		}
+		if (l.hasSpeed()) {
+			this.measurement.setProperty(PropertyKey.GPS_SPEED, meterPerSecondToKilometerPerHour((double) l.getSpeed()));
+		}
+		
 		checkStateAndPush();
 	}
 	
+	private Double meterPerSecondToKilometerPerHour(double speed) {
+		return speed * (36.0/10.0);
+	}
+
 	public void newSpeed(int s) {
-		this.measurement.setProperty(SPEED, Double.valueOf(s));
+		this.measurement.setProperty(PropertyKey.SPEED, Double.valueOf(s));
 //		checkStateAndPush();
 	}
 	
 	public void newMAF(double m) {
-		this.measurement.setProperty(MAF, m);
+		this.measurement.setProperty(PropertyKey.MAF, m);
 //		checkStateAndPush();
 		fireConsumptionEvent();
 	}
@@ -127,23 +139,37 @@ public class Collector {
 	}
 
 	public void newIntakeTemperature(int i) {
-		this.measurement.setProperty(INTAKE_TEMPERATURE, Double.valueOf(i));
+		this.measurement.setProperty(PropertyKey.INTAKE_TEMPERATURE, Double.valueOf(i));
 		checkAndCreateCalculatedMAF();
 //		checkStateAndPush();
 	}
 	
 	public void newIntakePressure(int p) {
-		this.measurement.setProperty(INTAKE_PRESSURE, Double.valueOf(p));
+		this.measurement.setProperty(PropertyKey.INTAKE_PRESSURE, Double.valueOf(p));
 		checkAndCreateCalculatedMAF();
 //		checkStateAndPush();
 	}
 	
 	public void newTPS(int tps) {
-		this.measurement.setProperty(THROTTLE_POSITON, Double.valueOf(tps));
+		this.measurement.setProperty(PropertyKey.THROTTLE_POSITON, Double.valueOf(tps));
 	}
 	
 	public void newEngineLoad(double load) {
-		this.measurement.setProperty(ENGINE_LOAD, load);
+		this.measurement.setProperty(PropertyKey.ENGINE_LOAD, load);
+	}
+
+	public void newDop(GpsDOP dop) {
+		if (dop.hasPdop()) {
+			this.measurement.setProperty(PropertyKey.GPS_PDOP, dop.getPdop());
+		}
+		
+		if (dop.hasHdop()) {
+			this.measurement.setProperty(PropertyKey.GPS_HDOP, dop.getHdop());
+		}
+		
+		if (dop.hasVdop()) {
+			this.measurement.setProperty(PropertyKey.GPS_VDOP, dop.getVdop());
+		}
 	}
 	
 	/**
@@ -161,8 +187,8 @@ public class Collector {
 			try {
 				double consumption = this.consumptionAlgorithm.calculateConsumption(measurement);
 				double co2 = this.consumptionAlgorithm.calculateCO2FromConsumption(consumption);
-				this.measurement.setProperty(CONSUMPTION, consumption);
-				this.measurement.setProperty(CO2, co2);
+				this.measurement.setProperty(PropertyKey.CONSUMPTION, consumption);
+				this.measurement.setProperty(PropertyKey.CO2, co2);
 			} catch (FuelConsumptionException e) {
 				logger.warn(e.getMessage());
 			} catch (UnsupportedFuelTypeException e) {
@@ -208,6 +234,30 @@ public class Collector {
 
 	private void insertMeasurement(Measurement m) {
 		callback.insertMeasurement(m);
+	}
+
+	public void newFuelSystemStatus(boolean loop, int status) {
+		this.measurement.setProperty(PropertyKey.FUEL_SYSTEM_LOOP, loop ? 1d : 0d);
+		this.measurement.setProperty(PropertyKey.FUEL_SYSTEM_STATUS_CODE, (double) status);
+	}
+
+	public void newLambdaProbeValue(O2LambdaProbe command) {
+		if (command instanceof O2LambdaProbeVoltage) {
+			this.measurement.setProperty(PropertyKey.LAMBDA_VOLTAGE, ((O2LambdaProbeVoltage) command).getVoltage());	
+			this.measurement.setProperty(PropertyKey.LAMBDA_VOLTAGE_ER, command.getEquivalenceRatio());
+		}
+		else if (command instanceof O2LambdaProbeCurrent) {
+			this.measurement.setProperty(PropertyKey.LAMBDA_CURRENT, ((O2LambdaProbeCurrent) command).getCurrent());
+			this.measurement.setProperty(PropertyKey.LAMBDA_CURRENT_ER, command.getEquivalenceRatio());
+		}
+	}
+
+	public void newShortTermTrimBank1(Number numberResult) {
+		this.measurement.setProperty(PropertyKey.SHORT_TERM_TRIM_1, numberResult.doubleValue());
+	}
+
+	public void newLongTermTrimBank1(Number numberResult) {
+		this.measurement.setProperty(PropertyKey.LONG_TERM_TRIM_1, numberResult.doubleValue());		
 	}
 
 

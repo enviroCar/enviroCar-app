@@ -38,11 +38,11 @@ import org.envirocar.app.event.SpeedEventListener;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
-import org.envirocar.app.views.RoundProgress;
+import org.envirocar.app.views.LayeredImageRotateView;
+import org.envirocar.app.views.SizeRelatedTextView;
 import org.envirocar.app.views.TypefaceEC;
 
 import android.content.BroadcastReceiver;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -52,7 +52,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -78,11 +77,8 @@ public class DashboardFragment extends SherlockFragment {
 	// UI Items
 	
 	TextView speedTextView;
-	RoundProgress roundProgressSpeed;
 	TextView co2TextView;
-	TextView positionTextView;
-	RoundProgress roundProgressCO2;
-	private TextView sensor;
+	private SizeRelatedTextView sensor;
 	View dashboardView;
 
 	private LocationEventListener locationListener;
@@ -99,6 +95,9 @@ public class DashboardFragment extends SherlockFragment {
 	private BroadcastReceiver receiver;
 	protected ServiceState serviceState = ServiceState.SERVICE_STOPPED;
 	private OnSharedPreferenceChangeListener preferenceListener;
+	private LayeredImageRotateView speedRotatableView;
+	private LayeredImageRotateView co2RotableView;
+
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -150,23 +149,12 @@ public class DashboardFragment extends SherlockFragment {
 		co2TextView = (TextView) getView().findViewById(R.id.co2TextView);
 		speedTextView = (TextView) getView().findViewById(
 				R.id.textViewSpeedDashboard);
-		roundProgressCO2 = (RoundProgress) getView().findViewById(
-				R.id.blue_progress_bar);
-		roundProgressSpeed = (RoundProgress) getView().findViewById(
-				R.id.blue_progress_bar2);
-		sensor = (TextView) getView().findViewById(R.id.dashboard_current_sensor);
-		
-		positionTextView = (TextView) getView().findViewById(R.id.positionTextView);
+		co2RotableView = (LayeredImageRotateView) getView().findViewById(
+				R.id.co2meterView);
+		speedRotatableView = (LayeredImageRotateView) getView().findViewById(R.id.speedometerView);
+		sensor = (SizeRelatedTextView) getView().findViewById(R.id.dashboard_current_sensor);
 		
 		updateStatusElements();
-		
-		sensor.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				Intent configIntent = new Intent(getActivity(), SettingsActivity.class);
-				startActivity(configIntent);
-			}
-		});
 		
 		TypefaceEC.applyCustomFont((ViewGroup) view,
 				TypefaceEC.Newscycle(getActivity()));
@@ -185,7 +173,7 @@ public class DashboardFragment extends SherlockFragment {
 			@Override
 			public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 					String key) {
-				if (key.equals(SettingsActivity.CAR)) {
+				if (key.equals(SettingsActivity.CAR) || key.equals(SettingsActivity.CAR_HASH_CODE)) {
 					updateSensorOnDashboard();
 				}
 			}
@@ -268,6 +256,7 @@ public class DashboardFragment extends SherlockFragment {
 		super.onResume();
 		
 		updateSensorOnDashboard();
+		
 		Car car = CarManager.instance().getCar();
 		if (car != null && car.getFuelType() == FuelType.DIESEL) {
 			Crouton.makeText(getActivity(), R.string.diesel_not_yet_supported,
@@ -350,8 +339,6 @@ public class DashboardFragment extends SherlockFragment {
 			getActivity().runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					updateLocationValue();
-					
 					updateSpeedValue();
 					
 					updateCo2Value();			
@@ -361,20 +348,13 @@ public class DashboardFragment extends SherlockFragment {
 	}
 
 	protected void updateCo2Value() {
-		double co2Progress;
 		
 		DecimalFormat twoDForm = new DecimalFormat("#.##");
 		
 		co2TextView.setText(twoDForm.format(co2) + " kg/h"); 
-		if (co2 <= 0)
-			co2Progress = 0;
-		else if (co2 > 100)
-			co2Progress = 100;
-		else
-			co2Progress = co2;
-		roundProgressCO2.setProgress(co2Progress);
+		co2RotableView.submitScaleValue((float) co2);
 		
-		if (co2Progress>30){
+		if (co2 > 30){
 			dashboardView.setBackgroundColor(Color.RED);
 		} else {
 			dashboardView.setBackgroundColor(Color.WHITE);
@@ -382,46 +362,15 @@ public class DashboardFragment extends SherlockFragment {
 	}
 
 	protected void updateSpeedValue() {
-		int speedProgress;
 		if (!preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT,
 				false)) {
 			speedTextView.setText(speed + " km/h");
-			if (speed <= 0)
-				speedProgress = 0;
-			else if (speed > 200)
-				speedProgress = 100;
-			else
-				speedProgress = speed / 2;
-			roundProgressSpeed.setProgress(speedProgress);
+			speedRotatableView.submitScaleValue(speed);
 		} else {
-			speedTextView.setText(speed / 1.6 + " mph");
-			if (speed <= 0)
-				speedProgress = 0;
-			else if (speed > 150)
-				speedProgress = 100;
-			else
-				speedProgress = (int) (speed / 1.5);
-			roundProgressSpeed.setProgress(speedProgress);
+			speedTextView.setText(speed / 1.6f + " mph");
+			speedRotatableView.submitScaleValue(speed/1.6f);
 		}
 	}
 
-	protected void updateLocationValue() {
-		if (location != null && location.getLongitude() != 0
-				&& location.getLatitude() != 0) {
-			StringBuffer sb = new StringBuffer();
-			sb.append("Provider: " + location.getProvider() + "\n");
-			sb.append("Lat: " + location.getLatitude() + "\n");
-			sb.append("Long: " + location.getLongitude() + "\n");
-			sb.append("Acc: " + location.getAccuracy() + "\n");
-			sb.append("Speed: " + location.getSpeed() + "\n");
-			positionTextView.setText(sb.toString());
-			positionTextView.setTextColor(Color.BLACK);
-			positionTextView.setBackgroundColor(Color.WHITE);
-		} else {
-			positionTextView.setText(R.string.positioning_Info);
-			positionTextView.setTextColor(Color.WHITE);
-			positionTextView.setBackgroundColor(Color.RED);
-		}
-	}
 
 }

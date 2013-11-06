@@ -5,29 +5,29 @@
     android:orientation="vertical" 
     android:id="@+id/list_tracks_parent">
 
-    <LinearLayout 
-        android:id="@+id/progress_layout"
-        android:orientation="horizontal"
-        android:layout_width="wrap_content"
+    <RelativeLayout 
+        android:id="@+id/list_tracks_status_layout"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal">
         <TextView 
-            android:id="@+id/progress_status"
+            android:id="@+id/list_tracks_status_text"
             android:text="@string/fetching_tracks"
             android:layout_width="wrap_content"
             android:layout_margin="5dp"
+            android:layout_centerInParent="true"
             android:layout_height="wrap_content"/>
         
 	    <ProgressBar
-	        android:id="@+id/listprogress"
+	        android:id="@+id/list_tracks_status_progress"
 	        style="@android:style/Widget.ProgressBar.Small"
-	        android:layout_width="match_parent"
+	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_margin="5dp"
+	        android:layout_toRightOf="@+id/list_tracks_status_text"
 	        android:indeterminate="true" />
     
-    </LinearLayout>
-    
+    </RelativeLayout>
     
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -38,8 +38,7 @@
 	        android:id="@+id/list"
 	        android:layout_width="match_parent"
 	        android:layout_height="match_parent" 
-	        android:groupIndicator="@drawable/list_indicator"
-	        android:childIndicator="@drawable/list_indicator"
+	        android:groupIndicator="@drawable/group_indicator"
 	        />
     
 	    <TextView

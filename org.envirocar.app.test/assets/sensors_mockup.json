@@ -1,0 +1,25 @@
+{
+   "sensors":[
+      {
+         "type":"car",
+         "properties":{
+            "id":"51c96afce4b0fd063432096f",
+            "model":"R 1200 GS ADV",
+            "fuelType":"gasoline",
+            "manufacturer":"BMW",
+            "constructionYear":2012
+         }
+      },
+      {
+         "type":"car",
+         "properties":{
+            "id":"525fa95be4b000fe057fdeba",
+            "model":"IS250X",
+            "fuelType":"gasoline",
+            "manufacturer":"Lexus",
+            "constructionYear":2013,
+            "engineDisplacement":2500
+         }
+      }
+   ]
+}

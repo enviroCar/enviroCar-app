@@ -25,39 +25,30 @@ import java.util.List;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.activity.SettingsActivity;
-import org.envirocar.app.application.UploadManager;
+import org.envirocar.app.json.TrackEncoder;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.storage.TrackAlreadyFinishedException;
 import org.json.JSONException;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.test.AndroidTestCase;
 
 public class ObfuscationTest extends AndroidTestCase {
 	
 	private static int TARGET_LENGTH = 10;
 	
-	public void testObfuscation() throws JSONException {
-		SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getContext());
-		boolean oldSetting = pref.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
-		
-		pref.edit().putBoolean(SettingsActivity.OBFUSCATE_POSITION, true).commit();
-		
-		UploadManager um = new UploadManager(getContext());
+	public void testObfuscation() throws JSONException, TrackAlreadyFinishedException {
 		Track t = createTrack();
-		List<Measurement> result = um.getNonObfuscatedMeasurements(t);
+		List<Measurement> result = new TrackEncoder().getNonObfuscatedMeasurements(t, true);
 		
 		Assert.assertTrue("Unexpected element count", result.size() == TARGET_LENGTH);
-		
-		pref.edit().putBoolean(SettingsActivity.OBFUSCATE_POSITION, oldSetting).commit();
 	}
 
-	private Track createTrack() {
-		Track result = new Track("test", new Car(FuelType.DIESEL, "man", "mod", "id", 1234, 123), new DbAdapterMockup());
+	private Track createTrack() throws TrackAlreadyFinishedException {
+		Track result = Track.createNewLocalTrack(new DbAdapterMockup());
+		result.setCar(new Car(FuelType.DIESEL, "man", "mod", "id", 1234, 123));
 		
 		List<Measurement> measurements = createMeasurements();
 		for (Measurement measurement : measurements) {

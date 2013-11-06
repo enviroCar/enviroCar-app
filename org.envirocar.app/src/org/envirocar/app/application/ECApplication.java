@@ -21,25 +21,27 @@
 
 package org.envirocar.app.application;
 
-import java.text.SimpleDateFormat;
+import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
+import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
 import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.BackgroundServiceConnector;
 import org.envirocar.app.application.service.DeviceInRangeService;
+import org.envirocar.app.dao.CacheDirectoryProvider;
+import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.util.NamedThreadFactory;
+import org.envirocar.app.util.Util;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -54,8 +56,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
@@ -72,9 +72,10 @@ public class ECApplication extends Application {
 	private static final Logger logger = Logger.getLogger(ECApplication.class);
 	
 	// Strings
-
-	public static final String BASE_URL = "https://giv-car.uni-muenster.de/stable/rest";
-	public static final String BASE_URL_DEV = "https://giv-car.uni-muenster.de/dev/rest";
+	
+	public static final String BASE_URL = "https://envirocar.org/api/stable";
+//	public static final String BASE_URL = "https://giv-car.uni-muenster.de/dev/rest";
+//	public static final String BASE_URL = "http://192.168.1.142:8080/webapp-1.1.0-SNAPSHOT/rest";
 
 	private SharedPreferences preferences = null;
 	
@@ -161,16 +162,28 @@ public class ECApplication extends Application {
 
 	@Override
 	public void onCreate() {
-		Logger.initialize(getVersionString());
+		Logger.initialize(Util.getVersionString(this));
 		super.onCreate();
 		
-		DbAdapterImpl.init(getApplicationContext());
-		
-		initializeErrorHandling();
+		try {
+			DbAdapterImpl.init(getApplicationContext());
+		} catch (InstantiationException e) {
+			logger.warn("Could not initalize the database layer. The app will probably work unstable.");
+			logger.warn(e.getMessage(), e);
+		}
 		
 		preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
+		DAOProvider.init(new ContextInternetAccessProvider(getApplicationContext()),
+				new CacheDirectoryProvider() {
+					@Override
+					public File getBaseFolder() {
+						return Util.resolveCacheFolder(getApplicationContext());
+					}
+				});
+		
 		UserManager.init(getApplicationContext());
+		initializeErrorHandling();
 		CarManager.init(preferences);
 		TermsOfUseManager.instance();
 		
@@ -192,6 +205,7 @@ public class ECApplication extends Application {
 		ACRA.init(this);
 		ACRACustomSender yourSender = new ACRACustomSender();
 		ACRA.getErrorReporter().setReportSender(yourSender);
+		ACRA.getConfig().setExcludeMatchingSharedPreferencesKeys(SettingsActivity.resolveIndividualKeys());
 	}
 
 	/**
@@ -307,8 +321,7 @@ public class ECApplication extends Application {
 		        .setContentTitle("enviroCar")
 		        .setContentText(notification_text)
 		        .setContentIntent(pintent)
-		        .setTicker(notification_text)
-		        .setProgress(0, 0, !action.equals("success"));
+		        .setTicker(notification_text);
 		
 		NotificationManager mNotificationManager =
 		    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -317,35 +330,6 @@ public class ECApplication extends Application {
 
 	  }
 	
-	/**
-	 * method to get the current version
-	 * 
-	 */
-	public String getVersionString() {
-		StringBuilder out = new StringBuilder("Version ");
-		try {
-			out.append(this.getPackageManager().getPackageInfo(getPackageName(), 0).versionName);
-			out.append(" (");
-			out.append(this.getPackageManager().getPackageInfo(getPackageName(), 0).versionCode);
-			out.append("), ");
-		} catch (NameNotFoundException e) {
-			logger.warn(e.getMessage(), e);
-		}
-		try {
-			ApplicationInfo ai = getPackageManager().getApplicationInfo(
-					getPackageName(), 0);
-			ZipFile zf = new ZipFile(ai.sourceDir);
-			ZipEntry ze = zf.getEntry("classes.dex");
-			long time = ze.getTime();
-			out.append(SimpleDateFormat.getInstance().format(new java.util.Date(time)));
-
-		} catch (Exception e) {
-			logger.warn(e.getMessage(), e);
-		}
-
-		return out.toString();
-	}
-
 	
 	public void resetTrack() {
 		//TODO somehow let the CommandListener know of the reset
@@ -381,19 +365,24 @@ public class ECApplication extends Application {
 
 
 	public void finishTrack() {
-		Track track = DbAdapterImpl.instance().finishCurrentTrack();
-		if (track != null) {
-			if (track.getLastMeasurement() == null) {
-				Crouton.makeText(getCurrentActivity(), R.string.track_finished_no_measurements, Style.ALERT).show();
-			} else {
-				String text = getString(R.string.track_finished).concat(track.getName());
-				Crouton.makeText(getCurrentActivity(), text, Style.INFO).show();				
-			}
-		}
-		else {
-			Crouton.makeText(getCurrentActivity(), R.string.track_finishing_failed, Style.ALERT).show();
-		}
+		final Track track = DbAdapterImpl.instance().finishCurrentTrack();
 		
+		getCurrentActivity().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (track != null) {
+					if (track.getLastMeasurement() == null) {
+						Crouton.makeText(getCurrentActivity(), R.string.track_finished_no_measurements, Style.ALERT).show();
+					} else {
+						String text = getString(R.string.track_finished).concat(track.getName());
+						Crouton.makeText(getCurrentActivity(), text, Style.INFO).show();				
+					}
+				}
+				else {
+					Crouton.makeText(getCurrentActivity(), R.string.track_finishing_failed, Style.ALERT).show();
+				}				
+			}
+		});
 	}
 
 

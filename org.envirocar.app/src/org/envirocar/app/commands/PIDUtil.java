@@ -77,38 +77,103 @@ public class PIDUtil {
 			public String toString() {
 				return "11";
 			}
+		},
+		O2_LAMBDA_PROBE_1_VOLTAGE {
+			@Override
+			public String toString() {
+				return "24";
+			}
+		},
+		O2_LAMBDA_PROBE_2_VOLTAGE {
+			@Override
+			public String toString() {
+				return "25";
+			}
+		},
+		O2_LAMBDA_PROBE_3_VOLTAGE {
+			@Override
+			public String toString() {
+				return "26";
+			}
+		},
+		O2_LAMBDA_PROBE_4_VOLTAGE {
+			@Override
+			public String toString() {
+				return "27";
+			}
+		},
+		O2_LAMBDA_PROBE_5_VOLTAGE {
+			@Override
+			public String toString() {
+				return "28";
+			}
+		},
+		O2_LAMBDA_PROBE_6_VOLTAGE {
+			@Override
+			public String toString() {
+				return "29";
+			}
+		},
+		O2_LAMBDA_PROBE_7_VOLTAGE {
+			@Override
+			public String toString() {
+				return "2A";
+			}
+		},
+		O2_LAMBDA_PROBE_8_VOLTAGE {
+			@Override
+			public String toString() {
+				return "2B";
+			}
+		}, O2_LAMBDA_PROBE_1_CURRENT {
+			public String toString() {
+				return "34";
+			};
+		}
+		, O2_LAMBDA_PROBE_2_CURRENT {
+			public String toString() {
+				return "35";
+			};
+		}
+		, O2_LAMBDA_PROBE_3_CURRENT {
+			public String toString() {
+				return "36";
+			};
+		}
+		, O2_LAMBDA_PROBE_4_CURRENT {
+			public String toString() {
+				return "37";
+			};
+		}
+		, O2_LAMBDA_PROBE_5_CURRENT {
+			public String toString() {
+				return "38";
+			};
+		}
+		, O2_LAMBDA_PROBE_6_CURRENT {
+			public String toString() {
+				return "39";
+			};
+		}
+		, O2_LAMBDA_PROBE_7_CURRENT {
+			public String toString() {
+				return "3A";
+			};
+		}
+		, O2_LAMBDA_PROBE_8_CURRENT {
+			public String toString() {
+				return "3B";
+			};
 		}
 	}
 
 	public static PID fromString(String s) {
 		if (s == null || s.isEmpty()) return null;
 		
-		if (s.equalsIgnoreCase(PID.FUEL_SYSTEM_STATUS.toString())) {
-			return PID.FUEL_SYSTEM_STATUS;
-		}
-		else if (s.equalsIgnoreCase(PID.CALCULATED_ENGINE_LOAD.toString())) {
-			return PID.CALCULATED_ENGINE_LOAD;
-		}
-		else if (s.equalsIgnoreCase(PID.FUEL_PRESSURE.toString())) {
-			return PID.FUEL_PRESSURE;
-		}
-		else if (s.equalsIgnoreCase(PID.INTAKE_MAP.toString())) {
-			return PID.INTAKE_MAP;
-		}
-		else if (s.equalsIgnoreCase(PID.RPM.toString())) {
-			return PID.RPM;
-		}
-		else if (s.equalsIgnoreCase(PID.SPEED.toString())) {
-			return PID.SPEED;
-		}
-		else if (s.equalsIgnoreCase(PID.INTAKE_AIR_TEMP.toString())) {
-			return PID.INTAKE_AIR_TEMP;
-		}
-		else if (s.equalsIgnoreCase(PID.MAF.toString())) {
-			return PID.MAF;
-		}
-		else if (s.equalsIgnoreCase(PID.TPS.toString())) {
-			return PID.TPS;
+		for (PID p : PID.values()) {
+			if (s.equalsIgnoreCase(p.toString())) {
+				return p;
+			}
 		}
 		
 		return null;
@@ -139,6 +204,22 @@ public class PIDUtil {
 			return new MAF();
 		case TPS:
 			return new TPS();
+		case O2_LAMBDA_PROBE_1_VOLTAGE:
+			return O2LambdaProbe.fromPIDEnum(pid);
+		case O2_LAMBDA_PROBE_2_VOLTAGE:
+			return O2LambdaProbe.fromPIDEnum(pid);
+		case O2_LAMBDA_PROBE_3_VOLTAGE:
+			return O2LambdaProbe.fromPIDEnum(pid);
+		case O2_LAMBDA_PROBE_4_VOLTAGE:
+			return O2LambdaProbe.fromPIDEnum(pid);
+		case O2_LAMBDA_PROBE_5_VOLTAGE:
+			return O2LambdaProbe.fromPIDEnum(pid);
+		case O2_LAMBDA_PROBE_6_VOLTAGE:
+			return O2LambdaProbe.fromPIDEnum(pid);
+		case O2_LAMBDA_PROBE_7_VOLTAGE:
+			return O2LambdaProbe.fromPIDEnum(pid);
+		case O2_LAMBDA_PROBE_8_VOLTAGE:
+			return O2LambdaProbe.fromPIDEnum(pid);
 		default:
 			return null;
 		}

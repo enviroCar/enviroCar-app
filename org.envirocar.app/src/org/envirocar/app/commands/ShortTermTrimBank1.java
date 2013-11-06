@@ -29,7 +29,7 @@ package org.envirocar.app.commands;
  */
 public class ShortTermTrimBank1 extends NumberResultCommand {
 
-	private float fuelTrimValue = Float.NaN;
+	private double fuelTrimValue = Double.NaN;
 
 	public ShortTermTrimBank1() {
 		super("01 06");
@@ -44,10 +44,9 @@ public class ShortTermTrimBank1 extends NumberResultCommand {
 
 	@Override
 	public Number getNumberResult() {
-		if (Float.isNaN(fuelTrimValue)) {
+		if (Double.isNaN(fuelTrimValue)) {
 			int[] buffer = getBuffer();
-			float tmpValue = buffer[2];
-			fuelTrimValue = (float) ((tmpValue - 128) * (100.0 / 128));
+			fuelTrimValue =  (buffer[2] - 128) * (100d / 128d);
 		}
 		return fuelTrimValue;
 	}

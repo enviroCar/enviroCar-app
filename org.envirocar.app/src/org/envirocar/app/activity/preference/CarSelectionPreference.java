@@ -20,46 +20,33 @@
  */
 package org.envirocar.app.activity.preference;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.StreamCorruptedException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.application.CarManager;
-import org.envirocar.app.application.ECApplication;
-import org.envirocar.app.application.User;
+import org.envirocar.app.application.ContextInternetAccessProvider;
 import org.envirocar.app.application.UserManager;
+import org.envirocar.app.dao.DAOProvider;
+import org.envirocar.app.dao.NotConnectedException;
+import org.envirocar.app.dao.SensorRetrievalException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
-import org.envirocar.app.network.HTTPClient;
-import org.envirocar.app.network.RestClient;
-import org.envirocar.app.util.Util;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Build;
+import android.os.Handler;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.preference.DialogPreference;
@@ -72,6 +59,7 @@ import android.util.Base64OutputStream;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
@@ -81,16 +69,11 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.loopj.android.http.AsyncHttpResponseHandler;
-
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class CarSelectionPreference extends DialogPreference {
 
@@ -98,7 +81,6 @@ public class CarSelectionPreference extends DialogPreference {
 	private static final Logger logger = Logger.getLogger(CarSelectionPreference.class);
 	private static final String DEFAULT_VALUE = "null";
 	private Car car;
-	private LinearLayout garageProgress;
 	private EditText modelEditText;
 	private EditText manufacturerEditText;
 	private EditText constructionYearEditText;
@@ -113,46 +95,53 @@ public class CarSelectionPreference extends DialogPreference {
 	private Button sensorRetryButton;
 	
 	protected List<Car> sensors;
-	private ScrollView garageForm;
+//	private ScrollView garageForm;
 	private RadioButton gasolineRadioButton;
 	private RadioButton dieselRadioButton;
 	private EditText engineDisplacementEditText;
+	private TableLayout selectedCarDetails;
+	private View registerButton;
+	private ProgressBar carRegisterProgress;
+	private TextView carRegisterStatusText;
+	private View carRegisterForm;
 	
 	
 	public CarSelectionPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
         
-        setDialogLayoutResource(R.layout.my_garage_layout);
+        setDialogLayoutResource(R.layout.car_selection_main);
         setPositiveButtonText(android.R.string.ok);
         setNegativeButtonText(android.R.string.cancel);
         
         setDialogIcon(null);
-        
 	}
 	
 	@Override
 	protected void onBindDialogView(View view) {
 		setupUIItems(view);
+		
+		getCarList();
 	}
 	
-	private void setupUIItems(View view) {
+	
+	private void setupUIItems(View rootView) {
 		//TODO !fancy! search for sensors
-		garageForm = (ScrollView) view.findViewById(R.id.garage_form);
-		garageProgress = (LinearLayout) view.findViewById(R.id.addCarToGarage_status);
+		LinearLayout selectCarView = (LinearLayout) rootView.findViewById(R.id.car_selection_select_car);
+		LinearLayout registerCarView = (LinearLayout) rootView.findViewById(R.id.car_selection_register_car);
 		
-		setupCarCreationItems(view);
+		selectedCarDetails = (TableLayout) selectCarView.findViewById(R.id.selected_car_details);
+		
+		setupCarRegistrationItems(registerCarView);
 
-		sensorSpinner = (Spinner) view.findViewById(R.id.dashboard_current_sensor_spinner);
+		sensorSpinner = (Spinner) selectCarView.findViewById(R.id.dashboard_current_sensor_spinner);
 		sensorSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 			private boolean firstSelect = true;
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, 
 		            int pos, long id) {
-				if(!firstSelect){
-					logger.info(parent.getItemAtPosition(pos)+"");
-					
+				if (!firstSelect && pos > 0) {
 					updateCurrentSensor((Car) parent.getItemAtPosition(pos));
-				}else{
+				} else {
 					firstSelect = false;
 				}
 			}
@@ -162,22 +151,21 @@ public class CarSelectionPreference extends DialogPreference {
 				logger.info("no change detected");
 			}
 		});
-		sensorDlProgress = (ProgressBar) view.findViewById(R.id.sensor_dl_progress);
-		sensorRetryButton = (Button) view.findViewById(R.id.retrybutton);
+		sensorDlProgress = (ProgressBar) selectCarView.findViewById(R.id.sensor_dl_progress);
+		sensorRetryButton = (Button) selectCarView.findViewById(R.id.retrybutton);
 		sensorRetryButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				getCarList();
 			}
 		});
-
-		getCarList();
 		
-		view.findViewById(R.id.mygaragelayout).requestFocus();
-		view.findViewById(R.id.mygaragelayout).requestFocusFromTouch();
+//		rootView.findViewById(R.id.mygaragelayout).requestFocus();
+//		rootView.findViewById(R.id.mygaragelayout).requestFocusFromTouch();
 	}
-
-	private void setupCarCreationItems(View view) {
+	
+	
+	private void setupCarRegistrationItems(View view) {
 		modelEditText = (EditText) view.findViewById(R.id.addCarToGarage_car_model);
 		manufacturerEditText = (EditText) view.findViewById(R.id.addCarToGarage_car_manufacturer);
 		constructionYearEditText = (EditText) view.findViewById(R.id.addCarToGarage_car_constructionYear);
@@ -225,61 +213,37 @@ public class CarSelectionPreference extends DialogPreference {
 		dieselRadioButton = (RadioButton) view.findViewById(R.id.radio_diesel);
 		dieselRadioButton.setOnClickListener(listener);
 		
-		view.findViewById(R.id.register_car_button).setOnClickListener(
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View view) {
-//						if(UserManager.instance().isLoggedIn()){
-							registerSensorAtServer(SENSOR_TYPE, carManufacturer,
-									carModel, carConstructionYear, carFuelType, carEngineDisplacement);
-//						}
-//						else {
-//							Toast.makeText(getDialog().getContext(),
-//									"Please log in", Toast.LENGTH_SHORT).show();
-//						}
-					}
-				});
+		carRegisterProgress = (ProgressBar) view.findViewById(R.id.car_register_progress);
+		carRegisterStatusText = (TextView) view.findViewById(R.id.car_register_status_text);
+		carRegisterForm = view.findViewById(R.id.car_register_form);
+		
+		registerButton = view.findViewById(R.id.register_car_button);
+		registerButton.setOnClickListener(
+			new View.OnClickListener() {
+				@Override
+				public void onClick(View view) {
+					registerSensorAtServer(SENSOR_TYPE, carManufacturer,
+								carModel, carConstructionYear, carFuelType, carEngineDisplacement);
+				}
+			});
 	}
 	
 	/**
 	 * Shows the progress UI and hides the register form.
 	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-	private void showProgress(final boolean show) {
-		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-		// for very easy animations. If available, use these APIs to fade-in
-		// the progress spinner.
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-			int shortAnimTime = getContext().getResources().getInteger(
-					android.R.integer.config_shortAnimTime);
-
-			garageProgress.setVisibility(View.VISIBLE);
-			garageProgress.animate().setDuration(shortAnimTime)
-					.alpha(show ? 1 : 0)
-					.setListener(new AnimatorListenerAdapter() {
-						@Override
-						public void onAnimationEnd(Animator animation) {
-							garageProgress
-									.setVisibility(show ? View.VISIBLE
-											: View.GONE);
-						}
-					});
-
-			garageForm.setVisibility(View.VISIBLE);
-			garageForm.animate().setDuration(shortAnimTime)
-					.alpha(show ? 0 : 1)
-					.setListener(new AnimatorListenerAdapter() {
-						@Override
-						public void onAnimationEnd(Animator animation) {
-							garageForm.setVisibility(show ? View.GONE
-									: View.VISIBLE);
-						}
-					});
-		} else {
-			// The ViewPropertyAnimator APIs are not available, so simply show
-			// and hide the relevant UI components.
-			garageProgress.setVisibility(show ? View.VISIBLE : View.GONE);
-			garageForm.setVisibility(show ? View.GONE : View.VISIBLE);
+	private void changeProgress(final boolean show, String statusText) {
+		registerButton.setEnabled(!show && statusText == null);
+		carRegisterForm.setVisibility(show || statusText != null ? View.INVISIBLE: View.VISIBLE);
+		carRegisterForm.invalidate();
+		
+		if (statusText != null) {
+			carRegisterStatusText.setText(statusText);
+			carRegisterStatusText.setVisibility(View.VISIBLE);
+			carRegisterProgress.setVisibility(View.GONE);
+		}
+		else {
+			carRegisterProgress.setIndeterminate(true);
+			carRegisterProgress.setVisibility(show ? View.VISIBLE : View.GONE);
 		}
 	}
 
@@ -306,89 +270,97 @@ public class CarSelectionPreference extends DialogPreference {
 			return;
 		}
 		
-		String sensorString = String
-				.format(Locale.ENGLISH,
-						"{ \"type\": \"%s\", \"properties\": {\"manufacturer\": \"%s\", \"model\": \"%s\", \"fuelType\": \"%s\", \"constructionYear\": %s, \"engineDisplacement\": %s } }",
-						sensorType, carManufacturer, carModel, carFuelType,
-						carConstructionYear, carEngineDisplacement);
+		changeProgress(true, null);
 		
-		User user = UserManager.instance().getUser();
-		String username = user.getUsername();
-		String token = user.getToken();
 		
-		if (((SettingsActivity) getContext()).isConnectedToInternet()) {
-		
-		RestClient.createSensor(sensorString, username, token, new AsyncHttpResponseHandler(){
-			
-			@Override
-			public void onStart() {
-				super.onStart();
-				showProgress(true);
-			}
+		if (new ContextInternetAccessProvider(getContext()).isConnected() && UserManager.instance().isLoggedIn()) {
+			new AsyncTask<Void, Void, Void>() {
 
-			@Override
-			public void onFailure(Throwable error, String content) {
-				super.onFailure(error, content);
-				if (content != null && content.equals("can't resolve host") ){
-					Toast.makeText(getContext(),
-							getContext().getString(R.string.error_host_not_found), Toast.LENGTH_SHORT).show();
-				} else if (content != null && content.contains("Unauthorized")){
-						logger.info("Tried to register new car while not logged in. Creating temporary car.");
-						Crouton.makeText(
-								(Activity) getContext(),
-								getContext().getResources().getString(
-										R.string.creating_temp_car),
-								Style.INFO).show();
-						createTemporaryCar();
-				} else {
-					logger.warn("Received error response: "+ content +"; "+error.getMessage(), error);
-					//TODO i18n
-					Toast.makeText(getContext(), "Server Error: "+content, Toast.LENGTH_SHORT).show();
-				}
-				showProgress(false);
-			}
-			
-			
-			@Override
-			public void onSuccess(int httpStatusCode, Header[] h, String response) {
-				super.onSuccess(httpStatusCode, h, response);
-				String location = "";
-				for (int i = 0; i< h.length; i++){
-					if( h[i].getName().equals("Location")){
-						location += h[i].getValue();
-						break;
+				@Override
+				protected Void doInBackground(Void... params) {
+					Car tmpCar = new Car(Car.resolveFuelType(carFuelType), carManufacturer, carModel, null,
+							Integer.parseInt(carConstructionYear), Integer.parseInt(carEngineDisplacement));
+					
+					try {
+						String sensorId = DAOProvider.instance().getSensorDAO().saveSensor(tmpCar);
+						
+						//put the sensor id into shared preferences
+						tmpCar.setId(sensorId);
+						car = tmpCar;
+						persistCar();
+						
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								changeProgress(false, String.format("%s %s", car.toString(), resolveSuccesString()));
+								submitDialogClosure();								
+							}
+						});
+						
+					} catch (final NotConnectedException e1) {
+						logger.warn(e1.getMessage());
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								Toast.makeText(getContext(), "Server Error: "+e1.getMessage(), Toast.LENGTH_SHORT).show();
+								changeProgress(false, e1.getMessage());								
+							}
+						});
 					}
+					
+					return null;
 				}
-				logger.info(httpStatusCode+" "+location);
 				
-				String sensorId = location.substring(location.lastIndexOf("/")+1, location.length());
-
-				//put the sensor id into shared preferences
-				int engineDisplacement = Integer.parseInt(carEngineDisplacement);
-				int year = Integer.parseInt(carConstructionYear);
-				car = new Car(Car.resolveFuelType(carFuelType), carManufacturer, carModel, sensorId, year, engineDisplacement);
-				persistCar();
-			}
-		});
-		}else{
-			createTemporaryCar();
+			}.execute();
+	
 		}
+		else {
+			createTemporaryCar();
+		}	
 
+	}
+	
+	protected void runOnUiThread(Runnable runnable) {
+		if (getContext() instanceof Activity) {
+			((Activity) getContext()).runOnUiThread(runnable);
+		}
+	}
+
+	private String resolveSuccesString() {
+		try {
+			return getContext().getResources().getString(R.string.register_car_success);
+		} catch (RuntimeException e) {
+		}
+		return "succesfully registered.";
 	}
 
 	private void createTemporaryCar(){
-		String sensorId = Car.TEMPORARY_SENSOR_ID + UUID.randomUUID().toString().substring(0, 5);
-		createNewCar(sensorId);
-	}
-	
-	private void createNewCar(String sensorId){
+		String uuid = UUID.randomUUID().toString();
+		String sensorId = Car.TEMPORARY_SENSOR_ID.concat(uuid.substring(0, uuid.length() - Car.TEMPORARY_SENSOR_ID.length()));
 		
 		int year = Integer.parseInt(carConstructionYear);
 		car = new Car(Car.resolveFuelType(carFuelType), carManufacturer,
 				carModel, sensorId, year,
 				Integer.parseInt(carEngineDisplacement));
+		
 		persistCar();
+		
 		Toast.makeText(getContext(), getContext().getString(R.string.creating_temp_car), Toast.LENGTH_SHORT).show();
+		changeProgress(false, getContext().getString(R.string.creating_temp_car));
+		
+		submitDialogClosure();
+	}
+
+	private void submitDialogClosure() {
+		new Handler().postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				Dialog dialog = getDialog();
+				if (dialog != null) {
+					dialog.dismiss();
+				}
+			}
+		}, 2000);
 	}
 	
 	private void checkEmpty(String... values) throws Exception {
@@ -414,61 +386,24 @@ public class CarSelectionPreference extends DialogPreference {
 		return "none";
 	}
 
-	protected String downloadSensors() throws Exception{
+	protected void retrieveSensorsFromDao() throws SensorRetrievalException {
+		sensors = DAOProvider.instance().getSensorDAO().getAllSensors();
 		
-		HttpGet getRequest = new HttpGet(ECApplication.BASE_URL+"/sensors");
-		
-		getRequest.addHeader("Accept-Encoding", "application/json");
-		
-		try {
-			HttpResponse response = HTTPClient.execute(getRequest);
-			
-			String content = HTTPClient.readResponse(response.getEntity());
-		
-			JSONObject parentObject = new JSONObject(content);
-			
-			JSONArray res = (JSONArray) parentObject.get("sensors");
-			
-			addSensorsToList(res);
-			
-		} catch (Exception e) {
-			logger.warn(e.getMessage(), e);
-			throw e;
-		}
-		
-		return "";
+		runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					SensorAdapter adapter = new SensorAdapter();
+					sensorSpinner.setAdapter(adapter);
+					int index = adapter.getInitialSelectedItem();
+					sensorSpinner.setSelection(index);
+					if (index > 0) {
+						updateCurrentSensor(car);
+					}				
+				}
+			});
 	}
 
-	private void addSensorsToList(JSONArray res){
-		
-		for (int i = 0; i<res.length(); i++){
-			String typeString;
-			JSONObject properties;
-			String carId;
-			try {
-				typeString = ((JSONObject) res.get(i)).optString("type", "none");
-				properties = ((JSONObject) res.get(i)).getJSONObject("properties");
-				carId = properties.getString("id");
-			} catch (JSONException e) {
-				logger.warn(e.getMessage(), e);
-				continue;
-			}
-			if (typeString.equals(SENSOR_TYPE)) {
-				try {
-					sensors.add(Car.fromJsonWithStrictEngineDisplacement(properties));
-				} catch (JSONException e) {
-					logger.warn(String.format("Car '%s' not supported: %s", carId != null ? carId : "null", e.getMessage()));
-				}
-			}	
-			
-		}
-		
-		SensorAdapter adapter = new SensorAdapter();
-		sensorSpinner.setAdapter(adapter);
-		int index = adapter.getInitialSelectedItem();
-		sensorSpinner.setSelection(index);
-	}
-	
 	public void getCarList() {
 		
 		sensorDlProgress.setVisibility(View.VISIBLE);
@@ -477,58 +412,15 @@ public class CarSelectionPreference extends DialogPreference {
 		
 		sensors = new ArrayList<Car>();
 
-		if (((SettingsActivity) getContext()).isConnectedToInternet()) {
-			try {
-				new SensorDownloadTask().execute().get();
-			} catch (Exception e) {
-				logger.warn(e.getMessage(), e);
-				Toast.makeText(getContext(), "Could not retrieve cars from server", Toast.LENGTH_SHORT).show();				
-			} 
-			//TODO add possibility to update cache
-//			downloadSensors(true);
-		} else {
-			getCarsFromCache();
-		}		
-		if(sensors.isEmpty()){
-			logger.warn("Got no cars neither from server nor from cache.");
-			//TODO show warning that no cars were found i18n
-			Toast.makeText(getContext(), "Could not retrieve cars from server or local cache", Toast.LENGTH_SHORT).show();
-		}
-		sensorDlProgress.setVisibility(View.GONE);
-		sensorSpinner.setVisibility(View.VISIBLE);
+		try {
+			new SensorRetrievalTask().execute();
+		} catch (Exception e) {
+			logger.warn(e.getMessage(), e);
+			Toast.makeText(getContext(), "Could not retrieve cars from server", Toast.LENGTH_SHORT).show();				
+		} 
 
 	}
 	
-	private void getCarsFromCache() {
-		File directory;
-		try {
-			directory = Util.resolveExternalStorageBaseFolder();
-
-			File f = new File(directory, CarManager.CAR_CACHE_FILE_NAME);
-
-			if (f.isFile()) {
-				BufferedReader bufferedReader = new BufferedReader(
-						new FileReader(f));
-
-				String content = "";
-				String line = "";
-
-				while ((line = bufferedReader.readLine()) != null) {
-					content = content.concat(line);
-				}
-
-				bufferedReader.close();
-
-				JSONArray cars = new JSONArray(content);
-
-				addSensorsToList(cars);
-			}
-		} catch (IOException e) {
-			logger.warn(e.getMessage(), e);
-		} catch (JSONException e) {
-			logger.warn(e.getMessage(), e);
-		}
-	}
 
 	/**
 	 * This method updates the attributes of the current sensor (=car) 
@@ -540,6 +432,18 @@ public class CarSelectionPreference extends DialogPreference {
 	 */
 	private void updateCurrentSensor(Car car) {
 		this.car = car;
+		
+		if (car != null) {
+			((TextView) selectedCarDetails.findViewById(R.id.car_constructionYear_value)).setText(car.getConstructionYear()+"");
+			((TextView) selectedCarDetails.findViewById(R.id.car_engineDisplacement_value)).setText(car.getEngineDisplacement()+"");
+			((TextView) selectedCarDetails.findViewById(R.id.car_manufacturer_value)).setText(car.getManufacturer());
+			((TextView) selectedCarDetails.findViewById(R.id.car_model_value)).setText(car.getModel());
+			selectedCarDetails.setVisibility(View.VISIBLE);
+		}
+		else {
+			selectedCarDetails.setVisibility(View.GONE);
+		}
+		
 	}
 
 	@Override
@@ -551,9 +455,16 @@ public class CarSelectionPreference extends DialogPreference {
 	}
 	
 	private void persistCar() {
+		CarManager.instance().setCar(car);
 		persistString(serializeCar(car));
-        setSummary(car.toString());	
-        CarManager.instance().setCar(car);
+		getSharedPreferences().edit().putInt(SettingsActivity.CAR_HASH_CODE, car.hashCode()).commit();
+       
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				 setSummary(car.toString());					
+			}
+		});
 	}
 
 	@Override
@@ -660,17 +571,23 @@ public class CarSelectionPreference extends DialogPreference {
 		return null;
 	}
 	
-	private class SensorDownloadTask extends AsyncTask<Void, String, String>{
+	private class SensorRetrievalTask extends AsyncTask<Void, Void, Void>{
 		
 		@Override
-		protected String doInBackground(Void... params){
+		protected Void doInBackground(Void... params){
 			
 			try {
-				return downloadSensors();
-			} catch (Exception e) {
+				retrieveSensorsFromDao();
+			} catch (SensorRetrievalException e) {
 				logger.warn(e.getMessage(), e);
 			}
-			return "";
+			return null;
+		}
+		
+		@Override
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
+			updateUIOnAfterSensorRetrieval();
 		}
 		
 	}
@@ -756,7 +673,26 @@ public class CarSelectionPreference extends DialogPreference {
         	return text;
         }
 
-    }		
+    }
 
+	public void updateUIOnAfterSensorRetrieval() {
+		if(sensors.isEmpty()){
+			logger.warn("Got no cars neither from server nor from cache.");
+			//TODO show warning that no cars were found i18n
+			Toast.makeText(getContext(), "Could not retrieve cars from server or local cache", Toast.LENGTH_SHORT).show();
+		}
+		
+		sensorDlProgress.setVisibility(View.GONE);
+		sensorSpinner.setVisibility(View.VISIBLE);
+		
+		/*
+		 * workaround for getDialog() returning null in every lifecycle method
+		 */
+		Dialog dialog = getDialog();
+		if (dialog != null) {
+			dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+		}		
+	}
+	
 	
 }
