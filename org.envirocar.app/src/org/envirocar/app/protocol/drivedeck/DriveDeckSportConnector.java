@@ -44,12 +44,13 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	private static final Logger logger = Logger.getLogger(DriveDeckSportConnector.class);
 	private static final char CARRIAGE_RETURN = '\r';
 	static final char END_OF_LINE_RESPONSE = '>';
+	private static final long SEND_CYCLIC_COMMAND_DELTA = 2500;
 	private Protocol protocol;
 	private String vin;
 	private CycleCommand cycleCommand;
 	private ResponseParser responseParser = new LocalResponseParser();
 	private ConnectionState state = ConnectionState.DISCONNECTED;
-	private boolean send;
+	public long lastResult;
 	
 	private static enum Protocol {
 		CAN11500, CAN11250, CAN29500, CAN29250, KWP_SLOW, KWP_FAST, ISO9141
@@ -243,8 +244,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 
 	@Override
 	protected List<CommonCommand> getRequestCommands() {
-		if (!send) {
-			send = true;
+		if (System.currentTimeMillis() - lastResult > SEND_CYCLIC_COMMAND_DELTA) {
 			return Collections.singletonList((CommonCommand) cycleCommand);
 		}
 		else {
@@ -340,7 +340,13 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 						pidResponseValue[target] = bytes[i];
 					}
 					
-					return parsePIDResponse(pid, pidResponseValue, now);
+					CommonCommand result = parsePIDResponse(pid, pidResponseValue, now);
+					
+					if (result != null) {
+						lastResult = now;
+					}
+					
+					return result;
 				}
 				
 			}
