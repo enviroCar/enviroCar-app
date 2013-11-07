@@ -311,6 +311,14 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 				else if (pid.equals("71")) {
 					processDiscoveredControlUnits(new String(bytes, start+3, count-3));
 				}
+				else if (pid.equals("31")) {
+					// engine on
+					logger.debug("Engine: On");
+				}
+				else if (pid.equals("32")) {
+					// engine off (= RPM < 500)
+					logger.debug("Engine: Off");
+				}
 				
 				else {
 					/*
@@ -355,6 +363,11 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	@Override
 	protected long getSleepTimeBetweenCommands() {
 		return 0;
+	}
+
+	@Override
+	public long getPreferredRequestPeriod() {
+		return 500;
 	}
 
 }

@@ -108,7 +108,6 @@ public class OBDCommandLooper extends HandlerThread {
 				throw new LooperStoppedException();
 			}
 			
-			logger.debug("Scheduling the Executiion of Command Commands!");
 			commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
 		}
 	};
@@ -357,6 +356,10 @@ public class OBDCommandLooper extends HandlerThread {
 			this.obdAdapter = adapterCandidates.get(adapterIndex++ % adapterCandidates.size());
 			this.obdAdapter.provideStreamObjects(inputStream, outputStream);
 			tries = 0;
+		}
+		
+		if (this.obdAdapter != null) {
+			this.requestPeriod = this.obdAdapter.getPreferredRequestPeriod();
 		}
 	}
 	
