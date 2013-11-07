@@ -46,7 +46,6 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	static final char END_OF_LINE_RESPONSE = '>';
 	private Protocol protocol;
 	private String vin;
-	private long firstConnectionResponse;
 	private CycleCommand cycleCommand;
 	private ResponseParser responseParser = new LocalResponseParser();
 	private ConnectionState state = ConnectionState.DISCONNECTED;
@@ -112,7 +111,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	}
 
 	private String oneByteToHex(byte b) {
-		String result = Integer.toString(b, 16).toUpperCase(Locale.US);
+		String result = Integer.toString(b & 0xff, 16).toUpperCase(Locale.US);
 		if (result.length() == 1) result = "0".concat(result);
 		return result;
 	}
@@ -163,7 +162,6 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		}
 
 		logger.info("Protocol is: "+ protocol.toString());
-		logger.info("Connected in "+ (System.currentTimeMillis() - firstConnectionResponse) +" ms.");
 		
 		updateConnectionState();
 	}
@@ -234,20 +232,14 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		result[2] = typeBytes[0];
 		result[3] = typeBytes[1];
 		for (int i = 0; i < rawBytes.length; i++) {
-			String hex = byteToHex(rawBytes[i]);
+			String hex = oneByteToHex(rawBytes[i]);
 			result[(i*2)+4] = (byte) hex.charAt(0);
 			result[(i*2)+1+4] = (byte) hex.charAt(1);
 		}
 		return result;
 	}
 
-	private String byteToHex(byte b) {
-		String result = Integer.toString((int) b, 16);
-		if (result.length() == 1) {
-			result = "0".concat(result);
-		}
-		return result;
-	}
+
 
 	@Override
 	protected List<CommonCommand> getRequestCommands() {
@@ -289,7 +281,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	}
 
 
-	private class LocalResponseParser implements ResponseParser {
+	public class LocalResponseParser implements ResponseParser {
 		@Override
 		public CommonCommand processResponse(byte[] bytes, int start, int count) {
 			if (count <= 0) return null;
@@ -330,11 +322,13 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 					byte[] pidResponseValue = new byte[2];
 					int target;
 					for (int i = start+4; i <= count+start; i++) {
+						target = i-(start+4);
+						if (target >= pidResponseValue.length)
+							break;
+						
 						if ((char) bytes[i] == CycleCommand.TOKEN_SEPARATOR_CHAR)
 							break;
 						
-						target = i-(start+4);
-						if (target >= pidResponseValue.length) break;
 						pidResponseValue[target] = bytes[i];
 					}
 					
