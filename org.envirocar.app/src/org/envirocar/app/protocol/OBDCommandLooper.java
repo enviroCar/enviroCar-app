@@ -70,6 +70,7 @@ public class OBDCommandLooper extends HandlerThread {
 	private static final Logger logger = Logger.getLogger(OBDCommandLooper.class);
 	protected static final long ADAPTER_TRY_PERIOD = 5000;
 	private static final Integer MAX_PHASE_COUNT = 2;
+	public static final long MAX_NODATA_TIME = 1000 * 60 * 1;
 	
 	private List<OBDConnector> adapterCandidates = new ArrayList<OBDConnector>();
 	private OBDConnector obdAdapter;
@@ -85,6 +86,8 @@ public class OBDCommandLooper extends HandlerThread {
 	private ConnectionListener connectionListener;
 	private String deviceName;
 	private Map<Phase, AtomicInteger> phaseCountMap = new HashMap<Phase, AtomicInteger>();
+	private MonitorRunnable monitor;
+	private long lastSuccessfulCommandTime;
 	
 	private Runnable commonCommandsRunnable = new Runnable() {
 		public void run() {
@@ -269,10 +272,16 @@ public class OBDCommandLooper extends HandlerThread {
 			return;
 		}
 		
+		long time = 0;
 		for (CommonCommand cmd : cmds) {
 			if (cmd.getCommandState() == CommonCommandState.FINISHED) {
 				commandListener.receiveUpdate(cmd);
+				time = cmd.getResultTime();
 			}
+		}
+		
+		if (time != 0) {
+			lastSuccessfulCommandTime = time;
 		}
 		
 	}
@@ -287,7 +296,7 @@ public class OBDCommandLooper extends HandlerThread {
 		commandExecutionHandler.removeCallbacks(commonCommandsRunnable);
 		
 		if (phaseCount >= MAX_PHASE_COUNT) {
-			logger.warn("Too often in phase "+phaseCount);
+			logger.warn("Too often in phase: "+phaseCount);
 			connectionListener.requestConnectionRetry(reason);
 			
 			running = false;
@@ -299,11 +308,7 @@ public class OBDCommandLooper extends HandlerThread {
 			connectionEstablished = false;
 			obdAdapter = null;
 			
-			adapterCandidates.clear();
-			adapterCandidates.add(new ELM327Connector());
-			adapterCandidates.add(new AposW3Connector());
-			adapterCandidates.add(new OBDLinkMXConnector());
-			adapterCandidates.add(new DriveDeckSportConnector());
+			setupAdapterCandidates();
 			
 			commandExecutionHandler.post(initializationCommandsRunnable);
 			break;
@@ -312,10 +317,33 @@ public class OBDCommandLooper extends HandlerThread {
 			this.connectionListener.onConnectionVerified();
 			commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
 			commandListener.onConnected(deviceName);
+			
+			startMonitoring();
+			
 			break;
 		default:
 			break;
 		}
+	}
+
+
+
+	private void startMonitoring() {
+		if (this.monitor != null) {
+			this.monitor.running = false;
+		}
+		
+		this.monitor = new MonitorRunnable();
+		new Thread(this.monitor).start();
+	}
+
+
+	private void setupAdapterCandidates() {
+		adapterCandidates.clear();
+		adapterCandidates.add(new ELM327Connector());
+		adapterCandidates.add(new AposW3Connector());
+		adapterCandidates.add(new OBDLinkMXConnector());
+		adapterCandidates.add(new DriveDeckSportConnector());
 	}
 
 
@@ -361,6 +389,38 @@ public class OBDCommandLooper extends HandlerThread {
 		if (this.obdAdapter != null) {
 			this.requestPeriod = this.obdAdapter.getPreferredRequestPeriod();
 		}
+	}
+
+	private class MonitorRunnable implements Runnable {
+
+		private boolean running = true;
+		
+		@Override
+		public void run() {
+			Thread.currentThread().setName("OBD-Data-Monitor");
+			while (running) {
+				try {
+					Thread.sleep(MAX_NODATA_TIME / 3);
+				} catch (InterruptedException e) {
+					logger.warn(e.getMessage(), e);
+				}
+				
+				if (!running) return;
+				
+				if (System.currentTimeMillis() - lastSuccessfulCommandTime > MAX_NODATA_TIME) {
+					commandExecutionHandler.removeCallbacks(commonCommandsRunnable);
+					commandExecutionHandler.getLooper().quit();
+					
+					if (OBDCommandLooper.this.obdAdapter != null) {
+						OBDCommandLooper.this.obdAdapter.shutdown();
+					}
+					
+					connectionListener.requestConnectionRetry(new IOException("Waited too long for data."));
+					return;
+				}
+			}
+		}
+		
 	}
 	
 	@Override
