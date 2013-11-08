@@ -24,7 +24,10 @@ import java.io.IOException;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.ParseException;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.apache.http.util.EntityUtils;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.NotConnectedException;
@@ -41,6 +44,16 @@ public abstract class BaseRemoteDAO {
 				request.addHeader("X-Token", user.getToken());	
 			}
 			
+		}
+		
+		if (request instanceof HttpEntityEnclosingRequestBase) {
+			if (!request.containsHeader("Content-Type")) {
+				request.addHeader("Content-Type", "application/json");
+			}
+			
+			if (!request.containsHeader("Accept-Encoding")) {
+				request.addHeader("Accept-Encoding", "gzip");
+			}
 		}
 		
 		HttpResponse result;
@@ -62,12 +75,26 @@ public abstract class BaseRemoteDAO {
 		int httpStatusCode = response.getStatusLine().getStatusCode();
 		
 		if (httpStatusCode >= HttpStatus.SC_MULTIPLE_CHOICES) {
+			String error = null;
+			
+			try {
+				if (response.getEntity() != null && response.getEntity().getContentLength() > 0) {
+					error = EntityUtils.toString(response.getEntity());
+				}
+			} catch (IllegalStateException e) {
+				throw new NotConnectedException(e);
+			} catch (ParseException e) {
+				throw new NotConnectedException(e);
+			} catch (IOException e) {
+				throw new NotConnectedException(e);
+			}
+			
 			if (httpStatusCode == HttpStatus.SC_UNAUTHORIZED ||
 					httpStatusCode == HttpStatus.SC_FORBIDDEN) {
-				throw new UnauthorizedException("Authentication failed.");
+				throw new UnauthorizedException("Authentication failed: "+httpStatusCode +"; "+ error);
 			}
 			else {
-				throw new NotConnectedException("Unsupported server response.");
+				throw new NotConnectedException("Unsupported Server response: "+httpStatusCode +"; "+ error);
 			}
 		}
 	}

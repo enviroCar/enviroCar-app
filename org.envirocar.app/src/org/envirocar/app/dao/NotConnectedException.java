@@ -20,8 +20,6 @@
  */
 package org.envirocar.app.dao;
 
-import java.io.IOException;
-
 public class NotConnectedException extends DAOException {
 
 	/**
@@ -33,7 +31,7 @@ public class NotConnectedException extends DAOException {
 		super(m);
 	}
 
-	public NotConnectedException(IOException e) {
+	public NotConnectedException(Exception e) {
 		super(e);
 	}
 	

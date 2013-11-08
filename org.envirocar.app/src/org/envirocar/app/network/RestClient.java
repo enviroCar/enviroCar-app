@@ -145,6 +145,7 @@ public class RestClient {
 	}
 
 
+	@Deprecated
 	public static void updateAcceptedTermsOfUseVersion(User user,
 			String issuedDate, AsyncHttpResponseHandler handler) {
 		String contents = String.format("{\"%s\": \"%s\"}", "acceptedTermsOfUseVersion", issuedDate);

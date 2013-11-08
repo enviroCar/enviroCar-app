@@ -30,9 +30,11 @@ import org.json.JSONObject;
  */
 public class User {
 
+	private static final String TOU_VERSION = "touVersion";
+	private static final String NAME = "name";
 	private String username;
 	private String token;
-	private String acceptedTermsOfUseVersion;
+	private String touVersion;
 
 	/**
 	 * Creates a new user with given parameters
@@ -66,12 +68,12 @@ public class User {
 		this.token = token2;
 	}
 
-	public String getAcceptedTermsOfUseVersion() {
-		return acceptedTermsOfUseVersion;
+	public String getTouVersion() {
+		return touVersion;
 	}
 
-	public void setAcceptedTermsOfUseVersion(String acceptedTermsOfUseVersion) {
-		this.acceptedTermsOfUseVersion = acceptedTermsOfUseVersion;
+	public void setTouVersion(String acceptedTermsOfUseVersion) {
+		this.touVersion = acceptedTermsOfUseVersion;
 	}
 
 	public static User fromJson(String json) throws JSONException {
@@ -80,11 +82,24 @@ public class User {
 	}
 
 	public static User fromJson(JSONObject json) throws JSONException {
-		String name = json.getString("name");
-		String touVersion = json.optString("acceptedTermsOfUseVersion", null);
+		String name = json.getString(NAME);
+		String touVersion = json.optString(TOU_VERSION, null);
 		User result = new User(name, null);
-		result.setAcceptedTermsOfUseVersion(touVersion);
+		result.setTouVersion(touVersion);
 		return result;
+	}
+
+	public String toJson() throws JSONException {
+		return toJson(false);
+	}
+	
+	public String toJson(boolean withUsername) throws JSONException {
+		JSONObject result = new JSONObject();
+		if (withUsername) {
+			result.put(NAME, getUsername());
+		}
+		result.put(TOU_VERSION, getTouVersion());
+		return result.toString();
 	}
 
 	

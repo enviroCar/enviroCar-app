@@ -425,7 +425,7 @@ public class ListTracksFragment extends SherlockFragment {
 		final User user = UserManager.instance().getUser();
 		boolean verified = false;
 		try {
-			verified = TermsOfUseManager.verifyTermsUseOfVersion(user.getAcceptedTermsOfUseVersion());
+			verified = TermsOfUseManager.verifyTermsUseOfVersion(user.getTouVersion());
 		} catch (ServerException e) {
 			logger.warn(e.getMessage(), e);
 			Crouton.makeText(getActivity(), getString(R.string.server_error_please_try_later), Style.ALERT).show();
@@ -442,7 +442,7 @@ public class ListTracksFragment extends SherlockFragment {
 			}
 			
 			DialogUtil.createTermsOfUseDialog(current,
-					user.getAcceptedTermsOfUseVersion() == null, new DialogUtil.PositiveNegativeCallback() {
+					user.getTouVersion() == null, new DialogUtil.PositiveNegativeCallback() {
 
 				@Override
 				public void negative() {

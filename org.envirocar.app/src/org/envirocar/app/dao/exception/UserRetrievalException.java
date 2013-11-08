@@ -18,23 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.dao.cache;
+package org.envirocar.app.dao.exception;
 
-import org.envirocar.app.application.User;
-import org.envirocar.app.dao.UserDAO;
-import org.envirocar.app.dao.exception.UserRetrievalException;
-import org.envirocar.app.dao.exception.UserUpdateException;
+import org.envirocar.app.dao.DAOException;
 
-public class CacheUserDAO implements UserDAO {
+public class UserRetrievalException extends DAOException {
 
-	@Override
-	public void updateUser(User user) throws UserUpdateException {
-		throw new UserUpdateException("Not supported by Cache");
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	public UserRetrievalException(String string) {
+		super(string);
 	}
 
-	@Override
-	public User getUser(String id) throws UserRetrievalException {
-		throw new UserRetrievalException("Not supported by Cache");
-	}
+	public UserRetrievalException(Exception e) {
+		super(e);
+	}	
 
 }

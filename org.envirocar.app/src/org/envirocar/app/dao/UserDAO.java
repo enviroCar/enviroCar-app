@@ -20,6 +20,13 @@
  */
 package org.envirocar.app.dao;
 
+import org.envirocar.app.application.User;
+import org.envirocar.app.dao.exception.UserRetrievalException;
+import org.envirocar.app.dao.exception.UserUpdateException;
+
 public interface UserDAO {
 
+	void updateUser(User user) throws UserUpdateException;
+
+	User getUser(String id) throws UserRetrievalException;
 }
