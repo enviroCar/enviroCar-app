@@ -22,12 +22,15 @@ package org.envirocar.app.dao.remote;
 
 import java.util.List;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
+import org.apache.http.client.methods.HttpGet;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.NotConnectedException;
 import org.envirocar.app.dao.TrackDAO;
+import org.envirocar.app.dao.exception.TrackRetrievalException;
 import org.envirocar.app.storage.Track;
 
 public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, AuthenticatedDAO {
@@ -63,5 +66,25 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public Integer getUserTrackCount() throws NotConnectedException, TrackRetrievalException {
+		User user = UserManager.instance().getUser();
+		HttpGet get = new HttpGet(ECApplication.BASE_URL+"/tracks/"+user.getUsername()+"/tracks?limit=1");
+		
+		HttpResponse response = executeHttpRequest(get);
+		return TrackHelper.resolveTrackCount(response);
+	}
+
+	@Override
+	public Integer getTotalTrackCount() throws NotConnectedException, TrackRetrievalException {
+		HttpGet get = new HttpGet(ECApplication.BASE_URL+"/tracks?limit=1");
+		
+		HttpResponse response = executeHttpRequest(get);
+		
+		return TrackHelper.resolveTrackCount(response);
+	}
+
+
 
 }

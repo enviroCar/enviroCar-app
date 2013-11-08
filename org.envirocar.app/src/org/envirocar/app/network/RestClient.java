@@ -57,6 +57,7 @@ public class RestClient {
 	 * @param page the page (/tracks/ is a paging-enabled resource)
 	 * @param handler called on success or failure
 	 */
+	@Deprecated
 	public static void downloadTracks(String user, String token, int limit, int page, JsonHttpResponseHandler handler){
 		get(String.format(Locale.ENGLISH, "%s/users/%s/tracks?limit=%d&page=%d", ECApplication.BASE_URL, user, limit, page),
 			handler, user, token);
@@ -69,6 +70,7 @@ public class RestClient {
 	 * @param token the users token
 	 * @param handler called on success or failure
 	 */
+	@Deprecated
 	public static void downloadTracks(String user, String token, JsonHttpResponseHandler handler){
 		downloadTracks(user, token, 5, 1, handler);
 	}
@@ -84,6 +86,7 @@ public class RestClient {
 		client.delete(ECApplication.BASE_URL+"/users/"+user+"/tracks/" + id, handler);
 	}
 	
+	@Deprecated
 	public static void downloadTrack(String user, String token, String id, AsyncHttpResponseHandler handler){
 		get(ECApplication.BASE_URL+"/tracks/"+id, handler, user, token);
 	}

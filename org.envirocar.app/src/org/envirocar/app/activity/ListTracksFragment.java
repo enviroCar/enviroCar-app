@@ -686,7 +686,7 @@ public class ListTracksFragment extends SherlockFragment {
 			return;
 		}
 		
-		resolveTotalRemoteTrackCount(username, token, new JsonHttpResponseHandler() {
+		resolveTotalRemoteTrackCount(new JsonHttpResponseHandler() {
 			@Override
 			public void onFinish() {
 				downloadTracks(username, token, 5, 1);
@@ -695,25 +695,25 @@ public class ListTracksFragment extends SherlockFragment {
 		
 	}
 	
-	private void resolveTotalRemoteTrackCount(String username, String token,
-			final JsonHttpResponseHandler callback) {
-		RestClient.downloadTracks(username, token, 100, 1, new JsonHttpResponseHandler() {
-			@Override
-			public void onSuccess(int statusCode, JSONObject response) {
-				super.onSuccess(statusCode, response);
+	private void resolveTotalRemoteTrackCount(final JsonHttpResponseHandler callback) {
+		DAOProvider.async(new AsyncExecutionWithCallback<Integer>() {
 
-				try {
-					JSONArray tracks = response.getJSONArray("tracks");
-					remoteTrackCount.set(tracks.length());
+			@Override
+			public Integer execute() throws DAOException {
+				return DAOProvider.instance().getTrackDAO().getUserTrackCount();
+			}
+
+			@Override
+			public Integer onResult(Integer result, boolean fail,
+					Exception e) {
+				if (!fail) {
+					remoteTrackCount.set(result.intValue());
 				}
-				catch (JSONException e) {
+				else {
 					logger.warn(e.getMessage(), e);
 				}
-			}
-			
-			@Override
-			public void onFinish() {
 				callback.onFinish();
+				return null;
 			}
 		});
 	}
