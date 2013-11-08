@@ -22,8 +22,10 @@ package org.envirocar.app.protocol.drivedeck;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.IntakePressure;
@@ -39,6 +41,8 @@ import org.envirocar.app.protocol.AbstractAsynchronousConnector;
 import org.envirocar.app.protocol.ResponseParser;
 import org.envirocar.app.protocol.drivedeck.CycleCommand.PID;
 
+import android.util.Base64;
+
 public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 
 	private static final Logger logger = Logger.getLogger(DriveDeckSportConnector.class);
@@ -51,6 +55,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	private ResponseParser responseParser = new LocalResponseParser();
 	private ConnectionState state = ConnectionState.DISCONNECTED;
 	public long lastResult;
+	private Set<String> loggedPids = new HashSet<String>();
 	
 	private static enum Protocol {
 		CAN11500, CAN11250, CAN29500, CAN29250, KWP_SLOW, KWP_FAST, ISO9141
@@ -203,9 +208,8 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 			//determine which probe value is returned.
 			result = O2LambdaProbe.fromPIDEnum(org.envirocar.app.commands.PIDUtil.PID.O2_LAMBDA_PROBE_1_VOLTAGE);
 		}
-		else {
-			logger.info("Parsing not yet supported for response:" +pid);
-		}
+
+		oneTimePIDLog(pid, rawBytes);
 		
 		if (result != null) {
 			byte[] rawData = createRawData(rawBytes, result.getResponseTypeID());
@@ -223,6 +227,17 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		}
 		
 		return result;
+	}
+
+	private void oneTimePIDLog(String pid, byte[] rawBytes) {
+		if (pid == null || rawBytes == null || rawBytes.length == 0)
+			return;
+		
+		if (!loggedPids.contains(pid)) {
+			logger.info("First response for PID: " +pid +"; Base64: "+
+					Base64.encodeToString(rawBytes, Base64.DEFAULT));
+			loggedPids.add(pid);
+		}
 	}
 
 	private byte[] createRawData(byte[] rawBytes, String type) {
