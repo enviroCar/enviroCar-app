@@ -22,7 +22,9 @@ package org.envirocar.app.test.dao;
 
 import junit.framework.Assert;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.envirocar.app.dao.exception.TrackRetrievalException;
@@ -33,7 +35,7 @@ import android.test.AndroidTestCase;
 public class TrackDecoderTest extends AndroidTestCase {
 
 	public void testTotalTrackCount() throws TrackRetrievalException {
-		BasicHttpResponse response = new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), 204, ""));
+		BasicHttpResponse response = new BasicHttpResponse(createStatusLine());
 		response.setHeader("Link", "<https://envirocar.org/api/stable/users/matthes/tracks?limit=1&page=7>;rel=last;type=application/json, <https://envirocar.org/api/stable/users/matthes/tracks?limit=1&page=2>;rel=next;type=application/json");
 		Integer count = new TrackDecoder().resolveTrackCount(response);
 		
@@ -45,6 +47,20 @@ public class TrackDecoderTest extends AndroidTestCase {
 		
 		Assert.assertTrue(count.intValue() == 6);
 
+	}
+	
+	private StatusLine createStatusLine() {
+		return new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), 204, "");
+	}
+
+	public void testLocationParsing() throws TrackRetrievalException {
+		HttpResponse resp = new BasicHttpResponse(createStatusLine());
+		
+		resp.setHeader("Location", "http:/this.is.my.envirocar.server/api/tracks/1337-resource");
+		
+		String result = new TrackDecoder().resolveLocation(resp);
+		
+		Assert.assertTrue(result.equals("1337-resource"));
 	}
 	
 }

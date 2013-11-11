@@ -46,8 +46,11 @@ import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
+import org.envirocar.app.json.TrackEncoder;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.Measurement;
+import org.envirocar.app.storage.Track;
+import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -345,7 +348,7 @@ public class Util {
 		bufferedWriter.flush();
 		bufferedWriter.close();
 	}
-
+	
 	/**
 	 * method to get the current version
 	 * 
@@ -377,6 +380,26 @@ public class Util {
 
 	public static String getVersionStringShort(Context ctx) throws NameNotFoundException {
 		return ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName;
+	}
+	
+	/**
+	 * Saves a json object to the sd card
+	 * 
+	 * @param obj
+	 *            the object to save
+	 * @param id 
+	 * @throws IOException 
+	 */
+	public static File saveTrackToSdCard(String obj, String id) throws IOException {
+		File log = new File(resolveExternalStorageBaseFolder(), "enviroCar-track-"+id+".json");
+		saveContentsToFile(obj, log);
+		return log;
+	}
+	
+	
+	public static File saveTrackAndReturnFile(Track t, boolean obfuscate) throws JSONException, TrackWithoutMeasurementsException, IOException{
+		return Util.saveTrackToSdCard(new TrackEncoder().createTrackJson(t, obfuscate).toString(),
+				(t.isRemoteTrack() ? t.getRemoteID() : Long.toString(t.getId())));
 	}
 	
 }

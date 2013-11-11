@@ -22,21 +22,28 @@ package org.envirocar.app.dao.remote;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.TrackDAO;
 import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.TrackRetrievalException;
+import org.envirocar.app.dao.exception.TrackSerializationException;
 import org.envirocar.app.json.TrackDecoder;
+import org.envirocar.app.json.TrackEncoder;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, AuthenticatedDAO {
 
@@ -55,9 +62,25 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 	}
 
 	@Override
-	public void storeTrack(Track track) {
-		// TODO Auto-generated method stub
-		
+	public String storeTrack(Track track, boolean obfuscate) throws NotConnectedException, TrackWithoutMeasurementsException, TrackSerializationException, TrackRetrievalException {
+		try {
+			JSONObject content = new TrackEncoder().createTrackJson(track, obfuscate);
+			
+			User user = UserManager.instance().getUser();
+			HttpPost post = new HttpPost(String.format("%s/users/%s/tracks", ECApplication.BASE_URL,
+					user.getUsername()));
+			try {
+				post.setEntity(new StringEntity(content.toString()));
+			} catch (UnsupportedEncodingException e) {
+				throw new TrackSerializationException(e);
+			}
+			
+			HttpResponse response = executeHttpRequest(post);
+			
+			return new TrackDecoder().resolveLocation(response);
+		} catch (JSONException e) {
+			throw new TrackSerializationException(e);
+		}
 	}
 
 

@@ -147,5 +147,20 @@ public class TrackDecoder {
 	public Track fromJson(CharSequence contents) throws JSONException, java.text.ParseException {
 		return fromJson(new JSONObject(contents.toString()));
 	}
+
+	public String resolveLocation(HttpResponse response) throws TrackRetrievalException {
+		String location = null;
+		Header h = response.getFirstHeader("Location");
+
+		if (h != null) {
+			location = h.getValue();
+		}
+		else {
+			throw new TrackRetrievalException("Could not parse the 'Location' Header.");
+		}
+		
+		String trackid = location.substring(location.lastIndexOf("/")+1, location.length());
+		return trackid;
+	}
 	
 }

@@ -25,46 +25,54 @@ import java.util.List;
 import org.envirocar.app.dao.exception.DAOException;
 import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.TrackRetrievalException;
+import org.envirocar.app.dao.exception.TrackSerializationException;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 
 public interface TrackDAO {
 
 	void deleteTrack(String remoteID) throws DAOException;
-	
-	void storeTrack(Track track) throws DAOException;
-	
+
+	String storeTrack(Track track, boolean obfuscate)
+			throws NotConnectedException, TrackWithoutMeasurementsException,
+			TrackSerializationException, TrackRetrievalException;
+
 	Track getTrack(String id) throws NotConnectedException;
 
-	Integer getUserTrackCount() throws NotConnectedException, TrackRetrievalException;
-	
-	Integer getTotalTrackCount() throws NotConnectedException, TrackRetrievalException;
+	Integer getUserTrackCount() throws NotConnectedException,
+			TrackRetrievalException;
+
+	Integer getTotalTrackCount() throws NotConnectedException,
+			TrackRetrievalException;
 
 	/**
-	 * an implementation shall treat calls as a
-	 * shortcut for {@link #getTrackIds(int)} with limit=100
+	 * an implementation shall treat calls as a shortcut for
+	 * {@link #getTrackIds(int)} with limit=100
 	 * 
 	 * @return the resource IDs of the desired tracks
-	 * @throws NotConnectedException 
+	 * @throws NotConnectedException
 	 */
 	List<String> getTrackIds() throws NotConnectedException;
-	
+
 	/**
-	 * an implementation shall treat calls as a
-	 * shortcut for {@link #getTrackIds(int, int)} with limit=limit and page=1
+	 * an implementation shall treat calls as a shortcut for
+	 * {@link #getTrackIds(int, int)} with limit=limit and page=1
 	 * 
-	 * @param limit the total count of returned track ids
+	 * @param limit
+	 *            the total count of returned track ids
 	 * @return the resource IDs of the desired tracks
-	 * @throws NotConnectedException 
+	 * @throws NotConnectedException
 	 */
 	List<String> getTrackIds(int limit) throws NotConnectedException;
-	
+
 	/**
-	 * @param limit the total count of returned track ids
-	 * @param page the pagination index (starting at 1)
+	 * @param limit
+	 *            the total count of returned track ids
+	 * @param page
+	 *            the pagination index (starting at 1)
 	 * @return the resource IDs of the desired tracks
-	 * @throws NotConnectedException 
+	 * @throws NotConnectedException
 	 */
 	List<String> getTrackIds(int limit, int page) throws NotConnectedException;
-	
 
 }

@@ -22,6 +22,7 @@
 package org.envirocar.app.activity;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -76,6 +77,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -392,7 +394,7 @@ public class ListTracksFragment extends SherlockFragment {
 			try{
 				Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 				sharingIntent.setType("application/json");
-				Uri shareBody = Uri.fromFile(new UploadManager(getActivity().getApplication()).saveTrackAndReturnFile(track));
+				Uri shareBody = Uri.fromFile(Util.saveTrackAndReturnFile(track, isObfuscationEnabled()));
 				sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "EnviroCar Track "+track.getName());
 				sharingIntent.putExtra(android.content.Intent.EXTRA_STREAM,shareBody);
 				startActivity(Intent.createChooser(sharingIntent, "Share via"));
@@ -402,6 +404,9 @@ public class ListTracksFragment extends SherlockFragment {
 			} catch (TrackWithoutMeasurementsException e) {
 				logger.warn(e.getMessage(), e);
 				Crouton.showText(getActivity(), R.string.track_finished_no_measurements, Style.ALERT);
+			} catch (IOException e) {
+				logger.warn(e.getMessage(), e);
+				Crouton.showText(getActivity(), R.string.error_io, Style.ALERT);
 			}
 			return true;
 			
@@ -416,6 +421,11 @@ public class ListTracksFragment extends SherlockFragment {
 		default:
 			return super.onContextItemSelected(item);
 		}
+	}
+	
+	public boolean isObfuscationEnabled() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		return prefs.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
 	}
 
 	/**

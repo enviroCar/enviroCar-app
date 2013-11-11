@@ -21,38 +21,26 @@
 
 package org.envirocar.app.application;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.FileEntity;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.dao.DAOProvider;
+import org.envirocar.app.dao.DAOProvider.AsyncExecutionWithCallback;
+import org.envirocar.app.dao.exception.DAOException;
 import org.envirocar.app.dao.exception.NotConnectedException;
-import org.envirocar.app.json.TrackEncoder;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
-import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.TrackMetadata;
 import org.envirocar.app.storage.TrackWithoutMeasurementsException;
-import org.json.JSONException;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -69,7 +57,6 @@ public class UploadManager {
 	public static final String NET_ERROR = "net_error";
 	public static final String GENERAL_ERROR = "-1";
 	
-	private String url = ECApplication.BASE_URL + "/users/%1$s/tracks";
 	private static Logger logger = Logger.getLogger(UploadManager.class);
 	private DbAdapter dbAdapter;
 	private Context context;
@@ -86,6 +73,11 @@ public class UploadManager {
 		this.dbAdapter = DbAdapterImpl.instance();
 	}
 
+	public boolean isObfuscationEnabled() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+		return prefs.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
+	}
+	
 	/**
 	 * This methods uploads all local tracks to the server
 	 */
@@ -95,10 +87,81 @@ public class UploadManager {
 		}
 	}
 	
-	public void uploadSingleTrack(Track track, TrackUploadFinishedHandler callback) {
+	public void uploadSingleTrack(final Track track, final TrackUploadFinishedHandler callback) {
 		if (track == null ) return;
 		
-		new UploadAsyncTask(callback).execute(track);
+		DAOProvider.async(new AsyncExecutionWithCallback<String>() {
+
+			@Override
+			public String execute() throws DAOException {
+				Thread.currentThread().setName("TrackUploaderTask-"+track.getId());
+				
+				/*
+				 * inject track metadata
+				 */
+				track.updateMetadata(new TrackMetadata(context));
+				
+				if (hasTemporaryCar(track)) {
+					/*
+					 * perhaps we already did a registration for this temp car.
+					 * the Map is application uptime scope (static).
+					 */
+					if (!temporaryCarAlreadyRegistered(track)) {
+						registerCarBeforeUpload(track);
+					}
+					
+				}
+				
+				try {
+					String result = DAOProvider.instance().getTrackDAO().storeTrack(track, isObfuscationEnabled());
+					return result;
+				} catch (TrackWithoutMeasurementsException e) {
+					if (track.getNumberOfMeasurements() != 0) {
+						alertOnObfuscationMeasurements();
+					}
+					throw new DAOException(e);
+				}
+			}
+
+			private void alertOnObfuscationMeasurements() {
+				/*
+				 * obfuscation removed all measurements
+				 */
+				final Activity ac = ((ECApplication) context).getCurrentActivity();
+				if (ac != null) {
+					ac.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							Crouton.makeText(ac, R.string.uploading_track_no_measurements_after_obfuscation_long, Style.ALERT).show();								
+						}
+					});
+				}
+				((ECApplication) context).createNotification(context.getResources().getString(R.string.uploading_track_no_measurements_after_obfuscation));
+			}
+
+			@Override
+			public String onResult(String result, boolean fail,
+					Exception e) {
+				if (!fail) {
+					/*
+					 * success, we got an ID
+					 */
+					((ECApplication) context).createNotification("success");
+					track.setRemoteID(result);
+					dbAdapter.updateTrack(track);
+					
+					if (callback != null) {
+						callback.onSuccessfulUpload(track);
+					}
+				}
+				else {
+					logger.warn(e.getMessage(), e);
+					((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
+				}
+				return null;
+			}
+		});
+		
 	}
 	
 	private void registerCarBeforeUpload(Track track) throws NotConnectedException {
@@ -127,118 +190,6 @@ public class UploadManager {
 		return track.getCar().getId().startsWith(Car.TEMPORARY_SENSOR_ID);
 	}
 	
-	
-	private class UploadAsyncTask extends AsyncTask<Track, Track, Track> {
-		
-		
-		private TrackUploadFinishedHandler callback;
-
-		public UploadAsyncTask(TrackUploadFinishedHandler callback) {
-			this.callback = callback;
-		}
-
-		@Override
-		protected Track doInBackground(Track... params) {
-			((ECApplication) context).createNotification("start");
-			User user = UserManager.instance().getUser();
-			String username = user.getUsername();
-			String token = user.getToken();
-			String urlL = String.format(url, username);
-			
-			Track track = params[0];
-			Thread.currentThread().setName("TrackUploaderTast-"+track.getId());
-			
-			if (hasTemporaryCar(track)) {
-				/*
-				 * perhaps we already did a registration for this temp car.
-				 * the Map is application uptime scope (static).
-				 */
-				if (!temporaryCarAlreadyRegistered(track)) {
-					try {
-						registerCarBeforeUpload(track);
-					} catch (NotConnectedException e) {
-						logger.warn(e.getMessage(), e);
-						this.cancel(true);
-						((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
-					}	
-				}
-				
-			}
-
-			File file = null;
-			try {
-				file = saveTrackAndReturnFile(track);
-			} catch (JSONException e) {
-				logger.warn(e.getMessage(), e);
-				//the track wasn't JSON serializable. shouldn't occur.
-				this.cancel(true);
-				((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
-			} catch (RuntimeException e) {
-				logger.warn(e.getMessage(), e);
-				this.cancel(true);
-				((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
-			} catch (TrackWithoutMeasurementsException e) {
-				if (track.getNumberOfMeasurements() != 0) {
-					/*
-					 * obfuscation removed all measurements
-					 */
-					final Activity ac = ((ECApplication) context).getCurrentActivity();
-					if (ac != null) {
-						ac.runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								Crouton.makeText(ac, R.string.uploading_track_no_measurements_after_obfuscation_long, Style.ALERT).show();								
-							}
-						});
-					}
-					((ECApplication) context).createNotification(context.getResources().getString(R.string.uploading_track_no_measurements_after_obfuscation));
-				}
-				else {
-					logger.warn(e.getMessage(), e);
-				}
-				this.cancel(true);
-			}
-			
-			if (file == null) {
-				this.cancel(true);
-				((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
-			}
-			
-			//upload
-			String httpResult = sendHttpPost(urlL, file, token, username);
-			if (httpResult.equals(NET_ERROR)){
-				((ECApplication) context).createNotification(context.getResources().getString(R.string.error_host_not_found));
-			} else if (httpResult.equals(GENERAL_ERROR)) {
-				((ECApplication) context).createNotification(context.getResources().getString(R.string.general_error_please_report));
-			} else {
-				/*
-				 * success, we got an ID
-				 */
-				((ECApplication) context).createNotification("success");
-				track.setRemoteID(httpResult);
-				dbAdapter.updateTrack(track);
-				
-				if (callback != null) {
-					callback.onSuccessfulUpload(track);
-				}
-			}
-			
-			return track;
-		}
-		
-	}
-
-	public String getTrackJSON(Track track) throws JSONException, TrackWithoutMeasurementsException {
-		/*
-		 * inject track metadata
-		 */
-		track.updateMetadata(new TrackMetadata(context));
-		
-		return new TrackEncoder().createTrackJson(track, isObfuscationEnabled()).toString();
-	}
-	
-
-
 
 	public boolean temporaryCarAlreadyRegistered(Track track) {
 		if (temporaryAlreadyRegisteredCars.containsKey(track.getCar().getId())) {
@@ -246,102 +197,6 @@ public class UploadManager {
 			return true;
 		}
 		return false;
-	}
-
-	public boolean isObfuscationEnabled() {
-		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-		return prefs.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
-	}
-
-	/**
-	 * Uploads the json object to the server
-	 * 
-	 * @param url
-	 *            Url
-	 * @param contents
-	 *            The Json Object
-	 * @param xToken
-	 *            Token
-	 * @param xUser
-	 *            Username
-	 * @return Server response status code
-	 */
-	private String sendHttpPost(String url, File contents, String xToken,
-			String xUser) {
-
-		try {
-			HttpPost httpPostRequest = new HttpPost(url);
-
-			FileEntity se = new FileEntity(contents, "application/json");
-			se.setContentType("application/json");
-
-			// Set HTTP parameters
-			httpPostRequest.setEntity(se);
-			httpPostRequest.setHeader("Content-type", "application/json");
-			httpPostRequest.setHeader("X-Token", xToken);
-			httpPostRequest.setHeader("X-User", xUser);
-
-			HttpResponse response = (HttpResponse) HTTPClient
-					.execute(httpPostRequest);
-			
-			String location = "";
-			Header[] h = response.getAllHeaders();
-			for (int i = 0; i< h.length; i++){
-				if( h[i].getName().equals("Location")){
-					location += h[i].getValue();
-					break;
-				}
-			}
-			
-			String trackid = location.substring(location.lastIndexOf("/")+1, location.length());
-
-
-			int statusCode = response.getStatusLine()
-					.getStatusCode();
-			
-			logger.debug("Status Code: "+ statusCode);
-
-			if (statusCode < HttpStatus.SC_MULTIPLE_CHOICES){
-				HTTPClient.consumeEntity(response.getEntity());
-				return trackid;
-			} else {
-				String errorResponse = HTTPClient.readResponse(response.getEntity());
-				logger.warn("Server response: "+ errorResponse);
-				return GENERAL_ERROR;
-			}
-
-		} catch (UnsupportedEncodingException e) {
-			logger.warn(e.getMessage(), e);
-			return GENERAL_ERROR;
-		} catch (IOException e) {
-			logger.warn(e.getMessage(), e);
-			return NET_ERROR;
-		}
-	}
-
-	/**
-	 * Saves a json object to the sd card
-	 * 
-	 * @param obj
-	 *            the object to save
-	 * @param id 
-	 */
-	private File saveToSdCard(String obj, String id) {
-		File log = new File(context.getExternalFilesDir(null),"enviroCar-track-"+id+".json");
-		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(log.getAbsolutePath(), false));
-			out.write(obj);
-			out.flush();
-			out.close();
-			return log;
-		} catch (IOException e) {
-			logger.warn(e.getMessage(), e);
-		}
-		return null;
-	}
-	
-	public File saveTrackAndReturnFile(Track t) throws JSONException, TrackWithoutMeasurementsException{
-		return saveToSdCard(getTrackJSON(t), (t.isRemoteTrack() ? t.getRemoteID() : Long.toString(t.getId())));
 	}
 
 }

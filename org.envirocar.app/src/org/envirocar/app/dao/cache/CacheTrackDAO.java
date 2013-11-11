@@ -35,7 +35,7 @@ public class CacheTrackDAO implements TrackDAO {
 	}
 
 	@Override
-	public void storeTrack(Track track) throws NotConnectedException {
+	public String storeTrack(Track track, boolean obfuscate) throws NotConnectedException {
 		throw new NotConnectedException("Not implemented for Cache DAO");
 	}
 
