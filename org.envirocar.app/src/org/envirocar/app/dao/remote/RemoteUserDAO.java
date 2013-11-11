@@ -25,11 +25,13 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.dao.UserDAO;
 import org.envirocar.app.dao.exception.NotConnectedException;
+import org.envirocar.app.dao.exception.ResourceConflictException;
 import org.envirocar.app.dao.exception.UserRetrievalException;
 import org.envirocar.app.dao.exception.UserUpdateException;
 import org.envirocar.app.model.User;
@@ -54,7 +56,7 @@ public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, Authenticat
 	}
 
 	@Override
-	public User getUser(String id) throws UserRetrievalException {
+	public User getUser(String id) throws UserRetrievalException, UnauthorizedException {
 		HttpGet get = new HttpGet(ECApplication.BASE_URL+"/users/"+id);
 		
 		InputStream content;
@@ -70,6 +72,27 @@ public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, Authenticat
 		}
 		
 		
+	}
+
+	@Override
+	public void createUser(User newUser) throws UserUpdateException, ResourceConflictException {
+		HttpPost post = new HttpPost(ECApplication.BASE_URL+"/users");
+		
+		try {
+			post.setEntity(new StringEntity(newUser.toJson(true)));
+		} catch (UnsupportedEncodingException e) {
+			throw new UserUpdateException(e);
+		} catch (JSONException e) {
+			throw new UserUpdateException(e);
+		}
+		
+		try {
+			executeHttpRequest(post);
+		} catch (ResourceConflictException e) {
+			throw e;
+		} catch (NotConnectedException e) {
+			throw new UserUpdateException(e);
+		}
 	}
 
 }

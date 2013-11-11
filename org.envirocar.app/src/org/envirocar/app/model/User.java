@@ -32,9 +32,12 @@ public class User {
 
 	private static final String TOU_VERSION = "touVersion";
 	private static final String NAME = "name";
+	private static final String MAIL = "mail";
+	private static final String TOKEN = "token";
 	private String username;
 	private String token;
 	private String touVersion;
+	private String mail;
 
 	/**
 	 * Creates a new user with given parameters
@@ -55,6 +58,14 @@ public class User {
 	 */
 	public String getUsername() {
 		return username;
+	}
+	
+	public void setMail(String mail) {
+		this.mail = mail;
+	}
+	
+	public String getMail() {
+		return mail;
 	}
 
 	/**
@@ -83,9 +94,13 @@ public class User {
 
 	public static User fromJson(JSONObject json) throws JSONException {
 		String name = json.getString(NAME);
-		String touVersion = json.optString(TOU_VERSION, null);
 		User result = new User(name, null);
+		
+		String touVersion = json.optString(TOU_VERSION, null);
 		result.setTouVersion(touVersion);
+		
+		String m = json.optString(MAIL, null);
+		result.setMail(m);
 		return result;
 	}
 
@@ -93,12 +108,23 @@ public class User {
 		return toJson(false);
 	}
 	
-	public String toJson(boolean withUsername) throws JSONException {
+	public String toJson(boolean withUsernameToken) throws JSONException {
 		JSONObject result = new JSONObject();
-		if (withUsername) {
+
+		if (getMail() != null) {
+			result.put(MAIL, getMail());
+		}
+		
+		if (getTouVersion() != null) {
+			result.put(TOU_VERSION, getTouVersion());
+		}
+		
+		if (withUsernameToken) {
+			result.put(TOKEN, getToken());
 			result.put(NAME, getUsername());
 		}
-		result.put(TOU_VERSION, getTouVersion());
+		
+
 		return result.toString();
 	}
 

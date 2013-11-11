@@ -18,19 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.dao;
+package org.envirocar.app.dao.exception;
 
-import org.envirocar.app.dao.exception.ResourceConflictException;
-import org.envirocar.app.dao.exception.UserRetrievalException;
-import org.envirocar.app.dao.exception.UserUpdateException;
-import org.envirocar.app.dao.remote.UnauthorizedException;
-import org.envirocar.app.model.User;
+public class ResourceConflictException extends NotConnectedException {
 
-public interface UserDAO {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-	void updateUser(User user) throws UserUpdateException;
+	public ResourceConflictException(String error) {
+		super(error);
+	}
 
-	User getUser(String id) throws UserRetrievalException, UnauthorizedException;
-
-	void createUser(User newUser) throws UserUpdateException, ResourceConflictException;
 }

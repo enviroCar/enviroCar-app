@@ -21,12 +21,14 @@
 package org.envirocar.app.dao.exception;
 
 
+
 public class NotConnectedException extends DAOException {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	private int httpStatus;
 
 	public NotConnectedException(String m) {
 		super(m);
@@ -35,5 +37,15 @@ public class NotConnectedException extends DAOException {
 	public NotConnectedException(Exception e) {
 		super(e);
 	}
+
+	public NotConnectedException(Exception e, int httpStatusCode) {
+		super(e);
+		this.httpStatus = httpStatusCode;
+	}
+
+	public int getHttpStatus() {
+		return httpStatus;
+	}
+	
 	
 }

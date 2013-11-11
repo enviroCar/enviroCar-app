@@ -32,6 +32,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.util.EntityUtils;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.exception.NotConnectedException;
+import org.envirocar.app.dao.exception.ResourceConflictException;
 import org.envirocar.app.model.User;
 import org.envirocar.app.network.HTTPClient;
 
@@ -41,7 +42,7 @@ public abstract class BaseRemoteDAO {
 		if (this instanceof AuthenticatedDAO) {
 			User user = UserManager.instance().getUser();
 			
-			if (user != null) {
+			if (user != null && user.getUsername() != null && user.getToken() != null) {
 				request.addHeader("X-User", user.getUsername());
 				request.addHeader("X-Token", user.getToken());	
 			}
@@ -108,16 +109,19 @@ public abstract class BaseRemoteDAO {
 					error = EntityUtils.toString(response.getEntity());
 				}
 			} catch (IllegalStateException e) {
-				throw new NotConnectedException(e);
+				throw new NotConnectedException(e, httpStatusCode);
 			} catch (ParseException e) {
-				throw new NotConnectedException(e);
+				throw new NotConnectedException(e, httpStatusCode);
 			} catch (IOException e) {
-				throw new NotConnectedException(e);
+				throw new NotConnectedException(e, httpStatusCode);
 			}
 			
 			if (httpStatusCode == HttpStatus.SC_UNAUTHORIZED ||
 					httpStatusCode == HttpStatus.SC_FORBIDDEN) {
 				throw new UnauthorizedException("Authentication failed: "+httpStatusCode +"; "+ error);
+			}
+			else if (httpStatusCode == HttpStatus.SC_CONFLICT) {
+				throw new ResourceConflictException(error);
 			}
 			else {
 				throw new NotConnectedException("Unsupported Server response: "+httpStatusCode +"; "+ error);
