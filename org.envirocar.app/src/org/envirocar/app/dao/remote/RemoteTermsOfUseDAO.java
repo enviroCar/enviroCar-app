@@ -21,19 +21,22 @@
 package org.envirocar.app.dao.remote;
 
 import java.io.IOException;
+import java.io.InputStream;
 
+import org.apache.http.client.methods.HttpGet;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.dao.TermsOfUseDAO;
 import org.envirocar.app.dao.cache.CacheTermsOfUseDAO;
+import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.TermsOfUseRetrievalException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.TermsOfUse;
 import org.envirocar.app.model.TermsOfUseInstance;
-import org.envirocar.app.network.HTTPClient;
+import org.envirocar.app.util.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class RemoteTermsOfUseDAO implements TermsOfUseDAO {
+public class RemoteTermsOfUseDAO extends BaseRemoteDAO implements TermsOfUseDAO {
 
 	private static final Logger logger = Logger.getLogger(RemoteTermsOfUseDAO.class);
 	private CacheTermsOfUseDAO cache;
@@ -45,7 +48,9 @@ public class RemoteTermsOfUseDAO implements TermsOfUseDAO {
 	@Override
 	public TermsOfUse getTermsOfUse() throws TermsOfUseRetrievalException {
 		try {
-			String content = HTTPClient.executeAndParseJsonRequest(ECApplication.BASE_URL+"/termsOfUse");
+			HttpGet get = new HttpGet(ECApplication.BASE_URL+"/termsOfUse");
+			InputStream response = retrieveHttpContent(get);
+			String content = Util.consumeInputStream(response).toString();
 		
 			if (cache != null) {
 				try {
@@ -65,14 +70,20 @@ public class RemoteTermsOfUseDAO implements TermsOfUseDAO {
 		} catch (JSONException e) {
 			logger.warn(e.getMessage());
 			throw new TermsOfUseRetrievalException(e);
+		} catch (NotConnectedException e) {
+			throw new TermsOfUseRetrievalException(e);
+		} catch (IllegalStateException e) {
+			throw new TermsOfUseRetrievalException(e);
 		}
 	}
 
 	@Override
 	public TermsOfUseInstance getTermsOfUseInstance(String id) throws TermsOfUseRetrievalException {
 		try {
-			String content = HTTPClient.executeAndParseJsonRequest(ECApplication.BASE_URL+"/termsOfUse/"+id);
-		
+			HttpGet get = new HttpGet(ECApplication.BASE_URL+"/termsOfUse/"+id);
+			InputStream response = retrieveHttpContent(get);
+			String content = Util.consumeInputStream(response).toString();
+			
 			if (cache != null) {
 				try {
 					cache.storeTermsOfUseInstance(content, id);
@@ -90,6 +101,10 @@ public class RemoteTermsOfUseDAO implements TermsOfUseDAO {
 			throw new TermsOfUseRetrievalException(e);
 		} catch (JSONException e) {
 			logger.warn(e.getMessage());
+			throw new TermsOfUseRetrievalException(e);
+		} catch (NotConnectedException e) {
+			throw new TermsOfUseRetrievalException(e);
+		} catch (IllegalStateException e) {
 			throw new TermsOfUseRetrievalException(e);
 		}
 	}

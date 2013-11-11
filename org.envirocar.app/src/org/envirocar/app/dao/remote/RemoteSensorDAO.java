@@ -21,11 +21,13 @@
 package org.envirocar.app.dao.remote;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
@@ -38,7 +40,7 @@ import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.SensorRetrievalException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
-import org.envirocar.app.network.HTTPClient;
+import org.envirocar.app.util.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -55,8 +57,10 @@ public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, Authent
 	public List<Car> getAllSensors() throws SensorRetrievalException {
 		
 		try {
-			String content = HTTPClient.executeAndParseJsonRequest(ECApplication.BASE_URL+"/sensors");
-		
+			HttpGet get = new HttpGet(ECApplication.BASE_URL+"/sensors");
+			InputStream response = retrieveHttpContent(get);
+			String content = Util.consumeInputStream(response).toString();
+			
 			if (cache != null) {
 				try {
 					cache.storeAllSensors(content);
@@ -74,6 +78,10 @@ public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, Authent
 			throw new SensorRetrievalException(e);
 		} catch (JSONException e) {
 			logger.warn(e.getMessage());
+			throw new SensorRetrievalException(e);
+		} catch (NotConnectedException e) {
+			throw new SensorRetrievalException(e);
+		} catch (IllegalStateException e) {
 			throw new SensorRetrievalException(e);
 		}
 	}
