@@ -20,8 +20,11 @@
  */
 package org.envirocar.app.dao.remote;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.envirocar.app.application.ECApplication;
@@ -30,6 +33,7 @@ import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.UserRetrievalException;
 import org.envirocar.app.dao.exception.UserUpdateException;
 import org.envirocar.app.model.User;
+import org.envirocar.app.util.Util;
 import org.json.JSONException;
 
 public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, AuthenticatedDAO {
@@ -51,8 +55,21 @@ public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, Authenticat
 
 	@Override
 	public User getUser(String id) throws UserRetrievalException {
+		HttpGet get = new HttpGet(ECApplication.BASE_URL+"/users/"+id);
 		
-		return null;
+		InputStream content;
+		try {
+			content = retrieveHttpContent(get);
+			return User.fromJson(Util.consumeInputStream(content).toString());
+		} catch (IOException e) {
+			throw new UserRetrievalException(e);
+		} catch (JSONException e) {
+			throw new UserRetrievalException(e);
+		} catch (NotConnectedException e) {
+			throw new UserRetrievalException(e);
+		}
+		
+		
 	}
 
 }

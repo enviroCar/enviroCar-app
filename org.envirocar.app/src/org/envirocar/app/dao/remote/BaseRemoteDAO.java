@@ -73,7 +73,7 @@ public abstract class BaseRemoteDAO {
 		return result;
 	}
 	
-	public InputStream retrieveHttpContent(HttpUriRequest request) throws NotConnectedException, IllegalStateException, IOException {
+	public InputStream retrieveHttpContent(HttpUriRequest request) throws NotConnectedException, IOException {
 		HttpResponse result = executeHttpRequest(request);
 		
 		if (result.containsHeader("Transfer-Encoding")) {

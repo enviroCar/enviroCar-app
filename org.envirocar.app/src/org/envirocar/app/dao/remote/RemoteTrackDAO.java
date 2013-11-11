@@ -91,8 +91,6 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 		InputStream response;
 		try {
 			response = retrieveHttpContent(get);
-		} catch (IllegalStateException e1) {
-			throw new NotConnectedException(e1);
 		} catch (IOException e1) {
 			throw new NotConnectedException(e1);
 		}
@@ -150,8 +148,6 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 		InputStream response;
 		try {
 			response = retrieveHttpContent(get);
-		} catch (IllegalStateException e1) {
-			throw new NotConnectedException(e1);
 		} catch (IOException e1) {
 			throw new NotConnectedException(e1);
 		}

@@ -81,8 +81,6 @@ public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, Authent
 			throw new SensorRetrievalException(e);
 		} catch (NotConnectedException e) {
 			throw new SensorRetrievalException(e);
-		} catch (IllegalStateException e) {
-			throw new SensorRetrievalException(e);
 		}
 	}
 

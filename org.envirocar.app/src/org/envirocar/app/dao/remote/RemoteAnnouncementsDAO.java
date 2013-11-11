@@ -71,8 +71,6 @@ public class RemoteAnnouncementsDAO extends BaseRemoteDAO implements Announcemen
 			throw new AnnouncementsRetrievalException(e);
 		} catch (NotConnectedException e) {
 			throw new AnnouncementsRetrievalException(e);
-		} catch (IllegalStateException e) {
-			throw new AnnouncementsRetrievalException(e);
 		}
 	}
 

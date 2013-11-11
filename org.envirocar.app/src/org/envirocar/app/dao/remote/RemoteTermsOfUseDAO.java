@@ -72,8 +72,6 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO implements TermsOfUseDAO 
 			throw new TermsOfUseRetrievalException(e);
 		} catch (NotConnectedException e) {
 			throw new TermsOfUseRetrievalException(e);
-		} catch (IllegalStateException e) {
-			throw new TermsOfUseRetrievalException(e);
 		}
 	}
 
@@ -103,8 +101,6 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO implements TermsOfUseDAO 
 			logger.warn(e.getMessage());
 			throw new TermsOfUseRetrievalException(e);
 		} catch (NotConnectedException e) {
-			throw new TermsOfUseRetrievalException(e);
-		} catch (IllegalStateException e) {
 			throw new TermsOfUseRetrievalException(e);
 		}
 	}
