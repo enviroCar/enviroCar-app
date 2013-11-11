@@ -33,12 +33,13 @@ import org.apache.http.util.EntityUtils;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.ResourceConflictException;
+import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.model.User;
 import org.envirocar.app.network.HTTPClient;
 
 public abstract class BaseRemoteDAO {
 	
-	HttpResponse executeHttpRequest(HttpUriRequest request) throws NotConnectedException {
+	HttpResponse executeHttpRequest(HttpUriRequest request) throws NotConnectedException, UnauthorizedException, ResourceConflictException {
 		if (this instanceof AuthenticatedDAO) {
 			User user = UserManager.instance().getUser();
 			
@@ -74,7 +75,7 @@ public abstract class BaseRemoteDAO {
 		return result;
 	}
 	
-	public InputStream retrieveHttpContent(HttpUriRequest request) throws NotConnectedException, IOException {
+	public InputStream retrieveHttpContent(HttpUriRequest request) throws NotConnectedException, IOException, UnauthorizedException, ResourceConflictException {
 		HttpResponse result = executeHttpRequest(request);
 		
 		if (result.containsHeader("Transfer-Encoding")) {
@@ -94,7 +95,7 @@ public abstract class BaseRemoteDAO {
 		return result.getEntity().getContent();
 	}
 
-	private void assertStatusCode(HttpResponse response) throws NotConnectedException {
+	private void assertStatusCode(HttpResponse response) throws NotConnectedException, UnauthorizedException, ResourceConflictException {
 		if (response == null || response.getStatusLine() == null) {
 			throw new NotConnectedException("Unsupported server response.");
 		}

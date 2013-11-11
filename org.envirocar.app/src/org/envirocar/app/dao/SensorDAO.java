@@ -23,7 +23,9 @@ package org.envirocar.app.dao;
 import java.util.List;
 
 import org.envirocar.app.dao.exception.NotConnectedException;
+import org.envirocar.app.dao.exception.ResourceConflictException;
 import org.envirocar.app.dao.exception.SensorRetrievalException;
+import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.model.Car;
 
 public interface SensorDAO {
@@ -46,7 +48,9 @@ public interface SensorDAO {
 	 * @param user the user for authentication reasons
 	 * @return the ID of the saved sensor as provided by the underlying DAO
 	 * @throws NotConnectedException
+	 * @throws ResourceConflictException 
+	 * @throws UnauthorizedException 
 	 */
-	public String saveSensor(Car car) throws NotConnectedException;
+	public String saveSensor(Car car) throws NotConnectedException, UnauthorizedException;
 	
 }

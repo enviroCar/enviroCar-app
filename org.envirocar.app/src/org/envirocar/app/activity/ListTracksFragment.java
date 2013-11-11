@@ -693,6 +693,7 @@ public class ListTracksFragment extends SherlockFragment {
 	private void downloadTracks() {
 		
 		if (!(new ContextInternetAccessProvider(getActivity()).isConnected())) {
+			updateStatusLayout();
 			return;
 		}
 		

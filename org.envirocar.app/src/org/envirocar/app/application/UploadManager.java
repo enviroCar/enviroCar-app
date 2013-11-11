@@ -30,6 +30,7 @@ import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.dao.DAOProvider.AsyncExecutionWithCallback;
 import org.envirocar.app.dao.exception.DAOException;
 import org.envirocar.app.dao.exception.NotConnectedException;
+import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.storage.DbAdapter;
@@ -164,7 +165,7 @@ public class UploadManager {
 		
 	}
 	
-	private void registerCarBeforeUpload(Track track) throws NotConnectedException {
+	private void registerCarBeforeUpload(Track track) throws NotConnectedException, UnauthorizedException {
 		Car car = track.getCar();
 		String tempId = car.getId();
 		String sensorIdFromServer = DAOProvider.instance().getSensorDAO().saveSensor(car);

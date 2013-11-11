@@ -32,6 +32,7 @@ import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.dao.UserDAO;
 import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.ResourceConflictException;
+import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.dao.exception.UserRetrievalException;
 import org.envirocar.app.dao.exception.UserUpdateException;
 import org.envirocar.app.model.User;
@@ -41,7 +42,7 @@ import org.json.JSONException;
 public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, AuthenticatedDAO {
 
 	@Override
-	public void updateUser(User user) throws UserUpdateException {
+	public void updateUser(User user) throws UserUpdateException, UnauthorizedException {
 		HttpPut put = new HttpPut(ECApplication.BASE_URL+"/users/"+user.getUsername());
 		try {
 			put.setEntity(new StringEntity(user.toJson()));
@@ -51,6 +52,8 @@ public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, Authenticat
 		} catch (JSONException e) {
 			throw new UserUpdateException(e);
 		} catch (NotConnectedException e) {
+			throw new UserUpdateException(e);
+		} catch (ResourceConflictException e) {
 			throw new UserUpdateException(e);
 		}
 	}
@@ -68,6 +71,8 @@ public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, Authenticat
 		} catch (JSONException e) {
 			throw new UserRetrievalException(e);
 		} catch (NotConnectedException e) {
+			throw new UserRetrievalException(e);
+		} catch (ResourceConflictException e) {
 			throw new UserRetrievalException(e);
 		}
 		
@@ -88,9 +93,9 @@ public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, Authenticat
 		
 		try {
 			executeHttpRequest(post);
-		} catch (ResourceConflictException e) {
-			throw e;
 		} catch (NotConnectedException e) {
+			throw new UserUpdateException(e);
+		} catch (UnauthorizedException e) {
 			throw new UserUpdateException(e);
 		}
 	}

@@ -37,7 +37,9 @@ import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.dao.SensorDAO;
 import org.envirocar.app.dao.cache.CacheSensorDAO;
 import org.envirocar.app.dao.exception.NotConnectedException;
+import org.envirocar.app.dao.exception.ResourceConflictException;
 import org.envirocar.app.dao.exception.SensorRetrievalException;
+import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.util.Util;
@@ -81,11 +83,15 @@ public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, Authent
 			throw new SensorRetrievalException(e);
 		} catch (NotConnectedException e) {
 			throw new SensorRetrievalException(e);
+		} catch (UnauthorizedException e) {
+			throw new SensorRetrievalException(e);
+		} catch (ResourceConflictException e) {
+			throw new SensorRetrievalException(e);
 		}
 	}
 
 	@Override
-	public String saveSensor(Car car) throws NotConnectedException {
+	public String saveSensor(Car car) throws NotConnectedException, UnauthorizedException {
 		String sensorString = String
 				.format(Locale.ENGLISH,
 						"{ \"type\": \"%s\", \"properties\": {\"manufacturer\": \"%s\", \"model\": \"%s\", \"fuelType\": \"%s\", \"constructionYear\": %s, \"engineDisplacement\": %s } }",
@@ -95,10 +101,12 @@ public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, Authent
 			return registerSensor(sensorString);
 		} catch (IOException e) {
 			throw new NotConnectedException(e);
+		} catch (ResourceConflictException e) {
+			throw new NotConnectedException(e);
 		}
 	}
 	
-	private String registerSensor(String sensorString) throws IOException, NotConnectedException {
+	private String registerSensor(String sensorString) throws IOException, NotConnectedException, UnauthorizedException, ResourceConflictException {
 		
 		HttpPost postRequest = new HttpPost(
 				ECApplication.BASE_URL+"/sensors");

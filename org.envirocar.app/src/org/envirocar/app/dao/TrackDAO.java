@@ -26,6 +26,7 @@ import org.envirocar.app.dao.exception.DAOException;
 import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.TrackRetrievalException;
 import org.envirocar.app.dao.exception.TrackSerializationException;
+import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 
@@ -51,8 +52,9 @@ public interface TrackDAO {
 	 * 
 	 * @return the resource IDs of the desired tracks
 	 * @throws NotConnectedException
+	 * @throws UnauthorizedException 
 	 */
-	List<String> getTrackIds() throws NotConnectedException;
+	List<String> getTrackIds() throws NotConnectedException, UnauthorizedException;
 
 	/**
 	 * an implementation shall treat calls as a shortcut for
@@ -62,8 +64,9 @@ public interface TrackDAO {
 	 *            the total count of returned track ids
 	 * @return the resource IDs of the desired tracks
 	 * @throws NotConnectedException
+	 * @throws UnauthorizedException 
 	 */
-	List<String> getTrackIds(int limit) throws NotConnectedException;
+	List<String> getTrackIds(int limit) throws NotConnectedException, UnauthorizedException;
 
 	/**
 	 * @param limit
@@ -72,7 +75,8 @@ public interface TrackDAO {
 	 *            the pagination index (starting at 1)
 	 * @return the resource IDs of the desired tracks
 	 * @throws NotConnectedException
+	 * @throws UnauthorizedException 
 	 */
-	List<String> getTrackIds(int limit, int page) throws NotConnectedException;
+	List<String> getTrackIds(int limit, int page) throws NotConnectedException, UnauthorizedException;
 
 }

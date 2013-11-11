@@ -28,7 +28,9 @@ import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.dao.TermsOfUseDAO;
 import org.envirocar.app.dao.cache.CacheTermsOfUseDAO;
 import org.envirocar.app.dao.exception.NotConnectedException;
+import org.envirocar.app.dao.exception.ResourceConflictException;
 import org.envirocar.app.dao.exception.TermsOfUseRetrievalException;
+import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.TermsOfUse;
 import org.envirocar.app.model.TermsOfUseInstance;
@@ -72,6 +74,10 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO implements TermsOfUseDAO 
 			throw new TermsOfUseRetrievalException(e);
 		} catch (NotConnectedException e) {
 			throw new TermsOfUseRetrievalException(e);
+		} catch (UnauthorizedException e) {
+			throw new TermsOfUseRetrievalException(e);
+		} catch (ResourceConflictException e) {
+			throw new TermsOfUseRetrievalException(e);
 		}
 	}
 
@@ -101,6 +107,10 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO implements TermsOfUseDAO 
 			logger.warn(e.getMessage());
 			throw new TermsOfUseRetrievalException(e);
 		} catch (NotConnectedException e) {
+			throw new TermsOfUseRetrievalException(e);
+		} catch (UnauthorizedException e) {
+			throw new TermsOfUseRetrievalException(e);
+		} catch (ResourceConflictException e) {
 			throw new TermsOfUseRetrievalException(e);
 		}
 	}

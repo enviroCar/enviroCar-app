@@ -18,11 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.dao.remote;
+package org.envirocar.app.dao.exception;
 
-import org.envirocar.app.dao.exception.NotConnectedException;
 
-public class UnauthorizedException extends NotConnectedException {
+public class UnauthorizedException extends DAOException {
 
 	public UnauthorizedException(String m) {
 		super(m);

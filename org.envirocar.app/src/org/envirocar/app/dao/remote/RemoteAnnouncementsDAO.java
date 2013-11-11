@@ -30,6 +30,8 @@ import org.envirocar.app.dao.AnnouncementsDAO;
 import org.envirocar.app.dao.cache.CacheAnnouncementsDAO;
 import org.envirocar.app.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.dao.exception.NotConnectedException;
+import org.envirocar.app.dao.exception.ResourceConflictException;
+import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Announcement;
 import org.envirocar.app.util.Util;
@@ -70,6 +72,10 @@ public class RemoteAnnouncementsDAO extends BaseRemoteDAO implements Announcemen
 		} catch (JSONException e) {
 			throw new AnnouncementsRetrievalException(e);
 		} catch (NotConnectedException e) {
+			throw new AnnouncementsRetrievalException(e);
+		} catch (UnauthorizedException e) {
+			throw new AnnouncementsRetrievalException(e);
+		} catch (ResourceConflictException e) {
 			throw new AnnouncementsRetrievalException(e);
 		}
 	}

@@ -21,14 +21,14 @@
 package org.envirocar.app.dao;
 
 import org.envirocar.app.dao.exception.ResourceConflictException;
+import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.dao.exception.UserRetrievalException;
 import org.envirocar.app.dao.exception.UserUpdateException;
-import org.envirocar.app.dao.remote.UnauthorizedException;
 import org.envirocar.app.model.User;
 
 public interface UserDAO {
 
-	void updateUser(User user) throws UserUpdateException;
+	void updateUser(User user) throws UserUpdateException, UnauthorizedException;
 
 	User getUser(String id) throws UserRetrievalException, UnauthorizedException;
 

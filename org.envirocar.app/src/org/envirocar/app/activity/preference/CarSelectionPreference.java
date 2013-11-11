@@ -38,6 +38,7 @@ import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.SensorRetrievalException;
+import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
@@ -298,6 +299,15 @@ public class CarSelectionPreference extends DialogPreference {
 						});
 						
 					} catch (final NotConnectedException e1) {
+						logger.warn(e1.getMessage());
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								Toast.makeText(getContext(), "Server Error: "+e1.getMessage(), Toast.LENGTH_SHORT).show();
+								changeProgress(false, e1.getMessage());								
+							}
+						});
+					} catch (final UnauthorizedException e1) {
 						logger.warn(e1.getMessage());
 						runOnUiThread(new Runnable() {
 							@Override

@@ -20,7 +20,7 @@
  */
 package org.envirocar.app.dao.exception;
 
-public class ResourceConflictException extends NotConnectedException {
+public class ResourceConflictException extends DAOException {
 
 	/**
 	 * 
