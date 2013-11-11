@@ -1,6 +1,9 @@
 package org.envirocar.app.application;
 
 import static android.content.Context.MODE_PRIVATE;
+
+import org.envirocar.app.model.User;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;

@@ -33,6 +33,7 @@ import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.TermsOfUse;
 import org.envirocar.app.model.TermsOfUseInstance;
+import org.envirocar.app.model.User;
 
 import android.app.Activity;
 

@@ -19,7 +19,7 @@
  * 
  */
 
-package org.envirocar.app.application;
+package org.envirocar.app.model;
 
 import org.json.JSONException;
 import org.json.JSONObject;

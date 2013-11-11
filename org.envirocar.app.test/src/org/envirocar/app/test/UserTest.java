@@ -25,7 +25,7 @@ import java.io.InputStream;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.application.User;
+import org.envirocar.app.model.User;
 import org.json.JSONException;
 
 

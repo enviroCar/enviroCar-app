@@ -30,9 +30,9 @@ import org.apache.http.ParseException;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.util.EntityUtils;
-import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.exception.NotConnectedException;
+import org.envirocar.app.model.User;
 import org.envirocar.app.network.HTTPClient;
 
 public abstract class BaseRemoteDAO {
