@@ -20,7 +20,6 @@
  */
 package org.envirocar.app.dao.exception;
 
-import org.envirocar.app.dao.DAOException;
 
 public class TrackRetrievalException extends DAOException {
 

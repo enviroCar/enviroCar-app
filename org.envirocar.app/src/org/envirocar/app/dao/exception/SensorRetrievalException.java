@@ -18,21 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.dao;
+package org.envirocar.app.dao.exception;
 
-public class NotConnectedException extends DAOException {
+
+public class SensorRetrievalException extends DAOException {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
-	public NotConnectedException(String m) {
-		super(m);
+	public SensorRetrievalException(Exception e) {
+		super(e);
 	}
 
-	public NotConnectedException(Exception e) {
-		super(e);
+	public SensorRetrievalException(String string) {
+		super(string);
 	}
 	
 }

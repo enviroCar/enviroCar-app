@@ -27,8 +27,8 @@ import junit.framework.Assert;
 
 import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.dao.SensorDAO;
-import org.envirocar.app.dao.SensorRetrievalException;
 import org.envirocar.app.dao.cache.CacheSensorDAO;
+import org.envirocar.app.dao.exception.SensorRetrievalException;
 import org.envirocar.app.model.Car;
 
 public class SensorDAOTest extends CacheDAOTest {

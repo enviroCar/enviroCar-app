@@ -35,8 +35,8 @@ import org.envirocar.app.application.service.AbstractBackgroundServiceStateRecei
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.DeviceInRangeService;
-import org.envirocar.app.dao.AnnouncementsRetrievalException;
 import org.envirocar.app.dao.DAOProvider;
+import org.envirocar.app.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Announcement;
 import org.envirocar.app.network.RestClient;

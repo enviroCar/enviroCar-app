@@ -25,7 +25,7 @@ import java.io.IOException;
 
 import org.envirocar.app.dao.CacheDirectoryProvider;
 import org.envirocar.app.dao.TermsOfUseDAO;
-import org.envirocar.app.dao.TermsOfUseRetrievalException;
+import org.envirocar.app.dao.exception.TermsOfUseRetrievalException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.TermsOfUse;
 import org.envirocar.app.model.TermsOfUseInstance;

@@ -20,7 +20,7 @@
  */
 package org.envirocar.app.dao.remote;
 
-import org.envirocar.app.dao.DAOException;
+import org.envirocar.app.dao.exception.DAOException;
 
 public class NotLoggedInException extends DAOException {
 

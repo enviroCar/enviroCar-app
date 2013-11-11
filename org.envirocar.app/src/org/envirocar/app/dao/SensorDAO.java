@@ -22,6 +22,8 @@ package org.envirocar.app.dao;
 
 import java.util.List;
 
+import org.envirocar.app.dao.exception.NotConnectedException;
+import org.envirocar.app.dao.exception.SensorRetrievalException;
 import org.envirocar.app.model.Car;
 
 public interface SensorDAO {

@@ -24,6 +24,8 @@ import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.envirocar.app.dao.exception.DAOException;
+import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.TrackRetrievalException;
 import org.envirocar.app.storage.Track;
 

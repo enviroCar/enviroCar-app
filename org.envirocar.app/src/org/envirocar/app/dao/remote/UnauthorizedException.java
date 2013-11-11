@@ -20,7 +20,7 @@
  */
 package org.envirocar.app.dao.remote;
 
-import org.envirocar.app.dao.NotConnectedException;
+import org.envirocar.app.dao.exception.NotConnectedException;
 
 public class UnauthorizedException extends NotConnectedException {
 

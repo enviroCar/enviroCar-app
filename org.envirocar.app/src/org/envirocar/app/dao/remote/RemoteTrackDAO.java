@@ -28,8 +28,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
-import org.envirocar.app.dao.NotConnectedException;
 import org.envirocar.app.dao.TrackDAO;
+import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.TrackRetrievalException;
 import org.envirocar.app.storage.Track;
 

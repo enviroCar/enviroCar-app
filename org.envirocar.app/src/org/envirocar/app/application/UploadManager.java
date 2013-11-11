@@ -37,7 +37,7 @@ import org.apache.http.entity.FileEntity;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.dao.DAOProvider;
-import org.envirocar.app.dao.NotConnectedException;
+import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.json.TrackEncoder;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;

@@ -22,8 +22,8 @@ package org.envirocar.app.dao.cache;
 
 import java.util.List;
 
-import org.envirocar.app.dao.NotConnectedException;
 import org.envirocar.app.dao.TrackDAO;
+import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.TrackRetrievalException;
 import org.envirocar.app.storage.Track;
 
