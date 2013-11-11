@@ -28,7 +28,6 @@ import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.dao.TermsOfUseDAO;
 import org.envirocar.app.dao.cache.CacheTermsOfUseDAO;
 import org.envirocar.app.dao.exception.NotConnectedException;
-import org.envirocar.app.dao.exception.ResourceConflictException;
 import org.envirocar.app.dao.exception.TermsOfUseRetrievalException;
 import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.logging.Logger;
@@ -51,7 +50,7 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO implements TermsOfUseDAO 
 	public TermsOfUse getTermsOfUse() throws TermsOfUseRetrievalException {
 		try {
 			HttpGet get = new HttpGet(ECApplication.BASE_URL+"/termsOfUse");
-			InputStream response = retrieveHttpContent(get);
+			InputStream response = super.retrieveHttpContent(get);
 			String content = Util.consumeInputStream(response).toString();
 		
 			if (cache != null) {
@@ -76,8 +75,6 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO implements TermsOfUseDAO 
 			throw new TermsOfUseRetrievalException(e);
 		} catch (UnauthorizedException e) {
 			throw new TermsOfUseRetrievalException(e);
-		} catch (ResourceConflictException e) {
-			throw new TermsOfUseRetrievalException(e);
 		}
 	}
 
@@ -85,7 +82,7 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO implements TermsOfUseDAO 
 	public TermsOfUseInstance getTermsOfUseInstance(String id) throws TermsOfUseRetrievalException {
 		try {
 			HttpGet get = new HttpGet(ECApplication.BASE_URL+"/termsOfUse/"+id);
-			InputStream response = retrieveHttpContent(get);
+			InputStream response = super.retrieveHttpContent(get);
 			String content = Util.consumeInputStream(response).toString();
 			
 			if (cache != null) {
@@ -109,8 +106,6 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO implements TermsOfUseDAO 
 		} catch (NotConnectedException e) {
 			throw new TermsOfUseRetrievalException(e);
 		} catch (UnauthorizedException e) {
-			throw new TermsOfUseRetrievalException(e);
-		} catch (ResourceConflictException e) {
 			throw new TermsOfUseRetrievalException(e);
 		}
 	}

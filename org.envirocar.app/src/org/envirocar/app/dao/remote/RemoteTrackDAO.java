@@ -22,7 +22,6 @@ package org.envirocar.app.dao.remote;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
@@ -30,7 +29,6 @@ import org.apache.http.ParseException;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.TrackDAO;
@@ -60,11 +58,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 		HttpDelete request = new HttpDelete(ECApplication.BASE_URL+"/users/"+
 				user.getUsername()+"/tracks/" + remoteID);
 
-		try {
-			super.executeHttpRequest(request);
-		} catch (ResourceConflictException e) {
-			throw new NotConnectedException(e);
-		}
+		super.executeContentRequest(request);
 	}
 
 	@Override
@@ -75,13 +69,8 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 			User user = UserManager.instance().getUser();
 			HttpPost post = new HttpPost(String.format("%s/users/%s/tracks", ECApplication.BASE_URL,
 					user.getUsername()));
-			try {
-				post.setEntity(new StringEntity(content.toString()));
-			} catch (UnsupportedEncodingException e) {
-				throw new TrackSerializationException(e);
-			}
 			
-			HttpResponse response = executeHttpRequest(post);
+			HttpResponse response = executePayloadRequest(post, content.toString());
 			
 			return new TrackDecoder().resolveLocation(response);
 		} catch (JSONException e) {
@@ -100,12 +89,10 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 		
 		InputStream response;
 		try {
-			response = retrieveHttpContent(get);
+			response = super.retrieveHttpContent(get);
 		} catch (IOException e1) {
 			throw new NotConnectedException(e1);
 		} catch (UnauthorizedException e1) {
-			throw new NotConnectedException(e1);
-		} catch (ResourceConflictException e1) {
 			throw new NotConnectedException(e1);
 		}
 		
@@ -132,10 +119,8 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 		
 		HttpResponse response;
 		try {
-			response = executeHttpRequest(get);
+			response = super.executeContentRequest(get);
 		} catch (UnauthorizedException e) {
-			throw new TrackRetrievalException(e);
-		} catch (ResourceConflictException e) {
 			throw new TrackRetrievalException(e);
 		}
 		return new TrackDecoder().resolveTrackCount(response);
@@ -147,10 +132,8 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 		
 		HttpResponse response;
 		try {
-			response = executeHttpRequest(get);
+			response = super.executeContentRequest(get);
 		} catch (UnauthorizedException e) {
-			throw new TrackRetrievalException(e);
-		} catch (ResourceConflictException e) {
 			throw new TrackRetrievalException(e);
 		}
 		return new TrackDecoder().resolveTrackCount(response);
@@ -174,11 +157,9 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 		
 		InputStream response;
 		try {
-			response = retrieveHttpContent(get);
+			response = super.retrieveHttpContent(get);
 		} catch (IOException e1) {
 			throw new NotConnectedException(e1);
-		} catch (ResourceConflictException e) {
-			throw new NotConnectedException(e);
 		}
 		
 		List<String> result;

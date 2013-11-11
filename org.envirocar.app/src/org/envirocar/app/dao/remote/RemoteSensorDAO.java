@@ -60,7 +60,7 @@ public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, Authent
 		
 		try {
 			HttpGet get = new HttpGet(ECApplication.BASE_URL+"/sensors");
-			InputStream response = retrieveHttpContent(get);
+			InputStream response = super.retrieveHttpContent(get);
 			String content = Util.consumeInputStream(response).toString();
 			
 			if (cache != null) {
@@ -84,8 +84,6 @@ public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, Authent
 		} catch (NotConnectedException e) {
 			throw new SensorRetrievalException(e);
 		} catch (UnauthorizedException e) {
-			throw new SensorRetrievalException(e);
-		} catch (ResourceConflictException e) {
 			throw new SensorRetrievalException(e);
 		}
 	}
@@ -116,7 +114,7 @@ public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, Authent
 		
 		postRequest.setEntity(se);
 		
-		HttpResponse response = super.executeHttpRequest(postRequest);
+		HttpResponse response = super.executePayloadRequest(postRequest);
 		
 		Header[] h = response.getAllHeaders();
 

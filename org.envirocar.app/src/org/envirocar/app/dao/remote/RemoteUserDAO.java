@@ -46,7 +46,7 @@ public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, Authenticat
 		HttpPut put = new HttpPut(ECApplication.BASE_URL+"/users/"+user.getUsername());
 		try {
 			put.setEntity(new StringEntity(user.toJson()));
-			executeHttpRequest(put);
+			super.executePayloadRequest(put);
 		} catch (UnsupportedEncodingException e) {
 			throw new UserUpdateException(e);
 		} catch (JSONException e) {
@@ -64,15 +64,13 @@ public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, Authenticat
 		
 		InputStream content;
 		try {
-			content = retrieveHttpContent(get);
+			content = super.retrieveHttpContent(get);
 			return User.fromJson(Util.consumeInputStream(content).toString());
 		} catch (IOException e) {
 			throw new UserRetrievalException(e);
 		} catch (JSONException e) {
 			throw new UserRetrievalException(e);
 		} catch (NotConnectedException e) {
-			throw new UserRetrievalException(e);
-		} catch (ResourceConflictException e) {
 			throw new UserRetrievalException(e);
 		}
 		
@@ -92,7 +90,7 @@ public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, Authenticat
 		}
 		
 		try {
-			executeHttpRequest(post);
+			executePayloadRequest(post);
 		} catch (NotConnectedException e) {
 			throw new UserUpdateException(e);
 		} catch (UnauthorizedException e) {
