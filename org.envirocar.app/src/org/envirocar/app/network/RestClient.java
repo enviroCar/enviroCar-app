@@ -57,7 +57,6 @@ public class RestClient {
 	 * @param page the page (/tracks/ is a paging-enabled resource)
 	 * @param handler called on success or failure
 	 */
-	@Deprecated
 	public static void downloadTracks(String user, String token, int limit, int page, JsonHttpResponseHandler handler){
 		get(String.format(Locale.ENGLISH, "%s/users/%s/tracks?limit=%d&page=%d", ECApplication.BASE_URL, user, limit, page),
 			handler, user, token);

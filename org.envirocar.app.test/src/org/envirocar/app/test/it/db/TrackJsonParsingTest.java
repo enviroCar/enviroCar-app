@@ -1,17 +1,18 @@
 package org.envirocar.app.test.it.db;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 
 import junit.framework.Assert;
 
+import org.envirocar.app.json.TrackDecoder;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Track.TrackStatus;
 import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 import org.envirocar.app.test.ResourceLoadingTestCase;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 public class TrackJsonParsingTest extends ResourceLoadingTestCase {
 
@@ -20,7 +21,7 @@ public class TrackJsonParsingTest extends ResourceLoadingTestCase {
 			DbAdapterImpl.init(getInstrumentation().getTargetContext());
 		}
 
-		Track t = Track.fromJson(createJson(), DbAdapterImpl.instance());
+		Track t = new TrackDecoder().fromJson(createJsonViaStream());
 		
 		Track dbTrack = DbAdapterImpl.instance().getTrack(t.getId());
 		
@@ -38,8 +39,8 @@ public class TrackJsonParsingTest extends ResourceLoadingTestCase {
 		}
 	}
 
-	private JSONObject createJson() throws JSONException, IOException {
-		return new JSONObject(readJsonAsset("track_mockup.json"));
+	private InputStream createJsonViaStream() throws IOException {
+		return getInstrumentation().getContext().getAssets().open("track_mockup.json");
 	}
 	
 }

@@ -97,10 +97,6 @@ public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, Authent
 		HttpPost postRequest = new HttpPost(
 				ECApplication.BASE_URL+"/sensors");
 		
-		postRequest.addHeader("Content-Type", "application/json");
-		
-		postRequest.addHeader("Accept-Encoding", "gzip");
-		
 		StringEntity se = new StringEntity(sensorString);
 		se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
 		

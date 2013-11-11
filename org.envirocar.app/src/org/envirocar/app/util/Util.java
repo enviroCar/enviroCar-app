@@ -36,6 +36,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
@@ -241,6 +242,28 @@ public class Util {
 	public static JSONObject readJsonContents(File f) throws IOException, JSONException {
 		BufferedReader bufferedReader = new BufferedReader(new FileReader(f));
 
+		CharSequence content = consumeBufferedReader(bufferedReader);
+
+		JSONObject tou = new JSONObject(content.toString());
+		return tou;
+	}
+	
+	public static CharSequence consumeInputStream(InputStream in) throws IOException {
+		Scanner sc = new Scanner(in, "UTF-8");
+		
+		StringBuilder sb = new StringBuilder();
+		String sep = System.getProperty("line.separator");
+		while (sc.hasNext()) {
+			sb.append(sc.nextLine());
+			sb.append(sep);
+		}
+		sc.close();
+		
+		return sb;
+	}
+
+	private static CharSequence consumeBufferedReader(
+			BufferedReader bufferedReader) throws IOException {
 		StringBuilder content = new StringBuilder();
 		String line = "";
 
@@ -249,9 +272,7 @@ public class Util {
 		}
 
 		bufferedReader.close();
-
-		JSONObject tou = new JSONObject(content.toString());
-		return tou;
+		return content;
 	}
 	
     @SuppressLint("NewApi")

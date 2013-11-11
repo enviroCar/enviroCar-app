@@ -40,11 +40,6 @@ public class CacheTrackDAO implements TrackDAO {
 	}
 
 	@Override
-	public List<Track> getAllTracks() throws NotConnectedException {
-		throw new NotConnectedException("Not implemented for Cache DAO");
-	}
-
-	@Override
 	public Track getTrack(String id) throws NotConnectedException {
 		throw new NotConnectedException("Not implemented for Cache DAO");
 	}
@@ -59,6 +54,22 @@ public class CacheTrackDAO implements TrackDAO {
 	public Integer getTotalTrackCount() throws NotConnectedException,
 			TrackRetrievalException {
 		throw new NotConnectedException("Not implemented for Cache DAO");
+	}
+
+	@Override
+	public List<String> getTrackIds() throws NotConnectedException {
+		throw new NotConnectedException("Not implemented for Cache DAO");	
+	}
+
+	@Override
+	public List<String> getTrackIds(int limit) throws NotConnectedException {
+		throw new NotConnectedException("Not implemented for Cache DAO");	
+	}
+
+	@Override
+	public List<String> getTrackIds(int limit, int page)
+			throws NotConnectedException {
+		throw new NotConnectedException("Not implemented for Cache DAO");	
 	}
 
 }

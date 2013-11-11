@@ -20,9 +20,12 @@
  */
 package org.envirocar.app.dao.remote;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.ParseException;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.envirocar.app.application.ECApplication;
@@ -31,7 +34,9 @@ import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.TrackDAO;
 import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.TrackRetrievalException;
+import org.envirocar.app.json.TrackDecoder;
 import org.envirocar.app.storage.Track;
+import org.json.JSONException;
 
 public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, AuthenticatedDAO {
 
@@ -55,25 +60,43 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 		
 	}
 
-	@Override
-	public List<Track> getAllTracks() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
-	public Track getTrack(String id) {
-		// TODO Auto-generated method stub
-		return null;
+	public Track getTrack(String id) throws NotConnectedException {
+		HttpGet get = new HttpGet(ECApplication.BASE_URL+"/tracks/"+id);
+		
+		InputStream response;
+		try {
+			response = retrieveHttpContent(get);
+		} catch (IllegalStateException e1) {
+			throw new NotConnectedException(e1);
+		} catch (IOException e1) {
+			throw new NotConnectedException(e1);
+		}
+		
+		Track result;
+		try {
+			result = new TrackDecoder().fromJson(response);
+		} catch (ParseException e) {
+			throw new NotConnectedException(e);
+		} catch (IOException e) {
+			throw new NotConnectedException(e);
+		} catch (JSONException e) {
+			throw new NotConnectedException(e);
+		} catch (java.text.ParseException e) {
+			throw new NotConnectedException(e);
+		}
+		
+		return result;
 	}
 
 	@Override
 	public Integer getUserTrackCount() throws NotConnectedException, TrackRetrievalException {
 		User user = UserManager.instance().getUser();
-		HttpGet get = new HttpGet(ECApplication.BASE_URL+"/tracks/"+user.getUsername()+"/tracks?limit=1");
+		HttpGet get = new HttpGet(ECApplication.BASE_URL+"/users/"+user.getUsername()+"/tracks?limit=1");
 		
 		HttpResponse response = executeHttpRequest(get);
-		return TrackHelper.resolveTrackCount(response);
+		return new TrackDecoder().resolveTrackCount(response);
 	}
 
 	@Override
@@ -82,7 +105,46 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 		
 		HttpResponse response = executeHttpRequest(get);
 		
-		return TrackHelper.resolveTrackCount(response);
+		return new TrackDecoder().resolveTrackCount(response);
+	}
+
+	@Override
+	public List<String> getTrackIds() throws NotConnectedException {
+		return getTrackIds(100);
+	}
+
+	@Override
+	public List<String> getTrackIds(int limit) throws NotConnectedException {
+		return getTrackIds(limit, 1);
+	}
+
+	@Override
+	public List<String> getTrackIds(int limit, int page) throws NotConnectedException {
+		User user = UserManager.instance().getUser();
+		HttpGet get = new HttpGet(String.format("%s/users/%s/tracks?limit=%d&page=%d",
+				ECApplication.BASE_URL, user.getUsername(), limit, page));
+		
+		InputStream response;
+		try {
+			response = retrieveHttpContent(get);
+		} catch (IllegalStateException e1) {
+			throw new NotConnectedException(e1);
+		} catch (IOException e1) {
+			throw new NotConnectedException(e1);
+		}
+		
+		List<String> result;
+		try {
+			result = new TrackDecoder().getResourceIds(response);
+		} catch (ParseException e) {
+			throw new NotConnectedException(e);
+		} catch (IOException e) {
+			throw new NotConnectedException(e);
+		} catch (JSONException e) {
+			throw new NotConnectedException(e);
+		}
+		
+		return result;
 	}
 
 

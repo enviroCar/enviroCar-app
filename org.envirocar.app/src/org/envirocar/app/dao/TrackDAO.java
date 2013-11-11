@@ -22,8 +22,6 @@ package org.envirocar.app.dao;
 
 import java.util.List;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
 import org.envirocar.app.dao.exception.DAOException;
 import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.TrackRetrievalException;
@@ -35,78 +33,38 @@ public interface TrackDAO {
 	
 	void storeTrack(Track track) throws DAOException;
 	
-	List<Track> getAllTracks() throws NotConnectedException;
-	
 	Track getTrack(String id) throws NotConnectedException;
 
 	Integer getUserTrackCount() throws NotConnectedException, TrackRetrievalException;
 	
 	Integer getTotalTrackCount() throws NotConnectedException, TrackRetrievalException;
 
+	/**
+	 * an implementation shall treat calls as a
+	 * shortcut for {@link #getTrackIds(int)} with limit=100
+	 * 
+	 * @return the resource IDs of the desired tracks
+	 * @throws NotConnectedException 
+	 */
+	List<String> getTrackIds() throws NotConnectedException;
 	
-	public static class TrackHelper {
-		
-		public static Integer resolveTrackCount(HttpResponse response) throws TrackRetrievalException {
-			if (response.containsHeader("Link")) {
-				Header[] link = response.getHeaders("Link");
-				
-				for (Header l : link) {
-					Integer result = resolveLastRel(l.getValue());
-					if (result != null) {
-						return result;
-					}
-				}
-				
-				if (link.length > 0 && link[0].getValue() != null) {
-					throw new TrackRetrievalException("Could not parse the HTTP Header 'Link': "+link[0].getValue());
-				}
-				else {
-					throw new TrackRetrievalException("Invalid HTTP Header 'Link'");
-				}
-			}
-			else {
-				throw new TrackRetrievalException("Response did not contain the exepected HTTP Header 'Link'");
-			}
-			
-		}
+	/**
+	 * an implementation shall treat calls as a
+	 * shortcut for {@link #getTrackIds(int, int)} with limit=limit and page=1
+	 * 
+	 * @param limit the total count of returned track ids
+	 * @return the resource IDs of the desired tracks
+	 * @throws NotConnectedException 
+	 */
+	List<String> getTrackIds(int limit) throws NotConnectedException;
+	
+	/**
+	 * @param limit the total count of returned track ids
+	 * @param page the pagination index (starting at 1)
+	 * @return the resource IDs of the desired tracks
+	 * @throws NotConnectedException 
+	 */
+	List<String> getTrackIds(int limit, int page) throws NotConnectedException;
+	
 
-		public static Integer resolveLastRel(String value) {
-			if (value != null) {
-				String[] split = value.split(",");
-				
-				for (String line : split) {
-					if (line.contains("rel=last")) {
-						String[] params = line.split(";");
-						if (params != null && params.length > 0) {
-							return resolvePageValue(params[0]);
-						}
-					}
-				}
-			}
-			return null;
-		}
-
-		public static Integer resolvePageValue(String sourceUrl) {
-			String url;
-			if (sourceUrl.startsWith("<")) {
-				url = sourceUrl.substring(1, sourceUrl.length()-1);
-			}
-			else {
-				url = sourceUrl;
-			}
-			
-			if (url.contains("?")) {
-				int index = url.indexOf("?")+1;
-				if (index != url.length()) {
-					String params = url.substring(index, url.length());
-					for (String kvp : params.split("&")) {
-						if (kvp.startsWith("page")) {
-							return Integer.parseInt(kvp.substring(kvp.indexOf("page")+5));
-						}
-					}	
-				}
-			}
-			return null;
-		}
-	}
 }

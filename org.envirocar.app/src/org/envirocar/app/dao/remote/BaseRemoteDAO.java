@@ -21,6 +21,8 @@
 package org.envirocar.app.dao.remote;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -50,11 +52,15 @@ public abstract class BaseRemoteDAO {
 			if (!request.containsHeader("Content-Type")) {
 				request.addHeader("Content-Type", "application/json");
 			}
-			
-			if (!request.containsHeader("Accept-Encoding")) {
-				request.addHeader("Accept-Encoding", "gzip");
-			}
 		}
+		
+		if (!request.containsHeader("Accept-Encoding")) {
+			request.addHeader("Accept-Encoding", "gzip");
+		}
+		
+		/*
+		 * TODO enable client-site gzip if server responeded with that at least once!
+		 */
 		
 		HttpResponse result;
 		try {
@@ -67,6 +73,26 @@ public abstract class BaseRemoteDAO {
 		return result;
 	}
 	
+	public InputStream retrieveHttpContent(HttpUriRequest request) throws NotConnectedException, IllegalStateException, IOException {
+		HttpResponse result = executeHttpRequest(request);
+		
+		if (result.containsHeader("Transfer-Encoding")) {
+			String enc = result.getFirstHeader("Transfer-Encoding").getValue();
+			if (enc.contains("gzip")) {
+				return new GZIPInputStream(result.getEntity().getContent());
+			}
+		}
+		
+		if (result.containsHeader("Content-Encoding")) {
+			String enc = result.getFirstHeader("Content-Encoding").getValue();
+			if (enc.contains("gzip")) {
+				return new GZIPInputStream(result.getEntity().getContent());
+			}
+		}
+		
+		return result.getEntity().getContent();
+	}
+
 	private void assertStatusCode(HttpResponse response) throws NotConnectedException {
 		if (response == null || response.getStatusLine() == null) {
 			throw new NotConnectedException("Unsupported server response.");

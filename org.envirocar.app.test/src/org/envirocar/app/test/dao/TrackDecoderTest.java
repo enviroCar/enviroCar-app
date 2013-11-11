@@ -25,23 +25,23 @@ import junit.framework.Assert;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
-import org.envirocar.app.dao.TrackDAO;
 import org.envirocar.app.dao.exception.TrackRetrievalException;
+import org.envirocar.app.json.TrackDecoder;
 
 import android.test.AndroidTestCase;
 
-public class TrackHelperTest extends AndroidTestCase {
+public class TrackDecoderTest extends AndroidTestCase {
 
 	public void testTotalTrackCount() throws TrackRetrievalException {
 		BasicHttpResponse response = new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), 204, ""));
 		response.setHeader("Link", "<https://envirocar.org/api/stable/users/matthes/tracks?limit=1&page=7>;rel=last;type=application/json, <https://envirocar.org/api/stable/users/matthes/tracks?limit=1&page=2>;rel=next;type=application/json");
-		Integer count = TrackDAO.TrackHelper.resolveTrackCount(response);
+		Integer count = new TrackDecoder().resolveTrackCount(response);
 		
 		Assert.assertTrue(count.intValue() == 7);
 		
 		response = new BasicHttpResponse(new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), 204, ""));
 		response.setHeader("Link", "<https://envirocar.org/api/stable/users/matthes/tracks?page=6>;rel=last");
-		count = TrackDAO.TrackHelper.resolveTrackCount(response);
+		count = new TrackDecoder().resolveTrackCount(response);
 		
 		Assert.assertTrue(count.intValue() == 6);
 
