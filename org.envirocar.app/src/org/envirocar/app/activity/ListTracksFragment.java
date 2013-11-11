@@ -98,7 +98,6 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -687,16 +686,23 @@ public class ListTracksFragment extends SherlockFragment {
 			return;
 		}
 		
-		resolveTotalRemoteTrackCount(new JsonHttpResponseHandler() {
+		resolveTotalRemoteTrackCount(new AsyncExecutionWithCallback<Void>() {
+		
 			@Override
-			public void onFinish() {
+			public Void onResult(Void result, boolean fail, Exception exception) {
 				downloadTracks(5, 1);
+				return result;
+			}
+
+			@Override
+			public Void execute() throws DAOException {
+				return null;
 			}
 		});
 		
 	}
 	
-	private void resolveTotalRemoteTrackCount(final JsonHttpResponseHandler callback) {
+	private void resolveTotalRemoteTrackCount(final AsyncExecutionWithCallback<?> callback) {
 		DAOProvider.async(new AsyncExecutionWithCallback<Integer>() {
 
 			@Override
@@ -713,7 +719,7 @@ public class ListTracksFragment extends SherlockFragment {
 				else {
 					logger.warn(e.getMessage(), e);
 				}
-				callback.onFinish();
+				callback.onResult(null, false, null);
 				return null;
 			}
 		});
