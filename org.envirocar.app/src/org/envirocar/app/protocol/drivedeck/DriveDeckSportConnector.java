@@ -22,8 +22,10 @@ package org.envirocar.app.protocol.drivedeck;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.IntakePressure;
@@ -39,18 +41,21 @@ import org.envirocar.app.protocol.AbstractAsynchronousConnector;
 import org.envirocar.app.protocol.ResponseParser;
 import org.envirocar.app.protocol.drivedeck.CycleCommand.PID;
 
+import android.util.Base64;
+
 public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 
 	private static final Logger logger = Logger.getLogger(DriveDeckSportConnector.class);
 	private static final char CARRIAGE_RETURN = '\r';
 	static final char END_OF_LINE_RESPONSE = '>';
+	private static final long SEND_CYCLIC_COMMAND_DELTA = 2500;
 	private Protocol protocol;
 	private String vin;
-	private long firstConnectionResponse;
 	private CycleCommand cycleCommand;
 	private ResponseParser responseParser = new LocalResponseParser();
 	private ConnectionState state = ConnectionState.DISCONNECTED;
-	private boolean send;
+	public long lastResult;
+	private Set<String> loggedPids = new HashSet<String>();
 	
 	private static enum Protocol {
 		CAN11500, CAN11250, CAN29500, CAN29250, KWP_SLOW, KWP_FAST, ISO9141
@@ -112,7 +117,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	}
 
 	private String oneByteToHex(byte b) {
-		String result = Integer.toString(b, 16).toUpperCase(Locale.US);
+		String result = Integer.toString(b & 0xff, 16).toUpperCase(Locale.US);
 		if (result.length() == 1) result = "0".concat(result);
 		return result;
 	}
@@ -163,7 +168,6 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		}
 
 		logger.info("Protocol is: "+ protocol.toString());
-		logger.info("Connected in "+ (System.currentTimeMillis() - firstConnectionResponse) +" ms.");
 		
 		updateConnectionState();
 	}
@@ -204,9 +208,8 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 			//determine which probe value is returned.
 			result = O2LambdaProbe.fromPIDEnum(org.envirocar.app.commands.PIDUtil.PID.O2_LAMBDA_PROBE_1_VOLTAGE);
 		}
-		else {
-			logger.info("Parsing not yet supported for response:" +pid);
-		}
+
+		oneTimePIDLog(pid, rawBytes);
 		
 		if (result != null) {
 			byte[] rawData = createRawData(rawBytes, result.getResponseTypeID());
@@ -226,6 +229,17 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		return result;
 	}
 
+	private void oneTimePIDLog(String pid, byte[] rawBytes) {
+		if (pid == null || rawBytes == null || rawBytes.length == 0)
+			return;
+		
+		if (!loggedPids.contains(pid)) {
+			logger.info("First response for PID: " +pid +"; Base64: "+
+					Base64.encodeToString(rawBytes, Base64.DEFAULT));
+			loggedPids.add(pid);
+		}
+	}
+
 	private byte[] createRawData(byte[] rawBytes, String type) {
 		byte[] result = new byte[4 + rawBytes.length*2];
 		byte[] typeBytes = type.getBytes();
@@ -234,25 +248,18 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		result[2] = typeBytes[0];
 		result[3] = typeBytes[1];
 		for (int i = 0; i < rawBytes.length; i++) {
-			String hex = byteToHex(rawBytes[i]);
+			String hex = oneByteToHex(rawBytes[i]);
 			result[(i*2)+4] = (byte) hex.charAt(0);
 			result[(i*2)+1+4] = (byte) hex.charAt(1);
 		}
 		return result;
 	}
 
-	private String byteToHex(byte b) {
-		String result = Integer.toString((int) b, 16);
-		if (result.length() == 1) {
-			result = "0".concat(result);
-		}
-		return result;
-	}
+
 
 	@Override
 	protected List<CommonCommand> getRequestCommands() {
-		if (!send) {
-			send = true;
+		if (System.currentTimeMillis() - lastResult > SEND_CYCLIC_COMMAND_DELTA) {
 			return Collections.singletonList((CommonCommand) cycleCommand);
 		}
 		else {
@@ -289,7 +296,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	}
 
 
-	private class LocalResponseParser implements ResponseParser {
+	public class LocalResponseParser implements ResponseParser {
 		@Override
 		public CommonCommand processResponse(byte[] bytes, int start, int count) {
 			if (count <= 0) return null;
@@ -319,6 +326,14 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 				else if (pid.equals("71")) {
 					processDiscoveredControlUnits(new String(bytes, start+3, count-3));
 				}
+				else if (pid.equals("31")) {
+					// engine on
+					logger.debug("Engine: On");
+				}
+				else if (pid.equals("32")) {
+					// engine off (= RPM < 500)
+					logger.debug("Engine: Off");
+				}
 				
 				else {
 					/*
@@ -330,15 +345,23 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 					byte[] pidResponseValue = new byte[2];
 					int target;
 					for (int i = start+4; i <= count+start; i++) {
+						target = i-(start+4);
+						if (target >= pidResponseValue.length)
+							break;
+						
 						if ((char) bytes[i] == CycleCommand.TOKEN_SEPARATOR_CHAR)
 							break;
 						
-						target = i-(start+4);
-						if (target >= pidResponseValue.length) break;
 						pidResponseValue[target] = bytes[i];
 					}
 					
-					return parsePIDResponse(pid, pidResponseValue, now);
+					CommonCommand result = parsePIDResponse(pid, pidResponseValue, now);
+					
+					if (result != null) {
+						lastResult = now;
+					}
+					
+					return result;
 				}
 				
 			}
@@ -361,6 +384,11 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	@Override
 	protected long getSleepTimeBetweenCommands() {
 		return 0;
+	}
+
+	@Override
+	public long getPreferredRequestPeriod() {
+		return 500;
 	}
 
 }

@@ -49,6 +49,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
@@ -88,6 +89,8 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 
 	protected int reconnectCount;
 
+	private Handler toastHandler;
+
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -107,6 +110,8 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 		};
 		
 		registerReceiver(stateRequestReceiver, new IntentFilter(SERVICE_STATE_REQUEST));
+		
+		toastHandler = new Handler();
 	}
 	
 	@Override
@@ -142,11 +147,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 		logger.info("startBackgroundService called");
 		LocationUpdateListener.startLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
 		
-		try {
-			startConnection();
-		} catch (IOException e) {
-			logger.warn(e.getMessage(), e);
-		}
+		startConnection();
 	}
 
 	/**
@@ -160,7 +161,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 			public void run() {
 				shutdownConnectionAndHandler();
 				
-				state = ServiceState.SERVICE_STOPPED;
+				setState(ServiceState.SERVICE_STOPPED);
 				sendStateBroadcast();
 				
 				LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
@@ -195,14 +196,14 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	 * 
 	 * @throws IOException
 	 */
-	private void startConnection() throws IOException {
+	private void startConnection() {
 		logger.info("startConnection called");
 		// Connect to bluetooth device
 		// Init bluetooth
 		
 		startBluetoothConnection();
 		
-		state = ServiceState.SERVICE_STARTING;
+		setState(ServiceState.SERVICE_STARTING);
 		sendStateBroadcast();
 	}
 
@@ -257,7 +258,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 				this.commandListener, new ConnectionListener() {
 					@Override
 					public void onConnectionVerified() {
-						state = ServiceState.SERVICE_STARTED;
+						setState(ServiceState.SERVICE_STARTED);
 						BackgroundServiceImpl.this.sendStateBroadcast();
 					}
 					
@@ -274,20 +275,19 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 
 					@Override
 					public void onStatusUpdate(String message) {
-						Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+						displayToast(message);
 					}
 
 					@Override
 					public void requestConnectionRetry(IOException reason) {
-						Toast.makeText(getApplicationContext(), R.string.connection_lost_info, Toast.LENGTH_LONG).show();
-						
 						if (reconnectCount++ >= MAX_RECONNECT_COUNT) {
 							onConnectionException(reason);
 						}
 						else {
 							logger.info("Restarting Device Connection...");
+							displayToast(R.string.connection_lost_info);
 							shutdownConnectionAndHandler();
-							startBluetoothConnection();	
+							startConnection();
 						}
 						
 					}
@@ -295,6 +295,29 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 		this.commandLooper.start();
 	}
 
+	protected void setState(ServiceState serviceStarted) {
+		this.state = serviceStarted;
+		logger.info(this.state.toString());
+	}
+
+	private void displayToast(final String s) {
+		toastHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+			}
+		});
+	}
+	
+	private void displayToast(final int id) {
+		toastHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(getApplicationContext(), id, Toast.LENGTH_LONG).show();
+			}
+		});
+	}
+	
 	public void onAllAdaptersFailed() {
 		logger.info("all adapters failed!");
 		stopBackgroundService();

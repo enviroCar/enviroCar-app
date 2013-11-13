@@ -25,7 +25,7 @@ import java.io.InputStream;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.application.User;
+import org.envirocar.app.model.User;
 import org.json.JSONException;
 
 
@@ -35,8 +35,8 @@ public class UserTest extends ResourceLoadingTestCase {
 		InputStream is = getInstrumentation().getContext().getAssets().open("user_mockup.json");
 		User user = User.fromJson(readJson(is));
 		
-		Assert.assertTrue("missing acceptedTermsOfUseVersion", user.getAcceptedTermsOfUseVersion() != null);
-		Assert.assertTrue("unexpected acceptedTermsOfUseVersion", user.getAcceptedTermsOfUseVersion().equals("2013-10-02"));
+		Assert.assertTrue("missing touVersion", user.getTouVersion() != null);
+		Assert.assertTrue("unexpected acceptedTermsOfUseVersion", user.getTouVersion().equals("2013-10-02"));
 		Assert.assertTrue("unexpected username", user.getUsername().equals("matthes"));
 	}
 	

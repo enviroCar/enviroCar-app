@@ -18,19 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.dao;
+package org.envirocar.app.test.commands.drivedeck;
 
-import org.envirocar.app.dao.exception.ResourceConflictException;
-import org.envirocar.app.dao.exception.UnauthorizedException;
-import org.envirocar.app.dao.exception.UserRetrievalException;
-import org.envirocar.app.dao.exception.UserUpdateException;
-import org.envirocar.app.model.User;
+import org.envirocar.app.protocol.ResponseParser;
+import org.envirocar.app.protocol.drivedeck.DriveDeckSportConnector;
 
-public interface UserDAO {
+import android.test.AndroidTestCase;
 
-	void updateUser(User user) throws UserUpdateException, UnauthorizedException;
+public class CommandTest extends AndroidTestCase {
 
-	User getUser(String id) throws UserRetrievalException, UnauthorizedException;
-
-	void createUser(User newUser) throws UserUpdateException, ResourceConflictException;
+	protected ResponseParser getResponseParser() {
+		DriveDeckSportConnector conn = new DriveDeckSportConnector();
+		return conn.new LocalResponseParser();
+	}
+	
 }

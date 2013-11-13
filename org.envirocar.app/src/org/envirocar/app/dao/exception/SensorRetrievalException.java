@@ -18,19 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.dao;
+package org.envirocar.app.dao.exception;
 
-import org.envirocar.app.dao.exception.ResourceConflictException;
-import org.envirocar.app.dao.exception.UnauthorizedException;
-import org.envirocar.app.dao.exception.UserRetrievalException;
-import org.envirocar.app.dao.exception.UserUpdateException;
-import org.envirocar.app.model.User;
 
-public interface UserDAO {
+public class SensorRetrievalException extends DAOException {
 
-	void updateUser(User user) throws UserUpdateException, UnauthorizedException;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-	User getUser(String id) throws UserRetrievalException, UnauthorizedException;
+	public SensorRetrievalException(Exception e) {
+		super(e);
+	}
 
-	void createUser(User newUser) throws UserUpdateException, ResourceConflictException;
+	public SensorRetrievalException(String string) {
+		super(string);
+	}
+	
 }

@@ -1,6 +1,9 @@
 package org.envirocar.app.application;
 
 import static android.content.Context.MODE_PRIVATE;
+
+import org.envirocar.app.model.User;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -44,7 +47,7 @@ public class UserManager {
 		Editor e = getUserPreferences().edit();
 		e.putString(USERNAME, user.getUsername());
 		e.putString(TOKEN, user.getToken());
-		e.putString(ACCEPTED_TERMS_OF_USE_VERSION, user.getAcceptedTermsOfUseVersion());
+		e.putString(ACCEPTED_TERMS_OF_USE_VERSION, user.getTouVersion());
 		e.commit();
 	}
 
@@ -57,7 +60,7 @@ public class UserManager {
 		String username = prefs.getString(USERNAME, null);
 		String token = prefs.getString(TOKEN, null);
 		User result = new User(username, token);
-		result.setAcceptedTermsOfUseVersion(prefs.getString(ACCEPTED_TERMS_OF_USE_VERSION, null));
+		result.setTouVersion(prefs.getString(ACCEPTED_TERMS_OF_USE_VERSION, null));
 		return result;
 	}
 

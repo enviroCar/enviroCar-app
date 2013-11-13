@@ -25,6 +25,7 @@ import org.envirocar.app.dao.cache.CacheSensorDAO;
 import org.envirocar.app.dao.cache.CacheTermsOfUseDAO;
 import org.envirocar.app.dao.cache.CacheTrackDAO;
 import org.envirocar.app.dao.cache.CacheUserDAO;
+import org.envirocar.app.dao.exception.DAOException;
 import org.envirocar.app.dao.remote.RemoteAnnouncementsDAO;
 import org.envirocar.app.dao.remote.RemoteSensorDAO;
 import org.envirocar.app.dao.remote.RemoteTermsOfUseDAO;

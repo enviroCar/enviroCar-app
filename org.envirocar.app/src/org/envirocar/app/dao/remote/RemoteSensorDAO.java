@@ -21,24 +21,28 @@
 package org.envirocar.app.dao.remote;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.application.ECApplication;
-import org.envirocar.app.dao.NotConnectedException;
 import org.envirocar.app.dao.SensorDAO;
-import org.envirocar.app.dao.SensorRetrievalException;
 import org.envirocar.app.dao.cache.CacheSensorDAO;
+import org.envirocar.app.dao.exception.NotConnectedException;
+import org.envirocar.app.dao.exception.ResourceConflictException;
+import org.envirocar.app.dao.exception.SensorRetrievalException;
+import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
-import org.envirocar.app.network.HTTPClient;
+import org.envirocar.app.util.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -55,8 +59,10 @@ public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, Authent
 	public List<Car> getAllSensors() throws SensorRetrievalException {
 		
 		try {
-			String content = HTTPClient.executeAndParseJsonRequest(ECApplication.BASE_URL+"/sensors");
-		
+			HttpGet get = new HttpGet(ECApplication.BASE_URL+"/sensors");
+			InputStream response = super.retrieveHttpContent(get);
+			String content = Util.consumeInputStream(response).toString();
+			
 			if (cache != null) {
 				try {
 					cache.storeAllSensors(content);
@@ -75,11 +81,15 @@ public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, Authent
 		} catch (JSONException e) {
 			logger.warn(e.getMessage());
 			throw new SensorRetrievalException(e);
+		} catch (NotConnectedException e) {
+			throw new SensorRetrievalException(e);
+		} catch (UnauthorizedException e) {
+			throw new SensorRetrievalException(e);
 		}
 	}
 
 	@Override
-	public String saveSensor(Car car) throws NotConnectedException {
+	public String saveSensor(Car car) throws NotConnectedException, UnauthorizedException {
 		String sensorString = String
 				.format(Locale.ENGLISH,
 						"{ \"type\": \"%s\", \"properties\": {\"manufacturer\": \"%s\", \"model\": \"%s\", \"fuelType\": \"%s\", \"constructionYear\": %s, \"engineDisplacement\": %s } }",
@@ -89,24 +99,22 @@ public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, Authent
 			return registerSensor(sensorString);
 		} catch (IOException e) {
 			throw new NotConnectedException(e);
+		} catch (ResourceConflictException e) {
+			throw new NotConnectedException(e);
 		}
 	}
 	
-	private String registerSensor(String sensorString) throws IOException, NotConnectedException {
+	private String registerSensor(String sensorString) throws IOException, NotConnectedException, UnauthorizedException, ResourceConflictException {
 		
 		HttpPost postRequest = new HttpPost(
 				ECApplication.BASE_URL+"/sensors");
-		
-		postRequest.addHeader("Content-Type", "application/json");
-		
-		postRequest.addHeader("Accept-Encoding", "gzip");
 		
 		StringEntity se = new StringEntity(sensorString);
 		se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
 		
 		postRequest.setEntity(se);
 		
-		HttpResponse response = super.executeHttpRequest(postRequest);
+		HttpResponse response = super.executePayloadRequest(postRequest);
 		
 		Header[] h = response.getAllHeaders();
 

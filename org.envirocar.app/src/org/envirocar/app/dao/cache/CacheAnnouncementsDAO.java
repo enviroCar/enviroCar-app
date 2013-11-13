@@ -25,8 +25,8 @@ import java.io.IOException;
 import java.util.List;
 
 import org.envirocar.app.dao.AnnouncementsDAO;
-import org.envirocar.app.dao.AnnouncementsRetrievalException;
 import org.envirocar.app.dao.CacheDirectoryProvider;
+import org.envirocar.app.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.model.Announcement;
 import org.envirocar.app.util.Util;
 import org.json.JSONException;

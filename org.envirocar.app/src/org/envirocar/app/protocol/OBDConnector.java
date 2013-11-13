@@ -130,5 +130,10 @@ public interface OBDConnector {
 	 */
 	public int getMaximumTriesForInitialization();
 
+	/**
+	 * @return the time in ms the looper should wait between executing the command batch
+	 */
+	public long getPreferredRequestPeriod();
+
 
 }

@@ -63,7 +63,7 @@ public class TrackMetadata {
 	
 	public TrackMetadata(Context ctx) {
 		putEntry(APP_VERSION, Util.getVersionString(ctx));
-		putEntry(TOU_VERSION, UserManager.instance().getUser().getAcceptedTermsOfUseVersion());
+		putEntry(TOU_VERSION, UserManager.instance().getUser().getTouVersion());
 	}
 	
 	public void putEntry(String key, String value) {

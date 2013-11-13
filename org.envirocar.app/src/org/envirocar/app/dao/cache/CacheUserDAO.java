@@ -21,7 +21,27 @@
 package org.envirocar.app.dao.cache;
 
 import org.envirocar.app.dao.UserDAO;
+import org.envirocar.app.dao.exception.ResourceConflictException;
+import org.envirocar.app.dao.exception.UserRetrievalException;
+import org.envirocar.app.dao.exception.UserUpdateException;
+import org.envirocar.app.model.User;
 
 public class CacheUserDAO implements UserDAO {
+
+	@Override
+	public void updateUser(User user) throws UserUpdateException {
+		throw new UserUpdateException("Not supported by Cache");
+	}
+
+	@Override
+	public User getUser(String id) throws UserRetrievalException {
+		throw new UserRetrievalException("Not supported by Cache");
+	}
+
+	@Override
+	public void createUser(User newUser) throws UserUpdateException,
+			ResourceConflictException {
+		throw new UserUpdateException("Not supported by Cache");
+	}
 
 }

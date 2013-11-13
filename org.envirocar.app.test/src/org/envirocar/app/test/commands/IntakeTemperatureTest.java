@@ -18,19 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.dao;
+package org.envirocar.app.test.commands;
 
-import org.envirocar.app.dao.exception.ResourceConflictException;
-import org.envirocar.app.dao.exception.UnauthorizedException;
-import org.envirocar.app.dao.exception.UserRetrievalException;
-import org.envirocar.app.dao.exception.UserUpdateException;
-import org.envirocar.app.model.User;
+import junit.framework.Assert;
 
-public interface UserDAO {
+import org.envirocar.app.commands.CommonCommand.CommonCommandState;
+import org.envirocar.app.commands.IntakeTemperature;
 
-	void updateUser(User user) throws UserUpdateException, UnauthorizedException;
+import android.test.AndroidTestCase;
 
-	User getUser(String id) throws UserRetrievalException, UnauthorizedException;
+public class IntakeTemperatureTest extends AndroidTestCase {
+	
+	public void testParsing() {
+		byte[] bytes = createBytes();
+		IntakeTemperature cmd = new IntakeTemperature();
+		cmd.setRawData(bytes);
+		cmd.parseRawData();
+		
+		Assert.assertTrue(cmd.getCommandState() == CommonCommandState.FINISHED);
+		
+		double temp = cmd.getNumberResult().doubleValue();
+		Assert.assertTrue(temp == 23.0);
+	}
 
-	void createUser(User newUser) throws UserUpdateException, ResourceConflictException;
+	private byte[] createBytes() {
+		return "410F3F".getBytes();
+	}
+
+
 }

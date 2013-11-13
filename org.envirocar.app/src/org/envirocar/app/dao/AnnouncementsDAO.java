@@ -22,6 +22,7 @@ package org.envirocar.app.dao;
 
 import java.util.List;
 
+import org.envirocar.app.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.model.Announcement;
 
 public interface AnnouncementsDAO {
