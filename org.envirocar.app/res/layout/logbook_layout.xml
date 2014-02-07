@@ -22,7 +22,7 @@
         android:layout_alignLeft="@+id/Volume"
         android:layout_below="@+id/editTextCost"
         android:layout_marginTop="10dp"
-        android:text="Distance travelled:"
+        android:text="Total traveled Distance:"
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
@@ -135,17 +135,6 @@
         android:textAppearance="?android:attr/textAppearanceSmall" />
 
     <TextView
-        android:id="@+id/textViewInformation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_below="@+id/editTextDistance"
-        android:layout_marginLeft="25dp"
-        android:layout_marginTop="69dp"
-        android:text="Imformation about the Date, User, Car and Fueltype will be obtained automatically"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-    <TextView
         android:id="@+id/textViewUnit1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -154,5 +143,39 @@
         android:layout_alignLeft="@+id/editTextUnit1"
         android:text="Unit:"
         android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/textViewInformation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/button1"
+        android:layout_alignLeft="@+id/editTextNote"
+        android:layout_alignRight="@+id/editTextNote"
+        android:layout_marginLeft="15dp"
+        android:text="Information about the Date, User, Car and Fueltype will be obtained automatically"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <TextView
+        android:id="@+id/textViewNote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/editTextNote"
+        android:layout_centerVertical="true"
+        android:text="Note:"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <EditText
+        android:id="@+id/editTextNote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/DistanceTravelled"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/textViewNote"
+        android:layout_marginRight="5dp"
+        android:ems="10"
+        android:inputType="textMultiLine" >
+
+        <requestFocus />
+    </EditText>
 
 </RelativeLayout>

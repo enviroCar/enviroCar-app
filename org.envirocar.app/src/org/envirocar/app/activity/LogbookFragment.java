@@ -19,38 +19,29 @@ import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.model.Car.FuelType;
-import org.envirocar.app.activity.*;
 import org.json.JSONObject;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.DialogInterface.OnClickListener;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.text.TextUtils;
+import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ExpandableListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemLongClickListener;
 
 import com.actionbarsherlock.app.SherlockFragment;
 	
 	public class LogbookFragment extends SherlockFragment implements OnClickListener, android.view.View.OnClickListener{
+		
+		
+		private static final String Default_Distance_Unit = "Settings_Distance_Unit";
+		private static final String Default_Volume_Unit = "Settings_Volume_Unit";
+		private static final String Default_Currency_Unit = "Settings_Currency_Unit";
 		//Used Parameter 
-		private EditText Volume,Unit1,Cost,Currency,Unit2,Distance;
+		private EditText Volume,Unit1,Cost,Currency,Unit2,Distance,Note;
 		private Button btn;
 		
 		//Date and Time
@@ -65,15 +56,25 @@ import com.actionbarsherlock.app.SherlockFragment;
 			super.onCreateView(inflater, container, savedInstanceState);
 			
 			setHasOptionsMenu(true);
+			
+			SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+			String distanceUnit = settings.getString(Default_Distance_Unit, "km");
+			String VolumeUnit = settings.getString(Default_Volume_Unit, "Liter");
+			String CurrencyUnit = settings.getString(Default_Currency_Unit,"Euro");
 
 			View v = inflater.inflate(R.layout.logbook_layout, null);
 			//Text- and EditViews
 			Volume=(EditText)v.findViewById(R.id.editTextVolume);
 			Unit1=(EditText)v.findViewById(R.id.editTextUnit1);
+			Unit1.setText(VolumeUnit);
 			Cost=(EditText)v.findViewById(R.id.editTextCost);
 			Currency=(EditText)v.findViewById(R.id.editTextCurrency);
+			Currency.setText(CurrencyUnit);
 			Distance=(EditText)v.findViewById(R.id.editTextDistance);
 			Unit2=(EditText)v.findViewById(R.id.editTextUnit2);
+			Unit2.setText(distanceUnit);
+			Note=(EditText)v.findViewById(R.id.editTextNote);
+			
 			btn=(Button)v.findViewById(R.id.button1);
 			btn.setOnClickListener(new Button.OnClickListener()
 			{
@@ -86,29 +87,45 @@ import com.actionbarsherlock.app.SherlockFragment;
 	
 			return v;
 		};
-			
+		
+		
 		//Creating a JSON-Object
 		void createJSONFile()
 		{
 	        
 			try
 			{
+				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
+				settings.edit().putString(Default_Distance_Unit, Unit2.getText().toString()).commit();
+				settings.edit().putString(Default_Volume_Unit, Unit1.getText().toString()).commit();
+				settings.edit().putString(Default_Currency_Unit, Currency.getText().toString()).commit();
+				
 				String Username = UserManager.instance().getUser().getUsername();
 				String carmodel = CarManager.instance().getCar().getModel();
 				FuelType fueltype = CarManager.instance().getCar().getFuelType();
 				
-				JSONObject object=new JSONObject();
-				object.put("Name:", Username );
-				object.put("DateTime:", formattedDate);
-				object.put("Car:", carmodel);
-				object.put("Fueltype:",fueltype);
-				object.put("Volume:", Volume.getText());
-				object.put("VolumeUnit:", Unit1.getText());
-				object.put("Cost:", Cost.getText());
-				object.put("Currency:", Currency.getText());
-				object.put("Distance:", Distance.getText());
-				object.put("DistanceUnit:", Unit2.getText());
-				String str=object.toString();
+				JSONObject obj1=new JSONObject();
+				obj1.put("DateTime:", formattedDate);
+				obj1.put("Note:", Note.getText());
+				JSONObject obj2=new JSONObject();
+				obj2.put("Name:", Username );
+				obj2.put("Car:", carmodel);
+				obj2.put("Fueltype:",fueltype);
+				obj1.put("User:", obj2);
+				JSONObject obj3=new JSONObject();
+				obj3.put("Volume:", Volume.getText());
+				obj3.put("VolumeUnit:", Unit1.getText());
+				obj1.put("Fuel Tank:", obj3);
+				JSONObject obj4=new JSONObject();
+				obj4.put("Cost:", Cost.getText());
+				obj4.put("Currency:", Currency.getText());
+				obj1.put("Finance:", obj4);
+				JSONObject obj5=new JSONObject();
+				obj5.put("Distance:", Distance.getText());
+				obj5.put("DistanceUnit:", Unit2.getText());
+				obj1.put("Total traveled Distance:", obj5);
+							
+				String str=obj1.toString();
 				//Sending the JSON-Object
 				new MyAsyncTask().execute(str);
 					//Log-Entry to LogCat (for Testing)
