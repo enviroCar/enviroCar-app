@@ -22,8 +22,9 @@ package org.envirocar.app.dao.cache;
 
 import java.util.List;
 
-import org.envirocar.app.dao.NotConnectedException;
 import org.envirocar.app.dao.TrackDAO;
+import org.envirocar.app.dao.exception.NotConnectedException;
+import org.envirocar.app.dao.exception.TrackRetrievalException;
 import org.envirocar.app.storage.Track;
 
 public class CacheTrackDAO implements TrackDAO {
@@ -34,20 +35,41 @@ public class CacheTrackDAO implements TrackDAO {
 	}
 
 	@Override
-	public void storeTrack(Track track) throws NotConnectedException {
+	public String storeTrack(Track track, boolean obfuscate) throws NotConnectedException {
 		throw new NotConnectedException("Not implemented for Cache DAO");
 	}
 
 	@Override
-	public List<Track> getAllTracks() {
-		// TODO Auto-generated method stub
-		return null;
+	public Track getTrack(String id) throws NotConnectedException {
+		throw new NotConnectedException("Not implemented for Cache DAO");
 	}
 
 	@Override
-	public Track getTrack(String id) {
-		// TODO Auto-generated method stub
-		return null;
+	public Integer getUserTrackCount() throws NotConnectedException,
+			TrackRetrievalException {
+		throw new NotConnectedException("Not implemented for Cache DAO");
+	}
+
+	@Override
+	public Integer getTotalTrackCount() throws NotConnectedException,
+			TrackRetrievalException {
+		throw new NotConnectedException("Not implemented for Cache DAO");
+	}
+
+	@Override
+	public List<String> getTrackIds() throws NotConnectedException {
+		throw new NotConnectedException("Not implemented for Cache DAO");	
+	}
+
+	@Override
+	public List<String> getTrackIds(int limit) throws NotConnectedException {
+		throw new NotConnectedException("Not implemented for Cache DAO");	
+	}
+
+	@Override
+	public List<String> getTrackIds(int limit, int page)
+			throws NotConnectedException {
+		throw new NotConnectedException("Not implemented for Cache DAO");	
 	}
 
 }

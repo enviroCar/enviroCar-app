@@ -20,6 +20,7 @@
  */
 package org.envirocar.app.dao;
 
+import org.envirocar.app.dao.exception.TermsOfUseRetrievalException;
 import org.envirocar.app.model.TermsOfUse;
 import org.envirocar.app.model.TermsOfUseInstance;
 

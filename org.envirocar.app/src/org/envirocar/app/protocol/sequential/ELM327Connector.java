@@ -155,6 +155,11 @@ public class ELM327Connector extends AbstractSequentialConnector {
 		
 	}
 
+	@Override
+	public long getPreferredRequestPeriod() {
+		return 100;
+	}
+
 
 
 }

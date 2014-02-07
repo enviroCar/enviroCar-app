@@ -20,7 +20,10 @@
  */
 package org.envirocar.app.network;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -30,10 +33,13 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.ssl.SSLSocketFactory;
-import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.entity.AbstractHttpEntity;
+import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 import org.envirocar.app.logging.Logger;
+
+import android.net.http.AndroidHttpClient;
 
 /**
  * Utility class to provide secure HTTP network access. 
@@ -44,6 +50,7 @@ import org.envirocar.app.logging.Logger;
 public class HTTPClient {
 
 	private static final Logger logger = Logger.getLogger(HTTPClient.class);
+	public static final int MIN_GZIP_SIZE = 8192;
 	
 	/**
 	 * execute a http request with a https-capable http client
@@ -67,7 +74,7 @@ public class HTTPClient {
 	 * @return a https-capable http client
 	 */
 	protected static HttpClient createClient() {
-		HttpClient client = new DefaultHttpClient();
+		HttpClient client = AndroidHttpClient.newInstance("enviroCar-app");
 		setupClient(client);
 		return client;
 	}
@@ -123,6 +130,21 @@ public class HTTPClient {
 		
 		HttpResponse response = HTTPClient.execute(getRequest);
 		return response.getEntity();
+	}
+
+	public static HttpEntity createEntity(byte[] data) throws IOException {
+        AbstractHttpEntity entity;
+        if (data.length < MIN_GZIP_SIZE) {
+            entity = new ByteArrayEntity(data);
+        } else {
+            ByteArrayOutputStream arr = new ByteArrayOutputStream();
+            OutputStream zipper = new GZIPOutputStream(arr);
+            zipper.write(data);
+            zipper.close();
+            entity = new ByteArrayEntity(arr.toByteArray());
+            entity.setContentEncoding("gzip");
+        }
+        return entity;
 	}
 	
 }

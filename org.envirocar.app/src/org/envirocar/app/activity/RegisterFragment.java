@@ -21,30 +21,20 @@
 
 package org.envirocar.app.activity;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.protocol.HTTP;
 import org.envirocar.app.R;
-import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.TermsOfUseManager;
-import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
+import org.envirocar.app.dao.DAOProvider;
+import org.envirocar.app.dao.exception.ResourceConflictException;
+import org.envirocar.app.dao.exception.UserUpdateException;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.network.HTTPClient;
+import org.envirocar.app.model.User;
 import org.envirocar.app.views.TypefaceEC;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -72,8 +62,6 @@ public class RegisterFragment extends SherlockFragment {
 	
 	private static final Logger logger = Logger.getLogger(RegisterFragment.class);
 
-	private static final int ERROR_GENERAL = 1;
-	private static final int ERROR_NET = 2;
 
 	/**
 	 * Keep track of the register task to ensure we can cancel it if requested.
@@ -284,102 +272,76 @@ public class RegisterFragment extends SherlockFragment {
 	 * Represents an asynchronous register/registration task used to
 	 * authenticate the user.
 	 */
-	public class UserRegisterTask extends AsyncTask<Void, Void, Integer> {
+	public class UserRegisterTask extends AsyncTask<Void, Void, Void> {
 		@Override
-		protected Integer doInBackground(Void... params) {
-
-			return createUser(mUsername, mPassword, mEmail);
-
-		}
-
-		@Override
-		protected void onPostExecute(final Integer httpStatus) {
-			mAuthTask = null;
-			showProgress(false);
-
-			if (httpStatus == HttpStatus.SC_CREATED) {
-				Crouton.makeText(getActivity(), getResources().getString(R.string.welcome_message)+mUsername, Style.CONFIRM).show();
-				User user = new User(mUsername, mPassword);
-				UserManager.instance().setUser(user);
+		protected Void doInBackground(Void... params) {
+			try {
+				createUser(mUsername, mPassword, mEmail);
 				
-				TermsOfUseManager.askForTermsOfUseAcceptance(user, getActivity(), null);
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						Crouton.makeText(getActivity(), getResources().getString(R.string.welcome_message)+mUsername, Style.CONFIRM).show();
+						User user = new User(mUsername, mPassword);
+						UserManager.instance().setUser(user);
+						
+						TermsOfUseManager.askForTermsOfUseAcceptance(user, getActivity(), null);
+						
+						getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+						DashboardFragment dashboardFragment = new DashboardFragment();
+						getActivity().getSupportFragmentManager().beginTransaction()
+								.replace(R.id.content_frame, dashboardFragment)
+								.commit();						
+					}
+				});
+			} catch (UserUpdateException e) {
+				logger.warn(e.getMessage(), e);
+				getActivity().runOnUiThread(new Runnable() {
+
+					@Override
+					public void run() {
+						mUsernameView.setError(getString(R.string.error_host_not_found));
+						mUsernameView.requestFocus();
+						showProgress(false);						
+					}
+					
+				});
 				
-				getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-				DashboardFragment dashboardFragment = new DashboardFragment();
-				getActivity().getSupportFragmentManager().beginTransaction()
-						.replace(R.id.content_frame, dashboardFragment)
-						.commit();
-				
-			} else if (httpStatus == HttpStatus.SC_FORBIDDEN) {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getActivity());
-                alertDialogBuilder.setTitle("Sorry");
-                alertDialogBuilder
-                        .setMessage(R.string.error_email_not_in_beta)
-                        .setCancelable(false)
-                        .setPositiveButton(android.R.string.ok,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog,
-                                            int id) {
-                                        dialog.cancel();
-                                    }
-                                });
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
-			} else if (httpStatus == HttpStatus.SC_CONFLICT) {
-				// TODO look out for server changes..
-				mUsernameView.setError(getString(R.string.error_username_already_in_use));
-				mEmailView.setError(getString(R.string.error_email_already_in_use));
-				mUsernameView.requestFocus();				
-			} else if (httpStatus==ERROR_NET){
-				mUsernameView.setError(getString(R.string.error_host_not_found));
-				mUsernameView.requestFocus();
+			} catch (ResourceConflictException e) {
+				logger.warn(e.getMessage(), e);
+				getActivity().runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						// TODO look out for server changes..
+						mUsernameView.setError(getString(R.string.error_username_already_in_use));
+						mEmailView.setError(getString(R.string.error_email_already_in_use));
+						mUsernameView.requestFocus();
+						showProgress(false);						
+					}
+				});
 			}
+			
+			return null;
 		}
-
+		
 		@Override
-		protected void onCancelled() {
-			mAuthTask = null;
-			showProgress(false);
+		protected void onPostExecute(Void result) {
+			super.onPostExecute(result);
 		}
+		
+		
+
 	}
 
 	/*
 	 * Use this method to sign up a new user
 	 */
-	public int createUser(String user, String token, String mail) {
-
-		JSONObject requestJson = new JSONObject();
-		try {
-			requestJson.put("name", user);
-			requestJson.put("token", token);
-			requestJson.put("mail", mail);
-		} catch (JSONException e) {
-			logger.warn(e.getMessage(), e);
-		}
-
-
-		try {
-			HttpPost postRequest = new HttpPost(
-					ECApplication.BASE_URL+"/users");
-					
-
-			StringEntity input = new StringEntity(requestJson.toString(),
-					HTTP.UTF_8);
-			input.setContentType("application/json");
-
-			postRequest.setEntity(input);
-			return HTTPClient.execute(postRequest).getStatusLine()
-					.getStatusCode();
-
-		} catch (UnsupportedEncodingException e) {
-			// Shouldn't occur hopefully..
-			logger.warn(e.getMessage(), e);
-			return ERROR_GENERAL;
-		} catch (IOException e) {
-			logger.warn(e.getMessage(), e);
-			// probably something with the Internet..
-			return ERROR_NET;
-		}
+	public boolean createUser(String user, String token, String mail) throws UserUpdateException, ResourceConflictException {
+		User newUser = new User(user, token);
+		newUser.setMail(mail);
+		
+		DAOProvider.instance().getUserDAO().createUser(newUser);
+		return true;
 	}
 
 }

@@ -155,6 +155,7 @@
 	<string name="privacy">Obfuscate positions</string>
 	<string name="shareTrack">Export</string>
 	<string name="error_json">Internal Error creating your JSON string</string>
+	<string name="error_io">File system error</string>
 	
 	<string name="help">Help</string>
 
@@ -264,7 +265,7 @@ If you discover and problems, please send us an error log (-> report problem). T
 	<string name="announcement">Announcement</string>
 	<string name="do_not_show_again">Do not show this message again?</string>
 	
-	<string name="ok">Ok</string>
+	<string name="ok">OK</string>
 	<string name="menu_logbook">Logbook</string>
 	
 </resources>

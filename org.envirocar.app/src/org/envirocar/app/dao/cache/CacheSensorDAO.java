@@ -25,9 +25,9 @@ import java.io.IOException;
 import java.util.List;
 
 import org.envirocar.app.dao.CacheDirectoryProvider;
-import org.envirocar.app.dao.NotConnectedException;
 import org.envirocar.app.dao.SensorDAO;
-import org.envirocar.app.dao.SensorRetrievalException;
+import org.envirocar.app.dao.exception.NotConnectedException;
+import org.envirocar.app.dao.exception.SensorRetrievalException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.util.Util;
