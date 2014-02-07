@@ -116,8 +116,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	static final int MY_TRACKS = 2;
 	static final int START_STOP_MEASUREMENT = 3;
 	static final int SETTINGS = 4;
-	static final int HELP = 5;
-	static final int SEND_LOG = 6;
+	static final int LOGBOOK = 5;
+	static final int HELP = 6;
+	static final int SEND_LOG = 7;
+	
 	
 	static final String DASHBOARD_TAG = "DASHBOARD";
 	static final String LOGIN_TAG = "LOGIN";
@@ -125,6 +127,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	static final String HELP_TAG = "HELP";
 	static final String TROUBLESHOOTING_TAG = "TROUBLESHOOTING";
 	static final String SEND_LOG_TAG = "SEND_LOG";
+	static final String LOGBOOK_TAG ="LOGBOOK";
 
 	public static final int REQUEST_MY_GARAGE = 1336;
 	public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
@@ -156,8 +159,9 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
-			navDrawerItems = new NavMenuItem[7];
+			navDrawerItems = new NavMenuItem[8];
 			navDrawerItems[LOGIN] = new NavMenuItem(LOGIN, getResources().getString(R.string.menu_login),R.drawable.device_access_accounts);
+			navDrawerItems[LOGBOOK] = new NavMenuItem(LOGBOOK, getResources().getString(R.string.menu_logbook), R.drawable.logbook);
 			navDrawerItems[SETTINGS] = new NavMenuItem(SETTINGS, getResources().getString(R.string.menu_settings),R.drawable.action_settings);
 			navDrawerItems[START_STOP_MEASUREMENT] = new NavMenuItem(START_STOP_MEASUREMENT, getResources().getString(R.string.menu_start),R.drawable.av_play);
 			navDrawerItems[DASHBOARD] = new NavMenuItem(DASHBOARD, getResources().getString(R.string.dashboard), R.drawable.dashboard);
@@ -584,6 +588,15 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			manager.beginTransaction().replace(R.id.content_frame, logFragment, SEND_LOG_TAG).addToBackStack(null).commit();
         default:
             break;
+            
+		case LOGBOOK:
+        	
+        	if(isFragmentVisible(LOGBOOK_TAG)){
+            	break;
+            }
+			LogbookFragment logbookFragment = new LogbookFragment();
+            manager.beginTransaction().replace(R.id.content_frame, logbookFragment, LOGBOOK_TAG).addToBackStack(null).commit();
+			break;
         }
         drawer.closeDrawer(drawerList);
 
