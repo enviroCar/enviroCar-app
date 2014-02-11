@@ -21,10 +21,7 @@
 package org.envirocar.app.dao.remote;
 
 import java.io.IOException;
-import java.io.InputStream;
 
-import org.apache.http.client.methods.HttpGet;
-import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.dao.TermsOfUseDAO;
 import org.envirocar.app.dao.cache.CacheTermsOfUseDAO;
 import org.envirocar.app.dao.exception.NotConnectedException;
@@ -33,7 +30,6 @@ import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.TermsOfUse;
 import org.envirocar.app.model.TermsOfUseInstance;
-import org.envirocar.app.util.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -49,20 +45,16 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO implements TermsOfUseDAO 
 	@Override
 	public TermsOfUse getTermsOfUse() throws TermsOfUseRetrievalException {
 		try {
-			HttpGet get = new HttpGet(ECApplication.BASE_URL+"/termsOfUse");
-			InputStream response = super.retrieveHttpContent(get);
-			String content = Util.consumeInputStream(response).toString();
-		
+			JSONObject parentObject = readRemoteResouce("/termsOfUse");
+			
 			if (cache != null) {
 				try {
-					cache.storeTermsOfUse(content);
+					cache.storeTermsOfUse(parentObject.toString());
 				}
 				catch (IOException e) {
 					logger.warn(e.getMessage());
 				}
 			}
-			
-			JSONObject parentObject = new JSONObject(content);
 			
 			return TermsOfUse.fromJson(parentObject);
 		} catch (IOException e) {
@@ -78,23 +70,20 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO implements TermsOfUseDAO 
 		}
 	}
 
+
 	@Override
 	public TermsOfUseInstance getTermsOfUseInstance(String id) throws TermsOfUseRetrievalException {
 		try {
-			HttpGet get = new HttpGet(ECApplication.BASE_URL+"/termsOfUse/"+id);
-			InputStream response = super.retrieveHttpContent(get);
-			String content = Util.consumeInputStream(response).toString();
+			JSONObject parentObject = readRemoteResouce("/termsOfUse/"+id);
 			
 			if (cache != null) {
 				try {
-					cache.storeTermsOfUseInstance(content, id);
+					cache.storeTermsOfUseInstance(parentObject.toString(), id);
 				}
 				catch (IOException e) {
 					logger.warn(e.getMessage());
 				}
 			}
-			
-			JSONObject parentObject = new JSONObject(content);
 			
 			return TermsOfUseInstance.fromJson(parentObject);
 		} catch (IOException e) {

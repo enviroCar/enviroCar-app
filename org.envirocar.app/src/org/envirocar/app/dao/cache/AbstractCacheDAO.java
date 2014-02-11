@@ -20,37 +20,41 @@
  */
 package org.envirocar.app.dao.cache;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
-import org.envirocar.app.dao.AnnouncementsDAO;
 import org.envirocar.app.dao.CacheDirectoryProvider;
-import org.envirocar.app.dao.exception.AnnouncementsRetrievalException;
-import org.envirocar.app.model.Announcement;
+import org.envirocar.app.util.Util;
 import org.json.JSONException;
+import org.json.JSONObject;
 
-public class CacheAnnouncementsDAO extends AbstractCacheDAO implements AnnouncementsDAO {
+/**
+ * Convenience abstract base CacheDAO class.
+ */
+public class AbstractCacheDAO {
 
-	public static final String CACHE_FILE_NAME = "announcements";
+	private CacheDirectoryProvider cacheDirectoryProvider;
 
-	public CacheAnnouncementsDAO(CacheDirectoryProvider cacheDirectoryProvider) {
-		super(cacheDirectoryProvider);
+	public AbstractCacheDAO(CacheDirectoryProvider cacheDirectoryProvider) {
+		this.cacheDirectoryProvider = cacheDirectoryProvider;
 	}
 
-	@Override
-	public List<Announcement> getAllAnnouncements() throws AnnouncementsRetrievalException {
-		try {
-			return Announcement.fromJsonList(readCache(CACHE_FILE_NAME));
-		} catch (IOException e) {
-			throw new AnnouncementsRetrievalException(e);
-		} catch (JSONException e) {
-			throw new AnnouncementsRetrievalException(e);
-		}
+	public JSONObject readCache(String cachedFile) throws IOException, JSONException {
+		File directory = cacheDirectoryProvider.getBaseFolder();
+
+		File f = new File(directory, cachedFile);
+
+		if (f.isFile()) {
+			JSONObject tou = Util.readJsonContents(f);
+			return tou;
+		} 
 		
+		throw new IOException(String.format("Could not read file %s", cachedFile));
 	}
-
-	public void storeAllAnnouncements(String content) throws IOException {
-		storeCache(CACHE_FILE_NAME, content);
+	
+	protected void storeCache(String cacheFileName, String content) throws IOException {
+		File file = new File(this.cacheDirectoryProvider.getBaseFolder(), cacheFileName);
+		Util.saveContentsToFile(content, file);		
 	}
-
+	
 }

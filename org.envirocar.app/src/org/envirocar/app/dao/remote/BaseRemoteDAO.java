@@ -30,13 +30,18 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.ParseException;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
+import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.ResourceConflictException;
 import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.model.User;
 import org.envirocar.app.network.HTTPClient;
+import org.envirocar.app.util.Util;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public abstract class BaseRemoteDAO {
@@ -104,6 +109,25 @@ public abstract class BaseRemoteDAO {
 		}
 		
 		return result;
+	}
+	
+	/**
+	 * Reads a remote REST resource
+	 * 
+	 * @param remoteRestResource the sub resource
+	 * @return the remote resource encoded as a {@link JSONObject}
+	 * @throws NotConnectedException
+	 * @throws UnauthorizedException
+	 * @throws IOException
+	 * @throws JSONException
+	 */
+	protected JSONObject readRemoteResouce(String remoteRestResource) throws NotConnectedException, UnauthorizedException, IOException, JSONException {
+		HttpGet get = new HttpGet(ECApplication.BASE_URL+remoteRestResource);
+		InputStream response = retrieveHttpContent(get);
+		String content = Util.consumeInputStream(response).toString();
+	
+		JSONObject parentObject = new JSONObject(content);
+		return parentObject;
 	}
 	
 	/**

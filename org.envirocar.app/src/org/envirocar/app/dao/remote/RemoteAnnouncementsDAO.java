@@ -21,11 +21,8 @@
 package org.envirocar.app.dao.remote;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
-import org.apache.http.client.methods.HttpGet;
-import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.dao.AnnouncementsDAO;
 import org.envirocar.app.dao.cache.CacheAnnouncementsDAO;
 import org.envirocar.app.dao.exception.AnnouncementsRetrievalException;
@@ -33,7 +30,6 @@ import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Announcement;
-import org.envirocar.app.util.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -50,20 +46,16 @@ public class RemoteAnnouncementsDAO extends BaseRemoteDAO implements Announcemen
 	public List<Announcement> getAllAnnouncements() throws AnnouncementsRetrievalException {
 		
 		try {
-			HttpGet get = new HttpGet(ECApplication.BASE_URL+"/announcements");
-			InputStream response = super.retrieveHttpContent(get);
-			String content = Util.consumeInputStream(response).toString();
+			JSONObject parentObject = readRemoteResouce("/announcements");
 		
 			if (cache != null) {
 				try {
-					cache.storeAllAnnouncements(content);
+					cache.storeAllAnnouncements(parentObject.toString());
 				}
 				catch (IOException e) {
 					logger.warn(e.getMessage());
 				}
 			}
-			
-			JSONObject parentObject = new JSONObject(content);
 			
 			return Announcement.fromJsonList(parentObject);
 		} catch (IOException e) {
