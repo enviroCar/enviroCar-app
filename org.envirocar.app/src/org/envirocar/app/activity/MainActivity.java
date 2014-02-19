@@ -39,6 +39,7 @@ import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Announcement;
+import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.util.Util;
 import org.envirocar.app.util.VersionRange.Version;
@@ -626,6 +627,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	protected void onDestroy() {
 		super.onDestroy();
 
+		HTTPClient.shutdown();
 		// Close db connection
 
 //		application.closeDb();

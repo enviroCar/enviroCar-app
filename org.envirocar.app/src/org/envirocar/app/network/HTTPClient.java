@@ -51,6 +51,12 @@ public class HTTPClient {
 
 	private static final Logger logger = Logger.getLogger(HTTPClient.class);
 	public static final int MIN_GZIP_SIZE = 8192;
+	private static AndroidHttpClient client;
+	
+	static {
+		createClient();
+		setupClient(client);
+	}
 	
 	/**
 	 * execute a http request with a https-capable http client
@@ -60,9 +66,10 @@ public class HTTPClient {
 	 * @throws IOException
 	 */
 	public static HttpResponse execute(HttpUriRequest request) throws IOException {
-		HttpClient client = createClient();
+		AndroidHttpClient client = createClient();
 		try {
-			return client.execute(request);
+			HttpResponse result = client.execute(request);
+			return result;
 		} catch (ClientProtocolException e) {
 			throw e;
 		} catch (IOException e) {
@@ -73,9 +80,11 @@ public class HTTPClient {
 	/**
 	 * @return a https-capable http client
 	 */
-	protected static HttpClient createClient() {
-		HttpClient client = AndroidHttpClient.newInstance("enviroCar-app");
-		setupClient(client);
+	protected synchronized static AndroidHttpClient createClient() {
+		if (client == null) {
+			client = AndroidHttpClient.newInstance("enviroCar-app");
+			setupClient(client);
+		}
 		return client;
 	}
 
@@ -147,4 +156,9 @@ public class HTTPClient {
         return entity;
 	}
 	
+	public static synchronized void shutdown() {
+		if (client != null) {
+			client.close();
+		}
+	}
 }

@@ -97,6 +97,11 @@ import com.actionbarsherlock.app.SherlockFragment;
 				
 				Fueling fueling = new Fueling();
 				fueling.setTime(new Date());
+				
+				if (CarManager.instance().getCar() == null) {
+					throw new Exception("No car selected");
+				}
+				
 				fueling.setCar(CarManager.instance().getCar());
 				if (!Note.getText().toString().isEmpty()) {
 					fueling.setComment(Note.getText().toString());
@@ -146,7 +151,7 @@ import com.actionbarsherlock.app.SherlockFragment;
 		catch (Exception je)
 			{
 			//Exception if user is not logged in, or has not chosen a carmodel
-			Toast.makeText(LogbookFragment.this.getActivity(), "Please check if you're logged in,have chosen a car or filled in all input fields.", Toast.LENGTH_LONG).show();
+			makeToast("Please check if you're logged in,have chosen a car or filled in all input fields.");
 			}
 		}
 			
@@ -160,7 +165,7 @@ import com.actionbarsherlock.app.SherlockFragment;
 			}
 			 
 			protected void onPostExecute(Double result){
-			Toast.makeText(LogbookFragment.this.getActivity(), "Data sent", Toast.LENGTH_LONG).show();
+				makeToast("Data sent");
 			}
 			
 			 
@@ -186,9 +191,10 @@ import com.actionbarsherlock.app.SherlockFragment;
 				try {
 					DAOProvider.instance().getFuelingDAO().storeFueling(valueIWantToSend);
 				} catch (NotConnectedException e) {
-					Toast.makeText(LogbookFragment.this.getActivity(), "Please check if you're logged in,have chosen a car or filled in all input fields.", Toast.LENGTH_LONG).show();
+					makeToast("There has been an issue while communicating with the server.");
+					
 				} catch (InvalidObjectStateException e) {
-					Toast.makeText(LogbookFragment.this.getActivity(), "Please check if you're logged in,have chosen a car or filled in all input fields.", Toast.LENGTH_LONG).show();
+					makeToast("Please check if you're logged in,have chosen a car or filled in all input fields.");
 				}
 			}
 				
@@ -201,6 +207,18 @@ import com.actionbarsherlock.app.SherlockFragment;
 				// TODO Auto-generated method stub
 				
 			}
+
+		public void makeToast(final String text) {
+			getActivity().runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					Toast.makeText(LogbookFragment.this.getActivity(), text, Toast.LENGTH_LONG).show();					
+				}
+			});
+						
+		}
+
 
 		@Override
 		public void onClick(DialogInterface arg0, int arg1) {
