@@ -85,20 +85,10 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 
 	@Override
 	public Track getTrack(String id) throws NotConnectedException {
-		HttpGet get = new HttpGet(ECApplication.BASE_URL+"/tracks/"+id);
-		
-		InputStream response;
-		try {
-			response = super.retrieveHttpContent(get);
-		} catch (IOException e1) {
-			throw new NotConnectedException(e1);
-		} catch (UnauthorizedException e1) {
-			throw new NotConnectedException(e1);
-		}
-		
 		Track result;
 		try {
-			result = new TrackDecoder().fromJson(response);
+			JSONObject parentObject = readRemoteResouce("/tracks/"+id);
+			result = new TrackDecoder().fromJson(parentObject);
 		} catch (ParseException e) {
 			throw new NotConnectedException(e);
 		} catch (IOException e) {
@@ -106,6 +96,8 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 		} catch (JSONException e) {
 			throw new NotConnectedException(e);
 		} catch (java.text.ParseException e) {
+			throw new NotConnectedException(e);
+		} catch (UnauthorizedException e) {
 			throw new NotConnectedException(e);
 		}
 		

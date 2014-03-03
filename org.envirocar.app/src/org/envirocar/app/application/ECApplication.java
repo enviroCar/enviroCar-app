@@ -73,7 +73,7 @@ public class ECApplication extends Application {
 	
 	// Strings
 	
-	public static final String BASE_URL = "https://envirocar.org/api/stable";
+	public static final String BASE_URL = "https://envirocar.org/api/dev";
 //	public static final String BASE_URL = "http://192.168.1.148:8080/webapp-1.1.0-SNAPSHOT";
 
 	private SharedPreferences preferences = null;
@@ -206,10 +206,6 @@ public class ECApplication extends Application {
 		ACRA.getErrorReporter().setReportSender(yourSender);
 		ACRA.getConfig().setExcludeMatchingSharedPreferencesKeys(SettingsActivity.resolveIndividualKeys());
 	}
-
-	/**
-	 * This method opens both dbadapters or also gets them and opens them afterwards.
-	 */
 
 
 	/**

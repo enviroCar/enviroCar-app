@@ -23,34 +23,37 @@ package org.envirocar.app.dao.cache;
 import java.io.IOException;
 import java.util.List;
 
-import org.envirocar.app.dao.AnnouncementsDAO;
 import org.envirocar.app.dao.CacheDirectoryProvider;
-import org.envirocar.app.dao.exception.AnnouncementsRetrievalException;
-import org.envirocar.app.model.Announcement;
+import org.envirocar.app.dao.FuelingDAO;
+import org.envirocar.app.dao.exception.FuelingRetrievalException;
+import org.envirocar.app.dao.exception.NotConnectedException;
+import org.envirocar.app.json.FuelingDecoder;
+import org.envirocar.app.model.Fueling;
 import org.json.JSONException;
 
-public class CacheAnnouncementsDAO extends AbstractCacheDAO implements AnnouncementsDAO {
+public class CacheFuelingDAO extends AbstractCacheDAO implements FuelingDAO {
 
-	public static final String CACHE_FILE_NAME = "announcements";
-
-	public CacheAnnouncementsDAO(CacheDirectoryProvider cacheDirectoryProvider) {
+	
+	public CacheFuelingDAO(CacheDirectoryProvider cacheDirectoryProvider) {
 		super(cacheDirectoryProvider);
 	}
 
+	private static final String FUELING_CACHE = "fuelings";
+
 	@Override
-	public List<Announcement> getAllAnnouncements() throws AnnouncementsRetrievalException {
-		try {
-			return Announcement.fromJsonList(readCache(CACHE_FILE_NAME));
-		} catch (IOException e) {
-			throw new AnnouncementsRetrievalException(e);
-		} catch (JSONException e) {
-			throw new AnnouncementsRetrievalException(e);
-		}
-		
+	public void storeFueling(Fueling fueling) throws NotConnectedException {
+		throw new NotConnectedException("CacheFuelingDAO does not support saving.");
 	}
 
-	public void storeAllAnnouncements(String content) throws IOException {
-		storeCache(CACHE_FILE_NAME, content);
+	@Override
+	public List<Fueling> getFuelings() throws FuelingRetrievalException {
+		try {
+			return new FuelingDecoder().createListFromJson(readCache(FUELING_CACHE));
+		} catch (IOException e) {
+			throw new FuelingRetrievalException(e);
+		} catch (JSONException e) {
+			throw new FuelingRetrievalException(e);
+		}
 	}
 
 }

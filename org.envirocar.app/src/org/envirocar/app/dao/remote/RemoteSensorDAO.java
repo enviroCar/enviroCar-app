@@ -21,13 +21,11 @@
 package org.envirocar.app.dao.remote;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.Locale;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
@@ -42,7 +40,6 @@ import org.envirocar.app.dao.exception.SensorRetrievalException;
 import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
-import org.envirocar.app.util.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -59,20 +56,16 @@ public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, Authent
 	public List<Car> getAllSensors() throws SensorRetrievalException {
 		
 		try {
-			HttpGet get = new HttpGet(ECApplication.BASE_URL+"/sensors");
-			InputStream response = super.retrieveHttpContent(get);
-			String content = Util.consumeInputStream(response).toString();
+			JSONObject parentObject = readRemoteResouce("/sensors");
 			
 			if (cache != null) {
 				try {
-					cache.storeAllSensors(content);
+					cache.storeAllSensors(parentObject.toString());
 				}
 				catch (IOException e) {
 					logger.warn(e.getMessage());
 				}
 			}
-			
-			JSONObject parentObject = new JSONObject(content);
 			
 			return Car.fromJsonList(parentObject);
 		} catch (IOException e) {
