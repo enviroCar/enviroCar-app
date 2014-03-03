@@ -1,6 +1,5 @@
 package org.envirocar.app.activity;
 
-
 import java.util.Date;
 
 import org.envirocar.app.R;
@@ -25,7 +24,7 @@ import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 	
-	public class LogbookFragment extends SherlockFragment implements OnClickListener, android.view.View.OnClickListener{
+public class LogbookFragment extends SherlockFragment implements OnClickListener, android.view.View.OnClickListener{
 		
 		
 		private static final String Default_Distance_Unit = "Settings_Distance_Unit";
@@ -72,6 +71,12 @@ import com.actionbarsherlock.app.SherlockFragment;
 			//Order to create JSON-Object by pushing the Button
 				public void onClick(View v)
 				{
+					getActivity().runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							btn.setEnabled(false);
+						}
+					});
 					createJSONFile();
 				}
 			});
@@ -81,11 +86,9 @@ import com.actionbarsherlock.app.SherlockFragment;
 		
 		
 		//Creating a JSON-Object
-		void createJSONFile()
-		{
+		void createJSONFile() {
 	        
-			try
-			{
+			try {
 				SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(getActivity());
 				settings.edit().putString(Default_Distance_Unit, Unit2.getText().toString()).commit();
 				settings.edit().putString(Default_Volume_Unit, Unit1.getText().toString()).commit();
@@ -148,11 +151,21 @@ import com.actionbarsherlock.app.SherlockFragment;
 				Log.i("JsonString :", new FuelingEncoder().createFuelingJson(fueling).toString());
 				 
 			}
-		catch (Exception je)
-			{
+			catch (Exception je) {
 			//Exception if user is not logged in, or has not chosen a carmodel
 			makeToast("Please check if you're logged in,have chosen a car or filled in all input fields.");
 			}
+		}
+		
+		public void makeToast(final String text) {
+			getActivity().runOnUiThread(new Runnable() {
+				
+				@Override
+				public void run() {
+					Toast.makeText(LogbookFragment.this.getActivity(), text, Toast.LENGTH_LONG).show();					
+				}
+			});
+						
 		}
 			
 		private class MyAsyncTask extends AsyncTask<Fueling, Integer, Double>{
@@ -197,34 +210,22 @@ import com.actionbarsherlock.app.SherlockFragment;
 					makeToast("Please check if you're logged in,have chosen a car or filled in all input fields.");
 				}
 			}
-				
 			
 			 
-			}
-	 
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-				
-			}
+		}
 
-		public void makeToast(final String text) {
-			getActivity().runOnUiThread(new Runnable() {
-				
-				@Override
-				public void run() {
-					Toast.makeText(LogbookFragment.this.getActivity(), text, Toast.LENGTH_LONG).show();					
-				}
-			});
-						
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			
 		}
 
 
 		@Override
-		public void onClick(DialogInterface arg0, int arg1) {
+		public void onClick(DialogInterface dialog, int which) {
 			// TODO Auto-generated method stub
 			
 		}
-		
-	}	
+	 
+}	
 	
