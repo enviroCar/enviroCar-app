@@ -268,4 +268,8 @@ If you discover and problems, please send us an error log (-> report problem). T
 	<string name="ok">OK</string>
 	<string name="menu_logbook">Logbook</string>
 	
+	<string name="service_state_starting">Establishing connection to OBDII adapter</string>
+	<string name="service_state_started">Connected to OBDII adapter. Recording.</string>
+	<string name="service_state_stopped">OBDII adapter disconnected.</string>
+	
 </resources>

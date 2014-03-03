@@ -26,6 +26,7 @@ import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.NavMenuItem;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
+import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.logging.Logger;
 
@@ -51,7 +52,7 @@ public class StartStopButtonUtil {
 	
 	private ECApplication application;
 	private int trackMode;
-	private ServiceState serviceState;
+	private ServiceState serviceState = ServiceState.SERVICE_STOPPED;
 	private Activity activity;
 	private boolean deviceDiscoveryActive;
 	
@@ -173,7 +174,8 @@ public class StartStopButtonUtil {
 						new AsyncTask<Void, Void, Void>() {
 							@Override
 							protected Void doInBackground(Void... params) {
-								application.stopConnection();
+								application.getApplicationContext().stopService(
+										new Intent(application, BackgroundServiceImpl.class));
 								application.finishTrack();
 								return null;
 							}
@@ -206,7 +208,8 @@ public class StartStopButtonUtil {
 								break;
 						}
 						
-						application.startConnection();
+						application.getApplicationContext().startService(
+								new Intent(application, BackgroundServiceImpl.class));
 						Crouton.makeText(activity, R.string.start_connection, Style.INFO).show();
 					}
 					
@@ -301,7 +304,8 @@ public class StartStopButtonUtil {
 	}
 	
 	private void processStartingStateClick() {
-		application.stopConnection();
+		application.getApplicationContext().stopService(
+				new Intent(application, BackgroundServiceImpl.class));
 		Crouton.makeText(activity, R.string.stop_connection, Style.INFO).show();		
 	}
 

@@ -30,10 +30,6 @@ import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
 import org.envirocar.app.activity.SettingsActivity;
-import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
-import org.envirocar.app.application.service.BackgroundServiceImpl;
-import org.envirocar.app.application.service.BackgroundServiceConnector;
-import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.dao.CacheDirectoryProvider;
 import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.logging.ACRACustomSender;
@@ -51,14 +47,11 @@ import android.app.Application;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
-import android.widget.Toast;
 
 /**
  * This is the main application that is the central linking component for all adapters, services and so on.
@@ -87,38 +80,11 @@ public class ECApplication extends Application {
 	private BluetoothAdapter bluetoothAdapter = BluetoothAdapter
 			.getDefaultAdapter();
 
-	private BackgroundServiceConnector serviceConnector;
-	private Intent backgroundService;
-	private Intent deviceInRangeService;
-	
 	private int mId = 1133;
 	
 	protected boolean adapterConnected;
 	private Activity currentActivity;
 	
-	private final BroadcastReceiver bluetoothChangeReceiver = new BroadcastReceiver() {
-	    @Override
-	    public void onReceive(Context context, Intent intent) {
-	        final String action = intent.getAction();
-
-	        if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
-	            final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
-	                                                 BluetoothAdapter.ERROR);
-	            switch (state) {
-	            case BluetoothAdapter.STATE_ON:
-	            	logger.info("bt is now on");
-	            	initializeBackgroundServices();
-	                break;
-	            }
-	        }
-	        else if (action.equals(DeviceInRangeService.DEVICE_FOUND)) {
-	        	logger.info("our device got discovered!");
-	        	startConnection();
-	        }
-	    }
-	};
-
-	private BroadcastReceiver receiver;
 
 
 	/**
@@ -132,16 +98,6 @@ public class ECApplication extends Application {
 
 	public void setActivity(Activity a){
 		this.currentActivity = a;
-	}
-	
-	/**
-	 * Returns the service connector of the server
-	 * @return the serviceConnector
-	 */
-	public BackgroundServiceConnector getServiceConnector() {
-		if (serviceConnector == null)
-			initializeBackgroundServices();
-		return serviceConnector;
 	}
 	
 	/**
@@ -190,15 +146,7 @@ public class ECApplication extends Application {
 		// returned
 		logger.info("init commandListener");
 		
-		// If everything is available, start the service connector and commandListener
-		initializeBackgroundServices();
-		
-		//bluetooth change commandListener
-	    registerReceiver(bluetoothChangeReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
-	    registerReceiver(bluetoothChangeReceiver, new IntentFilter(DeviceInRangeService.DEVICE_FOUND));
-
 	}
-	
 	
 	private void initializeErrorHandling() {
 		ACRA.init(this);
@@ -207,52 +155,6 @@ public class ECApplication extends Application {
 		ACRA.getConfig().setExcludeMatchingSharedPreferencesKeys(SettingsActivity.resolveIndividualKeys());
 	}
 
-
-	/**
-	 * This method starts the service that connects to the adapter to the app.
-	 */
-	private void initializeBackgroundServices() {
-		if (bluetoothActivated()) {
-			logger.info("requirements met");
-			
-			backgroundService = new Intent(this, BackgroundServiceImpl.class);
-			serviceConnector = new BackgroundServiceConnector();
-			bindService(backgroundService, serviceConnector,
-					Context.BIND_AUTO_CREATE);
-			
-			receiver = new BroadcastReceiver() {
-				@Override
-				public void onReceive(Context context, Intent intent) {
-					if (intent.getAction().equals(BackgroundServiceImpl.CONNECTION_PERMANENTLY_FAILED_INTENT)) {
-						connectionPermanentlyFailed();
-					}
-				}
-			};
-			
-			registerReceiver(receiver, new IntentFilter(BackgroundServiceImpl.CONNECTION_PERMANENTLY_FAILED_INTENT));
-
-			registerReceiver(new AbstractBackgroundServiceStateReceiver() {
-				@Override
-				public void onStateChanged(ServiceState state) {
-					switch (state) {
-					case SERVICE_STARTED:
-						onAdapterConnected();
-						break;
-					case SERVICE_STOPPED:
-						onAdapterDisconnected();
-						break;
-					default:
-						break;
-					}
-				}
-			}, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
-		} else {
-			logger.warn("bluetooth not activated!");
-		}
-	}
-
-	
-
 	/**
 	 * Stop the service connector and therefore the scheduled tasks.
 	 */
@@ -260,37 +162,6 @@ public class ECApplication extends Application {
 		scheduleTaskExecutor.shutdown();
 	}
 
-	/**
-	 * Connects to the Bluetooth Adapter and starts the execution of the
-	 * commands. this method does not do a sanity check - callers must
-	 * verify the state of the service (e.g. through {@link AbstractBackgroundServiceStateReceiver}.)
-	 */
-	public void startConnection() {
-		logger.info("ECApplication startConnection");
-		startService(backgroundService);
-	}
-
-	/**
-	 * Ends the connection with the Bluetooth Adapter. also stops gps and closes the db.
-	 * this method does not do a sanity check - callers must
-	 * verify the state of the service (e.g. through {@link AbstractBackgroundServiceStateReceiver}.)
-	 */
-	public void stopConnection() {
-		logger.info("ECApplication stopConnection");
-		if (serviceConnector != null) {
-			serviceConnector.shutdownBackgroundService();
-			stopService(backgroundService);
-		}
-	}
-
-
-	/**
-	 * Stops gps, kills service, kills service connector, kills commandListener and handler
-	 */
-	public void destroyStuff() {
-		backgroundService = null;
-		serviceConnector = null;
-	}
 
 	
 	/**
@@ -330,34 +201,6 @@ public class ECApplication extends Application {
 		//TODO somehow let the CommandListener know of the reset
 	}
 
-	private void onAdapterConnected() {
-		displayCrouton("OBD-II Adapter connected");
-	}
-
-
-	private void onAdapterDisconnected() {
-		displayToast("OBD-II Adapter disconnected");	
-	}
-
-	private void connectionPermanentlyFailed() {
-		displayToast("OBD-II Adapter connection permanently failed");
-	}
-
-	private void displayToast(final String string) {
-		Toast.makeText(getApplicationContext(), string, Toast.LENGTH_LONG).show();
-	}
-	
-	private void displayCrouton(final String string) {
-		if (getCurrentActivity() == null) return;
-		
-		getCurrentActivity().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				Crouton.makeText(getCurrentActivity(), string, Style.INFO).show();
-			}
-		});		
-	}
-
 
 	public void finishTrack() {
 		final Track track = DbAdapterImpl.instance().finishCurrentTrack();
@@ -378,15 +221,6 @@ public class ECApplication extends Application {
 				}				
 			}
 		});
-	}
-
-
-	public void startDeviceDiscoveryService() {
-		if (deviceInRangeService != null) {
-			stopService(deviceInRangeService);
-		}
-		deviceInRangeService = new Intent(ECApplication.this, DeviceInRangeService.class);
-		startService(deviceInRangeService);		
 	}
 
 

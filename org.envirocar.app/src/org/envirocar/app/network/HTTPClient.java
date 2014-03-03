@@ -158,7 +158,12 @@ public class HTTPClient {
 	
 	public static synchronized void shutdown() {
 		if (client != null) {
-			client.close();
+			try {
+				client.close();
+			}
+			catch (RuntimeException e) {
+				logger.warn(e.getMessage(), e);
+			}
 		}
 	}
 }

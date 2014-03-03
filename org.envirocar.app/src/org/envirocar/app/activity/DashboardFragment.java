@@ -28,6 +28,7 @@ import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
 import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
+import org.envirocar.app.application.service.BackgroundServiceInteractor;
 import org.envirocar.app.event.CO2Event;
 import org.envirocar.app.event.CO2EventListener;
 import org.envirocar.app.event.EventBus;
@@ -43,12 +44,16 @@ import org.envirocar.app.views.SizeRelatedTextView;
 import org.envirocar.app.views.TypefaceEC;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -69,7 +74,7 @@ public class DashboardFragment extends SherlockFragment {
 
 	private static final Logger logger = Logger.getLogger(DashboardFragment.class);
 	public static final int SENSOR_CHANGED_RESULT = 1337;
-	private static final String SERVICE_STATE = "serviceState";
+//	private static final String SERVICE_STATE = "serviceState";
 	private static final String LOCATION = "location";
 	private static final String SPEED = "speed";
 	private static final String CO2 = "co2";
@@ -97,6 +102,7 @@ public class DashboardFragment extends SherlockFragment {
 	private OnSharedPreferenceChangeListener preferenceListener;
 	private LayeredImageRotateView speedRotatableView;
 	private LayeredImageRotateView co2RotableView;
+	protected BackgroundServiceInteractor backgroundService;
 
 
 	@Override
@@ -181,6 +187,7 @@ public class DashboardFragment extends SherlockFragment {
 		
 		preferences.registerOnSharedPreferenceChangeListener(preferenceListener);
 		
+		bindToBackgroundService();
 	}
 	
 	
@@ -202,7 +209,7 @@ public class DashboardFragment extends SherlockFragment {
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		
-		outState.putSerializable(SERVICE_STATE, serviceState);
+//		outState.putSerializable(SERVICE_STATE, serviceState);
 		outState.putParcelable(LOCATION, location);
 		outState.putInt(SPEED, speed);
 		outState.putDouble(CO2, co2);
@@ -211,12 +218,10 @@ public class DashboardFragment extends SherlockFragment {
 	private void readSavedState(Bundle savedInstanceState) {
 		if (savedInstanceState == null) return;
 		
-		this.serviceState = (ServiceState) savedInstanceState.getSerializable(SERVICE_STATE);
+//		this.serviceState = (ServiceState) savedInstanceState.getSerializable(SERVICE_STATE);
 		this.location = savedInstanceState.getParcelable(LOCATION);
 		this.speed = savedInstanceState.getInt(SPEED);
 		this.co2 = savedInstanceState.getDouble(CO2);
-		
-		BackgroundServiceImpl.requestServiceStateBroadcast(getActivity());
 	}
 	
 	@Override
@@ -229,8 +234,29 @@ public class DashboardFragment extends SherlockFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		logger.info("onCreate. hash="+System.identityHashCode(this));
 		super.onCreate(savedInstanceState);
+		
 	}
 	
+	private void bindToBackgroundService() {
+		if (!getActivity().bindService(new Intent(this.getActivity(), BackgroundServiceImpl.class),
+				new ServiceConnection() {
+					
+					@Override
+					public void onServiceDisconnected(ComponentName name) {
+						logger.info(String.format("BackgroundService %S disconnected!", name.flattenToString()));
+					}
+					
+					@Override
+					public void onServiceConnected(ComponentName name, IBinder service) {
+						backgroundService = (BackgroundServiceInteractor) service;
+						serviceState = backgroundService.getServiceState();
+						updateStatusElements();
+					}
+				}, 0)) {
+			logger.warn("Could not connect to BackgroundService.");
+		}		
+	}
+
 	@Override
 	public void onPause() {
 		logger.info("onPause. hash="+System.identityHashCode(this));
@@ -262,6 +288,8 @@ public class DashboardFragment extends SherlockFragment {
 			Crouton.makeText(getActivity(), R.string.diesel_not_yet_supported,
 					de.keyboardsurfer.android.widget.crouton.Style.ALERT).show();
 		}
+		
+		bindToBackgroundService();
 	}
 
 	private void initializeEventListeners() {
@@ -371,6 +399,6 @@ public class DashboardFragment extends SherlockFragment {
 			speedRotatableView.submitScaleValue(speed/1.6f);
 		}
 	}
-
+	
 
 }

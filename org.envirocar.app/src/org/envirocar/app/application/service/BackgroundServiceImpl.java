@@ -24,8 +24,10 @@ package org.envirocar.app.application.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Locale;
 
 import org.envirocar.app.R;
+import org.envirocar.app.activity.MainActivity;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.TroubleshootingFragment;
 import org.envirocar.app.application.CarManager;
@@ -39,6 +41,9 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.ConnectionListener;
 import org.envirocar.app.protocol.OBDCommandLooper;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -52,6 +57,9 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
+import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 import static org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.*;
 
@@ -78,6 +86,8 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 
 	protected static final int MAX_RECONNECT_COUNT = 2;
 
+	private static final int BG_NOTIFICATION_ID = 42;
+
 	private Listener commandListener;
 	private final Binder binder = new LocalBinder();
 
@@ -85,11 +95,15 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 
 	private BluetoothConnection bluetoothConnection;
 
-	protected ServiceState state;
+	protected ServiceState state = ServiceState.SERVICE_STOPPED;
 
 	protected int reconnectCount;
 
 	private Handler toastHandler;
+
+	private TextToSpeech tts;
+
+	public boolean ttsAvailable;
 
 
 	@Override
@@ -111,8 +125,11 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 		
 		registerReceiver(stateRequestReceiver, new IntentFilter(SERVICE_STATE_REQUEST));
 		
+		tts = new TextToSpeech(getApplicationContext(), new TextToSpeechListener());
+		
 		toastHandler = new Handler();
 	}
+	
 	
 	@Override
 	public void onRebind(Intent intent) {
@@ -130,13 +147,42 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	public void onDestroy() {
 		logger.info("onDestroy " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		stopBackgroundService();
+		stopForeground(true);
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		logger.info("onStartCommand " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		startBackgroundService();
+		
+		createForegroundNotification(R.string.service_state_starting);
+
+		doTextToSpeech("Establishing connection");
+		
 		return START_STICKY;
+	}
+
+	private void doTextToSpeech(String string) {
+		if (ttsAvailable) {
+			tts.speak(string, TextToSpeech.QUEUE_ADD, null);		
+		}
+	}
+
+	private void createForegroundNotification(int stringResource) {
+		CharSequence string = getResources().getText(stringResource);
+		
+		Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        
+		Notification note = new NotificationCompat.Builder(getApplicationContext()).
+				setContentTitle("enviroCar").
+				setContentText(string).
+				setContentIntent(pIntent).
+				setSmallIcon(R.drawable.dashboard).build();
+
+		note.flags |= Notification.FLAG_NO_CLEAR;
+		
+		startForeground(BG_NOTIFICATION_ID, note);
 	}
 
 	/**
@@ -169,6 +215,17 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 				if (BackgroundServiceImpl.this.commandListener != null) {
 					BackgroundServiceImpl.this.commandListener.shutdown();
 				}
+				
+				Notification noti = new NotificationCompat.Builder(getApplicationContext()).setContentTitle("enviroCar").
+						setContentText(getResources().getText(R.string.service_state_stopped)).
+						setSmallIcon(R.drawable.dashboard).build();
+				
+				noti.flags |= Notification.FLAG_AUTO_CANCEL;
+				
+				NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+				manager.notify(BG_NOTIFICATION_ID, noti);
+				
+				doTextToSpeech("Device disconnected");
 			}
 
 
@@ -249,6 +306,10 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 		}
 
 		initializeCommandLooper(in, out, bluetoothSocket.getRemoteDeviceName());
+		
+		createForegroundNotification(R.string.service_state_started);
+		
+		doTextToSpeech("Connection established");
 	}
 
 	protected void initializeCommandLooper(InputStream in, OutputStream out, String deviceName) {
@@ -280,16 +341,17 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 
 					@Override
 					public void requestConnectionRetry(IOException reason) {
-						if (reconnectCount++ >= MAX_RECONNECT_COUNT) {
-							onConnectionException(reason);
-						}
-						else {
-							logger.info("Restarting Device Connection...");
-							displayToast(R.string.connection_lost_info);
-							shutdownConnectionAndHandler();
-							startConnection();
-						}
-						
+//						if (reconnectCount++ >= MAX_RECONNECT_COUNT) {
+//							onConnectionException(reason);
+//						}
+//						else {
+//							logger.info("Restarting Device Connection...");
+//							displayToast(R.string.connection_lost_info);
+//							shutdownConnectionAndHandler();
+//							startConnection();
+//						}
+//						
+						onConnectionException(reason);
 					}
 				});
 		this.commandLooper.start();
@@ -305,15 +367,6 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 			@Override
 			public void run() {
 				Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
-			}
-		});
-	}
-	
-	private void displayToast(final int id) {
-		toastHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				Toast.makeText(getApplicationContext(), id, Toast.LENGTH_LONG).show();
 			}
 		});
 	}
@@ -344,6 +397,11 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 		}
 		
 		@Override
+		public ServiceState getServiceState() {
+			return BackgroundServiceImpl.this.state;
+		}
+		
+		@Override
 		public void shutdownConnection() {
 			logger.info("stopping service!");
 			stopBackgroundService();
@@ -355,9 +413,20 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 			onAllAdaptersFailed();
 		}
 	}
-
-	public static void requestServiceStateBroadcast(Context ctx) {
-		ctx.sendBroadcast(new Intent(SERVICE_STATE_REQUEST));
-	}
 	
+	private class TextToSpeechListener implements OnInitListener {
+
+		@Override
+		public void onInit(int status) {
+			if (status == TextToSpeech.SUCCESS) {
+				ttsAvailable = true;
+				tts.setLanguage(Locale.ENGLISH);
+			}
+			else {
+				logger.warn("TextToSpeech is not available.");
+			}
+		}
+		
+	}
+
 }

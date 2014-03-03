@@ -34,12 +34,12 @@ import org.envirocar.app.application.UserManager;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 import org.envirocar.app.application.service.BackgroundServiceImpl;
+import org.envirocar.app.application.service.BackgroundServiceInteractor;
 import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Announcement;
-import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.util.Util;
 import org.envirocar.app.util.VersionRange.Version;
@@ -48,9 +48,11 @@ import org.envirocar.app.views.Utils;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -59,6 +61,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.Fragment;
@@ -156,6 +159,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private BroadcastReceiver errorInformationReceiver;
 	private Set<String> seenAnnouncements = new HashSet<String>();
 	private BroadcastReceiver deviceDiscoveryStateReceiver;
+	protected BackgroundServiceInteractor backgroundService;
 		
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
@@ -255,7 +259,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 					 */
 					synchronized (MainActivity.this) {
 						if (!deviceDiscoveryActive) {
-							application.startDeviceDiscoveryService();
 							deviceDiscoveryActive = true;
 						}	
 					}
@@ -283,7 +286,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 					if (!intent.getBooleanExtra(DeviceInRangeService.STATE_CHANGE, false)) {
 						deviceDiscoveryActive = false;
 						trackMode = TRACK_MODE_SINGLE;
-						BackgroundServiceImpl.requestServiceStateBroadcast(getApplicationContext());
 						createStartStopUtil().updateStartStopButtonOnServiceStateChange(navDrawerItems[START_STOP_MEASUREMENT]);
 					}
 				}				
@@ -345,6 +347,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment.INTENT));
 		
 		resolvePersistentSeenAnnouncements();
+		
+		bindToBackgroundService();
 	}
 	
 	private void readSavedState(Bundle savedInstanceState) {
@@ -359,8 +363,26 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 				this.seenAnnouncements.add(string);
 			}
 		}
-		
-		BackgroundServiceImpl.requestServiceStateBroadcast(getApplicationContext());
+	}
+	
+	private void bindToBackgroundService() {
+		if (!bindService(new Intent(this, BackgroundServiceImpl.class),
+				new ServiceConnection() {
+					
+					@Override
+					public void onServiceDisconnected(ComponentName name) {
+						logger.info(String.format("BackgroundService %S disconnected!", name.flattenToString()));
+					}
+					
+					@Override
+					public void onServiceConnected(ComponentName name, IBinder service) {
+						backgroundService = (BackgroundServiceInteractor) service;
+						serviceState = backgroundService.getServiceState();
+						updateStartStopButton();
+					}
+				}, 0)) {
+			logger.warn("Could not connect to BackgroundService.");
+		}		
 	}
 	
 	@Override
@@ -627,7 +649,14 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	protected void onDestroy() {
 		super.onDestroy();
 
-		HTTPClient.shutdown();
+//		new AsyncTask<Void, Void, Void>() {
+//			@Override
+//			protected Void doInBackground(Void... params) {
+//				HTTPClient.shutdown();
+//				return null;
+//			}
+//		}.execute();
+		
 		// Close db connection
 
 //		application.closeDb();
@@ -665,6 +694,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			}
 		}.execute();
         
+		bindToBackgroundService();
 	}
 
 

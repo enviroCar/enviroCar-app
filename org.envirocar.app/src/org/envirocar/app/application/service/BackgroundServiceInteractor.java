@@ -21,6 +21,8 @@
 
 package org.envirocar.app.application.service;
 
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
+
 import android.content.Intent;
 
 /**
@@ -49,6 +51,12 @@ public interface BackgroundServiceInteractor {
 	 * shall be broadcasted.
 	 */
 	void allAdaptersFailed();
+
+
+	/**
+	 * @return the current state of the service
+	 */
+	ServiceState getServiceState();
 
 
 }
