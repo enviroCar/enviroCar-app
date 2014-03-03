@@ -23,6 +23,7 @@ package org.envirocar.app.protocol.drivedeck;
 import java.util.List;
 
 import org.envirocar.app.commands.CommonCommand;
+import org.envirocar.app.commands.PIDUtil;
 
 public class CycleCommand extends CommonCommand {
 	
@@ -73,6 +74,12 @@ public class CycleCommand extends CommonCommand {
 			@Override
 			public String toString() {
 				return convert("24");
+			}
+		},
+		O2_LAMBDA_PROBE_1_CURRENT {
+			@Override
+			public String toString() {
+				return convert(PIDUtil.PID.O2_LAMBDA_PROBE_1_CURRENT.toString());
 			}
 		};
 		

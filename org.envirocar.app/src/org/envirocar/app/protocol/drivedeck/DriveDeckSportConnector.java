@@ -76,6 +76,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 //		pidList.add(PID.SHORT_TERM_FUEL_TRIM);
 //		pidList.add(PID.LONG_TERM_FUEL_TRIM);
 		pidList.add(PID.O2_LAMBDA_PROBE_1_VOLTAGE);
+		pidList.add(PID.O2_LAMBDA_PROBE_1_CURRENT);
 		this.cycleCommand = new CycleCommand(pidList);
 	}
 
@@ -182,6 +183,10 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	private CommonCommand parsePIDResponse(String pid,
 			byte[] rawBytes, long now) {
 		
+		/*
+		 * resulting HEX values are 0x0d additive to the
+		 * default PIDs of OBD. e.g. RPM = 0x19 = 0x0c + 0x0d
+		 */
 		CommonCommand result = null;
 		if (pid.equals("41")) {
 			//Speed
