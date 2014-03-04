@@ -81,6 +81,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private int searchingCountInARow;
 	private Set<PID> supportedPIDs;
 	private int cycle = 0;
+	private String preferredLambdaProbe;
 	
 	static {
 //		whitelistedCommandNames.add(new FuelSystemStatus().getCommandName());
@@ -138,39 +139,49 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 		
 		/*
 		 * XXX: Tryout for Lambda probes. better: do via PIDSupported
+		 * 
 		 */
-		if (cycle % 8 == 0) {
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_VOLTAGE));
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_CURRENT));	
+		if (this.preferredLambdaProbe == null || this.preferredLambdaProbe.isEmpty()) {
+			if (cycle % 8 == 0) {
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_VOLTAGE));
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_CURRENT));	
+			}
+			else if (cycle % 8 == 1) {
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_2_VOLTAGE));
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_2_CURRENT));
+			}
+			else if (cycle % 8 == 2) {
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_3_VOLTAGE));
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_3_CURRENT));
+			}
+			else if (cycle % 8 == 3) {
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_4_VOLTAGE));
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_4_CURRENT));
+			}
+			else if (cycle % 8 == 4) {
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_5_VOLTAGE));
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_5_CURRENT));
+			}
+			else if (cycle % 8 == 5) {
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_6_VOLTAGE));
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_6_CURRENT));
+			}
+			else if (cycle % 8 == 6) {
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_7_VOLTAGE));
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_7_CURRENT));
+			}
+			else if (cycle % 8 == 7) {
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_8_VOLTAGE));
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_8_CURRENT));
+			}
 		}
-		else if (cycle % 8 == 1) {
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_2_VOLTAGE));
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_2_CURRENT));
+		else {
+			/*
+			 * we got one positive response, use that
+			 */
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PIDUtil.fromString(preferredLambdaProbe)));
 		}
-		else if (cycle % 8 == 2) {
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_3_VOLTAGE));
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_3_CURRENT));
-		}
-		else if (cycle % 8 == 3) {
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_4_VOLTAGE));
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_4_CURRENT));
-		}
-		else if (cycle % 8 == 4) {
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_5_VOLTAGE));
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_5_CURRENT));
-		}
-		else if (cycle % 8 == 5) {
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_6_VOLTAGE));
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_6_CURRENT));
-		}
-		else if (cycle % 8 == 6) {
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_7_VOLTAGE));
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_7_CURRENT));
-		}
-		else if (cycle % 8 == 7) {
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_8_VOLTAGE));
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_8_CURRENT));
-		}
+		
 		
 		requestCommands.add(new FuelSystemStatus());
 		requestCommands.add(new ShortTermTrimBank1());
@@ -359,11 +370,31 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 				logger.warn("Unmatched Response detected! trying to read another line.");
 				readResponseLine(cmd);
 			}
+			
+			/*
+			 * check if we got a positive response from a Lambda probe request
+			 */
+			if (cmd.getCommandState() == CommonCommandState.FINISHED) {
+				evaluateSupportedLambdaCommand(cmd);
+			}
 		}
 		
 		return list;
 	}
 	
+	private void evaluateSupportedLambdaCommand(CommonCommand cmd) {
+		if (this.preferredLambdaProbe != null && !this.preferredLambdaProbe.isEmpty()) {
+			/*
+			 * no action required, we already got what we want
+			 */
+			return;
+		}
+		
+		if (cmd instanceof O2LambdaProbe) {
+			this.preferredLambdaProbe = ((O2LambdaProbe) cmd).getPID();
+		}
+	}
+
 	/**
 	 * Execute a list of commands
 	 * 
