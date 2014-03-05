@@ -28,6 +28,7 @@ public abstract class O2LambdaProbe extends NumberResultCommand {
 	private static final Logger logger = Logger.getLogger(O2LambdaProbe.class);
 	private String cylinderPosition;
 	private double equivalenceRation = Double.NaN;
+	private String pid;
 
 	public static O2LambdaProbe fromPIDEnum(PID pid) {
 		switch (pid) {
@@ -74,6 +75,7 @@ public abstract class O2LambdaProbe extends NumberResultCommand {
 	public O2LambdaProbe(String cylinderPosition) {
 		super("01 ".concat(cylinderPosition));
 		this.cylinderPosition = cylinderPosition;
+		this.pid = cylinderPosition;
 	}
 	
 	@Override
@@ -106,6 +108,14 @@ public abstract class O2LambdaProbe extends NumberResultCommand {
 	@Override
 	public String getCommandName() {
 		return "O2 Lambda Probe "+cylinderPosition;
+	}
+
+	public String getPID() {
+		return pid;
+	}
+	
+	public String lambdaString() {
+		return getClass().getSimpleName() +" ("+pid+"): "+getEquivalenceRatio() +"; "+getNumberResult();
 	}
 	
 }
