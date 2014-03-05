@@ -260,4 +260,15 @@ Bei festgestellten Problemen möchten wir Sie bitten, uns ein Fehlerprotokoll zu
 	<string name="category_normal">Wichtig</string>
 	<string name="category_high">Kritisch</string>
 	<string name="announcement">Ankündigung</string>
+	
+<!-- 	L10N -->
+	
+	<string name="currency_symbol">"&#8364;"</string>
+    <string name="speed_unit">km/h</string>
+    <string name="distance_unit">km</string>
+    <string name="consumption_formula">L/100km</string>
+    <string name="consumption_unit">l/100km</string>
+    <string name="not_applicable">k.A.</string>
+	
+	
 </resources>

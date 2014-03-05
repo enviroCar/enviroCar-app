@@ -44,6 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ContextInternetAccessProvider;
 import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.application.L10NManager;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.TrackUploadFinishedHandler;
 import org.envirocar.app.application.UploadManager;
@@ -58,6 +59,7 @@ import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
+import org.envirocar.app.model.NumberWithUOM;
 import org.envirocar.app.model.TermsOfUseInstance;
 import org.envirocar.app.model.User;
 import org.envirocar.app.network.WPSClient;
@@ -116,6 +118,7 @@ public class ListTracksFragment extends SherlockFragment {
 	private List<Track> tracksList;
 	private TracksListAdapter trackListAdapter;
 	private DbAdapter dbAdapter;
+	private L10NManager l10nManager;
 	
 	// UI Elements
 	
@@ -135,6 +138,7 @@ public class ListTracksFragment extends SherlockFragment {
 		super.onCreate(savedInstanceState);
 		
 		dbAdapter = DbAdapterImpl.instance();
+		l10nManager = new L10NManager(getActivity());
 	}
 
 	public View onCreateView(android.view.LayoutInflater inflater,
@@ -847,6 +851,8 @@ public class ListTracksFragment extends SherlockFragment {
 	private void getEstimatedFuelCost(final TextView fuelCostView,
 			final DecimalFormat twoDForm, Track t) {
 
+		
+		
 		WPSClient.calculateFuelCosts(t, new ResultCallback<Double>() {
 			
 			@Override
@@ -858,7 +864,7 @@ public class ListTracksFragment extends SherlockFragment {
 
 				} else {
 					fuelCostView.setText(twoDForm.format(result)
-							+ " " + getActivity().getString(R.string.euro_sign));
+							+ " " + getActivity().getString(R.string.currency_symbol));
 				}				
 			}
 		});
@@ -1077,23 +1083,23 @@ public class ListTracksFragment extends SherlockFragment {
 				try {
 					DateFormat sdf = DateFormat.getDateTimeInstance();
 					DecimalFormat twoDForm = new DecimalFormat("#.##");
-					DateFormat dfDuration = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
+					DateFormat dfDuration = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);//TODO: localize
 					dfDuration.setTimeZone(TimeZone.getTimeZone("UTC"));
 					startView.setText(sdf.format(t.getStartTime()));
 					endView.setText(sdf.format(t.getEndTime()));
 					Date durationMillis = new Date(t.getDurationInMillis());
 					durationView.setText(dfDuration.format(durationMillis));
-					if (!PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).getBoolean(SettingsActivity.IMPERIAL_UNIT, false)) {
-						lengthView.setText(twoDForm.format(t.getLengthOfTrack()) + " km");
-					} else {
-						lengthView.setText(twoDForm.format(t.getLengthOfTrack()/1.6) + " miles");
-					}
+					
+					NumberWithUOM distance = l10nManager.getDistance(t.getLengthOfTrack());
+					
+					lengthView.setText(twoDForm.format(distance.getValue()) + " " + distance.getUnit());
 					
 					try {
 						double consumption = t.getFuelConsumptionPerHour();
 						double literOn100km = t.getLiterPerHundredKm();
 						co2View.setText(twoDForm.format(t.getGramsPerKm()) + " g/km");
-						consumptionView.setText(twoDForm.format(consumption) + " l/h (" + twoDForm.format(literOn100km) + " l/100 km)");
+						NumberWithUOM fuelconsumption = l10nManager.getCommonConsumptionValue(literOn100km);
+						consumptionView.setText(twoDForm.format(consumption) + " l/h (" + twoDForm.format(fuelconsumption.getValue()) + " " + fuelconsumption.getUnit() + ")");
 						if(fuelCostView.getText() == null || fuelCostView.getText().equals("")){
 							fuelCostView.setText(R.string.calculating);
 							getEstimatedFuelCost(fuelCostView, twoDForm, t);
