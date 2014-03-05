@@ -47,10 +47,8 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.Binder;
@@ -79,10 +77,6 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 			BackgroundServiceImpl.class.getName()+".CONNECTION_PERMANENTLY_FAILED";
 	
 	protected static final long CONNECTION_CHECK_INTERVAL = 1000 * 5;
-	// Properties
-
-	private static final String SERVICE_STATE_REQUEST = BackgroundServiceImpl.class.getName()+
-			".SERVICE_STATE_REQUEST";
 
 	protected static final int MAX_RECONNECT_COUNT = 2;
 
@@ -116,14 +110,6 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	public void onCreate() {
 		logger.info("onCreate " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		
-		BroadcastReceiver stateRequestReceiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				sendStateBroadcast();
-			}
-		};
-		
-		registerReceiver(stateRequestReceiver, new IntentFilter(SERVICE_STATE_REQUEST));
 		
 		tts = new TextToSpeech(getApplicationContext(), new TextToSpeechListener());
 		
@@ -164,7 +150,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 
 	private void doTextToSpeech(String string) {
 		if (ttsAvailable) {
-			tts.speak(string, TextToSpeech.QUEUE_ADD, null);		
+			tts.speak("enviro car ".concat(string), TextToSpeech.QUEUE_ADD, null);		
 		}
 	}
 
@@ -218,9 +204,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 				
 				Notification noti = new NotificationCompat.Builder(getApplicationContext()).setContentTitle("enviroCar").
 						setContentText(getResources().getText(R.string.service_state_stopped)).
-						setSmallIcon(R.drawable.dashboard).build();
-				
-				noti.flags |= Notification.FLAG_AUTO_CANCEL;
+						setSmallIcon(R.drawable.dashboard).setAutoCancel(true).build();
 				
 				NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 				manager.notify(BG_NOTIFICATION_ID, noti);
@@ -233,12 +217,12 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	}
 	
 	private void shutdownConnectionAndHandler() {
-		if (BackgroundServiceImpl.this.bluetoothConnection != null) {
-			BackgroundServiceImpl.this.bluetoothConnection.cancelConnection();
-		}
-		
 		if (BackgroundServiceImpl.this.commandLooper != null) {
 			BackgroundServiceImpl.this.commandLooper.stopLooper();
+		}
+		
+		if (BackgroundServiceImpl.this.bluetoothConnection != null) {
+			BackgroundServiceImpl.this.bluetoothConnection.cancelConnection();
 		}
 	}
 	
@@ -321,13 +305,14 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 					public void onConnectionVerified() {
 						setState(ServiceState.SERVICE_STARTED);
 						BackgroundServiceImpl.this.sendStateBroadcast();
+						reconnectCount = 0;
 					}
 					
-					@Override
-					public void onConnectionException(IOException e) {
-						logger.warn("onConnectionException", e);
-						BackgroundServiceImpl.this.deviceDisconnected();
-					}
+//					@Override
+//					public void onConnectionException(IOException e) {
+//						logger.warn("onConnectionException", e);
+//						BackgroundServiceImpl.this.deviceDisconnected();
+//					}
 
 					@Override
 					public void onAllAdaptersFailed() {
@@ -341,17 +326,16 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 
 					@Override
 					public void requestConnectionRetry(IOException reason) {
-//						if (reconnectCount++ >= MAX_RECONNECT_COUNT) {
-//							onConnectionException(reason);
-//						}
-//						else {
-//							logger.info("Restarting Device Connection...");
-//							displayToast(R.string.connection_lost_info);
-//							shutdownConnectionAndHandler();
-//							startConnection();
-//						}
-//						
-						onConnectionException(reason);
+						if (reconnectCount++ >= MAX_RECONNECT_COUNT) {
+							logger.warn("max reconnect count reached", reason);
+							BackgroundServiceImpl.this.deviceDisconnected();
+						}
+						else {
+							logger.info("Restarting Device Connection...");
+							doTextToSpeech("Connection lost. Trying to reconnect.");
+							shutdownConnectionAndHandler();
+							startConnection();
+						}
 					}
 				});
 		this.commandLooper.start();
@@ -374,6 +358,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	public void onAllAdaptersFailed() {
 		logger.info("all adapters failed!");
 		stopBackgroundService();
+		doTextToSpeech("failed to connect to the OBD adapter");
 		sendBroadcast(new Intent(CONNECTION_PERMANENTLY_FAILED_INTENT));		
 	}
 	
@@ -390,28 +375,12 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	 * 
 	 */
 	private class LocalBinder extends Binder implements BackgroundServiceInteractor {
-	
-		@Override
-		public void initializeConnection() {
-//			startBackgroundService();
-		}
 		
 		@Override
 		public ServiceState getServiceState() {
 			return BackgroundServiceImpl.this.state;
 		}
-		
-		@Override
-		public void shutdownConnection() {
-			logger.info("stopping service!");
-			stopBackgroundService();
-		}
 
-		@Override
-		public void allAdaptersFailed() {
-			logger.info("all adapters failed!");
-			onAllAdaptersFailed();
-		}
 	}
 	
 	private class TextToSpeechListener implements OnInitListener {

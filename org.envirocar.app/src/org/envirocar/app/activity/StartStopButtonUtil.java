@@ -202,14 +202,16 @@ public class StartStopButtonUtil {
 						switch (which) {
 							case 0:
 								listener.onTrackModeChange(MainActivity.TRACK_MODE_SINGLE);
+								application.getApplicationContext().startService(
+										new Intent(application, BackgroundServiceImpl.class));
 								break;
 							case 1:
 								listener.onTrackModeChange(MainActivity.TRACK_MODE_AUTO);
+								application.getApplicationContext().startService(
+										new Intent(application, DeviceInRangeService.class));
 								break;
 						}
 						
-						application.getApplicationContext().startService(
-								new Intent(application, BackgroundServiceImpl.class));
 						Crouton.makeText(activity, R.string.start_connection, Style.INFO).show();
 					}
 					

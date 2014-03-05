@@ -30,6 +30,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.envirocar.app.commands.CommonCommand;
@@ -82,6 +89,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private Set<PID> supportedPIDs;
 	private int cycle = 0;
 	private String preferredLambdaProbe;
+	private ExecutorService initializationExecutor = Executors.newSingleThreadExecutor();
 	
 	static {
 //		whitelistedCommandNames.add(new FuelSystemStatus().getCommandName());
@@ -202,7 +210,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 
 	private void runCommand(CommonCommand cmd)
 			throws IOException {
-		logger.debug("Sending command " +cmd.getCommandName()+ " / "+ new String(cmd.getOutgoingBytes()));
+//		logger.debug("Sending command " +cmd.getCommandName()+ " / "+ new String(cmd.getOutgoingBytes()));
 		
 		try {
 			sendCommand(cmd);	
@@ -340,16 +348,44 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	
 	@Override
 	public void executeInitializationCommands() throws IOException, AdapterFailedException {
-		List<CommonCommand> cmds = this.getInitializationCommands();
+		final List<CommonCommand> cmds = this.getInitializationCommands();
+		
+		if (initializationExecutor.isShutdown() || initializationExecutor.isTerminated()) {
+			throw new AdapterFailedException(getClass().getSimpleName());
+		}
+		
+		Future<Boolean> future = initializationExecutor.submit(new Callable<Boolean>() {
+
+			@Override
+			public Boolean call() throws Exception {
+				try {
+					executeCommands(cmds);
+					executeCommand(new PIDSupported());
+					return true;
+				} catch (UnmatchedCommandResponseException e) {
+					logger.warn("This should never happen!", e);
+				} catch (ConnectionLostException e) {
+					logger.warn("This should never happen!", e);
+				}
+				return false;
+			}
+		});
 		
 		try {
-			executeCommands(cmds);
-			executeCommand(new PIDSupported());
-		} catch (UnmatchedCommandResponseException e) {
-			logger.warn("This should never happen!", e);
-		} catch (ConnectionLostException e) {
-			logger.warn("This should never happen!", e);
-		}		
+			Boolean resp = future.get(10, TimeUnit.SECONDS);
+			
+			if (!resp.booleanValue()) {
+				throw new AdapterFailedException("Init commands took too long.");
+			}
+			
+		} catch (InterruptedException e) {
+			throw new AdapterFailedException(e.getMessage());
+		} catch (ExecutionException e) {
+			throw new AdapterFailedException(e.getMessage());
+		} catch (TimeoutException e) {
+			throw new AdapterFailedException(e.getMessage());
+		}
+		
 	}
 	
 	@Override
@@ -489,6 +525,13 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 			
 		}
 		
+	}
+	
+	@Override
+	public void shutdown() {
+		if (initializationExecutor != null) {
+			initializationExecutor.shutdown();
+		}
 	}
 
 	

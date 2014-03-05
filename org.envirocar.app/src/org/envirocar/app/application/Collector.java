@@ -49,6 +49,7 @@ public class Collector {
 	private Car car;
 	private AbstractCalculatedMAFAlgorithm mafAlgorithm;
 	private AbstractConsumptionAlgorithm consumptionAlgorithm;
+	private boolean fuelTypeNotSupportedLogged;
 	
 	public Collector(MeasurementListener l, Car car) {
 		this.callback = l;
@@ -133,7 +134,10 @@ public class Collector {
 		} catch (FuelConsumptionException e) {
 			logger.warn(e.getMessage());
 		} catch (UnsupportedFuelTypeException e) {
-			logger.warn(e.getMessage());
+			if (!fuelTypeNotSupportedLogged) {
+				logger.warn(e.getMessage());
+				fuelTypeNotSupportedLogged = true;
+			}
 		}
 		
 	}
@@ -192,7 +196,10 @@ public class Collector {
 			} catch (FuelConsumptionException e) {
 				logger.warn(e.getMessage());
 			} catch (UnsupportedFuelTypeException e) {
-				logger.warn(e.getMessage());
+				if (!fuelTypeNotSupportedLogged) {
+					logger.warn(e.getMessage());
+					fuelTypeNotSupportedLogged = true;
+				}
 			}
 			
 			/*

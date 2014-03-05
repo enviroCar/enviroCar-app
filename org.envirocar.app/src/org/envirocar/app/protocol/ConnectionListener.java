@@ -36,7 +36,7 @@ public interface ConnectionListener {
 	 * 
 	 * @param e the exception
 	 */
-	public void onConnectionException(IOException e);
+//	public void onConnectionException(IOException e);
 
 	/**
 	 * called when the connetion is verified (= a useful response

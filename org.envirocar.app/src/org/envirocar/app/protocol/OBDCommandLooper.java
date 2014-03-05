@@ -88,6 +88,7 @@ public class OBDCommandLooper extends HandlerThread {
 	private Map<Phase, AtomicInteger> phaseCountMap = new HashMap<Phase, AtomicInteger>();
 	private MonitorRunnable monitor;
 	private long lastSuccessfulCommandTime;
+	private boolean userRequestedStop;
 	
 	private Runnable commonCommandsRunnable = new Runnable() {
 		public void run() {
@@ -95,13 +96,14 @@ public class OBDCommandLooper extends HandlerThread {
 				logger.info("Exiting commandHandler.");
 				throw new LooperStoppedException();
 			}
-			logger.debug("Executing Command Commands!");
 			
 			try {
 				executeCommandRequests();
 			} catch (IOException e) {
 				running = false;
-				connectionListener.onConnectionException(e);
+				if (!userRequestedStop) {
+					connectionListener.requestConnectionRetry(e);
+				}
 				logger.info("Exiting commandHandler.");
 				throw new LooperStoppedException();
 			}
@@ -144,7 +146,9 @@ public class OBDCommandLooper extends HandlerThread {
 					executeInitializationRequests();
 				} catch (IOException e) {
 					running = false;
-					connectionListener.onConnectionException(e);
+					if (!userRequestedStop) {
+						connectionListener.requestConnectionRetry(e);
+					}
 					logger.info("Exiting commandHandler.");
 					throw new LooperStoppedException();
 				} catch (AdapterFailedException e) {
@@ -218,6 +222,7 @@ public class OBDCommandLooper extends HandlerThread {
 	
 		this.phaseCountMap.put(Phase.INITIALIZATION, new AtomicInteger());
 		this.phaseCountMap.put(Phase.COMMAND_EXECUTION, new AtomicInteger());
+		
 	}
 	
 	private void determinePreferredAdapter(String deviceName) {
@@ -241,17 +246,23 @@ public class OBDCommandLooper extends HandlerThread {
 	 * stop the command looper. this removes all pending commands.
 	 * This object is no longer executable, a new instance has to
 	 * be created.
+	 * 
+	 * Only use this if the stop is from high-level (e.g. user request)
+	 * and NOT on any kind of exception
 	 */
 	public void stopLooper() {
 		logger.info("stopping the command execution!");
 		this.running = false;
+		this.userRequestedStop = true;
 	}
 
 	private void executeInitializationRequests() throws IOException, AdapterFailedException {
 		try {
 			this.obdAdapter.executeInitializationCommands();
 		} catch (IOException e) {
-			connectionListener.onConnectionException(e);
+			if (!userRequestedStop) {
+				connectionListener.requestConnectionRetry(e);
+			}
 			running = false;
 			return;
 		}
@@ -290,11 +301,16 @@ public class OBDCommandLooper extends HandlerThread {
 	private void switchPhase(Phase phase, IOException reason) {
 		logger.info("Switching to Phase: " +phase + (reason != null ? " / Reason: "+reason.getMessage() : ""));
 		
+		
 		int phaseCount = phaseCountMap.get(phase).incrementAndGet();
 		
 		commandExecutionHandler.removeCallbacks(initializationCommandsRunnable);
 		commandExecutionHandler.removeCallbacks(commonCommandsRunnable);
 		
+		/*
+		 * if we were too often in the same phase (e.g. init),
+		 * request a reconnect
+		 */
 		if (phaseCount >= MAX_PHASE_COUNT) {
 			logger.warn("Too often in phase: "+phaseCount);
 			connectionListener.requestConnectionRetry(reason);
@@ -426,12 +442,13 @@ public class OBDCommandLooper extends HandlerThread {
 	@Override
 	public void run() {
 		Looper.prepare();
+		logger.info("Command loop started. Hash:"+this.hashCode());
 		commandExecutionHandler = new Handler();
 		switchPhase(Phase.INITIALIZATION, null);
 		try {
 			Looper.loop();
 		} catch (LooperStoppedException e) {
-			logger.info("Command loop stopped.");
+			logger.info("Command loop stopped. Hash:"+this.hashCode());
 		}
 		
 		if (this.obdAdapter != null) {

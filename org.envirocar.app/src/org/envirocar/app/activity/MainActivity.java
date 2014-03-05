@@ -669,6 +669,11 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		
 //		this.unregisterReceiver(application.getBluetoothChangeReceiver());
 
+		this.unregisterReceiver(bluetoothStateReceiver);
+		this.unregisterReceiver(deviceDiscoveryStateReceiver);
+		this.unregisterReceiver(deviceInRangReceiver);
+		this.unregisterReceiver(errorInformationReceiver);
+		this.unregisterReceiver(serviceStateReceiver);
 	}
 	
 	@Override

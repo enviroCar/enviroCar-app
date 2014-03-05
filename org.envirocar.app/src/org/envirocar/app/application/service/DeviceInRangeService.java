@@ -22,10 +22,13 @@ package org.envirocar.app.application.service;
 
 import java.util.ArrayList;
 
+import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 import org.envirocar.app.logging.Logger;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -38,6 +41,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 
 /**
  * backgroundService for managing the auto-discovery of the
@@ -56,6 +60,8 @@ public class DeviceInRangeService extends Service {
 	public static final String TARGET_CONNECTION_TIME = DeviceInRangeService.class.getName().concat(".TARGET_CONNECTION_TIME");
 	
 	private static final long DISCOVERY_PERIOD = 1000 * 60 * 2;
+
+	private static final int BG_DEVICE_NOTIFICATION_ID = 52;
 	
 	protected ServiceState backgroundServiceState = ServiceState.SERVICE_STOPPED;
 
@@ -112,7 +118,13 @@ public class DeviceInRangeService extends Service {
 	public void onDestroy() {
 		logger.info("onDestroy " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		unregisterReceiver(receiver);
+		
+		NotificationManager notificationManager = (NotificationManager) 
+				  getSystemService(NOTIFICATION_SERVICE);
+		
+		notificationManager.cancel(BG_DEVICE_NOTIFICATION_ID);
 	}
+	
 
 	protected void verifyRemoteDevice(Intent intent) {
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -142,6 +154,15 @@ public class DeviceInRangeService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		logger.info("onStartCommand " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		startWithDelay(DISCOVERY_PERIOD);
+		
+		Notification note = new NotificationCompat.Builder(getApplicationContext()).
+				setSmallIcon(R.drawable.dashboard).
+				setContentTitle("enviroCar").
+				setContentText(getResources().getText(R.string.device_discovery_pending)).
+				build();
+		
+		startForeground(BG_DEVICE_NOTIFICATION_ID, note);
+		
 		return super.onStartCommand(intent, flags, startId);
 	}
 
