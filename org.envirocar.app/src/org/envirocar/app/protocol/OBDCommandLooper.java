@@ -254,6 +254,10 @@ public class OBDCommandLooper extends HandlerThread {
 		logger.info("stopping the command execution!");
 		this.running = false;
 		this.userRequestedStop = true;
+		
+		if (this.monitor != null) {
+			this.monitor.running = false;
+		}
 	}
 
 	private void executeInitializationRequests() throws IOException, AdapterFailedException {
