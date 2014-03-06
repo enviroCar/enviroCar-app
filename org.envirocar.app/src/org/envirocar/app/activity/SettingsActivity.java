@@ -23,10 +23,15 @@ package org.envirocar.app.activity;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Set;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.UserManager;
+import org.envirocar.app.util.ConsumptionVolumeUnit;
+import org.envirocar.app.util.DistanceUnit;
+import org.envirocar.app.util.SpeedUnit;
 import org.envirocar.app.util.Util;
 
 import android.app.Activity;
@@ -34,6 +39,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -60,11 +66,15 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	public static final String WIFI_UPLOAD = "pref_wifi_upload";
 	public static final String ALWAYS_UPLOAD = "pref_always_upload";
 	public static final String DISPLAY_STAYS_ACTIV = "pref_display_always_activ";
-	public static final String IMPERIAL_UNIT = "pref_imperial_unit";
 	public static final String OBFUSCATE_POSITION = "pref_privacy";
 	public static final String CAR = "pref_selected_car";
 	public static final String CAR_HASH_CODE = "pref_selected_car_hash_code";
 	public static final String PERSISTENT_SEEN_ANNOUNCEMENTS = "persistent_seen_announcements";
+
+	public static final String SPEED_UNITS_LIST_KEY = "pref_speed_units_list";
+	public static final String FUEL_VOLUME_UNITS_LIST_KEY = "pref_fuel_volume_units_list";
+	public static final String CONSUMPTION_UNITS_LIST_KEY = "pref_consumption_units_list";
+	public static final String DISTANCE_UNITS_LIST_KEY = "pref_distance_units_list";
 	
 	private Preference about;
 	
@@ -163,13 +173,77 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 
 	}
 
+	private void initializeUnitLists(){
+		
+		java.util.Map<CharSequence, CharSequence> speedUnits = new HashMap<CharSequence, CharSequence>(2);
+		
+		Resources resources = getApplicationContext().getResources(); 
+		
+		speedUnits.put(resources.getString(R.string.miles_per_hour), SpeedUnit.MILES_PER_HOUR.toString());
+		speedUnits.put(resources.getString(R.string.kilometers_per_hour), SpeedUnit.KILOMETER_PER_HOUR.toString());
+		
+		setUpListValues(SPEED_UNITS_LIST_KEY, speedUnits);
+		
+		java.util.Map<CharSequence, CharSequence> distanceUnits = new HashMap<CharSequence, CharSequence>(2);
+				
+		distanceUnits.put(resources.getString(R.string.miles), DistanceUnit.MILES.toString());
+		distanceUnits.put(resources.getString(R.string.kilometers), DistanceUnit.KILOMETER.toString());
+		
+		setUpListValues(DISTANCE_UNITS_LIST_KEY, distanceUnits);
+	
+		java.util.Map<CharSequence, CharSequence> fuelVolumeUnits = new HashMap<CharSequence, CharSequence>(3);
+		
+		fuelVolumeUnits.put(resources.getString(R.string.us_liquid_gallon), ConsumptionVolumeUnit.US_GALLON.toString());
+		fuelVolumeUnits.put(resources.getString(R.string.imperial_gallon), ConsumptionVolumeUnit.IMPERIAL_GALLON.toString());
+		fuelVolumeUnits.put(resources.getString(R.string.liter), ConsumptionVolumeUnit.LITER.toString());
+		
+		setUpListValues(FUEL_VOLUME_UNITS_LIST_KEY, fuelVolumeUnits);
+		
+		ArrayList<CharSequence> consumptionUnits = new ArrayList<CharSequence>(6);
+		
+		consumptionUnits.add(resources.getString(R.string.miles_per_us_gallon));
+		consumptionUnits.add(resources.getString(R.string.miles_per_imperial_gallon));
+		consumptionUnits.add(resources.getString(R.string.liters_per_100_km));
+		consumptionUnits.add(resources.getString(R.string.kilometer_per_liter));
+		consumptionUnits.add(resources.getString(R.string.us_gallons_per_100_miles));
+		consumptionUnits.add(resources.getString(R.string.imperial_gallons_per_100_miles));
+		
+		setUpListValues(CONSUMPTION_UNITS_LIST_KEY, consumptionUnits);		
+		
+	}
+	
+	private void setUpListValues(String listKey, Collection<CharSequence> entries, Collection<CharSequence> values){
+		
+		ListPreference list = (ListPreference) getPreferenceScreen()
+				.findPreference(listKey);
+		
+		list.setEntries(entries.toArray(new CharSequence[]{}));
+		list.setEntryValues(values.toArray(new CharSequence[]{}));
+		
+		String preferredValue = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(listKey, null);
+		
+		if(preferredValue != null){
+			list.setValue(preferredValue);
+		}
+		
+	}
+	
+	private void setUpListValues(String listKey, Collection<CharSequence> entriesAndValues){
+		setUpListValues(listKey, entriesAndValues, entriesAndValues);
+		
+	}
+	
+	private void setUpListValues(String listKey, java.util.Map<CharSequence, CharSequence> entriesAndValues){
+		setUpListValues(listKey, entriesAndValues.keySet(), entriesAndValues.values());
+	}
+	
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
 		initializeBluetoothList();
-		
+		initializeUnitLists();
 		this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 		this.getSupportActionBar().setHomeButtonEnabled(false);
 

@@ -19,15 +19,18 @@
  */
 package org.envirocar.app.application;
 
-import java.util.Locale;
-
 import org.envirocar.app.R;
+import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.NumberWithUOM;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.util.ConsumptionFormula;
+import org.envirocar.app.util.ConsumptionVolumeUnit;
+import org.envirocar.app.util.DistanceUnit;
+import org.envirocar.app.util.SpeedUnit;
 
 import android.content.Context;
+import android.preference.PreferenceManager;
 
 /**
  * This class returns different locale dependent values, e.g. currency, speed, distance.
@@ -57,17 +60,41 @@ public class L10NManager {
 	}
 	
 	public NumberWithUOM getSpeed(int speedInKMperHour){
-		Number speed = 0.0;
-		String unit = context.getResources().getString(R.string.speed_unit);
 		
-		if(unit.equals(UNIT_KILOMETER_PER_HOUR)){
-			speed = speedInKMperHour;
-		}else if(unit.equals(UNIT_MILES_PER_HOUR)){
-			speed = speedInKMperHour/KM_TO_MILE_FACTOR;
+		Number speed = 0.0;
+		String unit = context.getResources().getString(R.string.not_applicable);
+		
+		String locale = context.getResources().getConfiguration().locale.getDisplayName();
+	
+		String preferredSpeedUnit = PreferenceManager.getDefaultSharedPreferences(context).getString(SettingsActivity.SPEED_UNITS_LIST_KEY, null);
+		
+		SpeedUnit speedUnit = SpeedUnit.UNKNOWN;
+		
+		if (preferredSpeedUnit != null) {			
+			logger.debug("Using preferredSpeedUnit: " + preferredSpeedUnit);				
+			speedUnit = SpeedUnit.parse(preferredSpeedUnit);
+		}else{
+			logger.debug("A preferredSpeedUnit was not set, using common unit for locale: " + locale);			
+			speedUnit = SpeedUnit.parse(context.getResources().getString(R.string.local_speed_unit));		
 		}
+		
+		switch (speedUnit) {
+		case KILOMETER_PER_HOUR:
+			speed = speedInKMperHour;
+			unit = context.getResources().getString(R.string.unit_kilometer_per_hour);
+			break;
+		case MILES_PER_HOUR:
+			speed = speedInKMperHour/KM_TO_MILE_FACTOR;
+			unit = context.getResources().getString(R.string.unit_miles_per_hour);
+			break;
+		default:
+			break;
+		}
+		
 		NumberWithUOM result = new NumberWithUOM(speed, unit);
 		
-		return result;
+		return result;		
+		
 	}
 	
 	/**
@@ -75,22 +102,44 @@ public class L10NManager {
 	 * As the fuel consumption in liter per hour already is calculated in the {@link Track}s, this is used as base for the conversion
 	 * in other fuel volume units.
 	 * 
-	 * @param literOn100km
+	 * @param consumptionPerHour
 	 * @return
 	 */
-	public NumberWithUOM getConsumptionValuePerHour(double consumptionPerHour){		
+	public NumberWithUOM getConsumptionValuePerHour(double consumptionPerHour){	
 		
 		Number fuelConsumption = 0.0;
-		String unit = context.getResources().getString(R.string.fuel_volume_unit) + "/h";
+		String unit = context.getResources().getString(R.string.not_applicable);
 		
 		String locale = context.getResources().getConfiguration().locale.getDisplayName();
+	
+		String preferredFuelVolumeUnit = PreferenceManager.getDefaultSharedPreferences(context).getString(SettingsActivity.FUEL_VOLUME_UNITS_LIST_KEY, null);
 		
-		if(locale.equals(Locale.GERMANY.getDisplayName())){
+		ConsumptionVolumeUnit consumptionVolumeUnit = ConsumptionVolumeUnit.UNKNOWN;
+		
+		if (preferredFuelVolumeUnit != null) {			
+			logger.debug("Using preferredFuelVolumeUnit: " + preferredFuelVolumeUnit);			
+			consumptionVolumeUnit = ConsumptionVolumeUnit.parse(preferredFuelVolumeUnit);			
+		}else{			
+			logger.debug("A preferredFuelVolumeUnit was not set, using common unit for locale: " + locale);			
+			consumptionVolumeUnit = ConsumptionVolumeUnit.parse(context.getResources().getString(R.string.local_fuel_volume_unit));
+		}
+		
+		switch (consumptionVolumeUnit) {
+		case LITER:
 			fuelConsumption = consumptionPerHour;
-		}else if(locale.equals(Locale.UK.getDisplayName())){
+			unit = context.getResources().getString(R.string.liter) + "/h";
+			break;
+		case IMPERIAL_GALLON:
 			fuelConsumption = consumptionPerHour / LITER_TO_IMPERIALGALLON_FACTOR;
-		}else if(locale.equals(Locale.US.getDisplayName())){
+			unit = context.getResources().getString(R.string.unit_imperial_gallon) + "/h";
+			break;
+		case US_GALLON:
 			fuelConsumption = consumptionPerHour / LITER_TO_USGALLON_FACTOR;
+			unit = context.getResources().getString(R.string.unit_us_liquid_gallon) + "/h";
+			break;
+
+		default:
+			break;
 		}
 		
 		NumberWithUOM result = new NumberWithUOM(fuelConsumption, unit);
@@ -110,28 +159,34 @@ public class L10NManager {
 	public NumberWithUOM getCommonConsumptionValue(double literOn100km){		
 		
 		Number fuelConsumption = 0.0;
-		String unit = context.getResources().getString(R.string.consumption_unit);
+		String unit = context.getResources().getString(R.string.not_applicable);
 		
 		ConsumptionFormula localConsumptionFormula = ConsumptionFormula.parse(context.getResources().getString(R.string.consumption_formula));
 		
 		switch (localConsumptionFormula) {
 		case MILESPERUSGALLON:
 			fuelConsumption = (100/LPer100kmTompgusFactor)/literOn100km;
+			unit = context.getResources().getString(R.string.unit_miles_per_us_gallon);
 			break;
 		case MILESPERIMPERIALGALLON:
 			fuelConsumption = (100/LPer100kmTompgimperialFactor)/literOn100km;
+			unit = context.getResources().getString(R.string.unit_miles_per_imperial_gallon);
 			break;
 		case LITERSPER100KILOMETERS:
-			fuelConsumption = literOn100km;			
+			fuelConsumption = literOn100km;		
+			unit = context.getResources().getString(R.string.unit_liters_per_100_km);
 			break;
 		case KILOMETERSPERLITER:
 			fuelConsumption = (1/literOn100km)*100;
+			unit = context.getResources().getString(R.string.unit_kilometer_per_liter);
 			break;
 		case USGALLONSPER100MILES:
 			fuelConsumption = LPer100kmTompgusFactor*literOn100km;
+			unit = context.getResources().getString(R.string.unit_miles_per_us_gallon);
 			break;
 		case IMPERIALGALLONSPER100MILES:
-			fuelConsumption = LPer100kmTompgimperialFactor*literOn100km;			
+			fuelConsumption = LPer100kmTompgimperialFactor*literOn100km;	
+			unit = context.getResources().getString(R.string.unit_imperial_gallons_per_100_miles);
 			break;
 		default:
 			logger.info("No consumption formula found.");
@@ -145,17 +200,41 @@ public class L10NManager {
 	}
 	
 	public NumberWithUOM getDistance(double distanceInKM){
-		Number distance = 0.0;
-		String unit = context.getResources().getString(R.string.distance_unit);
 		
-		if(unit.equals(UNIT_KILOMETER)){
-			distance = distanceInKM;
-		}else if(unit.equals(UNIT_MILES)){
-			distance = distanceInKM/KM_TO_MILE_FACTOR;
+		Number distance = 0.0;
+		String unit = context.getResources().getString(R.string.not_applicable);
+		
+		String locale = context.getResources().getConfiguration().locale.getDisplayName();
+	
+		String preferredDistanceUnit = PreferenceManager.getDefaultSharedPreferences(context).getString(SettingsActivity.DISTANCE_UNITS_LIST_KEY, null);
+		
+		DistanceUnit speedUnit = DistanceUnit.UNKNOWN;
+		
+		if (preferredDistanceUnit != null) {			
+			logger.debug("Using preferredDistanceUnit: " + preferredDistanceUnit);				
+			speedUnit = DistanceUnit.parse(preferredDistanceUnit);
+		}else{			
+			logger.debug("A preferredDistanceUnit was not set, using common unit for locale: " + locale);			
+			speedUnit = DistanceUnit.parse(context.getResources().getString(R.string.local_distance_unit));		
 		}
+		
+		switch (speedUnit) {
+		case KILOMETER:
+			distance = distanceInKM;
+			unit = context.getResources().getString(R.string.unit_kilometer);
+			break;
+		case MILES:
+			distance = distanceInKM/KM_TO_MILE_FACTOR;
+			unit = context.getResources().getString(R.string.unit_miles);
+			break;
+		default:
+			break;
+		}
+		
 		NumberWithUOM result = new NumberWithUOM(distance, unit);
 		
-		return result;
+		return result;	
+		
 	}
 	
 	public void getCurrency(){

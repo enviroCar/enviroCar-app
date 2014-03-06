@@ -22,4 +22,16 @@
     
     <string name="pref_select_car">Car data</string>
 	
+	<string name="pref_units">Units</string>
+	<string name="pref_units_prompt_choose_speed">Please select a speed unit</string>
+	<string name="pref_units_title_choose_speed">Select a speed unit</string>
+	<string name="pref_units_prompt_choose_distance">Please select a distance unit</string>
+	<string name="pref_units_title_choose_distance">Select a distance unit</string>
+	<string name="pref_units_prompt_choose_fuel_volume">Please select a fuel volume unit</string>
+	<string name="pref_units_title_choose_fuel_volume">Select a fuel volume unit</string>
+	<string name="pref_units_prompt_choose_consumption">Please select a consumption unit</string>
+	<string name="pref_units_title_choose_consumption">Select a consumption unit</string>
+	<string name="pref_units_prompt_choose_currency">Please select a currency unit</string>
+	<string name="pref_units_title_choose_currency">Select a currency unit</string>
+	
 </resources>

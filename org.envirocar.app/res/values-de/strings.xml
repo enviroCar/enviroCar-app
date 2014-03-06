@@ -264,12 +264,24 @@ Bei festgestellten Problemen möchten wir Sie bitten, uns ein Fehlerprotokoll zu
 <!-- 	L10N -->
 	
 	<string name="currency_symbol">"&#8364;"</string>
-    <string name="speed_unit">km/h</string>
-    <string name="distance_unit">km</string>
-    <string name="fuel_volume_unit">l</string>
-    <string name="consumption_formula">L/100km</string>
-    <string name="consumption_unit">l/100km</string>
+    <string name="consumption_formula">L/100km</string>	
+    <string name="local_speed_unit">km/h</string>
+    <string name="local_distance_unit">km</string>
+    <string name="local_fuel_volume_unit">l</string>
     <string name="not_applicable">k.A.</string>
+    <string name="miles_per_hour">Meilen pro Stunde</string>
+    <string name="kilometers_per_hour">Kilometer pro Stunde</string>
+    <string name="kilometers">Kilometer</string>
+    <string name="miles">Meilen</string>
+    <string name="us_liquid_gallon">US-amerikanische Gallone</string>
+    <string name="imperial_gallon">Imperiale Gallone</string>
+    <string name="liter">Liter</string>
+    <string name="miles_per_us_gallon">Meilen pro US-amerikanische Gallone</string>
+    <string name="miles_per_imperial_gallon">Meilen pro imperiale Gallone</string>
+    <string name="liters_per_100_km">Liter pro 100 Kilometer</string>
+    <string name="kilometer_per_liter">Kilometer pro Liter</string>
+    <string name="us_gallons_per_100_miles">US-amerikanische Gallonen pro 100 Meilen</string>
+    <string name="imperial_gallons_per_100_miles">Imperiale Gallonen pro 100 Meilen</string>
 	
 	
 </resources>
