@@ -272,6 +272,7 @@ If you discover and problems, please send us an error log (-> report problem). T
 	<string name="currency_symbol">"&#36;"</string>
     <string name="speed_unit">mph</string>
     <string name="distance_unit">mi</string>
+    <string name="fuel_volume_unit">gal</string>
     <string name="consumption_formula">mpg(us)</string>
     <string name="consumption_unit">mpg</string>
     <string name="not_applicable">n/a</string>

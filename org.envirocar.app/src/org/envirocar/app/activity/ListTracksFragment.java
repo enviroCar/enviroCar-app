@@ -1098,8 +1098,9 @@ public class ListTracksFragment extends SherlockFragment {
 						double consumption = t.getFuelConsumptionPerHour();
 						double literOn100km = t.getLiterPerHundredKm();
 						co2View.setText(twoDForm.format(t.getGramsPerKm()) + " g/km");
+						NumberWithUOM fuelconsumptionPerHour = l10nManager.getConsumptionValuePerHour(consumption);
 						NumberWithUOM fuelconsumption = l10nManager.getCommonConsumptionValue(literOn100km);
-						consumptionView.setText(twoDForm.format(consumption) + " l/h (" + twoDForm.format(fuelconsumption.getValue()) + " " + fuelconsumption.getUnit() + ")");
+						consumptionView.setText(twoDForm.format(fuelconsumptionPerHour.getValue()) + " " + fuelconsumptionPerHour.getUnit() + " (" + twoDForm.format(fuelconsumption.getValue()) + " " + fuelconsumption.getUnit() + ")");
 						if(fuelCostView.getText() == null || fuelCostView.getText().equals("")){
 							fuelCostView.setText(R.string.calculating);
 							getEstimatedFuelCost(fuelCostView, twoDForm, t);

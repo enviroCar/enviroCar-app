@@ -19,6 +19,8 @@
  */
 package org.envirocar.app.application;
 
+import java.util.Locale;
+
 import org.envirocar.app.R;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.NumberWithUOM;
@@ -37,15 +39,18 @@ public class L10NManager {
 
 	private static Logger logger = Logger.getLogger(L10NManager.class);
 	private Context context;
-	//TODO: check values
-	private double LPer100kmTompgusFactor = 0.42514371;
-	private double LPer100kmTompgimperialFactor = 0.357630888852;
 	
 	public static final String UNIT_KILOMETER = "km";
 	public static final String UNIT_MILES = "mi";
 	public static final String UNIT_KILOMETER_PER_HOUR = "km/h";
 	public static final String UNIT_MILES_PER_HOUR = "mph";
-	public static final double KM_TO_MILE_FACTOR = 1.609344;
+	public static final double KM_TO_MILE_FACTOR = 1.609344;	
+	
+	public static final double LITER_TO_USGALLON_FACTOR = 3.785411784;
+	public static final double LITER_TO_IMPERIALGALLON_FACTOR = 4.54609;
+	
+	private double LPer100kmTompgusFactor = KM_TO_MILE_FACTOR / LITER_TO_USGALLON_FACTOR;
+	private double LPer100kmTompgimperialFactor = KM_TO_MILE_FACTOR / LITER_TO_IMPERIALGALLON_FACTOR;
 	
 	public L10NManager(Context ctx){
 		this.context = ctx;
@@ -67,43 +72,27 @@ public class L10NManager {
 	
 	/**
 	 * This method returns a {@link NumberWithOUM} that represents the fuel consumption per hour in the volume unit of the current locale.
-	 * As the fuel consumption in liter per hour km already is calculated in the {@link Track}s, this is used as base for the conversion
+	 * As the fuel consumption in liter per hour already is calculated in the {@link Track}s, this is used as base for the conversion
 	 * in other fuel volume units.
 	 * 
 	 * @param literOn100km
 	 * @return
 	 */
-	public NumberWithUOM getConsumptionValuePerHour(double literOn100km){		
+	public NumberWithUOM getConsumptionValuePerHour(double consumptionPerHour){		
 		
 		Number fuelConsumption = 0.0;
-		String unit = context.getResources().getString(R.string.consumption_unit);
+		String unit = context.getResources().getString(R.string.fuel_volume_unit) + "/h";
 		
-		ConsumptionFormula localConsumptionFormula = ConsumptionFormula.parse(context.getResources().getString(R.string.consumption_formula));
+		String locale = context.getResources().getConfiguration().locale.getDisplayName();
 		
-		switch (localConsumptionFormula) {
-		case MILESPERUSGALLON:
-			fuelConsumption = (100/LPer100kmTompgusFactor)/literOn100km;
-			break;
-		case MILESPERIMPERIALGALLON:
-			fuelConsumption = (100/LPer100kmTompgimperialFactor)/literOn100km;
-			break;
-		case LITERSPER100KILOMETERS:
-			fuelConsumption = literOn100km;			
-			break;
-		case KILOMETERSPERLITER:
-			fuelConsumption = (1/literOn100km)*100;
-			break;
-		case USGALLONSPER100MILES:
-			fuelConsumption = LPer100kmTompgusFactor*literOn100km;
-			break;
-		case IMPERIALGALLONSPER100MILES:
-			fuelConsumption = LPer100kmTompgimperialFactor*literOn100km;			
-			break;
-		default:
-			logger.info("No consumption formula found.");
-			break;
+		if(locale.equals(Locale.GERMANY.getDisplayName())){
+			fuelConsumption = consumptionPerHour;
+		}else if(locale.equals(Locale.UK.getDisplayName())){
+			fuelConsumption = consumptionPerHour / LITER_TO_IMPERIALGALLON_FACTOR;
+		}else if(locale.equals(Locale.US.getDisplayName())){
+			fuelConsumption = consumptionPerHour / LITER_TO_USGALLON_FACTOR;
 		}
-
+		
 		NumberWithUOM result = new NumberWithUOM(fuelConsumption, unit);
 		
 		return result;
@@ -170,10 +159,6 @@ public class L10NManager {
 	}
 	
 	public void getCurrency(){
-		
-	}
-	
-	public void getVolume(){
 		
 	}
 	
