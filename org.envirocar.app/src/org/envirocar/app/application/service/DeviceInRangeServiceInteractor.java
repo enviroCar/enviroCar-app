@@ -20,28 +20,10 @@
  */
 package org.envirocar.app.application.service;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-
-public abstract class AbstractBackgroundServiceStateReceiver extends BroadcastReceiver {
-
-	public static final String SERVICE_STATE = BackgroundServiceImpl.class.getName()+".STATE";
+public interface DeviceInRangeServiceInteractor {
 	
-	public static enum ServiceState {
-		SERVICE_STOPPED, SERVICE_DEVICE_DISCOVERY_PENDING, SERVICE_DEVICE_DISCOVERY_RUNNING, SERVICE_STARTING, SERVICE_STARTED, SERVICE_STOPPING;
-	}
-	
-	@Override
-	public void onReceive(Context context, Intent intent) {
-		if (!intent.getAction().equals(SERVICE_STATE)) return;
-		ServiceState state = (ServiceState) intent.getSerializableExtra(SERVICE_STATE);
-		
-		if (state != null) {
-			onStateChanged(state);
-		}
-	}
+	long getNextDiscoveryTargetTime();
 
-	public abstract void onStateChanged(ServiceState state);
+	boolean isDiscoveryPending();
 
 }

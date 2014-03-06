@@ -300,9 +300,8 @@ public class StartStopButtonUtil {
 		/*
 		 * this broadcast stops the DeviceInRangeService
 		 */
-		Intent intent = new Intent(DeviceInRangeService.STATE_CHANGE);
-		intent.putExtra(DeviceInRangeService.STATE_CHANGE, false);
-		activity.sendBroadcast(intent);
+		application.getApplicationContext().stopService(
+				new Intent(application.getApplicationContext(), DeviceInRangeService.class));
 	}
 	
 	private void processStartingStateClick() {

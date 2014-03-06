@@ -80,7 +80,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 
 	protected static final int MAX_RECONNECT_COUNT = 2;
 
-	private static final int BG_NOTIFICATION_ID = 42;
+	public static final int BG_NOTIFICATION_ID = 42;
 
 	private Listener commandListener;
 	private final Binder binder = new LocalBinder();
