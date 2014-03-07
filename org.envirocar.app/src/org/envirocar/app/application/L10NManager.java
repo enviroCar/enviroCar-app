@@ -55,6 +55,15 @@ public class L10NManager {
 		resources = context.getResources();
 	}
 	
+	/**
+	 * This method returns a {@link NumberWithOUM} that contains the speed value and unit. If the user has not selected a preferred unit,
+	 * the default unit for the current locale is returned.
+	 * As the speed in km/h already is calculated in the {@link Track}s, this is used as base for the conversion
+	 * in other speed units.
+	 * 
+	 * @param speedInKMperHour the speed value in km/h
+	 * @return NumberWithUOM containing the speed value and unit
+	 */
 	public NumberWithUOM getSpeed(int speedInKMperHour){
 		
 		Number speed = 0.0;
@@ -79,12 +88,13 @@ public class L10NManager {
 	}
 	
 	/**
-	 * This method returns a {@link NumberWithOUM} that represents the fuel consumption per hour in the volume unit of the current locale.
-	 * As the fuel consumption in liter per hour already is calculated in the {@link Track}s, this is used as base for the conversion
-	 * in other fuel volume units.
+	 * This method returns a {@link NumberWithOUM} that contains the consumption value and unit. If the user has not selected a preferred unit,
+	 * the default unit for the current locale is returned.
+	 * As the consumption in l/h already is calculated in the {@link Track}s, this is used as base for the conversion
+	 * in other consumption units.
 	 * 
-	 * @param consumptionPerHour
-	 * @return
+	 * @param consumptionPerHour the consumption value in l/h
+	 * @return NumberWithUOM containing the consumption value and unit
 	 */
 	public NumberWithUOM getConsumptionValuePerHour(double consumptionPerHour){	
 		
@@ -113,12 +123,13 @@ public class L10NManager {
 	}
 	
 	/**
-	 * This method returns a {@link NumberWithOUM} that represents the fuel consumption and unit in the current locale's common format.
-	 * As the fuel consumption in liter per 100 km already is calculated in the {@link Track}s, this is used as base for the conversion
-	 * in other common fuel consumption representations.
+	 * This method returns a {@link NumberWithOUM} that contains the consumption value and unit in a more common representation than l/h. If the user has not selected a preferred unit,
+	 * the default unit for the current locale is returned.
+	 * As the consumption in l/100km already is calculated in the {@link Track}s, this is used as base for the conversion
+	 * in other consumption units.
 	 * 
-	 * @param literOn100km
-	 * @return
+	 * @param literOn100km the consumption value in l/h
+	 * @return NumberWithUOM containing the consumption value and unit
 	 */
 	public NumberWithUOM getCommonConsumptionValue(double literOn100km){		
 		
@@ -155,6 +166,15 @@ public class L10NManager {
 		
 	}
 	
+	/**
+	 * This method returns a {@link NumberWithOUM} that contains the distance value and unit. If the user has not selected a preferred unit,
+	 * the default unit for the current locale is returned.
+	 * As the distance in km already is calculated in the {@link Track}s, this is used as base for the conversion
+	 * in other distance units.
+	 * 
+	 * @param distanceInKM the distance value in km/h
+	 * @return NumberWithUOM containing the distance value and unit
+	 */
 	public NumberWithUOM getDistance(double distanceInKM){
 		
 		Number distance = 0.0;
@@ -186,18 +206,42 @@ public class L10NManager {
 		
 	}
 	
+	/**
+	 * This method returns the textual description of the distance unit. If the user has not selected a preferred unit,
+	 * the default unit for the current locale is returned.
+	 * 
+	 * @return String representing the textual description of the distance unit
+	 */
 	public String getDistanceUnitDescription(){
 		return getUnitDescription(SettingsActivity.DISTANCE_UNITS_LIST_KEY, R.string.local_distance_unit_description);
 	}
 	
+	/**
+	 * This method returns the textual description of the speed unit. If the user has not selected a preferred unit,
+	 * the default unit for the current locale is returned.
+	 * 
+	 * @return String representing the textual description of the speed unit
+	 */
 	public String getSpeedUnitDescription(){
 		return getUnitDescription(SettingsActivity.SPEED_UNITS_LIST_KEY, R.string.local_speed_unit_description);
 	}
 	
+	/**
+	 * This method returns the textual description of the fuel volume unit. If the user has not selected a preferred unit,
+	 * the default unit for the current locale is returned.
+	 * 
+	 * @return String representing the textual description of the fuel volume unit
+	 */
 	public String getFuelVolumeUnitDescription(){
 		return getUnitDescription(SettingsActivity.FUEL_VOLUME_UNITS_LIST_KEY, R.string.local_fuel_volume_unit_description);
 	}
 	
+	/**
+	 * This method returns the textual description of the consumption unit. If the user has not selected a preferred unit,
+	 * the default unit for the current locale is returned.
+	 * 
+	 * @return String representing the textual description of the consumption unit
+	 */
 	public String getConsumptionUnitDescription(){
 		return getUnitDescription(SettingsActivity.CONSUMPTION_UNITS_LIST_KEY, R.string.local_consumption_unit_description);
 	}
