@@ -27,6 +27,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import org.envirocar.app.R;
+import org.envirocar.app.application.L10NManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.util.Util;
 
@@ -71,6 +72,8 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	public static final String FUEL_VOLUME_UNITS_LIST_KEY = "pref_fuel_volume_units_list";
 	public static final String CONSUMPTION_UNITS_LIST_KEY = "pref_consumption_units_list";
 	public static final String DISTANCE_UNITS_LIST_KEY = "pref_distance_units_list";
+	
+	private L10NManager l10nManager;
 	
 	private Preference about;
 	
@@ -169,7 +172,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 
 	}
 	
-	private void initializeUnitLists2(){
+	private void initializeUnitLists(){
 		
 		Collection<CharSequence> speedUnits = new ArrayList<CharSequence>(2);
 		
@@ -178,14 +181,14 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 		speedUnits.add(resources.getString(R.string.description_miles_per_hour));
 		speedUnits.add(resources.getString(R.string.description_kilometers_per_hour));
 		
-		setUpListValues(SPEED_UNITS_LIST_KEY, speedUnits);
+		setUpListValues(SPEED_UNITS_LIST_KEY, speedUnits, l10nManager.getSpeedUnitDescription());
 		
 		Collection<CharSequence> distanceUnits =  new ArrayList<CharSequence>(2);
 				
 		distanceUnits.add(resources.getString(R.string.description_miles));
 		distanceUnits.add(resources.getString(R.string.description_kilometers));
 		
-		setUpListValues(DISTANCE_UNITS_LIST_KEY, distanceUnits);
+		setUpListValues(DISTANCE_UNITS_LIST_KEY, distanceUnits, l10nManager.getDistanceUnitDescription());
 	
 		Collection<CharSequence> fuelVolumeUnits = new ArrayList<CharSequence>(3);
 		
@@ -193,7 +196,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 		fuelVolumeUnits.add(resources.getString(R.string.description_imperial_gallon));
 		fuelVolumeUnits.add(resources.getString(R.string.description_liter));
 		
-		setUpListValues(FUEL_VOLUME_UNITS_LIST_KEY, fuelVolumeUnits);
+		setUpListValues(FUEL_VOLUME_UNITS_LIST_KEY, fuelVolumeUnits, l10nManager.getFuelVolumeUnitDescription());
 		
 		Collection<CharSequence> consumptionUnits = new ArrayList<CharSequence>(6);
 		
@@ -204,42 +207,37 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 		consumptionUnits.add(resources.getString(R.string.description_us_gallons_per_100_miles));
 		consumptionUnits.add(resources.getString(R.string.description_imperial_gallons_per_100_miles));
 		
-		setUpListValues(CONSUMPTION_UNITS_LIST_KEY, consumptionUnits);		
+		setUpListValues(CONSUMPTION_UNITS_LIST_KEY, consumptionUnits, l10nManager.getConsumptionUnitDescription());		
 		
 	}
 	
-	private void setUpListValues(String listKey, Collection<CharSequence> entries, Collection<CharSequence> values){
+	private void setUpListValues(String listKey, Collection<CharSequence> entries, Collection<CharSequence> values, String defaultValue){
 		
 		ListPreference list = (ListPreference) getPreferenceScreen()
 				.findPreference(listKey);
 		
 		list.setEntries(entries.toArray(new CharSequence[]{}));
 		list.setEntryValues(values.toArray(new CharSequence[]{}));
-		
-		String preferredValue = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(listKey, null);
-		
-		if(preferredValue != null){
-			list.setValue(preferredValue);
+				
+		if(defaultValue != null){
+			list.setValue(defaultValue);
 		}
 		
 	}
 	
-	private void setUpListValues(String listKey, Collection<CharSequence> entriesAndValues){
-		setUpListValues(listKey, entriesAndValues, entriesAndValues);
+	private void setUpListValues(String listKey, Collection<CharSequence> entriesAndValues, String defaultValue){
+		setUpListValues(listKey, entriesAndValues, entriesAndValues, defaultValue);
 		
-	}
-	
-	private void setUpListValues(String listKey, java.util.Map<CharSequence, CharSequence> entriesAndValues){
-		setUpListValues(listKey, entriesAndValues.keySet(), entriesAndValues.values());
 	}
 	
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
+		l10nManager = new L10NManager(getApplicationContext());
 		addPreferencesFromResource(R.xml.preferences);
 		initializeBluetoothList();
-		initializeUnitLists2();
+		initializeUnitLists();
 		this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 		this.getSupportActionBar().setHomeButtonEnabled(false);
 

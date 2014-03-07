@@ -59,15 +59,8 @@ public class L10NManager {
 		
 		Number speed = 0.0;
 		String unit = resources.getString(R.string.not_applicable);
-		
-		String locale = resources.getConfiguration().locale.getDisplayName();
 	
-		String unitDescription = PreferenceManager.getDefaultSharedPreferences(context).getString(SettingsActivity.SPEED_UNITS_LIST_KEY, null);
-		
-		if (unitDescription == null){
-			logger.debug("A preferred speed unit was not set, using " + R.string.local_speed_unit_description + " for locale: " + locale);			
-			unitDescription = resources.getString(R.string.local_speed_unit_description);		
-		}
+		String unitDescription = getSpeedUnitDescription();
 		
 		if(unitDescription.equals(resources.getString(R.string.description_kilometers_per_hour))){
 			speed = speedInKMperHour;
@@ -97,15 +90,8 @@ public class L10NManager {
 		
 		Number fuelConsumption = 0.0;
 		String unit = context.getResources().getString(R.string.not_applicable);
-		
-		String locale = context.getResources().getConfiguration().locale.getDisplayName();
 	
-		String unitDescription = PreferenceManager.getDefaultSharedPreferences(context).getString(SettingsActivity.FUEL_VOLUME_UNITS_LIST_KEY, null);
-		
-		if (unitDescription == null) {
-			logger.debug("A preferred fuel volume unit was not set, using " + R.string.local_fuel_volume_unit_description + " for locale: " + locale);			
-			unitDescription = resources.getString(R.string.local_fuel_volume_unit_description);			
-		}
+		String unitDescription = getFuelVolumeUnitDescription();
 		
 		if(unitDescription.equals(resources.getString(R.string.description_liter))){
 			fuelConsumption = consumptionPerHour;
@@ -138,15 +124,8 @@ public class L10NManager {
 		
 		Number fuelConsumption = 0.0;
 		String unit = context.getResources().getString(R.string.not_applicable);
-		
-		String locale = context.getResources().getConfiguration().locale.getDisplayName();
 	
-		String unitDescription = PreferenceManager.getDefaultSharedPreferences(context).getString(SettingsActivity.CONSUMPTION_UNITS_LIST_KEY, null);
-			
-		if (unitDescription == null) {
-			logger.debug("A preferred consumption unit was not set, using " + R.string.local_consumption_unit_description + " for locale: " + locale);			
-			unitDescription = resources.getString(R.string.local_consumption_unit_description);			
-		}
+		String unitDescription = getConsumptionUnitDescription();
 		
 		if(unitDescription.equals(resources.getString(R.string.description_miles_per_us_gallon))){
 			fuelConsumption = (100/LPer100kmTompgusFactor)/literOn100km;
@@ -180,15 +159,8 @@ public class L10NManager {
 		
 		Number distance = 0.0;
 		String unit = context.getResources().getString(R.string.not_applicable);
-		
-		String locale = context.getResources().getConfiguration().locale.getDisplayName();
 	
-		String unitDescription = PreferenceManager.getDefaultSharedPreferences(context).getString(SettingsActivity.DISTANCE_UNITS_LIST_KEY, null);
-		
-		if (unitDescription == null) {
-			logger.debug("A preferred distance unit was not set, using " + R.string.local_distance_unit_description + " for locale: " + locale);			
-			unitDescription = resources.getString(R.string.local_distance_unit_description);			
-		}
+		String unitDescription = getDistanceUnitDescription();
 		
 		if(unitDescription.equals(resources.getString(R.string.description_kilometers))){
 			distance = distanceInKM;
@@ -212,6 +184,37 @@ public class L10NManager {
 	
 	public void getTime(){
 		
+	}
+	
+	public String getDistanceUnitDescription(){
+		return getUnitDescription(SettingsActivity.DISTANCE_UNITS_LIST_KEY, R.string.local_distance_unit_description);
+	}
+	
+	public String getSpeedUnitDescription(){
+		return getUnitDescription(SettingsActivity.SPEED_UNITS_LIST_KEY, R.string.local_speed_unit_description);
+	}
+	
+	public String getFuelVolumeUnitDescription(){
+		return getUnitDescription(SettingsActivity.FUEL_VOLUME_UNITS_LIST_KEY, R.string.local_fuel_volume_unit_description);
+	}
+	
+	public String getConsumptionUnitDescription(){
+		return getUnitDescription(SettingsActivity.CONSUMPTION_UNITS_LIST_KEY, R.string.local_consumption_unit_description);
+	}
+	
+	private String getUnitDescription(String key, int fallBackLocalUnitDescriptionID){
+		
+		String locale = context.getResources().getConfiguration().locale.getDisplayName();
+		
+		String unitDescription = PreferenceManager.getDefaultSharedPreferences(context).getString(key, null);
+		
+		if (unitDescription == null) {
+			String fallBackLocalUnitDescription = resources.getString(fallBackLocalUnitDescriptionID);
+			logger.debug("A preferred distance unit was not set, using " + fallBackLocalUnitDescription + " for locale: " + locale);			
+			unitDescription = fallBackLocalUnitDescription;	
+		}
+		
+		return unitDescription;
 	}
 	
 }
