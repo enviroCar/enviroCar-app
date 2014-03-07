@@ -270,19 +270,18 @@ If you discover and problems, please send us an error log (-> report problem). T
 <!-- 	L10N -->	
 	
 	<string name="currency_symbol">"&#36;"</string>	
-    <string name="local_speed_unit">mph</string>
-    <string name="local_distance_unit">mi</string>
-    <string name="local_fuel_volume_unit">gal</string>
-    <string name="consumption_formula">mpg(us)</string>
+    <string name="local_speed_unit_description">@string/description_miles_per_hour</string>
+    <string name="local_distance_unit_description">@string/description_miles</string>
+    <string name="local_fuel_volume_unit_description">@string/description_us_liquid_gallon</string>
+    <string name="local_consumption_unit_description">@string/description_us_gallons_per_100_miles</string>
+    
     <string name="unit_mile">mi</string>
     <string name="unit_us_liquid_gallon">gal</string>
     <string name="unit_imperial_gallon">gal</string>
     <string name="unit_liter">l</string>
     <string name="unit_miles_per_hour">mph</string>
     <string name="unit_kilometer_per_hour">km/h</string>
-    <string name="unit_miles">mi</string>
     <string name="unit_kilometer">km</string>
-    <string name="unit_miles_per_hour">mpg</string>
     <string name="unit_kilometers_per_hour">km/h</string>
     <string name="unit_miles_per_us_gallon">mpg</string>
     <string name="unit_miles_per_imperial_gallon">mpg</string>
@@ -290,18 +289,18 @@ If you discover and problems, please send us an error log (-> report problem). T
     <string name="unit_kilometer_per_liter">km/l</string>
     <string name="unit_us_gallons_per_100_miles">gal/100mi</string>
     <string name="unit_imperial_gallons_per_100_miles">gal/100mi</string>
-    <string name="kilometers_per_hour">Kilometers per hour</string>
-    <string name="miles_per_hour">Miles per hour</string>
-    <string name="kilometers">Kilometers</string>
-    <string name="miles">Miles</string>
-    <string name="us_liquid_gallon">US liquid gallon</string>
-    <string name="imperial_gallon">Imperial gallon</string>
-    <string name="liter">Liter</string>
-    <string name="miles_per_us_gallon">Miles per US liquid gallon</string>
-    <string name="miles_per_imperial_gallon">Miles per imperial gallon</string>
-    <string name="liters_per_100_km">Liters per 100 kilometer</string>
-    <string name="kilometer_per_liter">Kilometer per liter</string>
-    <string name="us_gallons_per_100_miles">US liquid gallons per 100 miles</string>
-    <string name="imperial_gallons_per_100_miles">Imperial gallons per 100 miles</string>
+    <string name="description_kilometers_per_hour">Kilometers per hour</string>
+    <string name="description_miles_per_hour">Miles per hour</string>
+    <string name="description_kilometers">Kilometers</string>
+    <string name="description_miles">Miles</string>
+    <string name="description_us_liquid_gallon">US liquid gallon</string>
+    <string name="description_imperial_gallon">Imperial gallon</string>
+    <string name="description_liter">Liter</string>
+    <string name="description_miles_per_us_gallon">Miles per US liquid gallon</string>
+    <string name="description_miles_per_imperial_gallon">Miles per imperial gallon</string>
+    <string name="description_liters_per_100_km">Liters per 100 kilometer</string>
+    <string name="description_kilometers_per_liter">Kilometer per liter</string>
+    <string name="description_us_gallons_per_100_miles">US liquid gallons per 100 miles</string>
+    <string name="description_imperial_gallons_per_100_miles">Imperial gallons per 100 miles</string>
 	
 </resources>

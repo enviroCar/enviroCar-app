@@ -270,10 +270,10 @@ If you discover and problems, please send us an error log (-> report problem). T
 <!-- 	L10N -->	
 	
 	<string name="currency_symbol">"&#x00A3;"</string>
-    <string name="consumption_formula">L/100 km</string>	
-    <string name="local_speed_unit">mph</string>
-    <string name="local_distance_unit">mi</string>
-    <string name="local_fuel_volume_unit">gal</string>
+    <string name="local_consumption_unit_description">@string/description_imperial_gallons_per_100_miles</string>
+    <string name="local_speed_unit_description">@string/description_miles_per_hour</string>
+    <string name="local_distance_unit_description">@string/description_miles</string>
+    <string name="local_fuel_volume_unit_description">@string/description_imperial_gallon</string>
     <string name="not_applicable">n/a</string>
 	
 </resources>

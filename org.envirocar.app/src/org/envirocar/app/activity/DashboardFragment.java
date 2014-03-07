@@ -21,15 +21,14 @@
 
 package org.envirocar.app.activity;
 
-import java.awt.font.NumericShaper;
 import java.text.DecimalFormat;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.L10NManager;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
-import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
+import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.event.CO2Event;
 import org.envirocar.app.event.CO2EventListener;
 import org.envirocar.app.event.EventBus;

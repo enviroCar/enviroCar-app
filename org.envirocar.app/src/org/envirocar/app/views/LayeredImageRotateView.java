@@ -24,7 +24,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
-import org.envirocar.app.util.SpeedUnit;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -121,23 +120,17 @@ public class LayeredImageRotateView extends RelativeLayout {
 			return;
 		}
 		
-		SpeedUnit speedUnit = SpeedUnit.UNKNOWN;
+		String unitDescription = PreferenceManager.getDefaultSharedPreferences(getContext()).getString(SettingsActivity.SPEED_UNITS_LIST_KEY, null);
 		
-		if (preferredSpeedUnit != null) {						
-			speedUnit = SpeedUnit.parse(preferredSpeedUnit);
-		}else{		
-			speedUnit = SpeedUnit.parse(getContext().getResources().getString(R.string.local_speed_unit));		
+		if (unitDescription == null){		
+			unitDescription = getContext().getResources().getString(R.string.local_speed_unit_description);		
 		}
 		
-		switch (speedUnit) {
-		case KILOMETER_PER_HOUR:			
+		if(unitDescription.equals(getContext().getResources().getString(R.string.description_kilometers_per_hour))){
 			phenometerSpeedView.setImageResource(R.drawable.phenometer_speed_kmh);
-			break;
-		case MILES_PER_HOUR:
+			
+		}else if(unitDescription.equals(getContext().getResources().getString(R.string.description_miles_per_hour))){
 			phenometerSpeedView.setImageResource(R.drawable.phenometer_speed_mph);
-			break;
-		default:
-			break;
 		}
 	}
 	
