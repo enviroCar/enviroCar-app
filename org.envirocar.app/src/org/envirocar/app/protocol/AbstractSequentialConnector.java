@@ -320,10 +320,14 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 		byte[] buffer = new byte[32];
 		int index = 0;
 		// read until '>' arrives
-		while ((char) (b = (byte) inputStream.read()) != cmd.getEndOfLineReceive()) {
+		while (index < buffer.length && (char) (b = (byte) inputStream.read()) != cmd.getEndOfLineReceive()) {
 			if (!ignored.contains((char) b)){
 				buffer[index++] = b;
 			}
+		}
+		
+		if (index > 0) {
+			logger.info("Response read. Data: "+ new String(buffer, 0, index));
 		}
 
 		return Arrays.copyOf(buffer, index);
@@ -460,7 +464,8 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 				}
 				break;
 			case EXECUTION_ERROR:
-				logger.debug("Execution Error for " +cmd.getCommandName() +": "+new String(cmd.getRawData()));
+				String raw = cmd.getRawData() == null ? "null" : new String(cmd.getRawData());
+				logger.debug("Execution Error for " +cmd.getCommandName() +": "+raw);
 				this.onBlacklistCandidate(cmd);
 				break;
 				
