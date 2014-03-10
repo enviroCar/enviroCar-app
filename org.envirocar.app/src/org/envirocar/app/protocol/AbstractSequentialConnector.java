@@ -61,6 +61,8 @@ import org.envirocar.app.protocol.exception.AdapterFailedException;
 import org.envirocar.app.protocol.exception.ConnectionLostException;
 import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
 
+import android.util.Base64;
+
 /**
  * This class acts as the basis for adapters which work
  * in a request/response fashion (in particular, they do not
@@ -336,7 +338,8 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 		}
 		
 		if (index > 0) {
-			logger.info("Response read. Data: "+ new String(buffer, 0, index));
+			logger.info("Response read. Data (base64): "+
+					Base64.encodeToString(buffer, 0, index, Base64.DEFAULT));
 		}
 
 		return Arrays.copyOf(buffer, index);
