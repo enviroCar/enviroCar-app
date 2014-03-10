@@ -35,6 +35,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -358,22 +359,28 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 			throw new AdapterFailedException(getClass().getSimpleName());
 		}
 		
-		Future<Boolean> future = initializationExecutor.submit(new Callable<Boolean>() {
+		Future<Boolean> future;
+		try {
+			future = initializationExecutor.submit(new Callable<Boolean>() {
 
-			@Override
-			public Boolean call() throws Exception {
-				try {
-					executeCommands(cmds);
-					executeCommand(new PIDSupported());
-					return true;
-				} catch (UnmatchedCommandResponseException e) {
-					logger.warn("This should never happen!", e);
-				} catch (ConnectionLostException e) {
-					logger.warn("This should never happen!", e);
+				@Override
+				public Boolean call() throws Exception {
+					try {
+						executeCommands(cmds);
+						executeCommand(new PIDSupported());
+						return true;
+					} catch (UnmatchedCommandResponseException e) {
+						logger.warn("This should never happen!", e);
+					} catch (ConnectionLostException e) {
+						logger.warn("This should never happen!", e);
+					}
+					return false;
 				}
-				return false;
-			}
-		});
+			});			
+		}
+		catch (RejectedExecutionException e) {
+			throw new AdapterFailedException(getClass().getSimpleName(), e);
+		}
 		
 		try {
 			Boolean resp = future.get(10, TimeUnit.SECONDS);
