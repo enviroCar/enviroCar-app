@@ -328,7 +328,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 
 		Set<Character> ignored = cmd.getIgnoredChars();
 		
-		byte[] buffer = new byte[32];
+		byte[] buffer = new byte[272];
 		int index = 0;
 		// read until '>' arrives
 		while (index < buffer.length && (char) (b = (byte) inputStream.read()) != cmd.getEndOfLineReceive()) {
