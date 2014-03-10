@@ -153,8 +153,10 @@ public class Logger {
 
 	public static String convertExceptionToString(Throwable e) {
 		StringBuilder sb = new StringBuilder();
+		sb.append(e.getClass().getCanonicalName());
+		sb.append(": ");
 		sb.append(e.getMessage());
-		sb.append(":");
+		sb.append("; StackTracke: ");
 		sb.append(Util.NEW_LINE_CHAR);
 
 		int count = 0;
