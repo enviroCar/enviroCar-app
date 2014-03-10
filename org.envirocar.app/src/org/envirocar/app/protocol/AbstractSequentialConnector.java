@@ -210,7 +210,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 
 	private void runCommand(CommonCommand cmd)
 			throws IOException {
-//		logger.debug("Sending command " +cmd.getCommandName()+ " / "+ new String(cmd.getOutgoingBytes()));
+		logger.debug("Sending command " +cmd.getCommandName()+ " / "+ new String(cmd.getOutgoingBytes()));
 		
 		try {
 			sendCommand(cmd);	
