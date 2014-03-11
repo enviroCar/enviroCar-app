@@ -205,7 +205,9 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 
 	private void onInitializationCommand(CommonCommand cmd) {
 		if (cmd instanceof PIDSupported) {
-			this.supportedPIDs = ((PIDSupported) cmd).getSupportedPIDs();
+			if (!(cmd.getCommandState() == CommonCommandState.EXECUTION_ERROR)) {
+				this.supportedPIDs = ((PIDSupported) cmd).getSupportedPIDs();
+			}
 		}
 		processInitializationCommand(cmd);
 	}
