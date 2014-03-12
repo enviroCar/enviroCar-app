@@ -138,6 +138,8 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 					requestCommands.add(cmd);
 				}
 			}
+			
+			logger.info("PID supported result: "+requestCommands);
 		} else {
 			requestCommands = new ArrayList<CommonCommand>();
 			requestCommands.add(new Speed());
