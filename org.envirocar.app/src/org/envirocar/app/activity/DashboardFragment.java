@@ -103,6 +103,7 @@ public class DashboardFragment extends SherlockFragment {
 	private LayeredImageRotateView speedRotatableView;
 	private LayeredImageRotateView co2RotableView;
 	protected BackgroundServiceInteractor backgroundService;
+	private View sensorContainer;
 
 
 	@Override
@@ -117,7 +118,19 @@ public class DashboardFragment extends SherlockFragment {
 	 */
 	public void updateSensorOnDashboard() {
 		//this fixes issue #166
-		sensor.setText(getCurrentSensorString());		
+		sensor.setText(getCurrentSensorString());
+		
+		if (isAdded()) {
+			if (CarManager.instance().getCar() != null) {
+				sensorContainer.setBackgroundDrawable(
+						getResources().getDrawable(R.drawable.rounded_border));
+			}
+			else {
+				sensorContainer.setBackgroundDrawable(
+						getResources().getDrawable(R.drawable.rounded_border_warning));
+			}
+		}
+		
 	}
 	
 	/**
@@ -159,6 +172,8 @@ public class DashboardFragment extends SherlockFragment {
 				R.id.co2meterView);
 		speedRotatableView = (LayeredImageRotateView) getView().findViewById(R.id.speedometerView);
 		sensor = (SizeRelatedTextView) getView().findViewById(R.id.dashboard_current_sensor);
+		
+		sensorContainer = (View) getView().findViewById(R.id.dashboard_general_info);
 		
 		updateStatusElements();
 		

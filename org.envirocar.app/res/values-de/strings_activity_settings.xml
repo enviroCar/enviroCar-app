@@ -2,7 +2,8 @@
 
     <string name="title_activity_settings">Einstellungen</string>
 
-    <string name="pref_obd_settings">OBD Einstellungen</string>
+    <string name="pref_obd_settings">OBD-Einstellungen</string>
+    <string name="pref_car_settings">Fahrzeug-Einstellungen</string>
 	<string name="pref_general_settings">Allgemeine Einstellungen</string>
 	
 	<string name="pref_prompt_chose_adapter">OBD Adapter wählen</string>

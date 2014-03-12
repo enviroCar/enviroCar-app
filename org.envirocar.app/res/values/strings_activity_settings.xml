@@ -2,8 +2,9 @@
 
     <string name="title_activity_settings">Settings</string>
 
-	<string name="pref_obd_settings">OBD settings</string>
-	<string name="pref_general_settings">General settings</string>
+	<string name="pref_obd_settings">OBD Settings</string>
+	<string name="pref_car_settings">Vehicle Settings</string>
+	<string name="pref_general_settings">General Settings</string>
 	
 	<string name="pref_prompt_chose_adapter">Choose OBD adapter</string>
 	<string name="pref_summary_chose_adapter">Please select an OBD adapter</string>
