@@ -22,4 +22,10 @@
     
     <string name="pref_select_car">Daten des Fahrzeugs</string>
     
+    <string name="pref_optional_features">Optionale Features</string>
+    
+    <string name="use_pid_supported">Benutze \"PID Supported\"-Abfrage</string>
+    <string name="use_pid_supported_summary">Erfrage bei der ECU des Fahrzeugs die unterstützten OBD-Befehle</string>
+
+    
 </resources>

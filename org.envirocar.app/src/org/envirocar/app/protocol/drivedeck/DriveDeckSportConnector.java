@@ -113,7 +113,10 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 			
 			pidCmd.setRawData(rawBytes);
 			pidCmd.parseRawData();
-			logger.info(pidCmd.getSupportedPIDs().toArray().toString());
+			
+			if (pidCmd.getCommandState() == CommonCommandState.FINISHED) {
+				logger.info(pidCmd.getSupportedPIDs().toArray().toString());
+			}
 		}
 	}
 

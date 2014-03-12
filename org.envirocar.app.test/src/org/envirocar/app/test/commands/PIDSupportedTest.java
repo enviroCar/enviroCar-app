@@ -28,6 +28,7 @@ import java.util.Set;
 import junit.framework.Assert;
 
 import org.envirocar.app.commands.PIDSupported;
+import org.envirocar.app.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.commands.PIDUtil.PID;
 
 import android.test.AndroidTestCase;
@@ -43,6 +44,15 @@ public class PIDSupportedTest extends AndroidTestCase {
 		Set<PID> result = cmd.getSupportedPIDs();
 		
 		assertResult(result);
+	}
+	
+	public void testPIDSupportedFail() {
+		PIDSupported cmd = new PIDSupported();
+		
+		cmd.setRawData(createResponseFailMockup());
+		cmd.parseRawData();
+		
+		assertTrue(cmd.getCommandState() == CommonCommandState.EXECUTION_ERROR);
 	}
 
 	private void assertResult(Set<PID> result) {
@@ -67,6 +77,15 @@ public class PIDSupportedTest extends AndroidTestCase {
 
 	private byte[] createResponseMockup() {
 		StringBuilder sb = new StringBuilder();
+		sb.append("4100");
+		sb.append("107B0000");
+		return sb.toString().getBytes();
+	}
+
+	private byte[] createResponseFailMockup() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("4100");
+		sb.append("107B0000");
 		sb.append("4100");
 		sb.append("107B0000");
 		return sb.toString().getBytes();

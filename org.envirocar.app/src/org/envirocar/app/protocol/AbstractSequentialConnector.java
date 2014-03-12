@@ -40,6 +40,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.envirocar.app.FeatureFlags;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.EngineLoad;
 import org.envirocar.app.commands.FuelSystemStatus;
@@ -204,7 +205,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	}
 
 	private void onInitializationCommand(CommonCommand cmd) {
-		if (cmd instanceof PIDSupported) {
+		if (cmd instanceof PIDSupported && FeatureFlags.usePIDSupported()) {
 			if (!(cmd.getCommandState() == CommonCommandState.EXECUTION_ERROR)) {
 				this.supportedPIDs = ((PIDSupported) cmd).getSupportedPIDs();
 			}

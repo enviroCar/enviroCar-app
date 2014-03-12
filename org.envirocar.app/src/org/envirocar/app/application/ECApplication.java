@@ -27,6 +27,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
+import org.envirocar.app.FeatureFlags;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.MainActivity;
 import org.envirocar.app.activity.SettingsActivity;
@@ -138,6 +139,9 @@ public class ECApplication extends Application {
 				});
 		
 		UserManager.init(getApplicationContext());
+		
+		FeatureFlags.init(getApplicationContext());
+		
 		initializeErrorHandling();
 		CarManager.init(preferences);
 		TermsOfUseManager.instance();

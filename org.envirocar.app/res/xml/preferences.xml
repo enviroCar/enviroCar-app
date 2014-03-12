@@ -36,6 +36,14 @@
             android:summary="@string/pref_select_car"
             />
     </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_optional_features" >
+        <CheckBoxPreference
+            android:key="pref_pid_supported"
+            android:title="@string/use_pid_supported"
+            android:summary="@string/use_pid_supported_summary" />
+    </PreferenceCategory>
+    
     <PreferenceCategory android:title="@string/pref_about" >
         <Preference 
             android:key="about_version"
