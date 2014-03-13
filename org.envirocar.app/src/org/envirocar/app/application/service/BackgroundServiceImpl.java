@@ -99,6 +99,8 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 
 	public boolean ttsAvailable;
 
+	private LocationUpdateListener locationListener;
+
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -177,7 +179,8 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	 */
 	private void startBackgroundService() {
 		logger.info("startBackgroundService called");
-		LocationUpdateListener.startLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
+		this.locationListener = new LocationUpdateListener((LocationManager) getSystemService(Context.LOCATION_SERVICE));
+		this.locationListener.startLocating();
 		
 		startConnection();
 	}
@@ -196,7 +199,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 				setState(ServiceState.SERVICE_STOPPED);
 				sendStateBroadcast();
 				
-				LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
+				locationListener.stopLocating();
 				
 				if (BackgroundServiceImpl.this.commandListener != null) {
 					BackgroundServiceImpl.this.commandListener.shutdown();

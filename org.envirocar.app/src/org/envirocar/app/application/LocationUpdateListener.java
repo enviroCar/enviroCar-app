@@ -22,6 +22,7 @@ package org.envirocar.app.application;
 
 import org.envirocar.app.event.EventBus;
 import org.envirocar.app.event.GpsDOPEvent;
+import org.envirocar.app.event.GpsSatelliteFixEvent;
 import org.envirocar.app.event.LocationEvent;
 import org.envirocar.app.logging.Logger;
 
@@ -36,9 +37,10 @@ public class LocationUpdateListener implements LocationListener, NmeaListener {
 	private static final Logger logger = Logger.getLogger(LocationUpdateListener.class);
 	private static final String GPGSA = "$GPGSA";
 	private static final String NMEA_SEP = ",";
-	private static LocationUpdateListener instance;
+	private LocationManager lm;
 	
-	public LocationUpdateListener() {
+	public LocationUpdateListener(LocationManager lm) {
+		this.lm = lm;
 	}
 	/**
 	 * updates the location variables when the device moved
@@ -51,7 +53,7 @@ public class LocationUpdateListener implements LocationListener, NmeaListener {
 
 	@Override
 	public void onProviderDisabled(String arg0) {
-
+		
 	}
 
 	@Override
@@ -64,21 +66,18 @@ public class LocationUpdateListener implements LocationListener, NmeaListener {
 
 	}
 
-	public static synchronized LocationUpdateListener getInstance() {
-		if (instance == null)
-			instance = new LocationUpdateListener();
-		return instance;
-	}
 	
-	public static void startLocating(LocationManager lm) {
+	public void startLocating() {
 		lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
-				0, getInstance());
-		lm.addNmeaListener(getInstance());
+				0, this);
+		lm.addNmeaListener(this);
 	}
 	
-	public static void stopLocating(LocationManager lm) {
-		lm.removeUpdates(getInstance());
-		lm.removeNmeaListener(getInstance());
+	public void stopLocating() {
+		lm.removeUpdates(this);
+		lm.removeNmeaListener(this);
+		
+		EventBus.getInstance().fireEvent(new GpsSatelliteFixEvent(0, false));
 	}
 	
 	@Override
@@ -87,11 +86,12 @@ public class LocationUpdateListener implements LocationListener, NmeaListener {
 		 * eg2.: $GPGSA,A,3,19,28,14,18,27,22,31,39,,,,,1.7,1.0,1.3*35
 		 */
 		if (nmea.startsWith(GPGSA)) {
+			boolean fix = true;
 			if (nmea.charAt(7) == ',' || nmea.charAt(9) == '1') {
 				/*
 				 * no GPS fix, skip
 				 */
-				return;
+				fix = false;
 			}
 			
 			int checksumIndex = nmea.lastIndexOf("*");
@@ -105,6 +105,13 @@ public class LocationUpdateListener implements LocationListener, NmeaListener {
 				 */
 				return;
 			}
+
+			int numberOfSats = resolveSatelliteCount(values);
+			
+			/*
+			 * fire an event on the GPS status (fix and number of sats)
+			 */
+			EventBus.getInstance().fireEvent(new GpsSatelliteFixEvent(numberOfSats, fix));
 			
 			Double pdop = null, hdop = null, vdop = null;
 			if (values.length > 15) {
@@ -123,6 +130,23 @@ public class LocationUpdateListener implements LocationListener, NmeaListener {
 		}
 	}
 	
+	private int resolveSatelliteCount(String[] values) {
+		if (values == null || values.length < 3) {
+			return 0;
+		}
+		
+		int result = 0;
+		for (int i = 3; i < 15; i++) {
+			if (i > values.length-1) {
+				break;
+			}
+			
+			if (!values[i].trim().isEmpty()) {
+				result++;
+			}
+		}
+		return result;
+	}
 	private Double parseDopString(String string) {
 		if (string == null || string.isEmpty()) return null;
 		
