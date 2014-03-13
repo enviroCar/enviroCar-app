@@ -37,6 +37,10 @@ import org.envirocar.app.application.LocationUpdateListener;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 import org.envirocar.app.bluetooth.BluetoothConnection;
 import org.envirocar.app.bluetooth.BluetoothSocketWrapper;
+import org.envirocar.app.event.EventBus;
+import org.envirocar.app.event.GpsSatelliteFix;
+import org.envirocar.app.event.GpsSatelliteFixEvent;
+import org.envirocar.app.event.GpsSatelliteFixEventListener;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.ConnectionListener;
 import org.envirocar.app.protocol.OBDCommandLooper;
@@ -100,6 +104,10 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	public boolean ttsAvailable;
 
 	private LocationUpdateListener locationListener;
+
+	private GpsSatelliteFixEventListener gpsListener;
+
+	protected GpsSatelliteFix fix = new GpsSatelliteFix(0, false);
 
 
 	@Override
@@ -182,6 +190,26 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 		this.locationListener = new LocationUpdateListener((LocationManager) getSystemService(Context.LOCATION_SERVICE));
 		this.locationListener.startLocating();
 		
+		gpsListener = new GpsSatelliteFixEventListener() {
+			@Override
+			public void receiveEvent(GpsSatelliteFixEvent event) {
+				GpsSatelliteFix newFix = event.getPayload();
+				
+				if (fix.isFix() != newFix.isFix()) {
+					if (newFix.isFix()) {
+						doTextToSpeech("GPS positioning established");
+					}
+					else {
+						doTextToSpeech("GPS positioning lost. Try to move the phone");
+					}
+				}
+				
+				fix = newFix;
+			}
+		};
+		
+		EventBus.getInstance().registerListener(gpsListener);
+		
 		startConnection();
 	}
 
@@ -198,6 +226,8 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 				
 				setState(ServiceState.SERVICE_STOPPED);
 				sendStateBroadcast();
+
+				EventBus.getInstance().unregisterListener(gpsListener);
 				
 				locationListener.stopLocating();
 				
