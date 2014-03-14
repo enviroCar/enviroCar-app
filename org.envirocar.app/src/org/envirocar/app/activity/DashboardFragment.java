@@ -60,9 +60,11 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 
@@ -117,6 +119,7 @@ public class DashboardFragment extends SherlockFragment {
 	private Drawable btStopped;
 	private Drawable btPending;
 	private Drawable btActive;
+	private ImageView connectionStateImage;
 
 
 	@Override
@@ -171,9 +174,10 @@ public class DashboardFragment extends SherlockFragment {
 				R.id.co2meterView);
 		speedRotatableView = (LayeredImageRotateView) getView().findViewById(R.id.speedometerView);
 		
-		gpsFixView = (ImageView) getView().findViewById(R.id.gpsFixView);
-		
-		carOkView = (ImageView) getView().findViewById(R.id.carOkView);
+		/*
+		 * status images
+		 */
+		setupStatusImages();
 		
 		updateStatusElements();
 		
@@ -209,6 +213,38 @@ public class DashboardFragment extends SherlockFragment {
 	}
 	
 	
+
+	private void setupStatusImages() {
+		gpsFixView = (ImageView) getView().findViewById(R.id.gpsFixView);
+		
+		carOkView = (ImageView) getView().findViewById(R.id.carOkView);
+		carOkView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Car car = CarManager.instance().getCar();
+				if (car != null) {
+					Toast.makeText(getActivity(), car.toString(), Toast.LENGTH_SHORT).show();
+				}
+				else {
+					Toast.makeText(getActivity(), R.string.no_sensor_selected, Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+		
+		connectionStateImage = (ImageView) getView().findViewById(R.id.connectionStateImage);
+		connectionStateImage.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				String remoteDevice = preferences.getString(
+						org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,
+						null);
+
+				if (remoteDevice == null) {
+					Toast.makeText(getActivity(), R.string.no_device_selected, Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+	}
 
 	private void loadCommonDrawables() {
 		carOkDrawable = getResources().getDrawable(R.drawable.car_ok);
@@ -395,8 +431,6 @@ public class DashboardFragment extends SherlockFragment {
 	
 	protected void updateStatusElements() {
 		if (getView() == null || !isAdded()) return;
-		
-		ImageView connectionStateImage = (ImageView) getView().findViewById(R.id.connectionStateImage);
 		
 		if (connectionStateImage == null) return;
 		
