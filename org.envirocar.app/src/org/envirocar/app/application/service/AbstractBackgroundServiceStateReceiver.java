@@ -29,7 +29,7 @@ public abstract class AbstractBackgroundServiceStateReceiver extends BroadcastRe
 	public static final String SERVICE_STATE = BackgroundServiceImpl.class.getName()+".STATE";
 	
 	public static enum ServiceState {
-		SERVICE_STOPPED, SERVICE_DEVICE_DISCOVERY_PENDING, SERVICE_STARTING, SERVICE_STARTED, SERVICE_STOPPING;
+		SERVICE_STOPPED, SERVICE_DEVICE_DISCOVERY_PENDING, SERVICE_DEVICE_DISCOVERY_RUNNING, SERVICE_STARTING, SERVICE_STARTED, SERVICE_STOPPING;
 	}
 	
 	@Override

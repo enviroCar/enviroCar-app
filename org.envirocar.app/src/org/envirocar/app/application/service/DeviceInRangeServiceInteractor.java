@@ -18,24 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol.exception;
+package org.envirocar.app.application.service;
 
-import java.util.concurrent.RejectedExecutionException;
+public interface DeviceInRangeServiceInteractor {
+	
+	long getNextDiscoveryTargetTime();
 
-public class AdapterFailedException extends Exception {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	public AdapterFailedException(String name) {
-		super("Adapter failed: "+ name);
-	}
-
-	public AdapterFailedException(String name,
-			RejectedExecutionException e) {
-		super("Adapter failed: "+ name, e);
-	}
+	boolean isDiscoveryPending();
 
 }

@@ -28,9 +28,13 @@ import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
 import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
+import org.envirocar.app.application.service.BackgroundServiceInteractor;
 import org.envirocar.app.event.CO2Event;
 import org.envirocar.app.event.CO2EventListener;
 import org.envirocar.app.event.EventBus;
+import org.envirocar.app.event.GpsSatelliteFix;
+import org.envirocar.app.event.GpsSatelliteFixEvent;
+import org.envirocar.app.event.GpsSatelliteFixEventListener;
 import org.envirocar.app.event.LocationEvent;
 import org.envirocar.app.event.LocationEventListener;
 import org.envirocar.app.event.SpeedEvent;
@@ -39,22 +43,28 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.views.LayeredImageRotateView;
-import org.envirocar.app.views.SizeRelatedTextView;
 import org.envirocar.app.views.TypefaceEC;
 
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.actionbarsherlock.app.SherlockFragment;
 
@@ -69,7 +79,7 @@ public class DashboardFragment extends SherlockFragment {
 
 	private static final Logger logger = Logger.getLogger(DashboardFragment.class);
 	public static final int SENSOR_CHANGED_RESULT = 1337;
-	private static final String SERVICE_STATE = "serviceState";
+//	private static final String SERVICE_STATE = "serviceState";
 	private static final String LOCATION = "location";
 	private static final String SPEED = "speed";
 	private static final String CO2 = "co2";
@@ -78,7 +88,6 @@ public class DashboardFragment extends SherlockFragment {
 	
 	TextView speedTextView;
 	TextView co2TextView;
-	private SizeRelatedTextView sensor;
 	View dashboardView;
 
 	private LocationEventListener locationListener;
@@ -97,6 +106,20 @@ public class DashboardFragment extends SherlockFragment {
 	private OnSharedPreferenceChangeListener preferenceListener;
 	private LayeredImageRotateView speedRotatableView;
 	private LayeredImageRotateView co2RotableView;
+	protected BackgroundServiceInteractor backgroundService;
+	private GpsSatelliteFixEventListener gpsFixListener;
+	private GpsSatelliteFix fix = new GpsSatelliteFix(0, false);
+	private ImageView gpsFixView;
+	private ImageView carOkView;
+	private Drawable carOkDrawable;
+	private Drawable carNotOkDrawable;
+	private Drawable gpsFix;
+	private Drawable gpsNoFix;
+	private Drawable btNotSelected;
+	private Drawable btStopped;
+	private Drawable btPending;
+	private Drawable btActive;
+	private ImageView connectionStateImage;
 
 
 	@Override
@@ -109,36 +132,34 @@ public class DashboardFragment extends SherlockFragment {
 	/**
 	 * Updates the sensor-textview
 	 */
-	public void updateSensorOnDashboard() {
-		//this fixes issue #166
-		sensor.setText(getCurrentSensorString());		
-	}
-	
-	/**
-	 * Returns the sensor properties as a string
-	 * @return
-	 */
-	private String getCurrentSensorString() {
-		if (CarManager.instance().getCar() != null) {
-			Car car = CarManager.instance().getCar();
-			return car.toString();
-		} else if (isAdded()) {//this fixes issue #166
-			return getResources().getString(R.string.no_sensor_selected);			
-		}else{
-			logger.warn("Returning empty string for getCurrentSensorString()");
-			return "";
+	private void updateGpsStatus() {
+		if (fix.isFix()) {
+			gpsFixView.setImageDrawable(gpsFix);
+		}
+		else {
+			gpsFixView.setImageDrawable(gpsNoFix);
 		}
 	}
+	
+	private void updateCarStatus() {
+		if (CarManager.instance().getCar() != null) {
+			carOkView.setImageDrawable(carOkDrawable);
+		}
+		else {
+			carOkView.setImageDrawable(carNotOkDrawable);
+		}
+	}
+	
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		
+		loadCommonDrawables();
+		
 		readSavedState(savedInstanceState);
 		
 		logger.info("onViewCreated. hash="+System.identityHashCode(this));
-		
-		initializeEventListeners();
 		
 		dashboardView = getView();
 
@@ -152,7 +173,11 @@ public class DashboardFragment extends SherlockFragment {
 		co2RotableView = (LayeredImageRotateView) getView().findViewById(
 				R.id.co2meterView);
 		speedRotatableView = (LayeredImageRotateView) getView().findViewById(R.id.speedometerView);
-		sensor = (SizeRelatedTextView) getView().findViewById(R.id.dashboard_current_sensor);
+		
+		/*
+		 * status images
+		 */
+		setupStatusImages();
 		
 		updateStatusElements();
 		
@@ -174,35 +199,81 @@ public class DashboardFragment extends SherlockFragment {
 			public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 					String key) {
 				if (key.equals(SettingsActivity.CAR) || key.equals(SettingsActivity.CAR_HASH_CODE)) {
-					updateSensorOnDashboard();
+					updateCarStatus();
+				}
+				else if (key.equals(SettingsActivity.BLUETOOTH_KEY)) {
+					updateStatusElements();
 				}
 			}
 		};
 		
 		preferences.registerOnSharedPreferenceChangeListener(preferenceListener);
 		
+		bindToBackgroundService();
 	}
 	
 	
+
+	private void setupStatusImages() {
+		gpsFixView = (ImageView) getView().findViewById(R.id.gpsFixView);
+		
+		carOkView = (ImageView) getView().findViewById(R.id.carOkView);
+		carOkView.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Car car = CarManager.instance().getCar();
+				if (car != null) {
+					Toast.makeText(getActivity(), car.toString(), Toast.LENGTH_SHORT).show();
+				}
+				else {
+					Toast.makeText(getActivity(), R.string.no_sensor_selected, Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+		
+		connectionStateImage = (ImageView) getView().findViewById(R.id.connectionStateImage);
+		connectionStateImage.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				String remoteDevice = preferences.getString(
+						org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,
+						null);
+
+				if (remoteDevice == null) {
+					Toast.makeText(getActivity(), R.string.no_device_selected, Toast.LENGTH_SHORT).show();
+				}
+			}
+		});
+	}
+
+	private void loadCommonDrawables() {
+		carOkDrawable = getResources().getDrawable(R.drawable.car_ok);
+		carNotOkDrawable = getResources().getDrawable(R.drawable.car_no);
+		gpsFix = getResources().getDrawable(R.drawable.gps_fix);
+		gpsNoFix = getResources().getDrawable(R.drawable.gps_nofix);
+		btNotSelected = getResources().getDrawable(R.drawable.bt_device_not_selected);
+		btStopped = getResources().getDrawable(R.drawable.bt_device_stopped);
+		btPending = getResources().getDrawable(R.drawable.bt_device_pending);
+		btActive = getResources().getDrawable(R.drawable.bt_device_active);
+	}
 
 	@Override
 	public void onDestroy() {
 		logger.info("onDestroy. hash="+System.identityHashCode(this));
 		super.onDestroy();
 		
-		//TODO do unregistration of the receiver if and only if it was registered before
-//		getActivity().unregisterReceiver(receiver);
+		getActivity().unregisterReceiver(receiver);
+		if (preferences != null) {
+			preferences.unregisterOnSharedPreferenceChangeListener(preferenceListener);
+		}
 		
-		EventBus.getInstance().unregisterListener(this.locationListener);
-		EventBus.getInstance().unregisterListener(this.speedListener);
-		EventBus.getInstance().unregisterListener(this.co2Listener);
 	}
 	
 	@Override
 	public void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		
-		outState.putSerializable(SERVICE_STATE, serviceState);
+//		outState.putSerializable(SERVICE_STATE, serviceState);
 		outState.putParcelable(LOCATION, location);
 		outState.putInt(SPEED, speed);
 		outState.putDouble(CO2, co2);
@@ -211,12 +282,10 @@ public class DashboardFragment extends SherlockFragment {
 	private void readSavedState(Bundle savedInstanceState) {
 		if (savedInstanceState == null) return;
 		
-		this.serviceState = (ServiceState) savedInstanceState.getSerializable(SERVICE_STATE);
+//		this.serviceState = (ServiceState) savedInstanceState.getSerializable(SERVICE_STATE);
 		this.location = savedInstanceState.getParcelable(LOCATION);
 		this.speed = savedInstanceState.getInt(SPEED);
 		this.co2 = savedInstanceState.getDouble(CO2);
-		
-		BackgroundServiceImpl.requestServiceStateBroadcast(getActivity());
 	}
 	
 	@Override
@@ -229,12 +298,38 @@ public class DashboardFragment extends SherlockFragment {
 	public void onCreate(Bundle savedInstanceState) {
 		logger.info("onCreate. hash="+System.identityHashCode(this));
 		super.onCreate(savedInstanceState);
+		
 	}
 	
+	private void bindToBackgroundService() {
+		if (!getActivity().bindService(new Intent(this.getActivity(), BackgroundServiceImpl.class),
+				new ServiceConnection() {
+					
+					@Override
+					public void onServiceDisconnected(ComponentName name) {
+						logger.info(String.format("BackgroundService %S disconnected!", name.flattenToString()));
+					}
+					
+					@Override
+					public void onServiceConnected(ComponentName name, IBinder service) {
+						backgroundService = (BackgroundServiceInteractor) service;
+						serviceState = backgroundService.getServiceState();
+						updateStatusElements();
+					}
+				}, 0)) {
+			logger.warn("Could not connect to BackgroundService.");
+		}		
+	}
+
 	@Override
 	public void onPause() {
 		logger.info("onPause. hash="+System.identityHashCode(this));
 		super.onPause();
+		
+		EventBus.getInstance().unregisterListener(this.locationListener);
+		EventBus.getInstance().unregisterListener(this.speedListener);
+		EventBus.getInstance().unregisterListener(this.co2Listener);
+		EventBus.getInstance().unregisterListener(this.gpsFixListener);
 	}
 	
 	@Override
@@ -255,13 +350,19 @@ public class DashboardFragment extends SherlockFragment {
 		logger.info("onResume. hash="+System.identityHashCode(this));
 		super.onResume();
 		
-		updateSensorOnDashboard();
+		initializeEventListeners();
+		
+		updateGpsStatus();
+		
+		updateCarStatus();
 		
 		Car car = CarManager.instance().getCar();
 		if (car != null && car.getFuelType() == FuelType.DIESEL) {
 			Crouton.makeText(getActivity(), R.string.diesel_not_yet_supported,
 					de.keyboardsurfer.android.widget.crouton.Style.ALERT).show();
 		}
+		
+		bindToBackgroundService();
 	}
 
 	private void initializeEventListeners() {
@@ -283,9 +384,16 @@ public class DashboardFragment extends SherlockFragment {
 				updateCO2(event.getPayload());
 			}
 		};
+		this.gpsFixListener = new GpsSatelliteFixEventListener() {
+			@Override
+			public void receiveEvent(GpsSatelliteFixEvent event) {
+				updateGpsState(event.getPayload());
+			}
+		};
 		EventBus.getInstance().registerListener(locationListener);
 		EventBus.getInstance().registerListener(speedListener);
 		EventBus.getInstance().registerListener(co2Listener);
+		EventBus.getInstance().registerListener(gpsFixListener);
 		
 		lastUIUpdate = System.currentTimeMillis();
 	}
@@ -293,6 +401,22 @@ public class DashboardFragment extends SherlockFragment {
 	protected void updateCO2(final Double co2) {
 		this.co2 = co2;
 		checkUIUpdate();
+	}
+	
+	protected void updateGpsState(final GpsSatelliteFix fix) {
+		if (this.fix == null || this.fix.isFix() != fix.isFix()) {
+			this.fix = fix;
+			
+			getActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					updateGpsStatus();
+				}
+			});
+		}
+		else {
+			this.fix = fix;
+		}
 	}
 
 	protected void updateSpeed(final Integer speed) {
@@ -308,18 +432,23 @@ public class DashboardFragment extends SherlockFragment {
 	protected void updateStatusElements() {
 		if (getView() == null || !isAdded()) return;
 		
-		ImageView connectionStateImage = (ImageView) getView().findViewById(R.id.connectionStateImage);
-		
 		if (connectionStateImage == null) return;
 		
-		if (serviceState == ServiceState.SERVICE_STARTED) {
-			connectionStateImage.setImageResource(R.drawable.connection_state_true);
+		String remoteDevice = preferences.getString(
+				org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,
+				null);
+
+		if (remoteDevice == null) {
+			connectionStateImage.setImageDrawable(btNotSelected);
+		}
+		else if (serviceState == ServiceState.SERVICE_STARTED) {
+			connectionStateImage.setImageDrawable(btActive);
 		}
 		else if (serviceState == ServiceState.SERVICE_STARTING) {
-			connectionStateImage.setImageResource(R.drawable.connection_state_stale);
+			connectionStateImage.setImageDrawable(btPending);
 		}
 		else {
-			connectionStateImage.setImageResource(R.drawable.connection_state_false);
+			connectionStateImage.setImageDrawable(btStopped);
 			co2 = 0.0;
 			speed = 0;
 			updateCo2Value();
@@ -371,6 +500,6 @@ public class DashboardFragment extends SherlockFragment {
 			speedRotatableView.submitScaleValue(speed/1.6f);
 		}
 	}
-
+	
 
 }

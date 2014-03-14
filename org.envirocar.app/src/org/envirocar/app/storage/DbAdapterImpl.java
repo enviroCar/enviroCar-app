@@ -75,6 +75,7 @@ public class DbAdapterImpl implements DbAdapter {
 	public static final String KEY_TRACK_CAR_MANUFACTURER = "car_manufacturer";
 	public static final String KEY_TRACK_CAR_MODEL = "car_model";
 	public static final String KEY_TRACK_CAR_FUEL_TYPE = "fuel_type";
+	public static final String KEY_TRACK_CAR_YEAR = "car_construction_year";
 	public static final String KEY_TRACK_CAR_ENGINE_DISPLACEMENT = "engine_displacement";
 	public static final String KEY_TRACK_CAR_VIN = "vin";
 	public static final String KEY_TRACK_CAR_ID = "carId"; 
@@ -91,12 +92,13 @@ public class DbAdapterImpl implements DbAdapter {
 		KEY_TRACK_CAR_MODEL,
 		KEY_TRACK_CAR_FUEL_TYPE,
 		KEY_TRACK_CAR_ENGINE_DISPLACEMENT,
+		KEY_TRACK_CAR_YEAR,
 		KEY_TRACK_CAR_VIN,
 		KEY_TRACK_CAR_ID
 	};
 
 	private static final String DATABASE_NAME = "obd2";
-	private static final int DATABASE_VERSION = 8;
+	private static final int DATABASE_VERSION = 9;
 	
 	private static final String DATABASE_CREATE = "create table " + TABLE_MEASUREMENT + " " +
 			"(" + KEY_MEASUREMENT_ROWID + " INTEGER primary key autoincrement, " +
@@ -116,6 +118,7 @@ public class DbAdapterImpl implements DbAdapter {
 			KEY_TRACK_CAR_MODEL + " BLOB, " +
 			KEY_TRACK_CAR_FUEL_TYPE + " BLOB, " +
 			KEY_TRACK_CAR_ENGINE_DISPLACEMENT + " BLOB, " +
+			KEY_TRACK_CAR_YEAR + " BLOB, " +
 			KEY_TRACK_CAR_VIN + " BLOB, " +
 			KEY_TRACK_CAR_ID + " BLOB);";
 
@@ -324,6 +327,7 @@ public class DbAdapterImpl implements DbAdapter {
 		if (c.getString(c.getColumnIndex(KEY_TRACK_CAR_MANUFACTURER)) == null ||
 				c.getString(c.getColumnIndex(KEY_TRACK_CAR_MODEL)) == null ||
 				c.getString(c.getColumnIndex(KEY_TRACK_CAR_ID)) == null ||
+				c.getString(c.getColumnIndex(KEY_TRACK_CAR_YEAR)) == null ||
 				c.getString(c.getColumnIndex(KEY_TRACK_CAR_FUEL_TYPE)) == null ||
 				c.getString(c.getColumnIndex(KEY_TRACK_CAR_ENGINE_DISPLACEMENT)) == null) {
 			return null;
@@ -334,8 +338,7 @@ public class DbAdapterImpl implements DbAdapter {
 		String carId = c.getString(c.getColumnIndex(KEY_TRACK_CAR_ID));
 		FuelType fuelType = FuelType.valueOf(c.getString(c.getColumnIndex(KEY_TRACK_CAR_FUEL_TYPE)));
 		int engineDisplacement = c.getInt(c.getColumnIndex(KEY_TRACK_CAR_ENGINE_DISPLACEMENT));
-		// TODO add construction year to DB
-		int year = 2000;
+		int year = c.getInt(c.getColumnIndex(KEY_TRACK_CAR_YEAR));
 		return new Car(fuelType, manufacturer, model, carId, year, engineDisplacement);
 	}
 
@@ -508,6 +511,7 @@ public class DbAdapterImpl implements DbAdapter {
 			values.put(KEY_TRACK_CAR_FUEL_TYPE, track.getCar().getFuelType().name());
 			values.put(KEY_TRACK_CAR_ID, track.getCar().getId());
 			values.put(KEY_TRACK_CAR_ENGINE_DISPLACEMENT, track.getCar().getEngineDisplacement());
+			values.put(KEY_TRACK_CAR_YEAR, track.getCar().getConstructionYear());
 		}
 		
 		if (track.getMetadata() != null) {

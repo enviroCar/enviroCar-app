@@ -141,7 +141,7 @@ public class ELM327Connector extends AbstractSequentialConnector {
 
 	@Override
 	public void shutdown() {
-		
+		super.shutdown();
 	}
 
 	@Override

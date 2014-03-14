@@ -106,6 +106,7 @@ public class PIDSupported extends CommonCommand {
 		
 		if (bytes.length != 8) {
 			setCommandState(CommonCommandState.EXECUTION_ERROR);
+			return;
 		}
 		
 		while (index < data.length) {

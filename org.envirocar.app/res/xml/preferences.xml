@@ -8,6 +8,15 @@
             android:summary="@string/pref_summary_chose_adapter"
             android:title="@string/pref_title_chose_adapter" />
     </PreferenceCategory>
+    
+    <PreferenceCategory android:title="@string/pref_car_settings" >
+		<org.envirocar.app.activity.preference.CarSelectionPreference 
+            android:title="@string/select_car"
+            android:key="pref_selected_car"
+            android:summary="@string/pref_select_car"
+            />
+    </PreferenceCategory>    
+    
     <PreferenceCategory android:title="@string/pref_general_settings" >
         <!-- <CheckBoxPreference
             android:key="pref_auto_bluetooth"
@@ -30,12 +39,15 @@
             android:title="@string/privacy"
             android:summary="@string/track_obfuscation_on"
             android:defaultValue="true"/>
-        <org.envirocar.app.activity.preference.CarSelectionPreference 
-            android:title="@string/select_car"
-            android:key="pref_selected_car"
-            android:summary="@string/pref_select_car"
-            />
     </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_optional_features" >
+        <CheckBoxPreference
+            android:key="pref_pid_supported"
+            android:title="@string/use_pid_supported"
+            android:summary="@string/use_pid_supported_summary" />
+    </PreferenceCategory>
+    
     <PreferenceCategory android:title="@string/pref_about" >
         <Preference 
             android:key="about_version"

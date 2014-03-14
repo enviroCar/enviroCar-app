@@ -18,24 +18,25 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.protocol.exception;
+package org.envirocar.app.event;
 
-import java.util.concurrent.RejectedExecutionException;
+public class GpsSatelliteFix {
 
-public class AdapterFailedException extends Exception {
+	private boolean fix;
+	private int numberOfSats;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	public AdapterFailedException(String name) {
-		super("Adapter failed: "+ name);
+	public GpsSatelliteFix(int numberOfSats, boolean fix) {
+		this.numberOfSats = numberOfSats;
+		this.fix = fix;
 	}
 
-	public AdapterFailedException(String name,
-			RejectedExecutionException e) {
-		super("Adapter failed: "+ name, e);
+	public boolean isFix() {
+		return fix;
 	}
+
+	public int getNumberOfSats() {
+		return numberOfSats;
+	}
+	
 
 }

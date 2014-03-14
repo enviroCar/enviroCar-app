@@ -18,45 +18,41 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
+package org.envirocar.app;
 
-package org.envirocar.app.application.service;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
-import android.content.ComponentName;
-import android.content.ServiceConnection;
-import android.os.IBinder;
+public class FeatureFlags {
 
-
-/**
- * Connector Class for bluetooth service. Partly imported from Android OBD
- * Project
- * 
- * @author jakob
- * 
- */
-public class BackgroundServiceConnector implements ServiceConnection {
-
-	private BackgroundServiceInteractor interactor;
-
-	public BackgroundServiceConnector() {
-	}
-	
 	/**
-	 * connects listener and monitor
+	 * use PID supported query to identify 
 	 */
-	public void onServiceConnected(ComponentName componentName, IBinder binder) {
-		interactor = (BackgroundServiceInteractor) binder;
-		interactor.initializeConnection();
+	public static final String PID_SUPPORTED_KEY = "pref_pid_supported";
+	private static SharedPreferences prefs;
+	
+	public static void init(Context context) {
+		prefs = PreferenceManager.getDefaultSharedPreferences(context);
+	}
+
+	public static boolean usePIDSupported() {
+		return getFlagValue(PID_SUPPORTED_KEY);
+	}
+
+	private static boolean getFlagValue(String s) {
+		if (prefs == null) {
+			return false;
+		}
+		try {
+			return prefs.getBoolean(s, false);
+		}
+		catch (RuntimeException e) {
+		}
+		catch (Error e) {
+		}
+		
+		return false;
 	}
 	
-
-	public void onServiceDisconnected(ComponentName name) {
-		interactor.shutdownConnection();
-	}
-
-
-	public void shutdownBackgroundService() {
-		this.interactor.shutdownConnection();
-	}
-	
-
 }
