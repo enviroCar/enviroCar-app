@@ -30,8 +30,11 @@ import org.envirocar.app.commands.ObdReset;
 import org.envirocar.app.commands.SelectAutoProtocol;
 import org.envirocar.app.commands.StringResultCommand;
 import org.envirocar.app.commands.Timeout;
+import org.envirocar.app.logging.Logger;
 
 public class AposW3Connector extends ELM327Connector {
+	
+	private static final Logger logger = Logger.getLogger(AposW3Connector.class);
 
 	@Override
 	public List<CommonCommand> getInitializationCommands() {
@@ -75,11 +78,25 @@ public class AposW3Connector extends ELM327Connector {
 	}
 
 	private static class AposEchoOff extends EchoOff {
+		
+		@Override
+		public byte[] getOutgoingBytes() {
+			try {
+				/*
+				 * hack for too fast init requests,
+				 * issue observed with Galaxy Nexus (4.3) and VW Tiguan 2013
+				 */
+				Thread.sleep(250);
+			} catch (InterruptedException e) {
+				logger.warn(e.getMessage(), e);
+			}
+			return super.getOutgoingBytes();
+		}
 
 		@Override
 		public boolean responseAlwaysRequired() {
 			return false;
 		}
-
+		
 	}
 }

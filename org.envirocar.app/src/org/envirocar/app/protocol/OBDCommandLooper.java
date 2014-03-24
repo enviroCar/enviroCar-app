@@ -70,6 +70,7 @@ public class OBDCommandLooper extends HandlerThread {
 	private static final Logger logger = Logger.getLogger(OBDCommandLooper.class);
 	protected static final long ADAPTER_TRY_PERIOD = 5000;
 	private static final Integer MAX_PHASE_COUNT = 2;
+	public static final long MAX_NODATA_TIME = 1000 * 60 * 1;
 	
 	private List<OBDConnector> adapterCandidates = new ArrayList<OBDConnector>();
 	private OBDConnector obdAdapter;
@@ -85,6 +86,9 @@ public class OBDCommandLooper extends HandlerThread {
 	private ConnectionListener connectionListener;
 	private String deviceName;
 	private Map<Phase, AtomicInteger> phaseCountMap = new HashMap<Phase, AtomicInteger>();
+	private MonitorRunnable monitor;
+	private long lastSuccessfulCommandTime;
+	private boolean userRequestedStop;
 	
 	private Runnable commonCommandsRunnable = new Runnable() {
 		public void run() {
@@ -92,13 +96,14 @@ public class OBDCommandLooper extends HandlerThread {
 				logger.info("Exiting commandHandler.");
 				throw new LooperStoppedException();
 			}
-			logger.debug("Executing Command Commands!");
 			
 			try {
 				executeCommandRequests();
 			} catch (IOException e) {
 				running = false;
-				connectionListener.onConnectionException(e);
+				if (!userRequestedStop) {
+					connectionListener.requestConnectionRetry(e);
+				}
 				logger.info("Exiting commandHandler.");
 				throw new LooperStoppedException();
 			}
@@ -108,7 +113,6 @@ public class OBDCommandLooper extends HandlerThread {
 				throw new LooperStoppedException();
 			}
 			
-			logger.debug("Scheduling the Executiion of Command Commands!");
 			commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
 		}
 	};
@@ -142,7 +146,9 @@ public class OBDCommandLooper extends HandlerThread {
 					executeInitializationRequests();
 				} catch (IOException e) {
 					running = false;
-					connectionListener.onConnectionException(e);
+					if (!userRequestedStop) {
+						connectionListener.requestConnectionRetry(e);
+					}
 					logger.info("Exiting commandHandler.");
 					throw new LooperStoppedException();
 				} catch (AdapterFailedException e) {
@@ -216,6 +222,7 @@ public class OBDCommandLooper extends HandlerThread {
 	
 		this.phaseCountMap.put(Phase.INITIALIZATION, new AtomicInteger());
 		this.phaseCountMap.put(Phase.COMMAND_EXECUTION, new AtomicInteger());
+		
 	}
 	
 	private void determinePreferredAdapter(String deviceName) {
@@ -239,17 +246,27 @@ public class OBDCommandLooper extends HandlerThread {
 	 * stop the command looper. this removes all pending commands.
 	 * This object is no longer executable, a new instance has to
 	 * be created.
+	 * 
+	 * Only use this if the stop is from high-level (e.g. user request)
+	 * and NOT on any kind of exception
 	 */
 	public void stopLooper() {
 		logger.info("stopping the command execution!");
 		this.running = false;
+		this.userRequestedStop = true;
+		
+		if (this.monitor != null) {
+			this.monitor.running = false;
+		}
 	}
 
 	private void executeInitializationRequests() throws IOException, AdapterFailedException {
 		try {
 			this.obdAdapter.executeInitializationCommands();
 		} catch (IOException e) {
-			connectionListener.onConnectionException(e);
+			if (!userRequestedStop) {
+				connectionListener.requestConnectionRetry(e);
+			}
 			running = false;
 			return;
 		}
@@ -270,10 +287,16 @@ public class OBDCommandLooper extends HandlerThread {
 			return;
 		}
 		
+		long time = 0;
 		for (CommonCommand cmd : cmds) {
 			if (cmd.getCommandState() == CommonCommandState.FINISHED) {
 				commandListener.receiveUpdate(cmd);
+				time = cmd.getResultTime();
 			}
+		}
+		
+		if (time != 0) {
+			lastSuccessfulCommandTime = time;
 		}
 		
 	}
@@ -282,13 +305,18 @@ public class OBDCommandLooper extends HandlerThread {
 	private void switchPhase(Phase phase, IOException reason) {
 		logger.info("Switching to Phase: " +phase + (reason != null ? " / Reason: "+reason.getMessage() : ""));
 		
+		
 		int phaseCount = phaseCountMap.get(phase).incrementAndGet();
 		
 		commandExecutionHandler.removeCallbacks(initializationCommandsRunnable);
 		commandExecutionHandler.removeCallbacks(commonCommandsRunnable);
 		
+		/*
+		 * if we were too often in the same phase (e.g. init),
+		 * request a reconnect
+		 */
 		if (phaseCount >= MAX_PHASE_COUNT) {
-			logger.warn("Too often in phase "+phaseCount);
+			logger.warn("Too often in phase: "+phaseCount);
 			connectionListener.requestConnectionRetry(reason);
 			
 			running = false;
@@ -300,11 +328,7 @@ public class OBDCommandLooper extends HandlerThread {
 			connectionEstablished = false;
 			obdAdapter = null;
 			
-			adapterCandidates.clear();
-			adapterCandidates.add(new ELM327Connector());
-			adapterCandidates.add(new AposW3Connector());
-			adapterCandidates.add(new OBDLinkMXConnector());
-			adapterCandidates.add(new DriveDeckSportConnector());
+			setupAdapterCandidates();
 			
 			commandExecutionHandler.post(initializationCommandsRunnable);
 			break;
@@ -313,10 +337,33 @@ public class OBDCommandLooper extends HandlerThread {
 			this.connectionListener.onConnectionVerified();
 			commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
 			commandListener.onConnected(deviceName);
+			
+			startMonitoring();
+			
 			break;
 		default:
 			break;
 		}
+	}
+
+
+
+	private void startMonitoring() {
+		if (this.monitor != null) {
+			this.monitor.running = false;
+		}
+		
+		this.monitor = new MonitorRunnable();
+		new Thread(this.monitor).start();
+	}
+
+
+	private void setupAdapterCandidates() {
+		adapterCandidates.clear();
+		adapterCandidates.add(new ELM327Connector());
+		adapterCandidates.add(new AposW3Connector());
+		adapterCandidates.add(new OBDLinkMXConnector());
+		adapterCandidates.add(new DriveDeckSportConnector());
 	}
 
 
@@ -358,17 +405,54 @@ public class OBDCommandLooper extends HandlerThread {
 			this.obdAdapter.provideStreamObjects(inputStream, outputStream);
 			tries = 0;
 		}
+		
+		if (this.obdAdapter != null) {
+			this.requestPeriod = this.obdAdapter.getPreferredRequestPeriod();
+		}
+	}
+
+	private class MonitorRunnable implements Runnable {
+
+		private boolean running = true;
+		
+		@Override
+		public void run() {
+			Thread.currentThread().setName("OBD-Data-Monitor");
+			while (running) {
+				try {
+					Thread.sleep(MAX_NODATA_TIME / 3);
+				} catch (InterruptedException e) {
+					logger.warn(e.getMessage(), e);
+				}
+				
+				if (!running) return;
+				
+				if (System.currentTimeMillis() - lastSuccessfulCommandTime > MAX_NODATA_TIME) {
+					commandExecutionHandler.removeCallbacks(commonCommandsRunnable);
+					commandExecutionHandler.getLooper().quit();
+					
+					if (OBDCommandLooper.this.obdAdapter != null) {
+						OBDCommandLooper.this.obdAdapter.shutdown();
+					}
+					
+					connectionListener.requestConnectionRetry(new IOException("Waited too long for data."));
+					return;
+				}
+			}
+		}
+		
 	}
 	
 	@Override
 	public void run() {
 		Looper.prepare();
+		logger.info("Command loop started. Hash:"+this.hashCode());
 		commandExecutionHandler = new Handler();
 		switchPhase(Phase.INITIALIZATION, null);
 		try {
 			Looper.loop();
 		} catch (LooperStoppedException e) {
-			logger.info("Command loop stopped.");
+			logger.info("Command loop stopped. Hash:"+this.hashCode());
 		}
 		
 		if (this.obdAdapter != null) {

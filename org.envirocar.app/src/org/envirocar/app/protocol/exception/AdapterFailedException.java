@@ -20,6 +20,8 @@
  */
 package org.envirocar.app.protocol.exception;
 
+import java.util.concurrent.RejectedExecutionException;
+
 public class AdapterFailedException extends Exception {
 
 	/**
@@ -29,6 +31,11 @@ public class AdapterFailedException extends Exception {
 
 	public AdapterFailedException(String name) {
 		super("Adapter failed: "+ name);
+	}
+
+	public AdapterFailedException(String name,
+			RejectedExecutionException e) {
+		super("Adapter failed: "+ name, e);
 	}
 
 }

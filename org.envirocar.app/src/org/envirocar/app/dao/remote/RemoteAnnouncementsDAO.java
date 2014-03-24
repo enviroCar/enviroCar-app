@@ -23,17 +23,17 @@ package org.envirocar.app.dao.remote;
 import java.io.IOException;
 import java.util.List;
 
-import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.dao.AnnouncementsDAO;
-import org.envirocar.app.dao.AnnouncementsRetrievalException;
 import org.envirocar.app.dao.cache.CacheAnnouncementsDAO;
+import org.envirocar.app.dao.exception.AnnouncementsRetrievalException;
+import org.envirocar.app.dao.exception.NotConnectedException;
+import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Announcement;
-import org.envirocar.app.network.HTTPClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class RemoteAnnouncementsDAO implements AnnouncementsDAO {
+public class RemoteAnnouncementsDAO extends BaseRemoteDAO implements AnnouncementsDAO {
 
 	private static final Logger logger = Logger.getLogger(RemoteAnnouncementsDAO.class);
 	private CacheAnnouncementsDAO cache;
@@ -46,25 +46,25 @@ public class RemoteAnnouncementsDAO implements AnnouncementsDAO {
 	public List<Announcement> getAllAnnouncements() throws AnnouncementsRetrievalException {
 		
 		try {
-			String content = HTTPClient.executeAndParseJsonRequest(ECApplication.BASE_URL+"/announcements");
+			JSONObject parentObject = readRemoteResource("/announcements");
 		
 			if (cache != null) {
 				try {
-					cache.storeAllAnnouncements(content);
+					cache.storeAllAnnouncements(parentObject.toString());
 				}
 				catch (IOException e) {
 					logger.warn(e.getMessage());
 				}
 			}
 			
-			JSONObject parentObject = new JSONObject(content);
-			
 			return Announcement.fromJsonList(parentObject);
 		} catch (IOException e) {
-			logger.warn(e.getMessage());
 			throw new AnnouncementsRetrievalException(e);
 		} catch (JSONException e) {
-			logger.warn(e.getMessage());
+			throw new AnnouncementsRetrievalException(e);
+		} catch (NotConnectedException e) {
+			throw new AnnouncementsRetrievalException(e);
+		} catch (UnauthorizedException e) {
 			throw new AnnouncementsRetrievalException(e);
 		}
 	}

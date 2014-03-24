@@ -21,34 +21,20 @@
 
 package org.envirocar.app.application.service;
 
-import android.content.Intent;
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 
 /**
- * Interface that adds jobs to the waiting list and executes it
- * 
- * @author jakob
+ * Interface that provides access to the background services
+ * state
  * 
  */
 public interface BackgroundServiceInteractor {
 	
 
 	/**
-	 * this method shall create all required resources (e.g. bluetooth connection)
+	 * @return the current state of the service
 	 */
-	void initializeConnection();
-
-	
-	/**
-	 * this method shall free all resources created in {@link #initializeConnection()}
-	 */
-	void shutdownConnection();
-	
-	/**
-	 * an implementation shall invoke the shutdown of the underlying service as
-	 * we could not receive any data. An {@link Intent} with action {@link #CONNECTION_PERMANENTLY_FAILED_INTENT}
-	 * shall be broadcasted.
-	 */
-	void allAdaptersFailed();
+	ServiceState getServiceState();
 
 
 }

@@ -20,33 +20,27 @@
  */
 package org.envirocar.app.dao.cache;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import org.envirocar.app.dao.AnnouncementsDAO;
-import org.envirocar.app.dao.AnnouncementsRetrievalException;
 import org.envirocar.app.dao.CacheDirectoryProvider;
+import org.envirocar.app.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.model.Announcement;
-import org.envirocar.app.util.Util;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-public class CacheAnnouncementsDAO implements AnnouncementsDAO {
+public class CacheAnnouncementsDAO extends AbstractCacheDAO implements AnnouncementsDAO {
 
 	public static final String CACHE_FILE_NAME = "announcements";
-	private CacheDirectoryProvider cacheProvider;
 
 	public CacheAnnouncementsDAO(CacheDirectoryProvider cacheDirectoryProvider) {
-		this.cacheProvider = cacheDirectoryProvider;
+		super(cacheDirectoryProvider);
 	}
 
 	@Override
 	public List<Announcement> getAllAnnouncements() throws AnnouncementsRetrievalException {
-		JSONObject content;
 		try {
-			content = Util.readJsonContents(new File(this.cacheProvider.getBaseFolder(), CACHE_FILE_NAME));
-			return Announcement.fromJsonList(content);
+			return Announcement.fromJsonList(readCache(CACHE_FILE_NAME));
 		} catch (IOException e) {
 			throw new AnnouncementsRetrievalException(e);
 		} catch (JSONException e) {
@@ -56,8 +50,7 @@ public class CacheAnnouncementsDAO implements AnnouncementsDAO {
 	}
 
 	public void storeAllAnnouncements(String content) throws IOException {
-		File file = new File(this.cacheProvider.getBaseFolder(), CACHE_FILE_NAME);
-		Util.saveContentsToFile(content, file);
+		storeCache(CACHE_FILE_NAME, content);
 	}
 
 }

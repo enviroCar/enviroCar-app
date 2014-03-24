@@ -135,7 +135,6 @@ public class AsynchronousResponseThread extends HandlerThread {
 	public List<CommonCommand> pullAvailableCommands() {
 		List<CommonCommand> result;
 		synchronized (this) {
-			logger.info("Buffer Size On pull: "+buffer.size());
 			result = new ArrayList<CommonCommand>(buffer.size());
 			result.addAll(buffer);
 			buffer.clear();

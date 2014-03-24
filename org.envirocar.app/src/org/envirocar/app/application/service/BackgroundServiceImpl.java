@@ -24,8 +24,10 @@ package org.envirocar.app.application.service;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Locale;
 
 import org.envirocar.app.R;
+import org.envirocar.app.activity.MainActivity;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.TroubleshootingFragment;
 import org.envirocar.app.application.CarManager;
@@ -35,22 +37,31 @@ import org.envirocar.app.application.LocationUpdateListener;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 import org.envirocar.app.bluetooth.BluetoothConnection;
 import org.envirocar.app.bluetooth.BluetoothSocketWrapper;
+import org.envirocar.app.event.EventBus;
+import org.envirocar.app.event.GpsSatelliteFix;
+import org.envirocar.app.event.GpsSatelliteFixEvent;
+import org.envirocar.app.event.GpsSatelliteFixEventListener;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.ConnectionListener;
 import org.envirocar.app.protocol.OBDCommandLooper;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.LocationManager;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.TextToSpeech.OnInitListener;
+import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 import static org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.*;
 
@@ -70,12 +81,10 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 			BackgroundServiceImpl.class.getName()+".CONNECTION_PERMANENTLY_FAILED";
 	
 	protected static final long CONNECTION_CHECK_INTERVAL = 1000 * 5;
-	// Properties
-
-	private static final String SERVICE_STATE_REQUEST = BackgroundServiceImpl.class.getName()+
-			".SERVICE_STATE_REQUEST";
 
 	protected static final int MAX_RECONNECT_COUNT = 2;
+
+	public static final int BG_NOTIFICATION_ID = 42;
 
 	private Listener commandListener;
 	private final Binder binder = new LocalBinder();
@@ -84,9 +93,21 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 
 	private BluetoothConnection bluetoothConnection;
 
-	protected ServiceState state;
+	protected ServiceState state = ServiceState.SERVICE_STOPPED;
 
 	protected int reconnectCount;
+
+	private Handler toastHandler;
+
+	private TextToSpeech tts;
+
+	public boolean ttsAvailable;
+
+	private LocationUpdateListener locationListener;
+
+	private GpsSatelliteFixEventListener gpsListener;
+
+	protected GpsSatelliteFix fix = new GpsSatelliteFix(0, false);
 
 
 	@Override
@@ -99,15 +120,12 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	public void onCreate() {
 		logger.info("onCreate " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		
-		BroadcastReceiver stateRequestReceiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				sendStateBroadcast();
-			}
-		};
 		
-		registerReceiver(stateRequestReceiver, new IntentFilter(SERVICE_STATE_REQUEST));
+		tts = new TextToSpeech(getApplicationContext(), new TextToSpeechListener());
+		
+		toastHandler = new Handler();
 	}
+	
 	
 	@Override
 	public void onRebind(Intent intent) {
@@ -125,13 +143,42 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	public void onDestroy() {
 		logger.info("onDestroy " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		stopBackgroundService();
+		stopForeground(true);
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		logger.info("onStartCommand " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		startBackgroundService();
+		
+		createForegroundNotification(R.string.service_state_starting);
+
+		doTextToSpeech("Establishing connection");
+		
 		return START_STICKY;
+	}
+
+	private void doTextToSpeech(String string) {
+		if (ttsAvailable) {
+			tts.speak("enviro car ".concat(string), TextToSpeech.QUEUE_ADD, null);		
+		}
+	}
+
+	private void createForegroundNotification(int stringResource) {
+		CharSequence string = getResources().getText(stringResource);
+		
+		Intent intent = new Intent(this, MainActivity.class);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        
+		Notification note = new NotificationCompat.Builder(getApplicationContext()).
+				setContentTitle("enviroCar").
+				setContentText(string).
+				setContentIntent(pIntent).
+				setSmallIcon(R.drawable.dashboard).build();
+
+		note.flags |= Notification.FLAG_NO_CLEAR;
+		
+		startForeground(BG_NOTIFICATION_ID, note);
 	}
 
 	/**
@@ -140,13 +187,30 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	 */
 	private void startBackgroundService() {
 		logger.info("startBackgroundService called");
-		LocationUpdateListener.startLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
+		this.locationListener = new LocationUpdateListener((LocationManager) getSystemService(Context.LOCATION_SERVICE));
+		this.locationListener.startLocating();
 		
-		try {
-			startConnection();
-		} catch (IOException e) {
-			logger.warn(e.getMessage(), e);
-		}
+		gpsListener = new GpsSatelliteFixEventListener() {
+			@Override
+			public void receiveEvent(GpsSatelliteFixEvent event) {
+				GpsSatelliteFix newFix = event.getPayload();
+				
+				if (fix.isFix() != newFix.isFix()) {
+					if (newFix.isFix()) {
+						doTextToSpeech("GPS positioning established");
+					}
+					else {
+						doTextToSpeech("GPS positioning lost. Try to move the phone");
+					}
+				}
+				
+				fix = newFix;
+			}
+		};
+		
+		EventBus.getInstance().registerListener(gpsListener);
+		
+		startConnection();
 	}
 
 	/**
@@ -160,14 +224,25 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 			public void run() {
 				shutdownConnectionAndHandler();
 				
-				state = ServiceState.SERVICE_STOPPED;
+				setState(ServiceState.SERVICE_STOPPED);
 				sendStateBroadcast();
+
+				EventBus.getInstance().unregisterListener(gpsListener);
 				
-				LocationUpdateListener.stopLocating((LocationManager) getSystemService(Context.LOCATION_SERVICE));
+				locationListener.stopLocating();
 				
 				if (BackgroundServiceImpl.this.commandListener != null) {
 					BackgroundServiceImpl.this.commandListener.shutdown();
 				}
+				
+				Notification noti = new NotificationCompat.Builder(getApplicationContext()).setContentTitle("enviroCar").
+						setContentText(getResources().getText(R.string.service_state_stopped)).
+						setSmallIcon(R.drawable.dashboard).setAutoCancel(true).build();
+				
+				NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+				manager.notify(BG_NOTIFICATION_ID, noti);
+				
+				doTextToSpeech("Device disconnected");
 			}
 
 
@@ -175,12 +250,12 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	}
 	
 	private void shutdownConnectionAndHandler() {
-		if (BackgroundServiceImpl.this.bluetoothConnection != null) {
-			BackgroundServiceImpl.this.bluetoothConnection.cancelConnection();
-		}
-		
 		if (BackgroundServiceImpl.this.commandLooper != null) {
 			BackgroundServiceImpl.this.commandLooper.stopLooper();
+		}
+		
+		if (BackgroundServiceImpl.this.bluetoothConnection != null) {
+			BackgroundServiceImpl.this.bluetoothConnection.cancelConnection();
 		}
 	}
 	
@@ -195,14 +270,14 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	 * 
 	 * @throws IOException
 	 */
-	private void startConnection() throws IOException {
+	private void startConnection() {
 		logger.info("startConnection called");
 		// Connect to bluetooth device
 		// Init bluetooth
 		
 		startBluetoothConnection();
 		
-		state = ServiceState.SERVICE_STARTING;
+		setState(ServiceState.SERVICE_STARTING);
 		sendStateBroadcast();
 	}
 
@@ -248,6 +323,10 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 		}
 
 		initializeCommandLooper(in, out, bluetoothSocket.getRemoteDeviceName());
+		
+		createForegroundNotification(R.string.service_state_started);
+		
+		doTextToSpeech("Connection established");
 	}
 
 	protected void initializeCommandLooper(InputStream in, OutputStream out, String deviceName) {
@@ -257,15 +336,16 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 				this.commandListener, new ConnectionListener() {
 					@Override
 					public void onConnectionVerified() {
-						state = ServiceState.SERVICE_STARTED;
+						setState(ServiceState.SERVICE_STARTED);
 						BackgroundServiceImpl.this.sendStateBroadcast();
+						reconnectCount = 0;
 					}
 					
-					@Override
-					public void onConnectionException(IOException e) {
-						logger.warn("onConnectionException", e);
-						BackgroundServiceImpl.this.deviceDisconnected();
-					}
+//					@Override
+//					public void onConnectionException(IOException e) {
+//						logger.warn("onConnectionException", e);
+//						BackgroundServiceImpl.this.deviceDisconnected();
+//					}
 
 					@Override
 					public void onAllAdaptersFailed() {
@@ -274,30 +354,44 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 
 					@Override
 					public void onStatusUpdate(String message) {
-						Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+						displayToast(message);
 					}
 
 					@Override
 					public void requestConnectionRetry(IOException reason) {
-						Toast.makeText(getApplicationContext(), R.string.connection_lost_info, Toast.LENGTH_LONG).show();
-						
 						if (reconnectCount++ >= MAX_RECONNECT_COUNT) {
-							onConnectionException(reason);
+							logger.warn("max reconnect count reached", reason);
+							BackgroundServiceImpl.this.deviceDisconnected();
 						}
 						else {
 							logger.info("Restarting Device Connection...");
+							doTextToSpeech("Connection lost. Trying to reconnect.");
 							shutdownConnectionAndHandler();
-							startBluetoothConnection();	
+							startConnection();
 						}
-						
 					}
 				});
 		this.commandLooper.start();
 	}
 
+	protected void setState(ServiceState serviceStarted) {
+		this.state = serviceStarted;
+		logger.info(this.state.toString());
+	}
+
+	private void displayToast(final String s) {
+		toastHandler.post(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(getApplicationContext(), s, Toast.LENGTH_LONG).show();
+			}
+		});
+	}
+	
 	public void onAllAdaptersFailed() {
 		logger.info("all adapters failed!");
 		stopBackgroundService();
+		doTextToSpeech("failed to connect to the OBD adapter");
 		sendBroadcast(new Intent(CONNECTION_PERMANENTLY_FAILED_INTENT));		
 	}
 	
@@ -314,27 +408,27 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	 * 
 	 */
 	private class LocalBinder extends Binder implements BackgroundServiceInteractor {
-	
-		@Override
-		public void initializeConnection() {
-//			startBackgroundService();
-		}
 		
 		@Override
-		public void shutdownConnection() {
-			logger.info("stopping service!");
-			stopBackgroundService();
+		public ServiceState getServiceState() {
+			return BackgroundServiceImpl.this.state;
 		}
 
-		@Override
-		public void allAdaptersFailed() {
-			logger.info("all adapters failed!");
-			onAllAdaptersFailed();
-		}
-	}
-
-	public static void requestServiceStateBroadcast(Context ctx) {
-		ctx.sendBroadcast(new Intent(SERVICE_STATE_REQUEST));
 	}
 	
+	private class TextToSpeechListener implements OnInitListener {
+
+		@Override
+		public void onInit(int status) {
+			if (status == TextToSpeech.SUCCESS) {
+				ttsAvailable = true;
+				tts.setLanguage(Locale.ENGLISH);
+			}
+			else {
+				logger.warn("TextToSpeech is not available.");
+			}
+		}
+		
+	}
+
 }

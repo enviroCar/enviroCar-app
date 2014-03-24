@@ -22,9 +22,9 @@
 package org.envirocar.app.activity;
 
 import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,11 +47,11 @@ import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.TrackUploadFinishedHandler;
 import org.envirocar.app.application.UploadManager;
-import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
-import org.envirocar.app.dao.DAOException;
 import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.dao.DAOProvider.AsyncExecutionWithCallback;
+import org.envirocar.app.dao.exception.DAOException;
+import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.TrackDAO;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
@@ -59,7 +59,7 @@ import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.TermsOfUseInstance;
-import org.envirocar.app.network.RestClient;
+import org.envirocar.app.model.User;
 import org.envirocar.app.network.WPSClient;
 import org.envirocar.app.network.WPSClient.ResultCallback;
 import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
@@ -71,14 +71,13 @@ import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 import org.envirocar.app.util.NamedThreadFactory;
 import org.envirocar.app.util.Util;
 import org.envirocar.app.views.TypefaceEC;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -101,7 +100,6 @@ import android.widget.TextView;
 
 import com.actionbarsherlock.app.SherlockFragment;
 import com.actionbarsherlock.view.Menu;
-import com.loopj.android.http.JsonHttpResponseHandler;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -208,13 +206,21 @@ public class ListTracksFragment extends SherlockFragment {
 	private void updateUsabilityOfMenuItems() {
 		if (menu == null) return;
 		
-		if (dbAdapter.getAllLocalTracks().size() > 0) {
-			menu.findItem(R.id.menu_delete_all).setEnabled(true);
-			menu.findItem(R.id.menu_upload).setEnabled(UserManager.instance().isLoggedIn());
-		} else {
-			menu.findItem(R.id.menu_upload).setEnabled(false);
-			menu.findItem(R.id.menu_delete_all).setEnabled(false);
-		}
+		if (!isAdded()) return;
+		
+		getActivity().runOnUiThread(new Runnable() {
+			
+			@Override
+			public void run() {
+				if (dbAdapter.getAllLocalTracks().size() > 0) {
+					menu.findItem(R.id.menu_delete_all).setEnabled(true);
+					menu.findItem(R.id.menu_upload).setEnabled(UserManager.instance().isLoggedIn());
+				} else {
+					menu.findItem(R.id.menu_upload).setEnabled(false);
+					menu.findItem(R.id.menu_delete_all).setEnabled(false);
+				}				
+			}
+		});
 	}
 	
 	/**
@@ -388,7 +394,7 @@ public class ListTracksFragment extends SherlockFragment {
 			try{
 				Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 				sharingIntent.setType("application/json");
-				Uri shareBody = Uri.fromFile(new UploadManager(getActivity().getApplication()).saveTrackAndReturnFile(track));
+				Uri shareBody = Uri.fromFile(Util.saveTrackAndReturnFile(track, isObfuscationEnabled()));
 				sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "EnviroCar Track "+track.getName());
 				sharingIntent.putExtra(android.content.Intent.EXTRA_STREAM,shareBody);
 				startActivity(Intent.createChooser(sharingIntent, "Share via"));
@@ -398,6 +404,9 @@ public class ListTracksFragment extends SherlockFragment {
 			} catch (TrackWithoutMeasurementsException e) {
 				logger.warn(e.getMessage(), e);
 				Crouton.showText(getActivity(), R.string.track_finished_no_measurements, Style.ALERT);
+			} catch (IOException e) {
+				logger.warn(e.getMessage(), e);
+				Crouton.showText(getActivity(), R.string.error_io, Style.ALERT);
 			}
 			return true;
 			
@@ -413,6 +422,11 @@ public class ListTracksFragment extends SherlockFragment {
 			return super.onContextItemSelected(item);
 		}
 	}
+	
+	public boolean isObfuscationEnabled() {
+		SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+		return prefs.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
+	}
 
 	/**
 	 * starts the uploading mechanism. It asserts the Terms of Use
@@ -425,7 +439,7 @@ public class ListTracksFragment extends SherlockFragment {
 		final User user = UserManager.instance().getUser();
 		boolean verified = false;
 		try {
-			verified = TermsOfUseManager.verifyTermsUseOfVersion(user.getAcceptedTermsOfUseVersion());
+			verified = TermsOfUseManager.verifyTermsUseOfVersion(user.getTouVersion());
 		} catch (ServerException e) {
 			logger.warn(e.getMessage(), e);
 			Crouton.makeText(getActivity(), getString(R.string.server_error_please_try_later), Style.ALERT).show();
@@ -442,7 +456,7 @@ public class ListTracksFragment extends SherlockFragment {
 			}
 			
 			DialogUtil.createTermsOfUseDialog(current,
-					user.getAcceptedTermsOfUseVersion() == null, new DialogUtil.PositiveNegativeCallback() {
+					user.getTouVersion() == null, new DialogUtil.PositiveNegativeCallback() {
 
 				@Override
 				public void negative() {
@@ -661,11 +675,7 @@ public class ListTracksFragment extends SherlockFragment {
 				
 				if (UserManager.instance().isLoggedIn()) {
 					setProgressStatusText(R.string.fetching_tracks_remote);
-					User user = UserManager.instance().getUser();
-					final String username = user.getUsername();
-					final String token = user.getToken();
-					
-					downloadTracks(username, token);					
+					downloadTracks();					
 						
 				} else {
 					updateStatusLayout();
@@ -680,100 +690,69 @@ public class ListTracksFragment extends SherlockFragment {
 		
 	}
 	
-	private void downloadTracks(final String username, final String token) {
+	private void downloadTracks() {
 		
 		if (!(new ContextInternetAccessProvider(getActivity()).isConnected())) {
+			updateStatusLayout();
 			return;
 		}
 		
-		resolveTotalRemoteTrackCount(username, token, new JsonHttpResponseHandler() {
+		resolveTotalRemoteTrackCount(new AsyncExecutionWithCallback<Void>() {
+		
 			@Override
-			public void onFinish() {
-				downloadTracks(username, token, 5, 1);
+			public Void onResult(Void result, boolean fail, Exception exception) {
+				downloadTracks(5, 1);
+				return result;
+			}
+
+			@Override
+			public Void execute() throws DAOException {
+				return null;
 			}
 		});
 		
 	}
 	
-	private void resolveTotalRemoteTrackCount(String username, String token,
-			final JsonHttpResponseHandler callback) {
-		RestClient.downloadTracks(username, token, 100, 1, new JsonHttpResponseHandler() {
-			@Override
-			public void onSuccess(int statusCode, JSONObject response) {
-				super.onSuccess(statusCode, response);
+	private void resolveTotalRemoteTrackCount(final AsyncExecutionWithCallback<?> callback) {
+		DAOProvider.async(new AsyncExecutionWithCallback<Integer>() {
 
-				try {
-					JSONArray tracks = response.getJSONArray("tracks");
-					remoteTrackCount.set(tracks.length());
+			@Override
+			public Integer execute() throws DAOException {
+				return DAOProvider.instance().getTrackDAO().getUserTrackCount();
+			}
+
+			@Override
+			public Integer onResult(Integer result, boolean fail,
+					Exception e) {
+				if (!fail) {
+					remoteTrackCount.set(result.intValue());
 				}
-				catch (JSONException e) {
+				else {
 					logger.warn(e.getMessage(), e);
 				}
-			}
-			
-			@Override
-			public void onFinish() {
-				callback.onFinish();
+				callback.onResult(null, false, null);
+				return null;
 			}
 		});
 	}
-
-	private void downloadTracks(final String username, final String token, int limit, int page) {
-		RestClient.downloadTracks(username, token, limit, page, new JsonHttpResponseHandler() {
-			
-			@Override
-			public void onFailure(Throwable error, String content) {
-				super.onFailure(error, content);
-				logger.warn(content, error);
-			}
-			
-			// Variable that holds the number of trackdl requests
-			private int unprocessedTrackCount;
-			
-			protected void processDownloadedTrack(JSONObject... trackJson) {
-				
-				try {
-					Track t = Track.fromJson(trackJson[0], dbAdapter);
-					
-					synchronized (ListTracksFragment.this) {
-						tracksList.add(t);	
-					}
-					
-					afterOneTrack();
-					
-				} catch (JSONException e) {
-					logger.warn(e.getMessage(), e);
-				} catch (NumberFormatException e) {
-					logger.warn(e.getMessage(), e);
-				} catch (ParseException e) {
-					logger.warn(e.getMessage(), e);
-				}
-			}
-
-			
-			private synchronized void afterOneTrack() {
-				
-				View empty = getView().findViewById(android.R.id.empty);
-				if (empty != null) {
-					empty.setVisibility(View.GONE);
-				}
-				
-				if (--unprocessedTrackCount == 0) {
-					logger.info("Finished fetching tracks.");
-					updateStatusLayout();
-					updateTrackListView();
-					updateUsabilityOfMenuItems();
-				}
-			}
-
+	
+	private void downloadTracks(final int limit, final int page) {
+		if (!UserManager.instance().isLoggedIn()) {
+			logger.info("cancelling download of tracks: not logged in.");
+		}
+		
+		DAOProvider.async(new AsyncExecutionWithCallback<List<String>>() {
 
 			@Override
-			public void onSuccess(int httpStatus, JSONObject json) {
-				super.onSuccess(httpStatus, json);
+			public List<String> execute() throws DAOException {
+				return DAOProvider.instance().getTrackDAO().getTrackIds(limit, page);
+			}
 
-				try {
-					JSONArray tracks = json.getJSONArray("tracks");
-					if (tracks.length() == 0) {
+			@Override
+			public List<String> onResult(List<String> trackIdList, boolean fail,
+					Exception exception) {
+				if (!fail) {
+					if (trackIdList.size() == 0) {
 						updateStatusLayout();
 					}
 					
@@ -785,79 +764,72 @@ public class ListTracksFragment extends SherlockFragment {
 							}
 						}	
 					}
-					
+
 					logger.info("found "+localRemoteIds.size()+" local tracks which have remoteIds.");
 					
 					List<String> tracksToDownload = new ArrayList<String>();
-					unprocessedTrackCount = tracks.length();
-					for (int i = 0; i < tracks.length(); i++) {
+					for (int i = 0; i < trackIdList.size(); i++) {
 
-						String remoteId = ((JSONObject) tracks.get(i)).getString("id");
+						String remoteId = trackIdList.get(i);
 						// check if track is listed. if, continue
 						if (localRemoteIds.contains(remoteId)) {
 							logger.info("Skipping track with remoteId "+remoteId);
-							afterOneTrack();
-							continue;
 						}
-						
-						tracksToDownload.add(remoteId);
+						else {
+							tracksToDownload.add(remoteId);
+						}
 					}
 					
 					if (!tracksToDownload.isEmpty()) {
 						logger.info("Starting download of "+ tracksToDownload.size() +" tracks");
-						final AtomicInteger index = new AtomicInteger(0);
-						downloadTrack(tracksToDownload, index);
 					}
-						
-				} catch (JSONException e) {
-					logger.warn(e.getMessage(), e);
-				}
-			}
-
-			/**
-			 * downloads a track of the list and
-			 * increments the downloadListIndex.
-			 * calls itself recursively until downloadListIndex
-			 * reaches the bounds of the list.
-			 */
-			private void downloadTrack(final List<String> downloadList,
-					final AtomicInteger downloadListIndex) {
-				
-				final String id = downloadList.get(downloadListIndex.get());
-				logger.info("downloading track with remoteId "+id);
-				
-				// download the track
-				RestClient.downloadTrack(username, token, id,
-					new JsonHttpResponseHandler() {
-						
-						@Override
-						public void onFinish() {
-							super.onFinish();
-							updateTrackListView();
-							
+					
+					for (String trackId : tracksToDownload) {
+						Track t;
+						try {
 							/*
-							 * on finish, start the next track download
+							 * we do not need async, we are still in the outer AsyncTask
 							 */
-							if (downloadListIndex.getAndIncrement() < downloadList.size()) {
-								downloadTrack(downloadList, downloadListIndex);
+							t = DAOProvider.instance().getTrackDAO().getTrack(trackId);
+
+							synchronized (ListTracksFragment.this) {
+								tracksList.add(t);
 							}
+							
+							updateTrackListView();
+						} catch (NotConnectedException e) {
+							logger.warn(e.getMessage(), e);
 						}
-
-						@Override
-						public void onSuccess(JSONObject trackJson) {
-							super.onSuccess(trackJson);
-							logger.info("Download of track " +id+ " succeeded. Processing...");
-							processDownloadedTrack(trackJson);
-						}
-
-						public void onFailure(Throwable arg0, String arg1) {
-							logger.warn(arg1,arg0);
-						};
 					}
-				);				
+					
+					updateStatusLayout();
+					updateUsabilityOfMenuItems();
+				}
+				else {
+					logger.warn("Could not retrieve the track ids: "+ exception.getMessage(), exception);
+				}
+				return null;
 			}
-		});			
+			
+//			private synchronized void afterOneTrack() {
+//				
+//				View empty = getView().findViewById(android.R.id.empty);
+//				if (empty != null) {
+//					empty.setVisibility(View.GONE);
+//				}
+//				
+//				if (--unprocessedTrackCount == 0) {
+//					logger.info("Finished fetching tracks.");
+//					updateStatusLayout();
+//					updateTrackListView();
+//					updateUsabilityOfMenuItems();
+//				}
+//			}
+		});
 	}
+	
+
+
 	
 	/**
 	 * This method requests the current fuel price of a given fuel type from a

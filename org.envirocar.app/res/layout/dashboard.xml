@@ -64,18 +64,6 @@
                         enviroCar:targetTextString="01234567890" />
                 </org.envirocar.app.views.LayeredImageRotateView>
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1.0" />
-
-                <ImageView
-                    android:id="@+id/connectionStateImage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="right"
-                    android:contentDescription="@string/connection_state"
-                    android:src="@drawable/connection_state_false" />
             </LinearLayout>
 
             <org.envirocar.app.views.LayeredImageRotateView
@@ -125,29 +113,35 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_margin="15dp"
-            android:background="@drawable/rounded_border"
+            android:padding="15dp"
             android:gravity="center_horizontal|center"
-            android:orientation="vertical" >
+            android:orientation="horizontal" >
 
-            <org.envirocar.app.views.SizeRelatedTextView
-                android:id="@+id/dashboard_current_sensor_title"
+            <ImageView
+                android:id="@+id/gpsFixView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="@string/dashboard_sensor_title"
-                enviroCar:sizeRelatedPredecessingView="@+id/dashboard_general_info"
-                enviroCar:targetTextString="0123456789098765432101234567890abcdefghijklmnop" />
-
-            <org.envirocar.app.views.SizeRelatedTextView
-                android:id="@+id/dashboard_current_sensor"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                enviroCar:sizeRelatedPredecessingView="@+id/dashboard_general_info"
-                enviroCar:targetTextString="0123456789098765432101234567890abcdefghijklmnop" />
+                android:layout_marginLeft="20dp"
+                android:src="@drawable/gps_nofix"
+                android:contentDescription="gps-fix"/>
             
-            <View android:layout_width="0dp"
-                android:layout_height="10dp"/>
+            <ImageView
+                android:id="@+id/carOkView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:src="@drawable/car_no"
+                android:contentDescription="car-ok"/>
+            
+            <ImageView
+                android:id="@+id/connectionStateImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/connection_state"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:src="@drawable/bt_device_stopped" />
+		
         </LinearLayout>
     </LinearLayout>
 

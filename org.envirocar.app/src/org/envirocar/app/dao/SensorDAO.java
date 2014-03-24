@@ -20,8 +20,16 @@
  */
 package org.envirocar.app.dao;
 
+import java.text.Collator;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
+import org.envirocar.app.dao.exception.NotConnectedException;
+import org.envirocar.app.dao.exception.ResourceConflictException;
+import org.envirocar.app.dao.exception.SensorRetrievalException;
+import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.model.Car;
 
 public interface SensorDAO {
@@ -44,7 +52,31 @@ public interface SensorDAO {
 	 * @param user the user for authentication reasons
 	 * @return the ID of the saved sensor as provided by the underlying DAO
 	 * @throws NotConnectedException
+	 * @throws ResourceConflictException 
+	 * @throws UnauthorizedException 
 	 */
-	public String saveSensor(Car car) throws NotConnectedException;
+	public String saveSensor(Car car) throws NotConnectedException, UnauthorizedException;
 	
+	
+	public static class SensorDAOUtil {
+		
+		public static List<Car> sortByManufacturer(List<Car> sensors) {
+			final Collator collator = Collator.getInstance(Locale.ENGLISH);
+			
+			Collections.sort(sensors, new Comparator<Car>() {
+				@Override
+				public int compare(Car lhs, Car rhs) {
+					if (lhs.getManufacturer().equals(rhs.getManufacturer())) {
+						return collator.compare(lhs.getModel(), rhs.getModel());
+					}
+					else {
+						return collator.compare(lhs.getManufacturer(), rhs.getManufacturer());
+					}
+				}
+			});
+			
+			return sensors;
+		}
+		
+	}
 }

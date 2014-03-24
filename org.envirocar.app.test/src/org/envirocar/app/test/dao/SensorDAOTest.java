@@ -27,13 +27,13 @@ import junit.framework.Assert;
 
 import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.dao.SensorDAO;
-import org.envirocar.app.dao.SensorRetrievalException;
 import org.envirocar.app.dao.cache.CacheSensorDAO;
+import org.envirocar.app.dao.exception.SensorRetrievalException;
 import org.envirocar.app.model.Car;
 
 public class SensorDAOTest extends CacheDAOTest {
 	
-	public void testGetAllSensorsCached() throws IOException, SensorRetrievalException {
+	public void testGetAllSensorsCachedLegacy() throws IOException, SensorRetrievalException {
 		DAOProvider prov = getDAOProvider();
 		
 		prepareCache(getMockupDir().getBaseFolder(), "sensors_mockup.json", CacheSensorDAO.CAR_CACHE_FILE_NAME);
@@ -41,6 +41,20 @@ public class SensorDAOTest extends CacheDAOTest {
 		SensorDAO dao = prov.getSensorDAO();
 		List<Car> sensors = dao.getAllSensors();
 		Assert.assertTrue("Expected 1 sensor. Got "+sensors.size(), sensors.size() == 1);
+	}
+	
+	public void testGetAllSensorsCached() throws IOException, SensorRetrievalException {
+		DAOProvider prov = getDAOProvider();
+		
+		prepareCache(getMockupDir().getBaseFolder(), "sensors_mockup.json", CacheSensorDAO.CAR_CACHE_FILE_NAME+1);
+		prepareCache(getMockupDir().getBaseFolder(), "sensors_mockup.json", CacheSensorDAO.CAR_CACHE_FILE_NAME+2);
+		
+		SensorDAO dao = prov.getSensorDAO();
+		List<Car> sensors = dao.getAllSensors();
+		Assert.assertTrue("Expected 2 sensors. Got "+sensors.size(), sensors.size() == 2);
+		
+		clearCache(getMockupDir().getBaseFolder(), CacheSensorDAO.CAR_CACHE_FILE_NAME+1);
+		clearCache(getMockupDir().getBaseFolder(), CacheSensorDAO.CAR_CACHE_FILE_NAME+2);
 	}
 	
 }

@@ -129,7 +129,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 				Integer speedMeasurement = (Integer) numberCommand.getNumberResult();
 				this.collector.newSpeed(speedMeasurement);
 				EventBus.getInstance().fireEvent(new SpeedEvent(speedMeasurement));
-				logger.info("Processed Speed Response: "+speedMeasurement +" time: "+command.getResultTime());
+//				logger.info("Processed Speed Response: "+speedMeasurement +" time: "+command.getResultTime());
 			} catch (NumberFormatException e) {
 				logger.warn("speed parse exception", e);
 			}
@@ -146,7 +146,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 				Integer rpmMeasurement = (Integer) numberCommand.getNumberResult();
 				this.collector.newRPM(rpmMeasurement);
 				EventBus.getInstance().fireEvent(new RPMEvent(rpmMeasurement));
-				logger.info("Processed RPM Response: "+rpmMeasurement +" time: "+command.getResultTime());
+//				logger.info("Processed RPM Response: "+rpmMeasurement +" time: "+command.getResultTime());
 			} catch (NumberFormatException e) {
 				logger.warn("rpm parse exception", e);
 			}
@@ -163,7 +163,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 				Integer intakePressureMeasurement = (Integer) numberCommand.getNumberResult();
 				this.collector.newIntakePressure(intakePressureMeasurement);
 				EventBus.getInstance().fireEvent(new IntakePressureEvent(intakePressureMeasurement));
-				logger.info("Processed IAP Response: "+intakePressureMeasurement +" time: "+command.getResultTime());
+//				logger.info("Processed IAP Response: "+intakePressureMeasurement +" time: "+command.getResultTime());
 			} catch (NumberFormatException e) {
 				logger.warn("Intake Pressure parse exception", e);
 			}
@@ -180,7 +180,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 				Integer intakeTemperatureMeasurement = (Integer) numberCommand.getNumberResult();
 				this.collector.newIntakeTemperature(intakeTemperatureMeasurement);
 				EventBus.getInstance().fireEvent(new IntakeTemperatureEvent(intakeTemperatureMeasurement));
-				logger.info("Processed IAT Response: "+intakeTemperatureMeasurement +" time: "+command.getResultTime());
+//				logger.info("Processed IAT Response: "+intakeTemperatureMeasurement +" time: "+command.getResultTime());
 			} catch (NumberFormatException e) {
 				logger.warn("Intake Temperature parse exception", e);
 			}
@@ -189,42 +189,42 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		else if (command instanceof MAF) {
 			float mafMeasurement = (Float) numberCommand.getNumberResult();
 			this.collector.newMAF(mafMeasurement);
-			logger.info("Processed MAF Response: "+mafMeasurement +" time: "+command.getResultTime());
+//			logger.info("Processed MAF Response: "+mafMeasurement +" time: "+command.getResultTime());
 		}
 		
 		
 		else if (command instanceof TPS) {
 			int tps = (Integer) numberCommand.getNumberResult();
 			this.collector.newTPS(tps);
-			logger.info("Processed TPS Response: "+tps +" time: "+command.getResultTime());
+//			logger.info("Processed TPS Response: "+tps +" time: "+command.getResultTime());
 		}
 
 		else if (command instanceof EngineLoad) {
 			double load = (Float) numberCommand.getNumberResult();
 			this.collector.newEngineLoad(load);
-			logger.info("Processed EngineLoad Response: "+load +" time: "+command.getResultTime());
+//			logger.info("Processed EngineLoad Response: "+load +" time: "+command.getResultTime());
 		}
 		
 		else if (command instanceof FuelSystemStatus) {
 			boolean loop = ((FuelSystemStatus) command).isInClosedLoop();
 			int status = ((FuelSystemStatus) command).getStatus();
 			this.collector.newFuelSystemStatus(loop, status);
-			logger.info("Processed FuelSystemStatus Response: Closed? "+loop +" Status: "+ status +"; time: "+command.getResultTime());
+//			logger.info("Processed FuelSystemStatus Response: Closed? "+loop +" Status: "+ status +"; time: "+command.getResultTime());
 		}
 		
 		else if (command instanceof O2LambdaProbe) {
 			this.collector.newLambdaProbeValue((O2LambdaProbe) command);
-			logger.info("Processed O2LambdaProbe Response: "+ command.toString());
+//			logger.info("Processed O2LambdaProbe Response: "+ command.toString());
 		}
 		
 		else if (command instanceof ShortTermTrimBank1) {
 			this.collector.newShortTermTrimBank1(((ShortTermTrimBank1) command).getNumberResult());
-			logger.info("Processed ShortTermTrimBank1: "+ command.toString());
+//			logger.info("Processed ShortTermTrimBank1: "+ command.toString());
 		}
 		
 		else if (command instanceof LongTermTrimBank1) {
 			this.collector.newLongTermTrimBank1(((LongTermTrimBank1) command).getNumberResult());
-			logger.info("Processed LongTermTrimBank1: "+ command.toString());
+//			logger.info("Processed LongTermTrimBank1: "+ command.toString());
 		}
 	}
 	

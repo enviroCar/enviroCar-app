@@ -26,9 +26,9 @@ import java.util.Locale;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.dao.AnnouncementsRetrievalException;
 import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.dao.cache.CacheAnnouncementsDAO;
+import org.envirocar.app.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.model.Announcement;
 import org.envirocar.app.model.Announcement.Priority;
 import org.envirocar.app.util.VersionRange.Version;

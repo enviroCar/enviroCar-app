@@ -141,7 +141,7 @@ public class ELM327Connector extends AbstractSequentialConnector {
 
 	@Override
 	public void shutdown() {
-		
+		super.shutdown();
 	}
 
 	@Override
@@ -153,6 +153,11 @@ public class ELM327Connector extends AbstractSequentialConnector {
 	public void prepareShutdown() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public long getPreferredRequestPeriod() {
+		return 100;
 	}
 
 

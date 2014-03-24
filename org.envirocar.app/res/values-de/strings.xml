@@ -89,7 +89,8 @@
     <string name="no">Nein</string>
 	<string name="yes">Ja</string>
 	<string name="deleteRemoteTrackQuestion">Soll die Fahrt auf dem Server gelöscht werden?</string>
-    <string name="no_sensor_selected">Kein Auto ausgewählt.</string>
+    <string name="no_sensor_selected">Kein Auto ausgewählt</string>
+    <string name="no_device_selected">Kein OBD-Adapter ausgewählt</string>
     <string name="title_create_new_sensor">Neues Fahrzeugprofil</string>
     <string name="title_select_sensor">Fahrzeug auswählen</string>
 	<string name="upload_notification">Versuche lokale Tracks hochzuladen.</string>
@@ -260,4 +261,13 @@ Bei festgestellten Problemen möchten wir Sie bitten, uns ein Fehlerprotokoll zu
 	<string name="category_normal">Wichtig</string>
 	<string name="category_high">Kritisch</string>
 	<string name="announcement">Ankündigung</string>
+	
+	<string name="store">Speichern</string>
+	<string name="mileage">Kilometerstand</string>
+	<string name="volume">Tankvolumen</string>
+	<string name="cost">Kosten</string>
+	<string name="unit">Einheit</string>
+	<string name="currency">Währung</string>
+	<string name="logbook_information">Informationen zu Zeit, Nutzer, Auto und Kraftstoff werden automatisch ermittelt</string>
+	<string name="comment">Zusätzliche Anmerkungen</string>
 </resources>

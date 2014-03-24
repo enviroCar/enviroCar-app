@@ -326,6 +326,7 @@ public class SimulatorService {
         private final BluetoothSocket mmSocket;
         private final InputStream mmInStream;
         private final OutputStream mmOutStream;
+		private int count;
 
         public ConnectedThread(BluetoothSocket socket, String socketType) {
             Log.d(TAG, "create ConnectedThread: " + socketType);
@@ -356,6 +357,16 @@ public class SimulatorService {
                     int index = 0;
                     int i;
             		while ((i = mmInStream.read()) != -1) {
+//            			if (count > 20) {
+//            				try {
+//    							Thread.sleep(11000);
+//    							cancel();
+//    							connectionLost();
+//    							return;
+//    						} catch (InterruptedException e) {
+//    							e.printStackTrace();
+//    						}
+//            			}
             			byte b = (byte) i;
             			if (b == (byte) '\r') {
             				break;
@@ -366,6 +377,7 @@ public class SimulatorService {
 
             		if (index == 0) continue;
             		
+            		count++;
                     // Send the obtained bytes to the UI Activity
                     mHandler.obtainMessage(OBDSimulator.MESSAGE_READ, index, -1, buffer)
                             .sendToTarget();

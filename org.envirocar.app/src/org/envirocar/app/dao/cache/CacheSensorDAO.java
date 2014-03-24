@@ -20,45 +20,56 @@
  */
 package org.envirocar.app.dao.cache;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
 import org.envirocar.app.dao.CacheDirectoryProvider;
-import org.envirocar.app.dao.NotConnectedException;
 import org.envirocar.app.dao.SensorDAO;
-import org.envirocar.app.dao.SensorRetrievalException;
+import org.envirocar.app.dao.exception.NotConnectedException;
+import org.envirocar.app.dao.exception.SensorRetrievalException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
-import org.envirocar.app.util.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class CacheSensorDAO implements SensorDAO {
+public class CacheSensorDAO extends AbstractCacheDAO implements SensorDAO {
 	
 	private static final Logger logger = Logger.getLogger(CacheSensorDAO.class);
 	public static final String CAR_CACHE_FILE_NAME = "cache_cars";
-	private CacheDirectoryProvider cacheDirectoryProvider;
 	
 	public CacheSensorDAO(CacheDirectoryProvider cacheDirectoryProvider) {
-		this.cacheDirectoryProvider = cacheDirectoryProvider;
+		super(cacheDirectoryProvider);
 	}
 
 	@Override
 	public List<Car> getAllSensors() throws SensorRetrievalException {
-		File directory;
 		try {
-			directory = cacheDirectoryProvider.getBaseFolder();
-
-			File f = new File(directory, CAR_CACHE_FILE_NAME);
-
-			if (f.isFile()) {
-				JSONObject cars = Util.readJsonContents(f);
-				return Car.fromJsonList(cars);
-			} 
-			else {
-				throw new SensorRetrievalException("Local cache file could not be accessed.");
+			List<Car> result = null;
+			
+			int c = 1;
+			while (true) {
+				if (cacheFileExists(CAR_CACHE_FILE_NAME+c)) {
+					if (result == null) {
+						result = Car.fromJsonList(readCache(CAR_CACHE_FILE_NAME+c));
+					}
+					else {
+						result.addAll(Car.fromJsonList(readCache(CAR_CACHE_FILE_NAME+c)));
+					}
+				}
+				else {
+					break;
+				}
+				c++;
 			}
+			
+			/*
+			 * fallback for old cache states
+			 */
+			if (result == null) {
+				result = Car.fromJsonList(readCache(CAR_CACHE_FILE_NAME));
+			}
+			
+			return SensorDAOUtil.sortByManufacturer(result);
 		} catch (IOException e) {
 			logger.warn(e.getMessage());
 			throw new SensorRetrievalException(e);
@@ -68,14 +79,16 @@ public class CacheSensorDAO implements SensorDAO {
 		}
 	}
 
-	public void storeAllSensors(String content) throws IOException {
-		File carCacheFile = new File(cacheDirectoryProvider.getBaseFolder(), CAR_CACHE_FILE_NAME);
-		Util.saveContentsToFile(content, carCacheFile);		
-	}
-
 	@Override
 	public String saveSensor(Car car) throws NotConnectedException {
 		throw new NotConnectedException("CacheSensorDAO does not support saving.");
+	}
+
+	public void storeAllSensors(List<JSONObject> parentObject) throws IOException {
+		int c = 1;
+		for (JSONObject jsonObject : parentObject) {
+			storeCache(CAR_CACHE_FILE_NAME+(c++), jsonObject.toString());
+		}
 	}
 
 

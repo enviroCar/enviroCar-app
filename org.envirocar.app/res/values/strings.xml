@@ -116,6 +116,7 @@
 	<string name="upload_notification">Attempting to upload local tracks.</string>
 	<string name="upload_notification_success">Successfully uploaded local tracks.</string>
 	<string name="no_sensor_selected">No Car selected</string>
+	<string name="no_device_selected">No OBD-Adapter selected</string>
 	<string name="title_create_new_sensor">New car profile</string>
 	<string name="startMap">View in map</string>
 	<string name="title_select_sensor">Select car</string>
@@ -155,6 +156,7 @@
 	<string name="privacy">Obfuscate positions</string>
 	<string name="shareTrack">Export</string>
 	<string name="error_json">Internal Error creating your JSON string</string>
+	<string name="error_io">File system error</string>
 	
 	<string name="help">Help</string>
 
@@ -264,6 +266,20 @@ If you discover and problems, please send us an error log (-> report problem). T
 	<string name="announcement">Announcement</string>
 	<string name="do_not_show_again">Do not show this message again?</string>
 	
-	<string name="ok">Ok</string>
+	<string name="ok">OK</string>
+	<string name="menu_logbook">Logbook</string>
+	
+	<string name="service_state_starting">Establishing connection to OBDII adapter</string>
+	<string name="service_state_started">Connected to OBDII adapter. Recording.</string>
+	<string name="service_state_stopped">OBDII adapter disconnected.</string>
+	
+	<string name="store">Store</string>
+	<string name="mileage">Mileage</string>
+	<string name="volume">Volume</string>
+	<string name="cost">Cost</string>
+	<string name="unit">Unit</string>
+	<string name="currency">Currency</string>
+	<string name="logbook_information">Information about the Date, User, Car and Fueltype will be obtained automatically</string>
+	<string name="comment">Additional comments</string>
 	
 </resources>

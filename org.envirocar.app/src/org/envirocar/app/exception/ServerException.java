@@ -11,4 +11,8 @@ public class ServerException extends Exception {
 		super(e);
 	}
 
+	public ServerException(String string) {
+		super(string);
+	}
+
 }

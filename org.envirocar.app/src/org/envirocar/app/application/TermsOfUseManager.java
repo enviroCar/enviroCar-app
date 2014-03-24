@@ -26,16 +26,16 @@ import org.envirocar.app.R;
 import org.envirocar.app.activity.DialogUtil;
 import org.envirocar.app.activity.DialogUtil.PositiveNegativeCallback;
 import org.envirocar.app.dao.DAOProvider;
-import org.envirocar.app.dao.TermsOfUseRetrievalException;
+import org.envirocar.app.dao.DAOProvider.AsyncExecutionWithCallback;
+import org.envirocar.app.dao.exception.DAOException;
+import org.envirocar.app.dao.exception.TermsOfUseRetrievalException;
 import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.TermsOfUse;
 import org.envirocar.app.model.TermsOfUseInstance;
-import org.envirocar.app.network.RestClient;
+import org.envirocar.app.model.User;
 
 import android.app.Activity;
-
-import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
@@ -135,18 +135,26 @@ public class TermsOfUseManager {
 	}
 
 	public void userAcceptedTermsOfUse(final User user, final String issuedDate) {
-		RestClient.updateAcceptedTermsOfUseVersion(user, issuedDate, new AsyncHttpResponseHandler() {
+		DAOProvider.async(new AsyncExecutionWithCallback<Void>() {
+
 			@Override
-			public void onSuccess(int statusCode, String content) {
-				user.setAcceptedTermsOfUseVersion(issuedDate);
-				//TODO verify the user resource on the server
-				UserManager.instance().setUser(user);
-				logger.info("User successfully updated.");
+			public Void execute() throws DAOException {
+				user.setTouVersion(issuedDate);
+				DAOProvider.instance().getUserDAO().updateUser(user);
+				return null;
 			}
-			
+
 			@Override
-			public void onFailure(Throwable error, String content) {
-				logger.warn(content, error);
+			public Void onResult(Void result, boolean fail, Exception exception) {
+				if (!fail) {
+					user.setTouVersion(issuedDate);
+					UserManager.instance().setUser(user);
+					logger.info("User successfully updated.");
+				}
+				else {
+					logger.warn(exception.getMessage(), exception);
+				}
+				return null;
 			}
 		});
 	}
@@ -181,7 +189,7 @@ public class TermsOfUseManager {
 			final PositiveNegativeCallback callback) {
 		boolean verified = false;
 		try {
-			verified = TermsOfUseManager.verifyTermsUseOfVersion(user.getAcceptedTermsOfUseVersion());
+			verified = TermsOfUseManager.verifyTermsUseOfVersion(user.getTouVersion());
 		} catch (ServerException e) {
 			logger.warn(e.getMessage(), e);
 			return;
@@ -197,7 +205,7 @@ public class TermsOfUseManager {
 			}
 			
 			DialogUtil.createTermsOfUseDialog(current,
-					user.getAcceptedTermsOfUseVersion() == null, new DialogUtil.PositiveNegativeCallback() {
+					user.getTouVersion() == null, new DialogUtil.PositiveNegativeCallback() {
 
 				@Override
 				public void negative() {

@@ -21,21 +21,16 @@
 
 package org.envirocar.app.activity;
 
-import java.io.IOException;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.message.BasicHeader;
 import org.envirocar.app.R;
-import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.TermsOfUseManager;
-import org.envirocar.app.application.User;
 import org.envirocar.app.application.UserManager;
+import org.envirocar.app.dao.DAOProvider;
+import org.envirocar.app.dao.exception.UnauthorizedException;
+import org.envirocar.app.dao.exception.UserRetrievalException;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.network.HTTPClient;
+import org.envirocar.app.model.User;
 import org.envirocar.app.views.TypefaceEC;
-import org.json.JSONException;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -213,7 +208,7 @@ public class LoginFragment extends SherlockFragment {
 			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
 			showProgress(true);
 			mAuthTask = new UserLoginTask();
-			mAuthTask.execute((Void) null);
+			mAuthTask.execute();
 		}
 	}
 
@@ -266,7 +261,6 @@ public class LoginFragment extends SherlockFragment {
 		@Override
 		protected User doInBackground(Void... params) {
 			return authenticateHttp(mUsername, mPassword);
-
 		}
 
 		@Override
@@ -310,36 +304,36 @@ public class LoginFragment extends SherlockFragment {
 	 * credentials
 	 */
 	private User authenticateHttp(String user, String token) {
-		HttpGet httpget = new HttpGet(ECApplication.BASE_URL + "/users/" + user);
-		httpget.addHeader(new BasicHeader("X-User", user));
-		httpget.addHeader(new BasicHeader("X-Token", token));
-		HttpResponse response;
+		User currentUser = UserManager.instance().getUser();
+		
+		if (currentUser == null || currentUser.getToken() == null) {
+			User candidateUser = new User(user, token);
+			UserManager.instance().setUser(candidateUser);
+		}
+		
 		try {
-			response = HTTPClient.execute(httpget);
-		} catch (IOException e) {
-			logger.warn(e.getMessage(), e);
-			return null;
-		}
-
-		int status = response.getStatusLine().getStatusCode();
-
-		if (status < HttpStatus.SC_MULTIPLE_CHOICES) {
-			try {
-				User u = User.fromJson(HTTPClient.readResponse(response.getEntity()));
-				if (user.equals(u.getUsername())) {
-					u.setToken(token);
+			User result = DAOProvider.instance().getUserDAO().getUser(user);
+			result.setToken(token);
+			return result;
+		} catch (UnauthorizedException e1) {
+			logger.warn(e1.getMessage(), e1);
+			getActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mPasswordView.setError(getString(R.string.error_incorrect_password));					
 				}
-				return u;
-			} catch (JSONException e) {
-				logger.warn(e.getMessage(), e);
-			} catch (IOException e) {
-				logger.warn(e.getMessage(), e);
-			}
-		} else {
-			HTTPClient.consumeEntity(response.getEntity());
-			mPasswordView.setError(getString(R.string.error_incorrect_password));
-			return null;
+			});
+		} catch (UserRetrievalException e1) {
+			logger.warn(e1.getMessage(), e1);
+			getActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					mPasswordView.setError(getString(R.string.error_host_not_found));					
+				}
+			});
 		}
+		
+		UserManager.instance().logOut();
 		
 		return null;
 	}

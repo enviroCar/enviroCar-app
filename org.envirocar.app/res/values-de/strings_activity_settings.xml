@@ -2,7 +2,8 @@
 
     <string name="title_activity_settings">Einstellungen</string>
 
-    <string name="pref_obd_settings">OBD Einstellungen</string>
+    <string name="pref_obd_settings">OBD-Einstellungen</string>
+    <string name="pref_car_settings">Fahrzeug-Einstellungen</string>
 	<string name="pref_general_settings">Allgemeine Einstellungen</string>
 	
 	<string name="pref_prompt_chose_adapter">OBD Adapter wählen</string>
@@ -21,5 +22,11 @@
     <string name="pref_about">enviroCar version</string>
     
     <string name="pref_select_car">Daten des Fahrzeugs</string>
+    
+    <string name="pref_optional_features">Optionale Features</string>
+    
+    <string name="use_pid_supported">Benutze \"PID Supported\"-Abfrage</string>
+    <string name="use_pid_supported_summary">Erfrage bei der ECU des Fahrzeugs die unterstützten OBD-Befehle</string>
+
     
 </resources>

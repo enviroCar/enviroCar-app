@@ -57,6 +57,14 @@ public class CacheDAOTest extends InstrumentationTestCase {
 		fw.close();
 		isr.close();
 	}
+	
+	protected void clearCache(File baseFolder, String assetFile) throws IOException {
+		File f = new File(baseFolder, assetFile);
+		
+		if (f != null && f.exists()) {
+			f.delete();
+		}
+	}
 
 	public DAOProvider getDAOProvider() throws IOException {
 		MockupCacheDirectoryProvider mockupDir = getMockupDir();

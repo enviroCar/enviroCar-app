@@ -30,8 +30,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.envirocar.app.FeatureFlags;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.EngineLoad;
 import org.envirocar.app.commands.FuelSystemStatus;
@@ -52,6 +61,8 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.exception.AdapterFailedException;
 import org.envirocar.app.protocol.exception.ConnectionLostException;
 import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
+
+import android.util.Base64;
 
 /**
  * This class acts as the basis for adapters which work
@@ -81,6 +92,8 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	private int searchingCountInARow;
 	private Set<PID> supportedPIDs;
 	private int cycle = 0;
+	private String preferredLambdaProbe;
+	private ExecutorService initializationExecutor = Executors.newSingleThreadExecutor();
 	
 	static {
 //		whitelistedCommandNames.add(new FuelSystemStatus().getCommandName());
@@ -125,6 +138,8 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 					requestCommands.add(cmd);
 				}
 			}
+			
+			logger.info("PID supported result: "+requestCommands);
 		} else {
 			requestCommands = new ArrayList<CommonCommand>();
 			requestCommands.add(new Speed());
@@ -138,39 +153,49 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 		
 		/*
 		 * XXX: Tryout for Lambda probes. better: do via PIDSupported
+		 * 
 		 */
-		if (cycle % 8 == 0) {
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_VOLTAGE));
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_CURRENT));	
+		if (this.preferredLambdaProbe == null || this.preferredLambdaProbe.isEmpty()) {
+			if (cycle % 8 == 0) {
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_VOLTAGE));
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_CURRENT));	
+			}
+			else if (cycle % 8 == 1) {
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_2_VOLTAGE));
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_2_CURRENT));
+			}
+			else if (cycle % 8 == 2) {
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_3_VOLTAGE));
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_3_CURRENT));
+			}
+			else if (cycle % 8 == 3) {
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_4_VOLTAGE));
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_4_CURRENT));
+			}
+			else if (cycle % 8 == 4) {
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_5_VOLTAGE));
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_5_CURRENT));
+			}
+			else if (cycle % 8 == 5) {
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_6_VOLTAGE));
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_6_CURRENT));
+			}
+			else if (cycle % 8 == 6) {
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_7_VOLTAGE));
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_7_CURRENT));
+			}
+			else if (cycle % 8 == 7) {
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_8_VOLTAGE));
+				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_8_CURRENT));
+			}
 		}
-		else if (cycle % 8 == 1) {
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_2_VOLTAGE));
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_2_CURRENT));
+		else {
+			/*
+			 * we got one positive response, use that
+			 */
+			requestCommands.add(O2LambdaProbe.fromPIDEnum(PIDUtil.fromString(preferredLambdaProbe)));
 		}
-		else if (cycle % 8 == 2) {
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_3_VOLTAGE));
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_3_CURRENT));
-		}
-		else if (cycle % 8 == 3) {
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_4_VOLTAGE));
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_4_CURRENT));
-		}
-		else if (cycle % 8 == 4) {
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_5_VOLTAGE));
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_5_CURRENT));
-		}
-		else if (cycle % 8 == 5) {
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_6_VOLTAGE));
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_6_CURRENT));
-		}
-		else if (cycle % 8 == 6) {
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_7_VOLTAGE));
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_7_CURRENT));
-		}
-		else if (cycle % 8 == 7) {
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_8_VOLTAGE));
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_8_CURRENT));
-		}
+		
 		
 		requestCommands.add(new FuelSystemStatus());
 		requestCommands.add(new ShortTermTrimBank1());
@@ -182,8 +207,10 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	}
 
 	private void onInitializationCommand(CommonCommand cmd) {
-		if (cmd instanceof PIDSupported) {
-			this.supportedPIDs = ((PIDSupported) cmd).getSupportedPIDs();
+		if (cmd instanceof PIDSupported && FeatureFlags.usePIDSupported()) {
+			if (!(cmd.getCommandState() == CommonCommandState.EXECUTION_ERROR)) {
+				this.supportedPIDs = ((PIDSupported) cmd).getSupportedPIDs();
+			}
 		}
 		processInitializationCommand(cmd);
 	}
@@ -306,13 +333,18 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 
 		Set<Character> ignored = cmd.getIgnoredChars();
 		
-		byte[] buffer = new byte[32];
+		byte[] buffer = new byte[272];
 		int index = 0;
 		// read until '>' arrives
-		while ((char) (b = (byte) inputStream.read()) != cmd.getEndOfLineReceive()) {
+		while (index < buffer.length && (char) (b = (byte) inputStream.read()) != cmd.getEndOfLineReceive()) {
 			if (!ignored.contains((char) b)){
 				buffer[index++] = b;
 			}
+		}
+		
+		if (index > 0) {
+			logger.info("Response read. Data (base64): "+
+					Base64.encodeToString(buffer, 0, index, Base64.DEFAULT));
 		}
 
 		return Arrays.copyOf(buffer, index);
@@ -329,16 +361,50 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	
 	@Override
 	public void executeInitializationCommands() throws IOException, AdapterFailedException {
-		List<CommonCommand> cmds = this.getInitializationCommands();
+		final List<CommonCommand> cmds = this.getInitializationCommands();
+		
+		if (initializationExecutor.isShutdown() || initializationExecutor.isTerminated()) {
+			throw new AdapterFailedException(getClass().getSimpleName());
+		}
+		
+		Future<Boolean> future;
+		try {
+			future = initializationExecutor.submit(new Callable<Boolean>() {
+
+				@Override
+				public Boolean call() throws Exception {
+					try {
+						executeCommands(cmds);
+						executeCommand(new PIDSupported());
+						return true;
+					} catch (UnmatchedCommandResponseException e) {
+						logger.warn("This should never happen!", e);
+					} catch (ConnectionLostException e) {
+						logger.warn("This should never happen!", e);
+					}
+					return false;
+				}
+			});			
+		}
+		catch (RejectedExecutionException e) {
+			throw new AdapterFailedException(getClass().getSimpleName(), e);
+		}
 		
 		try {
-			executeCommands(cmds);
-			executeCommand(new PIDSupported());
-		} catch (UnmatchedCommandResponseException e) {
-			logger.warn("This should never happen!", e);
-		} catch (ConnectionLostException e) {
-			logger.warn("This should never happen!", e);
-		}		
+			Boolean resp = future.get(10, TimeUnit.SECONDS);
+			
+			if (!resp.booleanValue()) {
+				throw new AdapterFailedException("Init commands took too long.");
+			}
+			
+		} catch (InterruptedException e) {
+			throw new AdapterFailedException(e.getMessage());
+		} catch (ExecutionException e) {
+			throw new AdapterFailedException(e.getMessage());
+		} catch (TimeoutException e) {
+			throw new AdapterFailedException(e.getMessage());
+		}
+		
 	}
 	
 	@Override
@@ -359,11 +425,31 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 				logger.warn("Unmatched Response detected! trying to read another line.");
 				readResponseLine(cmd);
 			}
+			
+			/*
+			 * check if we got a positive response from a Lambda probe request
+			 */
+			if (cmd.getCommandState() == CommonCommandState.FINISHED) {
+				evaluateSupportedLambdaCommand(cmd);
+			}
 		}
 		
 		return list;
 	}
 	
+	private void evaluateSupportedLambdaCommand(CommonCommand cmd) {
+		if (this.preferredLambdaProbe != null && !this.preferredLambdaProbe.isEmpty()) {
+			/*
+			 * no action required, we already got what we want
+			 */
+			return;
+		}
+		
+		if (cmd instanceof O2LambdaProbe) {
+			this.preferredLambdaProbe = ((O2LambdaProbe) cmd).getPID();
+		}
+	}
+
 	/**
 	 * Execute a list of commands
 	 * 
@@ -429,7 +515,8 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 				}
 				break;
 			case EXECUTION_ERROR:
-				logger.debug("Execution Error for " +cmd.getCommandName() +": "+new String(cmd.getRawData()));
+				String raw = cmd.getRawData() == null ? "null" : new String(cmd.getRawData());
+				logger.debug("Execution Error for " +cmd.getCommandName() +": "+raw);
 				this.onBlacklistCandidate(cmd);
 				break;
 				
@@ -458,6 +545,13 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 			
 		}
 		
+	}
+	
+	@Override
+	public void shutdown() {
+		if (initializationExecutor != null) {
+			initializationExecutor.shutdown();
+		}
 	}
 
 	
