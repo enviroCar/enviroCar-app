@@ -21,12 +21,8 @@
 package org.envirocar.app.model;
 
 import java.io.Serializable;
-import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 
 import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.logging.Logger;
@@ -208,26 +204,9 @@ public class Car implements Serializable {
 			}	
 		}
 		
-		return sortByManufacturer(sensors);
-	}
-
-	private static List<Car> sortByManufacturer(List<Car> sensors) {
-		final Collator collator = Collator.getInstance(Locale.ENGLISH);
-		
-		Collections.sort(sensors, new Comparator<Car>() {
-			@Override
-			public int compare(Car lhs, Car rhs) {
-				if (lhs.getManufacturer().equals(rhs.getManufacturer())) {
-					return collator.compare(lhs.getModel(), rhs.getModel());
-				}
-				else {
-					return collator.compare(lhs.getManufacturer(), rhs.getManufacturer());
-				}
-			}
-		});
-		
 		return sensors;
 	}
+
 
 	public static FuelType resolveFuelType(String foolType) {
 		if (foolType.equals(GASOLINE_STRING)) {

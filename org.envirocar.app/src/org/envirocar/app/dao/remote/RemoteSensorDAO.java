@@ -78,7 +78,7 @@ public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, Authent
 				}
 			}
 			
-			return result;
+			return SensorDAOUtil.sortByManufacturer(result);
 		} catch (IOException e) {
 			logger.warn(e.getMessage());
 			throw new SensorRetrievalException(e);

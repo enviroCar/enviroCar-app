@@ -69,7 +69,7 @@ public class CacheSensorDAO extends AbstractCacheDAO implements SensorDAO {
 				result = Car.fromJsonList(readCache(CAR_CACHE_FILE_NAME));
 			}
 			
-			return result;
+			return SensorDAOUtil.sortByManufacturer(result);
 		} catch (IOException e) {
 			logger.warn(e.getMessage());
 			throw new SensorRetrievalException(e);
