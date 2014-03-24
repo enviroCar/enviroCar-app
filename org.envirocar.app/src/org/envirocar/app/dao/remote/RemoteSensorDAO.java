@@ -56,18 +56,29 @@ public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, Authent
 	public List<Car> getAllSensors() throws SensorRetrievalException {
 		
 		try {
-			JSONObject parentObject = readRemoteResouce("/sensors");
+			List<JSONObject> parentObject = readRemoteResource("/sensors", true);
 			
 			if (cache != null) {
 				try {
-					cache.storeAllSensors(parentObject.toString());
+					cache.storeAllSensors(parentObject);
 				}
 				catch (IOException e) {
 					logger.warn(e.getMessage());
 				}
 			}
 			
-			return Car.fromJsonList(parentObject);
+			List<Car> result = null;
+			
+			for (JSONObject jsonObject : parentObject) {
+				if (result == null) {
+					result = Car.fromJsonList(jsonObject);
+				}
+				else {
+					result.addAll(Car.fromJsonList(jsonObject));
+				}
+			}
+			
+			return SensorDAOUtil.sortByManufacturer(result);
 		} catch (IOException e) {
 			logger.warn(e.getMessage());
 			throw new SensorRetrievalException(e);

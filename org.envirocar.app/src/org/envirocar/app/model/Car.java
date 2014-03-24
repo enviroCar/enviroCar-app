@@ -124,11 +124,13 @@ public class Car implements Serializable {
 		sb.append(manufacturer);
 		sb.append(" ");
 		sb.append(model);
+		sb.append(" ");
+		sb.append(constructionYear);
 		sb.append(" (");
 		sb.append(fuelType);
 		sb.append(" / ");
-		sb.append(constructionYear);
-		sb.append(")");
+		sb.append(engineDisplacement);
+		sb.append("cc)");
 		return sb.toString();
 	}
 	
@@ -197,13 +199,14 @@ public class Car implements Serializable {
 				try {
 					sensors.add(Car.fromJsonWithStrictEngineDisplacement(properties));
 				} catch (JSONException e) {
-					logger.warn(String.format("Car '%s' not supported: %s", carId != null ? carId : "null", e.getMessage()));
+					logger.verbose(String.format("Car '%s' not supported: %s", carId != null ? carId : "null", e.getMessage()));
 				}
 			}	
 		}
 		
 		return sensors;
 	}
+
 
 	public static FuelType resolveFuelType(String foolType) {
 		if (foolType.equals(GASOLINE_STRING)) {

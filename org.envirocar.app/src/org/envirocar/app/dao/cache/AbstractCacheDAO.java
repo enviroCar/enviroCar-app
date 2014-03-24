@@ -52,6 +52,14 @@ public class AbstractCacheDAO {
 		throw new IOException(String.format("Could not read file %s", cachedFile));
 	}
 	
+	public boolean cacheFileExists(String cachedFile) {
+		File directory = cacheDirectoryProvider.getBaseFolder();
+
+		File f = new File(directory, cachedFile);
+
+		return f != null && f.isFile();
+	}
+	
 	protected void storeCache(String cacheFileName, String content) throws IOException {
 		File file = new File(this.cacheDirectoryProvider.getBaseFolder(), cacheFileName);
 		Util.saveContentsToFile(content, file);		

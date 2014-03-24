@@ -46,6 +46,9 @@ import org.apache.commons.compress.archivers.ArchiveStreamFactory;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
+import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.json.TrackEncoder;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.Measurement;
@@ -400,6 +403,68 @@ public class Util {
 	public static File saveTrackAndReturnFile(Track t, boolean obfuscate) throws JSONException, TrackWithoutMeasurementsException, IOException{
 		return Util.saveTrackToSdCard(new TrackEncoder().createTrackJson(t, obfuscate).toString(),
 				(t.isRemoteTrack() ? t.getRemoteID() : Long.toString(t.getId())));
+	}
+
+	public static Integer resolveResourceCount(HttpResponse response) throws ServerException {
+		if (response.containsHeader("Link")) {
+			Header[] link = response.getHeaders("Link");
+			
+			for (Header l : link) {
+				Integer result = resolveLastRel(l.getValue());
+				if (result != null) {
+					return result;
+				}
+			}
+			
+			if (link.length > 0 && link[0].getValue() != null) {
+				throw new ServerException("Could not parse the HTTP Header 'Link': "+link[0].getValue());
+			}
+			else {
+				throw new ServerException("Invalid HTTP Header 'Link'");
+			}
+		}
+		else {
+			throw new ServerException("Response did not contain the exepected HTTP Header 'Link'");
+		}		
+	}
+	
+	private static Integer resolveLastRel(String value) {
+		if (value != null) {
+			String[] split = value.split(",");
+			
+			for (String line : split) {
+				if (line.contains("rel=last")) {
+					String[] params = line.split(";");
+					if (params != null && params.length > 0) {
+						return resolvePageValue(params[0]);
+					}
+				}
+			}
+		}
+		return null;
+	}
+	
+	private static Integer resolvePageValue(String sourceUrl) {
+		String url;
+		if (sourceUrl.startsWith("<")) {
+			url = sourceUrl.substring(1, sourceUrl.length()-1);
+		}
+		else {
+			url = sourceUrl;
+		}
+		
+		if (url.contains("?")) {
+			int index = url.indexOf("?")+1;
+			if (index != url.length()) {
+				String params = url.substring(index, url.length());
+				for (String kvp : params.split("&")) {
+					if (kvp.startsWith("page")) {
+						return Integer.parseInt(kvp.substring(kvp.indexOf("page")+5));
+					}
+				}	
+			}
+		}
+		return null;
 	}
 	
 }
