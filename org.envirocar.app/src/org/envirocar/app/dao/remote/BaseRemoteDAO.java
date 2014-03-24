@@ -23,6 +23,9 @@ package org.envirocar.app.dao.remote;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 import org.apache.http.HttpEntity;
@@ -37,6 +40,7 @@ import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.ResourceConflictException;
 import org.envirocar.app.dao.exception.UnauthorizedException;
+import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.model.User;
 import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.util.Util;
@@ -121,13 +125,53 @@ public abstract class BaseRemoteDAO {
 	 * @throws IOException
 	 * @throws JSONException
 	 */
-	protected JSONObject readRemoteResouce(String remoteRestResource) throws NotConnectedException, UnauthorizedException, IOException, JSONException {
+	protected JSONObject readRemoteResource(String remoteRestResource) throws NotConnectedException, UnauthorizedException, IOException, JSONException {
 		HttpGet get = new HttpGet(ECApplication.BASE_URL+remoteRestResource);
 		InputStream response = retrieveHttpContent(get);
 		String content = Util.consumeInputStream(response).toString();
 	
 		JSONObject parentObject = new JSONObject(content);
 		return parentObject;
+	}
+	
+	/**
+	 * Reads a remote REST resource
+	 * 
+	 * @param remoteRestResource the sub resource
+	 * @param complete if the complete resource (all pages) should be read
+	 * @return the remote resource encoded as a {@link JSONObject}
+	 * @throws NotConnectedException
+	 * @throws UnauthorizedException
+	 * @throws IOException
+	 * @throws JSONException
+	 */
+	protected List<JSONObject> readRemoteResource(String remoteRestResource, boolean complete) throws NotConnectedException, UnauthorizedException, IOException, JSONException {
+		if (!complete) {
+			return Collections.singletonList(readRemoteResource(remoteRestResource));
+		}
+		
+		HttpGet get = new HttpGet(ECApplication.BASE_URL+remoteRestResource+"?limit=100");
+		HttpResponse response = executeContentRequest(get);
+		
+		Integer count;
+		try {
+			count = Util.resolveResourceCount(response);
+		} catch (ServerException e) {
+			throw new IOException(e);
+		}
+		
+		if (count > 1) {
+			List<JSONObject> result = new ArrayList<JSONObject>(count);
+			
+			for (int i = 1; i <= count; i++) {
+				result.add(readRemoteResource(remoteRestResource+"?limit=100&page="+i));
+			}
+			
+			return result;
+		}
+		else {
+			return Collections.singletonList(readRemoteResource(remoteRestResource));
+		}
 	}
 	
 	/**

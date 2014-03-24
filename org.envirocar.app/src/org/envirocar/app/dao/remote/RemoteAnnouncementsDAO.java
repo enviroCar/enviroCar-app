@@ -46,7 +46,7 @@ public class RemoteAnnouncementsDAO extends BaseRemoteDAO implements Announcemen
 	public List<Announcement> getAllAnnouncements() throws AnnouncementsRetrievalException {
 		
 		try {
-			JSONObject parentObject = readRemoteResouce("/announcements");
+			JSONObject parentObject = readRemoteResource("/announcements");
 		
 			if (cache != null) {
 				try {

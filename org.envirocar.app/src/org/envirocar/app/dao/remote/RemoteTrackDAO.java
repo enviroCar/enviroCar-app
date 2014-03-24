@@ -87,7 +87,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 	public Track getTrack(String id) throws NotConnectedException {
 		Track result;
 		try {
-			JSONObject parentObject = readRemoteResouce("/tracks/"+id);
+			JSONObject parentObject = readRemoteResource("/tracks/"+id);
 			result = new TrackDecoder().fromJson(parentObject);
 		} catch (ParseException e) {
 			throw new NotConnectedException(e);

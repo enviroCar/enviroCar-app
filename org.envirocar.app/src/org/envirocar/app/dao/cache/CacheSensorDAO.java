@@ -30,6 +30,7 @@ import org.envirocar.app.dao.exception.SensorRetrievalException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 public class CacheSensorDAO extends AbstractCacheDAO implements SensorDAO {
 	
@@ -43,7 +44,32 @@ public class CacheSensorDAO extends AbstractCacheDAO implements SensorDAO {
 	@Override
 	public List<Car> getAllSensors() throws SensorRetrievalException {
 		try {
-			return Car.fromJsonList(readCache(CAR_CACHE_FILE_NAME));
+			List<Car> result = null;
+			
+			int c = 1;
+			while (true) {
+				if (cacheFileExists(CAR_CACHE_FILE_NAME+c)) {
+					if (result == null) {
+						result = Car.fromJsonList(readCache(CAR_CACHE_FILE_NAME+c));
+					}
+					else {
+						result.addAll(Car.fromJsonList(readCache(CAR_CACHE_FILE_NAME+c)));
+					}
+				}
+				else {
+					break;
+				}
+				c++;
+			}
+			
+			/*
+			 * fallback for old cache states
+			 */
+			if (result == null) {
+				result = Car.fromJsonList(readCache(CAR_CACHE_FILE_NAME));
+			}
+			
+			return result;
 		} catch (IOException e) {
 			logger.warn(e.getMessage());
 			throw new SensorRetrievalException(e);
@@ -53,13 +79,16 @@ public class CacheSensorDAO extends AbstractCacheDAO implements SensorDAO {
 		}
 	}
 
-	public void storeAllSensors(String content) throws IOException {
-		storeCache(CAR_CACHE_FILE_NAME, content);
-	}
-
 	@Override
 	public String saveSensor(Car car) throws NotConnectedException {
 		throw new NotConnectedException("CacheSensorDAO does not support saving.");
+	}
+
+	public void storeAllSensors(List<JSONObject> parentObject) throws IOException {
+		int c = 1;
+		for (JSONObject jsonObject : parentObject) {
+			storeCache(CAR_CACHE_FILE_NAME+(c++), jsonObject.toString());
+		}
 	}
 
 

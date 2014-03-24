@@ -59,7 +59,7 @@ public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, Authenticat
 	@Override
 	public User getUser(String id) throws UserRetrievalException, UnauthorizedException {
 		try {
-			JSONObject json = readRemoteResouce("/users/"+id);
+			JSONObject json = readRemoteResource("/users/"+id);
 			return User.fromJson(json);
 		} catch (IOException e) {
 			throw new UserRetrievalException(e);

@@ -45,7 +45,7 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO implements TermsOfUseDAO 
 	@Override
 	public TermsOfUse getTermsOfUse() throws TermsOfUseRetrievalException {
 		try {
-			JSONObject parentObject = readRemoteResouce("/termsOfUse");
+			JSONObject parentObject = readRemoteResource("/termsOfUse");
 			
 			if (cache != null) {
 				try {
@@ -74,7 +74,7 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO implements TermsOfUseDAO 
 	@Override
 	public TermsOfUseInstance getTermsOfUseInstance(String id) throws TermsOfUseRetrievalException {
 		try {
-			JSONObject parentObject = readRemoteResouce("/termsOfUse/"+id);
+			JSONObject parentObject = readRemoteResource("/termsOfUse/"+id);
 			
 			if (cache != null) {
 				try {
