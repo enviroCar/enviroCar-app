@@ -21,8 +21,12 @@
 package org.envirocar.app.model;
 
 import java.io.Serializable;
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.logging.Logger;
@@ -124,11 +128,13 @@ public class Car implements Serializable {
 		sb.append(manufacturer);
 		sb.append(" ");
 		sb.append(model);
+		sb.append(" ");
+		sb.append(constructionYear);
 		sb.append(" (");
 		sb.append(fuelType);
 		sb.append(" / ");
-		sb.append(constructionYear);
-		sb.append(")");
+		sb.append(engineDisplacement);
+		sb.append("cc)");
 		return sb.toString();
 	}
 	
@@ -197,10 +203,28 @@ public class Car implements Serializable {
 				try {
 					sensors.add(Car.fromJsonWithStrictEngineDisplacement(properties));
 				} catch (JSONException e) {
-					logger.warn(String.format("Car '%s' not supported: %s", carId != null ? carId : "null", e.getMessage()));
+					logger.verbose(String.format("Car '%s' not supported: %s", carId != null ? carId : "null", e.getMessage()));
 				}
 			}	
 		}
+		
+		return sortByManufacturer(sensors);
+	}
+
+	private static List<Car> sortByManufacturer(List<Car> sensors) {
+		final Collator collator = Collator.getInstance(Locale.ENGLISH);
+		
+		Collections.sort(sensors, new Comparator<Car>() {
+			@Override
+			public int compare(Car lhs, Car rhs) {
+				if (lhs.getManufacturer().equals(rhs.getManufacturer())) {
+					return collator.compare(lhs.getModel(), rhs.getModel());
+				}
+				else {
+					return collator.compare(lhs.getManufacturer(), rhs.getManufacturer());
+				}
+			}
+		});
 		
 		return sensors;
 	}
