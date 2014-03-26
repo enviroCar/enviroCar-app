@@ -177,6 +177,7 @@ public class DashboardFragment extends SherlockFragment {
 		co2RotableView = (LayeredImageRotateView) getView().findViewById(
 				R.id.co2meterView);
 		speedRotatableView = (LayeredImageRotateView) getView().findViewById(R.id.speedometerView);
+		updateSpeedValue();
 		
 		/*
 		 * status images

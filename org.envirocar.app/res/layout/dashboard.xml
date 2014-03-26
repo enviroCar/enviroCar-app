@@ -58,7 +58,6 @@
                         android:layout_height="wrap_content"
                         android:layout_alignBottom="@+id/arrowImage"
                         android:layout_centerHorizontal="true"
-                        android:text="@string/speed_initial_value"
                         android:textColor="#8bbb3f"
                         enviroCar:sizeRelatedPredecessingView="@+id/arrowImage"
                         enviroCar:targetTextString="01234567890" />
