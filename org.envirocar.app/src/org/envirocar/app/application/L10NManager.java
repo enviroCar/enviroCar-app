@@ -45,8 +45,10 @@ public class L10NManager {
 	public static final double LITER_TO_USGALLON_FACTOR = 3.785411784;
 	public static final double LITER_TO_IMPERIALGALLON_FACTOR = 4.54609;
 	
-	private double LPer100kmTompgusFactor = KM_TO_MILE_FACTOR / LITER_TO_USGALLON_FACTOR;
-	private double LPer100kmTompgimperialFactor = KM_TO_MILE_FACTOR / LITER_TO_IMPERIALGALLON_FACTOR;
+	private double lPer100kmToMPGUSFactor = KM_TO_MILE_FACTOR / LITER_TO_USGALLON_FACTOR;
+	private double lPer100kmToMPGImperialFactor = KM_TO_MILE_FACTOR / LITER_TO_IMPERIALGALLON_FACTOR;
+	
+	private final String perHour = "/h";
 	
 	private Resources resources;
 	
@@ -105,13 +107,13 @@ public class L10NManager {
 		
 		if(unitDescription.equals(resources.getString(R.string.description_liter))){
 			fuelConsumption = consumptionPerHour;
-			unit = context.getResources().getString(R.string.unit_liter) + "/h";
+			unit = context.getResources().getString(R.string.unit_liter) + perHour;
 		}else if(unitDescription.equals(resources.getString(R.string.description_imperial_gallon))){
 			fuelConsumption = consumptionPerHour / LITER_TO_IMPERIALGALLON_FACTOR;
-			unit = context.getResources().getString(R.string.unit_imperial_gallon) + "/h";
+			unit = context.getResources().getString(R.string.unit_imperial_gallon) + perHour;
 		}else if(unitDescription.equals(resources.getString(R.string.description_us_liquid_gallon))){
 			fuelConsumption = consumptionPerHour / LITER_TO_USGALLON_FACTOR;
-			unit = context.getResources().getString(R.string.unit_us_liquid_gallon) + "/h";
+			unit = context.getResources().getString(R.string.unit_us_liquid_gallon) + perHour;
 		}else{
 			logger.debug("No unit for consumption per hour found.");
 		}
@@ -128,7 +130,7 @@ public class L10NManager {
 	 * As the consumption in l/100km already is calculated in the {@link Track}s, this is used as base for the conversion
 	 * in other consumption units.
 	 * 
-	 * @param literOn100km the consumption value in l/h
+	 * @param literOn100km the consumption value in l/100km
 	 * @return NumberWithUOM containing the consumption value and unit
 	 */
 	public NumberWithUOM getCommonConsumptionValue(double literOn100km){		
@@ -139,10 +141,10 @@ public class L10NManager {
 		String unitDescription = getConsumptionUnitDescription();
 		
 		if(unitDescription.equals(resources.getString(R.string.description_miles_per_us_gallon))){
-			fuelConsumption = (100/LPer100kmTompgusFactor)/literOn100km;
+			fuelConsumption = (100/lPer100kmToMPGUSFactor)/literOn100km;
 			unit = context.getResources().getString(R.string.unit_miles_per_us_gallon);
 		}else if(unitDescription.equals(resources.getString(R.string.description_miles_per_imperial_gallon))){
-			fuelConsumption = (100/LPer100kmTompgimperialFactor)/literOn100km;
+			fuelConsumption = (100/lPer100kmToMPGImperialFactor)/literOn100km;
 			unit = context.getResources().getString(R.string.unit_miles_per_imperial_gallon);
 		}else if(unitDescription.equals(resources.getString(R.string.description_liters_per_100_km))){
 			fuelConsumption = literOn100km;		
@@ -151,10 +153,10 @@ public class L10NManager {
 			fuelConsumption = (1/literOn100km)*100;
 			unit = context.getResources().getString(R.string.unit_kilometer_per_liter);
 		}else if(unitDescription.equals(resources.getString(R.string.description_us_gallons_per_100_miles))){
-			fuelConsumption = LPer100kmTompgusFactor*literOn100km;
+			fuelConsumption = lPer100kmToMPGUSFactor*literOn100km;
 			unit = context.getResources().getString(R.string.unit_miles_per_us_gallon);
 		}else if(unitDescription.equals(resources.getString(R.string.description_imperial_gallons_per_100_miles))){
-			fuelConsumption = LPer100kmTompgimperialFactor*literOn100km;	
+			fuelConsumption = lPer100kmToMPGImperialFactor*literOn100km;	
 			unit = context.getResources().getString(R.string.unit_imperial_gallons_per_100_miles);
 		}else{
 			logger.debug("No common consumption unit found.");
@@ -172,7 +174,7 @@ public class L10NManager {
 	 * As the distance in km already is calculated in the {@link Track}s, this is used as base for the conversion
 	 * in other distance units.
 	 * 
-	 * @param distanceInKM the distance value in km/h
+	 * @param distanceInKM the distance value in km
 	 * @return NumberWithUOM containing the distance value and unit
 	 */
 	public NumberWithUOM getDistance(double distanceInKM){
@@ -254,7 +256,7 @@ public class L10NManager {
 		
 		if (unitDescription == null) {
 			String fallBackLocalUnitDescription = resources.getString(fallBackLocalUnitDescriptionID);
-			logger.debug("A preferred distance unit was not set, using " + fallBackLocalUnitDescription + " for locale: " + locale);			
+			logger.debug("A preferred unit description was not set, using " + fallBackLocalUnitDescription + " for locale: " + locale);			
 			unitDescription = fallBackLocalUnitDescription;	
 		}
 		
