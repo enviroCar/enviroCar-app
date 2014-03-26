@@ -68,7 +68,7 @@ public class L10NManager {
 	 */
 	public NumberWithUOM getSpeed(int speedInKMperHour){
 		
-		Number speed = 0.0;
+		Integer speed = 0;
 		String unit = resources.getString(R.string.not_applicable);
 	
 		String unitDescription = getSpeedUnitDescription();
@@ -77,7 +77,7 @@ public class L10NManager {
 			speed = speedInKMperHour;
 			unit = resources.getString(R.string.unit_kilometers_per_hour);
 		}else if(unitDescription.equals(resources.getString(R.string.description_miles_per_hour))){
-			speed = speedInKMperHour/KM_TO_MILE_FACTOR;		
+			speed = (int) (speedInKMperHour/KM_TO_MILE_FACTOR);
 			unit = resources.getString(R.string.unit_miles_per_hour);	
 		}else{
 			logger.debug("No speed unit found.");
