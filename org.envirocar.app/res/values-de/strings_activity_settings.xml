@@ -22,6 +22,19 @@
     <string name="pref_about">enviroCar version</string>
     
     <string name="pref_select_car">Daten des Fahrzeugs</string>
+	
+	<string name="pref_units">Maßeinheiten</string>
+	<string name="pref_units_summary">Hier können Sie die Standard-Maßeinheiten ändern.</string>
+	<string name="pref_units_prompt_choose_speed">Bitte die Geschwindigkeits-Einheit wählen</string>
+	<string name="pref_units_title_choose_speed">Geschwindigkeits-Einheit wählen</string>
+	<string name="pref_units_prompt_choose_distance">Bitte die Distanz-Einheit wählen</string>
+	<string name="pref_units_title_choose_distance">Distanz-Einheit wählen</string>
+	<string name="pref_units_prompt_choose_fuel_volume">Bitte die Treibstoff Volumen-Einheit wählen</string>
+	<string name="pref_units_title_choose_fuel_volume">Treibstoff Volumen-Einheit wählen</string>
+	<string name="pref_units_prompt_choose_consumption">Bitte die Verbrauchs-Einheit wählen</string>
+	<string name="pref_units_title_choose_consumption">Verbrauchs-Einheit wählen</string>
+	<string name="pref_units_prompt_choose_currency">Bitte die Währungs-Einheit wählen</string>
+	<string name="pref_units_title_choose_currency">Währungs-Einheit wählen</string>
     
     <string name="pref_optional_features">Optionale Features</string>
     

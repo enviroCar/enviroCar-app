@@ -22,8 +22,12 @@ package org.envirocar.app.views;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.envirocar.app.R;
+import org.envirocar.app.activity.SettingsActivity;
+
 import android.content.Context;
 import android.graphics.Canvas;
+import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
@@ -107,6 +111,29 @@ public class LayeredImageRotateView extends RelativeLayout {
 		parseAttributes(attrs);
 	}
 	
+	private void setPhenometerSpeedImageSource(){
+		String preferredSpeedUnit = PreferenceManager.getDefaultSharedPreferences(getContext()).getString(SettingsActivity.SPEED_UNITS_LIST_KEY, null);
+			
+		HalfViewWidthImageView phenometerSpeedView = (HalfViewWidthImageView) findViewById(R.id.phenometer_speed_Image);
+		
+		if(phenometerSpeedView == null){
+			return;
+		}
+		
+		String unitDescription = PreferenceManager.getDefaultSharedPreferences(getContext()).getString(SettingsActivity.SPEED_UNITS_LIST_KEY, null);
+		
+		if (unitDescription == null){		
+			unitDescription = getContext().getResources().getString(R.string.local_speed_unit_description);		
+		}
+		
+		if(unitDescription.equals(getContext().getResources().getString(R.string.description_kilometers_per_hour))){
+			phenometerSpeedView.setImageResource(R.drawable.phenometer_speed_kmh);
+			
+		}else if(unitDescription.equals(getContext().getResources().getString(R.string.description_miles_per_hour))){
+			phenometerSpeedView.setImageResource(R.drawable.phenometer_speed_mph);
+		}
+	}
+	
 	private void parseAttributes(AttributeSet attrs) {
 		minimumDegree = attrs.getAttributeFloatValue(NAMESPACE, MINIMUM_DEGREE_KEY, 0.0f);
 		maximumDegree = attrs.getAttributeFloatValue(NAMESPACE, MAXIMUM_DEGREE_KEY, 360.0f);
@@ -126,6 +153,8 @@ public class LayeredImageRotateView extends RelativeLayout {
 				Log.w("enviroCar", e.getMessage());
 			}
 		}
+
+		setPhenometerSpeedImageSource();
 		
 		setWillNotDraw(false);
 	}

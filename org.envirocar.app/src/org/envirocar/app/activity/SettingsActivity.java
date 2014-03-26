@@ -23,9 +23,11 @@ package org.envirocar.app.activity;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Set;
 
 import org.envirocar.app.R;
+import org.envirocar.app.application.L10NManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.util.Util;
 
@@ -34,6 +36,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -60,11 +63,17 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	public static final String WIFI_UPLOAD = "pref_wifi_upload";
 	public static final String ALWAYS_UPLOAD = "pref_always_upload";
 	public static final String DISPLAY_STAYS_ACTIV = "pref_display_always_activ";
-	public static final String IMPERIAL_UNIT = "pref_imperial_unit";
 	public static final String OBFUSCATE_POSITION = "pref_privacy";
 	public static final String CAR = "pref_selected_car";
 	public static final String CAR_HASH_CODE = "pref_selected_car_hash_code";
 	public static final String PERSISTENT_SEEN_ANNOUNCEMENTS = "persistent_seen_announcements";
+
+	public static final String SPEED_UNITS_LIST_KEY = "pref_speed_units_list";
+	public static final String FUEL_VOLUME_UNITS_LIST_KEY = "pref_fuel_volume_units_list";
+	public static final String CONSUMPTION_UNITS_LIST_KEY = "pref_consumption_units_list";
+	public static final String DISTANCE_UNITS_LIST_KEY = "pref_distance_units_list";
+	
+	private L10NManager l10nManager;
 	
 	private Preference about;
 	
@@ -162,14 +171,73 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 				.toArray(new CharSequence[0]));
 
 	}
-
+	
+	private void initializeUnitLists(){
+		
+		Collection<CharSequence> speedUnits = new ArrayList<CharSequence>(2);
+		
+		Resources resources = getApplicationContext().getResources(); 
+		
+		speedUnits.add(resources.getString(R.string.description_miles_per_hour));
+		speedUnits.add(resources.getString(R.string.description_kilometers_per_hour));
+		
+		setUpListValues(SPEED_UNITS_LIST_KEY, speedUnits, l10nManager.getSpeedUnitDescription());
+		
+		Collection<CharSequence> distanceUnits =  new ArrayList<CharSequence>(2);
+				
+		distanceUnits.add(resources.getString(R.string.description_miles));
+		distanceUnits.add(resources.getString(R.string.description_kilometers));
+		
+		setUpListValues(DISTANCE_UNITS_LIST_KEY, distanceUnits, l10nManager.getDistanceUnitDescription());
+	
+		Collection<CharSequence> fuelVolumeUnits = new ArrayList<CharSequence>(3);
+		
+		fuelVolumeUnits.add(resources.getString(R.string.description_us_liquid_gallon));
+		fuelVolumeUnits.add(resources.getString(R.string.description_imperial_gallon));
+		fuelVolumeUnits.add(resources.getString(R.string.description_liter));
+		
+		setUpListValues(FUEL_VOLUME_UNITS_LIST_KEY, fuelVolumeUnits, l10nManager.getFuelVolumeUnitDescription());
+		
+		Collection<CharSequence> consumptionUnits = new ArrayList<CharSequence>(6);
+		
+		consumptionUnits.add(resources.getString(R.string.description_miles_per_us_gallon));
+		consumptionUnits.add(resources.getString(R.string.description_miles_per_imperial_gallon));
+		consumptionUnits.add(resources.getString(R.string.description_liters_per_100_km));
+		consumptionUnits.add(resources.getString(R.string.description_kilometers_per_liter));
+		consumptionUnits.add(resources.getString(R.string.description_us_gallons_per_100_miles));
+		consumptionUnits.add(resources.getString(R.string.description_imperial_gallons_per_100_miles));
+		
+		setUpListValues(CONSUMPTION_UNITS_LIST_KEY, consumptionUnits, l10nManager.getConsumptionUnitDescription());		
+		
+	}
+	
+	private void setUpListValues(String listKey, Collection<CharSequence> entries, Collection<CharSequence> values, String defaultValue){
+		
+		ListPreference list = (ListPreference) getPreferenceScreen()
+				.findPreference(listKey);
+		
+		list.setEntries(entries.toArray(new CharSequence[]{}));
+		list.setEntryValues(values.toArray(new CharSequence[]{}));
+				
+		if(defaultValue != null){
+			list.setValue(defaultValue);
+		}
+		
+	}
+	
+	private void setUpListValues(String listKey, Collection<CharSequence> entriesAndValues, String defaultValue){
+		setUpListValues(listKey, entriesAndValues, entriesAndValues, defaultValue);
+		
+	}
+	
 	@SuppressWarnings("deprecation")
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
 		super.onPostCreate(savedInstanceState);
+		l10nManager = new L10NManager(getApplicationContext());
 		addPreferencesFromResource(R.xml.preferences);
 		initializeBluetoothList();
-		
+		initializeUnitLists();
 		this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 		this.getSupportActionBar().setHomeButtonEnabled(false);
 

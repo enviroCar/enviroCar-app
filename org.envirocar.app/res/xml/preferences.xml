@@ -30,10 +30,6 @@
         <CheckBoxPreference
             android:key="pref_display_always_activ"
             android:title="@string/pref_display_always_activ" />
-        <CheckBoxPreference
-            android:key="pref_imperial_unit"
-            android:title="@string/imperial_unit"
-            android:summary="@string/imperial_unit_summary" />
         <CheckBoxPreference 
             android:key="pref_privacy"
             android:title="@string/privacy"
@@ -41,6 +37,26 @@
             android:defaultValue="true"/>
     </PreferenceCategory>
 
+    <PreferenceScreen android:title="@string/pref_units" android:key="unit_preferences"
+            android:summary="@string/pref_units_summary">
+        <ListPreference
+            android:dialogTitle="@string/pref_units_prompt_choose_speed"
+            android:key="pref_speed_units_list"
+            android:title="@string/pref_units_title_choose_speed" />
+        <ListPreference
+            android:dialogTitle="@string/pref_units_prompt_choose_distance"
+            android:key="pref_distance_units_list"
+            android:title="@string/pref_units_title_choose_distance" />
+        <ListPreference
+            android:dialogTitle="@string/pref_units_prompt_choose_fuel_volume"
+            android:key="pref_fuel_volume_units_list"
+            android:title="@string/pref_units_title_choose_fuel_volume" />
+        <ListPreference
+            android:dialogTitle="@string/pref_units_prompt_choose_consumption"
+            android:key="pref_consumption_units_list"
+            android:title="@string/pref_units_title_choose_consumption" />
+    </PreferenceScreen>
+    
     <PreferenceCategory android:title="@string/pref_optional_features" >
         <CheckBoxPreference
             android:key="pref_pid_supported"

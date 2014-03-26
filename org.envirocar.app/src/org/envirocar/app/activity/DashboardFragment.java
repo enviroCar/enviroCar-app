@@ -25,9 +25,10 @@ import java.text.DecimalFormat;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
+import org.envirocar.app.application.L10NManager;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
-import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
+import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.BackgroundServiceInteractor;
 import org.envirocar.app.event.CO2Event;
 import org.envirocar.app.event.CO2EventListener;
@@ -42,6 +43,7 @@ import org.envirocar.app.event.SpeedEventListener;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
+import org.envirocar.app.model.NumberWithUOM;
 import org.envirocar.app.views.LayeredImageRotateView;
 import org.envirocar.app.views.TypefaceEC;
 
@@ -83,6 +85,7 @@ public class DashboardFragment extends SherlockFragment {
 	private static final String LOCATION = "location";
 	private static final String SPEED = "speed";
 	private static final String CO2 = "co2";
+	private L10NManager l10nManager;
 	
 	// UI Items
 	
@@ -126,6 +129,7 @@ public class DashboardFragment extends SherlockFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		logger.info("onCreateView. hash="+System.identityHashCode(this));
+		l10nManager = new L10NManager(getActivity());
 		return inflater.inflate(R.layout.dashboard, container, false);
 	}
 	
@@ -491,14 +495,11 @@ public class DashboardFragment extends SherlockFragment {
 	}
 
 	protected void updateSpeedValue() {
-		if (!preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT,
-				false)) {
-			speedTextView.setText(speed + " km/h");
-			speedRotatableView.submitScaleValue(speed);
-		} else {
-			speedTextView.setText(speed / 1.6f + " mph");
-			speedRotatableView.submitScaleValue(speed/1.6f);
-		}
+		
+		NumberWithUOM speedWithUOM = l10nManager.getSpeed(speed); 		
+
+		speedTextView.setText(speedWithUOM.getValue() + " " + speedWithUOM.getUnit());
+		speedRotatableView.submitScaleValue(speed);
 	}
 	
 
