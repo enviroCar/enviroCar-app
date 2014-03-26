@@ -1071,13 +1071,14 @@ public class ListTracksFragment extends SherlockFragment {
 			carView.setText(car.toString());
 			descriptionView.setText(t.getDescription());
 			if (t.isLazyLoadingMeasurements()) {
-				String loading = "loading...";
+				String loading = getResources().getString(R.string.loading);
 				setTextViewContent(startView, loading);
 				setTextViewContent(endView, loading);
 				setTextViewContent(lengthView, loading);
 				setTextViewContent(durationView, loading);
 				setTextViewContent(co2View, loading);
 				setTextViewContent(consumptionView, loading);
+				setTextViewContent(fuelCostView, loading);
 			}
 			else {
 				try {
@@ -1101,8 +1102,8 @@ public class ListTracksFragment extends SherlockFragment {
 						NumberWithUOM fuelconsumptionPerHour = l10nManager.getConsumptionValuePerHour(consumption);
 						NumberWithUOM fuelconsumption = l10nManager.getCommonConsumptionValue(literOn100km);
 						consumptionView.setText(twoDForm.format(fuelconsumptionPerHour.getValue()) + " " + fuelconsumptionPerHour.getUnit() + " (" + twoDForm.format(fuelconsumption.getValue()) + " " + fuelconsumption.getUnit() + ")");
-						if(fuelCostView.getText() == null || fuelCostView.getText().equals("")){
-							fuelCostView.setText(R.string.calculating);
+						if(fuelCostView.getText() == null || fuelCostView.getText().equals(getResources().getString(R.string.loading))){
+							setTextViewContent(fuelCostView, getResources().getString(R.string.calculating));
 							getEstimatedFuelCost(fuelCostView, twoDForm, t);
 						}
 					} catch (UnsupportedFuelTypeException e) {

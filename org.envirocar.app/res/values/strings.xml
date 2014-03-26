@@ -58,7 +58,8 @@
     <string name="Co2emission">"CO\u2082 emission: "</string>
     <string name="consumption">"Consumption: "</string>
     <string name="fuel_cost">"Estimated fuel cost: "</string>
-    <string name="calculating">"Calculating&#8230;"</string>
+    <string name="calculating">"calculating&#8230;"</string>
+    <string name="loading">"loading&#8230;"</string>
     <string name="error_calculating_fuel_costs">"Error during calculation."</string>
     <string name="title_activity_settings">Settings</string>
     <string name="currentSpeed">Speed</string>
@@ -252,8 +253,6 @@ If you discover and problems, please send us an error log (-> report problem). T
 	<string name="diesel_not_yet_supported">Please note that consumption/CO2 calculation for Diesel cars is not yet supported</string>
 	
 	<string name="co2_initial_value">0 kg/h</string>
-	
-	<string name="speed_initial_value">0 mph</string>
 
 	<string name="track_list_count_text">Showing %1$d local Tracks, %2$d/%3$s remote Tracks:</string>
 	<string name="not_yet_registered_question">You do not have an account, yet?</string>

@@ -64,6 +64,7 @@
     <string name="consumption">"Verbrauch: "</string>
     <string name="fuel_cost">"Treibstoffkosten: "</string>
     <string name="calculating">"Wird berechnet&#8230;"</string>
+    <string name="loading">"Wird geladen&#8230;"</string>
     <string name="error_calculating_fuel_costs">"Fehler bei der Berechnung."</string>
     <string name="title_activity_settings">Einstellungen</string>
     <string name="currentSpeed">Geschwindigkeit</string>
@@ -251,7 +252,6 @@ Bei festgestellten Problemen möchten wir Sie bitten, uns ein Fehlerprotokoll zu
 	<string name="uploading_track_no_measurements_after_obfuscation">Ein hochzuladende Track enthielt keine Messungen.</string>
     
     <string name="co2_initial_value">0 kg/h</string>
-    <string name="speed_initial_value">0 km/h</string>
     
 	<string name="track_list_count_text">Zeige %1$d lokale Tracks, %2$d/%3$s Remote Tracks:</string>
     <string name="not_yet_registered_question">Sie haben noch keinen Account?</string>
