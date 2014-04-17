@@ -144,7 +144,19 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 	}
 
 	private void determineProtocol(String protocolInt) {
-		int prot = Integer.parseInt(protocolInt);
+		if (protocolInt == null || protocolInt.trim().isEmpty()) {
+			return;
+		}
+		
+		int prot;
+		try {
+			prot = Integer.parseInt(protocolInt);
+		}
+		catch (NumberFormatException e) {
+			logger.warn("NFE: "+e.getMessage());
+			return;
+		}
+		
 		switch (prot) {
 		case 1:
 			protocol = Protocol.CAN11500;

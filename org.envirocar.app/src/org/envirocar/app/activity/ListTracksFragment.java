@@ -212,13 +212,26 @@ public class ListTracksFragment extends SherlockFragment {
 			
 			@Override
 			public void run() {
+				Menu theMenu = menu;
+				
+				if (theMenu == null) {
+					return;
+				}
+				
 				if (dbAdapter.getAllLocalTracks().size() > 0) {
-					menu.findItem(R.id.menu_delete_all).setEnabled(true);
-					menu.findItem(R.id.menu_upload).setEnabled(UserManager.instance().isLoggedIn());
+					setItemEnabled(theMenu.findItem(R.id.menu_delete_all), true);
+					setItemEnabled(theMenu.findItem(R.id.menu_upload), UserManager.instance().isLoggedIn());
 				} else {
-					menu.findItem(R.id.menu_upload).setEnabled(false);
-					menu.findItem(R.id.menu_delete_all).setEnabled(false);
+					setItemEnabled(theMenu.findItem(R.id.menu_upload), false);
+					setItemEnabled(theMenu.findItem(R.id.menu_delete_all), false);
 				}				
+			}
+
+			private void setItemEnabled(com.actionbarsherlock.view.MenuItem item,
+					boolean b) {
+				if (item != null) {
+					item.setEnabled(b);
+				}
 			}
 		});
 	}
