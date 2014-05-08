@@ -681,8 +681,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 
 		this.unregisterReceiver(bluetoothStateReceiver);
 		this.unregisterReceiver(deviceDiscoveryStateReceiver);
-		this.unregisterReceiver(errorInformationReceiver);
+		
 		this.unregisterReceiver(serviceStateReceiver);
+		
+		this.unregisterReceiver(errorInformationReceiver);
 		
 		if (remainingTimeHandler != null) {
 			remainingTimeHandler.removeCallbacks(remainingTimeThread);

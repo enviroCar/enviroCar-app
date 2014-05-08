@@ -262,7 +262,13 @@ public class DashboardFragment extends SherlockFragment {
 		logger.info("onDestroy. hash="+System.identityHashCode(this));
 		super.onDestroy();
 		
-		getActivity().unregisterReceiver(receiver);
+		try {
+			getActivity().unregisterReceiver(receiver);
+		}
+		catch (IllegalArgumentException e) {
+			logger.warn(e.getMessage(), e);
+			logger.warn("Reconsider the Receiver registration lifecycle!");
+		}
 		if (preferences != null) {
 			preferences.unregisterOnSharedPreferenceChangeListener(preferenceListener);
 		}
