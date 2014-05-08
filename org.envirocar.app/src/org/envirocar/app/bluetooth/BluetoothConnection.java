@@ -176,6 +176,7 @@ public class BluetoothConnection extends Thread {
             	break;
 	            		
             } catch (IOException e) {
+            	logger.warn("Exception on bluetooth connection. Trying the fallback... : "+e.getMessage(), e);
             	//try the fallback
             	try {
             		if (running) {
@@ -186,7 +187,7 @@ public class BluetoothConnection extends Thread {
     	            	break;	
             		}
 				} catch (FallbackException e1) {
-					logger.warn("Could not initialize FallbackBluetoothSocket classes.", e);
+					logger.warn("Could not initialize FallbackBluetoothSocket classes: "+e1.getMessage(), e1);
 				} catch (InterruptedException e1) {
 					logger.warn(e1.getMessage(), e1);
 				} catch (IOException e1) {
@@ -224,7 +225,7 @@ public class BluetoothConnection extends Thread {
             bluetoothSocket = new NativeBluetoothSocket(tmp);
             return true;
         } catch (IOException e) {
-        	logger.warn(e.getMessage() ,e);
+        	logger.warn(e.getMessage(), e);
         }
 		
 		return false;
