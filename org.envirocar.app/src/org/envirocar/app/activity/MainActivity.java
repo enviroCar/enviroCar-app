@@ -394,8 +394,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		outState.putInt(TRACK_MODE, trackMode);
 		
 		outState.putSerializable(SEEN_ANNOUNCEMENTS, this.seenAnnouncements.toArray(new String[0]));
-		
-		this.unregisterReceiver(errorInformationReceiver);
 	}
 
 	protected void updateStartStopButton() {
@@ -685,6 +683,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 		this.unregisterReceiver(deviceDiscoveryStateReceiver);
 		
 		this.unregisterReceiver(serviceStateReceiver);
+		
+		this.unregisterReceiver(errorInformationReceiver);
 		
 		if (remainingTimeHandler != null) {
 			remainingTimeHandler.removeCallbacks(remainingTimeThread);
