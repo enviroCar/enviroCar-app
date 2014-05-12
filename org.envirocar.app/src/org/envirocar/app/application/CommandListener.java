@@ -20,6 +20,7 @@
  */
 package org.envirocar.app.application;
 
+import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.EngineLoad;
 import org.envirocar.app.commands.FuelSystemStatus;
@@ -54,6 +55,7 @@ import org.envirocar.app.storage.TrackAlreadyFinishedException;
 import org.envirocar.app.storage.TrackMetadata;
 import org.envirocar.app.util.Util;
 
+import android.content.SharedPreferences;
 import android.location.Location;
 
 /**
@@ -87,8 +89,20 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 	private static int instanceCount;
 	
-	public CommandListener(Car car) {
-		this.collector = new Collector(this, car);
+	
+	public CommandListener(Car car, SharedPreferences sharedPreferences) {
+		
+		String samplingRate = sharedPreferences.getString(SettingsActivity.SAMPLING_RATE, Integer.toString(Collector.DEFAULT_SAMPLING_RATE_DELTA));
+		
+		int val;
+		try {
+			val = Integer.parseInt(samplingRate);
+		}
+		catch (NumberFormatException e) {
+			val = Collector.DEFAULT_SAMPLING_RATE_DELTA;
+		}
+		
+		this.collector = new Collector(this, car, val);
 		EventBus.getInstance().registerListener(this);
 		dopListener = new GpsDOPEventListener() {
 			@Override
