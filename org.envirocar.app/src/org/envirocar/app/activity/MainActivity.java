@@ -137,7 +137,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
 	
 	private static final Logger logger = Logger.getLogger(MainActivity.class);
-	private static final String SERVICE_STATE = "serviceState";
 	private static final String TRACK_MODE = "trackMode";
 	private static final String SEEN_ANNOUNCEMENTS = "seenAnnouncements";
 	
@@ -331,7 +330,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private void readSavedState(Bundle savedInstanceState) {
 		if (savedInstanceState == null) return;
 		
-		this.serviceState = (ServiceState) savedInstanceState.getSerializable(SERVICE_STATE);
 		this.trackMode = savedInstanceState.getInt(TRACK_MODE);
 		
 		String[] arr = (String[]) savedInstanceState.getSerializable(SEEN_ANNOUNCEMENTS);
@@ -390,7 +388,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		
-		outState.putSerializable(SERVICE_STATE, serviceState);
 		outState.putInt(TRACK_MODE, trackMode);
 		
 		outState.putSerializable(SEEN_ANNOUNCEMENTS, this.seenAnnouncements.toArray(new String[0]));
