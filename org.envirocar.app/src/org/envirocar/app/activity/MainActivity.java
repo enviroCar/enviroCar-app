@@ -656,6 +656,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	protected void onDestroy() {
 		super.onDestroy();
 
+		logger.info("onDestroy called");
+		
 //		new AsyncTask<Void, Void, Void>() {
 //			@Override
 //			protected Void doInBackground(Void... params) {
