@@ -146,6 +146,15 @@ public interface DbAdapter {
 	 * @return the latest track of the DB or null if there are no tracks
 	 */
 	public Track getLastUsedTrack();
+
+	
+	/**
+	 * @see #getLastUsedTrack()
+	 * 
+	 * @param lazyMeasurements if the measurements should be deserialized
+	 * @return see {@link #getLastUsedTrack()}
+	 */
+	public Track getLastUsedTrack(boolean lazyMeasurements);
 	
 	/**
 	 * Delete track specified by id.
@@ -218,6 +227,7 @@ public interface DbAdapter {
 	public void updateCarIdOfTracks(String currentId, String newId);
 
 	void insertMeasurement(Measurement measurement) throws MeasurementsException;
+
 
 	
 }

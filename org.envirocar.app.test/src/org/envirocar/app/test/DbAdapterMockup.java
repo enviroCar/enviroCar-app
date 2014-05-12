@@ -100,8 +100,7 @@ public class DbAdapterMockup implements DbAdapter {
 
 	@Override
 	public Track getLastUsedTrack() {
-		// TODO Auto-generated method stub
-		return null;
+		return getLastUsedTrack(false);
 	}
 
 	@Override
@@ -180,6 +179,12 @@ public class DbAdapterMockup implements DbAdapter {
 			throws MeasurementsException {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public Track getLastUsedTrack(boolean lazyMeasurements) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 

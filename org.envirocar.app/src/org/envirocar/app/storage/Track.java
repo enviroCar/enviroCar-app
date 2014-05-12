@@ -271,8 +271,16 @@ public class Track implements Comparable<Track> {
 	 * @throws MeasurementsException 
 	 */
 	public void addMeasurement(Measurement measurement) throws TrackAlreadyFinishedException {
-		measurement.setTrack(Track.this);
+		measurement.setTrack(this);
+		
+		/*
+		 * we do NOT need to add the measurement to the list.
+		 * this blows up memory usage and this instance of Track
+		 * is never used elsewhere nor its getMeasurements() method
+		 * and the like.
+		 */
 //		this.measurements.add(measurement);
+		
 		if (this.dbAdapter != null) {
 			try {
 				this.dbAdapter.insertNewMeasurement(measurement);
@@ -335,6 +343,9 @@ public class Track implements Comparable<Track> {
 	public Measurement getLastMeasurement() {
 		if (this.measurements.size() > 0) {
 			return this.measurements.get(this.measurements.size() - 1);
+		}
+		else if (this.lazyLoadingMeasurements) {
+			
 		}
 		return null;
 	}

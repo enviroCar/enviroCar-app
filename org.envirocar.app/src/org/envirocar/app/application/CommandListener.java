@@ -304,7 +304,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		
 		Track lastUsedTrack;
 		if (track == null) {
-			lastUsedTrack = dbAdapter.getLastUsedTrack();
+			lastUsedTrack = dbAdapter.getLastUsedTrack(true);
 		}
 		else {
 			lastUsedTrack = track;

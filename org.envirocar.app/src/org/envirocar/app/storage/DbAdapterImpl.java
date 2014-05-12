@@ -435,14 +435,19 @@ public class DbAdapterImpl implements DbAdapter {
 	}
 
 	@Override
-	public Track getLastUsedTrack() {
-		ArrayList<Track> trackList = getAllTracks();
+	public Track getLastUsedTrack(boolean lazyMeasurements) {
+		ArrayList<Track> trackList = getAllTracks(lazyMeasurements);
 		if (trackList.size() > 0) {
 			Track track = trackList.get(trackList.size() - 1);
 			return track;
 		}
 		
 		return null;
+	}
+	
+	@Override
+	public Track getLastUsedTrack() {
+		return getLastUsedTrack(false);
 	}
 
 	@Override
