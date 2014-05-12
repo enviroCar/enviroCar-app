@@ -272,7 +272,7 @@ public class Track implements Comparable<Track> {
 	 */
 	public void addMeasurement(Measurement measurement) throws TrackAlreadyFinishedException {
 		measurement.setTrack(Track.this);
-		this.measurements.add(measurement);
+//		this.measurements.add(measurement);
 		if (this.dbAdapter != null) {
 			try {
 				this.dbAdapter.insertNewMeasurement(measurement);

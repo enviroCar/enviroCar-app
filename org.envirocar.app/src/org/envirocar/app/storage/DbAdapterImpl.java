@@ -24,7 +24,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -203,7 +202,13 @@ public class DbAdapterImpl implements DbAdapter {
 		values.put(KEY_MEASUREMENT_LONGITUDE, measurement.getLongitude());
 		values.put(KEY_MEASUREMENT_TIME, measurement.getTime());
 		values.put(KEY_MEASUREMENT_TRACK, measurement.getTrack().getId());
-		String propertiesString = createJsonObjectForProperties(measurement).toString();
+		String propertiesString;
+		try {
+			propertiesString = createJsonObjectForProperties(measurement).toString();
+		} catch (JSONException e) {
+			logger.warn(e.getMessage(), e);
+			throw new MeasurementsException(e.getMessage());
+		}
 		values.put(KEY_MEASUREMENT_PROPERTIES, propertiesString);
 		
 		mDb.insert(TABLE_MEASUREMENT, null, values);
@@ -525,13 +530,15 @@ public class DbAdapterImpl implements DbAdapter {
 		return values;
 	}
 
-	private JSONObject createJsonObjectForProperties(Measurement measurement) {
-		HashMap<String, Double> map = new HashMap<String, Double>();
+	public JSONObject createJsonObjectForProperties(Measurement measurement) throws JSONException {
+		JSONObject result = new JSONObject();
+		
 		Map<PropertyKey, Double> properties = measurement.getAllProperties();
 		for (PropertyKey key : properties.keySet()) {
-			map.put(key.name(), properties.get(key));
+			result.put(key.name(), properties.get(key));
 		}
-		return new JSONObject(map);
+		
+		return result;
 	}
 
 	private Cursor getCursorForTrackID(long id) {

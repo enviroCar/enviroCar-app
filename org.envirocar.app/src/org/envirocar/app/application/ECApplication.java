@@ -167,6 +167,10 @@ public class ECApplication extends Application {
 		super.onTrimMemory(level);
 
 		logger.info("onTrimMemory called");
+		
+		logger.info("maxMemory: " +Runtime.getRuntime().maxMemory());
+		logger.info("totalMemory: " +Runtime.getRuntime().totalMemory());
+		logger.info("freeMemory: " +Runtime.getRuntime().freeMemory());
 	}
 	
 	private void initializeErrorHandling() {
