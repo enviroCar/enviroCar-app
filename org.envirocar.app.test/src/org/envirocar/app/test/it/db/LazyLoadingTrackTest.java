@@ -28,10 +28,11 @@ import java.util.UUID;
 import junit.framework.Assert;
 
 import org.envirocar.app.exception.MeasurementsException;
+import org.envirocar.app.model.TrackId;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.storage.TrackWithoutMeasurementsException;
+import org.envirocar.app.storage.FinishedTrackWithoutMeasurementsException;
 
 import android.test.AndroidTestCase;
 
@@ -40,7 +41,7 @@ public class LazyLoadingTrackTest extends AndroidTestCase {
 	private static final int COUNT = 10;
 	private Random random = new Random();
 
-	public void testLazyLoading() throws InterruptedException, TrackWithoutMeasurementsException, InstantiationException {
+	public void testLazyLoading() throws InterruptedException, FinishedTrackWithoutMeasurementsException, InstantiationException {
 		if (DbAdapterImpl.instance() == null) {
 			DbAdapterImpl.init(getContext());
 		}
@@ -65,7 +66,7 @@ public class LazyLoadingTrackTest extends AndroidTestCase {
 		DbAdapterImpl.instance().deleteTrack(dbTrack.getId());
 		try {
 			DbAdapterImpl.instance().getAllMeasurementsForTrack(dbTrack);
-		} catch (TrackWithoutMeasurementsException e) {
+		} catch (FinishedTrackWithoutMeasurementsException e) {
 			Assert.assertNotNull("Expected an exception as the track should not have any measurements left in the DB!", e);
 		}
 		
@@ -85,7 +86,7 @@ public class LazyLoadingTrackTest extends AndroidTestCase {
 	private Measurement createRandomMeasurement(Track t) throws InterruptedException {
 		Measurement result = new Measurement(51.0f + (random.nextDouble()/100f), 57.0f + (random.nextDouble()/100f));
 		result.setTime(System.currentTimeMillis());
-		result.setTrack(t);
+		result.setTrackId(new TrackId(t.getId()));
 		Thread.sleep(10);
 		return result;
 	}

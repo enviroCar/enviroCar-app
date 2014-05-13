@@ -96,7 +96,7 @@ public interface DbAdapter {
 	 * @param lazyMeasurements if true, an implementation shall return
 	 * {@link Track} objects that load their measurements in lazy fashion
 	 * @return all tracks
-	 * @throws TrackWithoutMeasurementsException 
+	 * @throws FinishedTrackWithoutMeasurementsException 
 	 */
 	public List<Track> getAllTracks(boolean lazyMeasurements);
 	
@@ -106,9 +106,9 @@ public interface DbAdapter {
 	 * @param id
 	 *            The id of the track that should be returned
 	 * @return The desired track or null if it does not exist
-	 * @throws TrackWithoutMeasurementsException 
+	 * @throws FinishedTrackWithoutMeasurementsException 
 	 */
-	public Track getTrack(long id) throws TrackWithoutMeasurementsException;
+	public Track getTrack(long id) throws FinishedTrackWithoutMeasurementsException;
 	
 	/**
 	 * Returns one track specified by the id
@@ -117,9 +117,9 @@ public interface DbAdapter {
 	 * @param lazyMeasurements if true, an implementation shall return a
 	 * {@link Track} that loads its measurements in lazy fashion
 	 * @return the desired track
-	 * @throws TrackWithoutMeasurementsException 
+	 * @throws FinishedTrackWithoutMeasurementsException 
 	 */
-	public Track getTrack(long id, boolean lazyMeasurements) throws TrackWithoutMeasurementsException;
+	public Track getTrack(long id, boolean lazyMeasurements) throws FinishedTrackWithoutMeasurementsException;
 	
 	/**
 	 * Returns <code>true</code> if a track with the given id is in the Database
@@ -212,9 +212,9 @@ public interface DbAdapter {
 	 * 
 	 * @param track the track object
 	 * @return the list of Measurements
-	 * @throws TrackWithoutMeasurementsException
+	 * @throws FinishedTrackWithoutMeasurementsException
 	 */
-	List<Measurement> getAllMeasurementsForTrack(Track track) throws TrackWithoutMeasurementsException;
+	List<Measurement> getAllMeasurementsForTrack(Track track) throws FinishedTrackWithoutMeasurementsException;
 
 	/**
 	 * an implementation shall update the ID
@@ -226,7 +226,7 @@ public interface DbAdapter {
 	 */
 	public void updateCarIdOfTracks(String currentId, String newId);
 
-	void insertMeasurement(Measurement measurement) throws MeasurementsException;
+	void insertMeasurement(Measurement measurement) throws MeasurementsException, TrackAlreadyFinishedException;
 
 
 	

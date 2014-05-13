@@ -10,13 +10,13 @@ import org.envirocar.app.json.TrackDecoder;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Track.TrackStatus;
-import org.envirocar.app.storage.TrackWithoutMeasurementsException;
+import org.envirocar.app.storage.FinishedTrackWithoutMeasurementsException;
 import org.envirocar.app.test.ResourceLoadingTestCase;
 import org.json.JSONException;
 
 public class TrackJsonParsingTest extends ResourceLoadingTestCase {
 
-	public void testParsingAndResolving() throws NumberFormatException, JSONException, ParseException, TrackWithoutMeasurementsException, IOException, InstantiationException {
+	public void testParsingAndResolving() throws NumberFormatException, JSONException, ParseException, FinishedTrackWithoutMeasurementsException, IOException, InstantiationException {
 		if (DbAdapterImpl.instance() == null) {
 			DbAdapterImpl.init(getInstrumentation().getTargetContext());
 		}
@@ -34,7 +34,7 @@ public class TrackJsonParsingTest extends ResourceLoadingTestCase {
 		DbAdapterImpl.instance().deleteTrack(dbTrack.getId());
 		try {
 			DbAdapterImpl.instance().getAllMeasurementsForTrack(dbTrack);
-		} catch (TrackWithoutMeasurementsException e) {
+		} catch (FinishedTrackWithoutMeasurementsException e) {
 			Assert.assertNotNull("Expected an exception as the track should not have any measurements left in the DB!", e);
 		}
 	}

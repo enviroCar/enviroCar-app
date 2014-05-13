@@ -37,7 +37,7 @@ import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.TrackMetadata;
-import org.envirocar.app.storage.TrackWithoutMeasurementsException;
+import org.envirocar.app.storage.FinishedTrackWithoutMeasurementsException;
 
 import android.app.Activity;
 import android.content.Context;
@@ -116,7 +116,7 @@ public class UploadManager {
 				try {
 					String result = DAOProvider.instance().getTrackDAO().storeTrack(track, isObfuscationEnabled());
 					return result;
-				} catch (TrackWithoutMeasurementsException e) {
+				} catch (FinishedTrackWithoutMeasurementsException e) {
 					if (track.getNumberOfMeasurements() != 0) {
 						alertOnObfuscationMeasurements();
 					}

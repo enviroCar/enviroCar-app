@@ -27,7 +27,7 @@ import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.storage.TrackWithoutMeasurementsException;
+import org.envirocar.app.storage.FinishedTrackWithoutMeasurementsException;
 
 public class DbAdapterMockup implements DbAdapter {
 
@@ -158,8 +158,8 @@ public class DbAdapterMockup implements DbAdapter {
 	}
 
 	@Override
-	public List<Measurement> getAllMeasurementsForTrack(Track track) throws TrackWithoutMeasurementsException {
-		throw new TrackWithoutMeasurementsException(track);
+	public List<Measurement> getAllMeasurementsForTrack(Track track) throws FinishedTrackWithoutMeasurementsException {
+		throw new FinishedTrackWithoutMeasurementsException(track);
 	}
 
 	@Override

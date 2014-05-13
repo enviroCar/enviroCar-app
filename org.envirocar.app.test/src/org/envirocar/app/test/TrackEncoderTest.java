@@ -31,7 +31,7 @@ import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
 import org.envirocar.app.storage.TrackMetadata;
-import org.envirocar.app.storage.TrackWithoutMeasurementsException;
+import org.envirocar.app.storage.FinishedTrackWithoutMeasurementsException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -65,12 +65,12 @@ public class TrackEncoderTest extends AndroidTestCase {
 		Track t = createTrack(); 
 		try {
 			new TrackEncoder().createTrackJson(t, true);
-		} catch (TrackWithoutMeasurementsException e) {
+		} catch (FinishedTrackWithoutMeasurementsException e) {
 			Assert.assertNotNull("Expected an exception!", e);
 		}
 	}
 	
-	public void testMetadataEncoding() throws TrackAlreadyFinishedException, JSONException, TrackWithoutMeasurementsException {
+	public void testMetadataEncoding() throws TrackAlreadyFinishedException, JSONException, FinishedTrackWithoutMeasurementsException {
 		Track t = createTrack();
 		TrackMetadata m1 = new TrackMetadata();
 		m1.putEntry(TrackMetadata.APP_VERSION, "v1");

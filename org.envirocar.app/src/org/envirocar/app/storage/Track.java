@@ -32,6 +32,7 @@ import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
+import org.envirocar.app.model.TrackId;
 import org.envirocar.app.protocol.algorithm.AbstractConsumptionAlgorithm;
 import org.envirocar.app.protocol.algorithm.BasicConsumptionAlgorithm;
 import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
@@ -68,7 +69,6 @@ public class Track implements Comparable<Track> {
 	
 	private static final Logger logger = Logger.getLogger(Track.class);
 
-	private long id;
 	private String name;
 	private String description;
 	private List<Measurement> measurements = new ArrayList<Measurement>();
@@ -86,6 +86,8 @@ public class Track implements Comparable<Track> {
 	private Long endTime = null;
 
 	private TrackMetadata metadata;
+
+	private TrackId trackId;
 
 	public static Track createTrackWithId(long id, DbAdapter dbAdapterImpl) {
 		Track track = new Track(id);
@@ -105,7 +107,7 @@ public class Track implements Comparable<Track> {
 	}
 
 	private Track(long id) {
-		this.id = id;
+		this.trackId = new TrackId(id);
 	}
 	
 	private Track(String remoteID, DbAdapter dbAdapter) {
@@ -122,7 +124,7 @@ public class Track implements Comparable<Track> {
 		this.name = "";
 		this.description = "";
 		this.measurements = new ArrayList<Measurement>();
-		this.id = dbAdapter.insertTrack(this);
+		this.trackId = new TrackId(dbAdapter.insertTrack(this));
 		this.dbAdapter = dbAdapter;
 	}
 
@@ -174,7 +176,7 @@ public class Track implements Comparable<Track> {
 		if ((measurements == null || measurements.isEmpty()) && dbAdapter != null) {
 			try {
 				this.measurements = dbAdapter.getAllMeasurementsForTrack(this);
-			} catch (TrackWithoutMeasurementsException e) {
+			} catch (FinishedTrackWithoutMeasurementsException e) {
 				logger.warn(e.getMessage(), e);
 			}
 		}
@@ -255,6 +257,8 @@ public class Track implements Comparable<Track> {
 					this.dbAdapter.insertMeasurement(measurement);
 				} catch (MeasurementsException e) {
 					logger.warn(e.getMessage(), e);
+				} catch (TrackAlreadyFinishedException e) {
+					logger.warn(e.getMessage(), e);
 				}
 			}
 		}
@@ -271,7 +275,7 @@ public class Track implements Comparable<Track> {
 	 * @throws MeasurementsException 
 	 */
 	public void addMeasurement(Measurement measurement) throws TrackAlreadyFinishedException {
-		measurement.setTrack(this);
+		measurement.setTrackId(this.trackId);
 		
 		/*
 		 * we do NOT need to add the measurement to the list.
@@ -306,7 +310,7 @@ public class Track implements Comparable<Track> {
 	 * @return the id
 	 */
 	public long getId() {
-		return id;
+		return trackId.getId();
 	}
 
 	public String getRemoteID() {
@@ -526,7 +530,7 @@ public class Track implements Comparable<Track> {
 			JSONObject measurementJsonObject = features.getJSONObject(j);
 			recycleMeasurement = Measurement.fromJson(measurementJsonObject);
 			
-			recycleMeasurement.setTrack(t);
+			recycleMeasurement.setTrackId(t.trackId);
 			measurements.add(recycleMeasurement);
 		}
 		

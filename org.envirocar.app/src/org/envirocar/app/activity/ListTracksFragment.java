@@ -67,7 +67,7 @@ import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.storage.TrackWithoutMeasurementsException;
+import org.envirocar.app.storage.FinishedTrackWithoutMeasurementsException;
 import org.envirocar.app.util.NamedThreadFactory;
 import org.envirocar.app.util.Util;
 import org.envirocar.app.views.TypefaceEC;
@@ -414,7 +414,7 @@ public class ListTracksFragment extends SherlockFragment {
 			}catch (JSONException e){
 				logger.warn(e.getMessage(), e);
 				Crouton.showText(getActivity(), R.string.error_json, Style.ALERT);
-			} catch (TrackWithoutMeasurementsException e) {
+			} catch (FinishedTrackWithoutMeasurementsException e) {
 				logger.warn(e.getMessage(), e);
 				Crouton.showText(getActivity(), R.string.track_finished_no_measurements, Style.ALERT);
 			} catch (IOException e) {

@@ -28,14 +28,14 @@ import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Track.TrackStatus;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
-import org.envirocar.app.storage.TrackWithoutMeasurementsException;
+import org.envirocar.app.storage.FinishedTrackWithoutMeasurementsException;
 
 import android.preference.PreferenceManager;
 import android.test.AndroidTestCase;
 
 public class TrackStatusTest extends AndroidTestCase {
 	
-	public void testTrackStatusFromDB() throws InstantiationException, TrackAlreadyFinishedException, TrackWithoutMeasurementsException {
+	public void testTrackStatusFromDB() throws InstantiationException, TrackAlreadyFinishedException, FinishedTrackWithoutMeasurementsException {
 		if (DbAdapterImpl.instance() == null) {
 			DbAdapterImpl.init(getContext());
 		}

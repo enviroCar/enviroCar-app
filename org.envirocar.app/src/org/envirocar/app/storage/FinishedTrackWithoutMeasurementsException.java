@@ -20,13 +20,13 @@
  */
 package org.envirocar.app.storage;
 
-public class TrackWithoutMeasurementsException extends Exception {
+public class FinishedTrackWithoutMeasurementsException extends Exception {
 
-	public TrackWithoutMeasurementsException(Track track) {
+	public FinishedTrackWithoutMeasurementsException(Track track) {
 		super(String.format("The Track with id '%d' does not have measurements in the database!", track.getId()));
 	}
 
-	public TrackWithoutMeasurementsException(String string) {
+	public FinishedTrackWithoutMeasurementsException(String string) {
 		super(string);
 	}
 

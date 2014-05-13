@@ -41,7 +41,7 @@ import org.envirocar.app.json.TrackDecoder;
 import org.envirocar.app.json.TrackEncoder;
 import org.envirocar.app.model.User;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.storage.TrackWithoutMeasurementsException;
+import org.envirocar.app.storage.FinishedTrackWithoutMeasurementsException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -62,7 +62,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 	}
 
 	@Override
-	public String storeTrack(Track track, boolean obfuscate) throws NotConnectedException, TrackWithoutMeasurementsException, TrackSerializationException, TrackRetrievalException {
+	public String storeTrack(Track track, boolean obfuscate) throws NotConnectedException, FinishedTrackWithoutMeasurementsException, TrackSerializationException, TrackRetrievalException {
 		try {
 			JSONObject content = new TrackEncoder().createTrackJson(track, obfuscate);
 			

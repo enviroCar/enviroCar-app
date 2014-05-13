@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.envirocar.app.exception.LocationInvalidException;
+import org.envirocar.app.model.TrackId;
 import org.envirocar.app.util.Util;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -199,7 +200,7 @@ public class Measurement {
 	private double latitude;
 	private double longitude;
 	private long time;
-	private Track track;
+	private TrackId trackId;
 	
 	private Map<PropertyKey, Double> propertyMap = new HashMap<PropertyKey, Double>();
 
@@ -301,16 +302,16 @@ public class Measurement {
 	/**
 	 * @return the track
 	 */
-	public Track getTrack() {
-		return track;
+	public TrackId getTrackId() {
+		return trackId;
 	}
 
 	/**
 	 * @param track
 	 *            the track to set
 	 */
-	public void setTrack(Track track) {
-		this.track = track;
+	public void setTrackId(TrackId track) {
+		this.trackId = track;
 	}
 	
 	public boolean hasProperty(PropertyKey key) {
