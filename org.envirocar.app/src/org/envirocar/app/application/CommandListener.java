@@ -380,6 +380,8 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	}
 
 	public void shutdown() {
+		logger.info("shutting down CommandListener. Hash: "+ System.identityHashCode(this));
+		
 		EventBus.getInstance().unregisterListener(this);
 		EventBus.getInstance().unregisterListener(dopListener);
 		
