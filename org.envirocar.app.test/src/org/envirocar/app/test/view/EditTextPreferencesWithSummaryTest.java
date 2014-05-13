@@ -32,66 +32,79 @@ import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.test.ActivityUnitTestCase;
+import android.view.ContextThemeWrapper;
 
-public class EditTextPreferencesWithSummaryTest
-		extends ActivityUnitTestCase<SettingsActivity> {
+public class EditTextPreferencesWithSummaryTest extends
+		ActivityUnitTestCase<SettingsActivity> {
 
 	private Intent intent;
 	private SettingsActivity activity;
-
 
 	public EditTextPreferencesWithSummaryTest() {
 		super(SettingsActivity.class);
 	}
 
-    @Override
-    protected void setUp() throws Exception {
-        Context targetContext = getInstrumentation().getTargetContext();
-        intent = new Intent(targetContext, SettingsActivity.class);
-        super.setUp();
-    }
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		ContextThemeWrapper context = new ContextThemeWrapper(
+				getInstrumentation().getTargetContext(), R.style.Theme_Cario);
+		setActivityContext(context);
 
-    private void assembleActivity() {
-        startActivity(intent, null, null);
-        activity = getActivity();
-    }
+		intent = new Intent(context, SettingsActivity.class);
 
-    private void assemblePreferences() {
-        Context targetContext = getInstrumentation().getTargetContext();        
-        SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(targetContext);
-        SharedPreferences.Editor editor = sharedPref.edit();
+	}
 
-        editor.putString("ec_sampling_rate", "5");
-        editor.commit();
-    }
+	private void assembleActivity() {
+		startActivity(intent, null, null);
+		activity = getActivity();
+	}
 
-    @SuppressWarnings("deprecation")
+	private void assemblePreferences() {
+		Context targetContext = getInstrumentation().getTargetContext();
+		SharedPreferences sharedPref = PreferenceManager
+				.getDefaultSharedPreferences(targetContext);
+		SharedPreferences.Editor editor = sharedPref.edit();
+
+		editor.putString("ec_sampling_rate", "5");
+		editor.commit();
+	}
+
+	@SuppressWarnings("deprecation")
 	public void testSummary() {
-        assemblePreferences(); 
-        assembleActivity();
-        EditTextPreference samplingRateEdit = (EditTextPreference) activity.findPreference("ec_sampling_rate");
-        assertEquals(String.format(getActivity().getResources().getString(R.string.sampling_rate_summary), "5"), samplingRateEdit.getSummary());
-    }
+		assemblePreferences();
+		assembleActivity();
+		EditTextPreference samplingRateEdit = (EditTextPreference) activity
+				.findPreference("ec_sampling_rate");
+		assertEquals(
+				String.format(
+						getActivity().getResources().getString(
+								R.string.sampling_rate_summary), "5"),
+				samplingRateEdit.getSummary());
+	}
 
 	public void testMinMaxChangeListener() {
 		assembleActivity();
-		MinMaxValueChangeListener l = new EditPreferenceWithSummary.MinMaxValueChangeListener(0, 23);
-		
+		MinMaxValueChangeListener l = new EditPreferenceWithSummary.MinMaxValueChangeListener(
+				0, 23);
+
 		String key = "test_keyyyy";
 		Preference pref = new Preference(getActivity());
 		pref.setKey(key);
-		
+
 		l.onPreferenceChange(pref, "24");
-		
-		String val = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(key, "");
-		
+
+		String val = PreferenceManager.getDefaultSharedPreferences(
+				getActivity()).getString(key, "");
+
 		assertEquals(val, "23");
-		
+
 		l.onPreferenceChange(pref, "-324");
-		
-		val = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(key, "");
-		
+
+		val = PreferenceManager.getDefaultSharedPreferences(getActivity())
+				.getString(key, "");
+
 		assertEquals(val, "0");
 	}
-	
+
 }
