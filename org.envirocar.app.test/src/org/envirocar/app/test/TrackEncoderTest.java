@@ -21,9 +21,12 @@
 
 package org.envirocar.app.test;
 
+import java.util.Collections;
+
 import junit.framework.Assert;
 
 import org.envirocar.app.json.TrackEncoder;
+import org.envirocar.app.json.TrackWithoutMeasurementsException;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.storage.Measurement;
@@ -31,7 +34,6 @@ import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
 import org.envirocar.app.storage.TrackMetadata;
-import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -95,7 +97,7 @@ public class TrackEncoderTest extends AndroidTestCase {
 	private Track createTrack() throws TrackAlreadyFinishedException {
 		Track result = Track.createNewLocalTrack(new DbAdapterMockup());
 		result.setCar(car);
-		result.addMeasurement(createMeasurement());
+		result.setMeasurementsAsArrayList(Collections.singletonList(createMeasurement()));
 		result.setDescription("desc");
 		result.setName("test-track");
 		return result;

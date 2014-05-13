@@ -23,8 +23,8 @@ package org.envirocar.app.storage;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +34,7 @@ import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
+import org.envirocar.app.model.TrackId;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.envirocar.app.storage.Track.TrackStatus;
 import org.json.JSONArray;
@@ -192,9 +193,20 @@ public class DbAdapterImpl implements DbAdapter {
 	}
 	
 	@Override
-	public synchronized void insertMeasurement(Measurement measurement) throws MeasurementsException {
-		if (measurement.getTrack() == null) {
+	public synchronized void insertMeasurement(Measurement measurement) throws MeasurementsException, TrackAlreadyFinishedException {
+		insertMeasurement(measurement, false);
+	}
+	
+	@Override
+	public synchronized void insertMeasurement(Measurement measurement, boolean ignoreFinished) throws MeasurementsException, TrackAlreadyFinishedException {
+		if (measurement.getTrackId() == null) {
 			throw new MeasurementsException("No Track is linked to this measurement.");
+		}
+		
+		Track tempTrack;
+		tempTrack = getTrack(measurement.getTrackId().getId(), true);
+		if (tempTrack.isFinished() && !ignoreFinished) {
+			throw new TrackAlreadyFinishedException("The linked track ("+tempTrack.getId()+") is already finished!");
 		}
 		
 		ContentValues values = new ContentValues();
@@ -202,8 +214,14 @@ public class DbAdapterImpl implements DbAdapter {
 		values.put(KEY_MEASUREMENT_LATITUDE, measurement.getLatitude());
 		values.put(KEY_MEASUREMENT_LONGITUDE, measurement.getLongitude());
 		values.put(KEY_MEASUREMENT_TIME, measurement.getTime());
-		values.put(KEY_MEASUREMENT_TRACK, measurement.getTrack().getId());
-		String propertiesString = createJsonObjectForProperties(measurement).toString();
+		values.put(KEY_MEASUREMENT_TRACK, measurement.getTrackId().getId());
+		String propertiesString;
+		try {
+			propertiesString = createJsonObjectForProperties(measurement).toString();
+		} catch (JSONException e) {
+			logger.warn(e.getMessage(), e);
+			throw new MeasurementsException(e.getMessage());
+		}
 		values.put(KEY_MEASUREMENT_PROPERTIES, propertiesString);
 		
 		mDb.insert(TABLE_MEASUREMENT, null, values);
@@ -211,19 +229,15 @@ public class DbAdapterImpl implements DbAdapter {
 
 	@Override
 	public synchronized void insertNewMeasurement(Measurement measurement) throws MeasurementsException, TrackAlreadyFinishedException {
-		if (measurement.getTrack() == null) {
+		if (measurement.getTrackId() == null) {
 			throw new MeasurementsException("No Track is linked to this measurement.");
-		}
-		else if (measurement.getTrack().isFinished()) {
-			throw new TrackAlreadyFinishedException("The linked track ("+measurement.getTrack().getId()+") is already finished!");
 		}
 
 		insertMeasurement(measurement);
 	}
 	
 	@Override
-	public synchronized long insertTrack(Track track) {
-		logger.debug("insertTrack: "+track.getId());
+	public synchronized long insertTrack(Track track, boolean remote) {
 		ContentValues values = createDbEntry(track);
 
 		long result = mDb.insert(TABLE_TRACK, null, values);
@@ -231,6 +245,11 @@ public class DbAdapterImpl implements DbAdapter {
 		removeMeasurementArtifacts(result);
 		
 		return result;
+	}
+	
+	@Override
+	public synchronized long insertTrack(Track track) {
+		return insertTrack(track, false);
 	}
 
 	private void removeMeasurementArtifacts(long id) {
@@ -257,12 +276,7 @@ public class DbAdapterImpl implements DbAdapter {
 		c.moveToFirst();
 		for (int i = 0; i < c.getCount(); i++) {
 			long id = c.getLong(c.getColumnIndex(KEY_TRACK_ID));
-			try {
-				tracks.add(getTrack(id, lazyMeasurements));
-			} catch (TrackWithoutMeasurementsException e) {
-				logger.warn("Could not find any measurements for the track in the database. Removing.");
-				deleteTrack(id);
-			}
+			tracks.add(getTrack(id, lazyMeasurements));
 			c.moveToNext();
 		}
 		c.close();
@@ -270,7 +284,7 @@ public class DbAdapterImpl implements DbAdapter {
 	}
 	
 	@Override
-	public Track getTrack(long id, boolean lazyMeasurements) throws TrackWithoutMeasurementsException {
+	public Track getTrack(long id, boolean lazyMeasurements) {
 		Cursor c = getCursorForTrackID(id);
 		if (!c.moveToFirst()) {
 			return null;
@@ -280,13 +294,6 @@ public class DbAdapterImpl implements DbAdapter {
 		track.setName(c.getString(c.getColumnIndex(KEY_TRACK_NAME)));
 		track.setDescription(c.getString(c.getColumnIndex(KEY_TRACK_DESCRIPTION)));
 		track.setRemoteID(c.getString(c.getColumnIndex(KEY_TRACK_REMOTE)));
-		
-		if (track.isRemoteTrack()) {
-			/*
-			 * remote tracks are always finished
-			 */
-			track.setStatus(TrackStatus.FINISHED);
-		}
 		
 		int statusColumn = c.getColumnIndex(KEY_TRACK_STATE);
 		if (statusColumn != -1) {
@@ -316,8 +323,19 @@ public class DbAdapterImpl implements DbAdapter {
 			track.setLazyLoadingMeasurements(true);
 			Measurement first = getFirstMeasurementForTrack(track);
 			Measurement last = getLastMeasurementForTrack(track);
-			track.setStartTime(first.getTime());
-			track.setEndTime(last.getTime());
+			
+			if (first != null && last != null) {
+				track.setStartTime(first.getTime());
+				track.setEndTime(last.getTime());	
+			}
+			
+		}
+		
+		if (track.isRemoteTrack()) {
+			/*
+			 * remote tracks are always finished
+			 */
+			track.setStatus(TrackStatus.FINISHED);
 		}
 		
 		return track;
@@ -342,36 +360,31 @@ public class DbAdapterImpl implements DbAdapter {
 		return new Car(fuelType, manufacturer, model, carId, year, engineDisplacement);
 	}
 
-	private Measurement getLastMeasurementForTrack(Track track) throws TrackWithoutMeasurementsException {
+	private Measurement getLastMeasurementForTrack(Track track) {
 		Cursor c = mDb.query(TABLE_MEASUREMENT, ALL_MEASUREMENT_KEYS,
 				KEY_MEASUREMENT_TRACK + "=\"" + track.getId() + "\"", null, null, null, KEY_MEASUREMENT_TIME + " DESC", "1");
 	
-		if (!c.moveToFirst()) {
-			deleteTrackAndThrowException(track);
+		Measurement measurement = null;
+		if (c.moveToFirst()) {
+			measurement = buildMeasurementFromCursor(track, c);
 		}
-	
-		Measurement measurement = buildMeasurementFromCursor(track, c);
 	
 		return measurement;
 	}
 
-	private Measurement getFirstMeasurementForTrack(Track track) throws TrackWithoutMeasurementsException {
+
+	private Measurement getFirstMeasurementForTrack(Track track) {
 		Cursor c = mDb.query(TABLE_MEASUREMENT, ALL_MEASUREMENT_KEYS,
 				KEY_MEASUREMENT_TRACK + "=\"" + track.getId() + "\"", null, null, null, KEY_MEASUREMENT_TIME + " ASC", "1");
 	
-		if (!c.moveToFirst()) {
-			deleteTrackAndThrowException(track);
+		Measurement measurement = null;
+		if (c.moveToFirst()) {
+			measurement = buildMeasurementFromCursor(track, c);
 		}
-	
-		Measurement measurement = buildMeasurementFromCursor(track, c);
 	
 		return measurement;
 	}
-
-	private void deleteTrackAndThrowException(Track track) throws TrackWithoutMeasurementsException {
-		deleteTrack(track.getId());
-		throw new TrackWithoutMeasurementsException(track);		
-	}
+	
 
 	private Measurement buildMeasurementFromCursor(Track track, Cursor c) {
 		double lat = c.getDouble(c.getColumnIndex(KEY_MEASUREMENT_LATITUDE));
@@ -380,7 +393,7 @@ public class DbAdapterImpl implements DbAdapter {
 		String rawData = c.getString(c.getColumnIndex(KEY_MEASUREMENT_PROPERTIES));
 		Measurement measurement = new Measurement(lat, lon);
 		measurement.setTime(time);
-		measurement.setTrack(track);
+		measurement.setTrackId(new TrackId(track.getId()));
 		
 		if (rawData != null) {
 			try {
@@ -400,7 +413,7 @@ public class DbAdapterImpl implements DbAdapter {
 	}
 
 	@Override
-	public Track getTrack(long id) throws TrackWithoutMeasurementsException {
+	public Track getTrack(long id) {
 		return getTrack(id, false);
 	}
 
@@ -430,14 +443,19 @@ public class DbAdapterImpl implements DbAdapter {
 	}
 
 	@Override
-	public Track getLastUsedTrack() {
-		ArrayList<Track> trackList = getAllTracks();
+	public Track getLastUsedTrack(boolean lazyMeasurements) {
+		ArrayList<Track> trackList = getAllTracks(lazyMeasurements);
 		if (trackList.size() > 0) {
 			Track track = trackList.get(trackList.size() - 1);
 			return track;
 		}
 		
 		return null;
+	}
+	
+	@Override
+	public Track getLastUsedTrack() {
+		return getLastUsedTrack(false);
 	}
 
 	@Override
@@ -485,11 +503,7 @@ public class DbAdapterImpl implements DbAdapter {
 		Cursor c = mDb.query(TABLE_TRACK, ALL_TRACK_KEYS, KEY_TRACK_REMOTE + " IS NULL", null, null, null, null);
 		c.moveToFirst();
 		for (int i = 0; i < c.getCount(); i++) {
-			try {
-				tracks.add(getTrack(c.getLong(c.getColumnIndex(KEY_TRACK_ID))));
-			} catch (TrackWithoutMeasurementsException e) {
-				logger.warn(e.getMessage());
-			}
+			tracks.add(getTrack(c.getLong(c.getColumnIndex(KEY_TRACK_ID))));
 			c.moveToNext();
 		}
 		c.close();
@@ -525,13 +539,15 @@ public class DbAdapterImpl implements DbAdapter {
 		return values;
 	}
 
-	private JSONObject createJsonObjectForProperties(Measurement measurement) {
-		HashMap<String, Double> map = new HashMap<String, Double>();
+	public JSONObject createJsonObjectForProperties(Measurement measurement) throws JSONException {
+		JSONObject result = new JSONObject();
+		
 		Map<PropertyKey, Double> properties = measurement.getAllProperties();
 		for (PropertyKey key : properties.keySet()) {
-			map.put(key.name(), properties.get(key));
+			result.put(key.name(), properties.get(key));
 		}
-		return new JSONObject(map);
+		
+		return result;
 	}
 
 	private Cursor getCursorForTrackID(long id) {
@@ -540,16 +556,16 @@ public class DbAdapterImpl implements DbAdapter {
 	}
 
 	@Override
-	public List<Measurement> getAllMeasurementsForTrack(Track track) throws TrackWithoutMeasurementsException {
+	public List<Measurement> getAllMeasurementsForTrack(Track track) {
 		ArrayList<Measurement> allMeasurements = new ArrayList<Measurement>();
 	
 		Cursor c = mDb.query(TABLE_MEASUREMENT, ALL_MEASUREMENT_KEYS,
 				KEY_MEASUREMENT_TRACK + "=\"" + track.getId() + "\"", null, null, null, KEY_MEASUREMENT_TIME + " ASC");
 	
 		if (!c.moveToFirst()) {
-			deleteTrackAndThrowException(track);
+			return Collections.emptyList();
 		}
-	
+		
 		for (int i = 0; i < c.getCount(); i++) {
 	
 			Measurement measurement = buildMeasurementFromCursor(track, c);

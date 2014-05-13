@@ -44,16 +44,20 @@ import android.location.Location;
 public class Collector {
 
 	private static final Logger logger = Logger.getLogger(Collector.class);
+	static final int DEFAULT_SAMPLING_RATE_DELTA = 5000;
 	private Measurement measurement;
 	private MeasurementListener callback;
 	private Car car;
 	private AbstractCalculatedMAFAlgorithm mafAlgorithm;
 	private AbstractConsumptionAlgorithm consumptionAlgorithm;
 	private boolean fuelTypeNotSupportedLogged;
-	
-	public Collector(MeasurementListener l, Car car) {
+	private long samplingRateDelta = 5000;
+
+	public Collector(MeasurementListener l, Car car, int samplingDelta) {
 		this.callback = l;
 		this.car = car;
+		
+		this.samplingRateDelta = samplingDelta;
 		
 		this.mafAlgorithm = new CalculatedMAFWithStaticVolumetricEfficiency(this.car);
 		logger.info("Using MAF Algorithm "+ this.mafAlgorithm.getClass());
@@ -61,6 +65,11 @@ public class Collector {
 		logger.info("Using Consumption Algorithm "+ this.consumptionAlgorithm.getClass());
 		
 		resetMeasurement();
+	}
+
+	
+	public Collector(MeasurementListener l, Car car) {
+		this(l, car, DEFAULT_SAMPLING_RATE_DELTA);
 	}
 	
 	private void resetMeasurement() {
@@ -217,7 +226,7 @@ public class Collector {
 	private boolean checkReady(Measurement m) {
 		if (m.getLatitude() == 0.0 || m.getLongitude() == 0.0) return false;
 		
-		if (System.currentTimeMillis() - m.getTime() < 5000) return false;
+		if (System.currentTimeMillis() - m.getTime() < samplingRateDelta) return false;
 		
 		/*
 		 * emulate the legacy behavior: insert measurement despite data might be missing

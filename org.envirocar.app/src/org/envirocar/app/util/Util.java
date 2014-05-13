@@ -50,10 +50,10 @@ import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.json.TrackEncoder;
+import org.envirocar.app.json.TrackWithoutMeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -400,7 +400,7 @@ public class Util {
 	}
 	
 	
-	public static File saveTrackAndReturnFile(Track t, boolean obfuscate) throws JSONException, TrackWithoutMeasurementsException, IOException{
+	public static File saveTrackAndReturnFile(Track t, boolean obfuscate) throws JSONException, IOException, TrackWithoutMeasurementsException{
 		return Util.saveTrackToSdCard(new TrackEncoder().createTrackJson(t, obfuscate).toString(),
 				(t.isRemoteTrack() ? t.getRemoteID() : Long.toString(t.getId())));
 	}

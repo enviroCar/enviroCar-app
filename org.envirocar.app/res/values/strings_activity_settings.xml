@@ -27,5 +27,9 @@
     
     <string name="use_pid_supported">Use PID Supported Query</string>
     <string name="use_pid_supported_summary">Query the vehicle\'s ECU on the supported OBD commands</string>
+    
+    <string name="sampling_rate_title">Sampling Rate (sec)</string>
+    <string name="sampling_rate_summary">The time delta between two measurements in seconds (current value: %s). Note: the lower the value, the bigger the data volume.
+        Only consider changing if you are aware of the consequences.</string>
 	
 </resources>
