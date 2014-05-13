@@ -20,22 +20,24 @@
  */
 package org.envirocar.app.test.it.db;
 
+
 import junit.framework.Assert;
 
 import org.envirocar.app.application.CarManager;
+import org.envirocar.app.exception.MeasurementsException;
+import org.envirocar.app.model.TrackId;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Track.TrackStatus;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
-import org.envirocar.app.storage.FinishedTrackWithoutMeasurementsException;
 
 import android.preference.PreferenceManager;
 import android.test.AndroidTestCase;
 
 public class TrackStatusTest extends AndroidTestCase {
 	
-	public void testTrackStatusFromDB() throws InstantiationException, TrackAlreadyFinishedException, FinishedTrackWithoutMeasurementsException {
+	public void testTrackStatusFromDB() throws InstantiationException, TrackAlreadyFinishedException, MeasurementsException {
 		if (DbAdapterImpl.instance() == null) {
 			DbAdapterImpl.init(getContext());
 		}
@@ -48,7 +50,7 @@ public class TrackStatusTest extends AndroidTestCase {
 		
 		Assert.assertTrue(t.getStatus() == TrackStatus.ONGOING);
 		
-		t.addMeasurement(createMeasurement());
+		DbAdapterImpl.instance().insertMeasurement(createMeasurement(t));
 		
 		Track l = DbAdapterImpl.instance().getLastUsedTrack();
 		
@@ -65,8 +67,9 @@ public class TrackStatusTest extends AndroidTestCase {
 		Assert.assertTrue(DbAdapterImpl.instance().getTrack(t.getId()) == null);
 	}
 
-	private Measurement createMeasurement() {
+	private Measurement createMeasurement(Track t) {
 		Measurement result = new Measurement(52.0, 7.0);
+		result.setTrackId(new TrackId(t.getId()));
 		return result;
 	}
 

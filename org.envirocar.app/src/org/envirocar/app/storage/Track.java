@@ -124,7 +124,7 @@ public class Track implements Comparable<Track> {
 		this.name = "";
 		this.description = "";
 		this.measurements = new ArrayList<Measurement>();
-		this.trackId = new TrackId(dbAdapter.insertTrack(this));
+		this.trackId = new TrackId(dbAdapter.insertTrack(this, true));
 		this.dbAdapter = dbAdapter;
 	}
 
@@ -174,11 +174,7 @@ public class Track implements Comparable<Track> {
 	 */
 	public List<Measurement> getMeasurements() {
 		if ((measurements == null || measurements.isEmpty()) && dbAdapter != null) {
-			try {
-				this.measurements = dbAdapter.getAllMeasurementsForTrack(this);
-			} catch (FinishedTrackWithoutMeasurementsException e) {
-				logger.warn(e.getMessage(), e);
-			}
+			this.measurements = dbAdapter.getAllMeasurementsForTrack(this);
 		}
 		return measurements;
 	}
@@ -251,10 +247,14 @@ public class Track implements Comparable<Track> {
 	}
 	
 	private void storeMeasurementsInDbAdapter() {
+		storeMeasurementsInDbAdapter(false);
+	}
+	
+	private void storeMeasurementsInDbAdapter(boolean ignoreFinished) {
 		if (this.dbAdapter != null) {
 			for (Measurement measurement : measurements) {
 				try {
-					this.dbAdapter.insertMeasurement(measurement);
+					this.dbAdapter.insertMeasurement(measurement, ignoreFinished);
 				} catch (MeasurementsException e) {
 					logger.warn(e.getMessage(), e);
 				} catch (TrackAlreadyFinishedException e) {
@@ -272,8 +272,11 @@ public class Track implements Comparable<Track> {
 	 * 
 	 * @param measurement
 	 * @throws TrackAlreadyFinishedException 
-	 * @throws MeasurementsException 
+	 * @throws MeasurementsException
+	 * @deprecated use {@link DbAdapter#insertNewMeasurement(Measurement)} directly instead,
+	 * or {@link #setMeasurementsAsArrayList(List)} for tracks in memory
 	 */
+	@Deprecated
 	public void addMeasurement(Measurement measurement) throws TrackAlreadyFinishedException {
 		measurement.setTrackId(this.trackId);
 		
@@ -310,6 +313,9 @@ public class Track implements Comparable<Track> {
 	 * @return the id
 	 */
 	public long getId() {
+		if (trackId == null) {
+			return 0;
+		}
 		return trackId.getId();
 	}
 
@@ -534,9 +540,11 @@ public class Track implements Comparable<Track> {
 			measurements.add(recycleMeasurement);
 		}
 		
-		t.setMeasurementsAsArrayList(measurements);
 		logger.info("Storing measurements in database");
-		t.storeMeasurementsInDbAdapter();
+		t.setMeasurementsAsArrayList(measurements);
+		
+		t.storeMeasurementsInDbAdapter(true);
+		
 		return t;
 	}
 

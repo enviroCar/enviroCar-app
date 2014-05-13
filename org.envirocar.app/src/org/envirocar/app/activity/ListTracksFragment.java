@@ -56,6 +56,7 @@ import org.envirocar.app.dao.TrackDAO;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.ServerException;
+import org.envirocar.app.json.TrackWithoutMeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.TermsOfUseInstance;
@@ -67,7 +68,6 @@ import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.storage.FinishedTrackWithoutMeasurementsException;
 import org.envirocar.app.util.NamedThreadFactory;
 import org.envirocar.app.util.Util;
 import org.envirocar.app.views.TypefaceEC;
@@ -414,12 +414,17 @@ public class ListTracksFragment extends SherlockFragment {
 			}catch (JSONException e){
 				logger.warn(e.getMessage(), e);
 				Crouton.showText(getActivity(), R.string.error_json, Style.ALERT);
-			} catch (FinishedTrackWithoutMeasurementsException e) {
-				logger.warn(e.getMessage(), e);
-				Crouton.showText(getActivity(), R.string.track_finished_no_measurements, Style.ALERT);
 			} catch (IOException e) {
 				logger.warn(e.getMessage(), e);
 				Crouton.showText(getActivity(), R.string.error_io, Style.ALERT);
+			} catch (TrackWithoutMeasurementsException e) {
+				logger.warn(e.getMessage(), e);
+				if (isObfuscationEnabled()) {
+					Crouton.showText(getActivity(), R.string.uploading_track_no_measurements_after_obfuscation_long, Style.ALERT);
+				}
+				else {
+					Crouton.showText(getActivity(), R.string.uploading_track_no_measurements_after_obfuscation_long, Style.ALERT);
+				}
 			}
 			return true;
 			

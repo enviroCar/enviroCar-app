@@ -32,7 +32,6 @@ import org.envirocar.app.model.TrackId;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.storage.FinishedTrackWithoutMeasurementsException;
 
 import android.test.AndroidTestCase;
 
@@ -41,7 +40,7 @@ public class LazyLoadingTrackTest extends AndroidTestCase {
 	private static final int COUNT = 10;
 	private Random random = new Random();
 
-	public void testLazyLoading() throws InterruptedException, FinishedTrackWithoutMeasurementsException, InstantiationException {
+	public void testLazyLoading() throws InterruptedException, InstantiationException {
 		if (DbAdapterImpl.instance() == null) {
 			DbAdapterImpl.init(getContext());
 		}
@@ -64,11 +63,8 @@ public class LazyLoadingTrackTest extends AndroidTestCase {
 		Assert.assertTrue("Expected 10 measurements!", dbTrack.getMeasurements().size() == COUNT);
 		
 		DbAdapterImpl.instance().deleteTrack(dbTrack.getId());
-		try {
-			DbAdapterImpl.instance().getAllMeasurementsForTrack(dbTrack);
-		} catch (FinishedTrackWithoutMeasurementsException e) {
-			Assert.assertNotNull("Expected an exception as the track should not have any measurements left in the DB!", e);
-		}
+		
+		Assert.assertTrue("Expected an empty list", DbAdapterImpl.instance().getAllMeasurementsForTrack(dbTrack).isEmpty());
 		
 		Assert.assertTrue("Track was expected to be deleted!", !DbAdapterImpl.instance().hasTrack(dbTrack.getId()));
 	}

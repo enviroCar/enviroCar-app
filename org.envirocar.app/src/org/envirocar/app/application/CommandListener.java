@@ -55,7 +55,6 @@ import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Track.TrackStatus;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
 import org.envirocar.app.storage.TrackMetadata;
-import org.envirocar.app.storage.FinishedTrackWithoutMeasurementsException;
 import org.envirocar.app.util.Util;
 
 import android.content.SharedPreferences;
@@ -320,12 +319,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 			lastUsedTrack = dbAdapter.getLastUsedTrack(true);
 		}
 		else {
-			try {
-				lastUsedTrack = dbAdapter.getTrack(trackId.getId(), true);
-			} catch (FinishedTrackWithoutMeasurementsException e) {
-				logger.info("last used track did not contain measurements: ");
-				logger.warn(e.getMessage(), e);
-			}
+			lastUsedTrack = dbAdapter.getTrack(trackId.getId(), true);
 		}
 		
 		logger.info("createNewTrackIfNecessary: last? " + (lastUsedTrack == null ? "null" : lastUsedTrack.toString()));
@@ -405,13 +399,8 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		
 		if (trackId != null) {
 			Track tempTrack;
-			try {
-				tempTrack = DbAdapterImpl.instance().getTrack(this.trackId.getId(), true);
-				tempTrack.updateMetadata(trackMetadata);
-			} catch (FinishedTrackWithoutMeasurementsException e) {
-				logger.warn(e.getMessage(), e);
-			}
-			
+			tempTrack = DbAdapterImpl.instance().getTrack(this.trackId.getId(), true);
+			tempTrack.updateMetadata(trackMetadata);
 		}
 	}
 

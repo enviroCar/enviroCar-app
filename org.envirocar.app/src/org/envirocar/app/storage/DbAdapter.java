@@ -77,6 +77,17 @@ public interface DbAdapter {
 	public long insertTrack(Track track);
 
 	/**
+	 * Inserts a track into the database
+	 * 
+	 * @param track
+	 *            The track that should be inserted
+	 * @param remote
+	 * 				if the track is a remote (=server, already finished) track
+	 * @return the id of the track that has been inserted
+	 */
+	public long insertTrack(Track track, boolean remote);
+	
+	/**
 	 * Updates a Track in the database
 	 * 
 	 * @param track
@@ -108,7 +119,7 @@ public interface DbAdapter {
 	 * @return The desired track or null if it does not exist
 	 * @throws FinishedTrackWithoutMeasurementsException 
 	 */
-	public Track getTrack(long id) throws FinishedTrackWithoutMeasurementsException;
+	public Track getTrack(long id);
 	
 	/**
 	 * Returns one track specified by the id
@@ -119,7 +130,7 @@ public interface DbAdapter {
 	 * @return the desired track
 	 * @throws FinishedTrackWithoutMeasurementsException 
 	 */
-	public Track getTrack(long id, boolean lazyMeasurements) throws FinishedTrackWithoutMeasurementsException;
+	public Track getTrack(long id, boolean lazyMeasurements);
 	
 	/**
 	 * Returns <code>true</code> if a track with the given id is in the Database
@@ -212,9 +223,8 @@ public interface DbAdapter {
 	 * 
 	 * @param track the track object
 	 * @return the list of Measurements
-	 * @throws FinishedTrackWithoutMeasurementsException
 	 */
-	List<Measurement> getAllMeasurementsForTrack(Track track) throws FinishedTrackWithoutMeasurementsException;
+	public List<Measurement> getAllMeasurementsForTrack(Track track);
 
 	/**
 	 * an implementation shall update the ID
@@ -227,6 +237,9 @@ public interface DbAdapter {
 	public void updateCarIdOfTracks(String currentId, String newId);
 
 	void insertMeasurement(Measurement measurement) throws MeasurementsException, TrackAlreadyFinishedException;
+
+	void insertMeasurement(Measurement measurement, boolean ignoreFinished)
+			throws MeasurementsException, TrackAlreadyFinishedException;
 
 
 	

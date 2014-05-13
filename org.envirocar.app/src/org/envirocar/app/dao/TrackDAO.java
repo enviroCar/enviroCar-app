@@ -27,16 +27,16 @@ import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.TrackRetrievalException;
 import org.envirocar.app.dao.exception.TrackSerializationException;
 import org.envirocar.app.dao.exception.UnauthorizedException;
+import org.envirocar.app.json.TrackWithoutMeasurementsException;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.storage.FinishedTrackWithoutMeasurementsException;
 
 public interface TrackDAO {
 
 	void deleteTrack(String remoteID) throws DAOException;
 
 	String storeTrack(Track track, boolean obfuscate)
-			throws NotConnectedException, FinishedTrackWithoutMeasurementsException,
-			TrackSerializationException, TrackRetrievalException;
+			throws NotConnectedException,
+			TrackSerializationException, TrackRetrievalException, TrackWithoutMeasurementsException;
 
 	Track getTrack(String id) throws NotConnectedException;
 

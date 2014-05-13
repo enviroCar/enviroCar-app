@@ -10,13 +10,12 @@ import org.envirocar.app.json.TrackDecoder;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Track.TrackStatus;
-import org.envirocar.app.storage.FinishedTrackWithoutMeasurementsException;
 import org.envirocar.app.test.ResourceLoadingTestCase;
 import org.json.JSONException;
 
 public class TrackJsonParsingTest extends ResourceLoadingTestCase {
 
-	public void testParsingAndResolving() throws NumberFormatException, JSONException, ParseException, FinishedTrackWithoutMeasurementsException, IOException, InstantiationException {
+	public void testParsingAndResolving() throws NumberFormatException, JSONException, ParseException, IOException, InstantiationException {
 		if (DbAdapterImpl.instance() == null) {
 			DbAdapterImpl.init(getInstrumentation().getTargetContext());
 		}
@@ -32,11 +31,8 @@ public class TrackJsonParsingTest extends ResourceLoadingTestCase {
 		Assert.assertTrue("Track not set as FINISHED!", dbTrack.getStatus() == TrackStatus.FINISHED);
 		
 		DbAdapterImpl.instance().deleteTrack(dbTrack.getId());
-		try {
-			DbAdapterImpl.instance().getAllMeasurementsForTrack(dbTrack);
-		} catch (FinishedTrackWithoutMeasurementsException e) {
-			Assert.assertNotNull("Expected an exception as the track should not have any measurements left in the DB!", e);
-		}
+
+		Assert.assertTrue("Expected an empty list!", DbAdapterImpl.instance().getAllMeasurementsForTrack(dbTrack).isEmpty());
 	}
 
 	private InputStream createJsonViaStream() throws IOException {

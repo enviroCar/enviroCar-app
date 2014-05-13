@@ -30,7 +30,6 @@ import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.storage.FinishedTrackWithoutMeasurementsException;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 import static org.envirocar.app.storage.Measurement.PropertyKey.*;
 import org.envirocar.app.util.Util;
@@ -78,9 +77,9 @@ public class TrackEncoder {
 	 * 
 	 * @return
 	 * @throws JSONException 
-	 * @throws FinishedTrackWithoutMeasurementsException 
+	 * @throws TrackWithoutMeasurementsException 
 	 */
-	public JSONObject createTrackJson(Track track, boolean obfuscate) throws JSONException, FinishedTrackWithoutMeasurementsException {
+	public JSONObject createTrackJson(Track track, boolean obfuscate) throws JSONException, TrackWithoutMeasurementsException {
 		JSONObject result = new JSONObject();
 		
 		String trackSensorName = track.getCar().getId();
@@ -90,7 +89,7 @@ public class TrackEncoder {
 		List<Measurement> measurements = getNonObfuscatedMeasurements(track, obfuscate);
 
 		if (measurements == null || measurements.isEmpty()) {
-			throw new FinishedTrackWithoutMeasurementsException("Track did not contain any non obfuscated measurements.");
+			throw new TrackWithoutMeasurementsException("Track did not contain any non obfuscated measurements.");
 		}
 			
 		
