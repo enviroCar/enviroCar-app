@@ -222,9 +222,13 @@ public class Util {
 	public static ByteArrayOutputStream readFileContents(File f)
 			throws IOException {
 		InputStream in = null;
-		try {
-			in = new FileInputStream(f);
+		in = new FileInputStream(f);
 
+		return readStreamContents(in);
+	}
+	
+	public static ByteArrayOutputStream readStreamContents(InputStream in) throws IOException {
+		try {
 			byte[] buff = new byte[8000];
 			int bytesRead = 0;
 
@@ -242,7 +246,6 @@ public class Util {
 			if (in != null)
 				in.close();
 		}
-
 	}
 	
 	public static JSONObject readJsonContents(File f) throws IOException, JSONException {

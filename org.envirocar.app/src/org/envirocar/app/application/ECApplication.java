@@ -144,6 +144,8 @@ public class ECApplication extends Application {
 		
 		FeatureFlags.init(getApplicationContext());
 		
+		TemporaryFileManager.init(getApplicationContext());
+		
 		initializeErrorHandling();
 		CarManager.init(preferences);
 		TermsOfUseManager.instance();
@@ -186,7 +188,6 @@ public class ECApplication extends Application {
 	public void shutdownServiceConnector() {
 		scheduleTaskExecutor.shutdown();
 	}
-
 
 	
 	/**

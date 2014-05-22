@@ -18,10 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
+package org.envirocar.app.json;
 
-package org.envirocar.app.test;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -29,23 +27,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import junit.framework.Assert;
-
-import org.envirocar.app.json.StreamTrackEncoder;
-import org.envirocar.app.json.TrackEncoder;
-import org.envirocar.app.json.TrackWithoutMeasurementsException;
-import org.envirocar.app.model.Car;
-import org.envirocar.app.model.Car.FuelType;
+import org.envirocar.app.application.TemporaryFileManager;
+import org.envirocar.app.exception.InvalidObjectStateException;
+import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Measurement.PropertyKey;
-import org.envirocar.app.storage.TrackAlreadyFinishedException;
-import org.envirocar.app.storage.TrackMetadata;
 import org.envirocar.app.util.Util;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,98 +48,20 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonWriter;
 
-import android.test.AndroidTestCase;
+public class StreamTrackEncoder extends TrackEncoder {
 
-public class TrackEncoderTest extends AndroidTestCase {
+	private static final Logger logger = Logger.getLogger(StreamTrackEncoder.class);
 	
-	private Car car = new Car(FuelType.GASOLINE, "manuf", "modl", "iddddd", 1234, 2345);
-	private String expectedJson = "{\"features\":[{\"type\":\"Feature\",\"properties\":{\"phenomenons\":{\"MAF\":{\"value\":12.4},\"Speed\":{\"value\":12}},\"sensor\":\"iddddd\",\"time\":\"2013-09-25T10:30:00Z\"},\"geometry\":{\"type\":\"Point\",\"coordinates\":[-89.1,-87.1]}}],\"type\":\"FeatureCollection\",\"properties\":{\"sensor\":\"iddddd\",\"description\":\"desc\",\"name\":\"test-track\"}}";
-
-	public void testTrackJsonCreation() throws JSONException, TrackAlreadyFinishedException {
-		Track t = createTrack();
-		String json;
-		try {
-			json = new TrackEncoder().createTrackJson(t, false).toString();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-		
-		JSONObject result = new JSONObject(json);
-		JSONObject expected = new JSONObject(expectedJson);
-
-		Assert.assertTrue("The JSON was null!", json != null);
-		Assert.assertTrue("The JSON was not as expected!", result.toString().equals(expected.toString()));
-		
-	}
-	
-
-	public void testObfuscationNoMeasurements() throws JSONException, TrackAlreadyFinishedException {
-		
-		Track t = createTrack(); 
-		try {
-			new TrackEncoder().createTrackJson(t, true);
-		} catch (TrackWithoutMeasurementsException e) {
-			Assert.assertNotNull("Expected an exception!", e);
-		}
-	}
-	
-	public void testMetadataEncoding() throws TrackAlreadyFinishedException, JSONException, TrackWithoutMeasurementsException {
-		Track t = createTrack();
-		TrackMetadata m1 = new TrackMetadata();
-		m1.putEntry(TrackMetadata.APP_VERSION, "v1");
-		m1.putEntry(TrackMetadata.OBD_DEVICE, "OBDIII");
-		t.setMetadata(m1);
-		
-		TrackMetadata m2 = new TrackMetadata();
-		m2.putEntry(TrackMetadata.TOU_VERSION, "2020-10-01");
-		
-		t.updateMetadata(m2);
-		
-		String result = new TrackEncoder().createTrackJson(t, false).toString();
-		
-		Assert.assertTrue(result.contains(TrackMetadata.APP_VERSION));
-		Assert.assertTrue(result.contains("v1"));
-		Assert.assertTrue(result.contains(TrackMetadata.OBD_DEVICE));
-		Assert.assertTrue(result.contains("OBDIII"));
-		Assert.assertTrue(result.contains(TrackMetadata.TOU_VERSION));
-		Assert.assertTrue(result.contains("2020-10-01"));
-	}
-
-	private Track createTrack() throws TrackAlreadyFinishedException {
-		Track result = Track.createNewLocalTrack(new DbAdapterMockup());
-		result.setCar(car);
-		result.setMeasurementsAsArrayList(Collections.singletonList(createMeasurement()));
-		result.setDescription("desc");
-		result.setName("test-track");
-		return result;
-	}
-
-	private Measurement createMeasurement() {
-		Measurement m = new Measurement(-87.1, -89.1);
-		m.setProperty(PropertyKey.MAF, 12.4);
-		m.setProperty(PropertyKey.SPEED, 12.0);
-		m.setTime(1380105000000L);
-		return m;
-	}
-	
-	public void testStreamEncoding() throws FileNotFoundException, IOException, TrackWithoutMeasurementsException, JSONException, TrackAlreadyFinishedException {
-		InputStream in = new StreamTrackEncoder().createTrackJsonAsInputStream(createTrack(), false);
-		ByteArrayOutputStream content = Util.readStreamContents(in);
-		
-		String json = new String(content.toByteArray());
-
-		JSONObject result = new JSONObject(json);
-		JSONObject expected = new JSONObject(expectedJson);
-
-		Assert.assertTrue("The JSON was null!", json != null);
-		Assert.assertTrue("The JSON was not as expected!", result.toString().equals(expected.toString()));
-		
-	}
-
 	public InputStream createTrackJsonAsInputStream(Track track, boolean obfuscate) throws FileNotFoundException, IOException, TrackWithoutMeasurementsException, JSONException {
-		File result = new File(Util.resolveExternalStorageBaseFolder(), UUID.randomUUID().toString());
+		File result;
+		try {
+			result = TemporaryFileManager.instance().createTemporaryFile();
+		} catch (InvalidObjectStateException e) {
+			logger.warn(e.getMessage(), e);
+			logger.warn("Creating persistent file on external storage instead!");
+			result = Util.createFileOnExternalStorage(UUID.randomUUID().toString());
+		}
 		FileOutputStream out = new FileOutputStream(result);
-		
 		Gson gson = new Gson();
 		
 		JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
@@ -159,13 +72,13 @@ public class TrackEncoderTest extends AndroidTestCase {
          */
         writer.beginObject();
         
-        String trackSensorName = encodeFeatureArray(track, gson, writer);
+        encodeFeatureArray(track, gson, writer, obfuscate);
 		
 		writer.name("type");
 		writer.value("FeatureCollection");
 		
 		writer.name("properties");
-		gson.toJson(createTrackProperties(track, trackSensorName), writer);
+		gson.toJson(createTrackProperties(track, track.getCar().getId()), writer);
 		
 		/*
 		 * end: the featurecollection
@@ -173,11 +86,15 @@ public class TrackEncoderTest extends AndroidTestCase {
 		writer.endObject();
 		writer.flush();
 		writer.close();
-		return new FileInputStream(result);
+		FileInputStream stream = new FileInputStream(result);
+		
+		stream.available();
+		
+		return stream;
 	}
 
 
-	private String encodeFeatureArray(Track track, Gson gson, JsonWriter writer)
+	private void encodeFeatureArray(Track track, Gson gson, JsonWriter writer, boolean obfuscate)
 			throws IOException, TrackWithoutMeasurementsException,
 			JSONException {
 		/*
@@ -186,7 +103,7 @@ public class TrackEncoderTest extends AndroidTestCase {
         writer.name("features");
         writer.beginArray();
         
-		List<Measurement> measurements = track.getMeasurements();
+		List<Measurement> measurements = getNonObfuscatedMeasurements(track, obfuscate);
 
 		if (measurements == null || measurements.isEmpty()) {
 			writer.close();
@@ -204,7 +121,6 @@ public class TrackEncoderTest extends AndroidTestCase {
 		 * end: the features array
 		 */
 		writer.endArray();
-		return trackSensorName;
 	}
 	
 	private JsonObject createMeasurementJson(Track track, String trackSensorName, Measurement measurement) throws JSONException {
@@ -251,9 +167,9 @@ public class TrackEncoderTest extends AndroidTestCase {
 		JsonObject result = new JsonObject();
 		Map<PropertyKey, Double> props = measurement.getAllProperties();
 		for (PropertyKey key : props.keySet()) {
-//			if (supportedPhenomenons.contains(key)) {
+			if (supportedPhenomenons.contains(key)) {
 				result.add(key.toString(), createValue(props.get(key)));
-//			}
+			}
 		}
 		return result;
 	}
