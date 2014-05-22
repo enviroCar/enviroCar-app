@@ -19,11 +19,11 @@ public class TrackComparisonTest extends AndroidTestCase {
 
 	public void testTracksWithMeasurements() throws TrackAlreadyFinishedException {
 		Track t1 = Track.createNewLocalTrack(dbMock);
-		t1.addMeasurement(createMeasurement(0));
+		t1.setMeasurementsAsArrayList(Collections.singletonList(createMeasurement(0)));
 		Track t2 = Track.createNewLocalTrack(dbMock);
-		t2.addMeasurement(createMeasurement(1));
+		t2.setMeasurementsAsArrayList(Collections.singletonList(createMeasurement(1)));
 		Track t3 = Track.createNewLocalTrack(dbMock);
-		t3.addMeasurement(createMeasurement(2));
+		t3.setMeasurementsAsArrayList(Collections.singletonList(createMeasurement(2)));
 		
 		List<Track> list = createListAndSort(t1, t2, t3);
 		
@@ -44,7 +44,7 @@ public class TrackComparisonTest extends AndroidTestCase {
 	
 	public void testOneTrackWithNoMeasurements() throws TrackAlreadyFinishedException {
 		Track t1 = Track.createNewLocalTrack(dbMock);
-		t1.addMeasurement(createMeasurement(0));
+		t1.setMeasurementsAsArrayList(Collections.singletonList(createMeasurement(0)));
 		Track t2 = Track.createNewLocalTrack(dbMock);
 		Track t3 = Track.createNewLocalTrack(dbMock);
 		

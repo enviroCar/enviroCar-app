@@ -43,6 +43,7 @@ import org.envirocar.app.util.Util;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
 import android.app.NotificationManager;
@@ -51,6 +52,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 
@@ -142,14 +144,31 @@ public class ECApplication extends Application {
 		
 		FeatureFlags.init(getApplicationContext());
 		
+		TemporaryFileManager.init(getApplicationContext());
+		
 		initializeErrorHandling();
 		CarManager.init(preferences);
 		TermsOfUseManager.instance();
 		
-		// Make a new commandListener to interpret the measurement values that are
-		// returned
-		logger.info("init commandListener");
+	}
+	
+	@Override
+	public void onLowMemory() {
+		super.onLowMemory();
 		
+		logger.info("onLowMemory called");
+	}
+	
+	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+	@Override
+	public void onTrimMemory(int level) {
+		super.onTrimMemory(level);
+
+		logger.info("onTrimMemory called");
+		
+		logger.info("maxMemory: " +Runtime.getRuntime().maxMemory());
+		logger.info("totalMemory: " +Runtime.getRuntime().totalMemory());
+		logger.info("freeMemory: " +Runtime.getRuntime().freeMemory());
 	}
 	
 	private void initializeErrorHandling() {
@@ -165,7 +184,6 @@ public class ECApplication extends Application {
 	public void shutdownServiceConnector() {
 		scheduleTaskExecutor.shutdown();
 	}
-
 
 	
 	/**

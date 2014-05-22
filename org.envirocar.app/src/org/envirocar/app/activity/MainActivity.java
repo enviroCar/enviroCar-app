@@ -30,6 +30,7 @@ import org.envirocar.app.activity.StartStopButtonUtil.OnTrackModeChangeListener;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.NavMenuItem;
+import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
@@ -39,6 +40,7 @@ import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.application.service.DeviceInRangeServiceInteractor;
 import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.dao.exception.AnnouncementsRetrievalException;
+import org.envirocar.app.exception.InvalidObjectStateException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Announcement;
 import org.envirocar.app.storage.DbAdapterImpl;
@@ -137,7 +139,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
 	
 	private static final Logger logger = Logger.getLogger(MainActivity.class);
-	private static final String SERVICE_STATE = "serviceState";
 	private static final String TRACK_MODE = "trackMode";
 	private static final String SEEN_ANNOUNCEMENTS = "seenAnnouncements";
 	
@@ -331,7 +332,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	private void readSavedState(Bundle savedInstanceState) {
 		if (savedInstanceState == null) return;
 		
-		this.serviceState = (ServiceState) savedInstanceState.getSerializable(SERVICE_STATE);
 		this.trackMode = savedInstanceState.getInt(TRACK_MODE);
 		
 		String[] arr = (String[]) savedInstanceState.getSerializable(SEEN_ANNOUNCEMENTS);
@@ -390,7 +390,6 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
 		
-		outState.putSerializable(SERVICE_STATE, serviceState);
 		outState.putInt(TRACK_MODE, trackMode);
 		
 		outState.putSerializable(SEEN_ANNOUNCEMENTS, this.seenAnnouncements.toArray(new String[0]));
@@ -659,6 +658,8 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	protected void onDestroy() {
 		super.onDestroy();
 
+		logger.info("onDestroy called");
+		
 //		new AsyncTask<Void, Void, Void>() {
 //			@Override
 //			protected Void doInBackground(Void... params) {
@@ -690,6 +691,12 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			remainingTimeHandler.removeCallbacks(remainingTimeThread);
 			discoveryTargetTime = 0;
 			remainingTimeThread = null;
+		}
+		
+		try {
+			TemporaryFileManager.instance().shutdown();
+		} catch (InvalidObjectStateException e) {
+			logger.warn(e.getMessage(), e);
 		}
 	}
 	

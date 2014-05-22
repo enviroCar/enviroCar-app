@@ -18,21 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.storage;
+package org.envirocar.app.util;
 
-public class TrackWithoutMeasurementsException extends Exception {
+import java.io.InputStream;
 
-	public TrackWithoutMeasurementsException(Track track) {
-		super(String.format("The Track with id '%d' does not have measurements in the database!", track.getId()));
+public class InputStreamWithLength {
+
+	private InputStream inputStream;
+	private long length;
+	private boolean gzipped;
+	
+	public InputStreamWithLength(InputStream inputStream, long length, boolean gzip) {
+		this.inputStream = inputStream;
+		this.gzipped = gzip;
+		this.length = length;
 	}
 
-	public TrackWithoutMeasurementsException(String string) {
-		super(string);
+	public long getLength() {
+		return this.length;
 	}
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+	public InputStream getInputStream() {
+		return this.inputStream;
+	}
+
+	public boolean isGzipped() {
+		return gzipped;
+	}
 
 }

@@ -65,6 +65,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	public static final String CAR = "pref_selected_car";
 	public static final String CAR_HASH_CODE = "pref_selected_car_hash_code";
 	public static final String PERSISTENT_SEEN_ANNOUNCEMENTS = "persistent_seen_announcements";
+	public static final String SAMPLING_RATE = "ec_sampling_rate";
 	
 	private Preference about;
 	
@@ -165,11 +166,16 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 
 	@SuppressWarnings("deprecation")
 	@Override
-	protected void onPostCreate(Bundle savedInstanceState) {
-		super.onPostCreate(savedInstanceState);
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
 		addPreferencesFromResource(R.xml.preferences);
 		initializeBluetoothList();
-		
+	}
+	
+	@Override
+	protected void onPostCreate(Bundle savedInstanceState) {
+		super.onPostCreate(savedInstanceState);
+
 		this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 		this.getSupportActionBar().setHomeButtonEnabled(false);
 
@@ -184,7 +190,6 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 				return true;
 			}
 		});		
-
 	}
 
 	/**
