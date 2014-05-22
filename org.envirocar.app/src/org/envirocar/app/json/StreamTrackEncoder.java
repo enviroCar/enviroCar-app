@@ -115,12 +115,19 @@ public class StreamTrackEncoder extends TrackEncoder {
 			writer.close();
 			throw new TrackWithoutMeasurementsException("Track did not contain any non obfuscated measurements.");
 		}
-			
+		
+		logger.debug(String.format("Encoding %s features...", measurements.size()));
+		
 		String trackSensorName = track.getCar().getId();
 		JsonObject measurementJson;
+		int i = 0;
 		for (Measurement measurement : measurements) {
 			measurementJson = createMeasurementJson(track, trackSensorName, measurement);
 			gson.toJson(measurementJson, writer);
+			i++;
+			if (i % 250 == 0) {
+				logger.debug(String.format("Encoded %s/%s features...", i, measurements.size()));
+			}
 		}
 		
 		/*
