@@ -35,7 +35,7 @@ import org.apache.http.ParseException;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.entity.FileEntity;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.exception.NotConnectedException;
@@ -44,7 +44,7 @@ import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.model.User;
 import org.envirocar.app.network.HTTPClient;
-import org.envirocar.app.util.InputStreamWithLength;
+import org.envirocar.app.util.FileWithMetadata;
 import org.envirocar.app.util.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -219,8 +219,15 @@ public abstract class BaseRemoteDAO {
 	}
 	
 	protected HttpResponse executePayloadRequest(HttpEntityEnclosingRequestBase request,
-			InputStreamWithLength content) throws NotConnectedException, UnauthorizedException, ResourceConflictException {
-		request.setEntity(new InputStreamEntity(content.getInputStream(), content.getLength()));
+			FileWithMetadata content) throws NotConnectedException, UnauthorizedException, ResourceConflictException {
+		FileEntity entity = new FileEntity(content.getFile(), "application/json");
+		
+		if (content.isGzipped()) {
+			entity.setContentEncoding("gzip");
+		}
+		
+		request.setEntity(entity);
+		
 		return executePayloadRequest(request);
 	}
 	

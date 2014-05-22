@@ -20,30 +20,25 @@
  */
 package org.envirocar.app.util;
 
-import java.io.InputStream;
+import java.io.File;
 
-public class InputStreamWithLength {
+public class FileWithMetadata {
 
-	private InputStream inputStream;
-	private long length;
 	private boolean gzipped;
-	
-	public InputStreamWithLength(InputStream inputStream, long length, boolean gzip) {
-		this.inputStream = inputStream;
+	private File file;
+
+	public FileWithMetadata(File result, boolean gzip) {
+		this.file = result;
 		this.gzipped = gzip;
-		this.length = length;
-	}
-
-	public long getLength() {
-		return this.length;
-	}
-
-	public InputStream getInputStream() {
-		return this.inputStream;
 	}
 
 	public boolean isGzipped() {
 		return gzipped;
 	}
+
+	public File getFile() {
+		return file;
+	}
+	
 
 }

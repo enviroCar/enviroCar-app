@@ -97,6 +97,8 @@ public class UploadManager {
 			public String execute() throws DAOException {
 				Thread.currentThread().setName("TrackUploaderTask-"+track.getId());
 				
+				((ECApplication) context).createNotification("start");
+				
 				/*
 				 * inject track metadata
 				 */

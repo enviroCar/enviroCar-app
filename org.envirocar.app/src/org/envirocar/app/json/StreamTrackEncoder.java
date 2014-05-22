@@ -25,10 +25,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.zip.GZIPOutputStream;
 
 import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.exception.InvalidObjectStateException;
@@ -36,6 +38,7 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Measurement.PropertyKey;
+import org.envirocar.app.util.FileWithMetadata;
 import org.envirocar.app.util.InputStreamWithLength;
 import org.envirocar.app.util.Util;
 import org.json.JSONArray;
@@ -52,11 +55,24 @@ public class StreamTrackEncoder extends TrackEncoder {
 
 	private static final Logger logger = Logger.getLogger(StreamTrackEncoder.class);
 	
-	public File createTrackJsonAsFile(Track track, boolean obfuscate, File result) throws FileNotFoundException, IOException, TrackWithoutMeasurementsException, JSONException {
+	public FileWithMetadata createTrackJsonAsFile(Track track, boolean obfuscate, File result) throws FileNotFoundException, IOException, TrackWithoutMeasurementsException, JSONException {
+		return createTrackJsonAsFile(track, obfuscate, result, false);
+	}
+	
+	public FileWithMetadata createTrackJsonAsFile(Track track, boolean obfuscate, File result, boolean gzip) throws FileNotFoundException, IOException, TrackWithoutMeasurementsException, JSONException {
 		FileOutputStream out = new FileOutputStream(result);
 		Gson gson = new Gson();
 		
-		JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
+		OutputStream targetOut;
+		if (gzip) {
+			targetOut = new GZIPOutputStream(out);
+		}
+		else {
+			targetOut = out;
+		}
+		
+		JsonWriter writer = new JsonWriter(
+				new OutputStreamWriter(targetOut, "UTF-8"));
         writer.setIndent("  ");
         
         /*
@@ -79,10 +95,14 @@ public class StreamTrackEncoder extends TrackEncoder {
 		writer.flush();
 		writer.close();
 		
-		return result;
+		return new FileWithMetadata(result, gzip);
 	}
 	
 	public InputStreamWithLength createTrackJsonAsInputStream(Track track, boolean obfuscate) throws FileNotFoundException, IOException, TrackWithoutMeasurementsException, JSONException {
+		return createTrackJsonAsInputStream(track, obfuscate, false);
+	}
+	
+	public InputStreamWithLength createTrackJsonAsInputStream(Track track, boolean obfuscate, boolean gzip) throws FileNotFoundException, IOException, TrackWithoutMeasurementsException, JSONException {
 		File result;
 		try {
 			result = TemporaryFileManager.instance().createTemporaryFile();
@@ -92,11 +112,11 @@ public class StreamTrackEncoder extends TrackEncoder {
 			result = Util.createFileOnExternalStorage(UUID.randomUUID().toString());
 		}
 		
-		createTrackJsonAsFile(track, obfuscate, result);
+		createTrackJsonAsFile(track, obfuscate, result, gzip);
 		
 		FileInputStream stream = new FileInputStream(result);
 		
-		return new InputStreamWithLength(stream, result.length());
+		return new InputStreamWithLength(stream, result.length(), gzip);
 	}
 
 
