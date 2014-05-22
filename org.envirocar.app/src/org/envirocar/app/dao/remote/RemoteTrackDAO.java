@@ -20,6 +20,7 @@
  */
 package org.envirocar.app.dao.remote;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -37,11 +38,12 @@ import org.envirocar.app.dao.exception.ResourceConflictException;
 import org.envirocar.app.dao.exception.TrackRetrievalException;
 import org.envirocar.app.dao.exception.TrackSerializationException;
 import org.envirocar.app.dao.exception.UnauthorizedException;
+import org.envirocar.app.json.StreamTrackEncoder;
 import org.envirocar.app.json.TrackDecoder;
-import org.envirocar.app.json.TrackEncoder;
 import org.envirocar.app.json.TrackWithoutMeasurementsException;
 import org.envirocar.app.model.User;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.util.InputStreamWithLength;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -64,13 +66,13 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 	@Override
 	public String storeTrack(Track track, boolean obfuscate) throws NotConnectedException, TrackSerializationException, TrackRetrievalException, TrackWithoutMeasurementsException {
 		try {
-			JSONObject content = new TrackEncoder().createTrackJson(track, obfuscate);
+			InputStreamWithLength content = new StreamTrackEncoder().createTrackJsonAsInputStream(track, obfuscate);
 			
 			User user = UserManager.instance().getUser();
 			HttpPost post = new HttpPost(String.format("%s/users/%s/tracks", ECApplication.BASE_URL,
 					user.getUsername()));
 			
-			HttpResponse response = executePayloadRequest(post, content.toString());
+			HttpResponse response = executePayloadRequest(post, content);
 			
 			return new TrackDecoder().resolveLocation(response);
 		} catch (JSONException e) {
@@ -79,6 +81,10 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 			throw new NotConnectedException(e);
 		} catch (UnauthorizedException e) {
 			throw new TrackRetrievalException(e);
+		} catch (FileNotFoundException e) {
+			throw new TrackSerializationException(e);
+		} catch (IOException e) {
+			throw new TrackSerializationException(e);
 		}
 	}
 

@@ -49,7 +49,7 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.envirocar.app.exception.ServerException;
-import org.envirocar.app.json.TrackEncoder;
+import org.envirocar.app.json.StreamTrackEncoder;
 import org.envirocar.app.json.TrackWithoutMeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.Measurement;
@@ -404,8 +404,8 @@ public class Util {
 	
 	
 	public static File saveTrackAndReturnFile(Track t, boolean obfuscate) throws JSONException, IOException, TrackWithoutMeasurementsException{
-		return Util.saveTrackToSdCard(new TrackEncoder().createTrackJson(t, obfuscate).toString(),
-				(t.isRemoteTrack() ? t.getRemoteID() : Long.toString(t.getId())));
+		File log = new File(resolveExternalStorageBaseFolder(), "enviroCar-track-"+t.getId()+".json");
+		return new StreamTrackEncoder().createTrackJsonAsFile(t, obfuscate, log);
 	}
 
 	public static Integer resolveResourceCount(HttpResponse response) throws ServerException {

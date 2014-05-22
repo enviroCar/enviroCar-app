@@ -25,7 +25,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +36,7 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Measurement.PropertyKey;
+import org.envirocar.app.util.InputStreamWithLength;
 import org.envirocar.app.util.Util;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -52,15 +52,7 @@ public class StreamTrackEncoder extends TrackEncoder {
 
 	private static final Logger logger = Logger.getLogger(StreamTrackEncoder.class);
 	
-	public InputStream createTrackJsonAsInputStream(Track track, boolean obfuscate) throws FileNotFoundException, IOException, TrackWithoutMeasurementsException, JSONException {
-		File result;
-		try {
-			result = TemporaryFileManager.instance().createTemporaryFile();
-		} catch (InvalidObjectStateException e) {
-			logger.warn(e.getMessage(), e);
-			logger.warn("Creating persistent file on external storage instead!");
-			result = Util.createFileOnExternalStorage(UUID.randomUUID().toString());
-		}
+	public File createTrackJsonAsFile(Track track, boolean obfuscate, File result) throws FileNotFoundException, IOException, TrackWithoutMeasurementsException, JSONException {
 		FileOutputStream out = new FileOutputStream(result);
 		Gson gson = new Gson();
 		
@@ -86,11 +78,25 @@ public class StreamTrackEncoder extends TrackEncoder {
 		writer.endObject();
 		writer.flush();
 		writer.close();
+		
+		return result;
+	}
+	
+	public InputStreamWithLength createTrackJsonAsInputStream(Track track, boolean obfuscate) throws FileNotFoundException, IOException, TrackWithoutMeasurementsException, JSONException {
+		File result;
+		try {
+			result = TemporaryFileManager.instance().createTemporaryFile();
+		} catch (InvalidObjectStateException e) {
+			logger.warn(e.getMessage(), e);
+			logger.warn("Creating persistent file on external storage instead!");
+			result = Util.createFileOnExternalStorage(UUID.randomUUID().toString());
+		}
+		
+		createTrackJsonAsFile(track, obfuscate, result);
+		
 		FileInputStream stream = new FileInputStream(result);
 		
-		stream.available();
-		
-		return stream;
+		return new InputStreamWithLength(stream, result.length());
 	}
 
 

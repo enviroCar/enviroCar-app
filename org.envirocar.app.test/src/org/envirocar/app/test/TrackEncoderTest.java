@@ -46,6 +46,7 @@ import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
 import org.envirocar.app.storage.TrackMetadata;
+import org.envirocar.app.util.InputStreamWithLength;
 import org.envirocar.app.util.Util;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -132,8 +133,8 @@ public class TrackEncoderTest extends AndroidTestCase {
 	}
 	
 	public void testStreamEncoding() throws FileNotFoundException, IOException, TrackWithoutMeasurementsException, JSONException, TrackAlreadyFinishedException {
-		InputStream in = new StreamTrackEncoder().createTrackJsonAsInputStream(createTrack(), false);
-		ByteArrayOutputStream content = Util.readStreamContents(in);
+		InputStreamWithLength in = new StreamTrackEncoder().createTrackJsonAsInputStream(createTrack(), false);
+		ByteArrayOutputStream content = Util.readStreamContents(in.getInputStream());
 		
 		String json = new String(content.toByteArray());
 
