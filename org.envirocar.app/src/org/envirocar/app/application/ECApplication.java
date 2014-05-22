@@ -150,10 +150,6 @@ public class ECApplication extends Application {
 		CarManager.init(preferences);
 		TermsOfUseManager.instance();
 		
-		// Make a new commandListener to interpret the measurement values that are
-		// returned
-		logger.info("init commandListener");
-		
 	}
 	
 	@Override

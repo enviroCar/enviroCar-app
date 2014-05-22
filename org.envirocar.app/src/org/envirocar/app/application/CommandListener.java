@@ -94,13 +94,18 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	
 	public CommandListener(Car car, SharedPreferences sharedPreferences) {
 		
-		String samplingRate = sharedPreferences.getString(SettingsActivity.SAMPLING_RATE, Integer.toString(Collector.DEFAULT_SAMPLING_RATE_DELTA));
+		String samplingRate = sharedPreferences.getString(SettingsActivity.SAMPLING_RATE, null);
 		
 		int val;
-		try {
-			val = Integer.parseInt(samplingRate);
+		if  (samplingRate != null) {
+			try {
+				val = Integer.parseInt(samplingRate) * 1000;
+			}
+			catch (NumberFormatException e) {
+				val = Collector.DEFAULT_SAMPLING_RATE_DELTA;
+			}	
 		}
-		catch (NumberFormatException e) {
+		else {
 			val = Collector.DEFAULT_SAMPLING_RATE_DELTA;
 		}
 		
