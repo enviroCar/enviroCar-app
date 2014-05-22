@@ -49,7 +49,7 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.envirocar.app.exception.ServerException;
-import org.envirocar.app.json.TrackEncoder;
+import org.envirocar.app.json.StreamTrackEncoder;
 import org.envirocar.app.json.TrackWithoutMeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.Measurement;
@@ -222,9 +222,13 @@ public class Util {
 	public static ByteArrayOutputStream readFileContents(File f)
 			throws IOException {
 		InputStream in = null;
-		try {
-			in = new FileInputStream(f);
+		in = new FileInputStream(f);
 
+		return readStreamContents(in);
+	}
+	
+	public static ByteArrayOutputStream readStreamContents(InputStream in) throws IOException {
+		try {
 			byte[] buff = new byte[8000];
 			int bytesRead = 0;
 
@@ -242,7 +246,6 @@ public class Util {
 			if (in != null)
 				in.close();
 		}
-
 	}
 	
 	public static JSONObject readJsonContents(File f) throws IOException, JSONException {
@@ -400,9 +403,9 @@ public class Util {
 	}
 	
 	
-	public static File saveTrackAndReturnFile(Track t, boolean obfuscate) throws JSONException, IOException, TrackWithoutMeasurementsException{
-		return Util.saveTrackToSdCard(new TrackEncoder().createTrackJson(t, obfuscate).toString(),
-				(t.isRemoteTrack() ? t.getRemoteID() : Long.toString(t.getId())));
+	public static FileWithMetadata saveTrackAndReturnFile(Track t, boolean obfuscate) throws JSONException, IOException, TrackWithoutMeasurementsException{
+		File log = new File(resolveExternalStorageBaseFolder(), "enviroCar-track-"+t.getId()+".json");
+		return new StreamTrackEncoder().createTrackJsonAsFile(t, obfuscate, log);
 	}
 
 	public static Integer resolveResourceCount(HttpResponse response) throws ServerException {

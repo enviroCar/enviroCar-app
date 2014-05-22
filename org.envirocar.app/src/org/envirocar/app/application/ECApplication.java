@@ -144,13 +144,11 @@ public class ECApplication extends Application {
 		
 		FeatureFlags.init(getApplicationContext());
 		
+		TemporaryFileManager.init(getApplicationContext());
+		
 		initializeErrorHandling();
 		CarManager.init(preferences);
 		TermsOfUseManager.instance();
-		
-		// Make a new commandListener to interpret the measurement values that are
-		// returned
-		logger.info("init commandListener");
 		
 	}
 	
@@ -186,7 +184,6 @@ public class ECApplication extends Application {
 	public void shutdownServiceConnector() {
 		scheduleTaskExecutor.shutdown();
 	}
-
 
 	
 	/**

@@ -21,10 +21,15 @@
 
 package org.envirocar.app.test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Collections;
+import java.util.zip.GZIPInputStream;
 
 import junit.framework.Assert;
 
+import org.envirocar.app.json.StreamTrackEncoder;
 import org.envirocar.app.json.TrackEncoder;
 import org.envirocar.app.json.TrackWithoutMeasurementsException;
 import org.envirocar.app.model.Car;
@@ -34,6 +39,8 @@ import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
 import org.envirocar.app.storage.TrackMetadata;
+import org.envirocar.app.util.InputStreamWithLength;
+import org.envirocar.app.util.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -110,5 +117,18 @@ public class TrackEncoderTest extends AndroidTestCase {
 		m.setTime(1380105000000L);
 		return m;
 	}
+	
+	public void testStreamEncoding() throws FileNotFoundException, IOException, TrackWithoutMeasurementsException, JSONException, TrackAlreadyFinishedException {
+		InputStreamWithLength in = new StreamTrackEncoder().createTrackJsonAsInputStream(createTrack(), false);
+		ByteArrayOutputStream content = Util.readStreamContents(new GZIPInputStream(in.getInputStream()));
+		
+		String json = new String(content.toByteArray());
 
+		JSONObject result = new JSONObject(json);
+		JSONObject expected = new JSONObject(expectedJson);
+
+		Assert.assertTrue("The JSON was null!", json != null);
+		Assert.assertTrue("The JSON was not as expected!", result.toString().equals(expected.toString()));
+		
+	}
 }

@@ -30,6 +30,7 @@ import org.envirocar.app.activity.StartStopButtonUtil.OnTrackModeChangeListener;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.NavMenuItem;
+import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
@@ -39,6 +40,7 @@ import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.application.service.DeviceInRangeServiceInteractor;
 import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.dao.exception.AnnouncementsRetrievalException;
+import org.envirocar.app.exception.InvalidObjectStateException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Announcement;
 import org.envirocar.app.storage.DbAdapterImpl;
@@ -689,6 +691,12 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			remainingTimeHandler.removeCallbacks(remainingTimeThread);
 			discoveryTargetTime = 0;
 			remainingTimeThread = null;
+		}
+		
+		try {
+			TemporaryFileManager.instance().shutdown();
+		} catch (InvalidObjectStateException e) {
+			logger.warn(e.getMessage(), e);
 		}
 	}
 	
