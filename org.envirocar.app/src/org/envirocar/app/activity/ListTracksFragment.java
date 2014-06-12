@@ -56,6 +56,7 @@ import org.envirocar.app.dao.TrackDAO;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.exception.ServerException;
+import org.envirocar.app.json.TrackWithoutMeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.TermsOfUseInstance;
@@ -67,7 +68,6 @@ import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 import org.envirocar.app.util.NamedThreadFactory;
 import org.envirocar.app.util.Util;
 import org.envirocar.app.views.TypefaceEC;
@@ -407,19 +407,24 @@ public class ListTracksFragment extends SherlockFragment {
 			try{
 				Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 				sharingIntent.setType("application/json");
-				Uri shareBody = Uri.fromFile(Util.saveTrackAndReturnFile(track, isObfuscationEnabled()));
+				Uri shareBody = Uri.fromFile(Util.saveTrackAndReturnFile(track, isObfuscationEnabled()).getFile());
 				sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "EnviroCar Track "+track.getName());
 				sharingIntent.putExtra(android.content.Intent.EXTRA_STREAM,shareBody);
 				startActivity(Intent.createChooser(sharingIntent, "Share via"));
 			}catch (JSONException e){
 				logger.warn(e.getMessage(), e);
 				Crouton.showText(getActivity(), R.string.error_json, Style.ALERT);
-			} catch (TrackWithoutMeasurementsException e) {
-				logger.warn(e.getMessage(), e);
-				Crouton.showText(getActivity(), R.string.track_finished_no_measurements, Style.ALERT);
 			} catch (IOException e) {
 				logger.warn(e.getMessage(), e);
 				Crouton.showText(getActivity(), R.string.error_io, Style.ALERT);
+			} catch (TrackWithoutMeasurementsException e) {
+				logger.warn(e.getMessage(), e);
+				if (isObfuscationEnabled()) {
+					Crouton.showText(getActivity(), R.string.uploading_track_no_measurements_after_obfuscation_long, Style.ALERT);
+				}
+				else {
+					Crouton.showText(getActivity(), R.string.uploading_track_no_measurements_after_obfuscation_long, Style.ALERT);
+				}
 			}
 			return true;
 			

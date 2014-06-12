@@ -32,6 +32,7 @@ import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
+import org.envirocar.app.model.TrackId;
 import org.envirocar.app.protocol.algorithm.AbstractConsumptionAlgorithm;
 import org.envirocar.app.protocol.algorithm.BasicConsumptionAlgorithm;
 import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
@@ -68,7 +69,6 @@ public class Track implements Comparable<Track> {
 	
 	private static final Logger logger = Logger.getLogger(Track.class);
 
-	private long id;
 	private String name;
 	private String description;
 	private List<Measurement> measurements = new ArrayList<Measurement>();
@@ -86,6 +86,8 @@ public class Track implements Comparable<Track> {
 	private Long endTime = null;
 
 	private TrackMetadata metadata;
+
+	private TrackId trackId;
 
 	public static Track createTrackWithId(long id, DbAdapter dbAdapterImpl) {
 		Track track = new Track(id);
@@ -105,7 +107,7 @@ public class Track implements Comparable<Track> {
 	}
 
 	private Track(long id) {
-		this.id = id;
+		this.trackId = new TrackId(id);
 	}
 	
 	private Track(String remoteID, DbAdapter dbAdapter) {
@@ -122,7 +124,7 @@ public class Track implements Comparable<Track> {
 		this.name = "";
 		this.description = "";
 		this.measurements = new ArrayList<Measurement>();
-		this.id = dbAdapter.insertTrack(this);
+		this.trackId = new TrackId(dbAdapter.insertTrack(this, true));
 		this.dbAdapter = dbAdapter;
 	}
 
@@ -172,11 +174,7 @@ public class Track implements Comparable<Track> {
 	 */
 	public List<Measurement> getMeasurements() {
 		if ((measurements == null || measurements.isEmpty()) && dbAdapter != null) {
-			try {
-				this.measurements = dbAdapter.getAllMeasurementsForTrack(this);
-			} catch (TrackWithoutMeasurementsException e) {
-				logger.warn(e.getMessage(), e);
-			}
+			this.measurements = dbAdapter.getAllMeasurementsForTrack(this);
 		}
 		return measurements;
 	}
@@ -249,11 +247,17 @@ public class Track implements Comparable<Track> {
 	}
 	
 	private void storeMeasurementsInDbAdapter() {
+		storeMeasurementsInDbAdapter(false);
+	}
+	
+	private void storeMeasurementsInDbAdapter(boolean ignoreFinished) {
 		if (this.dbAdapter != null) {
 			for (Measurement measurement : measurements) {
 				try {
-					this.dbAdapter.insertMeasurement(measurement);
+					this.dbAdapter.insertMeasurement(measurement, ignoreFinished);
 				} catch (MeasurementsException e) {
+					logger.warn(e.getMessage(), e);
+				} catch (TrackAlreadyFinishedException e) {
 					logger.warn(e.getMessage(), e);
 				}
 			}
@@ -268,10 +272,13 @@ public class Track implements Comparable<Track> {
 	 * 
 	 * @param measurement
 	 * @throws TrackAlreadyFinishedException 
-	 * @throws MeasurementsException 
+	 * @throws MeasurementsException
+	 * @deprecated use {@link DbAdapter#insertNewMeasurement(Measurement)} directly instead,
+	 * or {@link #setMeasurementsAsArrayList(List)} for tracks in memory
 	 */
+	@Deprecated
 	public void addMeasurement(Measurement measurement) throws TrackAlreadyFinishedException {
-		measurement.setTrack(this);
+		measurement.setTrackId(this.trackId);
 		
 		/*
 		 * we do NOT need to add the measurement to the list.
@@ -306,7 +313,10 @@ public class Track implements Comparable<Track> {
 	 * @return the id
 	 */
 	public long getId() {
-		return id;
+		if (trackId == null) {
+			return 0;
+		}
+		return trackId.getId();
 	}
 
 	public String getRemoteID() {
@@ -526,13 +536,15 @@ public class Track implements Comparable<Track> {
 			JSONObject measurementJsonObject = features.getJSONObject(j);
 			recycleMeasurement = Measurement.fromJson(measurementJsonObject);
 			
-			recycleMeasurement.setTrack(t);
+			recycleMeasurement.setTrackId(t.trackId);
 			measurements.add(recycleMeasurement);
 		}
 		
-		t.setMeasurementsAsArrayList(measurements);
 		logger.info("Storing measurements in database");
-		t.storeMeasurementsInDbAdapter();
+		t.setMeasurementsAsArrayList(measurements);
+		
+		t.storeMeasurementsInDbAdapter(true);
+		
 		return t;
 	}
 

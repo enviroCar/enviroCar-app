@@ -77,6 +77,17 @@ public interface DbAdapter {
 	public long insertTrack(Track track);
 
 	/**
+	 * Inserts a track into the database
+	 * 
+	 * @param track
+	 *            The track that should be inserted
+	 * @param remote
+	 * 				if the track is a remote (=server, already finished) track
+	 * @return the id of the track that has been inserted
+	 */
+	public long insertTrack(Track track, boolean remote);
+	
+	/**
 	 * Updates a Track in the database
 	 * 
 	 * @param track
@@ -96,7 +107,7 @@ public interface DbAdapter {
 	 * @param lazyMeasurements if true, an implementation shall return
 	 * {@link Track} objects that load their measurements in lazy fashion
 	 * @return all tracks
-	 * @throws TrackWithoutMeasurementsException 
+	 * @throws FinishedTrackWithoutMeasurementsException 
 	 */
 	public List<Track> getAllTracks(boolean lazyMeasurements);
 	
@@ -106,9 +117,9 @@ public interface DbAdapter {
 	 * @param id
 	 *            The id of the track that should be returned
 	 * @return The desired track or null if it does not exist
-	 * @throws TrackWithoutMeasurementsException 
+	 * @throws FinishedTrackWithoutMeasurementsException 
 	 */
-	public Track getTrack(long id) throws TrackWithoutMeasurementsException;
+	public Track getTrack(long id);
 	
 	/**
 	 * Returns one track specified by the id
@@ -117,9 +128,9 @@ public interface DbAdapter {
 	 * @param lazyMeasurements if true, an implementation shall return a
 	 * {@link Track} that loads its measurements in lazy fashion
 	 * @return the desired track
-	 * @throws TrackWithoutMeasurementsException 
+	 * @throws FinishedTrackWithoutMeasurementsException 
 	 */
-	public Track getTrack(long id, boolean lazyMeasurements) throws TrackWithoutMeasurementsException;
+	public Track getTrack(long id, boolean lazyMeasurements);
 	
 	/**
 	 * Returns <code>true</code> if a track with the given id is in the Database
@@ -212,9 +223,8 @@ public interface DbAdapter {
 	 * 
 	 * @param track the track object
 	 * @return the list of Measurements
-	 * @throws TrackWithoutMeasurementsException
 	 */
-	List<Measurement> getAllMeasurementsForTrack(Track track) throws TrackWithoutMeasurementsException;
+	public List<Measurement> getAllMeasurementsForTrack(Track track);
 
 	/**
 	 * an implementation shall update the ID
@@ -226,7 +236,10 @@ public interface DbAdapter {
 	 */
 	public void updateCarIdOfTracks(String currentId, String newId);
 
-	void insertMeasurement(Measurement measurement) throws MeasurementsException;
+	void insertMeasurement(Measurement measurement) throws MeasurementsException, TrackAlreadyFinishedException;
+
+	void insertMeasurement(Measurement measurement, boolean ignoreFinished)
+			throws MeasurementsException, TrackAlreadyFinishedException;
 
 
 	

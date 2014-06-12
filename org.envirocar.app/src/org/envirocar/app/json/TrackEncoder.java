@@ -30,7 +30,6 @@ import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 import static org.envirocar.app.storage.Measurement.PropertyKey.*;
 import org.envirocar.app.util.Util;

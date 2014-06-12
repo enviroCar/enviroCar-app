@@ -21,13 +21,14 @@
 package org.envirocar.app.test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.storage.TrackWithoutMeasurementsException;
+import org.envirocar.app.storage.TrackAlreadyFinishedException;
 
 public class DbAdapterMockup implements DbAdapter {
 
@@ -158,8 +159,8 @@ public class DbAdapterMockup implements DbAdapter {
 	}
 
 	@Override
-	public List<Measurement> getAllMeasurementsForTrack(Track track) throws TrackWithoutMeasurementsException {
-		throw new TrackWithoutMeasurementsException(track);
+	public List<Measurement> getAllMeasurementsForTrack(Track track) {
+		return Collections.emptyList();
 	}
 
 	@Override
@@ -185,6 +186,20 @@ public class DbAdapterMockup implements DbAdapter {
 	public Track getLastUsedTrack(boolean lazyMeasurements) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public long insertTrack(Track track, boolean remote) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public void insertMeasurement(Measurement measurement,
+			boolean ignoreFinished) throws MeasurementsException,
+			TrackAlreadyFinishedException {
+		// TODO Auto-generated method stub
+		
 	}
 
 

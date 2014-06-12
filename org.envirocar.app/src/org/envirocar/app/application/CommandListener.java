@@ -44,8 +44,10 @@ import org.envirocar.app.event.LocationEvent;
 import org.envirocar.app.event.LocationEventListener;
 import org.envirocar.app.event.RPMEvent;
 import org.envirocar.app.event.SpeedEvent;
+import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
+import org.envirocar.app.model.TrackId;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
@@ -75,7 +77,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 	private static final int MAX_CREATION_TRIES = 10;
 
-	private Track track;
+	private TrackId trackId;
 	private Collector collector;
 	private Location location;
 
@@ -92,13 +94,18 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	
 	public CommandListener(Car car, SharedPreferences sharedPreferences) {
 		
-		String samplingRate = sharedPreferences.getString(SettingsActivity.SAMPLING_RATE, Integer.toString(Collector.DEFAULT_SAMPLING_RATE_DELTA));
+		String samplingRate = sharedPreferences.getString(SettingsActivity.SAMPLING_RATE, null);
 		
 		int val;
-		try {
-			val = Integer.parseInt(samplingRate);
+		if  (samplingRate != null) {
+			try {
+				val = Integer.parseInt(samplingRate) * 1000;
+			}
+			catch (NumberFormatException e) {
+				val = Collector.DEFAULT_SAMPLING_RATE_DELTA;
+			}	
 		}
-		catch (NumberFormatException e) {
+		else {
 			val = Collector.DEFAULT_SAMPLING_RATE_DELTA;
 		}
 		
@@ -261,14 +268,14 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	 *            The measurement you want to insert
 	 */
 	public void insertMeasurement(Measurement measurement) {
-		if (track == null) {
+		if (trackId == null) {
 			if (++trackCreationTries < MAX_CREATION_TRIES) {
 				createNewTrackIfNecessary();
 			} else {
 				logger.warn("Tried "+trackCreationTries +" times to resolve the correct track. Permanentely failing.");
 			}
 			
-			if (track == null) return;
+			if (trackId == null) return;
 		}
 		// TODO: This has to be added with the following conditions:
 		/*
@@ -280,13 +287,23 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		 * therefore, we should include a minimum time between measurements (1
 		 * sec) as well.)
 		 */
+		
+		measurement.setTrackId(trackId);
+		
 		try {
-			track.addMeasurement(measurement);
-			logger.info(String.format("Add new measurement to track '%d': %s", track.getId(), measurement.toString()));
+			DbAdapterImpl.instance().insertNewMeasurement(measurement);
+			logger.info(String.format("Add new measurement to track '%d': %s", trackId.getId(), measurement.toString()));
+			return;
 		} catch (TrackAlreadyFinishedException e) {
+			logger.warn(e.getMessage(), e);
+		} catch (MeasurementsException e) {
 			logger.warn(e.getMessage(), e);
 		}
 		
+		/*
+		 * if we reached this, an exception was thrown while inserting
+		 */
+		createNewTrackIfNecessary();
 	}
 	
 	/**
@@ -302,12 +319,12 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 			return;
 		}
 		
-		Track lastUsedTrack;
-		if (track == null) {
+		Track lastUsedTrack = null;
+		if (trackId == null) {
 			lastUsedTrack = dbAdapter.getLastUsedTrack(true);
 		}
 		else {
-			lastUsedTrack = track;
+			lastUsedTrack = dbAdapter.getTrack(trackId.getId(), true);
 		}
 		
 		logger.info("createNewTrackIfNecessary: last? " + (lastUsedTrack == null ? "null" : lastUsedTrack.toString()));
@@ -315,6 +332,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		// New track if last measurement is more than 60 minutes
 		// ago
 
+		Track tempTrack;
 		if (lastUsedTrack != null && lastUsedTrack.getStatus() != TrackStatus.FINISHED &&
 				lastUsedTrack.getLastMeasurement() != null) {
 			
@@ -322,7 +340,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 					.getLastMeasurement().getTime()) > MAX_TIME_BETWEEN_MEASUREMENTS) {
 				logger.info(String.format("Create a new track: last measurement is more than %d mins ago",
 						(int) (MAX_TIME_BETWEEN_MEASUREMENTS / 1000 / 60)));
-				track = dbAdapter.createNewTrack();
+				tempTrack = dbAdapter.createNewTrack();
 			}
 
 			// new track if last position is significantly different
@@ -331,7 +349,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 					location.getLatitude(), location.getLongitude()) > MAX_DISTANCE_BETWEEN_MEASUREMENTS) {
 				logger.info(String.format("Create a new track: last measurement's position is more than %f km away",
 						MAX_DISTANCE_BETWEEN_MEASUREMENTS));
-				track = dbAdapter.createNewTrack();
+				tempTrack = dbAdapter.createNewTrack();
 			}
 
 			// TODO: New track if user clicks on create new track button
@@ -340,7 +358,7 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 
 			else {
 				logger.info("Append to the last track: last measurement is close enough in space/time");
-				track = lastUsedTrack;
+				tempTrack = lastUsedTrack;
 			}
 			
 		}
@@ -349,13 +367,15 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 					lastUsedTrack == null,
 					lastUsedTrack == null ? "n/a" : lastUsedTrack.getStatus().toString(),
 					lastUsedTrack == null ? "n/a" : lastUsedTrack.getLastMeasurement()));
-			track = dbAdapter.createNewTrack();
+			tempTrack = dbAdapter.createNewTrack();
 		}
 			
-		logger.info(String.format("Using Track: %s / id: %d", track.getName(), track.getId()));
+		logger.info(String.format("Using Track: %s / id: %d", tempTrack.getName(), tempTrack.getId()));
 		if (trackMetadata != null) {
-			this.track.updateMetadata(trackMetadata);
+			tempTrack.updateMetadata(trackMetadata);
 		}
+		
+		this.trackId = new TrackId(tempTrack.getId());
 	}
 
 	@Override
@@ -365,6 +385,8 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 	}
 
 	public void shutdown() {
+		logger.info("shutting down CommandListener. Hash: "+ System.identityHashCode(this));
+		
 		EventBus.getInstance().unregisterListener(this);
 		EventBus.getInstance().unregisterListener(dopListener);
 		
@@ -382,8 +404,10 @@ public class CommandListener implements Listener, LocationEventListener, Measure
 		trackMetadata = new TrackMetadata();
 		trackMetadata.putEntry(TrackMetadata.OBD_DEVICE, deviceName);
 		
-		if (track != null) {
-			this.track.updateMetadata(trackMetadata);
+		if (trackId != null) {
+			Track tempTrack;
+			tempTrack = DbAdapterImpl.instance().getTrack(this.trackId.getId(), true);
+			tempTrack.updateMetadata(trackMetadata);
 		}
 	}
 

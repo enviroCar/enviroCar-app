@@ -330,7 +330,11 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	}
 
 	protected void initializeCommandLooper(InputStream in, OutputStream out, String deviceName) {
-		commandListener = new CommandListener(CarManager.instance().getCar(),
+		if (this.commandListener != null) {
+			this.commandListener.shutdown();
+		}
+		
+		this.commandListener = new CommandListener(CarManager.instance().getCar(),
 				PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
 		this.commandLooper = new OBDCommandLooper(
 				in, out, deviceName,

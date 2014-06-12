@@ -31,13 +31,13 @@ import org.envirocar.app.dao.DAOProvider.AsyncExecutionWithCallback;
 import org.envirocar.app.dao.exception.DAOException;
 import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.UnauthorizedException;
+import org.envirocar.app.json.TrackWithoutMeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.TrackMetadata;
-import org.envirocar.app.storage.TrackWithoutMeasurementsException;
 
 import android.app.Activity;
 import android.content.Context;
@@ -96,6 +96,8 @@ public class UploadManager {
 			@Override
 			public String execute() throws DAOException {
 				Thread.currentThread().setName("TrackUploaderTask-"+track.getId());
+				
+				((ECApplication) context).createNotification("start");
 				
 				/*
 				 * inject track metadata
