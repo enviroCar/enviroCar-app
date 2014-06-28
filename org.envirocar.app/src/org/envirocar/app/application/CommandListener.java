@@ -255,12 +255,12 @@ public class CommandListener implements Listener, MeasurementListener {
 	 *            The measurement you want to insert
 	 */
 	public void insertMeasurement(final Measurement measurement) {
+		logger.info(String.format("Invoking insertion from Thread %s and CommandListener %s: %s",
+				Thread.currentThread().getId(), System.identityHashCode(CommandListener.this), measurement));
 		this.inserter.submit(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					logger.info(String.format("Inserting measurement %s from Thread %s and CommandListener %s",
-							measurement, Thread.currentThread().getId(), System.identityHashCode(CommandListener.this)));
 					DbAdapterImpl.instance().insertNewMeasurement(measurement);
 				} catch (TrackAlreadyFinishedException e) {
 					logger.warn(e.getMessage(), e);
