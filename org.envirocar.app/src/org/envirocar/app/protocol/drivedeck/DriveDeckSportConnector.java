@@ -360,7 +360,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 					 * A PID response
 					 */
 					long now = System.currentTimeMillis();
-					logger.info("Processing PID Response:" +pid);
+					logger.verbose("Processing PID Response:" +pid);
 					
 					byte[] pidResponseValue = new byte[2];
 					int target;

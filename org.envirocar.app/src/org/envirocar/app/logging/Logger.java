@@ -49,6 +49,7 @@ public class Logger {
 	private static final String TAB_CHAR = "\t";
 
 	private static List<Handler> handlers = new ArrayList<Handler>();
+	private static int minimumLogLevel = INFO;
 	
 	static {
 		try {
@@ -78,6 +79,10 @@ public class Logger {
 	}
 
 	protected final void log(int level, String message, Throwable e) {
+		if (level > minimumLogLevel) {
+			return;
+		}
+		
 		String concatMessage;
 		if (e != null) {
 			concatMessage = createConcatenatedMessage(message, e);
@@ -170,7 +175,12 @@ public class Logger {
 		return sb.toString();
 	}
 
-	public static void initialize(String appVersion) {
+	public static void initialize(String appVersion, boolean debugLogging) {
+		if (debugLogging) {
+			minimumLogLevel = DEBUG;
+		}
+		
+		
 		Logger initLogger = getLogger(Logger.class);
 		StringBuilder sb = new StringBuilder();
 		sb.append("System information:");
