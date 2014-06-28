@@ -369,6 +369,9 @@ public class ListTracksFragment extends SherlockFragment {
 			logger.info(Environment.getExternalStorageDirectory().toString());
 			File f = new File(Environment.getExternalStorageDirectory() + "/Android");
 			if (f.isDirectory()) {
+				if (track.isLazyLoadingMeasurements()) {
+					dbAdapter.loadMeasurements(track);
+				}
 				List<Measurement> measurements = track.getMeasurements();
 				logger.info("Count of measurements in the track: " + String.valueOf(measurements.size()));
 				String[] trackCoordinates = extractCoordinates(measurements);
@@ -406,6 +409,9 @@ public class ListTracksFragment extends SherlockFragment {
 		// Share track
 		case R.id.shareTrack:
 			try{
+				if (track.isLazyLoadingMeasurements()) {
+					dbAdapter.loadMeasurements(track);
+				}
 				Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 				sharingIntent.setType("application/json");
 				Uri shareBody = Uri.fromFile(Util.saveTrackAndReturnFile(track, isObfuscationEnabled()).getFile());
@@ -432,6 +438,9 @@ public class ListTracksFragment extends SherlockFragment {
 		// Upload track
 		case R.id.uploadTrack:
 			if (UserManager.instance().isLoggedIn()) {
+				if (track.isLazyLoadingMeasurements()) {
+					dbAdapter.loadMeasurements(track);
+				}
 				startTrackUpload(false, track);
 			} else {
 				Crouton.showText(getActivity(), R.string.hint_login_first, Style.INFO);
