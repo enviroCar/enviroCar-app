@@ -215,7 +215,7 @@ public class DbAdapterImpl implements DbAdapter {
 			}
 		}
 		
-		logger.info("Inserting measurements: "+ measurement);
+		logger.verbose("Inserting measurements: "+ measurement);
 		
 		ContentValues values = new ContentValues();
 		
