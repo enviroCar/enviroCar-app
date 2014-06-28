@@ -317,6 +317,7 @@ public class DbAdapterImpl implements DbAdapter {
 		Track track;
 		if (remoteId != null && !remoteId.isEmpty()) {
 			track = Track.createRemoteTrack(remoteId);
+			track.setTrackId(id);
 		}
 		else {
 			track = Track.createLocalTrack();
@@ -765,7 +766,8 @@ public class DbAdapterImpl implements DbAdapter {
 	@Override
 	public void loadMeasurements(Track track) {
 		List<Measurement> measurements = getAllMeasurementsForTrack(track);
-		track.setMeasurementsAsArrayList(measurements);			
+		track.setMeasurementsAsArrayList(measurements);
+		track.setLazyLoadingMeasurements(false);
 	}
 
 }

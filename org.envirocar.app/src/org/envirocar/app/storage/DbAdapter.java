@@ -263,6 +263,15 @@ public interface DbAdapter {
 
 	public void transitLocalToRemoteTrack(Track track, String remoteId);
 
+	/**
+	 * use this method to load measurements for a track that
+	 * is marked as lazy loaded.
+	 * 
+	 * An implementation shall set the field {@link Track#isLazyLoadingMeasurements()}
+	 * to false after loading and setting the measurements.
+	 * 
+	 * @param t the track
+	 */
 	public void loadMeasurements(Track t);
 
 

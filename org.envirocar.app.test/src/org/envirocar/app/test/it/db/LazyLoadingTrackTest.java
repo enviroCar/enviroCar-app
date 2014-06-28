@@ -48,9 +48,15 @@ public class LazyLoadingTrackTest extends AndroidTestCase {
 		
 		t.setMeasurementsAsArrayList(createMeasurements(t), true);
 		
+		DbAdapterImpl.instance().insertTrack(t, true);
+		
 		Track dbTrack = DbAdapterImpl.instance().getTrack(t.getTrackId(), true);
 		
 		Assert.assertTrue("Track is not marked as lazy!", dbTrack.isLazyLoadingMeasurements());
+		Assert.assertTrue("Track should not contain measurements at this stage!", dbTrack.getMeasurements().isEmpty());
+		
+		DbAdapterImpl.instance().loadMeasurements(dbTrack);
+		Assert.assertTrue("Track is marked as lazy! Should no longer be.", !dbTrack.isLazyLoadingMeasurements());
 		
 		try {
 			dbTrack.getStartTime();

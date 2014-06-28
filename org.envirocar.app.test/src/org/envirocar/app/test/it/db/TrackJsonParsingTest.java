@@ -21,6 +21,7 @@ public class TrackJsonParsingTest extends ResourceLoadingTestCase {
 		}
 
 		Track t = new TrackDecoder().fromJson(createJsonViaStream());
+		DbAdapterImpl.instance().insertTrack(t, true);
 		
 		Track dbTrack = DbAdapterImpl.instance().getTrack(t.getTrackId());
 		

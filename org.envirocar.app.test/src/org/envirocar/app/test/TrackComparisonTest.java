@@ -6,7 +6,6 @@ import java.util.List;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
@@ -15,8 +14,6 @@ import android.test.AndroidTestCase;
 
 public class TrackComparisonTest extends AndroidTestCase {
 	
-	private DbAdapter dbMock = new DbAdapterMockup();
-
 	public void testTracksWithMeasurements() throws TrackAlreadyFinishedException {
 		Track t1 = Track.createLocalTrack();
 		t1.setMeasurementsAsArrayList(Collections.singletonList(createMeasurement(0)));

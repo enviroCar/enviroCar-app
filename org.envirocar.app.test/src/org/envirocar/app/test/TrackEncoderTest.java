@@ -25,7 +25,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.zip.GZIPInputStream;
 
 import junit.framework.Assert;
 
@@ -120,7 +119,7 @@ public class TrackEncoderTest extends AndroidTestCase {
 	
 	public void testStreamEncoding() throws FileNotFoundException, IOException, TrackWithoutMeasurementsException, JSONException, TrackAlreadyFinishedException {
 		InputStreamWithLength in = new StreamTrackEncoder().createTrackJsonAsInputStream(createTrack(), false);
-		ByteArrayOutputStream content = Util.readStreamContents(new GZIPInputStream(in.getInputStream()));
+		ByteArrayOutputStream content = Util.readStreamContents(in.getInputStream());
 		
 		String json = new String(content.toByteArray());
 
