@@ -52,6 +52,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
@@ -87,7 +88,18 @@ public class ECApplication extends Application {
 	
 	protected boolean adapterConnected;
 	private Activity currentActivity;
-	
+
+	private OnSharedPreferenceChangeListener preferenceListener = new OnSharedPreferenceChangeListener() {
+		
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+				String key) {
+			if (SettingsActivity.ENABLE_DEBUG_LOGGING.equals(key)) {
+				Logger.initialize(Util.getVersionString(ECApplication.this),
+						sharedPreferences.getBoolean(SettingsActivity.ENABLE_DEBUG_LOGGING, false));
+			}
+		}
+	};
 
 
 	/**
@@ -120,8 +132,12 @@ public class ECApplication extends Application {
 
 	@Override
 	public void onCreate() {
-		Logger.initialize(Util.getVersionString(this));
 		super.onCreate();
+		preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		preferences.registerOnSharedPreferenceChangeListener(preferenceListener);
+		
+		Logger.initialize(Util.getVersionString(this),
+				preferences.getBoolean(SettingsActivity.ENABLE_DEBUG_LOGGING, false));
 		
 		try {
 			DbAdapterImpl.init(getApplicationContext());
@@ -129,8 +145,6 @@ public class ECApplication extends Application {
 			logger.warn("Could not initalize the database layer. The app will probably work unstable.");
 			logger.warn(e.getMessage(), e);
 		}
-		
-		preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
 		DAOProvider.init(new ContextInternetAccessProvider(getApplicationContext()),
 				new CacheDirectoryProvider() {
@@ -217,12 +231,6 @@ public class ECApplication extends Application {
 		mNotificationManager.notify(mId, mBuilder.build());
 
 	  }
-	
-	
-	public void resetTrack() {
-		//TODO somehow let the CommandListener know of the reset
-	}
-
 
 	public void finishTrack() {
 		final Track track = DbAdapterImpl.instance().finishCurrentTrack();

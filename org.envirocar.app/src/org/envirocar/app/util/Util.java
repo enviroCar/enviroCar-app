@@ -404,7 +404,7 @@ public class Util {
 	
 	
 	public static FileWithMetadata saveTrackAndReturnFile(Track t, boolean obfuscate) throws JSONException, IOException, TrackWithoutMeasurementsException{
-		File log = new File(resolveExternalStorageBaseFolder(), "enviroCar-track-"+t.getId()+".json");
+		File log = new File(resolveExternalStorageBaseFolder(), "enviroCar-track-"+t.getTrackId()+".json");
 		return new StreamTrackEncoder().createTrackJsonAsFile(t, obfuscate, log);
 	}
 

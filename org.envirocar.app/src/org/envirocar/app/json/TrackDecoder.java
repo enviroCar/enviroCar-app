@@ -79,7 +79,7 @@ public class TrackDecoder {
 	}
 
 	public Track fromJson(JSONObject json) throws JSONException, java.text.ParseException {
-		return Track.fromJson(json, DbAdapterImpl.instance());
+		return Track.fromJson(json);
 	}
 	
 	public Track fromJson(InputStream jsonStream) throws JSONException, java.text.ParseException, IOException {

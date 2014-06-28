@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.envirocar.app.exception.MeasurementsException;
+import org.envirocar.app.model.Position;
+import org.envirocar.app.model.TrackId;
 import org.envirocar.app.storage.Track.TrackStatus;
 
 
@@ -64,8 +66,9 @@ public interface DbAdapter {
 	 *            The measurement that should be inserted
 	 * @throws MeasurementsException 
 	 * @throws TrackAlreadyFinishedException 
+	 * @throws MeasurementSerializationException 
 	 */
-	public void insertNewMeasurement(Measurement measurement) throws MeasurementsException, TrackAlreadyFinishedException;
+	public void insertNewMeasurement(Measurement measurement) throws TrackAlreadyFinishedException, MeasurementSerializationException;
 
 	/**
 	 * Inserts a track into the database
@@ -96,6 +99,21 @@ public interface DbAdapter {
 	 */
 	public boolean updateTrack(Track track);
 
+	
+	/**
+	 * An implementation shall return the current track that
+	 * measurements should be appended to.
+	 * It shall determine if using a non-finalized track
+	 * is reasonable (based on time and space constraints, using
+	 * the system time and the provided currentLocation)
+	 * If there is no non-finalized track or appending is not
+	 * reasonable, a new track shall be created.
+	 * 
+	 * @param currentLocation the current location
+	 * @return the current active track as reference via TrackId
+	 */
+	public TrackId getActiveTrackReference(Position currentLocation);
+	
 	/**
 	 * Returns all tracks as an ArrayList<Track>
 	 * 
@@ -119,7 +137,7 @@ public interface DbAdapter {
 	 * @return The desired track or null if it does not exist
 	 * @throws FinishedTrackWithoutMeasurementsException 
 	 */
-	public Track getTrack(long id);
+	public Track getTrack(TrackId id);
 	
 	/**
 	 * Returns one track specified by the id
@@ -130,7 +148,7 @@ public interface DbAdapter {
 	 * @return the desired track
 	 * @throws FinishedTrackWithoutMeasurementsException 
 	 */
-	public Track getTrack(long id, boolean lazyMeasurements);
+	public Track getTrack(TrackId id, boolean lazyMeasurements);
 	
 	/**
 	 * Returns <code>true</code> if a track with the given id is in the Database
@@ -139,7 +157,7 @@ public interface DbAdapter {
 	 * 		The id id ot the checked track
 	 * @return exists a track with the id
 	 */
-	public boolean hasTrack(long id);
+	public boolean hasTrack(TrackId id);
 
 	/**
 	 * Deletes all tracks and measurements in the database
@@ -173,7 +191,7 @@ public interface DbAdapter {
 	 * @param id
 	 *            id of the track to be deleted.
 	 */
-	public void deleteTrack(long id);
+	public void deleteTrack(TrackId id);
 
 	public int getNumberOfRemoteTracks();
 
@@ -236,10 +254,16 @@ public interface DbAdapter {
 	 */
 	public void updateCarIdOfTracks(String currentId, String newId);
 
-	void insertMeasurement(Measurement measurement) throws MeasurementsException, TrackAlreadyFinishedException;
+	void insertMeasurement(Measurement measurement) throws TrackAlreadyFinishedException, MeasurementSerializationException;
 
 	void insertMeasurement(Measurement measurement, boolean ignoreFinished)
-			throws MeasurementsException, TrackAlreadyFinishedException;
+			throws MeasurementSerializationException, TrackAlreadyFinishedException;
+
+	public void updateTrackMetadata(TrackId trackId, TrackMetadata trackMetadata);
+
+	public void transitLocalToRemoteTrack(Track track, String remoteId);
+
+	public void loadMeasurements(Track t);
 
 
 	

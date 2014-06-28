@@ -27,6 +27,8 @@ import org.envirocar.app.event.CO2Event;
 import org.envirocar.app.event.ConsumptionEvent;
 import org.envirocar.app.event.EventBus;
 import org.envirocar.app.event.GpsDOP;
+import org.envirocar.app.event.LocationEvent;
+import org.envirocar.app.event.LocationEventListener;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
@@ -41,7 +43,7 @@ import org.envirocar.app.storage.Measurement.PropertyKey;
 
 import android.location.Location;
 
-public class Collector {
+public class Collector implements LocationEventListener{
 
 	private static final Logger logger = Logger.getLogger(Collector.class);
 	static final int DEFAULT_SAMPLING_RATE_DELTA = 5000;
@@ -193,7 +195,7 @@ public class Collector {
 	 * update could be <= 1 second. Following this approach the delta
 	 * is the maximum of the OBD adapter update rate. 
 	 */
-	private void checkStateAndPush() {
+	private synchronized void checkStateAndPush() {
 		if (measurement == null) return;
 		
 		if (checkReady(measurement)) {
@@ -249,7 +251,7 @@ public class Collector {
 	}
 
 	private void insertMeasurement(Measurement m) {
-		callback.insertMeasurement(m);
+		callback.insertMeasurement(m.carbonCopy());
 	}
 
 	public void newFuelSystemStatus(boolean loop, int status) {
@@ -276,5 +278,10 @@ public class Collector {
 		this.measurement.setProperty(PropertyKey.LONG_TERM_TRIM_1, numberResult.doubleValue());		
 	}
 
+
+	@Override
+	public void receiveEvent(LocationEvent event) {
+		newLocation(event.getPayload());
+	}
 
 }

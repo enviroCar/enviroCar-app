@@ -24,11 +24,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.envirocar.app.exception.MeasurementsException;
+import org.envirocar.app.model.Position;
+import org.envirocar.app.model.TrackId;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Measurement;
+import org.envirocar.app.storage.MeasurementSerializationException;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
+import org.envirocar.app.storage.TrackMetadata;
 
 public class DbAdapterMockup implements DbAdapter {
 
@@ -75,17 +78,6 @@ public class DbAdapterMockup implements DbAdapter {
 		return null;
 	}
 
-	@Override
-	public Track getTrack(long id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean hasTrack(long id) {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 	@Override
 	public void deleteAllTracks() {
@@ -104,11 +96,6 @@ public class DbAdapterMockup implements DbAdapter {
 		return getLastUsedTrack(false);
 	}
 
-	@Override
-	public void deleteTrack(long id) {
-		// TODO Auto-generated method stub
-
-	}
 
 	@Override
 	public int getNumberOfRemoteTracks() {
@@ -163,21 +150,9 @@ public class DbAdapterMockup implements DbAdapter {
 		return Collections.emptyList();
 	}
 
-	@Override
-	public Track getTrack(long id, boolean lazyMeasurements) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public void updateCarIdOfTracks(String currentId, String newId) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void insertMeasurement(Measurement measurement)
-			throws MeasurementsException {
 		// TODO Auto-generated method stub
 		
 	}
@@ -194,9 +169,66 @@ public class DbAdapterMockup implements DbAdapter {
 		return 0;
 	}
 
+
+	@Override
+	public TrackId getActiveTrackReference(Position currentLocation) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Track getTrack(TrackId id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Track getTrack(TrackId id, boolean lazyMeasurements) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean hasTrack(TrackId id) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void deleteTrack(TrackId id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void updateTrackMetadata(TrackId trackId, TrackMetadata trackMetadata) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void transitLocalToRemoteTrack(Track track, String remoteId) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void loadMeasurements(Track t) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void insertMeasurement(Measurement measurement)
+			throws TrackAlreadyFinishedException,
+			MeasurementSerializationException {
+		// TODO Auto-generated method stub
+		
+	}
+
 	@Override
 	public void insertMeasurement(Measurement measurement,
-			boolean ignoreFinished) throws MeasurementsException,
+			boolean ignoreFinished) throws MeasurementSerializationException,
 			TrackAlreadyFinishedException {
 		// TODO Auto-generated method stub
 		

@@ -102,7 +102,7 @@ public class TrackEncoderTest extends AndroidTestCase {
 	}
 
 	private Track createTrack() throws TrackAlreadyFinishedException {
-		Track result = Track.createNewLocalTrack(new DbAdapterMockup());
+		Track result = Track.createLocalTrack();
 		result.setCar(car);
 		result.setMeasurementsAsArrayList(Collections.singletonList(createMeasurement()));
 		result.setDescription("desc");

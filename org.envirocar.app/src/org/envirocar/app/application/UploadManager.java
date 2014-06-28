@@ -95,14 +95,14 @@ public class UploadManager {
 
 			@Override
 			public String execute() throws DAOException {
-				Thread.currentThread().setName("TrackUploaderTask-"+track.getId());
+				Thread.currentThread().setName("TrackUploaderTask-"+track.getTrackId());
 				
 				((ECApplication) context).createNotification("start");
 				
 				/*
 				 * inject track metadata
 				 */
-				track.updateMetadata(new TrackMetadata(context));
+				dbAdapter.updateTrackMetadata(track.getTrackId(), new TrackMetadata(context));
 				
 				if (hasTemporaryCar(track)) {
 					/*
@@ -150,8 +150,9 @@ public class UploadManager {
 					 * success, we got an ID
 					 */
 					((ECApplication) context).createNotification("success");
-					track.setRemoteID(result);
-					dbAdapter.updateTrack(track);
+//					track.setRemoteID(result);
+//					dbAdapter.updateTrack(track);
+					dbAdapter.transitLocalToRemoteTrack(track, result);
 					
 					if (callback != null) {
 						callback.onSuccessfulUpload(track);

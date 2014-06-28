@@ -245,6 +245,13 @@ public class Measurement {
 		sb.append(", time=");
 		sb.append(time);
 		sb.append(", ");
+		
+		if (trackId != null) {
+			sb.append(", trackId=");
+			sb.append(trackId.getId());
+			sb.append(", ");
+		}
+		
 		for (PropertyKey key : propertyMap.keySet()) {
 			sb.append(key.toString());
 			sb.append("=");
@@ -342,6 +349,16 @@ public class Measurement {
 			}
 		}
 		
+		return result;
+	}
+
+	public Measurement carbonCopy() {
+		Measurement result = new Measurement(this.latitude, this.longitude);
+		for (PropertyKey pk : this.propertyMap.keySet()) {
+			result.propertyMap.put(pk, this.propertyMap.get(pk));
+		}
+		result.time = this.time;
+		result.trackId = this.trackId;
 		return result;
 	}
 }
