@@ -69,6 +69,8 @@ public class Track implements Comparable<Track> {
 	
 	private static final Logger logger = Logger.getLogger(Track.class);
 
+	private static final LazyLoadingStrategy lazyLoadingStrategy = new LazyLoadingStrategyImpl();
+
 	private String name;
 	private String description;
 	private List<Measurement> measurements = new ArrayList<Measurement>();
@@ -148,6 +150,11 @@ public class Track implements Comparable<Track> {
 	 * @return the measurements
 	 */
 	public List<Measurement> getMeasurements() {
+		synchronized (this) {
+			if (this.lazyLoadingMeasurements) {
+				lazyLoadingStrategy.lazyLoadMeasurements(this);
+			}
+		}
 		return measurements;
 	}
 
@@ -420,8 +427,6 @@ public class Track implements Comparable<Track> {
 		
 		t.setCar(Car.fromJson(sensorProperties)); 
 		//include server properties tracks created, modified?
-		
-		//Log.i("track_id",t.getId()+" "+((DbAdapterRemote) dbAdapter).trackExistsInDatabase(t.getId())+" "+dbAdapter.getNumberOfStoredTracks());
 		
 		Measurement recycleMeasurement;
 		
