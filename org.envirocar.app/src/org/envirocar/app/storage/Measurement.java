@@ -223,11 +223,11 @@ public class Measurement {
 			this.time = System.currentTimeMillis();
 	}
 	
-	public Double getProperty(PropertyKey key) {
+	public synchronized Double getProperty(PropertyKey key) {
 		return (Double) propertyMap.get(key);
 	}
 	
-	public Map<PropertyKey, Double> getAllProperties() {
+	public synchronized Map<PropertyKey, Double> getAllProperties() {
 		return propertyMap;
 	}
 	
@@ -252,12 +252,15 @@ public class Measurement {
 			sb.append(", ");
 		}
 		
-		for (PropertyKey key : propertyMap.keySet()) {
-			sb.append(key.toString());
-			sb.append("=");
-			sb.append(propertyMap.get(key));
-			sb.append(", ");
+		synchronized (this) {
+			for (PropertyKey key : propertyMap.keySet()) {
+				sb.append(key.toString());
+				sb.append("=");
+				sb.append(propertyMap.get(key));
+				sb.append(", ");
+			}	
 		}
+		
 		return sb.toString();
 	}
 
@@ -321,11 +324,11 @@ public class Measurement {
 		this.trackId = track;
 	}
 	
-	public boolean hasProperty(PropertyKey key) {
+	public synchronized boolean hasProperty(PropertyKey key) {
 		return propertyMap.containsKey(key);
 	}
 
-	public void setProperty(PropertyKey key, Double value) {
+	public synchronized void setProperty(PropertyKey key, Double value) {
 		propertyMap.put(key, value);
 	}
 
@@ -354,11 +357,24 @@ public class Measurement {
 
 	public Measurement carbonCopy() {
 		Measurement result = new Measurement(this.latitude, this.longitude);
-		for (PropertyKey pk : this.propertyMap.keySet()) {
-			result.propertyMap.put(pk, this.propertyMap.get(pk));
+		
+		synchronized (this) {
+			for (PropertyKey pk : this.propertyMap.keySet()) {
+				result.propertyMap.put(pk, this.propertyMap.get(pk));
+			}	
 		}
+		
 		result.time = this.time;
 		result.trackId = this.trackId;
 		return result;
+	}
+
+	public void reset() {
+		latitude = 0.0;
+		longitude = 0.0;
+		
+		synchronized (this) {
+			propertyMap.clear();
+		}
 	}
 }

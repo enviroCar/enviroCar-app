@@ -47,7 +47,7 @@ public class Collector implements LocationEventListener{
 
 	private static final Logger logger = Logger.getLogger(Collector.class);
 	static final int DEFAULT_SAMPLING_RATE_DELTA = 5000;
-	private Measurement measurement;
+	private Measurement measurement = new Measurement(0, 0);
 	private MeasurementListener callback;
 	private Car car;
 	private AbstractCalculatedMAFAlgorithm mafAlgorithm;
@@ -75,7 +75,7 @@ public class Collector implements LocationEventListener{
 	}
 	
 	private void resetMeasurement() {
-		measurement = new Measurement(0.0, 0.0);		
+		measurement.reset();
 	}
 
 	public void newLocation(Location l) {

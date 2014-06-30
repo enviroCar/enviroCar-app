@@ -22,6 +22,10 @@ package org.envirocar.app.application;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.commands.CommonCommand;
@@ -76,7 +80,16 @@ public class CommandListener implements Listener, MeasurementListener {
 	private boolean shutdownCompleted = false;
 
 	private static int instanceCount;
-	private ExecutorService inserter = Executors.newSingleThreadExecutor();
+	private ExecutorService inserter = new ThreadPoolExecutor(1, 1, 0L, 
+			TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(),
+			new RejectedExecutionHandler() {
+				@Override
+				public void rejectedExecution(Runnable r,
+						ThreadPoolExecutor executor) {
+					logger.warn(String.format("Execution rejected: %s / %s", r.toString(), executor.toString()));
+				}
+		
+	});
 	
 	
 	public CommandListener(Car car, SharedPreferences sharedPreferences) {
