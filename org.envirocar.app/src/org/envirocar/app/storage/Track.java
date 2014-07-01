@@ -228,7 +228,7 @@ public class Track implements Comparable<Track> {
 	 * @return
 	 */
 	public int getNumberOfMeasurements() {
-		return this.measurements.size();
+		return this.getMeasurements().size();
 	}
 
 	/**
@@ -255,7 +255,7 @@ public class Track implements Comparable<Track> {
 	 * @return the last measurement or null if there are no measurements
 	 */
 	public Measurement getLastMeasurement() {
-		if (this.measurements.size() > 0) {
+		if (this.getMeasurements().size() > 0) {
 			return this.measurements.get(this.measurements.size() - 1);
 		}
 		else if (this.lazyLoadingMeasurements) {
@@ -270,8 +270,8 @@ public class Track implements Comparable<Track> {
 	 * @return Returns the last measurement or null if there are no measurements
 	 */
 	public Measurement getFirstMeasurement() {
-		if (this.measurements.size() > 0) {
-			return this.measurements.get(0);
+		if (this.getMeasurements().size() > 0) {
+			return this.getMeasurements().get(0);
 		}
 		return null;
 	}
@@ -284,12 +284,12 @@ public class Track implements Comparable<Track> {
 	public double getCO2Average() {
 		double co2Average = 0.0;
 		try {
-			for (Measurement measurement : measurements) {
+			for (Measurement measurement : getMeasurements()) {
 				if (measurement.getProperty(CONSUMPTION) != null){
 					co2Average = co2Average + consumptionAlgorithm.calculateCO2FromConsumption(measurement.getProperty(CONSUMPTION));
 				}
 			}
-			co2Average = co2Average / measurements.size();
+			co2Average = co2Average / getMeasurements().size();
 		} catch (FuelConsumptionException e) {
 			logger.warn(e.getMessage(), e);
 		}
@@ -301,14 +301,18 @@ public class Track implements Comparable<Track> {
 			consumptionPerHour = 0.0;
 			
 			int consideredCount = 0;
-			for (int i = 0; i < measurements.size(); i++) {
+			for (int i = 0; i < getMeasurements().size(); i++) {
 				try {
 					consumptionPerHour = consumptionPerHour + consumptionAlgorithm.calculateConsumption(measurements.get(i));
 					consideredCount++;
 				} catch (FuelConsumptionException e) {
-					logger.warn(e.getMessage());
+					logger.debug(e.getMessage());
 				}
 			}
+			
+			logger.info(String.format("%s of %s measurements used for consumption/hour calculation",
+					consideredCount, measurements.size()));
+			
 			consumptionPerHour = consumptionPerHour / consideredCount;
 			
 		}
