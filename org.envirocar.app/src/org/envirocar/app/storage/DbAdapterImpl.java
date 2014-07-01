@@ -143,6 +143,8 @@ public class DbAdapterImpl implements DbAdapter {
 	private long maxTimeBetweenMeasurements;
 
 	private double maxDistanceBetweenMeasurements;
+
+	private TrackMetadata obdDeviceMetadata;
 	
 	private DbAdapterImpl(Context ctx) {
 		this.mCtx = ctx;
@@ -152,6 +154,14 @@ public class DbAdapterImpl implements DbAdapter {
 		init(ctx, DEFAULT_MAX_TIME_BETWEEN_MEASUREMENTS, DEFAULT_MAX_DISTANCE_BETWEEN_MEASUREMENTS);
 	}
 	
+	/**
+	 * @param ctx the used android context
+	 * @param maxTimeBetweenMeasurements maximum time between two measurements (ms). if
+	 * the difference is higher, a new track is created for the new measurement
+	 * @param maxDistanceBetweenMeasurements maximum distance between two measurements (km). if
+	 * the distance is higher, a new track is created for the new measurement
+	 * @throws InstantiationException if the connection to the database fails
+	 */
 	public static void init(Context ctx, long maxTimeBetweenMeasurements, double maxDistanceBetweenMeasurements) throws InstantiationException {
 		instance = new DbAdapterImpl(ctx);
 		instance.maxTimeBetweenMeasurements = maxTimeBetweenMeasurements;
@@ -160,6 +170,14 @@ public class DbAdapterImpl implements DbAdapter {
 		logger.info("init DbAdapterImpl; Hash: "+System.identityHashCode(instance));
 	}
 	
+
+	/**
+	 * init with default valus for maximum time and distance between
+	 * two measurements. see {@link #init(Context, long, double)}
+	 * 
+	 * @param ctx the used android context
+	 * @throws InstantiationException if the connection to the database fails
+	 */
 	public static DbAdapter instance() {
 		logger.info("Returning DbAdapterImpl; Hash: "+System.identityHashCode(instance));
 		return instance;
@@ -679,12 +697,12 @@ public class DbAdapterImpl implements DbAdapter {
 		 * and its not too old, use it
 		 */
 		if (activeTrackReference !=  null &&
-				System.currentTimeMillis() - lastMeasurementsInsertionTimestamp < this.maxTimeBetweenMeasurements) {
+				System.currentTimeMillis() - lastMeasurementsInsertionTimestamp < this.maxTimeBetweenMeasurements/10) {
 			logger.info("returning activeTrackReference: "+ activeTrackReference);
 			return activeTrackReference;
 		}
 		
-		Track lastUsed = getLastUsedTrack();
+		Track lastUsed = getLastUsedTrack(true);
 		
 		if (!trackIsStillActive(lastUsed, pos)) {
 			lastUsed = createNewTrack();
@@ -693,6 +711,10 @@ public class DbAdapterImpl implements DbAdapter {
 		logger.info(String.format("getActiveTrackReference - Track: %s / id: %s", lastUsed.getName(), lastUsed.getTrackId()));
 		
 		activeTrackReference = lastUsed.getTrackId();
+		
+		if (this.obdDeviceMetadata != null) {
+			updateTrackMetadata(activeTrackReference, this.obdDeviceMetadata);
+		}
 		
 		return activeTrackReference;
 	}
@@ -778,6 +800,15 @@ public class DbAdapterImpl implements DbAdapter {
 		List<Measurement> measurements = getAllMeasurementsForTrack(track);
 		track.setMeasurementsAsArrayList(measurements);
 		track.setLazyLoadingMeasurements(false);
+	}
+
+	@Override
+	public void setConnectedOBDDevice(TrackMetadata obdDeviceMetadata) {
+		this.obdDeviceMetadata = obdDeviceMetadata;
+		
+		if (this.activeTrackReference != null) {
+			updateTrackMetadata(activeTrackReference, obdDeviceMetadata);
+		}
 	}
 
 }

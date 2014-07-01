@@ -377,4 +377,42 @@ public class Measurement {
 			propertyMap.clear();
 		}
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || !(o instanceof Measurement)) {
+			return false;
+		}
+		
+		Measurement m = (Measurement) o;
+		if (m.time != this.time
+				|| m.latitude != this.latitude
+				|| m.longitude != this.longitude) {
+			return false;
+		}
+		
+		if (m.trackId == null && this.trackId != null
+				|| m.trackId != null && this.trackId == null) {
+			return false;
+		}
+		
+		if (m.trackId != null && !m.trackId.equals(this.trackId)) {
+			return false;
+		}
+		
+		for (PropertyKey pk : this.propertyMap.keySet()) {
+			if (m.getProperty(pk) != this.getProperty(pk)) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	@Override
+	public int hashCode() {
+		return (int) (this.time / 1000) +
+				(int) (this.latitude * 1000) + 
+				(int) (this.longitude * 1000);
+	}
 }

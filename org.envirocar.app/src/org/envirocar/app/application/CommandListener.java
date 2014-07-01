@@ -75,7 +75,7 @@ public class CommandListener implements Listener, MeasurementListener {
 
 	private GpsDOPEventListener dopListener;
 
-	private TrackMetadata trackMetadata;
+	private TrackMetadata obdDeviceMetadata;
 
 	private boolean shutdownCompleted = false;
 
@@ -303,11 +303,11 @@ public class CommandListener implements Listener, MeasurementListener {
 
 	@Override
 	public void onConnected(String deviceName) {
-		trackMetadata = new TrackMetadata();
-		trackMetadata.putEntry(TrackMetadata.OBD_DEVICE, deviceName);
+		obdDeviceMetadata = new TrackMetadata();
+		obdDeviceMetadata.putEntry(TrackMetadata.OBD_DEVICE, deviceName);
 		
 		DbAdapter db = DbAdapterImpl.instance();
-		db.updateTrackMetadata(db.getActiveTrackReference(null), trackMetadata);
+		db.setConnectedOBDDevice(obdDeviceMetadata);
 	}
 
 	
