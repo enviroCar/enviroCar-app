@@ -126,9 +126,9 @@ public class DbAdapterImpl implements DbAdapter {
 
 	private static final DateFormat format = SimpleDateFormat.getDateTimeInstance();
 	
-	private static final long MAX_TIME_BETWEEN_MEASUREMENTS = 1000 * 60 * 15;
+	private static final long DEFAULT_MAX_TIME_BETWEEN_MEASUREMENTS = 1000 * 60 * 15;
 
-	private static final double MAX_DISTANCE_BETWEEN_MEASUREMENTS = 3.0;
+	private static final double DEFAULT_MAX_DISTANCE_BETWEEN_MEASUREMENTS = 3.0;
 
 	private static DbAdapterImpl instance;
 	
@@ -139,13 +139,23 @@ public class DbAdapterImpl implements DbAdapter {
 	private TrackId activeTrackReference;
 
 	private long lastMeasurementsInsertionTimestamp;
+
+	private long maxTimeBetweenMeasurements;
+
+	private double maxDistanceBetweenMeasurements;
 	
 	private DbAdapterImpl(Context ctx) {
 		this.mCtx = ctx;
 	}
 	
 	public static void init(Context ctx) throws InstantiationException {
+		init(ctx, DEFAULT_MAX_TIME_BETWEEN_MEASUREMENTS, DEFAULT_MAX_DISTANCE_BETWEEN_MEASUREMENTS);
+	}
+	
+	public static void init(Context ctx, long maxTimeBetweenMeasurements, double maxDistanceBetweenMeasurements) throws InstantiationException {
 		instance = new DbAdapterImpl(ctx);
+		instance.maxTimeBetweenMeasurements = maxTimeBetweenMeasurements;
+		instance.maxDistanceBetweenMeasurements = maxDistanceBetweenMeasurements;
 		instance.openConnection();
 		logger.info("init DbAdapterImpl; Hash: "+System.identityHashCode(instance));
 	}
@@ -669,7 +679,7 @@ public class DbAdapterImpl implements DbAdapter {
 		 * and its not too old, use it
 		 */
 		if (activeTrackReference !=  null &&
-				System.currentTimeMillis() - lastMeasurementsInsertionTimestamp < MAX_TIME_BETWEEN_MEASUREMENTS) {
+				System.currentTimeMillis() - lastMeasurementsInsertionTimestamp < this.maxTimeBetweenMeasurements) {
 			logger.info("returning activeTrackReference: "+ activeTrackReference);
 			return activeTrackReference;
 		}
@@ -702,18 +712,18 @@ public class DbAdapterImpl implements DbAdapter {
 				lastUsedTrack.getLastMeasurement() != null) {
 			
 			if ((System.currentTimeMillis() - lastUsedTrack
-					.getLastMeasurement().getTime()) > MAX_TIME_BETWEEN_MEASUREMENTS) {
+					.getLastMeasurement().getTime()) > this.maxTimeBetweenMeasurements) {
 				logger.info(String.format("Should create a new track: last measurement is more than %d mins ago",
-						(int) (MAX_TIME_BETWEEN_MEASUREMENTS / 1000 / 60)));
+						(int) (this.maxTimeBetweenMeasurements / 1000 / 60)));
 				return false;
 			}
 
 			// new track if last position is significantly different
 			// from the current position (more than 3 km)
 			else if (location == null || Util.getDistance(lastUsedTrack.getLastMeasurement().getLatitude(),lastUsedTrack.getLastMeasurement().getLongitude(),
-					location.getLatitude(), location.getLongitude()) > MAX_DISTANCE_BETWEEN_MEASUREMENTS) {
+					location.getLatitude(), location.getLongitude()) > this.maxDistanceBetweenMeasurements) {
 				logger.info(String.format("Should create a new track: last measurement's position is more than %f km away",
-						MAX_DISTANCE_BETWEEN_MEASUREMENTS));
+						this.maxDistanceBetweenMeasurements));
 				return false;
 			}
 
