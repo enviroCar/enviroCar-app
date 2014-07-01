@@ -32,16 +32,16 @@ import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 
-import android.test.AndroidTestCase;
+import android.test.InstrumentationTestCase;
 
-public class LazyLoadingTrackTest extends AndroidTestCase {
+public class LazyLoadingTrackTest extends InstrumentationTestCase {
 	
 	private static final int COUNT = 10;
 	private Random random = new Random();
 
 	public void testLazyLoading() throws InterruptedException, InstantiationException {
 		if (DbAdapterImpl.instance() == null) {
-			DbAdapterImpl.init(getContext());
+			DbAdapterImpl.init(getInstrumentation().getContext());
 		}
 		
 		Track t = Track.createRemoteTrack(UUID.randomUUID().toString());

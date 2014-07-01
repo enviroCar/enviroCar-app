@@ -32,17 +32,17 @@ import org.envirocar.app.storage.Track.TrackStatus;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
 
 import android.preference.PreferenceManager;
-import android.test.AndroidTestCase;
+import android.test.InstrumentationTestCase;
 
-public class TrackStatusTest extends AndroidTestCase {
+public class TrackStatusTest extends InstrumentationTestCase {
 	
 	public void testTrackStatusFromDB() throws InstantiationException, TrackAlreadyFinishedException, MeasurementSerializationException {
 		if (DbAdapterImpl.instance() == null) {
-			DbAdapterImpl.init(getContext());
+			DbAdapterImpl.init(getInstrumentation().getContext());
 		}
 		
 		if (CarManager.instance() == null) {
-			CarManager.init(PreferenceManager.getDefaultSharedPreferences(getContext()));
+			CarManager.init(PreferenceManager.getDefaultSharedPreferences(getInstrumentation().getContext()));
 		}
 		
 		Track t = DbAdapterImpl.instance().createNewTrack();

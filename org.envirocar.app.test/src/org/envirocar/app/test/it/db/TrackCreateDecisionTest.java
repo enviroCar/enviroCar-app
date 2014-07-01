@@ -20,60 +20,108 @@
  */
 package org.envirocar.app.test.it.db;
 
-import org.envirocar.app.storage.DbAdapterImpl;
-import org.envirocar.app.storage.Track;
+import junit.framework.Assert;
 
+import org.envirocar.app.application.CarManager;
+import org.envirocar.app.model.Position;
+import org.envirocar.app.model.TrackId;
+import org.envirocar.app.storage.DbAdapterImpl;
+import org.envirocar.app.storage.Measurement;
+import org.envirocar.app.storage.MeasurementSerializationException;
+import org.envirocar.app.storage.TrackAlreadyFinishedException;
+
+import android.preference.PreferenceManager;
 import android.test.InstrumentationTestCase;
 
 public class TrackCreateDecisionTest extends InstrumentationTestCase {
 
+	private static final int maxTime = 15000;
 	private DbAdapterImpl dbAdapter;
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-		DbAdapterImpl.init(getInstrumentation().getTargetContext());
+		DbAdapterImpl.init(getInstrumentation().getTargetContext(), maxTime, 3.0);
+		CarManager.init(PreferenceManager.getDefaultSharedPreferences(getInstrumentation().getContext()));
 		this.dbAdapter = (DbAdapterImpl) DbAdapterImpl.instance();
+		this.dbAdapter.deleteAllTracks();
 	}
 	
-	public void testNewTrack() {
-		Track t = dbAdapter.createNewTrack();
-		t.getTrackId();
+	public void testNewTrack() throws TrackAlreadyFinishedException, MeasurementSerializationException, InterruptedException {
 		/*
 		 * 1.
 		 * Collector: get the track to append measurements
 		 * dbAdapter: determine if append to old or create new track -> create new
 		 */
+		Measurement m = new Measurement(51.00001, 7.00001);
+		dbAdapter.insertNewMeasurement(m);
+		TrackId active = dbAdapter.getActiveTrackReference(new Position(51.00001, 7.00001));
 		
+		Measurement first = dbAdapter.getTrack(active).getFirstMeasurement();
+		Assert.assertTrue("Measurements are not the same!", m.equals(first));
+		
+		Measurement m2 = new Measurement(51.00002, 7.00002);
+		dbAdapter.insertNewMeasurement(m2);
+		
+		Measurement last = dbAdapter.getTrack(active).getLastMeasurement();
+		Assert.assertTrue("Measurements are not the same!", m2.equals(last));
+		
+		Thread.sleep(maxTime);
 		
 		/*
-		 * 2.
-		 * Collector: add measurments while recording
+		 * wait the maximum time -> should create a new track
 		 */
+		m = new Measurement(51.00003, 7.00003);
+		dbAdapter.insertNewMeasurement(m);
+		
+		TrackId newActive = dbAdapter.getActiveTrackReference(new Position(51.00003, 7.00003));
+		Assert.assertNotSame("Should be a new track id!", active, newActive);
 		
 		
 		/*
 		 * 3.
-		 * Dashboard: User hits "stop" -> should finish track
-		 * dbAdapter: finalize current track
+		 * dbAdapter: finalize current track, next measurement should have a new track
 		 */
+		dbAdapter.finishCurrentTrack();
 		
+		TrackId afterFinishing = dbAdapter.getActiveTrackReference(new Position(51.00003, 7.00003));
+		Assert.assertNotSame("Should be a new track id!", afterFinishing, newActive);
 		
 		/*
-		 * 4.
-		 * Collector: get the track to append measurements
-		 * dbAdapter: do not use previously finalized track -> create new 
+		 * add the first measurement
 		 */
-		
+		m = new Measurement(51.95560701047658, 7.626563074300066);
+		dbAdapter.insertNewMeasurement(m);
 		
 		/*
-		 * 5.
-		 * BackgroundServiceImpl: connection is lost -> do NOT finalize track
-		 * Collector: connection resumed, get track to append
-		 * dbAdapter: if time did not exceed too long or spatial extent changed, use
-		 * unfinalized track -> use previous
+		 * second is close enough in space and time
 		 */
+		m = new Measurement(51.944327578481714, 7.639612174611539);
+		dbAdapter.insertNewMeasurement(m);
+		
+		TrackId current = dbAdapter.getActiveTrackReference(new Position(m.getLatitude(), m.getLongitude()));
+		Assert.assertEquals("Should be the same track id!", current, afterFinishing);
+		
+		/*
+		 * again, first position
+		 */
+		m = new Measurement(51.95560701047658, 7.626563074300066);
+		dbAdapter.insertNewMeasurement(m);
+		
+		/*
+		 * wait the time until the spatial check is jumping in
+		 */
+		Thread.sleep(maxTime/10);
+		
+		/*
+		 * this measurements is more than 3km away from the previous
+		 */
+		m = new Measurement(51.934327578481714, 7.659612174611539);
+		dbAdapter.insertNewMeasurement(m);
+		
+		current = dbAdapter.getActiveTrackReference(new Position(m.getLatitude(), m.getLongitude()));
+		Assert.assertNotSame("Should be a new track id!", current, afterFinishing);
 	}
 
 }
