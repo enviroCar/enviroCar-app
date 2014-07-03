@@ -66,6 +66,7 @@ public class SettingsActivity extends SherlockPreferenceActivity {
 	public static final String CAR_HASH_CODE = "pref_selected_car_hash_code";
 	public static final String PERSISTENT_SEEN_ANNOUNCEMENTS = "persistent_seen_announcements";
 	public static final String SAMPLING_RATE = "ec_sampling_rate";
+	public static final String ENABLE_DEBUG_LOGGING = "pref_enable_debug_logging";
 	
 	private Preference about;
 	

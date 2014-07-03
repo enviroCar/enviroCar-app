@@ -161,6 +161,7 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	protected BackgroundServiceInteractor backgroundService;
 	protected DeviceInRangeServiceInteractor deviceInRangeService;
 	protected long discoveryTargetTime;
+	private boolean paused;
 		
 	private void prepareNavDrawerItems(){
 		if(this.navDrawerItems == null){
@@ -311,6 +312,10 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 			
 			@Override
 			public void onReceive(Context context, Intent intent) {
+				if (paused) {
+					return;
+				}
+				
 	        	Fragment fragment = getSupportFragmentManager().findFragmentByTag(TROUBLESHOOTING_TAG);
 	        	if (fragment == null) {
 	        		fragment = new TroubleshootingFragment();
@@ -701,8 +706,18 @@ public class MainActivity<AndroidAlarmService> extends SherlockFragmentActivity 
 	}
 	
 	@Override
+	protected void onPause() {
+		super.onPause();
+		
+		this.paused = true;
+	}
+	
+	@Override
 	protected void onResume() {
 		super.onResume();
+		
+		this.paused = false;
+		
 		drawer.closeDrawer(drawerList);
 	    //first init
 	    firstInit();

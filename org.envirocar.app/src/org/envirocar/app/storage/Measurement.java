@@ -223,11 +223,11 @@ public class Measurement {
 			this.time = System.currentTimeMillis();
 	}
 	
-	public Double getProperty(PropertyKey key) {
+	public synchronized Double getProperty(PropertyKey key) {
 		return (Double) propertyMap.get(key);
 	}
 	
-	public Map<PropertyKey, Double> getAllProperties() {
+	public synchronized Map<PropertyKey, Double> getAllProperties() {
 		return propertyMap;
 	}
 	
@@ -245,12 +245,22 @@ public class Measurement {
 		sb.append(", time=");
 		sb.append(time);
 		sb.append(", ");
-		for (PropertyKey key : propertyMap.keySet()) {
-			sb.append(key.toString());
-			sb.append("=");
-			sb.append(propertyMap.get(key));
+		
+		if (trackId != null) {
+			sb.append(", trackId=");
+			sb.append(trackId.getId());
 			sb.append(", ");
 		}
+		
+		synchronized (this) {
+			for (PropertyKey key : propertyMap.keySet()) {
+				sb.append(key.toString());
+				sb.append("=");
+				sb.append(propertyMap.get(key));
+				sb.append(", ");
+			}	
+		}
+		
 		return sb.toString();
 	}
 
@@ -314,11 +324,11 @@ public class Measurement {
 		this.trackId = track;
 	}
 	
-	public boolean hasProperty(PropertyKey key) {
+	public synchronized boolean hasProperty(PropertyKey key) {
 		return propertyMap.containsKey(key);
 	}
 
-	public void setProperty(PropertyKey key, Double value) {
+	public synchronized void setProperty(PropertyKey key, Double value) {
 		propertyMap.put(key, value);
 	}
 
@@ -343,5 +353,66 @@ public class Measurement {
 		}
 		
 		return result;
+	}
+
+	public Measurement carbonCopy() {
+		Measurement result = new Measurement(this.latitude, this.longitude);
+		
+		synchronized (this) {
+			for (PropertyKey pk : this.propertyMap.keySet()) {
+				result.propertyMap.put(pk, this.propertyMap.get(pk));
+			}	
+		}
+		
+		result.time = this.time;
+		result.trackId = this.trackId;
+		return result;
+	}
+
+	public void reset() {
+		latitude = 0.0;
+		longitude = 0.0;
+		
+		synchronized (this) {
+			propertyMap.clear();
+		}
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == null || !(o instanceof Measurement)) {
+			return false;
+		}
+		
+		Measurement m = (Measurement) o;
+		if (m.time != this.time
+				|| m.latitude != this.latitude
+				|| m.longitude != this.longitude) {
+			return false;
+		}
+		
+		if (m.trackId == null && this.trackId != null
+				|| m.trackId != null && this.trackId == null) {
+			return false;
+		}
+		
+		if (m.trackId != null && !m.trackId.equals(this.trackId)) {
+			return false;
+		}
+		
+		for (PropertyKey pk : this.propertyMap.keySet()) {
+			if (m.getProperty(pk) != this.getProperty(pk)) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	@Override
+	public int hashCode() {
+		return (int) (this.time / 1000) +
+				(int) (this.latitude * 1000) + 
+				(int) (this.longitude * 1000);
 	}
 }

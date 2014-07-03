@@ -28,28 +28,28 @@ import java.util.UUID;
 import junit.framework.Assert;
 
 import org.envirocar.app.exception.MeasurementsException;
-import org.envirocar.app.model.TrackId;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 
-import android.test.AndroidTestCase;
+import android.test.InstrumentationTestCase;
 
-public class LazyLoadingTrackTest extends AndroidTestCase {
+public class LazyLoadingTrackTest extends InstrumentationTestCase {
 	
 	private static final int COUNT = 10;
 	private Random random = new Random();
 
 	public void testLazyLoading() throws InterruptedException, InstantiationException {
 		if (DbAdapterImpl.instance() == null) {
-			DbAdapterImpl.init(getContext());
+			DbAdapterImpl.init(getInstrumentation().getContext());
 		}
 		
-		Track t = Track.createRemoteTrack(UUID.randomUUID().toString(), DbAdapterImpl.instance());
+		Track t = Track.createRemoteTrack(UUID.randomUUID().toString());
 		
 		t.setMeasurementsAsArrayList(createMeasurements(t), true);
+		DbAdapterImpl.instance().insertTrack(t, true);
 		
-		Track dbTrack = DbAdapterImpl.instance().getTrack(t.getId(), true);
+		Track dbTrack = DbAdapterImpl.instance().getTrack(t.getTrackId(), true);
 		
 		Assert.assertTrue("Track is not marked as lazy!", dbTrack.isLazyLoadingMeasurements());
 		
@@ -62,11 +62,11 @@ public class LazyLoadingTrackTest extends AndroidTestCase {
 		
 		Assert.assertTrue("Expected 10 measurements!", dbTrack.getMeasurements().size() == COUNT);
 		
-		DbAdapterImpl.instance().deleteTrack(dbTrack.getId());
+		DbAdapterImpl.instance().deleteTrack(dbTrack.getTrackId());
 		
 		Assert.assertTrue("Expected an empty list", DbAdapterImpl.instance().getAllMeasurementsForTrack(dbTrack).isEmpty());
 		
-		Assert.assertTrue("Track was expected to be deleted!", !DbAdapterImpl.instance().hasTrack(dbTrack.getId()));
+		Assert.assertTrue("Track was expected to be deleted!", !DbAdapterImpl.instance().hasTrack(dbTrack.getTrackId()));
 	}
 
 	private List<Measurement> createMeasurements(Track t) throws InterruptedException {
@@ -82,7 +82,7 @@ public class LazyLoadingTrackTest extends AndroidTestCase {
 	private Measurement createRandomMeasurement(Track t) throws InterruptedException {
 		Measurement result = new Measurement(51.0f + (random.nextDouble()/100f), 57.0f + (random.nextDouble()/100f));
 		result.setTime(System.currentTimeMillis());
-		result.setTrackId(new TrackId(t.getId()));
+		result.setTrackId(t.getTrackId());
 		Thread.sleep(10);
 		return result;
 	}

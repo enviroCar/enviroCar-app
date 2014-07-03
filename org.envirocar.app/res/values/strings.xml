@@ -282,4 +282,7 @@ If you discover and problems, please send us an error log (-> report problem). T
 	<string name="logbook_information">Information about the Date, User, Car and Fueltype will be obtained automatically</string>
 	<string name="comment">Additional comments</string>
 	
+	<string name="enable_debug_logging">Enable Debug Logging</string>
+	<string name="enable_debug_logging_summary">Increase the log level (used in issue/problem reports)</string>
+	
 </resources>

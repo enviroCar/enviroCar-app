@@ -21,8 +21,9 @@ public class TrackJsonParsingTest extends ResourceLoadingTestCase {
 		}
 
 		Track t = new TrackDecoder().fromJson(createJsonViaStream());
+		DbAdapterImpl.instance().insertTrack(t, true);
 		
-		Track dbTrack = DbAdapterImpl.instance().getTrack(t.getId());
+		Track dbTrack = DbAdapterImpl.instance().getTrack(t.getTrackId());
 		
 		Assert.assertTrue("Car was null!", dbTrack.getCar() != null);
 		Assert.assertTrue("Track contained no measurements!", dbTrack.getMeasurements() != null &&
@@ -30,7 +31,7 @@ public class TrackJsonParsingTest extends ResourceLoadingTestCase {
 		Assert.assertTrue("Track contained wrong number of measurements!", dbTrack.getMeasurements().size() == 3);
 		Assert.assertTrue("Track not set as FINISHED!", dbTrack.getStatus() == TrackStatus.FINISHED);
 		
-		DbAdapterImpl.instance().deleteTrack(dbTrack.getId());
+		DbAdapterImpl.instance().deleteTrack(dbTrack.getTrackId());
 
 		Assert.assertTrue("Expected an empty list!", DbAdapterImpl.instance().getAllMeasurementsForTrack(dbTrack).isEmpty());
 	}

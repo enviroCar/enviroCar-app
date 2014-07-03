@@ -24,26 +24,25 @@ package org.envirocar.app.test.it.db;
 import junit.framework.Assert;
 
 import org.envirocar.app.application.CarManager;
-import org.envirocar.app.exception.MeasurementsException;
-import org.envirocar.app.model.TrackId;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
+import org.envirocar.app.storage.MeasurementSerializationException;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Track.TrackStatus;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
 
 import android.preference.PreferenceManager;
-import android.test.AndroidTestCase;
+import android.test.InstrumentationTestCase;
 
-public class TrackStatusTest extends AndroidTestCase {
+public class TrackStatusTest extends InstrumentationTestCase {
 	
-	public void testTrackStatusFromDB() throws InstantiationException, TrackAlreadyFinishedException, MeasurementsException {
+	public void testTrackStatusFromDB() throws InstantiationException, TrackAlreadyFinishedException, MeasurementSerializationException {
 		if (DbAdapterImpl.instance() == null) {
-			DbAdapterImpl.init(getContext());
+			DbAdapterImpl.init(getInstrumentation().getContext());
 		}
 		
 		if (CarManager.instance() == null) {
-			CarManager.init(PreferenceManager.getDefaultSharedPreferences(getContext()));
+			CarManager.init(PreferenceManager.getDefaultSharedPreferences(getInstrumentation().getContext()));
 		}
 		
 		Track t = DbAdapterImpl.instance().createNewTrack();
@@ -54,22 +53,22 @@ public class TrackStatusTest extends AndroidTestCase {
 		
 		Track l = DbAdapterImpl.instance().getLastUsedTrack();
 		
-		Assert.assertTrue(t.getId() == l.getId());
+		Assert.assertTrue(t.getTrackId().equals(l.getTrackId()));
 		Assert.assertTrue(l.getStatus() == TrackStatus.ONGOING);
 		
 		DbAdapterImpl.instance().finishCurrentTrack();
 		
-		Track f = DbAdapterImpl.instance().getTrack(t.getId());
+		Track f = DbAdapterImpl.instance().getTrack(t.getTrackId());
 		Assert.assertTrue(f.getStatus() == TrackStatus.FINISHED);
 		
-		DbAdapterImpl.instance().deleteTrack(t.getId());
+		DbAdapterImpl.instance().deleteTrack(t.getTrackId());
 		
-		Assert.assertTrue(DbAdapterImpl.instance().getTrack(t.getId()) == null);
+		Assert.assertTrue(DbAdapterImpl.instance().getTrack(t.getTrackId()) == null);
 	}
 
 	private Measurement createMeasurement(Track t) {
 		Measurement result = new Measurement(52.0, 7.0);
-		result.setTrackId(new TrackId(t.getId()));
+		result.setTrackId(t.getTrackId());
 		return result;
 	}
 

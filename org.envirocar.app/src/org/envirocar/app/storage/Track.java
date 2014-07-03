@@ -69,16 +69,15 @@ public class Track implements Comparable<Track> {
 	
 	private static final Logger logger = Logger.getLogger(Track.class);
 
+	private static final LazyLoadingStrategy lazyLoadingStrategy = new LazyLoadingStrategyImpl();
+
 	private String name;
 	private String description;
 	private List<Measurement> measurements = new ArrayList<Measurement>();
 	private Car car;
 	private AbstractConsumptionAlgorithm consumptionAlgorithm;
-	private String remoteID;
 	private Double consumptionPerHour;
 	private TrackStatus status = TrackStatus.ONGOING;
-
-	private DbAdapter dbAdapter;
 
 	private boolean lazyLoadingMeasurements;
 
@@ -89,54 +88,32 @@ public class Track implements Comparable<Track> {
 
 	private TrackId trackId;
 
-	public static Track createTrackWithId(long id, DbAdapter dbAdapterImpl) {
-		Track track = new Track(id);
-		track.dbAdapter = dbAdapterImpl;
+	public static LocalTrack createLocalTrack() {
+		LocalTrack track = new LocalTrack();
 		return track;
 	}
 	
-	public static Track createNewLocalTrack(DbAdapter dbAdapterImpl) {
-		Track t = new Track(dbAdapterImpl);
-		return t;
-	}
-	
-	
-	public static Track createRemoteTrack(String remoteID, DbAdapter dbAdapter) {
-		Track track = new Track(remoteID, dbAdapter);
+	public static RemoteTrack createRemoteTrack(String remoteID) {
+		RemoteTrack track = new RemoteTrack(remoteID);
 		return track;
 	}
-
-	private Track(long id) {
-		this.trackId = new TrackId(id);
-	}
 	
-	private Track(String remoteID, DbAdapter dbAdapter) {
-		this(dbAdapter);
-		this.remoteID = remoteID;
-		this.status = TrackStatus.FINISHED;
-	}
-	
-	/**
-	 * Constructor for creating "fresh" new track. Use this for new measurements
-	 * that were captured from the OBD-II adapter.
-	 */
-	private Track(DbAdapter dbAdapter) {
+	protected void setupProperties() {
 		this.name = "";
 		this.description = "";
-		this.measurements = new ArrayList<Measurement>();
-		this.trackId = new TrackId(dbAdapter.insertTrack(this, true));
-		this.dbAdapter = dbAdapter;
+		this.measurements = new ArrayList<Measurement>();		
 	}
+
 
 	/**
 	 * @return the localTrack
 	 */
 	public boolean isLocalTrack() {
-		return !isRemoteTrack();
+		return (this instanceof LocalTrack);
 	}
 
 	public boolean isRemoteTrack() {
-		return (remoteID != null ? true : false);
+		return (this instanceof RemoteTrack);
 	}
 
 	/**
@@ -173,8 +150,10 @@ public class Track implements Comparable<Track> {
 	 * @return the measurements
 	 */
 	public List<Measurement> getMeasurements() {
-		if ((measurements == null || measurements.isEmpty()) && dbAdapter != null) {
-			this.measurements = dbAdapter.getAllMeasurementsForTrack(this);
+		synchronized (this) {
+			if (this.lazyLoadingMeasurements) {
+				lazyLoadingStrategy.lazyLoadMeasurements(this);
+			}
 		}
 		return measurements;
 	}
@@ -240,65 +219,8 @@ public class Track implements Comparable<Track> {
 	public void setMeasurementsAsArrayList(
 			List<Measurement> measurements, boolean storeInDb) {
 		this.measurements = measurements;
-		
-		if (storeInDb) {
-			storeMeasurementsInDbAdapter();
-		}
 	}
 	
-	private void storeMeasurementsInDbAdapter() {
-		storeMeasurementsInDbAdapter(false);
-	}
-	
-	private void storeMeasurementsInDbAdapter(boolean ignoreFinished) {
-		if (this.dbAdapter != null) {
-			for (Measurement measurement : measurements) {
-				try {
-					this.dbAdapter.insertMeasurement(measurement, ignoreFinished);
-				} catch (MeasurementsException e) {
-					logger.warn(e.getMessage(), e);
-				} catch (TrackAlreadyFinishedException e) {
-					logger.warn(e.getMessage(), e);
-				}
-			}
-		}
-	}
-
-	/**
-	 * Use this method only to insert "fresh" measurements, not to recreate a
-	 * Track from the database Use
-	 * {@code insertMeasurement(ArrayList<Measurement> measurements)} instead
-	 * Inserts measurments into the Track and into the database!
-	 * 
-	 * @param measurement
-	 * @throws TrackAlreadyFinishedException 
-	 * @throws MeasurementsException
-	 * @deprecated use {@link DbAdapter#insertNewMeasurement(Measurement)} directly instead,
-	 * or {@link #setMeasurementsAsArrayList(List)} for tracks in memory
-	 */
-	@Deprecated
-	public void addMeasurement(Measurement measurement) throws TrackAlreadyFinishedException {
-		measurement.setTrackId(this.trackId);
-		
-		/*
-		 * we do NOT need to add the measurement to the list.
-		 * this blows up memory usage and this instance of Track
-		 * is never used elsewhere nor its getMeasurements() method
-		 * and the like.
-		 */
-//		this.measurements.add(measurement);
-		
-		if (this.dbAdapter != null) {
-			try {
-				this.dbAdapter.insertNewMeasurement(measurement);
-			} catch (MeasurementsException e) {
-				logger.severe("This should never happen", e);
-				return;
-			}	
-		} else {
-			logger.warn("DbAdapter was null! Could not insert measurement");
-		}
-	}
 
 	/**
 	 * Returns the number of measurements of this track
@@ -306,25 +228,7 @@ public class Track implements Comparable<Track> {
 	 * @return
 	 */
 	public int getNumberOfMeasurements() {
-		return this.measurements.size();
-	}
-
-	/**
-	 * @return the id
-	 */
-	public long getId() {
-		if (trackId == null) {
-			return 0;
-		}
-		return trackId.getId();
-	}
-
-	public String getRemoteID() {
-		return remoteID;
-	}
-
-	public void setRemoteID(String remoteID) {
-		this.remoteID = remoteID;
+		return this.getMeasurements().size();
 	}
 
 	/**
@@ -351,7 +255,7 @@ public class Track implements Comparable<Track> {
 	 * @return the last measurement or null if there are no measurements
 	 */
 	public Measurement getLastMeasurement() {
-		if (this.measurements.size() > 0) {
+		if (this.getMeasurements().size() > 0) {
 			return this.measurements.get(this.measurements.size() - 1);
 		}
 		else if (this.lazyLoadingMeasurements) {
@@ -366,8 +270,8 @@ public class Track implements Comparable<Track> {
 	 * @return Returns the last measurement or null if there are no measurements
 	 */
 	public Measurement getFirstMeasurement() {
-		if (this.measurements.size() > 0) {
-			return this.measurements.get(0);
+		if (this.getMeasurements().size() > 0) {
+			return this.getMeasurements().get(0);
 		}
 		return null;
 	}
@@ -380,12 +284,12 @@ public class Track implements Comparable<Track> {
 	public double getCO2Average() {
 		double co2Average = 0.0;
 		try {
-			for (Measurement measurement : measurements) {
+			for (Measurement measurement : getMeasurements()) {
 				if (measurement.getProperty(CONSUMPTION) != null){
 					co2Average = co2Average + consumptionAlgorithm.calculateCO2FromConsumption(measurement.getProperty(CONSUMPTION));
 				}
 			}
-			co2Average = co2Average / measurements.size();
+			co2Average = co2Average / getMeasurements().size();
 		} catch (FuelConsumptionException e) {
 			logger.warn(e.getMessage(), e);
 		}
@@ -397,14 +301,18 @@ public class Track implements Comparable<Track> {
 			consumptionPerHour = 0.0;
 			
 			int consideredCount = 0;
-			for (int i = 0; i < measurements.size(); i++) {
+			for (int i = 0; i < getMeasurements().size(); i++) {
 				try {
 					consumptionPerHour = consumptionPerHour + consumptionAlgorithm.calculateConsumption(measurements.get(i));
 					consideredCount++;
 				} catch (FuelConsumptionException e) {
-					logger.warn(e.getMessage());
+					logger.debug(e.getMessage());
 				}
 			}
+			
+			logger.info(String.format("%s of %s measurements used for consumption/hour calculation",
+					consideredCount, measurements.size()));
+			
 			consumptionPerHour = consumptionPerHour / consideredCount;
 			
 		}
@@ -500,10 +408,10 @@ public class Track implements Comparable<Track> {
 	 * @throws JSONException parsing fails or contains unexpected properties
 	 * @throws ParseException if DateTime parsing fails
 	 */
-	public static Track fromJson(JSONObject json, DbAdapter adapter) throws JSONException, ParseException {
+	public static Track fromJson(JSONObject json) throws JSONException, ParseException {
 		JSONObject trackProperties = json.getJSONObject("properties");
-		Track t = Track.createRemoteTrack(trackProperties.getString("id"), adapter);
-		String trackName = "unnamed Track #"+t.getId();
+		RemoteTrack t = Track.createRemoteTrack(trackProperties.getString("id"));
+		String trackName = "unnamed Track #"+t.getRemoteID();
 		try {
 			trackName = trackProperties.getString("name");
 		} catch (JSONException e){
@@ -524,26 +432,22 @@ public class Track implements Comparable<Track> {
 		t.setCar(Car.fromJson(sensorProperties)); 
 		//include server properties tracks created, modified?
 		
-		t.dbAdapter.updateTrack(t);
-		//Log.i("track_id",t.getId()+" "+((DbAdapterRemote) dbAdapter).trackExistsInDatabase(t.getId())+" "+dbAdapter.getNumberOfStoredTracks());
-		
 		Measurement recycleMeasurement;
 		
 		List<Measurement> measurements = new ArrayList<Measurement>();
 		JSONArray features = json.getJSONArray("features");
 		logger.info("Parsing measurements of track "+t.getRemoteID()+". Count: "+features.length());
+//		TrackId trackId = new TrackId(targetTrackId);
 		for (int j = 0; j < features.length(); j++) {
 			JSONObject measurementJsonObject = features.getJSONObject(j);
 			recycleMeasurement = Measurement.fromJson(measurementJsonObject);
 			
-			recycleMeasurement.setTrackId(t.trackId);
+//			recycleMeasurement.setTrackId(trackId);
 			measurements.add(recycleMeasurement);
 		}
 		
 		logger.info("Storing measurements in database");
 		t.setMeasurementsAsArrayList(measurements);
-		
-		t.storeMeasurementsInDbAdapter(true);
 		
 		return t;
 	}
@@ -567,7 +471,6 @@ public class Track implements Comparable<Track> {
 			setMetadata(newMetadata);
 		}
 		
-		dbAdapter.updateTrack(this);
 	}
 
 	public TrackMetadata getMetadata() {
@@ -578,9 +481,14 @@ public class Track implements Comparable<Track> {
 		this.metadata = m;
 	}
 
-	@Override
-	public String toString() {
-		return "Track / id: "+getId() +" / Name: "+getName();
+	public void setTrackId(TrackId id) {
+		this.trackId = id;
 	}
+
+	public TrackId getTrackId() {
+		return trackId;
+	}
+
+	
 
 }

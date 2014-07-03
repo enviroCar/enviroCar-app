@@ -67,6 +67,7 @@ import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
+import org.envirocar.app.storage.RemoteTrack;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.util.NamedThreadFactory;
 import org.envirocar.app.util.Util;
@@ -368,6 +369,9 @@ public class ListTracksFragment extends SherlockFragment {
 			logger.info(Environment.getExternalStorageDirectory().toString());
 			File f = new File(Environment.getExternalStorageDirectory() + "/Android");
 			if (f.isDirectory()) {
+//				if (track.isLazyLoadingMeasurements()) {
+//					dbAdapter.loadMeasurements(track);
+//				}
 				List<Measurement> measurements = track.getMeasurements();
 				logger.info("Count of measurements in the track: " + String.valueOf(measurements.size()));
 				String[] trackCoordinates = extractCoordinates(measurements);
@@ -391,20 +395,28 @@ public class ListTracksFragment extends SherlockFragment {
 			
 		// Delete only selected track
 		case R.id.deleteTrack:
-			if(track.isLocalTrack()){
+			/*
+			 * we need to check the database if the track might have
+			 * transisted to a remote track due to uploading
+			 */
+			Track dbRefTrack = dbAdapter.getTrack(track.getTrackId(), true);
+			if(dbRefTrack.isLocalTrack()){
 				logger.info("deleting item: " + itemSelect);
-				dbAdapter.deleteTrack(track.getId());
+				dbAdapter.deleteTrack(track.getTrackId());
 				Crouton.showText(getActivity(), getString(R.string.trackDeleted), Style.INFO);
 				tracksList.remove(itemSelect);
 				updateTrackListView();
 			} else {
-				createRemoteDeleteDialog(track);
+				createRemoteDeleteDialog(track, (RemoteTrack) dbRefTrack);
 			}
 			return true;
 			
 		// Share track
 		case R.id.shareTrack:
 			try{
+//				if (track.isLazyLoadingMeasurements()) {
+//					dbAdapter.loadMeasurements(track);
+//				}
 				Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
 				sharingIntent.setType("application/json");
 				Uri shareBody = Uri.fromFile(Util.saveTrackAndReturnFile(track, isObfuscationEnabled()).getFile());
@@ -431,6 +443,9 @@ public class ListTracksFragment extends SherlockFragment {
 		// Upload track
 		case R.id.uploadTrack:
 			if (UserManager.instance().isLoggedIn()) {
+//				if (track.isLazyLoadingMeasurements()) {
+//					dbAdapter.loadMeasurements(track);
+//				}
 				startTrackUpload(false, track);
 			} else {
 				Crouton.showText(getActivity(), R.string.hint_login_first, Style.INFO);
@@ -519,7 +534,12 @@ public class ListTracksFragment extends SherlockFragment {
 		}
 	}
 
-	private void createRemoteDeleteDialog(final Track track) {
+	/**
+	 * @param track the track object as used in the list adapter
+	 * @param dbRefTrack the database reference, representing the most up-to-date version
+	 * of the track (might have transisted from local to remote due to upload)
+	 */
+	private void createRemoteDeleteDialog(final Track track, final RemoteTrack dbRefTrack) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setMessage(R.string.deleteRemoteTrackQuestion)
 				.setPositiveButton(R.string.yes,
@@ -532,7 +552,7 @@ public class ListTracksFragment extends SherlockFragment {
 									@Override
 									public Void execute()
 											throws DAOException {
-										dao.deleteTrack(track.getRemoteID());
+										dao.deleteTrack(dbRefTrack.getRemoteID());
 										return null;
 									}
 
@@ -540,7 +560,8 @@ public class ListTracksFragment extends SherlockFragment {
 									public Void onResult(Void result,
 											boolean fail, Exception ex) {
 										if (!fail) {
-											removeRemoteTrackFromViewAndDB(track);
+											dbAdapter.deleteTrack(track.getTrackId());
+											removeRemoteTrackFromView(track);
 										}
 										else {
 											logger.warn(ex.getMessage(), ex);
@@ -561,16 +582,18 @@ public class ListTracksFragment extends SherlockFragment {
 		builder.create().show();
 	}
 	
-	private void removeRemoteTrackFromViewAndDB(final Track track) {
-		if (track.isRemoteTrack()) {
-			if (tracksList.remove(track)) {
-				dbAdapter.deleteTrack(track.getId());
-				updateTrackListView();
-				Crouton.showText(
-						getActivity(),
-						getString(R.string.remoteTrackDeleted),
-						Style.INFO);
-			}
+	private void removeRemoteTrackFromView(final Track track) {
+		if (tracksList.remove(track)) {
+			updateTrackListView();
+			getActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					Crouton.showText(
+							getActivity(),
+							getString(R.string.remoteTrackDeleted),
+							Style.INFO);						
+				}
+			});
 		}
 	}
 
@@ -660,7 +683,7 @@ public class ListTracksFragment extends SherlockFragment {
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				trackListAdapter.notifyDataSetChanged();				
+				trackListAdapter.notifyDataSetChanged();
 			}
 		});
 	}
@@ -680,8 +703,8 @@ public class ListTracksFragment extends SherlockFragment {
 				setProgressStatusText(R.string.fetching_tracks_local);
 				
 				//fetch db tracks (local+remote)
-				
-				for (Track t : dbAdapter.getAllTracks(true)) {
+				List<Track> tracks = dbAdapter.getAllTracks(true);
+				for (Track t : tracks) {
 					synchronized (ListTracksFragment.this) {
 						tracksList.add(t);
 					}	
@@ -777,8 +800,8 @@ public class ListTracksFragment extends SherlockFragment {
 					Set<String> localRemoteIds = new HashSet<String>();
 					synchronized (ListTracksFragment.this) {
 						for (Track t : tracksList) {
-							if (t.getRemoteID() != null) {
-								localRemoteIds.add(t.getRemoteID());
+							if (t.isRemoteTrack()) {
+								localRemoteIds.add(((RemoteTrack) t).getRemoteID());
 							}
 						}	
 					}
@@ -809,7 +832,8 @@ public class ListTracksFragment extends SherlockFragment {
 							 * we do not need async, we are still in the outer AsyncTask
 							 */
 							t = DAOProvider.instance().getTrackDAO().getTrack(trackId);
-
+							DbAdapterImpl.instance().insertTrack(t, true);
+							
 							synchronized (ListTracksFragment.this) {
 								tracksList.add(t);
 							}
@@ -940,7 +964,7 @@ public class ListTracksFragment extends SherlockFragment {
 				 * fallback, unknown object id, but could be in the db
 				 */
 				for (Track tmp : trackToGroupViewMap.keySet()) {
-					if (tmp.getId() == t.getId()) {
+					if (tmp.getTrackId().equals(t.getTrackId())) {
 						groupRow = trackToGroupViewMap.get(tmp);
 						break;
 					}
@@ -949,11 +973,11 @@ public class ListTracksFragment extends SherlockFragment {
 			
 			final View groupToAdjut = groupRow;
 			
-			if (groupRow != null) {
+			if (groupRow != null && isAdded() && getActivity() != null) {
 				getActivity().runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						setTrackTypeImage(t, groupToAdjut);
+						setTrackTypeImage(dbAdapter.getTrack(t.getTrackId(), true), groupToAdjut);
 						groupToAdjut.invalidate();
 					}
 				});
@@ -968,7 +992,7 @@ public class ListTracksFragment extends SherlockFragment {
 				 * fallback, unknown object id, but could be in the db
 				 */
 				for (Track tmp : trackToChildViewMap.keySet()) {
-					if (tmp.getId() == t.getId()) {
+					if (tmp.getTrackId().equals(t.getTrackId())) {
 						childView = trackToChildViewMap.get(tmp);
 						break;
 					}
@@ -1036,7 +1060,6 @@ public class ListTracksFragment extends SherlockFragment {
 						lazyLoader.submit(new Runnable() {
 							@Override
 							public void run() {
-								t.setLazyLoadingMeasurements(false);
 								t.getMeasurements();
 								getActivity().runOnUiThread(new Runnable() {
 									

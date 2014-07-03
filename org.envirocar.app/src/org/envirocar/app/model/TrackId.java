@@ -12,4 +12,24 @@ public class TrackId {
 		return id;
 	}
 
+	@Override
+	public String toString() {
+		return Long.toString(id);
+	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == null) {
+			return false;
+		}
+		if (o instanceof TrackId) {
+			return (this.getId() == ((TrackId) o).getId());
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return (int) this.id;
+	}
 }
