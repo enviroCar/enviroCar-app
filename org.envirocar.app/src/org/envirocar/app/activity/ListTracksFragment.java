@@ -395,14 +395,19 @@ public class ListTracksFragment extends SherlockFragment {
 			
 		// Delete only selected track
 		case R.id.deleteTrack:
-			if(track.isLocalTrack()){
+			/*
+			 * we need to check the database if the track might have
+			 * transisted to a remote track due to uploading
+			 */
+			Track dbRefTrack = dbAdapter.getTrack(track.getTrackId(), true);
+			if(dbRefTrack.isLocalTrack()){
 				logger.info("deleting item: " + itemSelect);
 				dbAdapter.deleteTrack(track.getTrackId());
 				Crouton.showText(getActivity(), getString(R.string.trackDeleted), Style.INFO);
 				tracksList.remove(itemSelect);
 				updateTrackListView();
 			} else {
-				createRemoteDeleteDialog((RemoteTrack) track);
+				createRemoteDeleteDialog(track, (RemoteTrack) dbRefTrack);
 			}
 			return true;
 			
@@ -529,7 +534,12 @@ public class ListTracksFragment extends SherlockFragment {
 		}
 	}
 
-	private void createRemoteDeleteDialog(final RemoteTrack track) {
+	/**
+	 * @param track the track object as used in the list adapter
+	 * @param dbRefTrack the database reference, representing the most up-to-date version
+	 * of the track (might have transisted from local to remote due to upload)
+	 */
+	private void createRemoteDeleteDialog(final Track track, final RemoteTrack dbRefTrack) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setMessage(R.string.deleteRemoteTrackQuestion)
 				.setPositiveButton(R.string.yes,
@@ -542,7 +552,7 @@ public class ListTracksFragment extends SherlockFragment {
 									@Override
 									public Void execute()
 											throws DAOException {
-										dao.deleteTrack(track.getRemoteID());
+										dao.deleteTrack(dbRefTrack.getRemoteID());
 										return null;
 									}
 
@@ -550,7 +560,8 @@ public class ListTracksFragment extends SherlockFragment {
 									public Void onResult(Void result,
 											boolean fail, Exception ex) {
 										if (!fail) {
-											removeRemoteTrackFromViewAndDB(track);
+											dbAdapter.deleteTrack(track.getTrackId());
+											removeRemoteTrackFromView(track);
 										}
 										else {
 											logger.warn(ex.getMessage(), ex);
@@ -571,16 +582,18 @@ public class ListTracksFragment extends SherlockFragment {
 		builder.create().show();
 	}
 	
-	private void removeRemoteTrackFromViewAndDB(final Track track) {
-		if (track.isRemoteTrack()) {
-			if (tracksList.remove(track)) {
-				dbAdapter.deleteTrack(track.getTrackId());
-				updateTrackListView();
-				Crouton.showText(
-						getActivity(),
-						getString(R.string.remoteTrackDeleted),
-						Style.INFO);
-			}
+	private void removeRemoteTrackFromView(final Track track) {
+		if (tracksList.remove(track)) {
+			updateTrackListView();
+			getActivity().runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					Crouton.showText(
+							getActivity(),
+							getString(R.string.remoteTrackDeleted),
+							Style.INFO);						
+				}
+			});
 		}
 	}
 
@@ -670,7 +683,7 @@ public class ListTracksFragment extends SherlockFragment {
 		getActivity().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				trackListAdapter.notifyDataSetChanged();				
+				trackListAdapter.notifyDataSetChanged();
 			}
 		});
 	}
@@ -964,7 +977,7 @@ public class ListTracksFragment extends SherlockFragment {
 				getActivity().runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
-						setTrackTypeImage(t, groupToAdjut);
+						setTrackTypeImage(dbAdapter.getTrack(t.getTrackId(), true), groupToAdjut);
 						groupToAdjut.invalidate();
 					}
 				});
