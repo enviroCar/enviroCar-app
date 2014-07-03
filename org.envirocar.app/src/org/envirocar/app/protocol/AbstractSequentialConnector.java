@@ -343,7 +343,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 		}
 		
 		if (index > 0) {
-			logger.info("Response read. Data (base64): "+
+			logger.verbose("Response read. Data (base64): "+
 					Base64.encodeToString(buffer, 0, index, Base64.DEFAULT));
 		}
 

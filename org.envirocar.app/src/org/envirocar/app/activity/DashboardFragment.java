@@ -83,6 +83,7 @@ public class DashboardFragment extends SherlockFragment {
 	private static final String LOCATION = "location";
 	private static final String SPEED = "speed";
 	private static final String CO2 = "co2";
+	private static DecimalFormat twoDForm = new DecimalFormat("#.##");
 	
 	// UI Items
 	
@@ -120,6 +121,7 @@ public class DashboardFragment extends SherlockFragment {
 	private Drawable btPending;
 	private Drawable btActive;
 	private ImageView connectionStateImage;
+	private boolean useImperialUnits;
 
 
 	@Override
@@ -369,6 +371,9 @@ public class DashboardFragment extends SherlockFragment {
 		}
 		
 		bindToBackgroundService();
+		
+		useImperialUnits = preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT,
+				false);
 	}
 
 	private void initializeEventListeners() {
@@ -483,9 +488,6 @@ public class DashboardFragment extends SherlockFragment {
 	}
 
 	protected void updateCo2Value() {
-		
-		DecimalFormat twoDForm = new DecimalFormat("#.##");
-		
 		co2TextView.setText(twoDForm.format(co2) + " kg/h"); 
 		co2RotableView.submitScaleValue((float) co2);
 		
@@ -497,8 +499,7 @@ public class DashboardFragment extends SherlockFragment {
 	}
 
 	protected void updateSpeedValue() {
-		if (!preferences.getBoolean(SettingsActivity.IMPERIAL_UNIT,
-				false)) {
+		if (!useImperialUnits) {
 			speedTextView.setText(speed + " km/h");
 			speedRotatableView.submitScaleValue(speed);
 		} else {

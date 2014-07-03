@@ -43,6 +43,7 @@ import org.envirocar.app.util.Util;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Application;
 import android.app.NotificationManager;
@@ -51,6 +52,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 
@@ -85,7 +88,18 @@ public class ECApplication extends Application {
 	
 	protected boolean adapterConnected;
 	private Activity currentActivity;
-	
+
+	private OnSharedPreferenceChangeListener preferenceListener = new OnSharedPreferenceChangeListener() {
+		
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+				String key) {
+			if (SettingsActivity.ENABLE_DEBUG_LOGGING.equals(key)) {
+				Logger.initialize(Util.getVersionString(ECApplication.this),
+						sharedPreferences.getBoolean(SettingsActivity.ENABLE_DEBUG_LOGGING, false));
+			}
+		}
+	};
 
 
 	/**
@@ -118,8 +132,12 @@ public class ECApplication extends Application {
 
 	@Override
 	public void onCreate() {
-		Logger.initialize(Util.getVersionString(this));
 		super.onCreate();
+		preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		preferences.registerOnSharedPreferenceChangeListener(preferenceListener);
+		
+		Logger.initialize(Util.getVersionString(this),
+				preferences.getBoolean(SettingsActivity.ENABLE_DEBUG_LOGGING, false));
 		
 		try {
 			DbAdapterImpl.init(getApplicationContext());
@@ -127,8 +145,6 @@ public class ECApplication extends Application {
 			logger.warn("Could not initalize the database layer. The app will probably work unstable.");
 			logger.warn(e.getMessage(), e);
 		}
-		
-		preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
 		DAOProvider.init(new ContextInternetAccessProvider(getApplicationContext()),
 				new CacheDirectoryProvider() {
@@ -142,14 +158,31 @@ public class ECApplication extends Application {
 		
 		FeatureFlags.init(getApplicationContext());
 		
+		TemporaryFileManager.init(getApplicationContext());
+		
 		initializeErrorHandling();
 		CarManager.init(preferences);
 		TermsOfUseManager.instance();
 		
-		// Make a new commandListener to interpret the measurement values that are
-		// returned
-		logger.info("init commandListener");
+	}
+	
+	@Override
+	public void onLowMemory() {
+		super.onLowMemory();
 		
+		logger.info("onLowMemory called");
+	}
+	
+	@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+	@Override
+	public void onTrimMemory(int level) {
+		super.onTrimMemory(level);
+
+		logger.info("onTrimMemory called");
+		
+		logger.info("maxMemory: " +Runtime.getRuntime().maxMemory());
+		logger.info("totalMemory: " +Runtime.getRuntime().totalMemory());
+		logger.info("freeMemory: " +Runtime.getRuntime().freeMemory());
 	}
 	
 	private void initializeErrorHandling() {
@@ -165,7 +198,6 @@ public class ECApplication extends Application {
 	public void shutdownServiceConnector() {
 		scheduleTaskExecutor.shutdown();
 	}
-
 
 	
 	/**
@@ -199,12 +231,6 @@ public class ECApplication extends Application {
 		mNotificationManager.notify(mId, mBuilder.build());
 
 	  }
-	
-	
-	public void resetTrack() {
-		//TODO somehow let the CommandListener know of the reset
-	}
-
 
 	public void finishTrack() {
 		final Track track = DbAdapterImpl.instance().finishCurrentTrack();

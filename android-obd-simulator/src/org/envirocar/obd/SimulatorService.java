@@ -478,7 +478,7 @@ public class SimulatorService {
 			int bytethree = (1+random.nextInt(8));
 			int bytefour = (80+random.nextInt(19));
 			//MAF
-			rawData = "7F100"+ bytethree+""+ bytefour;
+			rawData = "41100"+ bytethree+""+ bytefour;
 			lastMaf = (bytethree * 256 + bytefour) / 100.0f;
 		}
 		else if (s.equals("01 0B")) {
@@ -505,6 +505,11 @@ public class SimulatorService {
 			else {
 				rawData = "410C"+rawData.substring(4);
 			}
+		}
+		else if (s.equals("01 04")) {
+			//engine load
+			String val = integerToByteString(80+random.nextInt(140));
+			rawData = "4104" + val.substring(val.length()-2, val.length());
 		}
 		else {
 			String[] result = s.split(" ");

@@ -47,13 +47,11 @@ public class ObfuscationTest extends AndroidTestCase {
 	}
 
 	private Track createTrack() throws TrackAlreadyFinishedException {
-		Track result = Track.createNewLocalTrack(new DbAdapterMockup());
+		Track result = Track.createLocalTrack();
 		result.setCar(new Car(FuelType.DIESEL, "man", "mod", "id", 1234, 123));
 		
 		List<Measurement> measurements = createMeasurements();
-		for (Measurement measurement : measurements) {
-			result.addMeasurement(measurement);
-		}
+		result.setMeasurementsAsArrayList(measurements);
 		
 		return result;
 	}

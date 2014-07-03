@@ -107,19 +107,20 @@ public class BluetoothConnection extends Thread {
 			        //Parse the UUIDs and get the one you are interested in
 
 			        uuidCandidates = new ArrayList<UUID>();
+			        logger.info(String.format("Adding default UUID: %s", EMBEDDED_BOARD_SPP));
+			        uuidCandidates.add(EMBEDDED_BOARD_SPP);
 			        if (uuidExtra != null && uuidExtra.length > 0) {
 			        	logger.info("Found the following UUIDs for device "+deviceExtra.getName());
 
 				        for (Parcelable uuid : uuidExtra) {
-				        	logger.info(uuid.toString());
-				        	uuidCandidates.add(UUID.fromString(uuid.toString()));
+				        	UUID newId = UUID.fromString(uuid.toString());
+				        	if (!uuidCandidates.contains(newId)) {
+				        		logger.info(String.format("Adding UUID: %s", newId));
+				        		uuidCandidates.add(newId);
+				        	}
 						}	
 			        }
 			        
-			        if (uuidCandidates.isEmpty()) {
-			        	uuidCandidates.add(EMBEDDED_BOARD_SPP);
-			        }
-
 			        synchronized (BluetoothConnection.this) {
 			        	if (!BluetoothConnection.this.started) {
 			        		BluetoothConnection.this.start();
