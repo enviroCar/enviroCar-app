@@ -345,13 +345,12 @@ public class DbAdapterImpl implements DbAdapter {
 		Track track;
 		if (remoteId != null && !remoteId.isEmpty()) {
 			track = Track.createRemoteTrack(remoteId);
-			track.setTrackId(id);
 		}
 		else {
 			track = Track.createLocalTrack();
-			track.setTrackId(new TrackId(c.getLong(c.getColumnIndex(KEY_TRACK_ID))));
 		}
 		
+		track.setTrackId(id);
 		
 		track.setName(c.getString(c.getColumnIndex(KEY_TRACK_NAME)));
 		track.setDescription(c.getString(c.getColumnIndex(KEY_TRACK_DESCRIPTION)));
