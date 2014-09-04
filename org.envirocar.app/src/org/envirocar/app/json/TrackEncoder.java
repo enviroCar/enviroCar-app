@@ -192,6 +192,7 @@ public class TrackEncoder {
 		result.put("sensor", trackSensorName);
 		result.put("description", track.getDescription());
 		result.put("name", track.getName());
+		result.put("length", track.getLengthOfTrack());
 		
 		if (track.getMetadata() != null) {
 			JSONObject json = track.getMetadata().toJson();

@@ -219,6 +219,7 @@ public class StreamTrackEncoder extends TrackEncoder {
 		result.addProperty("sensor", trackSensorName);
 		result.addProperty("description", track.getDescription());
 		result.addProperty("name", track.getName());
+		result.addProperty("length", track.getLengthOfTrack());
 		
 		if (track.getMetadata() != null) {
 			JSONObject json = track.getMetadata().toJson();
