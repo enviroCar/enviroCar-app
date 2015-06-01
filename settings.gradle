@@ -1,0 +1,3 @@
+include ':org.envirocar.app'
+include ':org.envirocar.app.test'
+include ':android-obd-simulator'

@@ -21,30 +21,7 @@
 
 package org.envirocar.app.activity;
 
-import java.text.DecimalFormat;
-
-import org.envirocar.app.R;
-import org.envirocar.app.application.CarManager;
-import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
-import org.envirocar.app.application.service.BackgroundServiceImpl;
-import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
-import org.envirocar.app.application.service.BackgroundServiceInteractor;
-import org.envirocar.app.event.CO2Event;
-import org.envirocar.app.event.CO2EventListener;
-import org.envirocar.app.event.EventBus;
-import org.envirocar.app.event.GpsSatelliteFix;
-import org.envirocar.app.event.GpsSatelliteFixEvent;
-import org.envirocar.app.event.GpsSatelliteFixEventListener;
-import org.envirocar.app.event.LocationEvent;
-import org.envirocar.app.event.LocationEventListener;
-import org.envirocar.app.event.SpeedEvent;
-import org.envirocar.app.event.SpeedEventListener;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.Car;
-import org.envirocar.app.model.Car.FuelType;
-import org.envirocar.app.views.LayeredImageRotateView;
-import org.envirocar.app.views.TypefaceEC;
-
+import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -66,7 +43,29 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import org.envirocar.app.R;
+import org.envirocar.app.application.CarManager;
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
+import org.envirocar.app.application.service.BackgroundServiceImpl;
+import org.envirocar.app.application.service.BackgroundServiceInteractor;
+import org.envirocar.app.event.CO2Event;
+import org.envirocar.app.event.CO2EventListener;
+import org.envirocar.app.event.EventBus;
+import org.envirocar.app.event.GpsSatelliteFix;
+import org.envirocar.app.event.GpsSatelliteFixEvent;
+import org.envirocar.app.event.GpsSatelliteFixEventListener;
+import org.envirocar.app.event.LocationEvent;
+import org.envirocar.app.event.LocationEventListener;
+import org.envirocar.app.event.SpeedEvent;
+import org.envirocar.app.event.SpeedEventListener;
+import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.Car;
+import org.envirocar.app.model.Car.FuelType;
+import org.envirocar.app.views.LayeredImageRotateView;
+import org.envirocar.app.views.TypefaceEC;
+
+import java.text.DecimalFormat;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 /**
@@ -75,7 +74,7 @@ import de.keyboardsurfer.android.widget.crouton.Crouton;
  * @author gerald
  *
  */
-public class DashboardFragment extends SherlockFragment {
+public class DashboardFragment extends Fragment {
 
 	private static final Logger logger = Logger.getLogger(DashboardFragment.class);
 	public static final int SENSOR_CHANGED_RESULT = 1337;

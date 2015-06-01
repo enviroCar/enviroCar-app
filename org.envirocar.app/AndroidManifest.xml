@@ -5,8 +5,8 @@
     android:versionName="0.10.0">
 
     <uses-sdk
-        android:minSdkVersion="10"
-        android:targetSdkVersion="19" />
+        android:minSdkVersion="16"
+        android:targetSdkVersion="22" />
 
     <uses-feature
         android:name="android.hardware.bluetooth"

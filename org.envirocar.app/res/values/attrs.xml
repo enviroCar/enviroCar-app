@@ -8,7 +8,7 @@
         <attr name="progress" format="integer" />
         <attr name="max" format="integer" />
         <attr name="progressDrawable" format="integer" />
-        <attr name="track" format="integer" />
+        <attr name="track2" format="integer" /> <!-- // TODO -->
     </declare-styleable>
 
 </resources>

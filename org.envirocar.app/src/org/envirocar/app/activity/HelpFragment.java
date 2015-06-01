@@ -1,41 +1,39 @@
 package org.envirocar.app.activity;
 
 
-import org.envirocar.app.R;
-import org.envirocar.app.util.Util;
-
+import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.actionbarsherlock.app.SherlockFragment;
+import org.envirocar.app.R;
+import org.envirocar.app.util.Util;
 
 /**
  * Help page
- * 
+ *
  * @author jakob
- * 
  */
-public class HelpFragment extends SherlockFragment {
+public class HelpFragment extends Fragment {
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-		
-		return inflater.inflate(R.layout.help, container, false);
 
-	}
-	
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
+        return inflater.inflate(R.layout.help, container, false);
 
-	    //TODO: this could possibly be used to make links in the text able to be opened in the browser
-	    //gave me an error at first try, though...
-	    //t2.setMovementMethod(LinkMovementMethod.getInstance());
-		
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        //TODO: this could possibly be used to make links in the text able to be opened in the browser
+        //gave me an error at first try, though...
+        //t2.setMovementMethod(LinkMovementMethod.getInstance());
+
 //		SpannableString text = new SpannableString(getActivity().getText(R.string.help_view_track_text_1));
 //		
 //		Locale locale = Locale.getDefault();
@@ -48,15 +46,15 @@ public class HelpFragment extends SherlockFragment {
 //			text.setSpan(is, 103, 117, 0);
 //			
 //		}
-		
-		
-	    TextView versionTextview = (TextView) getActivity().findViewById(R.id.textView22);
 
-	    CharSequence versionString = getActivity().getText(R.string.help_text_6_3);
-	    
-	    versionString = versionString + " " + Util.getVersionString(getActivity());
-	    
-	    versionTextview.setText(versionString);	    
-	    
-	}
+
+        TextView versionTextview = (TextView) getActivity().findViewById(R.id.textView22);
+
+        CharSequence versionString = getActivity().getText(R.string.help_text_6_3);
+
+        versionString = versionString + " " + Util.getVersionString(getActivity());
+
+        versionTextview.setText(versionString);
+
+    }
 }

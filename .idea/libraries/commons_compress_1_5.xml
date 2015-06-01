@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="commons-compress-1.5">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/org.envirocar.app/libs/commons-compress-1.5.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

@@ -20,6 +20,21 @@
  */
 package org.envirocar.app.activity;
 
+import android.app.Fragment;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.TextView;
+
+import org.envirocar.app.R;
+import org.envirocar.app.logging.LocalFileHandler;
+import org.envirocar.app.logging.Logger;
+import org.envirocar.app.util.Util;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
@@ -30,194 +45,176 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import org.envirocar.app.R;
-import org.envirocar.app.logging.LocalFileHandler;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.util.Util;
-
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.TextView;
-
-import com.actionbarsherlock.app.SherlockFragment;
-
 /**
  * An activity for reporting issues.
- * 
- * @author matthes rieke
  *
+ * @author matthes rieke
  */
-public class SendLogFileFragment extends SherlockFragment {
+public class SendLogFileFragment extends Fragment {
 
-	private static final Logger logger = Logger
-			.getLogger(SendLogFileFragment.class);
-	private static final String REPORTING_EMAIL = "envirocar@52north.org";
-	private static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.getDefault());
-	private static final DateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-	private static final String PREFIX = "report-";
-	private static final String EXTENSION = ".zip";
-	private EditText whenField;
-	private EditText comments;
+    private static final Logger logger = Logger
+            .getLogger(SendLogFileFragment.class);
+    private static final String REPORTING_EMAIL = "envirocar@52north.org";
+    private static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.getDefault());
+    private static final DateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+    private static final String PREFIX = "report-";
+    private static final String EXTENSION = ".zip";
+    private EditText whenField;
+    private EditText comments;
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.send_log_layout, null);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.send_log_layout, null);
 
-		File reportBundle = null;
-		try {
-			removeOldReportBundles();
-			
-			final File tmpBundle = createReportBundle();
-			reportBundle = tmpBundle;
-			view.findViewById(R.id.send_log_button).setOnClickListener(
-					new View.OnClickListener() {
-						@Override
-						public void onClick(View view) {
-							sendLogFile(tmpBundle);
-						}
-					});
-		} catch (IOException e) {
-			logger.warn(e.getMessage(), e);
-		}
-		
-		TextView locationText = (TextView) view
-				.findViewById(R.id.textView_send_log_location);
-		
-		if (reportBundle != null) {
-			locationText.setText(reportBundle.getAbsolutePath());
-		}
-		else {
-			locationText.setError("Error allocating report bundle.");
-			locationText.setText("An error occured while creating the report bundle. Please send in the logs available at "+
-					LocalFileHandler.effectiveFile.getParentFile().getAbsolutePath());
-		}
-		
-		resolveInputFields(view);
+        File reportBundle = null;
+        try {
+            removeOldReportBundles();
 
-		return view;
-	}
+            final File tmpBundle = createReportBundle();
+            reportBundle = tmpBundle;
+            view.findViewById(R.id.send_log_button).setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            sendLogFile(tmpBundle);
+                        }
+                    });
+        } catch (IOException e) {
+            logger.warn(e.getMessage(), e);
+        }
+
+        TextView locationText = (TextView) view
+                .findViewById(R.id.textView_send_log_location);
+
+        if (reportBundle != null) {
+            locationText.setText(reportBundle.getAbsolutePath());
+        } else {
+            locationText.setError("Error allocating report bundle.");
+            locationText.setText("An error occured while creating the report bundle. Please send in the logs available at " +
+                    LocalFileHandler.effectiveFile.getParentFile().getAbsolutePath());
+        }
+
+        resolveInputFields(view);
+
+        return view;
+    }
 
 
-	private void resolveInputFields(View view) {
-		this.whenField = (EditText) view.findViewById(R.id.send_log_when);
-		this.comments = (EditText) view.findViewById(R.id.send_log_comments);
-	}
+    private void resolveInputFields(View view) {
+        this.whenField = (EditText) view.findViewById(R.id.send_log_when);
+        this.comments = (EditText) view.findViewById(R.id.send_log_comments);
+    }
 
-	/**
-	 * creates a new {@link Intent#ACTION_SEND} with the report
-	 * bundle attached.
-	 * 
-	 * @param reportBundle the file to attach
-	 */
-	protected void sendLogFile(File reportBundle) {
-		Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
-		emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL,
-				new String[] { REPORTING_EMAIL });
-		emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
-				"enviroCar Log Report");
-		emailIntent.putExtra(android.content.Intent.EXTRA_TEXT,
-				createEmailContents());
-		emailIntent.putExtra(android.content.Intent.EXTRA_STREAM,
-				Uri.fromFile(reportBundle));
-		emailIntent.setType("application/zip");
-		
-		startActivity(Intent.createChooser(emailIntent, "Send Log Report"));
-		getFragmentManager().popBackStack();
-	}
+    /**
+     * creates a new {@link Intent#ACTION_SEND} with the report
+     * bundle attached.
+     *
+     * @param reportBundle the file to attach
+     */
+    protected void sendLogFile(File reportBundle) {
+        Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+        emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL,
+                new String[]{REPORTING_EMAIL});
+        emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
+                "enviroCar Log Report");
+        emailIntent.putExtra(android.content.Intent.EXTRA_TEXT,
+                createEmailContents());
+        emailIntent.putExtra(android.content.Intent.EXTRA_STREAM,
+                Uri.fromFile(reportBundle));
+        emailIntent.setType("application/zip");
 
-	/**
-	 * read the user defined edit fields.
-	 * 
-	 * @return a string acting as the contents of the email
-	 */
-	private String createEmailContents() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("A new Issue Report has been created:");
-		sb.append(Util.NEW_LINE_CHAR);
-		sb.append(Util.NEW_LINE_CHAR);
-		sb.append("Estimated system time of occurrence: ");
-		sb.append(createEstimatedTimeStamp());
-		sb.append(Util.NEW_LINE_CHAR);
-		sb.append(Util.NEW_LINE_CHAR);
-		sb.append("Additional comments:");
-		sb.append(Util.NEW_LINE_CHAR);
-		sb.append(createAdditionalComments());
-		return sb.toString();
-	}
+        startActivity(Intent.createChooser(emailIntent, "Send Log Report"));
+        getFragmentManager().popBackStack();
+    }
 
-	private String createAdditionalComments() {
-		return this.comments.getText().toString();
-	}
+    /**
+     * read the user defined edit fields.
+     *
+     * @return a string acting as the contents of the email
+     */
+    private String createEmailContents() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("A new Issue Report has been created:");
+        sb.append(Util.NEW_LINE_CHAR);
+        sb.append(Util.NEW_LINE_CHAR);
+        sb.append("Estimated system time of occurrence: ");
+        sb.append(createEstimatedTimeStamp());
+        sb.append(Util.NEW_LINE_CHAR);
+        sb.append(Util.NEW_LINE_CHAR);
+        sb.append("Additional comments:");
+        sb.append(Util.NEW_LINE_CHAR);
+        sb.append(createAdditionalComments());
+        return sb.toString();
+    }
 
-	private String createEstimatedTimeStamp() {
-		long now = System.currentTimeMillis();
-		String text = this.whenField.getText().toString();
-		
-		int delta;
-		if (text == null || text.isEmpty()) {
-			delta = 0;
-		} else {
-			delta = Integer.parseInt(text);	
-		}
-		
-		Date date = new Date(now - delta*1000*60);
-		return SimpleDateFormat.getDateTimeInstance().format(date);
-	}
+    private String createAdditionalComments() {
+        return this.comments.getText().toString();
+    }
 
-	/**
-	 * creates a report bundle, containing all available log files 
-	 * 
-	 * @return the report bundle
-	 * @throws IOException
-	 */
-	private File createReportBundle() throws IOException {
-		File targetFile = Util.createFileOnExternalStorage(PREFIX
-				+ format.format(new Date()) + EXTENSION);
+    private String createEstimatedTimeStamp() {
+        long now = System.currentTimeMillis();
+        String text = this.whenField.getText().toString();
 
-		Util.zip(findAllLogFiles(), targetFile.toURI().getPath());
+        int delta;
+        if (text == null || text.isEmpty()) {
+            delta = 0;
+        } else {
+            delta = Integer.parseInt(text);
+        }
 
-		return targetFile;
-	}
+        Date date = new Date(now - delta * 1000 * 60);
+        return SimpleDateFormat.getDateTimeInstance().format(date);
+    }
 
-	private void removeOldReportBundles() throws IOException {
-		File baseFolder = Util.resolveExternalStorageBaseFolder();
-		
-		final String todayPrefix = PREFIX.concat(dayFormat.format(new Date()));
-		File[] oldFiles = baseFolder.listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				if (pathname.isDirectory()) return false;
-				
-				return pathname.getName().startsWith(PREFIX) &&
-						!pathname.getName().startsWith(todayPrefix) &&
-						pathname.getName().endsWith(EXTENSION);
-			}
-		});
-		
-		for (File file : oldFiles) {
-			file.delete();
-		}
-	}
-	
-	private List<File> findAllLogFiles() {
-		File logFile = LocalFileHandler.effectiveFile;
-		final String shortName = logFile.getName();
+    /**
+     * creates a report bundle, containing all available log files
+     *
+     * @return the report bundle
+     * @throws IOException
+     */
+    private File createReportBundle() throws IOException {
+        File targetFile = Util.createFileOnExternalStorage(PREFIX
+                + format.format(new Date()) + EXTENSION);
 
-		File[] allFiles = logFile.getParentFile().listFiles(new FileFilter() {
-			@Override
-			public boolean accept(File pathname) {
-				return pathname.getName().startsWith(shortName)
-						&& !pathname.getName().endsWith("lck");
-			}
-		});
+        Util.zip(findAllLogFiles(), targetFile.toURI().getPath());
 
-		return Arrays.asList(allFiles);
-	}
+        return targetFile;
+    }
+
+    private void removeOldReportBundles() throws IOException {
+        File baseFolder = Util.resolveExternalStorageBaseFolder();
+
+        final String todayPrefix = PREFIX.concat(dayFormat.format(new Date()));
+        File[] oldFiles = baseFolder.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                if (pathname.isDirectory()) return false;
+
+                return pathname.getName().startsWith(PREFIX) &&
+                        !pathname.getName().startsWith(todayPrefix) &&
+                        pathname.getName().endsWith(EXTENSION);
+            }
+        });
+
+        for (File file : oldFiles) {
+            file.delete();
+        }
+    }
+
+    private List<File> findAllLogFiles() {
+        File logFile = LocalFileHandler.effectiveFile;
+        final String shortName = logFile.getName();
+
+        File[] allFiles = logFile.getParentFile().listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.getName().startsWith(shortName)
+                        && !pathname.getName().endsWith("lck");
+            }
+        });
+
+        return Arrays.asList(allFiles);
+    }
 
 }

@@ -22,6 +22,28 @@
 package org.envirocar.app.activity;
 
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.annotation.TargetApi;
+import android.app.Fragment;
+import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.text.TextUtils;
+import android.view.KeyEvent;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.TextView;
+
 import org.envirocar.app.R;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UserManager;
@@ -32,27 +54,6 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.User;
 import org.envirocar.app.views.TypefaceEC;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.os.AsyncTask;
-import android.os.Build;
-import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.text.TextUtils;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.TextView;
-
-import com.actionbarsherlock.app.SherlockFragment;
-import com.actionbarsherlock.view.Menu;
-
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
@@ -60,289 +61,289 @@ import de.keyboardsurfer.android.widget.crouton.Style;
  * Activity which displays a login screen to the user, offering registration as
  * well.
  */
-public class LoginFragment extends SherlockFragment {
+public class LoginFragment extends Fragment {
 
-	private static final Logger logger = Logger.getLogger(LoginFragment.class);
-	/**
-	 * Keep track of the login task to ensure we can cancel it if requested.
-	 */
-	private UserLoginTask mAuthTask = null;
+    private static final Logger logger = Logger.getLogger(LoginFragment.class);
+    /**
+     * Keep track of the login task to ensure we can cancel it if requested.
+     */
+    private UserLoginTask mAuthTask = null;
 
-	// Values for email and password at the time of the login attempt.
-	private String mUsername;
-	private String mPassword;
+    // Values for email and password at the time of the login attempt.
+    private String mUsername;
+    private String mPassword;
 
-	// UI references.
-	private EditText mUsernameView;
-	private EditText mPasswordView;
-	private View mLoginFormView;
-	private View mLoginStatusView;
-	private TextView mLoginStatusMessageView;
+    // UI references.
+    private EditText mUsernameView;
+    private EditText mPasswordView;
+    private View mLoginFormView;
+    private View mLoginStatusView;
+    private TextView mLoginStatusMessageView;
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
 
-		setHasOptionsMenu(true);
+        setHasOptionsMenu(true);
 
-		View view = inflater.inflate(R.layout.login_layout, null);
+        View view = inflater.inflate(R.layout.login_layout, null);
 
-		mUsernameView = (EditText) view.findViewById(R.id.login_username);
+        mUsernameView = (EditText) view.findViewById(R.id.login_username);
 
-		mPasswordView = (EditText) view.findViewById(R.id.login_password);
-		mPasswordView
-				.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-					@Override
-					public boolean onEditorAction(TextView textView, int id,
-							KeyEvent keyEvent) {
-						if (id == R.id.login || id == EditorInfo.IME_NULL) {
-							attemptLogin();
-							return true;
-						}
-						return false;
-					}
-				});
-		mLoginFormView = view.findViewById(R.id.login_form);
-		mLoginStatusView = view.findViewById(R.id.login_status);
-		mLoginStatusMessageView = (TextView) view
-				.findViewById(R.id.login_status_message);
+        mPasswordView = (EditText) view.findViewById(R.id.login_password);
+        mPasswordView
+                .setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                    @Override
+                    public boolean onEditorAction(TextView textView, int id,
+                                                  KeyEvent keyEvent) {
+                        if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                            attemptLogin();
+                            return true;
+                        }
+                        return false;
+                    }
+                });
+        mLoginFormView = view.findViewById(R.id.login_form);
+        mLoginStatusView = view.findViewById(R.id.login_status);
+        mLoginStatusMessageView = (TextView) view
+                .findViewById(R.id.login_status_message);
 
-		view.findViewById(R.id.sign_in_button).setOnClickListener(
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View view) {
-						attemptLogin();
-					}
-				});
-		
-		view.findViewById(R.id.not_yet_registered_button).setOnClickListener(
-				new View.OnClickListener() {
-					@Override
-					public void onClick(View v) {
-						openRegisterFragment();
-					}
-				});
-		return view;
-	}
+        view.findViewById(R.id.sign_in_button).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        attemptLogin();
+                    }
+                });
 
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		TypefaceEC.applyCustomFont((ViewGroup) view,
-				TypefaceEC.Raleway(getActivity()));
-		mUsernameView.requestFocus();
-	}
+        view.findViewById(R.id.not_yet_registered_button).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        openRegisterFragment();
+                    }
+                });
+        return view;
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(
-			com.actionbarsherlock.view.MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.menu_register:
-			openRegisterFragment();
-			return true;
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        TypefaceEC.applyCustomFont((ViewGroup) view,
+                TypefaceEC.Raleway(getActivity()));
+        mUsernameView.requestFocus();
+    }
 
-		}
-		return false;
-	}
+    @Override
+    public boolean onOptionsItemSelected(
+            MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_register:
+                openRegisterFragment();
+                return true;
 
-	@Override
-	public void onCreateOptionsMenu(Menu menu,
-			com.actionbarsherlock.view.MenuInflater inflater) {
-		inflater.inflate(R.menu.menu_login,
-				(com.actionbarsherlock.view.Menu) menu);
-		super.onCreateOptionsMenu(menu, inflater);
-	}
+        }
+        return false;
+    }
 
-	/**
-	 * Attempts to sign in or register the account specified by the login form.
-	 * If there are form errors (invalid email, missing fields, etc.), the
-	 * errors are presented and no actual login attempt is made.
-	 */
-	private void attemptLogin() {
+    @Override
+    public void onCreateOptionsMenu(Menu menu,
+                                    MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_login,
+                menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
 
-		// Reset errors.
-		mUsernameView.setError(null);
-		mPasswordView.setError(null);
+    /**
+     * Attempts to sign in or register the account specified by the login form.
+     * If there are form errors (invalid email, missing fields, etc.), the
+     * errors are presented and no actual login attempt is made.
+     */
+    private void attemptLogin() {
 
-		if (mAuthTask != null) {
-			return;
-		}
+        // Reset errors.
+        mUsernameView.setError(null);
+        mPasswordView.setError(null);
 
-		// Store values at the time of the login attempt.
-		mUsername = mUsernameView.getText().toString();
-		mPassword = mPasswordView.getText().toString();
+        if (mAuthTask != null) {
+            return;
+        }
 
-		boolean cancel = false;
-		View focusView = null;
+        // Store values at the time of the login attempt.
+        mUsername = mUsernameView.getText().toString();
+        mPassword = mPasswordView.getText().toString();
 
-		// Check for a valid password.
-		if (TextUtils.isEmpty(mPassword)) {
-			mPasswordView.setError(getString(R.string.error_field_required));
-			focusView = mPasswordView;
-			cancel = true;
-		} else if (mPassword.length() < 6) {
-			mPasswordView.setError(getString(R.string.error_invalid_password));
-			focusView = mPasswordView;
-			cancel = true;
-		}
+        boolean cancel = false;
+        View focusView = null;
 
-		// Check for a valid email address.
-		if (TextUtils.isEmpty(mUsername)) {
-			mUsernameView.setError(getString(R.string.error_field_required));
-			focusView = mUsernameView;
-			cancel = true;
-		}
+        // Check for a valid password.
+        if (TextUtils.isEmpty(mPassword)) {
+            mPasswordView.setError(getString(R.string.error_field_required));
+            focusView = mPasswordView;
+            cancel = true;
+        } else if (mPassword.length() < 6) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
+        }
 
-		if (cancel) {
-			// There was an error; don't attempt login and focus the first
-			// form field with an error.
-			focusView.requestFocus();
-		} else {
-			// hide the keyboard
-			InputMethodManager imm = (InputMethodManager) getActivity()
-					.getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.hideSoftInputFromWindow(mPasswordView.getWindowToken(), 0);
+        // Check for a valid email address.
+        if (TextUtils.isEmpty(mUsername)) {
+            mUsernameView.setError(getString(R.string.error_field_required));
+            focusView = mUsernameView;
+            cancel = true;
+        }
 
-			// Show a progress spinner, and kick off a background task to
-			// perform the user login attempt.
-			mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
-			showProgress(true);
-			mAuthTask = new UserLoginTask();
-			mAuthTask.execute();
-		}
-	}
+        if (cancel) {
+            // There was an error; don't attempt login and focus the first
+            // form field with an error.
+            focusView.requestFocus();
+        } else {
+            // hide the keyboard
+            InputMethodManager imm = (InputMethodManager) getActivity()
+                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(mPasswordView.getWindowToken(), 0);
 
-	/**
-	 * Shows the progress UI and hides the login form.
-	 */
-	@TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
-	private void showProgress(final boolean show) {
-		// On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-		// for very easy animations. If available, use these APIs to fade-in
-		// the progress spinner.
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-			int shortAnimTime = getResources().getInteger(
-					android.R.integer.config_shortAnimTime);
+            // Show a progress spinner, and kick off a background task to
+            // perform the user login attempt.
+            mLoginStatusMessageView.setText(R.string.login_progress_signing_in);
+            showProgress(true);
+            mAuthTask = new UserLoginTask();
+            mAuthTask.execute();
+        }
+    }
 
-			mLoginStatusView.setVisibility(View.VISIBLE);
-			mLoginStatusView.animate().setDuration(shortAnimTime)
-					.alpha(show ? 1 : 0)
-					.setListener(new AnimatorListenerAdapter() {
-						@Override
-						public void onAnimationEnd(Animator animation) {
-							mLoginStatusView.setVisibility(show ? View.VISIBLE
-									: View.GONE);
-						}
-					});
+    /**
+     * Shows the progress UI and hides the login form.
+     */
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
+    private void showProgress(final boolean show) {
+        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
+        // for very easy animations. If available, use these APIs to fade-in
+        // the progress spinner.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            int shortAnimTime = getResources().getInteger(
+                    android.R.integer.config_shortAnimTime);
 
-			mLoginFormView.setVisibility(View.VISIBLE);
-			mLoginFormView.animate().setDuration(shortAnimTime)
-					.alpha(show ? 0 : 1)
-					.setListener(new AnimatorListenerAdapter() {
-						@Override
-						public void onAnimationEnd(Animator animation) {
-							mLoginFormView.setVisibility(show ? View.GONE
-									: View.VISIBLE);
-						}
-					});
-		} else {
-			// The ViewPropertyAnimator APIs are not available, so simply show
-			// and hide the relevant UI components.
-			mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
-			mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-		}
-	}
+            mLoginStatusView.setVisibility(View.VISIBLE);
+            mLoginStatusView.animate().setDuration(shortAnimTime)
+                    .alpha(show ? 1 : 0)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            mLoginStatusView.setVisibility(show ? View.VISIBLE
+                                    : View.GONE);
+                        }
+                    });
 
-	/**
-	 * Represents an asynchronous login/registration task used to authenticate
-	 * the user.
-	 */
-	public class UserLoginTask extends AsyncTask<Void, Void, User> {
-		@Override
-		protected User doInBackground(Void... params) {
-			return authenticateHttp(mUsername, mPassword);
-		}
+            mLoginFormView.setVisibility(View.VISIBLE);
+            mLoginFormView.animate().setDuration(shortAnimTime)
+                    .alpha(show ? 0 : 1)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            mLoginFormView.setVisibility(show ? View.GONE
+                                    : View.VISIBLE);
+                        }
+                    });
+        } else {
+            // The ViewPropertyAnimator APIs are not available, so simply show
+            // and hide the relevant UI components.
+            mLoginStatusView.setVisibility(show ? View.VISIBLE : View.GONE);
+            mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+        }
+    }
 
-		@Override
-		protected void onPostExecute(final User newUser) {
-			mAuthTask = null;
-			showProgress(false);
+    /**
+     * Represents an asynchronous login/registration task used to authenticate
+     * the user.
+     */
+    public class UserLoginTask extends AsyncTask<Void, Void, User> {
+        @Override
+        protected User doInBackground(Void... params) {
+            return authenticateHttp(mUsername, mPassword);
+        }
 
-			if (newUser != null) {
-				UserManager.instance().setUser(newUser);
-				Crouton.makeText(
-						getActivity(),
-						getResources().getString(R.string.welcome_message)
-								+ " " + mUsername, Style.CONFIRM).show();
-				
-				TermsOfUseManager.askForTermsOfUseAcceptance(newUser, getActivity(), null);
-				
-				getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-				DashboardFragment dashboardFragment = new DashboardFragment();
-				getActivity().getSupportFragmentManager().beginTransaction()
-						.replace(R.id.content_frame, dashboardFragment)
-						.commit();
-				
-			} else {
-				if (mUsernameView.getError() != null) {
-					mUsernameView.requestFocus();
-				} else {
-					mPasswordView.requestFocus();
-				}
-			}
-		}
+        @Override
+        protected void onPostExecute(final User newUser) {
+            mAuthTask = null;
+            showProgress(false);
 
-		@Override
-		protected void onCancelled() {
-			mAuthTask = null;
-			showProgress(false);
-		}
-	}
+            if (newUser != null) {
+                UserManager.instance().setUser(newUser);
+                Crouton.makeText(
+                        getActivity(),
+                        getResources().getString(R.string.welcome_message)
+                                + " " + mUsername, Style.CONFIRM).show();
 
-	/**
-	 * Method used for authentication (e.g. at loginscreen to verify user
-	 * credentials
-	 */
-	private User authenticateHttp(String user, String token) {
-		User currentUser = UserManager.instance().getUser();
-		
-		if (currentUser == null || currentUser.getToken() == null) {
-			User candidateUser = new User(user, token);
-			UserManager.instance().setUser(candidateUser);
-		}
-		
-		try {
-			User result = DAOProvider.instance().getUserDAO().getUser(user);
-			result.setToken(token);
-			return result;
-		} catch (UnauthorizedException e1) {
-			logger.warn(e1.getMessage(), e1);
-			getActivity().runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					mPasswordView.setError(getString(R.string.error_incorrect_password));					
-				}
-			});
-		} catch (UserRetrievalException e1) {
-			logger.warn(e1.getMessage(), e1);
-			getActivity().runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					mPasswordView.setError(getString(R.string.error_host_not_found));					
-				}
-			});
-		}
-		
-		UserManager.instance().logOut();
-		
-		return null;
-	}
+                TermsOfUseManager.askForTermsOfUseAcceptance(newUser, getActivity(), null);
 
-	private void openRegisterFragment() {
-		RegisterFragment registerFragment = new RegisterFragment();
-		getActivity().getSupportFragmentManager().beginTransaction()
-				.replace(R.id.content_frame, registerFragment, "REGISTER")
-				.addToBackStack(null).commit();
-	}
+                getActivity().getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                DashboardFragment dashboardFragment = new DashboardFragment();
+                getActivity().getFragmentManager().beginTransaction()
+                        .replace(R.id.content_frame, dashboardFragment)
+                        .commit();
+
+            } else {
+                if (mUsernameView.getError() != null) {
+                    mUsernameView.requestFocus();
+                } else {
+                    mPasswordView.requestFocus();
+                }
+            }
+        }
+
+        @Override
+        protected void onCancelled() {
+            mAuthTask = null;
+            showProgress(false);
+        }
+    }
+
+    /**
+     * Method used for authentication (e.g. at loginscreen to verify user
+     * credentials
+     */
+    private User authenticateHttp(String user, String token) {
+        User currentUser = UserManager.instance().getUser();
+
+        if (currentUser == null || currentUser.getToken() == null) {
+            User candidateUser = new User(user, token);
+            UserManager.instance().setUser(candidateUser);
+        }
+
+        try {
+            User result = DAOProvider.instance().getUserDAO().getUser(user);
+            result.setToken(token);
+            return result;
+        } catch (UnauthorizedException e1) {
+            logger.warn(e1.getMessage(), e1);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+                }
+            });
+        } catch (UserRetrievalException e1) {
+            logger.warn(e1.getMessage(), e1);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mPasswordView.setError(getString(R.string.error_host_not_found));
+                }
+            });
+        }
+
+        UserManager.instance().logOut();
+
+        return null;
+    }
+
+    private void openRegisterFragment() {
+        RegisterFragment registerFragment = new RegisterFragment();
+        getActivity().getFragmentManager().beginTransaction()
+                .replace(R.id.content_frame, registerFragment, "REGISTER")
+                .addToBackStack(null).commit();
+    }
 
 }
