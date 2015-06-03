@@ -44,6 +44,7 @@ import dagger.Provides;
                 RegisterFragment.class,
                 SettingsActivity.class,
                 TemporaryFileManager.class,
+                DAOProvider.class
         },
         library = true,
         complete = false

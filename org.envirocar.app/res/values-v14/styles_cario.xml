@@ -19,13 +19,13 @@
 
 <resources>
 
-    <style name="Theme.Cario" parent="Theme.AppCompat.Light">
+    <style name="Theme.Cario" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:actionBarItemBackground">@drawable/selectable_background_cario</item>
         <item name="android:popupMenuStyle">@style/PopupMenu.Cario</item>
         <item name="android:dropDownListViewStyle">@style/DropDownListView.Cario</item>
-        <item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Cario</item>
+        <!--<item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Cario</item>-->
         <item name="android:actionDropDownStyle">@style/DropDownNav.Cario</item>
-        <item name="android:actionBarStyle">@style/ActionBar.Solid.Cario</item>
+        <!--<item name="android:actionBarStyle">@style/ActionBar.Solid.Cario</item>-->
         <item name="android:actionModeBackground">@drawable/cab_background_top_cario</item>
         <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_cario</item>
         <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Cario</item>

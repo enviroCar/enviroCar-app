@@ -3,11 +3,26 @@ package org.envirocar.app;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -18,15 +33,26 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.envirocar.app.activity.DashboardFragment;
+import org.envirocar.app.activity.DialogUtil;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.StartStopButtonUtil;
+import org.envirocar.app.activity.TroubleshootingFragment;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.NavMenuItem;
 import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
+import org.envirocar.app.application.service.BackgroundServiceImpl;
+import org.envirocar.app.application.service.BackgroundServiceInteractor;
+import org.envirocar.app.application.service.DeviceInRangeService;
+import org.envirocar.app.application.service.DeviceInRangeServiceInteractor;
+import org.envirocar.app.dao.DAOProvider;
+import org.envirocar.app.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.Announcement;
 import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.app.util.Util;
+import org.envirocar.app.util.VersionRange;
 import org.envirocar.app.views.TypefaceEC;
 
 import java.util.Arrays;
@@ -70,15 +96,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private static final String TROUBLESHOOTING_TAG = "TROUBLESHOOTING";
     private static final String SEND_LOG_TAG = "SEND_LOG";
     private static final String LOGBOOK_TAG = "LOGBOOK";
-
-    private final AdapterView.OnItemClickListener onNavDrawerClickListener =
-            new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            openFragment(position);
-        }
-    };
-
     // Injected variables
     @Inject
     protected UserManager mUserManager;
@@ -90,22 +107,43 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected DashboardFragment mDashboardFragment;
     @Inject
     protected TrackHandler mTrackHandler;
-
+    @Inject
+    protected DAOProvider mDAOProvider;
 
     // REMOVE
     @Inject
     protected DbAdapter mDBAdapter;
     protected AbstractBackgroundServiceStateReceiver.ServiceState serviceState
             = AbstractBackgroundServiceStateReceiver.ServiceState.SERVICE_STOPPED;
+    protected BackgroundServiceInteractor backgroundService;
+    protected DeviceInRangeServiceInteractor deviceInRangeService;
+    protected long discoveryTargetTime;
+    protected Toolbar mToolbar;
     private int trackMode = TRACK_MODE_SINGLE;
     private Set<String> seenAnnouncements = new HashSet<String>();
-
     // Menu Items
     private NavMenuItem[] navDrawerItems;
     //Navigation Drawer
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
+    private final AdapterView.OnItemClickListener onNavDrawerClickListener =
+            new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    openFragment(position);
+                }
+            };
     private NavAdapter mNavDrawerAdapter;
+    private BroadcastReceiver serviceStateReceiver;
+    private SharedPreferences.OnSharedPreferenceChangeListener settingsReceiver;
+    private BroadcastReceiver bluetoothStateReceiver;
+    private Runnable remainingTimeThread;
+    private Handler remainingTimeHandler;
+    private BroadcastReceiver errorInformationReceiver;
+    private BroadcastReceiver deviceDiscoveryStateReceiver;
+    private boolean paused;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,34 +154,105 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         checkKeepScreenOn();
 
-        // Initialize the navigation drawer.
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        mNavDrawerAdapter = new NavAdapter();
-        prepareNavDrawerItems();
-        updateStartStopButton();
-        mDrawerList.setAdapter(mNavDrawerAdapter);
-
-        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(
-                this, mDrawerLayout, R.drawable.ic_drawer, R.string.open_drawer,
-                R.string.close_drawer) {
-
+        // Initializes the Toolbar.
+        mToolbar = (Toolbar) findViewById(R.id.main_layout_toolbar);
+        setSupportActionBar(mToolbar);
+        mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
             @Override
-            public void onDrawerOpened(View drawerView) {
-                prepareNavDrawerItems();
-                super.onDrawerOpened(drawerView);
+            public boolean onMenuItemClick(MenuItem item) {
+//                mNavDrawerAdapter
+                return true;
             }
-        };
+        });
 
-        mDrawerLayout.setDrawerListener(actionBarDrawerToggle);
-        mDrawerList.setOnItemClickListener(onNavDrawerClickListener);
-
+        // Initializes the navigation drawer.
+        initNavigationDrawerLayout();
 
         // Set the DashboardFragment as initial fragment.
         getFragmentManager()
                 .beginTransaction()
                 .replace(R.id.content_frame, mDashboardFragment, DASHBOARD_TAG).commit();
 
+        serviceStateReceiver = new AbstractBackgroundServiceStateReceiver() {
+            @Override
+            public void onStateChanged(ServiceState state) {
+                serviceState = state;
+
+                if (serviceState == ServiceState.SERVICE_STOPPED && trackMode == TRACK_MODE_AUTO) {
+                    /*
+                     * we need to start the DeviceInRangeService
+					 */
+                    startService(new Intent(getApplicationContext(), DeviceInRangeService.class));
+                }
+
+                updateStartStopButton();
+            }
+        };
+
+        registerReceiver(serviceStateReceiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
+
+        deviceDiscoveryStateReceiver = new AbstractBackgroundServiceStateReceiver() {
+
+            @Override
+            public void onStateChanged(ServiceState state) {
+                if (state == ServiceState.SERVICE_DEVICE_DISCOVERY_PENDING) {
+                    discoveryTargetTime = deviceInRangeService.getNextDiscoveryTargetTime();
+                    invokeRemainingTimeThread();
+                } else if (state == ServiceState.SERVICE_DEVICE_DISCOVERY_RUNNING) {
+
+                }
+            }
+        };
+        registerReceiver(deviceDiscoveryStateReceiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
+
+        bluetoothStateReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                updateStartStopButton();
+            }
+        };
+
+
+        registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+
+        settingsReceiver = new SharedPreferences.OnSharedPreferenceChangeListener() {
+            @Override
+            public void onSharedPreferenceChanged(
+                    SharedPreferences sharedPreferences, String key) {
+                if (key.equals(SettingsActivity.BLUETOOTH_NAME)) {
+                    updateStartStopButton();
+                }
+                if (key.equals(SettingsActivity.CAR) || key.equals(SettingsActivity.CAR_HASH_CODE)) {
+                    updateStartStopButton();
+                }
+            }
+        };
+
+        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener
+                (settingsReceiver);
+
+        errorInformationReceiver = new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (paused) {
+                    return;
+                }
+
+                Fragment fragment = getFragmentManager().findFragmentByTag(TROUBLESHOOTING_TAG);
+                if (fragment == null) {
+                    fragment = new TroubleshootingFragment();
+                }
+                fragment.setArguments(intent.getExtras());
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.content_frame, fragment)
+                        .commit();
+            }
+        };
+
+        registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment.INTENT));
+
+        resolvePersistentSeenAnnouncements();
     }
 
     @Override
@@ -153,7 +262,138 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     @Override
     protected void onPause() {
-        super.onPause();
+        super.onResume();
+
+        this.paused = false;
+
+        mDrawerLayout.closeDrawer(mDrawerList);
+        //first init
+        firstInit();
+
+
+        checkKeepScreenOn();
+
+
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                checkAffectingAnnouncements();
+                return null;
+            }
+        }.execute();
+
+        bindToBackgroundService();
+
+        bindToDeviceInRangeService();
+    }
+
+    private void checkAffectingAnnouncements() {
+        final List<Announcement> annos;
+        try {
+            annos = mDAOProvider.getAnnouncementsDAO().getAllAnnouncements();
+        } catch (AnnouncementsRetrievalException e) {
+            LOGGER.warn(e.getMessage(), e);
+            return;
+        }
+
+        final VersionRange.Version version;
+        try {
+            String versionShort = Util.getVersionStringShort(getApplicationContext());
+            version = VersionRange.Version.fromString(versionShort);
+        } catch (PackageManager.NameNotFoundException e) {
+            LOGGER.warn(e.getMessage());
+            return;
+        }
+
+        runOnUiThread(new Runnable() {
+
+            @Override
+            public void run() {
+                for (Announcement announcement : annos) {
+                    if (!seenAnnouncements.contains(announcement.getId())) {
+                        if (announcement.getVersionRange().isInRange(version)) {
+                            showAnnouncement(announcement);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private void showAnnouncement(final Announcement announcement) {
+        String title = announcement.createUITitle(this);
+        String content = announcement.getContent();
+
+        DialogUtil.createTitleMessageInfoDialog(title, Html.fromHtml(content), true, new DialogUtil.PositiveNegativeCallback() {
+            @Override
+            public void negative() {
+                seenAnnouncements.add(announcement.getId());
+            }
+
+            @Override
+            public void positive() {
+                addPersistentSeenAnnouncement(announcement.getId());
+                seenAnnouncements.add(announcement.getId());
+            }
+        }, this);
+    }
+
+    protected void addPersistentSeenAnnouncement(String id) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        String currentPersisted = preferences.getString(SettingsActivity.PERSISTENT_SEEN_ANNOUNCEMENTS, "");
+
+        StringBuilder sb = new StringBuilder(currentPersisted);
+        if (!currentPersisted.isEmpty()) {
+            sb.append(",");
+        }
+        sb.append(id);
+
+        preferences.edit().putString(SettingsActivity.PERSISTENT_SEEN_ANNOUNCEMENTS, sb.toString()).commit();
+    }
+
+    // TODO check
+    private void firstInit() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!preferences.contains("first_init")) {
+            mDrawerLayout.openDrawer(mDrawerList);
+
+            SharedPreferences.Editor e = preferences.edit();
+            e.putString("first_init", "seen");
+            e.putBoolean("pref_privacy", true);
+            e.commit();
+        }
+    }
+
+    private void initNavigationDrawerLayout() {
+        // Initialize the navigation drawer
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+
+        // Initializes the adapter for the navigation drawer
+        mNavDrawerAdapter = new NavAdapter();
+        prepareNavDrawerItems();
+        updateStartStopButton();
+        mDrawerList.setAdapter(mNavDrawerAdapter);
+
+        // Initializes the toggle for the navigation drawer.
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(
+                this, mDrawerLayout, mToolbar, R.string.open_drawer,
+                R.string.close_drawer) {
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                prepareNavDrawerItems();
+                super.onDrawerOpened(drawerView);
+            }
+        };
+        actionBarDrawerToggle.syncState();
+        mDrawerLayout.setDrawerListener(actionBarDrawerToggle);
+
+        // Enables the home button.
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
     }
 
     @Override
@@ -161,6 +401,18 @@ public class BaseMainActivity extends BaseInjectorActivity {
         super.onDestroy();
 
         Crouton.cancelAllCroutons();
+
+        this.unregisterReceiver(bluetoothStateReceiver);
+        this.unregisterReceiver(deviceDiscoveryStateReceiver);
+        this.unregisterReceiver(serviceStateReceiver);
+
+        this.unregisterReceiver(errorInformationReceiver);
+
+        if (remainingTimeHandler != null) {
+            remainingTimeHandler.removeCallbacks(remainingTimeThread);
+            discoveryTargetTime = 0;
+            remainingTimeThread = null;
+        }
 
         mTemporaryFileManager.shutdown();
 
@@ -250,7 +502,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         mNavDrawerAdapter.notifyDataSetChanged();
     }
-
 
 
     private void openFragment(int position) {
@@ -398,6 +649,119 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 .replace(R.id.content_frame, fragment, tag)
                 .addToBackStack(null)
                 .commit();
+    }
+
+    private void bindToBackgroundService() {
+        if (!bindService(new Intent(this, BackgroundServiceImpl.class),
+                new ServiceConnection() {
+
+                    @Override
+                    public void onServiceDisconnected(ComponentName name) {
+                        LOGGER.info(String.format("BackgroundService %S disconnected!",
+                                name.flattenToString()));
+                    }
+
+                    @Override
+                    public void onServiceConnected(ComponentName name, IBinder service) {
+                        backgroundService = (BackgroundServiceInteractor) service;
+                        serviceState = backgroundService.getServiceState();
+                        updateStartStopButton();
+                    }
+                }, 0)) {
+            LOGGER.warn("Could not connect to BackgroundService.");
+        }
+    }
+
+    private void bindToDeviceInRangeService() {
+        if (!bindService(new Intent(this, DeviceInRangeService.class),
+                new ServiceConnection() {
+
+                    @Override
+                    public void onServiceDisconnected(ComponentName name) {
+                        LOGGER.info(String.format("DeviceInRangeService %S disconnected!",
+                                name.flattenToString()));
+                    }
+
+                    @Override
+                    public void onServiceConnected(ComponentName name, IBinder service) {
+                        deviceInRangeService = (DeviceInRangeServiceInteractor) service;
+                        if (deviceInRangeService.isDiscoveryPending()) {
+                            serviceState = AbstractBackgroundServiceStateReceiver.ServiceState.
+                                    SERVICE_DEVICE_DISCOVERY_PENDING;
+                        }
+                        updateStartStopButton();
+                        discoveryTargetTime = deviceInRangeService.getNextDiscoveryTargetTime();
+                        invokeRemainingTimeThread();
+                    }
+                }, 0)) {
+            LOGGER.warn("Could not connect to DeviceInRangeService.");
+        }
+    }
+
+    /**
+     * start a thread that updates the UI until the device was
+     * discovered
+     */
+    private void invokeRemainingTimeThread() {
+        if (remainingTimeThread == null || discoveryTargetTime > System.currentTimeMillis()) {
+            remainingTimeHandler = new Handler();
+            remainingTimeThread = new Runnable() {
+                @Override
+                public void run() {
+                    final long deltaSec = (discoveryTargetTime - System.currentTimeMillis()) / 1000;
+                    final long minutes = deltaSec / 60;
+                    final long secs = deltaSec - (minutes * 60);
+                    if (serviceState == AbstractBackgroundServiceStateReceiver.ServiceState.SERVICE_DEVICE_DISCOVERY_PENDING && deltaSec > 0) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(
+                                        String.format(getString(R.string.device_discovery_next_try),
+                                                String.format("%02d", minutes), String.format("%02d", secs)
+                                        ));
+                                mNavDrawerAdapter.notifyDataSetChanged();
+                            }
+                        });
+
+						/*
+                         * re-invoke the painting
+						 */
+                        remainingTimeHandler.postDelayed(remainingTimeThread, 1000);
+                    } else {
+                        LOGGER.info("NOT SHOWING!");
+                    }
+                }
+            };
+            remainingTimeHandler.post(remainingTimeThread);
+        } else {
+            LOGGER.info("not invoking the discovery time painting thread: " +
+                    (remainingTimeThread == null) + ", " + (discoveryTargetTime - System.currentTimeMillis()));
+        }
+    }
+
+    protected void resolvePersistentSeenAnnouncements() {
+        String pers = PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(SettingsActivity.PERSISTENT_SEEN_ANNOUNCEMENTS, "");
+
+        if (!pers.isEmpty()) {
+            if (pers.contains(",")) {
+                String[] arr = pers.split(",");
+                for (String string : arr) {
+                    seenAnnouncements.add(string);
+                }
+            } else {
+                seenAnnouncements.add(pers);
+            }
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt(TRACK_MODE, trackMode);
+
+        outState.putSerializable(SEEN_ANNOUNCEMENTS, this.seenAnnouncements.toArray(new String[0]));
     }
 
     private class NavAdapter extends BaseAdapter {
