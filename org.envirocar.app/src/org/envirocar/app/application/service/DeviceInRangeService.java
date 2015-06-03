@@ -21,8 +21,9 @@
 package org.envirocar.app.application.service;
 
 
+import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
-import org.envirocar.app.activity.MainActivity;
+
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
 import org.envirocar.app.logging.Logger;
@@ -155,7 +156,7 @@ public class DeviceInRangeService extends Service {
 		startWithDelay(0);
 		
         PendingIntent pIntent = PendingIntent.getActivity(this, 0,
-        		new Intent(this, MainActivity.class), Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        		new Intent(this, BaseMainActivity.class), Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 		
 		Notification note = new NotificationCompat.Builder(getApplicationContext()).
 				setSmallIcon(R.drawable.dashboard).

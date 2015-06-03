@@ -16,7 +16,7 @@ import javax.inject.Inject;
 import dagger.ObjectGraph;
 
 /**
- * Created by Peter on 02.06.2015.
+ * @author dewall
  */
 public abstract class BaseInjectorActivity extends AppCompatActivity implements Injector,
         InjectionModuleProvider{
@@ -44,9 +44,7 @@ public abstract class BaseInjectorActivity extends AppCompatActivity implements 
     }
 
     @Override
-    public List<Object> getInjectionModules() {
-        return Arrays.<Object>asList(new InjectionActivityModule(this));
-    }
+    public abstract List<Object> getInjectionModules();
 
     @Override
     public ObjectGraph getObjectGraph() {

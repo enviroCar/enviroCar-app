@@ -20,6 +20,8 @@
  */
 package org.envirocar.app.dao.remote;
 
+import android.content.Context;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -36,7 +38,10 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.FileEntity;
-import org.envirocar.app.application.ECApplication;
+
+import org.envirocar.app.Constants;
+import org.envirocar.app.Injector;
+import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.ResourceConflictException;
@@ -49,8 +54,18 @@ import org.envirocar.app.util.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.inject.Inject;
+
 
 public abstract class BaseRemoteDAO {
+
+    @Inject
+    protected Context mContext;
+    @Inject
+    protected UserManager mUserManager;
+    @Inject
+    protected TemporaryFileManager mTemporaryFileManager;
+
 	
 	private void assertStatusCode(HttpResponse response) throws NotConnectedException, UnauthorizedException, ResourceConflictException {
 		if (response == null || response.getStatusLine() == null) {
@@ -90,7 +105,7 @@ public abstract class BaseRemoteDAO {
 	
 	private HttpResponse executeHttpRequest(HttpUriRequest request) throws NotConnectedException {
 		if (this instanceof AuthenticatedDAO) {
-			User user = UserManager.instance().getUser();
+			User user = mUserManager.getUser();
 			
 			if (user != null && user.getUsername() != null && user.getToken() != null) {
 				request.addHeader("X-User", user.getUsername());
@@ -128,7 +143,7 @@ public abstract class BaseRemoteDAO {
 	 * @throws JSONException
 	 */
 	protected JSONObject readRemoteResource(String remoteRestResource) throws NotConnectedException, UnauthorizedException, IOException, JSONException {
-		HttpGet get = new HttpGet(ECApplication.BASE_URL+remoteRestResource);
+		HttpGet get = new HttpGet(Constants.BASE_URL+remoteRestResource);
 		InputStream response = retrieveHttpContent(get);
 		String content = Util.consumeInputStream(response).toString();
 	
@@ -152,7 +167,7 @@ public abstract class BaseRemoteDAO {
 			return Collections.singletonList(readRemoteResource(remoteRestResource));
 		}
 		
-		HttpGet get = new HttpGet(ECApplication.BASE_URL+remoteRestResource+"?limit=100");
+		HttpGet get = new HttpGet(Constants.BASE_URL+remoteRestResource+"?limit=100");
 		HttpResponse response = executeContentRequest(get);
 		
 		Integer count;

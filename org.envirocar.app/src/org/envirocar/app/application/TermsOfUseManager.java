@@ -20,8 +20,12 @@
  */
 package org.envirocar.app.application;
 
-import java.util.concurrent.TimeoutException;
+import android.app.Activity;
+import android.content.Context;
 
+import com.squareup.otto.Bus;
+
+import org.envirocar.app.Injector;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.DialogUtil;
 import org.envirocar.app.activity.DialogUtil.PositiveNegativeCallback;
@@ -35,201 +39,209 @@ import org.envirocar.app.model.TermsOfUse;
 import org.envirocar.app.model.TermsOfUseInstance;
 import org.envirocar.app.model.User;
 
-import android.app.Activity;
+import java.util.concurrent.TimeoutException;
+
+import javax.inject.Inject;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
 public class TermsOfUseManager {
+    private static final Logger LOGGER = Logger.getLogger(TermsOfUseManager.class);
+    // Mutex for locking when downloading.
+    private final Object mMutex = new Object();
+    protected TermsOfUse list;
 
-	private static final Logger logger = Logger.getLogger(TermsOfUseManager.class);
-	private static TermsOfUseManager instance;
-	private TermsOfUseInstance current;
-	protected TermsOfUse list;
-	private Object downloadMutex = new Object();
+    // Injected variables.
+    @Inject
+    protected Context mContext;
+    @Inject
+    protected Bus mBus;
+    @Inject
+    protected UserManager mUserManager;
+    @Inject
+    protected DAOProvider mDAOProvider;
 
-	private TermsOfUseManager() {
-		try {
-			retrieveTermsOfUse();
-		} catch (ServerException e) {
-			logger.warn(e.getMessage(), e);
-		}
-	}
-	
-	public static TermsOfUseManager instance() {
-		if (instance == null) {
-			instance = new TermsOfUseManager();
-		}
-		return instance;
-	}
-	
-	public TermsOfUseInstance getCurrentTermsOfUse() throws ServerException {
-		if (this.current == null) {
-			retrieveTermsOfUse();
-		}
-		
-		return current;
-	}
 
-	public TermsOfUse getInstancesReferences() {
-		return list;
-	}
-	
-	private void retrieveTermsOfUse() throws ServerException {
-		new Thread(new Runnable() {
-			@Override
-			public void run() {
-				TermsOfUse response;
-				try {
-					response = DAOProvider.instance().getTermsOfUseDAO().getTermsOfUse();
-					setList(response);
-					retrieveLatestInstance();
-				} catch (TermsOfUseRetrievalException e) {
-					logger.warn(e.getMessage(), e);
-				}
-			}
-		}).start();
-		
-		synchronized (downloadMutex) {
-			while (current == null) {
-				try {
-					downloadMutex.wait(5000);
-					
-					if (current == null) {
-						throw new ServerException(new TimeoutException("Waiting to long for a response."));
-					}
-				} catch (InterruptedException e) {
-					throw new ServerException(e);
-				}
-			}
-		}
-	}
+    private TermsOfUseInstance current;
 
-	private void retrieveLatestInstance() {
-		if (list != null && list.getInstances() != null && list.getInstances().size() > 0) {
-			String id = list.getInstances().get(0).getId();
-			try {
-				TermsOfUseInstance inst = DAOProvider.instance().getTermsOfUseDAO().getTermsOfUseInstance(id);
-				setCurrent(inst);
-			} catch (TermsOfUseRetrievalException e) {
-				logger.warn(e.getMessage(), e);
-			}
-		}
-		else {
-			logger.warn("Could not retrieve latest instance as their is no list available!");
-		}
-	}
 
-	private void setCurrent(TermsOfUseInstance t) {
-		logger.info("Current Terms Of Use: "+ t.getIssuedDate());
-		current = t;
-		
-		synchronized (downloadMutex) {
-			downloadMutex.notifyAll();
-		}
-	}
+    public TermsOfUseManager(Context context) {
 
-	private void setList(TermsOfUse termsOfUse) {
-		logger.info("List of TermsOfUse size: "+termsOfUse.getInstances().size());
-		list = termsOfUse;
-	}
+        // Inject ourselves.
+        ((Injector) context).injectObjects(this);
 
-	public void userAcceptedTermsOfUse(final User user, final String issuedDate) {
-		DAOProvider.async(new AsyncExecutionWithCallback<Void>() {
+        try {
+            retrieveTermsOfUse();
+        } catch (ServerException e) {
+            LOGGER.warn(e.getMessage(), e);
+        }
+    }
 
-			@Override
-			public Void execute() throws DAOException {
-				user.setTouVersion(issuedDate);
-				DAOProvider.instance().getUserDAO().updateUser(user);
-				return null;
-			}
+    /**
+     * Checks if the Terms are accepted. If not, open Dialog. On positive
+     * feedback, update the User.
+     *
+     * @param user
+     * @param activity
+     * @param callback
+     */
+    public void askForTermsOfUseAcceptance(final User user, final Activity activity,
+                                                  final PositiveNegativeCallback callback) {
+        boolean verified = false;
+        try {
+            verified = verifyTermsUseOfVersion(user.getTouVersion());
+        } catch (ServerException e) {
+            LOGGER.warn(e.getMessage(), e);
+            return;
+        }
+        if (!verified) {
 
-			@Override
-			public Void onResult(Void result, boolean fail, Exception exception) {
-				if (!fail) {
-					user.setTouVersion(issuedDate);
-					UserManager.instance().setUser(user);
-					logger.info("User successfully updated.");
-				}
-				else {
-					logger.warn(exception.getMessage(), exception);
-				}
-				return null;
-			}
-		});
-	}
+            final TermsOfUseInstance current;
+            try {
+                current = getCurrentTermsOfUse();
+            } catch (ServerException e) {
+                LOGGER.warn("This should never happen!", e);
+                return;
+            }
 
-	
-	/**
-	 * verify the user's accepted terms of use version
-	 * against the latest from the server
-	 * 
-	 * @param acceptedTermsOfUseVersion the accepted version of the current user
-	 * @return true, if the provided version is the latest
-	 * @throws ServerException if the server did not respond (as expected)
-	 */
-	public static boolean verifyTermsUseOfVersion(
-			String acceptedTermsOfUseVersion) throws ServerException {
-		if (acceptedTermsOfUseVersion == null) return false;
-		
-		TermsOfUseInstance current = instance().getCurrentTermsOfUse();
-		
-		return current.getIssuedDate().equals(acceptedTermsOfUseVersion);
-	}
-	
-	/**
-	 * Checks if the Terms are accepted. If not, open Dialog. On positive
-	 * feedback, update the User.
-	 * 
-	 * @param user
-	 * @param activity
-	 * @param callback
-	 */
-	public static void askForTermsOfUseAcceptance(final User user, final Activity activity,
-			final PositiveNegativeCallback callback) {
-		boolean verified = false;
-		try {
-			verified = TermsOfUseManager.verifyTermsUseOfVersion(user.getTouVersion());
-		} catch (ServerException e) {
-			logger.warn(e.getMessage(), e);
-			return;
-		}
-		if (!verified) {
-			
-			final TermsOfUseInstance current;
-			try {
-				current = TermsOfUseManager.instance().getCurrentTermsOfUse();
-			} catch (ServerException e) {
-				logger.warn("This should never happen!", e);
-				return;
-			}
-			
-			DialogUtil.createTermsOfUseDialog(current,
-					user.getTouVersion() == null, new DialogUtil.PositiveNegativeCallback() {
+            DialogUtil.createTermsOfUseDialog(current,
+                    user.getTouVersion() == null, new DialogUtil.PositiveNegativeCallback() {
 
-				@Override
-				public void negative() {
-					logger.info("User did not accept the ToU.");
-					Crouton.makeText(activity, activity.getString(R.string.terms_of_use_cant_continue), Style.ALERT).show();
-					if (callback != null) {
-						callback.negative();
-					}
-				}
+                        @Override
+                        public void negative() {
+                            LOGGER.info("User did not accept the ToU.");
+                            Crouton.makeText(activity, activity.getString(R.string.terms_of_use_cant_continue), Style.ALERT).show();
+                            if (callback != null) {
+                                callback.negative();
+                            }
+                        }
 
-				@Override
-				public void positive() {
-					TermsOfUseManager.instance().userAcceptedTermsOfUse(user, current.getIssuedDate());
-					Crouton.makeText(activity, activity.getString(R.string.terms_of_use_updating_server), Style.INFO).show();
-					if (callback != null) {
-						callback.positive();
-					}
-				}
-						
-			}, activity);
-		}
-		else {
-			logger.info("User has accpeted ToU in current version.");
-		}
-	}
+                        @Override
+                        public void positive() {
+                            userAcceptedTermsOfUse(user, current.getIssuedDate());
+                            Crouton.makeText(activity, activity.getString(R.string.terms_of_use_updating_server), Style.INFO).show();
+                            if (callback != null) {
+                                callback.positive();
+                            }
+                        }
+
+                    }, activity);
+        } else {
+            LOGGER.info("User has accpeted ToU in current version.");
+        }
+    }
+
+    public TermsOfUseInstance getCurrentTermsOfUse() throws ServerException {
+        if (this.current == null) {
+            retrieveTermsOfUse();
+        }
+
+        return current;
+    }
+
+    public TermsOfUse getInstancesReferences() {
+        return list;
+    }
+
+    private void retrieveTermsOfUse() throws ServerException {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                TermsOfUse response;
+                try {
+                    response = mDAOProvider.getTermsOfUseDAO().getTermsOfUse();
+                    setList(response);
+                    retrieveLatestInstance();
+                } catch (TermsOfUseRetrievalException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                }
+            }
+        }).start();
+
+        synchronized (mMutex) {
+            while (current == null) {
+                try {
+                    mMutex.wait(5000);
+
+                    if (current == null) {
+                        throw new ServerException(new TimeoutException("Waiting to long for a response."));
+                    }
+                } catch (InterruptedException e) {
+                    throw new ServerException(e);
+                }
+            }
+        }
+    }
+
+    private void retrieveLatestInstance() {
+        if (list != null && list.getInstances() != null && list.getInstances().size() > 0) {
+            String id = list.getInstances().get(0).getId();
+            try {
+                TermsOfUseInstance inst = mDAOProvider.getTermsOfUseDAO().getTermsOfUseInstance(id);
+                setCurrent(inst);
+            } catch (TermsOfUseRetrievalException e) {
+                LOGGER.warn(e.getMessage(), e);
+            }
+        } else {
+            LOGGER.warn("Could not retrieve latest instance as their is no list available!");
+        }
+    }
+
+    private void setCurrent(TermsOfUseInstance t) {
+        LOGGER.info("Current Terms Of Use: " + t.getIssuedDate());
+        current = t;
+
+        synchronized (mMutex) {
+            mMutex.notifyAll();
+        }
+    }
+
+    private void setList(TermsOfUse termsOfUse) {
+        LOGGER.info("List of TermsOfUse size: " + termsOfUse.getInstances().size());
+        list = termsOfUse;
+    }
+
+    public void userAcceptedTermsOfUse(final User user, final String issuedDate) {
+        DAOProvider.async(new AsyncExecutionWithCallback<Void>() {
+
+            @Override
+            public Void execute() throws DAOException {
+                user.setTouVersion(issuedDate);
+                mDAOProvider.getUserDAO().updateUser(user);
+                return null;
+            }
+
+            @Override
+            public Void onResult(Void result, boolean fail, Exception exception) {
+                if (!fail) {
+                    user.setTouVersion(issuedDate);
+                    mUserManager.setUser(user);
+                    LOGGER.info("User successfully updated.");
+                } else {
+                    LOGGER.warn(exception.getMessage(), exception);
+                }
+                return null;
+            }
+        });
+    }
+
+    /**
+     * verify the user's accepted terms of use version
+     * against the latest from the server
+     *
+     * @param acceptedTermsOfUseVersion the accepted version of the current user
+     * @return true, if the provided version is the latest
+     * @throws ServerException if the server did not respond (as expected)
+     */
+    public boolean verifyTermsUseOfVersion(
+            String acceptedTermsOfUseVersion) throws ServerException {
+        if (acceptedTermsOfUseVersion == null)
+            return false;
+
+        return getCurrentTermsOfUse()
+                .getIssuedDate()
+                .equals(acceptedTermsOfUseVersion);
+    }
 
 }

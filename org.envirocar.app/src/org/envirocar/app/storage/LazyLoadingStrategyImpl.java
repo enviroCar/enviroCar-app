@@ -24,7 +24,8 @@ public class LazyLoadingStrategyImpl implements LazyLoadingStrategy {
 
 	@Override
 	public void lazyLoadMeasurements(Track track) {
-		DbAdapterImpl.instance().loadMeasurements(track);
+		// TODO
+//		DbAdapterImpl.instance().loadMeasurements(track);
 		track.setLazyLoadingMeasurements(false);
 	}
 

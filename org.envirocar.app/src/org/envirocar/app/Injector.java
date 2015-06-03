@@ -1,7 +1,23 @@
 package org.envirocar.app;
 
+import dagger.ObjectGraph;
+
 /**
- * Created by Peter on 01.06.2015.
+ * @author dewall
  */
-public class Injector {
+public interface Injector {
+    /**
+     * Gets the objectgraph of the implemented class.
+     *
+     * @return the objectgraph
+     */
+    public ObjectGraph getObjectGraph();
+
+    /**
+     * Injects a target object using this object's object graph.
+     *
+     * @param instance
+     *            the target object
+     */
+    public void injectObjects(Object instance);
 }

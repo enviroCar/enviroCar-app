@@ -23,7 +23,6 @@ package org.envirocar.app.activity;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -48,9 +47,9 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.envirocar.app.BaseInjectorFragment;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ContextInternetAccessProvider;
-import org.envirocar.app.application.ECApplication;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.TrackUploadFinishedHandler;
 import org.envirocar.app.application.UploadManager;
@@ -72,7 +71,6 @@ import org.envirocar.app.network.WPSClient;
 import org.envirocar.app.network.WPSClient.ResultCallback;
 import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
 import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.RemoteTrack;
 import org.envirocar.app.storage.Track;
@@ -101,25 +99,33 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import javax.inject.Inject;
+
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
 /**
  * List Fragement that displays local and remote tracks.
- *
- * @author jakob
- * @author gerald
  */
-public class ListTracksFragment extends Fragment {
+public class ListTracksFragment extends BaseInjectorFragment {
 
     // Measurements and tracks
 
     protected static final Logger logger = Logger.getLogger(ListTracksFragment.class);
+    @Inject
+    protected UserManager mUserManager;
+    @Inject
+    protected DbAdapter mDBAdapter;
+    @Inject
+    protected TermsOfUseManager mTermsOfUseManager;
+    @Inject
+    protected DAOProvider mDAOProvider;
+
+
     private List<Track> tracksList;
     private TracksListAdapter trackListAdapter;
 
     // UI Elements
-    private DbAdapter dbAdapter;
     private ExpandableListView trackListView;
     private int itemSelect;
     private Menu menu;
@@ -129,9 +135,6 @@ public class ListTracksFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        dbAdapter = DbAdapterImpl.instance();
     }
 
     public View onCreateView(android.view.LayoutInflater inflater,
@@ -168,7 +171,6 @@ public class ListTracksFragment extends Fragment {
         return v;
     }
 
-    ;
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -217,9 +219,9 @@ public class ListTracksFragment extends Fragment {
                     return;
                 }
 
-                if (dbAdapter.getAllLocalTracks().size() > 0) {
+                if (mDBAdapter.getAllLocalTracks().size() > 0) {
                     setItemEnabled(theMenu.findItem(R.id.menu_delete_all), true);
-                    setItemEnabled(theMenu.findItem(R.id.menu_upload), UserManager.instance().isLoggedIn());
+                    setItemEnabled(theMenu.findItem(R.id.menu_upload), mUserManager.isLoggedIn());
                 } else {
                     setItemEnabled(theMenu.findItem(R.id.menu_upload), false);
                     setItemEnabled(theMenu.findItem(R.id.menu_delete_all), false);
@@ -249,7 +251,7 @@ public class ListTracksFragment extends Fragment {
                 trackIterator.remove();
             }
         }
-        dbAdapter.deleteAllRemoteTracks();
+        mDBAdapter.deleteAllRemoteTracks();
         updateTrackListView();
     }
 
@@ -269,7 +271,7 @@ public class ListTracksFragment extends Fragment {
             //Upload all tracks
 
             case R.id.menu_upload:
-                if (UserManager.instance().isLoggedIn()) {
+                if (mUserManager.isLoggedIn()) {
                     startTrackUpload(true, null);
                 } else {
                     Crouton.showText(getActivity(), R.string.hint_login_first, Style.INFO);
@@ -279,7 +281,7 @@ public class ListTracksFragment extends Fragment {
             //Delete all tracks
 
             case R.id.menu_delete_all:
-                DbAdapterImpl.instance().deleteAllLocalTracks();
+                mDBAdapter.deleteAllLocalTracks();
                 Crouton.makeText(getActivity(), R.string.not_yet_supported, Style.CONFIRM).show();
                 return true;
 
@@ -320,7 +322,7 @@ public class ListTracksFragment extends Fragment {
                             String value = input.getText().toString();
                             logger.info("New name: " + value.toString());
                             track.setName(value);
-                            dbAdapter.updateTrack(track);
+                            mDBAdapter.updateTrack(track);
                             tracksList.get(itemSelect).setName(value);
                             updateTrackListView();
                             Crouton.showText(getActivity(), getString(R.string.nameChanged), Style.INFO);
@@ -345,7 +347,7 @@ public class ListTracksFragment extends Fragment {
                             String value = input2.getText().toString();
                             logger.info("New description: " + value.toString());
                             track.setDescription(value);
-                            dbAdapter.updateTrack(track);
+                            mDBAdapter.updateTrack(track);
                             trackListView.collapseGroup(itemSelect);
                             updateTrackListView();
                             trackListAdapter.updateTrackChildView(track);
@@ -397,10 +399,10 @@ public class ListTracksFragment extends Fragment {
              * we need to check the database if the track might have
 			 * transisted to a remote track due to uploading
 			 */
-                Track dbRefTrack = dbAdapter.getTrack(track.getTrackId(), true);
+                Track dbRefTrack = mDBAdapter.getTrack(track.getTrackId(), true);
                 if (dbRefTrack.isLocalTrack()) {
                     logger.info("deleting item: " + itemSelect);
-                    dbAdapter.deleteTrack(track.getTrackId());
+                    mDBAdapter.deleteTrack(track.getTrackId());
                     Crouton.showText(getActivity(), getString(R.string.trackDeleted), Style.INFO);
                     tracksList.remove(itemSelect);
                     updateTrackListView();
@@ -439,7 +441,7 @@ public class ListTracksFragment extends Fragment {
 
             // Upload track
             case R.id.uploadTrack:
-                if (UserManager.instance().isLoggedIn()) {
+                if (mUserManager.isLoggedIn()) {
 //				if (track.isLazyLoadingMeasurements()) {
 //					dbAdapter.loadMeasurements(track);
 //				}
@@ -466,10 +468,10 @@ public class ListTracksFragment extends Fragment {
      * @param track a single track to upload
      */
     private void startTrackUpload(final boolean all, final Track track) {
-        final User user = UserManager.instance().getUser();
+        final User user = mUserManager.getUser();
         boolean verified = false;
         try {
-            verified = TermsOfUseManager.verifyTermsUseOfVersion(user.getTouVersion());
+            verified = mTermsOfUseManager.verifyTermsUseOfVersion(user.getTouVersion());
         } catch (ServerException e) {
             logger.warn(e.getMessage(), e);
             Crouton.makeText(getActivity(), getString(R.string.server_error_please_try_later), Style.ALERT).show();
@@ -479,7 +481,7 @@ public class ListTracksFragment extends Fragment {
 
             final TermsOfUseInstance current;
             try {
-                current = TermsOfUseManager.instance().getCurrentTermsOfUse();
+                current = mTermsOfUseManager.getCurrentTermsOfUse();
             } catch (ServerException e) {
                 logger.warn("This should never happen!", e);
                 return;
@@ -496,7 +498,7 @@ public class ListTracksFragment extends Fragment {
 
                         @Override
                         public void positive() {
-                            TermsOfUseManager.instance().userAcceptedTermsOfUse(user, current.getIssuedDate());
+                            mTermsOfUseManager.userAcceptedTermsOfUse(user, current.getIssuedDate());
                             uploadTracks(all, track);
                         }
 
@@ -525,9 +527,9 @@ public class ListTracksFragment extends Fragment {
         };
 
         if (all) {
-            new UploadManager(((ECApplication) getActivity().getApplication())).uploadAllTracks(callback);
+            new UploadManager(getActivity()).uploadAllTracks(callback);
         } else {
-            new UploadManager(((ECApplication) getActivity().getApplication())).uploadSingleTrack(track, callback);
+            new UploadManager(getActivity()).uploadSingleTrack(track, callback);
         }
     }
 
@@ -542,7 +544,7 @@ public class ListTracksFragment extends Fragment {
                 .setPositiveButton(R.string.yes,
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
-                                final TrackDAO dao = DAOProvider.instance().getTrackDAO();
+                                final TrackDAO dao = mDAOProvider.getTrackDAO();
 
                                 DAOProvider.async(new AsyncExecutionWithCallback<Void>() {
 
@@ -557,7 +559,7 @@ public class ListTracksFragment extends Fragment {
                                     public Void onResult(Void result,
                                                          boolean fail, Exception ex) {
                                         if (!fail) {
-                                            dbAdapter.deleteTrack(track.getTrackId());
+                                            mDBAdapter.deleteTrack(track.getTrackId());
                                             removeRemoteTrackFromView(track);
                                         } else {
                                             logger.warn(ex.getMessage(), ex);
@@ -682,37 +684,6 @@ public class ListTracksFragment extends Fragment {
         });
     }
 
-    private final class RemoteDownloadTracksTask extends AsyncTask<Void, Void, Void>{
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            Thread.currentThread().setName("TrackList-TrackRetriever" + Thread.currentThread().getId());
-
-            setProgressStatusText(R.string.fetching_tracks_local);
-
-            //fetch db tracks (local+remote)
-            List<Track> tracks = dbAdapter.getAllTracks(true);
-            synchronized (ListTracksFragment.this) {
-                for (Track t : tracks) {
-                    tracksList.add(t);
-                }
-            }
-
-
-            updateTrackListView();
-
-            logger.info("Number of tracks in the List: " + tracksList.size());
-
-            if (UserManager.instance().isLoggedIn()){
-                setProgressStatusText(R.string.fetching_tracks_remote);
-                downloadTracks();
-            } else {
-                updateStatusLayout();
-            }
-
-            return null;
-        }
-    }
 
     /**
      * Download remote tracks from the server and include them in the track list
@@ -720,38 +691,6 @@ public class ListTracksFragment extends Fragment {
     @SuppressLint("NewApi")
     private void startTracksRetrieval() {
 
-        AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
-
-            @Override
-            protected Void doInBackground(Void... params) {
-                Thread.currentThread().setName("TrackList-TrackRetriever" + Thread.currentThread().getId());
-
-                setProgressStatusText(R.string.fetching_tracks_local);
-
-                //fetch db tracks (local+remote)
-                List<Track> tracks = dbAdapter.getAllTracks(true);
-                synchronized (ListTracksFragment.this) {
-                    for (Track t : tracks) {
-                        tracksList.add(t);
-                    }
-                }
-
-
-                updateTrackListView();
-
-                logger.info("Number of tracks in the List: " + tracksList.size());
-
-                if (UserManager.instance().isLoggedIn()){
-                    setProgressStatusText(R.string.fetching_tracks_remote);
-                    downloadTracks();
-                } else {
-                    updateStatusLayout();
-                }
-
-                return null;
-            }
-
-        };
 
         new RemoteDownloadTracksTask().execute();
 //        Util.execute(task);
@@ -786,7 +725,7 @@ public class ListTracksFragment extends Fragment {
 
             @Override
             public Integer execute() throws DAOException {
-                return DAOProvider.instance().getTrackDAO().getUserTrackCount();
+                return mDAOProvider.getTrackDAO().getUserTrackCount();
             }
 
             @Override
@@ -804,7 +743,7 @@ public class ListTracksFragment extends Fragment {
     }
 
     private void downloadTracks(final int limit, final int page) {
-        if (!UserManager.instance().isLoggedIn()) {
+        if (!mUserManager.isLoggedIn()) {
             logger.info("cancelling download of tracks: not logged in.");
         }
 
@@ -812,7 +751,7 @@ public class ListTracksFragment extends Fragment {
 
             @Override
             public List<String> execute() throws DAOException {
-                return DAOProvider.instance().getTrackDAO().getTrackIds(limit, page);
+                return mDAOProvider.getTrackDAO().getTrackIds(limit, page);
             }
 
             @Override
@@ -856,8 +795,8 @@ public class ListTracksFragment extends Fragment {
                             /*
                              * we do not need async, we are still in the outer AsyncTask
 							 */
-                            t = DAOProvider.instance().getTrackDAO().getTrack(trackId);
-                            DbAdapterImpl.instance().insertTrack(t, true);
+                            t = mDAOProvider.getTrackDAO().getTrack(trackId);
+                            mDBAdapter.insertTrack(t, true);
 
                             synchronized (ListTracksFragment.this) {
                                 tracksList.add(t);
@@ -996,7 +935,7 @@ public class ListTracksFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        setTrackTypeImage(dbAdapter.getTrack(t.getTrackId(), true), groupToAdjut);
+                        setTrackTypeImage(mDBAdapter.getTrack(t.getTrackId(), true), groupToAdjut);
                         groupToAdjut.invalidate();
                     }
                 });
@@ -1182,5 +1121,41 @@ public class ListTracksFragment extends Fragment {
         }
 
     }
+
+    /**
+     *
+     */
+    private final class RemoteDownloadTracksTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            Thread.currentThread().setName("TrackList-TrackRetriever" + Thread.currentThread().getId());
+
+            setProgressStatusText(R.string.fetching_tracks_local);
+
+            //fetch db tracks (local+remote)
+            List<Track> tracks = mDBAdapter.getAllTracks(true);
+            synchronized (ListTracksFragment.this) {
+                for (Track t : tracks) {
+                    tracksList.add(t);
+                }
+            }
+
+
+            updateTrackListView();
+
+            logger.info("Number of tracks in the List: " + tracksList.size());
+
+            if (mUserManager.isLoggedIn()) {
+                setProgressStatusText(R.string.fetching_tracks_remote);
+                downloadTracks();
+            } else {
+                updateStatusLayout();
+            }
+
+            return null;
+        }
+    }
+
 
 }

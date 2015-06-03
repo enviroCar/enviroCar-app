@@ -24,6 +24,7 @@ import org.acra.collector.CrashReportData;
 import org.acra.sender.ReportSender;
 import org.acra.sender.ReportSenderException;
 
+import android.content.Context;
 import android.util.Log;
 
 public class ACRACustomSender implements ReportSender {
@@ -34,7 +35,7 @@ public class ACRACustomSender implements ReportSender {
     }
 
     @Override
-    public void send(CrashReportData report) throws ReportSenderException {
+    public void send(Context context, CrashReportData report) throws ReportSenderException {
     	Log.e("acra", "Receiving an app crash: "+ report.toString());
     	logger.severe(report.toString());
     	logger.severe("[END OF ACRA REPORT]");

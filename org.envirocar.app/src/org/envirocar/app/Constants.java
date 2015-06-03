@@ -1,7 +1,9 @@
 package org.envirocar.app;
 
 /**
- * Created by Peter on 02.06.2015.
+ * @author dewall
  */
-public class Constants {
+public interface Constants {
+
+    String BASE_URL = "https://envirocar.org/api/stable";
 }

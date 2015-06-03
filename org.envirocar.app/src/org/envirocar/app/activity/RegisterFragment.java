@@ -40,6 +40,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.envirocar.app.BaseInjectorFragment;
 import org.envirocar.app.R;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UserManager;
@@ -50,6 +51,8 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.User;
 import org.envirocar.app.views.TypefaceEC;
 
+import javax.inject.Inject;
+
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
@@ -57,7 +60,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
  * Activity which displays a register screen to the user, offering registration
  * as well.
  */
-public class RegisterFragment extends Fragment {
+public class RegisterFragment extends BaseInjectorFragment {
 
     private static final Logger logger = Logger.getLogger(RegisterFragment.class);
 
@@ -81,6 +84,14 @@ public class RegisterFragment extends Fragment {
     private View mRegisterFormView;
     private View mRegisterStatusView;
     private TextView mRegisterStatusMessageView;
+
+    // Injected Variables
+    @Inject
+    protected DAOProvider mDAOProvider;
+    @Inject
+    protected UserManager mUserManager;
+    @Inject
+    protected TermsOfUseManager mTermsOfUseManager;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -282,9 +293,9 @@ public class RegisterFragment extends Fragment {
                     public void run() {
                         Crouton.makeText(getActivity(), getResources().getString(R.string.welcome_message) + mUsername, Style.CONFIRM).show();
                         User user = new User(mUsername, mPassword);
-                        UserManager.instance().setUser(user);
+                        mUserManager.setUser(user);
 
-                        TermsOfUseManager.askForTermsOfUseAcceptance(user, getActivity(), null);
+                        mTermsOfUseManager.askForTermsOfUseAcceptance(user, getActivity(), null);
 
                         getActivity().getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                         DashboardFragment dashboardFragment = new DashboardFragment();
@@ -338,7 +349,7 @@ public class RegisterFragment extends Fragment {
         User newUser = new User(user, token);
         newUser.setMail(mail);
 
-        DAOProvider.instance().getUserDAO().createUser(newUser);
+        mDAOProvider.getUserDAO().createUser(newUser);
         return true;
     }
 

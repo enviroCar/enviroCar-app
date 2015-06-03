@@ -20,27 +20,18 @@
  */
 package org.envirocar.app.dao.remote;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.List;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.envirocar.app.application.ECApplication;
-import org.envirocar.app.application.TemporaryFileManager;
-import org.envirocar.app.application.UserManager;
+import org.envirocar.app.Constants;
 import org.envirocar.app.dao.TrackDAO;
 import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.ResourceConflictException;
 import org.envirocar.app.dao.exception.TrackRetrievalException;
 import org.envirocar.app.dao.exception.TrackSerializationException;
 import org.envirocar.app.dao.exception.UnauthorizedException;
-import org.envirocar.app.exception.InvalidObjectStateException;
 import org.envirocar.app.json.StreamTrackEncoder;
 import org.envirocar.app.json.TrackDecoder;
 import org.envirocar.app.json.TrackWithoutMeasurementsException;
@@ -50,136 +41,141 @@ import org.envirocar.app.util.FileWithMetadata;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
 public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, AuthenticatedDAO {
 
-	@Override
-	public void deleteTrack(String remoteID) throws UnauthorizedException, NotConnectedException {
-		User user = UserManager.instance().getUser();
-		
-		if (user == null) {
-			throw new UnauthorizedException("No User logged in.");
-		}
-		
-		HttpDelete request = new HttpDelete(ECApplication.BASE_URL+"/users/"+
-				user.getUsername()+"/tracks/" + remoteID);
+    @Override
+    public void deleteTrack(String remoteID) throws UnauthorizedException, NotConnectedException {
+        User user = mUserManager.getUser();
 
-		super.executeContentRequest(request);
-	}
+        if (user == null) {
+            throw new UnauthorizedException("No User logged in.");
+        }
 
-	@Override
-	public String storeTrack(Track track, boolean obfuscate) throws NotConnectedException, TrackSerializationException, TrackRetrievalException, TrackWithoutMeasurementsException {
-		try {
-			File f = TemporaryFileManager.instance().createTemporaryFile();
-			FileWithMetadata content = new StreamTrackEncoder().createTrackJsonAsFile(track, obfuscate, f, true);
-			
-			User user = UserManager.instance().getUser();
-			HttpPost post = new HttpPost(String.format("%s/users/%s/tracks", ECApplication.BASE_URL,
-					user.getUsername()));
-			
-			HttpResponse response = executePayloadRequest(post, content);
-			
-			return new TrackDecoder().resolveLocation(response);
-		} catch (JSONException e) {
-			throw new TrackSerializationException(e);
-		} catch (ResourceConflictException e) {
-			throw new NotConnectedException(e);
-		} catch (UnauthorizedException e) {
-			throw new TrackRetrievalException(e);
-		} catch (FileNotFoundException e) {
-			throw new TrackSerializationException(e);
-		} catch (IOException e) {
-			throw new TrackSerializationException(e);
-		} catch (InvalidObjectStateException e) {
-			throw new TrackSerializationException(e);
-		}
-	}
+        HttpDelete request = new HttpDelete(Constants.BASE_URL + "/users/" +
+                user.getUsername() + "/tracks/" + remoteID);
+
+        super.executeContentRequest(request);
+    }
+
+    @Override
+    public String storeTrack(Track track, boolean obfuscate) throws NotConnectedException, TrackSerializationException, TrackRetrievalException, TrackWithoutMeasurementsException {
+        try {
+            File f = mTemporaryFileManager.createTemporaryFile();
+            FileWithMetadata content = new StreamTrackEncoder().createTrackJsonAsFile(track,
+                    obfuscate, f, true);
+
+            User user = mUserManager.getUser();
+            HttpPost post = new HttpPost(String.format("%s/users/%s/tracks", Constants.BASE_URL,
+                    user.getUsername()));
+
+            HttpResponse response = executePayloadRequest(post, content);
+
+            return new TrackDecoder().resolveLocation(response);
+        } catch (JSONException e) {
+            throw new TrackSerializationException(e);
+        } catch (ResourceConflictException e) {
+            throw new NotConnectedException(e);
+        } catch (UnauthorizedException e) {
+            throw new TrackRetrievalException(e);
+        } catch (FileNotFoundException e) {
+            throw new TrackSerializationException(e);
+        } catch (IOException e) {
+            throw new TrackSerializationException(e);
+        }
+    }
 
 
-	@Override
-	public Track getTrack(String id) throws NotConnectedException {
-		Track result;
-		try {
-			JSONObject parentObject = readRemoteResource("/tracks/"+id);
-			result = new TrackDecoder().fromJson(parentObject);
-		} catch (ParseException e) {
-			throw new NotConnectedException(e);
-		} catch (IOException e) {
-			throw new NotConnectedException(e);
-		} catch (JSONException e) {
-			throw new NotConnectedException(e);
-		} catch (java.text.ParseException e) {
-			throw new NotConnectedException(e);
-		} catch (UnauthorizedException e) {
-			throw new NotConnectedException(e);
-		}
-		
-		return result;
-	}
+    @Override
+    public Track getTrack(String id) throws NotConnectedException {
+        Track result;
+        try {
+            JSONObject parentObject = readRemoteResource("/tracks/" + id);
+            result = new TrackDecoder().fromJson(parentObject);
+        } catch (ParseException e) {
+            throw new NotConnectedException(e);
+        } catch (IOException e) {
+            throw new NotConnectedException(e);
+        } catch (JSONException e) {
+            throw new NotConnectedException(e);
+        } catch (java.text.ParseException e) {
+            throw new NotConnectedException(e);
+        } catch (UnauthorizedException e) {
+            throw new NotConnectedException(e);
+        }
 
-	@Override
-	public Integer getUserTrackCount() throws NotConnectedException, TrackRetrievalException {
-		User user = UserManager.instance().getUser();
-		HttpGet get = new HttpGet(ECApplication.BASE_URL+"/users/"+user.getUsername()+"/tracks?limit=1");
-		
-		HttpResponse response;
-		try {
-			response = super.executeContentRequest(get);
-		} catch (UnauthorizedException e) {
-			throw new TrackRetrievalException(e);
-		}
-		return new TrackDecoder().resolveTrackCount(response);
-	}
+        return result;
+    }
 
-	@Override
-	public Integer getTotalTrackCount() throws NotConnectedException, TrackRetrievalException {
-		HttpGet get = new HttpGet(ECApplication.BASE_URL+"/tracks?limit=1");
-		
-		HttpResponse response;
-		try {
-			response = super.executeContentRequest(get);
-		} catch (UnauthorizedException e) {
-			throw new TrackRetrievalException(e);
-		}
-		return new TrackDecoder().resolveTrackCount(response);
-	}
+    @Override
+    public Integer getUserTrackCount() throws NotConnectedException, TrackRetrievalException {
+        User user = mUserManager.getUser();
+        HttpGet get = new HttpGet(Constants.BASE_URL + "/users/" + user.getUsername()
+                + "/tracks?limit=1");
 
-	@Override
-	public List<String> getTrackIds() throws NotConnectedException, UnauthorizedException {
-		return getTrackIds(100);
-	}
+        HttpResponse response;
+        try {
+            response = super.executeContentRequest(get);
+        } catch (UnauthorizedException e) {
+            throw new TrackRetrievalException(e);
+        }
+        return new TrackDecoder().resolveTrackCount(response);
+    }
 
-	@Override
-	public List<String> getTrackIds(int limit) throws NotConnectedException, UnauthorizedException {
-		return getTrackIds(limit, 1);
-	}
+    @Override
+    public Integer getTotalTrackCount() throws NotConnectedException, TrackRetrievalException {
+        HttpGet get = new HttpGet(Constants.BASE_URL + "/tracks?limit=1");
 
-	@Override
-	public List<String> getTrackIds(int limit, int page) throws NotConnectedException, UnauthorizedException {
-		User user = UserManager.instance().getUser();
-		HttpGet get = new HttpGet(String.format("%s/users/%s/tracks?limit=%d&page=%d",
-				ECApplication.BASE_URL, user.getUsername(), limit, page));
-		
-		InputStream response;
-		try {
-			response = super.retrieveHttpContent(get);
-		} catch (IOException e1) {
-			throw new NotConnectedException(e1);
-		}
-		
-		List<String> result;
-		try {
-			result = new TrackDecoder().getResourceIds(response);
-		} catch (ParseException e) {
-			throw new NotConnectedException(e);
-		} catch (IOException e) {
-			throw new NotConnectedException(e);
-		} catch (JSONException e) {
-			throw new NotConnectedException(e);
-		}
-		
-		return result;
-	}
+        HttpResponse response;
+        try {
+            response = super.executeContentRequest(get);
+        } catch (UnauthorizedException e) {
+            throw new TrackRetrievalException(e);
+        }
+        return new TrackDecoder().resolveTrackCount(response);
+    }
 
+    @Override
+    public List<String> getTrackIds() throws NotConnectedException, UnauthorizedException {
+        return getTrackIds(100);
+    }
+
+    @Override
+    public List<String> getTrackIds(int limit) throws NotConnectedException, UnauthorizedException {
+        return getTrackIds(limit, 1);
+    }
+
+    @Override
+    public List<String> getTrackIds(int limit, int page) throws NotConnectedException, UnauthorizedException {
+        User user = mUserManager.getUser();
+        HttpGet get = new HttpGet(String.format("%s/users/%s/tracks?limit=%d&page=%d",
+                Constants.BASE_URL, user.getUsername(), limit, page));
+
+        InputStream response;
+        try {
+            response = super.retrieveHttpContent(get);
+        } catch (IOException e1) {
+            throw new NotConnectedException(e1);
+        }
+
+        List<String> result;
+        try {
+            result = new TrackDecoder().getResourceIds(response);
+        } catch (ParseException e) {
+            throw new NotConnectedException(e);
+        } catch (IOException e) {
+            throw new NotConnectedException(e);
+        } catch (JSONException e) {
+            throw new NotConnectedException(e);
+        }
+
+        return result;
+    }
 
 
 }

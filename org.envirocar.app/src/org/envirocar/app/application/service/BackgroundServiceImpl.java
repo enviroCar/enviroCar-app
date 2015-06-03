@@ -21,30 +21,6 @@
 
 package org.envirocar.app.application.service;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Locale;
-
-import org.envirocar.app.R;
-import org.envirocar.app.activity.MainActivity;
-import org.envirocar.app.activity.SettingsActivity;
-import org.envirocar.app.activity.TroubleshootingFragment;
-import org.envirocar.app.application.CarManager;
-import org.envirocar.app.application.CommandListener;
-import org.envirocar.app.application.Listener;
-import org.envirocar.app.application.LocationUpdateListener;
-import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
-import org.envirocar.app.bluetooth.BluetoothConnection;
-import org.envirocar.app.bluetooth.BluetoothSocketWrapper;
-import org.envirocar.app.event.EventBus;
-import org.envirocar.app.event.GpsSatelliteFix;
-import org.envirocar.app.event.GpsSatelliteFixEvent;
-import org.envirocar.app.event.GpsSatelliteFixEventListener;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.protocol.ConnectionListener;
-import org.envirocar.app.protocol.OBDCommandLooper;
-
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -63,7 +39,35 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.TextToSpeech.OnInitListener;
 import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
-import static org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.*;
+
+import org.envirocar.app.BaseMainActivity;
+import org.envirocar.app.Injector;
+import org.envirocar.app.R;
+import org.envirocar.app.activity.SettingsActivity;
+import org.envirocar.app.activity.TroubleshootingFragment;
+import org.envirocar.app.application.CarManager;
+import org.envirocar.app.application.CommandListener;
+import org.envirocar.app.application.Listener;
+import org.envirocar.app.application.LocationUpdateListener;
+import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
+import org.envirocar.app.bluetooth.BluetoothConnection;
+import org.envirocar.app.bluetooth.BluetoothSocketWrapper;
+import org.envirocar.app.event.EventBus;
+import org.envirocar.app.event.GpsSatelliteFix;
+import org.envirocar.app.event.GpsSatelliteFixEvent;
+import org.envirocar.app.event.GpsSatelliteFixEventListener;
+import org.envirocar.app.logging.Logger;
+import org.envirocar.app.protocol.ConnectionListener;
+import org.envirocar.app.protocol.OBDCommandLooper;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Locale;
+
+import javax.inject.Inject;
+
+import static org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.SERVICE_STATE;
 
 /**
  * Service for connection to Bluetooth device and running commands. Imported
@@ -109,6 +113,9 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 
 	protected GpsSatelliteFix fix = new GpsSatelliteFix(0, false);
 
+    @Inject
+    protected CarManager mCarManager;
+
 
 	@Override
 	public IBinder onBind(Intent intent) {
@@ -120,7 +127,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	public void onCreate() {
 		logger.info("onCreate " + getClass().getName() +"; Hash: "+System.identityHashCode(this));
 		
-		
+		((Injector) getApplicationContext()).injectObjects(this);
 		tts = new TextToSpeech(getApplicationContext(), new TextToSpeechListener());
 		
 		toastHandler = new Handler();
@@ -167,7 +174,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 	private void createForegroundNotification(int stringResource) {
 		CharSequence string = getResources().getText(stringResource);
 		
-		Intent intent = new Intent(this, MainActivity.class);
+		Intent intent = new Intent(this, BaseMainActivity.class);
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         
 		Notification note = new NotificationCompat.Builder(getApplicationContext()).
@@ -334,8 +341,7 @@ public class BackgroundServiceImpl extends Service implements BackgroundService 
 			this.commandListener.shutdown();
 		}
 		
-		this.commandListener = new CommandListener(CarManager.instance().getCar(),
-				PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
+		this.commandListener = new CommandListener(getApplicationContext());
 		this.commandLooper = new OBDCommandLooper(
 				in, out, deviceName,
 				this.commandListener, new ConnectionListener() {

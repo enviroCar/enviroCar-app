@@ -24,17 +24,25 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+/**
+ * TODO make unstatic
+ */
 public class FeatureFlags {
 
 	/**
 	 * use PID supported query to identify 
 	 */
 	public static final String PID_SUPPORTED_KEY = "pref_pid_supported";
-	private static SharedPreferences prefs;
-	
-	public static void init(Context context) {
+
+	private static SharedPreferences prefs = null;
+
+	public FeatureFlags(Context context){
 		prefs = PreferenceManager.getDefaultSharedPreferences(context);
 	}
+//	public static void init(Context context) {
+//		prefs = PreferenceManager.getDefaultSharedPreferences(context);
+//	}
+
 
 	public static boolean usePIDSupported() {
 		return getFlagValue(PID_SUPPORTED_KEY);

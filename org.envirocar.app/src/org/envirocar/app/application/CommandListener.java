@@ -27,6 +27,7 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.envirocar.app.Injector;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.EngineLoad;
@@ -58,17 +59,21 @@ import org.envirocar.app.storage.MeasurementSerializationException;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
 import org.envirocar.app.storage.TrackMetadata;
 
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
+import javax.inject.Inject;
 
 /**
  * Standalone listener class for OBDII commands. It provides all
  * received processed commands through the {@link EventBus}.
- * 
+ *
  * @author matthes rieke
  *
  */
 public class CommandListener implements Listener, MeasurementListener {
-	
+
 	private static final Logger logger = Logger.getLogger(CommandListener.class);
 
 	private Collector collector;
@@ -80,7 +85,7 @@ public class CommandListener implements Listener, MeasurementListener {
 	private boolean shutdownCompleted = false;
 
 	private static int instanceCount;
-	private ExecutorService inserter = new ThreadPoolExecutor(1, 1, 0L, 
+	private ExecutorService inserter = new ThreadPoolExecutor(1, 1, 0L,
 			TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), Executors.defaultThreadFactory(),
 			new RejectedExecutionHandler() {
 				@Override
@@ -88,50 +93,61 @@ public class CommandListener implements Listener, MeasurementListener {
 						ThreadPoolExecutor executor) {
 					logger.warn(String.format("Execution rejected: %s / %s", r.toString(), executor.toString()));
 				}
-		
+
 	});
-	
-	
-	public CommandListener(Car car, SharedPreferences sharedPreferences) {
-		
-		String samplingRate = sharedPreferences.getString(SettingsActivity.SAMPLING_RATE, null);
-		
-		int val;
-		if  (samplingRate != null) {
-			try {
-				val = Integer.parseInt(samplingRate) * 1000;
-			}
-			catch (NumberFormatException e) {
-				val = Collector.DEFAULT_SAMPLING_RATE_DELTA;
-			}	
-		}
-		else {
-			val = Collector.DEFAULT_SAMPLING_RATE_DELTA;
-		}
-		
-		this.collector = new Collector(this, car, val);
-		dopListener = new GpsDOPEventListener() {
-			@Override
-			public void receiveEvent(GpsDOPEvent event) {
-				GpsDOP dop = event.getPayload();
-				collector.newDop(dop);
-			}
-		};
-		EventBus.getInstance().registerListener(dopListener);
-		EventBus.getInstance().registerListener(this.collector);
-		
-		synchronized (CommandListener.class) {
-			instanceCount++;
-			logger.debug("Initialized. Hash: "+System.identityHashCode(this) +"; active instances: "+instanceCount);
-		}
-		
-	}
+
+    // Injected variables
+    @Inject
+    protected Context mContext;
+    @Inject
+    protected CarManager mCarManager;
+    @Inject
+    protected DbAdapter mDBAdapter;
+
+
+    public CommandListener(Context context){
+        ((Injector) context).injectObjects(this);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences
+                (context.getApplicationContext());
+
+        String samplingRate = sharedPreferences.getString(SettingsActivity.SAMPLING_RATE, null);
+
+        int val;
+        if  (samplingRate != null) {
+            try {
+                val = Integer.parseInt(samplingRate) * 1000;
+            }
+            catch (NumberFormatException e) {
+                val = Collector.DEFAULT_SAMPLING_RATE_DELTA;
+            }
+        }
+        else {
+            val = Collector.DEFAULT_SAMPLING_RATE_DELTA;
+        }
+
+        this.collector = new Collector(this, mCarManager.getCar(), val);
+        dopListener = new GpsDOPEventListener() {
+            @Override
+            public void receiveEvent(GpsDOPEvent event) {
+                GpsDOP dop = event.getPayload();
+                collector.newDop(dop);
+            }
+        };
+        EventBus.getInstance().registerListener(dopListener);
+        EventBus.getInstance().registerListener(this.collector);
+
+        synchronized (CommandListener.class) {
+            instanceCount++;
+            logger.debug("Initialized. Hash: "+System.identityHashCode(this) +"; active instances: "+instanceCount);
+        }
+    }
 
 	public void receiveUpdate(CommonCommand command) {
 		// Get the name and the result of the Command
-		
+
 		if (!(command instanceof NumberResultCommand)) return;
-		
+
 		NumberResultCommand numberCommand = (NumberResultCommand) command;
 
 		if (isNoDataCommand(command))
@@ -155,9 +171,9 @@ public class CommandListener implements Listener, MeasurementListener {
 				logger.warn("speed parse exception", e);
 			}
 		}
-		
+
 		//RPM
-		
+
 		else if (command instanceof RPM) {
 			// TextView speedTextView = (TextView)
 			// findViewById(R.id.spd_text);
@@ -174,7 +190,7 @@ public class CommandListener implements Listener, MeasurementListener {
 		}
 
 		//IntakePressure
-		
+
 		else if (command instanceof IntakePressure) {
 			// TextView speedTextView = (TextView)
 			// findViewById(R.id.spd_text);
@@ -189,9 +205,9 @@ public class CommandListener implements Listener, MeasurementListener {
 				logger.warn("Intake Pressure parse exception", e);
 			}
 		}
-		
+
 		//IntakeTemperature
-		
+
 		else if (command instanceof IntakeTemperature) {
 			// TextView speedTextView = (TextView)
 			// findViewById(R.id.spd_text);
@@ -206,14 +222,14 @@ public class CommandListener implements Listener, MeasurementListener {
 				logger.warn("Intake Temperature parse exception", e);
 			}
 		}
-						
+
 		else if (command instanceof MAF) {
 			float mafMeasurement = (Float) numberCommand.getNumberResult();
 			this.collector.newMAF(mafMeasurement);
 //			logger.info("Processed MAF Response: "+mafMeasurement +" time: "+command.getResultTime());
 		}
-		
-		
+
+
 		else if (command instanceof TPS) {
 			int tps = (Integer) numberCommand.getNumberResult();
 			this.collector.newTPS(tps);
@@ -225,37 +241,37 @@ public class CommandListener implements Listener, MeasurementListener {
 			this.collector.newEngineLoad(load);
 //			logger.info("Processed EngineLoad Response: "+load +" time: "+command.getResultTime());
 		}
-		
+
 		else if (command instanceof FuelSystemStatus) {
 			boolean loop = ((FuelSystemStatus) command).isInClosedLoop();
 			int status = ((FuelSystemStatus) command).getStatus();
 			this.collector.newFuelSystemStatus(loop, status);
 //			logger.info("Processed FuelSystemStatus Response: Closed? "+loop +" Status: "+ status +"; time: "+command.getResultTime());
 		}
-		
+
 		else if (command instanceof O2LambdaProbe) {
 			this.collector.newLambdaProbeValue((O2LambdaProbe) command);
 //			logger.info("Processed O2LambdaProbe Response: "+ command.toString());
 		}
-		
+
 		else if (command instanceof ShortTermTrimBank1) {
 			this.collector.newShortTermTrimBank1(((ShortTermTrimBank1) command).getNumberResult());
 //			logger.info("Processed ShortTermTrimBank1: "+ command.toString());
 		}
-		
+
 		else if (command instanceof LongTermTrimBank1) {
 			this.collector.newLongTermTrimBank1(((LongTermTrimBank1) command).getNumberResult());
 //			logger.info("Processed LongTermTrimBank1: "+ command.toString());
 		}
 	}
-	
+
 
 	private boolean isNoDataCommand(CommonCommand command) {
 		if (command.getRawData() != null && (command.getRawData().equals("NODATA") ||
 				command.getRawData().equals(""))) return true;
-		
+
 		if (command.getRawData() == null) return true;
-		
+
 		return false;
 	}
 
@@ -263,7 +279,7 @@ public class CommandListener implements Listener, MeasurementListener {
 	/**
 	 * Helper method to insert track measurement into the database (ensures that
 	 * track measurement is only stored every 5 seconds and not faster...)
-	 * 
+	 *
 	 * @param measurement
 	 *            The measurement you want to insert
 	 */
@@ -274,30 +290,30 @@ public class CommandListener implements Listener, MeasurementListener {
 			@Override
 			public void run() {
 				try {
-					DbAdapterImpl.instance().insertNewMeasurement(measurement);
+					mDBAdapter.insertNewMeasurement(measurement);
 				} catch (TrackAlreadyFinishedException e) {
 					logger.warn(e.getMessage(), e);
 				} catch (MeasurementSerializationException e) {
 					logger.warn(e.getMessage(), e);
-				}				
+				}
 			}
 		});
 	}
-	
+
 	public void shutdown() {
 		logger.info("shutting down CommandListener. Hash: "+ System.identityHashCode(this));
-		
+
 		EventBus.getInstance().unregisterListener(dopListener);
 		EventBus.getInstance().registerListener(this.collector);
-		
+
 		this.inserter.shutdown();
-		
+
 		synchronized (CommandListener.class) {
 			if (!this.shutdownCompleted) {
 				instanceCount--;
 				this.shutdownCompleted = true;
 			}
-			
+
 		}
 	}
 
@@ -305,10 +321,9 @@ public class CommandListener implements Listener, MeasurementListener {
 	public void onConnected(String deviceName) {
 		obdDeviceMetadata = new TrackMetadata();
 		obdDeviceMetadata.putEntry(TrackMetadata.OBD_DEVICE, deviceName);
-		
-		DbAdapter db = DbAdapterImpl.instance();
-		db.setConnectedOBDDevice(obdDeviceMetadata);
+
+		mDBAdapter.setConnectedOBDDevice(obdDeviceMetadata);
 	}
 
-	
+
 }

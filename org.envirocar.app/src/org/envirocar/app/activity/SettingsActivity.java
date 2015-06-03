@@ -36,6 +36,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+import org.envirocar.app.Injector;
 import org.envirocar.app.R;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.util.Util;
@@ -169,6 +170,7 @@ public class SettingsActivity extends PreferenceActivity {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
         initializeBluetoothList();
+        ((Injector) getApplicationContext()).injectObjects(this);
     }
 
     @Override
@@ -200,17 +202,18 @@ public class SettingsActivity extends PreferenceActivity {
     }
 
     public static String[] resolveIndividualKeys() {
-        UserManager o = UserManager.instance();
-        try {
-            Method m = o.getClass().getDeclaredMethod("getUserPreferences", new Class<?>[0]);
-            m.setAccessible(true);
-            SharedPreferences p = (SharedPreferences) m.invoke(o, new Object[0]);
-            m.setAccessible(false);
-            String[] result = new String[0];
-            result = p.getAll().keySet().toArray(result);
-            return result;
-        } catch (Exception e) {
-        }
+        // TODO
+//        UserManager o = mUserManager.instance();
+//        try {
+//            Method m = o.getClass().getDeclaredMethod("getUserPreferences", new Class<?>[0]);
+//            m.setAccessible(true);
+//            SharedPreferences p = (SharedPreferences) m.invoke(o, new Object[0]);
+//            m.setAccessible(false);
+//            String[] result = new String[0];
+//            result = p.getAll().keySet().toArray(result);
+//            return result;
+//        } catch (Exception e) {
+//        }
         return new String[0];
     }
 }

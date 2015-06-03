@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import org.envirocar.app.BaseInjectorFragment;
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.dao.DAOProvider;
@@ -23,7 +24,10 @@ import org.envirocar.app.model.NumberWithUOM;
 
 import java.util.Date;
 
-public class LogbookFragment extends Fragment implements OnClickListener, android.view.View.OnClickListener {
+import javax.inject.Inject;
+
+public class LogbookFragment extends BaseInjectorFragment implements OnClickListener, android.view.View
+        .OnClickListener {
 
 
     private static final String Default_Distance_Unit = "Settings_Distance_Unit";
@@ -38,6 +42,11 @@ public class LogbookFragment extends Fragment implements OnClickListener, androi
 //		SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm");
 //		String formattedDate = df.format(c.getTime());
 
+    // Injected Variables
+    @Inject
+    protected CarManager mCarManager;
+    @Inject
+    protected DAOProvider mDAOProvider;
 
     public View onCreateView(android.view.LayoutInflater inflater,
                              android.view.ViewGroup container,
@@ -100,11 +109,11 @@ public class LogbookFragment extends Fragment implements OnClickListener, androi
             Fueling fueling = new Fueling();
             fueling.setTime(new Date());
 
-            if (CarManager.instance().getCar() == null) {
+            if (mCarManager.getCar() == null) {
                 throw new Exception("No car selected");
             }
 
-            fueling.setCar(CarManager.instance().getCar());
+            fueling.setCar(mCarManager.getCar());
             if (!Note.getText().toString().isEmpty()) {
                 fueling.setComment(Note.getText().toString());
             }
@@ -199,7 +208,7 @@ public class LogbookFragment extends Fragment implements OnClickListener, androi
 //			// TODO Auto-generated catch block
 //			}
             try {
-                DAOProvider.instance().getFuelingDAO().storeFueling(valueIWantToSend);
+                mDAOProvider.getFuelingDAO().storeFueling(valueIWantToSend);
             } catch (NotConnectedException e) {
                 makeToast("There has been an issue while communicating with the server.");
 

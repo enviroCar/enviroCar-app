@@ -44,6 +44,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.envirocar.app.BaseInjectorFragment;
 import org.envirocar.app.R;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UserManager;
@@ -54,6 +55,8 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.User;
 import org.envirocar.app.views.TypefaceEC;
 
+import javax.inject.Inject;
+
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 
@@ -61,7 +64,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
  * Activity which displays a login screen to the user, offering registration as
  * well.
  */
-public class LoginFragment extends Fragment {
+public class LoginFragment extends BaseInjectorFragment {
 
     private static final Logger logger = Logger.getLogger(LoginFragment.class);
     /**
@@ -79,6 +82,15 @@ public class LoginFragment extends Fragment {
     private View mLoginFormView;
     private View mLoginStatusView;
     private TextView mLoginStatusMessageView;
+
+    // Injected Variables
+    @Inject
+    protected DAOProvider mDAOProvider;
+    @Inject
+    protected UserManager mUserManager;
+    @Inject
+    protected TermsOfUseManager mTermsOfUseManager;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -270,13 +282,13 @@ public class LoginFragment extends Fragment {
             showProgress(false);
 
             if (newUser != null) {
-                UserManager.instance().setUser(newUser);
+                mUserManager.setUser(newUser);
                 Crouton.makeText(
                         getActivity(),
                         getResources().getString(R.string.welcome_message)
                                 + " " + mUsername, Style.CONFIRM).show();
 
-                TermsOfUseManager.askForTermsOfUseAcceptance(newUser, getActivity(), null);
+                mTermsOfUseManager.askForTermsOfUseAcceptance(newUser, getActivity(), null);
 
                 getActivity().getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 DashboardFragment dashboardFragment = new DashboardFragment();
@@ -305,15 +317,15 @@ public class LoginFragment extends Fragment {
      * credentials
      */
     private User authenticateHttp(String user, String token) {
-        User currentUser = UserManager.instance().getUser();
+        User currentUser = mUserManager.getUser();
 
         if (currentUser == null || currentUser.getToken() == null) {
             User candidateUser = new User(user, token);
-            UserManager.instance().setUser(candidateUser);
+            mUserManager.setUser(candidateUser);
         }
 
         try {
-            User result = DAOProvider.instance().getUserDAO().getUser(user);
+            User result = mDAOProvider.getUserDAO().getUser(user);
             result.setToken(token);
             return result;
         } catch (UnauthorizedException e1) {
@@ -334,7 +346,7 @@ public class LoginFragment extends Fragment {
             });
         }
 
-        UserManager.instance().logOut();
+        mUserManager.logOut();
 
         return null;
     }

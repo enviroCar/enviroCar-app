@@ -48,6 +48,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import javax.inject.Inject;
+
 public class DbAdapterImpl implements DbAdapter {
 	
 	private static final Logger logger = Logger.getLogger(DbAdapterImpl.class);
@@ -130,11 +132,15 @@ public class DbAdapterImpl implements DbAdapter {
 
 	private static final double DEFAULT_MAX_DISTANCE_BETWEEN_MEASUREMENTS = 3.0;
 
-	private static DbAdapterImpl instance;
+
 	
 	private DatabaseHelper mDbHelper;
 	private SQLiteDatabase mDb;
-	private final Context mCtx;
+
+	@Inject
+	protected Context mContext;
+	@Inject
+	protected CarManager mCarManager;
 
 	private TrackId activeTrackReference;
 
@@ -146,76 +152,22 @@ public class DbAdapterImpl implements DbAdapter {
 
 	private TrackMetadata obdDeviceMetadata;
 	
-	private DbAdapterImpl(Context ctx) {
-		this.mCtx = ctx;
-	}
-	
-	public static void init(Context ctx) throws InstantiationException {
-		init(ctx, DEFAULT_MAX_TIME_BETWEEN_MEASUREMENTS, DEFAULT_MAX_DISTANCE_BETWEEN_MEASUREMENTS);
-	}
-	
-	/**
-	 * @param ctx the used android context
-	 * @param maxTimeBetweenMeasurements maximum time between two measurements (ms). if
-	 * the difference is higher, a new track is created for the new measurement
-	 * @param maxDistanceBetweenMeasurements maximum distance between two measurements (km). if
-	 * the distance is higher, a new track is created for the new measurement
-	 * @throws InstantiationException if the connection to the database fails
-	 */
-	public static void init(Context ctx, long maxTimeBetweenMeasurements, double maxDistanceBetweenMeasurements) throws InstantiationException {
-		instance = new DbAdapterImpl(ctx);
-		instance.maxTimeBetweenMeasurements = maxTimeBetweenMeasurements;
-		instance.maxDistanceBetweenMeasurements = maxDistanceBetweenMeasurements;
-		instance.openConnection();
-		logger.info("init DbAdapterImpl; Hash: "+System.identityHashCode(instance));
+	public DbAdapterImpl(Context context) throws InstantiationException {
+		this.mContext = context;
+
+		mDbHelper = new DatabaseHelper(mContext);
+		mDb = mDbHelper.getWritableDatabase();
+
+		if (mDb == null) throw new InstantiationException("Database object is null");
 	}
 	
 
-	/**
-	 * init with default valus for maximum time and distance between
-	 * two measurements. see {@link #init(Context, long, double)}
-	 * 
-	 * @param ctx the used android context
-	 * @throws InstantiationException if the connection to the database fails
-	 */
-	public static DbAdapter instance() {
-		logger.info("Returning DbAdapterImpl; Hash: "+System.identityHashCode(instance));
-		return instance;
-	}
 	
-	private static class DatabaseHelper extends SQLiteOpenHelper {
 
-		DatabaseHelper(Context context) {
-			super(context, DATABASE_NAME, null, DATABASE_VERSION);
-		}
-
-		@Override
-		public void onCreate(SQLiteDatabase db) {
-			db.execSQL(DATABASE_CREATE);
-			db.execSQL(DATABASE_CREATE_TRACK);
-		}
-
-		@Override
-		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-			logger.info("Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data");
-			db.execSQL("DROP TABLE IF EXISTS measurements");
-			db.execSQL("DROP TABLE IF EXISTS tracks");
-			onCreate(db);
-		}
-
-	}
-	
 	@Override
 	public DbAdapter open() {
 		// deprecated
 		return this;
-	}
-	
-	private void openConnection() throws InstantiationException {
-		mDbHelper = new DatabaseHelper(mCtx);
-		mDb = mDbHelper.getWritableDatabase();
-		
-		if (mDb == null) throw new InstantiationException("Database object is null");
 	}
 
 	@Override
@@ -647,11 +599,11 @@ public class DbAdapterImpl implements DbAdapter {
 		finishCurrentTrack();
 		
 		String date = format.format(new Date());
-		Car car = CarManager.instance().getCar();
+		Car car = mCarManager.getCar();
 		Track track = Track.createLocalTrack();
 		track.setCar(car);
 		track.setName("Track " + date);
-		track.setDescription(String.format(mCtx.getString(R.string.default_track_description), car != null ? car.getModel() : "null"));
+		track.setDescription(String.format(mContext.getString(R.string.default_track_description), car != null ? car.getModel() : "null"));
 		insertTrack(track);
 		logger.info("createNewTrack: "+ track.getName()+ "; id: "+track.getTrackId());
 		return track;
@@ -809,5 +761,27 @@ public class DbAdapterImpl implements DbAdapter {
 			updateTrackMetadata(activeTrackReference, obdDeviceMetadata);
 		}
 	}
+
+	private static class DatabaseHelper extends SQLiteOpenHelper {
+
+		DatabaseHelper(Context context) {
+			super(context, DATABASE_NAME, null, DATABASE_VERSION);
+		}
+
+		@Override
+		public void onCreate(SQLiteDatabase db) {
+			db.execSQL(DATABASE_CREATE);
+			db.execSQL(DATABASE_CREATE_TRACK);
+		}
+
+		@Override
+		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+			logger.info("Upgrading database from version " + oldVersion + " to " + newVersion + ", which will destroy all old data");
+			db.execSQL("DROP TABLE IF EXISTS measurements");
+			db.execSQL("DROP TABLE IF EXISTS tracks");
+			onCreate(db);
+		}
+	}
+
 
 }

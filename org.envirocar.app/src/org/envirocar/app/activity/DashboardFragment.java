@@ -43,6 +43,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.envirocar.app.BaseInjectorFragment;
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
@@ -67,6 +68,8 @@ import org.envirocar.app.views.TypefaceEC;
 
 import java.text.DecimalFormat;
 
+import javax.inject.Inject;
+
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 /**
  * Dashboard page that displays the current speed, co2 and car.
@@ -74,7 +77,7 @@ import de.keyboardsurfer.android.widget.crouton.Crouton;
  * @author gerald
  *
  */
-public class DashboardFragment extends Fragment {
+public class DashboardFragment extends BaseInjectorFragment {
 
 	private static final Logger logger = Logger.getLogger(DashboardFragment.class);
 	public static final int SENSOR_CHANGED_RESULT = 1337;
@@ -122,6 +125,9 @@ public class DashboardFragment extends Fragment {
 	private ImageView connectionStateImage;
 	private boolean useImperialUnits;
 
+	@Inject
+	protected CarManager mCarManager;
+
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -143,7 +149,7 @@ public class DashboardFragment extends Fragment {
 	}
 	
 	private void updateCarStatus() {
-		if (CarManager.instance().getCar() != null) {
+		if (mCarManager.getCar() != null) {
 			carOkView.setImageDrawable(carOkDrawable);
 		}
 		else {
@@ -222,7 +228,7 @@ public class DashboardFragment extends Fragment {
 		carOkView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Car car = CarManager.instance().getCar();
+				Car car = mCarManager.getCar();
 				if (car != null) {
 					Toast.makeText(getActivity(), car.toString(), Toast.LENGTH_SHORT).show();
 				}
@@ -363,7 +369,7 @@ public class DashboardFragment extends Fragment {
 		
 		updateCarStatus();
 		
-		Car car = CarManager.instance().getCar();
+		Car car = mCarManager.getCar();
 		if (car != null && car.getFuelType() == FuelType.DIESEL) {
 			Crouton.makeText(getActivity(), R.string.diesel_not_yet_supported,
 					de.keyboardsurfer.android.widget.crouton.Style.ALERT).show();

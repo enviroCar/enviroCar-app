@@ -1,7 +1,15 @@
 package org.envirocar.app;
 
+import java.util.List;
+
 /**
- * Created by Peter on 01.06.2015.
+ * @author dewall
  */
-public class InjectionModuleProvider {
+public interface InjectionModuleProvider {
+    /**
+     * Returns a list of modules to be added to the ObjectGraph.
+     *
+     * @return a list of modules
+     */
+    List<Object> getInjectionModules();
 }

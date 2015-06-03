@@ -23,6 +23,7 @@ package org.envirocar.app.storage;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.envirocar.app.Injector;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.util.Util;
 import org.json.JSONArray;
@@ -61,9 +62,10 @@ public class TrackMetadata {
 	public TrackMetadata() {
 	}
 	
-	public TrackMetadata(Context ctx) {
-		putEntry(APP_VERSION, Util.getVersionString(ctx));
-		putEntry(TOU_VERSION, UserManager.instance().getUser().getTouVersion());
+	public TrackMetadata(Context context) {
+		UserManager userManager = ((Injector) context).getObjectGraph().get(UserManager.class);
+		putEntry(APP_VERSION, Util.getVersionString(context));
+		putEntry(TOU_VERSION, userManager.getUser().getTouVersion());
 	}
 	
 	public void putEntry(String key, String value) {

@@ -26,7 +26,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.http.client.methods.HttpPost;
-import org.envirocar.app.application.ECApplication;
+import org.envirocar.app.Constants;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.FuelingDAO;
 import org.envirocar.app.dao.cache.CacheFuelingDAO;
@@ -48,8 +48,8 @@ public class RemoteFuelingDAO extends BaseRemoteDAO implements FuelingDAO, Authe
 
 	@Override
 	public void storeFueling(Fueling fueling) throws NotConnectedException, InvalidObjectStateException {
-		String user = UserManager.instance().getUser().getUsername();
-		HttpPost post = new HttpPost(ECApplication.BASE_URL+"/users/"+user+"/fuelings");
+		String user = mUserManager.getUser().getUsername();
+		HttpPost post = new HttpPost(Constants.BASE_URL+"/users/"+user+"/fuelings");
 		
 		try {
 			post.setEntity(super.preparePayload(new FuelingEncoder().createFuelingJson(fueling).toString()));

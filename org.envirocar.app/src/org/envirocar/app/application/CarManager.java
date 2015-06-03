@@ -20,67 +20,105 @@
  */
 package org.envirocar.app.application;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
+
+import org.envirocar.app.Injector;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.model.Car;
 
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import javax.inject.Inject;
 
+/**
+ * The manager for cars.
+ */
 public class CarManager {
-	
-	public static final String PREF_KEY_CAR_MODEL = "carmodel";
-	public static final String PREF_KEY_CAR_MANUFACTURER = "manufacturer";
-	public static final String PREF_KEY_CAR_CONSTRUCTION_YEAR = "constructionyear";
-	public static final String PREF_KEY_FUEL_TYPE = "fueltype";
-	public static final String PREF_KEY_SENSOR_ID = "sensorid";
-	public static final String PREF_KEY_CAR_ENGINE_DISPLACEMENT = "pref_engine_displacement";
-	
-	private static CarManager instance = null;
-	
-	private SharedPreferences preferences;
-	private Car car;
 
-	private CarManager(SharedPreferences prefs) {
-		this.preferences = prefs;
-		
-		car = CarSelectionPreference.instantiateCar(preferences.getString(SettingsActivity.CAR, null));
-		
-		this.preferences.registerOnSharedPreferenceChangeListener(
-				new OnSharedPreferenceChangeListener() {
-			
-			@Override
-			public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-					String key) {
-				if (key.equals(SettingsActivity.CAR) || key.equals(SettingsActivity.CAR_HASH_CODE)) {
-					setCar(CarSelectionPreference.instantiateCar(preferences.getString(SettingsActivity.CAR, null)));
-				}
-			}
-		});
-	}
-	
-	public static synchronized CarManager instance() {
-		if (instance == null) {
-			// Initialize first
-		}
-		return instance;
-	}
-	
-	public static void init (SharedPreferences preferences) {
-		if (instance == null) {
-			instance = new CarManager(preferences);
-		}
-	}
-	
-	public Car getCar() {
-		return car;
-	}
-	
-	public void setCar(Car c) {
-		if (c == null) {
-			return;
-		}
-		this.car = c;
-	}
+    public static final String PREF_KEY_CAR_MODEL = "carmodel";
+    public static final String PREF_KEY_CAR_MANUFACTURER = "manufacturer";
+    public static final String PREF_KEY_CAR_CONSTRUCTION_YEAR = "constructionyear";
+    public static final String PREF_KEY_FUEL_TYPE = "fueltype";
+    public static final String PREF_KEY_SENSOR_ID = "sensorid";
+    public static final String PREF_KEY_CAR_ENGINE_DISPLACEMENT = "pref_engine_displacement";
+
+
+    @Inject
+    protected Context mContext;
+
+    private Car car;
+
+
+    /**
+     * Constructor.
+     *
+     * @param context the context of the activity or application.
+     */
+    public CarManager(Context context) {
+        ((Injector) context).injectObjects(this);
+
+        final SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences
+                (context);
+
+        car = CarSelectionPreference.instantiateCar(preferences.getString(SettingsActivity.CAR,
+                null));
+
+        PreferenceManager.getDefaultSharedPreferences(mContext)
+                .registerOnSharedPreferenceChangeListener(new OnSharedPreferenceChangeListener() {
+                    @Override
+                    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+                                                          String key) {
+                        if (key.equals(SettingsActivity.CAR) ||
+                                key.equals(SettingsActivity.CAR_HASH_CODE)) {
+                            setCar(CarSelectionPreference.instantiateCar(
+                                    preferences.getString(SettingsActivity.CAR, null)));
+                        }
+                    }
+                });
+    }
+
+//    private CarManager(SharedPreferences prefs) {
+//        this.preferences = prefs;
+//
+//        car = CarSelectionPreference.instantiateCar(preferences.getString(SettingsActivity.CAR, null));
+//
+//        this.preferences.registerOnSharedPreferenceChangeListener(
+//                new OnSharedPreferenceChangeListener() {
+//                    @Override
+//                    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+//                                                          String key) {
+//                        if (key.equals(SettingsActivity.CAR) || key.equals(SettingsActivity.CAR_HASH_CODE)) {
+//                            setCar(CarSelectionPreference.instantiateCar(preferences.getString(SettingsActivity.CAR, null)));
+//                        }
+//                    }
+//                });
+//    }
+
+//	public static synchronized CarManager instance() {
+//		if (instance == null) {
+//			// Initialize first
+//		}
+//		return instance;
+//	}
+
+//	public static void init (SharedPreferences preferences) {
+//		if (instance == null) {
+//			instance = new CarManager(preferences);
+//		}
+//	}
+
+    public Car getCar() {
+        return car;
+    }
+
+    public void setCar(Car c) {
+        if (c == null) {
+            return;
+        }
+        this.car = c;
+    }
 
 }

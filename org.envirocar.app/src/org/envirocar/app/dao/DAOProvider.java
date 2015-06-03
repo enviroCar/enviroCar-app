@@ -20,6 +20,10 @@
  */
 package org.envirocar.app.dao;
 
+import org.envirocar.app.Injector;
+import org.envirocar.app.application.ContextInternetAccessProvider;
+import org.envirocar.app.application.TermsOfUseManager;
+import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.cache.CacheAnnouncementsDAO;
 import org.envirocar.app.dao.cache.CacheFuelingDAO;
 import org.envirocar.app.dao.cache.CacheSensorDAO;
@@ -33,8 +37,14 @@ import org.envirocar.app.dao.remote.RemoteSensorDAO;
 import org.envirocar.app.dao.remote.RemoteTermsOfUseDAO;
 import org.envirocar.app.dao.remote.RemoteTrackDAO;
 import org.envirocar.app.dao.remote.RemoteUserDAO;
+import org.envirocar.app.util.Util;
 
+import android.content.Context;
 import android.os.AsyncTask;
+
+import java.io.File;
+
+import javax.inject.Inject;
 
 /**
  * the {@link DAOProvider} consists a set of methods
@@ -45,42 +55,35 @@ import android.os.AsyncTask;
  *
  */
 public class DAOProvider {
-	
-	private static DAOProvider _instance;
-	private InternetAccessProvider internetAccessProvider;
-	private CacheDirectoryProvider cacheDirectoryProvider;
 
-	private DAOProvider(InternetAccessProvider iap, CacheDirectoryProvider cacheDir) {
-		this.internetAccessProvider = iap;
-		this.cacheDirectoryProvider = cacheDir;
-	}
-
+	private Injector mInjector;
+	private InternetAccessProvider mInternetAccessProvider;
+	private CacheDirectoryProvider mCacheDirectoryProvider;
 
 	/**
-	 * this create the singleton instance of {@link DAOProvider}.
-	 * 
-	 * @param iap
-	 * @param cacheDir
-	 * @return 
+	 * Constructor.
+	 *
+	 * @param context
 	 */
-	public static synchronized DAOProvider init(InternetAccessProvider iap, CacheDirectoryProvider cacheDir) {
-		_instance = new DAOProvider(iap, cacheDir);
-		return _instance;
+	public DAOProvider(final Context context){
+		((Injector) context).injectObjects(this);
+		this.mInternetAccessProvider = new ContextInternetAccessProvider(context);
+		this.mCacheDirectoryProvider = new CacheDirectoryProvider() {
+					@Override
+					public File getBaseFolder() {
+						return Util.resolveCacheFolder(context);
+					}
+				};
 	}
-	
-	public static synchronized DAOProvider instance() {
-		return _instance;
-	}
-	
-	
+
 	/**
 	 * @return the {@link SensorDAO}
 	 */
 	public SensorDAO getSensorDAO() {
-		if (this.internetAccessProvider.isConnected()) {
-			return new RemoteSensorDAO(new CacheSensorDAO(this.cacheDirectoryProvider));
+		if (this.mInternetAccessProvider.isConnected()) {
+			return new RemoteSensorDAO(new CacheSensorDAO(this.mCacheDirectoryProvider));
 		}
-		return new CacheSensorDAO(this.cacheDirectoryProvider);
+		return new CacheSensorDAO(this.mCacheDirectoryProvider);
 	}
 	
 	
@@ -88,7 +91,7 @@ public class DAOProvider {
 	 * @return the {@link TrackDAO}
 	 */
 	public TrackDAO getTrackDAO() {
-		if (this.internetAccessProvider.isConnected()) {
+		if (this.mInternetAccessProvider.isConnected()) {
 			return new RemoteTrackDAO();
 		}
 		return new CacheTrackDAO();
@@ -98,7 +101,7 @@ public class DAOProvider {
 	 * @return the {@link UserDAO}
 	 */
 	public UserDAO getUserDAO() {
-		if (this.internetAccessProvider.isConnected()) {
+		if (this.mInternetAccessProvider.isConnected()) {
 			return new RemoteUserDAO();
 		}
 		return new CacheUserDAO();
@@ -108,28 +111,28 @@ public class DAOProvider {
 	 * @return the {@link FuelingDAO}
 	 */
 	public FuelingDAO getFuelingDAO() {
-		if (this.internetAccessProvider.isConnected()) {
-			return new RemoteFuelingDAO(new CacheFuelingDAO(this.cacheDirectoryProvider));
+		if (this.mInternetAccessProvider.isConnected()) {
+			return new RemoteFuelingDAO(new CacheFuelingDAO(this.mCacheDirectoryProvider));
 		}
-		return new CacheFuelingDAO(this.cacheDirectoryProvider);
+		return new CacheFuelingDAO(this.mCacheDirectoryProvider);
 	}
 	
 	/**
 	 * @return the {@link TermsOfUseDAO}
 	 */
 	public TermsOfUseDAO getTermsOfUseDAO() {
-		if (this.internetAccessProvider.isConnected()) {
-			return new RemoteTermsOfUseDAO(new CacheTermsOfUseDAO(this.cacheDirectoryProvider));
+		if (this.mInternetAccessProvider.isConnected()) {
+			return new RemoteTermsOfUseDAO(new CacheTermsOfUseDAO(this.mCacheDirectoryProvider));
 		}
-		return new CacheTermsOfUseDAO(this.cacheDirectoryProvider);
+		return new CacheTermsOfUseDAO(this.mCacheDirectoryProvider);
 	}
 
 
 	public AnnouncementsDAO getAnnouncementsDAO() {
-		if (this.internetAccessProvider.isConnected()) {
-			return new RemoteAnnouncementsDAO(new CacheAnnouncementsDAO(this.cacheDirectoryProvider));
+		if (this.mInternetAccessProvider.isConnected()) {
+			return new RemoteAnnouncementsDAO(new CacheAnnouncementsDAO(this.mCacheDirectoryProvider));
 		}
-		return new CacheAnnouncementsDAO(this.cacheDirectoryProvider);
+		return new CacheAnnouncementsDAO(this.mCacheDirectoryProvider);
 	}
 	
 	public static <T> void async(final AsyncExecutionWithCallback<T> callback) {

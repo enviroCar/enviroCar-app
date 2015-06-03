@@ -23,21 +23,23 @@ public class UserManager {
 	private Context context;
 	
 	public UserManager(Context context) {
+		instance = this;
 		this.context = context;
 	}
 
-	public static synchronized UserManager instance(){
-		if (instance == null) {
-			// TODO init first;
-		}
-		return instance;
-	}
-	
-	public static void init(Context context) {
-		if (instance == null) {
-			instance = new UserManager(context);
-		}
-	}
+	//TODO
+//	public static synchronized UserManager instance(){
+//		if (instance == null) {
+//			// TODO init first;
+//		}
+//		return instance;
+//	}
+//
+//	public static void init(Context context) {
+//		if (instance == null) {
+//			instance = new UserManager(context);
+//		}
+//	}
 	
 	/**
 	 * Set the user in the private user preferences

@@ -20,6 +20,8 @@
  */
 package org.envirocar.app.json;
 
+import android.content.Context;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -32,7 +34,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.zip.GZIPOutputStream;
 
+import org.envirocar.app.Injector;
 import org.envirocar.app.application.TemporaryFileManager;
+import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.exception.InvalidObjectStateException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.Measurement;
@@ -51,9 +55,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonWriter;
 
-public class StreamTrackEncoder extends TrackEncoder {
+import javax.inject.Inject;
 
+public class StreamTrackEncoder extends TrackEncoder {
 	private static final Logger logger = Logger.getLogger(StreamTrackEncoder.class);
+
+    // TODO make unstatic
+    @Inject
+    protected static TemporaryFileManager mTemporaryFileManager;
 	
 	public FileWithMetadata createTrackJsonAsFile(Track track, boolean obfuscate, File result) throws FileNotFoundException, IOException, TrackWithoutMeasurementsException, JSONException {
 		return createTrackJsonAsFile(track, obfuscate, result, false);
@@ -105,8 +114,8 @@ public class StreamTrackEncoder extends TrackEncoder {
 	public InputStreamWithLength createTrackJsonAsInputStream(Track track, boolean obfuscate, boolean gzip) throws FileNotFoundException, IOException, TrackWithoutMeasurementsException, JSONException {
 		File result;
 		try {
-			result = TemporaryFileManager.instance().createTemporaryFile();
-		} catch (InvalidObjectStateException e) {
+			result = mTemporaryFileManager.createTemporaryFile();
+		} catch (Exception e) {
 			logger.warn(e.getMessage(), e);
 			logger.warn("Creating persistent file on external storage instead!");
 			result = Util.createFileOnExternalStorage(UUID.randomUUID().toString());
