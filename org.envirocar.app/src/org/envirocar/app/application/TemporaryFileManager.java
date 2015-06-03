@@ -25,35 +25,40 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.envirocar.app.Injector;
 import org.envirocar.app.exception.InvalidObjectStateException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.util.Util;
 
 import android.content.Context;
 
+import javax.inject.Inject;
+
+/**
+ *
+ */
 public class TemporaryFileManager {
 
-	private static final Logger logger = Logger.getLogger(TemporaryFileManager.class);
-	
-	private static TemporaryFileManager instance;
-	private Context context;
+    private static final Logger logger = Logger.getLogger(TemporaryFileManager.class);
+
+    @Inject
+    protected Context mContext;
+
 	private List<File> temporaryFiles = new ArrayList<File>();
 
-	private TemporaryFileManager(Context applicationContext) {
-		this.context = applicationContext;
+
+    /**
+     * Constructor that only injects the variables.
+     *
+     * @param context   the application context.
+     */
+	public TemporaryFileManager(Context context) {
+        ((Injector) context).injectObjects(this);
 	}
 
-	public static synchronized void init(Context applicationContext) {
-		instance = new TemporaryFileManager(applicationContext);
-	}
-	
-	public static synchronized TemporaryFileManager instance() throws InvalidObjectStateException {
-		if (instance == null) {
-			throw new InvalidObjectStateException("No instance available!");
-		}
-		return instance;
-	}
-	
+    /**
+     *
+     */
 	public void shutdown() {
 		for (File f : this.temporaryFiles) {
 			try {
@@ -65,7 +70,7 @@ public class TemporaryFileManager {
 	}
 
 	public File createTemporaryFile() {
-		File result = new File(Util.resolveCacheFolder(context), UUID.randomUUID().toString());
+		File result = new File(Util.resolveCacheFolder(mContext), UUID.randomUUID().toString());
 		
 		addTemporaryFile(result);
 		
