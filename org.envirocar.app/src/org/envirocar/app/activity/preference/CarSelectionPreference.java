@@ -122,7 +122,7 @@ public class CarSelectionPreference extends DialogPreference {
     public CarSelectionPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        ((Injector) context).injectObjects(this);
+        ((Injector) context.getApplicationContext()).injectObjects(this);
 
         setDialogLayoutResource(R.layout.car_selection_main);
         setPositiveButtonText(android.R.string.ok);

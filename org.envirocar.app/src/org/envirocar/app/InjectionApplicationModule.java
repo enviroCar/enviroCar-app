@@ -12,6 +12,7 @@ import org.envirocar.app.activity.LoginFragment;
 import org.envirocar.app.activity.RegisterFragment;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.StartStopButtonUtil;
+import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.TermsOfUseManager;
@@ -44,7 +45,8 @@ import dagger.Provides;
                 RegisterFragment.class,
                 SettingsActivity.class,
                 TemporaryFileManager.class,
-                DAOProvider.class
+                DAOProvider.class,
+                CarSelectionPreference.class
         },
         library = true,
         complete = false

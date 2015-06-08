@@ -34,6 +34,11 @@ import android.widget.TextView;
 
 import org.envirocar.app.activity.DashboardFragment;
 import org.envirocar.app.activity.DialogUtil;
+import org.envirocar.app.activity.HelpFragment;
+import org.envirocar.app.activity.ListTracksFragment;
+import org.envirocar.app.activity.LogbookFragment;
+import org.envirocar.app.activity.LoginFragment;
+import org.envirocar.app.activity.SendLogFileFragment;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.StartStopButtonUtil;
 import org.envirocar.app.activity.TroubleshootingFragment;
@@ -63,6 +68,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 
 /**
  * Main UI application that cares about the auto-upload, auto-connect and global
@@ -376,6 +382,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
         prepareNavDrawerItems();
         updateStartStopButton();
         mDrawerList.setAdapter(mNavDrawerAdapter);
+        mDrawerList.setOnItemClickListener(onNavDrawerClickListener);
 
         // Initializes the toggle for the navigation drawer.
         ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(
@@ -507,126 +514,126 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private void openFragment(int position) {
         FragmentManager manager = getFragmentManager();
 
-//        switch (position) {
-//
-//            // Go to the dashboard
-//
-//            case DASHBOARD:
-//
-//                if (isFragmentVisible(DASHBOARD_TAG)) {
-//                    break;
-//                }
-//                Fragment dashboardFragment = getFragmentManager().findFragmentByTag(DASHBOARD_TAG);
-//                if (dashboardFragment == null) {
-//                    dashboardFragment = new DashboardFragment();
-//                }
-//                manager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-//                manager.beginTransaction().replace(R.id.content_frame, dashboardFragment, DASHBOARD_TAG).commit();
-//                break;
-//
-//            //Start the Login activity
-//
-//            case LOGIN:
-//                if (mUserManager.isLoggedIn()) {
-//                    mUserManager.logOut();
-//                    ListTracksFragment listMeasurementsFragment = (ListTracksFragment) getFragmentManager().findFragmentByTag("MY_TRACKS");
-//                    // check if this fragment is initialized
-//                    if (listMeasurementsFragment != null) {
-//                        listMeasurementsFragment.clearRemoteTracks();
-//                    } else {
-//                        //the remote tracks need to be removed in any case
-//                        mDBAdapter.deleteAllRemoteTracks();
-//                    }
-//                    Crouton.makeText(this, R.string.bye_bye, Style.CONFIRM).show();
-//                } else {
-//                    if (isFragmentVisible(LOGIN_TAG)) {
-//                        break;
-//                    }
-//                    LoginFragment loginFragment = new LoginFragment();
-//                    manager.beginTransaction()
-//                            .replace(R.id.content_frame, loginFragment, LOGIN_TAG)
-//                            .addToBackStack(null)
-//                            .commit();
-//                }
-//                break;
-//
-//            // Go to the settings
-//
-//            case SETTINGS:
-//                Intent configIntent = new Intent(this, SettingsActivity.class);
-//                startActivity(configIntent);
-//                break;
-//
-//            // Go to the track list
-//
-//            case MY_TRACKS:
-//
-//                if (isFragmentVisible(MY_TRACKS_TAG)) {
-//                    break;
-//                }
-//                ListTracksFragment listMeasurementFragment = new ListTracksFragment();
-//                manager.beginTransaction().replace(R.id.content_frame, listMeasurementFragment, MY_TRACKS_TAG).addToBackStack(null).commit();
-//                break;
-//
-//            // Start or stop the measurement process
-//
-//            case START_STOP_MEASUREMENT:
-//                if (!navDrawerItems[position].isEnabled()) return;
-//
-//                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
-//
-//                String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY, null);
-//
-//                BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-//                if (adapter != null && adapter.isEnabled() && remoteDevice != null) {
-//                    if (mCarManager.getCar() == null) {
-//                        Intent settingsIntent = new Intent(this, SettingsActivity.class);
-//                        startActivity(settingsIntent);
-//                    } else {
-//                    /*
-//                     * We are good to go. process the state and stuff
-//					 */
-//                        StartStopButtonUtil.OnTrackModeChangeListener trackModeListener = new StartStopButtonUtil.OnTrackModeChangeListener() {
-//                            @Override
-//                            public void onTrackModeChange(int tm) {
-//                                trackMode = tm;
-//                            }
-//                        };
+        switch (position) {
+
+            // Go to the dashboard
+
+            case DASHBOARD:
+
+                if (isFragmentVisible(DASHBOARD_TAG)) {
+                    break;
+                }
+                Fragment dashboardFragment = getFragmentManager().findFragmentByTag(DASHBOARD_TAG);
+                if (dashboardFragment == null) {
+                    dashboardFragment = new DashboardFragment();
+                }
+                manager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                manager.beginTransaction().replace(R.id.content_frame, dashboardFragment, DASHBOARD_TAG).commit();
+                break;
+
+            //Start the Login activity
+
+            case LOGIN:
+                if (mUserManager.isLoggedIn()) {
+                    mUserManager.logOut();
+                    ListTracksFragment listMeasurementsFragment = (ListTracksFragment) getFragmentManager().findFragmentByTag("MY_TRACKS");
+                    // check if this fragment is initialized
+                    if (listMeasurementsFragment != null) {
+                        listMeasurementsFragment.clearRemoteTracks();
+                    } else {
+                        //the remote tracks need to be removed in any case
+                        mDBAdapter.deleteAllRemoteTracks();
+                    }
+                    Crouton.makeText(this, R.string.bye_bye, Style.CONFIRM).show();
+                } else {
+                    if (isFragmentVisible(LOGIN_TAG)) {
+                        break;
+                    }
+                    LoginFragment loginFragment = new LoginFragment();
+                    manager.beginTransaction()
+                            .replace(R.id.content_frame, loginFragment, LOGIN_TAG)
+                            .addToBackStack(null)
+                            .commit();
+                }
+                break;
+
+            // Go to the settings
+
+            case SETTINGS:
+                Intent configIntent = new Intent(this, SettingsActivity.class);
+                startActivity(configIntent);
+                break;
+
+            // Go to the track list
+
+            case MY_TRACKS:
+
+                if (isFragmentVisible(MY_TRACKS_TAG)) {
+                    break;
+                }
+                ListTracksFragment listMeasurementFragment = new ListTracksFragment();
+                manager.beginTransaction().replace(R.id.content_frame, listMeasurementFragment, MY_TRACKS_TAG).addToBackStack(null).commit();
+                break;
+
+            // Start or stop the measurement process
+
+            case START_STOP_MEASUREMENT:
+                if (!navDrawerItems[position].isEnabled()) return;
+
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
+
+                String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY, null);
+
+                BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+                if (adapter != null && adapter.isEnabled() && remoteDevice != null) {
+                    if (mCarManager.getCar() == null) {
+                        Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                        startActivity(settingsIntent);
+                    } else {
+                    /*
+                     * We are good to go. process the state and stuff
+					 */
+                        StartStopButtonUtil.OnTrackModeChangeListener trackModeListener = new StartStopButtonUtil.OnTrackModeChangeListener() {
+                            @Override
+                            public void onTrackModeChange(int tm) {
+                                trackMode = tm;
+                            }
+                        };
 //                        StartStopButtonUtil startStopButtonUtil = new
-//                                createStartStopUtil().processButtonClick(trackModeListener);
-//                    }
-//                } else {
-//                    Intent settingsIntent = new Intent(this, SettingsActivity.class);
-//                    startActivity(settingsIntent);
-//                }
-//                break;
-//            case HELP:
-//
-//                if (isFragmentVisible(HELP_TAG)) {
-//                    break;
-//                }
-//                HelpFragment helpFragment = new HelpFragment();
-//                manager.beginTransaction().replace(R.id.content_frame, helpFragment, HELP_TAG).addToBackStack(null).commit();
-//                break;
-//            case SEND_LOG:
-//
-//                if (isFragmentVisible(SEND_LOG_TAG)) {
-//                    break;
-//                }
-//                SendLogFileFragment logFragment = new SendLogFileFragment();
-//                manager.beginTransaction().replace(R.id.content_frame, logFragment, SEND_LOG_TAG).addToBackStack(null).commit();
-//            default:
-//                break;
-//
-//            case LOGBOOK:
-//
-//                if (isFragmentVisible(LOGBOOK_TAG)) {
-//                    break;
-//                }
-//                LogbookFragment logbookFragment = new LogbookFragment();
-//                manager.beginTransaction().replace(R.id.content_frame, logbookFragment, LOGBOOK_TAG).addToBackStack(null).commit();
-//                break;
-//        }
+//                                StartStopButtonUtil().processButtonClick(trackModeListener);
+                    }
+                } else {
+                    Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                    startActivity(settingsIntent);
+                }
+                break;
+            case HELP:
+
+                if (isFragmentVisible(HELP_TAG)) {
+                    break;
+                }
+                HelpFragment helpFragment = new HelpFragment();
+                manager.beginTransaction().replace(R.id.content_frame, helpFragment, HELP_TAG).addToBackStack(null).commit();
+                break;
+            case SEND_LOG:
+
+                if (isFragmentVisible(SEND_LOG_TAG)) {
+                    break;
+                }
+                SendLogFileFragment logFragment = new SendLogFileFragment();
+                manager.beginTransaction().replace(R.id.content_frame, logFragment, SEND_LOG_TAG).addToBackStack(null).commit();
+            default:
+                break;
+
+            case LOGBOOK:
+
+                if (isFragmentVisible(LOGBOOK_TAG)) {
+                    break;
+                }
+                LogbookFragment logbookFragment = new LogbookFragment();
+                manager.beginTransaction().replace(R.id.content_frame, logbookFragment, LOGBOOK_TAG).addToBackStack(null).commit();
+                break;
+        }
 
         mDrawerLayout.closeDrawer(mDrawerList);
     }

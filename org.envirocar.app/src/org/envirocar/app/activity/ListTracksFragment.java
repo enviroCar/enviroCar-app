@@ -133,9 +133,6 @@ public class ListTracksFragment extends BaseInjectorFragment {
     private View statusProgressBar;
     private AtomicInteger remoteTrackCount = new AtomicInteger(-1);
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-    }
 
     public View onCreateView(android.view.LayoutInflater inflater,
                              android.view.ViewGroup container,
