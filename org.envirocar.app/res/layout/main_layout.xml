@@ -9,7 +9,7 @@
     <include
         android:id="@+id/main_layout_toolbar"
         layout="@layout/toolbar_default"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
     <android.support.v4.widget.DrawerLayout
@@ -21,14 +21,14 @@
             android:id="@+id/content_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-        <!-- The navigation drawer -->
 
+        <!-- The navigation drawer -->
         <ListView
             android:id="@+id/left_drawer"
             android:layout_width="240dp"
             android:layout_height="match_parent"
             android:layout_gravity="start"
-            android:background="@color/green_dark_cario"
+            android:background="@color/blue_light_cario"
             android:cacheColorHint="#00000000"
             android:choiceMode="singleChoice"
             android:divider="@android:color/transparent"

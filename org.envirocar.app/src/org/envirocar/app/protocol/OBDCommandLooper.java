@@ -181,7 +181,6 @@ public class OBDCommandLooper extends HandlerThread {
 
 	/**
 	 * same as OBDCommandLooper#OBDCommandLooper(InputStream, OutputStream, Object, Listener, ConnectionListener, int) with NORM_PRIORITY
-	 * @param outputMutex 
 	 */
 	public OBDCommandLooper(InputStream in, OutputStream out,
 			String deviceName, Listener l, ConnectionListener cl) {
@@ -196,8 +195,6 @@ public class OBDCommandLooper extends HandlerThread {
 	 * 
 	 * @param in the inputStream of the connection
 	 * @param out the outputStream of the connection
-	 * @param inputMutex the mutex object to use when shutting down the streams
-	 * @param outputMutex 
 	 * @param l the listener which receives command responses
 	 * @param cl the connection listener which receives connection state changes
 	 * @param priority thread priority

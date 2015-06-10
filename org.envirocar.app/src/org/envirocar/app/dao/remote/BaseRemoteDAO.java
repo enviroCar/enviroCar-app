@@ -25,6 +25,9 @@ import android.content.Context;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -57,7 +60,7 @@ import org.json.JSONObject;
 import javax.inject.Inject;
 
 
-public abstract class BaseRemoteDAO {
+public class BaseRemoteDAO {
 
     @Inject
     protected Context mContext;
@@ -222,7 +225,15 @@ public abstract class BaseRemoteDAO {
 	 * @throws UnauthorizedException
 	 * @throws ResourceConflictException
 	 */
-	protected HttpResponse executePayloadRequest(HttpEntityEnclosingRequestBase request, CharSequence payload) throws NotConnectedException, UnauthorizedException, ResourceConflictException {
+	protected HttpResponse executePayloadRequest(HttpEntityEnclosingRequestBase request, CharSequence payload) throws NotConnectedException, UnauthorizedException, ResourceConflictException, MalformedURLException {
+		URL url = new URL("");
+		try {
+			URLConnection connection = url.openConnection();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+
 		try {
 			request.setEntity(preparePayload(payload));
 		} catch (UnsupportedEncodingException e) {

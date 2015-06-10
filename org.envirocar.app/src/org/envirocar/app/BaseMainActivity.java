@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -149,11 +150,14 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private BroadcastReceiver deviceDiscoveryStateReceiver;
     private boolean paused;
 
+    private ActionBarDrawerToggle mDrawerToggle;
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+//        getApplicationContext().getCac
 
         // Set the content view of the application
         setContentView(R.layout.main_layout);
@@ -262,6 +266,12 @@ public class BaseMainActivity extends BaseInjectorActivity {
     }
 
     @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
     }
@@ -292,6 +302,12 @@ public class BaseMainActivity extends BaseInjectorActivity {
         bindToBackgroundService();
 
         bindToDeviceInRangeService();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
     private void checkAffectingAnnouncements() {
@@ -385,7 +401,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
         mDrawerList.setOnItemClickListener(onNavDrawerClickListener);
 
         // Initializes the toggle for the navigation drawer.
-        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(
+        mDrawerToggle = new ActionBarDrawerToggle(
                 this, mDrawerLayout, mToolbar, R.string.open_drawer,
                 R.string.close_drawer) {
 
@@ -395,8 +411,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 super.onDrawerOpened(drawerView);
             }
         };
-        actionBarDrawerToggle.syncState();
-        mDrawerLayout.setDrawerListener(actionBarDrawerToggle);
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         // Enables the home button.
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

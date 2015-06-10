@@ -13,10 +13,12 @@ import org.envirocar.app.activity.RegisterFragment;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.StartStopButtonUtil;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
+import org.envirocar.app.activity.preference.SelectBluetoothPreference;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UserManager;
+import org.envirocar.app.bluetooth.service.BluetoothHandler;
 import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapter;
@@ -46,22 +48,12 @@ import dagger.Provides;
                 SettingsActivity.class,
                 TemporaryFileManager.class,
                 DAOProvider.class,
-                CarSelectionPreference.class
+                CarSelectionPreference.class,
+                SelectBluetoothPreference.class,
+                BluetoothHandler.class
         },
         library = true,
         complete = false
-//        injects = {
-//                BaseMainActivity.class,
-//                TermsOfUseManager.class,
-//                CarManager.class,
-//                DashboardFragment.class,
-//                ListTracksFragment.class,
-//                LogbookFragment.class,
-//                LoginFragment.class,
-//                RegisterFragment.class,
-//                SettingsActivity.class,
-//                StartStopButtonUtil.class,
-//        }
 )
 public class InjectionApplicationModule {
     private static final Logger LOGGER = Logger.getLogger(InjectionApplicationModule.class);
@@ -220,6 +212,12 @@ public class InjectionApplicationModule {
     @Singleton
     NotificationHandler provideNotificationHandler() {
         return new NotificationHandler(mAppContext);
+    }
+
+    @Provides
+    @Singleton
+    BluetoothHandler provideBluetoothHandler(){
+        return new BluetoothHandler(mAppContext);
     }
 
 }

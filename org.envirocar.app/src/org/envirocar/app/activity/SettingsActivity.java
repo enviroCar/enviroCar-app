@@ -69,11 +69,65 @@ public class SettingsActivity extends PreferenceActivity {
 
     private Preference about;
 
+
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        addPreferencesFromResource(R.xml.preferences);
+        initializeBluetoothList();
+        ((Injector) getApplicationContext()).injectObjects(this);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+
+//        this.getActionBar().setDisplayHomeAsUpEnabled(false);
+//        this.getActionBar().setHomeButtonEnabled(false);
+
+        about = findPreference("about_version");
+        about.setSummary(Util.getVersionString(getApplicationContext()));
+        about.setOnPreferenceClickListener(new OnPreferenceClickListener() {
+
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(R.string.envirocar_org)));
+                startActivity(i);
+                return true;
+            }
+        });
+    }
+
+    /**
+     * Called when activity leaves the foreground.
+     */
+    protected void onStop() {
+        super.onStop();
+        finish();
+    }
+
+    public static String[] resolveIndividualKeys() {
+        // TODO
+//        UserManager o = mUserManager.instance();
+//        try {
+//            Method m = o.getClass().getDeclaredMethod("getUserPreferences", new Class<?>[0]);
+//            m.setAccessible(true);
+//            SharedPreferences p = (SharedPreferences) m.invoke(o, new Object[0]);
+//            m.setAccessible(false);
+//            String[] result = new String[0];
+//            result = p.getAll().keySet().toArray(result);
+//            return result;
+//        } catch (Exception e) {
+//        }
+        return new String[0];
+    }
+
     /**
      * Helper method that cares about the bluetooth list
      */
 
-    @SuppressWarnings("deprecation")
     private void initializeBluetoothList() {
 
         // Init Lists
@@ -162,58 +216,5 @@ public class SettingsActivity extends PreferenceActivity {
         bluetoothDeviceList.setEntryValues(entryValues
                 .toArray(new CharSequence[0]));
 
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        addPreferencesFromResource(R.xml.preferences);
-        initializeBluetoothList();
-        ((Injector) getApplicationContext()).injectObjects(this);
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-
-//        this.getActionBar().setDisplayHomeAsUpEnabled(false);
-//        this.getActionBar().setHomeButtonEnabled(false);
-
-        about = findPreference("about_version");
-        about.setSummary(Util.getVersionString(getApplicationContext()));
-        about.setOnPreferenceClickListener(new OnPreferenceClickListener() {
-
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(getResources().getString(R.string.envirocar_org)));
-                startActivity(i);
-                return true;
-            }
-        });
-    }
-
-    /**
-     * Called when activity leaves the foreground.
-     */
-    protected void onStop() {
-        super.onStop();
-        finish();
-    }
-
-    public static String[] resolveIndividualKeys() {
-        // TODO
-//        UserManager o = mUserManager.instance();
-//        try {
-//            Method m = o.getClass().getDeclaredMethod("getUserPreferences", new Class<?>[0]);
-//            m.setAccessible(true);
-//            SharedPreferences p = (SharedPreferences) m.invoke(o, new Object[0]);
-//            m.setAccessible(false);
-//            String[] result = new String[0];
-//            result = p.getAll().keySet().toArray(result);
-//            return result;
-//        } catch (Exception e) {
-//        }
-        return new String[0];
     }
 }

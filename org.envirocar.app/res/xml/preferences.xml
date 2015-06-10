@@ -2,6 +2,10 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <PreferenceCategory android:title="@string/pref_obd_settings" >
+        <org.envirocar.app.activity.preference.SelectBluetoothPreference
+            android:key="ec_select_bluetooth"
+            android:title="bluetooth"
+            />
         <ListPreference
             android:dialogTitle="@string/pref_prompt_chose_adapter"
             android:key="bluetooth_list"

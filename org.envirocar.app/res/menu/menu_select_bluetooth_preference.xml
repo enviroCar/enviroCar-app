@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto" >
+
+    <item android:id="@+id/menu_action_search_bluetooth_devices"
+          android:title="Scan"
+          android:icon="@drawable/ic_action_device_access_bluetooth_searching"
+          app:showAsAction="never" />
+</menu>
