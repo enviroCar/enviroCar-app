@@ -26,6 +26,35 @@
 
     </android.support.v7.widget.Toolbar>
 
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/bluetooth_selection_preference_toolbar_bt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/blue_light_cario">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:text="Bluetooth On"
+            android:layout_weight="1"
+            android:textColor="#F2F2F2"
+            android:textSize="16sp"/>
+
+        <Switch
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="10dp"
+            android:layout_marginLeft="10dp"/>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.Toolbar>
+
 
     <TextView
         android:id="@+id/bluetooth_selection_preference_paired_devices_text"
@@ -72,6 +101,15 @@
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="10dp"/>
+
+    <TextView
+        android:id="@+id/bluetooth_selection_preference_text_no_device_found"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        android:text="Kein Bleutooth-Gerät in der Nähe gefunden"
+        android:visibility="gone"/>
 
     <RelativeLayout
         android:layout_width="match_parent"

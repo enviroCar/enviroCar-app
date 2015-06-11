@@ -11,9 +11,9 @@ import org.envirocar.app.activity.LogbookFragment;
 import org.envirocar.app.activity.LoginFragment;
 import org.envirocar.app.activity.RegisterFragment;
 import org.envirocar.app.activity.SettingsActivity;
-import org.envirocar.app.activity.StartStopButtonUtil;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
-import org.envirocar.app.activity.preference.SelectBluetoothPreference;
+import org.envirocar.app.fragments.SettingsFragment;
+import org.envirocar.app.view.SelectBluetoothPreference;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.TermsOfUseManager;
@@ -50,7 +50,8 @@ import dagger.Provides;
                 DAOProvider.class,
                 CarSelectionPreference.class,
                 SelectBluetoothPreference.class,
-                BluetoothHandler.class
+                BluetoothHandler.class,
+                SettingsFragment.class
         },
         library = true,
         complete = false

@@ -6,8 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Handler;
-import android.os.Message;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
@@ -29,31 +27,10 @@ import javax.inject.Inject;
  */
 public class BluetoothHandler {
 
-    private static final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case BluetoothConstants.MESSAGE_WRITE:
 
-                    break;
-                case BluetoothConstants.MESSAGE_READ:
-
-                    break;
-                case BluetoothConstants.MESSAGE_DEVICE_NAME:
-
-                    break;
-                case BluetoothConstants.MESSAGE_STATE_CHANGE:
-
-                    break;
-                default:
-                    break;
-            }
-
-            super.handleMessage(msg);
-        }
-    };
     private final List<BluetoothConnectionListener> mConnectionListener = new
             ArrayList<BluetoothConnectionListener>();
+
     // Injected variables.
     @Inject
     protected Context mContext;
@@ -64,7 +41,6 @@ public class BluetoothHandler {
 
     // The bluetooth adapter
     private BluetoothAdapter mBluetoothAdapter;
-
 
     private String mDeviceName;
     private String mDeviceAddress;
@@ -100,6 +76,7 @@ public class BluetoothHandler {
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 
+        // Register a receiver.
         mContext.registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -118,12 +95,12 @@ public class BluetoothHandler {
                         callback.onActionDeviceDiscovered(device);
                     }
 
-                } else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)){
+                } else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
                     callback.onActionDeviceDiscoveryStarted();
-                } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)){
+                } else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                     callback.onActionDeviceDiscoveryFinished();
                     mContext.unregisterReceiver(this);
-                } else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)){
+                } else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
                     // Nothing to do yet
                 }
             }
@@ -132,14 +109,14 @@ public class BluetoothHandler {
         mBluetoothAdapter.startDiscovery();
     }
 
-    public void stopBluetoothDeviceDiscovery(){
+    public void stopBluetoothDeviceDiscovery() {
         // Cancel discovery if it is discovering.
-        if(mBluetoothAdapter.isDiscovering()){
+        if (mBluetoothAdapter.isDiscovering()) {
             mBluetoothAdapter.cancelDiscovery();
         }
     }
 
-    public Set<BluetoothDevice> getPairedBluetoothDevices(){
+    public Set<BluetoothDevice> getPairedBluetoothDevices() {
         return mBluetoothAdapter.getBondedDevices();
     }
 
@@ -181,10 +158,11 @@ public class BluetoothHandler {
     /**
      * Initiates the pairing process to a given {@link BluetoothDevice}.
      *
-     * @param device    the device to pair to.
-     * @param callback  the callback listener.
+     * @param device   the device to pair to.
+     * @param callback the callback listener.
      */
-    public void pairDevice(BluetoothDevice device, final BluetoothDevicePairingCallback callback) {
+    public void pairDevice(final BluetoothDevice device,
+                           final BluetoothDevicePairingCallback callback) {
 
         // Register a new BroadcastReceiver for BOND_STATE_CHANGED actions.
         IntentFilter intent = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
@@ -204,9 +182,12 @@ public class BluetoothHandler {
 
                     if (state == BluetoothDevice.BOND_BONDED &&
                             prevState == BluetoothDevice.BOND_BONDING) {
-                        Toast.makeText(mContext, "Paired", Toast.LENGTH_LONG).show();
+                        // The device has been successfully paired, inform the callback about
+                        // the successful pairing.
+                        callback.onDevicePaired(device);
                     } else if (state == BluetoothDevice.BOND_NONE && prevState ==
                             BluetoothDevice.BOND_BONDED) {
+                        // The device has been successfully unpaired, inform the callback about this
                         Toast.makeText(mContext, "Unpaired", Toast.LENGTH_LONG).show();
                     }
                 }
@@ -221,10 +202,10 @@ public class BluetoothHandler {
             boolean value = (boolean) method.invoke(device, (Object[]) null);
 
             // Check error.
-            if(value)
-                callback.onPairingStarted();
+            if (value)
+                callback.onPairingStarted(device);
             else
-                callback.onPairingError();
+                callback.onPairingError(device);
 
         } catch (InvocationTargetException e) {
             e.printStackTrace();
@@ -252,16 +233,51 @@ public class BluetoothHandler {
         }
     }
 
+    /**
+     * Callback interface for the process of pairing with a given device.
+     */
     public interface BluetoothDevicePairingCallback {
-        void onPairingStarted();
-        void onPairingError();
+        /**
+         * Called when the pairing process has been started.
+         *
+         * @param device the device to pair to.
+         */
+        void onPairingStarted(BluetoothDevice device);
+
+        /**
+         * Called when the device has been successfully paired.
+         *
+         * @param device the successfully paired device.
+         */
+        void onDevicePaired(BluetoothDevice device);
+
+        /**
+         * Called when the start of pairing has thrown an error (e.g., Bluetooth is disabled).
+         *
+         * @param device the device to which the pairing was intended.
+         */
+        void onPairingError(BluetoothDevice device);
     }
 
+    /**
+     * Callback interface for the bluetooth discovery of other devices.
+     */
     public interface BluetoothDeviceDiscoveryCallback {
+        /**
+         * Called when the discovery has been started.
+         */
         void onActionDeviceDiscoveryStarted();
 
+        /**
+         * Called when the discovery has been finished.
+         */
         void onActionDeviceDiscoveryFinished();
 
+        /**
+         * Called when a new unpaired device has been discovered.
+         *
+         * @param device the newly discovered device that is not already paired.
+         */
         void onActionDeviceDiscovered(BluetoothDevice device);
     }
 

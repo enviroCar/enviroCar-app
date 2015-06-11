@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <PreferenceCategory android:title="@string/pref_obd_settings" >
-        <org.envirocar.app.activity.preference.SelectBluetoothPreference
+        <org.envirocar.app.view.SelectBluetoothPreference
             android:key="ec_select_bluetooth"
             android:title="bluetooth"
             />

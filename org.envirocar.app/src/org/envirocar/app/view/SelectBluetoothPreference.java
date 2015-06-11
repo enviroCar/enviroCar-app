@@ -1,5 +1,6 @@
-package org.envirocar.app.activity.preference;
+package org.envirocar.app.view;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
@@ -10,7 +11,6 @@ import android.util.AttributeSet;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -21,8 +21,9 @@ import com.squareup.otto.Bus;
 import org.envirocar.app.Injector;
 import org.envirocar.app.R;
 import org.envirocar.app.bluetooth.service.BluetoothHandler;
+import org.envirocar.app.view.bluetooth.BluetoothDeviceDialogFragment;
+import org.envirocar.app.view.bluetooth.BluetoothDeviceListAdapter;
 
-import java.util.ArrayList;
 import java.util.Set;
 
 import javax.inject.Inject;
@@ -39,10 +40,8 @@ public class SelectBluetoothPreference extends DialogPreference {
     protected BluetoothHandler mBluetoothHandler;
 
     // Newly discovered devices
-    private ArrayAdapter<String> mNewDevicesArrayAdapter;
-    private ArrayAdapter<String> mPairedDevicesAdapter;
-    private ArrayList<BluetoothDevice> mNewBluetoothDevices;
-    private ArrayList<BluetoothDevice> mPairedDevices;
+    private BluetoothDeviceListAdapter mNewDevicesArrayAdapter;
+    private BluetoothDeviceListAdapter mPairedDevicesAdapter;
 
     // Views for the already paired devices.
     private TextView mPairedDevicesTextView;
@@ -53,7 +52,6 @@ public class SelectBluetoothPreference extends DialogPreference {
     private ListView mNewDevicesListView;
 
     private ProgressBar mProgressBar;
-
 
     /**
      * Constructor.
@@ -66,9 +64,13 @@ public class SelectBluetoothPreference extends DialogPreference {
         ((Injector) context.getApplicationContext()).injectObjects(this);
 
         setDialogLayoutResource(R.layout.bluetooth_selection_preference);
-
     }
 
+    /**
+     * Binds views in the content View of the dialog to data.
+     *
+     * @param view the content view of the dialog.
+     */
     @Override
     protected void onBindDialogView(final View view) {
         super.onBindDialogView(view);
@@ -82,22 +84,32 @@ public class SelectBluetoothPreference extends DialogPreference {
                 .bluetooth_selection_preference_paired_devices_text);
         mPairedDevicesListView = (ListView) view.findViewById(R.id
                 .bluetooth_selection_preference_paired_devices_list);
+        mNewDevicesTextView = (TextView) view.findViewById(R.id
+                .bluetooth_selection_preference_available_devices_text);
         mNewDevicesListView = (ListView) view.findViewById(R.id
                 .bluetooth_selection_preference_available_devices_list);
 
         // Initialize the array adapter for both list views
-        mNewDevicesArrayAdapter = new ArrayAdapter<String>(getContext(),
-                R.layout.bluetooth_selection_preference_device_name);
-        mPairedDevicesAdapter = new ArrayAdapter<String>(getContext(),
-                R.layout.bluetooth_selection_preference_device_name);
+        mNewDevicesArrayAdapter = new BluetoothDeviceListAdapter(getContext(),
+                R.layout.bluetooth_selection_preference_device_name, false,
+                new BluetoothDeviceListAdapter.BluetoothDeviceListButtonListener() {
+            @Override
+            public void onButtonClicked(BluetoothDevice device) {
 
+            }
+        });
+        mPairedDevicesAdapter = new BluetoothDeviceListAdapter(getContext(),
+                R.layout.bluetooth_selection_preference_device_name, true,
+                new BluetoothDeviceListAdapter.BluetoothDeviceListButtonListener() {
+            @Override
+            public void onButtonClicked(BluetoothDevice device) {
 
-        mNewBluetoothDevices = new ArrayList<>();
-        mPairedDevices = new ArrayList<>();
+            }
+        });
 
         // Set the adapter for both list views
-        mPairedDevicesListView.setAdapter(mPairedDevicesAdapter);
         mNewDevicesListView.setAdapter(mNewDevicesArrayAdapter);
+        mPairedDevicesListView.setAdapter(mPairedDevicesAdapter);
 
         // Initialize the toolbar and the menu entry.
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.bluetooth_selection_preference_toolbar);
@@ -116,29 +128,56 @@ public class SelectBluetoothPreference extends DialogPreference {
             }
         });
 
-
+        // Updates the list of already paired devices.
         updatePairedDevicesList();
 
         mNewDevicesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                mBluetoothHandler.pairDevice(mNewBluetoothDevices.get(position), new BluetoothHandler.BluetoothDevicePairingCallback() {
-                    @Override
-                    public void onPairingStarted() {
-                        Toast.makeText(getContext(), "Pairing Started", Toast.LENGTH_LONG).show();
-                    }
+                mBluetoothHandler.pairDevice(mNewDevicesArrayAdapter.getItem(position),
+                        new BluetoothHandler.BluetoothDevicePairingCallback() {
 
-                    @Override
-                    public void onPairingError() {
-                        Toast.makeText(getContext(), "Pairing Error", Toast.LENGTH_LONG).show();
-                    }
-                });
+                            @Override
+                            public void onPairingStarted(BluetoothDevice device) {
+                                Toast.makeText(getContext(), "Pairing Started",
+                                        Toast.LENGTH_LONG).show();
+                            }
+
+                            @Override
+                            public void onPairingError(BluetoothDevice device) {
+                                Toast.makeText(getContext(), "Pairing Error",
+                                        Toast.LENGTH_LONG).show();
+                            }
+
+                            @Override
+                            public void onDevicePaired(BluetoothDevice device) {
+                                Toast.makeText(getContext(), "Paired", Toast.LENGTH_LONG).show();
+                                mNewDevicesArrayAdapter.remove(device);
+                                mPairedDevicesAdapter.add(device);
+                            }
+                        });
             }
         });
 
+        mPairedDevicesListView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                BluetoothDeviceDialogFragment.newInstance(
+                        mPairedDevicesAdapter.getItem(position))
+                        .show(((Activity) getContext()).getFragmentManager(), "wurst");
+            }
+        });
     }
 
+    /**
+     * Initiates the discovery of other Bluetooth devices.
+     */
     private void startBluetoothDiscovery() {
+        // Before starting a fresh discovery of bluetooth devices, clear
+        // the current adapter.
+        mNewDevicesArrayAdapter.clear();
+
+        // Start the discovery.
         mBluetoothHandler.startBluetoothDeviceDiscovery(new BluetoothHandler
                 .BluetoothDeviceDiscoveryCallback() {
             @Override
@@ -150,7 +189,7 @@ public class SelectBluetoothPreference extends DialogPreference {
 
             @Override
             public void onActionDeviceDiscoveryFinished() {
-                mProgressBar.setVisibility(View.INVISIBLE);
+                mProgressBar.setVisibility(View.GONE);
                 Toast.makeText(getContext(), "Discovery Finished!", Toast
                         .LENGTH_LONG).show();
             }
@@ -159,10 +198,8 @@ public class SelectBluetoothPreference extends DialogPreference {
             public void onActionDeviceDiscovered(BluetoothDevice device) {
                 // if the discovered device is not already part of the list, then
                 // add it to the list and add an entry to the array adapter.
-                if (!mNewBluetoothDevices.contains(device)) {
-                    mNewBluetoothDevices.add(device);
-                    mNewDevicesArrayAdapter.add(device.getName() + "\n" + device
-                            .getAddress());
+                if (!mPairedDevicesAdapter.contains(device)) {
+                    mNewDevicesArrayAdapter.add(device);
                     Toast.makeText(getContext(), "Device Found!", Toast
                             .LENGTH_LONG).show();
                 }
@@ -178,12 +215,7 @@ public class SelectBluetoothPreference extends DialogPreference {
         Set<BluetoothDevice> pairedDevices = mBluetoothHandler.getPairedBluetoothDevices();
 
         // For each device, add an entry to the list view.
-        for (BluetoothDevice device : pairedDevices) {
-            if (!mPairedDevices.contains(device)) {
-                mPairedDevices.add(device);
-                mPairedDevicesAdapter.add(device.getName() + "\n" + device.getAddress());
-            }
-        }
+        mPairedDevicesAdapter.addAll(pairedDevices);
 
         // Make the paired devices textview visible if there are paired devices
         if (!pairedDevices.isEmpty()) {

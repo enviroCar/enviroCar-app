@@ -54,6 +54,7 @@ import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.application.service.DeviceInRangeServiceInteractor;
 import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.dao.exception.AnnouncementsRetrievalException;
+import org.envirocar.app.fragments.SettingsFragment;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Announcement;
 import org.envirocar.app.storage.DbAdapter;
@@ -103,6 +104,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private static final String TROUBLESHOOTING_TAG = "TROUBLESHOOTING";
     private static final String SEND_LOG_TAG = "SEND_LOG";
     private static final String LOGBOOK_TAG = "LOGBOOK";
+    private static final String SETTINGS_TAG = "SETTINGS";
+
     // Injected variables
     @Inject
     protected UserManager mUserManager;
@@ -116,6 +119,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected TrackHandler mTrackHandler;
     @Inject
     protected DAOProvider mDAOProvider;
+
 
     // REMOVE
     @Inject
@@ -151,7 +155,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private boolean paused;
 
     private ActionBarDrawerToggle mDrawerToggle;
-
 
 
     @Override
@@ -575,8 +578,12 @@ public class BaseMainActivity extends BaseInjectorActivity {
             // Go to the settings
 
             case SETTINGS:
-                Intent configIntent = new Intent(this, SettingsActivity.class);
-                startActivity(configIntent);
+//                Intent configIntent = new Intent(this, SettingsActivity.class);
+//                startActivity(configIntent);
+
+                SettingsFragment fragment = new SettingsFragment();
+                manager.beginTransaction().replace(R.id.content_frame, fragment, SETTINGS_TAG)
+                        .addToBackStack(null).commit();
                 break;
 
             // Go to the track list
@@ -587,7 +594,10 @@ public class BaseMainActivity extends BaseInjectorActivity {
                     break;
                 }
                 ListTracksFragment listMeasurementFragment = new ListTracksFragment();
-                manager.beginTransaction().replace(R.id.content_frame, listMeasurementFragment, MY_TRACKS_TAG).addToBackStack(null).commit();
+                manager.beginTransaction()
+                        .replace(R.id.content_frame, listMeasurementFragment, MY_TRACKS_TAG)
+                        .addToBackStack(null)
+                        .commit();
                 break;
 
             // Start or stop the measurement process
