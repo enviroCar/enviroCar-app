@@ -13,7 +13,7 @@ import org.envirocar.app.activity.RegisterFragment;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.fragments.SettingsFragment;
-import org.envirocar.app.view.SelectBluetoothPreference;
+import org.envirocar.app.view.preferences.BluetoothPairingPreference;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.TermsOfUseManager;
@@ -23,6 +23,7 @@ import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
+import org.envirocar.app.view.preferences.SelectBluetoothPreference;
 
 import javax.inject.Singleton;
 
@@ -49,9 +50,10 @@ import dagger.Provides;
                 TemporaryFileManager.class,
                 DAOProvider.class,
                 CarSelectionPreference.class,
-                SelectBluetoothPreference.class,
+                BluetoothPairingPreference.class,
                 BluetoothHandler.class,
-                SettingsFragment.class
+                SettingsFragment.class,
+                SelectBluetoothPreference.class
         },
         library = true,
         complete = false
@@ -62,11 +64,15 @@ public class InjectionApplicationModule {
     private final Application mApplication;
     private final Context mAppContext;
 
+    /**
+     * Constructor.
+     *
+     * @param application   the current application.
+     */
     public InjectionApplicationModule(Application application) {
         this.mApplication = application;
         this.mAppContext = application.getApplicationContext();
     }
-
 
     /**
      * Provides the Application of the App.

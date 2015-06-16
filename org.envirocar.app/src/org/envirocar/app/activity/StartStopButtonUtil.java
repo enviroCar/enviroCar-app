@@ -306,7 +306,7 @@ public class StartStopButtonUtil {
                 defineButtonContents(button, true, R.drawable.av_play, preferences.getString(SettingsActivity.BLUETOOTH_NAME, ""));
             }
         } else {
-            defineButtonContents(button, false, R.drawable.not_available, R.string.pref_summary_chose_adapter);
+            defineButtonContents(button, false, R.drawable.not_available, R.string.pref_bluetooth_select_adapter_summary);
         }
     }
 

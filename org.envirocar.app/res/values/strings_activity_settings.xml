@@ -2,13 +2,19 @@
 
     <!--<string name="title_activity_settings">Settings</string>-->
 
+    <string name="pref_bluetooth_pairing">Bluetooth Pairing</string>
+    <string name="pref_bluetooth_pairing_summery">Manage the pairings to Bluetooth devices.</string>
+
+    <string name="pref_bluetooth_select_adapter">Choose OBD adapter</string>
+    <string name="pref_bluetooth_select_adapter_summary">Please select an OBD adapter</string>
+    <string name="pref_bluetooth_select_adapter_title">Select OBD adapter</string>
+
+
 	<string name="pref_obd_settings">OBD Settings</string>
 	<string name="pref_car_settings">Vehicle Settings</string>
 	<string name="pref_general_settings">General Settings</string>
 	
-	<string name="pref_prompt_chose_adapter">Choose OBD adapter</string>
-	<string name="pref_summary_chose_adapter">Please select an OBD adapter</string>
-	<string name="pref_title_chose_adapter">Select OBD adapter</string>
+
 	
     <string name="pref_upload_only_in_wifi">Upload only in WiFi</string>
     <string name="pref_always_upload">Always upload tracks</string>

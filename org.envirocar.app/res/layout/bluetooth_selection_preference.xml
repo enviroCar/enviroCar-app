@@ -1,148 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+              android:layout_height="match_parent">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/bluetooth_selection_preference_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/blue_dark_cario">
-
-        <!--<ImageView-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_marginLeft="5dp"-->
-        <!--android:src="@android:drawable/stat_sys_data_bluetooth"/>-->
+        android:background="@color/blue_dark_cario"
+        android:navigationIcon="@drawable/ic_bluetooth_white_24dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:text="Bluetooth Devices"
+            android:text="@string/pref_bluetooth_select_adapter_title"
             android:textColor="#F2F2F2"
             android:textSize="20sp"/>
 
     </android.support.v7.widget.Toolbar>
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/bluetooth_selection_preference_toolbar_bt"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/blue_light_cario">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:text="Bluetooth On"
-            android:layout_weight="1"
-            android:textColor="#F2F2F2"
-            android:textSize="16sp"/>
-
-        <Switch
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:layout_marginLeft="10dp"/>
-
-        </LinearLayout>
-
-    </android.support.v7.widget.Toolbar>
-
-
-    <TextView
-        android:id="@+id/bluetooth_selection_preference_paired_devices_text"
-        style="@style/Base.TextAppearance.AppCompat.SearchResult.Title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
-        android:text="Paired Devices"
-        android:textColor="@color/blue_dark_cario"
-        android:textSize="14sp"
-        android:visibility="gone"/>
-
-
     <ListView
-        android:id="@+id/bluetooth_selection_preference_paired_devices_list"
+        android:id="@+id/bluetooth_selection_preference_list"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="10dp"/>
-
-
-    <TextView
-        android:id="@+id/bluetooth_selection_preference_available_devices_text"
-        style="@style/Base.TextAppearance.AppCompat.SearchResult.Title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="5dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
-        android:text="Available"
-        android:textColor="@color/blue_dark_cario"
-        android:textSize="14sp"/>
-
-
-    <ListView
-        android:id="@+id/bluetooth_selection_preference_available_devices_list"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="10dp"/>
-
-    <TextView
-        android:id="@+id/bluetooth_selection_preference_text_no_device_found"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="10dp"
-        android:text="Kein Bleutooth-Gerät in der Nähe gefunden"
-        android:visibility="gone"/>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerInParent="true">
-
-            <ProgressBar
-                android:id="@+id/bluetooth_selection_preference_search_devices_progressbar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:maxHeight="30dp"
-                android:minHeight="10dp"
-                android:visibility="invisible"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Searching..."
-                android:visibility="gone"/>
-
-        </LinearLayout>
-
-
-    </RelativeLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:choiceMode="singleChoice"/>
 
 </LinearLayout>

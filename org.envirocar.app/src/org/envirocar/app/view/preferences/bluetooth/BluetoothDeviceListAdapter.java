@@ -1,4 +1,4 @@
-package org.envirocar.app.view.bluetooth;
+package org.envirocar.app.view.preferences.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,13 +16,6 @@ import org.envirocar.app.R;
  */
 public class BluetoothDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
 
-    /**
-     *
-     */
-    public interface BluetoothDeviceListButtonListener{
-        void onButtonClicked(BluetoothDevice device);
-    }
-
 //    private final BluetoothDeviceListButtonListener mListener;
 
     /**
@@ -32,8 +24,7 @@ public class BluetoothDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
      * @param context  The context of the current scope.
      * @param resource The resource
      */
-    public BluetoothDeviceListAdapter(Context context, int resource, boolean pairedList,
-                                      BluetoothDeviceListButtonListener listener) {
+    public BluetoothDeviceListAdapter(Context context, int resource, boolean pairedList) {
         super(context, resource);
 
         // Set the listener
@@ -56,7 +47,7 @@ public class BluetoothDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
         // Check if an existing view is being reused, otherwise inflate the view
         if (convertView == null) {
             convertView = LayoutInflater.from(getContext()).inflate(R.layout
-                    .bluetooth_selection_preference_devices_list_entry, parent, false);
+                    .bluetooth_pairing_preference_devices_list_entry, parent, false);
         }
 
         // Lookup views

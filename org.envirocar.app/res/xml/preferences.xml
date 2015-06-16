@@ -2,15 +2,18 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <PreferenceCategory android:title="@string/pref_obd_settings" >
-        <org.envirocar.app.view.SelectBluetoothPreference
+        <org.envirocar.app.view.preferences.BluetoothPairingPreference
             android:key="ec_select_bluetooth"
-            android:title="bluetooth"
-            />
-        <ListPreference
-            android:dialogTitle="@string/pref_prompt_chose_adapter"
+            android:title="@string/pref_bluetooth_pairing"
+            android:summary="@string/pref_bluetooth_pairing_summery" />
+        <org.envirocar.app.view.preferences.SelectBluetoothPreference
             android:key="bluetooth_list"
-            android:summary="@string/pref_summary_chose_adapter"
-            android:title="@string/pref_title_chose_adapter" />
+            android:summary="@string/pref_bluetooth_select_adapter_summary"
+            android:title="@string/pref_bluetooth_select_adapter_title" />
+        <!--<ListPreference-->
+            <!--android:key="bluetooth_list"-->
+            <!--android:summary="@string/pref_bluetooth_select_adapter_summary"-->
+            <!--android:title="@string/pref_bluetooth_select_adapter_title" />-->
     </PreferenceCategory>
     
     <PreferenceCategory android:title="@string/pref_car_settings" >
