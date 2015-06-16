@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.SwitchPreference;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +38,12 @@ public class SettingsFragment extends PreferenceFragment {
     protected Bus mBus;
     @Inject
     protected BluetoothHandler mBluetoothHandler;
+
+    // Preferences.
+    private SwitchPreference mBluetoothIsActivePreference;
+    private Preference mBluetoothPairingPreference;
     private Preference mBluetoothDeviceListPreference;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,6 +56,18 @@ public class SettingsFragment extends PreferenceFragment {
 
         // Register this object on the event bus.
         mBus.register(this);
+
+        // Get the switch preference indicating the enabled bluetooth setting.
+        mBluetoothIsActivePreference = (SwitchPreference) getPreferenceScreen().findPreference
+                (PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_ENABLER);
+        // Get the bluetooth pairing preference if possible
+        mBluetoothPairingPreference = getPreferenceScreen().findPreference(PreferencesConstants
+                .PREFERENCE_TAG_BLUETOOTH_PAIRING);
+        // Get the bluetooth preference if possible
+        mBluetoothDeviceListPreference = getPreferenceScreen()
+                .findPreference(PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_LIST);
+
+        updateBluetoothPreferences(mBluetoothHandler.isBluetoothEnabled());
     }
 
     @Override
@@ -66,10 +84,21 @@ public class SettingsFragment extends PreferenceFragment {
             }
         });
 
-        // Get the bluetooth preference if possible
-        mBluetoothDeviceListPreference = getPreferenceScreen()
-                .findPreference(PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_LIST);
-        updateBluetoothList(mBluetoothHandler.isBluetoothEnabled());
+        mBluetoothIsActivePreference.setOnPreferenceChangeListener(
+                new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        boolean isOn = (boolean) newValue;
+                        if (isOn) {
+                            mBluetoothHandler.enableBluetooth(getActivity());
+                            return false;
+                        } else {
+                            mBluetoothHandler.disableBluetooth(getActivity());
+                        }
+                        return true;
+                    }
+                });
+//        mBluetoothDeviceListPreference.
 
         // Listen for clicks on the list
         mBluetoothDeviceListPreference
@@ -91,7 +120,7 @@ public class SettingsFragment extends PreferenceFragment {
     @Subscribe
     public void onBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
         LOGGER.debug("onBluetoothStateChangedEvent(): " + event.toString());
-        updateBluetoothList(event.isBluetoothEnabled);
+        updateBluetoothPreferences(event.isBluetoothEnabled);
     }
 
     @Subscribe
@@ -111,19 +140,39 @@ public class SettingsFragment extends PreferenceFragment {
     }
 
     /**
-     * Helper method that cares about the bluetooth list
+     * Helper method that cares about the bluetooth lists
      */
-    private void updateBluetoothList(boolean isEnabled) {
+    private void updateBluetoothPreferences(boolean isEnabled) {
+
         // No Bluetooth available...
         if (!isEnabled) {
+
+            // Set the switch for enabling bluetooth stuff accordingly.
+            mBluetoothIsActivePreference.setChecked(isEnabled);
+            mBluetoothIsActivePreference.setTitle(R.string.pref_bluetooth_switch_isdisabled);
+
+            // Update the pairing list preference
+            mBluetoothPairingPreference.setEnabled(false);
+            mBluetoothPairingPreference.setSummary(R.string.pref_bluetooth_disabled);
+
+            // Update the BluetoothDeviceList
             mBluetoothDeviceListPreference.setEnabled(false);
-            mBluetoothDeviceListPreference.setSummary(
-                    R.string.pref_bluetooth_disabled);
+            mBluetoothDeviceListPreference.setSummary(R.string.pref_bluetooth_disabled);
         }
         // Bluetooth is available...
         else {
+
+            // Set the switch for enabling bluetooth stuff accordingly.
+            mBluetoothIsActivePreference.setChecked(isEnabled);
+            mBluetoothIsActivePreference.setTitle(R.string.pref_bluetooth_switch_isenabled);
+
+            // Update the pairing list preference
+            mBluetoothPairingPreference.setEnabled(true);
+            mBluetoothPairingPreference.setSummary(R.string.pref_bluetooth_pairing_summery);
+
             // Enable the Bluetooth Button.
             mBluetoothDeviceListPreference.setEnabled(true);
+            mBluetoothDeviceListPreference.setSummary(R.string.pref_bluetooth_select_adapter_summary);
 
             // If there is already a device that is selected as OBD Adapter, then update the
             // summary of the preference.
@@ -131,8 +180,6 @@ public class SettingsFragment extends PreferenceFragment {
             if (selectedBluetoothDevice != null) {
                 mBluetoothDeviceListPreference.setSummary(selectedBluetoothDevice.getName() + " "
                         + selectedBluetoothDevice.getAddress());
-            } else {
-
             }
         }
     }

@@ -2,6 +2,9 @@
 
     <!--<string name="title_activity_settings">Settings</string>-->
 
+    <string name="pref_bluetooth_switch_isenabled">Bluetooth is On</string>
+    <string name="pref_bluetooth_switch_isdisabled">Bluetooth is Off</string>
+
     <string name="pref_bluetooth_pairing">Bluetooth Pairing</string>
     <string name="pref_bluetooth_pairing_summery">Manage the pairings to Bluetooth devices.</string>
 

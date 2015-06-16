@@ -2,8 +2,12 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 
     <PreferenceCategory android:title="@string/pref_obd_settings" >
+        <SwitchPreference
+            android:key="bluetooth_enabler"
+            android:title="@string/pref_bluetooth_switch_isenabled"
+            android:defaultValue="true" />
         <org.envirocar.app.view.preferences.BluetoothPairingPreference
-            android:key="ec_select_bluetooth"
+            android:key="bluetooth_pairing"
             android:title="@string/pref_bluetooth_pairing"
             android:summary="@string/pref_bluetooth_pairing_summery" />
         <org.envirocar.app.view.preferences.SelectBluetoothPreference

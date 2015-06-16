@@ -8,6 +8,8 @@ public interface PreferencesConstants {
     String PREFERENCE_TAG_BLUETOOTH_LIST = "bluetooth_list";
     String PREFERENCE_TAG_BLUETOOTH_NAME = "bluetooth_name";
     String PREFERENCE_TAG_BLUETOOTH_ADDRESS = "bluetooth_address";
+    String PREFERENCE_TAG_BLUETOOTH_ENABLER = "bluetooth_enabler";
+    String PREFERENCE_TAG_BLUETOOTH_PAIRING = "bluetooth_pairing";
 
 
 

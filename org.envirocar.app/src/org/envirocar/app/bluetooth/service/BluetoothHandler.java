@@ -1,5 +1,6 @@
 package org.envirocar.app.bluetooth.service;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -257,11 +258,18 @@ public class BluetoothHandler {
         return true;
     }
 
-    public void enableBluetooth() {
+    public void enableBluetooth(Activity activity) {
         // If Bluetooth is not enabled, request that it will be enabled.
-        if (!mBluetoothAdapter.isEnabled()) {
+        if (mBluetoothAdapter != null && !mBluetoothAdapter.isEnabled()) {
             Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-//            ((Application) mContext).startActivity
+            activity.startActivityForResult(enableIntent, -1);
+        }
+    }
+
+    public void disableBluetooth(Activity activity){
+        // If Bluetooth is enabled, request that it will be enabled.
+        if (isBluetoothEnabled()) {
+            mBluetoothAdapter.disable();
         }
     }
 
