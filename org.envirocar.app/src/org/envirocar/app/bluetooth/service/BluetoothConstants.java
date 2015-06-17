@@ -1,7 +1,7 @@
 package org.envirocar.app.bluetooth.service;
 
 /**
- * Created by Peter on 08.06.2015.
+ * @author dewall
  */
 public interface BluetoothConstants {
 
@@ -9,4 +9,6 @@ public interface BluetoothConstants {
     int MESSAGE_WRITE = 101;
     int MESSAGE_READ = 102;
     int MESSAGE_STATE_CHANGE = 103;
+
+    String ACTION_BROADCAST = "bluetooth_action_broadcast";
 }

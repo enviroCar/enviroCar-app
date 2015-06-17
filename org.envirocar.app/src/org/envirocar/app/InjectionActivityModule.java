@@ -33,7 +33,8 @@ import dagger.Provides;
                 TrackHandler.class
         },
         addsTo = InjectionApplicationModule.class,
-        library = true
+        library = true,
+        complete = false
 )
 public class InjectionActivityModule {
 
@@ -53,8 +54,6 @@ public class InjectionActivityModule {
     public Activity provideActivity() {
         return mActivity;
     }
-
-
 
     @Provides
     @Singleton

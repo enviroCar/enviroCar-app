@@ -32,8 +32,8 @@ import dagger.Provides;
 
 /**
  * A module for application-specific dependencies which require a Application-
- * {@link android.content.Context} or to create. This includes specific Map- and
- * Bus-dependencies and
+ * {@link android.content.Context} or to create. This includes specific Bus-dependencies.
+ *
  *
  * @author dewall
  */
@@ -47,13 +47,12 @@ import dagger.Provides;
                 LoginFragment.class,
                 RegisterFragment.class,
                 SettingsActivity.class,
-                TemporaryFileManager.class,
-                DAOProvider.class,
                 CarSelectionPreference.class,
                 BluetoothPairingPreference.class,
                 BluetoothHandler.class,
                 SettingsFragment.class,
-                SelectBluetoothPreference.class
+                SelectBluetoothPreference.class,
+                TemporaryFileManager.class
         },
         library = true,
         complete = false

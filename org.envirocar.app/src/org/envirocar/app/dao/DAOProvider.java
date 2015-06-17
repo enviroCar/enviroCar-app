@@ -20,10 +20,13 @@
  */
 package org.envirocar.app.dao;
 
+import android.content.Context;
+import android.os.AsyncTask;
+
+import com.google.common.base.Preconditions;
+
+import org.envirocar.app.InjectionModuleProvider;
 import org.envirocar.app.Injector;
-import org.envirocar.app.application.ContextInternetAccessProvider;
-import org.envirocar.app.application.TermsOfUseManager;
-import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.cache.CacheAnnouncementsDAO;
 import org.envirocar.app.dao.cache.CacheFuelingDAO;
 import org.envirocar.app.dao.cache.CacheSensorDAO;
@@ -37,131 +40,166 @@ import org.envirocar.app.dao.remote.RemoteSensorDAO;
 import org.envirocar.app.dao.remote.RemoteTermsOfUseDAO;
 import org.envirocar.app.dao.remote.RemoteTrackDAO;
 import org.envirocar.app.dao.remote.RemoteUserDAO;
-import org.envirocar.app.util.Util;
+import org.envirocar.app.injection.DAOInjectionModule;
 
-import android.content.Context;
-import android.os.AsyncTask;
-
-import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.inject.Inject;
+
+import dagger.ObjectGraph;
 
 /**
  * the {@link DAOProvider} consists a set of methods
  * to access specific DAOs. It checks the internet connection
  * and decides whether it should use a Cache DAO or a Remote one.
- * 
- * @author matthes rieke
  *
+ * @author matthes rieke
  */
-public class DAOProvider {
+public class DAOProvider implements Injector, InjectionModuleProvider {
 
-	private Injector mInjector;
-	private InternetAccessProvider mInternetAccessProvider;
-	private CacheDirectoryProvider mCacheDirectoryProvider;
+    // No injection here.
+    protected Context mAppContext;
 
-	/**
-	 * Constructor.
-	 *
-	 * @param context
-	 */
-	public DAOProvider(final Context context){
-		((Injector) context).injectObjects(this);
-		this.mInternetAccessProvider = new ContextInternetAccessProvider(context);
-		this.mCacheDirectoryProvider = new CacheDirectoryProvider() {
-					@Override
-					public File getBaseFolder() {
-						return Util.resolveCacheFolder(context);
-					}
-				};
-	}
+    // Injected variables
+    @Inject
+    protected InternetAccessProvider mInternetAccessProvider;
+    @Inject
+    protected CacheDirectoryProvider mCacheDirectoryProvider;
 
-	/**
-	 * @return the {@link SensorDAO}
-	 */
-	public SensorDAO getSensorDAO() {
-		if (this.mInternetAccessProvider.isConnected()) {
-			return new RemoteSensorDAO(new CacheSensorDAO(this.mCacheDirectoryProvider));
-		}
-		return new CacheSensorDAO(this.mCacheDirectoryProvider);
-	}
-	
-	
-	/**
-	 * @return the {@link TrackDAO}
-	 */
-	public TrackDAO getTrackDAO() {
-		if (this.mInternetAccessProvider.isConnected()) {
-			return new RemoteTrackDAO();
-		}
-		return new CacheTrackDAO();
-	}
-	
-	/**
-	 * @return the {@link UserDAO}
-	 */
-	public UserDAO getUserDAO() {
-		if (this.mInternetAccessProvider.isConnected()) {
-			return new RemoteUserDAO();
-		}
-		return new CacheUserDAO();
-	}
-	
-	/**
-	 * @return the {@link FuelingDAO}
-	 */
-	public FuelingDAO getFuelingDAO() {
-		if (this.mInternetAccessProvider.isConnected()) {
-			return new RemoteFuelingDAO(new CacheFuelingDAO(this.mCacheDirectoryProvider));
-		}
-		return new CacheFuelingDAO(this.mCacheDirectoryProvider);
-	}
-	
-	/**
-	 * @return the {@link TermsOfUseDAO}
-	 */
-	public TermsOfUseDAO getTermsOfUseDAO() {
-		if (this.mInternetAccessProvider.isConnected()) {
-			return new RemoteTermsOfUseDAO(new CacheTermsOfUseDAO(this.mCacheDirectoryProvider));
-		}
-		return new CacheTermsOfUseDAO(this.mCacheDirectoryProvider);
-	}
+    // Graph for Dependency Injection.
+    private ObjectGraph mObjectGraph;
 
 
-	public AnnouncementsDAO getAnnouncementsDAO() {
-		if (this.mInternetAccessProvider.isConnected()) {
-			return new RemoteAnnouncementsDAO(new CacheAnnouncementsDAO(this.mCacheDirectoryProvider));
-		}
-		return new CacheAnnouncementsDAO(this.mCacheDirectoryProvider);
-	}
-	
-	public static <T> void async(final AsyncExecutionWithCallback<T> callback) {
-		new AsyncTask<Void, Void, Void>() {
-			@Override
-			protected Void doInBackground(Void... params) {
-				boolean fail = true;
-				T result = null;
-				Exception ex = null;
-				try {
-					result = callback.execute();
-					fail = false;
-				} catch (RuntimeException e) {
-					ex = e;
-				} catch (DAOException e) {
-					ex = e;
-				}
-				callback.onResult(result, fail, ex);
-				return null;
-			}
-		}.execute();
-	}
-	
-	public static interface AsyncExecutionWithCallback<T> {
-		
-		public T execute() throws DAOException;
-		
-		public T onResult(T result, boolean fail, Exception exception);
-		
-	}
+    /**
+     * Constructor.
+     *
+     * @param context
+     */
+    public DAOProvider(final Context context) {
+        this.mAppContext = context;
+
+        // Extend the object graph with the injection modules for DAOs
+        this.mObjectGraph = ((Injector) context).getObjectGraph().plus(getInjectionModules()
+                .toArray());
+        this.mObjectGraph.inject(this);
+    }
+
+    public static <T> void async(final AsyncExecutionWithCallback<T> callback) {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                boolean fail = true;
+                T result = null;
+                Exception ex = null;
+                try {
+                    result = callback.execute();
+                    fail = false;
+                } catch (RuntimeException e) {
+                    ex = e;
+                } catch (DAOException e) {
+                    ex = e;
+                }
+                callback.onResult(result, fail, ex);
+                return null;
+            }
+        }.execute();
+    }
+
+    /**
+     * @return the {@link SensorDAO}
+     */
+    public SensorDAO getSensorDAO() {
+        CacheSensorDAO cacheSensorDao = mObjectGraph.get(CacheSensorDAO.class);
+        if (this.mInternetAccessProvider.isConnected()) {
+            // TODO use injection for this.
+            RemoteSensorDAO remoteSensorDAO = new RemoteSensorDAO(cacheSensorDao);
+            injectObjects(remoteSensorDAO);
+            return remoteSensorDAO;
+        }
+        return cacheSensorDao;
+    }
+
+    /**
+     * @return the {@link TrackDAO}
+     */
+    public TrackDAO getTrackDAO() {
+        if (this.mInternetAccessProvider.isConnected()) {
+            return mObjectGraph.get(RemoteTrackDAO.class);
+        }
+        return mObjectGraph.get(CacheTrackDAO.class);
+    }
+
+    /**
+     * @return the {@link UserDAO}
+     */
+    public UserDAO getUserDAO() {
+        if (this.mInternetAccessProvider.isConnected()) {
+            return mObjectGraph.get(RemoteUserDAO.class);
+        }
+        return mObjectGraph.get(CacheUserDAO.class);
+    }
+
+    /**
+     * @return the {@link FuelingDAO}
+     */
+    public FuelingDAO getFuelingDAO() {
+        CacheFuelingDAO cacheFuelingDAO = mObjectGraph.get(CacheFuelingDAO.class);
+        if (this.mInternetAccessProvider.isConnected()) {
+            RemoteFuelingDAO remoteFuelingDAO = new RemoteFuelingDAO(cacheFuelingDAO);
+            injectObjects(remoteFuelingDAO);
+            return remoteFuelingDAO;
+        }
+        return cacheFuelingDAO;
+    }
+
+    /**
+     * @return the {@link TermsOfUseDAO}
+     */
+    public TermsOfUseDAO getTermsOfUseDAO() {
+        CacheTermsOfUseDAO cacheTermsOfUseDAO = mObjectGraph.get(CacheTermsOfUseDAO.class);
+        if (this.mInternetAccessProvider.isConnected()) {
+            RemoteTermsOfUseDAO remoteTermsOfUseDAO = new RemoteTermsOfUseDAO(cacheTermsOfUseDAO);
+            injectObjects(remoteTermsOfUseDAO);
+            return remoteTermsOfUseDAO;
+        }
+        return cacheTermsOfUseDAO;
+    }
+
+    public AnnouncementsDAO getAnnouncementsDAO() {
+        CacheAnnouncementsDAO cacheAnnouncementsDAO = mObjectGraph.get(CacheAnnouncementsDAO.class);
+        if (this.mInternetAccessProvider.isConnected()) {
+            RemoteAnnouncementsDAO remoteAnnouncementsDAO = new RemoteAnnouncementsDAO
+                    (cacheAnnouncementsDAO);
+            injectObjects(remoteAnnouncementsDAO);
+            return remoteAnnouncementsDAO;
+        }
+        return cacheAnnouncementsDAO;
+    }
+
+    @Override
+    public List<Object> getInjectionModules() {
+        return Arrays.<Object>asList(new DAOInjectionModule(mAppContext));
+    }
+
+    @Override
+    public ObjectGraph getObjectGraph() {
+        return mObjectGraph;
+    }
+
+    @Override
+    public void injectObjects(Object instance) {
+        Preconditions.checkNotNull(instance, "The instance of the object to get injected cannot " +
+                "be null");
+        mObjectGraph.inject(instance);
+    }
+
+    public static interface AsyncExecutionWithCallback<T> {
+
+        public T execute() throws DAOException;
+
+        public T onResult(T result, boolean fail, Exception exception);
+
+    }
 
 }
