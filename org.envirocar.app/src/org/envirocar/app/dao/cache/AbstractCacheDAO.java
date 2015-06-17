@@ -28,15 +28,17 @@ import org.envirocar.app.util.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.inject.Inject;
+
 /**
  * Convenience abstract base CacheDAO class.
  */
 public class AbstractCacheDAO {
 
-	private CacheDirectoryProvider cacheDirectoryProvider;
+	@Inject
+	protected CacheDirectoryProvider cacheDirectoryProvider;
 
-	public AbstractCacheDAO(CacheDirectoryProvider cacheDirectoryProvider) {
-		this.cacheDirectoryProvider = cacheDirectoryProvider;
+	public AbstractCacheDAO(){
 	}
 
 	public JSONObject readCache(String cachedFile) throws IOException, JSONException {

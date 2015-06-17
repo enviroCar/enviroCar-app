@@ -36,9 +36,6 @@ public class CacheTermsOfUseDAO extends AbstractCacheDAO implements TermsOfUseDA
 	private static final String LIST_CACHE_FILE_NAME = "tou-list";
 	private static final String INSTANCE_CACHE_FILE_NAME = "tou-instance-";
 
-	public CacheTermsOfUseDAO(CacheDirectoryProvider cacheDirectoryProvider) {
-		super(cacheDirectoryProvider);
-	}
 
 	@Override
 	public TermsOfUse getTermsOfUse() throws TermsOfUseRetrievalException {

@@ -37,9 +37,7 @@ public class CacheSensorDAO extends AbstractCacheDAO implements SensorDAO {
 	private static final Logger logger = Logger.getLogger(CacheSensorDAO.class);
 	public static final String CAR_CACHE_FILE_NAME = "cache_cars";
 	
-	public CacheSensorDAO(CacheDirectoryProvider cacheDirectoryProvider) {
-		super(cacheDirectoryProvider);
-	}
+
 
 	@Override
 	public List<Car> getAllSensors() throws SensorRetrievalException {

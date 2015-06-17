@@ -33,10 +33,7 @@ import org.json.JSONException;
 
 public class CacheFuelingDAO extends AbstractCacheDAO implements FuelingDAO {
 
-	
-	public CacheFuelingDAO(CacheDirectoryProvider cacheDirectoryProvider) {
-		super(cacheDirectoryProvider);
-	}
+
 
 	private static final String FUELING_CACHE = "fuelings";
 

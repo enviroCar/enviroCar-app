@@ -167,6 +167,7 @@ public class DAOProvider implements Injector, InjectionModuleProvider {
     }
 
     public AnnouncementsDAO getAnnouncementsDAO() {
+        
         CacheAnnouncementsDAO cacheAnnouncementsDAO = mObjectGraph.get(CacheAnnouncementsDAO.class);
         if (this.mInternetAccessProvider.isConnected()) {
             RemoteAnnouncementsDAO remoteAnnouncementsDAO = new RemoteAnnouncementsDAO

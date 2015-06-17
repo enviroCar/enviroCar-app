@@ -33,10 +33,6 @@ public class CacheAnnouncementsDAO extends AbstractCacheDAO implements Announcem
 
 	public static final String CACHE_FILE_NAME = "announcements";
 
-	public CacheAnnouncementsDAO(CacheDirectoryProvider cacheDirectoryProvider) {
-		super(cacheDirectoryProvider);
-	}
-
 	@Override
 	public List<Announcement> getAllAnnouncements() throws AnnouncementsRetrievalException {
 		try {
