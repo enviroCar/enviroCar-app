@@ -94,7 +94,8 @@ public class DeviceInRangeService extends Service {
 		
 		bindToBackgroundService();
 	}
-	
+
+
 	private void bindToBackgroundService() {
 		if (!bindService(new Intent(this, BackgroundServiceImpl.class),
 				new ServiceConnection() {
