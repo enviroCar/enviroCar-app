@@ -25,7 +25,6 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -36,12 +35,10 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
-import org.envirocar.app.Injector;
+import org.envirocar.app.injection.Injector;
 import org.envirocar.app.R;
-import org.envirocar.app.application.UserManager;
 import org.envirocar.app.util.Util;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Set;
 

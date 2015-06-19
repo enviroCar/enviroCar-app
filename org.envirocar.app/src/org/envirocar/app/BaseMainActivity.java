@@ -55,6 +55,8 @@ import org.envirocar.app.application.service.DeviceInRangeServiceInteractor;
 import org.envirocar.app.dao.DAOProvider;
 import org.envirocar.app.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.fragments.SettingsFragment;
+import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.injection.module.InjectionActivityModule;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Announcement;
 import org.envirocar.app.storage.DbAdapter;
@@ -624,8 +626,12 @@ public class BaseMainActivity extends BaseInjectorActivity {
                                 trackMode = tm;
                             }
                         };
-//                        StartStopButtonUtil startStopButtonUtil = new
-//                                StartStopButtonUtil().processButtonClick(trackModeListener);
+//                        mStart
+                        StartStopButtonUtil startStopButtonUtil = new
+                                StartStopButtonUtil(this, trackMode, serviceState, serviceState
+                                == AbstractBackgroundServiceStateReceiver.ServiceState
+                                .SERVICE_DEVICE_DISCOVERY_PENDING);
+                        startStopButtonUtil.processButtonClick(trackModeListener);
                     }
                 } else {
                     Intent settingsIntent = new Intent(this, SettingsActivity.class);

@@ -20,8 +20,6 @@
  */
 package org.envirocar.app.json;
 
-import android.content.Context;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -34,10 +32,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.zip.GZIPOutputStream;
 
-import org.envirocar.app.Injector;
 import org.envirocar.app.application.TemporaryFileManager;
-import org.envirocar.app.application.TermsOfUseManager;
-import org.envirocar.app.exception.InvalidObjectStateException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;

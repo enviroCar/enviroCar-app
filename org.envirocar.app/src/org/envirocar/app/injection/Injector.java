@@ -1,4 +1,4 @@
-package org.envirocar.app;
+package org.envirocar.app.injection;
 
 import dagger.ObjectGraph;
 

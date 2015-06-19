@@ -20,7 +20,6 @@
  */
 package org.envirocar.app.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,7 +27,8 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
 import org.envirocar.app.BaseMainActivity;
-import org.envirocar.app.Injector;
+import org.envirocar.app.injection.InjectionForActivity;
+import org.envirocar.app.injection.Injector;
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.activity.DialogUtil.DialogCallback;
@@ -41,9 +41,6 @@ import org.envirocar.app.logging.Logger;
 
 import javax.inject.Inject;
 
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
-
 /**
  * Outsource of the start/stop button interaction and content updates.
  * objects of this class can be created without leaking any resources -
@@ -54,7 +51,9 @@ import de.keyboardsurfer.android.widget.crouton.Style;
 public class StartStopButtonUtil {
     private static final Logger LOGGER = Logger.getLogger(StartStopButtonUtil.class);
 
-    protected Activity mActivity;
+    @Inject
+    @InjectionForActivity
+    protected Context mContext;
     @Inject
     protected CarManager mCarManager;
     @Inject
@@ -75,7 +74,6 @@ public class StartStopButtonUtil {
         // Inject variables.
         ((Injector) context).injectObjects(this);
 
-        mActivity = (Activity) context;
 
         this.trackMode = trackMode;
         this.serviceState = serviceState;
@@ -165,7 +163,7 @@ public class StartStopButtonUtil {
 
     private void defineButtonContents(NavMenuItem button, boolean enabled,
                                       int iconRes, int subtitleRes) {
-        defineButtonContents(button, enabled, iconRes, mActivity.getString(subtitleRes));
+        defineButtonContents(button, enabled, iconRes, mContext.getString(subtitleRes));
     }
 
     private void createStopTrackDialog(final OnTrackModeChangeListener trackModeListener) {
@@ -181,7 +179,7 @@ public class StartStopButtonUtil {
                 messageId = R.string.stop_automatic_mode_long;
                 break;
             default:
-                Crouton.makeText(mActivity, "not supported", Style.INFO).show();
+//                Crouton.makeText(mContext, "not supported", Style.INFO).show();
                 return;
         }
 
@@ -194,8 +192,8 @@ public class StartStopButtonUtil {
                         new AsyncTask<Void, Void, Void>() {
                             @Override
                             protected Void doInBackground(Void... params) {
-                                mActivity.getApplicationContext().stopService(
-                                        new Intent(mActivity, BackgroundServiceImpl.class));
+                                mContext.getApplicationContext().stopService(
+                                        new Intent(mContext, BackgroundServiceImpl.class));
                                 mTrackHandler.finishTrack();
                                 return null;
                             }
@@ -206,15 +204,15 @@ public class StartStopButtonUtil {
                     @Override
                     public void negative() {
                     }
-                }, mActivity);
+                }, mContext);
 
     }
 
     private void createStartTrackDialog(final OnTrackModeChangeListener listener) {
-        String[] items = new String[]{mActivity.getString(R.string.track_mode_single),
-                mActivity.getString(R.string.track_mode_auto)};
+        String[] items = new String[]{mContext.getString(R.string.track_mode_single),
+                mContext.getString(R.string.track_mode_auto)};
         DialogUtil.createSingleChoiceItemsDialog(
-                mActivity.getString(R.string.question_track_mode),
+                mContext.getString(R.string.question_track_mode),
                 items,
                 new DialogCallback() {
                     @Override
@@ -222,24 +220,24 @@ public class StartStopButtonUtil {
                         switch (which) {
                             case 0:
                                 listener.onTrackModeChange(BaseMainActivity.TRACK_MODE_SINGLE);
-                                mActivity.getApplicationContext().startService(
-                                        new Intent(mActivity, BackgroundServiceImpl.class));
+                                mContext.getApplicationContext().startService(
+                                        new Intent(mContext, BackgroundServiceImpl.class));
                                 break;
                             case 1:
                                 listener.onTrackModeChange(BaseMainActivity.TRACK_MODE_AUTO);
-                                mActivity.getApplicationContext().startService(
-                                        new Intent(mActivity, DeviceInRangeService.class));
+                                mContext.getApplicationContext().startService(
+                                        new Intent(mContext, DeviceInRangeService.class));
                                 break;
                         }
 
-                        Crouton.makeText(mActivity, R.string.start_connection, Style.INFO).show();
+//                        Crouton.makeText(mContext, R.string.start_connection, Style.INFO).show();
                     }
 
                     @Override
                     public void cancelled() {
 
                     }
-                }, mActivity);
+                }, mContext);
     }
 
     private void handleServiceStoppedState(NavMenuItem button) {
@@ -249,7 +247,7 @@ public class StartStopButtonUtil {
                 break;
             case BaseMainActivity.TRACK_MODE_AUTO:
                 if (deviceDiscoveryActive) {
-                    button.setTitle(mActivity.getString(R.string.menu_cancel));
+                    button.setTitle(mContext.getString(R.string.menu_cancel));
                     defineButtonContents(button, true, R.drawable.av_stop, "");
                 } else {
                     resetToStartButtonState(button);
@@ -262,17 +260,17 @@ public class StartStopButtonUtil {
     }
 
     private void handleServiceDeviceDiscoveryPendingState(NavMenuItem button) {
-        button.setTitle(mActivity.getString(R.string.menu_cancel));
+        button.setTitle(mContext.getString(R.string.menu_cancel));
         defineButtonContents(button, true, R.drawable.av_cancel, R.string.device_discovery_pending);
     }
 
     private void handleServiceStartingState(NavMenuItem button) {
-        button.setTitle(mActivity.getString(R.string.menu_cancel));
+        button.setTitle(mContext.getString(R.string.menu_cancel));
         defineButtonContents(button, true, R.drawable.av_cancel, R.string.menu_starting);
     }
 
     private void handleServiceStartedState(NavMenuItem button) {
-        button.setTitle(mActivity.getString(R.string.menu_stop));
+        button.setTitle(mContext.getString(R.string.menu_stop));
 
         int subtitleRes;
         switch (trackMode) {
@@ -291,9 +289,9 @@ public class StartStopButtonUtil {
     }
 
     private void resetToStartButtonState(NavMenuItem button) {
-        button.setTitle(mActivity.getString(R.string.menu_start));
+        button.setTitle(mContext.getString(R.string.menu_start));
         SharedPreferences preferences = PreferenceManager
-                .getDefaultSharedPreferences(mActivity);
+                .getDefaultSharedPreferences(mContext);
 
         String remoteDevice = preferences.getString(
                 org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,
@@ -320,14 +318,14 @@ public class StartStopButtonUtil {
         /*
          * this broadcast stops the DeviceInRangeService
 		 */
-        mActivity.getApplicationContext().stopService(
-                new Intent(mActivity.getApplicationContext(), DeviceInRangeService.class));
+        mContext.getApplicationContext().stopService(
+                new Intent(mContext.getApplicationContext(), DeviceInRangeService.class));
     }
 
     private void processStartingStateClick() {
-        mActivity.getApplicationContext().stopService(
-                new Intent(mActivity, BackgroundServiceImpl.class));
-        Crouton.makeText(mActivity, R.string.stop_connection, Style.INFO).show();
+        mContext.getApplicationContext().stopService(
+                new Intent(mContext, BackgroundServiceImpl.class));
+//        Crouton.makeText(mContext, R.string.stop_connection, Style.INFO).show();
     }
 
     private void processStartedStateClick(OnTrackModeChangeListener l) {

@@ -3,6 +3,7 @@ package org.envirocar.app;
 import android.app.Activity;
 import android.content.Context;
 
+import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Track;

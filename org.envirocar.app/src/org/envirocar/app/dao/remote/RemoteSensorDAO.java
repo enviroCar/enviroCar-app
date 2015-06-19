@@ -30,7 +30,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
-import org.envirocar.app.Constants;
+import org.envirocar.app.ConstantsEnvirocar;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.dao.SensorDAO;
 import org.envirocar.app.dao.cache.CacheSensorDAO;
@@ -111,7 +111,7 @@ public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, Authent
 	private String registerSensor(String sensorString) throws IOException, NotConnectedException, UnauthorizedException, ResourceConflictException {
 		
 		HttpPost postRequest = new HttpPost(
-				Constants.BASE_URL+"/sensors");
+				ConstantsEnvirocar.BASE_URL+"/sensors");
 		
 		StringEntity se = new StringEntity(sensorString);
 		se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));

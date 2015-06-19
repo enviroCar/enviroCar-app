@@ -43,7 +43,7 @@ import android.widget.TextView;
 public class DialogUtil {
 
 	public static void createSingleChoiceItemsDialog(String title, String[] items,
-			DialogCallback callback, Activity activity) {
+			DialogCallback callback, Context activity) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
 		builder.setTitle(title);
@@ -57,7 +57,7 @@ public class DialogUtil {
 	}
 	
 	public static void createTitleMessageDialog(int titleIde, int messageId,
-			DialogCallback callback, Activity activity) {
+			DialogCallback callback, Context activity) {
 		createTitleMessageDialog(
 				activity.getString(titleIde),
 				new SpannableString(activity.getString(messageId)),
@@ -65,7 +65,7 @@ public class DialogUtil {
 	}
 	
 	public static void createTitleMessageDialog(String title, Spanned message,
-			DialogCallback callback, Activity activity) {
+			DialogCallback callback, Context activity) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
 		builder.setTitle(title);
@@ -82,7 +82,7 @@ public class DialogUtil {
 	}
 	
 	public static void createTitleMessageInfoDialog(String title, Spanned message,
-			DialogCallback callback, Activity activity) {
+			DialogCallback callback, Context activity) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
 		builder.setTitle(title);
@@ -97,7 +97,7 @@ public class DialogUtil {
 	
 	public static void createTitleMessageInfoDialog(String title, Spanned message,
 			boolean doNotShowAgainField,
-			DialogCallback callback, Activity activity) {
+			DialogCallback callback, Context activity) {
 		if (!doNotShowAgainField) {
 			createTitleMessageInfoDialog(title, message, callback, activity);
 			return;

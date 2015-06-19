@@ -16,7 +16,7 @@ import android.widget.Toast;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.Injector;
+import org.envirocar.app.injection.Injector;
 import org.envirocar.app.R;
 import org.envirocar.app.bluetooth.event.BluetoothPairingChangedEvent;
 import org.envirocar.app.bluetooth.event.BluetoothStateChangedEvent;

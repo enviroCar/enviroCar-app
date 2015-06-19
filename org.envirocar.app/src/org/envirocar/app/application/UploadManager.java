@@ -26,8 +26,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import org.envirocar.app.BaseApplication;
-import org.envirocar.app.Injector;
+import org.envirocar.app.injection.InjectionForApplication;
+import org.envirocar.app.injection.Injector;
 import org.envirocar.app.NotificationHandler;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
@@ -40,7 +40,6 @@ import org.envirocar.app.json.TrackWithoutMeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.TrackMetadata;
 
@@ -70,6 +69,7 @@ public class UploadManager {
     @Inject
     protected Activity mActivity;
     @Inject
+    @InjectionForApplication
     protected Context mContext;
     @Inject
     protected DbAdapter mDBAdapter;

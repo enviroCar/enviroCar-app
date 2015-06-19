@@ -23,7 +23,7 @@ package org.envirocar.app.dao.remote;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
-import org.envirocar.app.Constants;
+import org.envirocar.app.ConstantsEnvirocar;
 import org.envirocar.app.dao.UserDAO;
 import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.ResourceConflictException;
@@ -41,7 +41,7 @@ public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, Authenticat
 
     @Override
     public void updateUser(User user) throws UserUpdateException, UnauthorizedException {
-        HttpPut put = new HttpPut(Constants.BASE_URL + "/users/" + user.getUsername());
+        HttpPut put = new HttpPut(ConstantsEnvirocar.BASE_URL + "/users/" + user.getUsername());
         try {
             put.setEntity(new StringEntity(user.toJson()));
             super.executePayloadRequest(put);
@@ -73,7 +73,7 @@ public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, Authenticat
 
     @Override
     public void createUser(User newUser) throws UserUpdateException, ResourceConflictException {
-        HttpPost post = new HttpPost(Constants.BASE_URL + "/users");
+        HttpPost post = new HttpPost(ConstantsEnvirocar.BASE_URL + "/users");
 
         try {
             post.setEntity(new StringEntity(newUser.toJson(true)));

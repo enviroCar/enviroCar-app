@@ -1,8 +1,11 @@
-package org.envirocar.app;
+package org.envirocar.app.injection.module;
 
 
 import android.app.Activity;
+import android.content.Context;
 
+import org.envirocar.app.BaseMainActivity;
+import org.envirocar.app.TrackHandler;
 import org.envirocar.app.activity.DashboardFragment;
 import org.envirocar.app.activity.ListTracksFragment;
 import org.envirocar.app.activity.LogbookFragment;
@@ -12,6 +15,7 @@ import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.StartStopButtonUtil;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.TermsOfUseManager;
+import org.envirocar.app.injection.InjectionForActivity;
 
 import javax.inject.Singleton;
 
@@ -52,6 +56,12 @@ public class InjectionActivityModule {
 
     @Provides
     public Activity provideActivity() {
+        return mActivity;
+    }
+
+    @Provides
+    @InjectionForActivity
+    public Context provideContext() {
         return mActivity;
     }
 

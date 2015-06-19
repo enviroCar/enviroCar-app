@@ -25,7 +25,8 @@ import android.content.Context;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.Injector;
+import org.envirocar.app.injection.InjectionForApplication;
+import org.envirocar.app.injection.Injector;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.DialogUtil;
 import org.envirocar.app.activity.DialogUtil.PositiveNegativeCallback;
@@ -54,6 +55,7 @@ public class TermsOfUseManager {
 
     // Injected variables.
     @Inject
+    @InjectionForApplication
     protected Context mContext;
     @Inject
     protected Bus mBus;
@@ -64,7 +66,6 @@ public class TermsOfUseManager {
 
 
     private TermsOfUseInstance current;
-
 
     public TermsOfUseManager(Context context) {
 

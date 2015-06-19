@@ -41,7 +41,7 @@ import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 
 import org.envirocar.app.BaseMainActivity;
-import org.envirocar.app.Injector;
+import org.envirocar.app.injection.Injector;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.TroubleshootingFragment;

@@ -30,6 +30,7 @@ import java.util.Map;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
+import org.envirocar.app.injection.InjectionForApplication;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
@@ -138,6 +139,7 @@ public class DbAdapterImpl implements DbAdapter {
 	private SQLiteDatabase mDb;
 
 	@Inject
+	@InjectionForApplication
 	protected Context mContext;
 	@Inject
 	protected CarManager mCarManager;

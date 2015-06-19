@@ -1,10 +1,12 @@
-package org.envirocar.app;
+package org.envirocar.app.injection.module;
 
 import android.app.Application;
 import android.content.Context;
 
 import com.squareup.otto.Bus;
 
+import org.envirocar.app.FeatureFlags;
+import org.envirocar.app.NotificationHandler;
 import org.envirocar.app.activity.DashboardFragment;
 import org.envirocar.app.activity.ListTracksFragment;
 import org.envirocar.app.activity.LogbookFragment;
@@ -12,7 +14,14 @@ import org.envirocar.app.activity.LoginFragment;
 import org.envirocar.app.activity.RegisterFragment;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
+import org.envirocar.app.application.CommandListener;
+import org.envirocar.app.application.service.BackgroundService;
+import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.fragments.SettingsFragment;
+import org.envirocar.app.injection.InjectionForActivity;
+import org.envirocar.app.injection.InjectionForApplication;
+import org.envirocar.app.injection.Injector;
+import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.view.preferences.BluetoothPairingPreference;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.TemporaryFileManager;
@@ -52,7 +61,11 @@ import dagger.Provides;
                 BluetoothHandler.class,
                 SettingsFragment.class,
                 SelectBluetoothPreference.class,
-                TemporaryFileManager.class
+                TemporaryFileManager.class,
+                SystemStartupService.class,
+                NotificationHandler.class,
+                BackgroundServiceImpl.class,
+                CommandListener.class
         },
         library = true,
         complete = false
@@ -89,6 +102,7 @@ public class InjectionApplicationModule {
      * @return the context of the application.
      */
     @Provides
+    @InjectionForApplication
     Context provideApplicationContext() {
         return mAppContext;
     }
@@ -115,7 +129,6 @@ public class InjectionApplicationModule {
         return new Bus();
     }
 
-
     /**
      * Provides the DAOProvider fot the application
      *
@@ -126,12 +139,6 @@ public class InjectionApplicationModule {
     DAOProvider provideDAOProvider() {
         return new DAOProvider(mAppContext);
     }
-
-//    @Provides
-//    @Singleton //TODO Logger?
-//    Logger provideLogger(){
-//        return
-//    }
 
     /**
      * Provides the UserManager of the application

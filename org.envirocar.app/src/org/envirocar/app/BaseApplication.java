@@ -1,7 +1,10 @@
 package org.envirocar.app;
 
 import android.annotation.TargetApi;
+import android.app.ActivityManager;
 import android.app.Application;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -11,8 +14,12 @@ import com.google.common.base.Preconditions;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.activity.SettingsActivity;
+import org.envirocar.app.injection.InjectionModuleProvider;
+import org.envirocar.app.injection.Injector;
+import org.envirocar.app.injection.module.InjectionApplicationModule;
 import org.envirocar.app.logging.ACRACustomSender;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.util.Util;
 
 import java.util.Arrays;
@@ -26,7 +33,7 @@ import dagger.ObjectGraph;
 @ReportsCrashes
 public class BaseApplication extends Application implements Injector, InjectionModuleProvider {
     private static final String TAG = BaseApplication.class.getSimpleName();
-    private static final Logger LOGGER = Logger.getLogger(BaseApplication.class);
+//    private static final Logger LOGGER = Logger.getLogger(BaseApplication.class);
 
     protected ObjectGraph mObjectGraph;
 
@@ -62,22 +69,30 @@ public class BaseApplication extends Application implements Injector, InjectionM
         ACRA.getErrorReporter().setReportSender(yourSender);
         ACRA.getConfig().setExcludeMatchingSharedPreferencesKeys(SettingsActivity
                 .resolveIndividualKeys());
+
+
+        // check if the background service is already running.
+        if (!isServiceRunning(SystemStartupService.class)) {
+            // Start a new service
+            Intent startIntent = new Intent(this, SystemStartupService.class);
+            startService(startIntent);
+        }
     }
 
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-        LOGGER.info("onLowMemory called");
+//        LOGGER.info("onLowMemory called");
     }
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Override
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
-        LOGGER.info("onTrimMemory called");
-        LOGGER.info("maxMemory: " + Runtime.getRuntime().maxMemory());
-        LOGGER.info("totalMemory: " + Runtime.getRuntime().totalMemory());
-        LOGGER.info("freeMemory: " + Runtime.getRuntime().freeMemory());
+//        LOGGER.info("onTrimMemory called");
+//        LOGGER.info("maxMemory: " + Runtime.getRuntime().maxMemory());
+//        LOGGER.info("totalMemory: " + Runtime.getRuntime().totalMemory());
+//        LOGGER.info("freeMemory: " + Runtime.getRuntime().freeMemory());
     }
 
 
@@ -96,5 +111,20 @@ public class BaseApplication extends Application implements Injector, InjectionM
         Preconditions.checkNotNull(instance, "Cannot inject into Null objects.");
         Preconditions.checkNotNull(mObjectGraph, "The ObjectGraph must be initialized before use.");
         mObjectGraph.inject(instance);
+    }
+
+    /**
+     * @param serviceClass
+     * @return
+     */
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo serviceInfo : manager.getRunningServices(Integer
+                .MAX_VALUE)) {
+            if (serviceClass.getName().equals(serviceInfo.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

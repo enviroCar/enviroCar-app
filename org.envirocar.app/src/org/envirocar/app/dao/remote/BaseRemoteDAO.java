@@ -42,14 +42,14 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.FileEntity;
 
-import org.envirocar.app.Constants;
-import org.envirocar.app.Injector;
+import org.envirocar.app.ConstantsEnvirocar;
 import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.ResourceConflictException;
 import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.exception.ServerException;
+import org.envirocar.app.injection.InjectionForApplication;
 import org.envirocar.app.model.User;
 import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.util.FileWithMetadata;
@@ -63,7 +63,8 @@ import javax.inject.Inject;
 public class BaseRemoteDAO {
 
     @Inject
-    protected Context mContext;
+	@InjectionForApplication
+	protected Context mContext;
     @Inject
     protected UserManager mUserManager;
     @Inject
@@ -146,7 +147,7 @@ public class BaseRemoteDAO {
 	 * @throws JSONException
 	 */
 	protected JSONObject readRemoteResource(String remoteRestResource) throws NotConnectedException, UnauthorizedException, IOException, JSONException {
-		HttpGet get = new HttpGet(Constants.BASE_URL+remoteRestResource);
+		HttpGet get = new HttpGet(ConstantsEnvirocar.BASE_URL+remoteRestResource);
 		InputStream response = retrieveHttpContent(get);
 		String content = Util.consumeInputStream(response).toString();
 	
@@ -170,7 +171,7 @@ public class BaseRemoteDAO {
 			return Collections.singletonList(readRemoteResource(remoteRestResource));
 		}
 		
-		HttpGet get = new HttpGet(Constants.BASE_URL+remoteRestResource+"?limit=100");
+		HttpGet get = new HttpGet(ConstantsEnvirocar.BASE_URL+remoteRestResource+"?limit=100");
 		HttpResponse response = executeContentRequest(get);
 		
 		Integer count;

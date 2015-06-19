@@ -25,7 +25,7 @@ import org.apache.http.ParseException;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.envirocar.app.Constants;
+import org.envirocar.app.ConstantsEnvirocar;
 import org.envirocar.app.dao.TrackDAO;
 import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.ResourceConflictException;
@@ -57,7 +57,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
             throw new UnauthorizedException("No User logged in.");
         }
 
-        HttpDelete request = new HttpDelete(Constants.BASE_URL + "/users/" +
+        HttpDelete request = new HttpDelete(ConstantsEnvirocar.BASE_URL + "/users/" +
                 user.getUsername() + "/tracks/" + remoteID);
 
         super.executeContentRequest(request);
@@ -71,7 +71,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
                     obfuscate, f, true);
 
             User user = mUserManager.getUser();
-            HttpPost post = new HttpPost(String.format("%s/users/%s/tracks", Constants.BASE_URL,
+            HttpPost post = new HttpPost(String.format("%s/users/%s/tracks", ConstantsEnvirocar.BASE_URL,
                     user.getUsername()));
 
             HttpResponse response = executePayloadRequest(post, content);
@@ -115,7 +115,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
     @Override
     public Integer getUserTrackCount() throws NotConnectedException, TrackRetrievalException {
         User user = mUserManager.getUser();
-        HttpGet get = new HttpGet(Constants.BASE_URL + "/users/" + user.getUsername()
+        HttpGet get = new HttpGet(ConstantsEnvirocar.BASE_URL + "/users/" + user.getUsername()
                 + "/tracks?limit=1");
 
         HttpResponse response;
@@ -129,7 +129,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 
     @Override
     public Integer getTotalTrackCount() throws NotConnectedException, TrackRetrievalException {
-        HttpGet get = new HttpGet(Constants.BASE_URL + "/tracks?limit=1");
+        HttpGet get = new HttpGet(ConstantsEnvirocar.BASE_URL + "/tracks?limit=1");
 
         HttpResponse response;
         try {
@@ -154,7 +154,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
     public List<String> getTrackIds(int limit, int page) throws NotConnectedException, UnauthorizedException {
         User user = mUserManager.getUser();
         HttpGet get = new HttpGet(String.format("%s/users/%s/tracks?limit=%d&page=%d",
-                Constants.BASE_URL, user.getUsername(), limit, page));
+                ConstantsEnvirocar.BASE_URL, user.getUsername(), limit, page));
 
         InputStream response;
         try {

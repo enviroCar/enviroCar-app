@@ -47,7 +47,7 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.envirocar.app.BaseInjectorFragment;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ContextInternetAccessProvider;
 import org.envirocar.app.application.TermsOfUseManager;

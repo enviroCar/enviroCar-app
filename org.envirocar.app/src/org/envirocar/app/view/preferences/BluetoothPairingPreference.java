@@ -5,7 +5,6 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.preference.DialogPreference;
-import android.preference.Preference;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
@@ -21,7 +20,7 @@ import android.widget.Toast;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.Injector;
+import org.envirocar.app.injection.Injector;
 import org.envirocar.app.R;
 import org.envirocar.app.bluetooth.event.BluetoothPairingChangedEvent;
 import org.envirocar.app.bluetooth.event.BluetoothStateChangedEvent;

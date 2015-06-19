@@ -27,7 +27,8 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.envirocar.app.Injector;
+import org.envirocar.app.injection.InjectionForApplication;
+import org.envirocar.app.injection.Injector;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.commands.CommonCommand;
 import org.envirocar.app.commands.EngineLoad;
@@ -51,9 +52,7 @@ import org.envirocar.app.event.IntakeTemperatureEvent;
 import org.envirocar.app.event.RPMEvent;
 import org.envirocar.app.event.SpeedEvent;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.Car;
 import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.MeasurementSerializationException;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
@@ -98,7 +97,9 @@ public class CommandListener implements Listener, MeasurementListener {
 
     // Injected variables
     @Inject
-    protected Context mContext;
+	@InjectionForApplication
+
+	protected Context mContext;
     @Inject
     protected CarManager mCarManager;
     @Inject

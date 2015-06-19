@@ -102,7 +102,8 @@ public class DeviceInRangeService extends Service {
 					
 					@Override
 					public void onServiceDisconnected(ComponentName name) {
-						logger.info(String.format("BackgroundService %S disconnected!", name.flattenToString()));
+						logger.info(String.format("BackgroundService %S disconnected!", name
+                                .flattenToString()));
 					}
 					
 					@Override

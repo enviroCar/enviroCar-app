@@ -1,8 +1,7 @@
-package org.envirocar.app.injection;
+package org.envirocar.app.injection.module;
 
 import android.content.Context;
 
-import org.envirocar.app.InjectionApplicationModule;
 import org.envirocar.app.application.ContextInternetAccessProvider;
 import org.envirocar.app.dao.AnnouncementsDAO;
 import org.envirocar.app.dao.CacheDirectoryProvider;
@@ -68,7 +67,7 @@ import dagger.Provides;
         library = true,
         complete = false
 )
-public class DAOInjectionModule {
+public class InjectionDAOModule {
 
     private final Context mContext;
 
@@ -77,7 +76,7 @@ public class DAOInjectionModule {
      *
      * @param context   the context of the current scope.
      */
-    public DAOInjectionModule(Context context){
+    public InjectionDAOModule(Context context){
         this.mContext = context;
     }
 

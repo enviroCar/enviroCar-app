@@ -1,4 +1,4 @@
-package org.envirocar.app;
+package org.envirocar.app.injection;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -8,7 +8,6 @@ import com.squareup.otto.Bus;
 
 import org.envirocar.app.logging.Logger;
 
-import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -19,7 +18,7 @@ import dagger.ObjectGraph;
  * @author dewall
  */
 public abstract class BaseInjectorActivity extends AppCompatActivity implements Injector,
-        InjectionModuleProvider{
+        InjectionModuleProvider {
     private static final Logger LOGGER = Logger.getLogger(BaseInjectorActivity.class);
 
     private ObjectGraph mObjectGraph;

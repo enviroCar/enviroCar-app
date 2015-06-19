@@ -25,8 +25,9 @@ import android.os.AsyncTask;
 
 import com.google.common.base.Preconditions;
 
-import org.envirocar.app.InjectionModuleProvider;
-import org.envirocar.app.Injector;
+import org.envirocar.app.injection.InjectionForApplication;
+import org.envirocar.app.injection.InjectionModuleProvider;
+import org.envirocar.app.injection.Injector;
 import org.envirocar.app.dao.cache.CacheAnnouncementsDAO;
 import org.envirocar.app.dao.cache.CacheFuelingDAO;
 import org.envirocar.app.dao.cache.CacheSensorDAO;
@@ -40,7 +41,7 @@ import org.envirocar.app.dao.remote.RemoteSensorDAO;
 import org.envirocar.app.dao.remote.RemoteTermsOfUseDAO;
 import org.envirocar.app.dao.remote.RemoteTrackDAO;
 import org.envirocar.app.dao.remote.RemoteUserDAO;
-import org.envirocar.app.injection.DAOInjectionModule;
+import org.envirocar.app.injection.module.InjectionDAOModule;
 
 import java.util.Arrays;
 import java.util.List;
@@ -59,6 +60,7 @@ import dagger.ObjectGraph;
 public class DAOProvider implements Injector, InjectionModuleProvider {
 
     // No injection here.
+    @InjectionForApplication
     protected Context mAppContext;
 
     // Injected variables
@@ -180,7 +182,7 @@ public class DAOProvider implements Injector, InjectionModuleProvider {
 
     @Override
     public List<Object> getInjectionModules() {
-        return Arrays.<Object>asList(new DAOInjectionModule(mAppContext));
+        return Arrays.<Object>asList(new InjectionDAOModule(mAppContext));
     }
 
     @Override

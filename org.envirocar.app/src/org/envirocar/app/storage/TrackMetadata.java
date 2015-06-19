@@ -23,7 +23,7 @@ package org.envirocar.app.storage;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.envirocar.app.Injector;
+import org.envirocar.app.injection.Injector;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.util.Util;
 import org.json.JSONArray;

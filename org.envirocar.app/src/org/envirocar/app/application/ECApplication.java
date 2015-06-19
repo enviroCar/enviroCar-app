@@ -40,7 +40,7 @@
 //import org.acra.ACRA;
 //import org.acra.annotation.ReportsCrashes;
 //import org.envirocar.app.FeatureFlags;
-//import org.envirocar.app.Injector;
+//import org.envirocar.app.injection.Injector;
 //import org.envirocar.app.R;
 //import org.envirocar.app.activity.MainActivity;
 //import org.envirocar.app.activity.SettingsActivity;
