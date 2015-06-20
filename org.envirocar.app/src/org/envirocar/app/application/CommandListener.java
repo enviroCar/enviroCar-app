@@ -27,7 +27,7 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.envirocar.app.injection.InjectionForApplication;
+import org.envirocar.app.injection.InjectionApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.commands.CommonCommand;
@@ -97,7 +97,7 @@ public class CommandListener implements Listener, MeasurementListener {
 
     // Injected variables
     @Inject
-	@InjectionForApplication
+	@InjectionApplicationScope
 
 	protected Context mContext;
     @Inject

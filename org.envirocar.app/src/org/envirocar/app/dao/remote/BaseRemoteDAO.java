@@ -49,7 +49,7 @@ import org.envirocar.app.dao.exception.NotConnectedException;
 import org.envirocar.app.dao.exception.ResourceConflictException;
 import org.envirocar.app.dao.exception.UnauthorizedException;
 import org.envirocar.app.exception.ServerException;
-import org.envirocar.app.injection.InjectionForApplication;
+import org.envirocar.app.injection.InjectionApplicationScope;
 import org.envirocar.app.model.User;
 import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.util.FileWithMetadata;
@@ -63,7 +63,7 @@ import javax.inject.Inject;
 public class BaseRemoteDAO {
 
     @Inject
-	@InjectionForApplication
+	@InjectionApplicationScope
 	protected Context mContext;
     @Inject
     protected UserManager mUserManager;
@@ -146,7 +146,8 @@ public class BaseRemoteDAO {
 	 * @throws IOException
 	 * @throws JSONException
 	 */
-	protected JSONObject readRemoteResource(String remoteRestResource) throws NotConnectedException, UnauthorizedException, IOException, JSONException {
+	protected JSONObject readRemoteResource(String remoteRestResource)
+			throws NotConnectedException, UnauthorizedException, IOException, JSONException {
 		HttpGet get = new HttpGet(ConstantsEnvirocar.BASE_URL+remoteRestResource);
 		InputStream response = retrieveHttpContent(get);
 		String content = Util.consumeInputStream(response).toString();
@@ -166,7 +167,8 @@ public class BaseRemoteDAO {
 	 * @throws IOException
 	 * @throws JSONException
 	 */
-	protected List<JSONObject> readRemoteResource(String remoteRestResource, boolean complete) throws NotConnectedException, UnauthorizedException, IOException, JSONException {
+	protected List<JSONObject> readRemoteResource(String remoteRestResource, boolean complete)
+            throws NotConnectedException, UnauthorizedException, IOException, JSONException {
 		if (!complete) {
 			return Collections.singletonList(readRemoteResource(remoteRestResource));
 		}

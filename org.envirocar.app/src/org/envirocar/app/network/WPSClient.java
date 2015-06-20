@@ -105,8 +105,8 @@ public class WPSClient {
 			}
 
 		};
-		
-		Util.execute(task);
+		task.execute();
+//		Util.execute(task);
 	}
 
 	public static interface ResultCallback<T> {

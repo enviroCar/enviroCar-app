@@ -25,7 +25,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.preference.PreferenceManager;
 
-import org.envirocar.app.injection.InjectionForApplication;
+import org.envirocar.app.injection.InjectionApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
@@ -47,7 +47,7 @@ public class CarManager {
 
 
     @Inject
-    @InjectionForApplication
+    @InjectionApplicationScope
     protected Context mContext;
 
     private Car car;

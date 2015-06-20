@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.envirocar.app.injection.InjectionForApplication;
+import org.envirocar.app.injection.InjectionApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.util.Util;
@@ -42,7 +42,7 @@ public class TemporaryFileManager {
     private static final Logger logger = Logger.getLogger(TemporaryFileManager.class);
 
     @Inject
-	@InjectionForApplication
+	@InjectionApplicationScope
 	protected Context mContext;
 
 	private List<File> temporaryFiles = new ArrayList<File>();

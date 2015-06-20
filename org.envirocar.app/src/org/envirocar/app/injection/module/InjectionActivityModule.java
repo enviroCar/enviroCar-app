@@ -15,7 +15,7 @@ import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.StartStopButtonUtil;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.TermsOfUseManager;
-import org.envirocar.app.injection.InjectionForActivity;
+import org.envirocar.app.injection.InjectionActivityScope;
 
 import javax.inject.Singleton;
 
@@ -60,7 +60,7 @@ public class InjectionActivityModule {
     }
 
     @Provides
-    @InjectionForActivity
+    @InjectionActivityScope
     public Context provideContext() {
         return mActivity;
     }

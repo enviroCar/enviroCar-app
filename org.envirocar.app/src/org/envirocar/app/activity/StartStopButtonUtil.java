@@ -27,7 +27,7 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
 import org.envirocar.app.BaseMainActivity;
-import org.envirocar.app.injection.InjectionForActivity;
+import org.envirocar.app.injection.InjectionActivityScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
@@ -52,7 +52,7 @@ public class StartStopButtonUtil {
     private static final Logger LOGGER = Logger.getLogger(StartStopButtonUtil.class);
 
     @Inject
-    @InjectionForActivity
+    @InjectionActivityScope
     protected Context mContext;
     @Inject
     protected CarManager mCarManager;

@@ -12,11 +12,13 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.NotificationCompat;
 
-import org.envirocar.app.injection.InjectionForApplication;
-import org.envirocar.app.injection.Injector;
+import com.google.common.collect.Maps;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.envirocar.app.injection.InjectionApplicationScope;
+import org.envirocar.app.injection.Injector;
+import org.envirocar.app.services.SystemStartupService;
+
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -24,13 +26,17 @@ import javax.inject.Inject;
  * @author dewall
  */
 public class NotificationHandler {
-    public static final int STATE_SEARCHING = 100;
+
+
+    // TODO remove this
+    private static final int mId = 133;
+    private static int NOTIFICATION_ID = 1000;
     @Inject
-    @InjectionForApplication
+    @InjectionApplicationScope
     protected Context mContext;
-    private int mId = 1133;
     private NotificationManager mNotificationManager;
     private PendingIntent mBaseContentIntent;
+    private Map<Object, Integer> mServiceToNotificationID = Maps.newConcurrentMap();
 
     /**
      * @param context
@@ -46,6 +52,10 @@ public class NotificationHandler {
         // Set up the pending intent for the Mainactivity
         Intent baseIntent = new Intent(mContext, BaseMainActivity.class);
         mBaseContentIntent = PendingIntent.getActivity(mContext, 0, baseIntent, 0);
+    }
+
+    private static final int getNotificationID() {
+        return NOTIFICATION_ID++;
     }
 
     /**
@@ -64,6 +74,7 @@ public class NotificationHandler {
         Intent intent = new Intent(mContext, BaseMainActivity.class);
         PendingIntent pintent = PendingIntent.getActivity(mContext, 0, intent, 0);
 
+
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(mContext)
                         .setSmallIcon(R.drawable.ic_launcher)
@@ -79,33 +90,28 @@ public class NotificationHandler {
 
     }
 
-    public void startNotificationForService(Service service) {
-        Intent notificationIntent = new Intent(mContext, BaseMainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(mContext, 0, notificationIntent, 0);
+    public void setNotificationState(Service service, NotificationState state) {
+        int notificationID;
+        if (!mServiceToNotificationID.containsKey(service)) {
+            notificationID = getNotificationID();
+            mServiceToNotificationID.put(service, notificationID);
 
-        Notification.BigTextStyle bigTextStyle = new Notification.BigTextStyle();
-        bigTextStyle.bigText("super big text");
-        bigTextStyle.setBigContentTitle("super big content text");
+            // run a dummy notification in the foreground.
+            Notification.Builder builder = new Notification.Builder(mContext);
+            service.startForeground(notificationID, builder.build());
+        } else {
+            notificationID = mServiceToNotificationID.get(service);
+        }
 
-        Notification.Builder builder = new Notification.Builder(mContext)
-                .setContentTitle("super content title")
-                .setContentText("super content text")
-                .setContentIntent(pendingIntent)
-                .setStyle(bigTextStyle)
-                .setSmallIcon(android.R.drawable.ic_dialog_alert)
-                .addAction(android.R.drawable.button_onoff_indicator_off, "wurst", null);
 
-        service.startForeground(mId, builder.build());
-    }
-
-    public void setNotificationState(NotificationState state) {
         Notification.Builder builder = new Notification.Builder(mContext);
         builder.setContentTitle(state.getNotificationTitle());
         builder.setContentText(state.getNotificationContent());
         builder.setSmallIcon(state.getSmallIconId());
 
         // TODO
-        builder.setLargeIcon(getBitmap(mContext.getResources().getDrawable(state.getLargeIconId())));
+        builder.setLargeIcon(getBitmap(
+                mContext.getResources().getDrawable(state.getLargeIconId())));
         builder.setContentIntent(mBaseContentIntent);
 
         if (state.isShowingBigText()) {
@@ -115,11 +121,11 @@ public class NotificationHandler {
             builder.setStyle(bigTextStyle);
         }
 
-        for (NotificationActionHolder holder : state.getActions()) {
+        for (NotificationActionHolder holder : state.getActions(mContext)) {
             builder.addAction(holder.mActionIcon, holder.mActionTitle, holder.mPendingIntent);
         }
 
-        mNotificationManager.notify(mId, builder.build());
+        mNotificationManager.notify(notificationID, builder.build());
     }
 
     /**
@@ -160,6 +166,17 @@ public class NotificationHandler {
             public boolean isShowingBigText() {
                 return true;
             }
+
+            @Override
+            public NotificationActionHolder[] getActions(Context context) {
+                Intent intent = new Intent(SystemStartupService.FLAG_ACTION_START_DISCOVERY);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
+                        PendingIntent.FLAG_CANCEL_CURRENT);
+
+                return new NotificationActionHolder[]{
+                        new NotificationActionHolder(android.R.drawable.ic_menu_close_clear_cancel,
+                                "Discover", pendingIntent)};
+            }
         },
         DISCOVERING {
             @Override
@@ -178,11 +195,10 @@ public class NotificationHandler {
             }
 
             @Override
-            public NotificationActionHolder[] getActions() {
-                List<NotificationActionHolder> list = new ArrayList<NotificationActionHolder>();
-                list.add(new NotificationActionHolder(android.R.drawable
-                        .ic_menu_close_clear_cancel, "juhu", null));
-                return super.getActions();
+            public NotificationActionHolder[] getActions(Context context) {
+                return new NotificationActionHolder[]{
+                        new NotificationActionHolder(android.R.drawable.ic_menu_close_clear_cancel,
+                                "juhu", null)};
             }
         },
         OBD_FOUND {
@@ -199,6 +215,13 @@ public class NotificationHandler {
             @Override
             public boolean isShowingBigText() {
                 return true;
+            }
+
+            @Override
+            public NotificationActionHolder[] getActions(Context context) {
+                return new NotificationActionHolder[]{
+                        new NotificationActionHolder(android.R.drawable.stat_sys_data_bluetooth,
+                                "Start Track", null)};
             }
         },
         CONNCECTED {
@@ -231,7 +254,7 @@ public class NotificationHandler {
 
 
         @Override
-        public NotificationActionHolder[] getActions() {
+        public NotificationActionHolder[] getActions(Context context) {
             return new NotificationActionHolder[0];
         }
     }
@@ -282,11 +305,14 @@ public class NotificationHandler {
          *
          * @return the actions to be added to the notification
          */
-        NotificationActionHolder[] getActions();
+        NotificationActionHolder[] getActions(Context context);
     }
 
     /**
-     * Holder class that holds the action specific details for notifications.
+     * Holder class that holds the action specific details for notifications. Using Notification
+     * .Action is not possible, because the add method is only accessible for android versions
+     * >20. Therefore, this holder class is a workaround to allow individual actions for the
+     * notifications.
      */
     private static final class NotificationActionHolder {
         int mActionIcon;
@@ -296,11 +322,11 @@ public class NotificationHandler {
         /**
          * Constructor.
          *
-         * @param actionIcon    The icon of the action.
-         * @param actionTitle   The title of the action.
-         * @param intent        The pending intent of the action.
+         * @param actionIcon  The icon of the action.
+         * @param actionTitle The title of the action.
+         * @param intent      The pending intent of the action.
          */
-        NotificationActionHolder(int actionIcon, String actionTitle, PendingIntent intent){
+        NotificationActionHolder(int actionIcon, String actionTitle, PendingIntent intent) {
             this.mActionIcon = actionIcon;
             this.mActionTitle = actionTitle;
             this.mPendingIntent = intent;

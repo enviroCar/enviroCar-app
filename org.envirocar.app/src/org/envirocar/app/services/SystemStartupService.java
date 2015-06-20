@@ -1,6 +1,5 @@
 package org.envirocar.app.services;
 
-import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -11,7 +10,6 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -36,39 +34,32 @@ import javax.inject.Inject;
  */
 public class SystemStartupService extends Service {
     private static final Logger LOGGER = Logger.getLogger(SystemStartupService.class);
-    protected final BroadcastReceiver mBluetoothStateChangedReceiver = new BroadcastReceiver() {
+
+    public static final int FLAG_BROADCAST_NOTIFICATION_CLICKS = 9555;
+    public static final String FLAG_ACTION_START_DISCOVERY = "action_start_discovery";
+
+    private final BroadcastReceiver mBroadcastReciever = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            final String action = intent.getAction();
+            String action = intent.getAction();
 
-            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
-                        BluetoothAdapter.ERROR);
+            if(FLAG_ACTION_START_DISCOVERY.equals(action)){
+                LOGGER.info("Received Broadcast: Start Discovery");
+                Toast.makeText(getApplicationContext(), "Started Discovery", Toast.LENGTH_SHORT)
+                        .show();
+                // TODO
+                mBluetoothDiscoveryRunnable = new BluetoothDiscoveryRunnable();
+                mDiscoveryHandler.post(mBluetoothDiscoveryRunnable);
 
-                switch (state) {
-                    case BluetoothAdapter.STATE_TURNING_OFF:
-                        LOGGER.debug("Bluetooth State Changed: STATE_TURNING_OFF");
-                        break;
-                    case BluetoothAdapter.STATE_OFF:
-                        LOGGER.debug("Bluetooth State Changed: STATE_OFF");
+                if(mBluetoothDiscoveryRunnable != null){
 
-                        break;
-                    case BluetoothAdapter.STATE_TURNING_ON:
-                        LOGGER.debug("Bluetooth State Changed: STATE_TURNING_ON");
-                        break;
-                    case BluetoothAdapter.STATE_ON:
-                        LOGGER.debug("Bluetooth State Changed: STATE_ON");
-                        Toast.makeText(getApplicationContext(), "Bluetooth enabled22", Toast
-                                .LENGTH_LONG).show();
-
-                        break;
-                    default:
-                        LOGGER.debug("Bluetooth State Changed: unknown state");
-                        break;
                 }
             }
         }
     };
+
+
+
     // Runnables
     private final long DISCOVERY_PERIOD = 1000 * 60 * 2;
     // Injected variables
@@ -106,11 +97,10 @@ public class SystemStartupService extends Service {
         Toast.makeText(this, "My Service Started", Toast.LENGTH_LONG).show();
 
 
-        // Register this handler class for Bluetooth State Changed broadcasts.
-        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-        registerReceiver(mBluetoothStateChangedReceiver, filter);
+        mNotificationHandler.setNotificationState(this,
+                NotificationHandler.NotificationState.UNCONNECTED);
 
-        mNotificationHandler.startNotificationForService(this);
+
     }
 
     @Override
@@ -126,7 +116,6 @@ public class SystemStartupService extends Service {
         if (mBluetoothHandler.isBluetoothEnabled()) {
             mBluetoothDiscoveryRunnable = new BluetoothDiscoveryRunnable();
             mDiscoveryHandler.post(mBluetoothDiscoveryRunnable);
-            // update notification
         }
 
 
@@ -156,9 +145,14 @@ public class SystemStartupService extends Service {
         }
     }
 
+    private void onDeviceDiscovered(){
+        mNotificationHandler.setNotificationState(this,
+                NotificationHandler.NotificationState.OBD_FOUND);
+    }
+
 
     /**
-     * Runnable that handles the discoery of other devices.
+     * Runnable that handles the discovery of other devices.
      */
     private final class BluetoothDiscoveryRunnable implements Runnable {
         @Override
@@ -169,15 +163,15 @@ public class SystemStartupService extends Service {
                         @Override
                         public void onActionDeviceDiscoveryStarted() {
                             LOGGER.info("Device Discovery started...");
-                            mNotificationHandler.setNotificationState(
+                            mNotificationHandler.setNotificationState(SystemStartupService.this,
                                     NotificationHandler.NotificationState.DISCOVERING);
                         }
 
                         @Override
                         public void onActionDeviceDiscoveryFinished() {
                             LOGGER.info("Device Discovery finished...");
-                            mNotificationHandler.setNotificationState(NotificationHandler
-                                    .NotificationState.UNCONNECTED);
+                            mNotificationHandler.setNotificationState(SystemStartupService.this,
+                                    NotificationHandler.NotificationState.UNCONNECTED);
                         }
 
                         @Override
@@ -194,6 +188,7 @@ public class SystemStartupService extends Service {
                                 // TODO start
                                 LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast
                                         (new Intent(BluetoothConstants.ACTION_BROADCAST));
+                                onDeviceDiscovered();
                             }
                         }
                     });

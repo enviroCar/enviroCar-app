@@ -620,7 +620,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
                     /*
                      * We are good to go. process the state and stuff
 					 */
-                        StartStopButtonUtil.OnTrackModeChangeListener trackModeListener = new StartStopButtonUtil.OnTrackModeChangeListener() {
+                        StartStopButtonUtil.OnTrackModeChangeListener trackModeListener =
+                                new StartStopButtonUtil.OnTrackModeChangeListener() {
                             @Override
                             public void onTrackModeChange(int tm) {
                                 trackMode = tm;

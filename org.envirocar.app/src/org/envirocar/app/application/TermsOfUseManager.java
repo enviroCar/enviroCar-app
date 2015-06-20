@@ -25,7 +25,7 @@ import android.content.Context;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.injection.InjectionForApplication;
+import org.envirocar.app.injection.InjectionApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.DialogUtil;
@@ -55,7 +55,7 @@ public class TermsOfUseManager {
 
     // Injected variables.
     @Inject
-    @InjectionForApplication
+    @InjectionApplicationScope
     protected Context mContext;
     @Inject
     protected Bus mBus;

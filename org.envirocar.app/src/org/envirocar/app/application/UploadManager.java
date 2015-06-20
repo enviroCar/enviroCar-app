@@ -26,7 +26,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import org.envirocar.app.injection.InjectionForApplication;
+import org.envirocar.app.injection.InjectionApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.NotificationHandler;
 import org.envirocar.app.R;
@@ -69,7 +69,7 @@ public class UploadManager {
     @Inject
     protected Activity mActivity;
     @Inject
-    @InjectionForApplication
+    @InjectionApplicationScope
     protected Context mContext;
     @Inject
     protected DbAdapter mDBAdapter;

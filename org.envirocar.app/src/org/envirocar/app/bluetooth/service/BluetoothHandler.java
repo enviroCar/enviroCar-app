@@ -13,7 +13,7 @@ import android.preference.PreferenceManager;
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.injection.InjectionForApplication;
+import org.envirocar.app.injection.InjectionApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.bluetooth.event.BluetoothStateChangedEvent;
 import org.envirocar.app.bluetooth.service.event.BluetoothDeviceDiscoveredEvent;
@@ -39,7 +39,7 @@ public class BluetoothHandler {
 
     // Injected variables.
     @Inject
-    @InjectionForApplication
+    @InjectionApplicationScope
     protected Context mContext;
     @Inject
     protected Bus mBus;
@@ -110,7 +110,6 @@ public class BluetoothHandler {
         // Register this handler class for Bluetooth State Changed broadcasts.
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         mContext.registerReceiver(mBluetoothStateChangedReceiver, filter);
-        mContext.unregisterReceiver(mBluetoothStateChangedReceiver);
     }
 
     /**

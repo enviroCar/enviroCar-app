@@ -25,7 +25,7 @@ import android.os.AsyncTask;
 
 import com.google.common.base.Preconditions;
 
-import org.envirocar.app.injection.InjectionForApplication;
+import org.envirocar.app.injection.InjectionApplicationScope;
 import org.envirocar.app.injection.InjectionModuleProvider;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.dao.cache.CacheAnnouncementsDAO;
@@ -60,7 +60,7 @@ import dagger.ObjectGraph;
 public class DAOProvider implements Injector, InjectionModuleProvider {
 
     // No injection here.
-    @InjectionForApplication
+    @InjectionApplicationScope
     protected Context mAppContext;
 
     // Injected variables
