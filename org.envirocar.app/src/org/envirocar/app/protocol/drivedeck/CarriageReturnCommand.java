@@ -20,7 +20,7 @@
  */
 package org.envirocar.app.protocol.drivedeck;
 
-import org.envirocar.app.commands.CommonCommand;
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
 
 public class CarriageReturnCommand extends CommonCommand {
 

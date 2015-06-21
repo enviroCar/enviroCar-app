@@ -24,11 +24,11 @@ import java.math.BigDecimal;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.commands.O2LambdaProbe;
-import org.envirocar.app.commands.O2LambdaProbeCurrent;
-import org.envirocar.app.commands.O2LambdaProbeVoltage;
-import org.envirocar.app.commands.PIDUtil;
-import org.envirocar.app.commands.PIDUtil.PID;
+import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbe;
+import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbeCurrent;
+import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbeVoltage;
+import org.envirocar.app.bluetooth.obd.commands.PIDUtil;
+import org.envirocar.app.bluetooth.obd.commands.PIDUtil.PID;
 
 import android.test.AndroidTestCase;
 

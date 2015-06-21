@@ -44,8 +44,8 @@
 //import org.envirocar.app.R;
 //import org.envirocar.app.activity.MainActivity;
 //import org.envirocar.app.activity.SettingsActivity;
-//import org.envirocar.app.dao.CacheDirectoryProvider;
-//import org.envirocar.app.dao.DAOProvider;
+//import org.envirocar.app.model.dao.CacheDirectoryProvider;
+//import org.envirocar.app.model.dao.DAOProvider;
 //import org.envirocar.app.logging.ACRACustomSender;
 //import org.envirocar.app.logging.Logger;
 //import org.envirocar.app.storage.DbAdapterImpl;

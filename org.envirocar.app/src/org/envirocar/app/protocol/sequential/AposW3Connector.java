@@ -23,13 +23,13 @@ package org.envirocar.app.protocol.sequential;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.envirocar.app.commands.CommonCommand;
-import org.envirocar.app.commands.EchoOff;
-import org.envirocar.app.commands.LineFeedOff;
-import org.envirocar.app.commands.ObdReset;
-import org.envirocar.app.commands.SelectAutoProtocol;
-import org.envirocar.app.commands.StringResultCommand;
-import org.envirocar.app.commands.Timeout;
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
+import org.envirocar.app.bluetooth.obd.commands.EchoOff;
+import org.envirocar.app.bluetooth.obd.commands.LineFeedOff;
+import org.envirocar.app.bluetooth.obd.commands.ObdReset;
+import org.envirocar.app.bluetooth.obd.commands.SelectAutoProtocol;
+import org.envirocar.app.bluetooth.obd.commands.StringResultCommand;
+import org.envirocar.app.bluetooth.obd.commands.Timeout;
 import org.envirocar.app.logging.Logger;
 
 public class AposW3Connector extends ELM327Connector {

@@ -25,7 +25,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.envirocar.app.commands.CommonCommand;
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.exception.LooperStoppedException;
 

@@ -116,8 +116,8 @@ public class NotificationHandler {
 
         if (state.isShowingBigText()) {
             Notification.BigTextStyle bigTextStyle = new Notification.BigTextStyle();
-            bigTextStyle.bigText(state.getNotificationTitle());
-            bigTextStyle.setBigContentTitle(state.getNotificationContent());
+            bigTextStyle.setBigContentTitle(state.getNotificationTitle());
+            bigTextStyle.bigText(state.getNotificationContent());
             builder.setStyle(bigTextStyle);
         }
 
@@ -139,7 +139,8 @@ public class NotificationHandler {
             return ((BitmapDrawable) drawable).getBitmap();
         }
 
-        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(),
+                drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
@@ -169,7 +170,7 @@ public class NotificationHandler {
 
             @Override
             public NotificationActionHolder[] getActions(Context context) {
-                Intent intent = new Intent(SystemStartupService.FLAG_ACTION_START_DISCOVERY);
+                Intent intent = new Intent(SystemStartupService.ACTION_START_BT_DISCOVERY);
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
                         PendingIntent.FLAG_CANCEL_CURRENT);
 

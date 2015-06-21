@@ -27,9 +27,9 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.commands.PIDSupported;
-import org.envirocar.app.commands.CommonCommand.CommonCommandState;
-import org.envirocar.app.commands.PIDUtil.PID;
+import org.envirocar.app.bluetooth.obd.commands.PIDSupported;
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand.CommonCommandState;
+import org.envirocar.app.bluetooth.obd.commands.PIDUtil.PID;
 
 import android.test.AndroidTestCase;
 

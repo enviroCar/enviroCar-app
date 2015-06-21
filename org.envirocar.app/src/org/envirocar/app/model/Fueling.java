@@ -23,7 +23,7 @@ package org.envirocar.app.model;
 import java.util.Date;
 
 import org.envirocar.app.activity.LogbookFragment;
-import org.envirocar.app.dao.FuelingDAO;
+import org.envirocar.app.model.dao.FuelingDAO;
 
 /**
  * Simple POJO representing a fueling stop as used by {@link LogbookFragment}

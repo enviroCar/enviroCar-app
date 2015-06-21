@@ -22,8 +22,8 @@ package org.envirocar.app.test.commands.drivedeck;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.commands.CommonCommand;
-import org.envirocar.app.commands.IntakeTemperature;
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
+import org.envirocar.app.bluetooth.obd.commands.IntakeTemperature;
 import org.envirocar.app.protocol.ResponseParser;
 
 public class IntakeTemperatureTest extends CommandTest {

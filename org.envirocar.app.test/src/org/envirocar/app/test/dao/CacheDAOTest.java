@@ -26,9 +26,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import org.envirocar.app.dao.CacheDirectoryProvider;
-import org.envirocar.app.dao.DAOProvider;
-import org.envirocar.app.dao.InternetAccessProvider;
+import org.envirocar.app.model.dao.CacheDirectoryProvider;
+import org.envirocar.app.model.dao.DAOProvider;
+import org.envirocar.app.model.dao.InternetAccessProvider;
 import org.envirocar.app.util.Util;
 
 import android.test.InstrumentationTestCase;

@@ -22,8 +22,8 @@ package org.envirocar.app.protocol.drivedeck;
 
 import java.util.List;
 
-import org.envirocar.app.commands.CommonCommand;
-import org.envirocar.app.commands.PIDUtil;
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
+import org.envirocar.app.bluetooth.obd.commands.PIDUtil;
 
 public class CycleCommand extends CommonCommand {
 	

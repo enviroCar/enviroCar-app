@@ -27,15 +27,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import org.envirocar.app.commands.CommonCommand;
-import org.envirocar.app.commands.IntakePressure;
-import org.envirocar.app.commands.IntakeTemperature;
-import org.envirocar.app.commands.MAF;
-import org.envirocar.app.commands.O2LambdaProbe;
-import org.envirocar.app.commands.PIDSupported;
-import org.envirocar.app.commands.RPM;
-import org.envirocar.app.commands.CommonCommand.CommonCommandState;
-import org.envirocar.app.commands.Speed;
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
+import org.envirocar.app.bluetooth.obd.commands.IntakePressure;
+import org.envirocar.app.bluetooth.obd.commands.IntakeTemperature;
+import org.envirocar.app.bluetooth.obd.commands.MAF;
+import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbe;
+import org.envirocar.app.bluetooth.obd.commands.PIDSupported;
+import org.envirocar.app.bluetooth.obd.commands.RPM;
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand.CommonCommandState;
+import org.envirocar.app.bluetooth.obd.commands.Speed;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.AbstractAsynchronousConnector;
 import org.envirocar.app.protocol.ResponseParser;
@@ -226,7 +226,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		else if (pid.equals("4D")) {
 			//TODO the current manual does not provide info on how to
 			//determine which probe value is returned.
-			result = O2LambdaProbe.fromPIDEnum(org.envirocar.app.commands.PIDUtil.PID.O2_LAMBDA_PROBE_1_VOLTAGE);
+			result = O2LambdaProbe.fromPIDEnum(org.envirocar.app.bluetooth.obd.commands.PIDUtil.PID.O2_LAMBDA_PROBE_1_VOLTAGE);
 		}
 
 		oneTimePIDLog(pid, rawBytes);

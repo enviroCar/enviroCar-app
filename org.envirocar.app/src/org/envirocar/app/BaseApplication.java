@@ -33,7 +33,7 @@ import dagger.ObjectGraph;
 @ReportsCrashes
 public class BaseApplication extends Application implements Injector, InjectionModuleProvider {
     private static final String TAG = BaseApplication.class.getSimpleName();
-//    private static final Logger LOGGER = Logger.getLogger(BaseApplication.class);
+    private static final Logger LOGGER = Logger.getLogger(BaseApplication.class);
 
     protected ObjectGraph mObjectGraph;
 
@@ -82,17 +82,17 @@ public class BaseApplication extends Application implements Injector, InjectionM
     @Override
     public void onLowMemory() {
         super.onLowMemory();
-//        LOGGER.info("onLowMemory called");
+        LOGGER.info("onLowMemory called");
     }
 
     @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     @Override
     public void onTrimMemory(int level) {
         super.onTrimMemory(level);
-//        LOGGER.info("onTrimMemory called");
-//        LOGGER.info("maxMemory: " + Runtime.getRuntime().maxMemory());
-//        LOGGER.info("totalMemory: " + Runtime.getRuntime().totalMemory());
-//        LOGGER.info("freeMemory: " + Runtime.getRuntime().freeMemory());
+        LOGGER.info("onTrimMemory called");
+        LOGGER.info("maxMemory: " + Runtime.getRuntime().maxMemory());
+        LOGGER.info("totalMemory: " + Runtime.getRuntime().totalMemory());
+        LOGGER.info("freeMemory: " + Runtime.getRuntime().freeMemory());
     }
 
 

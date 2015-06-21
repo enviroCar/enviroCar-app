@@ -25,7 +25,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-import org.envirocar.app.commands.CommonCommand;
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
 import org.envirocar.app.protocol.exception.AdapterFailedException;
 import org.envirocar.app.protocol.exception.ConnectionLostException;
 import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;

@@ -1,6 +1,6 @@
 package org.envirocar.app.application;
 
-import org.envirocar.app.dao.InternetAccessProvider;
+import org.envirocar.app.model.dao.InternetAccessProvider;
 
 import android.content.Context;
 import android.net.ConnectivityManager;

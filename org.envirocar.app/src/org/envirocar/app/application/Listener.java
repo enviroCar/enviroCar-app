@@ -21,7 +21,7 @@
 
 package org.envirocar.app.application;
 
-import org.envirocar.app.commands.CommonCommand;
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
 
 /**
  * Interface that listens for updates from the current obd job

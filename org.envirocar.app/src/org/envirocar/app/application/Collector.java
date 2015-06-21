@@ -20,9 +20,9 @@
  */
 package org.envirocar.app.application;
 
-import org.envirocar.app.commands.O2LambdaProbe;
-import org.envirocar.app.commands.O2LambdaProbeCurrent;
-import org.envirocar.app.commands.O2LambdaProbeVoltage;
+import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbe;
+import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbeCurrent;
+import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbeVoltage;
 import org.envirocar.app.event.CO2Event;
 import org.envirocar.app.event.ConsumptionEvent;
 import org.envirocar.app.event.EventBus;

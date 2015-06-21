@@ -27,7 +27,7 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
-import org.envirocar.app.dao.exception.TrackRetrievalException;
+import org.envirocar.app.model.dao.exception.TrackRetrievalException;
 import org.envirocar.app.json.TrackDecoder;
 
 import android.test.AndroidTestCase;

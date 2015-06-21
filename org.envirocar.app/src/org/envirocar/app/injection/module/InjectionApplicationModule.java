@@ -26,7 +26,7 @@ import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.bluetooth.service.BluetoothHandler;
-import org.envirocar.app.dao.DAOProvider;
+import org.envirocar.app.model.dao.DAOProvider;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;

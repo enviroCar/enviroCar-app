@@ -30,8 +30,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.envirocar.app.application.Listener;
-import org.envirocar.app.commands.CommonCommand;
-import org.envirocar.app.commands.CommonCommand.CommonCommandState;
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.OBDConnector.ConnectionState;
 import org.envirocar.app.protocol.drivedeck.DriveDeckSportConnector;
