@@ -156,6 +156,10 @@ public class Logger {
 		log(SEVERE, message, e);
 	}
 
+	public void error(String message, Throwable t){
+		log(SEVERE, message, t);
+	}
+
 	public static String convertExceptionToString(Throwable e) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(e.getClass().getCanonicalName());

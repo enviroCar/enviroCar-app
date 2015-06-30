@@ -6,6 +6,7 @@ import android.content.Context;
 import com.squareup.otto.Bus;
 
 import org.envirocar.app.FeatureFlags;
+import org.envirocar.app.LocationHandler;
 import org.envirocar.app.NotificationHandler;
 import org.envirocar.app.activity.DashboardFragment;
 import org.envirocar.app.activity.ListTracksFragment;
@@ -19,13 +20,14 @@ import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.fragments.SettingsFragment;
 import org.envirocar.app.injection.InjectionApplicationScope;
 import org.envirocar.app.injection.Injector;
+import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.view.preferences.BluetoothPairingPreference;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UserManager;
-import org.envirocar.app.bluetooth.service.BluetoothHandler;
+import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.app.model.dao.DAOProvider;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapter;
@@ -64,7 +66,9 @@ import dagger.Provides;
                 NotificationHandler.class,
                 BackgroundServiceImpl.class,
                 CommandListener.class,
-                DbAdapterImpl.class
+                DbAdapterImpl.class,
+                LocationHandler.class,
+                OBDConnectionService.class
         },
         library = true,
         complete = false
@@ -232,4 +236,9 @@ public class InjectionApplicationModule {
         return new BluetoothHandler(mAppContext);
     }
 
+    @Provides
+    @Singleton
+    LocationHandler provideLocationHandler(){
+        return new LocationHandler(mAppContext);
+    }
 }

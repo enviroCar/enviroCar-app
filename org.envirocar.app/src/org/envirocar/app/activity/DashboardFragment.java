@@ -42,6 +42,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.otto.Bus;
+
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
@@ -52,8 +54,8 @@ import org.envirocar.app.application.service.BackgroundServiceInteractor;
 import org.envirocar.app.event.CO2Event;
 import org.envirocar.app.event.CO2EventListener;
 import org.envirocar.app.event.EventBus;
-import org.envirocar.app.event.GpsSatelliteFix;
-import org.envirocar.app.event.GpsSatelliteFixEvent;
+import org.envirocar.app.events.GpsSatelliteFix;
+import org.envirocar.app.events.GpsSatelliteFixEvent;
 import org.envirocar.app.event.GpsSatelliteFixEventListener;
 import org.envirocar.app.event.LocationEvent;
 import org.envirocar.app.event.LocationEventListener;
@@ -125,6 +127,8 @@ public class DashboardFragment extends BaseInjectorFragment {
 	private boolean useImperialUnits;
 
 	@Inject
+	protected Bus mBus;
+	@Inject
 	protected CarManager mCarManager;
 
 
@@ -132,6 +136,8 @@ public class DashboardFragment extends BaseInjectorFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		logger.info("onCreateView. hash="+System.identityHashCode(this));
+
+
 		return inflater.inflate(R.layout.dashboard, container, false);
 	}
 	
@@ -212,6 +218,7 @@ public class DashboardFragment extends BaseInjectorFragment {
 				}
 			}
 		};
+
 		
 		preferences.registerOnSharedPreferenceChangeListener(preferenceListener);
 		

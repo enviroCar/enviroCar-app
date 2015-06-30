@@ -31,11 +31,24 @@ dependencies {
 
     // Commons compress
     compile 'org.apache.commons:commons-compress:1.5'
+
+    // Butterknife
+    compile 'com.jakewharton:butterknife:6.1.0'
+
+    // RxJava for Android
+    compile 'io.reactivex:rxandroid:0.24.0'
 }
+
+
 
 android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
+
+    compileOptions{
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     sourceSets {
         main {
@@ -61,3 +74,21 @@ android {
         release.setRoot('build-types/release')
     }
 }
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'me.tatarka:gradle-retrolambda:3.1.0'
+    }
+}
+
+// Required because retrolambda is on maven central
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'com.android.application' //or apply plugin: 'java'
+apply plugin: 'me.tatarka.retrolambda'

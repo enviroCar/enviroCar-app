@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 
@@ -58,6 +59,7 @@ public class BaseApplication extends Application implements Injector, InjectionM
         // create initial ObjectGraph
         mObjectGraph = ObjectGraph.create(getInjectionModules().toArray());
         mObjectGraph.validate();
+
 
         SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());

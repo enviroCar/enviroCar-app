@@ -97,6 +97,7 @@ public class StartStopButtonUtil {
                 break;
             case SERVICE_DEVICE_DISCOVERY_PENDING:
                 handleServiceDeviceDiscoveryPendingState(button);
+                // TODO ist das so gewollt ohne break?
             case SERVICE_STARTING:
                 handleServiceStartingState(button);
                 break;

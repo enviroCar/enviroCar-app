@@ -32,6 +32,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.envirocar.app.activity.DashboardFragment;
 import org.envirocar.app.activity.DialogUtil;
@@ -52,13 +53,13 @@ import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.BackgroundServiceInteractor;
 import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.application.service.DeviceInRangeServiceInteractor;
-import org.envirocar.app.model.dao.DAOProvider;
-import org.envirocar.app.model.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.fragments.SettingsFragment;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.injection.module.InjectionActivityModule;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Announcement;
+import org.envirocar.app.model.dao.DAOProvider;
+import org.envirocar.app.model.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.util.Util;
 import org.envirocar.app.util.VersionRange;
@@ -180,6 +181,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
             }
         });
 
+
         // Initializes the navigation drawer.
         initNavigationDrawerLayout();
 
@@ -204,7 +206,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
             }
         };
 
-        registerReceiver(serviceStateReceiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
+        registerReceiver(serviceStateReceiver, new IntentFilter
+                (AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 
         deviceDiscoveryStateReceiver = new AbstractBackgroundServiceStateReceiver() {
 
@@ -218,7 +221,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 }
             }
         };
-        registerReceiver(deviceDiscoveryStateReceiver, new IntentFilter(AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
+        registerReceiver(deviceDiscoveryStateReceiver, new IntentFilter
+                (AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 
         bluetoothStateReceiver = new BroadcastReceiver() {
             @Override
@@ -228,18 +232,15 @@ public class BaseMainActivity extends BaseInjectorActivity {
         };
 
 
-        registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+        registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter
+                .ACTION_STATE_CHANGED));
 
-        settingsReceiver = new SharedPreferences.OnSharedPreferenceChangeListener() {
-            @Override
-            public void onSharedPreferenceChanged(
-                    SharedPreferences sharedPreferences, String key) {
-                if (key.equals(SettingsActivity.BLUETOOTH_NAME)) {
-                    updateStartStopButton();
-                }
-                if (key.equals(SettingsActivity.CAR) || key.equals(SettingsActivity.CAR_HASH_CODE)) {
-                    updateStartStopButton();
-                }
+        settingsReceiver = (sharedPreferences, key) -> {
+            if (key.equals(SettingsActivity.BLUETOOTH_NAME)) {
+                updateStartStopButton();
+            }
+            if (key.equals(SettingsActivity.CAR) || key.equals(SettingsActivity.CAR_HASH_CODE)) {
+                updateStartStopButton();
             }
         };
 
@@ -265,7 +266,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
             }
         };
 
-        registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment.INTENT));
+        registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment
+                .INTENT));
 
         resolvePersistentSeenAnnouncements();
     }
@@ -352,7 +354,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
         String title = announcement.createUITitle(this);
         String content = announcement.getContent();
 
-        DialogUtil.createTitleMessageInfoDialog(title, Html.fromHtml(content), true, new DialogUtil.PositiveNegativeCallback() {
+        DialogUtil.createTitleMessageInfoDialog(title, Html.fromHtml(content), true, new
+                DialogUtil.PositiveNegativeCallback() {
             @Override
             public void negative() {
                 seenAnnouncements.add(announcement.getId());
@@ -368,7 +371,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     protected void addPersistentSeenAnnouncement(String id) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String currentPersisted = preferences.getString(SettingsActivity.PERSISTENT_SEEN_ANNOUNCEMENTS, "");
+        String currentPersisted = preferences.getString(SettingsActivity
+                .PERSISTENT_SEEN_ANNOUNCEMENTS, "");
 
         StringBuilder sb = new StringBuilder(currentPersisted);
         if (!currentPersisted.isEmpty()) {
@@ -376,7 +380,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
         }
         sb.append(id);
 
-        preferences.edit().putString(SettingsActivity.PERSISTENT_SEEN_ANNOUNCEMENTS, sb.toString()).commit();
+        preferences.edit().putString(SettingsActivity.PERSISTENT_SEEN_ANNOUNCEMENTS, sb.toString
+                ()).commit();
     }
 
     // TODO check
@@ -490,9 +495,11 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private void updateStartStopButton() {
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         StartStopButtonUtil startStopUtil = new StartStopButtonUtil(this, trackMode, serviceState,
-                serviceState == AbstractBackgroundServiceStateReceiver.ServiceState.SERVICE_DEVICE_DISCOVERY_PENDING);
+                serviceState == AbstractBackgroundServiceStateReceiver.ServiceState
+                        .SERVICE_DEVICE_DISCOVERY_PENDING);
         if (adapter != null && adapter.isEnabled()) { // was requirementsFulfilled
-            startStopUtil.updateStartStopButtonOnServiceStateChange(navDrawerItems[START_STOP_MEASUREMENT]);
+            startStopUtil.updateStartStopButtonOnServiceStateChange
+                    (navDrawerItems[START_STOP_MEASUREMENT]);
         } else {
             startStopUtil.defineButtonContents(navDrawerItems[START_STOP_MEASUREMENT],
                     false, R.drawable.not_available, getString(R.string.pref_bluetooth_disabled),
@@ -508,14 +515,22 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private void prepareNavDrawerItems() {
         if (this.navDrawerItems == null) {
             navDrawerItems = new NavMenuItem[8];
-            navDrawerItems[LOGIN] = new NavMenuItem(LOGIN, getResources().getString(R.string.menu_login), R.drawable.device_access_accounts);
-            navDrawerItems[LOGBOOK] = new NavMenuItem(LOGBOOK, getResources().getString(R.string.menu_logbook), R.drawable.logbook);
-            navDrawerItems[SETTINGS] = new NavMenuItem(SETTINGS, getResources().getString(R.string.menu_settings), R.drawable.action_settings);
-            navDrawerItems[START_STOP_MEASUREMENT] = new NavMenuItem(START_STOP_MEASUREMENT, getResources().getString(R.string.menu_start), R.drawable.av_play);
-            navDrawerItems[DASHBOARD] = new NavMenuItem(DASHBOARD, getResources().getString(R.string.dashboard), R.drawable.dashboard);
-            navDrawerItems[MY_TRACKS] = new NavMenuItem(MY_TRACKS, getResources().getString(R.string.my_tracks), R.drawable.device_access_storage);
-            navDrawerItems[HELP] = new NavMenuItem(HELP, getResources().getString(R.string.menu_help), R.drawable.action_help);
-            navDrawerItems[SEND_LOG] = new NavMenuItem(SEND_LOG, getResources().getString(R.string.menu_send_log), R.drawable.action_report);
+            navDrawerItems[LOGIN] = new NavMenuItem(LOGIN, getResources().getString(R.string
+                    .menu_login), R.drawable.device_access_accounts);
+            navDrawerItems[LOGBOOK] = new NavMenuItem(LOGBOOK, getResources().getString(R.string
+                    .menu_logbook), R.drawable.logbook);
+            navDrawerItems[SETTINGS] = new NavMenuItem(SETTINGS, getResources().getString(R
+                    .string.menu_settings), R.drawable.action_settings);
+            navDrawerItems[START_STOP_MEASUREMENT] = new NavMenuItem(START_STOP_MEASUREMENT,
+                    getResources().getString(R.string.menu_start), R.drawable.av_play);
+            navDrawerItems[DASHBOARD] = new NavMenuItem(DASHBOARD, getResources().getString(R
+                    .string.dashboard), R.drawable.dashboard);
+            navDrawerItems[MY_TRACKS] = new NavMenuItem(MY_TRACKS, getResources().getString(R
+                    .string.my_tracks), R.drawable.device_access_storage);
+            navDrawerItems[HELP] = new NavMenuItem(HELP, getResources().getString(R.string
+                    .menu_help), R.drawable.action_help);
+            navDrawerItems[SEND_LOG] = new NavMenuItem(SEND_LOG, getResources().getString(R
+                    .string.menu_send_log), R.drawable.action_report);
         }
 
         if (mUserManager.isLoggedIn()) {
@@ -548,7 +563,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
                     dashboardFragment = new DashboardFragment();
                 }
                 manager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                manager.beginTransaction().replace(R.id.content_frame, dashboardFragment, DASHBOARD_TAG).commit();
+                manager.beginTransaction().replace(R.id.content_frame, dashboardFragment,
+                        DASHBOARD_TAG).commit();
                 break;
 
             //Start the Login activity
@@ -556,7 +572,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
             case LOGIN:
                 if (mUserManager.isLoggedIn()) {
                     mUserManager.logOut();
-                    ListTracksFragment listMeasurementsFragment = (ListTracksFragment) getFragmentManager().findFragmentByTag("MY_TRACKS");
+                    ListTracksFragment listMeasurementsFragment = (ListTracksFragment)
+                            getFragmentManager().findFragmentByTag("MY_TRACKS");
                     // check if this fragment is initialized
                     if (listMeasurementsFragment != null) {
                         listMeasurementsFragment.clearRemoteTracks();
@@ -607,9 +624,11 @@ public class BaseMainActivity extends BaseInjectorActivity {
             case START_STOP_MEASUREMENT:
                 if (!navDrawerItems[position].isEnabled()) return;
 
-                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences
+                        (this.getApplicationContext());
 
-                String remoteDevice = preferences.getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY, null);
+                String remoteDevice = preferences.getString(org.envirocar.app.activity
+                        .SettingsActivity.BLUETOOTH_KEY, null);
 
                 BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
                 if (adapter != null && adapter.isEnabled() && remoteDevice != null) {
@@ -622,11 +641,11 @@ public class BaseMainActivity extends BaseInjectorActivity {
 					 */
                         StartStopButtonUtil.OnTrackModeChangeListener trackModeListener =
                                 new StartStopButtonUtil.OnTrackModeChangeListener() {
-                            @Override
-                            public void onTrackModeChange(int tm) {
-                                trackMode = tm;
-                            }
-                        };
+                                    @Override
+                                    public void onTrackModeChange(int tm) {
+                                        trackMode = tm;
+                                    }
+                                };
 //                        mStart
                         StartStopButtonUtil startStopButtonUtil = new
                                 StartStopButtonUtil(this, trackMode, serviceState, serviceState
@@ -645,7 +664,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
                     break;
                 }
                 HelpFragment helpFragment = new HelpFragment();
-                manager.beginTransaction().replace(R.id.content_frame, helpFragment, HELP_TAG).addToBackStack(null).commit();
+                manager.beginTransaction().replace(R.id.content_frame, helpFragment, HELP_TAG)
+                        .addToBackStack(null).commit();
                 break;
             case SEND_LOG:
 
@@ -653,7 +673,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
                     break;
                 }
                 SendLogFileFragment logFragment = new SendLogFileFragment();
-                manager.beginTransaction().replace(R.id.content_frame, logFragment, SEND_LOG_TAG).addToBackStack(null).commit();
+                manager.beginTransaction().replace(R.id.content_frame, logFragment, SEND_LOG_TAG)
+                        .addToBackStack(null).commit();
             default:
                 break;
 
@@ -663,7 +684,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
                     break;
                 }
                 LogbookFragment logbookFragment = new LogbookFragment();
-                manager.beginTransaction().replace(R.id.content_frame, logbookFragment, LOGBOOK_TAG).addToBackStack(null).commit();
+                manager.beginTransaction().replace(R.id.content_frame, logbookFragment,
+                        LOGBOOK_TAG).addToBackStack(null).commit();
                 break;
         }
 
@@ -750,13 +772,15 @@ public class BaseMainActivity extends BaseInjectorActivity {
                     final long deltaSec = (discoveryTargetTime - System.currentTimeMillis()) / 1000;
                     final long minutes = deltaSec / 60;
                     final long secs = deltaSec - (minutes * 60);
-                    if (serviceState == AbstractBackgroundServiceStateReceiver.ServiceState.SERVICE_DEVICE_DISCOVERY_PENDING && deltaSec > 0) {
+                    if (serviceState == AbstractBackgroundServiceStateReceiver.ServiceState
+                            .SERVICE_DEVICE_DISCOVERY_PENDING && deltaSec > 0) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 navDrawerItems[START_STOP_MEASUREMENT].setSubtitle(
                                         String.format(getString(R.string.device_discovery_next_try),
-                                                String.format("%02d", minutes), String.format("%02d", secs)
+                                                String.format("%02d", minutes), String.format
+                                                        ("%02d", secs)
                                         ));
                                 mNavDrawerAdapter.notifyDataSetChanged();
                             }
@@ -774,7 +798,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
             remainingTimeHandler.post(remainingTimeThread);
         } else {
             LOGGER.info("not invoking the discovery time painting thread: " +
-                    (remainingTimeThread == null) + ", " + (discoveryTargetTime - System.currentTimeMillis()));
+                    (remainingTimeThread == null) + ", " + (discoveryTargetTime - System
+                    .currentTimeMillis()));
         }
     }
 
@@ -799,8 +824,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
         super.onSaveInstanceState(outState);
 
         outState.putInt(TRACK_MODE, trackMode);
+        outState.putSerializable(SEEN_ANNOUNCEMENTS, this.seenAnnouncements.toArray());
 
-        outState.putSerializable(SEEN_ANNOUNCEMENTS, this.seenAnnouncements.toArray(new String[0]));
     }
 
     private class NavAdapter extends BaseAdapter {
@@ -808,7 +833,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
         @Override
         public boolean isEnabled(int position) {
             //to allow things like start bluetooth or go to settings from "disabled" action
-            return (position == START_STOP_MEASUREMENT ? true : navDrawerItems[position].isEnabled());
+            return (position == START_STOP_MEASUREMENT ? true : navDrawerItems[position]
+                    .isEnabled());
         }
 
         @Override

@@ -10,7 +10,7 @@ import android.widget.ListView;
 
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.R;
-import org.envirocar.app.bluetooth.service.BluetoothHandler;
+import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.app.view.preferences.bluetooth.SelectBluetoothAdapter;
 
 import java.util.ArrayList;

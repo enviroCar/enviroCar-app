@@ -20,7 +20,7 @@ import org.envirocar.app.injection.Injector;
 import org.envirocar.app.R;
 import org.envirocar.app.bluetooth.event.BluetoothPairingChangedEvent;
 import org.envirocar.app.bluetooth.event.BluetoothStateChangedEvent;
-import org.envirocar.app.bluetooth.service.BluetoothHandler;
+import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.util.Util;
 import org.envirocar.app.view.preferences.PreferencesConstants;

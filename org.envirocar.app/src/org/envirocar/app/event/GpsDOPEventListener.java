@@ -20,6 +20,8 @@
  */
 package org.envirocar.app.event;
 
+import org.envirocar.app.events.GpsDOPEvent;
+
 @SupportedEventClass(supportedClass = GpsDOPEvent.class)
 public interface GpsDOPEventListener extends EventListener<GpsDOPEvent> {
 

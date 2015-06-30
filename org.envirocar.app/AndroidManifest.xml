@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="org.envirocar.app"
-          xmlns:android="http://schemas.android.com/apk/res/android"
-          android:installLocation="internalOnly"
-          android:versionCode="23"
-          android:versionName="0.10.0">
+<manifest
+    package="org.envirocar.app"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:installLocation="internalOnly"
+    android:versionCode="23"
+    android:versionName="0.10.0">
 
     <uses-sdk
         android:minSdkVersion="16"
@@ -78,8 +79,11 @@
 
         <service
             android:name="org.envirocar.app.services.SystemStartupService"
-            android:enabled="true"
-            android:process=":envirocarr"/>
+            android:enabled="true"/>
+
+        <service
+            android:name="org.envirocar.app.services.OBDConnectionService"
+            android:enabled="true"/>
 
         <activity
             android:name="org.envirocar.app.activity.Map"
@@ -88,8 +92,7 @@
         </activity>
 
 
-        <receiver android:name="org.envirocar.app.services.SystemStartupReceiver"
-            android:process=":envirocarr">
+        <receiver android:name="org.envirocar.app.services.SystemStartupReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED"/>

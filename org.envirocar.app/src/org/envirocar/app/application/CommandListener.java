@@ -44,8 +44,8 @@ import org.envirocar.app.bluetooth.obd.commands.ShortTermTrimBank1;
 import org.envirocar.app.bluetooth.obd.commands.Speed;
 import org.envirocar.app.bluetooth.obd.commands.TPS;
 import org.envirocar.app.event.EventBus;
-import org.envirocar.app.event.GpsDOP;
-import org.envirocar.app.event.GpsDOPEvent;
+import org.envirocar.app.events.GpsDOP;
+import org.envirocar.app.events.GpsDOPEvent;
 import org.envirocar.app.event.GpsDOPEventListener;
 import org.envirocar.app.event.IntakePressureEvent;
 import org.envirocar.app.event.IntakeTemperatureEvent;
@@ -72,6 +72,7 @@ import javax.inject.Inject;
  *
  */
 public class CommandListener implements Listener, MeasurementListener {
+	// TODO change listener stuff
 
 	private static final Logger logger = Logger.getLogger(CommandListener.class);
 
@@ -98,7 +99,6 @@ public class CommandListener implements Listener, MeasurementListener {
     // Injected variables
     @Inject
 	@InjectionApplicationScope
-
 	protected Context mContext;
     @Inject
     protected CarManager mCarManager;

@@ -10,17 +10,8 @@
         android:id="@+id/bluetooth_pairing_preference_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/blue_dark_cario">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:text="@string/bluetooth_pairing_preference_toolbar_title"
-            android:textColor="#F2F2F2"
-            android:textSize="20sp"/>
-
-    </android.support.v7.widget.Toolbar>
+        android:background="@color/blue_dark_cario"
+        android:title="@string/bluetooth_pairing_preference_toolbar_title" />
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/bluetooth_pairing_preference_toolbar_bt"

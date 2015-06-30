@@ -1,4 +1,4 @@
-package org.envirocar.app.bluetooth.service;
+package org.envirocar.app.bluetooth;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
@@ -13,11 +13,13 @@ import android.preference.PreferenceManager;
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 
+import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.bluetooth.event.BluetoothDeviceDiscoveredEvent;
 import org.envirocar.app.bluetooth.event.BluetoothStateChangedEvent;
 import org.envirocar.app.injection.InjectionApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.services.ServiceUtils;
 import org.envirocar.app.view.preferences.PreferencesConstants;
 
 import java.lang.reflect.InvocationTargetException;
@@ -27,6 +29,11 @@ import java.util.List;
 import java.util.Set;
 
 import javax.inject.Inject;
+
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.content.ContentObservable;
+import rx.functions.Action1;
 
 /**
  * @author dewall
@@ -87,10 +94,10 @@ public class BluetoothHandler {
     private boolean mIsAutoconnecting;
     // The bluetooth adapter
     private BluetoothAdapter mBluetoothAdapter;
-    private String mDeviceName;
-    private String mDeviceAddress;
+
     //    private BroadcastReceiver
     private BroadcastReceiver mCurrentPairingReceiver;
+
 
     /**
      * Constructor
@@ -111,6 +118,16 @@ public class BluetoothHandler {
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
         mContext.registerReceiver(mBluetoothStateChangedReceiver, filter);
     }
+
+    /**
+     * Starts the connection to the bluetooth device if not already active.
+     */
+    public void startBluetoothConnection() {
+        if (!ServiceUtils.isServiceRunning(mContext, BackgroundServiceImpl.class))
+            mContext.getApplicationContext().startService(
+                    new Intent(mContext, BackgroundServiceImpl.class));
+    }
+
 
     /**
      * Returns the corresponding BluetoothDevice for the attributes stored in the shared
@@ -175,8 +192,8 @@ public class BluetoothHandler {
      * Starts the Bluetooth discovery for a specific input device. If the device has been
      * successfull discovered, the callback's onActionDeviceDiscovered is called.
      *
-     * @param inputDevice   The input device to start a discovery for.
-     * @param callback      The callback used to call back information at some convenient time.
+     * @param inputDevice The input device to start a discovery for.
+     * @param callback    The callback used to call back information at some convenient time.
      */
     public void startDiscoveryForSingleDevice(final BluetoothDevice inputDevice,
                                               final BluetoothDeviceDiscoveryCallback callback) {
@@ -203,12 +220,82 @@ public class BluetoothHandler {
             public void onActionDeviceDiscovered(BluetoothDevice device) {
                 // If the address of the input device matches the discovered device, then return
                 // the device over the callback.
-                if(device.getAddress().equals(inputDevice.getAddress())){
+                if (device.getAddress().equals(inputDevice.getAddress())) {
                     callback.onActionDeviceDiscovered(device);
                 }
             }
         });
     }
+
+    /**
+     * Returns an Observable that will execute the bluetooth discovery for a specific input
+     * device.
+     *
+     * @param inputDevice the Bluetooth device to search for.
+     * @return an observable that searches for a specific device.
+     */
+    public Observable<BluetoothDevice> startBluetoothDiscoveryForSingleDevice(
+            BluetoothDevice inputDevice) {
+        return startBluetoothDiscovery()
+                .filter(device1 -> inputDevice.getAddress().equals(device1.getAddress()));
+    }
+
+    /**
+     * Returns an Observable that will execute the search for unpaired devices.
+     *
+     * @return an observable that executes the search for unpaired devices.
+     */
+    public Observable<BluetoothDevice> startBluetoothDiscoveryOnlyUnpaired() {
+        return startBluetoothDiscovery()
+                .filter(device -> device.getBondState() != BluetoothDevice.BOND_BONDED);
+    }
+
+    /**
+     * @return
+     */
+    public Observable<BluetoothDevice> startBluetoothDiscovery() {
+        return Observable.create(subscriber -> {
+            // If the device is already discovering, cancel the discovery before starting.
+            if (mBluetoothAdapter.isDiscovering()) {
+                mBluetoothAdapter.cancelDiscovery();
+            }
+
+            // Register for broadcasts when a device is discovered or the discovery has finished.
+            IntentFilter filter = new IntentFilter();
+            filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+            filter.addAction(BluetoothDevice.ACTION_FOUND);
+            filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+
+            ContentObservable.fromBroadcast(mContext, filter).subscribe(new Action1<Intent>() {
+                @Override
+                public void call(Intent intent) {
+                    String action = intent.getAction();
+
+                    // If the discovery process has been started.
+                    if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+                        subscriber.onStart();
+                    }
+
+                    // If the discovery process finds a device
+                    else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                        // Get the BluetoothDevice from the intent.
+                        BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice
+                                .EXTRA_DEVICE);
+                        // and inform the subscriber.
+                        subscriber.onNext(device);
+                    }
+
+                    // If the discovery process has been finished.
+                    else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                        subscriber.onCompleted();
+                    }
+                }
+            });
+
+            mBluetoothAdapter.startDiscovery();
+        });
+    }
+
 
     /**
      * Registers the broadcast receiver for discovery related actions and starts
@@ -223,6 +310,68 @@ public class BluetoothHandler {
 
         // Call the overloaded method
         startBluetoothDeviceDiscovery(true, callback);
+    }
+
+
+    public Observable<BluetoothDevice> startBluetoothDeviceDiscoveryObservable(
+            final boolean filterPairedDevices) {
+        Preconditions.checkNotNull(mBluetoothAdapter, "Error BluetoothAdapter has to be " +
+                "initialized before");
+
+        return Observable.create(new Observable.OnSubscribe<BluetoothDevice>() {
+            @Override
+            public void call(final Subscriber<? super BluetoothDevice> subscriber) {
+                Preconditions.checkNotNull(mBluetoothAdapter, "Error BluetoothAdapter has to be " +
+                        "initialized before");
+//                Preconditions.checkNotNull(callback, "Error: Input callback cannot be null");
+
+                // If the device is already discovering, cancel the discovery before starting.
+                if (mBluetoothAdapter.isDiscovering()) {
+                    mBluetoothAdapter.cancelDiscovery();
+                }
+
+                // Register for broadcasts when a device is discovered or the discovery has
+                // finished.
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+                filter.addAction(BluetoothDevice.ACTION_FOUND);
+                filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+
+
+                ContentObservable.fromBroadcast(mContext, filter).subscribe(new Action1<Intent>() {
+                    @Override
+                    public void call(Intent intent) {
+                        String action = intent.getAction();
+
+                        // If the discovery process has been started.
+                        if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
+//                            callback.onActionDeviceDiscoveryStarted();
+                            subscriber.onStart();
+                        }
+
+                        // If the discovery process finds a device
+                        else if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+                            // Get the BluetoothDevice from the intent.
+                            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice
+                                    .EXTRA_DEVICE);
+
+                            // If the device
+                            if ((!filterPairedDevices) || (filterPairedDevices && device
+                                    .getBondState() != BluetoothDevice.BOND_BONDED)) {
+                                subscriber.onNext(device);
+                            }
+                        }
+
+                        // If the discovery process has been finished.
+                        else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+                            subscriber.onCompleted();
+                        }
+                    }
+                });
+
+                mBluetoothAdapter.startDiscovery();
+            }
+        });
     }
 
     /**
@@ -261,7 +410,8 @@ public class BluetoothHandler {
                 if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 
                     // Get the BluetoothDevice from the intent.
-                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice
+                            .EXTRA_DEVICE);
 
                     // If the device
                     boolean newDevice = (!filterPairedDevices) || (filterPairedDevices && device
@@ -290,6 +440,11 @@ public class BluetoothHandler {
         mBluetoothAdapter.startDiscovery();
     }
 
+
+    /**
+     * Cancels the disovery of other Bluetooth devices if the bluetooth device is currently in
+     * the device discovery process.
+     */
     public void stopBluetoothDeviceDiscovery() {
         // Cancel discovery if it is discovering.
         if (mBluetoothAdapter.isDiscovering()) {
@@ -297,6 +452,12 @@ public class BluetoothHandler {
         }
     }
 
+    /**
+     * Return the set of {@link BluetoothDevice} objects that are bonded
+     * (paired) to the local adapter.
+     *
+     * @return the set of already paired Bluetooth devices.
+     */
     public Set<BluetoothDevice> getPairedBluetoothDevices() {
         return mBluetoothAdapter.getBondedDevices();
     }

@@ -36,7 +36,7 @@ public class NotificationHandler {
     protected Context mContext;
     private NotificationManager mNotificationManager;
     private PendingIntent mBaseContentIntent;
-    private Map<Object, Integer> mServiceToNotificationID = Maps.newConcurrentMap();
+    private Map<Class<?>, Integer> mServiceToNotificationID = Maps.newConcurrentMap();
 
     /**
      * @param context
@@ -92,20 +92,21 @@ public class NotificationHandler {
 
     public void setNotificationState(Service service, NotificationState state) {
         int notificationID;
-        if (!mServiceToNotificationID.containsKey(service)) {
+        if (!mServiceToNotificationID.containsKey(service.getClass())) {
             notificationID = getNotificationID();
-            mServiceToNotificationID.put(service, notificationID);
+            mServiceToNotificationID.put(service.getClass(), notificationID);
 
             // run a dummy notification in the foreground.
             Notification.Builder builder = new Notification.Builder(mContext);
             service.startForeground(notificationID, builder.build());
         } else {
-            notificationID = mServiceToNotificationID.get(service);
+            notificationID = mServiceToNotificationID.get(service.getClass());
         }
 
 
         Notification.Builder builder = new Notification.Builder(mContext);
         builder.setContentTitle(state.getNotificationTitle());
+        builder.setPriority(Notification.PRIORITY_MAX);
         builder.setContentText(state.getNotificationContent());
         builder.setSmallIcon(state.getSmallIconId());
 
@@ -149,6 +150,17 @@ public class NotificationHandler {
     }
 
     /**
+     * Closes the notification for a given service.
+     *
+     * @param service the service for which the notification is required to be closed.
+     */
+    public void closeNotification(Service service) {
+        if (mNotificationManager != null) {
+            mNotificationManager.cancel(mServiceToNotificationID.get(service.getClass()));
+        }
+    }
+
+    /**
      * Enumeration reflecting the possible states of the application.
      */
     public enum NotificationState implements NotificationContent {
@@ -176,7 +188,7 @@ public class NotificationHandler {
 
                 return new NotificationActionHolder[]{
                         new NotificationActionHolder(android.R.drawable.ic_menu_close_clear_cancel,
-                                "Discover", pendingIntent)};
+                                "Start Search", pendingIntent)};
             }
         },
         DISCOVERING {
@@ -197,9 +209,13 @@ public class NotificationHandler {
 
             @Override
             public NotificationActionHolder[] getActions(Context context) {
+                Intent intent = new Intent(SystemStartupService.ACTION_STOP_BT_DISCOVERY);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
+                        PendingIntent.FLAG_CANCEL_CURRENT);
+
                 return new NotificationActionHolder[]{
                         new NotificationActionHolder(android.R.drawable.ic_menu_close_clear_cancel,
-                                "juhu", null)};
+                                "Stop Search", pendingIntent)};
             }
         },
         OBD_FOUND {
@@ -220,9 +236,13 @@ public class NotificationHandler {
 
             @Override
             public NotificationActionHolder[] getActions(Context context) {
+                Intent intent = new Intent(SystemStartupService.ACTION_START_TRACK_RECORDING);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
+                        PendingIntent.FLAG_CANCEL_CURRENT);
+
                 return new NotificationActionHolder[]{
                         new NotificationActionHolder(android.R.drawable.stat_sys_data_bluetooth,
-                                "Start Track", null)};
+                                "Start Track", pendingIntent)};
             }
         },
         CONNCECTED {
@@ -239,6 +259,17 @@ public class NotificationHandler {
             @Override
             public boolean isShowingBigText() {
                 return false;
+            }
+
+            @Override
+            public NotificationActionHolder[] getActions(Context context) {
+                Intent intent = new Intent(SystemStartupService.ACTION_STOP_TRACK_RECORDING);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
+                        PendingIntent.FLAG_CANCEL_CURRENT);
+
+                return new NotificationActionHolder[]{
+                        new NotificationActionHolder(android.R.drawable.stat_sys_data_bluetooth,
+                                "Stop Track", pendingIntent)};
             }
         };
 

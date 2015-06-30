@@ -34,6 +34,7 @@ import org.envirocar.app.bluetooth.FallbackBluetoothSocket.FallbackException;
 import org.envirocar.app.logging.Logger;
 
 import android.annotation.SuppressLint;
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -127,7 +128,6 @@ public class BluetoothConnection extends Thread {
 			        		BluetoothConnection.this.started = true;
 			        		context.unregisterReceiver(this);
 			        	}
-			        	
 			        }
 			    }
 
@@ -196,8 +196,17 @@ public class BluetoothConnection extends Thread {
 				}
 			}
     	}
-		
-		if (!running) return;
+
+
+		if (!running) {
+			if(success)
+				try {
+					bluetoothSocket.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			return;
+		}
 		
 		if (success) {
 			owner.deviceConnected(bluetoothSocket);
@@ -235,7 +244,7 @@ public class BluetoothConnection extends Thread {
     
 	public static void shutdownSocket(BluetoothSocketWrapper socket) {
 		logger.info("Shutting down bluetooth socket.");
-		
+
 		try {
 			if (socket.getInputStream() != null) {
 				socket.getInputStream().close();

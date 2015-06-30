@@ -18,23 +18,42 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.event;
+package org.envirocar.app.events;
 
-public class GpsDOPEvent implements AbstractEvent<GpsDOP> {
+import com.google.common.base.MoreObjects;
 
-	private GpsDOP dop;
+/**
+ * Holder class
+ */
+public class GpsSatelliteFix {
+    public final boolean fix;
+    public final int numberOfSats;
 
-	public GpsDOPEvent(GpsDOP dop) {
-		this.dop = dop;
-	}
-	
-	public GpsDOPEvent(Double pdop, Double hdop, Double vdop) {
-		this.dop = new GpsDOP(pdop, hdop, vdop);
-	}
+    /**
+     * Constructor.
+     *
+     * @param numberOfSats number of satellites.
+     * @param fix          is fix?
+     */
+    public GpsSatelliteFix(int numberOfSats, boolean fix) {
+        this.numberOfSats = numberOfSats;
+        this.fix = fix;
+    }
 
-	@Override
-	public GpsDOP getPayload() {
-		return dop;
-	}
+    // TODO REMOVE
+    public boolean isFix() {
+        return fix;
+    }
 
+    public int getNumberOfSats() {
+        return numberOfSats;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("isFix", fix)
+                .add("Number of Sats", numberOfSats)
+                .toString();
+    }
 }

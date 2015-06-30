@@ -26,7 +26,7 @@ import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbeVoltage;
 import org.envirocar.app.event.CO2Event;
 import org.envirocar.app.event.ConsumptionEvent;
 import org.envirocar.app.event.EventBus;
-import org.envirocar.app.event.GpsDOP;
+import org.envirocar.app.events.GpsDOP;
 import org.envirocar.app.event.LocationEvent;
 import org.envirocar.app.event.LocationEventListener;
 import org.envirocar.app.exception.FuelConsumptionException;

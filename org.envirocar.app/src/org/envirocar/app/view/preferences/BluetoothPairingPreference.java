@@ -8,9 +8,7 @@ import android.preference.DialogPreference;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -20,11 +18,11 @@ import android.widget.Toast;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.injection.Injector;
 import org.envirocar.app.R;
+import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.app.bluetooth.event.BluetoothPairingChangedEvent;
 import org.envirocar.app.bluetooth.event.BluetoothStateChangedEvent;
-import org.envirocar.app.bluetooth.service.BluetoothHandler;
+import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.view.preferences.bluetooth.BluetoothDeviceListAdapter;
 
@@ -32,39 +30,44 @@ import java.util.Set;
 
 import javax.inject.Inject;
 
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
 /**
  * @author dewall
  */
 public class BluetoothPairingPreference extends DialogPreference {
     private static final Logger LOGGER = Logger.getLogger(BluetoothPairingPreference.class);
-
+    // Views for the already paired devices.
+    @InjectView(R.id.bluetooth_pairing_preference_paired_devices_text)
+    public TextView mPairedDevicesTextView;
+    @InjectView(R.id.bluetooth_pairing_preference_paired_devices_list)
+    public ListView mPairedDevicesListView;
+    // Views for the newly discovered devices.
+    @InjectView(R.id.bluetooth_pairing_preference_available_devices_text)
+    public TextView mNewDevicesTextView;
+    @InjectView(R.id.bluetooth_pairing_preference_available_devices_list)
+    public ListView mNewDevicesListView;
+    // No device found.
+    @InjectView(R.id.bluetooth_pairing_preference_available_devices_info)
+    public TextView mNewDevicesInfoTextView;
+    @InjectView(R.id.bluetooth_pairing_preference_search_devices_progressbar)
+    public ProgressBar mProgressBar;
     // Injected variables.
     @Inject
     protected Bus mBus;
-
     @Inject
     protected BluetoothHandler mBluetoothHandler;
-
-    // Newly discovered devices
+    // Main parent view for the content.
+    @InjectView(R.id.bluetooth_pairing_preference_content)
+    protected LinearLayout mContentView;
+    // ArrayAdapter for the two different list views.
     private BluetoothDeviceListAdapter mNewDevicesArrayAdapter;
     private BluetoothDeviceListAdapter mPairedDevicesAdapter;
-
-    // Main parent view for the content.
-    private LinearLayout mContentView;
-
-    // Views for the already paired devices.
-    private TextView mPairedDevicesTextView;
-    private ListView mPairedDevicesListView;
-
-    // Views for the newly discovered devices.
-    private TextView mNewDevicesTextView;
-    private ListView mNewDevicesListView;
-
-    // No device found.
-    private TextView mNewDevicesInfoTextView;
-
-
-    private ProgressBar mProgressBar;
 
     /**
      * Constructor.
@@ -88,23 +91,8 @@ public class BluetoothPairingPreference extends DialogPreference {
     protected void onBindDialogView(final View view) {
         super.onBindDialogView(view);
 
-        // First, get all required views.
-        mProgressBar = (ProgressBar) view.findViewById(R.id
-                .bluetooth_pairing_preference_search_devices_progressbar);
-        mContentView = (LinearLayout) view.findViewById(R.id
-                .bluetooth_pairing_preference_content);
-        mNewDevicesTextView = (TextView) view.findViewById(R.id
-                .bluetooth_pairing_preference_available_devices_text);
-        mPairedDevicesTextView = (TextView) view.findViewById(R.id
-                .bluetooth_pairing_preference_paired_devices_text);
-        mPairedDevicesListView = (ListView) view.findViewById(R.id
-                .bluetooth_pairing_preference_paired_devices_list);
-        mNewDevicesTextView = (TextView) view.findViewById(R.id
-                .bluetooth_pairing_preference_available_devices_text);
-        mNewDevicesListView = (ListView) view.findViewById(R.id
-                .bluetooth_pairing_preference_available_devices_list);
-        mNewDevicesInfoTextView = (TextView) view.findViewById(R.id
-                .bluetooth_pairing_preference_available_devices_info);
+        // Inject all views.
+        ButterKnife.inject(this, view);
 
         // Initialize the array adapter for both list views
         mNewDevicesArrayAdapter = new BluetoothDeviceListAdapter(getContext(),
@@ -118,103 +106,96 @@ public class BluetoothPairingPreference extends DialogPreference {
 
         // Initialize the toolbar and the menu entry.
         Toolbar toolbar = (Toolbar) view.findViewById(R.id.bluetooth_pairing_preference_toolbar);
+        toolbar.setTitle(R.string.bluetooth_pairing_preference_toolbar_title);
         toolbar.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
         toolbar.inflateMenu(R.menu.menu_select_bluetooth_preference);
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.menu_action_search_bluetooth_devices:
-                        startBluetoothDiscovery();
-                        return true;
-                    default:
-                        break;
-                }
-                return false;
+        toolbar.setTitleTextColor(getContext().getResources().getColor(R.color
+                .white_cario));
+        toolbar.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.menu_action_search_bluetooth_devices:
+                    startBluetoothDiscovery();
+                    return true;
+                default:
+                    break;
             }
+            return false;
         });
 
         // Updates the list of already paired devices.
         updatePairedDevicesList();
 
-        mNewDevicesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, final View view,
-                                    final int position, long id) {
-                final BluetoothDevice device = mNewDevicesArrayAdapter.getItem(position);
+        mNewDevicesListView.setOnItemClickListener((parent, view1, position, id) -> {
+            final BluetoothDevice device = mNewDevicesArrayAdapter.getItem(position);
 
-                View contentView = LayoutInflater.from(getContext()).inflate(R.layout
-                        .bluetooth_pairing_preference_device_pairing_dialog, null, false);
+            View contentView = LayoutInflater.from(getContext()).inflate(R.layout
+                    .bluetooth_pairing_preference_device_pairing_dialog, null, false);
 
-                // Set toolbar style
-                Toolbar toolbar = (Toolbar) contentView.findViewById(R.id
-                        .bluetooth_selection_preference_pairing_dialog_toolbar);
-                toolbar.setTitle(R.string.bluetooth_pairing_preference_toolbar_title);
-                toolbar.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
-                toolbar.setTitleTextColor(getContext().getResources().getColor(R.color
-                        .white_cario));
+            // Set toolbar style
+            Toolbar toolbar1 = (Toolbar) contentView.findViewById(R.id
+                    .bluetooth_selection_preference_pairing_dialog_toolbar);
+            toolbar1.setTitle(R.string.bluetooth_pairing_preference_toolbar_title);
+            toolbar1.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
+            toolbar1.setTitleTextColor(getContext().getResources().getColor(R.color
+                    .white_cario));
 
-                // Set text view
-                TextView textview = (TextView) contentView.findViewById(R.id
-                        .bluetooth_selection_preference_pairing_dialog_text);
-                textview.setText(String.format("Do you want to pair with %s?", device.getName()));
+            // Set text view
+            TextView textview = (TextView) contentView.findViewById(R.id
+                    .bluetooth_selection_preference_pairing_dialog_text);
+            textview.setText(String.format("Do you want to pair with %s?", device.getName()));
 
-                // Create the Dialog
-                new AlertDialog.Builder(getContext())
-                        .setView(contentView)
-                        .setPositiveButton("Pair Device", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                // If this button is clicked, pair with the given device
-                                view.setClickable(false);
-                                pairDevice(device, view);
-                            }
-                        })
-                        .setNegativeButton("Cancel", null) // Nothing to do on cancel
-                        .create()
-                        .show();
-            }
+            // Create the Dialog
+            new AlertDialog.Builder(getContext())
+                    .setView(contentView)
+                    .setPositiveButton("Pair Device", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            // If this button is clicked, pair with the given device
+                            view1.setClickable(false);
+                            pairDevice(device, view1);
+                        }
+                    })
+                    .setNegativeButton("Cancel", null) // Nothing to do on cancel
+                    .create()
+                    .show();
         });
 
         // Set an onClickListener for items in the paired devices list.
-        mPairedDevicesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final BluetoothDevice device = mPairedDevicesAdapter.getItem(position);
+        mPairedDevicesListView.setOnItemClickListener((parent, view1, position, id) -> {
+            final BluetoothDevice device = mPairedDevicesAdapter.getItem(position);
 
-                View contentView = LayoutInflater.from(getContext()).inflate(R.layout
-                        .bluetooth_pairing_preference_device_pairing_dialog, null, false);
+            View contentView = LayoutInflater.from(getContext()).inflate(R.layout
+                    .bluetooth_pairing_preference_device_pairing_dialog, null, false);
 
-                // Set toolbar style
-                Toolbar toolbar = (Toolbar) contentView.findViewById(R.id
-                        .bluetooth_selection_preference_pairing_dialog_toolbar);
-                toolbar.setTitle("Bluetooth Device");
-                toolbar.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
-                toolbar.setTitleTextColor(getContext().getResources().getColor(R.color
-                        .white_cario));
+            // Set toolbar style
+            Toolbar toolbar1 = (Toolbar) contentView.findViewById(R.id
+                    .bluetooth_selection_preference_pairing_dialog_toolbar);
+            toolbar1.setTitle("Bluetooth Device");
+            toolbar1.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
+            toolbar1.setTitleTextColor(getContext().getResources().getColor(R.color
+                    .white_cario));
 
-                // Set text view
-                TextView textview = (TextView) contentView.findViewById(R.id
-                        .bluetooth_selection_preference_pairing_dialog_text);
-                textview.setText(String.format("Do you want to remove the pairing with %s?", device
-                        .getName()));
+            // Set text view
+            TextView textview = (TextView) contentView.findViewById(R.id
+                    .bluetooth_selection_preference_pairing_dialog_text);
+            textview.setText(String.format("Do you want to remove the pairing with %s?", device
+                    .getName()));
 
-                // Create the AlertDialog.
-                new AlertDialog.Builder(getContext())
-                        .setView(contentView)
-                        .setPositiveButton(R.string.bluetooth_pairing_preference_dialog_remove_pairing,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        LOGGER.debug("OnPositiveButton clicked for remove pairing.");
-                                        unpairDevice(device);
-                                    }
-                                })
-                        .setNegativeButton(R.string.menu_cancel, null) // Nothing to do on
-                                // cancel.
-                        .create()
-                        .show();
-            }
+            // Create the AlertDialog.
+            new AlertDialog.Builder(getContext())
+                    .setView(contentView)
+                    .setPositiveButton(R.string.bluetooth_pairing_preference_dialog_remove_pairing,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    LOGGER.debug("OnPositiveButton clicked for remove pairing.");
+                                    unpairDevice(device);
+                                }
+                            })
+                    .setNegativeButton(R.string.menu_cancel, null) // Nothing to do on
+                            // cancel.
+                    .create()
+                    .show();
         });
 
         // Register this object on the event bus
@@ -294,63 +275,74 @@ public class BluetoothPairingPreference extends DialogPreference {
         // the current adapter.
         mNewDevicesArrayAdapter.clear();
 
-        // Start the discovery.
-        mBluetoothHandler.startBluetoothDeviceDiscovery(new BluetoothHandler
-                .BluetoothDeviceDiscoveryCallback() {
-            @Override
-            public void onActionDeviceDiscoveryStarted() {
-                LOGGER.info("Blutooth discovery started.");
+//        Subscription sub = mBluetoothHandler.startBluetoothDeviceDiscoveryObservable(true)
+        Subscription sub = mBluetoothHandler.startBluetoothDiscoveryOnlyUnpaired()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        new Subscriber<BluetoothDevice>() {
+                            @Override
+                            public void onStart() {
+                                LOGGER.info("Blutooth discovery started.");
 
-                // Show the progressbar
-                mProgressBar.setVisibility(View.VISIBLE);
+                                // Show the progressbar
+                                mProgressBar.setVisibility(View.VISIBLE);
 
-                // Set info view to "searching...".
-                mNewDevicesInfoTextView.setText(R.string
-                        .bluetooth_pairing_preference_info_searching_devices);
+                                // Set info view to "searching...".
+                                mNewDevicesInfoTextView.setText(R.string
+                                        .bluetooth_pairing_preference_info_searching_devices);
 
-                Toast.makeText(getContext(), "Discovery Started!", Toast
-                        .LENGTH_LONG).show();
-            }
+                                Toast.makeText(getContext(), "Discovery Started!", Toast
+                                        .LENGTH_LONG).show();
+                            }
 
-            @Override
-            public void onActionDeviceDiscoveryFinished() {
-                LOGGER.info("Bluetooth discovery finished.");
+                            @Override
+                            public void onCompleted() {
+                                LOGGER.info("Bluetooth discovery finished.");
 
-                // Dismiss the progressbar.
-                mProgressBar.setVisibility(View.GONE);
+                                // Dismiss the progressbar.
+                                mProgressBar.setVisibility(View.GONE);
 
-                // If no devices found, set the corresponding textview to visibile.
-                if (mNewDevicesArrayAdapter.isEmpty()) {
-                    mNewDevicesInfoTextView.setText(R.string
-                            .select_bluetooth_preference_info_no_device_found);
-                } else if (mNewDevicesArrayAdapter.getCount() == 1) {
-                    mNewDevicesInfoTextView.setText(R.string
-                            .bluetooth_pairing_preference_info_device_found);
-                } else {
-                    String string = getContext().getString(R.string
-                            .bluetooth_pairing_preference_info_devices_found);
-                    mNewDevicesInfoTextView.setText(String.format(string, "" +
-                            mNewDevicesArrayAdapter.getCount()));
-                }
+                                // If no devices found, set the corresponding textview to visibile.
+                                if (mNewDevicesArrayAdapter.isEmpty()) {
+                                    mNewDevicesInfoTextView.setText(R.string
+                                            .select_bluetooth_preference_info_no_device_found);
+                                } else if (mNewDevicesArrayAdapter.getCount() == 1) {
+                                    mNewDevicesInfoTextView.setText(R.string
+                                            .bluetooth_pairing_preference_info_device_found);
+                                } else {
+                                    String string = getContext().getString(R.string
+                                            .bluetooth_pairing_preference_info_devices_found);
+                                    mNewDevicesInfoTextView.setText(String.format(string, "" +
+                                            mNewDevicesArrayAdapter.getCount()));
+                                }
 
-                Toast.makeText(getContext(), "Discovery Finished!", Toast
-                        .LENGTH_LONG).show();
-            }
+                                Toast.makeText(getContext(), "Discovery Finished!", Toast
+                                        .LENGTH_LONG).show();
+                            }
 
-            @Override
-            public void onActionDeviceDiscovered(final BluetoothDevice device) {
-                LOGGER.info(String.format("Bluetooth device detected: [name=%s, address=%s]",
-                        device.getName(), device.getAddress()));
+                            @Override
+                            public void onError(Throwable e) {
+                                LOGGER.error("Error while discovering bluetooth devices", e);
+                            }
 
-                // if the discovered device is not already part of the list, then
-                // add it to the list and add an entry to the array adapter.
-                if (!mPairedDevicesAdapter.contains(device) &&
-                        !mNewDevicesArrayAdapter.contains(device)) {
-                    mNewDevicesArrayAdapter.add(device);
-                }
-            }
-        });
+                            @Override
+                            public void onNext(BluetoothDevice device) {
+                                LOGGER.info(String.format("Bluetooth device detected: [name=%s, address=%s]",
+                                        device.getName(), device.getAddress()));
+
+                                // if the discovered device is not already part of the list, then
+                                // add it to the list and add an entry to the array adapter.
+                                if (!mPairedDevicesAdapter.contains(device) &&
+                                        !mNewDevicesArrayAdapter.contains(device)) {
+                                    mNewDevicesArrayAdapter.add(device);
+//                }
+                                }
+                            }
+                        }
+                );
     }
+
 
     /**
      * Initiates the pairing process to a given device.
@@ -358,6 +350,7 @@ public class BluetoothPairingPreference extends DialogPreference {
      * @param device the device to pair to.
      * @param view   the view of the listview entry.
      */
+
     private void pairDevice(BluetoothDevice device, final View view) {
         final TextView text = (TextView) view.findViewById(R.id
                 .bluetooth_selection_preference_device_list_entry_text);
