@@ -11,9 +11,11 @@ public interface PreferencesConstants {
     String PREFERENCE_TAG_BLUETOOTH_ENABLER = "bluetooth_enabler";
     String PREFERENCE_TAG_BLUETOOTH_PAIRING = "bluetooth_pairing";
 
-    String PREFERENCE_TAG_AUTOCONNECT = "autoconnect";
-    String PREFERENCE_TAG_DISCOVERY_INTERVAL = "bluetooth_discovery_interval";
+    String PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT = "bluetooth_autoconnect";
+    String PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL = "bluetooth_discovery_interval";
 
+    int DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL = 1000*60*2;
+    boolean DEFAULT_BLUETOOTH_AUTOCONNECT = false;
 
 
     public static final String AUTO_BLUETOOH = "pref_auto_bluetooth";

@@ -15,7 +15,7 @@ import org.envirocar.app.events.GpsDOPEvent;
 import org.envirocar.app.events.GpsSatelliteFix;
 import org.envirocar.app.events.GpsSatelliteFixEvent;
 import org.envirocar.app.events.LocationChangedEvent;
-import org.envirocar.app.injection.InjectionApplicationScope;
+import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
 
@@ -33,7 +33,7 @@ public class LocationHandler {
 
     // Injected variables.
     @Inject
-    @InjectionApplicationScope
+    @InjectApplicationScope
     protected Context mContext;
     @Inject
     protected Bus mBus;

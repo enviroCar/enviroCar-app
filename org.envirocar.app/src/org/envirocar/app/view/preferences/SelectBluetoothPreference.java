@@ -64,13 +64,6 @@ public class SelectBluetoothPreference extends DialogPreference {
                 .bluetooth_selection_preference_list_entry,
                 pairedDevices.toArray(new BluetoothDevice[pairedDevices.size()]));
 
-//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout
-//                .simple_list_item_single_choice, names);
-
-//        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout
-//                .bluetooth_pairing_preference_devices_list_entry, R.id
-//                .bluetooth_selection_preference_device_list_entry_text, names);
-
         // Set the adapter and check the initial value as
         mBluetoothListView.setAdapter(adapter);
 
@@ -115,7 +108,6 @@ public class SelectBluetoothPreference extends DialogPreference {
             mCurrentlySelectedOBDDevice = device;
             if (device != null) {
                 // Persist the new selected value and update the summery of the preference entry.
-
                 setSummary(device.getName() + " (" + device.getAddress() + ")");
                 persistString(device.getAddress());
 

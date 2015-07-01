@@ -18,10 +18,11 @@ import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.application.CommandListener;
 import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.fragments.SettingsFragment;
-import org.envirocar.app.injection.InjectionApplicationScope;
+import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.SystemStartupService;
+import org.envirocar.app.view.preferences.BluetoothDiscoveryIntervalPreference;
 import org.envirocar.app.view.preferences.BluetoothPairingPreference;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.TemporaryFileManager;
@@ -68,7 +69,8 @@ import dagger.Provides;
                 CommandListener.class,
                 DbAdapterImpl.class,
                 LocationHandler.class,
-                OBDConnectionService.class
+                OBDConnectionService.class,
+                BluetoothDiscoveryIntervalPreference.class
         },
         library = true,
         complete = false
@@ -105,7 +107,7 @@ public class InjectionApplicationModule {
      * @return the context of the application.
      */
     @Provides
-    @InjectionApplicationScope
+    @InjectApplicationScope
     Context provideApplicationContext() {
         return mAppContext;
     }

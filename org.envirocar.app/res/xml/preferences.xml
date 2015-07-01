@@ -1,83 +1,94 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="@string/pref_obd_settings" >
+    <PreferenceCategory android:title="@string/pref_obd_settings">
         <SwitchPreference
+            android:defaultValue="true"
             android:key="bluetooth_enabler"
-            android:title="@string/pref_bluetooth_switch_isenabled"
-            android:defaultValue="true" />
+            android:title="@string/pref_bluetooth_switch_isenabled"/>
         <org.envirocar.app.view.preferences.BluetoothPairingPreference
             android:key="bluetooth_pairing"
-            android:title="@string/pref_bluetooth_pairing"
-            android:summary="@string/pref_bluetooth_pairing_summery" />
+            android:summary="@string/pref_bluetooth_pairing_summery"
+            android:title="@string/pref_bluetooth_pairing"/>
         <org.envirocar.app.view.preferences.SelectBluetoothPreference
             android:key="bluetooth_list"
             android:summary="@string/pref_bluetooth_select_adapter_summary"
-            android:title="@string/pref_bluetooth_select_adapter_title" />
+            android:title="@string/pref_bluetooth_select_adapter_title"/>
         <!--<ListPreference-->
-            <!--android:key="bluetooth_list"-->
-            <!--android:summary="@string/pref_bluetooth_select_adapter_summary"-->
-            <!--android:title="@string/pref_bluetooth_select_adapter_title" />-->
+        <!--android:key="bluetooth_list"-->
+        <!--android:summary="@string/pref_bluetooth_select_adapter_summary"-->
+        <!--android:title="@string/pref_bluetooth_select_adapter_title" />-->
     </PreferenceCategory>
-    
-    <PreferenceCategory android:title="@string/pref_car_settings" >
-		<org.envirocar.app.activity.preference.CarSelectionPreference 
-            android:title="@string/select_car"
+
+    <PreferenceCategory android:title="Autoconnect (Beta)">
+        <CheckBoxPreference
+            android:key="pref_bluetooth_autoconnect"
+            android:summary="Automatically starts a track once the OBDII has been connected."
+            android:title="Enable Autoconnect"/>
+        <org.envirocar.app.view.preferences.BluetoothDiscoveryIntervalPreference
+            android:key="pref_bluetooth_discovery_interval"
+            android:summary="Defines the search interval at which the device searches for the OBD device"
+            android:title="Discovery Interval for Autoconnect"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_car_settings">
+        <org.envirocar.app.activity.preference.CarSelectionPreference
             android:key="pref_selected_car"
             android:summary="@string/pref_select_car"
+            android:title="@string/select_car"
             />
-    </PreferenceCategory>    
-    
-    <PreferenceCategory android:title="@string/pref_general_settings" >
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="@string/pref_general_settings">
         <!-- <CheckBoxPreference
             android:key="pref_auto_bluetooth"
             android:title="@string/pref_auto_enable_bluetooth" /> -->
         <CheckBoxPreference
             android:key="pref_wifi_upload"
-            android:title="@string/pref_upload_only_in_wifi" />
+            android:title="@string/pref_upload_only_in_wifi"/>
         <CheckBoxPreference
             android:key="pref_always_upload"
-            android:title="@string/pref_always_upload" />
+            android:title="@string/pref_always_upload"/>
         <CheckBoxPreference
             android:key="pref_display_always_activ"
-            android:title="@string/pref_display_always_activ" />
+            android:title="@string/pref_display_always_activ"/>
         <CheckBoxPreference
             android:key="pref_imperial_unit"
-            android:title="@string/imperial_unit"
-            android:summary="@string/imperial_unit_summary" />
-        <CheckBoxPreference 
+            android:summary="@string/imperial_unit_summary"
+            android:title="@string/imperial_unit"/>
+        <CheckBoxPreference
+            android:defaultValue="true"
             android:key="pref_privacy"
-            android:title="@string/privacy"
             android:summary="@string/track_obfuscation_on"
-            android:defaultValue="true"/>
+            android:title="@string/privacy"/>
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/pref_optional_features" >
+    <PreferenceCategory android:title="@string/pref_optional_features">
         <org.envirocar.app.activity.preference.EditPreferenceWithSummary
             xmlns:enviroCar="http://envirocar.org"
+            android:defaultValue="5"
+            android:inputType="number"
             android:key="ec_sampling_rate"
-            android:title="@string/sampling_rate_title"
+            android:maxLength="8"
             android:summary="@string/sampling_rate_summary"
-			android:defaultValue="5"
-			android:inputType="number"
-			enviroCar:min="0"
-			enviroCar:max="15"
-			android:maxLength="8"
+            android:title="@string/sampling_rate_title"
+            enviroCar:max="15"
+            enviroCar:min="0"
             />
         <CheckBoxPreference
             android:key="pref_pid_supported"
-            android:title="@string/use_pid_supported"
-            android:summary="@string/use_pid_supported_summary" />
+            android:summary="@string/use_pid_supported_summary"
+            android:title="@string/use_pid_supported"/>
         <CheckBoxPreference
             android:key="pref_enable_debug_logging"
-            android:title="@string/enable_debug_logging"
-            android:summary="@string/enable_debug_logging_summary" />
+            android:summary="@string/enable_debug_logging_summary"
+            android:title="@string/enable_debug_logging"/>
     </PreferenceCategory>
-    
-    <PreferenceCategory android:title="@string/pref_about" >
-        <Preference 
+
+    <PreferenceCategory android:title="@string/pref_about">
+        <Preference
             android:key="about_version"
             android:title="@string/envirocar.org"/>
     </PreferenceCategory>
-    
+
 </PreferenceScreen>

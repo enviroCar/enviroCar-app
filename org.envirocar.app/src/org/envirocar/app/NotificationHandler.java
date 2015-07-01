@@ -14,7 +14,7 @@ import android.support.v4.app.NotificationCompat;
 
 import com.google.common.collect.Maps;
 
-import org.envirocar.app.injection.InjectionApplicationScope;
+import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.services.SystemStartupService;
 
@@ -26,20 +26,32 @@ import javax.inject.Inject;
  * @author dewall
  */
 public class NotificationHandler {
-
-
     // TODO remove this
     private static final int mId = 133;
     private static int NOTIFICATION_ID = 1000;
+
+    /**
+     * Returns a new notification id.
+     *
+     * @return a new notification id.
+     */
+    private static final int getNotificationID() {
+        return NOTIFICATION_ID++;
+    }
+
+    // Injected fields.
     @Inject
-    @InjectionApplicationScope
+    @InjectApplicationScope
     protected Context mContext;
+
     private NotificationManager mNotificationManager;
     private PendingIntent mBaseContentIntent;
     private Map<Class<?>, Integer> mServiceToNotificationID = Maps.newConcurrentMap();
 
     /**
-     * @param context
+     * Constructor.
+     *
+     * @param context the context of the current scope.
      */
     public NotificationHandler(Context context) {
         // Inject ourselves
@@ -54,12 +66,12 @@ public class NotificationHandler {
         mBaseContentIntent = PendingIntent.getActivity(mContext, 0, baseIntent, 0);
     }
 
-    private static final int getNotificationID() {
-        return NOTIFICATION_ID++;
-    }
 
     /**
-     * @action Can also contain the http status code with error if fail
+     * TODO REMOVE THIS
+     * (Can also contain the http status code with error if fail)
+     *
+     * @param action
      */
     public void createNotification(String action) {
         String notification_text = "";
@@ -164,6 +176,23 @@ public class NotificationHandler {
      * Enumeration reflecting the possible states of the application.
      */
     public enum NotificationState implements NotificationContent {
+        NO_OBD {
+            @Override
+            public String getNotificationTitle() {
+                return "No OBDII Adapter Selected";
+            }
+
+            @Override
+            public String getNotificationContent() {
+                return "You have no paired OBDII adapter selected. Go to the settings and " +
+                        "pair/select one.";
+            }
+
+            @Override
+            public boolean isShowingBigText() {
+                return false;
+            }
+        },
         UNCONNECTED {
             @Override
             public String getNotificationTitle() {
@@ -188,7 +217,7 @@ public class NotificationHandler {
 
                 return new NotificationActionHolder[]{
                         new NotificationActionHolder(android.R.drawable.ic_menu_close_clear_cancel,
-                                "Start Search", pendingIntent)};
+                                "Start Discovery for OBD", pendingIntent)};
             }
         },
         DISCOVERING {
@@ -215,7 +244,7 @@ public class NotificationHandler {
 
                 return new NotificationActionHolder[]{
                         new NotificationActionHolder(android.R.drawable.ic_menu_close_clear_cancel,
-                                "Stop Search", pendingIntent)};
+                                "Cancel", pendingIntent)};
             }
         },
         OBD_FOUND {

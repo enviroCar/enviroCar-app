@@ -49,7 +49,7 @@ import org.envirocar.app.model.dao.exception.NotConnectedException;
 import org.envirocar.app.model.dao.exception.ResourceConflictException;
 import org.envirocar.app.model.dao.exception.UnauthorizedException;
 import org.envirocar.app.exception.ServerException;
-import org.envirocar.app.injection.InjectionApplicationScope;
+import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.model.User;
 import org.envirocar.app.network.HTTPClient;
 import org.envirocar.app.util.FileWithMetadata;
@@ -63,7 +63,7 @@ import javax.inject.Inject;
 public class BaseRemoteDAO {
 
     @Inject
-	@InjectionApplicationScope
+	@InjectApplicationScope
 	protected Context mContext;
     @Inject
     protected UserManager mUserManager;

@@ -42,29 +42,35 @@ import rx.schedulers.Schedulers;
  */
 public class BluetoothPairingPreference extends DialogPreference {
     private static final Logger LOGGER = Logger.getLogger(BluetoothPairingPreference.class);
+
     // Views for the already paired devices.
     @InjectView(R.id.bluetooth_pairing_preference_paired_devices_text)
     public TextView mPairedDevicesTextView;
     @InjectView(R.id.bluetooth_pairing_preference_paired_devices_list)
     public ListView mPairedDevicesListView;
+
     // Views for the newly discovered devices.
     @InjectView(R.id.bluetooth_pairing_preference_available_devices_text)
     public TextView mNewDevicesTextView;
     @InjectView(R.id.bluetooth_pairing_preference_available_devices_list)
     public ListView mNewDevicesListView;
+
     // No device found.
     @InjectView(R.id.bluetooth_pairing_preference_available_devices_info)
     public TextView mNewDevicesInfoTextView;
     @InjectView(R.id.bluetooth_pairing_preference_search_devices_progressbar)
     public ProgressBar mProgressBar;
+
     // Injected variables.
     @Inject
     protected Bus mBus;
     @Inject
     protected BluetoothHandler mBluetoothHandler;
+
     // Main parent view for the content.
     @InjectView(R.id.bluetooth_pairing_preference_content)
     protected LinearLayout mContentView;
+
     // ArrayAdapter for the two different list views.
     private BluetoothDeviceListAdapter mNewDevicesArrayAdapter;
     private BluetoothDeviceListAdapter mPairedDevicesAdapter;
@@ -419,6 +425,7 @@ public class BluetoothPairingPreference extends DialogPreference {
             }
         });
     }
+
 
 
     @Override
