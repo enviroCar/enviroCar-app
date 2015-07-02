@@ -10,4 +10,14 @@
     <string name="bluetooth_pairing_preference_info_device_found">1 Bluetooth device
         found.</string>
     <string name="bluetooth_pairing_preference_dialog_remove_pairing">Remove Pairing</string>
+
+    <string name="pref_bt_discovery_interval_title">Set Discovery Interval</string>
+    <string name="pref_bt_discovery_interval_summary">Defines the search interval at which the
+        device searches for the selected OBD device.</string>
+    <string name="pref_bt_discovery_interval_explanation">Select the interval at (in minutes +
+        seconds) at which the application re-issues the discovery process.</string>
+
+    <string name="pref_bt_service_autostart_title">Autostart Background Service</string>
+    <string name="pref_bt_service_autostart_summary">Automatically start the backgroundservice
+        whenever Bluetooth gets activated.</string>
 </resources>

@@ -53,6 +53,7 @@ import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.application.service.BackgroundServiceInteractor;
 import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.application.service.DeviceInRangeServiceInteractor;
+import org.envirocar.app.fragments.RealDashboardFragment;
 import org.envirocar.app.fragments.SettingsFragment;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.injection.module.InjectionActivityModule;
@@ -116,8 +117,10 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected CarManager mCarManager;
     @Inject
     protected TemporaryFileManager mTemporaryFileManager;
+//    @Inject
+//    protected DashboardFragment mDashboardFragment;
     @Inject
-    protected DashboardFragment mDashboardFragment;
+    protected RealDashboardFragment mDashboardFragment;
     @Inject
     protected TrackHandler mTrackHandler;
     @Inject

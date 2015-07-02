@@ -30,6 +30,7 @@ import javax.inject.Inject;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
+import rx.android.content.ContentObservable;
 import rx.schedulers.Schedulers;
 
 /**
@@ -46,6 +47,7 @@ public class SystemStartupService extends Service {
     public static final String ACTION_START_TRACK_RECORDING = "action_start_track_recording";
     public static final String ACTION_STOP_TRACK_RECORDING = "action_stop_track_recording";
 
+
     // Injected variables
     @Inject
     protected Bus mBus;
@@ -54,17 +56,18 @@ public class SystemStartupService extends Service {
     @Inject
     protected NotificationHandler mNotificationHandler;
 
+
     private NotificationHandler.NotificationState mCurrentState;
-
     private Scheduler.Worker mWorkerThread = Schedulers.newThread().createWorker();
-
-
     private boolean mIsAutoconnct;
     private int mDiscoveryInterval;
+
 
     // private member fields.
     private Subscription mWorkerSubscription;
     private Subscription mDiscoverySubscription;
+    private Subscription mSharedPrefSubscription;
+
 
     // Background service for the connection to the OBD adapter.
     private OBDConnectionService mOBDConnectionService;
@@ -87,8 +90,6 @@ public class SystemStartupService extends Service {
             mIsOBDConnectionBounded = false;
         }
     };
-
-
     // Broadcast receiver that handles the different actions that could be issued by the
     // corresponding notification of the notification bar.
     private final BroadcastReceiver mBroadcastReciever = new BroadcastReceiver() {
@@ -143,7 +144,6 @@ public class SystemStartupService extends Service {
         }
     };
 
-
     @Override
     public void onCreate() {
         LOGGER.info("onCreate()");
@@ -156,7 +156,7 @@ public class SystemStartupService extends Service {
         this.mBus.register(this);
 
         // Get the required preference settings.
-        SharedPreferences preferences = PreferenceManager
+        final SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
         this.mIsAutoconnct = preferences.getBoolean(PreferencesConstants
                 .PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT, PreferencesConstants
@@ -180,6 +180,25 @@ public class SystemStartupService extends Service {
 
         // if the OBDConnectionService is running, then bind the service.
         bindOBDConnectionService();
+
+        mSharedPrefSubscription = ContentObservable.fromSharedPreferencesChanges(preferences)
+                .filter(prefKey ->
+                        PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT.equals(prefKey) ||
+                                PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL
+                                        .equals(prefKey))
+                .subscribe(prefKey -> {
+                    LOGGER.info(String.format("Received change in preferences [%s]", prefKey));
+
+                    if (prefKey.equals(PreferencesConstants
+                            .PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT)) {
+                        mIsAutoconnct = preferences.getBoolean(PreferencesConstants
+                                .PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT, false);
+                    } else {
+                        mDiscoveryInterval = preferences.getInt(PreferencesConstants
+                                        .PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL,
+                                PreferencesConstants.DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);
+                    }
+                });
     }
 
 
@@ -206,21 +225,20 @@ public class SystemStartupService extends Service {
         LOGGER.info("onDestroy()");
         super.onDestroy();
 
-        // Unsubscribe the observable.
-        if (mDiscoverySubscription != null) {
-            mDiscoverySubscription.unsubscribe();
-            mDiscoverySubscription = null;
-        }
-
         // Unbind the connection service.
         unbindOBDConnectionService();
 
         // unregister all boradcast receivers.
         unregisterReceiver(mBroadcastReciever);
 
+        // Unsubscribe subscriptions.
+        mSharedPrefSubscription.unsubscribe();
+        mWorkerSubscription.unsubscribe();
+        if (mDiscoverySubscription != null)
+            mDiscoverySubscription.unsubscribe();
+
         // Close the corresponding notification.
         mNotificationHandler.closeNotification(this);
-
         mBluetoothHandler.stopBluetoothDeviceDiscovery();
     }
 

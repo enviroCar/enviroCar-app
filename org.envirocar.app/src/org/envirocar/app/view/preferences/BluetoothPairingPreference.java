@@ -83,8 +83,11 @@ public class BluetoothPairingPreference extends DialogPreference {
      */
     public BluetoothPairingPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        // Inject fields.
         ((Injector) context.getApplicationContext()).injectObjects(this);
 
+        // Set the layout of the dialog to show.
         setDialogLayoutResource(R.layout.bluetooth_pairing_preference);
     }
 

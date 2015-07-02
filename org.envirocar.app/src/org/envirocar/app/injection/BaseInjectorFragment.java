@@ -71,6 +71,8 @@ public abstract class BaseInjectorFragment extends Fragment implements Injector,
         }
     }
 
+
+
     /**
      * Gets the object graph of the implemented class.
      *

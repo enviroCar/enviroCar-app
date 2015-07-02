@@ -15,6 +15,7 @@ import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.StartStopButtonUtil;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.TermsOfUseManager;
+import org.envirocar.app.fragments.RealDashboardFragment;
 import org.envirocar.app.injection.InjectionActivityScope;
 
 import javax.inject.Singleton;
@@ -34,7 +35,8 @@ import dagger.Provides;
                 RegisterFragment.class,
                 SettingsActivity.class,
                 StartStopButtonUtil.class,
-                TrackHandler.class
+                TrackHandler.class,
+                RealDashboardFragment.class
         },
         addsTo = InjectionApplicationModule.class,
         library = true,
@@ -69,6 +71,13 @@ public class InjectionActivityModule {
     @Singleton
     public DashboardFragment provideDashboardFragment(){
         return new DashboardFragment();
+    }
+
+
+    @Provides
+    @Singleton
+    public RealDashboardFragment provideRealDashboardFragment(){
+        return new RealDashboardFragment();
     }
 
     @Provides

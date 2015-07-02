@@ -6,6 +6,12 @@
 
     <include layout="@layout/default_header_toolbar"/>
 
+    <TextView
+        android:id="@+id/bluetooth_discovery_interval_preference_numberpicker_text"
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -42,9 +48,9 @@
     </LinearLayout>
 
 
-    <org.envirocar.app.view.preferences.TimerInputView
-        android:id="@+id/bluetooth_discovery_interval_preference_timerinput"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+    <!--<org.envirocar.app.view.preferences.TimerInputView-->
+        <!--android:id="@+id/bluetooth_discovery_interval_preference_timerinput"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"/>-->
 
 </LinearLayout>

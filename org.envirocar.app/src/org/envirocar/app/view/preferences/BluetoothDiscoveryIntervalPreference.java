@@ -5,9 +5,9 @@ import android.content.Context;
 import android.preference.DialogPreference;
 import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.NumberPicker;
+import android.widget.TextView;
 
 import org.envirocar.app.R;
 import org.envirocar.app.injection.Injector;
@@ -45,23 +45,22 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
 
     @InjectView(R.id.default_header_toolbar)
     protected Toolbar mToolbar;
-
-    @InjectView(R.id.bluetooth_discovery_interval_preference_timerinput)
-    protected TimerInputView mTimerInputView;
-
+    @InjectView(R.id.bluetooth_discovery_interval_preference_numberpicker_text)
+    protected TextView mText;
     @InjectView(R.id.bluetooth_discovery_interval_preference_numberpicker_min)
     protected NumberPicker mMinutePicker;
     @InjectView(R.id.bluetooth_discovery_interval_preference_numberpicker_sec)
     protected NumberPicker mSecondsPicker;
 
+    // The seconds and minutes the timepicker have to show
     private int mCurrentSeconds;
     private int mCurrentMinutes;
 
     /**
      * Constructor.
      *
-     * @param context
-     * @param attrs
+     * @param context the context of the current scope.
+     * @param attrs   the attriute set
      */
     public BluetoothDiscoveryIntervalPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -69,6 +68,7 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
         // Inject ourselves.
         ((Injector) context).injectObjects(this);
 
+        // Set the layout of the dialog to show.
         setDialogLayoutResource(R.layout.bluetooth_discovery_interval_preference);
     }
 
@@ -79,7 +79,15 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
         // Inject all views
         ButterKnife.inject(this, view);
 
+        // Toolbar settings.
+        mToolbar.setTitle(R.string.pref_bt_discovery_interval_title);
+        mToolbar.setNavigationIcon(R.drawable.ic_timer_white_24dp);
+        mToolbar.setTitleTextColor(getContext().getResources().getColor(R.color.white_cario));
 
+        // Set the textview text
+        mText.setText(R.string.pref_bt_discovery_interval_explanation);
+
+        // set the settings for the minute NumberPicker.
         mMinutePicker.setMinValue(0);
         mMinutePicker.setMaxValue(59);
         mMinutePicker.setOnLongPressUpdateInterval(100);
@@ -92,6 +100,7 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
             }
         });
 
+        // set the settings for the seconds number picker.
         mSecondsPicker.setMinValue(0);
         mSecondsPicker.setMaxValue(5);
         mSecondsPicker.setDisplayedValues(DISPLAY_SECONDS);
@@ -122,7 +131,7 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
             int time = getPersistedInt(-1);
             if (time != -1) {
                 int seconds = time % 60;
-                int minutes = (time - seconds)/60;
+                int minutes = (time - seconds) / 60;
 
                 mCurrentMinutes = minutes;
                 mCurrentSeconds = seconds / 10;
@@ -138,7 +147,7 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
             mCurrentMinutes = mMinutePicker.getValue();
             mCurrentSeconds = mSecondsPicker.getValue();
 
-            int time = mMinutePicker.getValue()*60 + mSecondsPicker.getValue() * 10;
+            int time = mMinutePicker.getValue() * 60 + mSecondsPicker.getValue() * 10;
             persistInt(time);
 
             getSharedPreferences().edit()
