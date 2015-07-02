@@ -163,7 +163,11 @@ public class LocationHandler {
         }
     };
 
-
+    /**
+     * Constructor.
+     *
+     * @param context   the context of the current scope.
+     */
     public LocationHandler(Context context) {
         // Inject ourselves and register on the bus.
         ((Injector) context).injectObjects(this);
@@ -189,6 +193,9 @@ public class LocationHandler {
         mLocationManager.addNmeaListener(mNmeaListener);
     }
 
+    /**
+     *
+     */
     public void stopLocating(){
         mLocationManager.removeUpdates(mLocationListener);
         mLocationManager.removeNmeaListener(mNmeaListener);

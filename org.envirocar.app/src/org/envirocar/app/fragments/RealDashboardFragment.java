@@ -20,12 +20,12 @@ import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
 import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.events.Co2Event;
+import org.envirocar.app.bluetooth.obd.events.Co2Event;
 import org.envirocar.app.events.GpsDOPEvent;
 import org.envirocar.app.events.GpsSatelliteFix;
 import org.envirocar.app.events.GpsSatelliteFixEvent;
 import org.envirocar.app.events.LocationChangedEvent;
-import org.envirocar.app.events.SpeedEvent2;
+import org.envirocar.app.bluetooth.obd.events.SpeedUpdateEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
@@ -196,7 +196,7 @@ public class RealDashboardFragment extends BaseInjectorFragment {
     }
 
     @Subscribe
-    public void onReceiveSpeedEvent(SpeedEvent2 event){
+    public void onReceiveSpeedEvent(SpeedUpdateEvent event){
         LOGGER.info(String.format("Received event: %s", event.toString()));
         this.mSpeed = event.mSpeed;
         checkUIUpdate();
@@ -268,8 +268,8 @@ public class RealDashboardFragment extends BaseInjectorFragment {
      *
      */
     private synchronized void checkUIUpdate() {
-        if (serviceState == AbstractBackgroundServiceStateReceiver.ServiceState.SERVICE_STOPPED)
-            return;
+//        if (serviceState == AbstractBackgroundServiceStateReceiver.ServiceState.SERVICE_STOPPED)
+//            return;
 
         if (getActivity() == null || System.currentTimeMillis() - mLastUIUpdate < 250) return;
 

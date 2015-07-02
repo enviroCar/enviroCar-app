@@ -125,6 +125,8 @@ public class OBDConnectionService extends Service {
 
         if (mUUIDSubscription != null)
             mUUIDSubscription.unsubscribe();
+
+        mLocationHandler.stopLocating();
     }
 
     @Subscribe

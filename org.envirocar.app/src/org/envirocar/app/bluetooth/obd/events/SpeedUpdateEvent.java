@@ -1,11 +1,11 @@
-package org.envirocar.app.events;
+package org.envirocar.app.bluetooth.obd.events;
 
 import com.google.common.base.MoreObjects;
 
 /**
  * @author dewall
  */
-public class SpeedEvent2 {
+public class SpeedUpdateEvent {
 
     public final int mSpeed;
 
@@ -14,7 +14,7 @@ public class SpeedEvent2 {
      *
      * @param speed the speed value of the event.
      */
-    public SpeedEvent2(final int speed){
+    public SpeedUpdateEvent(final int speed){
         this.mSpeed = speed;
     }
 

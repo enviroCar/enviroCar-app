@@ -22,12 +22,11 @@ package org.envirocar.app.events;
 
 import com.google.common.base.MoreObjects;
 
-import org.envirocar.app.event.AbstractEvent;
 
 /**
  * Event holder for the Dilution of Precision (DOP)
  */
-public class GpsDOPEvent implements AbstractEvent<GpsDOP> {
+public class GpsDOPEvent {
 
     public final GpsDOP mDOP;
 
@@ -49,11 +48,6 @@ public class GpsDOPEvent implements AbstractEvent<GpsDOP> {
      */
     public GpsDOPEvent(Double pdop, Double hdop, Double vdop) {
         this.mDOP = new GpsDOP(pdop, hdop, vdop);
-    }
-
-    @Override
-    public GpsDOP getPayload() {
-        return mDOP;
     }
 
     @Override

@@ -6,7 +6,6 @@ import android.content.Context;
 
 import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.TrackHandler;
-import org.envirocar.app.activity.DashboardFragment;
 import org.envirocar.app.activity.ListTracksFragment;
 import org.envirocar.app.activity.LogbookFragment;
 import org.envirocar.app.activity.LoginFragment;
@@ -28,7 +27,6 @@ import dagger.Provides;
                 BaseMainActivity.class,
                 TermsOfUseManager.class,
                 CarManager.class,
-                DashboardFragment.class,
                 ListTracksFragment.class,
                 LogbookFragment.class,
                 LoginFragment.class,
@@ -66,13 +64,6 @@ public class InjectionActivityModule {
     public Context provideContext() {
         return mActivity;
     }
-
-    @Provides
-    @Singleton
-    public DashboardFragment provideDashboardFragment(){
-        return new DashboardFragment();
-    }
-
 
     @Provides
     @Singleton

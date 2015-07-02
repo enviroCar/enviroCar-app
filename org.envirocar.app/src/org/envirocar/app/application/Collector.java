@@ -23,14 +23,13 @@ package org.envirocar.app.application;
 import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbe;
 import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbeCurrent;
 import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbeVoltage;
-import org.envirocar.app.event.CO2Event;
-import org.envirocar.app.event.ConsumptionEvent;
-import org.envirocar.app.event.EventBus;
+import org.envirocar.app.bluetooth.obd.events.Co2Event;
+import org.envirocar.app.bluetooth.obd.events.ConsumptionEvent;
 import org.envirocar.app.events.GpsDOP;
-import org.envirocar.app.event.LocationEvent;
-import org.envirocar.app.event.LocationEventListener;
+import org.envirocar.app.events.LocationChangedEvent;
 import org.envirocar.app.exception.FuelConsumptionException;
 import org.envirocar.app.exception.MeasurementsException;
+import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.protocol.algorithm.AbstractCalculatedMAFAlgorithm;
@@ -41,9 +40,15 @@ import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 
+import android.content.Context;
 import android.location.Location;
 
-public class Collector implements LocationEventListener{
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
+
+import javax.inject.Inject;
+
+public class Collector {
 
 	private static final Logger logger = Logger.getLogger(Collector.class);
 	static final int DEFAULT_SAMPLING_RATE_DELTA = 5000;
@@ -55,7 +60,24 @@ public class Collector implements LocationEventListener{
 	private boolean fuelTypeNotSupportedLogged;
 	private long samplingRateDelta = 5000;
 
-	public Collector(MeasurementListener l, Car car, int samplingDelta) {
+	@Inject
+	protected Bus mBus;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param context the context of the current scope.
+	 * @param l
+	 * @param car
+	 * @param samplingDelta
+	 */
+	public Collector(Context context, MeasurementListener l, Car car, int samplingDelta) {
+        // First, inject all annotated fields.
+        ((Injector) context).injectObjects(this);
+
+        // then register on the bus.
+        this.mBus.register(this);
+
 		this.callback = l;
 		this.car = car;
 		
@@ -70,8 +92,8 @@ public class Collector implements LocationEventListener{
 	}
 
 	
-	public Collector(MeasurementListener l, Car car) {
-		this(l, car, DEFAULT_SAMPLING_RATE_DELTA);
+	public Collector(Context context, MeasurementListener l, Car car) {
+		this(context, l, car, DEFAULT_SAMPLING_RATE_DELTA);
 	}
 	
 	private void resetMeasurement() {
@@ -140,8 +162,11 @@ public class Collector implements LocationEventListener{
 		try {
 			double consumption = this.consumptionAlgorithm.calculateConsumption(measurement);
 			double co2 = this.consumptionAlgorithm.calculateCO2FromConsumption(consumption);
-			EventBus.getInstance().fireEvent(new ConsumptionEvent(consumption));
-			EventBus.getInstance().fireEvent(new CO2Event(co2));
+
+            // fire the events.
+            mBus.post(new Co2Event(co2));
+            mBus.post(new ConsumptionEvent(consumption));
+
 		} catch (FuelConsumptionException e) {
 			logger.warn(e.getMessage());
 		} catch (UnsupportedFuelTypeException e) {
@@ -279,9 +304,10 @@ public class Collector implements LocationEventListener{
 	}
 
 
-	@Override
-	public void receiveEvent(LocationEvent event) {
-		newLocation(event.getPayload());
-	}
+    @Subscribe
+    public void onReceiveLocationChangedEvent(LocationChangedEvent event){
+        logger.info(String.format("Received event: %s", event.toString()));
+        newLocation(event.mLocation);
+    }
 
 }

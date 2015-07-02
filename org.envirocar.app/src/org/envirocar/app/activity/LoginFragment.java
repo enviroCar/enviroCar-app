@@ -43,6 +43,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import org.envirocar.app.fragments.RealDashboardFragment;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.R;
 import org.envirocar.app.application.TermsOfUseManager;
@@ -89,6 +90,8 @@ public class LoginFragment extends BaseInjectorFragment {
     protected UserManager mUserManager;
     @Inject
     protected TermsOfUseManager mTermsOfUseManager;
+    @Inject
+    protected RealDashboardFragment mDashboardFragment;
 
 
     @Override
@@ -290,9 +293,8 @@ public class LoginFragment extends BaseInjectorFragment {
                 mTermsOfUseManager.askForTermsOfUseAcceptance(newUser, getActivity(), null);
 
                 getActivity().getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                DashboardFragment dashboardFragment = new DashboardFragment();
                 getActivity().getFragmentManager().beginTransaction()
-                        .replace(R.id.content_frame, dashboardFragment)
+                        .replace(R.id.content_frame, mDashboardFragment)
                         .commit();
 
             } else {

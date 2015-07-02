@@ -1,4 +1,4 @@
-package org.envirocar.app.events;
+package org.envirocar.app.bluetooth.obd.events;
 
 import com.google.common.base.MoreObjects;
 

@@ -34,7 +34,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.envirocar.app.activity.DashboardFragment;
 import org.envirocar.app.activity.DialogUtil;
 import org.envirocar.app.activity.HelpFragment;
 import org.envirocar.app.activity.ListTracksFragment;
@@ -48,11 +47,6 @@ import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.NavMenuItem;
 import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.UserManager;
-import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
-import org.envirocar.app.application.service.BackgroundServiceImpl;
-import org.envirocar.app.application.service.BackgroundServiceInteractor;
-import org.envirocar.app.application.service.DeviceInRangeService;
-import org.envirocar.app.application.service.DeviceInRangeServiceInteractor;
 import org.envirocar.app.fragments.RealDashboardFragment;
 import org.envirocar.app.fragments.SettingsFragment;
 import org.envirocar.app.injection.BaseInjectorActivity;
@@ -117,8 +111,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected CarManager mCarManager;
     @Inject
     protected TemporaryFileManager mTemporaryFileManager;
-//    @Inject
-//    protected DashboardFragment mDashboardFragment;
     @Inject
     protected RealDashboardFragment mDashboardFragment;
     @Inject
@@ -132,8 +124,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected DbAdapter mDBAdapter;
     protected AbstractBackgroundServiceStateReceiver.ServiceState serviceState
             = AbstractBackgroundServiceStateReceiver.ServiceState.SERVICE_STOPPED;
-    protected BackgroundServiceInteractor backgroundService;
-    protected DeviceInRangeServiceInteractor deviceInRangeService;
+
+
     protected long discoveryTargetTime;
     protected Toolbar mToolbar;
     private int trackMode = TRACK_MODE_SINGLE;
@@ -193,24 +185,24 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 .beginTransaction()
                 .replace(R.id.content_frame, mDashboardFragment, DASHBOARD_TAG).commit();
 
-        serviceStateReceiver = new AbstractBackgroundServiceStateReceiver() {
-            @Override
-            public void onStateChanged(ServiceState state) {
-                serviceState = state;
-
-                if (serviceState == ServiceState.SERVICE_STOPPED && trackMode == TRACK_MODE_AUTO) {
-                    /*
-                     * we need to start the DeviceInRangeService
-					 */
-                    startService(new Intent(getApplicationContext(), DeviceInRangeService.class));
-                }
-
-                updateStartStopButton();
-            }
-        };
-
-        registerReceiver(serviceStateReceiver, new IntentFilter
-                (AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
+//        serviceStateReceiver = new AbstractBackgroundServiceStateReceiver() {
+//            @Override
+//            public void onStateChanged(ServiceState state) {
+//                serviceState = state;
+//
+//                if (serviceState == ServiceState.SERVICE_STOPPED && trackMode == TRACK_MODE_AUTO) {
+//                    /*
+//                     * we need to start the DeviceInRangeService
+//					 */
+//                    startService(new Intent(getApplicationContext(), DeviceInRangeService.class));
+//                }
+//
+//                updateStartStopButton();
+//            }
+//        };
+//
+//        registerReceiver(serviceStateReceiver, new IntentFilter
+//                (AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 
         deviceDiscoveryStateReceiver = new AbstractBackgroundServiceStateReceiver() {
 
@@ -561,12 +553,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 if (isFragmentVisible(DASHBOARD_TAG)) {
                     break;
                 }
-                Fragment dashboardFragment = getFragmentManager().findFragmentByTag(DASHBOARD_TAG);
-                if (dashboardFragment == null) {
-                    dashboardFragment = new DashboardFragment();
-                }
                 manager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                manager.beginTransaction().replace(R.id.content_frame, dashboardFragment,
+                manager.beginTransaction().replace(R.id.content_frame, mDashboardFragment,
                         DASHBOARD_TAG).commit();
                 break;
 

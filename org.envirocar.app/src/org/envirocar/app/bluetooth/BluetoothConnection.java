@@ -34,7 +34,6 @@ import org.envirocar.app.bluetooth.FallbackBluetoothSocket.FallbackException;
 import org.envirocar.app.logging.Logger;
 
 import android.annotation.SuppressLint;
-import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;

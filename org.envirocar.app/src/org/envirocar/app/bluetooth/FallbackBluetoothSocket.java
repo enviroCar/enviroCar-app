@@ -27,6 +27,8 @@ import java.lang.reflect.Method;
 
 import android.bluetooth.BluetoothSocket;
 
+import org.envirocar.app.bluetooth.NativeBluetoothSocket;
+
 public class FallbackBluetoothSocket extends NativeBluetoothSocket {
 
 	private BluetoothSocket fallbackSocket;

@@ -27,6 +27,10 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.envirocar.app.bluetooth.obd.events.IntakePreasureUpdateEvent;
+import org.envirocar.app.bluetooth.obd.events.IntakeTemperatureUpdateEvent;
+import org.envirocar.app.bluetooth.obd.events.RPMUpdateEvent;
+import org.envirocar.app.bluetooth.obd.events.SpeedUpdateEvent;
 import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.activity.SettingsActivity;
@@ -43,14 +47,7 @@ import org.envirocar.app.bluetooth.obd.commands.RPM;
 import org.envirocar.app.bluetooth.obd.commands.ShortTermTrimBank1;
 import org.envirocar.app.bluetooth.obd.commands.Speed;
 import org.envirocar.app.bluetooth.obd.commands.TPS;
-import org.envirocar.app.event.EventBus;
-import org.envirocar.app.events.GpsDOP;
 import org.envirocar.app.events.GpsDOPEvent;
-import org.envirocar.app.event.GpsDOPEventListener;
-import org.envirocar.app.event.IntakePressureEvent;
-import org.envirocar.app.event.IntakeTemperatureEvent;
-import org.envirocar.app.event.RPMEvent;
-import org.envirocar.app.event.SpeedEvent;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Measurement;
@@ -59,14 +56,16 @@ import org.envirocar.app.storage.TrackAlreadyFinishedException;
 import org.envirocar.app.storage.TrackMetadata;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import javax.inject.Inject;
 
 /**
  * Standalone listener class for OBDII commands. It provides all
- * received processed commands through the {@link EventBus}.
+ * received processed commands through the {@link Bus}.
  *
  * @author matthes rieke
  *
@@ -78,7 +77,6 @@ public class CommandListener implements Listener, MeasurementListener {
 
 	private Collector collector;
 
-	private GpsDOPEventListener dopListener;
 
 	private TrackMetadata obdDeviceMetadata;
 
@@ -100,6 +98,8 @@ public class CommandListener implements Listener, MeasurementListener {
     @Inject
 	@InjectApplicationScope
 	protected Context mContext;
+	@Inject
+	protected Bus mBus;
     @Inject
     protected CarManager mCarManager;
     @Inject
@@ -107,12 +107,14 @@ public class CommandListener implements Listener, MeasurementListener {
 
 
     public CommandListener(Context context){
+        // First, inject all annotated fields.
         ((Injector) context).injectObjects(this);
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences
-                (context.getApplicationContext());
+        // then register on the bus.
+        this.mBus.register(this);
 
-        String samplingRate = sharedPreferences.getString(SettingsActivity.SAMPLING_RATE, null);
+        String samplingRate = PreferenceManager.getDefaultSharedPreferences
+                (context.getApplicationContext()).getString(SettingsActivity.SAMPLING_RATE, null);
 
         int val;
         if  (samplingRate != null) {
@@ -127,21 +129,20 @@ public class CommandListener implements Listener, MeasurementListener {
             val = Collector.DEFAULT_SAMPLING_RATE_DELTA;
         }
 
-        this.collector = new Collector(this, mCarManager.getCar(), val);
-        dopListener = new GpsDOPEventListener() {
-            @Override
-            public void receiveEvent(GpsDOPEvent event) {
-                GpsDOP dop = event.getPayload();
-                collector.newDop(dop);
-            }
-        };
-        EventBus.getInstance().registerListener(dopListener);
-        EventBus.getInstance().registerListener(this.collector);
+        this.collector = new Collector(mContext, this, mCarManager.getCar(), val);
+
+//        EventBus.getInstance().registerListener(this.collector);
 
         synchronized (CommandListener.class) {
             instanceCount++;
             logger.debug("Initialized. Hash: "+System.identityHashCode(this) +"; active instances: "+instanceCount);
         }
+    }
+
+    @Subscribe
+    public void onReceiveGpsDOPEvent(GpsDOPEvent event){
+        logger.info(String.format("Received event: %s", event.toString()));
+        collector.newDop(event.mDOP);
     }
 
 	public void receiveUpdate(CommonCommand command) {
@@ -166,7 +167,7 @@ public class CommandListener implements Listener, MeasurementListener {
 			try {
 				Integer speedMeasurement = (Integer) numberCommand.getNumberResult();
 				this.collector.newSpeed(speedMeasurement);
-				EventBus.getInstance().fireEvent(new SpeedEvent(speedMeasurement));
+				mBus.post(new SpeedUpdateEvent(speedMeasurement));
 //				logger.info("Processed Speed Response: "+speedMeasurement +" time: "+command.getResultTime());
 			} catch (NumberFormatException e) {
 				logger.warn("speed parse exception", e);
@@ -183,7 +184,7 @@ public class CommandListener implements Listener, MeasurementListener {
 			try {
 				Integer rpmMeasurement = (Integer) numberCommand.getNumberResult();
 				this.collector.newRPM(rpmMeasurement);
-				EventBus.getInstance().fireEvent(new RPMEvent(rpmMeasurement));
+                mBus.post(new RPMUpdateEvent(rpmMeasurement));
 //				logger.info("Processed RPM Response: "+rpmMeasurement +" time: "+command.getResultTime());
 			} catch (NumberFormatException e) {
 				logger.warn("rpm parse exception", e);
@@ -200,7 +201,7 @@ public class CommandListener implements Listener, MeasurementListener {
 			try {
 				Integer intakePressureMeasurement = (Integer) numberCommand.getNumberResult();
 				this.collector.newIntakePressure(intakePressureMeasurement);
-				EventBus.getInstance().fireEvent(new IntakePressureEvent(intakePressureMeasurement));
+                mBus.post(new IntakePreasureUpdateEvent(intakePressureMeasurement));
 //				logger.info("Processed IAP Response: "+intakePressureMeasurement +" time: "+command.getResultTime());
 			} catch (NumberFormatException e) {
 				logger.warn("Intake Pressure parse exception", e);
@@ -217,7 +218,7 @@ public class CommandListener implements Listener, MeasurementListener {
 			try {
 				Integer intakeTemperatureMeasurement = (Integer) numberCommand.getNumberResult();
 				this.collector.newIntakeTemperature(intakeTemperatureMeasurement);
-				EventBus.getInstance().fireEvent(new IntakeTemperatureEvent(intakeTemperatureMeasurement));
+                this.mBus.post(new IntakeTemperatureUpdateEvent(intakeTemperatureMeasurement));
 //				logger.info("Processed IAT Response: "+intakeTemperatureMeasurement +" time: "+command.getResultTime());
 			} catch (NumberFormatException e) {
 				logger.warn("Intake Temperature parse exception", e);
@@ -302,10 +303,9 @@ public class CommandListener implements Listener, MeasurementListener {
 	}
 
 	public void shutdown() {
-		logger.info("shutting down CommandListener. Hash: "+ System.identityHashCode(this));
+		logger.info("shutting down CommandListener. Hash: " + System.identityHashCode(this));
 
-		EventBus.getInstance().unregisterListener(dopListener);
-		EventBus.getInstance().registerListener(this.collector);
+//		EventBus.getInstance().registerListener(this.collector);
 
 		this.inserter.shutdown();
 

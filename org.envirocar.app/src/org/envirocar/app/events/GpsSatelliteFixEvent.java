@@ -22,14 +22,13 @@ package org.envirocar.app.events;
 
 import com.google.common.base.MoreObjects;
 
-import org.envirocar.app.event.AbstractEvent;
 
 /**
  * Event holder that holds all necessary information about a GpsSatelliteFix.
  *
  * @author dewall
  */
-public class GpsSatelliteFixEvent implements AbstractEvent<GpsSatelliteFix> {
+public class GpsSatelliteFixEvent {
 
     public final GpsSatelliteFix mGpsSatelliteFix;
 
@@ -50,11 +49,6 @@ public class GpsSatelliteFixEvent implements AbstractEvent<GpsSatelliteFix> {
      */
     public GpsSatelliteFixEvent(int numberOfSats, boolean fix) {
         this(new GpsSatelliteFix(numberOfSats, fix));
-    }
-
-    @Override
-    public GpsSatelliteFix getPayload() {
-        return this.mGpsSatelliteFix;
     }
 
     @Override

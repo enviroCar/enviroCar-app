@@ -4,17 +4,18 @@ import android.app.Application;
 import android.content.Context;
 
 import com.squareup.otto.Bus;
+import com.squareup.otto.ThreadEnforcer;
 
 import org.envirocar.app.FeatureFlags;
 import org.envirocar.app.LocationHandler;
 import org.envirocar.app.NotificationHandler;
-import org.envirocar.app.activity.DashboardFragment;
 import org.envirocar.app.activity.ListTracksFragment;
 import org.envirocar.app.activity.LogbookFragment;
 import org.envirocar.app.activity.LoginFragment;
 import org.envirocar.app.activity.RegisterFragment;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
+import org.envirocar.app.application.Collector;
 import org.envirocar.app.application.CommandListener;
 import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.fragments.SettingsFragment;
@@ -51,7 +52,6 @@ import dagger.Provides;
         injects = {
                 TermsOfUseManager.class,
                 CarManager.class,
-                DashboardFragment.class,
                 ListTracksFragment.class,
                 LogbookFragment.class,
                 LoginFragment.class,
@@ -70,7 +70,8 @@ import dagger.Provides;
                 DbAdapterImpl.class,
                 LocationHandler.class,
                 OBDConnectionService.class,
-                BluetoothDiscoveryIntervalPreference.class
+                BluetoothDiscoveryIntervalPreference.class,
+                Collector.class
         },
         library = true,
         complete = false
@@ -131,7 +132,7 @@ public class InjectionApplicationModule {
     @Provides
     @Singleton
     Bus provideBus() {
-        return new Bus();
+        return new Bus(ThreadEnforcer.ANY);
     }
 
     /**
