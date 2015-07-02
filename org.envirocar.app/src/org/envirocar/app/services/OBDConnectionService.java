@@ -1,23 +1,31 @@
 package org.envirocar.app.services;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.bluetooth.BluetoothDevice;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.Parcelable;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.LocationHandler;
+import org.envirocar.app.R;
 import org.envirocar.app.application.CommandListener;
 import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.app.bluetooth.BluetoothSocketWrapper;
 import org.envirocar.app.bluetooth.FallbackBluetoothSocket;
 import org.envirocar.app.bluetooth.NativeBluetoothSocket;
+import org.envirocar.app.bluetooth.event.BluetoothServiceStateChangedEvent;
+import org.envirocar.app.bluetooth.service.BluetoothServiceState;
 import org.envirocar.app.events.GpsSatelliteFix;
 import org.envirocar.app.events.GpsSatelliteFixEvent;
 import org.envirocar.app.injection.Injector;
@@ -51,6 +59,7 @@ public class OBDConnectionService extends Service {
     private static final Logger LOGGER = Logger.getLogger(OBDConnectionService.class);
 
     protected static final int MAX_RECONNECT_COUNT = 2;
+    public static final int BG_NOTIFICATION_ID = 42;
 
     private static final UUID EMBEDDED_BOARD_SPP = UUID
             .fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -69,6 +78,8 @@ public class OBDConnectionService extends Service {
     private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
 
     private Subscription mUUIDSubscription;
+
+    private BluetoothServiceState mServiceState = BluetoothServiceState.SERVICE_STOPPED;
 
 
     // This satellite fix indicates that there is no satellite connection yet.
@@ -102,11 +113,18 @@ public class OBDConnectionService extends Service {
             //
             startOBDConnection(device);
 
+            setBluetoothServiceState(BluetoothServiceState.SERVICE_STARTING);
         } else {
             LOGGER.severe("No default Bluetooth device selected");
         }
 
+
         return START_STICKY;
+    }
+
+    private void setBluetoothServiceState(BluetoothServiceState state) {
+        this.mServiceState = state;
+        this.mBus.post(new BluetoothServiceStateChangedEvent(state));
     }
 
     @Override
@@ -249,23 +267,24 @@ public class OBDConnectionService extends Service {
                     });
     }
 
-    private void onDeviceConnected(BluetoothSocketWrapper bluetoothSocket){
+    private void onDeviceConnected(BluetoothSocketWrapper bluetoothSocket) {
         try {
             InputStream in = bluetoothSocket.getInputStream();
             OutputStream out = bluetoothSocket.getOutputStream();
 
-            if(mCommandListener != null){
+            if (mCommandListener != null) {
                 mCommandListener.shutdown();
             }
 
             this.mCommandListener = new CommandListener(getApplicationContext());
-            this.mOBDCommandLooper = new OBDCommandLooper(in, out, bluetoothSocket.getRemoteDeviceName(), this.mCommandListener, new ConnectionListener() {
+            this.mOBDCommandLooper = new OBDCommandLooper(in, out, bluetoothSocket
+                    .getRemoteDeviceName(), this.mCommandListener, new ConnectionListener() {
 
                 private int mReconnectCount = 0;
 
                 @Override
                 public void onConnectionVerified() {
-
+                    setBluetoothServiceState(BluetoothServiceState.SERVICE_STARTED);
                 }
 
                 @Override
@@ -280,10 +299,11 @@ public class OBDConnectionService extends Service {
 
                 @Override
                 public void requestConnectionRetry(IOException e) {
-                    if(mReconnectCount++ >= MAX_RECONNECT_COUNT){
+                    if (mReconnectCount++ >= MAX_RECONNECT_COUNT) {
                         LOGGER.warn("Max count of reconnecctes reaced", e);
                     } else {
-
+                        LOGGER.info("Restarting Device Connection...");
+                        doTextToSpeech("Connection lost. Trying to reconnect.");
                     }
                 }
             });
@@ -293,6 +313,58 @@ public class OBDConnectionService extends Service {
             //deviceDisconnected();
             return;
         }
+    }
+
+    private void shutdownConnectionAndHandler() {
+        if (mOBDCommandLooper != null) {
+            mOBDCommandLooper.stopLooper();
+        }
+
+        if (mOBDConnection != null) {
+            mOBDConnection.cancelConnection();
+        }
+    }
+
+    private void onAllAdaptersFailed() {
+        LOGGER.info("all adapters failed!");
+        stopBackgroundService();
+        doTextToSpeech("failed to connect to the OBD adapter");
+//        sendBroadcast(new Intent(CONNECTION_PERMANENTLY_FAILED_INTENT));
+    }
+
+    /**
+     * Method that stops the service, removes everything from the waiting list
+     */
+    private void stopBackgroundService() {
+        LOGGER.info("stopBackgroundService called");
+        new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                shutdownConnectionAndHandler();
+
+                setBluetoothServiceState(BluetoothServiceState.SERVICE_STOPPED);
+
+                mLocationHandler.stopLocating();
+
+                if (mCommandListener != null) {
+                    mCommandListener.shutdown();
+                }
+
+                Notification noti = new NotificationCompat.Builder(getApplicationContext())
+                        .setContentTitle("enviroCar")
+                        .setContentText(getResources()
+                                .getText(R.string.service_state_stopped))
+                        .setSmallIcon(R.drawable.dashboard).setAutoCancel(true).build();
+
+                NotificationManager manager = (NotificationManager) getSystemService(Context
+                        .NOTIFICATION_SERVICE);
+                manager.notify(BG_NOTIFICATION_ID, noti);
+
+                doTextToSpeech("Device disconnected");
+            }
+
+        }).start();
     }
 
     /**
@@ -402,7 +474,7 @@ public class OBDConnectionService extends Service {
             }
         }
 
-        protected void cancelConnection() {
+        private void cancelConnection() {
             mIsRunning = false;
             shutdownSocket(mSocketWrapper);
         }

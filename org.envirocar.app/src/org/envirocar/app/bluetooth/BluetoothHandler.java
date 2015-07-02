@@ -13,12 +13,12 @@ import android.preference.PreferenceManager;
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.bluetooth.event.BluetoothDeviceDiscoveredEvent;
 import org.envirocar.app.bluetooth.event.BluetoothStateChangedEvent;
 import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.ServiceUtils;
 import org.envirocar.app.view.preferences.PreferencesConstants;
 
@@ -122,9 +122,9 @@ public class BluetoothHandler {
      * Starts the connection to the bluetooth device if not already active.
      */
     public void startBluetoothConnection() {
-        if (!ServiceUtils.isServiceRunning(mContext, BackgroundServiceImpl.class))
+        if (!ServiceUtils.isServiceRunning(mContext, OBDConnectionService.class))
             mContext.getApplicationContext().startService(
-                    new Intent(mContext, BackgroundServiceImpl.class));
+                    new Intent(mContext, OBDConnectionService.class));
     }
 
 

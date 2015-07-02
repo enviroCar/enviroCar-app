@@ -4,11 +4,9 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -16,7 +14,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -32,7 +30,8 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.activity.DialogUtil;
 import org.envirocar.app.activity.HelpFragment;
@@ -47,6 +46,9 @@ import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.NavMenuItem;
 import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.UserManager;
+import org.envirocar.app.bluetooth.event.BluetoothServiceStateChangedEvent;
+import org.envirocar.app.bluetooth.event.BluetoothStateChangedEvent;
+import org.envirocar.app.bluetooth.service.BluetoothServiceState;
 import org.envirocar.app.fragments.RealDashboardFragment;
 import org.envirocar.app.fragments.SettingsFragment;
 import org.envirocar.app.injection.BaseInjectorActivity;
@@ -58,6 +60,7 @@ import org.envirocar.app.model.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.util.Util;
 import org.envirocar.app.util.VersionRange;
+import org.envirocar.app.view.preferences.PreferencesConstants;
 import org.envirocar.app.views.TypefaceEC;
 
 import java.util.Arrays;
@@ -69,6 +72,12 @@ import javax.inject.Inject;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
+import rx.Scheduler;
+import rx.Subscription;
+import rx.android.content.ContentObservable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
+import rx.schedulers.Schedulers;
 
 /**
  * Main UI application that cares about the auto-upload, auto-connect and global
@@ -117,13 +126,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected TrackHandler mTrackHandler;
     @Inject
     protected DAOProvider mDAOProvider;
-
-
-    // REMOVE
     @Inject
     protected DbAdapter mDBAdapter;
-    protected AbstractBackgroundServiceStateReceiver.ServiceState serviceState
-            = AbstractBackgroundServiceStateReceiver.ServiceState.SERVICE_STOPPED;
 
 
     protected long discoveryTargetTime;
@@ -132,9 +136,20 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private Set<String> seenAnnouncements = new HashSet<String>();
     // Menu Items
     private NavMenuItem[] navDrawerItems;
+
     //Navigation Drawer
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
+    private NavAdapter mNavDrawerAdapter;
+    private Runnable remainingTimeThread;
+    private Handler remainingTimeHandler;
+    private BroadcastReceiver errorInformationReceiver;
+
+
+    private boolean paused;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private Subscription mPreferenceSubscription;
+    private BluetoothServiceState mServiceState = BluetoothServiceState.SERVICE_STOPPED;
     private final AdapterView.OnItemClickListener onNavDrawerClickListener =
             new AdapterView.OnItemClickListener() {
                 @Override
@@ -142,18 +157,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
                     openFragment(position);
                 }
             };
-    private NavAdapter mNavDrawerAdapter;
-    private BroadcastReceiver serviceStateReceiver;
-    private SharedPreferences.OnSharedPreferenceChangeListener settingsReceiver;
-    private BroadcastReceiver bluetoothStateReceiver;
-    private Runnable remainingTimeThread;
-    private Handler remainingTimeHandler;
-    private BroadcastReceiver errorInformationReceiver;
-    private BroadcastReceiver deviceDiscoveryStateReceiver;
-    private boolean paused;
 
-    private ActionBarDrawerToggle mDrawerToggle;
-
+    private Scheduler.Worker mWorkerThread = AndroidSchedulers.mainThread().createWorker();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -190,7 +195,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
 //            public void onStateChanged(ServiceState state) {
 //                serviceState = state;
 //
-//                if (serviceState == ServiceState.SERVICE_STOPPED && trackMode == TRACK_MODE_AUTO) {
+//                if (serviceState == ServiceState.SERVICE_STOPPED && trackMode ==
+// TRACK_MODE_AUTO) {
 //                    /*
 //                     * we need to start the DeviceInRangeService
 //					 */
@@ -204,43 +210,19 @@ public class BaseMainActivity extends BaseInjectorActivity {
 //        registerReceiver(serviceStateReceiver, new IntentFilter
 //                (AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
 
-        deviceDiscoveryStateReceiver = new AbstractBackgroundServiceStateReceiver() {
+        // Subscribe for specific StartStop button related preferences.
+        mPreferenceSubscription = ContentObservable
+                .fromSharedPreferencesChanges(PreferenceManager.getDefaultSharedPreferences(this))
+                .observeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .filter(prefKey ->
+                        PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_NAME.equals(prefKey) ||
+                                PreferencesConstants.CAR.equals(prefKey) ||
+                                PreferencesConstants.CAR_HASH_CODE.equals(prefKey))
+                .subscribe(prefKey -> {
+                    updateStartStopButton();
+                });
 
-            @Override
-            public void onStateChanged(ServiceState state) {
-                if (state == ServiceState.SERVICE_DEVICE_DISCOVERY_PENDING) {
-                    discoveryTargetTime = deviceInRangeService.getNextDiscoveryTargetTime();
-                    invokeRemainingTimeThread();
-                } else if (state == ServiceState.SERVICE_DEVICE_DISCOVERY_RUNNING) {
-
-                }
-            }
-        };
-        registerReceiver(deviceDiscoveryStateReceiver, new IntentFilter
-                (AbstractBackgroundServiceStateReceiver.SERVICE_STATE));
-
-        bluetoothStateReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                updateStartStopButton();
-            }
-        };
-
-
-        registerReceiver(bluetoothStateReceiver, new IntentFilter(BluetoothAdapter
-                .ACTION_STATE_CHANGED));
-
-        settingsReceiver = (sharedPreferences, key) -> {
-            if (key.equals(SettingsActivity.BLUETOOTH_NAME)) {
-                updateStartStopButton();
-            }
-            if (key.equals(SettingsActivity.CAR) || key.equals(SettingsActivity.CAR_HASH_CODE)) {
-                updateStartStopButton();
-            }
-        };
-
-        PreferenceManager.getDefaultSharedPreferences(this).registerOnSharedPreferenceChangeListener
-                (settingsReceiver);
 
         errorInformationReceiver = new BroadcastReceiver() {
 
@@ -265,6 +247,20 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 .INTENT));
 
         resolvePersistentSeenAnnouncements();
+    }
+
+    @Subscribe
+    public void onReceiveBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
+        LOGGER.info(String.format("Received event: %s", event.toString()));
+        updateStartStopButton();
+    }
+
+    @Subscribe
+    public void onReceiveBluetoothServiceStateChangedEvent(
+            BluetoothServiceStateChangedEvent event) {
+        LOGGER.info(String.format("Received event: %s", event.toString()));
+        this.mServiceState = event.mState;
+        mWorkerThread.schedule(() -> updateStartStopButton());
     }
 
     @Override
@@ -293,7 +289,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
 
         new AsyncTask<Void, Void, Void>() {
-
             @Override
             protected Void doInBackground(Void... params) {
                 checkAffectingAnnouncements();
@@ -301,9 +296,9 @@ public class BaseMainActivity extends BaseInjectorActivity {
             }
         }.execute();
 
-        bindToBackgroundService();
-
-        bindToDeviceInRangeService();
+//        bindToBackgroundService();
+//
+//        bindToDeviceInRangeService();
     }
 
     @Override
@@ -351,17 +346,17 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         DialogUtil.createTitleMessageInfoDialog(title, Html.fromHtml(content), true, new
                 DialogUtil.PositiveNegativeCallback() {
-            @Override
-            public void negative() {
-                seenAnnouncements.add(announcement.getId());
-            }
+                    @Override
+                    public void negative() {
+                        seenAnnouncements.add(announcement.getId());
+                    }
 
-            @Override
-            public void positive() {
-                addPersistentSeenAnnouncement(announcement.getId());
-                seenAnnouncements.add(announcement.getId());
-            }
-        }, this);
+                    @Override
+                    public void positive() {
+                        addPersistentSeenAnnouncement(announcement.getId());
+                        seenAnnouncements.add(announcement.getId());
+                    }
+                }, this);
     }
 
     protected void addPersistentSeenAnnouncement(String id) {
@@ -429,10 +424,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         Crouton.cancelAllCroutons();
 
-        this.unregisterReceiver(bluetoothStateReceiver);
-        this.unregisterReceiver(deviceDiscoveryStateReceiver);
-        this.unregisterReceiver(serviceStateReceiver);
-
         this.unregisterReceiver(errorInformationReceiver);
 
         if (remainingTimeHandler != null) {
@@ -443,6 +434,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         mTemporaryFileManager.shutdown();
 
+        // Unsubscribe all subscriptions.
+        mPreferenceSubscription.unsubscribe();
     }
 
 
@@ -489,9 +482,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     private void updateStartStopButton() {
         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-        StartStopButtonUtil startStopUtil = new StartStopButtonUtil(this, trackMode, serviceState,
-                serviceState == AbstractBackgroundServiceStateReceiver.ServiceState
-                        .SERVICE_DEVICE_DISCOVERY_PENDING);
+        StartStopButtonUtil startStopUtil = new StartStopButtonUtil(this, trackMode, mServiceState,
+                mServiceState == BluetoothServiceState.SERVICE_DEVICE_DISCOVERY_PENDING);
         if (adapter != null && adapter.isEnabled()) { // was requirementsFulfilled
             startStopUtil.updateStartStopButtonOnServiceStateChange
                     (navDrawerItems[START_STOP_MEASUREMENT]);
@@ -639,8 +631,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
                                 };
 //                        mStart
                         StartStopButtonUtil startStopButtonUtil = new
-                                StartStopButtonUtil(this, trackMode, serviceState, serviceState
-                                == AbstractBackgroundServiceStateReceiver.ServiceState
+                                StartStopButtonUtil(this, trackMode, mServiceState, mServiceState
+                                == BluetoothServiceState
                                 .SERVICE_DEVICE_DISCOVERY_PENDING);
                         startStopButtonUtil.processButtonClick(trackModeListener);
                     }
@@ -703,52 +695,52 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 .commit();
     }
 
-    private void bindToBackgroundService() {
-        if (!bindService(new Intent(this, BackgroundServiceImpl.class),
-                new ServiceConnection() {
-
-                    @Override
-                    public void onServiceDisconnected(ComponentName name) {
-                        LOGGER.info(String.format("BackgroundService %S disconnected!",
-                                name.flattenToString()));
-                    }
-
-                    @Override
-                    public void onServiceConnected(ComponentName name, IBinder service) {
-                        backgroundService = (BackgroundServiceInteractor) service;
-                        serviceState = backgroundService.getServiceState();
-                        updateStartStopButton();
-                    }
-                }, 0)) {
-            LOGGER.warn("Could not connect to BackgroundService.");
-        }
-    }
-
-    private void bindToDeviceInRangeService() {
-        if (!bindService(new Intent(this, DeviceInRangeService.class),
-                new ServiceConnection() {
-
-                    @Override
-                    public void onServiceDisconnected(ComponentName name) {
-                        LOGGER.info(String.format("DeviceInRangeService %S disconnected!",
-                                name.flattenToString()));
-                    }
-
-                    @Override
-                    public void onServiceConnected(ComponentName name, IBinder service) {
-                        deviceInRangeService = (DeviceInRangeServiceInteractor) service;
-                        if (deviceInRangeService.isDiscoveryPending()) {
-                            serviceState = AbstractBackgroundServiceStateReceiver.ServiceState.
-                                    SERVICE_DEVICE_DISCOVERY_PENDING;
-                        }
-                        updateStartStopButton();
-                        discoveryTargetTime = deviceInRangeService.getNextDiscoveryTargetTime();
-                        invokeRemainingTimeThread();
-                    }
-                }, 0)) {
-            LOGGER.warn("Could not connect to DeviceInRangeService.");
-        }
-    }
+//    private void bindToBackgroundService() {
+//        if (!bindService(new Intent(this, BackgroundServiceImpl.class),
+//                new ServiceConnection() {
+//
+//                    @Override
+//                    public void onServiceDisconnected(ComponentName name) {
+//                        LOGGER.info(String.format("BackgroundService %S disconnected!",
+//                                name.flattenToString()));
+//                    }
+//
+//                    @Override
+//                    public void onServiceConnected(ComponentName name, IBinder service) {
+//                        backgroundService = (BackgroundServiceInteractor) service;
+//                        serviceState = backgroundService.getServiceState();
+//                        updateStartStopButton();
+//                    }
+//                }, 0)) {
+//            LOGGER.warn("Could not connect to BackgroundService.");
+//        }
+//    }
+//
+//    private void bindToDeviceInRangeService() {
+//        if (!bindService(new Intent(this, DeviceInRangeService.class),
+//                new ServiceConnection() {
+//
+//                    @Override
+//                    public void onServiceDisconnected(ComponentName name) {
+//                        LOGGER.info(String.format("DeviceInRangeService %S disconnected!",
+//                                name.flattenToString()));
+//                    }
+//
+//                    @Override
+//                    public void onServiceConnected(ComponentName name, IBinder service) {
+//                        deviceInRangeService = (DeviceInRangeServiceInteractor) service;
+//                        if (deviceInRangeService.isDiscoveryPending()) {
+//                            serviceState = AbstractBackgroundServiceStateReceiver.ServiceState.
+//                                    SERVICE_DEVICE_DISCOVERY_PENDING;
+//                        }
+//                        updateStartStopButton();
+//                        discoveryTargetTime = deviceInRangeService.getNextDiscoveryTargetTime();
+//                        invokeRemainingTimeThread();
+//                    }
+//                }, 0)) {
+//            LOGGER.warn("Could not connect to DeviceInRangeService.");
+//        }
+//    }
 
     /**
      * start a thread that updates the UI until the device was
@@ -763,8 +755,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
                     final long deltaSec = (discoveryTargetTime - System.currentTimeMillis()) / 1000;
                     final long minutes = deltaSec / 60;
                     final long secs = deltaSec - (minutes * 60);
-                    if (serviceState == AbstractBackgroundServiceStateReceiver.ServiceState
-                            .SERVICE_DEVICE_DISCOVERY_PENDING && deltaSec > 0) {
+                    if (mServiceState == BluetoothServiceState.SERVICE_DEVICE_DISCOVERY_PENDING
+                            && deltaSec > 0) {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {

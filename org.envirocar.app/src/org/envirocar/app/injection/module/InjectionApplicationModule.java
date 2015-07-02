@@ -17,7 +17,6 @@ import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.application.Collector;
 import org.envirocar.app.application.CommandListener;
-import org.envirocar.app.application.service.BackgroundServiceImpl;
 import org.envirocar.app.fragments.SettingsFragment;
 import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
@@ -65,7 +64,6 @@ import dagger.Provides;
                 TemporaryFileManager.class,
                 SystemStartupService.class,
                 NotificationHandler.class,
-                BackgroundServiceImpl.class,
                 CommandListener.class,
                 DbAdapterImpl.class,
                 LocationHandler.class,

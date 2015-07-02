@@ -27,6 +27,7 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
 import org.envirocar.app.BaseMainActivity;
+import org.envirocar.app.bluetooth.service.BluetoothServiceState;
 import org.envirocar.app.injection.InjectionActivityScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.R;
@@ -34,10 +35,8 @@ import org.envirocar.app.TrackHandler;
 import org.envirocar.app.activity.DialogUtil.DialogCallback;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.NavMenuItem;
-import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver.ServiceState;
-import org.envirocar.app.application.service.BackgroundServiceImpl;
-import org.envirocar.app.application.service.DeviceInRangeService;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.services.OBDConnectionService;
 
 import javax.inject.Inject;
 
@@ -60,7 +59,7 @@ public class StartStopButtonUtil {
     protected TrackHandler mTrackHandler;
 
     private int trackMode;
-    private ServiceState serviceState = ServiceState.SERVICE_STOPPED;
+    private BluetoothServiceState serviceState = BluetoothServiceState.SERVICE_STOPPED;
     private boolean deviceDiscoveryActive;
 
     /**
@@ -70,7 +69,7 @@ public class StartStopButtonUtil {
      * @param deviceDiscoveryActive
      */
     public StartStopButtonUtil(Context context, int trackMode,
-                               ServiceState serviceState, boolean deviceDiscoveryActive) {
+                               BluetoothServiceState serviceState, boolean deviceDiscoveryActive) {
         // Inject variables.
         ((Injector) context).injectObjects(this);
 
@@ -126,7 +125,7 @@ public class StartStopButtonUtil {
                 processStoppedStateClick(trackModeListener);
                 break;
             case SERVICE_DEVICE_DISCOVERY_PENDING:
-                processPendingStateClick();
+//                processPendingStateClick();
                 break;
             case SERVICE_STARTING:
                 processStartingStateClick();
@@ -194,7 +193,7 @@ public class StartStopButtonUtil {
                             @Override
                             protected Void doInBackground(Void... params) {
                                 mContext.getApplicationContext().stopService(
-                                        new Intent(mContext, BackgroundServiceImpl.class));
+                                        new Intent(mContext, OBDConnectionService.class));
                                 mTrackHandler.finishTrack();
                                 return null;
                             }
@@ -222,12 +221,12 @@ public class StartStopButtonUtil {
                             case 0:
                                 listener.onTrackModeChange(BaseMainActivity.TRACK_MODE_SINGLE);
                                 mContext.getApplicationContext().startService(
-                                        new Intent(mContext, BackgroundServiceImpl.class));
+                                        new Intent(mContext, OBDConnectionService.class));
                                 break;
                             case 1:
-                                listener.onTrackModeChange(BaseMainActivity.TRACK_MODE_AUTO);
-                                mContext.getApplicationContext().startService(
-                                        new Intent(mContext, DeviceInRangeService.class));
+//                                listener.onTrackModeChange(BaseMainActivity.TRACK_MODE_AUTO);
+//                                mContext.getApplicationContext().startService(
+//                                        new Intent(mContext, DeviceInRangeService.class));
                                 break;
                         }
 
@@ -315,17 +314,17 @@ public class StartStopButtonUtil {
         createStartTrackDialog(onTrackModeChangeListener);
     }
 
-    private void processPendingStateClick() {
-        /*
-         * this broadcast stops the DeviceInRangeService
-		 */
-        mContext.getApplicationContext().stopService(
-                new Intent(mContext.getApplicationContext(), DeviceInRangeService.class));
-    }
+//    private void processPendingStateClick() {
+//        /*
+//         * this broadcast stops the DeviceInRangeService
+//		 */
+//        mContext.getApplicationContext().stopService(
+//                new Intent(mContext.getApplicationContext(), DeviceInRangeService.class));
+//    }
 
     private void processStartingStateClick() {
         mContext.getApplicationContext().stopService(
-                new Intent(mContext, BackgroundServiceImpl.class));
+                new Intent(mContext, OBDConnectionService.class));
 //        Crouton.makeText(mContext, R.string.stop_connection, Style.INFO).show();
     }
 

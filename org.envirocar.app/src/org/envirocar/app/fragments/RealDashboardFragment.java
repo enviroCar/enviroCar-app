@@ -18,9 +18,10 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarManager;
-import org.envirocar.app.application.service.AbstractBackgroundServiceStateReceiver;
 import org.envirocar.app.bluetooth.BluetoothHandler;
+import org.envirocar.app.bluetooth.event.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.bluetooth.obd.events.Co2Event;
+import org.envirocar.app.bluetooth.service.BluetoothServiceState;
 import org.envirocar.app.events.GpsDOPEvent;
 import org.envirocar.app.events.GpsSatelliteFix;
 import org.envirocar.app.events.GpsSatelliteFixEvent;
@@ -41,9 +42,11 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
+import rx.Scheduler;
 import rx.Subscription;
 import rx.android.content.ContentObservable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 /**
@@ -57,8 +60,6 @@ public class RealDashboardFragment extends BaseInjectorFragment {
     private static final String SPEED = "speed";
     private static final String CO2 = "co2";
 
-    protected AbstractBackgroundServiceStateReceiver.ServiceState serviceState =
-            AbstractBackgroundServiceStateReceiver.ServiceState.SERVICE_STOPPED;
 
 
 
@@ -97,9 +98,10 @@ public class RealDashboardFragment extends BaseInjectorFragment {
     private int mSpeed;
     private double mCo2;
     private Location mLocation;
+    private BluetoothServiceState mServiceState;
 
 
-
+    private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
     @Nullable
     @Override
@@ -162,6 +164,7 @@ public class RealDashboardFragment extends BaseInjectorFragment {
                 .getBoolean(PreferencesConstants.IMPERIAL_UNIT, false);
 
         mLastUIUpdate = System.currentTimeMillis();
+
     }
 
     @Override
@@ -172,6 +175,8 @@ public class RealDashboardFragment extends BaseInjectorFragment {
         if (mPreferenceSubscription != null) {
             mPreferenceSubscription.unsubscribe();
         }
+
+        mMainThreadWorker.unsubscribe();
     }
 
     @Override
@@ -184,27 +189,27 @@ public class RealDashboardFragment extends BaseInjectorFragment {
 
     @Subscribe
     public void onReceiveLocationChangedEvent(LocationChangedEvent event) {
-        LOGGER.info(String.format("Received event: %s", event.toString()));
+        LOGGER.debug(String.format("Received event: %s", event.toString()));
         this.mLocation = event.mLocation;
         checkUIUpdate();
     }
 
     @Subscribe
     public void onReceiveGpsDOPEvent(GpsDOPEvent event){
-        LOGGER.info(String.format("Received event: %s", event.toString()));
+        LOGGER.debug(String.format("Received event: %s", event.toString()));
 
     }
 
     @Subscribe
     public void onReceiveSpeedEvent(SpeedUpdateEvent event){
-        LOGGER.info(String.format("Received event: %s", event.toString()));
+        LOGGER.debug(String.format("Received event: %s", event.toString()));
         this.mSpeed = event.mSpeed;
         checkUIUpdate();
     }
 
     @Subscribe
     public void onReceiveGpsSatelliteFixEvent(GpsSatelliteFixEvent event){
-        LOGGER.info(String.format("Received event: %s", event.toString()));
+        LOGGER.debug(String.format("Received event: %s", event.toString()));
         this.mGpsFix = event.mGpsSatelliteFix;
         if(this.mGpsFix == null || this.mGpsFix.isFix() != mGpsFix.isFix()){
             updateGpsStatus();
@@ -213,9 +218,19 @@ public class RealDashboardFragment extends BaseInjectorFragment {
 
     @Subscribe
     public void onReceiveCo2Event(Co2Event event){
-        LOGGER.info(String.format("Received event: %s", event.toString()));
+        LOGGER.debug(String.format("Received event: %s", event.toString()));
         this.mCo2 = event.mCo2;
         checkUIUpdate();
+    }
+
+    @Subscribe
+    public void onReceiveBluetoothServiceStateChangedEvent(
+            BluetoothServiceStateChangedEvent event){
+        LOGGER.debug(String.format("Received event: %s", event.toString()));
+        this.mServiceState = event.mState;
+
+        mMainThreadWorker.schedule(() -> updateStatusElements());
+
     }
 
 
@@ -249,11 +264,9 @@ public class RealDashboardFragment extends BaseInjectorFragment {
         BluetoothDevice device = mBluetoothHandler.getSelectedBluetoothDevice();
         if (device == null) {
             mConnectionStateImage.setImageResource(R.drawable.bt_device_not_selected);
-        } else if (serviceState == AbstractBackgroundServiceStateReceiver.ServiceState
-                .SERVICE_STARTED) {
+        } else if (mServiceState == BluetoothServiceState.SERVICE_STARTED) {
             mConnectionStateImage.setImageResource(R.drawable.bt_device_active);
-        } else if (serviceState == AbstractBackgroundServiceStateReceiver.ServiceState
-                .SERVICE_STARTING) {
+        } else if (mServiceState == BluetoothServiceState.SERVICE_STARTING) {
             mConnectionStateImage.setImageResource(R.drawable.bt_device_pending);
         } else {
             mConnectionStateImage.setImageResource(R.drawable.bt_device_stopped);
@@ -316,6 +329,9 @@ public class RealDashboardFragment extends BaseInjectorFragment {
      *
      */
     private void updateCo2Value() {
+        if(!isVisible())
+            return;
+
         mCo2TextView.setText(DECIMAL_FORMAT.format(mCo2) + " kg/h");
         mCo2RotableView.submitScaleValue((float) mCo2);
 

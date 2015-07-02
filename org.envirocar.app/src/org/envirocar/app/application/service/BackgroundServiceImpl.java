@@ -242,9 +242,10 @@
 //                }
 //
 //                Notification noti = new NotificationCompat.Builder(getApplicationContext())
-//						.setContentTitle("enviroCar").
-//                        setContentText(getResources().getText(R.string.service_state_stopped)).
-//                        setSmallIcon(R.drawable.dashboard).setAutoCancel(true).build();
+//						.setContentTitle("enviroCar")
+//                        .setContentText(getResources()
+//                        .getText(R.string.service_state_stopped))
+//                        .setSmallIcon(R.drawable.dashboard).setAutoCancel(true).build();
 //
 //                NotificationManager manager = (NotificationManager) getSystemService(Context
 //						.NOTIFICATION_SERVICE);
