@@ -12,7 +12,6 @@ import android.os.IBinder;
 import android.os.Parcelable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
@@ -141,10 +140,16 @@ public class OBDConnectionService extends Service {
         if (mCompositeSubscription != null)
             mCompositeSubscription.unsubscribe();
 
+        // If there is an active UUID subscription.
         if (mUUIDSubscription != null)
             mUUIDSubscription.unsubscribe();
 
+        // Stop GPS
         mLocationHandler.stopLocating();
+
+        // Stop this service and emove this service from foreground state.
+        stopBackgroundService();
+        stopForeground(true);
     }
 
     @Subscribe
@@ -152,9 +157,9 @@ public class OBDConnectionService extends Service {
         boolean isFix = mCurrentGpsSatelliteFix.isFix();
         if (isFix != mCurrentGpsSatelliteFix.isFix()) {
             if (isFix) {
-
+                doTextToSpeech("GPS positioning established");
             } else {
-
+                doTextToSpeech("GPS positioning lost. Try to move the phone");
             }
             this.mCurrentGpsSatelliteFix = event.mGpsSatelliteFix;
         }
@@ -289,7 +294,7 @@ public class OBDConnectionService extends Service {
 
                 @Override
                 public void onAllAdaptersFailed() {
-
+                    onAllAdaptersFailed();
                 }
 
                 @Override
@@ -310,9 +315,14 @@ public class OBDConnectionService extends Service {
             this.mOBDCommandLooper.start();
         } catch (IOException e) {
             LOGGER.warn(e.getMessage(), e);
-            //deviceDisconnected();
+            deviceDisconnected();
             return;
         }
+    }
+
+    public void deviceDisconnected() {
+        LOGGER.info("Bluetooth device disconnected.");
+        stopBackgroundService();
     }
 
     private void shutdownConnectionAndHandler() {

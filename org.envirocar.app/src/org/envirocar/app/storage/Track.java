@@ -41,6 +41,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.inject.Inject;
+
 /**
  * This is a track. A track is a collection of measurements. All measurements of
  * a track are accessible via the track. The track stores meta information about
@@ -64,12 +66,12 @@ public class Track implements Comparable<Track> {
 				return "FINISHED";
 			}
 		}
-		
 	}
 	
 	private static final Logger logger = Logger.getLogger(Track.class);
 
-	private static final LazyLoadingStrategy lazyLoadingStrategy = new LazyLoadingStrategyImpl();
+    @Inject
+	protected static LazyLoadingStrategy lazyLoadingStrategy;
 
 	private String name;
 	private String description;
@@ -255,6 +257,7 @@ public class Track implements Comparable<Track> {
 	 * @return the last measurement or null if there are no measurements
 	 */
 	public Measurement getLastMeasurement() {
+		logger.warn("has measrurements = " + (measurements.size() > 0));
 		if (this.getMeasurements().size() > 0) {
 			return this.measurements.get(this.measurements.size() - 1);
 		}

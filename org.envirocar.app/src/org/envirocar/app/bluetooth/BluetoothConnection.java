@@ -29,6 +29,7 @@
 //import java.util.UUID;
 //
 //import org.envirocar.app.activity.TroubleshootingFragment;
+//import org.envirocar.app.application.service.BackgroundService;
 //import org.envirocar.app.bluetooth.FallbackBluetoothSocket.FallbackException;
 //import org.envirocar.app.logging.Logger;
 //

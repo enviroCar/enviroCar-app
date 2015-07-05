@@ -21,12 +21,12 @@ import org.envirocar.app.application.CarManager;
 import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.app.bluetooth.event.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.bluetooth.obd.events.Co2Event;
+import org.envirocar.app.bluetooth.obd.events.SpeedUpdateEvent;
 import org.envirocar.app.bluetooth.service.BluetoothServiceState;
 import org.envirocar.app.events.GpsDOPEvent;
 import org.envirocar.app.events.GpsSatelliteFix;
 import org.envirocar.app.events.GpsSatelliteFixEvent;
 import org.envirocar.app.events.LocationChangedEvent;
-import org.envirocar.app.bluetooth.obd.events.SpeedUpdateEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
@@ -46,7 +46,6 @@ import rx.Scheduler;
 import rx.Subscription;
 import rx.android.content.ContentObservable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 /**
@@ -59,8 +58,6 @@ public class RealDashboardFragment extends BaseInjectorFragment {
     private static final String LOCATION = "location";
     private static final String SPEED = "speed";
     private static final String CO2 = "co2";
-
-
 
 
     @Inject
@@ -195,29 +192,29 @@ public class RealDashboardFragment extends BaseInjectorFragment {
     }
 
     @Subscribe
-    public void onReceiveGpsDOPEvent(GpsDOPEvent event){
+    public void onReceiveGpsDOPEvent(GpsDOPEvent event) {
         LOGGER.debug(String.format("Received event: %s", event.toString()));
 
     }
 
     @Subscribe
-    public void onReceiveSpeedEvent(SpeedUpdateEvent event){
+    public void onReceiveSpeedEvent(SpeedUpdateEvent event) {
         LOGGER.debug(String.format("Received event: %s", event.toString()));
         this.mSpeed = event.mSpeed;
         checkUIUpdate();
     }
 
     @Subscribe
-    public void onReceiveGpsSatelliteFixEvent(GpsSatelliteFixEvent event){
+    public void onReceiveGpsSatelliteFixEvent(GpsSatelliteFixEvent event) {
         LOGGER.debug(String.format("Received event: %s", event.toString()));
         this.mGpsFix = event.mGpsSatelliteFix;
-        if(this.mGpsFix == null || this.mGpsFix.isFix() != mGpsFix.isFix()){
+        if (this.mGpsFix == null || this.mGpsFix.isFix() != mGpsFix.isFix()) {
             updateGpsStatus();
         }
     }
 
     @Subscribe
-    public void onReceiveCo2Event(Co2Event event){
+    public void onReceiveCo2Event(Co2Event event) {
         LOGGER.debug(String.format("Received event: %s", event.toString()));
         this.mCo2 = event.mCo2;
         checkUIUpdate();
@@ -225,12 +222,10 @@ public class RealDashboardFragment extends BaseInjectorFragment {
 
     @Subscribe
     public void onReceiveBluetoothServiceStateChangedEvent(
-            BluetoothServiceStateChangedEvent event){
+            BluetoothServiceStateChangedEvent event) {
         LOGGER.debug(String.format("Received event: %s", event.toString()));
-        this.mServiceState = event.mState;
-
+        mServiceState = event.mState;
         mMainThreadWorker.schedule(() -> updateStatusElements());
-
     }
 
 
@@ -281,8 +276,8 @@ public class RealDashboardFragment extends BaseInjectorFragment {
      *
      */
     private synchronized void checkUIUpdate() {
-//        if (serviceState == AbstractBackgroundServiceStateReceiver.ServiceState.SERVICE_STOPPED)
-//            return;
+        if (mServiceState == BluetoothServiceState.SERVICE_STOPPED)
+            return;
 
         if (getActivity() == null || System.currentTimeMillis() - mLastUIUpdate < 250) return;
 
@@ -329,7 +324,8 @@ public class RealDashboardFragment extends BaseInjectorFragment {
      *
      */
     private void updateCo2Value() {
-        if(!isVisible())
+        // Only when the fragment is currently showing the vies gets updated.
+        if (!isVisible())
             return;
 
         mCo2TextView.setText(DECIMAL_FORMAT.format(mCo2) + " kg/h");
@@ -346,6 +342,10 @@ public class RealDashboardFragment extends BaseInjectorFragment {
      *
      */
     private void updateSpeedValue() {
+        // Only when the fragment is currently showing the vies gets updated.
+        if (!isVisible())
+            return;
+
         if (!mUseImperialUnits) {
             mSpeedTextView.setText(mSpeed + " km/h");
             mSpeedRotatableView.submitScaleValue(mSpeed);

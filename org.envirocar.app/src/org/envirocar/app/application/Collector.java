@@ -63,10 +63,21 @@ public class Collector {
 	@Inject
 	protected Bus mBus;
 
+    /**
+     * Constructor.
+     *
+     * @param context   the context of the current scope.
+     * @param l
+     * @param car
+     */
+    public Collector(Context context, MeasurementListener l, Car car) {
+        this(context, l, car, DEFAULT_SAMPLING_RATE_DELTA);
+    }
+
 	/**
 	 * Constructor.
 	 *
-	 * @param context the context of the current scope.
+	 * @param context   the context of the current scope.
 	 * @param l
 	 * @param car
 	 * @param samplingDelta
@@ -92,9 +103,7 @@ public class Collector {
 	}
 
 	
-	public Collector(Context context, MeasurementListener l, Car car) {
-		this(context, l, car, DEFAULT_SAMPLING_RATE_DELTA);
-	}
+
 	
 	private void resetMeasurement() {
 		measurement.reset();
@@ -276,6 +285,7 @@ public class Collector {
 	}
 
 	private void insertMeasurement(Measurement m) {
+        logger.warn("Insert measurement");
 		callback.insertMeasurement(m.carbonCopy());
 	}
 
@@ -306,7 +316,7 @@ public class Collector {
 
     @Subscribe
     public void onReceiveLocationChangedEvent(LocationChangedEvent event){
-        logger.info(String.format("Received event: %s", event.toString()));
+        logger.warn(String.format("Received event: %s", event.toString()));
         newLocation(event.mLocation);
     }
 

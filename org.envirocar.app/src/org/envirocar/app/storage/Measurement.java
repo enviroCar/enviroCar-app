@@ -21,6 +21,8 @@
 
 package org.envirocar.app.storage;
 
+import com.google.common.base.MoreObjects;
+
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -235,33 +237,19 @@ public class Measurement {
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
-	public String toString() {
-		StringBuffer sb = new StringBuffer();
-		sb.append("Measurement [");
-		sb.append("latitude=");
-		sb.append(latitude);
-		sb.append(", longitude=");
-		sb.append(longitude);
-		sb.append(", time=");
-		sb.append(time);
-		sb.append(", ");
-		
-		if (trackId != null) {
-			sb.append(", trackId=");
-			sb.append(trackId.getId());
-			sb.append(", ");
-		}
-		
+	public String toString(){
+		MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper(this)
+				.add("latitude", latitude)
+				.add("longitude", longitude)
+				.add("time", time)
+				.add("trackId", trackId);
+
 		synchronized (this) {
 			for (PropertyKey key : propertyMap.keySet()) {
-				sb.append(key.toString());
-				sb.append("=");
-				sb.append(propertyMap.get(key));
-				sb.append(", ");
-			}	
+				helper.add(key.toString(), propertyMap.get(key));
+			}
 		}
-		
-		return sb.toString();
+		return helper.toString();
 	}
 
 	/**

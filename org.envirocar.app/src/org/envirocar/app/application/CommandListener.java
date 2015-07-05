@@ -286,7 +286,7 @@ public class CommandListener implements Listener, MeasurementListener {
 	 *            The measurement you want to insert
 	 */
 	public void insertMeasurement(final Measurement measurement) {
-		logger.info(String.format("Invoking insertion from Thread %s and CommandListener %s: %s",
+		logger.warn(String.format("Invoking insertion from Thread %s and CommandListener %s: %s",
 				Thread.currentThread().getId(), System.identityHashCode(CommandListener.this), measurement));
 		this.inserter.submit(new Runnable() {
 			@Override
@@ -306,6 +306,7 @@ public class CommandListener implements Listener, MeasurementListener {
 		logger.info("shutting down CommandListener. Hash: " + System.identityHashCode(this));
 
 //		EventBus.getInstance().registerListener(this.collector);
+        mBus.unregister(this);
 
 		this.inserter.shutdown();
 

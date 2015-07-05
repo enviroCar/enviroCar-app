@@ -54,6 +54,7 @@ public class LocationHandler {
     protected final LocationListener mLocationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
+            LOGGER.warn("New Location Update");
             mLastBestLocation = location;
             mBus.post(new LocationChangedEvent(mLastBestLocation));
         }
@@ -166,7 +167,7 @@ public class LocationHandler {
     /**
      * Constructor.
      *
-     * @param context   the context of the current scope.
+     * @param context the context of the current scope.
      */
     public LocationHandler(Context context) {
         // Inject ourselves and register on the bus.
@@ -196,7 +197,7 @@ public class LocationHandler {
     /**
      *
      */
-    public void stopLocating(){
+    public void stopLocating() {
         mLocationManager.removeUpdates(mLocationListener);
         mLocationManager.removeNmeaListener(mNmeaListener);
     }

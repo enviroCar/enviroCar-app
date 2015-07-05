@@ -20,12 +20,32 @@
  */
 package org.envirocar.app.storage;
 
+import android.content.Context;
+
+import org.envirocar.app.injection.Injector;
+
+import javax.inject.Inject;
+
+/**
+ *
+ */
 public class LazyLoadingStrategyImpl implements LazyLoadingStrategy {
 
-	@Override
+    @Inject
+    protected DbAdapter mDBAdapter;
+
+    /**
+     * Constructor.
+     *
+     * @param context the context of this scope.
+     */
+    public LazyLoadingStrategyImpl(Context context) {
+        ((Injector) context).injectObjects(this);
+    }
+
+    @Override
 	public void lazyLoadMeasurements(Track track) {
-		// TODO
-//		DbAdapterImpl.instance().loadMeasurements(track);
+		mDBAdapter.loadMeasurements(track);
 		track.setLazyLoadingMeasurements(false);
 	}
 

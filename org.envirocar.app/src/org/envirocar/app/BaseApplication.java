@@ -60,6 +60,9 @@ public class BaseApplication extends Application implements Injector, InjectionM
         mObjectGraph = ObjectGraph.create(getInjectionModules().toArray());
         mObjectGraph.validate();
 
+        // Inject the LazyLoadingStrategy into track. Its the only static injection
+        // TODO: Remove the static injection.
+        mObjectGraph.injectStatics();
 
         SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());

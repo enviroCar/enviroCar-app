@@ -322,8 +322,11 @@ public class SystemStartupService extends Service {
     private void startDiscoveryForSelectedDevice() {
         BluetoothDevice device = mBluetoothHandler.getSelectedBluetoothDevice();
         if (device == null) {
-            Toast.makeText(getApplicationContext(), "No paired bluetooth device " +
-                    "selected", Toast.LENGTH_SHORT).show();
+//            mWorkerThread.schedule(() -> {
+//                Toast.makeText(getApplicationContext(), "No paired bluetooth device " +
+//                        "selected", Toast.LENGTH_SHORT).show();
+//            });
+
         } else {
             // If the service is already discovering, then skip the current discovery and
             // unsubscribe on the corresponding subscription.

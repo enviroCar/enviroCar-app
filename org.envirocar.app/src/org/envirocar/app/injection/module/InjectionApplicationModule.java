@@ -22,6 +22,9 @@ import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.SystemStartupService;
+import org.envirocar.app.storage.LazyLoadingStrategy;
+import org.envirocar.app.storage.LazyLoadingStrategyImpl;
+import org.envirocar.app.storage.Track;
 import org.envirocar.app.view.preferences.BluetoothDiscoveryIntervalPreference;
 import org.envirocar.app.view.preferences.BluetoothPairingPreference;
 import org.envirocar.app.application.CarManager;
@@ -69,8 +72,10 @@ import dagger.Provides;
                 LocationHandler.class,
                 OBDConnectionService.class,
                 BluetoothDiscoveryIntervalPreference.class,
-                Collector.class
+                Collector.class,
+                LazyLoadingStrategyImpl.class
         },
+        staticInjections = { Track.class },
         library = true,
         complete = false
 )
@@ -241,5 +246,11 @@ public class InjectionApplicationModule {
     @Singleton
     LocationHandler provideLocationHandler(){
         return new LocationHandler(mAppContext);
+    }
+
+    @Provides
+    @Singleton
+    LazyLoadingStrategy provideLazyLoadingStrategy() {
+        return new LazyLoadingStrategyImpl(mAppContext);
     }
 }
