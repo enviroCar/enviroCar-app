@@ -13,9 +13,12 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.app.NotificationCompat;
 
 import com.google.common.collect.Maps;
+import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.bluetooth.event.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
+import org.envirocar.app.logging.Logger;
 import org.envirocar.app.services.SystemStartupService;
 
 import java.util.Map;
@@ -26,6 +29,8 @@ import javax.inject.Inject;
  * @author dewall
  */
 public class NotificationHandler {
+    private static final Logger LOGGER = Logger.getLogger(NotificationHandler.class);
+
     // TODO remove this
     private static final int mId = 133;
     private static int NOTIFICATION_ID = 1000;
@@ -172,6 +177,7 @@ public class NotificationHandler {
         }
     }
 
+
     /**
      * Enumeration reflecting the possible states of the application.
      */
@@ -274,20 +280,36 @@ public class NotificationHandler {
                                 "Start Track", pendingIntent)};
             }
         },
-        CONNCECTED {
+        CONNECTING{
             @Override
             public String getNotificationTitle() {
-                return "OBD is connected.";
+                return "Connecting...";
             }
 
             @Override
             public String getNotificationContent() {
-                return "Successfully connected to the OBD device.";
+                return "Connecting and starting a new track";
             }
 
             @Override
             public boolean isShowingBigText() {
                 return false;
+            }
+        },
+        CONNCECTED {
+            @Override
+            public String getNotificationTitle() {
+                return "Recording...";
+            }
+
+            @Override
+            public String getNotificationContent() {
+                return "Successfully connected to the OBD device.\nThe recording is in progress.";
+            }
+
+            @Override
+            public boolean isShowingBigText() {
+                return true;
             }
 
             @Override
@@ -299,6 +321,22 @@ public class NotificationHandler {
                 return new NotificationActionHolder[]{
                         new NotificationActionHolder(android.R.drawable.stat_sys_data_bluetooth,
                                 "Stop Track", pendingIntent)};
+            }
+        },
+        STOPPING{
+            @Override
+            public String getNotificationTitle() {
+                return "Stopping the Track";
+            }
+
+            @Override
+            public String getNotificationContent() {
+                return "The tracking process gets stopped and finalized.";
+            }
+
+            @Override
+            public boolean isShowingBigText() {
+                return false;
             }
         };
 

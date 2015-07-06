@@ -148,18 +148,21 @@ public class DbAdapterImpl implements DbAdapter {
 
     private long lastMeasurementsInsertionTimestamp;
 
-    private long maxTimeBetweenMeasurements = DEFAULT_MAX_TIME_BETWEEN_MEASUREMENTS;
+    private long maxTimeBetweenMeasurements;
 
-    private double maxDistanceBetweenMeasurements = DEFAULT_MAX_DISTANCE_BETWEEN_MEASUREMENTS;
+    private double maxDistanceBetweenMeasurements;
 
     private TrackMetadata obdDeviceMetadata;
 
     public DbAdapterImpl(Context context) throws InstantiationException {
+        // Inject all annotated fields.
         ((Injector) context).injectObjects(this);
 
+        this.maxTimeBetweenMeasurements = DEFAULT_MAX_TIME_BETWEEN_MEASUREMENTS;
+        this.maxDistanceBetweenMeasurements = DEFAULT_MAX_DISTANCE_BETWEEN_MEASUREMENTS;
 
-        mDbHelper = new DatabaseHelper(mContext);
-        mDb = mDbHelper.getWritableDatabase();
+        this.mDbHelper = new DatabaseHelper(mContext);
+        this.mDb = mDbHelper.getWritableDatabase();
 
         if (mDb == null) throw new InstantiationException("Database object is null");
     }

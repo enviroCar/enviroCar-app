@@ -37,9 +37,24 @@ public abstract class BaseInjectorActivity extends AppCompatActivity implements 
 
         // Inject all variables in this object.
         injectObjects(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        LOGGER.info("onResume()");
 
         // Register on the bus.
         mBus.register(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LOGGER.info("onPause()");
+
+        // Unregister from the bus.
+        mBus.unregister(this);
     }
 
     @Override

@@ -23,22 +23,24 @@ package org.envirocar.app.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
 import org.envirocar.app.BaseMainActivity;
-import org.envirocar.app.bluetooth.service.BluetoothServiceState;
-import org.envirocar.app.injection.InjectionActivityScope;
-import org.envirocar.app.injection.Injector;
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.activity.DialogUtil.DialogCallback;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.NavMenuItem;
+import org.envirocar.app.bluetooth.service.BluetoothServiceState;
+import org.envirocar.app.injection.InjectionActivityScope;
+import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.services.OBDConnectionService;
 
 import javax.inject.Inject;
+
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 
 /**
  * Outsource of the start/stop button interaction and content updates.
@@ -87,7 +89,8 @@ public class StartStopButtonUtil {
      * @param button the drawer button
      */
     public void updateStartStopButtonOnServiceStateChange(NavMenuItem button) {
-        LOGGER.info("updateStartStopButtonOnServiceStateChange called with state: " + serviceState + " / trackMode: " + trackMode +
+        LOGGER.info("updateStartStopButtonOnServiceStateChange called with state: " +
+                serviceState + " / trackMode: " + trackMode +
                 " discovery: " + deviceDiscoveryActive);
         ;
         switch (serviceState) {
@@ -117,7 +120,8 @@ public class StartStopButtonUtil {
      * @param trackModeListener a callback to handle the inputs of the user
      */
     public void processButtonClick(OnTrackModeChangeListener trackModeListener) {
-        LOGGER.info("processButtonClick called with state: " + serviceState + " / trackMode: " + trackMode +
+        LOGGER.info("processButtonClick called with state: " + serviceState + " / trackMode: " +
+                trackMode +
                 " discovery: " + deviceDiscoveryActive);
         ;
         switch (serviceState) {
@@ -183,21 +187,11 @@ public class StartStopButtonUtil {
                 return;
         }
 
-        DialogUtil.createTitleMessageDialog(
-                titleId,
-                messageId,
+        DialogUtil.createTitleMessageDialog(titleId, messageId,
                 new DialogUtil.PositiveNegativeCallback() {
                     @Override
                     public void positive() {
-                        new AsyncTask<Void, Void, Void>() {
-                            @Override
-                            protected Void doInBackground(Void... params) {
-                                mContext.getApplicationContext().stopService(
-                                        new Intent(mContext, OBDConnectionService.class));
-                                mTrackHandler.finishTrack();
-                                return null;
-                            }
-                        }.execute();
+                        mTrackHandler.finishCurrentTrack();
                         trackModeListener.onTrackModeChange(BaseMainActivity.TRACK_MODE_SINGLE);
                     }
 
@@ -299,12 +293,15 @@ public class StartStopButtonUtil {
 
         if (remoteDevice != null) {
             if (mCarManager.getCar() == null) {
-                defineButtonContents(button, false, R.drawable.not_available, R.string.no_sensor_selected);
+                defineButtonContents(button, false, R.drawable.not_available, R.string
+                        .no_sensor_selected);
             } else {
-                defineButtonContents(button, true, R.drawable.av_play, preferences.getString(SettingsActivity.BLUETOOTH_NAME, ""));
+                defineButtonContents(button, true, R.drawable.av_play, preferences.getString
+                        (SettingsActivity.BLUETOOTH_NAME, ""));
             }
         } else {
-            defineButtonContents(button, false, R.drawable.not_available, R.string.pref_bluetooth_select_adapter_summary);
+            defineButtonContents(button, false, R.drawable.not_available, R.string
+                    .pref_bluetooth_select_adapter_summary);
         }
     }
 

@@ -14,7 +14,6 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -76,7 +75,6 @@ import rx.Scheduler;
 import rx.Subscription;
 import rx.android.content.ContentObservable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 /**
@@ -158,7 +156,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 }
             };
 
-    private Scheduler.Worker mWorkerThread = AndroidSchedulers.mainThread().createWorker();
+    private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -260,7 +258,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
             BluetoothServiceStateChangedEvent event) {
         LOGGER.info(String.format("Received event: %s", event.toString()));
         this.mServiceState = event.mState;
-        mWorkerThread.schedule(() -> updateStartStopButton());
+        mMainThreadWorker.schedule(() -> updateStartStopButton());
     }
 
     @Override
@@ -276,7 +274,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     @Override
     protected void onPause() {
-        super.onResume();
+        super.onPause();
 
         this.paused = false;
 
@@ -442,6 +440,28 @@ public class BaseMainActivity extends BaseInjectorActivity {
     @Override
     public List<Object> getInjectionModules() {
         return Arrays.<Object>asList(new InjectionActivityModule(this));
+    }
+
+    @Subscribe
+    public void onReceiveTrackFinishedEvent(final TrackFinishedEvent event) {
+        LOGGER.info(String.format("onReceiveTrackFinishedEvent(): event=%s", event.toString()));
+
+        // Just show a message depending on the event-related track.
+        mMainThreadWorker.schedule(() -> {
+            if (event.mTrack == null) {
+                // Track is null and thus there was an error.
+                Crouton.makeText(this, R.string.track_finishing_failed, Style.ALERT).show();
+            } else if (event.mTrack.getLastMeasurement() == null) {
+                // Track has no measurements
+                Crouton.makeText(this, R.string.track_finished_no_measurements, Style.ALERT).show();
+            } else {
+                LOGGER.info("last is not null.. " + event.mTrack.getLastMeasurement().toString());
+                // Track has no measurements
+                Crouton.makeText(this,
+                        getString(R.string.track_finished).concat(event.mTrack.getName()),
+                        Style.INFO).show();
+            }
+        });
     }
 
     /**

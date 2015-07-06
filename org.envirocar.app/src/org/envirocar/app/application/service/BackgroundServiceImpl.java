@@ -283,13 +283,13 @@
 //        // Connect to bluetooth device
 //        // Init bluetooth
 //
-//        startBluetoothConnection();
+//        startOBDConnectionService();
 //
 //        setState(ServiceState.SERVICE_STARTING);
 //        sendStateBroadcast();
 //    }
 //
-//    private void startBluetoothConnection() {
+//    private void startOBDConnectionService() {
 //        SharedPreferences preferences = PreferenceManager
 //                .getDefaultSharedPreferences(this);
 //        String remoteDevice = preferences.getString(SettingsActivity.BLUETOOTH_KEY, null);

@@ -38,16 +38,7 @@ import rx.functions.Action1;
  */
 public class BluetoothHandler {
     private static final Logger LOGGER = Logger.getLogger(BluetoothHandler.class);
-    // Injected variables.
-    @Inject
-    @InjectApplicationScope
-    protected Context mContext;
-    @Inject
-    protected Bus mBus;
-    private Subscription mDiscoverySubscription;
-    private boolean mIsAutoconnecting;
-    // The bluetooth adapter
-    private final BluetoothAdapter mBluetoothAdapter;
+
     protected final BroadcastReceiver mBluetoothStateChangedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -97,6 +88,21 @@ public class BluetoothHandler {
         }
     };
 
+    // Injected variables.
+    @Inject
+    @InjectApplicationScope
+    protected Context mContext;
+    @Inject
+    protected Bus mBus;
+
+
+    private Subscription mDiscoverySubscription;
+    private boolean mIsAutoconnecting;
+
+
+    // The bluetooth adapter
+    private final BluetoothAdapter mBluetoothAdapter;
+
 
     /**
      * Constructor
@@ -121,10 +127,17 @@ public class BluetoothHandler {
     /**
      * Starts the connection to the bluetooth device if not already active.
      */
-    public void startBluetoothConnection() {
+    public void startOBDConnectionService() {
         if (!ServiceUtils.isServiceRunning(mContext, OBDConnectionService.class))
             mContext.getApplicationContext().startService(
                     new Intent(mContext, OBDConnectionService.class));
+    }
+
+
+    public void stopOBDConnectionService() {
+        if (ServiceUtils.isServiceRunning(mContext, OBDConnectionService.class))
+            mContext.getApplicationContext().stopService(new Intent(mContext,
+                    OBDConnectionService.class));
     }
 
 
@@ -154,6 +167,7 @@ public class BluetoothHandler {
                 if (device.getAddress().equals(deviceAddress))
                     return device;
             }
+
             // The device is not paired anymore. Therefore, delete everything in the shared
             // preferences related to the preference.
             preferences.edit().remove(PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_NAME)
@@ -181,10 +195,6 @@ public class BluetoothHandler {
                 return device;
         }
         return null;
-    }
-
-    public void startBluetoothDeviceDiscovery() {
-
     }
 
     /**
@@ -454,14 +464,6 @@ public class BluetoothHandler {
         }
     }
 
-    public void startService() {
-
-    }
-
-    public void stopService() {
-
-    }
-
     /**
      * Initiates the pairing process to a given {@link BluetoothDevice}.
      *
@@ -575,6 +577,14 @@ public class BluetoothHandler {
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    public void startService() {
+
+    }
+
+    public void stopService() {
+
     }
 
     /**

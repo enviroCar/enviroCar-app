@@ -1,8 +1,14 @@
 package org.envirocar.app;
 
-import android.app.Activity;
 import android.content.Context;
 
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
+
+import org.envirocar.app.bluetooth.BluetoothHandler;
+import org.envirocar.app.bluetooth.event.BluetoothServiceStateChangedEvent;
+import org.envirocar.app.bluetooth.service.BluetoothServiceState;
+import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapter;
@@ -10,8 +16,8 @@ import org.envirocar.app.storage.Track;
 
 import javax.inject.Inject;
 
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
+import rx.Scheduler;
+import rx.schedulers.Schedulers;
 
 /**
  * @author de Wall
@@ -21,9 +27,19 @@ public class TrackHandler {
     private static final String TRACK_MODE = "trackMode";
 
     @Inject
-    protected Activity mActivity;
+    @InjectApplicationScope
+    protected Context mContext;
+    @Inject
+    protected Bus mBus;
     @Inject
     protected DbAdapter mDBAdapter;
+    @Inject
+    protected BluetoothHandler mBluetoothHandler;
+
+    private Scheduler.Worker mBackgroundWorker = Schedulers.io().createWorker();
+
+    private BluetoothServiceState mBluetoothServiceState = BluetoothServiceState.SERVICE_STOPPED;
+
 
     /**
      * Constructor.
@@ -31,29 +47,46 @@ public class TrackHandler {
      * @param context the context of the activity's scope.
      */
     public TrackHandler(Context context) {
+        // Inject all annotated fields.
         ((Injector) context).injectObjects(this);
     }
 
-    public void finishTrack() {
-        final Track track = mDBAdapter.finishCurrentTrack();
-        // TODO check
-        mActivity.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                if (track != null) {
-                    if (track.getLastMeasurement() == null) {
-                        Crouton.makeText(mActivity, R.string.track_finished_no_measurements, Style.ALERT).show();
-                    } else {
-                        String text = mActivity.getString(R.string.track_finished).concat(track
-                                .getName());
-                        Crouton.makeText(mActivity, text, Style.INFO).show();
-                    }
-                } else {
-                    Crouton.makeText(mActivity, R.string.track_finishing_failed, Style.ALERT).show();
-                }
-            }
+
+    public void startNewTrack() {
+
+
+    }
+
+    /**
+     * Finishes the current track. On the one hand, the service that handles the connection to
+     * the Bluetooth device gets closed and the track in the database gets finished.
+     */
+    public void finishCurrentTrack() {
+        LOGGER.info("stopTrack()");
+
+        // Set the current service state to SERVICE_STOPPING.
+        mBus.post(new BluetoothServiceStateChangedEvent(BluetoothServiceState.SERVICE_STOPPING));
+
+        // Schedule a new async task for closing the service, finishing the current track, and
+        // finally fireing an event on the event bus.
+        mBackgroundWorker.schedule(() -> {
+            LOGGER.info("backgroundworker");
+            // Stop the background service that is responsible for the OBDConnection.
+            mBluetoothHandler.stopOBDConnectionService();
+
+            // Finish the current track.
+            final Track track = mDBAdapter.finishCurrentTrack();
+
+            // Fire a new TrackFinishedEvent on the event bus.
+            mBus.post(new TrackFinishedEvent(track));
         });
     }
 
-
+    @Subscribe
+    public void onReceiveBluetoothServiceStateChangedEvent(
+            BluetoothServiceStateChangedEvent event) {
+        LOGGER.info(String.format("onReceiveBluetoothServiceStateChangedEvent: %s",
+                event.toString()));
+        mBluetoothServiceState = event.mState;
+    }
 }

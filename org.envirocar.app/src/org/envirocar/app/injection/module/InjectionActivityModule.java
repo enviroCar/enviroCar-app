@@ -33,7 +33,6 @@ import dagger.Provides;
                 RegisterFragment.class,
                 SettingsActivity.class,
                 StartStopButtonUtil.class,
-                TrackHandler.class,
                 RealDashboardFragment.class
         },
         addsTo = InjectionApplicationModule.class,
@@ -69,12 +68,6 @@ public class InjectionActivityModule {
     @Singleton
     public RealDashboardFragment provideRealDashboardFragment(){
         return new RealDashboardFragment();
-    }
-
-    @Provides
-    @Singleton
-    TrackHandler provideTrackHandler(){
-        return new TrackHandler(mActivity);
     }
 
 }

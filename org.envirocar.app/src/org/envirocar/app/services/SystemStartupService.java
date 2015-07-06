@@ -11,14 +11,16 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
 
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.NotificationHandler;
+import org.envirocar.app.TrackHandler;
 import org.envirocar.app.bluetooth.BluetoothHandler;
+import org.envirocar.app.bluetooth.event.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.bluetooth.event.BluetoothStateChangedEvent;
+import org.envirocar.app.bluetooth.service.BluetoothServiceState;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.view.preferences.PreferencesConstants;
@@ -55,6 +57,8 @@ public class SystemStartupService extends Service {
     protected BluetoothHandler mBluetoothHandler;
     @Inject
     protected NotificationHandler mNotificationHandler;
+    @Inject
+    protected TrackHandler mTrackHandler;
 
 
     private NotificationHandler.NotificationState mCurrentState;
@@ -68,6 +72,7 @@ public class SystemStartupService extends Service {
     private Subscription mDiscoverySubscription;
     private Subscription mSharedPrefSubscription;
 
+    private BluetoothServiceState mBluetoothServiceState = BluetoothServiceState.SERVICE_STOPPED;
 
     // Background service for the connection to the OBD adapter.
     private OBDConnectionService mOBDConnectionService;
@@ -140,6 +145,8 @@ public class SystemStartupService extends Service {
             else if (ACTION_STOP_TRACK_RECORDING.equals(action)) {
                 LOGGER.info("Received Broadcast: Stop Track Recording.");
 
+                // Finish the current track.
+                mTrackHandler.finishCurrentTrack();
             }
         }
     };
@@ -233,7 +240,8 @@ public class SystemStartupService extends Service {
 
         // Unsubscribe subscriptions.
         mSharedPrefSubscription.unsubscribe();
-        mWorkerSubscription.unsubscribe();
+        if (mWorkerSubscription != null)
+            mWorkerSubscription.unsubscribe();
         if (mDiscoverySubscription != null)
             mDiscoverySubscription.unsubscribe();
 
@@ -243,12 +251,48 @@ public class SystemStartupService extends Service {
     }
 
     @Subscribe
-    public void onBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
+    public void onReceiveBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
         LOGGER.info(String.format("Received event. %s", event.toString()));
 
         if (!event.isBluetoothEnabled) {
             // When Bluetooth has been turned off, then this service is required to be closed.
             stopSelf();
+        }
+    }
+
+    /**
+     * Receiver method for {@link BluetoothServiceStateChangedEvent}s posted on the event bus.
+     *
+     * @param event the corresponding event type.
+     */
+    @Subscribe
+    public void onReceiveBluetoothServiceStateChangedEvent(
+            BluetoothServiceStateChangedEvent event) {
+        LOGGER.info(String.format("onReceiveBluetoothServiceStateChangedEvent(): %s",
+                event.toString()));
+        switch (event.mState) {
+            case SERVICE_STARTING:
+                mNotificationHandler.setNotificationState(this, NotificationHandler
+                        .NotificationState.CONNECTING);
+                break;
+            case SERVICE_STARTED:
+                mNotificationHandler.setNotificationState(this, NotificationHandler
+                        .NotificationState.CONNCECTED);
+                break;
+            case SERVICE_STOPPING:
+                mNotificationHandler.setNotificationState(this, NotificationHandler
+                        .NotificationState.STOPPING);
+                break;
+            case SERVICE_STOPPED:
+                mNotificationHandler.setNotificationState(this, NotificationHandler
+                        .NotificationState.UNCONNECTED);
+                break;
+            case SERVICE_DEVICE_DISCOVERY_RUNNING:
+                mNotificationHandler.setNotificationState(this, NotificationHandler
+                        .NotificationState.DISCOVERING);
+                break;
+            case SERVICE_DEVICE_DISCOVERY_PENDING:
+                break;
         }
     }
 
@@ -276,6 +320,7 @@ public class SystemStartupService extends Service {
         if (ServiceUtils.isServiceRunning(getApplicationContext(),
                 // Defines callbacks for the service binding, passed to bindService()
                 OBDConnectionService.class)) {
+
             // Bind to OBDConnectionService
             Intent intent = new Intent(this, OBDConnectionService.class);
             bindService(intent, mOBDConnectionServiceCon,

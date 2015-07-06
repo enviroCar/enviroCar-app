@@ -9,6 +9,7 @@ import com.squareup.otto.ThreadEnforcer;
 import org.envirocar.app.FeatureFlags;
 import org.envirocar.app.LocationHandler;
 import org.envirocar.app.NotificationHandler;
+import org.envirocar.app.TrackHandler;
 import org.envirocar.app.activity.ListTracksFragment;
 import org.envirocar.app.activity.LogbookFragment;
 import org.envirocar.app.activity.LoginFragment;
@@ -73,7 +74,8 @@ import dagger.Provides;
                 OBDConnectionService.class,
                 BluetoothDiscoveryIntervalPreference.class,
                 Collector.class,
-                LazyLoadingStrategyImpl.class
+                LazyLoadingStrategyImpl.class,
+                TrackHandler.class
         },
         staticInjections = { Track.class },
         library = true,
@@ -242,15 +244,31 @@ public class InjectionApplicationModule {
         return new BluetoothHandler(mAppContext);
     }
 
+    /**
+     * Provides the LocationHandler of the application.
+     *
+     * @return the LocationHandler of the application.
+     */
     @Provides
     @Singleton
     LocationHandler provideLocationHandler(){
         return new LocationHandler(mAppContext);
     }
 
+    /**
+     * Provides the LazyLoadingStrategy of the application.
+     *
+     * @return the LazyLoadingStrategy of the application.
+     */
     @Provides
     @Singleton
     LazyLoadingStrategy provideLazyLoadingStrategy() {
         return new LazyLoadingStrategyImpl(mAppContext);
+    }
+
+    @Provides
+    @Singleton
+    TrackHandler provideTrackHandler(){
+        return new TrackHandler(mAppContext);
     }
 }
