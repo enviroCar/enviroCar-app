@@ -30,7 +30,7 @@ import org.envirocar.app.events.LocationChangedEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
-import org.envirocar.app.view.preferences.PreferencesConstants;
+import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.app.views.LayeredImageRotateView;
 import org.envirocar.app.views.TypefaceEC;
 
@@ -127,13 +127,13 @@ public class RealDashboardFragment extends BaseInjectorFragment {
         // Subscribe for changes related to specific preference types.
         mPreferenceSubscription = ContentObservable.fromSharedPreferencesChanges(PreferenceManager
                 .getDefaultSharedPreferences(getActivity()))
-                .observeOn(Schedulers.computation())
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .filter(prefKey -> PreferencesConstants.CAR.equals(prefKey) ||
-                        PreferencesConstants.CAR_HASH_CODE.equals(prefKey) ||
-                        PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_LIST.equals(prefKey))
+                .subscribeOn(Schedulers.computation())
+                .observeOn(AndroidSchedulers.mainThread())
+                .filter(prefKey -> PreferenceConstants.CAR.equals(prefKey) ||
+                        PreferenceConstants.CAR_HASH_CODE.equals(prefKey) ||
+                        PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_LIST.equals(prefKey))
                 .subscribe(prefKey -> {
-                    if (prefKey.equals(PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_LIST)) {
+                    if (prefKey.equals(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_LIST)) {
                         updateStatusElements();
                     } else {
                         updateCarStatus();
@@ -158,7 +158,7 @@ public class RealDashboardFragment extends BaseInjectorFragment {
         }
 
         mUseImperialUnits = PreferenceManager.getDefaultSharedPreferences(getActivity())
-                .getBoolean(PreferencesConstants.IMPERIAL_UNIT, false);
+                .getBoolean(PreferenceConstants.IMPERIAL_UNIT, false);
 
         mLastUIUpdate = System.currentTimeMillis();
 

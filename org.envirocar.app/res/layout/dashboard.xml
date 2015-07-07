@@ -1,148 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    android:id="@+id/vehicle_view"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:enviroCar="http://envirocar.org"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:background="@drawable/envirocar_background"
-    android:paddingTop="40dp"
-    android:tag="Dashboard" >
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white_cario"
+    android:orientation="vertical"
+    android:tag="Dashboard">
 
     <LinearLayout
-        android:id="@+id/vehicle_view"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:layout_margin="8dp"
+        android:orientation="horizontal"
+        android:visibility="invisible">
 
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="0dip"
-            android:layout_marginLeft="5dp"
-            android:layout_weight="2"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <org.envirocar.app.views.LayeredImageRotateView
-                    android:id="@+id/speedometerView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginTop="10dp"
-                    enviroCar:maximumDegree="170.0"
-                    enviroCar:maximumScaleValue="250.0"
-                    enviroCar:minimumDegree="10.0"
-                    enviroCar:minimumScaleValue="0.0"
-                    enviroCar:rotatableImageViewid="@+id/arrowImage">
-
-                    <org.envirocar.app.views.HalfViewWidthImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:contentDescription="@string/speed"
-                        android:src="@drawable/phenometer_speed"
-                        enviroCar:widthRelatedPredecessingView="@+id/vehicle_view" />
-
-                    <org.envirocar.app.views.HalfViewWidthImageView
-                        android:id="@+id/arrowImage"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:contentDescription="@string/speed"
-                        android:src="@drawable/phenometer_speed_arrow"
-                        enviroCar:widthRelatedPredecessingView="@+id/vehicle_view" />
-
-                    <org.envirocar.app.views.SizeRelatedTextView
-                        android:id="@+id/textViewSpeedDashboard"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignBottom="@+id/arrowImage"
-                        android:layout_centerHorizontal="true"
-                        android:text="@string/speed_initial_value"
-                        android:textColor="#8bbb3f"
-                        enviroCar:sizeRelatedPredecessingView="@+id/arrowImage"
-                        enviroCar:targetTextString="01234567890" />
-                </org.envirocar.app.views.LayeredImageRotateView>
-
-            </LinearLayout>
-
-            <org.envirocar.app.views.LayeredImageRotateView
-                xmlns:enviroCar="http://envirocar.org"
-                android:id="@+id/co2meterView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right"
-                android:layout_marginRight="5dp"
-                android:layout_marginTop="-40dp"
-                enviroCar:maximumDegree="170.0"
-                enviroCar:maximumScaleValue="100.0"
-                enviroCar:minimumDegree="10.0"
-                enviroCar:minimumScaleValue="0.0"
-                enviroCar:rotatableImageViewid="@+id/co2arrowImage">
-
-                <org.envirocar.app.views.HalfViewWidthImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/Co2emission"
-                    android:src="@drawable/phenometer_co2"
-                    enviroCar:widthRelatedPredecessingView="@+id/vehicle_view" />
-
-                <org.envirocar.app.views.HalfViewWidthImageView
-                    android:id="@+id/co2arrowImage"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/Co2emission"
-                    android:src="@drawable/phenometer_co2_arrow"
-                    enviroCar:widthRelatedPredecessingView="@+id/vehicle_view" />
-
-                <org.envirocar.app.views.SizeRelatedTextView
-                    android:id="@+id/co2TextView"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignBottom="@+id/co2arrowImage"
-                    android:layout_centerHorizontal="true"
-                    android:text="@string/co2_initial_value"
-                    android:textColor="#44a2d3"
-                    enviroCar:sizeRelatedPredecessingView="@+id/co2arrowImage"
-                    enviroCar:targetTextString="01234567890" />
-            </org.envirocar.app.views.LayeredImageRotateView>
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/dashboard_general_info"
-            android:layout_width="fill_parent"
+        <FrameLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="15dp"
-            android:padding="15dp"
-            android:gravity="center_horizontal|center"
-            android:orientation="horizontal" >
+            android:layout_weight="1"/>
 
-            <ImageView
-                android:id="@+id/gpsFixView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:src="@drawable/gps_nofix"
-                android:contentDescription="gps-fix"/>
-            
-            <ImageView
-                android:id="@+id/carOkView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:src="@drawable/car_no"
-                android:contentDescription="car-ok"/>
-            
-            <ImageView
-                android:id="@+id/connectionStateImage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="@string/connection_state"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:src="@drawable/bt_device_stopped" />
-		
-        </LinearLayout>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_rec"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="5dp"
+            android:text="REC"
+            android:textSize="20sp"/>
+
     </LinearLayout>
 
-</RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:orientation="vertical">
+
+        <org.envirocar.app.views.LayeredImageRotateView
+            android:id="@+id/speedometerView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="10dp"
+            enviroCar:maximumDegree="170.0"
+            enviroCar:maximumScaleValue="250.0"
+            enviroCar:minimumDegree="10.0"
+            enviroCar:minimumScaleValue="0.0"
+            enviroCar:rotatableImageViewid="@+id/arrowImage">
+
+            <org.envirocar.app.views.HalfViewWidthImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/speed"
+                android:src="@drawable/phenometer_speed"
+                enviroCar:widthRelatedPredecessingView="@+id/vehicle_view"/>
+
+            <org.envirocar.app.views.HalfViewWidthImageView
+                android:id="@+id/arrowImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/speed"
+                android:src="@drawable/phenometer_speed_arrow"
+                enviroCar:widthRelatedPredecessingView="@+id/vehicle_view"/>
+
+            <org.envirocar.app.views.SizeRelatedTextView
+                android:id="@+id/textViewSpeedDashboard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/arrowImage"
+                android:layout_centerHorizontal="true"
+                android:text="@string/speed_initial_value"
+                android:textColor="#8bbb3f"
+                enviroCar:sizeRelatedPredecessingView="@+id/arrowImage"
+                enviroCar:targetTextString="01234567890"/>
+        </org.envirocar.app.views.LayeredImageRotateView>
+
+        <org.envirocar.app.views.LayeredImageRotateView
+            android:id="@+id/co2meterView"
+            xmlns:enviroCar="http://envirocar.org"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="-40dp"
+            android:gravity="right"
+            enviroCar:maximumDegree="170.0"
+            enviroCar:maximumScaleValue="100.0"
+            enviroCar:minimumDegree="10.0"
+            enviroCar:minimumScaleValue="0.0"
+            enviroCar:rotatableImageViewid="@+id/co2arrowImage">
+
+            <org.envirocar.app.views.HalfViewWidthImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+
+                android:contentDescription="@string/Co2emission"
+                android:src="@drawable/phenometer_co2"
+                enviroCar:widthRelatedPredecessingView="@+id/vehicle_view"/>
+
+            <org.envirocar.app.views.HalfViewWidthImageView
+                android:id="@+id/co2arrowImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/Co2emission"
+                android:src="@drawable/phenometer_co2_arrow"
+                enviroCar:widthRelatedPredecessingView="@+id/vehicle_view"/>
+
+            <org.envirocar.app.views.SizeRelatedTextView
+                android:id="@+id/co2TextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@+id/co2arrowImage"
+                android:layout_centerHorizontal="true"
+                android:text="@string/co2_initial_value"
+                android:textColor="#44a2d3"
+                enviroCar:sizeRelatedPredecessingView="@+id/co2arrowImage"
+                enviroCar:targetTextString="01234567890"/>
+        </org.envirocar.app.views.LayeredImageRotateView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/dashboard_general_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:gravity="center_horizontal|center"
+        android:orientation="horizontal"
+        android:padding="15dp">
+
+        <ImageView
+            android:id="@+id/gpsFixView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:contentDescription="gps-fix"
+            android:src="@drawable/gps_nofix"/>
+
+        <ImageView
+            android:id="@+id/carOkView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:contentDescription="car-ok"
+            android:src="@drawable/car_no"/>
+
+        <ImageView
+            android:id="@+id/connectionStateImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:contentDescription="@string/connection_state"
+            android:src="@drawable/bt_device_stopped"/>
+    </LinearLayout>
+
+</LinearLayout>

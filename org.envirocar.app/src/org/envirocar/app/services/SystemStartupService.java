@@ -23,7 +23,7 @@ import org.envirocar.app.bluetooth.event.BluetoothStateChangedEvent;
 import org.envirocar.app.bluetooth.service.BluetoothServiceState;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.view.preferences.PreferencesConstants;
+import org.envirocar.app.view.preferences.PreferenceConstants;
 
 import java.util.concurrent.TimeUnit;
 
@@ -165,16 +165,27 @@ public class SystemStartupService extends Service {
         // Get the required preference settings.
         final SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
-        this.mIsAutoconnct = preferences.getBoolean(PreferencesConstants
-                .PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT, PreferencesConstants
+        this.mIsAutoconnct = preferences.getBoolean(PreferenceConstants
+                .PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT, PreferenceConstants
                 .DEFAULT_BLUETOOTH_AUTOCONNECT);
-        this.mDiscoveryInterval = preferences.getInt(PreferencesConstants
+        this.mDiscoveryInterval = preferences.getInt(PreferenceConstants
                         .PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL,
-                PreferencesConstants.DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);
+                PreferenceConstants.DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);
 
         // Set the Notification to
-        this.mNotificationHandler.setNotificationState(this,
-                NotificationHandler.NotificationState.UNCONNECTED);
+        if(this.mBluetoothHandler.isBluetoothEnabled()){
+            // State: No OBD device selected.
+            if(mBluetoothHandler.getSelectedBluetoothDevice() == null){
+                this.mNotificationHandler.setNotificationState(this, NotificationHandler
+                        .NotificationState.NO_OBD_SELECTED);
+            }
+            // Else
+            else {
+                this.mNotificationHandler.setNotificationState(this,
+                        NotificationHandler.NotificationState.UNCONNECTED);
+            }
+        }
+
 
         // Register a new BroadcastReceiver that waits for different incoming actions issued from
         // the notification.
@@ -190,20 +201,20 @@ public class SystemStartupService extends Service {
 
         mSharedPrefSubscription = ContentObservable.fromSharedPreferencesChanges(preferences)
                 .filter(prefKey ->
-                        PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT.equals(prefKey) ||
-                                PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL
+                        PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT.equals(prefKey) ||
+                                PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL
                                         .equals(prefKey))
                 .subscribe(prefKey -> {
                     LOGGER.info(String.format("Received change in preferences [%s]", prefKey));
 
-                    if (prefKey.equals(PreferencesConstants
+                    if (prefKey.equals(PreferenceConstants
                             .PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT)) {
-                        mIsAutoconnct = preferences.getBoolean(PreferencesConstants
+                        mIsAutoconnct = preferences.getBoolean(PreferenceConstants
                                 .PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT, false);
                     } else {
-                        mDiscoveryInterval = preferences.getInt(PreferencesConstants
+                        mDiscoveryInterval = preferences.getInt(PreferenceConstants
                                         .PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL,
-                                PreferencesConstants.DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);
+                                PreferenceConstants.DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);
                     }
                 });
     }
@@ -278,6 +289,7 @@ public class SystemStartupService extends Service {
             case SERVICE_STARTED:
                 mNotificationHandler.setNotificationState(this, NotificationHandler
                         .NotificationState.CONNCECTED);
+                mWorkerSubscription.unsubscribe();
                 break;
             case SERVICE_STOPPING:
                 mNotificationHandler.setNotificationState(this, NotificationHandler

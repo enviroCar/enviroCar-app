@@ -92,7 +92,6 @@ public class OBDConnectionService extends Service {
 
         // register on the event bus
         this.mBus.register(this);
-
     }
 
     @Override

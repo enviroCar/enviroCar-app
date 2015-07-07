@@ -59,7 +59,7 @@ import org.envirocar.app.model.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.util.Util;
 import org.envirocar.app.util.VersionRange;
-import org.envirocar.app.view.preferences.PreferencesConstants;
+import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.app.views.TypefaceEC;
 
 import java.util.Arrays;
@@ -214,9 +214,9 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 .observeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
                 .filter(prefKey ->
-                        PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_NAME.equals(prefKey) ||
-                                PreferencesConstants.CAR.equals(prefKey) ||
-                                PreferencesConstants.CAR_HASH_CODE.equals(prefKey))
+                        PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME.equals(prefKey) ||
+                                PreferenceConstants.CAR.equals(prefKey) ||
+                                PreferenceConstants.CAR_HASH_CODE.equals(prefKey))
                 .subscribe(prefKey -> {
                     updateStartStopButton();
                 });

@@ -12,7 +12,7 @@ dependencies {
 
 
     // Otto event bus.
-    compile 'com.squareup:otto:1.3.6'
+    compile 'com.squareup:otto:1.3.8'
 
     // Android Crash Report ACRA
     compile 'ch.acra:acra:4.6.2'

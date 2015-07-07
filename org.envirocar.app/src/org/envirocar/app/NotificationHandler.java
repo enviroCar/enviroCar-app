@@ -13,9 +13,7 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.app.NotificationCompat;
 
 import com.google.common.collect.Maps;
-import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.bluetooth.event.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
@@ -173,7 +171,9 @@ public class NotificationHandler {
      */
     public void closeNotification(Service service) {
         if (mNotificationManager != null) {
-            mNotificationManager.cancel(mServiceToNotificationID.get(service.getClass()));
+            Integer notificationID = mServiceToNotificationID.get(service.getClass());
+            if (notificationID != null)
+                mNotificationManager.cancel(notificationID);
         }
     }
 
@@ -182,7 +182,7 @@ public class NotificationHandler {
      * Enumeration reflecting the possible states of the application.
      */
     public enum NotificationState implements NotificationContent {
-        NO_OBD {
+        NO_OBD_SELECTED {
             @Override
             public String getNotificationTitle() {
                 return "No OBDII Adapter Selected";
@@ -202,7 +202,7 @@ public class NotificationHandler {
         UNCONNECTED {
             @Override
             public String getNotificationTitle() {
-                return "Device is unconnected.";
+                return "Device is Unconnected.";
             }
 
             @Override
@@ -222,8 +222,8 @@ public class NotificationHandler {
                         PendingIntent.FLAG_CANCEL_CURRENT);
 
                 return new NotificationActionHolder[]{
-                        new NotificationActionHolder(android.R.drawable.ic_menu_close_clear_cancel,
-                                "Start Discovery for OBD", pendingIntent)};
+                        new NotificationActionHolder(R.drawable.ic_bluetooth_searching_black_24dp,
+                                "Start Bluetooth Discovery", pendingIntent)};
             }
         },
         DISCOVERING {
@@ -243,14 +243,19 @@ public class NotificationHandler {
             }
 
             @Override
+            public int getSmallIconId() {
+                return R.drawable.ic_bluetooth_searching_black_24dp;
+            }
+
+            @Override
             public NotificationActionHolder[] getActions(Context context) {
                 Intent intent = new Intent(SystemStartupService.ACTION_STOP_BT_DISCOVERY);
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
                         PendingIntent.FLAG_CANCEL_CURRENT);
 
                 return new NotificationActionHolder[]{
-                        new NotificationActionHolder(android.R.drawable.ic_menu_close_clear_cancel,
-                                "Cancel", pendingIntent)};
+                        new NotificationActionHolder(R.drawable.ic_close_black_24dp,
+                                "Cancel Discovery", pendingIntent)};
             }
         },
         OBD_FOUND {
@@ -276,11 +281,11 @@ public class NotificationHandler {
                         PendingIntent.FLAG_CANCEL_CURRENT);
 
                 return new NotificationActionHolder[]{
-                        new NotificationActionHolder(android.R.drawable.stat_sys_data_bluetooth,
+                        new NotificationActionHolder(R.drawable.ic_play_arrow_black_24dp,
                                 "Start Track", pendingIntent)};
             }
         },
-        CONNECTING{
+        CONNECTING {
             @Override
             public String getNotificationTitle() {
                 return "Connecting...";
@@ -313,17 +318,22 @@ public class NotificationHandler {
             }
 
             @Override
+            public int getSmallIconId() {
+                return R.drawable.ic_play_arrow_black_24dp;
+            }
+
+            @Override
             public NotificationActionHolder[] getActions(Context context) {
                 Intent intent = new Intent(SystemStartupService.ACTION_STOP_TRACK_RECORDING);
                 PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, intent,
                         PendingIntent.FLAG_CANCEL_CURRENT);
 
                 return new NotificationActionHolder[]{
-                        new NotificationActionHolder(android.R.drawable.stat_sys_data_bluetooth,
+                        new NotificationActionHolder(R.drawable.ic_stop_black_24dp,
                                 "Stop Track", pendingIntent)};
             }
         },
-        STOPPING{
+        STOPPING {
             @Override
             public String getNotificationTitle() {
                 return "Stopping the Track";

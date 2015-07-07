@@ -74,6 +74,7 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
 
     @Override
     protected void onBindDialogView(View view) {
+        LOGGER.info("onBindDialogView()");
         super.onBindDialogView(view);
 
         // Inject all views
@@ -86,6 +87,8 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
 
         // Set the textview text
         mText.setText(R.string.pref_bt_discovery_interval_explanation);
+
+        onSetInitialValue(true, null);
 
         // set the settings for the minute NumberPicker.
         mMinutePicker.setMinValue(0);
@@ -127,15 +130,24 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
         LOGGER.info("onSetInitialValue");
         super.onSetInitialValue(restorePersistedValue, defaultValue);
 
+        int time = -1;
+        // First either get the persisted value or the value stored in the shared preferences.
         if (restorePersistedValue) {
-            int time = getPersistedInt(-1);
-            if (time != -1) {
-                int seconds = time % 60;
-                int minutes = (time - seconds) / 60;
+            time = getPersistedInt(-1);
+        }
 
-                mCurrentMinutes = minutes;
-                mCurrentSeconds = seconds / 10;
-            }
+        if(time == -1){
+            time = getSharedPreferences().getInt(PreferenceConstants
+                    .PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL, PreferenceConstants
+                    .DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);
+        }
+
+        if (time != -1){
+            int seconds = time % 60;
+            int minutes = (time - seconds) / 60;
+
+            mCurrentMinutes = minutes;
+            mCurrentSeconds = seconds / 10;
         }
     }
 
@@ -151,7 +163,7 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
             persistInt(time);
 
             getSharedPreferences().edit()
-                    .putInt(PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL, time)
+                    .putInt(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL, time)
                     .commit();
         }
     }

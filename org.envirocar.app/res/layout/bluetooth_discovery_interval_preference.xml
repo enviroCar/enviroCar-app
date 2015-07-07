@@ -48,7 +48,7 @@
     </LinearLayout>
 
 
-    <!--<org.envirocar.app.view.preferences.TimerInputView-->
+    <!--<org.envirocar.app.view.preferences.custom.TimerInputView-->
         <!--android:id="@+id/bluetooth_discovery_interval_preference_timerinput"-->
         <!--android:layout_width="match_parent"-->
         <!--android:layout_height="match_parent"/>-->

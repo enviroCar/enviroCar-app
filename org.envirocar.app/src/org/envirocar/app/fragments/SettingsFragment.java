@@ -23,7 +23,7 @@ import org.envirocar.app.bluetooth.event.BluetoothStateChangedEvent;
 import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.util.Util;
-import org.envirocar.app.view.preferences.PreferencesConstants;
+import org.envirocar.app.view.preferences.PreferenceConstants;
 
 import javax.inject.Inject;
 
@@ -59,13 +59,13 @@ public class SettingsFragment extends PreferenceFragment {
 
         // Get the switch preference indicating the enabled bluetooth setting.
         mBluetoothIsActivePreference = (SwitchPreference) getPreferenceScreen().findPreference
-                (PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_ENABLER);
+                (PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_ENABLER);
         // Get the bluetooth pairing preference if possible
-        mBluetoothPairingPreference = getPreferenceScreen().findPreference(PreferencesConstants
+        mBluetoothPairingPreference = getPreferenceScreen().findPreference(PreferenceConstants
                 .PREFERENCE_TAG_BLUETOOTH_PAIRING);
         // Get the bluetooth preference if possible
         mBluetoothDeviceListPreference = getPreferenceScreen()
-                .findPreference(PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_LIST);
+                .findPreference(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_LIST);
 
         updateBluetoothPreferences(mBluetoothHandler.isBluetoothEnabled());
     }
@@ -134,8 +134,8 @@ public class SettingsFragment extends PreferenceFragment {
 
             // remove the shared preference entries for the bluetooth selection tag.
             PreferenceManager.getDefaultSharedPreferences(getActivity()).edit()
-                    .remove(PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_NAME)
-                    .remove(PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_ADDRESS).commit();
+                    .remove(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME)
+                    .remove(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_ADDRESS).commit();
         }
     }
 

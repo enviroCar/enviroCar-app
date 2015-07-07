@@ -113,8 +113,8 @@ public class SelectBluetoothPreference extends DialogPreference {
 
                 // Update the shared preference entry for the bluetooth selection tag.
                 getSharedPreferences().edit()
-                        .putString(PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_NAME, device.getName())
-                        .putString(PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_ADDRESS, device
+                        .putString(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME, device.getName())
+                        .putString(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_ADDRESS, device
                                 .getAddress())
                         .commit();
             }

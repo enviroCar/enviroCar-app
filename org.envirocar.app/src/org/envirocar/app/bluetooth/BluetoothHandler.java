@@ -20,7 +20,7 @@ import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.ServiceUtils;
-import org.envirocar.app.view.preferences.PreferencesConstants;
+import org.envirocar.app.view.preferences.PreferenceConstants;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -154,14 +154,14 @@ public class BluetoothHandler {
 
         // Get the preferences of the device.
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-        String deviceName = preferences.getString(PreferencesConstants
-                .PREFERENCE_TAG_BLUETOOTH_NAME, PreferencesConstants.PREFERENCE_TAG_EMPTY);
-        String deviceAddress = preferences.getString(PreferencesConstants
-                .PREFERENCE_TAG_BLUETOOTH_ADDRESS, PreferencesConstants.PREFERENCE_TAG_EMPTY);
+        String deviceName = preferences.getString(PreferenceConstants
+                .PREFERENCE_TAG_BLUETOOTH_NAME, PreferenceConstants.PREFERENCE_TAG_EMPTY);
+        String deviceAddress = preferences.getString(PreferenceConstants
+                .PREFERENCE_TAG_BLUETOOTH_ADDRESS, PreferenceConstants.PREFERENCE_TAG_EMPTY);
 
         // If the device address is not empty and the device is still a paired device, get the
         // corresponding BluetoothDevice and return it.
-        if (!deviceAddress.equals(PreferencesConstants.PREFERENCE_TAG_EMPTY)) {
+        if (!deviceAddress.equals(PreferenceConstants.PREFERENCE_TAG_EMPTY)) {
             Set<BluetoothDevice> devices = getPairedBluetoothDevices();
             for (BluetoothDevice device : devices) {
                 if (device.getAddress().equals(deviceAddress))
@@ -170,8 +170,8 @@ public class BluetoothHandler {
 
             // The device is not paired anymore. Therefore, delete everything in the shared
             // preferences related to the preference.
-            preferences.edit().remove(PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_NAME)
-                    .remove(PreferencesConstants.PREFERENCE_TAG_BLUETOOTH_ADDRESS).commit();
+            preferences.edit().remove(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME)
+                    .remove(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_ADDRESS).commit();
         }
         return null;
     }

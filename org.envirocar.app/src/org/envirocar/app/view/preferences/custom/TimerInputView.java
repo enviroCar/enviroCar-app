@@ -1,4 +1,4 @@
-package org.envirocar.app.view.preferences;
+package org.envirocar.app.view.preferences.custom;
 
 import android.content.Context;
 import android.util.AttributeSet;

@@ -3,7 +3,7 @@ package org.envirocar.app.view.preferences;
 /**
  * @author dewall
  */
-public interface PreferencesConstants {
+public interface PreferenceConstants {
     String PREFERENCE_TAG_EMPTY = "";
     String PREFERENCE_TAG_BLUETOOTH_LIST = "bluetooth_list";
     String PREFERENCE_TAG_BLUETOOTH_NAME = "bluetooth_name";
@@ -15,7 +15,7 @@ public interface PreferencesConstants {
     String PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT = "pref_bluetooth_autoconnect";
     String PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL = "pref_bluetooth_discovery_interval";
 
-    int DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL = 1000*60*2;
+    int DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL = 60;
     boolean DEFAULT_BLUETOOTH_AUTOCONNECT = false;
 
 

@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.preference.PreferenceManager;
 
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.view.preferences.PreferencesConstants;
+import org.envirocar.app.view.preferences.PreferenceConstants;
 
 /**
  * Startup receiver that listens to ACTION_BOOT_COMPLETED broadcasts and therefore starts when
@@ -57,7 +57,7 @@ public class SystemStartupReceiver extends BroadcastReceiver {
     private void startSystemStartupService(Context context) {
         // Get the preference related to the autoconnection.
         boolean autoStartService = PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(PreferencesConstants.
+                .getBoolean(PreferenceConstants.
                         PREFERENCE_TAG_BLUETOOTH_SERVICE_AUTOSTART, false);
 
         // If autostart service is on and the service is not already running,
