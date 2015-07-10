@@ -4,6 +4,7 @@ dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
 
     compile 'com.android.support:appcompat-v7:22.2.0'
+    compile 'com.android.support:design:22.2.0'
 
     // Dagger dependency injection.
     compile 'com.squareup.dagger:dagger:1.2.2'
@@ -37,6 +38,11 @@ dependencies {
 
     // RxJava for Android
     compile 'io.reactivex:rxandroid:0.24.0'
+
+    // MapBox SDK
+    compile ('com.mapbox.mapboxsdk:mapbox-android-sdk:0.7.4@aar'){
+        transitive=true
+    }
 }
 
 

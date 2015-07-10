@@ -67,6 +67,11 @@
             android:key="pref_privacy"
             android:summary="@string/track_obfuscation_on"
             android:title="@string/privacy"/>
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="pref_text_to_speech"
+            android:summary="Enabling the TextToSpeech functionality."
+            android:title="TextToSpeech" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_optional_features">

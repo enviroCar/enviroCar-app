@@ -18,6 +18,8 @@ import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.application.Collector;
 import org.envirocar.app.application.CommandListener;
+import org.envirocar.app.application.UploadManager;
+import org.envirocar.app.fragments.NewDashboardFragment;
 import org.envirocar.app.fragments.SettingsFragment;
 import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
@@ -75,7 +77,9 @@ import dagger.Provides;
                 BluetoothDiscoveryIntervalPreference.class,
                 Collector.class,
                 LazyLoadingStrategyImpl.class,
-                TrackHandler.class
+                TrackHandler.class,
+                UserManager.class,
+                NewDashboardFragment.class
         },
         staticInjections = { Track.class },
         library = true,

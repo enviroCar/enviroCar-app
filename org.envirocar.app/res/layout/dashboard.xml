@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     android:id="@+id/vehicle_view"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:enviroCar="http://envirocar.org"
@@ -7,7 +7,8 @@
     android:layout_height="match_parent"
     android:background="@color/white_cario"
     android:orientation="vertical"
-    android:tag="Dashboard">
+    android:tag="Dashboard"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -37,8 +38,10 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/dashboard_dash"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:paddingTop="40dp"
         android:layout_margin="8dp"
         android:orientation="vertical">
 
@@ -99,8 +102,6 @@
             <org.envirocar.app.views.HalfViewWidthImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-
                 android:contentDescription="@string/Co2emission"
                 android:src="@drawable/phenometer_co2"
                 enviroCar:widthRelatedPredecessingView="@+id/vehicle_view"/>
@@ -128,6 +129,7 @@
 
     <LinearLayout
         android:id="@+id/dashboard_general_info"
+        android:layout_below="@id/dashboard_dash"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="15dp"
@@ -161,4 +163,15 @@
             android:src="@drawable/bt_device_stopped"/>
     </LinearLayout>
 
-</LinearLayout>
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/dashboard_button_start_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="@dimen/spacing_medium"
+        android:src="@drawable/ic_play_arrow_white_24dp"
+        app:elevation="8dp"
+        app:borderWidth="0dp" />
+
+</RelativeLayout>

@@ -20,6 +20,8 @@
  */
 package org.envirocar.app.protocol.algorithm;
 
+import com.google.common.base.Preconditions;
+
 import static org.envirocar.app.storage.Measurement.PropertyKey.CALCULATED_MAF;
 import static org.envirocar.app.storage.Measurement.PropertyKey.MAF;
 
@@ -33,6 +35,7 @@ public class BasicConsumptionAlgorithm extends AbstractConsumptionAlgorithm {
 	private Car car;
 
 	public BasicConsumptionAlgorithm(Car car) {
+		Preconditions.checkNotNull(car, "Input car type can not be null");
 		this.car = car;
 	}
 

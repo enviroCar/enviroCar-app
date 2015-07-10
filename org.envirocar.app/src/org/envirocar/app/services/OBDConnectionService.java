@@ -10,6 +10,8 @@ import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -32,12 +34,14 @@ import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.ConnectionListener;
 import org.envirocar.app.protocol.OBDCommandLooper;
+import org.envirocar.app.view.preferences.PreferenceConstants;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 import javax.inject.Inject;
@@ -70,6 +74,11 @@ public class OBDConnectionService extends Service {
     @Inject
     protected LocationHandler mLocationHandler;
 
+    // Text to speech variables.
+    private TextToSpeech mTTS;
+    private boolean mIsTTSAvailable;
+    private boolean mIsTTSPrefChecked;
+
     // Member fields required for the connection to the OBD device.
     private CommandListener mCommandListener;
     private OBDCommandLooper mOBDCommandLooper;
@@ -78,6 +87,7 @@ public class OBDConnectionService extends Service {
     // Different subscriptions
     private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
     private Subscription mUUIDSubscription;
+    private Subscription mPreferenceSubscription;
 
     // This satellite fix indicates that there is no satellite connection yet.
     private GpsSatelliteFix mCurrentGpsSatelliteFix = new GpsSatelliteFix(0, false);
@@ -92,6 +102,33 @@ public class OBDConnectionService extends Service {
 
         // register on the event bus
         this.mBus.register(this);
+
+        mTTS = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status == TextToSpeech.SUCCESS) {
+                    mIsTTSAvailable = true;
+                    mTTS.setLanguage(Locale.ENGLISH);
+                } else {
+                    LOGGER.warn("TextToSpeech is not available.");
+                }
+            }
+        });
+
+        mIsTTSPrefChecked = PreferenceManager
+                .getDefaultSharedPreferences(getApplicationContext())
+                .getBoolean(PreferenceConstants.PREFERENCE_TAG_TEXT_TO_SPEECH, false);
+
+        mPreferenceSubscription = ContentObservable.fromSharedPreferencesChanges
+                (PreferenceManager.getDefaultSharedPreferences(getApplicationContext()))
+                .filter(prefKey ->
+                        PreferenceConstants.PREFERENCE_TAG_TEXT_TO_SPEECH.equals(prefKey))
+                .subscribe(prefKey -> {
+                    mIsTTSPrefChecked = PreferenceManager
+                            .getDefaultSharedPreferences(getApplicationContext())
+                            .getBoolean(PreferenceConstants.PREFERENCE_TAG_TEXT_TO_SPEECH,
+                                    false);
+                });
     }
 
     @Override
@@ -157,6 +194,9 @@ public class OBDConnectionService extends Service {
         if (mUUIDSubscription != null)
             mUUIDSubscription.unsubscribe();
 
+        if (mPreferenceSubscription != null)
+            mPreferenceSubscription.unsubscribe();
+
         // Stop GPS
         mLocationHandler.stopLocating();
 
@@ -179,9 +219,9 @@ public class OBDConnectionService extends Service {
     }
 
     private void doTextToSpeech(String string) {
-//        if (ttsAvailable) {
-//			tts.speak("enviro car ".concat(string), TextToSpeech.QUEUE_ADD, null);
-//        }
+        if (mIsTTSAvailable && mIsTTSPrefChecked) {
+            mTTS.speak("enviro car ".concat(string), TextToSpeech.QUEUE_ADD, null);
+        }
     }
 
     /**
@@ -207,22 +247,21 @@ public class OBDConnectionService extends Service {
      */
     private Observable<Object> getUUIDs(final BluetoothDevice device) {
         return ContentObservable.fromBroadcast(getApplicationContext(),
-                new IntentFilter(BluetoothDevice.ACTION_UUID))
-                .flatMap(intent -> {
-                            // Get the device and the UUID provided by the incoming intent.
-                            BluetoothDevice deviceExtra = intent
-                                    .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                            Parcelable[] uuidExtra = intent
-                                    .getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID);
+                new IntentFilter(BluetoothDevice.ACTION_UUID)).flatMap(intent -> {
+                    // Get the device and the UUID provided by the incoming intent.
+                    BluetoothDevice deviceExtra = intent
+                            .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    Parcelable[] uuidExtra = intent
+                            .getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID);
 
-                            // If the received broadcast does not belong to this receiver,
-                            // skip it.
-                            if (!deviceExtra.getAddress().equals(device.getAddress()))
-                                return null;
+                    // If the received broadcast does not belong to this receiver,
+                    // skip it.
+                    if (!deviceExtra.getAddress().equals(device.getAddress()))
+                        return null;
 
-                            return transformUUID(uuidExtra);
-                        }
-                );
+                    return transformUUID(uuidExtra);
+                }
+        );
     }
 
     /**
@@ -370,6 +409,8 @@ public class OBDConnectionService extends Service {
             deviceDisconnected();
             return;
         }
+
+        doTextToSpeech("Connection established");
     }
 
     public void deviceDisconnected() {

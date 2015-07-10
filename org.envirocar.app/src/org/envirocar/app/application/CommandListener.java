@@ -296,6 +296,8 @@ public class CommandListener implements Listener, MeasurementListener {
 
     public void shutdown() {
         logger.info("shutting down CommandListener. Hash: " + System.identityHashCode(this));
+        if(!shutdownCompleted)
+            return;
 
         // Unregister from the eventbus.
         mBus.unregister(this);

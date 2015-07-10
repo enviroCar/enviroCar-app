@@ -15,6 +15,8 @@ public interface PreferenceConstants {
     String PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT = "pref_bluetooth_autoconnect";
     String PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL = "pref_bluetooth_discovery_interval";
 
+    String PREFERENCE_TAG_TEXT_TO_SPEECH = "pref_text_to_speech";
+
     int DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL = 60;
     boolean DEFAULT_BLUETOOTH_AUTOCONNECT = false;
 

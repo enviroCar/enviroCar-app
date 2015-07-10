@@ -14,6 +14,7 @@ import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.StartStopButtonUtil;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.TermsOfUseManager;
+import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.fragments.RealDashboardFragment;
 import org.envirocar.app.injection.InjectionActivityScope;
 
@@ -33,7 +34,8 @@ import dagger.Provides;
                 RegisterFragment.class,
                 SettingsActivity.class,
                 StartStopButtonUtil.class,
-                RealDashboardFragment.class
+                RealDashboardFragment.class,
+                UploadManager.class
         },
         addsTo = InjectionApplicationModule.class,
         library = true,

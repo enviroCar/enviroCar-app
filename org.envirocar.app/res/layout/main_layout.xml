@@ -1,38 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
     android:id="@+id/main_layout_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fitsSystemWindows="false"
-    android:orientation="vertical">
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <include
         android:id="@+id/main_layout_toolbar"
         layout="@layout/toolbar_default"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"/>
 
     <android.support.v4.widget.DrawerLayout
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:fitsSystemWindows="false">
 
         <FrameLayout
             android:id="@+id/content_frame"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"/>
 
         <!-- The navigation drawer -->
-        <ListView
-            android:id="@+id/left_drawer"
-            android:layout_width="240dp"
+        <android.support.design.widget.NavigationView
+            android:id="@+id/nav_drawer_navigation_view"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="start"
-            android:background="@color/blue_light_cario"
-            android:cacheColorHint="#00000000"
-            android:choiceMode="singleChoice"
-            android:divider="@android:color/transparent"
-            android:dividerHeight="0dp" />
+            app:headerLayout="@layout/nav_drawer_list_header"
+            app:menu="@menu/menu_nav_drawer"/>
+
+        <!--<ListView-->
+        <!--android:id="@+id/left_drawer"-->
+        <!--android:layout_width="@dimen/nav_drawer_layout_width"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_gravity="start"-->
+        <!--android:background="@color/blue_light_cario"-->
+        <!--android:fitsSystemWindows="true"-->
+        <!--android:cacheColorHint="#00000000"-->
+        <!--android:choiceMode="singleChoice"-->
+        <!--android:divider="@android:color/transparent"-->
+        <!--android:dividerHeight="0dp" />-->
 
     </android.support.v4.widget.DrawerLayout>
 

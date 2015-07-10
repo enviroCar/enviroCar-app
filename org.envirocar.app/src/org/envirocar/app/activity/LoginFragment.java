@@ -328,6 +328,7 @@ public class LoginFragment extends BaseInjectorFragment {
         try {
             User result = mDAOProvider.getUserDAO().getUser(user);
             result.setToken(token);
+            mUserManager.setUser(result);
             return result;
         } catch (UnauthorizedException e1) {
             logger.warn(e1.getMessage(), e1);

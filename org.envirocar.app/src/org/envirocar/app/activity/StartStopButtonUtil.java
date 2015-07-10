@@ -92,7 +92,7 @@ public class StartStopButtonUtil {
         LOGGER.info("updateStartStopButtonOnServiceStateChange called with state: " +
                 serviceState + " / trackMode: " + trackMode +
                 " discovery: " + deviceDiscoveryActive);
-        ;
+
         switch (serviceState) {
             case SERVICE_STOPPED:
                 handleServiceStoppedState(button);
@@ -123,7 +123,7 @@ public class StartStopButtonUtil {
         LOGGER.info("processButtonClick called with state: " + serviceState + " / trackMode: " +
                 trackMode +
                 " discovery: " + deviceDiscoveryActive);
-        ;
+
         switch (serviceState) {
             case SERVICE_STOPPED:
                 processStoppedStateClick(trackModeListener);

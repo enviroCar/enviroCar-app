@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="148dp"
+                android:background="@color/blue_light_cario"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+    <ImageView
+        android:id="@+id/nav_drawer_list_header_avatar"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_margin="@dimen/spacing_large"
+        android:elevation="4dp"
+        tools:src="@drawable/ic_launcher"/>
+
+    <TextView
+        android:id="@+id/nav_drawer_list_header_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/nav_drawer_list_header_email"
+        android:layout_marginLeft="@dimen/spacing_large"
+        android:layout_marginRight="@dimen/spacing_large"
+        android:text="Not Logged In"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
+
+    <TextView
+        android:id="@+id/nav_drawer_list_header_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/spacing_large"
+        android:layout_marginLeft="@dimen/spacing_large"
+        android:layout_marginStart="@dimen/spacing_large"
+        android:text=" "
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
+
+    <!--<ImageButton-->
+        <!--android:id="@+id/nav_drawer_list_header_login"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:src="@drawable/device_access_accounts"-->
+        <!--android:layout_alignParentRight="true"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_margin="@dimen/spacing_large"-->
+        <!--android:elevation="8dp"-->
+        <!--android:background="?selectableItemBackgroundBorderless"/>-->
+
+    <!--<android.support.design.widget.FloatingActionButton-->
+        <!--android:id="@+id/nav_drawer_list_header_action_button"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentRight="true"-->
+        <!--android:layout_margin="8dp"-->
+        <!--android:src="@drawable/av_play"-->
+        <!--app:borderWidth="0dp"-->
+        <!--app:elevation="4dp"/>-->
+
+</RelativeLayout>

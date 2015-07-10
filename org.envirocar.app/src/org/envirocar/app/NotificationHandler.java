@@ -50,6 +50,7 @@ public class NotificationHandler {
     private NotificationManager mNotificationManager;
     private PendingIntent mBaseContentIntent;
     private Map<Class<?>, Integer> mServiceToNotificationID = Maps.newConcurrentMap();
+    private Map<Class<?>, NotificationState> mNotificationStateMap = Maps.newConcurrentMap();
 
     /**
      * Constructor.
@@ -106,6 +107,7 @@ public class NotificationHandler {
     }
 
     public void setNotificationState(Service service, NotificationState state) {
+        LOGGER.info(String.format("setNotificationState(state=%s)", state));
         int notificationID;
         if (!mServiceToNotificationID.containsKey(service.getClass())) {
             notificationID = getNotificationID();
@@ -118,6 +120,7 @@ public class NotificationHandler {
             notificationID = mServiceToNotificationID.get(service.getClass());
         }
 
+        mNotificationStateMap.put(service.getClass(), state);
 
         Notification.Builder builder = new Notification.Builder(mContext);
         builder.setContentTitle(state.getNotificationTitle());
@@ -177,11 +180,31 @@ public class NotificationHandler {
         }
     }
 
+    public NotificationState getCurrentNotificationState(Service service){
+        return mNotificationStateMap.get(service.getClass());
+    }
+
 
     /**
      * Enumeration reflecting the possible states of the application.
      */
     public enum NotificationState implements NotificationContent {
+        NO_CAR_SELECTED{
+            @Override
+            public String getNotificationTitle() {
+                return "No Car Type Selected";
+            }
+
+            @Override
+            public String getNotificationContent() {
+                return "You have not car type selected. Go to the settings and select one.";
+            }
+
+            @Override
+            public boolean isShowingBigText() {
+                return true;
+            }
+        },
         NO_OBD_SELECTED {
             @Override
             public String getNotificationTitle() {
@@ -196,7 +219,7 @@ public class NotificationHandler {
 
             @Override
             public boolean isShowingBigText() {
-                return false;
+                return true;
             }
         },
         UNCONNECTED {

@@ -1,11 +1,13 @@
 package org.envirocar.app.fragments;
 
 import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +18,10 @@ import android.widget.Toast;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
+import org.envirocar.app.activity.SettingsActivity;
+import org.envirocar.app.activity.StartStopButtonUtil;
 import org.envirocar.app.application.CarManager;
 import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.app.bluetooth.event.BluetoothServiceStateChangedEvent;
@@ -83,6 +88,8 @@ public class RealDashboardFragment extends BaseInjectorFragment {
     protected ImageView mCarOkView;
     @InjectView(R.id.connectionStateImage)
     protected ImageView mConnectionStateImage;
+    @InjectView(R.id.dashboard_button_start_stop)
+    protected FloatingActionButton mStartStopButton;
 
 
     private Subscription mPreferenceSubscription;
@@ -95,7 +102,7 @@ public class RealDashboardFragment extends BaseInjectorFragment {
     private int mSpeed;
     private double mCo2;
     private Location mLocation;
-    private BluetoothServiceState mServiceState;
+    private BluetoothServiceState mServiceState = BluetoothServiceState.SERVICE_STOPPED;
 
 
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
@@ -207,10 +214,12 @@ public class RealDashboardFragment extends BaseInjectorFragment {
     @Subscribe
     public void onReceiveGpsSatelliteFixEvent(GpsSatelliteFixEvent event) {
         LOGGER.debug(String.format("Received event: %s", event.toString()));
-        this.mGpsFix = event.mGpsSatelliteFix;
-        if (this.mGpsFix == null || this.mGpsFix.isFix() != mGpsFix.isFix()) {
+        if (this.mGpsFix == null || this.mGpsFix.isFix() != event.mGpsSatelliteFix.isFix()) {
+            this.mGpsFix = event.mGpsSatelliteFix;
             updateGpsStatus();
+            return;
         }
+        this.mGpsFix = event.mGpsSatelliteFix;
     }
 
     @Subscribe
@@ -255,6 +264,33 @@ public class RealDashboardFragment extends BaseInjectorFragment {
         }
     }
 
+    @OnClick(R.id.dashboard_button_start_stop)
+    public void onClickDashboardStartStop() {
+        if (mBluetoothHandler.isBluetoothEnabled()) {
+            if (mCarManager.getCar() == null) {
+                Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
+                startActivity(settingsIntent);
+            } else {
+                    /*
+                     * We are good to go. process the state and stuff
+					 */
+                StartStopButtonUtil.OnTrackModeChangeListener trackModeListener =
+                        new StartStopButtonUtil.OnTrackModeChangeListener() {
+                            @Override
+                            public void onTrackModeChange(int tm) {
+//                                trackMode = tm;
+                            }
+                        };
+//                        mStart
+                StartStopButtonUtil startStopButtonUtil = new
+                        StartStopButtonUtil(getActivity(), BaseMainActivity.TRACK_MODE_SINGLE,
+                        mServiceState, (mServiceState == BluetoothServiceState
+                        .SERVICE_DEVICE_DISCOVERY_PENDING));
+                startStopButtonUtil.processButtonClick(trackModeListener);
+            }
+        }
+    }
+
     private void updateStatusElements() {
         BluetoothDevice device = mBluetoothHandler.getSelectedBluetoothDevice();
         if (device == null) {
@@ -269,6 +305,16 @@ public class RealDashboardFragment extends BaseInjectorFragment {
             mSpeed = 0;
             updateCo2Value();
             updateSpeedValue();
+        }
+
+        if (mServiceState == BluetoothServiceState.SERVICE_STARTED) {
+            mStartStopButton.setEnabled(true);
+            mStartStopButton.setImageResource(R.drawable.ic_stop_white_24dp);
+        } else if (mServiceState == BluetoothServiceState.SERVICE_STARTING) {
+            mStartStopButton.setEnabled(false);
+        } else if (mServiceState == BluetoothServiceState.SERVICE_STOPPED) {
+            mStartStopButton.setEnabled(true);
+            mStartStopButton.setImageResource(R.drawable.ic_play_arrow_white_24dp);
         }
     }
 
@@ -298,6 +344,10 @@ public class RealDashboardFragment extends BaseInjectorFragment {
      * Updates the drawbale of the GpsFix ImageView depending on the current GPSFix.
      */
     private void updateGpsStatus() {
+        if(mGpsFixView == null && mGpsFix == null){
+            return;
+        }
+
         if (mGpsFix.isFix()) {
             mGpsFixView.setImageResource(R.drawable.gps_fix);
         } else {

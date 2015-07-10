@@ -29,11 +29,11 @@ import org.json.JSONObject;
  * 
  */
 public class User {
-
 	private static final String TOU_VERSION = "touVersion";
 	private static final String NAME = "name";
 	private static final String MAIL = "mail";
 	private static final String TOKEN = "token";
+
 	private String username;
 	private String token;
 	private String touVersion;
@@ -50,8 +50,13 @@ public class User {
 	public User(String username, String token) {
 		this.username = username;
 		this.token = token;
-		// TODO write to sharedpreferences
 	}
+
+    public User(String username, String token, String mail){
+        this.username = username;
+        this.token = token;
+        this.mail = mail;
+    }
 
 	/**
 	 * @return the username

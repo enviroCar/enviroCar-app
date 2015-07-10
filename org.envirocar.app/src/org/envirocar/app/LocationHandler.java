@@ -114,13 +114,14 @@ public class LocationHandler {
                     vdop = parseDopString(values[17]);
                 }
 
-                // Only if positional, horitzontal, and vertical DOP is available, then
+                // Only if positional, horizontal, and vertical DOP is available, then
                 // set the DOP accordingly.
-                if (pdop != null || hdop != null || vdop != null)
+                if (pdop != null || hdop != null || vdop != null) {
                     // set the new last GPS dop.
                     mLastGpsDOP = new GpsDOP(pdop, hdop, vdop);
-                // fire an event on the GPS DOP
-                mBus.post(new GpsDOPEvent(pdop, hdop, vdop));
+                    // fire an event on the GPS DOP
+                    mBus.post(new GpsDOPEvent(pdop, hdop, vdop));
+                }
             }
         }
 
@@ -202,21 +203,21 @@ public class LocationHandler {
         mLocationManager.removeNmeaListener(mNmeaListener);
     }
 
-    @Produce
+//    @Produce
     public LocationChangedEvent produceLocationChangedEvent() {
         if (mLastBestLocation == null)
             return null;
         return new LocationChangedEvent(mLastBestLocation);
     }
 
-    @Produce
+//    @Produce
     public GpsDOPEvent produceGpsDOPEvent() {
         if (mLastGpsDOP == null)
             return null;
         return new GpsDOPEvent(mLastGpsDOP);
     }
 
-    @Produce
+//    @Produce
     public GpsSatelliteFixEvent produceGpsSatelliteFixEvent() {
         if (mLastGpsSatelliteFix == null)
             return null;
