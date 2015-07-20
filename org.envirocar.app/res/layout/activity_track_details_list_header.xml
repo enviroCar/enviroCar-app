@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="250dp"/>
+
+    <Space
+        android:id="@+id/activity_track_details_list_header_sticky_placeholder"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"/>
+
+
+    <!--<LinearLayout-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="30dp"-->
+    <!--android:layout_marginTop="250dp"-->
+    <!--android:layout_gravity="top"> &lt;!&ndash; android 2.3.3 compatibility &ndash;&gt;-->
+
+    <!--<Button-->
+    <!--android:id="@+id/aboutButton"-->
+    <!--android:layout_width="0dp"-->
+    <!--android:layout_height="30dp"-->
+    <!--android:layout_weight="1"-->
+    <!--android:padding="2dp"-->
+    <!--android:text="about"-->
+    <!--android:textColor="@android:color/white"-->
+    <!--android:textSize="14sp"-->
+    <!--android:textStyle="bold" />-->
+
+    <!--<Button-->
+    <!--android:id="@+id/postsButton"-->
+    <!--android:layout_width="0dp"-->
+    <!--android:layout_height="30dp"-->
+    <!--android:layout_weight="1"-->
+    <!--android:text="post"-->
+    <!--android:textColor="@android:color/white"-->
+    <!--android:textSize="14sp"-->
+    <!--android:textStyle="bold" />-->
+
+    <!--<Button-->
+    <!--android:id="@+id/picturesButton"-->
+    <!--android:layout_width="0dp"-->
+    <!--android:layout_height="30dp"-->
+    <!--android:layout_weight="1"-->
+    <!--android:text="picturs"-->
+    <!--android:textColor="@android:color/white"-->
+    <!--android:textSize="14sp"-->
+    <!--android:textStyle="bold" />-->
+    <!--</LinearLayout>-->
+
+</LinearLayout>

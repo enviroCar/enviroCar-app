@@ -18,8 +18,8 @@ import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.application.Collector;
 import org.envirocar.app.application.CommandListener;
-import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.fragments.NewDashboardFragment;
+import org.envirocar.app.fragments.NewListFragment;
 import org.envirocar.app.fragments.SettingsFragment;
 import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
@@ -40,6 +40,7 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.view.preferences.SelectBluetoothPreference;
+import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 
 import javax.inject.Singleton;
 
@@ -79,7 +80,9 @@ import dagger.Provides;
                 LazyLoadingStrategyImpl.class,
                 TrackHandler.class,
                 UserManager.class,
-                NewDashboardFragment.class
+                NewDashboardFragment.class,
+                NewListFragment.class,
+                TrackDetailsActivity.class
         },
         staticInjections = { Track.class },
         library = true,

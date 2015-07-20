@@ -52,9 +52,11 @@
     <string name="auto">Auto</string>
     <string name="car2">"Car: "</string>
     <string name="duration">"Duration: "</string>
+    <string name="track_duration">Duration</string>
     <string name="begin">"Begin: "</string>
     <string name="end">"End: "</string>
     <string name="length">"Length: "</string>
+	<string name="distance">Distance</string>
     <string name="Co2emission">"CO\u2082 emission: "</string>
     <string name="consumption">"Consumption: "</string>
     <string name="fuel_cost">"Estimated fuel cost: "</string>
@@ -97,6 +99,7 @@
     <string name="prompt_car_engineDisplacement">Engine displacement (cc)</string>
     <string name="logged_in_as">Signed in as %1$s</string>
     <string name="editName">Edit Name</string>
+    <string name="detailsTrack">Track Details</string>
     <string name="deleteTrack">Delete Track</string>
     <string name="uploadTrack">Upload Track as Open Data</string>
 	<string name="dashboard_sensor_title">Car:</string>

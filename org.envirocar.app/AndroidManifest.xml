@@ -67,15 +67,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.envirocar.app.BaseMainActivity"/>
         </activity>
+        <activity
+            android:name="org.envirocar.app.view.trackdetails.TrackDetailsActivity"
+            android:screenOrientation="portrait" />
 
-
-        <service
-            android:name="org.envirocar.app.application.service.BackgroundServiceImpl"
-            android:exported="false"/>
-
-        <service
-            android:name="org.envirocar.app.application.service.DeviceInRangeService"
-            android:exported="false"/>
 
         <service
             android:name="org.envirocar.app.services.SystemStartupService"

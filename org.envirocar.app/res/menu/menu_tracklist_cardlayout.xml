@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_tracklist_cardlayout_item_details"
+        android:title="@string/detailsTrack" />
+    <item
+        android:id="@+id/menu_tracklist_cardlayout_item_delete"
+        android:title="@string/deleteTrack" />
+    <item
+        android:id="@+id/menu_tracklist_cardlayout_item_upload"
+        android:title="@string/uploadTrack" />
+    <item
+        android:id="@+id/menu_tracklist_cardlayout_item_export"
+        android:title="@string/shareTrack" />
+</menu>

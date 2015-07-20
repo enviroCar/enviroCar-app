@@ -84,8 +84,7 @@
             android:summary="@string/sampling_rate_summary"
             android:title="@string/sampling_rate_title"
             enviroCar:max="15"
-            enviroCar:min="0"
-            />
+            enviroCar:min="0" />
         <CheckBoxPreference
             android:key="pref_pid_supported"
             android:summary="@string/use_pid_supported_summary"

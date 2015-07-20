@@ -2,11 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group
         android:id="@+id/menu_nav_drawer_views">
-        <item
-            android:id="@+id/menu_nav_drawer_dashboard_new"
-            android:icon="@drawable/dashboard"
-            android:title="New Dashboard"
-            android:visible="false"/>
+
         <item
             android:id="@+id/menu_nav_drawer_dashboard"
             android:checkable="true"
@@ -14,9 +10,17 @@
             android:icon="@drawable/dashboard"
             android:title="@string/dashboard"/>
         <item
+            android:id="@+id/menu_nav_drawer_dashboard_new"
+            android:icon="@drawable/dashboard"
+            android:title="New Dashboard"/>
+        <item
             android:id="@+id/menu_nav_drawer_tracklist"
             android:icon="@drawable/device_access_storage"
             android:title="@string/my_tracks"/>
+        <item
+            android:id="@+id/menu_nav_drawer_tracklist_new"
+            android:icon="@drawable/device_access_storage"
+            android:title="Meine Fahrten NEU"/>
         <item
             android:id="@+id/menu_nav_drawer_map"
             android:icon="@drawable/ic_settings"

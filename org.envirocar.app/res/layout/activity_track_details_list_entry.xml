@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="match_parent"
+                    android:layout_height="72dp"
+                    android:background="@color/white_cario"
+                    android:paddingRight="@dimen/activity_horizontal_margin"
+                    android:paddingLeft="@dimen/activity_horizontal_margin"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp">
+
+        <ImageView
+            android:id="@+id/activity_track_details_list_element_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_settings"/>
+
+        <TextView
+            android:id="@+id/activity_track_details_list_element_name"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content"
+            android:paddingRight="72dp"
+            android:layout_alignParentLeft="true"
+            android:text="wrust"
+            android:layout_centerVertical="true"
+            android:textSize="18sp"
+            android:textColor="#ff323232"/>
+
+        <TextView
+            android:id="@+id/activity_track_details_list_element_value"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:text="wurstrack"
+            android:textSize="16sp"
+            android:textColor="#939393"/>
+    </RelativeLayout>
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="match_parent"
+                    android:layout_height="72dp"
+                    android:background="@color/white_cario"
+                    android:paddingRight="@dimen/activity_horizontal_margin"
+                    android:paddingLeft="@dimen/activity_horizontal_margin"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="4dp">
+
+        <ImageView
+            android:id="@+id/activity_track_details_list_element_image2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_settings"/>
+
+        <TextView
+            android:id="@+id/activity_track_details_list_element_name2"
+            android:layout_width="130dp"
+            android:layout_height="wrap_content"
+            android:paddingRight="72dp"
+            android:layout_alignParentLeft="true"
+            android:text="wrust"
+            android:layout_centerVertical="true"
+            android:textSize="18sp"
+            android:textColor="#ff323232"/>
+
+        <TextView
+            android:id="@+id/activity_track_details_list_element_value2"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:text="wurstrack"
+            android:textSize="16sp"
+            android:textColor="#939393"/>
+    </RelativeLayout>
+
+</LinearLayout>

@@ -42,6 +42,7 @@ import org.envirocar.app.bluetooth.event.BluetoothStateChangedEvent;
 import org.envirocar.app.bluetooth.service.BluetoothServiceState;
 import org.envirocar.app.events.NewUserSettingsEvent;
 import org.envirocar.app.fragments.NewDashboardFragment;
+import org.envirocar.app.fragments.NewListFragment;
 import org.envirocar.app.fragments.RealDashboardFragment;
 import org.envirocar.app.fragments.SettingsFragment;
 import org.envirocar.app.injection.BaseInjectorActivity;
@@ -81,20 +82,14 @@ import rx.schedulers.Schedulers;
  * @author dewall
  */
 public class BaseMainActivity extends BaseInjectorActivity {
+    private static final Logger LOGGER = Logger.getLogger(BaseApplication.class);
+
     public static final int TRACK_MODE_SINGLE = 0;
     public static final int TRACK_MODE_AUTO = 1;
     public static final int REQUEST_MY_GARAGE = 1336;
     public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
     private static final String TAG = BaseMainActivity.class.getSimpleName();
-    private static final Logger LOGGER = Logger.getLogger(BaseApplication.class);
-    private static final int DASHBOARD = 0;
-    private static final int LOGIN = 1;
-    private static final int MY_TRACKS = 2;
-    private static final int START_STOP_MEASUREMENT = 3;
-    private static final int SETTINGS = 4;
-    private static final int LOGBOOK = 5;
-    private static final int HELP = 6;
-    private static final int SEND_LOG = 7;
+
 
     private static final String TRACK_MODE = "trackMode";
     private static final String SEEN_ANNOUNCEMENTS = "seenAnnouncements";
@@ -167,6 +162,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         // Register a listener for a menu item that gets selected.
         mNavigationView.setNavigationItemSelectedListener(menuItem -> {
+
             // we want to have shared checked states between different groups. Therefore, we
             // cannot use the provided "single" checkedBehavior. For this reason, it is first
             // required to make the item checkable first.
@@ -453,6 +449,9 @@ public class BaseMainActivity extends BaseInjectorActivity {
             case R.id.menu_nav_drawer_dashboard:
                 fragment = new RealDashboardFragment();
                 break;
+            case R.id.menu_nav_drawer_tracklist_new:
+                fragment = new NewListFragment();
+                break;
             case R.id.menu_nav_drawer_tracklist:
                 fragment = new ListTracksFragment();
                 break;
@@ -522,13 +521,15 @@ public class BaseMainActivity extends BaseInjectorActivity {
     @Subscribe
     public void onReceiveNewUserSettingsEvent(NewUserSettingsEvent event) {
         LOGGER.info(String.format("onReceiveNewUserSettingsEvent(): event=%s", event.toString()));
-        if (event.mIsLoggedIn && event.mUser != null) {
-            mUsernameText.setText(event.mUser.getUsername());
-            mEmailText.setText(event.mUser.getMail());
-        } else {
-            mUsernameText.setText("Not Logged In");
-            mEmailText.setText(" ");
-        }
+        runOnUiThread(() -> {
+            if (event.mIsLoggedIn && event.mUser != null) {
+                mUsernameText.setText(event.mUser.getUsername());
+                mEmailText.setText(event.mUser.getMail());
+            } else {
+                mUsernameText.setText("Not Logged In");
+                mEmailText.setText(" ");
+            }
+        });
     }
 
 

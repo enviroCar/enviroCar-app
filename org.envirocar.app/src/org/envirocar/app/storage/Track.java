@@ -369,6 +369,12 @@ public class Track implements Comparable<Track> {
 	}
 
 	public double getLiterPerHundredKm() throws MeasurementsException {
+		if(consumptionPerHour == null)
+			try {
+				getFuelConsumptionPerHour();
+			} catch (UnsupportedFuelTypeException e) {
+				e.printStackTrace();
+			}
 		return consumptionPerHour * getDurationInMillis() / (1000 * 60 * 60) / getLengthOfTrack() * 100;
 	}
 

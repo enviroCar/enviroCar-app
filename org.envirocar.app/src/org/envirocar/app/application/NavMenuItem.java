@@ -1,6 +1,6 @@
-/* 
+/*
  * enviroCar 2013
- * Copyright (C) 2013  
+ * Copyright (C) 2013
  * Martin Dueren, Jakob Moellers, Gerald Pape, Christopher Stephan
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
- * 
+ *
  */
 
 package org.envirocar.app.application;
@@ -28,31 +28,31 @@ public class NavMenuItem {
 	private String title;
 	private String subtitle;
 	private int iconRes;
-	
+
 	public NavMenuItem(int id, String title, int iconRes){
 		this(id,title,"",iconRes,true);
 	}
-	
+
 	public NavMenuItem(int id, String title, String subtitle, int icon) {
 		this.id = id;
 		this.title = title;
 		this.subtitle = subtitle;
 		this.iconRes = icon;
 	}
-	
+
 	public NavMenuItem(int id,String title, String subtitle, int iconRes, boolean enabled){
 		this(id,title,subtitle,iconRes);
 		setEnabled(enabled);
 	}
-	
+
 	public int getIconRes(){
 		return iconRes;
 	}
-	
+
 	public void setIconRes(int iconRes){
 		this.iconRes = iconRes;
 	}
-	
+
 	public int getId(){
 		return id;
 	}
@@ -80,7 +80,7 @@ public class NavMenuItem {
 	public void setSubtitle(String subtitle) {
 		this.subtitle = subtitle;
 	}
-	
-	
-	
+
+
+
 }
