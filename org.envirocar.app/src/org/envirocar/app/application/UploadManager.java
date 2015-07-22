@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import org.envirocar.app.TrackHandler;
 import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.NotificationHandler;
@@ -83,7 +84,7 @@ public class UploadManager {
     /**
      * Normal constructor for this manager. Specify the context and the dbadapter.
      *
-     * @param ctx The context.
+     * @param ctx the context of the current scope
      */
     public UploadManager(Context ctx) {
         ((Injector) ctx).injectObjects(this);
@@ -97,13 +98,13 @@ public class UploadManager {
     /**
      * This methods uploads all local tracks to the server
      */
-    public void uploadAllTracks(TrackUploadFinishedHandler callback) {
+    public void uploadAllTracks(TrackHandler.TrackUploadCallback callback) {
         for (Track track : mDBAdapter.getAllLocalTracks()) {
             uploadSingleTrack(track, callback);
         }
     }
 
-    public void uploadSingleTrack(final Track track, final TrackUploadFinishedHandler callback) {
+    public void uploadSingleTrack(final Track track, final TrackHandler.TrackUploadCallback callback) {
         if (track == null) return;
 
         DAOProvider.async(new AsyncExecutionWithCallback<String>() {
@@ -111,8 +112,9 @@ public class UploadManager {
             @Override
             public String execute() throws DAOException {
                 Thread.currentThread().setName("TrackUploaderTask-" + track.getTrackId());
-
+                callback.onUploadStarted(track);
                 mNotificationHandler.createNotification("start");
+
 
 				/*
                  * inject track metadata

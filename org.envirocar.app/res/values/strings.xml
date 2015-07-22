@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+	<string name="cancel">Cancel</string>
+
     <string name="app_name">enviroCar</string>
     
     <string name="menu_settings">Settings</string>
@@ -8,7 +10,7 @@
     <string name="menu_about">About</string>
     <string name="menu_send_log">Report Issue</string>
     <string name="menu_garage">My Garage</string>
-    
+
     <string name="activity_checklist_title">Checklist</string>
     <string name="checklist_item_bluetooth_enabled">Bluetooth enabled</string>
     <string name="checklist_item_bluetooth_disabled">Bluetooth not enabled</string>
@@ -247,7 +249,7 @@ If you discover and problems, please send us an error log (-> report problem). T
 	<string name="uploading_track_no_measurements_after_obfuscation">A track to be uploaded did not contain measurements.</string>
 	<string name="server_error_please_try_later">Server Error - Please try again later</string>
 	
-	<string name="terms_of_use_title">Accpt the Terms Of Use?</string>
+	<string name="terms_of_use_title">Accept the Terms Of Use?</string>
 	<string name="terms_of_use_info">Before you proceed, you have to accept our Terms Of Use</string>
 	<string name="terms_of_use_sorry">Sorry to bother you again. We have changed our Terms Of Use</string>
 	<string name="terms_of_use_cant_continue">Before you upload any Track, you have to accept the Terms Of Use</string>
@@ -269,7 +271,7 @@ If you discover and problems, please send us an error log (-> report problem). T
 	<string name="announcement">Announcement</string>
 	<string name="do_not_show_again">Do not show this message again?</string>
 	
-	<string name="ok">OK</string>
+	<string name="ok">Ok</string>
 	<string name="menu_logbook">Logbook</string>
 	
 	<string name="service_state_starting">Establishing connection to OBDII adapter</string>

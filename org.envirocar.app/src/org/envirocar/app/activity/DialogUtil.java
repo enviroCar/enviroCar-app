@@ -166,22 +166,22 @@ public class DialogUtil {
 
 	public static void createTermsOfUseDialog(TermsOfUseInstance current,
 			boolean firstTime, DialogCallback callback,
-			Activity activity) {
-		createTitleMessageDialog(activity.getResources().getString(R.string.terms_of_use_title),
-				createTermsOfUseMarkup(current, firstTime, activity), callback, activity);
+			Context context) {
+		createTitleMessageDialog(context.getResources().getString(R.string.terms_of_use_title),
+				createTermsOfUseMarkup(current, firstTime, context), callback, context);
 	}
 
 
 	private static Spanned createTermsOfUseMarkup(TermsOfUseInstance current,
-			boolean firstTime, Activity activity) {
+			boolean firstTime, Context context) {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("<p>");
 		if (!firstTime) {
-			sb.append(activity.getString(R.string.terms_of_use_sorry));
+			sb.append(context.getString(R.string.terms_of_use_sorry));
 		}
 		else {
-			sb.append(activity.getString(R.string.terms_of_use_info));
+			sb.append(context.getString(R.string.terms_of_use_info));
 		}
 		sb.append(":</p>");
 		sb.append(current.getContents().replace("</li>", "<br/></li>"));

@@ -47,6 +47,7 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.envirocar.app.TrackHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.R;
 import org.envirocar.app.application.ContextInternetAccessProvider;
@@ -392,10 +393,7 @@ public class ListTracksFragment extends BaseInjectorFragment {
 
             // Delete only selected track
             case R.id.deleteTrack:
-            /*
-             * we need to check the database if the track might have
-			 * transisted to a remote track due to uploading
-			 */
+
                 Track dbRefTrack = mDBAdapter.getTrack(track.getTrackId(), true);
                 if (dbRefTrack.isLocalTrack()) {
                     logger.info("deleting item: " + itemSelect);
@@ -514,12 +512,22 @@ public class ListTracksFragment extends BaseInjectorFragment {
      */
     private void uploadTracks(boolean all, Track track) {
 
-        TrackUploadFinishedHandler callback = new TrackUploadFinishedHandler() {
+        TrackHandler.TrackUploadCallback callback = new TrackHandler.TrackUploadCallback() {
+            @Override
+            public void onUploadStarted(Track track) {
+
+            }
+
             @Override
             public void onSuccessfulUpload(Track track) {
                 trackListAdapter.updateTrackGroupView(track);
                 remoteTrackCount.getAndIncrement();
                 updateStatusLayout();
+            }
+
+            @Override
+            public void onError(Track track, String message) {
+
             }
         };
 

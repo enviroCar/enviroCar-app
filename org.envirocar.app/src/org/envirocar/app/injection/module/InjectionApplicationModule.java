@@ -19,7 +19,7 @@ import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.application.Collector;
 import org.envirocar.app.application.CommandListener;
 import org.envirocar.app.fragments.NewDashboardFragment;
-import org.envirocar.app.fragments.NewListFragment;
+import org.envirocar.app.view.tracklist.NewListFragment;
 import org.envirocar.app.fragments.SettingsFragment;
 import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;

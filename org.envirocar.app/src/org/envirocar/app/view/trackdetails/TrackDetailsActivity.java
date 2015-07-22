@@ -1,5 +1,6 @@
 package org.envirocar.app.view.trackdetails;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -58,7 +59,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     private static final String EXTRA_TRACKID = "org.envirocar.app.extraTrackID";
     private static final String EXTRA_TITLE = "org.envirocar.app.extraTitle";
 
-    public static void navigate(AppCompatActivity activity, View transition, int trackID) {
+    public static void navigate(Activity activity, View transition, int trackID) {
         Intent intent = new Intent(activity, TrackDetailsActivity.class);
         intent.putExtra(EXTRA_TRACKID, trackID);
 

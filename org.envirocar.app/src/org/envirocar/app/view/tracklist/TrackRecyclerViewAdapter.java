@@ -1,4 +1,4 @@
-package org.envirocar.app.view.trackdetails;
+package org.envirocar.app.view.tracklist;
 
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -23,6 +23,8 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.view.MapUtils;
+import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -34,11 +36,8 @@ import java.util.TimeZone;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import rx.Observable;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
-import rx.schedulers.Schedulers;
 
 /**
  * @author dewall
@@ -62,20 +61,17 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
 
     private WebSourceTileLayer mOSMSourceLayer;
 
+    private final OnTrackInteractionCallback mTrackInteractionCallback;
+
     /**
      * Constructor.
      *
      * @param tracks the list of tracks to show cards for.
      */
-    public TrackRecyclerViewAdapter(List<Track> tracks) {
-        mTrackDataset = tracks;
-
-        mOSMSourceLayer = new WebSourceTileLayer("openstreetmap", "http://tile" +
-                ".openstreetmap.org/{z}/{x}/{y}.png");
-        mOSMSourceLayer.setName("OpenStreetMap")
-                .setAttribution("OpenStreetMap Contributors")
-                .setMinimumZoomLevel(1)
-                .setMaximumZoomLevel(18);
+    public TrackRecyclerViewAdapter(List<Track> tracks, final OnTrackInteractionCallback callback) {
+        this.mTrackDataset = tracks;
+        this.mTrackInteractionCallback = callback;
+        this.mOSMSourceLayer = MapUtils.getOSMTileLayer();
     }
 
 
@@ -110,6 +106,7 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
         // Initialize the mapView.
         initMapView(holder);
 
+        // Set all the view parameters.
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
@@ -154,13 +151,16 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
 
             switch (item.getItemId()) {
                 case R.id.menu_tracklist_cardlayout_item_details:
-                    navigateDetailsView(holder, track);
+                    mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
                     break;
                 case R.id.menu_tracklist_cardlayout_item_delete:
+                    mTrackInteractionCallback.onDeleteTrackClicked(track);
                     break;
                 case R.id.menu_tracklist_cardlayout_item_export:
+                    mTrackInteractionCallback.onExportTrackClicked(track);
                     break;
                 case R.id.menu_tracklist_cardlayout_item_upload:
+                    mTrackInteractionCallback.onUploadTrackClicked(track);
                     break;
             }
             return false;
@@ -176,9 +176,7 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
     }
 
     /**
-     * Inits the view transition to a {@link TrackDetailsActivity} showing the details for the
-     * given track.
-     *
+
      * @param holder the view holder holding the relevant card sub-views.
      * @param track  the track to show the details for.
      */
@@ -310,6 +308,11 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
         protected ImageButton mInvisMapButton;
 
 
+        /**
+         * Constructor.
+         *
+         * @param itemView the card view of the
+         */
         public TrackCardViewHolder(View itemView) {
             super(itemView);
             this.mItemView = itemView;

@@ -47,6 +47,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:22.1.+'
 
     compile 'com.github.clans:fab:1.5.5'
+    compile 'com.afollestad:material-dialogs:0.7.6.0'
 }
 
 

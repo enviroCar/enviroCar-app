@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="trackviews_delete_track_dialog_headline">Delete Track?</string>
+    <string name="trackviews_delete_track_dialog_content">You are about to delete the track \'%s\'.
+        "\nIt cannot be restored at a later time! Do you want to continue?</string>
+
+    <string name="trackviews_delete_track_snackbar_success">Track has been successfully deleted.</string>
+
+    <string name="trackviews_is_already_uploaded">Track \'%s\' is already uploaded.</string>
+    <string name="trackviews_not_logged_in">Track cannot be uploaded. Please login first.</string>
+    <string name="trackviews_server_error">Server Error - Please try again later</string>
+</resources>
