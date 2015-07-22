@@ -106,18 +106,10 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:elevation="8dp"
-        app:borderWidth="0dp"
-        app:elevation="8dp"
+        android:src="@drawable/ic_add_white_24dp"
         app:layout_anchor="@id/activity_track_details_appbar_layout"
         app:layout_anchorGravity="bottom|right|end"
-        app:pressedTranslationZ="12dp"
-        app:rippleColor="@android:color/white"
-        />
-
-    <android.support.v7.widget.Toolbar
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        ></android.support.v7.widget.Toolbar>
+        app:layout_behavior="org.envirocar.app.view.trackdetails.ScrollAwareBehavior" ></android.support.design.widget.FloatingActionButton>
 
     <!--<com.github.clans.fab.FloatingActionMenu-->
     <!--android:id="@+id/activity_track_details_floating_menu"-->

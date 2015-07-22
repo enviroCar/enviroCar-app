@@ -241,16 +241,10 @@ public final class Tempomat extends FrameLayout {
         }
 
         mCurrentDegree = degree;
-        LOGGER.info("YEAEA " + degree);
         mCurrentSpeed = event.mSpeed;
 
         // Schedule the next rotation to degree.
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                submitRotationToDegree(mCurrentDegree);
-            }
-        });
+        mHandler.post(() -> submitRotationToDegree(mCurrentDegree));
 
     }
 
@@ -407,7 +401,7 @@ public final class Tempomat extends FrameLayout {
         canvas.drawOval(mScaleRect, mScaleTexturePaint);
 
         canvas.save(Canvas.MATRIX_SAVE_FLAG);
-        canvas.rotate(-135f, 0.5f, 0.5f);
+        canvas.rotate(SCALE_LOWEST_DEGREE, 0.5f, 0.5f);
         for (int i = 0; i <= NUM_SPEED_NOTCHES; ++i) {
             if (i % 4 == 0) {
                 float y1 = mScaleRect.top;
@@ -639,7 +633,7 @@ public final class Tempomat extends FrameLayout {
             canvas.save();
             float scale = (float) getWidth();
             canvas.scale(scale, scale);
-            canvas.rotate(-135.0f, 0.5f, 0.5f);
+            canvas.rotate(SCALE_LOWEST_DEGREE, 0.5f, 0.5f);
             canvas.drawPath(mHandPath, mHandPaint);
             canvas.restore();
         }
@@ -652,7 +646,7 @@ public final class Tempomat extends FrameLayout {
         private float finalDegree;
 
         public RotationCandidate(float degree) {
-            if (degree < -135.0f) {
+            if (degree < SCALE_LOWEST_DEGREE) {
                 this.finalDegree = SCALE_MIN_DEGREE;
             } else if (degree > SCALE_MAX_DEGREE) {
                 this.finalDegree = SCALE_MAX_DEGREE;

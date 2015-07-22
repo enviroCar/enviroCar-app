@@ -1,12 +1,12 @@
-package org.envirocar.app.view.preferences;
+package org.envirocar.app.view.trackdetails;
 
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -23,7 +23,6 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -38,6 +37,7 @@ import butterknife.InjectView;
 import rx.Observable;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 /**
@@ -95,90 +95,84 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
     @Override
     public void onBindViewHolder(final TrackRecyclerViewAdapter.TrackCardViewHolder holder,
                                  int position) {
-        final Track track = mTrackDataset.get(position);
+        LOGGER.info("onBindViewHolder()");
 
-        holder.mToolbar.setTitle(track.getName());
+        holder.mToolbar.setTitle("...");
         holder.mConsumption.setText("...");
         holder.mDistance.setText("...");
         holder.mDuration.setText("...");
         holder.mEmission.setText("...");
 
-        // set the date
-        try {
-            String date = UTC_DATE_FORMATTER.format(new Date(
-                    track.getDurationInMillis()));
-            holder.mDuration.setText(date);
-        } catch (MeasurementsException e) {
-            e.printStackTrace();
-        }
+        // First, load the track from the dataset
+        final Track track = mTrackDataset.get(position);
+        holder.mToolbar.setTitle(track.getName());
 
-        // Initialize the MapView and the pathoverlay of the track
-        Observable.just(true)
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .map(aBoolean -> {
-                    initMapView(holder);
-                    initTrackPath(holder, track);
-                    return true;
-                })
-                .subscribe(aBoolean -> LOGGER.info("MapView initialized"));
+        // Initialize the mapView.
+        initMapView(holder);
 
-        // Set the emission
-        Observable.just(true)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .map(aBoolean -> DECIMAL_FORMATTER_TWO.format(track.getCO2Average()))
-                .subscribe(s -> holder.mEmission.setText(s));
-
-        // set the consumption.
-        Observable.just(true)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .map(aBoolean -> {
-                    try {
-                        return DECIMAL_FORMATTER_TWO.format(
-                                track.getFuelConsumptionPerHour());
-                    } catch (UnsupportedFuelTypeException e) {
-                        e.printStackTrace();
-                    }
-                    return null;
-                }).subscribe(consumption -> holder.mConsumption.setText(consumption));
-
-        Observable.just(true)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .map(aBoolean -> DECIMAL_FORMATTER_TWO.format(track.getLengthOfTrack()) + " km")
-                .subscribe(length -> holder.mDistance.setText(length));
-
-
-        holder.mToolbar.inflateMenu(R.menu.menu_tracklist_cardlayout);
-        holder.mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+        new AsyncTask<Void, Void, Void>() {
             @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                LOGGER.info("Item clicked for track " + track.getTrackId());
+            protected Void doInBackground(Void... params) {
+                // Set the trackpath.
+                initTrackPath(holder, track);
 
-                switch (item.getItemId()) {
-                    case R.id.menu_tracklist_cardlayout_item_details:
-                        navigateDetailsView(holder, track);
-                        break;
-                    case R.id.menu_tracklist_cardlayout_item_delete:
-                        break;
-                    case R.id.menu_tracklist_cardlayout_item_export:
-                        break;
-                    case R.id.menu_tracklist_cardlayout_item_upload:
-                        break;
+                // Set the duration text.
+                try {
+                    String date = UTC_DATE_FORMATTER.format(new Date(
+                            track.getDurationInMillis()));
+                    mMainThreadWorker.schedule(() -> holder.mDuration.setText(date));
+                } catch (MeasurementsException e) {
+                    e.printStackTrace();
                 }
-                return false;
+
+                // Set the CO2 average text.
+                String co2 = DECIMAL_FORMATTER_TWO.format(track.getCO2Average());
+                mMainThreadWorker.schedule(() -> holder.mEmission.setText(co2));
+
+                // Set the consumption text.
+                try {
+                    final String consumption = DECIMAL_FORMATTER_TWO.format(
+                            track.getFuelConsumptionPerHour());
+                    mMainThreadWorker.schedule(() -> holder.mConsumption.setText(consumption));
+                } catch (UnsupportedFuelTypeException e) {
+                    e.printStackTrace();
+                }
+
+                // Set the tracklength parameter.
+                String tracklength = String.format("%s km", DECIMAL_FORMATTER_TWO.format(
+                        track.getLengthOfTrack()));
+                mMainThreadWorker.schedule(() -> holder.mDistance.setText(tracklength));
+
+                return null;
             }
+        }.execute();
+
+        // Inflate the menu and set an appropriate OnMenuItemClickListener.
+        holder.mToolbar.inflateMenu(R.menu.menu_tracklist_cardlayout);
+        holder.mToolbar.setOnMenuItemClickListener(item -> {
+            LOGGER.info("Item clicked for track " + track.getTrackId());
+
+            switch (item.getItemId()) {
+                case R.id.menu_tracklist_cardlayout_item_details:
+                    navigateDetailsView(holder, track);
+                    break;
+                case R.id.menu_tracklist_cardlayout_item_delete:
+                    break;
+                case R.id.menu_tracklist_cardlayout_item_export:
+                    break;
+                case R.id.menu_tracklist_cardlayout_item_upload:
+                    break;
+            }
+            return false;
         });
 
-        holder.mInvisMapButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                LOGGER.info("Clicked on the map. Navigate to the details activity");
-                navigateDetailsView(holder, track);
-            }
+        // Initialize the OnClickListener for the invisible button that is overlaid
+        // over the map view.
+        holder.mInvisMapButton.setOnClickListener(v -> {
+            LOGGER.info("Clicked on the map. Navigate to the details activity");
+            navigateDetailsView(holder, track);
         });
+
     }
 
     /**
@@ -186,7 +180,7 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
      * given track.
      *
      * @param holder the view holder holding the relevant card sub-views.
-     * @param track the track to show the details for.
+     * @param track  the track to show the details for.
      */
     private void navigateDetailsView(TrackCardViewHolder holder, Track track) {
         AppCompatActivity activity = (AppCompatActivity) holder.mItemView.getContext();
@@ -280,12 +274,16 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
         // The view bounding box of the pathoverlay
         BoundingBox viewBbox = new BoundingBox(bbox.getLatNorth() + 0.01, bbox.getLonEast()
                 + 0.01, bbox.getLatSouth() - 0.01, bbox.getLonWest() - 0.01);
-        holder.mMapView.zoomToBoundingBox(viewBbox, true);
 
         // The bounding box that limits the scrolling of the mapview.
         BoundingBox scrollableLimit = new BoundingBox(bbox.getLatNorth() + 0.05, bbox.getLonEast()
                 + 0.05, bbox.getLatSouth() - 0.05, bbox.getLonWest() - 0.05);
-        holder.mMapView.setScrollableAreaLimit(scrollableLimit);
+
+        // Set the computed parameters on the main thread.
+        mMainThreadWorker.schedule(() -> {
+            holder.mMapView.zoomToBoundingBox(viewBbox, true);
+            holder.mMapView.setScrollableAreaLimit(scrollableLimit);
+        });
     }
 
 

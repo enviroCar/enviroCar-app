@@ -3,8 +3,8 @@ apply plugin: 'android'
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
 
-    compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'com.android.support:design:22.2.0'
+    compile 'com.android.support:appcompat-v7:22.2.1'
+    compile 'com.android.support:design:22.2.1'
 
     // Dagger dependency injection.
     compile 'com.squareup.dagger:dagger:1.2.2'
@@ -43,8 +43,8 @@ dependencies {
         transitive = true
     }
 
-    compile 'com.android.support:cardview-v7:21.0.+'
-    compile 'com.android.support:recyclerview-v7:21.0.+'
+    compile 'com.android.support:cardview-v7:22.1.+'
+    compile 'com.android.support:recyclerview-v7:22.1.+'
 
     compile 'com.github.clans:fab:1.5.5'
 }

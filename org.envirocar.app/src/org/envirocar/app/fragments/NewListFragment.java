@@ -19,7 +19,7 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.dao.DAOProvider;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.view.preferences.TrackRecyclerViewAdapter;
+import org.envirocar.app.view.trackdetails.TrackRecyclerViewAdapter;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 
 import java.util.ArrayList;

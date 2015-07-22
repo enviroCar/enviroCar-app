@@ -606,14 +606,9 @@ public class DbAdapterImpl implements DbAdapter {
             return Collections.emptyList();
         }
 
-        if (c.getCount() == 0) {
-            logger.warn("The list of measurements for track " + track.getTrackId() + " is empty");
-        }
-
         for (int i = 0; i < c.getCount(); i++) {
 
             Measurement measurement = buildMeasurementFromCursor(track, c);
-            logger.warn("Measurement: " + measurement.toString());
             allMeasurements.add(measurement);
             c.moveToNext();
         }
@@ -625,7 +620,6 @@ public class DbAdapterImpl implements DbAdapter {
 
     @Override
     public Track createNewTrack() {
-        logger.warn("createNewTrack()");
         finishCurrentTrack();
 
         String date = format.format(new Date());
@@ -636,7 +630,6 @@ public class DbAdapterImpl implements DbAdapter {
         track.setDescription(String.format(mContext.getString(R.string.default_track_description)
                 , car != null ? car.getModel() : "null"));
         insertTrack(track);
-        logger.info("createNewTrack: " + track.getName() + "; id: " + track.getTrackId());
         return track;
     }
 
