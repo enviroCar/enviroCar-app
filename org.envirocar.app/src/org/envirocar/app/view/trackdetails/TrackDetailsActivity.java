@@ -216,42 +216,16 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         linePaint.setColor(Color.BLUE);
         linePaint.setStrokeWidth(5);
 
-        PathOverlay pathOverlay = new PathOverlay().setPaint(linePaint);
-        List<Measurement> measurements = track.getMeasurements();
-
-        double maxLatitude = Double.MIN_VALUE;
-        double minLatitude = Double.MAX_VALUE;
-        double maxLongitude = Double.MIN_VALUE;
-        double minLongitude = Double.MAX_VALUE;
-
-        // For each measurement value add the longitude and latitude coordinates as a new
-        // mappoint to the overlay network. In addition, try to find out the maximum and minimum
-        // lon/lat coordinates for the zoom value of the mapview.
-        for (Measurement measurement : measurements) {
-            double latitude = measurement.getLatitude();
-            double longitude = measurement.getLongitude();
-            pathOverlay.addPoint(measurement.getLatitude(), measurement.getLongitude());
-
-            maxLatitude = Math.max(maxLatitude, latitude);
-            minLatitude = Math.min(minLatitude, latitude);
-            maxLongitude = Math.max(maxLongitude, longitude);
-            minLongitude = Math.min(minLongitude, longitude);
-        }
+        TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
+        trackMapOverlay.setPaint(linePaint);
 
         // Adds the path overlay to the mapview.
-        mMapView.getOverlays().add(pathOverlay);
+        mMapView.getOverlays().add(trackMapOverlay);
 
-        // The bounding box of the pathoverlay.
-        BoundingBox bbox = new BoundingBox(maxLatitude, maxLongitude, minLatitude, minLongitude);
+        final BoundingBox viewBbox = trackMapOverlay.getmViewBoundingBox();
+        final BoundingBox scrollableLimit = trackMapOverlay.getScrollableLimitBox();
 
-        // The view bounding box of the pathoverlay
-        BoundingBox viewBbox = new BoundingBox(bbox.getLatNorth() + 0.01, bbox.getLonEast()
-                + 0.01, bbox.getLatSouth() - 0.01, bbox.getLonWest() - 0.01);
         mMapView.zoomToBoundingBox(viewBbox, true);
-
-        // The bounding box that limits the scrolling of the mapview.
-        BoundingBox scrollableLimit = new BoundingBox(bbox.getLatNorth() + 0.05, bbox.getLonEast()
-                + 0.05, bbox.getLatSouth() - 0.05, bbox.getLonWest() - 0.05);
         mMapView.setScrollableAreaLimit(scrollableLimit);
     }
 

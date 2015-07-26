@@ -32,6 +32,8 @@ import org.envirocar.app.model.dao.exception.SensorRetrievalException;
 import org.envirocar.app.model.dao.exception.UnauthorizedException;
 import org.envirocar.app.model.Car;
 
+import rx.Observable;
+
 public interface SensorDAO {
 	
 	/**
@@ -42,6 +44,8 @@ public interface SensorDAO {
 	 * @throws SensorRetrievalException if the data backend cannot be accessed
 	 */
 	public List<Car> getAllSensors() throws SensorRetrievalException;
+
+	public Observable<Car> getSensorObservable() throws SensorRetrievalException;
 
 	/**
 	 * an implementation shall save the given car at the underlying

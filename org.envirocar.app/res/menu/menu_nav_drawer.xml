@@ -14,6 +14,10 @@
             android:icon="@drawable/dashboard"
             android:title="New Dashboard"/>
         <item
+            android:id="@+id/menu_nav_drawer_text"
+            android:icon="@drawable/dashboard"
+            android:title="Startup"/>
+        <item
             android:id="@+id/menu_nav_drawer_tracklist"
             android:icon="@drawable/device_access_storage"
             android:title="@string/my_tracks"/>

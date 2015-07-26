@@ -11,39 +11,97 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_margin="8dp"
-        card_view:cardCornerRadius="6dp"
+        card_view:cardCornerRadius="4dp"
         card_view:cardElevation="6dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <include
                 android:id="@+id/fragment_Tracklist_cardlayout_toolbar"
-                layout="@layout/toolbar_default"/>
+                layout="@layout/toolbar_default"
+                />
 
-            <FrameLayout
+            <TextView
                 android:layout_width="match_parent"
-                android:layout_height="120dp">
+                android:layout_height="wrap_content"
+                android:text="Track 21.07.2015 10:20:28"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingBottom="16dp"
+                android:paddingTop="16dp"
+                android:textSize="18sp"
+                android:visibility="gone"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="150dp">
 
                 <com.mapbox.mapboxsdk.views.MapView
                     android:id="@+id/fragment_tracklist_cardlayout_map"
                     android:layout_width="match_parent"
-                    android:layout_height="120dp"
+                    android:layout_height="match_parent"
                     android:clickable="false"
                     android:transitionName="@string/transition_track_details"/>
 
                 <ImageButton
                     android:id="@+id/fragment_tracklist_cardlayout_invis_mapbutton"
-                    android:elevation="4dp"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@android:color/transparent"/>
+                    android:background="@android:color/transparent"
+                    android:elevation="4dp"/>
 
+            </RelativeLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="8dp">
+
+                <include layout="@layout/activity_track_details_attributes_header"/>
             </FrameLayout>
 
-            <include layout="@layout/activity_track_details_attributes_header" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_margin="1dp"
+                android:background="#3f6f6f6f"
+                android:visibility="gone"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <Button
+                    style="?attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:text="Export"
+                    android:textColor="@color/green_dark_cario"/>
+
+                <Button
+                    style="?attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:text="Upload"
+                    android:textColor="@color/green_dark_cario"/>
+
+                <Button
+                    style="?attr/borderlessButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="8dp"
+                    android:text="Delete"
+                    android:textColor="@color/green_dark_cario"/>
+
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"

@@ -41,6 +41,7 @@ import org.envirocar.app.bluetooth.event.BluetoothStateChangedEvent;
 import org.envirocar.app.bluetooth.service.BluetoothServiceState;
 import org.envirocar.app.events.NewUserSettingsEvent;
 import org.envirocar.app.fragments.NewDashboardFragment;
+import org.envirocar.app.fragments.StartupFragment;
 import org.envirocar.app.view.tracklist.NewListFragment;
 import org.envirocar.app.fragments.RealDashboardFragment;
 import org.envirocar.app.fragments.SettingsFragment;
@@ -448,6 +449,9 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 break;
             case R.id.menu_nav_drawer_tracklist_new:
                 fragment = new NewListFragment();
+                break;
+            case R.id.menu_nav_drawer_text:
+                fragment = new StartupFragment();
                 break;
             case R.id.menu_nav_drawer_tracklist:
                 fragment = new ListTracksFragment();

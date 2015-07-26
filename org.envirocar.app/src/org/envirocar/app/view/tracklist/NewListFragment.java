@@ -73,7 +73,7 @@ public class NewListFragment extends BaseInjectorFragment {
         mRecylcerViewLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mRecylcerViewLayoutManager);
 
-        mRecyclerViewAdapter = new TrackRecyclerViewAdapter(mTrackList,
+        mRecyclerViewAdapter = new TrackCardViewAdapter(mTrackList,
                 mOnTrackInteractionCallback);
         mRecyclerView.setAdapter(mRecyclerViewAdapter);
 

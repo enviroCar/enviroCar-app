@@ -16,6 +16,7 @@ import org.envirocar.app.application.CarManager;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.fragments.RealDashboardFragment;
+import org.envirocar.app.fragments.StartupFragment;
 import org.envirocar.app.injection.InjectionActivityScope;
 import org.envirocar.app.view.preferences.Tempomat;
 
@@ -37,7 +38,8 @@ import dagger.Provides;
                 StartStopButtonUtil.class,
                 RealDashboardFragment.class,
                 UploadManager.class,
-                Tempomat.class
+                Tempomat.class,
+                StartupFragment.class
         },
         addsTo = InjectionApplicationModule.class,
         library = true,

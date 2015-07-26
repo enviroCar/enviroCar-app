@@ -3,7 +3,6 @@ package org.envirocar.app.view.tracklist;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
@@ -24,7 +23,7 @@ import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.view.MapUtils;
-import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
+import org.envirocar.app.view.trackdetails.TrackSpeedMapOverlay;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -42,9 +41,9 @@ import rx.android.schedulers.AndroidSchedulers;
 /**
  * @author dewall
  */
-public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecyclerViewAdapter
+public class TrackCardViewAdapter extends RecyclerView.Adapter<TrackCardViewAdapter
         .TrackCardViewHolder> {
-    private static final Logger LOGGER = Logger.getLogger(TrackRecyclerViewAdapter.class);
+    private static final Logger LOGGER = Logger.getLogger(TrackCardViewAdapter.class);
 
     private static final DecimalFormat DECIMAL_FORMATTER_TWO = new DecimalFormat("#.##");
     private static final DateFormat DATE_FORMAT = DateFormat.getDateTimeInstance();
@@ -68,7 +67,7 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
      *
      * @param tracks the list of tracks to show cards for.
      */
-    public TrackRecyclerViewAdapter(List<Track> tracks, final OnTrackInteractionCallback callback) {
+    public TrackCardViewAdapter(List<Track> tracks, final OnTrackInteractionCallback callback) {
         this.mTrackDataset = tracks;
         this.mTrackInteractionCallback = callback;
         this.mOSMSourceLayer = MapUtils.getOSMTileLayer();
@@ -76,7 +75,7 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
 
 
     @Override
-    public TrackRecyclerViewAdapter.TrackCardViewHolder onCreateViewHolder(
+    public TrackCardViewAdapter.TrackCardViewHolder onCreateViewHolder(
             ViewGroup parent, int viewType) {
 
         // First inflate the view.
@@ -89,7 +88,7 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
 
 
     @Override
-    public void onBindViewHolder(final TrackRecyclerViewAdapter.TrackCardViewHolder holder,
+    public void onBindViewHolder(final TrackCardViewAdapter.TrackCardViewHolder holder,
                                  int position) {
         LOGGER.info("onBindViewHolder()");
 
@@ -170,21 +169,9 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
         // over the map view.
         holder.mInvisMapButton.setOnClickListener(v -> {
             LOGGER.info("Clicked on the map. Navigate to the details activity");
-            navigateDetailsView(holder, track);
+            mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
         });
 
-    }
-
-    /**
-
-     * @param holder the view holder holding the relevant card sub-views.
-     * @param track  the track to show the details for.
-     */
-    private void navigateDetailsView(TrackCardViewHolder holder, Track track) {
-        AppCompatActivity activity = (AppCompatActivity) holder.mItemView.getContext();
-        View mapTransitionView = holder.mMapView;
-        int trackID = (int) track.getTrackId().getId();
-        TrackDetailsActivity.navigate(activity, mapTransitionView, trackID);
     }
 
 
@@ -241,41 +228,12 @@ public class TrackRecyclerViewAdapter extends RecyclerView.Adapter<TrackRecycler
         linePaint.setColor(Color.BLUE);
         linePaint.setStrokeWidth(5);
 
-        PathOverlay pathOverlay = new PathOverlay().setPaint(linePaint);
-        List<Measurement> measurements = track.getMeasurements();
+        TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
+        trackMapOverlay.setPaint(linePaint);;
+        holder.mMapView.getOverlays().add(trackMapOverlay);
 
-        double maxLatitude = Double.MIN_VALUE;
-        double minLatitude = Double.MAX_VALUE;
-        double maxLongitude = Double.MIN_VALUE;
-        double minLongitude = Double.MAX_VALUE;
-
-        // For each measurement value add the longitude and latitude coordinates as a new
-        // mappoint to the overlay network. In addition, try to find out the maximum and minimum
-        // lon/lat coordinates for the zoom value of the mapview.
-        for (Measurement measurement : measurements) {
-            double latitude = measurement.getLatitude();
-            double longitude = measurement.getLongitude();
-            pathOverlay.addPoint(measurement.getLatitude(), measurement.getLongitude());
-
-            maxLatitude = Math.max(maxLatitude, latitude);
-            minLatitude = Math.min(minLatitude, latitude);
-            maxLongitude = Math.max(maxLongitude, longitude);
-            minLongitude = Math.min(minLongitude, longitude);
-        }
-
-        // Adds the path overlay to the mapview.
-        holder.mMapView.getOverlays().add(pathOverlay);
-
-        // The bounding box of the pathoverlay.
-        BoundingBox bbox = new BoundingBox(maxLatitude, maxLongitude, minLatitude, minLongitude);
-
-        // The view bounding box of the pathoverlay
-        BoundingBox viewBbox = new BoundingBox(bbox.getLatNorth() + 0.01, bbox.getLonEast()
-                + 0.01, bbox.getLatSouth() - 0.01, bbox.getLonWest() - 0.01);
-
-        // The bounding box that limits the scrolling of the mapview.
-        BoundingBox scrollableLimit = new BoundingBox(bbox.getLatNorth() + 0.05, bbox.getLonEast()
-                + 0.05, bbox.getLatSouth() - 0.05, bbox.getLonWest() - 0.05);
+        final BoundingBox viewBbox = trackMapOverlay.getmViewBoundingBox();
+        final BoundingBox scrollableLimit = trackMapOverlay.getScrollableLimitBox();
 
         // Set the computed parameters on the main thread.
         mMainThreadWorker.schedule(() -> {

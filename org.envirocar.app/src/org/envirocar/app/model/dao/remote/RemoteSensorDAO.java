@@ -20,10 +20,6 @@
  */
 package org.envirocar.app.model.dao.remote;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Locale;
-
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -32,109 +28,166 @@ import org.apache.http.message.BasicHeader;
 import org.apache.http.protocol.HTTP;
 import org.envirocar.app.ConstantsEnvirocar;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
+import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.Car;
 import org.envirocar.app.model.dao.SensorDAO;
 import org.envirocar.app.model.dao.cache.CacheSensorDAO;
 import org.envirocar.app.model.dao.exception.NotConnectedException;
 import org.envirocar.app.model.dao.exception.ResourceConflictException;
 import org.envirocar.app.model.dao.exception.SensorRetrievalException;
 import org.envirocar.app.model.dao.exception.UnauthorizedException;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.Car;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Locale;
+
+import rx.Observable;
+import rx.functions.Func1;
+
 public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, AuthenticatedDAO {
-	
-	static final Logger logger = Logger.getLogger(RemoteSensorDAO.class);
-	private CacheSensorDAO cache;
 
-	public RemoteSensorDAO(CacheSensorDAO cacheSensorDAO) {
-		this.cache = cacheSensorDAO;
-	}
+    static final Logger logger = Logger.getLogger(RemoteSensorDAO.class);
+    private CacheSensorDAO cache;
 
-	@Override
-	public List<Car> getAllSensors() throws SensorRetrievalException {
-		
-		try {
-			List<JSONObject> parentObject = readRemoteResource("/sensors", true);
-			
-			if (cache != null) {
-				try {
-					cache.storeAllSensors(parentObject);
-				}
-				catch (IOException e) {
-					logger.warn(e.getMessage());
-				}
-			}
-			
-			List<Car> result = null;
-			
-			for (JSONObject jsonObject : parentObject) {
-				if (result == null) {
-					result = Car.fromJsonList(jsonObject);
-				}
-				else {
-					result.addAll(Car.fromJsonList(jsonObject));
-				}
-			}
-			
-			return SensorDAOUtil.sortByManufacturer(result);
-		} catch (IOException e) {
-			logger.warn(e.getMessage());
-			throw new SensorRetrievalException(e);
-		} catch (JSONException e) {
-			logger.warn(e.getMessage());
-			throw new SensorRetrievalException(e);
-		} catch (NotConnectedException e) {
-			throw new SensorRetrievalException(e);
-		} catch (UnauthorizedException e) {
-			throw new SensorRetrievalException(e);
-		}
-	}
+    public RemoteSensorDAO(CacheSensorDAO cacheSensorDAO) {
+        this.cache = cacheSensorDAO;
+    }
 
-	@Override
-	public String saveSensor(Car car) throws NotConnectedException, UnauthorizedException {
-		String sensorString = String
-				.format(Locale.ENGLISH,
-						"{ \"type\": \"%s\", \"properties\": {\"manufacturer\": \"%s\", \"model\": \"%s\", \"fuelType\": \"%s\", \"constructionYear\": %s, \"engineDisplacement\": %s } }",
-						CarSelectionPreference.SENSOR_TYPE, car.getManufacturer(), car.getModel(), car.getFuelType(),
-						car.getConstructionYear(), car.getEngineDisplacement());
-		try {
-			return registerSensor(sensorString);
-		} catch (IOException e) {
-			throw new NotConnectedException(e);
-		} catch (ResourceConflictException e) {
-			throw new NotConnectedException(e);
-		}
-	}
-	
-	private String registerSensor(String sensorString) throws IOException, NotConnectedException, UnauthorizedException, ResourceConflictException {
-		
-		HttpPost postRequest = new HttpPost(
-				ConstantsEnvirocar.BASE_URL+"/sensors");
-		
-		StringEntity se = new StringEntity(sensorString);
-		se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
-		
-		postRequest.setEntity(se);
-		
-		HttpResponse response = super.executePayloadRequest(postRequest);
-		
-		Header[] h = response.getAllHeaders();
+    @Override
+    public List<Car> getAllSensors() throws SensorRetrievalException {
 
-		String location = "";
-		for (int i = 0; i < h.length; i++) {
-			if (h[i].getName().equals("Location")) {
-				location += h[i].getValue();
-				break;
-			}
-		}
-		logger.info("location: "
-				+location);
+        try {
+            List<JSONObject> parentObject = readRemoteResource("/sensors", true);
 
-		return location.substring(
-				location.lastIndexOf("/") + 1,
-				location.length());
-	}
+            if (cache != null) {
+                try {
+                    cache.storeAllSensors(parentObject);
+                } catch (IOException e) {
+                    logger.warn(e.getMessage());
+                }
+            }
+
+            List<Car> result = null;
+
+            for (JSONObject jsonObject : parentObject) {
+                if (result == null) {
+                    result = Car.fromJsonList(jsonObject);
+                } else {
+                    result.addAll(Car.fromJsonList(jsonObject));
+                }
+            }
+
+            return SensorDAOUtil.sortByManufacturer(result);
+        } catch (IOException e) {
+            logger.warn(e.getMessage());
+            throw new SensorRetrievalException(e);
+        } catch (JSONException e) {
+            logger.warn(e.getMessage());
+            throw new SensorRetrievalException(e);
+        } catch (NotConnectedException e) {
+            throw new SensorRetrievalException(e);
+        } catch (UnauthorizedException e) {
+            throw new SensorRetrievalException(e);
+        }
+    }
+
+    @Override
+    public Observable<Car> getSensorObservable() throws SensorRetrievalException {
+        try {
+            List<JSONObject> parentObject = readRemoteResource("/sensors", true);
+            if (cache != null) {
+                try {
+                    cache.storeAllSensors(parentObject);
+                } catch (IOException e) {
+                    logger.warn(e.getMessage());
+                }
+            }
+
+            return Observable.from(parentObject)
+                    .flatMap(jsonObject -> {
+                        try {
+                            return Observable.from(Car.fromJsonList(jsonObject));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            throw new RuntimeException(e);
+                        }
+                    });
+
+        } catch (NotConnectedException e) {
+            e.printStackTrace();
+        } catch (UnauthorizedException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
+//        return readRemoteResourceStream("/sensors", true)
+//                .flatMap(new Func1<JSONObject, Observable<Car>>() {
+//                    @Override
+//                    public Observable<Car> call(JSONObject jsonObject) {
+//                        try {
+//                            return Observable.from(Car.fromJsonList(jsonObject));
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                            throw new RuntimeException(e);
+//                        }
+//                    }
+//                });
+    }
+
+    @Override
+    public String saveSensor(Car car) throws NotConnectedException, UnauthorizedException {
+        String sensorString = String
+                .format(Locale.ENGLISH,
+                        "{ \"type\": \"%s\", \"properties\": {\"manufacturer\": \"%s\", " +
+                                "\"model\": \"%s\", \"fuelType\": \"%s\", \"constructionYear\": " +
+                                "%s, \"engineDisplacement\": %s } }",
+                        CarSelectionPreference.SENSOR_TYPE, car.getManufacturer(), car.getModel()
+                        , car.getFuelType(),
+                        car.getConstructionYear(), car.getEngineDisplacement());
+        try {
+            return registerSensor(sensorString);
+        } catch (IOException e) {
+            throw new NotConnectedException(e);
+        } catch (ResourceConflictException e) {
+            throw new NotConnectedException(e);
+        }
+    }
+
+    private String registerSensor(String sensorString) throws IOException, NotConnectedException,
+            UnauthorizedException, ResourceConflictException {
+
+        HttpPost postRequest = new HttpPost(
+                ConstantsEnvirocar.BASE_URL + "/sensors");
+
+        StringEntity se = new StringEntity(sensorString);
+        se.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+
+        postRequest.setEntity(se);
+
+        HttpResponse response = super.executePayloadRequest(postRequest);
+
+        Header[] h = response.getAllHeaders();
+
+        String location = "";
+        for (int i = 0; i < h.length; i++) {
+            if (h[i].getName().equals("Location")) {
+                location += h[i].getValue();
+                break;
+            }
+        }
+        logger.info("location: "
+                + location);
+
+        return location.substring(
+                location.lastIndexOf("/") + 1,
+                location.length());
+    }
 
 }
