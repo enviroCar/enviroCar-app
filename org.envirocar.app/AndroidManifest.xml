@@ -70,7 +70,9 @@
         <activity
             android:name="org.envirocar.app.view.trackdetails.TrackDetailsActivity"
             android:screenOrientation="portrait" />
-
+        <activity
+            android:name="org.envirocar.app.view.carselection.CarSelectionActivity"
+            android:screenOrientation="portrait" />
 
         <service
             android:name="org.envirocar.app.services.SystemStartupService"

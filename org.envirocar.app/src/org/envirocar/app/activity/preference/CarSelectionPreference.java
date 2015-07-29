@@ -55,8 +55,7 @@ import android.widget.Toast;
 
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.R;
-import org.envirocar.app.activity.SettingsActivity;
-import org.envirocar.app.application.CarManager;
+import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.application.ContextInternetAccessProvider;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.model.dao.DAOProvider;
@@ -97,7 +96,7 @@ public class CarSelectionPreference extends DialogPreference {
     @Inject
     protected DAOProvider mDAOProvider;
     @Inject
-    protected CarManager mCarManager;
+    protected CarPreferenceHandler mCarManager;
 
     //
     private Car car;
@@ -531,8 +530,8 @@ public class CarSelectionPreference extends DialogPreference {
 
     private void persistCar() {
         mCarManager.setCar(car);
-        persistString(serializeCar(car));
-        getSharedPreferences().edit().putInt(SettingsActivity.CAR_HASH_CODE, car.hashCode()).commit();
+//        persistString(serializeCar(car));
+//        getSharedPreferences().edit().putInt(SettingsActivity.CAR_HASH_CODE, car.hashCode()).commit();
 
         runOnUiThread(new Runnable() {
             @Override

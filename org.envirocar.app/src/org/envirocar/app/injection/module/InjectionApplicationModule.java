@@ -19,6 +19,7 @@ import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.application.Collector;
 import org.envirocar.app.application.CommandListener;
 import org.envirocar.app.fragments.NewDashboardFragment;
+import org.envirocar.app.view.carselection.CarSelectionActivity;
 import org.envirocar.app.view.tracklist.NewListFragment;
 import org.envirocar.app.fragments.SettingsFragment;
 import org.envirocar.app.injection.InjectApplicationScope;
@@ -30,7 +31,7 @@ import org.envirocar.app.storage.LazyLoadingStrategyImpl;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.view.preferences.BluetoothDiscoveryIntervalPreference;
 import org.envirocar.app.view.preferences.BluetoothPairingPreference;
-import org.envirocar.app.application.CarManager;
+import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UserManager;
@@ -57,7 +58,7 @@ import dagger.Provides;
 @Module(
         injects = {
                 TermsOfUseManager.class,
-                CarManager.class,
+                CarPreferenceHandler.class,
                 ListTracksFragment.class,
                 LogbookFragment.class,
                 LoginFragment.class,
@@ -82,7 +83,8 @@ import dagger.Provides;
                 UserManager.class,
                 NewDashboardFragment.class,
                 NewListFragment.class,
-                TrackDetailsActivity.class
+                TrackDetailsActivity.class,
+                CarSelectionActivity.class
         },
         staticInjections = { Track.class },
         library = true,
@@ -230,8 +232,8 @@ public class InjectionApplicationModule {
      */
     @Provides
     @Singleton
-    CarManager provideCarManager() {
-        return new CarManager(mAppContext);
+    CarPreferenceHandler provideCarManager() {
+        return new CarPreferenceHandler(mAppContext);
     }
 
     /**

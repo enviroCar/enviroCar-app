@@ -13,7 +13,7 @@ import android.widget.Toast;
 
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.R;
-import org.envirocar.app.application.CarManager;
+import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.model.dao.DAOProvider;
 import org.envirocar.app.model.dao.exception.NotConnectedException;
 import org.envirocar.app.exception.InvalidObjectStateException;
@@ -43,7 +43,7 @@ public class LogbookFragment extends BaseInjectorFragment implements OnClickList
 
     // Injected Variables
     @Inject
-    protected CarManager mCarManager;
+    protected CarPreferenceHandler mCarManager;
     @Inject
     protected DAOProvider mDAOProvider;
 

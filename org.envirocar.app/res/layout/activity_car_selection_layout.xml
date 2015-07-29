@@ -1,52 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
-
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/activity_car_selection_manufacturer_input_layout"
+    <android.support.design.widget.AppBarLayout
+        android:id="@+id/activity_car_selection_layout_appbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <EditText
-            android:id="@+id/activity_car_selection_manufacturer_edit_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/prompt_car_manufacturer"/>
-    </android.support.design.widget.TextInputLayout>
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/activity_car_selection_model_input_layout"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/activity_car_selection_layout_toolbar"
+            style="@style/ToolBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/abc_action_bar_default_height_material"
+            android:background="@color/blue_dark_cario"
+            android:elevation="6dp"
+            android:orientation="vertical"
+            app:layout_scrollFlags="scroll|enterAlways"
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
+    </android.support.design.widget.AppBarLayout>
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <EditText
-            android:id="@+id/activity_car_selection_model_edit_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/prompt_car_model"/>
-    </android.support.design.widget.TextInputLayout>
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/abc_action_bar_default_height_material">
 
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/activity_car_selection_year_input_layout"
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="16dp"
+                android:layout_margin="8dp"
+                android:text="My Cars" />
+
+            <FrameLayout
+                android:layout_width="1dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2 Cars"
+                android:layout_margin="8dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#3f3f3f3f"/>
+
+        <ListView
+            android:id="@+id/activity_car_selection_layout_carlist"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="No Car Selected"
+            android:layout_gravity="center"
+            android:gravity="center"/>
+
+    </LinearLayout>
+
+
+
+    <org.envirocar.app.view.carselection.AnimatedFAB
+        android:id="@+id/fab"
+        style="@style/Widget.enviroCar.Fab"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:elevation="6dp"/>
+
+    <!-- Overlay that dims the screen -->
+    <FrameLayout
+        android:id="@+id/overlay"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <EditText
-            android:id="@+id/activity_car_selection_year_edit_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/prompt_car_constructionYear"/>
-    </android.support.design.widget.TextInputLayout>
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:background="#3f3f3f3f"/>
 
-    <android.support.design.widget.TextInputLayout
-        android:id="@+id/activity_car_selection_engine_input_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <EditText
-            android:id="@+id/activity_car_selection_engine_edit_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/prompt_car_engineDisplacement"/>
-    </android.support.design.widget.TextInputLayout>
+    <include layout="@layout/activity_car_selection_layout_sheet" />
 
-</LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

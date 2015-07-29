@@ -27,7 +27,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import org.envirocar.app.R;
-import org.envirocar.app.application.CarManager;
+import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
@@ -142,7 +142,7 @@ public class DbAdapterImpl implements DbAdapter {
     @InjectApplicationScope
     protected Context mContext;
     @Inject
-    protected CarManager mCarManager;
+    protected CarPreferenceHandler mCarManager;
 
     private TrackId activeTrackReference;
 

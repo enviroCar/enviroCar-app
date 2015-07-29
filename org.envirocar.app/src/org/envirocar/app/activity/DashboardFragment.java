@@ -210,7 +210,7 @@
 //			@Override
 //			public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
 //					String key) {
-//				if (key.equals(SettingsActivity.CAR) || key.equals(SettingsActivity.CAR_HASH_CODE)) {
+//				if (key.equals(SettingsActivity.PREFERENCE_TAG_CAR) || key.equals(SettingsActivity.CAR_HASH_CODE)) {
 //					updateCarStatus();
 //				}
 //				else if (key.equals(SettingsActivity.BLUETOOTH_KEY)) {

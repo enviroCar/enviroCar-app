@@ -63,6 +63,7 @@
                 android:background="#3f6f6f6f"/>
 
             <LinearLayout
+                android:id="@+id/fragment_startup_car_selection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"

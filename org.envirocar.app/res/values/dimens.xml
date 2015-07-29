@@ -7,6 +7,7 @@
     <dimen name="spacing_large">16dp</dimen>
     <dimen name="spacing_xlarge">32dp</dimen>
     <dimen name="spacing_xxlarge">48dp</dimen>
+    <dimen name="spacing_xxxxlarge">72dp</dimen>
 
     <dimen name="nav_drawer_layout_width">320dp</dimen>
 

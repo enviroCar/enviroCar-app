@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Locale;
 
 import rx.Observable;
-import rx.functions.Func1;
+import rx.Subscriber;
 
 public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, AuthenticatedDAO {
 
@@ -95,48 +95,102 @@ public class RemoteSensorDAO extends BaseRemoteDAO implements SensorDAO, Authent
 
     @Override
     public Observable<Car> getSensorObservable() throws SensorRetrievalException {
-        try {
-            List<JSONObject> parentObject = readRemoteResource("/sensors", true);
-            if (cache != null) {
+        return Observable.create(new Observable.OnSubscribe<Car>() {
+            @Override
+            public void call(Subscriber<? super Car> subscriber) {
                 try {
-                    cache.storeAllSensors(parentObject);
+                    List<JSONObject> parentObject = readRemoteResource("/sensors", true);
+                    if (cache != null) {
+                        try {
+                            cache.storeAllSensors(parentObject);
+                        } catch (IOException e) {
+                            logger.warn(e.getMessage());
+                        }
+                    }
+
+
+                    for (JSONObject jsonObject : parentObject) {
+                        List<Car> cars = Car.fromJsonList(jsonObject);
+                        for (Car car : cars) {
+                            if (car != null)
+                                subscriber.onNext(car);
+
+                        }
+                    }
+                    subscriber.onCompleted();
+
+//                    Observable.from(parentObject)
+//                            .flatMap(jsonObject -> {
+//                                try {
+//                                    return Observable.from(Car.fromJsonList(jsonObject));
+//                                } catch (JSONException e) {
+//                                    e.printStackTrace();
+//                                    throw new RuntimeException(e);
+//                                }
+//                            })
+//                            .subscribe(new Observer<Car>() {
+//                                @Override
+//                                public void onCompleted() {
+//                                    subscriber.onCompleted();
+//                                }
+//
+//                                @Override
+//                                public void onError(Throwable e) {
+//                                    subscriber.onError(e);
+//                                }
+//
+//                                @Override
+//                                public void onNext(Car car) {
+//                                    subscriber.onNext(car);
+//                                    Toast.makeText(mContext, "car " + car.getManufacturer(),
+//                                            Toast.LENGTH_SHORT).show();
+//                                }
+//                            });
+
+                } catch (NotConnectedException e) {
+                    e.printStackTrace();
+                } catch (UnauthorizedException e) {
+                    e.printStackTrace();
                 } catch (IOException e) {
-                    logger.warn(e.getMessage());
+                    e.printStackTrace();
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
-
-            return Observable.from(parentObject)
-                    .flatMap(jsonObject -> {
-                        try {
-                            return Observable.from(Car.fromJsonList(jsonObject));
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            throw new RuntimeException(e);
-                        }
-                    });
-
-        } catch (NotConnectedException e) {
-            e.printStackTrace();
-        } catch (UnauthorizedException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-
-//        return readRemoteResourceStream("/sensors", true)
-//                .flatMap(new Func1<JSONObject, Observable<Car>>() {
+        });
+//        Observable.just(true)
+//                .flatMap(new Func1<Boolean, Observable<JSONObject>>() {
 //                    @Override
-//                    public Observable<Car> call(JSONObject jsonObject) {
+//                    public Observable<JSONObject> call(Boolean aBoolean) {
 //                        try {
-//                            return Observable.from(Car.fromJsonList(jsonObject));
+//                            List<JSONObject> parentObject = readRemoteResource("/sensors",
+//                                    aBoolean);
+//                            if (cache != null) {
+//                                try {
+//                                    cache.storeAllSensors(parentObject);
+//                                } catch (IOException e) {
+//                                    logger.warn(e.getMessage());
+//                                }
+//                            }
+//                            return Observable.from(parentObject);
+//                        } catch (NotConnectedException e) {
+//                            e.printStackTrace();
+//                        } catch (UnauthorizedException e) {
+//                            e.printStackTrace();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
 //                        } catch (JSONException e) {
 //                            e.printStackTrace();
-//                            throw new RuntimeException(e);
 //                        }
+//                        return null;
+//                    }
+//                })
+//                .flatMap(jsonObject -> {
+//                    try {
+//                        return Observable.from(Car.fromJsonList(jsonObject));
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                        throw new RuntimeException(e);
 //                    }
 //                });
     }

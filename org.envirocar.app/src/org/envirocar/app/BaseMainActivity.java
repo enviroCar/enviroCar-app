@@ -32,7 +32,7 @@ import org.envirocar.app.activity.LoginFragment;
 import org.envirocar.app.activity.SendLogFileFragment;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.TroubleshootingFragment;
-import org.envirocar.app.application.CarManager;
+import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.bluetooth.BluetoothHandler;
@@ -105,7 +105,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
     @Inject
     protected UserManager mUserManager;
     @Inject
-    protected CarManager mCarManager;
+    protected CarPreferenceHandler mCarManager;
     @Inject
     protected TemporaryFileManager mTemporaryFileManager;
     @Inject
@@ -202,7 +202,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 .observeOn(AndroidSchedulers.mainThread())
                 .filter(prefKey ->
                         PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME.equals(prefKey) ||
-                                PreferenceConstants.CAR.equals(prefKey) ||
+                                PreferenceConstants.PREFERENCE_TAG_CAR.equals(prefKey) ||
                                 PreferenceConstants.CAR_HASH_CODE.equals(prefKey))
                 .subscribe(prefKey -> {
                     // TODO

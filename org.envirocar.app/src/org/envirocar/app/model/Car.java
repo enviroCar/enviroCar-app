@@ -146,7 +146,7 @@ public class Car implements Serializable {
             result = this.fuelType == c.fuelType
                     && this.manufacturer.equals(c.manufacturer)
                     && this.model.equals(c.model)
-                    && this.id.equals(c.id)
+//                    && this.id.equals(c.id)
                     && this.constructionYear == c.constructionYear
                     && this.engineDisplacement == c.engineDisplacement;
         }
@@ -261,4 +261,14 @@ public class Car implements Serializable {
         return result;
     }
 
+    @Override
+    public int hashCode() {
+        int result = fuelType.hashCode();
+        result = 31 * result + manufacturer.hashCode();
+        result = 31 * result + model.hashCode();
+        result = 31 * result + (id != null ? id.hashCode() : 0);
+        result = 31 * result + constructionYear;
+        result = 31 * result + engineDisplacement;
+        return result;
+    }
 }

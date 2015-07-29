@@ -282,7 +282,7 @@
 //                if (key.equals(SettingsActivity.BLUETOOTH_NAME)) {
 //                    updateStartStopButton();
 //                }
-//                if (key.equals(SettingsActivity.CAR) || key.equals(SettingsActivity.CAR_HASH_CODE)) {
+//                if (key.equals(SettingsActivity.PREFERENCE_TAG_CAR) || key.equals(SettingsActivity.CAR_HASH_CODE)) {
 //                    updateStartStopButton();
 //                }
 //            }

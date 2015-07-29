@@ -78,14 +78,13 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     }
 
 
+    @Inject
+    protected DbAdapter mDBAdapter;
+
     @InjectView(R.id.activity_track_details_header_map)
     protected MapView mMapView;
     @InjectView(R.id.activity_track_details_header_toolbar)
     protected Toolbar mToolbar;
-
-    @Inject
-    protected DbAdapter mDBAdapter;
-
     @InjectView(R.id.activity_track_details_attr_description_value)
     protected TextView mDescriptionText;
     @InjectView(R.id.track_details_attributes_header_duration)
@@ -149,6 +148,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
     private void updateStatusBarColor() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // Set the statusbar to be transparent with a grey touch
             getWindow().setStatusBarColor(Color.parseColor("#3f3f3f3f"));
         }
     }

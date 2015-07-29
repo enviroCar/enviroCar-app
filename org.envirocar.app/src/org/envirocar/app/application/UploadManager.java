@@ -77,7 +77,7 @@ public class UploadManager {
     @Inject
     protected NotificationHandler mNotificationHandler;
     @Inject
-    protected CarManager mCarManager;
+    protected CarPreferenceHandler mCarManager;
     @Inject
     protected DAOProvider mDAOProvider;
 

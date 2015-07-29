@@ -31,6 +31,8 @@ import org.envirocar.app.model.Car;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import rx.Observable;
+
 public class CacheSensorDAO extends AbstractCacheDAO implements SensorDAO {
 	
 	private static final Logger logger = Logger.getLogger(CacheSensorDAO.class);
@@ -74,6 +76,11 @@ public class CacheSensorDAO extends AbstractCacheDAO implements SensorDAO {
 			logger.warn(e.getMessage());
 			throw new SensorRetrievalException(e);
 		}
+	}
+
+	@Override
+	public Observable<Car> getSensorObservable() throws SensorRetrievalException {
+		return null;
 	}
 
 	@Override

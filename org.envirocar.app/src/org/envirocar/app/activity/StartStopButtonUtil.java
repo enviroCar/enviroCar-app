@@ -29,7 +29,7 @@ import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.activity.DialogUtil.DialogCallback;
-import org.envirocar.app.application.CarManager;
+import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.application.NavMenuItem;
 import org.envirocar.app.bluetooth.service.BluetoothServiceState;
 import org.envirocar.app.injection.InjectionActivityScope;
@@ -38,9 +38,6 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.services.OBDConnectionService;
 
 import javax.inject.Inject;
-
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
 
 /**
  * Outsource of the start/stop button interaction and content updates.
@@ -56,7 +53,7 @@ public class StartStopButtonUtil {
     @InjectionActivityScope
     protected Context mContext;
     @Inject
-    protected CarManager mCarManager;
+    protected CarPreferenceHandler mCarManager;
     @Inject
     protected TrackHandler mTrackHandler;
 

@@ -5,14 +5,13 @@ import android.app.Activity;
 import android.content.Context;
 
 import org.envirocar.app.BaseMainActivity;
-import org.envirocar.app.TrackHandler;
 import org.envirocar.app.activity.ListTracksFragment;
 import org.envirocar.app.activity.LogbookFragment;
 import org.envirocar.app.activity.LoginFragment;
 import org.envirocar.app.activity.RegisterFragment;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.StartStopButtonUtil;
-import org.envirocar.app.application.CarManager;
+import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.fragments.RealDashboardFragment;
@@ -29,7 +28,7 @@ import dagger.Provides;
         injects = {
                 BaseMainActivity.class,
                 TermsOfUseManager.class,
-                CarManager.class,
+                CarPreferenceHandler.class,
                 ListTracksFragment.class,
                 LogbookFragment.class,
                 LoginFragment.class,

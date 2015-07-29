@@ -102,7 +102,7 @@ public class CommandListener implements Listener, MeasurementListener {
     @Inject
     protected Bus mBus;
     @Inject
-    protected CarManager mCarManager;
+    protected CarPreferenceHandler mCarManager;
     @Inject
     protected DbAdapter mDBAdapter;
 

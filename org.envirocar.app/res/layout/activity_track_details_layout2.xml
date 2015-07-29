@@ -32,6 +32,14 @@
                 android:transitionName="@string/transition_track_details"
                 app:layout_collapseMode="parallax"/>
 
+            <!--TODO-->
+            <!--<LinearLayout-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="50dp"-->
+                <!--android:background="@color/blue_light_cario"-->
+                <!--android:gravity="bottom"-->
+                <!--android:layout_gravity="bottom"></LinearLayout>-->
+
             <android.support.v7.widget.Toolbar
                 android:id="@+id/activity_track_details_header_toolbar"
                 android:layout_width="match_parent"

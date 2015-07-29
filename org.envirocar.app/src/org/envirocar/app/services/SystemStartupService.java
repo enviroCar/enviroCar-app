@@ -17,7 +17,7 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.NotificationHandler;
 import org.envirocar.app.TrackHandler;
-import org.envirocar.app.application.CarManager;
+import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.app.bluetooth.event.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.bluetooth.event.BluetoothStateChangedEvent;
@@ -62,7 +62,7 @@ public class SystemStartupService extends Service {
     @Inject
     protected TrackHandler mTrackHandler;
     @Inject
-    protected CarManager mCarManager;
+    protected CarPreferenceHandler mCarManager;
 
 
     private Scheduler.Worker mWorkerThread = Schedulers.newThread().createWorker();

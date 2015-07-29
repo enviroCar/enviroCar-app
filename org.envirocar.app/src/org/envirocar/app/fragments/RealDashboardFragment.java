@@ -22,7 +22,7 @@ import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.StartStopButtonUtil;
-import org.envirocar.app.application.CarManager;
+import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.app.bluetooth.event.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.bluetooth.obd.events.Co2Event;
@@ -68,7 +68,7 @@ public class RealDashboardFragment extends BaseInjectorFragment {
     @Inject
     protected Bus mBus;
     @Inject
-    protected CarManager mCarManager;
+    protected CarPreferenceHandler mCarManager;
     @Inject
     protected BluetoothHandler mBluetoothHandler;
 
@@ -136,7 +136,7 @@ public class RealDashboardFragment extends BaseInjectorFragment {
                 .getDefaultSharedPreferences(getActivity()))
                 .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
-                .filter(prefKey -> PreferenceConstants.CAR.equals(prefKey) ||
+                .filter(prefKey -> PreferenceConstants.PREFERENCE_TAG_CAR.equals(prefKey) ||
                         PreferenceConstants.CAR_HASH_CODE.equals(prefKey) ||
                         PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_LIST.equals(prefKey))
                 .subscribe(prefKey -> {
