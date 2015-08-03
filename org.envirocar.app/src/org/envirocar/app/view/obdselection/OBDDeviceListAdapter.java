@@ -1,0 +1,190 @@
+package org.envirocar.app.view.obdselection;
+
+import android.bluetooth.BluetoothDevice;
+import android.content.Context;
+import android.support.v7.widget.AppCompatRadioButton;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import org.envirocar.app.R;
+
+import butterknife.ButterKnife;
+import butterknife.InjectView;
+
+/**
+ * @author dewall
+ */
+public class OBDDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
+
+    /**
+     * callback interface for the selection callback.
+     */
+    protected interface OnOBDListActionCallback {
+        /**
+         * Called when a device has been selected as OBD device.
+         *
+         * @param device the selected bluetooth device.
+         */
+        void onOBDDeviceSelected(BluetoothDevice device);
+
+        /**
+         * Called when a device should be deleted.
+         *
+         * @param device the device to delete.
+         */
+        void onDeleteOBDDevice(BluetoothDevice device);
+    }
+
+    private final boolean mIsPairedList;
+    private final OnOBDListActionCallback mCallback;
+
+    private BluetoothDevice mSelectedBluetoothDevice;
+    private AppCompatRadioButton mSelectedRadioButton;
+
+    /**
+     * Constructor.
+     *
+     * @param context    the context of the current scope.
+     * @param pairedList is this a list showing the paired elements?
+     */
+    public OBDDeviceListAdapter(Context context, boolean pairedList) {
+        super(context, -1);
+        mIsPairedList = pairedList;
+        mCallback = null;
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param context    The context of the current scope.
+     * @param pairedList
+     */
+    public OBDDeviceListAdapter(Context context, boolean pairedList, OnOBDListActionCallback
+            callback) {
+        super(context, -1);
+        mIsPairedList = pairedList;
+        mCallback = callback;
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param context       The context of the current scope.
+     * @param pairedList    true if this should show a radio button.
+     * @param defaultDevice The selected
+     */
+    public OBDDeviceListAdapter(Context context, boolean pairedList, OnOBDListActionCallback
+            callback, BluetoothDevice defaultDevice) {
+        this(context, pairedList, callback);
+        mSelectedBluetoothDevice = defaultDevice;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        // Get the item from the given poosition
+        final BluetoothDevice device = getItem(position);
+
+        ViewHolder holder;
+        // Check if an existing view is being reused, otherwise inflate the view
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(R.layout
+                    .activity_obd_selection_layout_paired_list_entry, parent, false);
+            holder = new ViewHolder(convertView);
+
+            // if this list is used for a paired list then we show an addition radio button for
+            // the selection
+            if (mIsPairedList) {
+                holder.mRadioButton.setVisibility(View.VISIBLE);
+            }
+
+            convertView.setTag(holder);
+        } else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+
+        holder.mTextView.setText(device.getName());
+        holder.mRadioButton.setChecked(false);
+
+        // If there exists an already selected bluetooth device and the device of this entry
+        // matches the selected device, then set it to checked.
+        if (mSelectedBluetoothDevice != null) {
+            if (mSelectedBluetoothDevice.getName().equals(device.getName())) {
+                mSelectedRadioButton = holder.mRadioButton;
+                mSelectedRadioButton.setChecked(true);
+                mSelectedBluetoothDevice = device;
+            }
+        }
+
+        holder.mRadioButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mSelectedBluetoothDevice != null && mSelectedBluetoothDevice.getAddress()
+                        .equals(device.getAddress()))
+                    return;
+
+                if (mSelectedRadioButton != null) {
+                    mSelectedRadioButton.setChecked(false);
+                    // Bug. This needs to happen.. dont know why exactly.
+                    notifyDataSetInvalidated();
+                }
+
+                mSelectedRadioButton = holder.mRadioButton;
+                mSelectedRadioButton.setChecked(true);
+                mSelectedBluetoothDevice = device;
+
+                // Callback.
+                mCallback.onOBDDeviceSelected(device);
+            }
+        });
+
+        return convertView;
+    }
+
+    @Override
+    public BluetoothDevice getItem(int position) {
+        return super.getItem(position);
+    }
+
+    /**
+     * @param device
+     */
+    public void setSelectedBluetoothDevice(BluetoothDevice device) {
+        if (mIsPairedList && !mSelectedBluetoothDevice.equals(device)) {
+            mSelectedBluetoothDevice = device;
+            mSelectedRadioButton.setChecked(false);
+            mSelectedRadioButton = null;
+            notifyDataSetInvalidated();
+        }
+    }
+
+    /**
+     * View holder class holding all views of a single row of the adapter.
+     */
+    static class ViewHolder {
+
+        public final View mContentView;
+
+        // All the views of a row to lookup for.
+        @InjectView(R.id.activity_obd_selection_layout_paired_list_entry_image)
+        protected ImageView mImageView;
+        @InjectView(R.id.activity_obd_selection_layout_paired_list_entry_text)
+        protected TextView mTextView;
+        @InjectView(R.id.activity_obd_selection_layout_paired_list_entry_radio)
+        protected AppCompatRadioButton mRadioButton;
+
+        /**
+         * Constructor.
+         *
+         * @param content the parent view of the listrow.
+         */
+        ViewHolder(View content) {
+            this.mContentView = content;
+            // Inject the annotated views.
+            ButterKnife.inject(this, content);
+        }
+    }
+}

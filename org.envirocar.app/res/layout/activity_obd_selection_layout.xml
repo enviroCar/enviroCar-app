@@ -2,32 +2,26 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
-              android:animateLayoutChanges="true"
-              android:minHeight="300dp"
               android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/bluetooth_pairing_preference_toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/blue_dark_cario"
-        android:title="@string/bluetooth_pairing_preference_toolbar_title"/>
+    <include
+        android:id="@+id/activity_obd_selection_layout_toolbar"
+        layout="@layout/toolbar_default" />
 
     <LinearLayout
-        android:id="@+id/bluetooth_pairing_preference_content"
+        android:id="@+id/activity_obd_selection_layout_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:padding="@dimen/spacing_large">
 
         <TextView
-            android:id="@+id/bluetooth_pairing_preference_paired_devices_text"
+            android:id="@+id/activity_obd_selection_layout_paired_devices_text"
             style="@style/Base.TextAppearance.AppCompat.SearchResult.Title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="5dp"
-            android:layout_marginLeft="15dp"
             android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp"
             android:text="Paired Devices"
             android:textColor="@color/blue_dark_cario"
             android:textSize="14sp"
@@ -35,12 +29,11 @@
 
 
         <ListView
-            android:id="@+id/bluetooth_pairing_preference_paired_devices_list"
+            android:id="@+id/activity_obd_selection_layout_paired_devices_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="10dp"/>
+            android:layout_marginBottom="@dimen/spacing_medium"
+            android:choiceMode="singleChoice"/>
 
 
         <LinearLayout
@@ -52,7 +45,7 @@
             android:layout_marginTop="5dp">
 
             <TextView
-                android:id="@+id/bluetooth_pairing_preference_available_devices_text"
+                android:id="@+id/activity_obd_selection_layout_available_devices_text"
                 style="@style/Base.TextAppearance.AppCompat.SearchResult.Title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -63,19 +56,17 @@
 
 
             <ProgressBar
-                android:id="@+id/bluetooth_pairing_preference_search_devices_progressbar"
+                android:id="@+id/activity_obd_selection_layout_search_devices_progressbar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="20dp"
                 android:maxHeight="20dp"
                 android:minHeight="10dp"
                 android:visibility="gone"/>
-
-
         </LinearLayout>
 
         <ListView
-            android:id="@+id/bluetooth_pairing_preference_available_devices_list"
+            android:id="@+id/activity_obd_selection_layout_available_devices_list"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
@@ -85,7 +76,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/bluetooth_pairing_preference_available_devices_info"
+        android:id="@+id/activity_obd_selection_layout_available_devices_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

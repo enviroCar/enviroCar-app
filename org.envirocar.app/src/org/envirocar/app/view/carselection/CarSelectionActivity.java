@@ -2,6 +2,7 @@ package org.envirocar.app.view.carselection;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputLayout;
@@ -20,11 +21,12 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarPreferenceHandler;
+import org.envirocar.app.events.NewCarTypeSelectedEvent;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
@@ -57,10 +59,26 @@ import rx.schedulers.Schedulers;
 public class CarSelectionActivity extends BaseInjectorActivity {
     private static final Logger LOGGER = Logger.getLogger(CarSelectionActivity.class);
 
+    private static final int DURATION_SHEET_ANIMATION = 350;
+
+
+    @InjectView(R.id.activity_car_selection_layout_content)
+    protected View mContentView;
     @InjectView(R.id.activity_car_selection_layout_toolbar)
     protected Toolbar mToolbar;
 
+    @InjectView(R.id.overlay)
+    protected View mOverlay;
+    @InjectView(R.id.activity_car_selection_new_car_sheet)
+    protected View mSheetView;
+    @InjectView(R.id.fab)
+    protected FloatingActionButton mFab;
 
+    @InjectView(R.id.activity_car_selection_layout_carlist)
+    protected ListView mCarListView;
+
+
+    // Views of the sheet view used to add a new car type.
     @InjectView(R.id.activity_car_selection_model_input_layout)
     protected TextInputLayout mModelTextLayout;
     @InjectView(R.id.activity_car_selection_manufacturer_edit_text)
@@ -71,17 +89,6 @@ public class CarSelectionActivity extends BaseInjectorActivity {
     protected AutoCompleteTextView mYearTextView;
     @InjectView(R.id.activity_car_selection_engine_edit_text)
     protected AutoCompleteTextView mEngineTextView;
-
-    @InjectView(R.id.activity_car_selection_layout_carlist)
-    protected ListView mCarListView;
-
-    @InjectView(R.id.overlay)
-    protected View mOverlay;
-    @InjectView(R.id.activity_car_selection_new_car_sheet)
-    protected View mSheetView;
-    @InjectView(R.id.fab)
-    protected AnimatedFAB mFab;
-
     @InjectView(R.id.activity_car_selection_add_car_button)
     protected Button mAddCarButton;
 
@@ -131,13 +138,18 @@ public class CarSelectionActivity extends BaseInjectorActivity {
         mManufacturerTextView.setOnClickListener(v ->
                 mManufacturerTextView.showDropDown());
 
+        // Init the text watcher that are responsible to update the edit text views.
         initTextWatcher();
+
+        // Init the hide keyboard listener. These always hide the keyboard once an item has been
+        // selected in the autocomplete list.
         setupHideKeyboardListener();
         dispatchRemoteSensors();
         setupListView();
 
+        // Set the onClick listener for the FloatingActionButton. When triggered, the sheet view
+        // gets shown.
         mFab.setOnClickListener(v -> animateButton(mFab));
-
     }
 
     @Override
@@ -149,13 +161,11 @@ public class CarSelectionActivity extends BaseInjectorActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        // click on the home button in the toolbar.
         if (item.getItemId() == android.R.id.home) {
-            if (mSheetView.isShown()) {
-                if (mSupportAnimatorReverse != null) {
-                    mSupportAnimatorReverse.start();
-                    mSupportAnimatorReverse = null;
-                }
-            } else {
+            // If the sheet view is visible, then only close the sheet view.
+            // Otherwise, close the activity.
+            if (!closeSheetView()) {
                 finish();
             }
         }
@@ -164,26 +174,66 @@ public class CarSelectionActivity extends BaseInjectorActivity {
 
     @Override
     public void onBackPressed() {
-        if (mSheetView.isShown()) {
-            if (mSupportAnimatorReverse != null) {
-                mSupportAnimatorReverse.start();
-                mSupportAnimatorReverse = null;
-            }
-        } else {
+        // if the sheet view was not visible.
+        if (!closeSheetView()) {
+            // call the super method.
             super.onBackPressed();
         }
     }
 
-    private void setupListView() {
-        List<Car> usedCars = mCarManager.getDeserialzedCars();
-        if (usedCars.size() > 0) {
-            mCarListAdapter = new CarListAdapter(this, usedCars);
-            mCarListView.setAdapter(mCarListAdapter);
-        } else {
-            // show no car selected info.
-            mCarListAdapter = new CarListAdapter(this, Lists.newArrayList());
-            mCarListView.setAdapter(mCarListAdapter);
+    /**
+     * Closes the sheet view if shown.
+     *
+     * @return true if the sheet view as visible and has been
+     */
+    private boolean closeSheetView() {
+        // If the sheet view is visible.
+        if (mSheetView.isShown()) {
+            // and there exist a reverse animation.
+            if (mSupportAnimatorReverse != null) {
+                // Start the animaton.
+                mSupportAnimatorReverse.start();
+                mSupportAnimatorReverse = null;
+            } else {
+                // Otherwise, simply reverse the visibility.
+                mSheetView.setVisibility(View.INVISIBLE);
+                mFab.setVisibility(View.VISIBLE);
+            }
+            return true;
         }
+        // the sheet view was not visible. Therefore, return false.
+        return false;
+    }
+
+    private void setupListView() {
+        Car selectedCar = mCarManager.getCar();
+        List<Car> usedCars = mCarManager.getDeserialzedCars();
+        mCarListAdapter = new CarListAdapter(this, selectedCar, usedCars, new CarListAdapter
+                .OnCarListActionCallback() {
+
+            @Override
+            public void onSelectCar(Car car) {
+                mCarManager.setCar(car);
+                showSnackbar(String.format("%s %s selected as my car",
+                        car.getManufacturer(), car.getModel()));
+            }
+
+            @Override
+            public void onDeleteCar(Car car) {
+                LOGGER.info(String.format("onDeleteCar(%s %s %s %s)", car.getManufacturer(), car
+                        .getModel(), "" + car.getConstructionYear(), "" + car
+                        .getEngineDisplacement()));
+
+                // If the car has been removed successfully...
+                if (mCarManager.removeCar(car)) {
+                    // then remove it from the list and show a snackbar.
+                    mCarListAdapter.removeCarItem(car);
+                    showSnackbar(String.format("%s %s has been deleted!", car
+                            .getManufacturer(), car.getModel()));
+                }
+            }
+        });
+        mCarListView.setAdapter(mCarListAdapter);
 
         mAddCarButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -199,15 +249,19 @@ public class CarSelectionActivity extends BaseInjectorActivity {
                 // When the car has been successfully inserted in the listadapter, then update
                 // the list adapter.
                 if (mCarManager.addCar(car)) {
+                    // Add the car to the adapter and close the sheet view.
                     mCarListAdapter.addCarItem(car);
-                    Snackbar.make(getWindow().getDecorView().findViewById(android.R.id.content),
-                            "Car successfully created!", Snackbar.LENGTH_LONG).show();
+                    closeSheetView();
+
+                    // Schedule a show snackbar runnable when the sheet animation has been finished.
+                    new Handler().postDelayed(() -> showSnackbar("Car successfully created!"),
+                            DURATION_SHEET_ANIMATION);
+                    resetEditTexts();
                 }
                 // Otherwise, when the list already contained the specific car type, then show a
                 // snackbar.
                 else {
-                    Snackbar.make(getWindow().getDecorView().findViewById(android.R.id.content),
-                            "Car is already in the list", Snackbar.LENGTH_LONG).show();
+                    showSnackbar("Car is already in the list");
                 }
             }
         });
@@ -255,8 +309,7 @@ public class CarSelectionActivity extends BaseInjectorActivity {
                         public void onCompleted() {
                             mMainThreadWorker.schedule(() -> {
                                 Toast.makeText(CarSelectionActivity.this, "Received! " +
-                                        mManufacturerNames.size(), Toast
-                                        .LENGTH_SHORT).show();
+                                        mManufacturerNames.size(), Toast.LENGTH_SHORT).show();
                                 mManufacturerNameAdapter = new AutoCompleteArrayAdapter(
                                         CarSelectionActivity.this,
                                         android.R.layout.simple_dropdown_item_1line,
@@ -286,19 +339,29 @@ public class CarSelectionActivity extends BaseInjectorActivity {
 
     private void animateButton(final FloatingActionButton fab) {
 
-//        fab.animate()
-//                .translationXBy(0.5f)
-//                .translationYBy(-0.5f)
-//                .translationX(-mSheetView.getWidth()/2)
-//                .translationY(-mSheetView.getHeight()/2)
-//                .setDuration(300)
-//                .setListener(new AnimatorListenerAdapter() {
-//                    @Override
-//                    public void onAnimationEnd(Animator animation) {
-//                        super.onAnimationEnd(animation);
+        //        fab.animate()
+        //                .translationXBy(0.5f)
+        //                .translationYBy(-0.5f)
+        //                .translationX(-mSheetView.getWidth()/2)
+        //                .translationY(-mSheetView.getHeight()/2)
+        //                .setDuration(300)
+        //                .setListener(new AnimatorListenerAdapter() {
+        //                    @Override
+        //                    public void onAnimationEnd(Animator animation) {
+        //                        super.onAnimationEnd(animation);
         startSheetAnimation((int) fab.getX(), (int) fab.getY(), fab);
-//                    }
-//                });
+        //                    }
+        //                });
+    }
+
+    /**
+     * Resets the edittexts to empty strings.
+     */
+    private void resetEditTexts() {
+        mManufacturerTextView.setText("");
+        mModelTextView.setText("");
+        mYearTextView.setText("");
+        mEngineTextView.setText("");
     }
 
     private void startSheetAnimation(int cx, int cy, final FloatingActionButton fab) {
@@ -312,7 +375,7 @@ public class CarSelectionActivity extends BaseInjectorActivity {
                 cy - fab.getHeight() / 2 - margin / 2, 0,
                 finalRadius);
         animator.setInterpolator(new AccelerateDecelerateInterpolator());
-        animator.setDuration(1000);
+        animator.setDuration(DURATION_SHEET_ANIMATION);
         animator.addListener(new SupportAnimator.AnimatorListener() {
             @Override
             public void onAnimationStart() {
@@ -338,7 +401,7 @@ public class CarSelectionActivity extends BaseInjectorActivity {
         });
 
         mSupportAnimatorReverse = animator.reverse();
-        mSupportAnimatorReverse.setDuration(1000);
+        mSupportAnimatorReverse.setDuration(DURATION_SHEET_ANIMATION);
         mSupportAnimatorReverse.addListener(new SupportAnimator.AnimatorListener() {
             @Override
             public void onAnimationStart() {
@@ -467,10 +530,13 @@ public class CarSelectionActivity extends BaseInjectorActivity {
 
     }
 
-
-    @Override
-    public List<Object> getInjectionModules() {
-        return new ArrayList<>();
+    /**
+     * Creates and shows a snackbar
+     *
+     * @param msg the message that is gonna shown by the snackbar.
+     */
+    private void showSnackbar(String msg) {
+        Snackbar.make(mFab, msg, Snackbar.LENGTH_LONG).show();
     }
 
 
@@ -498,5 +564,4 @@ public class CarSelectionActivity extends BaseInjectorActivity {
             return Math.min(2, super.getCount());
         }
     }
-
 }

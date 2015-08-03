@@ -60,7 +60,6 @@ import dagger.ObjectGraph;
 public class DAOProvider implements Injector, InjectionModuleProvider {
 
     // No injection here.
-    @InjectApplicationScope
     protected Context mAppContext;
 
     // Injected variables
@@ -119,6 +118,7 @@ public class DAOProvider implements Injector, InjectionModuleProvider {
             injectObjects(remoteSensorDAO);
             return remoteSensorDAO;
         }
+
         return cacheSensorDao;
     }
 

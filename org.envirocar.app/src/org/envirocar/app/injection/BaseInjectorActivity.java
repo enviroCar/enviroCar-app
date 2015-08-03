@@ -8,6 +8,7 @@ import com.squareup.otto.Bus;
 
 import org.envirocar.app.logging.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -58,11 +59,13 @@ public abstract class BaseInjectorActivity extends AppCompatActivity implements 
     }
 
     @Override
-    public abstract List<Object> getInjectionModules();
-
-    @Override
     public ObjectGraph getObjectGraph() {
         return mObjectGraph;
+    }
+
+    @Override
+    public List<Object> getInjectionModules() {
+        return new ArrayList<>();
     }
 
     @Override

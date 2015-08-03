@@ -19,6 +19,7 @@
             android:orientation="vertical">
 
             <LinearLayout
+                android:id="@+id/fragment_startup_obd_selection"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="8dp"
@@ -91,6 +92,7 @@
                         android:textSize="12sp"/>
 
                     <TextView
+                        android:id="@+id/fragment_startup_car_selection_text"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"

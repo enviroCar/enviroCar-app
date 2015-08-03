@@ -154,10 +154,12 @@ public class BluetoothHandler {
 
         // Get the preferences of the device.
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-        String deviceName = preferences.getString(PreferenceConstants
-                .PREFERENCE_TAG_BLUETOOTH_NAME, PreferenceConstants.PREFERENCE_TAG_EMPTY);
-        String deviceAddress = preferences.getString(PreferenceConstants
-                .PREFERENCE_TAG_BLUETOOTH_ADDRESS, PreferenceConstants.PREFERENCE_TAG_EMPTY);
+        String deviceName = preferences.getString(
+                PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME,
+                PreferenceConstants.PREFERENCE_TAG_EMPTY);
+        String deviceAddress = preferences.getString(
+                PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_ADDRESS,
+                PreferenceConstants.PREFERENCE_TAG_EMPTY);
 
         // If the device address is not empty and the device is still a paired device, get the
         // corresponding BluetoothDevice and return it.
@@ -170,10 +172,29 @@ public class BluetoothHandler {
 
             // The device is not paired anymore. Therefore, delete everything in the shared
             // preferences related to the preference.
-            preferences.edit().remove(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME)
-                    .remove(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_ADDRESS).commit();
+            setSelectedBluetoothDevice(null);
         }
         return null;
+    }
+
+    public void setSelectedBluetoothDevice(BluetoothDevice selectedDevice){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        preferences.edit()
+                .remove(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME)
+                .remove(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_ADDRESS)
+                .commit();
+
+        if(selectedDevice != null){
+            // Update the shared preference entry for the bluetooth selection tag.
+            boolean success = preferences.edit()
+                    .putString(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME,
+                            selectedDevice.getName())
+                    .putString(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_ADDRESS,
+                            selectedDevice.getAddress())
+                    .commit();
+
+            LOGGER.info("Successfully updated shared preferences? " + success);
+        }
     }
 
     /**

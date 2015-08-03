@@ -20,6 +20,7 @@ import org.envirocar.app.application.Collector;
 import org.envirocar.app.application.CommandListener;
 import org.envirocar.app.fragments.NewDashboardFragment;
 import org.envirocar.app.view.carselection.CarSelectionActivity;
+import org.envirocar.app.view.obdselection.OBDSelectionActivity;
 import org.envirocar.app.view.tracklist.NewListFragment;
 import org.envirocar.app.fragments.SettingsFragment;
 import org.envirocar.app.injection.InjectApplicationScope;
@@ -84,7 +85,8 @@ import dagger.Provides;
                 NewDashboardFragment.class,
                 NewListFragment.class,
                 TrackDetailsActivity.class,
-                CarSelectionActivity.class
+                CarSelectionActivity.class,
+                OBDSelectionActivity.class
         },
         staticInjections = { Track.class },
         library = true,

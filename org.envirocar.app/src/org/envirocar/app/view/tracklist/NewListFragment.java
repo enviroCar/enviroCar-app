@@ -33,6 +33,9 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import rx.Scheduler;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 
 /**
  * @author dewall
@@ -56,6 +59,7 @@ public class NewListFragment extends BaseInjectorFragment {
     protected RecyclerView.Adapter mRecyclerViewAdapter;
     protected RecyclerView.LayoutManager mRecylcerViewLayoutManager;
 
+    private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
     private List<Track> mTrackList = Collections.synchronizedList(new ArrayList<Track>());
 
@@ -158,11 +162,12 @@ public class NewListFragment extends BaseInjectorFragment {
 
                         @Override
                         public void onUploadStarted(Track track) {
-                            mProgressDialog = new MaterialDialog.Builder(getActivity())
+                            mMainThreadWorker.schedule(() ->
+                                    mProgressDialog = new MaterialDialog.Builder(getActivity())
                                     .title("Progress Dialog")
                                     .content("Please wait...")
                                     .progress(true, 0)
-                                    .show();
+                                    .show());
                         }
 
                         @Override
@@ -216,12 +221,12 @@ public class NewListFragment extends BaseInjectorFragment {
             });
 
 
-//            if (mUserManager.isLoggedIn()) {
-//                setProgressStatusText(R.string.fetching_tracks_remote);
-//                downloadTracks();
-//            } else {
-//                updateStatusLayout();
-//            }
+            //            if (mUserManager.isLoggedIn()) {
+            //                setProgressStatusText(R.string.fetching_tracks_remote);
+            //                downloadTracks();
+            //            } else {
+            //                updateStatusLayout();
+            //            }
 
             return null;
         }

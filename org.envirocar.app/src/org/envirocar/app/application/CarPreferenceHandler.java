@@ -51,6 +51,7 @@ import javax.inject.Inject;
 public class CarPreferenceHandler {
     private static final Logger LOGGER = Logger.getLogger(CarPreferenceHandler.class);
 
+    // TODO DELETE.
     public static final String PREF_KEY_CAR_MODEL = "carmodel";
     public static final String PREF_KEY_CAR_MANUFACTURER = "manufacturer";
     public static final String PREF_KEY_CAR_CONSTRUCTION_YEAR = "constructionyear";
@@ -126,6 +127,17 @@ public class CarPreferenceHandler {
     public boolean removeCar(Car car) {
         LOGGER.info(String.format("removeCar(%s %s)", car.getManufacturer(), car.getModel()));
 
+        // If the cartype equals the selected car, then set it to null and fire an event on the
+        // event bus.
+        if (mSelectedCar.equals(car)) {
+            LOGGER.info(String.format("%s %s equals the selected car type.",
+                    car.getManufacturer(), car.getModel()));
+            mSelectedCar = null;
+
+            flushSelectedCarState();
+            mBus.post(new NewCarTypeSelectedEvent(null));
+        }
+
         // Get the serialized car representation
         String serializedCar = CarUtils.serializeCar(car);
 
@@ -143,48 +155,6 @@ public class CarPreferenceHandler {
     }
 
     /**
-     * Stores and updates the current set of serialized car strings in the shared preferences of
-     * the application.
-     */
-    private void flushCarListState() {
-        LOGGER.info("flushCarListState()");
-
-        // First, delete the entry set of serialized car strings. Very important here to note is
-        // that there has to be a commit happen before setting the next string set.
-        boolean deleteSuccess = PreferenceManager.getDefaultSharedPreferences(mContext).edit()
-                .remove(PreferenceConstants.PREFERENCE_TAG_CARS)
-                .commit();
-
-        // then set the new string set.
-        boolean insertSuccess = PreferenceManager.getDefaultSharedPreferences(mContext).edit()
-                .putStringSet(PreferenceConstants.PREFERENCE_TAG_CARS, mSerializedCarStrings)
-                .commit();
-
-        if (deleteSuccess && insertSuccess)
-            LOGGER.info("flushCarListState(): Successfully inserted into shared preferences");
-        else
-            LOGGER.severe("flushCarListState(): Error on insert.");
-    }
-
-    private void flushSelectedCarState() {
-        LOGGER.info("flushSelectedCarState()");
-
-        // Delete the entry of the selected car and its hash code.
-        PreferenceManager.getDefaultSharedPreferences(mContext).edit()
-                .remove(PreferenceConstants.PREFERENCE_TAG_CAR)
-                .remove(PreferenceConstants.CAR_HASH_CODE)
-                .commit();
-
-        // Set the new selected car type and hashcode.
-        PreferenceManager.getDefaultSharedPreferences(mContext)
-                .edit()
-                .putString(PreferenceConstants.PREFERENCE_TAG_CAR,
-                        CarUtils.serializeCar(mSelectedCar))
-                .putInt(PreferenceConstants.CAR_HASH_CODE, mSelectedCar.hashCode())
-                .commit();
-    }
-
-    /**
      * Returns the instance of the current Car
      *
      * @return instance of the selected car.
@@ -198,7 +168,7 @@ public class CarPreferenceHandler {
      */
     public void setCar(Car c) {
         LOGGER.info(String.format("setCar(%s %s)", c.getManufacturer(), c.getModel()));
-        if (c == null || this.mSelectedCar.equals(c)){
+        if (c == null || (mSelectedCar != null && this.mSelectedCar.equals(c))) {
             LOGGER.info("setCar(): car is null or the same as already set");
             return;
         }
@@ -237,6 +207,65 @@ public class CarPreferenceHandler {
      */
     public Set<String> getSerializedCars() {
         return mSerializedCarStrings;
+    }
+
+    /**
+     * Stores and updates the current set of serialized car strings in the shared preferences of
+     * the application.
+     */
+    private void flushCarListState() {
+        LOGGER.info("flushCarListState()");
+
+        // First, delete the entry set of serialized car strings. Very important here to note is
+        // that there has to be a commit happen before setting the next string set.
+        boolean deleteSuccess = PreferenceManager.getDefaultSharedPreferences(mContext).edit()
+                .remove(PreferenceConstants.PREFERENCE_TAG_CARS)
+                .commit();
+
+        // then set the new string set.
+        boolean insertSuccess = PreferenceManager.getDefaultSharedPreferences(mContext).edit()
+                .putStringSet(PreferenceConstants.PREFERENCE_TAG_CARS, mSerializedCarStrings)
+                .commit();
+
+        if (deleteSuccess && insertSuccess)
+            LOGGER.info("flushCarListState(): Successfully inserted into shared preferences");
+        else
+            LOGGER.severe("flushCarListState(): Error on insert.");
+    }
+
+    /**
+     * Stores and updates the currently selected car in the shared preferences of the application.
+     */
+    private void flushSelectedCarState() {
+        LOGGER.info("flushSelectedCarState()");
+
+        // Delete the entry of the selected car and its hash code.
+        boolean deleteSuccess = PreferenceManager.getDefaultSharedPreferences(mContext).edit()
+                .remove(PreferenceConstants.PREFERENCE_TAG_CAR)
+                .remove(PreferenceConstants.CAR_HASH_CODE)
+                .commit();
+
+        if (deleteSuccess)
+            LOGGER.info("flushSelectedCarState(): Successfully deleted from the shared " +
+                    "preferences");
+        else
+            LOGGER.severe("flushSelectedCarState(): Error on delete.");
+
+        if (mSelectedCar != null) {
+            // Set the new selected car type and hashcode.
+            boolean insertSuccess = PreferenceManager.getDefaultSharedPreferences(mContext)
+                    .edit()
+                    .putString(PreferenceConstants.PREFERENCE_TAG_CAR,
+                            CarUtils.serializeCar(mSelectedCar))
+                    .putInt(PreferenceConstants.CAR_HASH_CODE, mSelectedCar.hashCode())
+                    .commit();
+
+            if (insertSuccess)
+                LOGGER.info("flushSelectedCarState(): Successfully inserted into shared " +
+                        "preferences");
+            else
+                LOGGER.severe("flushSelectedCarState(): Error on insert.");
+        }
     }
 
 }

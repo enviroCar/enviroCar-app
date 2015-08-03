@@ -75,7 +75,6 @@ public class BaseApplication extends Application implements Injector, InjectionM
         ACRA.getConfig().setExcludeMatchingSharedPreferencesKeys(SettingsActivity
                 .resolveIndividualKeys());
 
-
         // check if the background service is already running.
         if (!isServiceRunning(SystemStartupService.class)) {
             // Start a new service

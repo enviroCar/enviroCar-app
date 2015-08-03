@@ -23,10 +23,12 @@
     <style name="Widget.enviroCar.Fab" parent="">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:padding">@dimen/spacing_large</item>
+        <item name="android:layout_margin">@dimen/spacing_large</item>
         <item name="android:src">@drawable/ic_add_white_24dp</item>
-        <item name="fabSize">normal</item>
         <item name="borderWidth">0dp</item>
+        <item name="elevation">6dp</item>
+        <item name="pressedTranslationZ">12dp</item>
+        <item name="rippleColor">@android:color/white</item>
     </style>
 
     <style name="Widget.enviroCar.FABSheet" parent="">
