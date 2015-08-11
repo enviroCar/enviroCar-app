@@ -13,8 +13,9 @@ import android.preference.PreferenceManager;
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.bluetooth.event.BluetoothDeviceDiscoveredEvent;
-import org.envirocar.app.bluetooth.event.BluetoothStateChangedEvent;
+import org.envirocar.app.events.bluetooth.BluetoothDeviceDiscoveredEvent;
+import org.envirocar.app.events.bluetooth.BluetoothDeviceSelectedEvent;
+import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
@@ -39,6 +40,20 @@ import rx.functions.Action1;
 public class BluetoothHandler {
     private static final Logger LOGGER = Logger.getLogger(BluetoothHandler.class);
 
+
+    // Injected variables.
+    @Inject
+    @InjectApplicationScope
+    protected Context mContext;
+
+    @Inject
+    protected Bus mBus;
+
+    private Subscription mDiscoverySubscription;
+    private boolean mIsAutoconnecting;
+
+    // The bluetooth adapter
+    private final BluetoothAdapter mBluetoothAdapter;
     protected final BroadcastReceiver mBluetoothStateChangedReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -88,21 +103,6 @@ public class BluetoothHandler {
         }
     };
 
-    // Injected variables.
-    @Inject
-    @InjectApplicationScope
-    protected Context mContext;
-    @Inject
-    protected Bus mBus;
-
-
-    private Subscription mDiscoverySubscription;
-    private boolean mIsAutoconnecting;
-
-
-    // The bluetooth adapter
-    private final BluetoothAdapter mBluetoothAdapter;
-
 
     /**
      * Constructor
@@ -129,15 +129,15 @@ public class BluetoothHandler {
      */
     public void startOBDConnectionService() {
         if (!ServiceUtils.isServiceRunning(mContext, OBDConnectionService.class))
-            mContext.getApplicationContext().startService(
-                    new Intent(mContext, OBDConnectionService.class));
+            mContext.getApplicationContext()
+                    .startService(new Intent(mContext, OBDConnectionService.class));
     }
 
 
     public void stopOBDConnectionService() {
         if (ServiceUtils.isServiceRunning(mContext, OBDConnectionService.class))
-            mContext.getApplicationContext().stopService(new Intent(mContext,
-                    OBDConnectionService.class));
+            mContext.getApplicationContext()
+                    .stopService(new Intent(mContext, OBDConnectionService.class));
     }
 
 
@@ -177,24 +177,29 @@ public class BluetoothHandler {
         return null;
     }
 
-    public void setSelectedBluetoothDevice(BluetoothDevice selectedDevice){
+    public void setSelectedBluetoothDevice(BluetoothDevice selectedDevice) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
-        preferences.edit()
+
+        boolean success = preferences.edit()
                 .remove(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME)
                 .remove(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_ADDRESS)
                 .commit();
 
-        if(selectedDevice != null){
+        if (selectedDevice != null) {
             // Update the shared preference entry for the bluetooth selection tag.
-            boolean success = preferences.edit()
+            success &= preferences.edit()
                     .putString(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME,
                             selectedDevice.getName())
                     .putString(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_ADDRESS,
                             selectedDevice.getAddress())
                     .commit();
-
-            LOGGER.info("Successfully updated shared preferences? " + success);
         }
+
+        if (success){
+            LOGGER.info("Successfully updated shared preferences");
+            mBus.post(new BluetoothDeviceSelectedEvent(selectedDevice));
+        }
+
     }
 
     /**

@@ -25,6 +25,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarPreferenceHandler;
@@ -369,9 +370,10 @@ public class DbAdapterImpl implements DbAdapter {
     }
 
     private Car createCarFromCursor(Cursor c) {
+        Log.e("tag", "" + c.getString(c.getColumnIndex(KEY_TRACK_CAR_MANUFACTURER)) + " " + c.getString(c.getColumnIndex(KEY_TRACK_CAR_ID)));
         if (c.getString(c.getColumnIndex(KEY_TRACK_CAR_MANUFACTURER)) == null ||
                 c.getString(c.getColumnIndex(KEY_TRACK_CAR_MODEL)) == null ||
-                c.getString(c.getColumnIndex(KEY_TRACK_CAR_ID)) == null ||
+//                c.getString(c.getColumnIndex(KEY_TRACK_CAR_ID)) == null ||
                 c.getString(c.getColumnIndex(KEY_TRACK_CAR_YEAR)) == null ||
                 c.getString(c.getColumnIndex(KEY_TRACK_CAR_FUEL_TYPE)) == null ||
                 c.getString(c.getColumnIndex(KEY_TRACK_CAR_ENGINE_DISPLACEMENT)) == null) {

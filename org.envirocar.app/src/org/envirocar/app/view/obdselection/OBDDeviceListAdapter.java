@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -99,6 +100,7 @@ public class OBDDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
             // the selection
             if (mIsPairedList) {
                 holder.mRadioButton.setVisibility(View.VISIBLE);
+                holder.mDeleteButton.setVisibility(View.VISIBLE);
             }
 
             convertView.setTag(holder);
@@ -119,26 +121,28 @@ public class OBDDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
             }
         }
 
-        holder.mRadioButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mSelectedBluetoothDevice != null && mSelectedBluetoothDevice.getAddress()
-                        .equals(device.getAddress()))
-                    return;
+        holder.mDeleteButton.setOnClickListener(v -> mCallback.onDeleteOBDDevice(device));
 
-                if (mSelectedRadioButton != null) {
-                    mSelectedRadioButton.setChecked(false);
-                    // Bug. This needs to happen.. dont know why exactly.
-                    notifyDataSetInvalidated();
-                }
+        // Set the radiobutton on click listener.
+        holder.mRadioButton.setOnClickListener(v -> {
+            // When the clicked radio button corresponds to the bluetooth device that is
+            // already selected, then do nothing.
+            if (mSelectedBluetoothDevice != null && mSelectedBluetoothDevice.getAddress()
+                    .equals(device.getAddress()))
+                return;
 
-                mSelectedRadioButton = holder.mRadioButton;
-                mSelectedRadioButton.setChecked(true);
-                mSelectedBluetoothDevice = device;
-
-                // Callback.
-                mCallback.onOBDDeviceSelected(device);
+            if (mSelectedRadioButton != null) {
+                mSelectedRadioButton.setChecked(false);
+                // Bug. This needs to happen.. dont know why exactly.
+                notifyDataSetInvalidated();
             }
+
+            mSelectedRadioButton = holder.mRadioButton;
+            mSelectedRadioButton.setChecked(true);
+            mSelectedBluetoothDevice = device;
+
+            // Callback.
+            mCallback.onOBDDeviceSelected(device);
         });
 
         return convertView;
@@ -162,6 +166,20 @@ public class OBDDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
     }
 
     /**
+     * Checks if a given device is already in this adapter.
+     *
+     * @param device the device to check if it is in the adapter.
+     * @return true if the device is in this adapter.
+     */
+    public boolean contains(BluetoothDevice device) {
+        for (int i = 0, size = getCount(); i != size; i++) {
+            if (getItem(i).equals(device))
+                return true;
+        }
+        return false;
+    }
+
+    /**
      * View holder class holding all views of a single row of the adapter.
      */
     static class ViewHolder {
@@ -173,6 +191,8 @@ public class OBDDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
         protected ImageView mImageView;
         @InjectView(R.id.activity_obd_selection_layout_paired_list_entry_text)
         protected TextView mTextView;
+        @InjectView(R.id.activity_obd_selection_layout_paired_list_entry_delete)
+        protected ImageButton mDeleteButton;
         @InjectView(R.id.activity_obd_selection_layout_paired_list_entry_radio)
         protected AppCompatRadioButton mRadioButton;
 

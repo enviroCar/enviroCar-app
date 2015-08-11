@@ -12,37 +12,42 @@ import org.envirocar.app.NotificationHandler;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.activity.ListTracksFragment;
 import org.envirocar.app.activity.LogbookFragment;
-import org.envirocar.app.activity.LoginFragment;
-import org.envirocar.app.activity.RegisterFragment;
+import org.envirocar.app.view.LoginFragment;
+import org.envirocar.app.view.RegisterFragment;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
+import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.application.Collector;
 import org.envirocar.app.application.CommandListener;
-import org.envirocar.app.fragments.NewDashboardFragment;
-import org.envirocar.app.view.carselection.CarSelectionActivity;
-import org.envirocar.app.view.obdselection.OBDSelectionActivity;
-import org.envirocar.app.view.tracklist.NewListFragment;
-import org.envirocar.app.fragments.SettingsFragment;
-import org.envirocar.app.injection.InjectApplicationScope;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.services.OBDConnectionService;
-import org.envirocar.app.services.SystemStartupService;
-import org.envirocar.app.storage.LazyLoadingStrategy;
-import org.envirocar.app.storage.LazyLoadingStrategyImpl;
-import org.envirocar.app.storage.Track;
-import org.envirocar.app.view.preferences.BluetoothDiscoveryIntervalPreference;
-import org.envirocar.app.view.preferences.BluetoothPairingPreference;
-import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.model.dao.DAOProvider;
+import org.envirocar.app.view.dashboard.DashboardTempomatFragment;
+import org.envirocar.app.view.SettingsFragment;
+import org.envirocar.app.injection.InjectApplicationScope;
+import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.dao.DAOProvider;
+import org.envirocar.app.services.OBDConnectionService;
+import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
+import org.envirocar.app.storage.LazyLoadingStrategy;
+import org.envirocar.app.storage.LazyLoadingStrategyImpl;
+import org.envirocar.app.storage.Track;
+import org.envirocar.app.view.carselection.CarSelectionActivity;
+import org.envirocar.app.view.dashboard.DashboardMapFragment;
+import org.envirocar.app.view.dashboard.DashboardTrackDetailsFragment;
+import org.envirocar.app.view.dashboard.DashboardTrackMapFragment;
+import org.envirocar.app.view.dashboard.DashboardTrackSettingsFragment;
+import org.envirocar.app.view.obdselection.OBDSelectionActivity;
+import org.envirocar.app.view.obdselection.OBDSelectionFragment;
+import org.envirocar.app.view.preferences.BluetoothDiscoveryIntervalPreference;
+import org.envirocar.app.view.preferences.BluetoothPairingPreference;
 import org.envirocar.app.view.preferences.SelectBluetoothPreference;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
+import org.envirocar.app.view.tracklist.NewListFragment;
 
 import javax.inject.Singleton;
 
@@ -52,7 +57,6 @@ import dagger.Provides;
 /**
  * A module for application-specific dependencies which require a Application-
  * {@link android.content.Context} or to create. This includes specific Bus-dependencies.
- *
  *
  * @author dewall
  */
@@ -82,13 +86,18 @@ import dagger.Provides;
                 LazyLoadingStrategyImpl.class,
                 TrackHandler.class,
                 UserManager.class,
-                NewDashboardFragment.class,
                 NewListFragment.class,
                 TrackDetailsActivity.class,
                 CarSelectionActivity.class,
-                OBDSelectionActivity.class
+                OBDSelectionActivity.class,
+                DashboardTrackDetailsFragment.class,
+                DashboardTempomatFragment.class,
+                DashboardTrackSettingsFragment.class,
+                DashboardMapFragment.class,
+                OBDSelectionFragment.class,
+                DashboardTrackMapFragment.class
         },
-        staticInjections = { Track.class },
+        staticInjections = {Track.class},
         library = true,
         complete = false
 )
@@ -101,7 +110,7 @@ public class InjectionApplicationModule {
     /**
      * Constructor.
      *
-     * @param application   the current application.
+     * @param application the current application.
      */
     public InjectionApplicationModule(Application application) {
         this.mApplication = application;
@@ -251,7 +260,7 @@ public class InjectionApplicationModule {
 
     @Provides
     @Singleton
-    BluetoothHandler provideBluetoothHandler(){
+    BluetoothHandler provideBluetoothHandler() {
         return new BluetoothHandler(mAppContext);
     }
 
@@ -262,7 +271,7 @@ public class InjectionApplicationModule {
      */
     @Provides
     @Singleton
-    LocationHandler provideLocationHandler(){
+    LocationHandler provideLocationHandler() {
         return new LocationHandler(mAppContext);
     }
 
@@ -279,7 +288,7 @@ public class InjectionApplicationModule {
 
     @Provides
     @Singleton
-    TrackHandler provideTrackHandler(){
+    TrackHandler provideTrackHandler() {
         return new TrackHandler(mAppContext);
     }
 }

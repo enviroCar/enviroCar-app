@@ -131,7 +131,7 @@ public class CarListAdapter extends ArrayAdapter<Car> {
                 .itemsCallback((materialDialog, view, i, charSequence) -> {
                     switch (i) {
                         case 0:
-                            if(mSelectedCar.equals(car))
+                            if(car.equals(mSelectedCar))
                                 return;
 
                             // Uncheck the currently checked car.

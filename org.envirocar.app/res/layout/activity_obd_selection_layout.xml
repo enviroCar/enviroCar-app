@@ -1,87 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical">
 
     <include
         android:id="@+id/activity_obd_selection_layout_toolbar"
-        layout="@layout/toolbar_default" />
+        layout="@layout/toolbar_default"/>
 
-    <LinearLayout
-        android:id="@+id/activity_obd_selection_layout_content"
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/activity_obd_selection_layout_enablebt_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="@dimen/spacing_large">
-
-        <TextView
-            android:id="@+id/activity_obd_selection_layout_paired_devices_text"
-            style="@style/Base.TextAppearance.AppCompat.SearchResult.Title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:layout_marginRight="5dp"
-            android:text="Paired Devices"
-            android:textColor="@color/blue_dark_cario"
-            android:textSize="14sp"
-            android:visibility="gone"/>
-
-
-        <ListView
-            android:id="@+id/activity_obd_selection_layout_paired_devices_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/spacing_medium"
-            android:choiceMode="singleChoice"/>
-
+        android:background="@color/blue_dark_cario"
+        android:elevation="6dp"
+        android:orientation="horizontal"
+        app:elevation="6dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginTop="5dp">
+            android:layout_marginLeft="64dp"
+            android:layout_marginRight="@dimen/spacing_large"
+            android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/activity_obd_selection_layout_available_devices_text"
-                style="@style/Base.TextAppearance.AppCompat.SearchResult.Title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Available"
-                android:textColor="@color/blue_dark_cario"
-                android:textSize="14sp"/>
-
-
-            <ProgressBar
-                android:id="@+id/activity_obd_selection_layout_search_devices_progressbar"
+                android:id="@+id/activity_obd_selection_layout_enablebt_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginRight="20dp"
-                android:maxHeight="20dp"
-                android:minHeight="10dp"
-                android:visibility="gone"/>
+                android:text="Bluetooth is enabled"
+                android:textColor="@color/white_cario"/>
+
+            <FrameLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"/>
+
+            <Switch
+                android:id="@+id/activity_obd_selection_layout_enablebt_switch"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
         </LinearLayout>
 
-        <ListView
-            android:id="@+id/activity_obd_selection_layout_available_devices_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="10dp"/>
+    </android.support.v7.widget.Toolbar>
 
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/activity_obd_selection_layout_available_devices_info"
+    <FrameLayout
+        android:id="@+id/activity_obd_selection_layout_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="10dp"
-        android:gravity="center"
-        android:text="Kein Bluetooth-Gerät in der Nähe gefunden"/>
+        android:layout_height="match_parent"/>
 
 </LinearLayout>

@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
         android:layout_gravity="center"
-        android:gravity="center"
+        android:gravity="left|center_vertical"
         android:text="Test"/>
 
 </LinearLayout>

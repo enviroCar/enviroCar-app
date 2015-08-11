@@ -5,11 +5,8 @@
               android:background="#102226"
               android:orientation="vertical">
 
-    <include layout="@layout/fragment_dashboard_header"/>
-
     <org.envirocar.app.view.preferences.Tempomat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
-
 
 </LinearLayout>

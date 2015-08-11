@@ -266,7 +266,7 @@ public class Car implements Serializable {
         int result = fuelType.hashCode();
         result = 31 * result + manufacturer.hashCode();
         result = 31 * result + model.hashCode();
-        result = 31 * result + (id != null ? id.hashCode() : 0);
+//        result = 31 * result + (id != null ? id.hashCode() : 0);
         result = 31 * result + constructionYear;
         result = 31 * result + engineDisplacement;
         return result;

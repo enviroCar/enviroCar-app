@@ -1,6 +1,6 @@
-/* 
+/*
  * enviroCar 2013
- * Copyright (C) 2013  
+ * Copyright (C) 2013
  * Martin Dueren, Jakob Moellers, Gerald Pape, Christopher Stephan
  *
  * This program is free software; you can redistribute it and/or modify
@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
- * 
+ *
  */
 package org.envirocar.app.activity;
 

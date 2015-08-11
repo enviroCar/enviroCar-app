@@ -1,23 +1,23 @@
 package org.envirocar.app.view.obdselection;
 
-import android.bluetooth.BluetoothDevice;
+import android.app.Fragment;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
-import android.support.v7.widget.AppCompatRadioButton;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
+import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
 import org.envirocar.app.bluetooth.BluetoothHandler;
+import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.logging.Logger;
 
-import java.util.Set;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import javax.inject.Inject;
 
@@ -27,26 +27,22 @@ import butterknife.InjectView;
 /**
  * @dewall
  */
-public class OBDSelectionActivity extends BaseInjectorActivity {
+public class OBDSelectionActivity extends BaseInjectorActivity implements
+        OBDSelectionFragment.ShowSnackbarListener {
+    private static final Logger LOGGER = Logger.getLogger(OBDSelectionActivity.class);
 
     @Inject
     protected BluetoothHandler mBluetoothHandler;
 
     @InjectView(R.id.activity_obd_selection_layout_toolbar)
     protected Toolbar mToolbar;
+    @InjectView(R.id.activity_obd_selection_layout_enablebt_switch)
+    protected Switch mSwitch;
+    @InjectView(R.id.activity_obd_selection_layout_enablebt_text)
+    protected TextView mEnableBTText;
 
-    @InjectView(R.id.activity_obd_selection_layout_paired_devices_text)
-    public TextView mPairedDevicesTextView;
+    protected Fragment mOBDSelectionFragment;
 
-    @InjectView(R.id.activity_obd_selection_layout_paired_devices_list)
-    protected ListView mPairedDevicesListView;
-    @InjectView(R.id.activity_obd_selection_layout_available_devices_list)
-    protected ListView mNewDevicesListView;
-
-
-    // ArrayAdapter for the two different list views.
-    private OBDDeviceListAdapter mNewDevicesArrayAdapter;
-    private OBDDeviceListAdapter mPairedDevicesAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,79 +56,50 @@ public class OBDSelectionActivity extends BaseInjectorActivity {
 
         // Set the toolbar as default actionbar.
         setSupportActionBar(mToolbar);
+        getSupportActionBar().setTitle("OBD-Device Selection");
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        BluetoothDevice selectedBTDevice = mBluetoothHandler.getSelectedBluetoothDevice();
+        // Instantiate the fragment
+        if (mOBDSelectionFragment == null)
+            mOBDSelectionFragment = new OBDSelectionFragment();
 
-        // Initialize the array adapter for both list views
-        mNewDevicesArrayAdapter = new OBDDeviceListAdapter(this, false);
-        mPairedDevicesAdapter = new OBDDeviceListAdapter(this, true, new
-                OBDDeviceListAdapter.OnOBDListActionCallback() {
-                    @Override
-                    public void onOBDDeviceSelected(BluetoothDevice device) {
-                        Snackbar.make(mToolbar, "Device selected " + device.getName(), Snackbar
-                                .LENGTH_LONG).show();
-                    }
+        // And set the fragment in the layout container.
+        getFragmentManager().beginTransaction()
+                .replace(R.id.activity_obd_selection_layout_container, mOBDSelectionFragment)
+                .commit();
 
-                    @Override
-                    public void onDeleteOBDDevice(BluetoothDevice device) {
-                        Snackbar.make(mToolbar, String.format("%s has been deleted.", device
-                                .getName()), Snackbar.LENGTH_LONG).show();
-                    }
-                }, selectedBTDevice);
+        // Setup the bluetooth toolbar
+        setupBluetoothSwitch();
+    }
 
-        // Set the adapter for both list views
-        mNewDevicesListView.setAdapter(mNewDevicesArrayAdapter);
-        mPairedDevicesListView.setAdapter(mPairedDevicesAdapter);
+    private void setupBluetoothSwitch() {
+        boolean isBTEnabled = mBluetoothHandler.isBluetoothEnabled();
+        mEnableBTText.setText(isBTEnabled ? "Bluetooth On" : "Bluetooth Off");
+        mSwitch.setChecked(mBluetoothHandler.isBluetoothEnabled());
 
-        updatePairedDevicesList();
-
-
-        mPairedDevicesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                final BluetoothDevice device = mPairedDevicesAdapter.getItem(position);
-
-                new MaterialDialog.Builder(OBDSelectionActivity.this)
-                        .title(device.getName())
-                        .items(R.array.car_list_option_items)
-                        .itemsCallback(new MaterialDialog.ListCallback() {
-                            @Override
-                            public void onSelection(MaterialDialog materialDialog, View view, int
-                                    i, CharSequence charSequence) {
-                                switch (i) {
-                                    case 0:
-
-                                        break;
-                                    case 1:
-
-                                        break;
-                                }
-
-                            }
-                        })
-                        .show();
+        mSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+//                mSwitch.setChecked(false);
+                mBluetoothHandler.enableBluetooth(OBDSelectionActivity.this);
+            } else {
+                mBluetoothHandler.disableBluetooth(OBDSelectionActivity.this);
             }
         });
     }
 
-    /**
-     * Updates the list of already paired devices.
-     */
-    private void updatePairedDevicesList() {
-        // Get the set of paired devices.
-        Set<BluetoothDevice> pairedDevices = mBluetoothHandler.getPairedBluetoothDevices();
+    @Subscribe
+    public void onReceiveBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
+        LOGGER.info(String.format("Received event: %s", event.toString()));
 
-        // For each device, add an entry to the list view.
-        mPairedDevicesAdapter.addAll(pairedDevices);
-
-        // Make the paired devices textview visible if there are paired devices
-        if (!pairedDevices.isEmpty()) {
-            mPairedDevicesTextView.setVisibility(View.VISIBLE);
+        if (event.isBluetoothEnabled) {
+            mEnableBTText.setText("Bluetooth On");
+            mSwitch.setChecked(true);
+        } else {
+            mEnableBTText.setText("Bluetooth Off");
+            mSwitch.setChecked(false);
         }
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -144,14 +111,27 @@ public class OBDSelectionActivity extends BaseInjectorActivity {
     }
 
     /**
+     * Shows a snackbar with a given text.
      *
-     * @param device
+     * @param text the text to show in the snackbar.
      */
-    public void setSelectedBluetoothAdapter(BluetoothDevice device){
-
+    @Override
+    public void showSnackbar(String text) {
+        Snackbar.make(mToolbar, text, Snackbar.LENGTH_LONG).show();
     }
 
-    private void showSnackbar(String text) {
-        Snackbar.make(mToolbar, text, Snackbar.LENGTH_LONG).show();
+    private void setSwitchState(float value){
+        try {
+            Class[] args = {Float.TYPE};
+            Method m = Switch.class.getDeclaredMethod("setThumbPosition", args);
+            m.setAccessible(true);
+            m.invoke(mSwitch, value);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 }

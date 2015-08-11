@@ -33,7 +33,6 @@
             android:textSize="14sp"
             android:visibility="gone"/>
 
-
         <ListView
             android:id="@+id/bluetooth_pairing_preference_paired_devices_list"
             android:layout_width="match_parent"
@@ -41,7 +40,6 @@
             android:layout_marginBottom="10dp"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="10dp"/>
-
 
         <LinearLayout
             android:layout_width="match_parent"

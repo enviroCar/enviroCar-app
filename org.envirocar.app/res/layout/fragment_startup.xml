@@ -3,137 +3,61 @@
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:background="@color/material_blue_grey_900"
                 android:orientation="vertical">
 
-    <android.support.v7.widget.CardView
+    <fragment
+        android:id="@+id/fragment_dashboard_header_fragment"
+        android:name="org.envirocar.app.view.dashboard.DashboardTrackDetailsFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:padding="16dp"
-        app:cardElevation="@dimen/spacing_medium"
+        android:layout_alignParentTop="true"/>
+
+    <FrameLayout
+        android:id="@+id/fragment_startup_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/fragment_dashboard_header_fragment"
+        android:visibility="visible"/>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/fragment_startup_start_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/spacing_xsmall"
+        android:layout_marginLeft="@dimen/spacing_medium"
+        android:layout_marginRight="@dimen/spacing_medium"
+        android:clickable="true"
+        android:foreground="?selectableItemBackground"
+        app:cardCornerRadius="2dp"
+        app:cardElevation="4dp"
         app:cardUseCompatPadding="true">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/fragment_startup_start_button_inner"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@color/green_dark_cario"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:padding="12dp"
+            android:text="START TRACK"
+            android:textColor="@color/white_cario"/>
 
-            <LinearLayout
-                android:id="@+id/fragment_startup_obd_selection"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:orientation="horizontal"
-                android:clickable="true"
-                android:paddingLeft="16dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="center"
-                    android:alpha="0.54"
-                    android:src="@drawable/ic_bluetooth_searching_black_24dp"/>
-
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="OBD Settings"
-                        android:textSize="12sp"/>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="No OBD Device Selected"
-                        android:textSize="16sp"/>
-                </LinearLayout>
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_margin="1dp"
-                android:background="#3f6f6f6f"/>
-
-            <LinearLayout
-                android:id="@+id/fragment_startup_car_selection"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:orientation="horizontal"
-                android:clickable="true"
-                android:paddingLeft="16dp">
-
-                <ImageView
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_gravity="center"
-                    android:alpha="0.54"
-                    android:src="@drawable/ic_drive_eta_black_24dp"/>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="16dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Car Settings"
-                        android:textSize="12sp"/>
-
-                    <TextView
-                        android:id="@+id/fragment_startup_car_selection_text"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="No Car selected"
-                        android:textSize="16sp"/>
-                </LinearLayout>
-
-            </LinearLayout>
-        </LinearLayout>
     </android.support.v7.widget.CardView>
 
-    <RelativeLayout
+    <fragment
+        android:id="@+id/fragment_startup_settings_layout"
+        android:name="org.envirocar.app.view.dashboard.DashboardTrackSettingsFragment"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:background="@color/blue_light_cario"
-        android:clickable="true"
-        android:elevation="6dp"
-        android:orientation="horizontal">
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true">
-
-            <ImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:src="@drawable/ic_play_arrow_white_24dp"
-                android:layout_gravity="center"
-                android:layout_margin="8dp"/>
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="START TRACK"
-                android:layout_margin="8dp"
-                android:textColor="@color/white_cario"
-                android:layout_gravity="center"/>
-        </LinearLayout>
-    </RelativeLayout>
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/fragment_startup_start_button"/>
+    <!--<include-->
+    <!--layout="@layout/fragment_startup_settings_layout"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_above="@+id/fragment_startup_start_button"/>-->
 
 </RelativeLayout>

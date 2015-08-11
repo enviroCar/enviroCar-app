@@ -129,7 +129,7 @@
 //	@Inject
 //	protected Bus mBus;
 //	@Inject
-//	protected CarManager mCarManager;
+//	protected CarManager mCarPrefHandler;
 //
 //
 //	@Override
@@ -154,7 +154,7 @@
 //	}
 //
 //	private void updateCarStatus() {
-//		if (mCarManager.getCar() != null) {
+//		if (mCarPrefHandler.getCar() != null) {
 //			carOkView.setImageDrawable(carOkDrawable);
 //		}
 //		else {
@@ -234,7 +234,7 @@
 //		carOkView.setOnClickListener(new OnClickListener() {
 //			@Override
 //			public void onClick(View v) {
-//				Car car = mCarManager.getCar();
+//				Car car = mCarPrefHandler.getCar();
 //				if (car != null) {
 //					Toast.makeText(getActivity(), car.toString(), Toast.LENGTH_SHORT).show();
 //				}
@@ -375,7 +375,7 @@
 //
 //		updateCarStatus();
 //
-//		Car car = mCarManager.getCar();
+//		Car car = mCarPrefHandler.getCar();
 //		if (car != null && car.getFuelType() == FuelType.DIESEL) {
 //			Crouton.makeText(getActivity(), R.string.diesel_not_yet_supported,
 //					de.keyboardsurfer.android.widget.crouton.Style.ALERT).show();

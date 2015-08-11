@@ -8,6 +8,7 @@ import android.util.Log;
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -18,10 +19,22 @@ import dagger.ObjectGraph;
 /**
  * @author dewall
  */
-public abstract class BaseInjectorFragment extends Fragment implements Injector, InjectionModuleProvider {
+public abstract class BaseInjectorFragment extends Fragment implements Injector,
+        InjectionModuleProvider {
     private static final String TAG = BaseInjectorFragment.class.getSimpleName();
-//    private static final LOGGER =
 
+    private static final Field mChildFragmentManagerFieldOfFragment;
+
+    static {
+        Field f = null;
+        try {
+            f = Fragment.class.getDeclaredField("mChildFragmentManager");
+            f.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            Log.e(TAG, "Error while getting the declared mChildFragmentManager field", e);
+        }
+        mChildFragmentManagerFieldOfFragment = f;
+    }
 
     /**
      * The event bus allows publish-subscribe-style communication. It dispatches
@@ -71,7 +84,15 @@ public abstract class BaseInjectorFragment extends Fragment implements Injector,
         }
     }
 
-
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        try {
+            mChildFragmentManagerFieldOfFragment.set(this, null);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Gets the object graph of the implemented class.

@@ -107,7 +107,7 @@
 //    protected GpsSatelliteFix fix = new GpsSatelliteFix(0, false);
 //
 //    @Inject
-//    protected CarManager mCarManager;
+//    protected CarManager mCarPrefHandler;
 //
 //
 //    @Override

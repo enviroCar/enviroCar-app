@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.envirocar.app.view.utils.FractionLL
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/spacing_medium"
+        android:layout_marginRight="@dimen/spacing_medium"
+        app:cardCornerRadius="2dp"
+        app:cardElevation="4dp"
+        app:cardUseCompatPadding="true">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/spacing_medium"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/fragment_startup_settings_layout_bluetooth_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/spacing_medium"
+                android:layout_marginRight="@dimen/spacing_medium"
+                android:alpha="0.54"
+                android:src="@drawable/ic_bluetooth_disabled_black_24dp"/>
+
+            <ImageView
+                android:id="@+id/fragment_startup_settings_layout_gps_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/spacing_medium"
+                android:layout_marginRight="@dimen/spacing_medium"
+                android:alpha="0.54"
+                android:src="@drawable/ic_location_off_black_24dp"/>
+
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+    <!--<android.support.v7.widget.CardView-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_marginLeft="@dimen/spacing_medium"-->
+    <!--android:layout_marginRight="@dimen/spacing_medium"-->
+    <!--app:cardUseCompatPadding="true"-->
+    <!--app:cardElevation="4dp"-->
+    <!--app:cardCornerRadius="2dp">-->
+
+    <!--<LinearLayout-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_margin="@dimen/spacing_large"-->
+    <!--android:orientation="horizontal">-->
+
+    <!--<RelativeLayout-->
+    <!--android:layout_width="0dp"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_weight="1">-->
+
+    <!--<TextView-->
+    <!--android:id="@+id/fragment_startup_settings_layout_bt_text"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_centerInParent="true"-->
+    <!--android:layout_marginLeft="@dimen/spacing_large"-->
+    <!--android:text="Bluetooth\nactivated"-->
+    <!--android:textColor="@color/blue_dark_cario"-->
+    <!--android:textSize="12sp"/>-->
+
+    <!--<ImageView-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_centerInParent="true"-->
+    <!--android:layout_toLeftOf="@id/fragment_startup_settings_layout_bt_text"-->
+    <!--android:alpha="0.54"-->
+    <!--android:src="@drawable/ic_bluetooth_searching_black_24dp"/>-->
+
+    <!--</RelativeLayout>-->
+    <!-- -->
+    <!--<LinearLayout-->
+    <!--android:layout_width="1dp"-->
+    <!--android:layout_height="match_parent"-->
+    <!--android:background="#3f3f3f3f"></LinearLayout>-->
+
+    <!--<RelativeLayout-->
+    <!--android:layout_width="0dp"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_weight="1">-->
+
+    <!--<TextView-->
+    <!--android:id="@+id/fragment_startup_settings_layout_bt_text2"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_centerInParent="true"-->
+    <!--android:layout_marginLeft="@dimen/spacing_large"-->
+    <!--android:text="GPS"-->
+    <!--android:textColor="@color/blue_dark_cario"-->
+    <!--android:textSize="12sp"/>-->
+
+    <!--<ImageView-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_centerInParent="true"-->
+    <!--android:layout_toLeftOf="@id/fragment_startup_settings_layout_bt_text2"-->
+    <!--android:alpha="0.54"-->
+    <!--android:src="@drawable/ic_location_off_black_24dp"/>-->
+    <!--</RelativeLayout>-->
+    <!--</LinearLayout>-->
+
+    <!--</android.support.v7.widget.CardView>-->
+
+
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginLeft="@dimen/spacing_medium"
+        android:layout_marginRight="@dimen/spacing_medium"
+        app:cardCornerRadius="2dp"
+        app:cardElevation="4dp"
+        app:cardUseCompatPadding="true">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/fragment_startup_obd_selection"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/spacing_xxxxlarge"
+                android:clickable="true"
+                android:orientation="horizontal"
+                android:paddingBottom="@dimen/spacing_medium"
+                android:paddingTop="@dimen/spacing_medium">
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="@dimen/spacing_large"
+                    android:alpha="0.54"
+                    android:src="@drawable/ic_bluetooth_searching_black_24dp"/>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:orientation="vertical"
+                    android:paddingLeft="@dimen/spacing_xxxxlarge">
+
+                    <TextView
+                        android:id="@+id/fragment_startup_obd_selection_text1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:singleLine="true"
+                        android:text="No OBD Device Selected"
+                        android:textSize="16sp"/>
+
+                    <TextView
+                        android:id="@+id/fragment_startup_obd_selection_text2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:text="Car Attributes"
+                        android:textSize="12sp"/>
+                </LinearLayout>
+
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="@dimen/spacing_xxxxlarge"
+                android:background="#3f6f6f6f"/>
+
+            <RelativeLayout
+                android:id="@+id/fragment_startup_car_selection"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/spacing_xxxxlarge"
+                android:clickable="true"
+                android:orientation="horizontal"
+                android:paddingBottom="@dimen/spacing_medium"
+                android:paddingTop="@dimen/spacing_medium">
+
+                <!--<TextView-->
+                <!--style="@style/enviroCar.title"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:padding="0dp"-->
+                <!--android:text="Car Settings"-->
+                <!--android:layout_marginLeft="@dimen/spacing_medium"-->
+                <!--android:textSize="12sp"/>-->
+
+                <ImageView
+                    android:layout_width="28dp"
+                    android:layout_height="28dp"
+                    android:layout_centerVertical="true"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="@dimen/spacing_large"
+                    android:alpha="0.54"
+                    android:src="@drawable/ic_drive_eta_black_24dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:orientation="vertical"
+                    android:paddingLeft="@dimen/spacing_xxxxlarge">
+
+                    <TextView
+                        android:id="@+id/fragment_startup_car_selection_text1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:singleLine="true"
+                        android:text="Manufacturer + Model"
+                        android:textSize="16sp"/>
+
+                    <TextView
+                        android:id="@+id/fragment_startup_car_selection_text2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:text="Car Attributes"
+                        android:textSize="12sp"/>
+                </LinearLayout>
+
+                <!--<ImageButton-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:src=""-->
+
+            </RelativeLayout>
+
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+</org.envirocar.app.view.utils.FractionLL>

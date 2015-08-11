@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_dashboard_tempomat_show_cruise"
+        android:icon="@drawable/abc_ic_menu_copy_mtrl_am_alpha"
+        android:orderInCategory="100"
+        android:title="Show Cruise Control"
+        app:showAsAction="always"/>
+
+</menu>

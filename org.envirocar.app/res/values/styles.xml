@@ -36,6 +36,14 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
+    <style name="enviroCar.title" parent="Base.TextAppearance.AppCompat.SearchResult.Title">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:padding">@dimen/spacing_large</item>
+        <item name="android:textColor">@color/blue_dark_cario</item>
+    </style>
+
     <style name="carDetailsSubtitle" pairent="">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>

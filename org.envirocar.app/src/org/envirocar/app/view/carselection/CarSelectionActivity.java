@@ -22,18 +22,16 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.common.collect.Maps;
-import com.squareup.otto.Subscribe;
+import com.google.common.collect.Sets;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarPreferenceHandler;
-import org.envirocar.app.events.NewCarTypeSelectedEvent;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.dao.DAOProvider;
 import org.envirocar.app.model.dao.exception.SensorRetrievalException;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -98,6 +96,7 @@ public class CarSelectionActivity extends BaseInjectorActivity {
     @Inject
     protected CarPreferenceHandler mCarManager;
 
+    private Set<Car> mCars = Sets.newHashSet();
     private Set<String> mManufacturerNames;
     private Map<String, Set<String>> mCarToModelMap = Maps.newConcurrentMap();
     private Map<String, Set<String>> mModelToYear = Maps.newConcurrentMap();
@@ -144,8 +143,9 @@ public class CarSelectionActivity extends BaseInjectorActivity {
         // Init the hide keyboard listener. These always hide the keyboard once an item has been
         // selected in the autocomplete list.
         setupHideKeyboardListener();
-        dispatchRemoteSensors();
         setupListView();
+        dispatchRemoteSensors();
+
 
         // Set the onClick listener for the FloatingActionButton. When triggered, the sheet view
         // gets shown.
@@ -244,13 +244,34 @@ public class CarSelectionActivity extends BaseInjectorActivity {
                 int year = Integer.parseInt(mYearTextView.getText().toString());
                 int engine = Integer.parseInt(mEngineTextView.getText().toString());
 
-                Car car = new Car(Car.FuelType.GASOLINE, manufacturer, model, null, year, engine);
+                Car selectedCar = null;
+                if (mManufacturerNames.contains(manufacturer)
+                        && mCarToModelMap.get(manufacturer).contains(model)
+                        && mModelToCCM.get(model).contains("" + engine)
+                        && mModelToYear.get(model).contains("" + year)) {
+                    for (Car car : mCars) {
+                        if (car.getManufacturer().equals(manufacturer)
+                                && car.getModel().equals(model)
+                                && car.getConstructionYear() == year
+                                && car.getEngineDisplacement() == engine) {
+                            selectedCar = car;
+                        }
+                    }
+                }
+
+                if (selectedCar == null) {
+                    selectedCar = new Car(Car.FuelType.GASOLINE, manufacturer, model, null, year,
+                            engine);
+                    mCarManager.registerCarAtServer(selectedCar);
+                } else {
+                    Toast.makeText(CarSelectionActivity.this, "YEA found", Toast.LENGTH_LONG).show();
+                }
 
                 // When the car has been successfully inserted in the listadapter, then update
                 // the list adapter.
-                if (mCarManager.addCar(car)) {
+                if (mCarManager.addCar(selectedCar)) {
                     // Add the car to the adapter and close the sheet view.
-                    mCarListAdapter.addCarItem(car);
+                    mCarListAdapter.addCarItem(selectedCar);
                     closeSheetView();
 
                     // Schedule a show snackbar runnable when the sheet animation has been finished.
@@ -434,6 +455,7 @@ public class CarSelectionActivity extends BaseInjectorActivity {
      * @param car
      */
     private void addCarToAutocompleteList(Car car) {
+        mCars.add(car);
         String manufacturer = car.getManufacturer();
         String model = car.getModel();
         mManufacturerNames.add(manufacturer);

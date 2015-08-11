@@ -26,7 +26,7 @@ import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.app.bluetooth.BluetoothSocketWrapper;
 import org.envirocar.app.bluetooth.FallbackBluetoothSocket;
 import org.envirocar.app.bluetooth.NativeBluetoothSocket;
-import org.envirocar.app.bluetooth.event.BluetoothServiceStateChangedEvent;
+import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.bluetooth.service.BluetoothServiceState;
 import org.envirocar.app.events.GpsSatelliteFix;
 import org.envirocar.app.events.GpsSatelliteFixEvent;
@@ -66,6 +66,9 @@ public class OBDConnectionService extends Service {
     private static final UUID EMBEDDED_BOARD_SPP = UUID
             .fromString("00001101-0000-1000-8000-00805F9B34FB");
 
+    public static BluetoothServiceState CURRENT_SERVICE_STATE = BluetoothServiceState
+            .SERVICE_STOPPED;
+
     // Injected fields.
     @Inject
     protected Bus mBus;
@@ -92,6 +95,8 @@ public class OBDConnectionService extends Service {
     // This satellite fix indicates that there is no satellite connection yet.
     private GpsSatelliteFix mCurrentGpsSatelliteFix = new GpsSatelliteFix(0, false);
     private BluetoothServiceState mServiceState = BluetoothServiceState.SERVICE_STOPPED;
+
+    private IBinder mBinder = new OBDConnectionBinder();
 
     @Override
     public void onCreate() {
@@ -162,6 +167,7 @@ public class OBDConnectionService extends Service {
     private void setBluetoothServiceState(BluetoothServiceState state) {
         // Set the new service state
         this.mServiceState = state;
+        CURRENT_SERVICE_STATE = state; // TODO FIX
         // and fire an event on the event bus.
         this.mBus.post(produceBluetoothServiceStateChangedEvent());
     }
@@ -175,7 +181,7 @@ public class OBDConnectionService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return mBinder;
     }
 
 
@@ -385,7 +391,8 @@ public class OBDConnectionService extends Service {
                     LOGGER.info("all adapters failed!");
                     stopOBDConnection();
                     doTextToSpeech("failed to connect to the OBD adapter");
-//                  sendBroadcast(new Intent(CONNECTION_PERMANENTLY_FAILED_INTENT));
+                    //                  sendBroadcast(new Intent
+                    // (CONNECTION_PERMANENTLY_FAILED_INTENT));
                 }
 
                 @Override
@@ -554,7 +561,7 @@ public class OBDConnectionService extends Service {
          *
          * @return the enclosing service.
          */
-        OBDConnectionService getService() {
+        public OBDConnectionService getService() {
             return OBDConnectionService.this;
         }
     }

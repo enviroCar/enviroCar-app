@@ -38,11 +38,8 @@
             android:orientation="horizontal">
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
                 android:text="My Cars"
-                android:textSize="16dp" />
+                style="@style/enviroCar.title"/>
 
             <FrameLayout
                 android:layout_width="1dp"
@@ -50,19 +47,18 @@
                 android:layout_weight="1" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="8dp"
+                style="@style/enviroCar.title"
                 android:text="2 Cars" />
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="#3f3f3f3f" />
+        <!--<LinearLayout-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="1dp"-->
+            <!--android:background="#3f3f3f3f" />-->
 
         <ListView
             android:id="@+id/activity_car_selection_layout_carlist"
+            android:padding="@dimen/spacing_medium"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:choiceMode="singleChoice"/>

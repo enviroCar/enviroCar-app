@@ -23,13 +23,16 @@
         android:layout_weight="1"/>
 
     <ImageButton
+        android:id="@+id/activity_obd_selection_layout_paired_list_entry_delete"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:alpha="0.54"
         android:gravity="right"
         android:layout_gravity="center_vertical|right"
         android:layout_marginRight="@dimen/spacing_medium"
+        android:background="?selectableItemBackgroundBorderless"
         style="?attr/borderlessButtonStyle"
+        android:visibility="gone"
         android:src="@drawable/ic_delete_black_24dp"/>
 
     <android.support.v7.widget.AppCompatRadioButton

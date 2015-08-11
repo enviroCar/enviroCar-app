@@ -20,8 +20,8 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
 import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.bluetooth.event.BluetoothPairingChangedEvent;
-import org.envirocar.app.bluetooth.event.BluetoothStateChangedEvent;
+import org.envirocar.app.events.bluetooth.BluetoothPairingChangedEvent;
+import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.view.preferences.bluetooth.BluetoothDeviceListAdapter;

@@ -12,7 +12,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.mapbox.mapboxsdk.geometry.BoundingBox;
-import com.mapbox.mapboxsdk.overlay.PathOverlay;
 import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 import com.mapbox.mapboxsdk.views.MapView;
 
@@ -20,9 +19,8 @@ import org.envirocar.app.R;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
-import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.view.MapUtils;
+import org.envirocar.app.view.utils.MapUtils;
 import org.envirocar.app.view.trackdetails.TrackSpeedMapOverlay;
 
 import java.text.DateFormat;
