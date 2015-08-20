@@ -9,14 +9,14 @@
             android:checked="true"
             android:icon="@drawable/dashboard"
             android:title="@string/dashboard"/>
-        <item
-            android:id="@+id/menu_nav_drawer_dashboard_new"
-            android:icon="@drawable/dashboard"
-            android:title="New Dashboard"/>
-        <item
-            android:id="@+id/menu_nav_drawer_text"
-            android:icon="@drawable/dashboard"
-            android:title="Startup"/>
+        <!--<item-->
+            <!--android:id="@+id/menu_nav_drawer_dashboard_new"-->
+            <!--android:icon="@drawable/dashboard"-->
+            <!--android:title="New Dashboard"/>-->
+        <!--<item-->
+            <!--android:id="@+id/menu_nav_drawer_text"-->
+            <!--android:icon="@drawable/dashboard"-->
+            <!--android:title="Startup"/>-->
         <item
             android:id="@+id/menu_nav_drawer_tracklist"
             android:icon="@drawable/device_access_storage"
@@ -25,11 +25,6 @@
             android:id="@+id/menu_nav_drawer_tracklist_new"
             android:icon="@drawable/device_access_storage"
             android:title="Meine Fahrten NEU"/>
-        <item
-            android:id="@+id/menu_nav_drawer_map"
-            android:icon="@drawable/ic_settings"
-            android:title="Map"
-            android:visible="false"/>
         <item
             android:id="@+id/menu_nav_drawer_logbook"
             android:icon="@drawable/logbook"

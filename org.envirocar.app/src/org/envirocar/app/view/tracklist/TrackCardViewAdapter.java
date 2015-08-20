@@ -141,27 +141,32 @@ public class TrackCardViewAdapter extends RecyclerView.Adapter<TrackCardViewAdap
             }
         }.execute();
 
-        // Inflate the menu and set an appropriate OnMenuItemClickListener.
-        holder.mToolbar.inflateMenu(R.menu.menu_tracklist_cardlayout);
-        holder.mToolbar.setOnMenuItemClickListener(item -> {
-            LOGGER.info("Item clicked for track " + track.getTrackId());
+        // if the menu is not already inflated, then..
+        if(!holder.mIsMenuInflated) {
+            // Inflate the menu and set an appropriate OnMenuItemClickListener.
+            holder.mToolbar.inflateMenu(R.menu.menu_tracklist_cardlayout);
+            holder.mToolbar.setOnMenuItemClickListener(item -> {
+                LOGGER.info("Item clicked for track " + track.getTrackId());
 
-            switch (item.getItemId()) {
-                case R.id.menu_tracklist_cardlayout_item_details:
-                    mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
-                    break;
-                case R.id.menu_tracklist_cardlayout_item_delete:
-                    mTrackInteractionCallback.onDeleteTrackClicked(track);
-                    break;
-                case R.id.menu_tracklist_cardlayout_item_export:
-                    mTrackInteractionCallback.onExportTrackClicked(track);
-                    break;
-                case R.id.menu_tracklist_cardlayout_item_upload:
-                    mTrackInteractionCallback.onUploadTrackClicked(track);
-                    break;
-            }
-            return false;
-        });
+                switch (item.getItemId()) {
+                    case R.id.menu_tracklist_cardlayout_item_details:
+                        mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
+                        break;
+                    case R.id.menu_tracklist_cardlayout_item_delete:
+                        mTrackInteractionCallback.onDeleteTrackClicked(track);
+                        break;
+                    case R.id.menu_tracklist_cardlayout_item_export:
+                        mTrackInteractionCallback.onExportTrackClicked(track);
+                        break;
+                    case R.id.menu_tracklist_cardlayout_item_upload:
+                        mTrackInteractionCallback.onUploadTrackClicked(track);
+                        break;
+                }
+                return false;
+            });
+
+            holder.mIsMenuInflated = true;
+        }
 
         // Initialize the OnClickListener for the invisible button that is overlaid
         // over the map view.
@@ -247,6 +252,7 @@ public class TrackCardViewAdapter extends RecyclerView.Adapter<TrackCardViewAdap
     static class TrackCardViewHolder extends RecyclerView.ViewHolder {
 
         protected final View mItemView;
+        protected boolean mIsMenuInflated = false;
 
         @InjectView(R.id.fragment_Tracklist_cardlayout_toolbar)
         protected Toolbar mToolbar;

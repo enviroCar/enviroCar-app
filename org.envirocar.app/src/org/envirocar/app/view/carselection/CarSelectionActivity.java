@@ -264,7 +264,7 @@ public class CarSelectionActivity extends BaseInjectorActivity {
                             engine);
                     mCarManager.registerCarAtServer(selectedCar);
                 } else {
-                    Toast.makeText(CarSelectionActivity.this, "YEA found", Toast.LENGTH_LONG).show();
+//                    Toast.makeText(CarSelectionActivity.this, "YEA found", Toast.LENGTH_LONG).show();
                 }
 
                 // When the car has been successfully inserted in the listadapter, then update

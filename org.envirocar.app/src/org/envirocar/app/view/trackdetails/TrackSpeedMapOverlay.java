@@ -67,6 +67,7 @@ public class TrackSpeedMapOverlay extends PathOverlay {
 
         initPath();
         setOverlayIndex(1);
+
     }
 
 //    @Override

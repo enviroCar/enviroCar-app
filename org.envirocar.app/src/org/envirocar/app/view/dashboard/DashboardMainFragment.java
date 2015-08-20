@@ -2,8 +2,10 @@ package org.envirocar.app.view.dashboard;
 
 import android.app.Fragment;
 import android.app.FragmentTransaction;
+import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
@@ -19,6 +21,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Subscribe;
 
@@ -39,13 +42,14 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
 import rx.Scheduler;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 
 /**
  * @author dewall
  */
-public class StartupFragment extends BaseInjectorFragment {
-    private static final Logger LOGGER = Logger.getLogger(StartupFragment.class);
+public class DashboardMainFragment extends BaseInjectorFragment {
+    private static final Logger LOGGER = Logger.getLogger(DashboardMainFragment.class);
     private OBDConnectionService mOBDConnectionService;
     private boolean mIsOBDConnectionBounded;
 
@@ -57,6 +61,9 @@ public class StartupFragment extends BaseInjectorFragment {
     protected TrackHandler mTrackHandler;
     @InjectView(R.id.fragment_startup_start_button)
     protected View mStartStopButton;
+
+    private boolean mIsHeaderShown = false;
+    private MaterialDialog mConnectingDialog;
 
 
     // Defines callbacks for service binding, passed to bindService()
@@ -125,24 +132,10 @@ public class StartupFragment extends BaseInjectorFragment {
         // TODO fix this. The static service state is just a workaround.
         onShowServiceStateUI(OBDConnectionService.CURRENT_SERVICE_STATE);
 
+        // Initially hide the header fragment.
+        //        hideFragment(mDashboardHeaderFragment, -1, -1);
+
         return contentView;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        // If the service is running, the
-        Toast.makeText(getActivity(), "check Running", Toast.LENGTH_SHORT).show();
-        bindService();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        //        getFragmentManager().beginTransaction()
-        //                .setCustomAnimations(R.anim.slide_in_bottom, R.anim.slide_out_bottom)
-        //                .show(mDashboardSettingsFragment)
-        //                .commit();
     }
 
 
@@ -157,11 +150,6 @@ public class StartupFragment extends BaseInjectorFragment {
         super.onDestroyView();
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        unbindService();
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -170,17 +158,15 @@ public class StartupFragment extends BaseInjectorFragment {
                 if (mDashboardTrackMapFragment.isVisible())
                     return false;
 
-                Toast.makeText(getActivity(), "map clicked!", Toast.LENGTH_LONG).show();
                 replaceFragment(mDashboardTrackMapFragment,
                         R.id.fragment_startup_container,
                         R.anim.slide_in_left,
                         R.anim.slide_out_right);
                 return true;
             case R.id.menu_dashboard_tempomat_show_cruise:
-                if(mDashboardTempomatFragment.isVisible())
+                if (mDashboardTempomatFragment.isVisible())
                     return false;
 
-                Toast.makeText(getActivity(), "tempomat clicked!", Toast.LENGTH_LONG).show();
                 replaceFragment(mDashboardTempomatFragment,
                         R.id.fragment_startup_container,
                         R.anim.slide_in_right,
@@ -192,32 +178,100 @@ public class StartupFragment extends BaseInjectorFragment {
 
     @OnClick(R.id.fragment_startup_start_button)
     public void onStartStopButtonClicked() {
-        // TODO
-        //        Intent intent = new Intent(SystemStartupService.ACTION_START_TRACK_RECORDING);
-        //        getActivity().sendBroadcast(intent);
-
         switch (OBDConnectionService.CURRENT_SERVICE_STATE) {
             case SERVICE_STOPPED:
-                getActivity().startService(
-                        new Intent(getActivity(), OBDConnectionService.class));
+                onButtonStartClicked();
                 break;
             case SERVICE_STARTED:
-                mTrackHandler.finishCurrentTrack();
+                onButtonStopClicked();
                 break;
             default:
                 break;
         }
+    }
+
+    private void onButtonStartClicked() {
+        final BluetoothDevice device = mBluetoothHandler.getSelectedBluetoothDevice();
+        mBluetoothHandler.startBluetoothDiscoveryForSingleDevice(device)
+                .subscribe(new Subscriber<BluetoothDevice>() {
+                    boolean found = false;
+
+                    @Override
+                    public void onStart() {
+                        mConnectingDialog = new MaterialDialog.Builder(getActivity())
+                                .title("Connecting...")
+                                .content(String.format("Trying to find %s.",
+                                        device.getName()))
+                                .progress(true, 0)
+                                .cancelListener(new DialogInterface.OnCancelListener() {
+                                    @Override
+                                    public void onCancel(DialogInterface dialog) {
+                                        // On cancel, first stop the discovery of other
+                                        // bluetooth devices.
+                                        mBluetoothHandler.stopBluetoothDeviceDiscovery();
+                                        if (found) {
+                                            // and if the service is already started, then
+                                            // stop it.
+                                            getActivity().stopService(new Intent
+                                                    (getActivity(), OBDConnectionService
+                                                            .class));
+                                        }
+                                        found = true;
+                                    }
+                                })
+                                .show();
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        if (!found) {
+                            mConnectingDialog.dismiss();
+                            mConnectingDialog = new MaterialDialog.Builder(getActivity())
+                                    .title("Not Found")
+                                    .content(String.format("%s not found. Please ensure " +
+                                            "that " +
+                                            "the OBD device is in range and correctly " +
+                                            "inserted.", device.getName()))
+                                    .negativeText("Okay")
+                                    .show();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        mConnectingDialog.setActionButton(DialogAction.NEGATIVE, "Okay");
+                    }
+
+                    @Override
+                    public void onNext(BluetoothDevice bluetoothDevice) {
+                        found = true;
+
+                        // Stop the Bluetooth discovery such that the connection can be
+                        // faster established.
+                        mBluetoothHandler.stopBluetoothDeviceDiscovery();
+
+                        // Update the content of the connecting dialog.
+                        mConnectingDialog.setContent("Device in range. Connecting to " +
+                                device.getName());
+
+                        // Start the background service.
+                        getActivity().startService(
+                                new Intent(getActivity(), OBDConnectionService.class));
+                    }
+                });
 
     }
 
     private void onButtonStopClicked() {
         new MaterialDialog.Builder(getActivity())
-                .title("Finish Track?")
-                .content("Do you really want to finish the track?")
+                .title("Stop Track?")
+                .content("Do you really want to stop the recording and finish the current track?")
+                .negativeText(R.string.cancel)
+                .positiveText("Okay")
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
-                        super.onPositive(dialog);
+                        mTrackHandler.finishCurrentTrack();
                     }
                 })
                 .show();
@@ -235,18 +289,24 @@ public class StartupFragment extends BaseInjectorFragment {
         LOGGER.info(String.format("onReceiveBluetoothServiceStateChangedEvent(): %s",
                 event.toString()));
         mServiceState = event.mState;
-        onShowServiceStateUI(event.mState);
+        if (mServiceState == BluetoothServiceState.SERVICE_STARTED && mConnectingDialog != null) {
+            mConnectingDialog.dismiss();
+            mConnectingDialog = null;
+        }
+
+        mMainThreadScheduler.schedule(() -> onShowServiceStateUI(event.mState));
+
     }
 
     private void onShowServiceStateUI(BluetoothServiceState state) {
         switch (state) {
             case SERVICE_STOPPED:
-                // Show the settings Fragment
-                //                showFragment(mDashboardSettingsFragment,
-                //                        R.anim.slide_out_bottom,
-                //                        R.anim.slide_out_bottom);
-                showFragment(mDashboardSettingsFragment, R.anim.slide_in_left,
-                        R.anim.slide_out_left);
+                if (getFragmentManager() == null)
+                    return;
+
+                if (!mDashboardSettingsFragment.isVisible())
+                    showFragment(mDashboardSettingsFragment, R.anim.slide_in_left,
+                            R.anim.slide_out_left);
 
                 // Hide the header fragment
                 hideFragment(mDashboardHeaderFragment,
@@ -274,21 +334,23 @@ public class StartupFragment extends BaseInjectorFragment {
                 break;
             case SERVICE_STARTED:
                 // Hide the settings if visible
-                if (mDashboardSettingsFragment != null && mDashboardSettingsFragment.isVisible()) {
-                    hideFragment(mDashboardSettingsFragment,
-                            R.anim.slide_in_left,
-                            R.anim.slide_out_left);
-                }
+                //                if (mDashboardSettingsFragment.isVisible()) {
+                hideFragment(mDashboardSettingsFragment,
+                        R.anim.slide_in_left,
+                        R.anim.slide_out_left);
+                //                }
 
+                //                if (!mDashboardHeaderFragment.isVisible())
                 showFragment(mDashboardHeaderFragment,
                         R.anim.slide_in_top,
                         R.anim.slide_out_top);
 
                 // Show the tempomat fragment
-                replaceFragment(mDashboardTempomatFragment,
-                        R.id.fragment_startup_container,
-                        R.anim.slide_in_right,
-                        R.anim.slide_out_left);
+                if (!mDashboardTempomatFragment.isVisible())
+                    replaceFragment(mDashboardTempomatFragment,
+                            R.id.fragment_startup_container,
+                            R.anim.slide_in_right,
+                            R.anim.slide_out_left);
 
                 mCurrentlyVisible = mDashboardTempomatFragment;
 
@@ -317,15 +379,15 @@ public class StartupFragment extends BaseInjectorFragment {
      */
     private void replaceFragment(Fragment fragment, int container, int enterAnimation, int
             exitAnimation) {
-        if (fragment == null)
+        if (fragment == null || getFragmentManager() == null)
             return;
 
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
         if (enterAnimation != -1 && exitAnimation != -1) {
             transaction.setCustomAnimations(enterAnimation, exitAnimation);
         }
         transaction.replace(container, fragment);
-        transaction.commit();
+        transaction.commitAllowingStateLoss();
 
         mCurrentlyVisible = fragment;
     }
@@ -336,15 +398,15 @@ public class StartupFragment extends BaseInjectorFragment {
      * @param exitAnimation
      */
     private void showFragment(Fragment fragment, int enterAnimation, int exitAnimation) {
-        if (fragment == null)
+        if (fragment == null || getFragmentManager() == null)
             return;
 
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
         if (enterAnimation != -1) {
             transaction.setCustomAnimations(enterAnimation, exitAnimation);
         }
         transaction.show(fragment);
-        transaction.commit();
+        transaction.commitAllowingStateLoss();
     }
 
     /**
@@ -353,15 +415,15 @@ public class StartupFragment extends BaseInjectorFragment {
      * @param exitAnimation
      */
     private void hideFragment(Fragment fragment, int enterAnimation, int exitAnimation) {
-        if (fragment == null)
+        if (fragment == null || getFragmentManager() == null)
             return;
 
-        FragmentTransaction transaction = getFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
         if (exitAnimation != -1) {
             transaction.setCustomAnimations(enterAnimation, exitAnimation);
         }
         transaction.hide(fragment);
-        transaction.commit();
+        transaction.commitAllowingStateLoss();
     }
 
     @UiThread
@@ -442,7 +504,6 @@ public class StartupFragment extends BaseInjectorFragment {
                     getResources().getColor(R.color.green_dark_cario));
             mStartStopButtonInner.setText("START TRACK");
         }
-
     }
 
 }

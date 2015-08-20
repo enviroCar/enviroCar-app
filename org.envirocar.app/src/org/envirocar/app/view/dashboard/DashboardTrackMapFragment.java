@@ -8,18 +8,26 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.mapbox.mapboxsdk.overlay.PathOverlay;
 import com.mapbox.mapboxsdk.overlay.UserLocationOverlay;
 import com.mapbox.mapboxsdk.views.MapView;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
+import org.envirocar.app.bluetooth.service.BluetoothServiceState;
 import org.envirocar.app.events.LocationChangedEvent;
+import org.envirocar.app.events.NewMeasurementEvent;
+import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.services.trackdetails.TrackPathOverlayEvent;
 import org.envirocar.app.view.utils.MapUtils;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import rx.Scheduler;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 
 /**
  * @author dewall
@@ -29,6 +37,11 @@ public class DashboardTrackMapFragment extends BaseInjectorFragment {
 
     @InjectView(R.id.fragment_dashboard_frag_map_mapview)
     protected MapView mMapView;
+
+    private PathOverlay mPathOverlay;
+
+    private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread()
+            .createWorker();
 
     @Nullable
     @Override
@@ -50,6 +63,10 @@ public class DashboardTrackMapFragment extends BaseInjectorFragment {
         mMapView.setUserLocationTrackingMode(UserLocationOverlay.TrackingMode.FOLLOW);
         mMapView.setUserLocationRequiredZoom(18);
 
+        // If the mPathOverlay has already been set, then add the overlay to the mapview.
+        if(mPathOverlay != null)
+            mMapView.getOverlays().add(mPathOverlay);
+
         return contentView;
     }
 
@@ -61,9 +78,12 @@ public class DashboardTrackMapFragment extends BaseInjectorFragment {
     }
 
     @Subscribe
-    public void onReceiveLocationChangedEvent(LocationChangedEvent event){
-        LOGGER.info(String.format("Received event: %s", event.toString()));
-
+    public void onReceivePathOverlayEvent(TrackPathOverlayEvent event){
+        mMainThreadWorker.schedule(() -> {
+            mPathOverlay = event.mTrackOverlay;
+            if(mMapView != null)
+                mMapView.addOverlay(mPathOverlay);
+        });
     }
 
 }

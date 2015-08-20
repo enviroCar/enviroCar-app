@@ -55,6 +55,7 @@ public abstract class BaseInjectorFragment extends Fragment implements Injector,
      * graph was initialized.
      */
     private boolean mAlreadyAttached;
+    private boolean mIsRegistered;
 
 
     @Override
@@ -79,18 +80,28 @@ public abstract class BaseInjectorFragment extends Fragment implements Injector,
             Preconditions.checkState(mBus != null, "Bus has to be injected before "
                     + "registering the providers and subscribers.");
 
+        }
+
+        if(!mIsRegistered){
             // Register ourselves on the bus
             mBus.register(this);
+            mIsRegistered = true;
         }
     }
 
     @Override
     public void onDetach() {
+        Log.d(TAG, "onDetach() fragment");
         super.onDetach();
         try {
             mChildFragmentManagerFieldOfFragment.set(this, null);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
+        }
+
+        if(mIsRegistered) {
+            mBus.unregister(this);
+            mIsRegistered = false;
         }
     }
 
@@ -128,4 +139,5 @@ public abstract class BaseInjectorFragment extends Fragment implements Injector,
     public List<Object> getInjectionModules() {
         return null;
     }
+
 }

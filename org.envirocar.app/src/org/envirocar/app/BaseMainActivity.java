@@ -1,6 +1,7 @@
 package org.envirocar.app;
 
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,7 +29,6 @@ import org.envirocar.app.activity.DialogUtil;
 import org.envirocar.app.activity.HelpFragment;
 import org.envirocar.app.activity.ListTracksFragment;
 import org.envirocar.app.activity.LogbookFragment;
-import org.envirocar.app.view.LoginFragment;
 import org.envirocar.app.activity.SendLogFileFragment;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.TroubleshootingFragment;
@@ -36,13 +36,10 @@ import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
-import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.app.bluetooth.service.BluetoothServiceState;
 import org.envirocar.app.events.NewUserSettingsEvent;
-import org.envirocar.app.view.dashboard.DashboardTempomatFragment;
-import org.envirocar.app.view.dashboard.RealDashboardFragment;
-import org.envirocar.app.view.SettingsFragment;
+import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
+import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.injection.module.InjectionActivityModule;
 import org.envirocar.app.logging.Logger;
@@ -52,7 +49,9 @@ import org.envirocar.app.model.dao.DAOProvider;
 import org.envirocar.app.model.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.util.Util;
 import org.envirocar.app.util.VersionRange;
-import org.envirocar.app.view.dashboard.StartupFragment;
+import org.envirocar.app.view.LoginFragment;
+import org.envirocar.app.view.SettingsFragment;
+import org.envirocar.app.view.dashboard.DashboardMainFragment;
 import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.app.view.tracklist.NewListFragment;
 
@@ -142,6 +141,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private ActionBarDrawerToggle mDrawerToggle;
     private Subscription mPreferenceSubscription;
     private BluetoothServiceState mServiceState = BluetoothServiceState.SERVICE_STOPPED;
+    private Fragment mCurrentFragment;
+    private Fragment mStartupFragment;
 
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
@@ -188,10 +189,10 @@ public class BaseMainActivity extends BaseInjectorActivity {
         initNavigationDrawerLayout();
 
         // Set the DashboardFragment as initial fragment.
-        Fragment initialFragment = new RealDashboardFragment();
+        mStartupFragment = new DashboardMainFragment();
         getFragmentManager()
                 .beginTransaction()
-                .replace(R.id.content_frame, initialFragment, initialFragment.getClass()
+                .replace(R.id.content_frame, mStartupFragment, mStartupFragment.getClass()
                         .getSimpleName())
                 .commit();
 
@@ -284,7 +285,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
         super.onConfigurationChanged(newConfig);
         mDrawerToggle.onConfigurationChanged(newConfig);
     }
-
 
     private void checkAffectingAnnouncements() {
         final List<Announcement> annos;
@@ -441,32 +441,22 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         Fragment fragment = null;
         switch (menuItem.getItemId()) {
-            case R.id.menu_nav_drawer_dashboard_new:
-                fragment = new DashboardTempomatFragment();
-                break;
             case R.id.menu_nav_drawer_dashboard:
-                fragment = new RealDashboardFragment();
+                //                fragment = new RealDashboardFragment();
+                fragment = new DashboardMainFragment();
                 break;
             case R.id.menu_nav_drawer_tracklist_new:
                 fragment = new NewListFragment();
                 break;
-            case R.id.menu_nav_drawer_text:
-                fragment = new StartupFragment();
-                break;
             case R.id.menu_nav_drawer_tracklist:
                 fragment = new ListTracksFragment();
                 break;
-            case R.id.menu_nav_drawer_map:
-                return;
             case R.id.menu_nav_drawer_logbook:
                 fragment = new LogbookFragment();
                 break;
             case R.id.menu_nav_drawer_account_login:
                 fragment = new LoginFragment();
                 break;
-            //            case R.id.menu_nav_drawer_account_register:
-            //                fragment = new RegisterFragment();
-            //                break;
             case R.id.menu_nav_drawer_settings_general:
                 fragment = new SettingsFragment();
                 break;
@@ -483,20 +473,33 @@ public class BaseMainActivity extends BaseInjectorActivity {
             return;
 
         // Insert the fragment by replacing the existent fragment in the content frame.
-        getFragmentManager().beginTransaction()
-                .setCustomAnimations(
-                        selectedMenuItemID > menuItem.getItemId() ?
-                                R.anim.slide_in_left : R.anim.slide_in_right,
-                        selectedMenuItemID > menuItem.getItemId() ?
-                                R.anim.slide_out_right : R.anim.slide_out_left)
-                .replace(R.id.content_frame, fragment, fragment.getClass().getSimpleName())
-                .addToBackStack(null)
-                .commit();
+
+        replaceFragment(fragment,
+                selectedMenuItemID > menuItem.getItemId() ?
+                        R.anim.slide_in_left : R.anim.slide_in_right,
+                selectedMenuItemID > menuItem.getItemId() ?
+                        R.anim.slide_out_right : R.anim.slide_out_left);
+        mCurrentFragment = fragment;
 
         selectedMenuItemID = menuItem.getItemId();
 
         /// update the title of the toolbar.
         setTitle(menuItem.getTitle());
+    }
+
+    /**
+     * @param fragment
+     * @param animIn
+     * @param animOut
+     */
+    private void replaceFragment(Fragment fragment, int animIn, int animOut) {
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        if (animIn != -1 && animOut != -1) {
+            ft.setCustomAnimations(animIn, animOut);
+        }
+        ft.replace(R.id.content_frame, fragment, fragment.getClass().getSimpleName());
+        ft.addToBackStack(null);
+        ft.commit();
     }
 
     @Override

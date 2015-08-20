@@ -34,6 +34,7 @@ import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.ConnectionListener;
 import org.envirocar.app.protocol.OBDCommandLooper;
+import org.envirocar.app.services.trackdetails.TrackDetailsProvider;
 import org.envirocar.app.view.preferences.PreferenceConstants;
 
 import java.io.IOException;
@@ -76,6 +77,8 @@ public class OBDConnectionService extends Service {
     protected BluetoothHandler mBluetoothHandler;
     @Inject
     protected LocationHandler mLocationHandler;
+    @Inject
+    protected TrackDetailsProvider mTrackDetailsProvider;
 
     // Text to speech variables.
     private TextToSpeech mTTS;
@@ -107,6 +110,7 @@ public class OBDConnectionService extends Service {
 
         // register on the event bus
         this.mBus.register(this);
+        this.mBus.register(mTrackDetailsProvider);
 
         mTTS = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
@@ -172,7 +176,7 @@ public class OBDConnectionService extends Service {
         this.mBus.post(produceBluetoothServiceStateChangedEvent());
     }
 
-    @Produce
+//    @Produce
     public BluetoothServiceStateChangedEvent produceBluetoothServiceStateChangedEvent() {
         LOGGER.info(String.format("produceBluetoothServiceStateChangedEvent(): %s",
                 mServiceState.toString()));
@@ -190,9 +194,6 @@ public class OBDConnectionService extends Service {
         LOGGER.info("onDestroy()");
         super.onDestroy();
 
-        // Unregister from the event bus.
-        mBus.unregister(this);
-
         if (mCompositeSubscription != null)
             mCompositeSubscription.unsubscribe();
 
@@ -209,6 +210,11 @@ public class OBDConnectionService extends Service {
         // Stop this service and emove this service from foreground state.
         stopOBDConnection();
         stopForeground(true);
+
+        // Unregister from the event bus.
+        mBus.unregister(this);
+        mBus.unregister(mTrackDetailsProvider);
+        mTrackDetailsProvider.onOBDConnectionStopped();
     }
 
     @Subscribe

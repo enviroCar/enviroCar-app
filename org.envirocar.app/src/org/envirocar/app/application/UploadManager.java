@@ -208,11 +208,13 @@ public class UploadManager {
 		 */
         temporaryAlreadyRegisteredCars.put(tempId, car.getId());
         if (mCarManager.getCar().getId().equals(tempId)) {
+//        if (true) {
             mCarManager.setCar(car);
         }
     }
 
     private boolean hasTemporaryCar(Track track) {
+//        return true;
         return track.getCar().getId().startsWith(Car.TEMPORARY_SENSOR_ID);
     }
 

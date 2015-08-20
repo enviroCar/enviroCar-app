@@ -12,8 +12,6 @@ import org.envirocar.app.NotificationHandler;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.activity.ListTracksFragment;
 import org.envirocar.app.activity.LogbookFragment;
-import org.envirocar.app.view.LoginFragment;
-import org.envirocar.app.view.RegisterFragment;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.application.CarPreferenceHandler;
@@ -23,21 +21,24 @@ import org.envirocar.app.application.TemporaryFileManager;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.view.dashboard.DashboardTempomatFragment;
-import org.envirocar.app.view.SettingsFragment;
 import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.dao.DAOProvider;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.SystemStartupService;
+import org.envirocar.app.services.trackdetails.TrackDetailsProvider;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.LazyLoadingStrategy;
 import org.envirocar.app.storage.LazyLoadingStrategyImpl;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.view.LoginFragment;
+import org.envirocar.app.view.RegisterFragment;
+import org.envirocar.app.view.SettingsFragment;
 import org.envirocar.app.view.carselection.CarSelectionActivity;
 import org.envirocar.app.view.dashboard.DashboardMapFragment;
+import org.envirocar.app.view.dashboard.DashboardTempomatFragment;
 import org.envirocar.app.view.dashboard.DashboardTrackDetailsFragment;
 import org.envirocar.app.view.dashboard.DashboardTrackMapFragment;
 import org.envirocar.app.view.dashboard.DashboardTrackSettingsFragment;
@@ -107,6 +108,8 @@ public class InjectionApplicationModule {
     private final Application mApplication;
     private final Context mAppContext;
 
+    private Bus mBus;
+
     /**
      * Constructor.
      *
@@ -155,9 +158,10 @@ public class InjectionApplicationModule {
      * @return the application event bus.
      */
     @Provides
-    @Singleton
     Bus provideBus() {
-        return new Bus(ThreadEnforcer.ANY);
+        if(mBus == null)
+            mBus = new Bus(ThreadEnforcer.ANY);
+        return mBus;
     }
 
     /**
@@ -291,4 +295,8 @@ public class InjectionApplicationModule {
     TrackHandler provideTrackHandler() {
         return new TrackHandler(mAppContext);
     }
+
+    @Provides
+    @Singleton
+    TrackDetailsProvider provideTrackDetailsProvider() { return new TrackDetailsProvider(mBus); }
 }

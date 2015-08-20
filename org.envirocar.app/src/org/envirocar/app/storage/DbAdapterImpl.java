@@ -195,7 +195,6 @@ public class DbAdapterImpl implements DbAdapter {
     @Override
     public synchronized void insertMeasurement(Measurement measurement, boolean ignoreFinished)
             throws TrackAlreadyFinishedException, MeasurementSerializationException {
-        logger.warn("insertMeasurement()");
         if (!ignoreFinished) {
             Track tempTrack = getTrack(measurement.getTrackId(), true);
             if (tempTrack.isFinished()) {
@@ -204,7 +203,6 @@ public class DbAdapterImpl implements DbAdapter {
             }
         }
 
-        logger.warn("Inserting measurements: " + measurement);
 
         ContentValues values = new ContentValues();
 
@@ -222,8 +220,6 @@ public class DbAdapterImpl implements DbAdapter {
         values.put(KEY_MEASUREMENT_PROPERTIES, propertiesString);
 
         long res = mDb.insert(TABLE_MEASUREMENT, null, values);
-        logger.warn("Measurement inserted in track = " + measurement.getTrackId() + ", " +
-                "measurementID = " + res);
     }
 
     @Override
@@ -231,7 +227,6 @@ public class DbAdapterImpl implements DbAdapter {
             TrackAlreadyFinishedException, MeasurementSerializationException {
         TrackId activeTrack = getActiveTrackReference(
                 new Position(measurement.getLatitude(), measurement.getLongitude()));
-        logger.warn("insertNewMewasurement(): activeTrack ID = " +activeTrack.getId());
 
         measurement.setTrackId(activeTrack);
         insertMeasurement(measurement);
@@ -241,7 +236,6 @@ public class DbAdapterImpl implements DbAdapter {
 
     @Override
     public synchronized long insertTrack(Track track, boolean remote) {
-        logger.warn("insertTrack(" + track.getTrackId() + "," + remote + ")");
         ContentValues values = createDbEntry(track);
 
         long result = mDb.insert(TABLE_TRACK, null, values);
@@ -301,7 +295,6 @@ public class DbAdapterImpl implements DbAdapter {
 
     @Override
     public Track getTrack(TrackId id, boolean lazyMeasurements) {
-        logger.warn(String.format("getTrack(%s,%s)", "" + id, "" + lazyMeasurements));
         Cursor c = getCursorForTrackID(id.getId());
         if (!c.moveToFirst()) {
             return null;
@@ -597,7 +590,6 @@ public class DbAdapterImpl implements DbAdapter {
 
     @Override
     public List<Measurement> getAllMeasurementsForTrack(Track track) {
-        logger.warn("getAllMeasurementsForTrack id=" + track.getTrackId());
         ArrayList<Measurement> allMeasurements = new ArrayList<Measurement>();
 
         Cursor c = mDb.query(TABLE_MEASUREMENT, ALL_MEASUREMENT_KEYS,

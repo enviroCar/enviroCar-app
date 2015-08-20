@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.mapbox.mapboxsdk.overlay.UserLocationOverlay;
+import com.mapbox.mapboxsdk.tileprovider.MapTileCache;
 import com.mapbox.mapboxsdk.views.MapView;
 
 import org.envirocar.app.R;
@@ -38,11 +39,13 @@ public class DashboardMapFragment extends BaseInjectorFragment {
         // Inject all dashboard-related views.
         ButterKnife.inject(this, contentView);
 
+
         // Init the map view
         mMapView.setTileSource(MapUtils.getOSMTileLayer());
         mMapView.setUserLocationEnabled(true);
         mMapView.setUserLocationTrackingMode(UserLocationOverlay.TrackingMode.FOLLOW);
         mMapView.setUserLocationRequiredZoom(18);
+        mMapView.setDiskCacheEnabled(true);
 
         return contentView;
     }

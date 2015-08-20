@@ -32,13 +32,13 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:gravity="center"
-                    android:src="@drawable/gps_nofix"/>
+                    android:src="@drawable/ic_location_off_white_24dp"/>
 
                 <TextView
                     android:id="@+id/fragment_dashboard_header_gps_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="NO GPS"
+                    android:text="GPS"
                     android:textColor="@color/white_cario"
                     android:textSize="10sp"/>
 
