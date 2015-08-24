@@ -53,7 +53,7 @@ import org.envirocar.app.view.LoginFragment;
 import org.envirocar.app.view.SettingsFragment;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
 import org.envirocar.app.view.preferences.PreferenceConstants;
-import org.envirocar.app.view.tracklist.NewListFragment;
+import org.envirocar.app.view.tracklist.TrackListFragment;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -446,7 +446,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 fragment = new DashboardMainFragment();
                 break;
             case R.id.menu_nav_drawer_tracklist_new:
-                fragment = new NewListFragment();
+                fragment = new TrackListFragment();
                 break;
             case R.id.menu_nav_drawer_tracklist:
                 fragment = new ListTracksFragment();

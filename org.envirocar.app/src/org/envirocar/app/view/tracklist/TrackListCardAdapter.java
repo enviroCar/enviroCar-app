@@ -20,8 +20,8 @@ import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.view.utils.MapUtils;
 import org.envirocar.app.view.trackdetails.TrackSpeedMapOverlay;
+import org.envirocar.app.view.utils.MapUtils;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -39,9 +39,9 @@ import rx.android.schedulers.AndroidSchedulers;
 /**
  * @author dewall
  */
-public class TrackCardViewAdapter extends RecyclerView.Adapter<TrackCardViewAdapter
+public class TrackListCardAdapter extends RecyclerView.Adapter<TrackListCardAdapter
         .TrackCardViewHolder> {
-    private static final Logger LOGGER = Logger.getLogger(TrackCardViewAdapter.class);
+    private static final Logger LOGGER = Logger.getLogger(TrackListCardAdapter.class);
 
     private static final DecimalFormat DECIMAL_FORMATTER_TWO = new DecimalFormat("#.##");
     private static final DateFormat DATE_FORMAT = DateFormat.getDateTimeInstance();
@@ -56,7 +56,7 @@ public class TrackCardViewAdapter extends RecyclerView.Adapter<TrackCardViewAdap
 
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
-    private WebSourceTileLayer mOSMSourceLayer;
+    //    private WebSourceTileLayer mOSMSourceLayer;
 
     private final OnTrackInteractionCallback mTrackInteractionCallback;
 
@@ -65,15 +65,15 @@ public class TrackCardViewAdapter extends RecyclerView.Adapter<TrackCardViewAdap
      *
      * @param tracks the list of tracks to show cards for.
      */
-    public TrackCardViewAdapter(List<Track> tracks, final OnTrackInteractionCallback callback) {
+    public TrackListCardAdapter(List<Track> tracks, final OnTrackInteractionCallback callback) {
         this.mTrackDataset = tracks;
         this.mTrackInteractionCallback = callback;
-        this.mOSMSourceLayer = MapUtils.getOSMTileLayer();
+        //        this.mOSMSourceLayer = MapUtils.getOSMTileLayer();
     }
 
 
     @Override
-    public TrackCardViewAdapter.TrackCardViewHolder onCreateViewHolder(
+    public TrackListCardAdapter.TrackCardViewHolder onCreateViewHolder(
             ViewGroup parent, int viewType) {
 
         // First inflate the view.
@@ -86,7 +86,7 @@ public class TrackCardViewAdapter extends RecyclerView.Adapter<TrackCardViewAdap
 
 
     @Override
-    public void onBindViewHolder(final TrackCardViewAdapter.TrackCardViewHolder holder,
+    public void onBindViewHolder(final TrackListCardAdapter.TrackCardViewHolder holder,
                                  int position) {
         LOGGER.info("onBindViewHolder()");
 
@@ -101,14 +101,12 @@ public class TrackCardViewAdapter extends RecyclerView.Adapter<TrackCardViewAdap
         holder.mToolbar.setTitle(track.getName());
 
         // Initialize the mapView.
-        initMapView(holder);
+        initMapView(holder, track);
 
         // Set all the view parameters.
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-                // Set the trackpath.
-                initTrackPath(holder, track);
 
                 // Set the duration text.
                 try {
@@ -142,7 +140,8 @@ public class TrackCardViewAdapter extends RecyclerView.Adapter<TrackCardViewAdap
         }.execute();
 
         // if the menu is not already inflated, then..
-        if(!holder.mIsMenuInflated) {
+        if (!holder.mIsMenuInflated) {
+
             // Inflate the menu and set an appropriate OnMenuItemClickListener.
             holder.mToolbar.inflateMenu(R.menu.menu_tracklist_cardlayout);
             holder.mToolbar.setOnMenuItemClickListener(item -> {
@@ -208,41 +207,48 @@ public class TrackCardViewAdapter extends RecyclerView.Adapter<TrackCardViewAdap
     /**
      * Initializes the MapView, its base layers and settings.
      */
-    private void initMapView(TrackCardViewHolder holder) {
+    private void initMapView(TrackCardViewHolder holder, Track track) {
+        WebSourceTileLayer layer = MapUtils.getOSMTileLayer();
+
         // Set the openstreetmap tile layer as baselayer of the map.
-        holder.mMapView.setTileSource(mOSMSourceLayer);
+        holder.mMapView.setTileSource(layer);
 
         // set the bounding box and min and max zoom level accordingly.
-        BoundingBox box = mOSMSourceLayer.getBoundingBox();
+        BoundingBox box = layer.getBoundingBox();
+        holder.mMapView.setDiskCacheEnabled(true);
         holder.mMapView.setScrollableAreaLimit(box);
         holder.mMapView.setMinZoomLevel(holder.mMapView.getTileProvider().getMinimumZoomLevel());
         holder.mMapView.setMaxZoomLevel(holder.mMapView.getTileProvider().getMaximumZoomLevel());
         holder.mMapView.setCenter(holder.mMapView.getTileProvider().getCenterCoordinate());
         holder.mMapView.setZoom(0);
-    }
 
-    /**
-     * @param track
-     */
-    private void initTrackPath(TrackCardViewHolder holder, Track track) {
-        // Configure the line representation.
-        Paint linePaint = new Paint();
-        linePaint.setStyle(Paint.Style.STROKE);
-        linePaint.setColor(Color.BLUE);
-        linePaint.setStrokeWidth(5);
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                // Configure the line representation.
+                Paint linePaint = new Paint();
+                linePaint.setStyle(Paint.Style.STROKE);
+                linePaint.setColor(Color.BLUE);
+                linePaint.setStrokeWidth(5);
 
-        TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
-        trackMapOverlay.setPaint(linePaint);;
-        holder.mMapView.getOverlays().add(trackMapOverlay);
+                TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
+                trackMapOverlay.setPaint(linePaint);
 
-        final BoundingBox viewBbox = trackMapOverlay.getmViewBoundingBox();
-        final BoundingBox scrollableLimit = trackMapOverlay.getScrollableLimitBox();
+                final BoundingBox viewBbox = trackMapOverlay.getViewBoundingBox();
+                final BoundingBox scrollableLimit = trackMapOverlay.getScrollableLimitBox();
 
-        // Set the computed parameters on the main thread.
-        mMainThreadWorker.schedule(() -> {
-            holder.mMapView.zoomToBoundingBox(viewBbox, true);
-            holder.mMapView.setScrollableAreaLimit(scrollableLimit);
-        });
+                mMainThreadWorker.schedule(() -> {
+                    holder.mMapView.getOverlays().clear();
+                    holder.mMapView.getOverlays().add(trackMapOverlay);
+
+                    // Set the computed parameters on the main thread.
+                    holder.mMapView.setScrollableAreaLimit(scrollableLimit);
+                    holder.mMapView.setConstraintRegionFit(true);
+                    holder.mMapView.zoomToBoundingBox(viewBbox, true);
+                });
+                return null;
+            }
+        }.execute();
     }
 
 

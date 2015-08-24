@@ -129,8 +129,8 @@ public class NotificationHandler {
         builder.setSmallIcon(state.getSmallIconId());
 
         // TODO
-        builder.setLargeIcon(getBitmap(
-                mContext.getResources().getDrawable(state.getLargeIconId())));
+//        builder.setLargeIcon(getBitmap(
+//                mContext.getResources().getDrawable(state.getLargeIconId())));
         builder.setContentIntent(mBaseContentIntent);
 
         if (state.isShowingBigText()) {

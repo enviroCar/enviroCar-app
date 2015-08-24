@@ -35,12 +35,11 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 
 /**
  * @author dewall
  */
-public class NewListFragment extends BaseInjectorFragment {
+public class TrackListFragment extends BaseInjectorFragment {
     private static final Logger LOGGER = Logger.getLogger(ListTracksFragment.class);
 
     @Inject
@@ -77,7 +76,7 @@ public class NewListFragment extends BaseInjectorFragment {
         mRecylcerViewLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mRecylcerViewLayoutManager);
 
-        mRecyclerViewAdapter = new TrackCardViewAdapter(mTrackList,
+        mRecyclerViewAdapter = new TrackListCardAdapter(mTrackList,
                 mOnTrackInteractionCallback);
         mRecyclerView.setAdapter(mRecyclerViewAdapter);
 

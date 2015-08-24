@@ -57,8 +57,7 @@ public class SystemStartupReceiver extends BroadcastReceiver {
     private void startSystemStartupService(Context context) {
         // Get the preference related to the autoconnection.
         boolean autoStartService = PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(PreferenceConstants.
-                        PREFERENCE_TAG_BLUETOOTH_SERVICE_AUTOSTART, false);
+                .getBoolean(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_SERVICE_AUTOSTART, false);
 
         // If autostart service is on and the service is not already running,
         // then start the background service.

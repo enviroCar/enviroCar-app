@@ -53,6 +53,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import rx.Observable;
+
 public class DbAdapterImpl implements DbAdapter {
 
     private static final Logger logger = Logger.getLogger(DbAdapterImpl.class);
@@ -291,6 +293,11 @@ public class DbAdapterImpl implements DbAdapter {
         }
         c.close();
         return tracks;
+    }
+
+    @Override
+    public Observable<Track> getTrackObservable(boolean lazyMeasurements) {
+        return null;
     }
 
     @Override

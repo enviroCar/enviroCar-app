@@ -76,6 +76,7 @@
         <activity
             android:name="org.envirocar.app.view.obdselection.OBDSelectionActivity"
             android:screenOrientation="portrait"/>
+        <activity android:name="org.envirocar.app.view.trackdetails.TrackStatisticsActivity"/>
 
         <service
             android:name="org.envirocar.app.services.SystemStartupService"
@@ -90,6 +91,7 @@
             android:label="@string/title_activity_map"
             android:theme="@android:style/Theme.Dialog">
         </activity>
+
 
 
         <receiver android:name="org.envirocar.app.services.SystemStartupReceiver">

@@ -49,6 +49,9 @@ dependencies {
     compile 'com.gordonwong:material-sheet-fab:1.0.1'
 //    compile 'com.github.clans:fab:1.5.5'
     compile 'com.afollestad:material-dialogs:0.7.6.0'
+
+    // HelloCharts dependency
+    compile 'com.github.lecho:hellocharts-library:1.5.5@aar'
 }
 
 

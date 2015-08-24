@@ -258,7 +258,7 @@ public class TrackSpeedMapOverlay extends PathOverlay {
      *
      * @return the BoundingBox of the track.
      */
-    public BoundingBox getmViewBoundingBox() {
+    public BoundingBox getViewBoundingBox() {
         return mViewBoundingBox;
     }
 

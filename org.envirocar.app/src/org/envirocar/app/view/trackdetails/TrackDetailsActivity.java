@@ -7,19 +7,17 @@ import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.transition.Slide;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
 
 import com.mapbox.mapboxsdk.geometry.BoundingBox;
-import com.mapbox.mapboxsdk.overlay.PathOverlay;
 import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 import com.mapbox.mapboxsdk.views.MapView;
 
@@ -30,8 +28,8 @@ import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.model.TrackId;
 import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
 import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.view.utils.MapUtils;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -46,11 +44,6 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import rx.Observable;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
 
 /**
  * @author dewall
@@ -81,6 +74,8 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     @Inject
     protected DbAdapter mDBAdapter;
 
+    @InjectView(R.id.activity_track_details_fab)
+    protected FloatingActionButton mFAB;
     @InjectView(R.id.activity_track_details_header_map)
     protected MapView mMapView;
     @InjectView(R.id.activity_track_details_header_toolbar)
@@ -144,6 +139,12 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
         updateStatusBarColor();
 
+        mFAB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                TrackStatisticsActivity.createInstance(TrackDetailsActivity.this, mTrackID);
+            }
+        });
     }
 
     private void updateStatusBarColor() {
@@ -189,12 +190,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
      */
     private void initMapView() {
         // Set the openstreetmap tile layer as baselayer of the map.
-        WebSourceTileLayer source = new WebSourceTileLayer("openstreetmap", "http://tile" +
-                ".openstreetmap.org/{z}/{x}/{y}.png");
-        source.setName("OpenStreetMap")
-                .setAttribution("OpenStreetMap Contributors")
-                .setMinimumZoomLevel(1)
-                .setMaximumZoomLevel(18);
+        WebSourceTileLayer source = MapUtils.getOSMTileLayer();
         mMapView.setTileSource(source);
 
         // set the bounding box and min and max zoom level accordingly.
@@ -222,11 +218,13 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         // Adds the path overlay to the mapview.
         mMapView.getOverlays().add(trackMapOverlay);
 
-        final BoundingBox viewBbox = trackMapOverlay.getmViewBoundingBox();
+        final BoundingBox viewBbox = trackMapOverlay.getViewBoundingBox();
         final BoundingBox scrollableLimit = trackMapOverlay.getScrollableLimitBox();
 
-        mMapView.zoomToBoundingBox(viewBbox, true);
         mMapView.setScrollableAreaLimit(scrollableLimit);
+        mMapView.setConstraintRegionFit(true);
+        mMapView.zoomToBoundingBox(viewBbox, true);
+
     }
 
     private void initViewValues(Track track) {

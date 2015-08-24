@@ -43,7 +43,7 @@ import rx.schedulers.Schedulers;
 public class SystemStartupService extends Service {
     private static final Logger LOGGER = Logger.getLogger(SystemStartupService.class);
 
-    private static final int REDISCOVERY_INTERVAL = 30;
+    private static final int REDISCOVERY_INTERVAL = 15;
 
     // Static identifiers for actions for the broadcast receiver.
     public static final String ACTION_START_BT_DISCOVERY = "action_start_bt_discovery";
@@ -66,7 +66,7 @@ public class SystemStartupService extends Service {
 
 
     private Scheduler.Worker mWorkerThread = Schedulers.newThread().createWorker();
-    private boolean mIsAutoconnct;
+    private boolean mIsAutoconnect;
     private int mDiscoveryInterval;
 
 
@@ -168,7 +168,7 @@ public class SystemStartupService extends Service {
         // Get the required preference settings.
         final SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
-        this.mIsAutoconnct = preferences.getBoolean(PreferenceConstants
+        this.mIsAutoconnect = preferences.getBoolean(PreferenceConstants
                 .PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT, PreferenceConstants
                 .DEFAULT_BLUETOOTH_AUTOCONNECT);
         this.mDiscoveryInterval = preferences.getInt(PreferenceConstants
@@ -213,8 +213,17 @@ public class SystemStartupService extends Service {
 
                     if (prefKey.equals(PreferenceConstants
                             .PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT)) {
-                        mIsAutoconnct = preferences.getBoolean(PreferenceConstants
+                        mIsAutoconnect = preferences.getBoolean(PreferenceConstants
                                 .PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT, false);
+
+                        // if autoconnect has been enabled, then schedule a new discovery.
+                        if(mIsAutoconnect) {
+                            scheduleDiscovery(REDISCOVERY_INTERVAL);
+                        }
+                        // otherwise, unschedule
+                        else {
+                            unscheduleDiscovery();
+                        }
                     } else {
                         mDiscoveryInterval = preferences.getInt(PreferenceConstants
                                         .PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL,
@@ -233,9 +242,11 @@ public class SystemStartupService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         LOGGER.info("onStartCommand()");
 
-        //
-        if (mBluetoothHandler.isBluetoothEnabled() && mBluetoothHandler
-                .getSelectedBluetoothDevice() != null && mCarManager.getCar() != null) {
+        // only start the discovery process if the required settings has been selected.
+        if (mBluetoothHandler.isBluetoothEnabled() &&
+                mBluetoothHandler.getSelectedBluetoothDevice() != null &&
+                mCarManager.getCar() != null &&
+                mIsAutoconnect) {
             scheduleDiscovery(-1);
         }
 
@@ -271,6 +282,8 @@ public class SystemStartupService extends Service {
         LOGGER.info(String.format("Received event. %s", event.toString()));
         if (!event.isBluetoothEnabled) {
             // When Bluetooth has been turned off, then this service is required to be closed.
+            if(mBluetoothHandler.isDiscovering())
+                mBluetoothHandler.stopBluetoothDeviceDiscovery();
             stopSelf();
         }
     }
@@ -338,13 +351,23 @@ public class SystemStartupService extends Service {
      */
     private void scheduleDiscovery(int delay) {
         // Unschedule all outstanding work.
-        if (mWorkerSubscription != null)
-            mWorkerSubscription.unsubscribe();
+        unscheduleDiscovery();
 
         // Reschedule a fresh discovery.
         mWorkerSubscription = mWorkerThread.schedule(() -> {
             startDiscoveryForSelectedDevice();
         }, delay, TimeUnit.SECONDS);
+    }
+
+    /**
+     * Stops the current discovery and/or the scheduled upcoming discovery.
+     */
+    private void unscheduleDiscovery(){
+        if(mWorkerSubscription != null){
+            if(mBluetoothHandler.isDiscovering())
+                mBluetoothHandler.stopBluetoothDeviceDiscovery();
+            mWorkerSubscription.unsubscribe();
+        }
     }
 
     /**
@@ -440,7 +463,7 @@ public class SystemStartupService extends Service {
 
                             // Depending on the individual settings either start the background
                             // service or update the notification state.
-                            if (mIsAutoconnct) {
+                            if (mIsAutoconnect) {
                                 LOGGER.info("[Autoconnect is on]. Try to start the connection to " +
                                         "the selected OBD adapter.");
 
@@ -472,9 +495,10 @@ public class SystemStartupService extends Service {
                                 mNotificationHandler.setNotificationState(SystemStartupService.this,
                                         NotificationHandler.NotificationState.UNCONNECTED);
 
-                                scheduleDiscovery(mDiscoveryInterval);
-                            } else {
-
+                                // Reschedule the discovery if it is enabled.
+                                if (mIsAutoconnect) {
+                                    scheduleDiscovery(mDiscoveryInterval);
+                                }
                             }
 
                             if (mDiscoverySubscription != null) {

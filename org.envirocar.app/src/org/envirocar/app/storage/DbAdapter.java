@@ -29,6 +29,8 @@ import org.envirocar.app.model.Position;
 import org.envirocar.app.model.TrackId;
 import org.envirocar.app.storage.Track.TrackStatus;
 
+import rx.Observable;
+
 
 /**
  * DB Adapter Interface that saves measurements in a local SQLite Database
@@ -127,6 +129,8 @@ public interface DbAdapter {
 	 * @return all tracks
 	 */
 	public List<Track> getAllTracks(boolean lazyMeasurements);
+
+	public Observable<Track> getTrackObservable(boolean lazyMeasurements);
 	
 	/**
 	 * Returns one track specified by the id

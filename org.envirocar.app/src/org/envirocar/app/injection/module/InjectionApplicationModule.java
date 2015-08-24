@@ -48,7 +48,8 @@ import org.envirocar.app.view.preferences.BluetoothDiscoveryIntervalPreference;
 import org.envirocar.app.view.preferences.BluetoothPairingPreference;
 import org.envirocar.app.view.preferences.SelectBluetoothPreference;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
-import org.envirocar.app.view.tracklist.NewListFragment;
+import org.envirocar.app.view.trackdetails.TrackStatisticsActivity;
+import org.envirocar.app.view.tracklist.TrackListFragment;
 
 import javax.inject.Singleton;
 
@@ -87,7 +88,7 @@ import dagger.Provides;
                 LazyLoadingStrategyImpl.class,
                 TrackHandler.class,
                 UserManager.class,
-                NewListFragment.class,
+                TrackListFragment.class,
                 TrackDetailsActivity.class,
                 CarSelectionActivity.class,
                 OBDSelectionActivity.class,
@@ -96,7 +97,8 @@ import dagger.Provides;
                 DashboardTrackSettingsFragment.class,
                 DashboardMapFragment.class,
                 OBDSelectionFragment.class,
-                DashboardTrackMapFragment.class
+                DashboardTrackMapFragment.class,
+                TrackStatisticsActivity.class
         },
         staticInjections = {Track.class},
         library = true,
