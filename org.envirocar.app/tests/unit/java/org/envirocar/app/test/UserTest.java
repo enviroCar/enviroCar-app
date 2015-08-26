@@ -34,8 +34,7 @@ public class UserTest extends ResourceLoadingTestCase {
 
 	@Test
 	public void testUserParsing() throws IOException, JSONException {
-		InputStream is = getInstrumentation().getContext().getAssets().open("user_mockup.json");
-		User user = User.fromJson(readJson(is));
+		User user = User.fromJson(readJsonAsset("user_mockup.json"));
 		
 		Assert.assertTrue("missing touVersion", user.getTouVersion() != null);
 		Assert.assertTrue("unexpected acceptedTermsOfUseVersion", user.getTouVersion().equals("2013-10-02"));

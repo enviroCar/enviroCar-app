@@ -24,9 +24,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Scanner;
 
-import android.test.InstrumentationTestCase;
-
-public class ResourceLoadingTestCase extends InstrumentationTestCase {
+public class ResourceLoadingTestCase {
 
 	protected String readJson(InputStream in) {
 		Scanner sc = new Scanner(in, "UTF-8");
@@ -42,7 +40,7 @@ public class ResourceLoadingTestCase extends InstrumentationTestCase {
 	}
 	
 	protected String readJsonAsset(String assetRes) throws IOException {
-		return readJson(getInstrumentation().getContext().getAssets().open(assetRes));
+		return readJson(getClass().getResourceAsStream(assetRes));
 	}
 	
 }

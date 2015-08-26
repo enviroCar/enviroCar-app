@@ -10,7 +10,6 @@ import org.envirocar.app.json.TrackDecoder;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Track.TrackStatus;
-import org.envirocar.app.test.ResourceLoadingTestCase;
 import org.json.JSONException;
 
 public class TrackJsonParsingTest extends ResourceLoadingTestCase {

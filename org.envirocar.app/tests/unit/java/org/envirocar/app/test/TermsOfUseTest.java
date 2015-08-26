@@ -33,7 +33,7 @@ public class TermsOfUseTest extends ResourceLoadingTestCase {
 
 	
 	public void testTermsOfUseParsing() throws JSONException, IOException {
-		JSONObject json = new JSONObject(readJson(getInstrumentation().getContext().getAssets().open("terms_of_use_mockup.json")));
+		JSONObject json = new JSONObject(readJsonAsset("terms_of_use_mockup.json"));
 		TermsOfUse tou = TermsOfUse.fromJson(json);
 		
 		Assert.assertTrue("Unexpected element count.", tou.getInstances().size() == 2);
@@ -45,7 +45,7 @@ public class TermsOfUseTest extends ResourceLoadingTestCase {
 	
 
 	public void testTermsOfUseInstanceParsing() throws JSONException, IOException {
-		JSONObject json = new JSONObject(readJson(getInstrumentation().getContext().getAssets().open("terms_of_use_instance_mockup.json")));
+		JSONObject json = new JSONObject(readJsonAsset("terms_of_use_instance_mockup.json"));
 		TermsOfUseInstance tou = TermsOfUseInstance.fromJson(json);
 		
 		Assert.assertTrue("Unexpected issuedDate", tou.getIssuedDate().equals("2022-06-09"));

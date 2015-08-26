@@ -21,6 +21,9 @@
 
 package org.envirocar.app.test;
 
+import android.os.Environment;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 
@@ -34,11 +37,15 @@ import org.envirocar.app.model.Fueling;
 import org.envirocar.app.model.NumberWithUOM;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.powermock.api.mockito.PowerMockito;
 
 public class FuelingEncoderTest extends ResourceLoadingTestCase {
 	
-	private Car car = new Car(FuelType.GASOLINE, "manuf", "modl", "51cac874e4b0a34fb6c5ce94", 1234, 2345);
-
+	@Test
 	public void testTrackJsonCreation() throws JSONException,  IOException, InvalidObjectStateException {
 		String expected = createExpectedJson().toString();
 		
@@ -49,6 +56,7 @@ public class FuelingEncoderTest extends ResourceLoadingTestCase {
 		Assert.assertTrue("The JSON was not as expected!", json.equals(expected));
 	}
 
+	@Test
 	public void testExceptionOnIncompleteObject() throws JSONException {
 		Exception exc = null;
 		try {
@@ -61,6 +69,7 @@ public class FuelingEncoderTest extends ResourceLoadingTestCase {
 	}
 	
 	private Fueling createFueling() {
+        Car car = new Car(FuelType.GASOLINE, "manuf", "modl", "51cac874e4b0a34fb6c5ce94", 1234, 2345);
 		Fueling result = new Fueling();
 		result.setCar(car);
 		result.setComment("test");
