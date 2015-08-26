@@ -52,6 +52,8 @@ dependencies {
 
     // HelloCharts dependency
     compile 'com.github.lecho:hellocharts-library:1.5.5@aar'
+
+    testCompile 'junit:junit:4.12'
 }
 
 
@@ -77,7 +79,8 @@ android {
         }
 
         // Move the tests to tests/java, tests/res, etc...
-        instrumentTest.setRoot('tests')
+        test.setRoot('tests/unit')
+        androidTest.setRoot('tests/android')
 
         // Move the build types to build-types/<type>
         // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
