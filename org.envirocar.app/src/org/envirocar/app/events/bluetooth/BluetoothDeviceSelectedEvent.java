@@ -23,8 +23,8 @@ public class BluetoothDeviceSelectedEvent {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("Device Name", mDevice.getName())
-                .add("Device Address", mDevice.getAddress())
+                .add("Device Name", mDevice != null ? mDevice.getName() : "null")
+                .add("Device Address", mDevice != null ? mDevice.getAddress() : "null")
                 .toString();
     }
 }

@@ -3,8 +3,26 @@
                 xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/material_blue_grey_900"
-                android:orientation="vertical">
+                android:background="@color/material_blue_grey_900">
+
+    <LinearLayout
+        android:id="@+id/fragment_startup_info_field"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#88263238"
+        android:elevation="6dp">
+
+        <TextView
+            android:id="@+id/fragment_startup_info_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Please make the following settings:"
+            android:layout_margin="@dimen/spacing_large"
+            android:textSize="14sp"
+            android:textColor="@color/white_cario"/>
+
+    </LinearLayout>
 
     <fragment
         android:id="@+id/fragment_dashboard_header_fragment"
@@ -54,10 +72,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/fragment_startup_start_button"/>
-    <!--<include-->
-    <!--layout="@layout/fragment_startup_settings_layout"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_above="@+id/fragment_startup_start_button"/>-->
 
 </RelativeLayout>

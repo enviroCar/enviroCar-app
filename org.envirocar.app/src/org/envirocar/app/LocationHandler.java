@@ -1,6 +1,9 @@
 package org.envirocar.app;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
@@ -8,12 +11,12 @@ import android.location.LocationManager;
 import android.os.Bundle;
 
 import com.squareup.otto.Bus;
-import com.squareup.otto.Produce;
 
 import org.envirocar.app.events.GpsDOP;
 import org.envirocar.app.events.GpsDOPEvent;
 import org.envirocar.app.events.GpsSatelliteFix;
 import org.envirocar.app.events.GpsSatelliteFixEvent;
+import org.envirocar.app.events.GpsStateChangedEvent;
 import org.envirocar.app.events.LocationChangedEvent;
 import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
@@ -31,26 +34,6 @@ public class LocationHandler {
     private static final String GPGSA = "$GPGSA";
     private static final String NMEA_SEP = ",";
 
-    // Injected variables.
-    @Inject
-    @InjectApplicationScope
-    protected Context mContext;
-    @Inject
-    protected Bus mBus;
-
-    private LocationManager mLocationManager;
-
-    // Location fields
-    private Location mLastLocationUpdate;
-    private Location mLastBestLocation;
-
-    // the last satellite fix of GPS events.
-    private GpsSatelliteFix mLastGpsSatelliteFix;
-
-    // Dultion of Precision (DOP) to specify multiplicative effect of
-    // navigation satellite geometry on positional measurement precision.
-    private GpsDOP mLastGpsDOP;
-
     protected final LocationListener mLocationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
@@ -67,11 +50,17 @@ public class LocationHandler {
         @Override
         public void onProviderEnabled(String provider) {
             LOGGER.info(String.format("onProviderEnabled(): %s", provider));
+//            if (provider.equals(LocationManager.GPS_PROVIDER)) {
+//                mBus.post(new GpsStateChangedEvent(true));
+//            }
         }
 
         @Override
         public void onProviderDisabled(String provider) {
             LOGGER.info(String.format("onProviderDisabled(): %s", provider));
+//            if (provider.equals(LocationManager.GPS_PROVIDER)) {
+//                mBus.post(new GpsStateChangedEvent(false));
+//            }
         }
     };
 
@@ -165,6 +154,28 @@ public class LocationHandler {
         }
     };
 
+    // Injected variables.
+    @Inject
+    @InjectApplicationScope
+    protected Context mContext;
+    @Inject
+    protected Bus mBus;
+
+    private LocationManager mLocationManager;
+
+    // Location fields
+    private Location mLastLocationUpdate;
+    private Location mLastBestLocation;
+
+    // the last satellite fix of GPS events.
+    private GpsSatelliteFix mLastGpsSatelliteFix;
+
+    // Dultion of Precision (DOP) to specify multiplicative effect of
+    // navigation satellite geometry on positional measurement precision.
+    private GpsDOP mLastGpsDOP;
+
+    private BroadcastReceiver mGPSStateReceiver;
+
     /**
      * Constructor.
      *
@@ -173,7 +184,6 @@ public class LocationHandler {
     public LocationHandler(Context context) {
         // Inject ourselves and register on the bus.
         ((Injector) context).injectObjects(this);
-        this.mBus.register(this);
 
         // Sets the current Location updates to null.
         this.mLastLocationUpdate = null;
@@ -184,6 +194,19 @@ public class LocationHandler {
 
         // and initialize the last known location.
         initLastKnownLocation();
+
+        // Register a new broadcast receiver for state transitions related to GPS.
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
+        mGPSStateReceiver = new GpsStateReceiver(isGPSEnabled());
+        context.registerReceiver(mGPSStateReceiver, filter);
+    }
+
+    /**
+     * @return true if GPS is enabled.
+     */
+    public boolean isGPSEnabled() {
+        return mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
     }
 
     /**
@@ -203,21 +226,21 @@ public class LocationHandler {
         mLocationManager.removeNmeaListener(mNmeaListener);
     }
 
-//    @Produce
+    //    @Produce
     public LocationChangedEvent produceLocationChangedEvent() {
         if (mLastBestLocation == null)
             return null;
         return new LocationChangedEvent(mLastBestLocation);
     }
 
-//    @Produce
+    //    @Produce
     public GpsDOPEvent produceGpsDOPEvent() {
         if (mLastGpsDOP == null)
             return null;
         return new GpsDOPEvent(mLastGpsDOP);
     }
 
-//    @Produce
+    //    @Produce
     public GpsSatelliteFixEvent produceGpsSatelliteFixEvent() {
         if (mLastGpsSatelliteFix == null)
             return null;
@@ -241,4 +264,32 @@ public class LocationHandler {
         }
     }
 
+    /**
+     * GPSStateReceiver
+     */
+    private final class GpsStateReceiver extends BroadcastReceiver {
+        private boolean previousState;
+
+        /**
+         * Constructor.
+         *
+         * @param currentState tbe current state of the GPS module.
+         */
+        public GpsStateReceiver(boolean currentState) {
+            this.previousState = currentState;
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(LocationManager.PROVIDERS_CHANGED_ACTION)) {
+                // get the current gps state.
+                boolean isActivated = isGPSEnabled();
+                // if the previous state is different to the current state, then fire a new event.
+                if(previousState != isActivated){
+                    mBus.post(new GpsStateChangedEvent(isActivated));
+                    previousState = isActivated;
+                }
+            }
+        }
+    }
 }

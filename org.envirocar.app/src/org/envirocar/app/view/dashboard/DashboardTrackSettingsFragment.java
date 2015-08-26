@@ -145,7 +145,7 @@ public class DashboardTrackSettingsFragment extends BaseInjectorFragment {
             mOBDTypeSubTextView.setText("Please enable bluetooth.");
             mOBDTypeSubTextView.setVisibility(View.VISIBLE);
         } else if (device == null) {
-            mOBDTypeTextView.setText("No paired OBD device selected.");
+            mOBDTypeTextView.setText("No OBD device selected.");
             mOBDTypeSubTextView.setVisibility(View.GONE);
         } else {
             mOBDTypeTextView.setText(device.getName());

@@ -115,86 +115,113 @@ public class TrackListFragment extends BaseInjectorFragment {
 
                 @Override
                 public void onDeleteTrackClicked(Track track) {
-
-                    // Get the up to date reference of the current track.
-                    Track upToDateRef = mDBAdapter.getTrack(track.getTrackId(), true);
-
-                    // If the track is a local track
-                    if (upToDateRef.isLocalTrack()) {
-                        new MaterialDialog.Builder(getActivity())
-                                .title(R.string.trackviews_delete_track_dialog_headline)
-                                .content(String.format(getResources().getString(R.string
-                                        .trackviews_delete_track_dialog_content), track.getName()))
-                                .positiveText(R.string.ok)
-                                .negativeText(R.string.cancel)
-                                .callback(new MaterialDialog.ButtonCallback() {
-                                    @Override
-                                    public void onPositive(MaterialDialog dialog) {
-
-                                        // If the track has been successfully deleted.
-                                        if (mTrackHandler.deleteTrack(upToDateRef.getTrackId())) {
-                                            // Show a snackbar notification
-                                            Snackbar.make(getView(), R.string
-                                                            .trackviews_delete_track_snackbar_success,
-                                                    Snackbar.LENGTH_LONG).show();
-
-                                            // and update the view elements
-                                            mTrackHandler.deleteTrack(upToDateRef);
-                                            mTrackList.remove(track);
-                                            mRecyclerViewAdapter.notifyDataSetChanged();
-                                        }
-                                    }
-                                })
-                                .show();
-                    } else {
-
-                    }
+                    LOGGER.info(String.format("onDeleteTrackClicked(%s)", track.getTrackId()));
+                    // create a dialog
+                    createDeleteTrackDialog(track);
                 }
 
                 @Override
                 public void onUploadTrackClicked(Track track) {
-
-                    mTrackHandler.uploadTrack(getActivity(), track, new TrackHandler
-                            .TrackUploadCallback() {
-
-                        private MaterialDialog mProgressDialog;
-
-                        @Override
-                        public void onUploadStarted(Track track) {
-                            mMainThreadWorker.schedule(() ->
-                                    mProgressDialog = new MaterialDialog.Builder(getActivity())
-                                    .title("Progress Dialog")
-                                    .content("Please wait...")
-                                    .progress(true, 0)
-                                    .show());
-                        }
-
-                        @Override
-                        public void onSuccessfulUpload(Track track) {
-                            if (mProgressDialog != null)
-                                mProgressDialog.dismiss();
-                            Snackbar.make(getView(), "Track upload was successful", Snackbar
-                                    .LENGTH_LONG).show();
-
-                            // Update the lists.
-                        }
-
-                        @Override
-                        public void onError(Track track, String message) {
-                            if (mProgressDialog != null)
-                                mProgressDialog.dismiss();
-                            Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
-                        }
-                    });
+                    LOGGER.info(String.format("onUploadTrackClicked(%s)", track.getTrackId()));
+                    // Upload the track
+                    uploadTrack(track);
                 }
-
 
                 @Override
                 public void onExportTrackClicked(Track track) {
-
+                    LOGGER.info(String.format("onExportTrackClicked(%s)", track.getTrackId()));
+                    exportTrack(track);
                 }
             };
 
+    private void uploadTrack(Track track) {
+        mTrackHandler.uploadTrack(getActivity(), track, new TrackHandler
+                .TrackUploadCallback() {
+
+            private MaterialDialog mProgressDialog;
+
+            @Override
+            public void onUploadStarted(Track track) {
+                mMainThreadWorker.schedule(() ->
+                        mProgressDialog = new MaterialDialog.Builder(getActivity())
+                                .title("Progress Dialog")
+                                .content("Please wait...")
+                                .progress(true, 0)
+                                .show());
+            }
+
+            @Override
+            public void onSuccessfulUpload(Track track) {
+                if (mProgressDialog != null)
+                    mProgressDialog.dismiss();
+                Snackbar.make(getView(), "Track upload was successful", Snackbar
+                        .LENGTH_LONG).show();
+
+                // Update the lists.
+            }
+
+            @Override
+            public void onError(Track track, String message) {
+                if (mProgressDialog != null)
+                    mProgressDialog.dismiss();
+                Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    /**
+     * Creates a Dialog for the deletion of a track. On a positive click, the track gets deleted.
+     *
+     * @param track the track to delete.
+     */
+    private void createDeleteTrackDialog(Track track) {
+        // Get the up to date reference of the current track.
+        Track upToDateRef = mDBAdapter.getTrack(track.getTrackId(), true);
+
+        // If the track is a local track
+        if (upToDateRef.isLocalTrack()) {
+            new MaterialDialog.Builder(getActivity())
+                    .title(R.string.trackviews_delete_track_dialog_headline)
+                    .content(String.format(getResources().getString(R.string
+                            .trackviews_delete_track_dialog_content), track.getName()))
+                    .positiveText(R.string.ok)
+                    .negativeText(R.string.cancel)
+                    .callback(new MaterialDialog.ButtonCallback() {
+                        @Override
+                        public void onPositive(MaterialDialog dialog) {
+                            // On a positive button click, then delete the track.
+                            deleteTrack(track);
+                        }
+                    })
+                    .show();
+        } else {
+
+        }
+    }
+
+    private void deleteTrack(Track track) {
+        // Get the up to date reference of the current track.
+        Track upToDateRef = mDBAdapter.getTrack(track.getTrackId(), true);
+
+        // If the track has been successfully deleted.
+        if (upToDateRef.isLocalTrack() && mTrackHandler.deleteTrack(upToDateRef.getTrackId())) {
+            // Show a snackbar notification
+            Snackbar.make(getView(), R.string
+                            .trackviews_delete_track_snackbar_success,
+                    Snackbar.LENGTH_LONG).show();
+
+            // and update the view elements
+            mTrackHandler.deleteTrack(upToDateRef);
+            mTrackList.remove(track);
+            mRecyclerViewAdapter.notifyDataSetChanged();
+
+            LOGGER.info("deleteTrack: Successfully delete track with id=" + track.getTrackId());
+        }
+    }
+
+    private void exportTrack(Track track) {
+        // TODO
+    }
 
     private final class RemoteDownloadTracksTask extends AsyncTask<Void, Void, Void> {
 

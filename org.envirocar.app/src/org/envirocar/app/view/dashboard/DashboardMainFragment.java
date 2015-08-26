@@ -25,12 +25,16 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.LocationHandler;
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.app.bluetooth.service.BluetoothServiceState;
+import org.envirocar.app.events.GpsStateChangedEvent;
+import org.envirocar.app.events.NewCarTypeSelectedEvent;
 import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
+import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.services.OBDConnectionService;
@@ -44,6 +48,7 @@ import butterknife.OnClick;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 
 /**
  * @author dewall
@@ -59,10 +64,18 @@ public class DashboardMainFragment extends BaseInjectorFragment {
     protected CarPreferenceHandler mCarManager;
     @Inject
     protected TrackHandler mTrackHandler;
+    @Inject
+    protected LocationHandler mLocationHandler;
+
+    @InjectView(R.id.fragment_startup_info_field)
+    protected View mInfoField;
+    @InjectView(R.id.fragment_startup_info_text)
+    protected TextView mInfoText;
     @InjectView(R.id.fragment_startup_start_button)
     protected View mStartStopButton;
+    @InjectView(R.id.fragment_startup_start_button_inner)
+    protected TextView mStartStopButtonInner;
 
-    private boolean mIsHeaderShown = false;
     private MaterialDialog mConnectingDialog;
 
 
@@ -89,11 +102,6 @@ public class DashboardMainFragment extends BaseInjectorFragment {
             mIsOBDConnectionBounded = false;
         }
     };
-
-
-    @InjectView(R.id.fragment_startup_start_button_inner)
-    protected TextView mStartStopButtonInner;
-
 
     private Scheduler.Worker mMainThreadScheduler = AndroidSchedulers.mainThread().createWorker();
 
@@ -138,6 +146,12 @@ public class DashboardMainFragment extends BaseInjectorFragment {
         return contentView;
     }
 
+    @Override
+    public void onResume() {
+        updateStartStopButton(OBDConnectionService.CURRENT_SERVICE_STATE);
+        updateInfoField();
+        super.onResume();
+    }
 
     @Override
     public void onDestroyView() {
@@ -191,7 +205,15 @@ public class DashboardMainFragment extends BaseInjectorFragment {
     }
 
     private void onButtonStartClicked() {
+        if (!mBluetoothHandler.isBluetoothEnabled()) {
+            Snackbar.make(getView(),
+                    "Bluetooth is disabled. Please enable Bluetooth before starting a track",
+                    Snackbar.LENGTH_LONG);
+            return;
+        }
+
         final BluetoothDevice device = mBluetoothHandler.getSelectedBluetoothDevice();
+
         mBluetoothHandler.startBluetoothDiscoveryForSingleDevice(device)
                 .subscribe(new Subscriber<BluetoothDevice>() {
                     boolean found = false;
@@ -294,9 +316,44 @@ public class DashboardMainFragment extends BaseInjectorFragment {
             mConnectingDialog = null;
         }
 
-        mMainThreadScheduler.schedule(() -> onShowServiceStateUI(event.mState));
-
+        mMainThreadScheduler.schedule(() -> {
+            onShowServiceStateUI(event.mState);
+            // Update the start stop button.
+            updateStartStopButton(event.mState);
+            // Update the info field.
+            updateInfoField();
+        });
     }
+
+    @Subscribe
+    public void onReceiveBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
+        LOGGER.info(String.format("onReceiveBluetoothStateChangedEvent(isEnabled=%s)",
+                "" + event.isBluetoothEnabled));
+        mMainThreadScheduler.schedule(() -> {
+            updateStartStopButton(OBDConnectionService.CURRENT_SERVICE_STATE);
+            // Update the info field.
+            updateInfoField();
+        });
+    }
+
+    @Subscribe
+    public void onReceiveNewCarTypeSelectedEvent(NewCarTypeSelectedEvent event) {
+        mMainThreadScheduler.schedule(() -> {
+            updateStartStopButton(OBDConnectionService.CURRENT_SERVICE_STATE);
+            // Update the info field.
+            updateInfoField();
+        });
+    }
+
+    @Subscribe
+    public void onReceiveGpsStatusChangedEvent(GpsStateChangedEvent event) {
+        mMainThreadScheduler.schedule(() -> {
+            updateStartStopButton(OBDConnectionService.CURRENT_SERVICE_STATE);
+            // Update the info field.
+            updateInfoField();
+        });
+    }
+
 
     private void onShowServiceStateUI(BluetoothServiceState state) {
         switch (state) {
@@ -315,22 +372,14 @@ public class DashboardMainFragment extends BaseInjectorFragment {
 
                 // Replace the container with the mapview.
                 if (mCurrentlyVisible != mDashboardMapFragment)
+                    // TODO HERE CHANGE TO TRACK MAP FRAGMENT
                     replaceFragment(mDashboardMapFragment, R.id.fragment_startup_container,
                             mCurrentlyVisible != null ? R.anim.slide_in_left : -1,
                             mCurrentlyVisible != null ? R.anim.slide_out_right : -1);
 
                 mCurrentlyVisible = mDashboardMapFragment;
 
-                // Update the StartStopButton
-                updateStartStopButton(getResources().getColor(R.color.green_dark_cario),
-                        "START TRACK", true);
-                break;
-            case SERVICE_DEVICE_DISCOVERY_PENDING:
-                break;
-            case SERVICE_DEVICE_DISCOVERY_RUNNING:
-                break;
-            case SERVICE_STARTING:
-                updateStartStopButton(Color.GRAY, "TRACK IS STARTING...", false);
+
                 break;
             case SERVICE_STARTED:
                 // Hide the settings if visible
@@ -354,13 +403,76 @@ public class DashboardMainFragment extends BaseInjectorFragment {
 
                 mCurrentlyVisible = mDashboardTempomatFragment;
 
+                break;
+            case SERVICE_STOPPING:
+                break;
+        }
+    }
+
+    /**
+     * Updates the info field of the default startup fragment.
+     */
+    @UiThread
+    private void updateInfoField() {
+        boolean showInfo = false;
+        StringBuilder sb = new StringBuilder();
+        sb.append("Please make the following settings:");
+        if (!mBluetoothHandler.isBluetoothEnabled()) {
+            sb.append("\n\u0009- Activate Bluetooth");
+            showInfo = true;
+        } else if (mBluetoothHandler.getSelectedBluetoothDevice() == null) {
+            sb.append("\n\u0009- Select OBD Device");
+            showInfo = true;
+        }
+        if (!mLocationHandler.isGPSEnabled()) {
+            sb.append("\n\u0009- Activate GPS");
+            showInfo = true;
+        }
+        if (mCarManager.getCar() == null) {
+            sb.append("\n\u0009- Select a Car Type");
+            showInfo = true;
+        }
+        if (showInfo) {
+            mInfoText.setText(sb.toString());
+            mInfoField.setVisibility(View.VISIBLE);
+        } else {
+            mInfoField.setVisibility(View.INVISIBLE);
+        }
+    }
+
+
+    private void updateStartStopButton(BluetoothServiceState state) {
+        switch (state) {
+            case SERVICE_STOPPED:
+                if (hasSettingsSelected()) {
+                    updateStartStopButton(getResources().getColor(R.color.green_dark_cario),
+                            "START TRACK", true);
+                } else {
+                    updateStartStopButton(Color.GRAY, "START TRACK", false);
+                }
+                break;
+            case SERVICE_STARTED:
                 // Update the StartStopButton
                 updateStartStopButton(Color.RED, "STOP TRACK", true);
+                // hide the info field when the track is started.
+                mInfoField.setVisibility(View.INVISIBLE);
+                break;
+            case SERVICE_STARTING:
+                updateStartStopButton(Color.GRAY, "TRACK IS STARTING...", false);
                 break;
             case SERVICE_STOPPING:
                 updateStartStopButton(Color.GRAY, "TRACK IS STOPPING...", false);
                 break;
+            default:
+                break;
         }
+    }
+
+    private boolean hasSettingsSelected() {
+        return mBluetoothHandler.isBluetoothEnabled() &&
+                mBluetoothHandler.getSelectedBluetoothDevice() != null &&
+                mLocationHandler.isGPSEnabled() &&
+                mCarManager.getCar() != null;
     }
 
     private void updateStartStopButton(int color, String text, boolean enabled) {
