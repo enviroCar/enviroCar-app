@@ -20,16 +20,27 @@
  */
 package org.envirocar.app.test;
 
+import java.io.File;
 import java.text.ParseException;
 
 import junit.framework.Assert;
 
+import org.envirocar.app.logging.Logger;
 import org.envirocar.app.util.Util;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import android.os.Environment;
 import android.test.AndroidTestCase;
+import android.util.Base64;
 
-public class UtilTimeTest {
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ Environment.class, Logger.class, Base64.class})
+public class UtilTimeTest extends MockingEnvironmentTest {
 
 	@Test
 	public void testIsoDateToLong() throws ParseException {

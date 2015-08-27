@@ -44,7 +44,8 @@ import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 
 public class FuelingEncoderTest extends ResourceLoadingTestCase {
-	
+
+
 	@Test
 	public void testTrackJsonCreation() throws JSONException,  IOException, InvalidObjectStateException {
 		String expected = createExpectedJson().toString();
@@ -92,7 +93,7 @@ public class FuelingEncoderTest extends ResourceLoadingTestCase {
 	}
 
 	private JSONObject createExpectedJson() throws IOException, JSONException {
-		String json = readJsonAsset("fueling_create_mockup.json");
+		String json = readJsonAsset("/fueling_create_mockup.json");
 		return new JSONObject(json);
 	}
 

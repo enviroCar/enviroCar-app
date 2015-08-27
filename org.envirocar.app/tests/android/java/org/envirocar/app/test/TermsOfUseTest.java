@@ -28,12 +28,13 @@ import org.envirocar.app.model.TermsOfUse;
 import org.envirocar.app.model.TermsOfUseInstance;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Test;
 
 public class TermsOfUseTest extends ResourceLoadingTestCase {
 
-	
+	@Test
 	public void testTermsOfUseParsing() throws JSONException, IOException {
-		JSONObject json = new JSONObject(readJsonAsset("terms_of_use_mockup.json"));
+		JSONObject json = new JSONObject(readJsonAsset("/terms_of_use_mockup.json"));
 		TermsOfUse tou = TermsOfUse.fromJson(json);
 		
 		Assert.assertTrue("Unexpected element count.", tou.getInstances().size() == 2);
@@ -42,10 +43,10 @@ public class TermsOfUseTest extends ResourceLoadingTestCase {
 		Assert.assertTrue("Unexpected element id.", tou.getInstances().get(1).getId().equals(
 				"524bd1b0ff0bb8917e6f1663"));
 	}
-	
 
+	@Test
 	public void testTermsOfUseInstanceParsing() throws JSONException, IOException {
-		JSONObject json = new JSONObject(readJsonAsset("terms_of_use_instance_mockup.json"));
+		JSONObject json = new JSONObject(readJsonAsset("/terms_of_use_instance_mockup.json"));
 		TermsOfUseInstance tou = TermsOfUseInstance.fromJson(json);
 		
 		Assert.assertTrue("Unexpected issuedDate", tou.getIssuedDate().equals("2022-06-09"));

@@ -20,24 +20,25 @@
  */
 package org.envirocar.app.test;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import junit.framework.Assert;
 
-import org.envirocar.app.activity.preference.CarSelectionPreference;
-import org.envirocar.app.model.Car;
-import org.envirocar.app.model.Car.FuelType;
+import org.envirocar.app.model.User;
+import org.json.JSONException;
 import org.junit.Test;
 
-import android.test.AndroidTestCase;
 
-public class CarSelectionPreferenceTest {
+public class UserTest extends ResourceLoadingTestCase {
 
 	@Test
-	public void testCarInstantiation() {
-		Car inCar = new Car(FuelType.DIESEL, "h4x0r", "_", "lulz", 1337, 42);
-		String result = CarSelectionPreference.serializeCar(inCar);
-		Car outCar = CarSelectionPreference.instantiateCar(result);
+	public void testUserParsing() throws IOException, JSONException {
+		User user = User.fromJson(readJsonAsset("/user_mockup.json"));
 		
-		Assert.assertTrue("input and output cars differ", inCar.equals(outCar));
+		Assert.assertTrue("missing touVersion", user.getTouVersion() != null);
+		Assert.assertTrue("unexpected acceptedTermsOfUseVersion", user.getTouVersion().equals("2013-10-02"));
+		Assert.assertTrue("unexpected username", user.getUsername().equals("matthes"));
 	}
-
+	
 }

@@ -29,11 +29,20 @@ import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbeCurrent;
 import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbeVoltage;
 import org.envirocar.app.bluetooth.obd.commands.PIDUtil;
 import org.envirocar.app.bluetooth.obd.commands.PIDUtil.PID;
+import org.envirocar.app.logging.Logger;
+import org.envirocar.app.test.MockingEnvironmentTest;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import android.os.Environment;
 import android.test.AndroidTestCase;
+import android.util.Base64;
 
-public class O2LambdaProbeTest {
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ Environment.class, Logger.class, Base64.class})
+public class O2LambdaProbeTest extends MockingEnvironmentTest{
 
 	@Test
 	public void testVoltageParsing() {

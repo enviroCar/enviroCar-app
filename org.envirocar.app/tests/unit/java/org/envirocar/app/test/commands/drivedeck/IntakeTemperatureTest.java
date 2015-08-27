@@ -20,17 +20,36 @@
  */
 package org.envirocar.app.test.commands.drivedeck;
 
+import android.os.Environment;
+import android.util.Base64;
+
 import junit.framework.Assert;
 
 import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
 import org.envirocar.app.bluetooth.obd.commands.IntakeTemperature;
+import org.envirocar.app.logging.Handler;
+import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.ResponseParser;
+import org.envirocar.app.protocol.drivedeck.DriveDeckSportConnector;
+import org.envirocar.app.util.Util;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Matchers;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.io.File;
+import java.io.IOException;
+
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({ Environment.class, Logger.class, Base64.class})
 public class IntakeTemperatureTest extends CommandTest {
 
+
 	@Test
-	public void testParsing() {
+	public void testParsing() throws IOException {
 		ResponseParser parser = getResponseParser();
 		
 		byte[] bytes = createBytes();

@@ -20,25 +20,29 @@
  */
 package org.envirocar.app.test;
 
+import android.test.AndroidTestCase;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Scanner;
 
-import junit.framework.Assert;
+public class ResourceLoadingTestCase {
 
-import org.envirocar.app.model.User;
-import org.json.JSONException;
-import org.junit.Test;
-
-
-public class UserTest extends ResourceLoadingTestCase {
-
-	@Test
-	public void testUserParsing() throws IOException, JSONException {
-		User user = User.fromJson(readJsonAsset("user_mockup.json"));
+	protected String readJson(InputStream in) {
+		Scanner sc = new Scanner(in, "UTF-8");
 		
-		Assert.assertTrue("missing touVersion", user.getTouVersion() != null);
-		Assert.assertTrue("unexpected acceptedTermsOfUseVersion", user.getTouVersion().equals("2013-10-02"));
-		Assert.assertTrue("unexpected username", user.getUsername().equals("matthes"));
+		StringBuilder sb = new StringBuilder();
+		while (sc.hasNext()) {
+			sb.append(sc.nextLine());
+			sb.append(System.getProperty("line.separator"));
+		}
+		
+		sc.close();
+		return sb.toString();
+	}
+	
+	protected String readJsonAsset(String assetRes) throws IOException {
+		return readJson(getClass().getResourceAsStream(assetRes));
 	}
 	
 }

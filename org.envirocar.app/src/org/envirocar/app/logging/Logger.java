@@ -22,6 +22,7 @@
  */
 package org.envirocar.app.logging;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +54,7 @@ public class Logger {
 	
 	static {
 		try {
-			handlers.add(new LocalFileHandler());
+			handlers.add(getLocalFileHandler());
 		} catch (Exception e) {
 			Log.e(AndroidHandler.DEFAULT_TAG, e.getMessage(), e);
 		}
@@ -62,6 +63,10 @@ public class Logger {
 //		} catch (Exception e) {
 //			Log.e(AndroidHandler.DEFAULT_TAG, e.getMessage(), e);
 //		}
+	}
+
+	public static Handler getLocalFileHandler() throws IOException {
+		return new LocalFileHandler();
 	}
 
 	private String name;
