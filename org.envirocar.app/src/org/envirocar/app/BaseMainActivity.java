@@ -213,7 +213,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
 
         errorInformationReceiver = new BroadcastReceiver() {
-
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (paused) {
