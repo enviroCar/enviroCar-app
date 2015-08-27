@@ -22,6 +22,7 @@
 package org.envirocar.app.bluetooth.obd.commands;
 
 import org.envirocar.app.bluetooth.obd.commands.PIDUtil.PID;
+import org.envirocar.app.logging.Logger;
 
 /**
  * Speed Command PID 01 0D
@@ -31,6 +32,7 @@ import org.envirocar.app.bluetooth.obd.commands.PIDUtil.PID;
  */
 public class Speed extends NumberResultCommand {
 
+	private static final Logger LOG = Logger.getLogger(Speed.class);
 	public static final String NAME = "Vehicle Speed";
 	private int metricSpeed = Short.MIN_VALUE;
 
@@ -38,6 +40,15 @@ public class Speed extends NumberResultCommand {
 		super("01 ".concat(PID.SPEED.toString()));
 	}
 
+	@Override
+	public void parseRawData() {
+		super.parseRawData();
+
+		int val = getNumberResult().intValue();
+		if (val > 249) {
+			LOG.warn(String.format("Received a speed value of %s. this is probably an erroneous response", val));
+		}
+	}
 
 	@Override
 	public String getCommandName() {

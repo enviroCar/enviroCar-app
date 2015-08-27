@@ -166,7 +166,7 @@ public class CommandListener implements Listener, MeasurementListener {
         if (command instanceof Speed) {
 
             try {
-                Integer speedMeasurement = (Integer) numberCommand.getNumberResult();
+                Integer speedMeasurement = (Integer) numberCommand.getNumberResult().intValue();
                 this.collector.newSpeed(speedMeasurement);
                 mBus.post(new SpeedUpdateEvent(speedMeasurement));
 //				logger.info("Processed Speed Response: "+speedMeasurement +" time: "+command
