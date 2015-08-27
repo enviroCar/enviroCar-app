@@ -21,12 +21,13 @@
 package org.envirocar.app.test;
 
 import android.test.AndroidTestCase;
+import android.test.InstrumentationTestCase;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Scanner;
 
-public class ResourceLoadingTestCase {
+public class ResourceLoadingTestCase extends InstrumentationTestCase {
 
 	protected String readJson(InputStream in) {
 		Scanner sc = new Scanner(in, "UTF-8");

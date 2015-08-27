@@ -25,27 +25,33 @@ import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Measurement.PropertyKey;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.InstrumentationTestCase;
 
-public class CreateJSONObjectForPropertiesTest extends InstrumentationTestCase {
+@RunWith(AndroidJUnit4.class)
+public class CreateJSONObjectForPropertiesTest {
 
 	private DbAdapterImpl dbAdapter;
 
-	@Override
+	@Before
 	protected void setUp() throws Exception {
-		super.setUp();
-		
-		DbAdapterImpl.init(getInstrumentation().getTargetContext());
-		this.dbAdapter = (DbAdapterImpl) DbAdapterImpl.instance();
+
+		this.dbAdapter = new DbAdapterImpl(InstrumentationRegistry.getContext());
 	}
-	
+
+	@Test
 	public void testJsonCreation() throws JSONException {
 		Measurement m = new Measurement(2.0, 3.0);
 		m.setProperty(PropertyKey.CONSUMPTION, 35.5);
 		JSONObject result = this.dbAdapter.createJsonObjectForProperties(m);
 		
-		assertEquals(result.getDouble(PropertyKey.CONSUMPTION.name()), 35.5);
+		Assert.assertEquals(result.getDouble(PropertyKey.CONSUMPTION.name()), 35.5, 0.0001);
 	}
 	
 }

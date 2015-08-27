@@ -63,6 +63,15 @@ dependencies {
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
+
+    androidTestCompile 'junit:junit:4.12'
+    androidTestCompile ('com.android.support.test:runner:0.3') {
+        exclude module: 'support-annotations'
+    }
+    androidTestCompile ('com.android.support.test:rules:0.3') {
+        exclude module: 'support-annotations'
+    }
+
 }
 
 
@@ -106,6 +115,11 @@ android {
             returnDefaultValues = true
         }
     }
+
+    defaultConfig {
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
 }
 
 buildscript {

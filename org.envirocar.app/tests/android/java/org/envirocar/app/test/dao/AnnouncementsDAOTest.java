@@ -20,6 +20,9 @@
  */
 package org.envirocar.app.test.dao;
 
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
@@ -32,13 +35,15 @@ import org.envirocar.app.model.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.model.Announcement;
 import org.envirocar.app.model.Announcement.Priority;
 import org.envirocar.app.util.VersionRange.Version;
+import org.junit.runner.RunWith;
 
+@RunWith(AndroidJUnit4.class)
 public class AnnouncementsDAOTest extends CacheDAOTest {
 	
 	public void testAnnouncementCache() throws IOException, AnnouncementsRetrievalException {
 		DAOProvider prov = getDAOProvider();
 		
-		prepareCache(getMockupDir().getBaseFolder(), "announcements_mockup.json", CacheAnnouncementsDAO.CACHE_FILE_NAME);
+		prepareCache(getMockupDir().getBaseFolder(), "/announcements_mockup.json", CacheAnnouncementsDAO.CACHE_FILE_NAME);
 		
 		List<Announcement> all = prov.getAnnouncementsDAO().getAllAnnouncements();
 	
@@ -60,7 +65,7 @@ public class AnnouncementsDAOTest extends CacheDAOTest {
 		 */
 		Assert.assertTrue(enContent.equals(itContent));
 		
-		Assert.assertNotNull(first.createUITitle(getInstrumentation().getTargetContext()));
+		Assert.assertNotNull(first.createUITitle(InstrumentationRegistry.getContext()));
 	}
 
 }

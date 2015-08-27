@@ -31,25 +31,29 @@ import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.InstrumentationTestCase;
 
-public class LazyLoadingTrackTest extends InstrumentationTestCase {
+@RunWith(AndroidJUnit4.class)
+public class LazyLoadingTrackTest  {
 	
 	private static final int COUNT = 10;
 	private Random random = new Random();
 
+	@Test
 	public void testLazyLoading() throws InterruptedException, InstantiationException {
-		if (DbAdapterImpl.instance() == null) {
-			DbAdapterImpl.init(getInstrumentation().getContext());
-		}
+		DbAdapterImpl dba = new DbAdapterImpl(InstrumentationRegistry.getContext());
 		
 		Track t = Track.createRemoteTrack(UUID.randomUUID().toString());
 		
 		t.setMeasurementsAsArrayList(createMeasurements(t), true);
-		DbAdapterImpl.instance().insertTrack(t, true);
+		dba.insertTrack(t, true);
 		
-		Track dbTrack = DbAdapterImpl.instance().getTrack(t.getTrackId(), true);
+		Track dbTrack = dba.getTrack(t.getTrackId(), true);
 		
 		Assert.assertTrue("Track is not marked as lazy!", dbTrack.isLazyLoadingMeasurements());
 		
@@ -62,11 +66,11 @@ public class LazyLoadingTrackTest extends InstrumentationTestCase {
 		
 		Assert.assertTrue("Expected 10 measurements!", dbTrack.getMeasurements().size() == COUNT);
 		
-		DbAdapterImpl.instance().deleteTrack(dbTrack.getTrackId());
+		dba.deleteTrack(dbTrack.getTrackId());
 		
-		Assert.assertTrue("Expected an empty list", DbAdapterImpl.instance().getAllMeasurementsForTrack(dbTrack).isEmpty());
+		Assert.assertTrue("Expected an empty list", dba.getAllMeasurementsForTrack(dbTrack).isEmpty());
 		
-		Assert.assertTrue("Track was expected to be deleted!", !DbAdapterImpl.instance().hasTrack(dbTrack.getTrackId()));
+		Assert.assertTrue("Track was expected to be deleted!", !dba.hasTrack(dbTrack.getTrackId()));
 	}
 
 	private List<Measurement> createMeasurements(Track t) throws InterruptedException {

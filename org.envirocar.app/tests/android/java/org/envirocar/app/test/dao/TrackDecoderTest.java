@@ -29,11 +29,15 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 import org.envirocar.app.model.dao.exception.TrackRetrievalException;
 import org.envirocar.app.json.TrackDecoder;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
+import android.support.test.runner.AndroidJUnit4;
 import android.test.AndroidTestCase;
 
-public class TrackDecoderTest extends AndroidTestCase {
+public class TrackDecoderTest  {
 
+	@Test
 	public void testTotalTrackCount() throws TrackRetrievalException {
 		BasicHttpResponse response = new BasicHttpResponse(createStatusLine());
 		response.setHeader("Link", "<https://envirocar.org/api/stable/users/matthes/tracks?limit=1&page=7>;rel=last;type=application/json, <https://envirocar.org/api/stable/users/matthes/tracks?limit=1&page=2>;rel=next;type=application/json");
@@ -53,6 +57,7 @@ public class TrackDecoderTest extends AndroidTestCase {
 		return new BasicStatusLine(new ProtocolVersion("HTTP", 1, 1), 204, "");
 	}
 
+	@Test
 	public void testLocationParsing() throws TrackRetrievalException {
 		HttpResponse resp = new BasicHttpResponse(createStatusLine());
 		

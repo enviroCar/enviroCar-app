@@ -20,50 +20,45 @@
  */
 package org.envirocar.app.test.it.db;
 
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.application.CarManager;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.MeasurementSerializationException;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Track.TrackStatus;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
-import android.preference.PreferenceManager;
-import android.test.InstrumentationTestCase;
+@RunWith(AndroidJUnit4.class)
+public class TrackStatusTest {
 
-public class TrackStatusTest extends InstrumentationTestCase {
-	
+    @Test
 	public void testTrackStatusFromDB() throws InstantiationException, TrackAlreadyFinishedException, MeasurementSerializationException {
-		if (DbAdapterImpl.instance() == null) {
-			DbAdapterImpl.init(getInstrumentation().getContext());
-		}
+		DbAdapterImpl dba = new DbAdapterImpl(InstrumentationRegistry.getContext());
 		
-		if (CarManager.instance() == null) {
-			CarManager.init(PreferenceManager.getDefaultSharedPreferences(getInstrumentation().getContext()));
-		}
-		
-		Track t = DbAdapterImpl.instance().createNewTrack();
+		Track t = dba.createNewTrack();
 		
 		Assert.assertTrue(t.getStatus() == TrackStatus.ONGOING);
 		
-		DbAdapterImpl.instance().insertMeasurement(createMeasurement(t));
-		
-		Track l = DbAdapterImpl.instance().getLastUsedTrack();
+		dba.insertMeasurement(createMeasurement(t));
+		Track l = dba.getLastUsedTrack();
 		
 		Assert.assertTrue(t.getTrackId().equals(l.getTrackId()));
 		Assert.assertTrue(l.getStatus() == TrackStatus.ONGOING);
 		
-		DbAdapterImpl.instance().finishCurrentTrack();
+		dba.finishCurrentTrack();
 		
-		Track f = DbAdapterImpl.instance().getTrack(t.getTrackId());
+		Track f = dba.getTrack(t.getTrackId());
 		Assert.assertTrue(f.getStatus() == TrackStatus.FINISHED);
 		
-		DbAdapterImpl.instance().deleteTrack(t.getTrackId());
+		dba.deleteTrack(t.getTrackId());
 		
-		Assert.assertTrue(DbAdapterImpl.instance().getTrack(t.getTrackId()) == null);
+		Assert.assertTrue(dba.getTrack(t.getTrackId()) == null);
 	}
 
 	private Measurement createMeasurement(Track t) {

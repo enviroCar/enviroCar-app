@@ -22,32 +22,35 @@ package org.envirocar.app.test.it.db;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.application.CarManager;
 import org.envirocar.app.model.Position;
 import org.envirocar.app.model.TrackId;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.MeasurementSerializationException;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 import android.preference.PreferenceManager;
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.InstrumentationTestCase;
 
-public class TrackCreateDecisionTest extends InstrumentationTestCase {
+@RunWith(AndroidJUnit4.class)
+public class TrackCreateDecisionTest {
 
 	private static final int maxTime = 15000;
 	private DbAdapterImpl dbAdapter;
 
-	@Override
+	@Before
 	protected void setUp() throws Exception {
-		super.setUp();
-		
-		DbAdapterImpl.init(getInstrumentation().getTargetContext(), maxTime, 3.0);
-		CarManager.init(PreferenceManager.getDefaultSharedPreferences(getInstrumentation().getContext()));
-		this.dbAdapter = (DbAdapterImpl) DbAdapterImpl.instance();
+
+		this.dbAdapter = new DbAdapterImpl(InstrumentationRegistry.getContext());
 		this.dbAdapter.deleteAllTracks();
 	}
-	
+
+	@Test
 	public void testNewTrack() throws TrackAlreadyFinishedException, MeasurementSerializationException, InterruptedException {
 		/*
 		 * 1.

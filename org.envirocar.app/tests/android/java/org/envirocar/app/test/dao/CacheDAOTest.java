@@ -30,21 +30,20 @@ import org.envirocar.app.model.dao.CacheDirectoryProvider;
 import org.envirocar.app.model.dao.DAOProvider;
 import org.envirocar.app.model.dao.InternetAccessProvider;
 import org.envirocar.app.util.Util;
+import org.junit.runner.RunWith;
 
+import android.support.test.InstrumentationRegistry;
+import android.support.test.runner.AndroidJUnit4;
 import android.test.InstrumentationTestCase;
 
-public class CacheDAOTest extends InstrumentationTestCase {
+@RunWith(AndroidJUnit4.class)
+public class CacheDAOTest {
 
 	private MockupCacheDirectoryProvider mockupDir;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		mockupDir = new MockupCacheDirectoryProvider();
-	}
-	
+
 	protected void prepareCache(File baseFolder, String asset, String assetFile) throws IOException {
-		InputStream is = getInstrumentation().getContext().getAssets().open(asset);
+		InputStream is = InstrumentationRegistry.getContext().getAssets().open(asset);
 		FileWriter fw = new FileWriter(new File(baseFolder, assetFile), false);
 		
 		InputStreamReader isr = new InputStreamReader(is);
@@ -68,7 +67,7 @@ public class CacheDAOTest extends InstrumentationTestCase {
 
 	public DAOProvider getDAOProvider() throws IOException {
 		MockupCacheDirectoryProvider mockupDir = getMockupDir();
-		DAOProvider prov = DAOProvider.init(new OfflineProvider(), mockupDir);
+		DAOProvider prov = new DAOProvider(InstrumentationRegistry.getContext());
 		
 		return prov;
 	}
@@ -91,7 +90,7 @@ public class CacheDAOTest extends InstrumentationTestCase {
 		private File base;
 
 		public MockupCacheDirectoryProvider() {
-			File root = Util.resolveCacheFolder(getInstrumentation().getTargetContext());
+			File root = Util.resolveCacheFolder(InstrumentationRegistry.getContext());
 			base = new File(root, "test");
 			base.mkdir();
 		}

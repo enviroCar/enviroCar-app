@@ -20,6 +20,8 @@
  */
 package org.envirocar.app.test.dao;
 
+import android.support.test.runner.AndroidJUnit4;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -30,9 +32,13 @@ import org.envirocar.app.model.dao.SensorDAO;
 import org.envirocar.app.model.dao.cache.CacheSensorDAO;
 import org.envirocar.app.model.dao.exception.SensorRetrievalException;
 import org.envirocar.app.model.Car;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
+@RunWith(AndroidJUnit4.class)
 public class SensorDAOTest extends CacheDAOTest {
-	
+
+	@Test
 	public void testGetAllSensorsCachedLegacy() throws IOException, SensorRetrievalException {
 		DAOProvider prov = getDAOProvider();
 		
@@ -42,7 +48,8 @@ public class SensorDAOTest extends CacheDAOTest {
 		List<Car> sensors = dao.getAllSensors();
 		Assert.assertTrue("Expected 1 sensor. Got "+sensors.size(), sensors.size() == 1);
 	}
-	
+
+	@Test
 	public void testGetAllSensorsCached() throws IOException, SensorRetrievalException {
 		DAOProvider prov = getDAOProvider();
 		
