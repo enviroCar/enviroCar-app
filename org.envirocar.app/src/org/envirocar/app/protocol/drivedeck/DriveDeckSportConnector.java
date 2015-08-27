@@ -31,6 +31,7 @@ import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
 import org.envirocar.app.bluetooth.obd.commands.IntakePressure;
 import org.envirocar.app.bluetooth.obd.commands.IntakeTemperature;
 import org.envirocar.app.bluetooth.obd.commands.MAF;
+import org.envirocar.app.bluetooth.obd.commands.NumberResultCommand;
 import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbe;
 import org.envirocar.app.bluetooth.obd.commands.PIDSupported;
 import org.envirocar.app.bluetooth.obd.commands.RPM;
@@ -202,7 +203,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		 * resulting HEX values are 0x0d additive to the
 		 * default PIDs of OBD. e.g. RPM = 0x19 = 0x0c + 0x0d
 		 */
-		CommonCommand result = null;
+		NumberResultCommand result = null;
 		if (pid.equals("41")) {
 			//Speed
 			result = new Speed();
@@ -235,6 +236,12 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 			byte[] rawData = createRawData(rawBytes, result.getResponseTypeID());
 			result.setRawData(rawData);
 			result.parseRawData();
+
+			int val = result.getNumberResult().intValue();
+			if (val > 249) {
+				logger.warn(String.format("Received a speed value of %s. this is probably an erroneous response. Base64 encoded value: %s",
+						val, Base64.encode(rawBytes, Base64.DEFAULT)));
+			}
 			
 			if (result.getCommandState() == CommonCommandState.EXECUTION_ERROR ||
 					result.getCommandState() == CommonCommandState.SEARCHING) {
