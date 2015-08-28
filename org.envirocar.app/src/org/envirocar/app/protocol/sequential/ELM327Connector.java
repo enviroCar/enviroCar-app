@@ -28,6 +28,7 @@ import org.envirocar.app.bluetooth.obd.commands.EchoOff;
 import org.envirocar.app.bluetooth.obd.commands.LineFeedOff;
 import org.envirocar.app.bluetooth.obd.commands.ObdReset;
 import org.envirocar.app.bluetooth.obd.commands.SelectAutoProtocol;
+import org.envirocar.app.bluetooth.obd.commands.Speed;
 import org.envirocar.app.bluetooth.obd.commands.StringResultCommand;
 import org.envirocar.app.bluetooth.obd.commands.Timeout;
 import org.envirocar.app.protocol.AbstractSequentialConnector;
@@ -39,7 +40,6 @@ public class ELM327Connector extends AbstractSequentialConnector {
 	/*
 	 * This is what Torque does:
 	 */
-
 	// addCommandToWaitingList(new Defaults());
 	// addCommandToWaitingList(new Defaults());
 	// addCommandToWaitingList(new ObdReset());

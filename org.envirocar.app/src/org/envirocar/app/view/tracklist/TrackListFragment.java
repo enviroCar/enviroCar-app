@@ -1,8 +1,10 @@
 package org.envirocar.app.view.tracklist;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,15 +18,20 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.activity.ListTracksFragment;
+import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.injection.BaseInjectorFragment;
+import org.envirocar.app.json.TrackWithoutMeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.dao.DAOProvider;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.util.Util;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
+import org.json.JSONException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,6 +40,8 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import de.keyboardsurfer.android.widget.crouton.Crouton;
+import de.keyboardsurfer.android.widget.crouton.Style;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 
@@ -220,7 +229,42 @@ public class TrackListFragment extends BaseInjectorFragment {
     }
 
     private void exportTrack(Track track) {
-        // TODO
+        // First get the obfuscation setting from the shared preferences
+        boolean isObfuscationEnabled =
+                PreferenceManager
+                        .getDefaultSharedPreferences(getActivity())
+                        .getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
+
+        try {
+            // Create an sharing intent.
+            Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+            sharingIntent.setType("application/json");
+            Uri shareBody = Uri.fromFile(Util.saveTrackAndReturnFile(track,
+                    isObfuscationEnabled).getFile());
+            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "EnviroCar Track " +
+                    track.getName());
+            sharingIntent.putExtra(android.content.Intent.EXTRA_STREAM, shareBody);
+
+            // Wrap the intent with a chooser.
+            startActivity(Intent.createChooser(sharingIntent, "Share via"));
+        } catch (TrackWithoutMeasurementsException e) {
+            LOGGER.warn(e.getMessage(), e);
+            Snackbar.make(getView(), R.string.error_json, Snackbar.LENGTH_LONG).show();
+        } catch (JSONException e) {
+            LOGGER.warn(e.getMessage(), e);
+            Snackbar.make(getView(), R.string.error_io, Snackbar.LENGTH_LONG).show();
+        } catch (IOException e) {
+            LOGGER.warn(e.getMessage(), e);
+            if (isObfuscationEnabled) {
+                Snackbar.make(getView(),
+                        R.string.uploading_track_no_measurements_after_obfuscation_long,
+                        Snackbar.LENGTH_LONG).show();
+            } else {
+                Snackbar.make(getView(),
+                        R.string.uploading_track_no_measurements_after_obfuscation_long,
+                        Snackbar.LENGTH_LONG).show();
+            }
+        }
     }
 
     private final class RemoteDownloadTracksTask extends AsyncTask<Void, Void, Void> {

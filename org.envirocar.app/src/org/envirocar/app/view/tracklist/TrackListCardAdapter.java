@@ -141,31 +141,30 @@ public class TrackListCardAdapter extends RecyclerView.Adapter<TrackListCardAdap
 
         // if the menu is not already inflated, then..
         if (!holder.mIsMenuInflated) {
-
             // Inflate the menu and set an appropriate OnMenuItemClickListener.
             holder.mToolbar.inflateMenu(R.menu.menu_tracklist_cardlayout);
-            holder.mToolbar.setOnMenuItemClickListener(item -> {
-                LOGGER.info("Item clicked for track " + track.getTrackId());
-
-                switch (item.getItemId()) {
-                    case R.id.menu_tracklist_cardlayout_item_details:
-                        mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
-                        break;
-                    case R.id.menu_tracklist_cardlayout_item_delete:
-                        mTrackInteractionCallback.onDeleteTrackClicked(track);
-                        break;
-                    case R.id.menu_tracklist_cardlayout_item_export:
-                        mTrackInteractionCallback.onExportTrackClicked(track);
-                        break;
-                    case R.id.menu_tracklist_cardlayout_item_upload:
-                        mTrackInteractionCallback.onUploadTrackClicked(track);
-                        break;
-                }
-                return false;
-            });
-
             holder.mIsMenuInflated = true;
         }
+
+        holder.mToolbar.setOnMenuItemClickListener(item -> {
+            LOGGER.info("Item clicked for track " + track.getTrackId());
+
+            switch (item.getItemId()) {
+                case R.id.menu_tracklist_cardlayout_item_details:
+                    mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
+                    break;
+                case R.id.menu_tracklist_cardlayout_item_delete:
+                    mTrackInteractionCallback.onDeleteTrackClicked(track);
+                    break;
+                case R.id.menu_tracklist_cardlayout_item_export:
+                    mTrackInteractionCallback.onExportTrackClicked(track);
+                    break;
+                case R.id.menu_tracklist_cardlayout_item_upload:
+                    mTrackInteractionCallback.onUploadTrackClicked(track);
+                    break;
+            }
+            return false;
+        });
 
         // Initialize the OnClickListener for the invisible button that is overlaid
         // over the map view.
@@ -208,9 +207,11 @@ public class TrackListCardAdapter extends RecyclerView.Adapter<TrackListCardAdap
      * Initializes the MapView, its base layers and settings.
      */
     private void initMapView(TrackCardViewHolder holder, Track track) {
-        WebSourceTileLayer layer = MapUtils.getOSMTileLayer();
+        // First, clear the overlays in the MapView.
+        holder.mMapView.getOverlays().clear();
 
         // Set the openstreetmap tile layer as baselayer of the map.
+        WebSourceTileLayer layer = MapUtils.getOSMTileLayer();
         holder.mMapView.setTileSource(layer);
 
         // set the bounding box and min and max zoom level accordingly.
@@ -238,7 +239,6 @@ public class TrackListCardAdapter extends RecyclerView.Adapter<TrackListCardAdap
                 final BoundingBox scrollableLimit = trackMapOverlay.getScrollableLimitBox();
 
                 mMainThreadWorker.schedule(() -> {
-                    holder.mMapView.getOverlays().clear();
                     holder.mMapView.getOverlays().add(trackMapOverlay);
 
                     // Set the computed parameters on the main thread.

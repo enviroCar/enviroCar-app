@@ -27,6 +27,7 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import lecho.lib.hellocharts.gesture.ZoomType;
 import lecho.lib.hellocharts.listener.DummyVieportChangeListener;
 import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.Line;
@@ -142,11 +143,10 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
 
             generateData(Measurement.PropertyKey.SPEED);
 
-            mChart.setLineChartData(mChartData);
             mChart.setZoomEnabled(false);
             mChart.setScrollEnabled(false);
 
-            mPreviewChart.setLineChartData(mPreviewChartData);
+
             mPreviewChart.setViewportChangeListener(new DummyVieportChangeListener() {
                 @Override
                 public void onViewportChanged(Viewport viewport) {
@@ -170,7 +170,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
             }
 
             Line line = new Line(values);
-            line.setColor(ChartUtils.COLOR_GREEN);
+            line.setColor(getResources().getColor(R.color.green_dark_cario));
             line.setHasPoints(false);
 
             List<Line> lines = new ArrayList<Line>();
@@ -183,6 +183,28 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
             mPreviewChartData = new LineChartData(mChartData);
             mPreviewChartData.getLines().get(0).setColor(ChartUtils.DEFAULT_DARKEN_COLOR);
 
+            // Set the data in the charts.
+            mChart.setLineChartData(mChartData);
+            mPreviewChart.setLineChartData(mPreviewChartData);
+
+            // set the preview extent
+            previewX();
+        }
+
+        private void previewX(){
+            Viewport tempViewport = new Viewport(mChart.getMaximumViewport());
+            float dx = tempViewport.width() / 4;
+            tempViewport.inset(dx, 0);
+            mPreviewChart.setCurrentViewportWithAnimation(tempViewport);
+            mPreviewChart.setZoomType(ZoomType.HORIZONTAL);
+        }
+
+        private void previewY() {
+            Viewport tempViewport = new Viewport(mChart.getMaximumViewport());
+            float dy = tempViewport.height() / 4;
+            tempViewport.inset(0, dy);
+            mPreviewChart.setCurrentViewportWithAnimation(tempViewport);
+            mPreviewChart.setZoomType(ZoomType.VERTICAL);
         }
 
         private void generateDefaultData() {

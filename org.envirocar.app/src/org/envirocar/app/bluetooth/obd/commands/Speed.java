@@ -26,42 +26,47 @@ import org.envirocar.app.logging.Logger;
 
 /**
  * Speed Command PID 01 0D
- * 
+ *
  * @author jakob
- * 
  */
 public class Speed extends NumberResultCommand {
 
-	private static final Logger LOG = Logger.getLogger(Speed.class);
-	public static final String NAME = "Vehicle Speed";
-	private int metricSpeed = Short.MIN_VALUE;
+    private static final Logger LOG = Logger.getLogger(Speed.class);
+    public static final String NAME = "Vehicle Speed";
+    private int metricSpeed = Short.MIN_VALUE;
 
-	public Speed() {
-		super("01 ".concat(PID.SPEED.toString()));
-	}
+    private int mLastVal = 0;
 
-	@Override
-	public void parseRawData() {
-		super.parseRawData();
+    public Speed() {
+        super("01 ".concat(PID.SPEED.toString()));
+    }
 
-		int val = getNumberResult().intValue();
-		if (val > 249) {
-			LOG.warn(String.format("Received a speed value of %s. this is probably an erroneous response", val));
-		}
-	}
+    @Override
+    public void parseRawData() {
+        super.parseRawData();
 
-	@Override
-	public String getCommandName() {
-		return NAME;
-	}
+        if (getNumberResult() != null) {
+            int val = getNumberResult().intValue();
+            if (val - mLastVal > 49) {
+                LOG.warn(String.format("Received a speed value of %s. this is probably an " +
+                        "erroneous response", val));
+            }
+            mLastVal = val;
+        }
+    }
 
-	@Override
-	public Number getNumberResult() {
-		int[] buffer = getBuffer();
-		if (metricSpeed == Short.MIN_VALUE) {
-			metricSpeed = buffer[2];
-		}
-		return metricSpeed;
-	}
+    @Override
+    public String getCommandName() {
+        return NAME;
+    }
+
+    @Override
+    public Number getNumberResult() {
+        int[] buffer = getBuffer();
+        if (metricSpeed == Short.MIN_VALUE) {
+            metricSpeed = buffer[2];
+        }
+        return metricSpeed;
+    }
 
 }
