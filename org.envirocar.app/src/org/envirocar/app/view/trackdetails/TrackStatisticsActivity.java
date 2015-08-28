@@ -6,7 +6,10 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -48,8 +51,12 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
 
     @Inject
     protected DbAdapter mDBAdapter;
+    @InjectView(R.id.activity_track_statistics_toolbar)
+    protected Toolbar mToolbar;
 
     private Track mTrack;
+
+    private PlaceholderFragment mPlaceholderFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,11 +67,46 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
         TrackId trackid = new TrackId(trackID);
         mTrack = mDBAdapter.getTrack(trackid);
 
+        // Inject all annotated views.
+        ButterKnife.inject(this);
+
+        // Initializes the Toolbar.
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setTitle("Track Statistics");
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         if (savedInstanceState == null) {
+            mPlaceholderFragment = new PlaceholderFragment(mTrack);
             getFragmentManager().beginTransaction()
                     .add(R.id.activity_track_statistics_layout_container,
-                            new PlaceholderFragment(mTrack)).commit();
+                            mPlaceholderFragment).commit();
         }
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        for(Measurement.PropertyKey key : Measurement.PropertyKey.values()){
+            menu.add(key.toString());
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // click on the home button in the toolbar.
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+
+        for(Measurement.PropertyKey key : Measurement.PropertyKey.values()){
+            if(key.toString().equals(item.getTitle())){
+                mPlaceholderFragment.generateData(key);
+                break;
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public static class PlaceholderFragment extends Fragment {

@@ -48,7 +48,6 @@ import butterknife.OnClick;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 
 /**
  * @author dewall
