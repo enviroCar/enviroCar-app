@@ -222,7 +222,7 @@ public class RegisterFragment extends BaseInjectorFragment {
         if (cancel) {
             // There was an error; don't attempt register and focus the first
             // form field with an error.
-            focusView.requestFocus();
+                    focusView.requestFocus();
         } else {
             //hide the keyboard
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(

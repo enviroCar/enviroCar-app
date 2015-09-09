@@ -1,8 +1,18 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    tools:context=".LoginActivity" >
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:context=".LoginActivity">
+
+    <android.support.v7.widget.Toolbar
+        style="@style/ToolBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="148dp"
+        android:background="@color/blue_dark_cario"
+        android:elevation="8dp"
+        app:elevation="8dp"
+        />
 
     <!-- Login progress -->
 
@@ -12,13 +22,13 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:orientation="vertical"
-        android:visibility="gone" >
+        android:visibility="gone">
 
         <ProgressBar
             style="?android:attr/progressBarStyleLarge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="8dp"/>
 
         <TextView
             android:id="@+id/login_status_message"
@@ -27,19 +37,25 @@
             android:layout_marginBottom="16dp"
             android:fontFamily="sans-serif-light"
             android:text="@string/login_progress_signing_in"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
     </LinearLayout>
 
     <!-- Login form -->
 
-    <ScrollView
+    <android.support.v7.widget.CardView
         android:id="@+id/login_form"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/spacing_medium"
+        android:layout_marginLeft="@dimen/spacing_medium"
+        android:layout_marginRight="@dimen/spacing_medium"
+        android:layout_marginTop="@dimen/spacing_xxlarge"
+        app:cardElevation="@dimen/spacing_medium"
+        app:cardUseCompatPadding="true">
 
-       <LinearLayout
+        <LinearLayout
             style="@style/LoginFormContainer"
-            android:orientation="vertical" >
+            android:orientation="vertical">
 
             <EditText
                 android:id="@+id/login_username"
@@ -48,7 +64,7 @@
                 android:hint="@string/prompt_username"
                 android:inputType="textEmailAddress"
                 android:maxLines="1"
-                android:singleLine="true" />
+                android:singleLine="true"/>
 
             <EditText
                 android:id="@+id/login_password"
@@ -60,7 +76,7 @@
                 android:imeOptions="actionUnspecified"
                 android:inputType="textPassword"
                 android:maxLines="1"
-                android:singleLine="true" />
+                android:singleLine="true"/>
 
             <Button
                 android:id="@+id/sign_in_button"
@@ -70,29 +86,35 @@
                 android:layout_marginTop="16dp"
                 android:paddingLeft="32dp"
                 android:paddingRight="32dp"
-                android:text="@string/action_sign_in_short" />
+                android:text="@string/action_sign_in_short"/>
 
-            <LinearLayout android:orientation="vertical"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="15dp"
-                android:gravity="center_horizontal">
-				<TextView android:id="@+id/not_yet_registered_text"
-				    android:layout_width="wrap_content"
-				    android:layout_height="wrap_content"
-				    android:text="@string/not_yet_registered_question"
-				    android:layout_marginBottom="5dp"/>
-				<TextView android:id="@+id/not_yet_registered_button"
-				    android:layout_width="wrap_content"
-				    android:layout_height="wrap_content" 
-				    android:textColor="@color/blue_light_cario"
-				    android:textAppearance="@android:style/TextAppearance.Medium"
-				    android:text="@string/not_yet_registered_register"
-				    android:focusable="true"
-				    android:importantForAccessibility="yes"
-				    />
-         	</LinearLayout>
+                android:gravity="center_horizontal"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/not_yet_registered_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="5dp"
+                    android:text="@string/not_yet_registered_question"/>
+
+                <TextView
+                    android:id="@+id/not_yet_registered_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:focusable="true"
+                    android:importantForAccessibility="yes"
+                    android:text="@string/not_yet_registered_register"
+                    android:textAppearance="@android:style/TextAppearance.Medium"
+                    android:textColor="@color/blue_light_cario"/>
+
+            </LinearLayout>
         </LinearLayout>
-    </ScrollView>
+
+    </android.support.v7.widget.CardView>
 
 </RelativeLayout>

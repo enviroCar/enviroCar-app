@@ -50,24 +50,6 @@ public abstract class BaseInjectorActivity extends AppCompatActivity implements 
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-//        LOGGER.info("onResume()");
-//
-//        // Register on the bus.
-//        mBus.register(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        //        LOGGER.info("onPause()");
-        //
-        //        // Unregister from the bus.
-        //        mBus.unregister(this);
-    }
-
-    @Override
     protected void onStop() {
         super.onStop();
         LOGGER.info("onStop()");

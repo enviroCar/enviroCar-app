@@ -56,9 +56,5 @@
             android:icon="@drawable/action_report"
             android:title="@string/menu_send_log"/>
     </group>
-    <!--<item android:title="Settings">-->
-    <!--<menu>-->
 
-    <!--</menu>-->
-    <!--</item>-->
 </menu>

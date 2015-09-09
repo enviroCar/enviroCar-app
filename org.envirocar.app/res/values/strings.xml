@@ -142,7 +142,8 @@
 	<string name="dashboard">Dashboard</string>
 	<string name="my_tracks">My Tracks</string>
 	<string name="select_car">Car</string>
-	<string name="welcome_message">Welcome, </string>
+	<string name="welcome_message">Welcome, %s</string>
+	<string name="goodbye_message">Goodbye, %s</string>
 	<string name="no_tracks">You have no tracks</string>
 	<string name="fetching_tracks">fetching your tracks&#8230;</string>
 	<string name="fetching_tracks_local">fetching local tracks&#8230;</string>

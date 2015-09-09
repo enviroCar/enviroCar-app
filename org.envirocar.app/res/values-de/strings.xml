@@ -127,7 +127,8 @@
     <string name="dashboard">Dashboard</string>
 	<string name="my_tracks">Meine Fahrten</string>
 	
-	<string name="welcome_message">Willkommen, </string>
+	<string name="welcome_message">Willkommen, %s</string>
+    <string name="goodbye_message">Auf Wiederstehen, %s</string>
 	<string name="no_tracks">Keine Fahrten vorhanden</string>
 	<string name="start_measuring">Starte Messung.</string>
     <string name="stop_measuring">Messung gestoppt.</string>

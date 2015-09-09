@@ -42,6 +42,7 @@ import org.envirocar.app.model.dao.remote.RemoteTermsOfUseDAO;
 import org.envirocar.app.model.dao.remote.RemoteTrackDAO;
 import org.envirocar.app.model.dao.remote.RemoteUserDAO;
 import org.envirocar.app.injection.module.InjectionDAOModule;
+import org.envirocar.app.model.dao.remote.RemoteUserStatisticsDAO;
 
 import java.util.Arrays;
 import java.util.List;
@@ -140,6 +141,13 @@ public class DAOProvider implements Injector, InjectionModuleProvider {
             return mObjectGraph.get(RemoteUserDAO.class);
         }
         return mObjectGraph.get(CacheUserDAO.class);
+    }
+
+    public UserStatisticsDAO getUserStatisticsDAO(){
+        if(this.mInternetAccessProvider.isConnected()){
+            return mObjectGraph.get(RemoteUserStatisticsDAO.class);
+        }
+        return mObjectGraph.get(RemoteUserStatisticsDAO.class);
     }
 
     /**

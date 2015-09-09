@@ -33,6 +33,7 @@ import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.LazyLoadingStrategy;
 import org.envirocar.app.storage.LazyLoadingStrategyImpl;
 import org.envirocar.app.storage.Track;
+import org.envirocar.app.view.LoginActivity;
 import org.envirocar.app.view.LoginFragment;
 import org.envirocar.app.view.RegisterFragment;
 import org.envirocar.app.view.SettingsFragment;
@@ -98,7 +99,8 @@ import dagger.Provides;
                 DashboardMapFragment.class,
                 OBDSelectionFragment.class,
                 DashboardTrackMapFragment.class,
-                TrackStatisticsActivity.class
+                TrackStatisticsActivity.class,
+                LoginActivity.class
         },
         staticInjections = {Track.class},
         library = true,

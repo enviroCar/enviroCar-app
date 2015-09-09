@@ -53,6 +53,7 @@ dependencies {
     // HelloCharts dependency
     compile 'com.github.lecho:hellocharts-library:1.5.5@aar'
 
+
     testCompile 'junit:junit:4.12'
     testCompile "org.mockito:mockito-core:1.9.5"
     testCompile ('org.powermock:powermock-api-mockito:1.6.2') {

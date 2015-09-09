@@ -12,6 +12,7 @@ import org.envirocar.app.model.dao.SensorDAO;
 import org.envirocar.app.model.dao.TermsOfUseDAO;
 import org.envirocar.app.model.dao.TrackDAO;
 import org.envirocar.app.model.dao.UserDAO;
+import org.envirocar.app.model.dao.UserStatisticsDAO;
 import org.envirocar.app.model.dao.cache.CacheAnnouncementsDAO;
 import org.envirocar.app.model.dao.cache.CacheFuelingDAO;
 import org.envirocar.app.model.dao.cache.CacheSensorDAO;
@@ -24,6 +25,7 @@ import org.envirocar.app.model.dao.remote.RemoteSensorDAO;
 import org.envirocar.app.model.dao.remote.RemoteTermsOfUseDAO;
 import org.envirocar.app.model.dao.remote.RemoteTrackDAO;
 import org.envirocar.app.model.dao.remote.RemoteUserDAO;
+import org.envirocar.app.model.dao.remote.RemoteUserStatisticsDAO;
 import org.envirocar.app.util.Util;
 
 import java.io.File;
@@ -61,7 +63,9 @@ import dagger.Provides;
                 CacheTrackDAO.class,
                 UserDAO.class,
                 RemoteUserDAO.class,
-                CacheUserDAO.class
+                CacheUserDAO.class,
+                UserStatisticsDAO.class,
+                RemoteUserStatisticsDAO.class
         },
         addsTo = InjectionApplicationModule.class,
         library = true,

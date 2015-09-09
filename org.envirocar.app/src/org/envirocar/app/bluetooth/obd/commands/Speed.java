@@ -35,7 +35,7 @@ public class Speed extends NumberResultCommand {
     public static final String NAME = "Vehicle Speed";
     private int metricSpeed = Short.MIN_VALUE;
 
-    private int mLastVal = 0;
+    private static int mLastVal = 0;
 
     public Speed() {
         super("01 ".concat(PID.SPEED.toString()));

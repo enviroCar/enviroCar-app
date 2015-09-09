@@ -42,8 +42,8 @@ import org.envirocar.app.logging.Logger;
 import android.net.http.AndroidHttpClient;
 
 /**
- * Utility class to provide secure HTTP network access. 
- * 
+ * Utility class to provide secure HTTP network access.
+ *
  * @author matthes rieke
  *
  */
@@ -52,15 +52,15 @@ public class HTTPClient {
 	private static final Logger logger = Logger.getLogger(HTTPClient.class);
 	public static final int MIN_GZIP_SIZE = 8192;
 	private static AndroidHttpClient client;
-	
+
 	static {
 		createClient();
 		setupClient(client);
 	}
-	
+
 	/**
 	 * execute a http request with a https-capable http client
-	 * 
+	 *
 	 * @param request the http request
 	 * @return the response, including status and content
 	 * @throws IOException
@@ -84,13 +84,17 @@ public class HTTPClient {
 		if (client == null) {
 			client = AndroidHttpClient.newInstance("enviroCar-app");
 			setupClient(client);
+//            return client;
 		}
+
+		AndroidHttpClient client = AndroidHttpClient.newInstance("enviroCar-app2");
+		setupClient(client);
 		return client;
 	}
 
 	/**
 	 * Convenience method to consume the contents of an entity.
-	 * 
+	 *
 	 * @param entity content-holding entity
 	 */
 	public static void consumeEntity(HttpEntity entity) {
@@ -99,44 +103,44 @@ public class HTTPClient {
 			entity.consumeContent();
 		} catch (IOException e) {
 			logger.warn(e.getMessage());
-		}		
+		}
 	}
 
 	/**
 	 * setup a client instance with SSL/HTTPS capabilities.
-	 * 
+	 *
 	 * @param client the client to set up
 	 */
 	public static void setupClient(HttpClient client) {
 		SSLSocketFactory factory = SSLSocketFactory.getSocketFactory();
 		factory.setHostnameVerifier(SSLSocketFactory.STRICT_HOSTNAME_VERIFIER);
-		client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", factory, 443));		
+		client.getConnectionManager().getSchemeRegistry().register(new Scheme("https", factory, 443));
 	}
 
 	public static String readResponse(HttpEntity entity) throws IOException {
 //		if (entity == null || entity.getContent() == null || entity.getContentLength() == 0)
 //			return null;
-//		
+//
 //		StringBuilder sb = new StringBuilder();
-//		
+//
 //		Scanner sc = new Scanner(entity.getContent());
 //		while (sc.hasNext()) {
 //			sb.append(sc.nextLine());
 //			sb.append(System.getProperty("line.separator"));
 //		}
 //		sc.close();
-//		
+//
 		return EntityUtils.toString(entity, HTTP.UTF_8);
 	}
 
 	public static String executeAndParseJsonRequest(String url) throws IOException {
 		return readResponse(executeJsonRequest(url));
 	}
-	
+
 	public static HttpEntity executeJsonRequest(String url) throws IOException {
 		HttpGet getRequest = new HttpGet(url);
 		getRequest.addHeader("Accept-Encoding", "application/json");
-		
+
 		HttpResponse response = HTTPClient.execute(getRequest);
 		return response.getEntity();
 	}
@@ -155,7 +159,7 @@ public class HTTPClient {
         }
         return entity;
 	}
-	
+
 	public static synchronized void shutdown() {
 		if (client != null) {
 			try {

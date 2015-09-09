@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/activity_login_toolbar"
+        style="@style/ToolBarStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/blue_dark_cario"
+        android:orientation="vertical"
+        app:elevation="6dp"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/activity_login_exp_toolbar"
+            layout="@layout/toolbar_default"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/blue_dark_cario"
+            android:elevation="6dp"
+            android:visibility="gone"
+            app:elevation="6dp">
+
+            <RelativeLayout
+                android:id="@+id/activity_login_exp_toolbar_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <org.envirocar.app.view.utils.CircularBorderedImageView
+                    android:id="@+id/activity_login_account_image"
+                    android:layout_width="96dp"
+                    android:layout_height="96dp"
+                    android:layout_centerHorizontal="true"
+                    android:gravity="center"
+                    android:src="@drawable/ic_account_circle_white_48dp"/>
+
+                <TextView
+                    android:id="@+id/activity_login_account_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/activity_login_account_image"
+                    android:layout_centerHorizontal="true"
+                    android:gravity="center"
+                    android:text="username"
+                    android:textColor="@color/white_cario"
+                    android:textSize="18dp"
+                    android:textStyle="bold"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_centerHorizontal="true"
+                    android:layout_margin="@dimen/spacing_medium"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/activity_account_exp_toolbar_tracknumber"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="14 (2328)"
+                            android:textColor="@color/white_cario"
+                            android:textSize="18dp"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:text="#TRACKS"
+                            android:textColor="@color/white_cario"
+                            android:textSize="13dp"/>
+
+                    </LinearLayout>
+                </LinearLayout>
+            </RelativeLayout>
+        </android.support.v7.widget.Toolbar>
+
+        <ListView
+            android:id="@+id/activity_account_statistics_listview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/activity_login_exp_toolbar"
+            android:visibility="gone"/>
+
+        <LinearLayout
+            android:id="@+id/activity_account_statistics_progress"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/activity_login_exp_toolbar"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="Loading User Statistics\nof uploaded Tracks..."/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/activity_account_statistics_no_statistics_info"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/activity_login_exp_toolbar"
+            android:visibility="gone"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:text="No Remote Statistics found..."/>
+
+        </LinearLayout>
+
+
+        <include
+            layout="@layout/activity_account_login_card"
+            android:visibility="gone"/>
+
+        <include
+            layout="@layout/activity_account_register_card"
+            android:visibility="gone"/>
+
+    </RelativeLayout>
+
+</LinearLayout>
