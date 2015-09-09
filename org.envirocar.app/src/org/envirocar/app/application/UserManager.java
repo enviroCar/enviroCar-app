@@ -17,7 +17,11 @@ import org.envirocar.app.model.dao.exception.UnauthorizedException;
 import org.envirocar.app.model.dao.exception.UserRetrievalException;
 import org.envirocar.app.model.gravatar.GravatarUtils;
 
+import java.io.IOException;
+
 import javax.inject.Inject;
+
+import rx.Observable;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -33,7 +37,7 @@ public class UserManager {
     /**
      * Callback interface for the login process.
      */
-    public interface LoginCallback{
+    public interface LoginCallback {
         /**
          * Called when the specific user has been successfully logged in.
          *
@@ -64,6 +68,9 @@ public class UserManager {
     @Inject
     protected DAOProvider mDAOProvider;
 
+    private User mUser;
+    private Bitmap mGravatarBitmap;
+
     /**
      * Constructor.
      *
@@ -80,13 +87,15 @@ public class UserManager {
      * @return user
      */
     public User getUser() {
-        SharedPreferences prefs = getUserPreferences();
-        String username = prefs.getString(USERNAME, null);
-        String token = prefs.getString(TOKEN, null);
-        String mail = prefs.getString(EMAIL, null);
-        User result = new User(username, token, mail);
-        result.setTouVersion(prefs.getString(ACCEPTED_TERMS_OF_USE_VERSION, null));
-        return result;
+        if (mUser == null) {
+            SharedPreferences prefs = getUserPreferences();
+            String username = prefs.getString(USERNAME, null);
+            String token = prefs.getString(TOKEN, null);
+            String mail = prefs.getString(EMAIL, null);
+            mUser = new User(username, token, mail);
+            mUser.setTouVersion(prefs.getString(ACCEPTED_TERMS_OF_USE_VERSION, null));
+        }
+        return mUser;
     }
 
     /**
@@ -95,12 +104,16 @@ public class UserManager {
      * @param user The user you want to set
      */
     public void setUser(User user) {
+        // First set the user in the preferences
         Editor e = getUserPreferences().edit();
         e.putString(USERNAME, user.getUsername());
         e.putString(TOKEN, user.getToken());
         e.putString(EMAIL, user.getMail());
         e.putString(ACCEPTED_TERMS_OF_USE_VERSION, user.getTouVersion());
         e.commit();
+
+        // Set the local user reference to the current user.
+        mUser = user;
 
         mBus.post(new NewUserSettingsEvent(user, true));
     }
@@ -124,6 +137,7 @@ public class UserManager {
      * Logs out the user.
      */
     public void logOut() {
+        // Removes all the preferences from the editor.
         SharedPreferences prefs = getUserPreferences();
         Editor e = prefs.edit();
         if (prefs.contains(USERNAME))
@@ -136,6 +150,11 @@ public class UserManager {
             e.remove(ACCEPTED_TERMS_OF_USE_VERSION);
         e.commit();
 
+        // Remove the user instance.
+        mUser = null;
+        mGravatarBitmap = null;
+
+        // Fire a new event on the event bus holding indicating that no logged in user exist.
         mBus.post(new NewUserSettingsEvent(null, false));
     }
 
@@ -143,7 +162,7 @@ public class UserManager {
      * Method used for authentication (e.g. at loginscreen to verify user
      * credentials
      */
-    public void logIn(String user, String token, LoginCallback callback){
+    public void logIn(String user, String token, LoginCallback callback) {
         User currentUser = getUser();
 
         if (currentUser == null || currentUser.getToken() == null) {
@@ -173,19 +192,34 @@ public class UserManager {
         logOut();
     }
 
-    /**
-     *
-     * @return
-     */
-    private Bitmap getGravatarBitmap(){
-        if(isLoggedIn()){
-            User user = getUser();
-            String mail = user.getMail();
-            if(mail == null || mail.equals("") || mail.isEmpty())
-                return null;
 
-        }
-        return null;
+    public Observable<Bitmap> getGravatarBitmapObservable() {
+        return Observable.just(true)
+                .map(aBoolean -> {
+                    if (isLoggedIn()) {
+                        // If the gravatar bitmap already exist, then return it.
+                        if(mGravatarBitmap != null)
+                            return mGravatarBitmap;
+
+                        // Else try to download the bitmap.
+                        // But first check whether all required credentials are valid.
+                        User user = getUser();
+                        String mail = user.getMail();
+                        if (mail == null || mail.equals("") || mail.isEmpty())
+                            return null;
+
+                        // Try to download the bitmap.
+                        try {
+                            mGravatarBitmap = GravatarUtils.downloadBitmap(user.getMail());
+                            return mGravatarBitmap;
+                        } catch (IOException e) {
+                            LOG.warn("Error while downloading Gravatar bitmap.", e);
+                            e.printStackTrace();
+                        }
+                    }
+
+                    return null;
+                });
     }
 
     /**

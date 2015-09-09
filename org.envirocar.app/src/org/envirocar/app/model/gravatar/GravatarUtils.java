@@ -9,8 +9,10 @@ import org.apache.commons.compress.utils.IOUtils;
 import org.envirocar.app.logging.Logger;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -71,7 +73,7 @@ public class GravatarUtils {
      * @return
      * @throws Exception
      */
-    public static byte[] download(String email) throws Exception {
+    public static byte[] download(String email) throws IOException {
         Preconditions.checkState(email != null && !email.isEmpty() && !email.equals(""),
                 "Mail cannot be null or empty.");
 
@@ -83,7 +85,11 @@ public class GravatarUtils {
         } catch (FileNotFoundException e) {
             LOG.warn(e.getMessage(), e);
             return null;
+        } catch (MalformedURLException e) {
+            LOG.warn(e.getMessage(), e);
+            return null;
         } finally {
+            if(is != null)
             is.close();
         }
     }
@@ -95,7 +101,7 @@ public class GravatarUtils {
      * @return the gravatar bitmap for a given mail.
      * @throws Exception
      */
-    public static Bitmap downloadBitmap(String mail) throws Exception {
+    public static Bitmap downloadBitmap(String mail) throws IOException {
         byte[] dataArray = download(mail);
         Bitmap bitmap = BitmapFactory.decodeByteArray(dataArray, 0, dataArray.length);
         return bitmap;

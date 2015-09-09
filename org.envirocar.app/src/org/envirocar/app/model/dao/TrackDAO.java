@@ -30,6 +30,8 @@ import org.envirocar.app.model.dao.exception.UnauthorizedException;
 import org.envirocar.app.json.TrackWithoutMeasurementsException;
 import org.envirocar.app.storage.Track;
 
+import rx.Observable;
+
 public interface TrackDAO {
 
 	void deleteTrack(String remoteID) throws DAOException;
@@ -45,6 +47,7 @@ public interface TrackDAO {
 
 	Integer getTotalTrackCount() throws NotConnectedException,
 			TrackRetrievalException;
+
 
 	/**
 	 * an implementation shall treat calls as a shortcut for

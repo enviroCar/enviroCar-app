@@ -23,6 +23,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.activity.DialogUtil;
@@ -50,7 +51,6 @@ import org.envirocar.app.model.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.util.Util;
 import org.envirocar.app.util.VersionRange;
 import org.envirocar.app.view.LoginActivity;
-import org.envirocar.app.view.LoginFragment;
 import org.envirocar.app.view.SettingsFragment;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
 import org.envirocar.app.view.preferences.PreferenceConstants;
@@ -461,8 +461,9 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 fragment = new LogbookFragment();
                 break;
             case R.id.menu_nav_drawer_account_login:
-                fragment = new LoginFragment();
-                break;
+                Intent intent = new Intent(BaseMainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                return;
             case R.id.menu_nav_drawer_settings_general:
                 fragment = new SettingsFragment();
                 break;
@@ -472,6 +473,22 @@ public class BaseMainActivity extends BaseInjectorActivity {
             case R.id.menu_nav_drawer_settings_sendlog:
                 fragment = new SendLogFileFragment();
                 break;
+            case R.id.menu_nav_drawer_quit_app:
+                new MaterialDialog.Builder(this)
+                        .title("Shutdown enviroCar")
+                        .positiveText("Shutdown")
+                        .negativeText("Cancel")
+                        .content("This completely closes the application including all running " +
+                                "background services and track recordings.")
+                        .callback(new MaterialDialog.ButtonCallback() {
+                            @Override
+                            public void onPositive(MaterialDialog dialog) {
+                                System.runFinalizersOnExit(true);
+                                System.exit(0);
+                            }
+                        })
+                        .show();
+                return;
         }
 
         // If the fragment is null or the fragment is already visible, then do nothing.
@@ -541,7 +558,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
         updateNavDrawerAccountHeader();
     }
 
-    private void updateNavDrawerAccountHeader(){
+    private void updateNavDrawerAccountHeader() {
         runOnUiThread(() -> {
             boolean isLoggedIn = mUserManager.isLoggedIn();
             User user = mUserManager.getUser();

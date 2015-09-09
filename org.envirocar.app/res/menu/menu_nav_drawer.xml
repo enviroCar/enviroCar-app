@@ -9,14 +9,6 @@
             android:checked="true"
             android:icon="@drawable/dashboard"
             android:title="@string/dashboard"/>
-        <!--<item-->
-            <!--android:id="@+id/menu_nav_drawer_dashboard_new"-->
-            <!--android:icon="@drawable/dashboard"-->
-            <!--android:title="New Dashboard"/>-->
-        <!--<item-->
-            <!--android:id="@+id/menu_nav_drawer_text"-->
-            <!--android:icon="@drawable/dashboard"-->
-            <!--android:title="Startup"/>-->
         <item
             android:id="@+id/menu_nav_drawer_tracklist"
             android:icon="@drawable/device_access_storage"
@@ -29,17 +21,17 @@
             android:id="@+id/menu_nav_drawer_logbook"
             android:icon="@drawable/logbook"
             android:title="@string/menu_logbook"/>
-    <!--</group>-->
-
-    <!--<group android:id="@+id/menu_nav_drawer_group_account">-->
         <item
             android:id="@+id/menu_nav_drawer_account_login"
             android:icon="@drawable/device_access_accounts"
             android:title="@string/menu_login" />
-        <!--<item-->
-            <!--android:id="@+id/menu_nav_drawer_account_register"-->
-            <!--android:icon="@drawable/device_access_accounts"-->
-            <!--android:title="@string/menu_register" />-->
+    </group>
+
+    <group android:id="@+id/menu_nav_drawer_group_shutdown">
+        <item
+            android:id="@+id/menu_nav_drawer_quit_app"
+            android:icon="@drawable/ic_shutdown_black"
+            android:title="Close enviroCar" />
     </group>
 
     <group android:id="@+id/menu_nav_drawer_group_settings">

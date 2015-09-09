@@ -427,7 +427,7 @@ public class Util {
 			}
 		}
 		else {
-			throw new ServerException("Response did not contain the exepected HTTP Header 'Link'");
+			return 0;
 		}		
 	}
 	

@@ -47,6 +47,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import rx.Observable;
+import rx.functions.Func1;
+
 public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, AuthenticatedDAO {
 
     @Override

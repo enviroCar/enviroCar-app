@@ -30,10 +30,8 @@ import org.envirocar.app.application.UserManager;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.User;
-import org.envirocar.app.model.UserStatistics;
 import org.envirocar.app.model.dao.DAOProvider;
 import org.envirocar.app.model.dao.TrackDAO;
-import org.envirocar.app.model.dao.UserStatisticsDAO;
 import org.envirocar.app.model.dao.exception.NotConnectedException;
 import org.envirocar.app.model.dao.exception.ResourceConflictException;
 import org.envirocar.app.model.dao.exception.TrackRetrievalException;
@@ -43,7 +41,6 @@ import org.envirocar.app.model.dao.exception.UserUpdateException;
 import org.envirocar.app.views.TypefaceEC;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -51,6 +48,7 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import rx.Observable;
 import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -75,7 +73,11 @@ public class LoginActivity extends BaseInjectorActivity {
     @InjectView(R.id.activity_login_account_name)
     protected TextView mAccountName;
     @InjectView(R.id.activity_account_exp_toolbar_tracknumber)
-    protected TextView mTrackNumber;
+    protected TextView mGlobalTrackNumber;
+    @InjectView(R.id.activity_account_exp_toolbar_local_tracknumber)
+    protected TextView mLocalTrackNumber;
+    @InjectView(R.id.activity_account_exp_toolbar_remote_tracknumber)
+    protected TextView mRemoteTrackNumber;
 
     @InjectView(R.id.activity_login_card)
     protected CardView mLoginCard;
@@ -317,8 +319,8 @@ public class LoginActivity extends BaseInjectorActivity {
         // Get all the values of the edittexts
         final String username = mRegisterUsername.getText().toString();
         final String email = mRegisterEmail.getText().toString();
-        final String password = mRegisterEmail.getText().toString();
-        final String password2 = mRegisterEmail.getText().toString();
+        final String password = mRegisterPassword.getText().toString();
+        final String password2 = mRegisterPassword2.getText().toString();
 
         View focusView = null;
         // Check for valid passwords.
@@ -389,6 +391,7 @@ public class LoginActivity extends BaseInjectorActivity {
                     newUser.setMail(email);
                     mDAOProvider.getUserDAO().createUser(newUser);
 
+
                     // Successfully created the user
                     mMainThreadWorker.schedule(() -> {
                         // Set the new user as the logged in user.
@@ -400,7 +403,7 @@ public class LoginActivity extends BaseInjectorActivity {
                         // page.
                         updateView(true);
 
-                        // Dismuss the progress dialog.
+                        // Dismiss the progress dialog.
                         dialog.dismiss();
 
                         // Show a snackbar containing a welcome message.
@@ -457,15 +460,15 @@ public class LoginActivity extends BaseInjectorActivity {
             animateHideView(mExpToolbarContent, R.anim.fade_out, () -> slideInLoginCard());
 
             // hide the no statistics info if it is visible.
-            if(mNoStatisticsInfo.getVisibility() == View.VISIBLE){
+            if (mNoStatisticsInfo.getVisibility() == View.VISIBLE) {
                 animateHideView(mNoStatisticsInfo, R.anim.fade_out, null);
             }
 
             // hide the no statistics info if it is visible.
-            if(mStatisticsProgressView.getVisibility() == View.VISIBLE){
+            if (mStatisticsProgressView.getVisibility() == View.VISIBLE) {
                 animateHideView(mStatisticsProgressView, R.anim.fade_out, null);
-                if(mStatisticsDownloadSubscription != null &&
-                        !mStatisticsDownloadSubscription.isUnsubscribed()){
+                if (mStatisticsDownloadSubscription != null &&
+                        !mStatisticsDownloadSubscription.isUnsubscribed()) {
                     mStatisticsDownloadSubscription.unsubscribe();
                     mStatisticsDownloadSubscription = null;
                 }
@@ -487,92 +490,90 @@ public class LoginActivity extends BaseInjectorActivity {
     }
 
     private void updateView(boolean isLoggedIn) {
-        mBackgroundWorker.schedule(() -> {
-            if (isLoggedIn) {
-                try {
-                    mMainThreadWorker.schedule(() -> {
-                        // If the login card is visible, then slide it out.
-                        if (mLoginCard.getVisibility() == View.VISIBLE) {
-                            slideOutLoginCard();
-                        }
-                        // If the register card is visible, then slide it out.
-                        if (mRegisterCard.getVisibility() == View.VISIBLE) {
-                            slideOutRegisterCard();
-                        }
-                    });
+        // First, show all user informations.
+        final User user = mUserManager.getUser();
+        mAccountName.setText(user.getUsername());
+        // Animate the fade in progress of the Exp Toolbar content.
+        if (mExpToolbarContent.getVisibility() != View.VISIBLE)
+            animateViewTransition(mExpToolbarContent, R.anim
+                    .fade_in, false);
 
+        // If the login card is visible, then slide it out.
+        if (mLoginCard.getVisibility() == View.VISIBLE) {
+            slideOutLoginCard();
+        }
+        // If the register card is visible, then slide it out.
+        if (mRegisterCard.getVisibility() == View.VISIBLE) {
+            slideOutRegisterCard();
+        }
+        // If the statistics progess view is not visible, then fade it in.
+        if (mStatisticsProgressView.getVisibility() != View.VISIBLE) {
+            animateViewTransition(mStatisticsProgressView, R.anim.fade_in, false);
+        }
 
-                    final User user = mUserManager.getUser();
-
-                    // First
-                    mMainThreadWorker.schedule(() -> {
-                        mAccountName.setText(user.getUsername());
-                        // Animate the fade in progress of the Exp Toolbar content.
-                        if (mExpToolbarContent.getVisibility() != View.VISIBLE)
-                            animateViewTransition(mExpToolbarContent, R.anim.fade_in, false);
-
-                        mStatisticsProgressView.setVisibility(View.VISIBLE);
-                    });
-
-                    // Get the count of the tracks.
-                    final TrackDAO trackDAO = mDAOProvider.getTrackDAO();
-                    final int totalTrackCount = trackDAO.getTotalTrackCount();
-                    final int userTrackCount = trackDAO.getUserTrackCount();
-
-                    mMainThreadWorker.schedule(() -> {
-                        // Update the new values of the exp toolbar content.
-                        mTrackNumber.setText(String.format("%s (%s)", userTrackCount,
-                                totalTrackCount));
-                    });
-
-                    // Get the user statistics.
-                    UserStatisticsDAO statisticsDao = mDAOProvider.getUserStatisticsDAO();
-                    UserStatistics userStatistics = statisticsDao.getUserStatistics(user);
-                    Map<String, UserStatistics.PhenomenonStatisticHolder> statistics =
-                            userStatistics.getStatistics();
-
-                    mStatisticsDownloadSubscription = mMainThreadWorker.schedule(() -> {
-                        if(statistics.isEmpty()){
-                            animateHideView(mStatisticsProgressView, R.anim.fade_out,
-                                    () -> animateViewTransition(mNoStatisticsInfo, R.anim.fade_in,
-                                            false));
-                        } else {
-                            mStatisticsListView.setAdapter(
-                                    new UserStatisticsAdapter(LoginActivity.this,
-                                            new ArrayList<>(statistics.values())));
-                            animateHideView(mStatisticsProgressView, R.anim.fade_out,
-                                    () -> animateViewTransition(mStatisticsListView, R.anim.fade_in,
-                                            false));
-                        }
-                    });
-
-                } catch (NotConnectedException e) {
-                    LOG.warn(e.getMessage(), e);
-                } catch (TrackRetrievalException e) {
-                    LOG.warn(e.getMessage(), e);
-                } catch (UserStatisticsRetrievalException e) {
-                    LOG.warn(e.getMessage(), e);
-                } catch (UnauthorizedException e) {
-                    LOG.warn(e.getMessage(), e);
-                }
-            }
-            // The user is not logged in.
-            else {
-                // TODO
-                mMainThreadWorker.schedule(() -> {
-                    if (mLoginCard.getVisibility() != View.VISIBLE) {
-                        slideInLoginCard();
-                    }
-                    // If the register card is visible, then slide it out.
-                    if (mRegisterCard.getVisibility() == View.VISIBLE) {
-                        slideOutRegisterCard();
-                    }
+        // Update the Gravatar image.
+        mUserManager.getGravatarBitmapObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(bitmap -> {
+                    if (mAccountImage != null && mAccountImage.getVisibility() == View.VISIBLE)
+                        mAccountImage.setImageBitmap(bitmap);
                 });
 
+        // Update the new values of the exp toolbar content.
+        mBackgroundWorker.schedule(() -> {
+            try {
+                final TrackDAO trackDAO = mDAOProvider.getTrackDAO();
+                final int totalTrackCount = trackDAO.getTotalTrackCount();
+                final int userTrackCount = trackDAO.getUserTrackCount();
+
+                String.format("%s (%s)", userTrackCount, totalTrackCount);
+                mMainThreadWorker.schedule(() -> {
+                    mGlobalTrackNumber.setText(Integer.toString(totalTrackCount));
+                    mRemoteTrackNumber.setText(Integer.toString(userTrackCount));
+                });
+            } catch (NotConnectedException e) {
+                e.printStackTrace();
+            } catch (TrackRetrievalException e) {
+                e.printStackTrace();
             }
         });
 
+        Observable.just(true)
+                .map(aBoolean -> {
+                    try {
+                        return mDAOProvider
+                                .getUserStatisticsDAO()
+                                .getUserStatistics(user)
+                                .getStatistics();
+                    } catch (UserStatisticsRetrievalException e) {
+                        LOG.warn("Error while trying to retrive user statistics.", e);
+                        mMainThreadWorker.schedule(() ->
+                                animateHideView(mStatisticsProgressView, R.anim.fade_out,
+                                        () -> animateViewTransition(mNoStatisticsInfo, R
+                                                .anim.fade_in, false)));
+                    } catch (UnauthorizedException e) {
+                        LOG.warn("The user is unauthorized to access this endpoint.", e);
+                    }
+                    return null;
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(statistics -> {
+                    if (statistics.isEmpty()) {
+                        animateHideView(mStatisticsProgressView, R.anim.fade_out,
+                                () -> animateViewTransition(mNoStatisticsInfo,
+                                        R.anim.fade_in, false));
+                    } else {
+                        mStatisticsListView.setAdapter(new UserStatisticsAdapter(LoginActivity.this,
+                                new ArrayList<>(statistics.values())));
+                        animateHideView(mStatisticsProgressView, R.anim.fade_out,
+                                () -> animateViewTransition(mStatisticsListView,
+                                        R.anim.fade_in, false));
+                    }
+                });
     }
+
 
     /**
      * Applies an animation on the given view.
