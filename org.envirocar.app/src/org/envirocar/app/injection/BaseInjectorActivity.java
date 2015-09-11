@@ -30,7 +30,6 @@ public abstract class BaseInjectorActivity extends AppCompatActivity implements 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        LOGGER.debug("onCreate()");
         super.onCreate(savedInstanceState);
 
         mObjectGraph = ((Injector) getApplicationContext()).getObjectGraph().plus
@@ -43,7 +42,6 @@ public abstract class BaseInjectorActivity extends AppCompatActivity implements 
     @Override
     protected void onStart(){
         super.onStart();
-        LOGGER.info("onStart()");
 
         // Register on the bus.
         mBus.register(this);
@@ -52,7 +50,6 @@ public abstract class BaseInjectorActivity extends AppCompatActivity implements 
     @Override
     protected void onStop() {
         super.onStop();
-        LOGGER.info("onStop()");
 
         // Unregister from the bus.
         mBus.unregister(this);

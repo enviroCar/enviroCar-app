@@ -150,8 +150,6 @@ public final class Tempomat extends FrameLayout {
     }
 
     private void init(Context context) {
-        // Inject all annotated fields.
-        ((Injector) context).injectObjects(this);
 
         // This FrameLayout view draws something on its own. Therefore, this flag has
         // to be set to true.
@@ -173,7 +171,7 @@ public final class Tempomat extends FrameLayout {
         super.onAttachedToWindow();
 
         // Register on the Bus;
-        mBus.register(this);
+//        mBus.register(this);
     }
 
     @Override
@@ -181,7 +179,7 @@ public final class Tempomat extends FrameLayout {
         super.onDetachedFromWindow();
 
         // Unregister on the bus.
-        mBus.unregister(this);
+//        mBus.unregister(this);
     }
 
     @Override
@@ -245,7 +243,23 @@ public final class Tempomat extends FrameLayout {
 
         // Schedule the next rotation to degree.
         mHandler.post(() -> submitRotationToDegree(mCurrentDegree));
+    }
 
+    public void setSpeed(int speed){
+        float degree = 0.0f;
+        if (speed <= SCALE_MIN_SPEED) {
+            degree = SCALE_MIN_DEGREE;
+        } else if (speed >= SCALE_MAX_SPEED) {
+            degree = SCALE_MAX_DEGREE;
+        } else {
+            degree = (((float) speed / SCALE_MAX_SPEED) * SCALE_MAX_DEGREE);
+        }
+
+        mCurrentDegree = degree;
+        mCurrentSpeed = speed;
+
+        // Schedule the next rotation to degree.
+        mHandler.post(() -> submitRotationToDegree(mCurrentDegree));
     }
 
     private void setupDrawingTools() {
@@ -590,7 +604,7 @@ public final class Tempomat extends FrameLayout {
 
         @Override
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            LOGGER.info(String.format("onMeasure(%s,%s)2", "" + widthMeasureSpec, "" +
+            LOGGER.info(String.format("SpeedIndicator.onMeasure(%s,%s)", "" + widthMeasureSpec, "" +
                     heightMeasureSpec));
 
             int widthMode = MeasureSpec.getMode(widthMeasureSpec);

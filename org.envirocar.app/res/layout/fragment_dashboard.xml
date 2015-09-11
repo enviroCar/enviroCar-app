@@ -6,6 +6,7 @@
               android:orientation="vertical">
 
     <org.envirocar.app.view.preferences.Tempomat
+        android:id="@+id/fragment_dashboard_tempomat_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

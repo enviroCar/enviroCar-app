@@ -8,11 +8,16 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.squareup.otto.Subscribe;
+
 import org.envirocar.app.R;
+import org.envirocar.app.bluetooth.obd.events.SpeedUpdateEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.view.preferences.Tempomat;
 
 import butterknife.ButterKnife;
+import butterknife.InjectView;
 
 /**
  * @author dewall
@@ -20,6 +25,8 @@ import butterknife.ButterKnife;
 public class DashboardTempomatFragment extends BaseInjectorFragment {
     private static final Logger LOGGER = Logger.getLogger(DashboardTempomatFragment.class);
 
+    @InjectView(R.id.fragment_dashboard_tempomat_view)
+    protected Tempomat mTempomatView;
 
     @Nullable
     @Override
@@ -43,32 +50,20 @@ public class DashboardTempomatFragment extends BaseInjectorFragment {
     public void onResume() {
         LOGGER.info("onResume()");
         super.onResume();
-//        getFragmentManager().beginTransaction()
-//                .setCustomAnimations(R.anim.slide_in_top, R.anim.slide_out_top)
-//                .show(mDashboardHeaderFragment)
-//                .commit();
     }
 
-    //    @Override
-    //    public void onViewCreated(View view, Bundle savedInstanceState) {
-    //        LOGGER.info("onViewCreated()");
-    //
-    //        mTimerText.setBase(SystemClock.elapsedRealtime()-10000);
-    //        mTimerText.start();
-    //
-    //        super.onViewCreated(view, savedInstanceState);
-    //    }
-
+    @Override
+    public void onPause(){
+        LOGGER.info("onPause()");
+        super.onPause();
+    }
 
     @Override
-    public void onDestroyView() {
-        LOGGER.info("onDestroyView()");
-//        if (!getActivity().isFinishing() && mDashboardHeaderFragment != null) {
-//            getFragmentManager().beginTransaction()
-//                    .remove(mDashboardHeaderFragment)
-//                    .commit();
-//        }
-        super.onDestroyView();
+    public void onDestroy() {
+        LOGGER.info("onDestroy()");
+        super.onDestroy();
+        mTempomatView.destroyDrawingCache();
+        mTempomatView = null;
     }
 
     @Override
@@ -76,4 +71,18 @@ public class DashboardTempomatFragment extends BaseInjectorFragment {
         inflater.inflate(R.menu.menu_dashboard_tempomat, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
+
+    /**
+     * Receiver method for the speed update event.
+     *
+     * @param event the SpeedUpdateEvent to receive over the bus.
+     */
+    @Subscribe
+    public void onReceiveSpeedUpdateEvent(SpeedUpdateEvent event) {
+        LOGGER.debug(String.format("Received event: %s", event.toString()));
+        if(mTempomatView != null){
+            mTempomatView.setSpeed(event.mSpeed);
+        }
+    }
+
 }

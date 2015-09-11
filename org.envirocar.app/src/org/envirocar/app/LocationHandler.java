@@ -44,23 +44,17 @@ public class LocationHandler {
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
-            LOGGER.info(String.format("onStatusChanged(): %s", provider));
+            LOGGER.info(String.format("onStatusChanged(): %s + %s", provider, "" + status));
         }
 
         @Override
         public void onProviderEnabled(String provider) {
             LOGGER.info(String.format("onProviderEnabled(): %s", provider));
-//            if (provider.equals(LocationManager.GPS_PROVIDER)) {
-//                mBus.post(new GpsStateChangedEvent(true));
-//            }
         }
 
         @Override
         public void onProviderDisabled(String provider) {
             LOGGER.info(String.format("onProviderDisabled(): %s", provider));
-//            if (provider.equals(LocationManager.GPS_PROVIDER)) {
-//                mBus.post(new GpsStateChangedEvent(false));
-//            }
         }
     };
 
@@ -213,8 +207,9 @@ public class LocationHandler {
      *
      */
     public void startLocating() {
-        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
-                mLocationListener);
+        LOGGER.info("startLocating()");
+        mLocationManager.requestLocationUpdates(
+                LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
         mLocationManager.addNmeaListener(mNmeaListener);
     }
 
@@ -222,6 +217,7 @@ public class LocationHandler {
      *
      */
     public void stopLocating() {
+        LOGGER.info("stopLocating()");
         mLocationManager.removeUpdates(mLocationListener);
         mLocationManager.removeNmeaListener(mNmeaListener);
     }

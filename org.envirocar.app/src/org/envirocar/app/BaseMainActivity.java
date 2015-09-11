@@ -54,6 +54,8 @@ import org.envirocar.app.view.LoginActivity;
 import org.envirocar.app.view.SettingsFragment;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
 import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.app.view.settings.NewSettingsActivity;
+import org.envirocar.app.view.settings.SettingsFragment2;
 import org.envirocar.app.view.tracklist.TrackListFragment;
 
 import java.util.Arrays;
@@ -85,7 +87,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
     public static final int TRACK_MODE_SINGLE = 0;
     public static final int TRACK_MODE_AUTO = 1;
     public static final int REQUEST_MY_GARAGE = 1336;
-    public static final int REQUEST_REDIRECT_TO_GARAGE = 1337;
+    public static final int REQUEST_REDPreferenceConstantsIRECT_TO_GARAGE = 1337;
     private static final String TAG = BaseMainActivity.class.getSimpleName();
 
 
@@ -158,29 +160,28 @@ public class BaseMainActivity extends BaseInjectorActivity {
         setContentView(R.layout.main_layout);
         ButterKnife.inject(this);
 
-        checkKeepScreenOn();
-
         // Initializes the Toolbar.
         setSupportActionBar(mToolbar);
 
         // Register a listener for a menu item that gets selected.
         mNavigationView.setNavigationItemSelectedListener(menuItem -> {
 
-            // we want to have shared checked states between different groups. Therefore, we
-            // cannot use the provided "single" checkedBehavior. For this reason, it is first
-            // required to make the item checkable first.
-            menuItem.setCheckable(true);
-            menuItem.setChecked(true);
+            if(selectDrawerItem(menuItem)) {
 
-            // Uncheck all other items.
-            Menu m = mNavigationView.getMenu();
-            for (int i = 0; i < m.size(); i++) {
-                MenuItem mi = m.getItem(i);
-                if (!(mi.getItemId() == menuItem.getItemId()))
-                    mi.setChecked(false);
+                // we want to have shared checked states between different groups. Therefore, we
+                // cannot use the provided "single" checkedBehavior. For this reason, it is first
+                // required to make the item checkable first.
+                menuItem.setCheckable(true);
+                menuItem.setChecked(true);
+
+                // Uncheck all other items.
+                Menu m = mNavigationView.getMenu();
+                for (int i = 0; i < m.size(); i++) {
+                    MenuItem mi = m.getItem(i);
+                    if (!(mi.getItemId() == menuItem.getItemId()))
+                        mi.setChecked(false);
+                }
             }
-
-            selectDrawerItem(menuItem);
 
             // Close the navigation drawer.
             mDrawerLayout.closeDrawers();
@@ -198,19 +199,15 @@ public class BaseMainActivity extends BaseInjectorActivity {
                         .getSimpleName())
                 .commit();
 
-
-        // Subscribe for specific StartStop button related preferences.
+        // Subscribe for preference subscriptions. In this case, subscribe for changes to the
+        // active screen settings.
         mPreferenceSubscription = ContentObservable
                 .fromSharedPreferencesChanges(PreferenceManager.getDefaultSharedPreferences(this))
-                .observeOn(Schedulers.computation())
+                .subscribeOn(Schedulers.computation())
                 .observeOn(AndroidSchedulers.mainThread())
-                .filter(prefKey ->
-                        PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME.equals(prefKey) ||
-                                PreferenceConstants.PREFERENCE_TAG_CAR.equals(prefKey) ||
-                                PreferenceConstants.CAR_HASH_CODE.equals(prefKey))
+                .filter(prefKey -> PreferenceConstants.DISPLAY_STAYS_ACTIV.equals(prefKey))
                 .subscribe(prefKey -> {
-                    // TODO
-                    //                    updateStartStopButton();
+                    checkKeepScreenOn();
                 });
 
 
@@ -231,6 +228,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
                         .commit();
             }
         };
+
 
         registerReceiver(errorInformationReceiver, new IntentFilter(TroubleshootingFragment
                 .INTENT));
@@ -260,21 +258,29 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     @Override
     protected void onStart() {
+        LOGGER.info("onStart()");
         super.onStart();
         // Update the header.
         updateNavDrawerAccountHeader();
     }
 
     @Override
+    protected void onResume() {
+        LOGGER.info("onResume()");
+        super.onResume();
+        // Check whether the screen is required to keep the screen on.
+        checkKeepScreenOn();
+    }
+
+    @Override
     protected void onPause() {
+        LOGGER.info("onResume()");
         super.onPause();
 
         this.paused = false;
 
-        //        mDrawerLayout.closeDrawer(mDrawerList);
         //first init
         firstInit();
-
 
         checkKeepScreenOn();
 
@@ -300,12 +306,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
         Crouton.cancelAllCroutons();
 
         this.unregisterReceiver(errorInformationReceiver);
-
-        //        if (remainingTimeHandler != null) {
-        //            remainingTimeHandler.removeCallbacks(remainingTimeThread);
-        //            discoveryTargetTime = 0;
-        //            remainingTimeThread = null;
-        //        }
 
         mTemporaryFileManager.shutdown();
 
@@ -378,7 +378,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     protected void addPersistentSeenAnnouncement(String id) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        String currentPersisted = preferences.getString(SettingsActivity
+        String currentPersisted = preferences.getString(PreferenceConstants
                 .PERSISTENT_SEEN_ANNOUNCEMENTS, "");
 
         StringBuilder sb = new StringBuilder(currentPersisted);
@@ -387,8 +387,9 @@ public class BaseMainActivity extends BaseInjectorActivity {
         }
         sb.append(id);
 
-        preferences.edit().putString(SettingsActivity.PERSISTENT_SEEN_ANNOUNCEMENTS, sb.toString
-                ()).commit();
+        preferences.edit().putString(
+                PreferenceConstants.PERSISTENT_SEEN_ANNOUNCEMENTS,
+                sb.toString()).commit();
     }
 
     // TODO check
@@ -442,7 +443,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
      *
      * @param menuItem the item clicked in the menu of the navigation drawer.
      */
-    private void selectDrawerItem(MenuItem menuItem) {
+    private boolean selectDrawerItem(MenuItem menuItem) {
         LOGGER.info(String.format("selectDrawerItem(%s)", menuItem.getTitle()));
 
         Fragment fragment = null;
@@ -463,10 +464,12 @@ public class BaseMainActivity extends BaseInjectorActivity {
             case R.id.menu_nav_drawer_account_login:
                 Intent intent = new Intent(BaseMainActivity.this, LoginActivity.class);
                 startActivity(intent);
-                return;
+                return false;
             case R.id.menu_nav_drawer_settings_general:
-                fragment = new SettingsFragment();
-                break;
+//                fragment = new SettingsFragment2();
+                Intent intent2 = new Intent(BaseMainActivity.this, NewSettingsActivity.class);
+                startActivity(intent2);
+                return false;
             case R.id.menu_nav_drawer_settings_help:
                 fragment = new HelpFragment();
                 break;
@@ -488,12 +491,12 @@ public class BaseMainActivity extends BaseInjectorActivity {
                             }
                         })
                         .show();
-                return;
+                return false;
         }
 
         // If the fragment is null or the fragment is already visible, then do nothing.
         if (fragment == null || isFragmentVisible(fragment.getClass().getSimpleName()))
-            return;
+            return false;
 
         // Insert the fragment by replacing the existent fragment in the content frame.
 
@@ -508,6 +511,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         /// update the title of the toolbar.
         setTitle(menuItem.getTitle());
+
+        return true;
     }
 
     /**
@@ -590,18 +595,19 @@ public class BaseMainActivity extends BaseInjectorActivity {
     }
 
     private boolean isAlwaysUpload() {
-        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(SettingsActivity
+        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PreferenceConstants
                 .ALWAYS_UPLOAD, false);
     }
 
     private boolean isUploadOnlyInWlan() {
-        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(SettingsActivity
+        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PreferenceConstants
                 .WIFI_UPLOAD, true);
     }
 
     private void checkKeepScreenOn() {
-        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean(SettingsActivity
-                .DISPLAY_STAYS_ACTIV, false)) {
+        if (PreferenceManager
+                .getDefaultSharedPreferences(this)
+                .getBoolean(PreferenceConstants.DISPLAY_STAYS_ACTIV, false)) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         } else {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

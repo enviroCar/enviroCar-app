@@ -39,16 +39,25 @@ public class DashboardMapFragment extends BaseInjectorFragment {
         // Inject all dashboard-related views.
         ButterKnife.inject(this, contentView);
 
-
         // Init the map view
         mMapView.setTileSource(MapUtils.getOSMTileLayer());
-        mMapView.setUserLocationEnabled(true);
-        mMapView.setUserLocationTrackingMode(UserLocationOverlay.TrackingMode.FOLLOW);
-        mMapView.setUserLocationRequiredZoom(18);
         mMapView.setDiskCacheEnabled(true);
 
         return contentView;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        mMapView.setUserLocationEnabled(true);
+        mMapView.setUserLocationTrackingMode(UserLocationOverlay.TrackingMode.FOLLOW);
+        mMapView.setUserLocationRequiredZoom(18);
+    }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        mMapView.setUserLocationEnabled(false);
+        mMapView.setUserLocationTrackingMode(UserLocationOverlay.TrackingMode.NONE);
+    }
 }

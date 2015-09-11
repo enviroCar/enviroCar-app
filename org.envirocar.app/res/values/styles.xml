@@ -14,6 +14,15 @@
         <item name="android:descendantFocusability">blocksDescendants</item>
     </style>
 
+    <style name="Widget.enviroCar.Toolbar" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/blue_dark_cario</item>
+        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+        <!--<item name="app:elevation=">6dp</item>-->
+    </style>
+
     <style name="LoginFormContainer">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>

@@ -490,88 +490,92 @@ public class LoginActivity extends BaseInjectorActivity {
     }
 
     private void updateView(boolean isLoggedIn) {
-        // First, show all user informations.
-        final User user = mUserManager.getUser();
-        mAccountName.setText(user.getUsername());
-        // Animate the fade in progress of the Exp Toolbar content.
-        if (mExpToolbarContent.getVisibility() != View.VISIBLE)
-            animateViewTransition(mExpToolbarContent, R.anim
-                    .fade_in, false);
+        if (isLoggedIn) {
+            // First, show all user informations.
+            final User user = mUserManager.getUser();
+            mAccountName.setText(user.getUsername());
 
-        // If the login card is visible, then slide it out.
-        if (mLoginCard.getVisibility() == View.VISIBLE) {
-            slideOutLoginCard();
-        }
-        // If the register card is visible, then slide it out.
-        if (mRegisterCard.getVisibility() == View.VISIBLE) {
-            slideOutRegisterCard();
-        }
-        // If the statistics progess view is not visible, then fade it in.
-        if (mStatisticsProgressView.getVisibility() != View.VISIBLE) {
-            animateViewTransition(mStatisticsProgressView, R.anim.fade_in, false);
-        }
+            // Animate the fade in progress of the Exp Toolbar content.
+            if (mExpToolbarContent.getVisibility() != View.VISIBLE)
+                animateViewTransition(mExpToolbarContent, R.anim
+                        .fade_in, false);
 
-        // Update the Gravatar image.
-        mUserManager.getGravatarBitmapObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(bitmap -> {
-                    if (mAccountImage != null && mAccountImage.getVisibility() == View.VISIBLE)
-                        mAccountImage.setImageBitmap(bitmap);
-                });
-
-        // Update the new values of the exp toolbar content.
-        mBackgroundWorker.schedule(() -> {
-            try {
-                final TrackDAO trackDAO = mDAOProvider.getTrackDAO();
-                final int totalTrackCount = trackDAO.getTotalTrackCount();
-                final int userTrackCount = trackDAO.getUserTrackCount();
-
-                String.format("%s (%s)", userTrackCount, totalTrackCount);
-                mMainThreadWorker.schedule(() -> {
-                    mGlobalTrackNumber.setText(Integer.toString(totalTrackCount));
-                    mRemoteTrackNumber.setText(Integer.toString(userTrackCount));
-                });
-            } catch (NotConnectedException e) {
-                e.printStackTrace();
-            } catch (TrackRetrievalException e) {
-                e.printStackTrace();
+            // If the login card is visible, then slide it out.
+            if (mLoginCard.getVisibility() == View.VISIBLE) {
+                slideOutLoginCard();
             }
-        });
+            // If the register card is visible, then slide it out.
+            if (mRegisterCard.getVisibility() == View.VISIBLE) {
+                slideOutRegisterCard();
+            }
+            // If the statistics progess view is not visible, then fade it in.
+            if (mStatisticsProgressView.getVisibility() != View.VISIBLE) {
+                animateViewTransition(mStatisticsProgressView, R.anim.fade_in, false);
+            }
 
-        Observable.just(true)
-                .map(aBoolean -> {
-                    try {
-                        return mDAOProvider
-                                .getUserStatisticsDAO()
-                                .getUserStatistics(user)
-                                .getStatistics();
-                    } catch (UserStatisticsRetrievalException e) {
-                        LOG.warn("Error while trying to retrive user statistics.", e);
-                        mMainThreadWorker.schedule(() ->
-                                animateHideView(mStatisticsProgressView, R.anim.fade_out,
-                                        () -> animateViewTransition(mNoStatisticsInfo, R
-                                                .anim.fade_in, false)));
-                    } catch (UnauthorizedException e) {
-                        LOG.warn("The user is unauthorized to access this endpoint.", e);
-                    }
-                    return null;
-                })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(statistics -> {
-                    if (statistics.isEmpty()) {
-                        animateHideView(mStatisticsProgressView, R.anim.fade_out,
-                                () -> animateViewTransition(mNoStatisticsInfo,
-                                        R.anim.fade_in, false));
-                    } else {
-                        mStatisticsListView.setAdapter(new UserStatisticsAdapter(LoginActivity.this,
-                                new ArrayList<>(statistics.values())));
-                        animateHideView(mStatisticsProgressView, R.anim.fade_out,
-                                () -> animateViewTransition(mStatisticsListView,
-                                        R.anim.fade_in, false));
-                    }
-                });
+            // Update the Gravatar image.
+            mUserManager.getGravatarBitmapObservable()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(bitmap -> {
+                        if (mAccountImage != null && mAccountImage.getVisibility() == View.VISIBLE)
+                            mAccountImage.setImageBitmap(bitmap);
+                    });
+
+            // Update the new values of the exp toolbar content.
+            mBackgroundWorker.schedule(() -> {
+                try {
+                    final TrackDAO trackDAO = mDAOProvider.getTrackDAO();
+                    final int totalTrackCount = trackDAO.getTotalTrackCount();
+                    final int userTrackCount = trackDAO.getUserTrackCount();
+
+                    String.format("%s (%s)", userTrackCount, totalTrackCount);
+                    mMainThreadWorker.schedule(() -> {
+                        mGlobalTrackNumber.setText(Integer.toString(totalTrackCount));
+                        mRemoteTrackNumber.setText(Integer.toString(userTrackCount));
+                    });
+                } catch (NotConnectedException e) {
+                    e.printStackTrace();
+                } catch (TrackRetrievalException e) {
+                    e.printStackTrace();
+                }
+            });
+
+            Observable.just(true)
+                    .map(aBoolean -> {
+                        try {
+                            return mDAOProvider
+                                    .getUserStatisticsDAO()
+                                    .getUserStatistics(user)
+                                    .getStatistics();
+                        } catch (UserStatisticsRetrievalException e) {
+                            LOG.warn("Error while trying to retrive user statistics.", e);
+                            mMainThreadWorker.schedule(() ->
+                                    animateHideView(mStatisticsProgressView, R.anim.fade_out,
+                                            () -> animateViewTransition(mNoStatisticsInfo, R
+                                                    .anim.fade_in, false)));
+                        } catch (UnauthorizedException e) {
+                            LOG.warn("The user is unauthorized to access this endpoint.", e);
+                        }
+                        return null;
+                    })
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(statistics -> {
+                        if (statistics == null || statistics.isEmpty()) {
+                            animateHideView(mStatisticsProgressView, R.anim.fade_out,
+                                    () -> animateViewTransition(mNoStatisticsInfo,
+                                            R.anim.fade_in, false));
+                        } else {
+                            mStatisticsListView.setAdapter(new UserStatisticsAdapter
+                                    (LoginActivity.this,
+                                            new ArrayList<>(statistics.values())));
+                            animateHideView(mStatisticsProgressView, R.anim.fade_out,
+                                    () -> animateViewTransition(mStatisticsListView,
+                                            R.anim.fade_in, false));
+                        }
+                    });
+        }
     }
 
 

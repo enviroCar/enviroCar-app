@@ -204,9 +204,6 @@ public class OBDConnectionService extends Service {
         if (mPreferenceSubscription != null)
             mPreferenceSubscription.unsubscribe();
 
-        // Stop GPS
-        mLocationHandler.stopLocating();
-
         // Stop this service and emove this service from foreground state.
         stopOBDConnection();
         stopForeground(true);
