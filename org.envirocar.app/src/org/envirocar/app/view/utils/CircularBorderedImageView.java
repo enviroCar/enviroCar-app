@@ -32,7 +32,7 @@ public class CircularBorderedImageView extends ImageView {
     private float mBorderRadius;
     private float mDrawableRadius;
 
-    private Bitmap mBitmap;
+    protected Bitmap mBitmap;
     private BitmapShader mBitmapShader;
     private final Matrix mShaderMatrix = new Matrix();
 

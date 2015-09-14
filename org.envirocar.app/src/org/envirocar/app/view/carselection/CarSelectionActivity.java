@@ -59,7 +59,6 @@ public class CarSelectionActivity extends BaseInjectorActivity {
 
     private static final int DURATION_SHEET_ANIMATION = 350;
 
-
     @InjectView(R.id.activity_car_selection_layout_content)
     protected View mContentView;
     @InjectView(R.id.activity_car_selection_layout_toolbar)
@@ -74,7 +73,6 @@ public class CarSelectionActivity extends BaseInjectorActivity {
 
     @InjectView(R.id.activity_car_selection_layout_carlist)
     protected ListView mCarListView;
-
 
     // Views of the sheet view used to add a new car type.
     @InjectView(R.id.activity_car_selection_model_input_layout)

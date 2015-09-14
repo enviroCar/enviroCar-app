@@ -81,6 +81,8 @@
 
     <include layout="@layout/activity_car_selection_layout_sheet" />
 
+    <include layout="@layout/activity_car_selection_newcar_card" />
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         style="@style/Widget.enviroCar.Fab"

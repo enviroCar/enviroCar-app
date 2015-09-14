@@ -2,11 +2,10 @@ package org.envirocar.app.view.settings;
 
 import android.app.Fragment;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-
-import com.google.common.base.Preconditions;
 
 import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorActivity;
@@ -73,29 +72,37 @@ public class NewSettingsActivity extends BaseInjectorActivity {
         }
     }
 
+    /**
+     * Called when the general settings layout is clicked. It creates and opens the general
+     * settings fragment.
+     */
     @OnClick(R.id.fragment_settings_main_general_settings)
     protected void onClickGeneralSettings() {
         createAndShowSettingsFragment(R.xml.preferences_general);
     }
 
+    /**
+     * Called when the OBD settings layout is clicked. It creates a new {@link
+     * OBDSettingsFragment} and opens this in the settings container.
+     */
     @OnClick(R.id.fragment_settings_main_obd_settings)
     protected void onClickOBDSettings() {
-
+        showFragment(new OBDSettingsFragment());
     }
 
     @OnClick(R.id.fragment_settings_main_car_settings)
     protected void onClickCarSettings() {
-
+        Snackbar.make(mToolbar, "Not implemented yet!", Snackbar.LENGTH_LONG).show();
     }
 
     @OnClick(R.id.fragment_settings_main_optional_settings)
     protected void onClickOptionalSettings() {
-
+        createAndShowSettingsFragment(R.xml.preferences_optional);
     }
 
     @OnClick(R.id.fragment_settings_main_other_settings)
     protected void onClickOtherSettings() {
-
+        showFragment(new OtherSettingsFragment());
     }
 
     /**

@@ -334,6 +334,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
 
         // For each device, add an entry to the list view.
         mPairedDevicesAdapter.addAll(pairedDevices);
+        mPairedDevicesAdapter.setSelectedBluetoothDevice(mBluetoothHandler
+                .getSelectedBluetoothDevice());
 
         // Make the paired devices textview visible if there are paired devices
         if (!pairedDevices.isEmpty()) {

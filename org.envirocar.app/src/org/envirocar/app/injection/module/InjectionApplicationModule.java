@@ -49,7 +49,7 @@ import org.envirocar.app.view.preferences.BluetoothDiscoveryIntervalPreference;
 import org.envirocar.app.view.preferences.BluetoothPairingPreference;
 import org.envirocar.app.view.preferences.SelectBluetoothPreference;
 import org.envirocar.app.view.settings.NewSettingsActivity;
-import org.envirocar.app.view.settings.SettingsFragment2;
+import org.envirocar.app.view.settings.OBDSettingsFragment;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.view.trackdetails.TrackStatisticsActivity;
 import org.envirocar.app.view.tracklist.TrackListFragment;
@@ -103,8 +103,8 @@ import dagger.Provides;
                 DashboardTrackMapFragment.class,
                 TrackStatisticsActivity.class,
                 LoginActivity.class,
-                SettingsFragment2.class,
-                NewSettingsActivity.class
+                NewSettingsActivity.class,
+                OBDSettingsFragment.class
         },
         staticInjections = {Track.class},
         library = true,

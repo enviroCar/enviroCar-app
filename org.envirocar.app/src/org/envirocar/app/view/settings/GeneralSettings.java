@@ -18,17 +18,20 @@ public class GeneralSettings extends PreferenceFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Get the resource id from the attached bundle
         Bundle bundle = this.getArguments();
         int resource = bundle.getInt(KEY_PREFERENCE, -1);
 
         if(resource != -1) {
-            addPreferencesFromResource(R.xml.preferences_general);
+            addPreferencesFromResource(resource);
         }
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // set a non-transparent white background
         view.setBackgroundColor(getResources().getColor(R.color.white_cario));
     }
 }

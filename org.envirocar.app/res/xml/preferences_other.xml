@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/pref_other">
+        <Preference
+            android:key="preference_other_version"
+            android:title="@string/pref_version"/>
+        <Preference
+            android:key="preference_other_website"
+            android:title="enviroCar Homepage"
+            android:summary="@string/envirocar.org" />
+        <Preference
+            android:key="preferences_other_licenses"
+            android:title="Licenses" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

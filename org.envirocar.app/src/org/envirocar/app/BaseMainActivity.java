@@ -51,11 +51,9 @@ import org.envirocar.app.model.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.util.Util;
 import org.envirocar.app.util.VersionRange;
 import org.envirocar.app.view.LoginActivity;
-import org.envirocar.app.view.SettingsFragment;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
 import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.app.view.settings.NewSettingsActivity;
-import org.envirocar.app.view.settings.SettingsFragment2;
 import org.envirocar.app.view.tracklist.TrackListFragment;
 
 import java.util.Arrays;

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+           xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- Style for the LinearLayout in the CheckList -->
     <style name="CheckListLayoutStyle">
@@ -61,6 +62,24 @@
         <item name="android:textSize">10sp</item>
         <item name="android:gravity">center</item>
         <item name="android:layout_gravity">left</item>
+    </style>
+
+    <style name="enviroCar.Settings.General.ListLayout" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">56dp</item>
+        <item name="android:layout_marginBottom">@dimen/spacing_medium</item>
+        <item name="android:layout_marginTop">@dimen/spacing_medium</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:background">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <style name="enviroCar.Input.Card.Layout" parent="">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">@dimen/spacing_medium</item>
+        <!--<item name="app:cardElevation=">@dimen/spacing_medium</item>-->
+        <!--<item name="app:cardUseCompatPadding">true</item>-->
     </style>
 
 </resources>

@@ -13,17 +13,14 @@
         android:layout_height="match_parent"
         android:layout_below="@id/fragment_settings_main_toolbar"
         android:orientation="vertical"
-        android:paddingBottom="@dimen/spacing_medium"
+        android:layout_marginBottom="@dimen/spacing_medium"
         android:paddingLeft="@dimen/spacing_large"
         android:paddingRight="@dimen/spacing_large"
-        android:paddingTop="@dimen/spacing_medium">
+        android:layout_marginTop="@dimen/spacing_medium">
 
         <RelativeLayout
             android:id="@+id/fragment_settings_main_general_settings"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginBottom="@dimen/spacing_medium"
-            android:layout_marginTop="@dimen/spacing_medium">
+            style="@style/enviroCar.Settings.General.ListLayout">
 
             <ImageView
                 android:layout_width="28dp"
@@ -43,7 +40,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
-                    android:text="General Settings"
+                    android:text="@string/pref_general_settings"
                     android:textColor="@color/black"
                     android:textSize="17sp"/>
 
@@ -59,10 +56,7 @@
 
         <RelativeLayout
             android:id="@+id/fragment_settings_main_obd_settings"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginBottom="@dimen/spacing_medium"
-            android:layout_marginTop="@dimen/spacing_medium">
+            style="@style/enviroCar.Settings.General.ListLayout">
 
             <ImageView
                 android:layout_width="28dp"
@@ -99,10 +93,7 @@
 
         <RelativeLayout
             android:id="@+id/fragment_settings_main_car_settings"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginBottom="@dimen/spacing_medium"
-            android:layout_marginTop="@dimen/spacing_medium">
+            style="@style/enviroCar.Settings.General.ListLayout">
 
             <ImageView
                 android:layout_width="28dp"
@@ -139,10 +130,7 @@
 
         <RelativeLayout
             android:id="@+id/fragment_settings_main_optional_settings"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginBottom="@dimen/spacing_medium"
-            android:layout_marginTop="@dimen/spacing_medium">
+            style="@style/enviroCar.Settings.General.ListLayout">
 
             <ImageView
                 android:layout_width="28dp"
@@ -179,10 +167,7 @@
 
         <RelativeLayout
             android:id="@+id/fragment_settings_main_other_settings"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginBottom="@dimen/spacing_medium"
-            android:layout_marginTop="@dimen/spacing_medium">
+            style="@style/enviroCar.Settings.General.ListLayout">
 
             <ImageView
                 android:layout_width="28dp"

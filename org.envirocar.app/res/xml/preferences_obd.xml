@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/pref_obd_settings">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="bluetooth_enabler"
+            android:title="@string/pref_bluetooth_switch_isenabled"/>
+        <org.envirocar.app.view.preferences.BluetoothPairingPreference
+            android:key="bluetooth_pairing"
+            android:summary="@string/pref_bluetooth_pairing_summery"
+            android:title="@string/pref_bluetooth_pairing"/>
+        <org.envirocar.app.view.preferences.SelectBluetoothPreference
+            android:key="bluetooth_list"
+            android:summary="@string/pref_bluetooth_select_adapter_summary"
+            android:title="@string/pref_bluetooth_select_adapter_title"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Autoconnect (Beta)">
+        <CheckBoxPreference
+            android:key="pref_bluetooth_autoconnect"
+            android:summary="Automatically starts a track once the OBDII has been connected."
+            android:title="Auto-connect"/>
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="pref_bluetooth_service_autostart"
+            android:summary="@string/pref_bt_service_autostart_summary"
+            android:title="@string/pref_bt_service_autostart_title"/>
+        <org.envirocar.app.view.preferences.BluetoothDiscoveryIntervalPreference
+            android:key="pref_bluetooth_discovery_interval"
+            android:summary="@string/pref_bt_discovery_interval_summary"
+            android:defaultValue="60"
+            android:title="@string/pref_bt_discovery_interval_title"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

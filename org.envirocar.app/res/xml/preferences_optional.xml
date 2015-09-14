@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/pref_optional_features">
+        <org.envirocar.app.activity.preference.EditPreferenceWithSummary
+            xmlns:enviroCar="http://envirocar.org"
+            android:defaultValue="5"
+            android:inputType="number"
+            android:key="ec_sampling_rate"
+            android:maxLength="8"
+            android:summary="@string/sampling_rate_summary"
+            android:title="@string/sampling_rate_title"
+            enviroCar:max="15"
+            enviroCar:min="0" />
+        <CheckBoxPreference
+            android:key="pref_pid_supported"
+            android:summary="@string/use_pid_supported_summary"
+            android:title="@string/use_pid_supported"/>
+        <CheckBoxPreference
+            android:key="pref_enable_debug_logging"
+            android:summary="@string/enable_debug_logging_summary"
+            android:title="@string/enable_debug_logging"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

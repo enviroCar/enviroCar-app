@@ -29,10 +29,10 @@
 	<string name="pref_in_liters">in liters (e.g. 1.8)</string>
 
     <string name="pref_about">enviroCar version</string>
-    
     <string name="pref_select_car">Car data</string>
-    
     <string name="pref_optional_features">Optional Features</string>
+    <string name="pref_version">Version</string>
+    <string name="pref_other">Other</string>
     
     <string name="use_pid_supported">Use PID Supported Query</string>
     <string name="use_pid_supported_summary">Query the vehicle\'s ECU on the supported OBD commands</string>
