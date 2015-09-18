@@ -150,51 +150,52 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 			requestCommands.add(new EngineLoad());
 			requestCommands.add(new TPS());
 		}
-		
-		/*
-		 * XXX: Tryout for Lambda probes. better: do via PIDSupported
-		 * 
-		 */
-		if (this.preferredLambdaProbe == null || this.preferredLambdaProbe.isEmpty()) {
-			if (cycle % 8 == 0) {
-				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_VOLTAGE));
-				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_CURRENT));	
-			}
-			else if (cycle % 8 == 1) {
-				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_2_VOLTAGE));
-				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_2_CURRENT));
-			}
-			else if (cycle % 8 == 2) {
-				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_3_VOLTAGE));
-				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_3_CURRENT));
-			}
-			else if (cycle % 8 == 3) {
-				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_4_VOLTAGE));
-				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_4_CURRENT));
-			}
-			else if (cycle % 8 == 4) {
-				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_5_VOLTAGE));
-				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_5_CURRENT));
-			}
-			else if (cycle % 8 == 5) {
-				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_6_VOLTAGE));
-				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_6_CURRENT));
-			}
-			else if (cycle % 8 == 6) {
-				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_7_VOLTAGE));
-				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_7_CURRENT));
-			}
-			else if (cycle % 8 == 7) {
-				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_8_VOLTAGE));
-				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_8_CURRENT));
-			}
-		}
-		else {
-			/*
-			 * we got one positive response, use that
-			 */
-			requestCommands.add(O2LambdaProbe.fromPIDEnum(PIDUtil.fromString(preferredLambdaProbe)));
-		}
+
+		// TODO reintegrate, fix
+//		/*
+//		 * XXX: Tryout for Lambda probes. better: do via PIDSupported
+//		 *
+//		 */
+//		if (this.preferredLambdaProbe == null || this.preferredLambdaProbe.isEmpty()) {
+//			if (cycle % 8 == 0) {
+//				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_VOLTAGE));
+//				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_CURRENT));
+//			}
+//			else if (cycle % 8 == 1) {
+//				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_2_VOLTAGE));
+//				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_2_CURRENT));
+//			}
+//			else if (cycle % 8 == 2) {
+//				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_3_VOLTAGE));
+//				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_3_CURRENT));
+//			}
+//			else if (cycle % 8 == 3) {
+//				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_4_VOLTAGE));
+//				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_4_CURRENT));
+//			}
+//			else if (cycle % 8 == 4) {
+//				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_5_VOLTAGE));
+//				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_5_CURRENT));
+//			}
+//			else if (cycle % 8 == 5) {
+//				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_6_VOLTAGE));
+//				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_6_CURRENT));
+//			}
+//			else if (cycle % 8 == 6) {
+//				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_7_VOLTAGE));
+//				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_7_CURRENT));
+//			}
+//			else if (cycle % 8 == 7) {
+//				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_8_VOLTAGE));
+//				requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_8_CURRENT));
+//			}
+//		}
+//		else {
+//			/*
+//			 * we got one positive response, use that
+//			 */
+//			requestCommands.add(O2LambdaProbe.fromPIDEnum(PIDUtil.fromString(preferredLambdaProbe)));
+//		}
 		
 		
 		requestCommands.add(new FuelSystemStatus());

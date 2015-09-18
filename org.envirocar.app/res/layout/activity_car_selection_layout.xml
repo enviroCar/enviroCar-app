@@ -1,91 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout
+<LinearLayout
+    android:id="@+id/activity_car_selection_layout_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/activity_car_selection_layout_content"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/activity_car_selection_layout_appbar"
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/activity_car_selection_layout_toolbar"
+        style="@style/ToolBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:background="@color/blue_dark_cario"
+        android:orientation="vertical"
+        app:elevation="6dp"/>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <android.support.v7.widget.Toolbar
-            android:id="@+id/activity_car_selection_layout_toolbar"
-            style="@style/ToolBarStyle"
+            android:id="@+id/activity_car_selection_layout_exptoolbar"
+            style="@style/Widget.enviroCar.Toolbar"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/abc_action_bar_default_height_material"
-            android:background="@color/blue_dark_cario"
+            android:layout_height="1dp"
             android:elevation="6dp"
-            android:orientation="vertical"
-            app:layout_scrollFlags="scroll|enterAlways"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-
-    </android.support.design.widget.AppBarLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingTop="@dimen/abc_action_bar_default_height_material">
+            app:elevation="6dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-            <TextView
-                android:text="My Cars"
-                style="@style/enviroCar.title"/>
-
-            <FrameLayout
-                android:layout_width="1dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1" />
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/enviroCar.title"
+                    android:text="My Cars"/>
+
+                <FrameLayout
+                    android:layout_width="1dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+
+                <TextView
+                    style="@style/enviroCar.title"
+                    android:text="2 Cars"/>
+            </LinearLayout>
+
+            <ListView
+                android:id="@+id/activity_car_selection_layout_carlist"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:choiceMode="singleChoice"
+                android:padding="@dimen/spacing_medium"/>
 
             <TextView
-                style="@style/enviroCar.title"
-                android:text="2 Cars" />
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="No Car Selected"/>
+
         </LinearLayout>
 
-        <!--<LinearLayout-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="1dp"-->
-            <!--android:background="#3f3f3f3f" />-->
-
-        <ListView
-            android:id="@+id/activity_car_selection_layout_carlist"
-            android:padding="@dimen/spacing_medium"
+        <!-- Overlay that dims the screen -->
+        <FrameLayout
+            android:id="@+id/overlay"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:choiceMode="singleChoice"/>
+            android:background="#3f3f3f3f"
+            android:visibility="gone"/>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="No Car Selected" />
+        <include
+            layout="@layout/activity_car_selection_layout_sheet"/>
 
-    </LinearLayout>
+        <include
+            layout="@layout/activity_car_selection_newcar_card"
+            android:visibility="gone"/>
 
-    <!-- Overlay that dims the screen -->
-    <FrameLayout
-        android:id="@+id/overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#3f3f3f3f"
-        android:visibility="gone" />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/activity_car_selection_new_car_fab"
+            style="@style/Widget.enviroCar.Fab"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="bottom|end"/>
 
-    <include layout="@layout/activity_car_selection_layout_sheet" />
+    </RelativeLayout>
 
-    <include layout="@layout/activity_car_selection_newcar_card" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab"
-        style="@style/Widget.enviroCar.Fab"
-        android:layout_gravity="bottom|end" />
-
-</android.support.design.widget.CoordinatorLayout>
+</LinearLayout>

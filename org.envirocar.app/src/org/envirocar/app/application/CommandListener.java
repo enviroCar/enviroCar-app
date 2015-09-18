@@ -164,13 +164,12 @@ public class CommandListener implements Listener, MeasurementListener {
         // Speed
 
         if (command instanceof Speed) {
-
             try {
                 Integer speedMeasurement = (Integer) numberCommand.getNumberResult().intValue();
                 this.collector.newSpeed(speedMeasurement);
                 mBus.post(new SpeedUpdateEvent(speedMeasurement));
-//				logger.info("Processed Speed Response: "+speedMeasurement +" time: "+command
-// .getResultTime());
+                logger.info("Processed Speed Response: " + speedMeasurement + " time: " + command
+                        .getResultTime());
             } catch (NumberFormatException e) {
                 logger.warn("speed parse exception", e);
             }
@@ -179,9 +178,6 @@ public class CommandListener implements Listener, MeasurementListener {
         //RPM
 
         else if (command instanceof RPM) {
-            // TextView speedTextView = (TextView)
-            // findViewById(R.id.spd_text);
-            // speedTextView.setText(commandResult + " km/h");
 
             try {
                 Integer rpmMeasurement = (Integer) numberCommand.getNumberResult();
@@ -197,10 +193,6 @@ public class CommandListener implements Listener, MeasurementListener {
         //IntakePressure
 
         else if (command instanceof IntakePressure) {
-            // TextView speedTextView = (TextView)
-            // findViewById(R.id.spd_text);
-            // speedTextView.setText(commandResult + " km/h");
-
             try {
                 Integer intakePressureMeasurement = (Integer) numberCommand.getNumberResult();
                 this.collector.newIntakePressure(intakePressureMeasurement);
@@ -215,10 +207,6 @@ public class CommandListener implements Listener, MeasurementListener {
         //IntakeTemperature
 
         else if (command instanceof IntakeTemperature) {
-            // TextView speedTextView = (TextView)
-            // findViewById(R.id.spd_text);
-            // speedTextView.setText(commandResult + " km/h");
-
             try {
                 Integer intakeTemperatureMeasurement = (Integer) numberCommand.getNumberResult();
                 this.collector.newIntakeTemperature(intakeTemperatureMeasurement);

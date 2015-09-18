@@ -3,8 +3,10 @@ package org.envirocar.app;
 import android.annotation.TargetApi;
 import android.app.ActivityManager;
 import android.app.Application;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -37,20 +39,16 @@ public class BaseApplication extends Application implements Injector, InjectionM
     private static final Logger LOGGER = Logger.getLogger(BaseApplication.class);
 
     protected ObjectGraph mObjectGraph;
+    protected BroadcastReceiver mScreenReceiver;
+    protected BroadcastReceiver mGPSReceiver;
 
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceListener
-            = new SharedPreferences.OnSharedPreferenceChangeListener() {
-
-
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-                                              String key) {
-            if (SettingsActivity.ENABLE_DEBUG_LOGGING.equals(key)) {
-                Logger.initialize(Util.getVersionString(BaseApplication.this),
-                        sharedPreferences.getBoolean(SettingsActivity.ENABLE_DEBUG_LOGGING, false));
-            }
-        }
-    };
+            = (sharedPreferences, key) -> {
+                if (SettingsActivity.ENABLE_DEBUG_LOGGING.equals(key)) {
+                    Logger.initialize(Util.getVersionString(BaseApplication.this),
+                            sharedPreferences.getBoolean(SettingsActivity.ENABLE_DEBUG_LOGGING, false));
+                }
+            };
 
     @Override
     public void onCreate() {
@@ -81,6 +79,47 @@ public class BaseApplication extends Application implements Injector, InjectionM
             Intent startIntent = new Intent(this, SystemStartupService.class);
             startService(startIntent);
         }
+
+        mScreenReceiver = new BroadcastReceiver(){
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                    // do whatever you need to do here
+                    LOGGER.info("SCREEN IS OFF");
+                } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                    // and do whatever you need to do here
+                    LOGGER.info("SCREEN IS OFF");
+                }
+            }
+        };
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_SCREEN_ON);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
+        registerReceiver(mScreenReceiver, filter);
+
+
+        mGPSReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.getAction().matches("android.location.PROVIDERS_CHANGED")) {
+                    LOGGER.info("GPS PROVIDER CHANGED");
+                }
+            }
+        };
+
+        IntentFilter filter2 = new IntentFilter();
+        filter.addAction("android.location.PROVIDERS_CHANGED");
+        registerReceiver(mGPSReceiver, filter2);
+    }
+
+    @Override
+    public void onTerminate() {
+        super.onTerminate();
+        if(mScreenReceiver != null)
+            unregisterReceiver(mScreenReceiver);
+        if(mGPSReceiver != null)
+            unregisterReceiver(mGPSReceiver);
     }
 
     @Override

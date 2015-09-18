@@ -1,6 +1,7 @@
 package org.envirocar.app.view.carselection;
 
 import android.content.Context;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
@@ -9,11 +10,9 @@ import android.support.design.widget.TextInputLayout;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
+import android.view.Display;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -31,6 +30,7 @@ import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.dao.DAOProvider;
 import org.envirocar.app.model.dao.exception.SensorRetrievalException;
+import org.envirocar.app.view.utils.ECAnimationUtils;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -42,8 +42,8 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import butterknife.OnClick;
 import io.codetail.animation.SupportAnimator;
-import io.codetail.animation.ViewAnimationUtils;
 import rx.Observer;
 import rx.Scheduler;
 import rx.Subscription;
@@ -63,12 +63,17 @@ public class CarSelectionActivity extends BaseInjectorActivity {
     protected View mContentView;
     @InjectView(R.id.activity_car_selection_layout_toolbar)
     protected Toolbar mToolbar;
+    @InjectView(R.id.activity_car_selection_layout_exptoolbar)
+    protected Toolbar mExpToolbar;
 
     @InjectView(R.id.overlay)
     protected View mOverlay;
-    @InjectView(R.id.activity_car_selection_new_car_sheet)
-    protected View mSheetView;
-    @InjectView(R.id.fab)
+//    @InjectView(R.id.activity_car_selection_new_car_sheet)
+//    protected View mSheetView;
+
+    @InjectView(R.id.activity_car_selection_new_car_card)
+    protected View mNewCarCard;
+    @InjectView(R.id.activity_car_selection_new_car_fab)
     protected FloatingActionButton mFab;
 
     @InjectView(R.id.activity_car_selection_layout_carlist)
@@ -144,10 +149,6 @@ public class CarSelectionActivity extends BaseInjectorActivity {
         setupListView();
         dispatchRemoteSensors();
 
-
-        // Set the onClick listener for the FloatingActionButton. When triggered, the sheet view
-        // gets shown.
-        mFab.setOnClickListener(v -> animateButton(mFab));
     }
 
     @Override
@@ -163,7 +164,7 @@ public class CarSelectionActivity extends BaseInjectorActivity {
         if (item.getItemId() == android.R.id.home) {
             // If the sheet view is visible, then only close the sheet view.
             // Otherwise, close the activity.
-            if (!closeSheetView()) {
+            if (!closeAddCarCard()) {
                 finish();
             }
         }
@@ -173,10 +174,64 @@ public class CarSelectionActivity extends BaseInjectorActivity {
     @Override
     public void onBackPressed() {
         // if the sheet view was not visible.
-        if (!closeSheetView()) {
+        if (!closeAddCarCard()) {
             // call the super method.
             super.onBackPressed();
         }
+    }
+
+    // Set the onClick listener for the FloatingActionButton. When triggered, the sheet view
+    // gets shown.
+    @OnClick(R.id.activity_car_selection_new_car_fab)
+    public void onClickNewCarButton(){
+        showAddCarCard();
+    }
+
+
+//    private boolean closeSheetView() {
+//        // If the sheet view is visible.
+//        if (mSheetView.isShown()) {
+//            // and there exist a reverse animation.
+//            if (mSupportAnimatorReverse != null) {
+//                // Start the animaton.
+//                mSupportAnimatorReverse.start();
+//                mSupportAnimatorReverse = null;
+//            } else {
+//                // Otherwise, simply reverse the visibility.
+//                mSheetView.setVisibility(View.INVISIBLE);
+//                mFab.setVisibility(View.VISIBLE);
+//            }
+//            return true;
+//        }
+//        // the sheet view was not visible. Therefore, return false.
+//        return false;
+//    }
+
+    /**
+     * Shows the card view for the addition cars.
+     *
+     * @return true if the card view was not shown.
+     */
+    private boolean showAddCarCard(){
+        // If the card view is not visible...
+        if(!mNewCarCard.isShown()){
+            // Get the height of the display
+            Display display = getWindowManager().getDefaultDisplay();
+            Point size = new Point();
+            display.getSize(size);
+            int height = size.y;
+
+            // expand the toolbar.
+            ECAnimationUtils.expandView(mExpToolbar, height/3);
+            // Start an animation that shows the card view.
+            ECAnimationUtils.animateShowView(this, mNewCarCard,
+                    R.anim.translate_in_bottom_login_card);
+            ECAnimationUtils.animateHideView(this, mFab, R.anim.fade_out);
+            return true;
+        }
+
+        // this card was already visible. Therefore, return false.
+        return false;
     }
 
     /**
@@ -184,22 +239,19 @@ public class CarSelectionActivity extends BaseInjectorActivity {
      *
      * @return true if the sheet view as visible and has been
      */
-    private boolean closeSheetView() {
-        // If the sheet view is visible.
-        if (mSheetView.isShown()) {
-            // and there exist a reverse animation.
-            if (mSupportAnimatorReverse != null) {
-                // Start the animaton.
-                mSupportAnimatorReverse.start();
-                mSupportAnimatorReverse = null;
-            } else {
-                // Otherwise, simply reverse the visibility.
-                mSheetView.setVisibility(View.INVISIBLE);
-                mFab.setVisibility(View.VISIBLE);
-            }
+    private boolean closeAddCarCard(){
+        // If the card view is visible.
+        if(mNewCarCard.isShown()){
+            // start an animation that hides the card view.
+            ECAnimationUtils.animateHideView(this, mNewCarCard, R.anim.translate_out_bottom_card,
+                    // When the animation is finished, show the FAB
+                    () -> ECAnimationUtils.animateShowView(
+                            CarSelectionActivity.this, mFab, R.anim.fade_in));
+            ECAnimationUtils.compressView(mExpToolbar, 1);
+
             return true;
         }
-        // the sheet view was not visible. Therefore, return false.
+        // the card view was not visible. Therefore, return false.
         return false;
     }
 
@@ -270,7 +322,7 @@ public class CarSelectionActivity extends BaseInjectorActivity {
                 if (mCarManager.addCar(selectedCar)) {
                     // Add the car to the adapter and close the sheet view.
                     mCarListAdapter.addCarItem(selectedCar);
-                    closeSheetView();
+                    closeAddCarCard();
 
                     // Schedule a show snackbar runnable when the sheet animation has been finished.
                     new Handler().postDelayed(() -> showSnackbar("Car successfully created!"),
@@ -356,22 +408,22 @@ public class CarSelectionActivity extends BaseInjectorActivity {
         }
     }
 
-    private void animateButton(final FloatingActionButton fab) {
-
-        //        fab.animate()
-        //                .translationXBy(0.5f)
-        //                .translationYBy(-0.5f)
-        //                .translationX(-mSheetView.getWidth()/2)
-        //                .translationY(-mSheetView.getHeight()/2)
-        //                .setDuration(300)
-        //                .setListener(new AnimatorListenerAdapter() {
-        //                    @Override
-        //                    public void onAnimationEnd(Animator animation) {
-        //                        super.onAnimationEnd(animation);
-        startSheetAnimation((int) fab.getX(), (int) fab.getY(), fab);
-        //                    }
-        //                });
-    }
+//    private void animateButton(final FloatingActionButton fab) {
+//
+//        //        fab.animate()
+//        //                .translationXBy(0.5f)
+//        //                .translationYBy(-0.5f)
+//        //                .translationX(-mSheetView.getWidth()/2)
+//        //                .translationY(-mSheetView.getHeight()/2)
+//        //                .setDuration(300)
+//        //                .setListener(new AnimatorListenerAdapter() {
+//        //                    @Override
+//        //                    public void onAnimationEnd(Animator animation) {
+//        //                        super.onAnimationEnd(animation);
+//        startSheetAnimation((int) fab.getX(), (int) fab.getY(), fab);
+//        //                    }
+//        //                });
+//    }
 
     /**
      * Resets the edittexts to empty strings.
@@ -383,69 +435,69 @@ public class CarSelectionActivity extends BaseInjectorActivity {
         mEngineTextView.setText("");
     }
 
-    private void startSheetAnimation(int cx, int cy, final FloatingActionButton fab) {
-        float finalRadius = (float) Math.sqrt(Math.pow(mSheetView.getWidth(), 2)
-                + Math.pow(mSheetView.getHeight(), 2));
-        Log.e("centerX", "x=" + cx + " y=" + cy);
-        int margin = ((ViewGroup.MarginLayoutParams) fab.getLayoutParams()).bottomMargin;
-        SupportAnimator animator = ViewAnimationUtils.createCircularReveal(
-                mSheetView,
-                cx + fab.getWidth() / 2,
-                cy - fab.getHeight() / 2 - margin / 2, 0,
-                finalRadius);
-        animator.setInterpolator(new AccelerateDecelerateInterpolator());
-        animator.setDuration(DURATION_SHEET_ANIMATION);
-        animator.addListener(new SupportAnimator.AnimatorListener() {
-            @Override
-            public void onAnimationStart() {
-                mOverlay.setVisibility(View.VISIBLE);
-                fab.setVisibility(View.INVISIBLE);
-                mSheetView.setVisibility(View.VISIBLE);
-            }
-
-            @Override
-            public void onAnimationEnd() {
-                // Nothind to do
-            }
-
-            @Override
-            public void onAnimationCancel() {
-                // Nothind to do
-            }
-
-            @Override
-            public void onAnimationRepeat() {
-                // Nothing to do
-            }
-        });
-
-        mSupportAnimatorReverse = animator.reverse();
-        mSupportAnimatorReverse.setDuration(DURATION_SHEET_ANIMATION);
-        mSupportAnimatorReverse.addListener(new SupportAnimator.AnimatorListener() {
-            @Override
-            public void onAnimationStart() {
-                // Nothing to do
-            }
-
-            @Override
-            public void onAnimationEnd() {
-                mOverlay.setVisibility(View.INVISIBLE);
-                fab.setVisibility(View.VISIBLE);
-                mSheetView.setVisibility(View.INVISIBLE);
-            }
-
-            @Override
-            public void onAnimationCancel() {
-                // Nothing to do
-            }
-
-            @Override
-            public void onAnimationRepeat() {
-                // Nothing to do
-            }
-        });
-        animator.start();
-    }
+//    private void startSheetAnimation(int cx, int cy, final FloatingActionButton fab) {
+//        float finalRadius = (float) Math.sqrt(Math.pow(mSheetView.getWidth(), 2)
+//                + Math.pow(mSheetView.getHeight(), 2));
+//        Log.e("centerX", "x=" + cx + " y=" + cy);
+//        int margin = ((ViewGroup.MarginLayoutParams) fab.getLayoutParams()).bottomMargin;
+//        SupportAnimator animator = ViewAnimationUtils.createCircularReveal(
+//                mSheetView,
+//                cx + fab.getWidth() / 2,
+//                cy - fab.getHeight() / 2 - margin / 2, 0,
+//                finalRadius);
+//        animator.setInterpolator(new AccelerateDecelerateInterpolator());
+//        animator.setDuration(DURATION_SHEET_ANIMATION);
+//        animator.addListener(new SupportAnimator.AnimatorListener() {
+//            @Override
+//            public void onAnimationStart() {
+//                mOverlay.setVisibility(View.VISIBLE);
+//                fab.setVisibility(View.INVISIBLE);
+//                mSheetView.setVisibility(View.VISIBLE);
+//            }
+//
+//            @Override
+//            public void onAnimationEnd() {
+//                // Nothind to do
+//            }
+//
+//            @Override
+//            public void onAnimationCancel() {
+//                // Nothind to do
+//            }
+//
+//            @Override
+//            public void onAnimationRepeat() {
+//                // Nothing to do
+//            }
+//        });
+//
+//        mSupportAnimatorReverse = animator.reverse();
+//        mSupportAnimatorReverse.setDuration(DURATION_SHEET_ANIMATION);
+//        mSupportAnimatorReverse.addListener(new SupportAnimator.AnimatorListener() {
+//            @Override
+//            public void onAnimationStart() {
+//                // Nothing to do
+//            }
+//
+//            @Override
+//            public void onAnimationEnd() {
+//                mOverlay.setVisibility(View.INVISIBLE);
+//                fab.setVisibility(View.VISIBLE);
+//                mSheetView.setVisibility(View.INVISIBLE);
+//            }
+//
+//            @Override
+//            public void onAnimationCancel() {
+//                // Nothing to do
+//            }
+//
+//            @Override
+//            public void onAnimationRepeat() {
+//                // Nothing to do
+//            }
+//        });
+//        animator.start();
+//    }
 
     /**
      * Inserts the attributes of the car

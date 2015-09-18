@@ -164,9 +164,10 @@ public class OBDDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
             return;
 
         // If there is any other bluetooth device selected, then uncheck it first...
-        if(mSelectedBluetoothDevice != null || mSelectedRadioButton != null){
+        if(mSelectedRadioButton != null){
             mSelectedRadioButton.setChecked(false);
             mSelectedRadioButton = null;
+            mSelectedBluetoothDevice = null;
         }
 
         // and set the new bluetooth device.

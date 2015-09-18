@@ -21,86 +21,86 @@
         android:paddingRight="@dimen/spacing_large"
         android:visibility="invisible">
 
-        <TextView
-            style="@style/Base.TextAppearance.AppCompat.SearchResult.Title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/spacing_medium"
-            android:layout_marginTop="@dimen/spacing_medium"
-            android:text="New Car"
-            android:textColor="@color/blue_dark_cario"
-            android:textSize="14sp"/>
+        <!--<TextView-->
+            <!--style="@style/Base.TextAppearance.AppCompat.SearchResult.Title"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginBottom="@dimen/spacing_medium"-->
+            <!--android:layout_marginTop="@dimen/spacing_medium"-->
+            <!--android:text="New Car"-->
+            <!--android:textColor="@color/blue_dark_cario"-->
+            <!--android:textSize="14sp"/>-->
+
+        <!--&lt;!&ndash;<LinearLayout&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_width="match_parent"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_height="1dp"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:layout_margin="@dimen/spacing_medium"&ndash;&gt;-->
+            <!--&lt;!&ndash;android:background="#3f3f3f3f"/>&ndash;&gt;-->
+
+        <!--<android.support.design.widget.TextInputLayout-->
+            <!--android:id="@+id/activity_car_selection_manufacturer_input_layout"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content">-->
+
+            <!--<AutoCompleteTextView-->
+                <!--android:id="@+id/activity_car_selection_manufacturer_edit_text"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:completionThreshold="1"-->
+                <!--android:hint="@string/prompt_car_manufacturer"/>-->
+        <!--</android.support.design.widget.TextInputLayout>-->
+
+        <!--<android.support.design.widget.TextInputLayout-->
+
+            <!--android:id="@+id/activity_car_selection_model_input_layout"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content">-->
+
+            <!--<AutoCompleteTextView-->
+                <!--android:id="@+id/activity_car_selection_model_edit_text"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:completionThreshold="1"-->
+                <!--android:hint="@string/prompt_car_model"/>-->
+        <!--</android.support.design.widget.TextInputLayout>-->
+
+        <!--<android.support.design.widget.TextInputLayout-->
+            <!--android:id="@+id/activity_car_selection_year_input_layout"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content">-->
+
+            <!--<AutoCompleteTextView-->
+                <!--android:id="@+id/activity_car_selection_year_edit_text"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:completionThreshold="1"-->
+                <!--android:hint="@string/prompt_car_constructionYear"-->
+                <!--android:inputType="number"/>-->
+        <!--</android.support.design.widget.TextInputLayout>-->
+
+        <!--<android.support.design.widget.TextInputLayout-->
+            <!--android:id="@+id/activity_car_selection_engine_input_layout"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content">-->
+
+            <!--<AutoCompleteTextView-->
+                <!--android:id="@+id/activity_car_selection_engine_edit_text"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:completionThreshold="1"-->
+                <!--android:hint="@string/prompt_car_engineDisplacement"-->
+                <!--android:inputType="number"/>-->
+        <!--</android.support.design.widget.TextInputLayout>-->
 
         <!--<LinearLayout-->
             <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="1dp"-->
-            <!--android:layout_margin="@dimen/spacing_medium"-->
-            <!--android:background="#3f3f3f3f"/>-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_marginTop="@dimen/spacing_large">-->
 
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/activity_car_selection_manufacturer_input_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <AutoCompleteTextView
-                android:id="@+id/activity_car_selection_manufacturer_edit_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:completionThreshold="1"
-                android:hint="@string/prompt_car_manufacturer"/>
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-
-            android:id="@+id/activity_car_selection_model_input_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <AutoCompleteTextView
-                android:id="@+id/activity_car_selection_model_edit_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:completionThreshold="1"
-                android:hint="@string/prompt_car_model"/>
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/activity_car_selection_year_input_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <AutoCompleteTextView
-                android:id="@+id/activity_car_selection_year_edit_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:completionThreshold="1"
-                android:hint="@string/prompt_car_constructionYear"
-                android:inputType="number"/>
-        </android.support.design.widget.TextInputLayout>
-
-        <android.support.design.widget.TextInputLayout
-            android:id="@+id/activity_car_selection_engine_input_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <AutoCompleteTextView
-                android:id="@+id/activity_car_selection_engine_edit_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:completionThreshold="1"
-                android:hint="@string/prompt_car_engineDisplacement"
-                android:inputType="number"/>
-        </android.support.design.widget.TextInputLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_large">
-
-            <FrameLayout
-                android:layout_width="1dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"></FrameLayout>
+            <!--<FrameLayout-->
+                <!--android:layout_width="1dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="1"></FrameLayout>-->
 
             <Button
                 android:id="@+id/activity_car_selection_add_car_button"
@@ -109,8 +109,9 @@
                 android:layout_height="wrap_content"
                 android:padding="8dp"
                 android:text="Okay"
+                android:visibility="gone"
                 android:textColor="@color/blue_dark_cario"/>
 
-        </LinearLayout>
+        <!--</LinearLayout>-->
     </LinearLayout>
 </io.codetail.widget.RevealLinearLayout>

@@ -237,9 +237,7 @@ public class Collector {
     private synchronized void checkStateAndPush() {
         logger.warn("checkStateAndPush()");
         if (measurement == null) return;
-        logger.warn("checkRdy");
         if (checkReady(measurement)) {
-            logger.warn("checkRdy 2");
             try {
                 double consumption = this.consumptionAlgorithm.calculateConsumption(measurement);
                 double co2 = this.consumptionAlgorithm.calculateCO2FromConsumption(consumption);
