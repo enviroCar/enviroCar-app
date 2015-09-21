@@ -1,16 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/spacing_xxxxlarge"
-                android:orientation="vertical"
-    android:paddingRight="@dimen/spacing_large"
-    android:paddingLeft="@dimen/spacing_large">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/spacing_xxxxlarge"
+    android:layout_marginTop="@dimen/spacing_large"
+    android:layout_marginLeft="@dimen/spacing_large"
+    android:layout_marginRight="@dimen/spacing_large"
+    android:orientation="vertical">
 
     <ImageView
         android:id="@+id/activity_car_selection_layout_carlist_entry_icon"
         android:layout_width="32dp"
         android:layout_height="32dp"
         android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/spacing_medium"
         android:alpha="0.54"
         android:src="@drawable/ic_drive_eta_black_24dp"/>
 
@@ -18,10 +21,10 @@
         android:id="@+id/activity_car_selection_layout_carlist_entry_radio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/spacing_large"
         android:layout_alignParentRight="true"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true" />
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/spacing_large"/>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -34,7 +37,7 @@
         android:layout_toLeftOf="@id/activity_car_selection_layout_carlist_entry_radio"
         android:layout_toRightOf="@id/activity_car_selection_layout_carlist_entry_icon"
         android:orientation="vertical"
-        android:paddingLeft="32dp"
+        android:paddingLeft="24dp"
         android:paddingRight="@dimen/spacing_large">
 
         <TextView
@@ -44,7 +47,7 @@
             android:layout_alignParentRight="true"
             android:gravity="center_vertical"
             android:text="Car Type"
-            android:textSize="18sp"/>
+            android:textSize="16sp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -54,37 +57,31 @@
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginTop="8dp"
                 android:layout_marginRight="16dp"
+                android:layout_marginTop="8dp"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/activity_car_selection_layout_carlist_entry_year"
                     style="@style/carDetailsSubtitle"
                     android:text="2004"
-                    android:textSize="14sp"/>
+                    android:textSize="13sp"/>
 
-                <!--<TextView-->
-                    <!--style="@style/carDetailsSubtitle"-->
-                    <!--android:text="Fuel Type"/>-->
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_marginTop="8dp"
                 android:layout_marginRight="16dp"
+                android:layout_marginTop="8dp"
                 android:orientation="vertical">
 
                 <TextView
                     android:id="@+id/activity_car_selection_layout_carlist_entry_gasoline"
                     style="@style/carDetailsSubtitle"
                     android:text="Gasoline"
-                    android:textSize="14sp"/>
+                    android:textSize="13sp"/>
 
-                <!--<TextView-->
-                    <!--style="@style/carDetailsSubtitle"-->
-                    <!--android:text="Constr. Year"/>-->
             </LinearLayout>
 
             <LinearLayout
@@ -97,28 +94,21 @@
                     android:id="@+id/activity_car_selection_layout_carlist_entry_engine"
                     style="@style/carDetailsSubtitle"
                     android:text="Gasoline"
-                    android:textSize="14sp"/>
+                    android:textSize="13sp"/>
 
-                <!--<TextView-->
-                    <!--style="@style/carDetailsSubtitle"-->
-                    <!--android:text="Engine\nDisplacement"/>-->
             </LinearLayout>
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/activity_car_selection_layout_carlist_entry_secondline"
-            android:layout_width="fill_parent"
-            android:layout_height="26dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/activity_car_selection_layout_carlist_entry_firstline"
-            android:singleLine="true"
-            android:text="Description"
-            android:textSize="12sp"
-            android:visibility="gone"/>
     </LinearLayout>
 
-
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="24dp"
+        android:layout_toRightOf="@id/activity_car_selection_layout_carlist_entry_icon"
+        android:background="@color/envirocar_color_divider_grey"
+        ></LinearLayout>
 
 </RelativeLayout>

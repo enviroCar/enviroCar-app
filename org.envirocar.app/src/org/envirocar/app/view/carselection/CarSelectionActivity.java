@@ -33,6 +33,7 @@ import org.envirocar.app.model.dao.exception.SensorRetrievalException;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -68,8 +69,8 @@ public class CarSelectionActivity extends BaseInjectorActivity {
 
     @InjectView(R.id.overlay)
     protected View mOverlay;
-//    @InjectView(R.id.activity_car_selection_new_car_sheet)
-//    protected View mSheetView;
+    //    @InjectView(R.id.activity_car_selection_new_car_sheet)
+    //    protected View mSheetView;
 
     @InjectView(R.id.activity_car_selection_new_car_card)
     protected View mNewCarCard;
@@ -90,9 +91,12 @@ public class CarSelectionActivity extends BaseInjectorActivity {
     protected AutoCompleteTextView mYearTextView;
     @InjectView(R.id.activity_car_selection_engine_edit_text)
     protected AutoCompleteTextView mEngineTextView;
-    @InjectView(R.id.activity_car_selection_add_car_button)
+    @InjectView(R.id.activity_car_selection_new_car_card_add_button)
     protected Button mAddCarButton;
-
+    @InjectView(R.id.activity_car_selection_new_car_card_radio_gasoline)
+    protected Button mRadioGasoline;
+    @InjectView(R.id.activity_car_selection_new_car_card_radio_diesel)
+    protected Button mDieselGasoline;
 
     @Inject
     protected DAOProvider mDAOProvider;
@@ -183,38 +187,119 @@ public class CarSelectionActivity extends BaseInjectorActivity {
     // Set the onClick listener for the FloatingActionButton. When triggered, the sheet view
     // gets shown.
     @OnClick(R.id.activity_car_selection_new_car_fab)
-    public void onClickNewCarButton(){
+    public void onClickNewCarButton() {
         showAddCarCard();
     }
 
+    /**
+     * Add car button onClick listener. When clicked, it tries to find out if the car already
+     * exists. If this is the case, then it adds the car to the list of selected cars. If not, then it selects
+     */
+    @OnClick(R.id.activity_car_selection_new_car_card_add_button)
+    public void onClickAddCarButton() {
+        // TODO Check views.
+        String manufacturer = mManufacturerTextView.getText().toString();
+        String model = mModelTextView.getText().toString();
+        String yearString = mYearTextView.getText().toString();
+        String engineString = mEngineTextView.getText().toString();
+        Car.FuelType fuelType = mRadioGasoline.isSelected() ? Car.FuelType.GASOLINE : Car
+                .FuelType.DIESEL;
 
-//    private boolean closeSheetView() {
-//        // If the sheet view is visible.
-//        if (mSheetView.isShown()) {
-//            // and there exist a reverse animation.
-//            if (mSupportAnimatorReverse != null) {
-//                // Start the animaton.
-//                mSupportAnimatorReverse.start();
-//                mSupportAnimatorReverse = null;
-//            } else {
-//                // Otherwise, simply reverse the visibility.
-//                mSheetView.setVisibility(View.INVISIBLE);
-//                mFab.setVisibility(View.VISIBLE);
-//            }
-//            return true;
-//        }
-//        // the sheet view was not visible. Therefore, return false.
-//        return false;
-//    }
+        View focusView = null;
+
+        //First check all input forms for empty strings
+        if(engineString == null || engineString.isEmpty()) {
+            mEngineTextView.setError("Cannot be empty");
+            focusView = mEngineTextView;
+        }
+        if(yearString == null || yearString.isEmpty()) {
+            mYearTextView.setError("Cannot be empty");
+            focusView = mYearTextView;
+        }
+        if(model == null || model.isEmpty()){
+            mModelTextView.setError("Cannot be empty");
+            focusView = mModelTextView;
+        }
+        if(manufacturer == null || manufacturer.isEmpty()) {
+            mManufacturerTextView.setError("Cannot be empty");
+            focusView = mManufacturerTextView;
+        }
+
+        // if any of the input forms contained empty values, then set the focus to the last one set.
+        if(focusView != null){
+            focusView.requestFocus();
+            return;
+        }
+
+
+        int year = Integer.parseInt(mYearTextView.getText().toString());
+        int engine = Integer.parseInt(mEngineTextView.getText().toString());
+        int currentYear = Calendar.getInstance().get(Calendar.YEAR);
+
+        // Check the values of engine and year for validity.
+        if(engine < 500 || engine > 5000){
+            mEngineTextView.setError("Invalid value");
+            focusView = mEngineTextView;
+        }
+        if(year < 1990 || year > currentYear){
+            mYearTextView.setError("Invalid value");
+            focusView = mYearTextView;
+        }
+
+        // if tengine or year have invalid values, then request the focus.
+        if(focusView != null){
+            focusView.requestFocus();
+            return;
+        }
+
+        Car selectedCar = null;
+        if (mManufacturerNames.contains(manufacturer)
+                && mCarToModelMap.get(manufacturer).contains(model)
+                && mModelToCCM.get(model).contains("" + engine)
+                && mModelToYear.get(model).contains("" + year)) {
+            for (Car car : mCars) {
+                if (car.getManufacturer().equals(manufacturer)
+                        && car.getModel().equals(model)
+                        && car.getConstructionYear() == year
+                        && car.getEngineDisplacement() == engine) {
+                    selectedCar = car;
+                }
+            }
+        }
+
+        if (selectedCar == null) {
+            selectedCar = new Car(fuelType, manufacturer, model, null, year,
+                    engine);
+            mCarManager.registerCarAtServer(selectedCar);
+        }
+
+        // When the car has been successfully inserted in the listadapter, then update
+        // the list adapter.
+        if (mCarManager.addCar(selectedCar)) {
+            // Add the car to the adapter and close the sheet view.
+            mCarListAdapter.addCarItem(selectedCar);
+            closeAddCarCard();
+
+            // Schedule a show snackbar runnable when the sheet animation has been finished.
+            new Handler().postDelayed(() -> showSnackbar("Car successfully created!"),
+                    DURATION_SHEET_ANIMATION);
+            resetEditTexts();
+        }
+        // Otherwise, when the list already contained the specific car type, then show a
+        // snackbar.
+        else {
+            showSnackbar("Car is already in the list");
+        }
+    }
 
     /**
      * Shows the card view for the addition cars.
      *
      * @return true if the card view was not shown.
      */
-    private boolean showAddCarCard(){
+    private boolean showAddCarCard() {
         // If the card view is not visible...
-        if(!mNewCarCard.isShown()){
+        if (!mNewCarCard.isShown()) {
             // Get the height of the display
             Display display = getWindowManager().getDefaultDisplay();
             Point size = new Point();
@@ -222,7 +307,7 @@ public class CarSelectionActivity extends BaseInjectorActivity {
             int height = size.y;
 
             // expand the toolbar.
-            ECAnimationUtils.expandView(mExpToolbar, height/3);
+            ECAnimationUtils.expandView(mExpToolbar, height / 3);
             // Start an animation that shows the card view.
             ECAnimationUtils.animateShowView(this, mNewCarCard,
                     R.anim.translate_in_bottom_login_card);
@@ -239,9 +324,9 @@ public class CarSelectionActivity extends BaseInjectorActivity {
      *
      * @return true if the sheet view as visible and has been
      */
-    private boolean closeAddCarCard(){
+    private boolean closeAddCarCard() {
         // If the card view is visible.
-        if(mNewCarCard.isShown()){
+        if (mNewCarCard.isShown()) {
             // start an animation that hides the card view.
             ECAnimationUtils.animateHideView(this, mNewCarCard, R.anim.translate_out_bottom_card,
                     // When the animation is finished, show the FAB
@@ -284,58 +369,6 @@ public class CarSelectionActivity extends BaseInjectorActivity {
             }
         });
         mCarListView.setAdapter(mCarListAdapter);
-
-        mAddCarButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // TODO Check views.
-                String manufacturer = mManufacturerTextView.getText().toString();
-                String model = mModelTextView.getText().toString();
-                int year = Integer.parseInt(mYearTextView.getText().toString());
-                int engine = Integer.parseInt(mEngineTextView.getText().toString());
-
-                Car selectedCar = null;
-                if (mManufacturerNames.contains(manufacturer)
-                        && mCarToModelMap.get(manufacturer).contains(model)
-                        && mModelToCCM.get(model).contains("" + engine)
-                        && mModelToYear.get(model).contains("" + year)) {
-                    for (Car car : mCars) {
-                        if (car.getManufacturer().equals(manufacturer)
-                                && car.getModel().equals(model)
-                                && car.getConstructionYear() == year
-                                && car.getEngineDisplacement() == engine) {
-                            selectedCar = car;
-                        }
-                    }
-                }
-
-                if (selectedCar == null) {
-                    selectedCar = new Car(Car.FuelType.GASOLINE, manufacturer, model, null, year,
-                            engine);
-                    mCarManager.registerCarAtServer(selectedCar);
-                } else {
-//                    Toast.makeText(CarSelectionActivity.this, "YEA found", Toast.LENGTH_LONG).show();
-                }
-
-                // When the car has been successfully inserted in the listadapter, then update
-                // the list adapter.
-                if (mCarManager.addCar(selectedCar)) {
-                    // Add the car to the adapter and close the sheet view.
-                    mCarListAdapter.addCarItem(selectedCar);
-                    closeAddCarCard();
-
-                    // Schedule a show snackbar runnable when the sheet animation has been finished.
-                    new Handler().postDelayed(() -> showSnackbar("Car successfully created!"),
-                            DURATION_SHEET_ANIMATION);
-                    resetEditTexts();
-                }
-                // Otherwise, when the list already contained the specific car type, then show a
-                // snackbar.
-                else {
-                    showSnackbar("Car is already in the list");
-                }
-            }
-        });
     }
 
     /**
@@ -379,8 +412,8 @@ public class CarSelectionActivity extends BaseInjectorActivity {
                         @Override
                         public void onCompleted() {
                             mMainThreadWorker.schedule(() -> {
-                                Toast.makeText(CarSelectionActivity.this, "Received! " +
-                                        mManufacturerNames.size(), Toast.LENGTH_SHORT).show();
+//                                Toast.makeText(CarSelectionActivity.this, "Received! " +
+//                                        mManufacturerNames.size(), Toast.LENGTH_SHORT).show();
                                 mManufacturerNameAdapter = new AutoCompleteArrayAdapter(
                                         CarSelectionActivity.this,
                                         android.R.layout.simple_dropdown_item_1line,
@@ -408,22 +441,6 @@ public class CarSelectionActivity extends BaseInjectorActivity {
         }
     }
 
-//    private void animateButton(final FloatingActionButton fab) {
-//
-//        //        fab.animate()
-//        //                .translationXBy(0.5f)
-//        //                .translationYBy(-0.5f)
-//        //                .translationX(-mSheetView.getWidth()/2)
-//        //                .translationY(-mSheetView.getHeight()/2)
-//        //                .setDuration(300)
-//        //                .setListener(new AnimatorListenerAdapter() {
-//        //                    @Override
-//        //                    public void onAnimationEnd(Animator animation) {
-//        //                        super.onAnimationEnd(animation);
-//        startSheetAnimation((int) fab.getX(), (int) fab.getY(), fab);
-//        //                    }
-//        //                });
-//    }
 
     /**
      * Resets the edittexts to empty strings.
@@ -434,70 +451,6 @@ public class CarSelectionActivity extends BaseInjectorActivity {
         mYearTextView.setText("");
         mEngineTextView.setText("");
     }
-
-//    private void startSheetAnimation(int cx, int cy, final FloatingActionButton fab) {
-//        float finalRadius = (float) Math.sqrt(Math.pow(mSheetView.getWidth(), 2)
-//                + Math.pow(mSheetView.getHeight(), 2));
-//        Log.e("centerX", "x=" + cx + " y=" + cy);
-//        int margin = ((ViewGroup.MarginLayoutParams) fab.getLayoutParams()).bottomMargin;
-//        SupportAnimator animator = ViewAnimationUtils.createCircularReveal(
-//                mSheetView,
-//                cx + fab.getWidth() / 2,
-//                cy - fab.getHeight() / 2 - margin / 2, 0,
-//                finalRadius);
-//        animator.setInterpolator(new AccelerateDecelerateInterpolator());
-//        animator.setDuration(DURATION_SHEET_ANIMATION);
-//        animator.addListener(new SupportAnimator.AnimatorListener() {
-//            @Override
-//            public void onAnimationStart() {
-//                mOverlay.setVisibility(View.VISIBLE);
-//                fab.setVisibility(View.INVISIBLE);
-//                mSheetView.setVisibility(View.VISIBLE);
-//            }
-//
-//            @Override
-//            public void onAnimationEnd() {
-//                // Nothind to do
-//            }
-//
-//            @Override
-//            public void onAnimationCancel() {
-//                // Nothind to do
-//            }
-//
-//            @Override
-//            public void onAnimationRepeat() {
-//                // Nothing to do
-//            }
-//        });
-//
-//        mSupportAnimatorReverse = animator.reverse();
-//        mSupportAnimatorReverse.setDuration(DURATION_SHEET_ANIMATION);
-//        mSupportAnimatorReverse.addListener(new SupportAnimator.AnimatorListener() {
-//            @Override
-//            public void onAnimationStart() {
-//                // Nothing to do
-//            }
-//
-//            @Override
-//            public void onAnimationEnd() {
-//                mOverlay.setVisibility(View.INVISIBLE);
-//                fab.setVisibility(View.VISIBLE);
-//                mSheetView.setVisibility(View.INVISIBLE);
-//            }
-//
-//            @Override
-//            public void onAnimationCancel() {
-//                // Nothing to do
-//            }
-//
-//            @Override
-//            public void onAnimationRepeat() {
-//                // Nothing to do
-//            }
-//        });
-//        animator.start();
-//    }
 
     /**
      * Inserts the attributes of the car
@@ -579,13 +532,13 @@ public class CarSelectionActivity extends BaseInjectorActivity {
                 String model = s.toString();
                 Set<String> modelYear = mModelToYear.get(model);
                 if (modelYear != null && modelYear.size() > 0) {
-
                     AutoCompleteArrayAdapter adapter = new AutoCompleteArrayAdapter(
                             CarSelectionActivity.this,
                             android.R.layout.simple_dropdown_item_1line,
                             modelYear.toArray(new String[modelYear.size()]));
 
                     mYearTextView.setAdapter(adapter);
+                    mYearTextView.showDropDown();
                 }
 
                 Set<String> engine = mModelToCCM.get(model);
@@ -597,6 +550,23 @@ public class CarSelectionActivity extends BaseInjectorActivity {
 
                     mEngineTextView.setAdapter(adapter);
                 }
+            }
+        });
+
+        mYearTextView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                mEngineTextView.showDropDown();
             }
         });
 

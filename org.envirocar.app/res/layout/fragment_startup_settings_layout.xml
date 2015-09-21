@@ -182,7 +182,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_marginLeft="@dimen/spacing_xxxxlarge"
-                android:background="#3f6f6f6f"/>
+                android:background="@color/envirocar_color_divider_grey"/>
 
             <RelativeLayout
                 android:id="@+id/fragment_startup_car_selection"

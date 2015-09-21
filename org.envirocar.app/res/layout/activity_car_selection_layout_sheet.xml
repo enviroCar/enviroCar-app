@@ -9,17 +9,17 @@
     android:orientation="vertical"
     android:paddingTop="@dimen/abc_action_bar_default_height_material">
 
-    <LinearLayout
-        android:id="@+id/activity_car_selection_new_car_sheet"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/white_cario"
-        android:orientation="vertical"
-        android:paddingTop="@dimen/spacing_medium"
-        android:paddingBottom="@dimen/spacing_large"
-        android:paddingLeft="@dimen/spacing_large"
-        android:paddingRight="@dimen/spacing_large"
-        android:visibility="invisible">
+    <!--<LinearLayout-->
+        <!--android:id="@+id/activity_car_selection_new_car_sheet"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:background="@color/white_cario"-->
+        <!--android:orientation="vertical"-->
+        <!--android:paddingTop="@dimen/spacing_medium"-->
+        <!--android:paddingBottom="@dimen/spacing_large"-->
+        <!--android:paddingLeft="@dimen/spacing_large"-->
+        <!--android:paddingRight="@dimen/spacing_large"-->
+        <!--android:visibility="invisible">-->
 
         <!--<TextView-->
             <!--style="@style/Base.TextAppearance.AppCompat.SearchResult.Title"-->
@@ -102,16 +102,16 @@
                 <!--android:layout_height="wrap_content"-->
                 <!--android:layout_weight="1"></FrameLayout>-->
 
-            <Button
-                android:id="@+id/activity_car_selection_add_car_button"
-                style="?attr/borderlessButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="8dp"
-                android:text="Okay"
-                android:visibility="gone"
-                android:textColor="@color/blue_dark_cario"/>
+            <!--<Button-->
+                <!--android:id="@+id/activity_car_selection_add_car_button"-->
+                <!--style="?attr/borderlessButtonStyle"-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:padding="8dp"-->
+                <!--android:text="Okay"-->
+                <!--android:visibility="gone"-->
+                <!--android:textColor="@color/blue_dark_cario"/>-->
 
         <!--</LinearLayout>-->
-    </LinearLayout>
+    <!--</LinearLayout>-->
 </io.codetail.widget.RevealLinearLayout>

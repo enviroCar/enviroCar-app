@@ -141,6 +141,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/gasoline"
+                        android:checked="true"
                         android:layout_marginLeft="@dimen/spacing_xlarge"/>
 
                     <RadioButton
@@ -149,11 +150,10 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/diesel"/>
-
                 </RadioGroup>
 
                 <Button
-                    android:id="@+id/activity_account_login_card_login_button"
+                    android:id="@+id/activity_car_selection_new_car_card_add_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="right"

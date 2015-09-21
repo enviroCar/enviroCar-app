@@ -17,7 +17,6 @@
         android:orientation="vertical"
         app:elevation="6dp"/>
 
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -59,6 +58,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:choiceMode="singleChoice"
+                android:divider="#00000000"
                 android:padding="@dimen/spacing_medium"/>
 
             <TextView
@@ -78,8 +78,8 @@
             android:background="#3f3f3f3f"
             android:visibility="gone"/>
 
-        <include
-            layout="@layout/activity_car_selection_layout_sheet"/>
+        <!--<include-->
+            <!--layout="@layout/activity_car_selection_layout_sheet"/>-->
 
         <include
             layout="@layout/activity_car_selection_newcar_card"

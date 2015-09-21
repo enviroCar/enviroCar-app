@@ -449,6 +449,8 @@ public class Util {
 	
 	private static Integer resolvePageValue(String sourceUrl) {
 		String url;
+
+		// if the string starts with < and ends with >, then cut these chars.
 		if (sourceUrl.startsWith("<")) {
 			url = sourceUrl.substring(1, sourceUrl.length()-1);
 		}
