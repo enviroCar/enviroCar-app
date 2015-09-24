@@ -20,26 +20,31 @@
  */
 package org.envirocar.app.model.dao.remote;
 
+import com.squareup.okhttp.ResponseBody;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.ParseException;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.envirocar.app.ConstantsEnvirocar;
+import org.envirocar.app.json.StreamTrackEncoder;
+import org.envirocar.app.json.TrackDecoder;
+import org.envirocar.app.json.TrackWithoutMeasurementsException;
+import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.User;
 import org.envirocar.app.model.dao.TrackDAO;
 import org.envirocar.app.model.dao.exception.NotConnectedException;
 import org.envirocar.app.model.dao.exception.ResourceConflictException;
 import org.envirocar.app.model.dao.exception.TrackRetrievalException;
 import org.envirocar.app.model.dao.exception.TrackSerializationException;
 import org.envirocar.app.model.dao.exception.UnauthorizedException;
-import org.envirocar.app.json.StreamTrackEncoder;
-import org.envirocar.app.json.TrackDecoder;
-import org.envirocar.app.json.TrackWithoutMeasurementsException;
-import org.envirocar.app.model.User;
+import org.envirocar.app.model.dao.service.EnviroCarService;
+import org.envirocar.app.model.dao.service.TrackService;
+import org.envirocar.app.model.dao.service.utils.EnvirocarServiceUtils;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.util.FileWithMetadata;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,10 +52,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import rx.Observable;
-import rx.functions.Func1;
+import retrofit.Call;
+import retrofit.Response;
 
 public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, AuthenticatedDAO {
+    private static final Logger LOG = Logger.getLogger(RemoteTrackDAO.class);
 
     @Override
     public void deleteTrack(String remoteID) throws UnauthorizedException, NotConnectedException {
@@ -67,14 +73,17 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
     }
 
     @Override
-    public String storeTrack(Track track, boolean obfuscate) throws NotConnectedException, TrackSerializationException, TrackRetrievalException, TrackWithoutMeasurementsException {
+    public String storeTrack(Track track, boolean obfuscate) throws NotConnectedException,
+            TrackSerializationException, TrackRetrievalException,
+            TrackWithoutMeasurementsException {
         try {
             File f = mTemporaryFileManager.createTemporaryFile();
             FileWithMetadata content = new StreamTrackEncoder().createTrackJsonAsFile(track,
                     obfuscate, f, true);
 
             User user = mUserManager.getUser();
-            HttpPost post = new HttpPost(String.format("%s/users/%s/tracks", ConstantsEnvirocar.BASE_URL,
+            HttpPost post = new HttpPost(String.format("%s/users/%s/tracks", ConstantsEnvirocar
+                            .BASE_URL,
                     user.getUsername()));
 
             HttpResponse response = executePayloadRequest(post, content);
@@ -96,51 +105,90 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 
     @Override
     public Track getTrack(String id) throws NotConnectedException {
-        Track result;
+        LOG.info(String.format("getTrack(%s)", id));
+        final TrackService trackService = EnviroCarService.getTrackService();
+        Call<Track> trackCall = trackService.getTrack(mUserManager.getUser().getUsername(), id);
+
         try {
-            JSONObject parentObject = readRemoteResource("/tracks/" + id);
-            result = new TrackDecoder().fromJson(parentObject);
-        } catch (ParseException e) {
-            throw new NotConnectedException(e);
-        } catch (IOException e) {
-            throw new NotConnectedException(e);
-        } catch (JSONException e) {
-            throw new NotConnectedException(e);
-        } catch (java.text.ParseException e) {
-            throw new NotConnectedException(e);
-        } catch (UnauthorizedException e) {
+            // Execute the request call
+            Response<Track> trackResponse = trackCall.execute();
+
+            // If the request call was not successful, then assert the status code and throw an
+            // exceptiom
+            if (!trackResponse.isSuccess()) {
+                LOG.warn(String.format("getTrack was not successful for the following reason: %s",
+                        trackResponse.message()));
+                EnvirocarServiceUtils.assertStatusCode(
+                        trackResponse.code(), trackResponse.message());
+            }
+
+            // If it was successful, then return the track.
+            LOG.debug("getTrack() was successful");
+            return trackResponse.body();
+        } catch (Exception e) {
             throw new NotConnectedException(e);
         }
-
-        return result;
     }
 
     @Override
     public Integer getUserTrackCount() throws NotConnectedException, TrackRetrievalException {
-        User user = mUserManager.getUser();
-        HttpGet get = new HttpGet(ConstantsEnvirocar.BASE_URL + "/users/" + user.getUsername()
-                + "/tracks?limit=1");
+        LOG.info("getUserTrackCount()");
+        final TrackService trackService = EnviroCarService.getTrackService();
+        Call<ResponseBody> allTracksCountCall = trackService.getAllTracksCountOfUser(
+                mUserManager.getUser().getUsername());
 
-        HttpResponse response;
         try {
-            response = super.executeContentRequest(get);
-        } catch (UnauthorizedException e) {
+            // Execute the request call.
+            Response<ResponseBody> allTracksCountResponse = allTracksCountCall.execute();
+
+            // If the request call was not successful, then assert the status code and throw an
+            // exceptiom
+            if (!allTracksCountResponse.isSuccess()) {
+                EnvirocarServiceUtils.assertStatusCode(allTracksCountResponse.code(),
+                        allTracksCountResponse.errorBody().toString());
+                return null;
+            }
+
+            // Get the page count with a track limit of 1 per page (?limit=1). This corresponds
+            // to the number of global tracks and return it.
+            int pageCount = EnvirocarServiceUtils.resolvePageCount(allTracksCountResponse);
+            LOG.info(String.format("getTotalTrackCount() with a tracksize of %s", pageCount));
+            return pageCount;
+        } catch (IOException e) {
+            throw new NotConnectedException(e);
+        } catch (Exception e) {
             throw new TrackRetrievalException(e);
         }
-        return new TrackDecoder().resolveTrackCount(response);
     }
 
     @Override
     public Integer getTotalTrackCount() throws NotConnectedException, TrackRetrievalException {
-        HttpGet get = new HttpGet(ConstantsEnvirocar.BASE_URL + "/tracks?limit=1");
+        LOG.info("getTotalTrackCount()");
+        final TrackService trackService = EnviroCarService.getTrackService();
+        Call<ResponseBody> allTracksCountCall = trackService.getAllTracksCount();
 
-        HttpResponse response;
         try {
-            response = super.executeContentRequest(get);
-        } catch (UnauthorizedException e) {
+            // Execute the request call.
+            Response<ResponseBody> allTracksCountResponse = allTracksCountCall.execute();
+
+            // If the request call was not successful, then assert the status code and throw an
+            // exceptiom
+            if (!allTracksCountResponse.isSuccess()) {
+                EnvirocarServiceUtils.assertStatusCode(allTracksCountResponse.code(),
+                        allTracksCountResponse.errorBody().toString());
+                return null;
+            }
+
+            // Get the page count with a track limit of 1 per page (?limit=1). This corresponds
+            // to the number of global tracks and return it.
+            int pageCount = EnvirocarServiceUtils.resolvePageCount(allTracksCountResponse);
+            LOG.info(String.format("getTotalTrackCount() with a tracksize of %s", pageCount));
+            return pageCount;
+        } catch (IOException e) {
+            throw new NotConnectedException(e);
+        } catch (Exception e) {
             throw new TrackRetrievalException(e);
         }
-        return new TrackDecoder().resolveTrackCount(response);
     }
 
     @Override
@@ -154,7 +202,12 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
     }
 
     @Override
-    public List<String> getTrackIds(int limit, int page) throws NotConnectedException, UnauthorizedException {
+    public List<String> getTrackIds(int limit, int page) throws NotConnectedException,
+            UnauthorizedException {
+//        final TrackService trackService = EnviroCarService.getTrackService();
+//        trackService.getTrack(mUserManager.getUser().getUsername(), )
+
+
         User user = mUserManager.getUser();
         HttpGet get = new HttpGet(String.format("%s/users/%s/tracks?limit=%d&page=%d",
                 ConstantsEnvirocar.BASE_URL, user.getUsername(), limit, page));

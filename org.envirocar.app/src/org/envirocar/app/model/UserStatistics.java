@@ -1,7 +1,10 @@
 package org.envirocar.app.model;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
+import com.google.gson.annotations.SerializedName;
 
+import org.envirocar.app.model.dao.service.UserService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,23 +27,47 @@ public class UserStatistics {
      * Holder class that holds the most common statistics of a specific phenomenon.
      */
     public static class PhenomenonStatisticHolder {
+        @SerializedName(UserService.KEY_STATISTICS_PHENOMENON_NAME)
         public String phenomenon;
+        @SerializedName(UserService.KEY_STATISTICS_PHENOMENON_UNIT)
         public String phenomenonUnit;
-        public double max, avg, min;
+        @SerializedName(UserService.KEY_STATISTICS_MAX)
+        public double max;
+        @SerializedName(UserService.KEY_STATISTICS_AVG)
+        public double avg;
+        @SerializedName(UserService.KEY_STATISTICS_MIN)
+        public double min;
 
         @Override
         public String toString() {
-            return phenomenon + " " + phenomenonUnit;
+            return MoreObjects.toStringHelper(this.getClass())
+                    .add(UserService.KEY_STATISTICS_PHENOMENON, phenomenon)
+                    .add(UserService.KEY_STATISTICS_PHENOMENON_UNIT, phenomenonUnit)
+                    .toString();
         }
     }
 
     private final Map<String, PhenomenonStatisticHolder> mStatHolderMap = Maps.newConcurrentMap();
 
     /**
+     * Default constructor.
+     */
+    public UserStatistics() {}
+
+
+    /**
+     * Constructor.
      *
+     * @param statisticsMap a hashmap holding the {@link PhenomenonStatisticHolder}
+     */
+    public UserStatistics(Map<String, PhenomenonStatisticHolder> statisticsMap) {
+        mStatHolderMap.putAll(statisticsMap);
+    }
+
+    /**
      * @return
      */
-    public Map<String, PhenomenonStatisticHolder> getStatistics(){
+    public Map<String, PhenomenonStatisticHolder> getStatistics() {
         return mStatHolderMap;
     }
 

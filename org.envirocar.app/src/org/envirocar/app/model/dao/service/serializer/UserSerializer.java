@@ -1,4 +1,4 @@
-package org.envirocar.app.model.service.gsonutils;
+package org.envirocar.app.model.dao.service.serializer;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -6,7 +6,7 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import org.envirocar.app.model.User;
-import org.envirocar.app.model.service.UserService;
+import org.envirocar.app.model.dao.service.UserService;
 
 import java.lang.reflect.Type;
 
@@ -31,4 +31,15 @@ public class UserSerializer implements JsonSerializer<User> {
 
         return user;
     }
+
+//    @Override
+//    public User deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+//            throws JsonParseException {
+//        JsonObject userObject = json.getAsJsonObject();
+//        String username = userObject.get(UserService.KEY_USER_NAME).getAsString();
+//        String mail = userObject.get(UserService.KEY_USER_MAIL).getAsString();
+//        String touVersion = userObject.get(UserService.KEY_USER_TOU_VERSION).getAsString();
+//
+//        return null;
+//    }
 }

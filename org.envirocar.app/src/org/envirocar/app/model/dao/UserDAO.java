@@ -20,17 +20,55 @@
  */
 package org.envirocar.app.model.dao;
 
+import android.database.Observable;
+
+import org.envirocar.app.model.User;
 import org.envirocar.app.model.dao.exception.ResourceConflictException;
 import org.envirocar.app.model.dao.exception.UnauthorizedException;
 import org.envirocar.app.model.dao.exception.UserRetrievalException;
 import org.envirocar.app.model.dao.exception.UserUpdateException;
-import org.envirocar.app.model.User;
 
+/**
+ * DAO interface for user related action.
+ *
+ * @author dewall
+ */
 public interface UserDAO {
 
-	void updateUser(User user) throws UserUpdateException, UnauthorizedException;
+    /**
+     * Gets the user instance for a given username. Becuase this methods is synchronous, it has
+     * to be executed on a separate thread, whcih is not the main thread.
+     *
+     * @param id the name of the user.
+     * @return the instance of the user.
+     * @throws UserRetrievalException thrown when the user can't be received.
+     * @throws UnauthorizedException  thrown when the user is not authorized to do that.
+     */
+    User getUser(String id) throws UserRetrievalException, UnauthorizedException;
 
-	User getUser(String id) throws UserRetrievalException, UnauthorizedException;
+    /**
+     * Gets an user observable for a given username.
+     *
+     * @param id the name of the user.
+     * @return the instance of the user.
+     */
+    rx.Observable<User> getUserObservable(String id);
 
-	void createUser(User newUser) throws UserUpdateException, ResourceConflictException;
+    /**
+     * Creates a new user on the server.
+     *
+     * @param newUser the new user instance.
+     * @throws UserUpdateException
+     * @throws ResourceConflictException
+     */
+    void createUser(User newUser) throws UserUpdateException, ResourceConflictException;
+
+    /**
+     * Updates the information of a user at the server.
+     *
+     * @param user the instance of the user.
+     * @throws UserUpdateException   thrown when an error occured while updating the user.
+     * @throws UnauthorizedException thrown when this user is not authorized to do that.
+     */
+    void updateUser(User user) throws UserUpdateException, UnauthorizedException;
 }

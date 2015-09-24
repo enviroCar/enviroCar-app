@@ -1,4 +1,4 @@
-package org.envirocar.app.model.service.gsonutils;
+package org.envirocar.app.model.dao.service.serializer;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -7,7 +7,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 
 import org.envirocar.app.model.Car;
-import org.envirocar.app.model.service.CarService;
+import org.envirocar.app.model.dao.service.CarService;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -31,7 +31,7 @@ import java.util.List;
  * },
  * {
  * ...
- *w
+ *
  * @author dewall
  */
 public class CarListDeserializer implements JsonDeserializer<List<Car>> {

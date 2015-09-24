@@ -1,4 +1,4 @@
-package org.envirocar.app.model.service;
+package org.envirocar.app.model.dao.service;
 
 import org.envirocar.app.model.Car;
 
@@ -24,6 +24,9 @@ public interface CarService {
     String KEY_CAR_CONSTRUCTIONYEAR = "constructionYear";
     String KEY_CAR_MANUFACTURER = "manufacturer";
     String KEY_CAR_ENGINEDISPLACEMENT = "engineDisplacement";
+
+    String KEY_FUELTYPE_ENUM_GASOLINE = "gasoline";
+    String KEY_FUELTYPE_ENUM_DIESEL = "diesel";
 
     @GET("sensors/")
     Call<List<Car>> getAllCars();

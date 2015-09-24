@@ -1,4 +1,4 @@
-package org.envirocar.app.model.service;
+package org.envirocar.app.model.dao.service;
 
 /**
  * @author dewall

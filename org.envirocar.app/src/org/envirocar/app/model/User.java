@@ -21,6 +21,9 @@
 
 package org.envirocar.app.model;
 
+import com.google.gson.annotations.SerializedName;
+
+import org.envirocar.app.model.dao.service.UserService;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -34,9 +37,12 @@ public class User {
 	private static final String MAIL = "mail";
 	private static final String TOKEN = "token";
 
+	@SerializedName(UserService.KEY_USER_NAME)
 	private String username;
 	private String token;
+	@SerializedName(UserService.KEY_USER_TOU_VERSION)
 	private String touVersion;
+	@SerializedName(UserService.KEY_USER_MAIL)
 	private String mail;
 
 	/**

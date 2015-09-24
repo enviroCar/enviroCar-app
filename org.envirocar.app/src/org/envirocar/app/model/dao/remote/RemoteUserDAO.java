@@ -20,71 +20,84 @@
  */
 package org.envirocar.app.model.dao.remote;
 
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
-import org.envirocar.app.ConstantsEnvirocar;
+import com.squareup.okhttp.ResponseBody;
+
+import org.apache.http.HttpStatus;
+import org.envirocar.app.model.User;
 import org.envirocar.app.model.dao.UserDAO;
 import org.envirocar.app.model.dao.exception.NotConnectedException;
 import org.envirocar.app.model.dao.exception.ResourceConflictException;
 import org.envirocar.app.model.dao.exception.UnauthorizedException;
 import org.envirocar.app.model.dao.exception.UserRetrievalException;
 import org.envirocar.app.model.dao.exception.UserUpdateException;
-import org.envirocar.app.model.User;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.envirocar.app.model.dao.service.EnviroCarService;
+import org.envirocar.app.model.dao.service.UserService;
+import org.envirocar.app.model.dao.service.utils.EnvirocarServiceUtils;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 
+import retrofit.Call;
+import retrofit.Response;
+import rx.Observable;
+
+/**
+ * @author dewall
+ */
 public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, AuthenticatedDAO {
 
     @Override
-    public void updateUser(User user) throws UserUpdateException, UnauthorizedException {
-        HttpPut put = new HttpPut(ConstantsEnvirocar.BASE_URL + "/users/" + user.getUsername());
+    public User getUser(String id) throws UserRetrievalException, UnauthorizedException {
+        // Get the service for the user endpoints and initiates a call.
+        UserService userService = EnviroCarService.getUserService();
+        Call<User> userCall = userService.getUser(id);
+
         try {
-            put.setEntity(new StringEntity(user.toJson()));
-            super.executePayloadRequest(put);
-        } catch (UnsupportedEncodingException e) {
-            throw new UserUpdateException(e);
-        } catch (JSONException e) {
-            throw new UserUpdateException(e);
-        } catch (NotConnectedException e) {
-            throw new UserUpdateException(e);
-        } catch (ResourceConflictException e) {
-            throw new UserUpdateException(e);
+            // execute the call
+            Response<User> userResponse = userCall.execute();
+            // If the execution was successful, then return the user instance.
+            if (userResponse.isSuccess()) {
+                return userResponse.body();
+            }
+            // if not, then get the error code and throw a corresponding exception.
+            else {
+                String message = userResponse.message();
+                if (userResponse.raw().code() == HttpStatus.SC_UNAUTHORIZED
+                        || userResponse.raw().code() == HttpStatus.SC_FORBIDDEN) {
+                    throw new UnauthorizedException(userResponse.errorBody().string());
+                } else {
+                    throw new UserRetrievalException(userResponse.errorBody().string());
+                }
+            }
+        } catch (IOException e) {
+            throw new UserRetrievalException(e);
         }
     }
 
     @Override
-    public User getUser(String id) throws UserRetrievalException, UnauthorizedException {
-        try {
-            JSONObject json = readRemoteResource("/users/" + id);
-            return User.fromJson(json);
-        } catch (IOException e) {
-            throw new UserRetrievalException(e);
-        } catch (JSONException e) {
-            throw new UserRetrievalException(e);
-        } catch (NotConnectedException e) {
-            throw new UserRetrievalException(e);
-        }
-
+    public Observable<User> getUserObservable(String id) {
+        // Get the service for the user endpoints and returns an user observable.
+        UserService userService = EnviroCarService.getUserService();
+        return userService.getUserObservable(id);
     }
 
     @Override
     public void createUser(User newUser) throws UserUpdateException, ResourceConflictException {
-        HttpPost post = new HttpPost(ConstantsEnvirocar.BASE_URL + "/users");
+        // Get the service for the user endpoints and initiate a call.
+        UserService userService = EnviroCarService.getUserService();
+        Call<ResponseBody> userCall = userService.createUser(newUser);
 
+        Response<ResponseBody> userResponse = null;
         try {
-            post.setEntity(new StringEntity(newUser.toJson(true)));
-        } catch (UnsupportedEncodingException e) {
+            // execute the call
+            userResponse = userCall.execute();
+            // If the execution was successful, then throw an exception.
+            if (!userResponse.isSuccess()) {
+                int responseCode = userResponse.code();
+                EnvirocarServiceUtils.assertStatusCode(responseCode, userResponse
+                        .errorBody().string());
+            }
+        } catch (IOException e) {
             throw new UserUpdateException(e);
-        } catch (JSONException e) {
-            throw new UserUpdateException(e);
-        }
-
-        try {
-            executePayloadRequest(post);
         } catch (NotConnectedException e) {
             throw new UserUpdateException(e);
         } catch (UnauthorizedException e) {
@@ -92,4 +105,28 @@ public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, Authenticat
         }
     }
 
+    @Override
+    public void updateUser(User user) throws UserUpdateException, UnauthorizedException {
+        // Get the service for the user endpoints and initiate a call.
+        UserService userService = EnviroCarService.getUserService();
+        Call<ResponseBody> userCall = userService.updateUser(user);
+
+        try {
+            // execute the call
+            Response<ResponseBody> userResponse = userCall.execute();
+
+            // If the execution was not a success, then throw an error.
+            if (!userResponse.isSuccess()) {
+                if (userResponse.raw().code() == HttpStatus.SC_UNAUTHORIZED
+                        || userResponse.raw().code() == HttpStatus.SC_FORBIDDEN) {
+                    throw new UnauthorizedException(userResponse.errorBody().string());
+                } else {
+                    throw new UserUpdateException(userResponse.errorBody().string());
+                }
+            }
+        } catch (IOException e) {
+            throw new UserUpdateException(e);
+        }
+
+    }
 }

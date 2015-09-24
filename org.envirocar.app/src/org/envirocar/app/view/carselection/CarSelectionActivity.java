@@ -29,7 +29,6 @@ import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.dao.DAOProvider;
-import org.envirocar.app.model.dao.exception.SensorRetrievalException;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 
 import java.util.Arrays;
@@ -193,7 +192,8 @@ public class CarSelectionActivity extends BaseInjectorActivity {
 
     /**
      * Add car button onClick listener. When clicked, it tries to find out if the car already
-     * exists. If this is the case, then it adds the car to the list of selected cars. If not, then it selects
+     * exists. If this is the case, then it adds the car to the list of selected cars. If not,
+     * then it selects
      */
     @OnClick(R.id.activity_car_selection_new_car_card_add_button)
     public void onClickAddCarButton() {
@@ -208,25 +208,25 @@ public class CarSelectionActivity extends BaseInjectorActivity {
         View focusView = null;
 
         //First check all input forms for empty strings
-        if(engineString == null || engineString.isEmpty()) {
+        if (engineString == null || engineString.isEmpty()) {
             mEngineTextView.setError("Cannot be empty");
             focusView = mEngineTextView;
         }
-        if(yearString == null || yearString.isEmpty()) {
+        if (yearString == null || yearString.isEmpty()) {
             mYearTextView.setError("Cannot be empty");
             focusView = mYearTextView;
         }
-        if(model == null || model.isEmpty()){
+        if (model == null || model.isEmpty()) {
             mModelTextView.setError("Cannot be empty");
             focusView = mModelTextView;
         }
-        if(manufacturer == null || manufacturer.isEmpty()) {
+        if (manufacturer == null || manufacturer.isEmpty()) {
             mManufacturerTextView.setError("Cannot be empty");
             focusView = mManufacturerTextView;
         }
 
         // if any of the input forms contained empty values, then set the focus to the last one set.
-        if(focusView != null){
+        if (focusView != null) {
             focusView.requestFocus();
             return;
         }
@@ -237,17 +237,17 @@ public class CarSelectionActivity extends BaseInjectorActivity {
         int currentYear = Calendar.getInstance().get(Calendar.YEAR);
 
         // Check the values of engine and year for validity.
-        if(engine < 500 || engine > 5000){
+        if (engine < 500 || engine > 5000) {
             mEngineTextView.setError("Invalid value");
             focusView = mEngineTextView;
         }
-        if(year < 1990 || year > currentYear){
+        if (year < 1990 || year > currentYear) {
             mYearTextView.setError("Invalid value");
             focusView = mYearTextView;
         }
 
         // if tengine or year have invalid values, then request the focus.
-        if(focusView != null){
+        if (focusView != null) {
             focusView.requestFocus();
             return;
         }
@@ -261,7 +261,8 @@ public class CarSelectionActivity extends BaseInjectorActivity {
                 if (car.getManufacturer().equals(manufacturer)
                         && car.getModel().equals(model)
                         && car.getConstructionYear() == year
-                        && car.getEngineDisplacement() == engine) {
+                        && car.getEngineDisplacement() == engine
+                        && car.getFuelType() == fuelType) {
                     selectedCar = car;
                 }
             }
@@ -401,44 +402,42 @@ public class CarSelectionActivity extends BaseInjectorActivity {
     }
 
     private void dispatchRemoteSensors() {
-        try {
-            mSensoreSubscription = AppObservable.bindActivity(this,
-                    mDAOProvider.getSensorDAO().getSensorObservable()
-                            .onBackpressureBuffer(10000)
-                            .subscribeOn(Schedulers.io())
-                            .observeOn(Schedulers.computation()))
-                    .subscribe(new Observer<Car>() {
+        mSensoreSubscription = AppObservable.bindActivity(this,
+                mDAOProvider.getSensorDAO().getAllSensorsObservable()
+                        .onBackpressureBuffer(10000)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.computation()))
+                .subscribe(new Observer<List<Car>>() {
+                    @Override
+                    public void onCompleted() {
+                        mMainThreadWorker.schedule(() -> {
+                            Toast.makeText(CarSelectionActivity.this, "Received! " +
+                                    mManufacturerNames.size(), Toast.LENGTH_SHORT).show();
+                            mManufacturerNameAdapter = new AutoCompleteArrayAdapter(
+                                    CarSelectionActivity.this,
+                                    android.R.layout.simple_dropdown_item_1line,
+                                    mManufacturerNames.toArray(
+                                            new String[mManufacturerNames.size()]));
+                            mManufacturerTextView.setAdapter(mManufacturerNameAdapter);
+                        });
+                    }
 
-                        @Override
-                        public void onCompleted() {
-                            mMainThreadWorker.schedule(() -> {
-//                                Toast.makeText(CarSelectionActivity.this, "Received! " +
-//                                        mManufacturerNames.size(), Toast.LENGTH_SHORT).show();
-                                mManufacturerNameAdapter = new AutoCompleteArrayAdapter(
-                                        CarSelectionActivity.this,
-                                        android.R.layout.simple_dropdown_item_1line,
-                                        mManufacturerNames.toArray(
-                                                new String[mManufacturerNames.size()]));
-                                mManufacturerTextView.setAdapter(mManufacturerNameAdapter);
-                            });
-                        }
+                    @Override
+                    public void onError(Throwable e) {
+                        LOGGER.error(e.getMessage(), e);
+                        mMainThreadWorker.schedule(() ->
+                                Toast.makeText(CarSelectionActivity.this, "ERROR!", Toast
+                                        .LENGTH_SHORT).show());
+                    }
 
-                        @Override
-                        public void onError(Throwable e) {
-                            LOGGER.error("Error!", e);
-                            mMainThreadWorker.schedule(() ->
-                                    Toast.makeText(CarSelectionActivity.this, "ERROR!", Toast
-                                            .LENGTH_SHORT).show());
+                    @Override
+                    public void onNext(List<Car> cars) {
+                        for (Car car : cars) {
+                            if (car != null)
+                                addCarToAutocompleteList(car);
                         }
-
-                        @Override
-                        public void onNext(Car car) {
-                            addCarToAutocompleteList(car);
-                        }
-                    });
-        } catch (SensorRetrievalException e) {
-            e.printStackTrace();
-        }
+                    }
+                });
     }
 
 

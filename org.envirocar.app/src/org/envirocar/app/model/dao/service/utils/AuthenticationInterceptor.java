@@ -1,7 +1,6 @@
-package org.envirocar.app.model.service.utils;
+package org.envirocar.app.model.dao.service.utils;
 
 import com.squareup.okhttp.Interceptor;
-import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import org.envirocar.app.application.UserManager;

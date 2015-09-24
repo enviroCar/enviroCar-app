@@ -26,6 +26,11 @@ import org.envirocar.app.model.dao.exception.UserRetrievalException;
 import org.envirocar.app.model.dao.exception.UserUpdateException;
 import org.envirocar.app.model.User;
 
+import rx.Observable;
+
+/**
+ * @author dewall
+ */
 public class CacheUserDAO implements UserDAO {
 
 	@Override
@@ -39,8 +44,12 @@ public class CacheUserDAO implements UserDAO {
 	}
 
 	@Override
-	public void createUser(User newUser) throws UserUpdateException,
-			ResourceConflictException {
+	public Observable<User> getUserObservable(String id) {
+		return Observable.error(new UserUpdateException("Not supported by Cache"));
+	}
+
+	@Override
+	public void createUser(User newUser) throws UserUpdateException, ResourceConflictException {
 		throw new UserUpdateException("Not supported by Cache");
 	}
 

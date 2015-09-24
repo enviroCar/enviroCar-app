@@ -25,6 +25,7 @@ import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.dao.DAOProvider;
+import org.envirocar.app.model.dao.service.EnviroCarService;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.services.trackdetails.TrackDetailsProvider;
@@ -106,7 +107,7 @@ import dagger.Provides;
                 NewSettingsActivity.class,
                 OBDSettingsFragment.class
         },
-        staticInjections = {Track.class},
+        staticInjections = {Track.class, EnviroCarService.class},
         library = true,
         complete = false
 )

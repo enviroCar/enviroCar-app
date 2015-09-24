@@ -20,8 +20,11 @@
  */
 package org.envirocar.app.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import org.envirocar.app.activity.preference.CarSelectionPreference;
 import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.dao.service.CarService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,39 +42,78 @@ import rx.Subscriber;
  * @author matthes rieke
  */
 public class Car implements Serializable {
-
-    /**
-     *
-     */
     private static final long serialVersionUID = 6321429785990500936L;
     private static final Logger logger = Logger.getLogger(Car.class);
-    private static final String GASOLINE_STRING = "gasoline";
-    private static final String DIESEL_STRING = "diesel";
 
     public static final String TEMPORARY_SENSOR_ID = "%TMP_ID%";
 
+    /**
+     * Resolves the fuel type enum of a given string
+     *
+     * @param foolType the fuel type as string
+     * @return the fuel type as enum value.
+     */
+    public static FuelType resolveFuelType(String foolType) {
+        if (foolType.equals(CarService.KEY_FUELTYPE_ENUM_GASOLINE)) {
+            return FuelType.GASOLINE;
+        } else if (foolType.equals(CarService.KEY_FUELTYPE_ENUM_DIESEL)) {
+            return FuelType.DIESEL;
+        }
+        return FuelType.GASOLINE;
+    }
+
+    /**
+     * Computes ccm to liter.
+     *
+     * @param ccm the ccm value.
+     * @return the liter value.
+     */
+    public static double ccmToLiter(int ccm) {
+        float result = ccm / 1000.0f;
+        return result;
+    }
+
     public enum FuelType {
+        @SerializedName(CarService.KEY_FUELTYPE_ENUM_GASOLINE)
         GASOLINE {
             public String toString() {
-                return GASOLINE_STRING;
+                return CarService.KEY_FUELTYPE_ENUM_GASOLINE;
             }
 
         },
+        @SerializedName(CarService.KEY_FUELTYPE_ENUM_DIESEL)
         DIESEL {
             public String toString() {
-                return DIESEL_STRING;
+                return CarService.KEY_FUELTYPE_ENUM_DIESEL;
             }
         }
-
     }
 
-    private FuelType fuelType;
-    private String manufacturer;
-    private String model;
+    @SerializedName(CarService.KEY_CAR_ID)
     private String id;
+    @SerializedName(CarService.KEY_CAR_MODEL)
+    private String model;
+
+    @SerializedName(CarService.KEY_CAR_MANUFACTURER)
+    private String manufacturer;
+    @SerializedName(CarService.KEY_CAR_FUELTYPE)
+    private FuelType fuelType;
+
+    @SerializedName(CarService.KEY_CAR_CONSTRUCTIONYEAR)
     private int constructionYear;
+    @SerializedName(CarService.KEY_CAR_ENGINEDISPLACEMENT)
     private int engineDisplacement;
 
+    /**
+     * Constructor.
+     *
+     * @param fuelType           the fuel type (gasoline or diesel)
+     * @param manufacturer       the name of the manufacturer
+     * @param model              the name of the model
+     * @param id                 the id
+     * @param year               the year of construction
+     * @param engineDisplacement the engine displacement of the car.
+     */
     public Car(FuelType fuelType, String manufacturer, String model, String id, int year, int
             engineDisplacement) {
         this.fuelType = fuelType;
@@ -82,6 +124,16 @@ public class Car implements Serializable {
         this.engineDisplacement = engineDisplacement;
     }
 
+    /**
+     * Constructor.
+     *
+     * @param fuelType           the fuel type as string (gasoline or diesel)
+     * @param manufacturer       the name of the manufacturer
+     * @param model              the name of the model
+     * @param id                 the id
+     * @param year               the year of construction
+     * @param engineDisplacement the engine displacement of the car.
+     */
     private Car(String fuelType, String manufacturer, String model, String id, int year, int
             engineDisplacement) {
         this(resolveFuelType(fuelType), manufacturer, model, id, year, engineDisplacement);
@@ -146,7 +198,7 @@ public class Car implements Serializable {
             result = this.fuelType == c.fuelType
                     && this.manufacturer.equals(c.manufacturer)
                     && this.model.equals(c.model)
-//                    && this.id.equals(c.id)
+                    //                    && this.id.equals(c.id)
                     && this.constructionYear == c.constructionYear
                     && this.engineDisplacement == c.engineDisplacement;
         }
@@ -238,7 +290,8 @@ public class Car implements Serializable {
                             subscriber.onNext(car);
                         } catch (JSONException e) {
                             subscriber.onError(e);
-                            logger.verbose(String.format("Car '%s' not supported: %s", carId != null ? carId : "null", e.getMessage()));
+                            logger.verbose(String.format("Car '%s' not supported: %s", carId !=
+                                    null ? carId : "null", e.getMessage()));
                         }
                     }
                 }
@@ -246,27 +299,12 @@ public class Car implements Serializable {
         });
     }
 
-
-    public static FuelType resolveFuelType(String foolType) {
-        if (foolType.equals(GASOLINE_STRING)) {
-            return FuelType.GASOLINE;
-        } else if (foolType.equals(DIESEL_STRING)) {
-            return FuelType.DIESEL;
-        }
-        return FuelType.GASOLINE;
-    }
-
-    public static double ccmToLiter(int ccm) {
-        float result = ccm / 1000.0f;
-        return result;
-    }
-
     @Override
     public int hashCode() {
         int result = fuelType.hashCode();
         result = 31 * result + manufacturer.hashCode();
         result = 31 * result + model.hashCode();
-//        result = 31 * result + (id != null ? id.hashCode() : 0);
+        //        result = 31 * result + (id != null ? id.hashCode() : 0);
         result = 31 * result + constructionYear;
         result = 31 * result + engineDisplacement;
         return result;

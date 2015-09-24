@@ -196,7 +196,7 @@ public class StreamTrackEncoder extends TrackEncoder {
 		return result;
 	}
 
-	private JsonObject createPhenomenons(Measurement measurement) throws JSONException {
+	public static JsonObject createPhenomenons(Measurement measurement) throws JSONException {
 		if (measurement.getAllProperties().isEmpty()) {
 			return null;
 		}
@@ -211,7 +211,7 @@ public class StreamTrackEncoder extends TrackEncoder {
 		return result;
 	}
 	
-	private JsonObject createValue(Double double1) throws JSONException {
+	public static JsonObject createValue(Double double1) throws JSONException {
 		JsonObject result = new JsonObject();
 		result.addProperty("value", double1);
 		return result;

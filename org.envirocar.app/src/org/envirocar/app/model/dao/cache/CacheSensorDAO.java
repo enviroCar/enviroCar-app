@@ -33,12 +33,13 @@ import org.json.JSONObject;
 
 import rx.Observable;
 
+/**
+ * @author dewall
+ */
 public class CacheSensorDAO extends AbstractCacheDAO implements SensorDAO {
 	
 	private static final Logger logger = Logger.getLogger(CacheSensorDAO.class);
 	public static final String CAR_CACHE_FILE_NAME = "cache_cars";
-	
-
 
 	@Override
 	public List<Car> getAllSensors() throws SensorRetrievalException {
@@ -79,8 +80,12 @@ public class CacheSensorDAO extends AbstractCacheDAO implements SensorDAO {
 	}
 
 	@Override
-	public Observable<Car> getSensorObservable() throws SensorRetrievalException {
-		return null;
+	public Observable<List<Car>> getAllSensorsObservable() {
+		try {
+			return Observable.just(getAllSensors());
+		} catch (SensorRetrievalException e) {
+			return Observable.error(e);
+		}
 	}
 
 	@Override
@@ -94,6 +99,4 @@ public class CacheSensorDAO extends AbstractCacheDAO implements SensorDAO {
 			storeCache(CAR_CACHE_FILE_NAME+(c++), jsonObject.toString());
 		}
 	}
-
-
 }
