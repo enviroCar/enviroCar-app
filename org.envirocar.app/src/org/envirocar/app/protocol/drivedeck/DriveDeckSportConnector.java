@@ -21,6 +21,7 @@
 package org.envirocar.app.protocol.drivedeck;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -199,7 +200,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 
 
 	private CommonCommand parsePIDResponse(String pid,
-			byte[] rawBytes, long now) {
+			byte[] rawBytes, long now, byte[] debugArray) {
 		
 		/*
 		 * resulting HEX values are 0x0d additive to the
@@ -247,7 +248,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
                         logger.warn(String.format(
                                 "Received a speed value of %s. this is probably an " +
                                         "erroneous response. Base64 encoded value: %s",
-                                Integer.toString(val), "" + Base64.encode(rawBytes, Base64.DEFAULT)));
+                                Integer.toString(val), "" + Arrays.toString(Base64.encode(debugArray, Base64.DEFAULT))));
                     }
                     mLastVal = val;
                 }
@@ -392,8 +393,9 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 						
 						pidResponseValue[target] = bytes[i];
 					}
-					
-					CommonCommand result = parsePIDResponse(pid, pidResponseValue, now);
+
+					//TODO remove last arg (copy array) as its for deugging
+					CommonCommand result = parsePIDResponse(pid, pidResponseValue, now, Arrays.copyOfRange(bytes, start, count));
 					
 					if (result != null) {
 						lastResult = now;
