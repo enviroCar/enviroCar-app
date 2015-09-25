@@ -20,53 +20,76 @@
  */
 package org.envirocar.app.model.dao.remote;
 
-import java.io.IOException;
-import java.util.List;
-
+import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.Announcement;
 import org.envirocar.app.model.dao.AnnouncementsDAO;
 import org.envirocar.app.model.dao.cache.CacheAnnouncementsDAO;
 import org.envirocar.app.model.dao.exception.AnnouncementsRetrievalException;
 import org.envirocar.app.model.dao.exception.NotConnectedException;
 import org.envirocar.app.model.dao.exception.UnauthorizedException;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.Announcement;
+import org.envirocar.app.model.dao.service.AnnouncementsService;
+import org.envirocar.app.model.dao.service.EnviroCarService;
+import org.envirocar.app.model.dao.service.utils.EnvirocarServiceUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.util.List;
+
+import retrofit.Call;
+import retrofit.Response;
+
+/**
+ * The data access object for remote fuelings that are stored at the envirocar service.
+ *
+ * @author dewall
+ */
 public class RemoteAnnouncementsDAO extends BaseRemoteDAO implements AnnouncementsDAO {
+    private static final Logger LOG = Logger.getLogger(RemoteAnnouncementsDAO.class);
 
-	private static final Logger logger = Logger.getLogger(RemoteAnnouncementsDAO.class);
-	private CacheAnnouncementsDAO cache;
+    // announcement cache.
+    private CacheAnnouncementsDAO cache;
 
-	public RemoteAnnouncementsDAO(CacheAnnouncementsDAO cacheAnnouncementsDAO) {
-		this.cache = cacheAnnouncementsDAO;
-	}
+    /**
+     * Constructor.
+     *
+     * @param cacheAnnouncementsDAO the announcement cache DAO.
+     */
+    public RemoteAnnouncementsDAO(CacheAnnouncementsDAO cacheAnnouncementsDAO) {
+        this.cache = cacheAnnouncementsDAO;
+    }
 
-	@Override
-	public List<Announcement> getAllAnnouncements() throws AnnouncementsRetrievalException {
-		
-		try {
-			JSONObject parentObject = readRemoteResource("/announcements");
-		
-			if (cache != null) {
-				try {
-					cache.storeAllAnnouncements(parentObject.toString());
-				}
-				catch (IOException e) {
-					logger.warn(e.getMessage());
-				}
-			}
-			
-			return Announcement.fromJsonList(parentObject);
-		} catch (IOException e) {
-			throw new AnnouncementsRetrievalException(e);
-		} catch (JSONException e) {
-			throw new AnnouncementsRetrievalException(e);
-		} catch (NotConnectedException e) {
-			throw new AnnouncementsRetrievalException(e);
-		} catch (UnauthorizedException e) {
-			throw new AnnouncementsRetrievalException(e);
-		}
-	}
+    @Override
+    public List<Announcement> getAllAnnouncements() throws AnnouncementsRetrievalException {
+        LOG.info("getAllAnnouncements()");
 
+        // Instantiate the announcement service and the upload fueling call
+        final AnnouncementsService announcementsService = EnviroCarService.getAnnouncementService();
+        Call<List<Announcement>> allAnnouncementsCall = announcementsService.getAllAnnouncements();
+
+        try {
+            // Execute the call
+            Response<List<Announcement>> allAnnouncementsResponse = allAnnouncementsCall.execute();
+
+            // assert the response code when it was not successful
+            if (!allAnnouncementsResponse.isSuccess()) {
+                EnvirocarServiceUtils.assertStatusCode(allAnnouncementsResponse.code(),
+                        allAnnouncementsResponse.message());
+                return null;
+            }
+
+            // Store the announcements into the cache
+            if (cache != null) {
+                LOG.info("Store the announcments into the cache DAO");
+                cache.storeAllAnnouncements(allAnnouncementsResponse.raw().body().string());
+            }
+
+            // return the list of announcements.
+            return allAnnouncementsResponse.body();
+        } catch (IOException e) {
+            throw new AnnouncementsRetrievalException(e);
+        } catch (Exception e) {
+            throw new AnnouncementsRetrievalException(e);
+        }
+    }
 }

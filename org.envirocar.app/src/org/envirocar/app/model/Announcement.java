@@ -20,146 +20,187 @@
  */
 package org.envirocar.app.model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import android.content.Context;
 
+import org.envirocar.app.R;
 import org.envirocar.app.util.VersionRange;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import org.envirocar.app.R;
-import android.content.Context;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
+/**
+ * Announcement class that holds all the required information to show announcements in the app.
+ *
+ * @author dewall
+ */
 public class Announcement {
 
-	public enum Priority {
-		LOW {
-			@Override
-			public String toString() {
-				return "low";
-			}
-		},
-		MEDIUM {
-			@Override
-			public String toString() {
-				return "medium";
-			}
-		},
-		HIGH {
-			@Override
-			public String toString() {
-				return "high";
-			}
-		};
-		
-		public static Priority fromString(String s) {
-			for (Priority p : values()) {
-				if (p.toString().equals(s)) {
-					return p;
-				}
-			}
-			
-			return LOW;
-		}
-	}
+    public enum Priority {
+        LOW {
+            @Override
+            public String toString() {
+                return "low";
+            }
+        },
+        MEDIUM {
+            @Override
+            public String toString() {
+                return "medium";
+            }
+        },
+        HIGH {
+            @Override
+            public String toString() {
+                return "high";
+            }
+        };
 
-	public static List<Announcement> fromJsonList(JSONObject content) throws JSONException {
-		JSONArray a = content.getJSONArray("announcements");
-		
-		List<Announcement> result = new ArrayList<Announcement>();
-		
-		for (int i = 0; i < a.length(); i++) {
-			JSONObject obj = a.getJSONObject(i);
-			Announcement anno = fromJson(obj);
-			if (anno != null) {
-				result.add(anno);
-			}
-		}
-		
-		return result;
-	}
+        public static Priority fromString(String s) {
+            for (Priority p : values()) {
+                if (p.toString().equals(s)) {
+                    return p;
+                }
+            }
 
-	
-	public static Announcement fromJson(JSONObject json) throws JSONException {
-		Announcement result = new Announcement();
-		
-		result.id = json.getString("id");
-		result.versionRange = VersionRange.fromString(json.getString("versions"));
-		result.category = json.getString("category");
-		
-		if (result.category == null || !(result.category.equalsIgnoreCase("app") || 
-				result.category.equalsIgnoreCase("general"))) {
-			return null;
-		}
-			
-		
-		result.contents = json.getJSONObject("content");
-		result.priority = Priority.fromString(json.optString("priority", Priority.LOW.toString()));
-		
-		return result;
-	}
+            return LOW;
+        }
+    }
 
-	private String id;
-	private VersionRange versionRange;
-	private Priority priority;
-	private String category;
-	private JSONObject contents;
+    @Deprecated
+    public static List<Announcement> fromJsonList(JSONObject content) throws JSONException {
+        JSONArray a = content.getJSONArray("announcements");
 
-	public String getId() {
-		return id;
-	}
+        List<Announcement> result = new ArrayList<Announcement>();
 
-	public VersionRange getVersionRange() {
-		return versionRange;
-	}
+        for (int i = 0; i < a.length(); i++) {
+            JSONObject obj = a.getJSONObject(i);
+            Announcement anno = fromJson(obj);
+            if (anno != null) {
+                result.add(anno);
+            }
+        }
 
-	public String getCategory() {
-		return category;
-	}
-	
-	public String getContent() {
-		Locale locale = Locale.getDefault();
-		return getContent(locale);
-	}
+        return result;
+    }
 
-	public String getContent(Locale locale) {
-		String result = null;
-		if (contents != null) {
-			try {
-				result = contents.getString(locale.getLanguage());
-			} catch (JSONException e) {
-			}
-			
-			if (result == null) {
-				try {
-					result = contents.getString(Locale.ENGLISH.getLanguage());
-				} catch (JSONException e) {
-				}
-			}
-			
-		}
-		return result;
-	}
-	
-	public String createUITitle(Context ctx) {
-		String priorityi18n;
-		if (priority.equals(Priority.HIGH)) {
-			priorityi18n = ctx.getString(R.string.category_high);
-		}
-		else if (priority.equals(Priority.MEDIUM)) {
-			priorityi18n = ctx.getString(R.string.category_normal);
-		}
-		else {
-			priorityi18n = ctx.getString(R.string.category_low);
-		}
-		return String.format("[%s] %s %s", priorityi18n, category, ctx.getString(R.string.announcement));
-	}
+    @Deprecated
+    public static Announcement fromJson(JSONObject json) throws JSONException {
+        Announcement result = new Announcement();
+
+        result.id = json.getString("id");
+        result.versionRange = VersionRange.fromString(json.getString("versions"));
+        result.category = json.getString("category");
+
+        if (result.category == null || !(result.category.equalsIgnoreCase("app") ||
+                result.category.equalsIgnoreCase("general"))) {
+            return null;
+        }
 
 
-	public Priority getPriority() {
-		return priority;
-	}
+        result.contents = json.getJSONObject("content");
+        result.priority = Priority.fromString(json.optString("priority", Priority.LOW.toString()));
+
+        return result;
+    }
+
+    private String id;
+    private VersionRange versionRange;
+    private Priority priority;
+    private String category;
+    private JSONObject contents;
+
+    /**
+     * Private Default Constructore. This one can be deleted when the fromJson methods get removed.
+     */
+    private Announcement() {}
+
+    /**
+     * Constructor.
+     *
+     * @param id           the id of the announcemnets.
+     * @param versionRange
+     * @param priority
+     * @param category
+     * @param contents
+     */
+    public Announcement(String id, String versionRange,
+                        String priority, String category, String contents) {
+        this(id, VersionRange.fromString(versionRange),
+                Priority.fromString(priority), category, contents);
+    }
+
+    public Announcement(String id, VersionRange versionRange,
+                        Priority priority, String category, String contents) {
+        this.id = id;
+        this.versionRange = versionRange;
+        this.priority = priority;
+        this.category = category;
+        try {
+            this.contents = new JSONObject(contents);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public VersionRange getVersionRange() {
+        return versionRange;
+    }
+
+    public String getContent() {
+        Locale locale = Locale.getDefault();
+        return getContent(locale);
+    }
+
+    public String getContent(Locale locale) {
+        String result = null;
+        if (contents != null) {
+            try {
+                result = contents.getString(locale.getLanguage());
+            } catch (JSONException e) {
+            }
+
+            if (result == null) {
+                try {
+                    result = contents.getString(Locale.ENGLISH.getLanguage());
+                } catch (JSONException e) {
+                }
+            }
+
+        }
+        return result;
+    }
+
+    public String createUITitle(Context ctx) {
+        String priorityi18n;
+        if (priority.equals(Priority.HIGH)) {
+            priorityi18n = ctx.getString(R.string.category_high);
+        } else if (priority.equals(Priority.MEDIUM)) {
+            priorityi18n = ctx.getString(R.string.category_normal);
+        } else {
+            priorityi18n = ctx.getString(R.string.category_low);
+        }
+        return String.format("[%s] %s %s", priorityi18n, category, ctx.getString(R.string
+                .announcement));
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority;
+    }
 
 }

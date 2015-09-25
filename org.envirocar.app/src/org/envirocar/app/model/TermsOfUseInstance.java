@@ -23,42 +23,80 @@ package org.envirocar.app.model;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * Instance holder of a single terms of use.
+ *
+ * @author dewall
+ */
 public class TermsOfUseInstance {
 
-	public static TermsOfUseInstance fromJson(JSONObject json) throws JSONException {
-		String date = json.getString("issuedDate");
-		String contents = json.optString("contents", null);
-		String id = json.optString("id", null);
-		TermsOfUseInstance result = new TermsOfUseInstance(id, date, contents);
-		return result;
-	}
-	
-	public static TermsOfUseInstance fromIssuedDate(String date) {
-		TermsOfUseInstance result = new TermsOfUseInstance(null, date, null);
-		return result;
-	}
-	
-	private String issuedDate;
-	private String contents;
-	private String id;
-	
-	private TermsOfUseInstance(String id, String issuedDate, String contents) {
-		this.id = id;
-		this.issuedDate = issuedDate;
-		this.contents = contents;
-	}
+    @Deprecated
+    public static TermsOfUseInstance fromJson(JSONObject json) throws JSONException {
+        String date = json.getString("issuedDate");
+        String contents = json.optString("contents", null);
+        String id = json.optString("id", null);
+        TermsOfUseInstance result = new TermsOfUseInstance(id, date, contents);
+        return result;
+    }
 
-	public String getIssuedDate() {
-		return issuedDate;
-	}
+    @Deprecated
+    public static TermsOfUseInstance fromIssuedDate(String date) {
+        TermsOfUseInstance result = new TermsOfUseInstance(null, date, null);
+        return result;
+    }
 
-	public String getContents() {
-		return contents;
-	}
-	
-	public String getId() {
-		return id;
-	}
+    private String issuedDate;
+    private String contents;
+    private String id;
 
-	
+    /**
+     * Constructor.
+     *
+     * @param id         the id of the terms of use instance.
+     * @param issuedDate the issued date of the terms of use.
+     */
+    public TermsOfUseInstance(String id, String issuedDate) {
+        this(id, issuedDate, null);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param id         the id of the terms of use instance.
+     * @param issuedDate the issued date of the terms of use.
+     * @param contents   the terms of use iteself.
+     */
+    private TermsOfUseInstance(String id, String issuedDate, String contents) {
+        this.id = id;
+        this.issuedDate = issuedDate;
+        this.contents = contents;
+    }
+
+    /**
+     * Returns the id of the terms of use.
+     *
+     * @return the id of the terms of use.
+     */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * Returns the issued date of the terms of use as string.
+     *
+     * @return the issued date of the terms of use.
+     */
+    public String getIssuedDate() {
+        return issuedDate;
+    }
+
+    /**
+     * Returns the content of the terms of use.
+     *
+     * @return the content of the terms of use.
+     */
+    public String getContents() {
+        return contents;
+    }
+
 }

@@ -20,6 +20,7 @@ import org.envirocar.app.exception.InvalidObjectStateException;
 import org.envirocar.app.json.FuelingEncoder;
 import org.envirocar.app.model.Fueling;
 import org.envirocar.app.model.NumberWithUOM;
+import org.envirocar.app.model.dao.exception.UnauthorizedException;
 
 import java.util.Date;
 
@@ -213,6 +214,9 @@ public class LogbookFragment extends BaseInjectorFragment implements OnClickList
 
             } catch (InvalidObjectStateException e) {
                 makeToast("Please check if you're logged in,have chosen a car or filled in all input fields.");
+            } catch (UnauthorizedException e) {
+                makeToast("Unauthorized");
+                e.printStackTrace();
             }
         }
 

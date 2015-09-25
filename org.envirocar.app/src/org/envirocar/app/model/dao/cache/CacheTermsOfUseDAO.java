@@ -29,6 +29,8 @@ import org.envirocar.app.model.TermsOfUse;
 import org.envirocar.app.model.TermsOfUseInstance;
 import org.json.JSONException;
 
+import rx.Observable;
+
 public class CacheTermsOfUseDAO extends AbstractCacheDAO implements TermsOfUseDAO {
 
 	private static final Logger logger = Logger.getLogger(CacheTermsOfUseDAO.class);
@@ -50,6 +52,11 @@ public class CacheTermsOfUseDAO extends AbstractCacheDAO implements TermsOfUseDA
 	}
 
 	@Override
+	public Observable<TermsOfUse> getTermsOfUseObservable() {
+		return null;
+	}
+
+	@Override
 	public TermsOfUseInstance getTermsOfUseInstance(String id) throws TermsOfUseRetrievalException {
 		try {
 			return TermsOfUseInstance.fromJson(readCache(INSTANCE_CACHE_FILE_NAME+id));
@@ -60,6 +67,11 @@ public class CacheTermsOfUseDAO extends AbstractCacheDAO implements TermsOfUseDA
 			logger.warn(e.getMessage());
 			throw new TermsOfUseRetrievalException(e);
 		}
+	}
+
+	@Override
+	public Observable<TermsOfUseInstance> getTermsOfUseInstanceObservable(String id) {
+		return null;
 	}
 
 	public void storeTermsOfUse(String content) throws IOException {

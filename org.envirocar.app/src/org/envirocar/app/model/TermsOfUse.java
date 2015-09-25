@@ -27,8 +27,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * @author dewall
+ */
 public class TermsOfUse {
 
+    @Deprecated
 	public static TermsOfUse fromJson(JSONObject json) throws JSONException {
 		JSONArray array = json.getJSONArray("termsOfUse");
 		
@@ -43,7 +47,12 @@ public class TermsOfUse {
 	
 	private List<TermsOfUseInstance> instances;
 
-	private TermsOfUse(List<TermsOfUseInstance> instances) {
+    /**
+     * Constructor.
+     *
+     * @param instances
+     */
+	public TermsOfUse(List<TermsOfUseInstance> instances) {
 		this.instances = instances;
 	}
 

@@ -20,56 +20,88 @@
  */
 package org.envirocar.app.model.dao.remote;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Collections;
-import java.util.List;
+import com.squareup.okhttp.ResponseBody;
 
 import org.apache.http.client.methods.HttpPost;
 import org.envirocar.app.ConstantsEnvirocar;
+import org.envirocar.app.exception.InvalidObjectStateException;
+import org.envirocar.app.json.FuelingEncoder;
+import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.Fueling;
 import org.envirocar.app.model.dao.FuelingDAO;
 import org.envirocar.app.model.dao.cache.CacheFuelingDAO;
 import org.envirocar.app.model.dao.exception.NotConnectedException;
 import org.envirocar.app.model.dao.exception.ResourceConflictException;
 import org.envirocar.app.model.dao.exception.UnauthorizedException;
-import org.envirocar.app.exception.InvalidObjectStateException;
-import org.envirocar.app.json.FuelingEncoder;
-import org.envirocar.app.model.Fueling;
+import org.envirocar.app.model.dao.service.EnviroCarService;
+import org.envirocar.app.model.dao.service.FuelingService;
+import org.envirocar.app.model.dao.service.utils.EnvirocarServiceUtils;
 import org.json.JSONException;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Collections;
+import java.util.List;
+
+import retrofit.Call;
+import retrofit.Response;
+import rx.Observable;
+
+/**
+ * The data access object for remote fuelings that are stored at the server.
+ *
+ * @author dewall
+ */
 public class RemoteFuelingDAO extends BaseRemoteDAO implements FuelingDAO, AuthenticatedDAO {
+    private static final Logger LOG = Logger.getLogger(RemoteFuelingDAO.class);
 
-	private CacheFuelingDAO cache;
+    private CacheFuelingDAO cache;
 
-	public RemoteFuelingDAO(CacheFuelingDAO cacheFuelingDAO) {
-		this.cache = cacheFuelingDAO;
-	}
+    /**
+     * Constructor.
+     *
+     * @param cacheFuelingDAO the cache DAO for fuelings.
+     */
+    public RemoteFuelingDAO(CacheFuelingDAO cacheFuelingDAO) {
+        this.cache = cacheFuelingDAO;
+    }
 
-	@Override
-	public void storeFueling(Fueling fueling) throws NotConnectedException, InvalidObjectStateException {
-		String user = mUserManager.getUser().getUsername();
-		HttpPost post = new HttpPost(ConstantsEnvirocar.BASE_URL+"/users/"+user+"/fuelings");
-		
-		try {
-			post.setEntity(super.preparePayload(new FuelingEncoder().createFuelingJson(fueling).toString()));
-			super.executePayloadRequest(post);
-		} catch (UnauthorizedException e) {
-			throw new NotConnectedException(e);
-		} catch (ResourceConflictException e) {
-			throw new NotConnectedException(e);
-		} catch (UnsupportedEncodingException e) {
-			throw new NotConnectedException(e);
-		} catch (IOException e) {
-			throw new NotConnectedException(e);
-		} catch (JSONException e) {
-			throw new NotConnectedException(e);
-		}
-	}
+    @Override
+    public void storeFueling(Fueling fueling) throws NotConnectedException,
+            InvalidObjectStateException, UnauthorizedException {
+        LOG.info("storeFueling()");
 
-	@Override
-	public List<Fueling> getFuelings() {
-		// TODO implement
-		return Collections.emptyList();
-	}
+        // Instantiate the fueling service and the upload fueling call
+        final FuelingService fuelingService = EnviroCarService.getFuelingService();
+        Call<ResponseBody> uploadFuelingCall = fuelingService.uploadFuelings(
+                mUserManager.getUser().getUsername(), fueling);
+
+        try {
+            // Execute the call
+            Response<ResponseBody> uploadFuelingResponse = uploadFuelingCall.execute();
+
+            // assert the responsecode if it was not an success.
+            if (!uploadFuelingResponse.isSuccess()) {
+                EnvirocarServiceUtils.assertStatusCode(uploadFuelingResponse.code(),
+                        uploadFuelingResponse.message());
+            }
+        } catch (IOException e) {
+            throw new NotConnectedException(e);
+        } catch (ResourceConflictException e) {
+            throw new InvalidObjectStateException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<Fueling> getFuelings() {
+        // TODO implement
+        return Collections.emptyList();
+    }
+
+    @Override
+    public Observable<List<Fueling>> getFuelingsObservable() {
+        // TODO implement
+        return Observable.from(Collections.emptyList());
+    }
 
 }

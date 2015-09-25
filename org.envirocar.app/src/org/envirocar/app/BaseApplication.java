@@ -88,7 +88,7 @@ public class BaseApplication extends Application implements Injector, InjectionM
                     LOGGER.info("SCREEN IS OFF");
                 } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                     // and do whatever you need to do here
-                    LOGGER.info("SCREEN IS OFF");
+                    LOGGER.info("SCREEN IS ON");
                 }
             }
         };

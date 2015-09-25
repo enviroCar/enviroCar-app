@@ -152,7 +152,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
             // Get the page count with a track limit of 1 per page (?limit=1). This corresponds
             // to the number of global tracks and return it.
             int pageCount = EnvirocarServiceUtils.resolvePageCount(allTracksCountResponse);
-            LOG.info(String.format("getTotalTrackCount() with a tracksize of %s", pageCount));
+            LOG.info(String.format("getTotalTrackCount() with a tracksize of %s", "" + pageCount));
             return pageCount;
         } catch (IOException e) {
             throw new NotConnectedException(e);

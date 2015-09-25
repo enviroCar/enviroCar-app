@@ -20,23 +20,45 @@
  */
 package org.envirocar.app.model.dao;
 
-import org.envirocar.app.model.dao.exception.TermsOfUseRetrievalException;
+
 import org.envirocar.app.model.TermsOfUse;
 import org.envirocar.app.model.TermsOfUseInstance;
+import org.envirocar.app.model.dao.exception.TermsOfUseRetrievalException;
 
+import rx.Observable;
+
+/**
+ * Data access object for accessing the terms of use.
+ *
+ * @author dewall
+ */
 public interface TermsOfUseDAO {
 
-	/**
-	 * @return the object providing the available terms of use list
-	 * @throws TermsOfUseRetrievalException
-	 */
-	public TermsOfUse getTermsOfUse() throws TermsOfUseRetrievalException;
-	
-	/**
-	 * @param id the id of the terms of use instance
-	 * @return the instance for the given id
-	 * @throws TermsOfUseRetrievalException
-	 */
-	public TermsOfUseInstance getTermsOfUseInstance(String id) throws TermsOfUseRetrievalException;
-	
+    /**
+     * @return the object providing the available terms of use list
+     * @throws TermsOfUseRetrievalException
+     */
+    TermsOfUse getTermsOfUse() throws TermsOfUseRetrievalException;
+
+    /**
+     * Returns the terms of use as observable.
+     *
+     * @return the terms of use as observable.
+     */
+    Observable<TermsOfUse> getTermsOfUseObservable();
+
+    /**
+     * @param id the id of the terms of use instance
+     * @return the instance for the given id
+     * @throws TermsOfUseRetrievalException
+     */
+    TermsOfUseInstance getTermsOfUseInstance(String id) throws TermsOfUseRetrievalException;
+
+    /**
+     * Returns the terms of use instance as observable.
+     *
+     * @param id the id of the terms of use instance.
+     * @return the terms of use instance as observable.
+     */
+    Observable<TermsOfUseInstance> getTermsOfUseInstanceObservable(String id);
 }

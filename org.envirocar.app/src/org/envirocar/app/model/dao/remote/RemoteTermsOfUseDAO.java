@@ -20,83 +20,118 @@
  */
 package org.envirocar.app.model.dao.remote;
 
-import java.io.IOException;
 
-import org.envirocar.app.model.dao.TermsOfUseDAO;
-import org.envirocar.app.model.dao.cache.CacheTermsOfUseDAO;
-import org.envirocar.app.model.dao.exception.NotConnectedException;
-import org.envirocar.app.model.dao.exception.TermsOfUseRetrievalException;
-import org.envirocar.app.model.dao.exception.UnauthorizedException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.TermsOfUse;
 import org.envirocar.app.model.TermsOfUseInstance;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.envirocar.app.model.dao.TermsOfUseDAO;
+import org.envirocar.app.model.dao.cache.CacheTermsOfUseDAO;
+import org.envirocar.app.model.dao.exception.TermsOfUseRetrievalException;
+import org.envirocar.app.model.dao.service.EnviroCarService;
+import org.envirocar.app.model.dao.service.TermsOfUseService;
+import org.envirocar.app.model.dao.service.utils.EnvirocarServiceUtils;
 
+import retrofit.Call;
+import retrofit.Response;
+import rx.Observable;
+import rx.exceptions.OnErrorThrowable;
+
+/**
+ * Data access object that handles the access to the terms of use at the envirocar service.
+ * It uses the {@link TermsOfUseService} to get access to the service endpoint
+ *
+ * @author dewall
+ */
 public class RemoteTermsOfUseDAO extends BaseRemoteDAO implements TermsOfUseDAO {
+    private static final Logger LOG = Logger.getLogger(RemoteTermsOfUseDAO.class);
 
-	private static final Logger logger = Logger.getLogger(RemoteTermsOfUseDAO.class);
-	private CacheTermsOfUseDAO cache;
+    private CacheTermsOfUseDAO mCache;
 
-	public RemoteTermsOfUseDAO(CacheTermsOfUseDAO cacheTermsOfUseDAO) {
-		this.cache = cacheTermsOfUseDAO;
-	}
+    /**
+     * Constructor.
+     *
+     * @param cacheTermsOfUseDAO the DAO for cached terms of use instances.
+     */
+    public RemoteTermsOfUseDAO(CacheTermsOfUseDAO cacheTermsOfUseDAO) {
+        this.mCache = cacheTermsOfUseDAO;
+    }
 
-	@Override
-	public TermsOfUse getTermsOfUse() throws TermsOfUseRetrievalException {
-		try {
-			JSONObject parentObject = readRemoteResource("/termsOfUse");
-			
-			if (cache != null) {
-				try {
-					cache.storeTermsOfUse(parentObject.toString());
-				}
-				catch (IOException e) {
-					logger.warn(e.getMessage());
-				}
-			}
-			
-			return TermsOfUse.fromJson(parentObject);
-		} catch (IOException e) {
-			logger.warn(e.getMessage());
-			throw new TermsOfUseRetrievalException(e);
-		} catch (JSONException e) {
-			logger.warn(e.getMessage());
-			throw new TermsOfUseRetrievalException(e);
-		} catch (NotConnectedException e) {
-			throw new TermsOfUseRetrievalException(e);
-		} catch (UnauthorizedException e) {
-			throw new TermsOfUseRetrievalException(e);
-		}
-	}
+    @Override
+    public TermsOfUse getTermsOfUse() throws TermsOfUseRetrievalException {
+        LOG.info("getTermsOfUse()");
+        // Get the service and instantiate the call to the service endpoint in order to get the
+        // terms of use.
+        final TermsOfUseService touService = EnviroCarService.getTermsOfUseService();
+        Call<TermsOfUse> termsOfUseCall = touService.getTermsOfUse();
 
+        try {
+            // Execute the call
+            Response<TermsOfUse> touResponse = termsOfUseCall.execute();
 
-	@Override
-	public TermsOfUseInstance getTermsOfUseInstance(String id) throws TermsOfUseRetrievalException {
-		try {
-			JSONObject parentObject = readRemoteResource("/termsOfUse/"+id);
-			
-			if (cache != null) {
-				try {
-					cache.storeTermsOfUseInstance(parentObject.toString(), id);
-				}
-				catch (IOException e) {
-					logger.warn(e.getMessage());
-				}
-			}
-			
-			return TermsOfUseInstance.fromJson(parentObject);
-		} catch (IOException e) {
-			logger.warn(e.getMessage());
-			throw new TermsOfUseRetrievalException(e);
-		} catch (JSONException e) {
-			logger.warn(e.getMessage());
-			throw new TermsOfUseRetrievalException(e);
-		} catch (NotConnectedException e) {
-			throw new TermsOfUseRetrievalException(e);
-		} catch (UnauthorizedException e) {
-			throw new TermsOfUseRetrievalException(e);
-		}
-	}
+            // check the response for success
+            if (touResponse.isSuccess()) {
+                EnvirocarServiceUtils.assertStatusCode(touResponse.code(), touResponse.message());
+            }
 
+            // Success
+            if (mCache != null) {
+//                mCache.storeTermsOfUse(touResponse.body()touResponse.raw().body().string());
+            }
+
+            // Return the terms of use.
+            return touResponse.body();
+        } catch (Exception e) {
+            LOG.severe("Error while retrieving terms of use.", e);
+            throw new TermsOfUseRetrievalException(e);
+        }
+    }
+
+    @Override
+    public Observable<TermsOfUse> getTermsOfUseObservable() {
+        return Observable.just(true)
+                .map(aBoolean -> {
+                    try {
+                        return getTermsOfUse();
+                    } catch (TermsOfUseRetrievalException e) {
+                        throw OnErrorThrowable.from(e);
+                    }
+                });
+    }
+
+    @Override
+    public TermsOfUseInstance getTermsOfUseInstance(String id) throws TermsOfUseRetrievalException {
+        LOG.info(String.format("getTermsOfUseInstance(%s)", id));
+
+        // Get the service and initiate the call.
+        final TermsOfUseService touService = EnviroCarService.getTermsOfUseService();
+        Call<TermsOfUseInstance> termsOfUseCall = touService.getTermsOfUseByID(id);
+
+        try {
+            // Execute the call
+            Response<TermsOfUseInstance> touResponse = termsOfUseCall.execute();
+
+            // Store the downloaded instance in the cache.
+            if (mCache != null) {
+//                mCache.storeTermsOfUseInstance(touResponse.raw().body().string(), id);
+            }
+
+            // Return the terms of use instance.
+            return touResponse.body();
+        } catch (Exception e) {
+            LOG.warn("Error while retrieving terms of use", e);
+            throw new TermsOfUseRetrievalException(e);
+        }
+    }
+
+    @Override
+    public Observable<TermsOfUseInstance> getTermsOfUseInstanceObservable(final String id) {
+        return Observable.just(true)
+                .map(aBoolean -> {
+                    try {
+                        return getTermsOfUseInstance(id);
+                    } catch (TermsOfUseRetrievalException e) {
+                        throw OnErrorThrowable.from(e);
+                    }
+                });
+    }
 }

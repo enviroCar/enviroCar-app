@@ -20,17 +20,47 @@
  */
 package org.envirocar.app.model.dao;
 
-import java.util.List;
-
-import org.envirocar.app.model.dao.exception.FuelingRetrievalException;
-import org.envirocar.app.model.dao.exception.NotConnectedException;
 import org.envirocar.app.exception.InvalidObjectStateException;
 import org.envirocar.app.model.Fueling;
+import org.envirocar.app.model.dao.exception.FuelingRetrievalException;
+import org.envirocar.app.model.dao.exception.NotConnectedException;
+import org.envirocar.app.model.dao.exception.UnauthorizedException;
 
+import java.util.List;
+
+import rx.Observable;
+
+/**
+ * Data access object interface that defines the access to the fueling data of a user.
+ *
+ * @author dewall
+ */
 public interface FuelingDAO {
 
-	public void storeFueling(Fueling fueling) throws NotConnectedException, InvalidObjectStateException;
-	
-	public List<Fueling> getFuelings() throws FuelingRetrievalException;
-	
+    /**
+     * Stores a given fueling
+     *
+     * @param fueling the fueling to store.
+     * @throws NotConnectedException
+     * @throws InvalidObjectStateException
+     */
+    void storeFueling(Fueling fueling) throws NotConnectedException, InvalidObjectStateException,
+            UnauthorizedException;
+
+    /**
+     * Gets the list of fuelings for a given user.
+     *
+     * @return the list of fuelings for a given user.
+     * @throws FuelingRetrievalException
+     */
+    List<Fueling> getFuelings() throws FuelingRetrievalException;
+
+    /**
+     * Gets an observable of fuelings for a given user.
+     *
+     * @return the observable of fuelings for a given user.
+     * @throws FuelingRetrievalException
+     */
+    Observable<List<Fueling>> getFuelingsObservable();
+
 }

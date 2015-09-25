@@ -30,6 +30,8 @@ import org.envirocar.app.json.FuelingDecoder;
 import org.envirocar.app.model.Fueling;
 import org.json.JSONException;
 
+import rx.Observable;
+
 public class CacheFuelingDAO extends AbstractCacheDAO implements FuelingDAO {
 
 
@@ -50,6 +52,11 @@ public class CacheFuelingDAO extends AbstractCacheDAO implements FuelingDAO {
 		} catch (JSONException e) {
 			throw new FuelingRetrievalException(e);
 		}
+	}
+
+	@Override
+	public Observable<List<Fueling>> getFuelingsObservable() {
+		return null;
 	}
 
 }

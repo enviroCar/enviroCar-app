@@ -11,12 +11,16 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import org.envirocar.app.application.UserManager;
+import org.envirocar.app.model.Announcement;
 import org.envirocar.app.model.Car;
+import org.envirocar.app.model.TermsOfUse;
 import org.envirocar.app.model.User;
 import org.envirocar.app.model.UserStatistics;
+import org.envirocar.app.model.dao.service.serializer.AnnouncementSerializer;
 import org.envirocar.app.model.dao.service.serializer.CarListDeserializer;
 import org.envirocar.app.model.dao.service.serializer.CarSerializer;
 import org.envirocar.app.model.dao.service.serializer.MeasurementSerializer;
+import org.envirocar.app.model.dao.service.serializer.TermsOfUseSerializer;
 import org.envirocar.app.model.dao.service.serializer.TrackSerializer;
 import org.envirocar.app.model.dao.service.serializer.UserSerializer;
 import org.envirocar.app.model.dao.service.serializer.UserStatisticDeserializer;
@@ -30,6 +34,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import retrofit.BaseUrl;
 import retrofit.GsonConverterFactory;
 import retrofit.Retrofit;
 import retrofit.RxJavaCallAdapterFactory;
@@ -72,15 +77,15 @@ public class EnviroCarService {
         OkHttpClient client = new OkHttpClient();
         client.interceptors().add(new AuthenticationInterceptor(mUsermanager));
         client.interceptors().add(new JsonContentTypeInterceptor());
-        client.networkInterceptors().add(new Interceptor() {
-            @Override
-            public Response intercept(Chain chain) throws IOException {
-                Request request = chain.request();
-                Response response = chain.proceed(request);
-                Log.w("EnviroCarService", response.header("Content-Encoding"));
-                return response;
-            }
-        });
+//        client.networkInterceptors().add(new Interceptor() {
+//            @Override
+//            public Response intercept(Chain chain) throws IOException {
+//                Request request = chain.request();
+//                Response response = chain.proceed(request);
+//                Log.w("EnviroCarService", response.header("Content-Encoding"));
+//                return response;
+//            }
+//        });
 
         return new Retrofit.Builder()
                 .baseUrl(BASE_URL)
@@ -101,14 +106,14 @@ public class EnviroCarService {
         OkHttpClient client = new OkHttpClient();
         client.interceptors().add(new AuthenticationInterceptor(mUsermanager));
         client.interceptors().add(new JsonContentTypeInterceptor());
-        client.networkInterceptors().add(new Interceptor() {
-            @Override
-            public Response intercept(Chain chain) throws IOException {
-                Request request = chain.request();
-                Log.w("EnviroCarService", request.header("Content-Encoding"));
-                return chain.proceed(request);
-            }
-        });
+//        client.networkInterceptors().add(new Interceptor() {
+//            @Override
+//            public Response intercept(Chain chain) throws IOException {
+//                Request request = chain.request();
+//                Log.w("EnviroCarService", request.header("Content-Encoding"));
+//                return chain.proceed(request);
+//            }
+//        });
 
         return new Retrofit.Builder()
                 .baseUrl(BASE_URL)
@@ -117,5 +122,48 @@ public class EnviroCarService {
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build()
                 .create(TrackService.class);
+    }
+
+    public static TermsOfUseService getTermsOfUseService(){
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(TermsOfUse.class, new TermsOfUseSerializer())
+                .create();
+
+        OkHttpClient client = new OkHttpClient();
+        client.interceptors().add(new AuthenticationInterceptor(mUsermanager));
+
+        return new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .build()
+                .create(TermsOfUseService.class);
+    }
+
+    public static FuelingService getFuelingService(){
+        OkHttpClient client = new OkHttpClient();
+        client.interceptors().add(new AuthenticationInterceptor(mUsermanager));
+
+        return new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .build()
+                .create(FuelingService.class);
+    }
+
+    public static AnnouncementsService getAnnouncementService(){
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Announcement.class, new AnnouncementSerializer())
+                .create();
+
+        return new Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .build()
+                .create(AnnouncementsService.class);
     }
 }
