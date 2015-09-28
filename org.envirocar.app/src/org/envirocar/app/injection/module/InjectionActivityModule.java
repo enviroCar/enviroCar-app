@@ -7,7 +7,6 @@ import android.content.Context;
 import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.activity.ListTracksFragment;
 import org.envirocar.app.activity.LogbookFragment;
-import org.envirocar.app.view.LoginFragment;
 import org.envirocar.app.view.RegisterFragment;
 import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.StartStopButtonUtil;
@@ -31,7 +30,6 @@ import dagger.Provides;
                 CarPreferenceHandler.class,
                 ListTracksFragment.class,
                 LogbookFragment.class,
-                LoginFragment.class,
                 RegisterFragment.class,
                 SettingsActivity.class,
                 StartStopButtonUtil.class,

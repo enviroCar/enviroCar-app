@@ -300,8 +300,8 @@ public class RegisterFragment extends BaseInjectorFragment {
 
                         mTermsOfUseManager.askForTermsOfUseAcceptance(user, getActivity(), null);
 
-                        getActivity().getFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                        getActivity().getFragmentManager().beginTransaction()
+                        getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                        getActivity().getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.content_frame, mDashboardFragment)
                                 .commit();
                     }

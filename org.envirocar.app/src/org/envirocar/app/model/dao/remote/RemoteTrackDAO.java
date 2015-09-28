@@ -22,17 +22,8 @@ package org.envirocar.app.model.dao.remote;
 
 import com.squareup.okhttp.ResponseBody;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.ParseException;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.envirocar.app.ConstantsEnvirocar;
-import org.envirocar.app.json.StreamTrackEncoder;
-import org.envirocar.app.json.TrackDecoder;
 import org.envirocar.app.json.TrackWithoutMeasurementsException;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.User;
 import org.envirocar.app.model.dao.TrackDAO;
 import org.envirocar.app.model.dao.exception.NotConnectedException;
 import org.envirocar.app.model.dao.exception.ResourceConflictException;
@@ -43,13 +34,8 @@ import org.envirocar.app.model.dao.service.EnviroCarService;
 import org.envirocar.app.model.dao.service.TrackService;
 import org.envirocar.app.model.dao.service.utils.EnvirocarServiceUtils;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.util.FileWithMetadata;
-import org.json.JSONException;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import retrofit.Call;
@@ -57,51 +43,6 @@ import retrofit.Response;
 
 public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, AuthenticatedDAO {
     private static final Logger LOG = Logger.getLogger(RemoteTrackDAO.class);
-
-    @Override
-    public void deleteTrack(String remoteID) throws UnauthorizedException, NotConnectedException {
-        User user = mUserManager.getUser();
-
-        if (user == null) {
-            throw new UnauthorizedException("No User logged in.");
-        }
-
-        HttpDelete request = new HttpDelete(ConstantsEnvirocar.BASE_URL + "/users/" +
-                user.getUsername() + "/tracks/" + remoteID);
-
-        super.executeContentRequest(request);
-    }
-
-    @Override
-    public String storeTrack(Track track, boolean obfuscate) throws NotConnectedException,
-            TrackSerializationException, TrackRetrievalException,
-            TrackWithoutMeasurementsException {
-        try {
-            File f = mTemporaryFileManager.createTemporaryFile();
-            FileWithMetadata content = new StreamTrackEncoder().createTrackJsonAsFile(track,
-                    obfuscate, f, true);
-
-            User user = mUserManager.getUser();
-            HttpPost post = new HttpPost(String.format("%s/users/%s/tracks", ConstantsEnvirocar
-                            .BASE_URL,
-                    user.getUsername()));
-
-            HttpResponse response = executePayloadRequest(post, content);
-
-            return new TrackDecoder().resolveLocation(response);
-        } catch (JSONException e) {
-            throw new TrackSerializationException(e);
-        } catch (ResourceConflictException e) {
-            throw new NotConnectedException(e);
-        } catch (UnauthorizedException e) {
-            throw new TrackRetrievalException(e);
-        } catch (FileNotFoundException e) {
-            throw new TrackSerializationException(e);
-        } catch (IOException e) {
-            throw new TrackSerializationException(e);
-        }
-    }
-
 
     @Override
     public Track getTrack(String id) throws NotConnectedException {
@@ -204,34 +145,103 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
     @Override
     public List<String> getTrackIds(int limit, int page) throws NotConnectedException,
             UnauthorizedException {
-//        final TrackService trackService = EnviroCarService.getTrackService();
-//        trackService.getTrack(mUserManager.getUser().getUsername(), )
+        //        final TrackService trackService = EnviroCarService.getTrackService();
+        //        trackService.getTrack(mUserManager.getUser().getUsername(), )
+        // TODO implement this
 
-
-        User user = mUserManager.getUser();
-        HttpGet get = new HttpGet(String.format("%s/users/%s/tracks?limit=%d&page=%d",
-                ConstantsEnvirocar.BASE_URL, user.getUsername(), limit, page));
-
-        InputStream response;
-        try {
-            response = super.retrieveHttpContent(get);
-        } catch (IOException e1) {
-            throw new NotConnectedException(e1);
-        }
-
-        List<String> result;
-        try {
-            result = new TrackDecoder().getResourceIds(response);
-        } catch (ParseException e) {
-            throw new NotConnectedException(e);
-        } catch (IOException e) {
-            throw new NotConnectedException(e);
-        } catch (JSONException e) {
-            throw new NotConnectedException(e);
-        }
-
-        return result;
+        //        User user = mUserManager.getUser();
+        //        HttpGet get = new HttpGet(String.format("%s/users/%s/tracks?limit=%d&page=%d",
+        //                ConstantsEnvirocar.BASE_URL, user.getUsername(), limit, page));
+        //
+        //        InputStream response;
+        //        try {
+        //            response = super.retrieveHttpContent(get);
+        //        } catch (IOException e1) {
+        //            throw new NotConnectedException(e1);
+        //        }
+        //
+        //        List<String> result;
+        //        try {
+        //            result = new TrackDecoder().getResourceIds(response);
+        //        } catch (ParseException e) {
+        //            throw new NotConnectedException(e);
+        //        } catch (IOException e) {
+        //            throw new NotConnectedException(e);
+        //        } catch (JSONException e) {
+        //            throw new NotConnectedException(e);
+        //        }
+        //
+        //        return result;
+        return null;
     }
 
+    @Override
+    public String storeTrack(Track track, boolean obfuscate) throws NotConnectedException,
+            TrackSerializationException, TrackRetrievalException,
+            TrackWithoutMeasurementsException, UnauthorizedException {
+        LOG.info("storeTrack()");
 
+        // check whether the user is logged in
+        if (!mUserManager.isLoggedIn()) {
+            throw new UnauthorizedException("The user is not logged in");
+        }
+
+        // Initiate the service and its call
+        final TrackService trackService = EnviroCarService.getTrackService();
+        Call<ResponseBody> uploadTrackCall =
+                trackService.uploadTrack(mUserManager.getUser().getUsername(),
+                        EnvirocarServiceUtils.getNonObfuscatedMeasurements(track, obfuscate));
+
+        try {
+            Response<ResponseBody> uploadTrackResponse = uploadTrackCall.execute();
+
+            if (!uploadTrackResponse.isSuccess()) {
+                LOG.severe("Error while uploading track: " + uploadTrackResponse.message());
+                EnvirocarServiceUtils.assertStatusCode(uploadTrackResponse.code(),
+                        uploadTrackResponse.message());
+            }
+
+            // Resolve the location where the track is stored.
+            String location = EnvirocarServiceUtils.resolveRemoteLocation(uploadTrackResponse);
+            LOG.info("Uploaded remote location: " + location);
+
+            // Return the location;
+            return location;
+        } catch (IOException e) {
+            throw new TrackSerializationException(e);
+        } catch (ResourceConflictException e) {
+            throw new NotConnectedException(e);
+        }
+    }
+
+    @Override
+    public void deleteTrack(String remoteID) throws UnauthorizedException, NotConnectedException {
+        LOG.info(String.format("deleteTrack(%s)", remoteID));
+
+        // If not logged in, then throw an exception
+        if (!mUserManager.isLoggedIn()) {
+            throw new UnauthorizedException("No User logged in.");
+        }
+
+        // Init the retrofit service endpoint and the delete call
+        final TrackService trackService = EnviroCarService.getTrackService();
+        Call<ResponseBody> deleteTrackCall = trackService.deleteTrack(mUserManager.getUser()
+                .getUsername(), remoteID);
+
+        try {
+            // Execute the call
+            Response<ResponseBody> deleteTrackResponse = deleteTrackCall.execute();
+
+            // Check whether the call was successful or not
+            if (!deleteTrackResponse.isSuccess()) {
+                LOG.warn(String.format("deleteTrack(): Error while deleting remote track."));
+                EnvirocarServiceUtils.assertStatusCode(deleteTrackResponse.code(),
+                        deleteTrackResponse.message());
+            }
+        } catch (IOException e) {
+            throw new NotConnectedException(e);
+        } catch (ResourceConflictException e) {
+            throw new NotConnectedException(e);
+        }
+    }
 }

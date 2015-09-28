@@ -35,7 +35,6 @@ import org.envirocar.app.storage.LazyLoadingStrategy;
 import org.envirocar.app.storage.LazyLoadingStrategyImpl;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.view.LoginActivity;
-import org.envirocar.app.view.LoginFragment;
 import org.envirocar.app.view.RegisterFragment;
 import org.envirocar.app.view.SettingsFragment;
 import org.envirocar.app.view.carselection.CarSelectionActivity;
@@ -53,7 +52,9 @@ import org.envirocar.app.view.settings.NewSettingsActivity;
 import org.envirocar.app.view.settings.OBDSettingsFragment;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.view.trackdetails.TrackStatisticsActivity;
+import org.envirocar.app.view.tracklist.NewTrackListFragment;
 import org.envirocar.app.view.tracklist.TrackListFragment;
+import org.envirocar.app.view.tracklist.TrackListLocalCardFragment;
 
 import javax.inject.Singleton;
 
@@ -72,7 +73,6 @@ import dagger.Provides;
                 CarPreferenceHandler.class,
                 ListTracksFragment.class,
                 LogbookFragment.class,
-                LoginFragment.class,
                 RegisterFragment.class,
                 SettingsActivity.class,
                 CarSelectionPreference.class,
@@ -105,7 +105,9 @@ import dagger.Provides;
                 TrackStatisticsActivity.class,
                 LoginActivity.class,
                 NewSettingsActivity.class,
-                OBDSettingsFragment.class
+                OBDSettingsFragment.class,
+                NewTrackListFragment.class,
+                TrackListLocalCardFragment.class
         },
         staticInjections = {Track.class, EnviroCarService.class},
         library = true,

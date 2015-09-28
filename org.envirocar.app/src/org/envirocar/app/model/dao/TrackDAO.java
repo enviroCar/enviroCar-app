@@ -38,7 +38,7 @@ public interface TrackDAO {
 
 	String storeTrack(Track track, boolean obfuscate)
 			throws NotConnectedException,
-			TrackSerializationException, TrackRetrievalException, TrackWithoutMeasurementsException;
+			TrackSerializationException, TrackRetrievalException, TrackWithoutMeasurementsException, UnauthorizedException;
 
 	Track getTrack(String id) throws NotConnectedException;
 

@@ -22,7 +22,7 @@ package org.envirocar.app.model.dao.remote;
 
 import com.squareup.okhttp.ResponseBody;
 
-import org.apache.http.HttpStatus;
+import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.User;
 import org.envirocar.app.model.dao.UserDAO;
 import org.envirocar.app.model.dao.exception.NotConnectedException;
@@ -44,6 +44,7 @@ import rx.Observable;
  * @author dewall
  */
 public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, AuthenticatedDAO {
+    private static final Logger LOG = Logger.getLogger(RemoteUserDAO.class);
 
     @Override
     public User getUser(String id) throws UserRetrievalException, UnauthorizedException {
@@ -54,21 +55,17 @@ public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, Authenticat
         try {
             // execute the call
             Response<User> userResponse = userCall.execute();
-            // If the execution was successful, then return the user instance.
-            if (userResponse.isSuccess()) {
-                return userResponse.body();
+            // If the execution was successful, then return the user instance. if not, then get
+            // the error code and throw a corresponding exception.
+            if (!userResponse.isSuccess()) {
+                LOG.severe("Error while retrieving remote user of id = " + id);
+                EnvirocarServiceUtils.assertStatusCode(userResponse.code(), userResponse.message());
             }
-            // if not, then get the error code and throw a corresponding exception.
-            else {
-                String message = userResponse.message();
-                if (userResponse.raw().code() == HttpStatus.SC_UNAUTHORIZED
-                        || userResponse.raw().code() == HttpStatus.SC_FORBIDDEN) {
-                    throw new UnauthorizedException(userResponse.errorBody().string());
-                } else {
-                    throw new UserRetrievalException(userResponse.errorBody().string());
-                }
-            }
+
+            return userResponse.body();
         } catch (IOException e) {
+            throw new UserRetrievalException(e);
+        } catch (Exception e) {
             throw new UserRetrievalException(e);
         }
     }
@@ -117,14 +114,12 @@ public class RemoteUserDAO extends BaseRemoteDAO implements UserDAO, Authenticat
 
             // If the execution was not a success, then throw an error.
             if (!userResponse.isSuccess()) {
-                if (userResponse.raw().code() == HttpStatus.SC_UNAUTHORIZED
-                        || userResponse.raw().code() == HttpStatus.SC_FORBIDDEN) {
-                    throw new UnauthorizedException(userResponse.errorBody().string());
-                } else {
-                    throw new UserUpdateException(userResponse.errorBody().string());
-                }
+                LOG.severe("updateUser(): Error while updating remote user");
+                EnvirocarServiceUtils.assertStatusCode(userResponse.code(), userResponse.message());
             }
         } catch (IOException e) {
+            throw new UserUpdateException(e);
+        } catch (Exception e){
             throw new UserUpdateException(e);
         }
 

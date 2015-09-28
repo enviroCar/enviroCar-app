@@ -89,8 +89,9 @@ public abstract class O2LambdaProbe extends NumberResultCommand {
 		super.parseRawData();
 		if (getBuffer() == null || getBuffer().length < 6) {
 			setCommandState(CommonCommandState.EXECUTION_ERROR);
-			logger.warn("The response did not contain the correct expected count: "+
-					(getBuffer() == null ? "null" : getBuffer().length));
+			// TODO
+//			logger.warn("The response did not contain the correct expected count: "+
+//					(getBuffer() == null ? "null" : getBuffer().length));
 		}
 	}
 	

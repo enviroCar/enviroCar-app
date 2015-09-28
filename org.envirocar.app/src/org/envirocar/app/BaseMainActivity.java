@@ -1,7 +1,5 @@
 package org.envirocar.app;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +10,8 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -54,6 +54,7 @@ import org.envirocar.app.view.LoginActivity;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
 import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.app.view.settings.NewSettingsActivity;
+import org.envirocar.app.view.tracklist.NewTrackListFragment;
 import org.envirocar.app.view.tracklist.TrackListFragment;
 
 import java.util.Arrays;
@@ -164,7 +165,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
         // Register a listener for a menu item that gets selected.
         mNavigationView.setNavigationItemSelectedListener(menuItem -> {
 
-            if(selectDrawerItem(menuItem)) {
+            if (selectDrawerItem(menuItem)) {
 
                 // we want to have shared checked states between different groups. Therefore, we
                 // cannot use the provided "single" checkedBehavior. For this reason, it is first
@@ -191,7 +192,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         // Set the DashboardFragment as initial fragment.
         mStartupFragment = new DashboardMainFragment();
-        getFragmentManager()
+        getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.content_frame, mStartupFragment, mStartupFragment.getClass()
                         .getSimpleName())
@@ -216,12 +217,13 @@ public class BaseMainActivity extends BaseInjectorActivity {
                     return;
                 }
 
-                Fragment fragment = getFragmentManager().findFragmentByTag(TROUBLESHOOTING_TAG);
+                Fragment fragment = getSupportFragmentManager().findFragmentByTag
+                        (TROUBLESHOOTING_TAG);
                 if (fragment == null) {
                     fragment = new TroubleshootingFragment();
                 }
                 fragment.setArguments(intent.getExtras());
-                getFragmentManager().beginTransaction()
+                getSupportFragmentManager().beginTransaction()
                         .replace(R.id.content_frame, fragment)
                         .commit();
             }
@@ -454,7 +456,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 fragment = new TrackListFragment();
                 break;
             case R.id.menu_nav_drawer_tracklist:
-                fragment = new ListTracksFragment();
+                fragment = new NewTrackListFragment();
                 break;
             case R.id.menu_nav_drawer_logbook:
                 fragment = new LogbookFragment();
@@ -464,7 +466,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 startActivity(intent);
                 return false;
             case R.id.menu_nav_drawer_settings_general:
-//                fragment = new SettingsFragment2();
+                //                fragment = new SettingsFragment2();
                 Intent intent2 = new Intent(BaseMainActivity.this, NewSettingsActivity.class);
                 startActivity(intent2);
                 return false;
@@ -497,12 +499,13 @@ public class BaseMainActivity extends BaseInjectorActivity {
             return false;
 
         // Insert the fragment by replacing the existent fragment in the content frame.
-
         replaceFragment(fragment,
                 selectedMenuItemID > menuItem.getItemId() ?
-                        R.anim.slide_in_left : R.anim.slide_in_right,
+                        R.anim.translate_slide_in_left_fragment :
+                        R.anim.translate_slide_in_right_fragment,
                 selectedMenuItemID > menuItem.getItemId() ?
-                        R.anim.slide_out_right : R.anim.slide_out_left);
+                        R.anim.translate_slide_out_right_fragment :
+                        R.anim.translate_slide_out_left_fragment);
         mCurrentFragment = fragment;
 
         selectedMenuItemID = menuItem.getItemId();
@@ -519,7 +522,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
      * @param animOut
      */
     private void replaceFragment(Fragment fragment, int animIn, int animOut) {
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         if (animIn != -1 && animOut != -1) {
             ft.setCustomAnimations(animIn, animOut);
         }
@@ -583,7 +586,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
      * @return True if the Fragment is visible, false if not.
      */
     public boolean isFragmentVisible(String tag) {
-        Fragment tmpFragment = getFragmentManager().findFragmentByTag(tag);
+        Fragment tmpFragment = getSupportFragmentManager().findFragmentByTag(tag);
         if (tmpFragment != null && tmpFragment.isVisible()) {
             LOGGER.info("Fragment with tag: " + tag + " is already visible.");
             return true;

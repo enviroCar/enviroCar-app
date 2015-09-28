@@ -1,11 +1,8 @@
 package org.envirocar.app.view.dashboard;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.bluetooth.BluetoothDevice;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
@@ -14,6 +11,8 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -131,9 +130,9 @@ public class DashboardMainFragment extends BaseInjectorFragment {
         ButterKnife.inject(this, contentView);
 
         // Get the settings fragment and the header fragment.
-        mDashboardSettingsFragment = getFragmentManager()
+        mDashboardSettingsFragment = getChildFragmentManager()
                 .findFragmentById(R.id.fragment_startup_settings_layout);
-        mDashboardHeaderFragment = getFragmentManager()
+        mDashboardHeaderFragment = getChildFragmentManager()
                 .findFragmentById(R.id.fragment_dashboard_header_fragment);
 
         // TODO fix this. The static service state is just a workaround.
@@ -173,8 +172,8 @@ public class DashboardMainFragment extends BaseInjectorFragment {
 
                 replaceFragment(mDashboardTrackMapFragment,
                         R.id.fragment_startup_container,
-                        R.anim.slide_in_left,
-                        R.anim.slide_out_right);
+                        R.anim.translate_slide_in_left_fragment,
+                        R.anim.translate_slide_out_right_fragment);
                 return true;
             case R.id.menu_dashboard_tempomat_show_cruise:
                 if (mDashboardTempomatFragment.isVisible())
@@ -182,8 +181,8 @@ public class DashboardMainFragment extends BaseInjectorFragment {
 
                 replaceFragment(mDashboardTempomatFragment,
                         R.id.fragment_startup_container,
-                        R.anim.slide_in_right,
-                        R.anim.slide_out_left);
+                        R.anim.translate_slide_in_right_fragment,
+                        R.anim.translate_slide_out_left_fragment);
                 return true;
         }
         return false;
@@ -224,21 +223,18 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                                 .content(String.format("Trying to find %s.",
                                         device.getName()))
                                 .progress(true, 0)
-                                .cancelListener(new DialogInterface.OnCancelListener() {
-                                    @Override
-                                    public void onCancel(DialogInterface dialog) {
-                                        // On cancel, first stop the discovery of other
-                                        // bluetooth devices.
-                                        mBluetoothHandler.stopBluetoothDeviceDiscovery();
-                                        if (found) {
-                                            // and if the service is already started, then
-                                            // stop it.
-                                            getActivity().stopService(new Intent
-                                                    (getActivity(), OBDConnectionService
-                                                            .class));
-                                        }
-                                        found = true;
+                                .cancelListener(dialog -> {
+                                    // On cancel, first stop the discovery of other
+                                    // bluetooth devices.
+                                    mBluetoothHandler.stopBluetoothDeviceDiscovery();
+                                    if (found) {
+                                        // and if the service is already started, then
+                                        // stop it.
+                                        getActivity().stopService(new Intent
+                                                (getActivity(), OBDConnectionService
+                                                        .class));
                                     }
+                                    found = true;
                                 })
                                 .show();
                     }
@@ -361,20 +357,23 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                     return;
 
                 if (!mDashboardSettingsFragment.isVisible())
-                    showFragment(mDashboardSettingsFragment, R.anim.slide_in_left,
-                            R.anim.slide_out_left);
+                    showFragment(mDashboardSettingsFragment,
+                            R.anim.translate_slide_in_left_fragment,
+                            R.anim.translate_slide_out_left_fragment);
 
                 // Hide the header fragment
                 hideFragment(mDashboardHeaderFragment,
-                        mCurrentlyVisible != null ? R.anim.slide_in_top : -1,
-                        mCurrentlyVisible != null ? R.anim.slide_out_top : -1);
+                        mCurrentlyVisible != null ? R.anim.translate_slide_in_top_fragment : -1,
+                        mCurrentlyVisible != null ? R.anim.translate_slide_out_top_fragment : -1);
 
                 // Replace the container with the mapview.
                 if (mCurrentlyVisible != mDashboardMapFragment)
                     // TODO HERE CHANGE TO TRACK MAP FRAGMENT
                     replaceFragment(mDashboardMapFragment, R.id.fragment_startup_container,
-                            mCurrentlyVisible != null ? R.anim.slide_in_left : -1,
-                            mCurrentlyVisible != null ? R.anim.slide_out_right : -1);
+                            mCurrentlyVisible != null ?
+                                    R.anim.translate_slide_in_left_fragment : -1,
+                            mCurrentlyVisible != null ?
+                                    R.anim.translate_slide_out_right_fragment : -1);
 
                 mCurrentlyVisible = mDashboardMapFragment;
 
@@ -384,21 +383,21 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                 // Hide the settings if visible
                 //                if (mDashboardSettingsFragment.isVisible()) {
                 hideFragment(mDashboardSettingsFragment,
-                        R.anim.slide_in_left,
-                        R.anim.slide_out_left);
+                        R.anim.translate_slide_in_left_fragment,
+                        R.anim.translate_slide_out_left_fragment);
                 //                }
 
                 //                if (!mDashboardHeaderFragment.isVisible())
                 showFragment(mDashboardHeaderFragment,
-                        R.anim.slide_in_top,
-                        R.anim.slide_out_top);
+                        R.anim.translate_slide_in_top_fragment,
+                        R.anim.translate_slide_out_top_fragment);
 
                 // Show the tempomat fragment
                 if (!mDashboardTempomatFragment.isVisible())
                     replaceFragment(mDashboardTempomatFragment,
                             R.id.fragment_startup_container,
-                            R.anim.slide_in_right,
-                            R.anim.slide_out_left);
+                            R.anim.translate_slide_in_right_fragment,
+                            R.anim.translate_slide_out_left_fragment);
 
                 mCurrentlyVisible = mDashboardTempomatFragment;
 
@@ -493,7 +492,8 @@ public class DashboardMainFragment extends BaseInjectorFragment {
         if (fragment == null || getFragmentManager() == null)
             return;
 
-        FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager()
+                .beginTransaction();
         if (enterAnimation != -1 && exitAnimation != -1) {
             transaction.setCustomAnimations(enterAnimation, exitAnimation);
         }
@@ -512,12 +512,13 @@ public class DashboardMainFragment extends BaseInjectorFragment {
         if (fragment == null || getFragmentManager() == null)
             return;
 
-        FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager()
+                .beginTransaction();
         if (enterAnimation != -1) {
             transaction.setCustomAnimations(enterAnimation, exitAnimation);
         }
         transaction.show(fragment);
-        transaction.commitAllowingStateLoss();
+        transaction.commit();
     }
 
     /**
@@ -529,12 +530,13 @@ public class DashboardMainFragment extends BaseInjectorFragment {
         if (fragment == null || getFragmentManager() == null)
             return;
 
-        FragmentTransaction transaction = getActivity().getFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getActivity().getSupportFragmentManager()
+                .beginTransaction();
         if (exitAnimation != -1) {
             transaction.setCustomAnimations(enterAnimation, exitAnimation);
         }
         transaction.hide(fragment);
-        transaction.commitAllowingStateLoss();
+        transaction.commit();
     }
 
     @UiThread

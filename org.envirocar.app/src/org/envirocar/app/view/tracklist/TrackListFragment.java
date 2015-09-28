@@ -77,7 +77,7 @@ public class TrackListFragment extends BaseInjectorFragment {
             savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        View view = inflater.inflate(R.layout.fragment_tracklist, null);
+        View view = inflater.inflate(R.layout.fragment_tracklist, container, false);
 
         ButterKnife.inject(this, view);
         mRecyclerView.setHasFixedSize(true);

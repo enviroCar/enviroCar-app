@@ -22,10 +22,7 @@ package org.envirocar.app.model.dao.remote;
 
 import com.squareup.okhttp.ResponseBody;
 
-import org.apache.http.client.methods.HttpPost;
-import org.envirocar.app.ConstantsEnvirocar;
 import org.envirocar.app.exception.InvalidObjectStateException;
-import org.envirocar.app.json.FuelingEncoder;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.Fueling;
 import org.envirocar.app.model.dao.FuelingDAO;
@@ -36,10 +33,8 @@ import org.envirocar.app.model.dao.exception.UnauthorizedException;
 import org.envirocar.app.model.dao.service.EnviroCarService;
 import org.envirocar.app.model.dao.service.FuelingService;
 import org.envirocar.app.model.dao.service.utils.EnvirocarServiceUtils;
-import org.json.JSONException;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.List;
 

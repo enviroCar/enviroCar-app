@@ -1,8 +1,8 @@
 package org.envirocar.app.view.obdselection;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.Switch;
@@ -65,7 +65,8 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
             mOBDSelectionFragment = new OBDSelectionFragment();
 
         // And set the fragment in the layout container.
-        getFragmentManager().beginTransaction()
+        getSupportFragmentManager()
+                .beginTransaction()
                 .replace(R.id.activity_obd_selection_layout_container, mOBDSelectionFragment)
                 .commit();
 
@@ -80,7 +81,7 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
 
         mSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked) {
-//                mSwitch.setChecked(false);
+                //                mSwitch.setChecked(false);
                 mBluetoothHandler.enableBluetooth(OBDSelectionActivity.this);
             } else {
                 mBluetoothHandler.disableBluetooth(OBDSelectionActivity.this);
@@ -120,7 +121,7 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
         Snackbar.make(mToolbar, text, Snackbar.LENGTH_LONG).show();
     }
 
-    private void setSwitchState(float value){
+    private void setSwitchState(float value) {
         try {
             Class[] args = {Float.TYPE};
             Method m = Switch.class.getDeclaredMethod("setThumbPosition", args);
