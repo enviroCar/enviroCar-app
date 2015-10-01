@@ -26,6 +26,7 @@ import org.envirocar.app.json.TrackWithoutMeasurementsException;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.model.dao.DAOProvider;
 import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.app.storage.RemoteTrack;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.util.Util;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
@@ -40,8 +41,6 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 
@@ -85,7 +84,7 @@ public class TrackListFragment extends BaseInjectorFragment {
         mRecylcerViewLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mRecylcerViewLayoutManager);
 
-        mRecyclerViewAdapter = new TrackListCardAdapter(mTrackList,
+        mRecyclerViewAdapter = new TrackListLocalCardAdapter(mTrackList,
                 mOnTrackInteractionCallback);
         mRecyclerView.setAdapter(mRecyclerViewAdapter);
 
@@ -141,6 +140,14 @@ public class TrackListFragment extends BaseInjectorFragment {
                     LOGGER.info(String.format("onExportTrackClicked(%s)", track.getTrackId()));
                     exportTrack(track);
                 }
+
+                @Override
+                public void onDownloadTrackClicked(RemoteTrack track, TrackListCardAdapter
+                        .TrackCardViewHolder holder) {
+
+                }
+
+
             };
 
     private void uploadTrack(Track track) {
@@ -213,18 +220,18 @@ public class TrackListFragment extends BaseInjectorFragment {
         Track upToDateRef = mDBAdapter.getTrack(track.getTrackId(), true);
 
         // If the track has been successfully deleted.
-        if (upToDateRef.isLocalTrack() && mTrackHandler.deleteTrack(upToDateRef.getTrackId())) {
+        if (upToDateRef.isLocalTrack() && mTrackHandler.deleteLocalTrack(upToDateRef.getTrackId())) {
             // Show a snackbar notification
             Snackbar.make(getView(), R.string
                             .trackviews_delete_track_snackbar_success,
                     Snackbar.LENGTH_LONG).show();
 
             // and update the view elements
-            mTrackHandler.deleteTrack(upToDateRef);
+            mTrackHandler.deleteLocalTrack(upToDateRef);
             mTrackList.remove(track);
             mRecyclerViewAdapter.notifyDataSetChanged();
 
-            LOGGER.info("deleteTrack: Successfully delete track with id=" + track.getTrackId());
+            LOGGER.info("deleteLocalTrack: Successfully delete track with id=" + track.getTrackId());
         }
     }
 
@@ -274,7 +281,6 @@ public class TrackListFragment extends BaseInjectorFragment {
             Thread.currentThread().setName("TrackList-TrackRetriever" + Thread.currentThread()
                     .getId());
 
-
             //fetch db tracks (local+remote)
             List<Track> tracks = mDBAdapter.getAllTracks(true);
             for (Track t : tracks) {
@@ -283,12 +289,7 @@ public class TrackListFragment extends BaseInjectorFragment {
 
             Collections.sort(mTrackList);
 
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    mRecyclerViewAdapter.notifyDataSetChanged();
-                }
-            });
+            getActivity().runOnUiThread(() -> mRecyclerViewAdapter.notifyDataSetChanged());
 
 
             //            if (mUserManager.isLoggedIn()) {

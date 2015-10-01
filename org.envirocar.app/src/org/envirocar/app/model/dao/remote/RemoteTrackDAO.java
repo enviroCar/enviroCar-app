@@ -33,6 +33,7 @@ import org.envirocar.app.model.dao.exception.UnauthorizedException;
 import org.envirocar.app.model.dao.service.EnviroCarService;
 import org.envirocar.app.model.dao.service.TrackService;
 import org.envirocar.app.model.dao.service.utils.EnvirocarServiceUtils;
+import org.envirocar.app.storage.RemoteTrack;
 import org.envirocar.app.storage.Track;
 
 import java.io.IOException;
@@ -40,6 +41,8 @@ import java.util.List;
 
 import retrofit.Call;
 import retrofit.Response;
+import rx.Observable;
+import rx.Subscriber;
 
 public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, AuthenticatedDAO {
     private static final Logger LOG = Logger.getLogger(RemoteTrackDAO.class);
@@ -133,46 +136,58 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
     }
 
     @Override
-    public List<String> getTrackIds() throws NotConnectedException, UnauthorizedException {
+    public List<RemoteTrack> getTrackIds() throws NotConnectedException, UnauthorizedException {
         return getTrackIds(100);
     }
 
     @Override
-    public List<String> getTrackIds(int limit) throws NotConnectedException, UnauthorizedException {
+    public List<RemoteTrack> getTrackIds(int limit) throws NotConnectedException,
+            UnauthorizedException {
         return getTrackIds(limit, 1);
     }
 
     @Override
-    public List<String> getTrackIds(int limit, int page) throws NotConnectedException,
+    public List<RemoteTrack> getTrackIds(int limit, int page) throws NotConnectedException,
             UnauthorizedException {
-        //        final TrackService trackService = EnviroCarService.getTrackService();
-        //        trackService.getTrack(mUserManager.getUser().getUsername(), )
-        // TODO implement this
+        final TrackService trackService = EnviroCarService.getTrackService();
+        Call<List<RemoteTrack>> remoteTrackCall = trackService.getTrackIds(mUserManager.getUser()
+                .getUsername());
 
-        //        User user = mUserManager.getUser();
-        //        HttpGet get = new HttpGet(String.format("%s/users/%s/tracks?limit=%d&page=%d",
-        //                ConstantsEnvirocar.BASE_URL, user.getUsername(), limit, page));
-        //
-        //        InputStream response;
-        //        try {
-        //            response = super.retrieveHttpContent(get);
-        //        } catch (IOException e1) {
-        //            throw new NotConnectedException(e1);
-        //        }
-        //
-        //        List<String> result;
-        //        try {
-        //            result = new TrackDecoder().getResourceIds(response);
-        //        } catch (ParseException e) {
-        //            throw new NotConnectedException(e);
-        //        } catch (IOException e) {
-        //            throw new NotConnectedException(e);
-        //        } catch (JSONException e) {
-        //            throw new NotConnectedException(e);
-        //        }
-        //
-        //        return result;
-        return null;
+        try {
+            // Execute the call
+            Response<List<RemoteTrack>> remoteTracksResponse = remoteTrackCall.execute();
+
+            if (!remoteTracksResponse.isSuccess()) {
+                LOG.severe("Error while retrieving the list of remote tracks");
+                EnvirocarServiceUtils.assertStatusCode(remoteTracksResponse.code(),
+                        remoteTracksResponse.message());
+            }
+
+            // Return the list of remotetracks.
+            return remoteTracksResponse.body();
+        } catch (IOException e) {
+            throw new NotConnectedException(e);
+        } catch (ResourceConflictException e) {
+            throw new NotConnectedException(e);
+        }
+    }
+
+    @Override
+    public Observable<List<RemoteTrack>> getTrackIdsObservable(int limit, int page) {
+        return Observable.create(
+                new Observable.OnSubscribe<List<RemoteTrack>>() {
+                    @Override
+                    public void call(Subscriber<? super List<RemoteTrack>> subscriber) {
+                        try {
+                            List<RemoteTrack> remoteTracks = getTrackIds(limit, page);
+                            subscriber.onNext(remoteTracks);
+                            subscriber.onCompleted();
+                        } catch (Exception e) {
+                            subscriber.onError(e);
+                        }
+                    }
+                }
+        );
     }
 
     @Override
@@ -206,7 +221,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
             LOG.info("Uploaded remote location: " + location);
 
             // Return the location;
-            return location;
+            return location.substring(location.lastIndexOf('/') + 1, location.length());
         } catch (IOException e) {
             throw new TrackSerializationException(e);
         } catch (ResourceConflictException e) {
@@ -216,7 +231,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 
     @Override
     public void deleteTrack(String remoteID) throws UnauthorizedException, NotConnectedException {
-        LOG.info(String.format("deleteTrack(%s)", remoteID));
+        LOG.info(String.format("deleteRemoteTrack(%s)", remoteID));
 
         // If not logged in, then throw an exception
         if (!mUserManager.isLoggedIn()) {
@@ -234,7 +249,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO implements TrackDAO, Authentic
 
             // Check whether the call was successful or not
             if (!deleteTrackResponse.isSuccess()) {
-                LOG.warn(String.format("deleteTrack(): Error while deleting remote track."));
+                LOG.warn(String.format("deleteLocalTrack(): Error while deleting remote track."));
                 EnvirocarServiceUtils.assertStatusCode(deleteTrackResponse.code(),
                         deleteTrackResponse.message());
             }

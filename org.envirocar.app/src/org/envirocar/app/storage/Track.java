@@ -72,22 +72,22 @@ public class Track implements Comparable<Track> {
     @Inject
     protected static LazyLoadingStrategy lazyLoadingStrategy;
 
-    private String name;
-    private String description;
-    private List<Measurement> measurements = new ArrayList<Measurement>();
-    private Car car;
-    private AbstractConsumptionAlgorithm consumptionAlgorithm;
-    private Double consumptionPerHour;
-    private TrackStatus status = TrackStatus.ONGOING;
+    protected String name;
+    protected String description;
+    protected List<Measurement> measurements = new ArrayList<Measurement>();
+    protected Car car;
+    protected AbstractConsumptionAlgorithm consumptionAlgorithm;
+    protected Double consumptionPerHour;
+    protected TrackStatus status = TrackStatus.ONGOING;
 
-    private boolean lazyLoadingMeasurements;
+    protected boolean lazyLoadingMeasurements;
 
-    private Long startTime = null;
-    private Long endTime = null;
+    protected Long startTime = null;
+    protected Long endTime = null;
 
-    private TrackMetadata metadata;
+    protected TrackMetadata metadata;
 
-    private TrackId trackId;
+    protected TrackId trackId;
 
     public Track carbonCopy() {
         Track res = new Track();

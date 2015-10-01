@@ -52,9 +52,10 @@ import org.envirocar.app.view.settings.NewSettingsActivity;
 import org.envirocar.app.view.settings.OBDSettingsFragment;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.view.trackdetails.TrackStatisticsActivity;
-import org.envirocar.app.view.tracklist.NewTrackListFragment;
+import org.envirocar.app.view.tracklist.TrackListPagerFragment;
 import org.envirocar.app.view.tracklist.TrackListFragment;
 import org.envirocar.app.view.tracklist.TrackListLocalCardFragment;
+import org.envirocar.app.view.tracklist.TrackListRemoteCardFragment;
 
 import javax.inject.Singleton;
 
@@ -106,8 +107,9 @@ import dagger.Provides;
                 LoginActivity.class,
                 NewSettingsActivity.class,
                 OBDSettingsFragment.class,
-                NewTrackListFragment.class,
-                TrackListLocalCardFragment.class
+                TrackListPagerFragment.class,
+                TrackListLocalCardFragment.class,
+                TrackListRemoteCardFragment.class
         },
         staticInjections = {Track.class, EnviroCarService.class},
         library = true,

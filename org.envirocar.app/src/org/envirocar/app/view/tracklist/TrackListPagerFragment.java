@@ -20,7 +20,7 @@ import butterknife.InjectView;
 /**
  * @author dewall
  */
-public class NewTrackListFragment extends BaseInjectorFragment {
+public class TrackListPagerFragment extends BaseInjectorFragment {
 
 
     @InjectView(R.id.fragment_tracklist_layout_tablayout)
@@ -42,6 +42,7 @@ public class NewTrackListFragment extends BaseInjectorFragment {
         mViewPager.setAdapter(mTrackListPageAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
 
+        mTabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.green_dark_cario));
         return content;
     }
 
@@ -63,7 +64,11 @@ public class NewTrackListFragment extends BaseInjectorFragment {
 
         @Override
         public Fragment getItem(int position) {
-            return new TrackListLocalCardFragment();
+            if(position == 0){
+                return new TrackListLocalCardFragment();
+            } else {
+                return new TrackListRemoteCardFragment();
+            }
         }
 
         @Override

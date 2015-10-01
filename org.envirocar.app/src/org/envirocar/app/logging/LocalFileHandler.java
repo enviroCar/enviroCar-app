@@ -101,6 +101,8 @@ public class LocalFileHandler implements Handler {
 	}
 
 	private String ensureFileIsAvailable() {
+		if(effectiveFile == null)
+			return null;
 		try {
 			if (!effectiveFile.exists()) {
 				effectiveFile.createNewFile();

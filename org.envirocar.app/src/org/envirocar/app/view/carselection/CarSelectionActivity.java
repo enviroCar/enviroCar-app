@@ -18,6 +18,8 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.google.common.collect.Maps;
@@ -92,10 +94,13 @@ public class CarSelectionActivity extends BaseInjectorActivity {
     protected AutoCompleteTextView mEngineTextView;
     @InjectView(R.id.activity_car_selection_new_car_card_add_button)
     protected Button mAddCarButton;
+
+    @InjectView(R.id.activity_car_selection_new_car_card_radio_group)
+    protected RadioGroup mRadioGroup;
     @InjectView(R.id.activity_car_selection_new_car_card_radio_gasoline)
-    protected Button mRadioGasoline;
+    protected RadioButton mRadioGasoline;
     @InjectView(R.id.activity_car_selection_new_car_card_radio_diesel)
-    protected Button mDieselGasoline;
+    protected RadioButton mDieselGasoline;
 
     @Inject
     protected DAOProvider mDAOProvider;
@@ -202,7 +207,7 @@ public class CarSelectionActivity extends BaseInjectorActivity {
         String model = mModelTextView.getText().toString();
         String yearString = mYearTextView.getText().toString();
         String engineString = mEngineTextView.getText().toString();
-        Car.FuelType fuelType = mRadioGasoline.isSelected() ? Car.FuelType.GASOLINE : Car
+        Car.FuelType fuelType = mRadioGasoline.isChecked() ? Car.FuelType.GASOLINE : Car
                 .FuelType.DIESEL;
 
         View focusView = null;

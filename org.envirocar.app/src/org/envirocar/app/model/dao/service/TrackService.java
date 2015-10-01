@@ -2,6 +2,7 @@ package org.envirocar.app.model.dao.service;
 
 import com.squareup.okhttp.ResponseBody;
 
+import org.envirocar.app.storage.RemoteTrack;
 import org.envirocar.app.storage.Track;
 
 import java.util.List;
@@ -66,6 +67,9 @@ public interface TrackService {
                                                 @Path("track") String track,
                                                 @Query("limit") int pageSize);
 
+    @GET("users/{user}/tracks/")
+    Call<List<RemoteTrack>> getTrackIds(@Path("user") String user);
+
     @GET("tracks?limit=1")
     Call<ResponseBody> getAllTracksCount();
 
@@ -77,6 +81,7 @@ public interface TrackService {
 
     @DELETE("users/{user}/tracks/{track}")
     Call<ResponseBody> deleteTrack(@Path("user") String user, @Path("track") String track);
+
 
 }
 

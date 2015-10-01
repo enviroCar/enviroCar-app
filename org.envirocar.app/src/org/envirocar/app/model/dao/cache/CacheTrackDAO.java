@@ -20,56 +20,64 @@
  */
 package org.envirocar.app.model.dao.cache;
 
-import java.util.List;
-
 import org.envirocar.app.model.dao.TrackDAO;
 import org.envirocar.app.model.dao.exception.NotConnectedException;
 import org.envirocar.app.model.dao.exception.TrackRetrievalException;
+import org.envirocar.app.storage.RemoteTrack;
 import org.envirocar.app.storage.Track;
+
+import java.util.List;
+
+import rx.Observable;
 
 public class CacheTrackDAO implements TrackDAO {
 
-	@Override
-	public void deleteTrack(String remoteID) throws NotConnectedException {
-		throw new NotConnectedException("Not implemented for Cache DAO");		
-	}
+    @Override
+    public void deleteTrack(String remoteID) throws NotConnectedException {
+        throw new NotConnectedException("Not implemented for Cache DAO");
+    }
 
-	@Override
-	public String storeTrack(Track track, boolean obfuscate) throws NotConnectedException {
-		throw new NotConnectedException("Not implemented for Cache DAO");
-	}
+    @Override
+    public String storeTrack(Track track, boolean obfuscate) throws NotConnectedException {
+        throw new NotConnectedException("Not implemented for Cache DAO");
+    }
 
-	@Override
-	public Track getTrack(String id) throws NotConnectedException {
-		throw new NotConnectedException("Not implemented for Cache DAO");
-	}
+    @Override
+    public Track getTrack(String id) throws NotConnectedException {
+        throw new NotConnectedException("Not implemented for Cache DAO");
+    }
 
-	@Override
-	public Integer getUserTrackCount() throws NotConnectedException,
-			TrackRetrievalException {
-		throw new NotConnectedException("Not implemented for Cache DAO");
-	}
+    @Override
+    public Integer getUserTrackCount() throws NotConnectedException,
+            TrackRetrievalException {
+        throw new NotConnectedException("Not implemented for Cache DAO");
+    }
 
-	@Override
-	public Integer getTotalTrackCount() throws NotConnectedException,
-			TrackRetrievalException {
-		throw new NotConnectedException("Not implemented for Cache DAO");
-	}
+    @Override
+    public Integer getTotalTrackCount() throws NotConnectedException,
+            TrackRetrievalException {
+        throw new NotConnectedException("Not implemented for Cache DAO");
+    }
 
-	@Override
-	public List<String> getTrackIds() throws NotConnectedException {
-		throw new NotConnectedException("Not implemented for Cache DAO");	
-	}
+    @Override
+    public List<RemoteTrack> getTrackIds() throws NotConnectedException {
+        throw new NotConnectedException("Not implemented for Cache DAO");
+    }
 
-	@Override
-	public List<String> getTrackIds(int limit) throws NotConnectedException {
-		throw new NotConnectedException("Not implemented for Cache DAO");	
-	}
+    @Override
+    public List<RemoteTrack> getTrackIds(int limit) throws NotConnectedException {
+        throw new NotConnectedException("Not implemented for Cache DAO");
+    }
 
-	@Override
-	public List<String> getTrackIds(int limit, int page)
-			throws NotConnectedException {
-		throw new NotConnectedException("Not implemented for Cache DAO");	
-	}
+    @Override
+    public List<RemoteTrack> getTrackIds(int limit, int page)
+            throws NotConnectedException {
+        throw new NotConnectedException("Not implemented for Cache DAO");
+    }
+
+    @Override
+    public Observable<List<RemoteTrack>> getTrackIdsObservable(int limit, int page) throws NotConnectedException {
+        throw new NotConnectedException("Not implemented for Cache DAO");
+    }
 
 }

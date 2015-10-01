@@ -45,8 +45,7 @@ dependencies {
         transitive = true
     }
 
-
-
+    compile 'com.github.jorgecastilloprz:fabprogresscircle:1.01@aar'
 
     compile 'com.gordonwong:material-sheet-fab:1.0.1'
 //    compile 'com.github.clans:fab:1.5.5'

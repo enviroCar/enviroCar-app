@@ -16,6 +16,10 @@ import rx.functions.Action0;
 public class ECAnimationUtils {
 
     public static void animateShowView(Context context, View view, int animResource) {
+        // Check whether the view is already visible and return in that case
+        if(view.getVisibility() == View.VISIBLE)
+            return;
+
         Animation animation = AnimationUtils.loadAnimation(context, animResource);
         view.setVisibility(View.VISIBLE);
         view.startAnimation(animation);
@@ -30,6 +34,12 @@ public class ECAnimationUtils {
      */
     public static void animateHideView(Context context, View view, int animResource) {
         animateHideView(context, view, animResource, null);
+    }
+
+    public static void animateHideView(Context context, int animResource, View... views){
+        for(View view : views){
+            animateHideView(context, view, animResource, null);
+        }
     }
 
     /**

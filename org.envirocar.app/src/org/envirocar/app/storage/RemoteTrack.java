@@ -20,6 +20,8 @@
  */
 package org.envirocar.app.storage;
 
+import java.util.ArrayList;
+
 public class RemoteTrack extends Track {
 
 	private String remoteID;
@@ -41,5 +43,37 @@ public class RemoteTrack extends Track {
 	public String toString() {
 		return "Remote Track / id: "+remoteID +" / Name: "+getName();
 	}
-	
+
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		RemoteTrack that = (RemoteTrack) o;
+
+        return remoteID != null && that.remoteID != null && remoteID.equals(that.remoteID);
+	}
+
+    /**
+     *
+     * @return
+     */
+    public boolean isDownloaded(){
+        return getCar() != null;
+    }
+
+    public void copyVariables(Track other){
+        this.name = other.name;
+        this.description = other.description;
+        this.measurements = new ArrayList<>(other.getMeasurements());
+        this.car = other.car;
+        this.consumptionAlgorithm = other.consumptionAlgorithm;
+        this.consumptionPerHour = other.consumptionPerHour;
+        this.status = other.status;
+        this.lazyLoadingMeasurements = other.lazyLoadingMeasurements;
+        this.startTime = other.startTime;
+        this.endTime = other.endTime;
+        this.metadata = other.metadata;
+    }
 }

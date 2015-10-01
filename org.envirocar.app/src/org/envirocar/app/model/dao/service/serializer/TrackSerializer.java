@@ -63,10 +63,10 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
             return null;
         }
 
-        JsonElement measurementJson;
         try {
             for (Measurement measurement : measurements) {
-                measurementJson = createMeasurementProperties(measurement, src.getCar().getId());
+                JsonElement measurementJson = createMeasurementProperties(
+                        measurement, src.getCar().getId());
                 trackFeatures.add(measurementJson);
             }
         } catch (JSONException e) {

@@ -752,15 +752,15 @@ public class ListTracksFragment extends BaseInjectorFragment {
             logger.info("cancelling download of tracks: not logged in.");
         }
 
-        DAOProvider.async(new AsyncExecutionWithCallback<List<String>>() {
+        DAOProvider.async(new AsyncExecutionWithCallback<List<RemoteTrack>>() {
 
             @Override
-            public List<String> execute() throws DAOException {
+            public List<RemoteTrack> execute() throws DAOException {
                 return mDAOProvider.getTrackDAO().getTrackIds(limit, page);
             }
 
             @Override
-            public List<String> onResult(List<String> trackIdList, boolean fail,
+            public List<RemoteTrack> onResult(List<RemoteTrack> trackIdList, boolean fail,
                                          Exception exception) {
                 if (!fail) {
                     if (trackIdList.size() == 0) {
@@ -781,7 +781,7 @@ public class ListTracksFragment extends BaseInjectorFragment {
                     List<String> tracksToDownload = new ArrayList<String>();
                     for (int i = 0; i < trackIdList.size(); i++) {
 
-                        String remoteId = trackIdList.get(i);
+                        String remoteId = trackIdList.get(i).getRemoteID();
                         // check if track is listed. if, continue
                         if (localRemoteIds.contains(remoteId)) {
                             logger.info("Skipping track with remoteId " + remoteId);

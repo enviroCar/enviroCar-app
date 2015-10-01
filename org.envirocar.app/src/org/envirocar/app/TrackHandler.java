@@ -3,6 +3,7 @@ package org.envirocar.app;
 import android.app.Activity;
 import android.content.Context;
 
+import com.google.gson.Gson;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -11,8 +12,8 @@ import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.bluetooth.service.BluetoothServiceState;
+import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
@@ -21,12 +22,22 @@ import org.envirocar.app.model.TermsOfUseInstance;
 import org.envirocar.app.model.TrackId;
 import org.envirocar.app.model.User;
 import org.envirocar.app.model.dao.DAOProvider;
+import org.envirocar.app.model.dao.exception.NotConnectedException;
+import org.envirocar.app.model.dao.exception.UnauthorizedException;
 import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.app.storage.RemoteTrack;
 import org.envirocar.app.storage.Track;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 
 import javax.inject.Inject;
 
+import rx.Observable;
 import rx.Scheduler;
+import rx.exceptions.OnErrorThrowable;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -96,9 +107,9 @@ public class TrackHandler {
      * @param trackID the id of the track to delete.
      * @return true if the track has been successfully deleted.
      */
-    public boolean deleteTrack(TrackId trackID) {
+    public boolean deleteLocalTrack(TrackId trackID) {
         Track dbRefTrack = mDBAdapter.getTrack(trackID, true);
-        return deleteTrack(dbRefTrack);
+        return deleteLocalTrack(dbRefTrack);
     }
 
     /**
@@ -107,18 +118,46 @@ public class TrackHandler {
      * @param trackRef the reference of the track.
      * @return true if the track has been successfully deleted.
      */
-    public boolean deleteTrack(Track trackRef) {
-        LOGGER.info(String.format("deleteTrack(id = %s)", trackRef.getTrackId().getId()));
+    public boolean deleteLocalTrack(Track trackRef) {
+        LOGGER.info(String.format("deleteLocalTrack(id = %s)", trackRef.getTrackId().getId()));
 
         // Only delete the track if the track is a local track.
         if (trackRef.isLocalTrack()) {
-            LOGGER.info("deleteTrack(...): Track is a local track.");
+            LOGGER.info("deleteLocalTrack(...): Track is a local track.");
             mDBAdapter.deleteTrack(trackRef.getTrackId());
             return true;
         }
 
-        LOGGER.warn("deleteTrack(...): track is no local track. No deletion.");
+        LOGGER.warn("deleteLocalTrack(...): track is no local track. No deletion.");
         return false;
+    }
+
+    /**
+     * Invokes the deletion of a remote track. Once the remote track has been successfully
+     * deleted, this method also deletes the locally stored reference of that track.
+     *
+     * @param trackRef
+     * @return
+     * @throws UnauthorizedException
+     * @throws NotConnectedException
+     */
+    public boolean deleteRemoteTrack(Track trackRef) throws UnauthorizedException,
+            NotConnectedException {
+        LOGGER.info(String.format("deleteRemoteTrack(id = %s)", trackRef.getTrackId().getId()));
+
+        // Check whether this track is a remote track.
+        if (!trackRef.isRemoteTrack()) {
+            LOGGER.warn("Track reference to upload is no remote track.");
+            return false;
+        }
+
+        // Delete the track first remote and then the local reference.
+        mDAOProvider.getTrackDAO().deleteTrack(((RemoteTrack) trackRef).getRemoteID());
+        mDBAdapter.deleteTrack(trackRef.getTrackId());
+
+        // Successfully deleted the remote track.
+        LOGGER.info("deleteRemoteTrack(): Successfully deleted the remote track.");
+        return true;
     }
 
     public Track getTrackByID(long trackId) {
@@ -206,6 +245,30 @@ public class TrackHandler {
         new UploadManager(activity).uploadSingleTrack(track, callback);
     }
 
+    public Track downloadTrack(String remoteID) throws NotConnectedException {
+        Track downloadedTrack = mDAOProvider.getTrackDAO().getTrack(remoteID);
+        mDBAdapter.insertTrack(downloadedTrack);
+
+        return downloadedTrack;
+    }
+
+    public Observable<RemoteTrack> fetchRemoteTrackObservable(RemoteTrack remoteTrack) {
+        return Observable.just(remoteTrack)
+                .map(remoteTrack1 -> {
+                    try {
+                        return fetchRemoteTrack(remoteTrack1);
+                    } catch (NotConnectedException e) {
+                        throw OnErrorThrowable.from(e);
+                    }
+                });
+    }
+
+    public RemoteTrack fetchRemoteTrack(RemoteTrack remoteTrack) throws NotConnectedException {
+        Track downloadedTrack = mDAOProvider.getTrackDAO().getTrack(remoteTrack.getRemoteID());
+        remoteTrack.copyVariables(downloadedTrack);
+        mDBAdapter.insertTrack(remoteTrack, true);
+        return remoteTrack;
+    }
 
     /**
      * Finishes the current track. On the one hand, the service that handles the connection to

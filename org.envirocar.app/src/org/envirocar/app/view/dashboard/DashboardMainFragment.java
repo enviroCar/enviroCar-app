@@ -157,7 +157,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
             getFragmentManager().beginTransaction()
                     .remove(mDashboardSettingsFragment)
                     .remove(mDashboardHeaderFragment)
-                    .commit();
+                    .commitAllowingStateLoss();
         }
         super.onDestroyView();
     }
@@ -518,7 +518,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
             transaction.setCustomAnimations(enterAnimation, exitAnimation);
         }
         transaction.show(fragment);
-        transaction.commit();
+        transaction.commitAllowingStateLoss();
     }
 
     /**
@@ -536,7 +536,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
             transaction.setCustomAnimations(enterAnimation, exitAnimation);
         }
         transaction.hide(fragment);
-        transaction.commit();
+        transaction.commitAllowingStateLoss();
     }
 
     @UiThread
@@ -551,14 +551,18 @@ public class DashboardMainFragment extends BaseInjectorFragment {
             getFragmentManager()
                     .beginTransaction()
                     .hide(mDashboardSettingsFragment)
-                    .commit();
+                    .commitAllowingStateLoss();
         }
 
-        getFragmentManager().beginTransaction().show(mDashboardHeaderFragment).commit();
+        getFragmentManager()
+                .beginTransaction()
+                .show(mDashboardHeaderFragment)
+                .commitAllowingStateLoss();
 
-        getFragmentManager().beginTransaction()
+        getFragmentManager()
+                .beginTransaction()
                 .replace(R.id.fragment_startup_container, new DashboardTempomatFragment())
-                .commit();
+                .commitAllowingStateLoss();
 
         updateStartToStopButton();
     }
@@ -574,13 +578,13 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                 .hide(mDashboardTempomatFragment)
                 .hide(mDashboardHeaderFragment)
                 .replace(R.id.fragment_startup_container, mDashboardMapFragment)
-                .commit();
+                .commitAllowingStateLoss();
 
         if (mDashboardSettingsFragment != null) {
             getFragmentManager()
                     .beginTransaction()
                     .show(mDashboardSettingsFragment)
-                    .commit();
+                    .commitAllowingStateLoss();
         }
 
         updateStartToStopButton();

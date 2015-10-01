@@ -6,6 +6,4 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@color/blue_dark_cario"
-    android:elevation="6dp"
-    android:orientation="vertical"
-    app:elevation="6dp"/>
+    android:orientation="vertical"/>

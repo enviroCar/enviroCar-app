@@ -130,6 +130,8 @@ public interface DbAdapter {
 	 */
 	public List<Track> getAllTracks(boolean lazyMeasurements);
 
+
+
 	public Observable<Track> getTrackObservable(boolean lazyMeasurements);
 	
 	/**
@@ -216,6 +218,12 @@ public interface DbAdapter {
 	public void deleteAllRemoteTracks();
 
 	public List<Track> getAllLocalTracks();
+
+	public List<Track> getAllLocalTracks(boolean lazyMeasurements);
+
+	public List<Track> getAllRemoteTracks();
+
+	public List<Track> getAllRemoteTracks(boolean lazyMeasurements);
 
 	/**
 	 * an implementation shall create a new track. if there is a previously

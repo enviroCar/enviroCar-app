@@ -27,6 +27,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.google.common.collect.Lists;
+
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.injection.InjectApplicationScope;
@@ -205,7 +207,6 @@ public class DbAdapterImpl implements DbAdapter {
             }
         }
 
-
         ContentValues values = new ContentValues();
 
         values.put(KEY_MEASUREMENT_LATITUDE, measurement.getLatitude());
@@ -248,7 +249,7 @@ public class DbAdapterImpl implements DbAdapter {
         for (Measurement m : track.getMeasurements()) {
             m.setTrackId(track.getTrackId());
             try {
-                insertMeasurement(m, remote ? true : false);
+                insertMeasurement(m, remote);
             } catch (TrackAlreadyFinishedException e) {
                 logger.warn(e.getMessage(), e);
             } catch (MeasurementSerializationException e) {
@@ -361,7 +362,7 @@ public class DbAdapterImpl implements DbAdapter {
 
         if (track.isRemoteTrack()) {
             /*
-			 * remote tracks are always finished
+             * remote tracks are always finished
 			 */
             track.setStatus(TrackStatus.FINISHED);
         }
@@ -370,10 +371,11 @@ public class DbAdapterImpl implements DbAdapter {
     }
 
     private Car createCarFromCursor(Cursor c) {
-        Log.e("tag", "" + c.getString(c.getColumnIndex(KEY_TRACK_CAR_MANUFACTURER)) + " " + c.getString(c.getColumnIndex(KEY_TRACK_CAR_ID)));
+        Log.e("tag", "" + c.getString(c.getColumnIndex(KEY_TRACK_CAR_MANUFACTURER)) + " " + c
+                .getString(c.getColumnIndex(KEY_TRACK_CAR_ID)));
         if (c.getString(c.getColumnIndex(KEY_TRACK_CAR_MANUFACTURER)) == null ||
                 c.getString(c.getColumnIndex(KEY_TRACK_CAR_MODEL)) == null ||
-//                c.getString(c.getColumnIndex(KEY_TRACK_CAR_ID)) == null ||
+                //                c.getString(c.getColumnIndex(KEY_TRACK_CAR_ID)) == null ||
                 c.getString(c.getColumnIndex(KEY_TRACK_CAR_YEAR)) == null ||
                 c.getString(c.getColumnIndex(KEY_TRACK_CAR_FUEL_TYPE)) == null ||
                 c.getString(c.getColumnIndex(KEY_TRACK_CAR_ENGINE_DISPLACEMENT)) == null) {
@@ -494,7 +496,7 @@ public class DbAdapterImpl implements DbAdapter {
 
     @Override
     public void deleteTrack(TrackId id) {
-        logger.debug("deleteTrack: " + id);
+        logger.debug("deleteLocalTrack: " + id);
         mDb.delete(TABLE_TRACK, KEY_TRACK_ID + "='" + id + "'", null);
         removeMeasurementArtifacts(id.getId());
     }
@@ -535,12 +537,38 @@ public class DbAdapterImpl implements DbAdapter {
 
     @Override
     public List<Track> getAllLocalTracks() {
+        return getAllLocalTracks(false);
+    }
+
+    @Override
+    public List<Track> getAllLocalTracks(boolean lazyMeasurements) {
         ArrayList<Track> tracks = new ArrayList<Track>();
         Cursor c = mDb.query(TABLE_TRACK, ALL_TRACK_KEYS, KEY_TRACK_REMOTE + " IS NULL", null,
                 null, null, null);
         c.moveToFirst();
         for (int i = 0; i < c.getCount(); i++) {
-            tracks.add(getTrack(new TrackId(c.getLong(c.getColumnIndex(KEY_TRACK_ID)))));
+            tracks.add(getTrack(new TrackId(c.getLong(c.getColumnIndex(KEY_TRACK_ID))),
+                    lazyMeasurements));
+            c.moveToNext();
+        }
+        c.close();
+        return tracks;
+    }
+
+    @Override
+    public List<Track> getAllRemoteTracks() {
+        return getAllRemoteTracks(false);
+    }
+
+    @Override
+    public List<Track> getAllRemoteTracks(boolean lazyMeasurements) {
+        ArrayList<Track> tracks = Lists.newArrayList();
+        Cursor c = mDb.query(TABLE_TRACK, ALL_TRACK_KEYS, KEY_TRACK_REMOTE + " IS NOT NULL",
+                null, null, null, null);
+        c.moveToFirst();
+        for (int i = 0; i < c.getCount(); i++) {
+            tracks.add(getTrack(new TrackId(c.getLong(c.getColumnIndex(KEY_TRACK_ID))),
+                    lazyMeasurements));
             c.moveToNext();
         }
         c.close();
@@ -668,7 +696,7 @@ public class DbAdapterImpl implements DbAdapter {
 
     @Override
     public synchronized TrackId getActiveTrackReference(Position pos) {
-		/*
+        /*
 		 * make this performant. if we have an activeTrackReference
 		 * and its not too old, use it
 		 */
@@ -756,7 +784,7 @@ public class DbAdapterImpl implements DbAdapter {
                 if (measurements == null || measurements.isEmpty()) {
                     logger.info(String.format("Track %s did not contain measurements and will not" +
                             " be used. Deleting!", lastUsedTrack.getTrackId()));
-//                    deleteTrack(lastUsedTrack.getTrackId());
+                    //                    deleteLocalTrack(lastUsedTrack.getTrackId());
                 }
             }
 

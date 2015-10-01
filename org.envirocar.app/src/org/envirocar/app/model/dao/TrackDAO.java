@@ -20,66 +20,79 @@
  */
 package org.envirocar.app.model.dao;
 
-import java.util.List;
-
-import org.envirocar.app.model.dao.exception.DAOException;
+import org.envirocar.app.json.TrackWithoutMeasurementsException;
 import org.envirocar.app.model.dao.exception.NotConnectedException;
 import org.envirocar.app.model.dao.exception.TrackRetrievalException;
 import org.envirocar.app.model.dao.exception.TrackSerializationException;
 import org.envirocar.app.model.dao.exception.UnauthorizedException;
-import org.envirocar.app.json.TrackWithoutMeasurementsException;
+import org.envirocar.app.storage.RemoteTrack;
 import org.envirocar.app.storage.Track;
+
+import java.util.List;
 
 import rx.Observable;
 
 public interface TrackDAO {
 
-	void deleteTrack(String remoteID) throws DAOException;
+    void deleteTrack(String remoteID) throws UnauthorizedException, NotConnectedException;
 
-	String storeTrack(Track track, boolean obfuscate)
-			throws NotConnectedException,
-			TrackSerializationException, TrackRetrievalException, TrackWithoutMeasurementsException, UnauthorizedException;
+    String storeTrack(Track track, boolean obfuscate)
+            throws NotConnectedException,
+            TrackSerializationException, TrackRetrievalException,
+            TrackWithoutMeasurementsException, UnauthorizedException;
 
-	Track getTrack(String id) throws NotConnectedException;
-
-	Integer getUserTrackCount() throws NotConnectedException,
-			TrackRetrievalException;
-
-	Integer getTotalTrackCount() throws NotConnectedException,
-			TrackRetrievalException;
+    Track getTrack(String id) throws NotConnectedException;
 
 
-	/**
-	 * an implementation shall treat calls as a shortcut for
-	 * {@link #getTrackIds(int)} with limit=100
-	 * 
-	 * @return the resource IDs of the desired tracks
-	 * @throws NotConnectedException
-	 * @throws UnauthorizedException 
-	 */
-	List<String> getTrackIds() throws NotConnectedException, UnauthorizedException;
+    /**
+     * an implementation shall treat calls as a shortcut for
+     * {@link #getTrackIds(int)} with limit=100
+     *
+     * @return the resource IDs of the desired tracks
+     * @throws NotConnectedException
+     * @throws UnauthorizedException
+     */
+    List<RemoteTrack> getTrackIds() throws NotConnectedException, UnauthorizedException;
 
-	/**
-	 * an implementation shall treat calls as a shortcut for
-	 * {@link #getTrackIds(int, int)} with limit=limit and page=1
-	 * 
-	 * @param limit
-	 *            the total count of returned track ids
-	 * @return the resource IDs of the desired tracks
-	 * @throws NotConnectedException
-	 * @throws UnauthorizedException 
-	 */
-	List<String> getTrackIds(int limit) throws NotConnectedException, UnauthorizedException;
+    /**
+     * an implementation shall treat calls as a shortcut for
+     * {@link #getTrackIds(int, int)} with limit=limit and page=1
+     *
+     * @param limit the total count of returned track ids
+     * @return the resource IDs of the desired tracks
+     * @throws NotConnectedException
+     * @throws UnauthorizedException
+     */
+    List<RemoteTrack> getTrackIds(int limit) throws NotConnectedException, UnauthorizedException;
 
-	/**
-	 * @param limit
-	 *            the total count of returned track ids
-	 * @param page
-	 *            the pagination index (starting at 1)
-	 * @return the resource IDs of the desired tracks
-	 * @throws NotConnectedException
-	 * @throws UnauthorizedException 
-	 */
-	List<String> getTrackIds(int limit, int page) throws NotConnectedException, UnauthorizedException;
+    /**
+     * @param limit the total count of returned track ids
+     * @param page  the pagination index (starting at 1)
+     * @return the resource IDs of the desired tracks
+     * @throws NotConnectedException
+     * @throws UnauthorizedException
+     */
+    List<RemoteTrack> getTrackIds(int limit, int page) throws NotConnectedException,
+            UnauthorizedException;
+
+    Observable<List<RemoteTrack>> getTrackIdsObservable(int limit, int page) throws NotConnectedException;
+
+    /**
+     * An implementation shall return the number of tracks of the loggedIn user
+     *
+     * @return
+     * @throws NotConnectedException
+     * @throws TrackRetrievalException
+     */
+    Integer getUserTrackCount() throws NotConnectedException, TrackRetrievalException;
+
+    /**
+     * An implementation shall return the number of tracks in the loggedIn
+     *
+     * @return
+     * @throws NotConnectedException
+     * @throws TrackRetrievalException
+     */
+    Integer getTotalTrackCount() throws NotConnectedException, TrackRetrievalException;
 
 }

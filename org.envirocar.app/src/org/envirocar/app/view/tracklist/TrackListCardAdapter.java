@@ -3,14 +3,14 @@ package org.envirocar.app.view.tracklist;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.github.jorgecastilloprz.FABProgressCircle;
 import com.mapbox.mapboxsdk.geometry.BoundingBox;
 import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 import com.mapbox.mapboxsdk.views.MapView;
@@ -39,66 +39,69 @@ import rx.android.schedulers.AndroidSchedulers;
 /**
  * @author dewall
  */
-public class TrackListCardAdapter extends RecyclerView.Adapter<TrackListCardAdapter
-        .TrackCardViewHolder> {
+public abstract class TrackListCardAdapter<T extends Track, E extends TrackListCardAdapter
+        .TrackCardViewHolder> extends RecyclerView.Adapter<E> {
     private static final Logger LOGGER = Logger.getLogger(TrackListCardAdapter.class);
 
-    private static final DecimalFormat DECIMAL_FORMATTER_TWO = new DecimalFormat("#.##");
-    private static final DateFormat DATE_FORMAT = DateFormat.getDateTimeInstance();
-    private static final DateFormat UTC_DATE_FORMATTER = new SimpleDateFormat("HH:mm:ss", Locale
+    protected static final DecimalFormat DECIMAL_FORMATTER_TWO = new DecimalFormat("#.##");
+    protected static final DateFormat DATE_FORMAT = DateFormat.getDateTimeInstance();
+    protected static final DateFormat UTC_DATE_FORMATTER = new SimpleDateFormat("HH:mm:ss", Locale
             .ENGLISH);
 
     static {
         UTC_DATE_FORMATTER.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
-    private final List<Track> mTrackDataset;
+    protected final List<T> mTrackDataset;
 
-    private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
+    protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
-    //    private WebSourceTileLayer mOSMSourceLayer;
-
-    private final OnTrackInteractionCallback mTrackInteractionCallback;
+    protected final OnTrackInteractionCallback mTrackInteractionCallback;
 
     /**
      * Constructor.
      *
      * @param tracks the list of tracks to show cards for.
      */
-    public TrackListCardAdapter(List<Track> tracks, final OnTrackInteractionCallback callback) {
+    public TrackListCardAdapter(List<T> tracks, final OnTrackInteractionCallback callback) {
         this.mTrackDataset = tracks;
         this.mTrackInteractionCallback = callback;
-        //        this.mOSMSourceLayer = MapUtils.getOSMTileLayer();
+    }
+
+    @Override
+    public int getItemCount() {
+        return mTrackDataset.size();
+    }
+
+    /**
+     * Adds a track to the dataset.
+     *
+     * @param track the track to insert.
+     */
+    public void addItem(T track) {
+        mTrackDataset.add(track);
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Removes a track from the dataset.
+     *
+     * @param track the track to remove.
+     */
+    public void removeItem(T track) {
+        if (mTrackDataset.contains(track)) {
+            mTrackDataset.remove(track);
+            notifyDataSetChanged();
+        }
     }
 
 
-    @Override
-    public TrackListCardAdapter.TrackCardViewHolder onCreateViewHolder(
-            ViewGroup parent, int viewType) {
-
-        // First inflate the view.
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout
-                .fragment_tracklist_cardlayout, parent, false);
-
-        // then return a new view holder for the inflated view.
-        return new TrackCardViewHolder(view);
-    }
-
-
-    @Override
-    public void onBindViewHolder(final TrackListCardAdapter.TrackCardViewHolder holder,
-                                 int position) {
-        LOGGER.info("onBindViewHolder()");
-
-        holder.mToolbar.setTitle("...");
-        holder.mConsumption.setText("...");
+    protected void bindLocalTrackViewHolder(TrackCardViewHolder holder, Track track) {
         holder.mDistance.setText("...");
         holder.mDuration.setText("...");
-        holder.mEmission.setText("...");
 
         // First, load the track from the dataset
-        final Track track = mTrackDataset.get(position);
-        holder.mToolbar.setTitle(track.getName());
+        holder.mTitleTextView.setText(track.getName());
 
         // Initialize the mapView.
         initMapView(holder, track);
@@ -118,17 +121,17 @@ public class TrackListCardAdapter extends RecyclerView.Adapter<TrackListCardAdap
                 }
 
                 // Set the CO2 average text.
-                String co2 = DECIMAL_FORMATTER_TWO.format(track.getCO2Average());
-                mMainThreadWorker.schedule(() -> holder.mEmission.setText(co2));
+//                String co2 = DECIMAL_FORMATTER_TWO.format(track.getCO2Average());
+//                mMainThreadWorker.schedule(() -> holder.mEmission.setText(co2));
 
-                // Set the consumption text.
-                try {
-                    final String consumption = DECIMAL_FORMATTER_TWO.format(
-                            track.getFuelConsumptionPerHour());
-                    mMainThreadWorker.schedule(() -> holder.mConsumption.setText(consumption));
-                } catch (UnsupportedFuelTypeException e) {
-                    e.printStackTrace();
-                }
+//                // Set the consumption text.
+//                try {
+//                    final String consumption = DECIMAL_FORMATTER_TWO.format(
+//                            track.getFuelConsumptionPerHour());
+//                    mMainThreadWorker.schedule(() -> holder.mConsumption.setText(consumption));
+//                } catch (UnsupportedFuelTypeException e) {
+//                    e.printStackTrace();
+//                }
 
                 // Set the tracklength parameter.
                 String tracklength = String.format("%s km", DECIMAL_FORMATTER_TWO.format(
@@ -172,41 +175,13 @@ public class TrackListCardAdapter extends RecyclerView.Adapter<TrackListCardAdap
             LOGGER.info("Clicked on the map. Navigate to the details activity");
             mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
         });
-
     }
 
-
-    @Override
-    public int getItemCount() {
-        return mTrackDataset.size();
-    }
-
-    /**
-     * Adds a track to the dataset.
-     *
-     * @param track the track to insert.
-     */
-    public void addItem(Track track) {
-        mTrackDataset.add(track);
-        notifyDataSetChanged();
-    }
-
-    /**
-     * Removes a track from the dataset.
-     *
-     * @param track the track to remove.
-     */
-    public void removeItem(Track track) {
-        if (mTrackDataset.contains(track)) {
-            mTrackDataset.remove(track);
-            notifyDataSetChanged();
-        }
-    }
 
     /**
      * Initializes the MapView, its base layers and settings.
      */
-    private void initMapView(TrackCardViewHolder holder, Track track) {
+    protected void initMapView(TrackCardViewHolder holder, Track track) {
         // First, clear the overlays in the MapView.
         holder.mMapView.getOverlays().clear();
 
@@ -251,7 +226,6 @@ public class TrackListCardAdapter extends RecyclerView.Adapter<TrackListCardAdap
         }.execute();
     }
 
-
     /**
      *
      */
@@ -260,21 +234,20 @@ public class TrackListCardAdapter extends RecyclerView.Adapter<TrackListCardAdap
         protected final View mItemView;
         protected boolean mIsMenuInflated = false;
 
-        @InjectView(R.id.fragment_Tracklist_cardlayout_toolbar)
+        @InjectView(R.id.fragment_tracklist_cardlayout_toolbar)
         protected Toolbar mToolbar;
-        @InjectView(R.id.fragment_tracklist_cardlayout_consumption)
-        protected TextView mConsumption;
+        @InjectView(R.id.fragment_tracklist_cardlayout_toolbar_title)
+        protected TextView mTitleTextView;
+        @InjectView(R.id.fragment_tracklist_cardlayout_content)
+        protected View mContentView;
         @InjectView(R.id.track_details_attributes_header_distance)
         protected TextView mDistance;
-        @InjectView(R.id.fragment_tracklist_cardlayout_emission)
-        protected TextView mEmission;
         @InjectView(R.id.track_details_attributes_header_duration)
         protected TextView mDuration;
         @InjectView(R.id.fragment_tracklist_cardlayout_map)
         protected MapView mMapView;
         @InjectView(R.id.fragment_tracklist_cardlayout_invis_mapbutton)
         protected ImageButton mInvisMapButton;
-
 
         /**
          * Constructor.
@@ -285,6 +258,52 @@ public class TrackListCardAdapter extends RecyclerView.Adapter<TrackListCardAdap
             super(itemView);
             this.mItemView = itemView;
             ButterKnife.inject(this, itemView);
+        }
+    }
+
+    /**
+     * Default view holder for standard local and not uploaded tracks.
+     */
+    static class LocalTrackCardViewHolder extends TrackCardViewHolder {
+
+        /**
+         * Constructor.
+         *
+         * @param itemView
+         */
+        public LocalTrackCardViewHolder(View itemView) {
+            super(itemView);
+        }
+    }
+
+    /**
+     * Remote track view holder that only contains the views that can be filled with information
+     * of a remote track list. (i.e. users/{user}/tracks)
+     */
+    static class RemoteTrackCardViewHolder extends TrackCardViewHolder {
+
+        enum DownloadState{
+            NOTHING,
+            DOWNLOADING,
+            DOWNLOADED,
+        }
+
+        protected DownloadState mState = DownloadState.NOTHING;
+
+        @InjectView(R.id.fragment_tracklist_cardlayout_remote_progresscircle)
+        protected FABProgressCircle mProgressCircle;
+        @InjectView(R.id.fragment_tracklist_cardlayout_remote_downloadfab)
+        protected FloatingActionButton mDownloadButton;
+        @InjectView(R.id.fragment_tracklist_cardlayout_downloading_notification)
+        protected TextView mDownloadNotification;
+
+        /**
+         * Constructor.
+         *
+         * @param itemView the card view of the
+         */
+        public RemoteTrackCardViewHolder(View itemView) {
+            super(itemView);
         }
     }
 }

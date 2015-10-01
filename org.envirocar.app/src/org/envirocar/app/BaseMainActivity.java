@@ -54,7 +54,7 @@ import org.envirocar.app.view.LoginActivity;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
 import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.app.view.settings.NewSettingsActivity;
-import org.envirocar.app.view.tracklist.NewTrackListFragment;
+import org.envirocar.app.view.tracklist.TrackListPagerFragment;
 import org.envirocar.app.view.tracklist.TrackListFragment;
 
 import java.util.Arrays;
@@ -453,10 +453,10 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 fragment = new DashboardMainFragment();
                 break;
             case R.id.menu_nav_drawer_tracklist_new:
-                fragment = new TrackListFragment();
+                fragment = new TrackListPagerFragment();
                 break;
             case R.id.menu_nav_drawer_tracklist:
-                fragment = new NewTrackListFragment();
+                fragment = new ListTracksFragment();
                 break;
             case R.id.menu_nav_drawer_logbook:
                 fragment = new LogbookFragment();
@@ -466,7 +466,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 startActivity(intent);
                 return false;
             case R.id.menu_nav_drawer_settings_general:
-                //                fragment = new SettingsFragment2();
                 Intent intent2 = new Intent(BaseMainActivity.this, NewSettingsActivity.class);
                 startActivity(intent2);
                 return false;
@@ -527,7 +526,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
             ft.setCustomAnimations(animIn, animOut);
         }
         ft.replace(R.id.content_frame, fragment, fragment.getClass().getSimpleName());
-        ft.addToBackStack(null);
+//        ft.addToBackStack(null);
         ft.commit();
     }
 

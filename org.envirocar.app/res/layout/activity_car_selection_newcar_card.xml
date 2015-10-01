@@ -130,6 +130,7 @@
                     android:background="#8e8e8e"/>
 
                 <RadioGroup
+                    android:id="@+id/activity_car_selection_new_car_card_radio_group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_medium"
