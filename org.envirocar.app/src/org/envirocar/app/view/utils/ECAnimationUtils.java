@@ -50,7 +50,7 @@ public class ECAnimationUtils {
      * @param animResource the animation resource.
      * @param action       the action that should happen when the animation is finished.
      */
-    public static void animateHideView(Context context, View view, int animResource, Action0
+    public static void animateHideView(Context context, final View view, int animResource, Action0
             action) {
         Animation animation = AnimationUtils.loadAnimation(context, animResource);
         animation.setAnimationListener(new Animation.AnimationListener() {
@@ -73,6 +73,7 @@ public class ECAnimationUtils {
             }
         });
         view.startAnimation(animation);
+        view.setVisibility(View.GONE);
     }
 
     /**

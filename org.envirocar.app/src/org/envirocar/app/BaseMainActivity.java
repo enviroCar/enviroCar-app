@@ -48,6 +48,10 @@ import org.envirocar.app.model.Announcement;
 import org.envirocar.app.model.User;
 import org.envirocar.app.model.dao.DAOProvider;
 import org.envirocar.app.model.dao.exception.AnnouncementsRetrievalException;
+import org.envirocar.app.model.dao.service.utils.EnvirocarServiceUtils;
+import org.envirocar.app.services.OBDConnectionService;
+import org.envirocar.app.services.ServiceUtils;
+import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.util.Util;
 import org.envirocar.app.util.VersionRange;
 import org.envirocar.app.view.LoginActivity;
@@ -110,8 +114,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
     @Inject
     protected TemporaryFileManager mTemporaryFileManager;
     @Inject
-    protected TrackHandler mTrackHandler;
-    @Inject
     protected DAOProvider mDAOProvider;
     @Inject
     protected BluetoothHandler mBluetoothHandler;
@@ -134,11 +136,9 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     private int trackMode = TRACK_MODE_SINGLE;
     private Set<String> seenAnnouncements = new HashSet<String>();
-    private Runnable remainingTimeThread;
     private BroadcastReceiver errorInformationReceiver;
 
     private int selectedMenuItemID;
-    private boolean mGroupIsVisible = true;
 
 
     private boolean paused;
@@ -485,8 +485,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
                         .callback(new MaterialDialog.ButtonCallback() {
                             @Override
                             public void onPositive(MaterialDialog dialog) {
-                                System.runFinalizersOnExit(true);
-                                System.exit(0);
+                                shutdownEnviroCar();
                             }
                         })
                         .show();
@@ -513,6 +512,21 @@ public class BaseMainActivity extends BaseInjectorActivity {
         setTitle(menuItem.getTitle());
 
         return true;
+    }
+
+    private void shutdownEnviroCar() {
+
+        if (ServiceUtils.isServiceRunning(this, OBDConnectionService.class)){
+            Intent intent = new Intent(getApplicationContext(), OBDConnectionService.class);
+            getApplicationContext().stopService(intent);
+        }
+        if (ServiceUtils.isServiceRunning(this, SystemStartupService.class)){
+            Intent intent = new Intent(getApplicationContext(), SystemStartupService.class);
+            getApplicationContext().stopService(intent);
+        }
+
+        System.runFinalizersOnExit(true);
+        System.exit(0);
     }
 
     /**

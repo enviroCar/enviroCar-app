@@ -12,11 +12,12 @@
         <item
             android:id="@+id/menu_nav_drawer_tracklist"
             android:icon="@drawable/device_access_storage"
-            android:title="@string/my_tracks"/>
+            android:title="@string/my_tracks"
+            android:visible="false"/>
         <item
             android:id="@+id/menu_nav_drawer_tracklist_new"
             android:icon="@drawable/device_access_storage"
-            android:title="Meine Fahrten NEU"/>
+            android:title="@string/my_tracks"/>
         <item
             android:id="@+id/menu_nav_drawer_logbook"
             android:icon="@drawable/logbook"

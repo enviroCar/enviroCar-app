@@ -47,9 +47,9 @@ import rx.schedulers.Schedulers;
 /**
  * @author dewall
  */
-public abstract class TrackListCardFragment<T extends Track, E extends RecyclerView.Adapter>
+public abstract class AbstractTrackListCardFragment<T extends Track, E extends RecyclerView.Adapter>
         extends BaseInjectorFragment {
-    private static final Logger LOG = Logger.getLogger(TrackListCardFragment.class);
+    private static final Logger LOG = Logger.getLogger(AbstractTrackListCardFragment.class);
 
     @Inject
     protected UserManager mUserManager;
@@ -69,11 +69,12 @@ public abstract class TrackListCardFragment<T extends Track, E extends RecyclerV
     protected E mRecyclerViewAdapter;
     protected RecyclerView.LayoutManager mRecylcerViewLayoutManager;
 
-    protected List<T> mTrackList = Collections.synchronizedList(Lists.newArrayList());
+    protected final List<T> mTrackList = Collections.synchronizedList(Lists.newArrayList());
 
     // Different workers for main and background threads.
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     protected Scheduler.Worker mBackgroundWorker = Schedulers.computation().createWorker();
+
 
     @Nullable
     @Override

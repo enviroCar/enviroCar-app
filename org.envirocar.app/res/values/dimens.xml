@@ -21,4 +21,8 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
 
+    <dimen name="fab_margin_side_16">0dp</dimen>
+    <dimen name="fab_margin_16">0dp</dimen>
+    <dimen name="fab_margin_download_button_top">16dp</dimen>
+
 </resources>

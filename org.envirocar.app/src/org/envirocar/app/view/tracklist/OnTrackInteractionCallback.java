@@ -33,5 +33,5 @@ interface OnTrackInteractionCallback {
     /**
      * @param track the track to download.
      */
-    void onDownloadTrackClicked(RemoteTrack track, TrackListCardAdapter.TrackCardViewHolder holder);
+    void onDownloadTrackClicked(RemoteTrack track, AbstractTrackListCardAdapter.TrackCardViewHolder holder);
 }

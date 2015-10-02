@@ -23,8 +23,8 @@ import butterknife.InjectView;
 /**
  * @author dewall
  */
-public class CarListAdapter extends ArrayAdapter<Car> {
-    private static final Logger LOGGER = Logger.getLogger(CarListAdapter.class);
+public class CarSelectionListAdapter extends ArrayAdapter<Car> {
+    private static final Logger LOGGER = Logger.getLogger(CarSelectionListAdapter.class);
 
     /**
      * Simple callback interface for the action types of the car list entries.
@@ -67,8 +67,8 @@ public class CarListAdapter extends ArrayAdapter<Car> {
      * @param values      the values to show in the list.
      * @param callback    the callback for list actions
      */
-    public CarListAdapter(Context context, Car selectedCar, List<Car> values,
-                          OnCarListActionCallback callback) {
+    public CarSelectionListAdapter(Context context, Car selectedCar, List<Car> values,
+                                   OnCarListActionCallback callback) {
         super(context, -1, values);
         this.mContext = context;
         this.mCars = values;

@@ -13,8 +13,8 @@ import java.util.List;
 /**
  * @author dewall
  */
-public class TrackListLocalCardAdapter extends TrackListCardAdapter<Track,
-        TrackListCardAdapter.LocalTrackCardViewHolder> {
+public class TrackListLocalCardAdapter extends AbstractTrackListCardAdapter<Track,
+        AbstractTrackListCardAdapter.LocalTrackCardViewHolder> {
     private static final Logger LOGGER = Logger.getLogger(TrackListLocalCardAdapter.class);
 
     /**

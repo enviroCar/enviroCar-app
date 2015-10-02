@@ -142,7 +142,7 @@ public class TrackListFragment extends BaseInjectorFragment {
                 }
 
                 @Override
-                public void onDownloadTrackClicked(RemoteTrack track, TrackListCardAdapter
+                public void onDownloadTrackClicked(RemoteTrack track, AbstractTrackListCardAdapter
                         .TrackCardViewHolder holder) {
 
                 }

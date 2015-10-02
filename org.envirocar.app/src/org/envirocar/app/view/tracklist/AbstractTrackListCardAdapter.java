@@ -18,7 +18,6 @@ import com.mapbox.mapboxsdk.views.MapView;
 import org.envirocar.app.R;
 import org.envirocar.app.exception.MeasurementsException;
 import org.envirocar.app.logging.Logger;
-import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.view.trackdetails.TrackSpeedMapOverlay;
 import org.envirocar.app.view.utils.MapUtils;
@@ -39,9 +38,9 @@ import rx.android.schedulers.AndroidSchedulers;
 /**
  * @author dewall
  */
-public abstract class TrackListCardAdapter<T extends Track, E extends TrackListCardAdapter
+public abstract class AbstractTrackListCardAdapter<T extends Track, E extends AbstractTrackListCardAdapter
         .TrackCardViewHolder> extends RecyclerView.Adapter<E> {
-    private static final Logger LOGGER = Logger.getLogger(TrackListCardAdapter.class);
+    private static final Logger LOGGER = Logger.getLogger(AbstractTrackListCardAdapter.class);
 
     protected static final DecimalFormat DECIMAL_FORMATTER_TWO = new DecimalFormat("#.##");
     protected static final DateFormat DATE_FORMAT = DateFormat.getDateTimeInstance();
@@ -63,7 +62,7 @@ public abstract class TrackListCardAdapter<T extends Track, E extends TrackListC
      *
      * @param tracks the list of tracks to show cards for.
      */
-    public TrackListCardAdapter(List<T> tracks, final OnTrackInteractionCallback callback) {
+    public AbstractTrackListCardAdapter(List<T> tracks, final OnTrackInteractionCallback callback) {
         this.mTrackDataset = tracks;
         this.mTrackInteractionCallback = callback;
     }
@@ -119,19 +118,6 @@ public abstract class TrackListCardAdapter<T extends Track, E extends TrackListC
                 } catch (MeasurementsException e) {
                     e.printStackTrace();
                 }
-
-                // Set the CO2 average text.
-//                String co2 = DECIMAL_FORMATTER_TWO.format(track.getCO2Average());
-//                mMainThreadWorker.schedule(() -> holder.mEmission.setText(co2));
-
-//                // Set the consumption text.
-//                try {
-//                    final String consumption = DECIMAL_FORMATTER_TWO.format(
-//                            track.getFuelConsumptionPerHour());
-//                    mMainThreadWorker.schedule(() -> holder.mConsumption.setText(consumption));
-//                } catch (UnsupportedFuelTypeException e) {
-//                    e.printStackTrace();
-//                }
 
                 // Set the tracklength parameter.
                 String tracklength = String.format("%s km", DECIMAL_FORMATTER_TWO.format(
@@ -282,7 +268,7 @@ public abstract class TrackListCardAdapter<T extends Track, E extends TrackListC
      */
     static class RemoteTrackCardViewHolder extends TrackCardViewHolder {
 
-        enum DownloadState{
+        enum DownloadState {
             NOTHING,
             DOWNLOADING,
             DOWNLOADED,

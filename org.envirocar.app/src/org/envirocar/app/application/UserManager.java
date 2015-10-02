@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 
 import com.squareup.otto.Bus;
 
+import org.envirocar.app.TrackHandler;
 import org.envirocar.app.events.NewUserSettingsEvent;
 import org.envirocar.app.injection.InjectApplicationScope;
 import org.envirocar.app.injection.Injector;
@@ -16,6 +17,8 @@ import org.envirocar.app.model.dao.DAOProvider;
 import org.envirocar.app.model.dao.exception.UnauthorizedException;
 import org.envirocar.app.model.dao.exception.UserRetrievalException;
 import org.envirocar.app.model.gravatar.GravatarUtils;
+import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.app.storage.DbAdapterImpl;
 
 import java.io.IOException;
 
@@ -153,6 +156,9 @@ public class UserManager {
         // Remove the user instance.
         mUser = null;
         mGravatarBitmap = null;
+
+        // Delete all local representations of tracks that are already uploaded.
+//        mTrackHandler.deleteAllRemoteTracksLocally();
 
         // Fire a new event on the event bus holding indicating that no logged in user exist.
         mBus.post(new NewUserSettingsEvent(null, false));

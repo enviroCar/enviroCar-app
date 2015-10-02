@@ -26,20 +26,20 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import org.envirocar.app.TrackHandler;
-import org.envirocar.app.injection.InjectApplicationScope;
-import org.envirocar.app.injection.Injector;
 import org.envirocar.app.NotificationHandler;
 import org.envirocar.app.R;
+import org.envirocar.app.TrackHandler;
 import org.envirocar.app.activity.SettingsActivity;
+import org.envirocar.app.injection.InjectApplicationScope;
+import org.envirocar.app.injection.Injector;
+import org.envirocar.app.json.TrackWithoutMeasurementsException;
+import org.envirocar.app.logging.Logger;
+import org.envirocar.app.model.Car;
 import org.envirocar.app.model.dao.DAOProvider;
 import org.envirocar.app.model.dao.DAOProvider.AsyncExecutionWithCallback;
 import org.envirocar.app.model.dao.exception.DAOException;
 import org.envirocar.app.model.dao.exception.NotConnectedException;
 import org.envirocar.app.model.dao.exception.UnauthorizedException;
-import org.envirocar.app.json.TrackWithoutMeasurementsException;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.Car;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.TrackMetadata;
@@ -65,7 +65,8 @@ public class UploadManager {
     public static final String GENERAL_ERROR = "-1";
 
     private static Logger logger = Logger.getLogger(UploadManager.class);
-    private static Map<String, String> temporaryAlreadyRegisteredCars = new HashMap<String, String>();
+    private static Map<String, String> temporaryAlreadyRegisteredCars = new HashMap<String,
+            String>();
 
     @Inject
     protected Activity mActivity;
@@ -104,7 +105,8 @@ public class UploadManager {
         }
     }
 
-    public void uploadSingleTrack(final Track track, final TrackHandler.TrackUploadCallback callback) {
+    public void uploadSingleTrack(final Track track, final TrackHandler.TrackUploadCallback
+            callback) {
         if (track == null) return;
 
         DAOProvider.async(new AsyncExecutionWithCallback<String>() {
@@ -129,7 +131,6 @@ public class UploadManager {
                     if (!temporaryCarAlreadyRegistered(track)) {
                         registerCarBeforeUpload(track);
                     }
-
                 }
 
                 try {
@@ -172,8 +173,8 @@ public class UploadManager {
                      * success, we got an ID
 					 */
                     mNotificationHandler.createNotification("success");
-//					track.setRemoteID(result);
-//					dbAdapter.updateTrack(track);
+                    //					track.setRemoteID(result);
+                    //					dbAdapter.updateTrack(track);
                     mDBAdapter.transitLocalToRemoteTrack(track, result);
 
                     if (callback != null) {
@@ -190,7 +191,8 @@ public class UploadManager {
 
     }
 
-    private void registerCarBeforeUpload(Track track) throws NotConnectedException, UnauthorizedException {
+    private void registerCarBeforeUpload(Track track) throws NotConnectedException,
+            UnauthorizedException {
         Car car = track.getCar();
         String tempId = car.getId();
         String sensorIdFromServer = mDAOProvider.getSensorDAO().saveSensor(car);
@@ -201,20 +203,20 @@ public class UploadManager {
 
         mDBAdapter.updateTrack(track);
         mDBAdapter.updateCarIdOfTracks(tempId, car.getId());
-		
+
 		/*
-		 * we need this hack... Track objects
+         * we need this hack... Track objects
 		 * in memory are not informed through the DB update
 		 */
         temporaryAlreadyRegisteredCars.put(tempId, car.getId());
         if (mCarManager.getCar().getId().equals(tempId)) {
-//        if (true) {
+            //        if (true) {
             mCarManager.setCar(car);
         }
     }
 
     private boolean hasTemporaryCar(Track track) {
-//        return true;
+        //        return true;
         return track.getCar().getId().startsWith(Car.TEMPORARY_SENSOR_ID);
     }
 

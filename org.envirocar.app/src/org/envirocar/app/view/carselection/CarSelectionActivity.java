@@ -45,7 +45,6 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import io.codetail.animation.SupportAnimator;
 import rx.Observer;
 import rx.Scheduler;
 import rx.Subscription;
@@ -116,10 +115,9 @@ public class CarSelectionActivity extends BaseInjectorActivity {
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private Subscription mSensoreSubscription;
 
-    private CarListAdapter mCarListAdapter;
+    private CarSelectionListAdapter mCarListAdapter;
 
     private AutoCompleteArrayAdapter mManufacturerNameAdapter;
-    private SupportAnimator mSupportAnimatorReverse;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -349,7 +347,7 @@ public class CarSelectionActivity extends BaseInjectorActivity {
     private void setupListView() {
         Car selectedCar = mCarManager.getCar();
         List<Car> usedCars = mCarManager.getDeserialzedCars();
-        mCarListAdapter = new CarListAdapter(this, selectedCar, usedCars, new CarListAdapter
+        mCarListAdapter = new CarSelectionListAdapter(this, selectedCar, usedCars, new CarSelectionListAdapter
                 .OnCarListActionCallback() {
 
             @Override

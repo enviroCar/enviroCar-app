@@ -25,6 +25,7 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
+import org.envirocar.app.TrackHandler;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.injection.BaseInjectorActivity;
@@ -110,6 +111,8 @@ public class LoginActivity extends BaseInjectorActivity {
     protected DAOProvider mDAOProvider;
     @Inject
     protected TermsOfUseManager mTermsOfUseManager;
+    @Inject
+    protected TrackHandler mTrackHandler;
 
 
     private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers
@@ -473,6 +476,8 @@ public class LoginActivity extends BaseInjectorActivity {
                     mStatisticsDownloadSubscription = null;
                 }
             }
+
+            mTrackHandler.deleteAllRemoteTracksLocally();
         }
     }
 

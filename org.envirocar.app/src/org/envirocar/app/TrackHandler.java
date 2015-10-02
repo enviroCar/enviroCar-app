@@ -3,7 +3,6 @@ package org.envirocar.app;
 import android.app.Activity;
 import android.content.Context;
 
-import com.google.gson.Gson;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -28,16 +27,12 @@ import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.RemoteTrack;
 import org.envirocar.app.storage.Track;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-
 import javax.inject.Inject;
 
 import rx.Observable;
 import rx.Scheduler;
+import rx.Subscriber;
 import rx.exceptions.OnErrorThrowable;
-import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -160,6 +155,12 @@ public class TrackHandler {
         return true;
     }
 
+    public boolean deleteAllRemoteTracksLocally() {
+        LOGGER.info("deleteAllRemoteTracksLocally()");
+        mDBAdapter.deleteAllRemoteTracks();
+        return true;
+    }
+
     public Track getTrackByID(long trackId) {
         return getTrackByID(new TrackId(trackId));
     }
@@ -253,14 +254,17 @@ public class TrackHandler {
     }
 
     public Observable<RemoteTrack> fetchRemoteTrackObservable(RemoteTrack remoteTrack) {
-        return Observable.just(remoteTrack)
-                .map(remoteTrack1 -> {
-                    try {
-                        return fetchRemoteTrack(remoteTrack1);
-                    } catch (NotConnectedException e) {
-                        throw OnErrorThrowable.from(e);
-                    }
-                });
+        return Observable.create(new Observable.OnSubscribe<RemoteTrack>() {
+            @Override
+            public void call(Subscriber<? super RemoteTrack> subscriber) {
+                try {
+                    subscriber.onNext(fetchRemoteTrack(remoteTrack));
+                    subscriber.onCompleted();
+                } catch (NotConnectedException e) {
+                    throw OnErrorThrowable.from(e);
+                }
+            }
+        });
     }
 
     public RemoteTrack fetchRemoteTrack(RemoteTrack remoteTrack) throws NotConnectedException {

@@ -8,15 +8,14 @@ import android.view.ViewGroup;
 import org.envirocar.app.R;
 import org.envirocar.app.logging.Logger;
 import org.envirocar.app.storage.RemoteTrack;
-import org.envirocar.app.view.utils.ECAnimationUtils;
 
 import java.util.List;
 
 /**
  * @author dewall
  */
-public class TrackListRemoteCardAdapter extends TrackListCardAdapter<RemoteTrack,
-        TrackListCardAdapter.RemoteTrackCardViewHolder> {
+public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<RemoteTrack,
+        AbstractTrackListCardAdapter.RemoteTrackCardViewHolder> {
     private static final Logger LOG = Logger.getLogger(TrackListRemoteCardAdapter.class);
 
     private static final int TYPE_REMOTE = 0;
@@ -61,10 +60,15 @@ public class TrackListRemoteCardAdapter extends TrackListCardAdapter<RemoteTrack
                 holder.mDownloadButton.setOnClickListener(v -> {
                     mTrackInteractionCallback.onDownloadTrackClicked(remoteTrack, holder);
                 });
-            } else if(holder.mState == RemoteTrackCardViewHolder.DownloadState.DOWNLOADING){
+            } else if (holder.mState == RemoteTrackCardViewHolder.DownloadState.DOWNLOADING) {
                 holder.mDownloadButton.setOnClickListener(null);
                 holder.mProgressCircle.show();
+            } else if (holder.mState == RemoteTrackCardViewHolder.DownloadState.DOWNLOADED) {
+                holder.mProgressCircle.setVisibility(View.GONE);
+                holder.mDownloadButton.setVisibility(View.GONE);
             }
+
+            holder.mTitleTextView.setText(remoteTrack.getName());
         }
     }
 }

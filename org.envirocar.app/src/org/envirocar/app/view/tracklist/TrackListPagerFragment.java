@@ -11,8 +11,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.common.collect.Lists;
+
 import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorFragment;
+import org.envirocar.app.storage.RemoteTrack;
+import org.envirocar.app.storage.Track;
+
+import java.util.Collections;
+import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -21,7 +28,6 @@ import butterknife.InjectView;
  * @author dewall
  */
 public class TrackListPagerFragment extends BaseInjectorFragment {
-
 
     @InjectView(R.id.fragment_tracklist_layout_tablayout)
     protected TabLayout mTabLayout;
@@ -49,9 +55,17 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
     /**
      * @author dewall
      */
-    static class TrackListPagerAdapter extends FragmentStatePagerAdapter {
+    class TrackListPagerAdapter extends FragmentStatePagerAdapter {
 
         private static final int NUM_PAGES = 2;
+
+        private final List<RemoteTrack> mRemoteTrackList = Collections.synchronizedList(Lists
+                .newArrayList());
+        private final List<Track> mLocalTrackList = Collections.synchronizedList(Lists
+                .newArrayList());
+
+        private TrackListLocalCardFragment localCardFragment = new TrackListLocalCardFragment();
+        private TrackListRemoteCardFragment remoteCardFragment = new TrackListRemoteCardFragment();
 
         /**
          * Constructor.
@@ -60,16 +74,21 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
          */
         public TrackListPagerAdapter(FragmentManager fm) {
             super(fm);
+
+            remoteCardFragment = new TrackListRemoteCardFragment();
+            localCardFragment = new TrackListLocalCardFragment();
+            localCardFragment.setOnTrackUploadedListener(remoteCardFragment);
         }
 
         @Override
         public Fragment getItem(int position) {
-            if(position == 0){
+            if (position == 0) {
                 return new TrackListLocalCardFragment();
             } else {
                 return new TrackListRemoteCardFragment();
             }
         }
+
 
         @Override
         public int getCount() {
@@ -79,9 +98,9 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
         @Override
         public CharSequence getPageTitle(int position) {
             if (position == 0) {
-                return "Local Tracks";
+                return "Local";
             } else {
-                return "Remote Tracks";
+                return "Uploaded";
             }
         }
     }

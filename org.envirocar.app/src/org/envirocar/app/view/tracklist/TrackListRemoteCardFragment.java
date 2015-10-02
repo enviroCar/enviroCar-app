@@ -1,8 +1,12 @@
 package org.envirocar.app.view.tracklist;
 
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import org.envirocar.app.R;
 import org.envirocar.app.logging.Logger;
@@ -23,9 +27,16 @@ import rx.schedulers.Schedulers;
 /**
  * @author dewall
  */
-public class TrackListRemoteCardFragment extends TrackListCardFragment<RemoteTrack,
-        TrackListRemoteCardAdapter> {
+public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<RemoteTrack,
+        TrackListRemoteCardAdapter> implements TrackListLocalCardFragment.OnTrackUploadedListener {
     private static final Logger LOG = Logger.getLogger(TrackListRemoteCardFragment.class);
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
+            savedInstanceState) {
+        return super.onCreateView(inflater, container, savedInstanceState);
+    }
 
     @Override
     public void onResume() {
@@ -33,6 +44,7 @@ public class TrackListRemoteCardFragment extends TrackListCardFragment<RemoteTra
 
         if (mUserManager.isLoggedIn()) {
             mRecyclerViewAdapter.mTrackDataset.clear();
+            mRecyclerView.setVisibility(View.VISIBLE);
             mTextView.setVisibility(View.GONE);
             new LoadRemoteTracksTask().execute();
         } else {
@@ -85,17 +97,18 @@ public class TrackListRemoteCardFragment extends TrackListCardFragment<RemoteTra
                     }
 
                     @Override
-                    public void onDownloadTrackClicked(RemoteTrack track, TrackListCardAdapter
+                    public void onDownloadTrackClicked(
+                            RemoteTrack track, AbstractTrackListCardAdapter
                             .TrackCardViewHolder viewHolder) {
                         onDownloadTrackClickedInner(track, viewHolder);
                     }
                 });
     }
 
-    private void onDownloadTrackClickedInner(RemoteTrack track, TrackListCardAdapter
+    private void onDownloadTrackClickedInner(RemoteTrack track, AbstractTrackListCardAdapter
             .TrackCardViewHolder viewHolder) {
-        TrackListCardAdapter.RemoteTrackCardViewHolder holder =
-                (TrackListCardAdapter.RemoteTrackCardViewHolder) viewHolder;
+        AbstractTrackListCardAdapter.RemoteTrackCardViewHolder holder =
+                (AbstractTrackListCardAdapter.RemoteTrackCardViewHolder) viewHolder;
 
         // Show the downloading text notification.
         ECAnimationUtils.animateShowView(getContext(), holder.mDownloadNotification,
@@ -109,7 +122,7 @@ public class TrackListRemoteCardFragment extends TrackListCardFragment<RemoteTra
                     @Override
                     public void onCompleted() {
                         holder.mProgressCircle.beginFinalAnimation();
-                        holder.mState = TrackListCardAdapter.RemoteTrackCardViewHolder
+                        holder.mState = AbstractTrackListCardAdapter.RemoteTrackCardViewHolder
                                 .DownloadState.DOWNLOADED;
                         holder.mProgressCircle.attachListener(() -> {
                             // When the visualization is finished, then Init the
@@ -158,6 +171,8 @@ public class TrackListRemoteCardFragment extends TrackListCardFragment<RemoteTra
                     if (!mTrackList.contains(remoteTrack))
                         mTrackList.add(remoteTrack);
                 }
+
+                Collections.sort(remoteTracks);
             } catch (NotConnectedException e) {
                 LOG.error("Unable to load remote tracks", e);
                 Snackbar.make(getView(), "Unable to load remote tracks. Maybe you have no " +
@@ -176,4 +191,12 @@ public class TrackListRemoteCardFragment extends TrackListCardFragment<RemoteTra
         }
     }
 
+    @Override
+    public void onTrackUploaded(Track track) {
+        RemoteTrack currentRemoteTrackRef = (RemoteTrack) mDBAdapter.getTrack(track.getTrackId());
+        mMainThreadWorker.schedule(() -> {
+            mTrackList.add(currentRemoteTrackRef);
+            mRecyclerViewAdapter.notifyDataSetChanged();
+        });
+    }
 }
