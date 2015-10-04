@@ -257,8 +257,11 @@ public class CarSelectionActivity extends BaseInjectorActivity {
 
         Car selectedCar = null;
         if (mManufacturerNames.contains(manufacturer)
+                && mCarToModelMap.get(manufacturer) != null
                 && mCarToModelMap.get(manufacturer).contains(model)
+                && mModelToCCM.get(model) != null
                 && mModelToCCM.get(model).contains("" + engine)
+                && mModelToYear.get(model) != null
                 && mModelToYear.get(model).contains("" + year)) {
             for (Car car : mCars) {
                 if (car.getManufacturer().equals(manufacturer)
@@ -347,7 +350,8 @@ public class CarSelectionActivity extends BaseInjectorActivity {
     private void setupListView() {
         Car selectedCar = mCarManager.getCar();
         List<Car> usedCars = mCarManager.getDeserialzedCars();
-        mCarListAdapter = new CarSelectionListAdapter(this, selectedCar, usedCars, new CarSelectionListAdapter
+        mCarListAdapter = new CarSelectionListAdapter(this, selectedCar, usedCars, new
+                CarSelectionListAdapter
                 .OnCarListActionCallback() {
 
             @Override
