@@ -375,6 +375,11 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 				}
 				
 				else {
+					if (count < 6) {
+						logger.warn("the response did only contain "+count+" bytes. For PID responses 6 are minimum");
+						return null;
+					}
+
 					/*
 					 * A PID response
 					 */
@@ -395,7 +400,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 					}
 
 					//TODO remove last arg (copy array) as its for deugging
-					CommonCommand result = parsePIDResponse(pid, pidResponseValue, now, Arrays.copyOfRange(bytes, start, count));
+					CommonCommand result = parsePIDResponse(pid, pidResponseValue, now, Arrays.copyOfRange(bytes, start, 12));
 					
 					if (result != null) {
 						lastResult = now;
