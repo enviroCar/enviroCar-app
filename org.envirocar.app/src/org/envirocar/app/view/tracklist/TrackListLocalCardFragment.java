@@ -8,23 +8,19 @@ import android.view.View;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.TrackHandler;
-import org.envirocar.app.activity.ListTracksFragment;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.RemoteTrack;
-import org.envirocar.app.storage.Track;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.logging.Logger;
 
 import java.util.Collections;
 import java.util.List;
-
-import rx.functions.Action0;
 
 /**
  * @author dewall
  */
 public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Track,
         TrackListLocalCardAdapter> {
-    private static final Logger LOGGER = Logger.getLogger(ListTracksFragment.class);
+    private static final Logger LOGGER = Logger.getLogger(TrackListLocalCardFragment.class);
 
     /**
      *
@@ -94,36 +90,36 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
              */
             @Override
             public void onTrackDetailsClicked(Track track, View transitionView) {
-                LOGGER.info(String.format("onTrackDetailsClicked(%s)", track.getTrackId()
+                LOGGER.info(String.format("onTrackDetailsClicked(%s)", track.getTrackID()
                         .toString()));
-                int trackID = (int) track.getTrackId().getId();
+                int trackID = (int) track.getTrackID().getId();
                 TrackDetailsActivity.navigate(getActivity(), transitionView, trackID);
             }
 
             @Override
             public void onDeleteTrackClicked(Track track) {
-                LOGGER.info(String.format("onDeleteTrackClicked(%s)", track.getTrackId()));
+                LOGGER.info(String.format("onDeleteTrackClicked(%s)", track.getTrackID()));
                 // create a dialog
                 createDeleteTrackDialog(track);
             }
 
             @Override
             public void onUploadTrackClicked(Track track) {
-                LOGGER.info(String.format("onUploadTrackClicked(%s)", track.getTrackId()));
+                LOGGER.info(String.format("onUploadTrackClicked(%s)", track.getTrackID()));
                 // Upload the track
                 uploadTrack(track);
             }
 
             @Override
             public void onExportTrackClicked(Track track) {
-                LOGGER.info(String.format("onExportTrackClicked(%s)", track.getTrackId()));
+                LOGGER.info(String.format("onExportTrackClicked(%s)", track.getTrackID()));
                 exportTrack(track);
             }
 
             @Override
-            public void onDownloadTrackClicked(RemoteTrack track, AbstractTrackListCardAdapter
+            public void onDownloadTrackClicked(Track track, AbstractTrackListCardAdapter
                     .TrackCardViewHolder holder) {
-
+                // NOT REQUIRED
             }
         });
     }

@@ -20,7 +20,8 @@
  */
 package org.envirocar.app.application;
 
-import org.envirocar.app.storage.Measurement;
+
+import org.envirocar.core.entity.Measurement;
 
 public interface MeasurementListener {
 

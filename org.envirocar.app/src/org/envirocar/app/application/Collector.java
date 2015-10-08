@@ -32,22 +32,22 @@ import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbeVoltage;
 import org.envirocar.app.bluetooth.obd.events.Co2Event;
 import org.envirocar.app.bluetooth.obd.events.ConsumptionEvent;
 import org.envirocar.app.bluetooth.service.BluetoothServiceState;
-import org.envirocar.app.events.GpsDOP;
-import org.envirocar.app.events.LocationChangedEvent;
-import org.envirocar.app.events.NewMeasurementEvent;
 import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
-import org.envirocar.app.exception.FuelConsumptionException;
-import org.envirocar.app.exception.MeasurementsException;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.Car;
 import org.envirocar.app.protocol.algorithm.AbstractCalculatedMAFAlgorithm;
-import org.envirocar.app.protocol.algorithm.AbstractConsumptionAlgorithm;
-import org.envirocar.app.protocol.algorithm.BasicConsumptionAlgorithm;
 import org.envirocar.app.protocol.algorithm.CalculatedMAFWithStaticVolumetricEfficiency;
-import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
-import org.envirocar.app.storage.Measurement;
-import org.envirocar.app.storage.Measurement.PropertyKey;
+import org.envirocar.core.entity.Car;
+import org.envirocar.core.entity.Measurement;
+import org.envirocar.core.entity.MeasurementImpl;
+import org.envirocar.core.events.NewMeasurementEvent;
+import org.envirocar.core.events.gps.GpsDOP;
+import org.envirocar.core.events.gps.LocationChangedEvent;
+import org.envirocar.core.exception.FuelConsumptionException;
+import org.envirocar.core.exception.MeasurementsException;
+import org.envirocar.core.exception.UnsupportedFuelTypeException;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.trackprocessing.AbstractConsumptionAlgorithm;
+import org.envirocar.core.trackprocessing.BasicConsumptionAlgorithm;
 
 import javax.inject.Inject;
 
@@ -55,7 +55,7 @@ public class Collector {
 
     private static final Logger logger = Logger.getLogger(Collector.class);
     static final int DEFAULT_SAMPLING_RATE_DELTA = 5000;
-    private Measurement measurement = new Measurement(0, 0);
+    private Measurement measurement = new MeasurementImpl();
     private MeasurementListener callback;
     private Car car;
     private AbstractCalculatedMAFAlgorithm mafAlgorithm;
@@ -101,7 +101,7 @@ public class Collector {
 
         this.mafAlgorithm = new CalculatedMAFWithStaticVolumetricEfficiency(this.car);
         logger.info("Using MAF Algorithm " + this.mafAlgorithm.getClass());
-        this.consumptionAlgorithm = new BasicConsumptionAlgorithm(this.car);
+        this.consumptionAlgorithm = new BasicConsumptionAlgorithm(this.car.getFuelType());
         logger.info("Using Consumption Algorithm " + this.consumptionAlgorithm.getClass());
 
         resetMeasurement();
@@ -117,16 +117,19 @@ public class Collector {
         this.measurement.setLongitude(l.getLongitude());
 
         if (l.hasAccuracy() && l.getAccuracy() != 0.0f) {
-            this.measurement.setProperty(PropertyKey.GPS_ACCURACY, (double) l.getAccuracy());
+            this.measurement.setProperty(Measurement.PropertyKey.GPS_ACCURACY, (double) l
+                    .getAccuracy());
         }
         if (l.hasBearing()) {
-            this.measurement.setProperty(PropertyKey.GPS_BEARING, (double) l.getBearing());
+            this.measurement.setProperty(Measurement.PropertyKey.GPS_BEARING, (double) l
+                    .getBearing());
         }
         if (l.hasAltitude()) {
-            this.measurement.setProperty(PropertyKey.GPS_ALTITUDE, l.getAltitude());
+            this.measurement.setProperty(Measurement.PropertyKey.GPS_ALTITUDE, l.getAltitude());
         }
         if (l.hasSpeed()) {
-            this.measurement.setProperty(PropertyKey.GPS_SPEED, meterPerSecondToKilometerPerHour(
+            this.measurement.setProperty(Measurement.PropertyKey.GPS_SPEED,
+                    meterPerSecondToKilometerPerHour(
                     (double) l.getSpeed()));
         }
 
@@ -138,18 +141,18 @@ public class Collector {
     }
 
     public void newSpeed(int s) {
-        this.measurement.setProperty(PropertyKey.SPEED, Double.valueOf(s));
+        this.measurement.setProperty(Measurement.PropertyKey.SPEED, Double.valueOf(s));
         //		checkStateAndPush();
     }
 
     public void newMAF(double m) {
-        this.measurement.setProperty(PropertyKey.MAF, m);
+        this.measurement.setProperty(Measurement.PropertyKey.MAF, m);
         //		checkStateAndPush();
         fireConsumptionEvent();
     }
 
     public void newRPM(int r) {
-        this.measurement.setProperty(PropertyKey.RPM, Double.valueOf(r));
+        this.measurement.setProperty(Measurement.PropertyKey.RPM, Double.valueOf(r));
         checkAndCreateCalculatedMAF();
         //		checkStateAndPush();
     }
@@ -159,11 +162,12 @@ public class Collector {
      * calculating the MAF, and then calculates it.
      */
     private void checkAndCreateCalculatedMAF() {
-        if (this.measurement.getProperty(PropertyKey.RPM) != null &&
-                this.measurement.getProperty(PropertyKey.INTAKE_PRESSURE) != null &&
-                this.measurement.getProperty(PropertyKey.INTAKE_TEMPERATURE) != null) {
+        if (this.measurement.getProperty(Measurement.PropertyKey.RPM) != null &&
+                this.measurement.getProperty(Measurement.PropertyKey.INTAKE_PRESSURE) != null &&
+                this.measurement.getProperty(Measurement.PropertyKey.INTAKE_TEMPERATURE) != null) {
             try {
-                this.measurement.setProperty(PropertyKey.CALCULATED_MAF, this.mafAlgorithm
+                this.measurement.setProperty(Measurement.PropertyKey.CALCULATED_MAF, this
+                        .mafAlgorithm
                         .calculateMAF(this.measurement));
                 fireConsumptionEvent();
             } catch (MeasurementsException e) {
@@ -193,36 +197,36 @@ public class Collector {
     }
 
     public void newIntakeTemperature(int i) {
-        this.measurement.setProperty(PropertyKey.INTAKE_TEMPERATURE, Double.valueOf(i));
+        this.measurement.setProperty(Measurement.PropertyKey.INTAKE_TEMPERATURE, Double.valueOf(i));
         checkAndCreateCalculatedMAF();
         //		checkStateAndPush();
     }
 
     public void newIntakePressure(int p) {
-        this.measurement.setProperty(PropertyKey.INTAKE_PRESSURE, Double.valueOf(p));
+        this.measurement.setProperty(Measurement.PropertyKey.INTAKE_PRESSURE, Double.valueOf(p));
         checkAndCreateCalculatedMAF();
         //		checkStateAndPush();
     }
 
     public void newTPS(int tps) {
-        this.measurement.setProperty(PropertyKey.THROTTLE_POSITON, Double.valueOf(tps));
+        this.measurement.setProperty(Measurement.PropertyKey.THROTTLE_POSITON, Double.valueOf(tps));
     }
 
     public void newEngineLoad(double load) {
-        this.measurement.setProperty(PropertyKey.ENGINE_LOAD, load);
+        this.measurement.setProperty(Measurement.PropertyKey.ENGINE_LOAD, load);
     }
 
     public void newDop(GpsDOP dop) {
         if (dop.hasPdop()) {
-            this.measurement.setProperty(PropertyKey.GPS_PDOP, dop.getPdop());
+            this.measurement.setProperty(Measurement.PropertyKey.GPS_PDOP, dop.getPdop());
         }
 
         if (dop.hasHdop()) {
-            this.measurement.setProperty(PropertyKey.GPS_HDOP, dop.getHdop());
+            this.measurement.setProperty(Measurement.PropertyKey.GPS_HDOP, dop.getHdop());
         }
 
         if (dop.hasVdop()) {
-            this.measurement.setProperty(PropertyKey.GPS_VDOP, dop.getVdop());
+            this.measurement.setProperty(Measurement.PropertyKey.GPS_VDOP, dop.getVdop());
         }
     }
 
@@ -241,8 +245,8 @@ public class Collector {
             try {
                 double consumption = this.consumptionAlgorithm.calculateConsumption(measurement);
                 double co2 = this.consumptionAlgorithm.calculateCO2FromConsumption(consumption);
-                this.measurement.setProperty(PropertyKey.CONSUMPTION, consumption);
-                this.measurement.setProperty(PropertyKey.CO2, co2);
+                this.measurement.setProperty(Measurement.PropertyKey.CONSUMPTION, consumption);
+                this.measurement.setProperty(Measurement.PropertyKey.CO2, co2);
             } catch (FuelConsumptionException e) {
                 logger.warn(e.getMessage());
             } catch (UnsupportedFuelTypeException e) {
@@ -271,11 +275,11 @@ public class Collector {
 
         if (System.currentTimeMillis() - m.getTime() < samplingRateDelta) return false;
 
-        if (!m.hasProperty(PropertyKey.SPEED) || m.getProperty(PropertyKey.SPEED) == null)
+        if (!m.hasProperty(Measurement.PropertyKey.SPEED) || m.getProperty(Measurement.PropertyKey.SPEED) == null)
             return false;
 
 		/*
-		 * emulate the legacy behavior: insert measurement despite data might be missing
+         * emulate the legacy behavior: insert measurement despite data might be missing
 		 */
         //		if (m.getSpeed() == 0) return false;
         //
@@ -300,30 +304,30 @@ public class Collector {
     }
 
     public void newFuelSystemStatus(boolean loop, int status) {
-        this.measurement.setProperty(PropertyKey.FUEL_SYSTEM_LOOP, loop ? 1d : 0d);
-        this.measurement.setProperty(PropertyKey.FUEL_SYSTEM_STATUS_CODE, (double) status);
+        this.measurement.setProperty(Measurement.PropertyKey.FUEL_SYSTEM_LOOP, loop ? 1d : 0d);
+        this.measurement.setProperty(Measurement.PropertyKey.FUEL_SYSTEM_STATUS_CODE, (double) status);
     }
 
     public void newLambdaProbeValue(O2LambdaProbe command) {
         if (command instanceof O2LambdaProbeVoltage) {
-            this.measurement.setProperty(PropertyKey.LAMBDA_VOLTAGE, ((O2LambdaProbeVoltage)
+            this.measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE, ((O2LambdaProbeVoltage)
                     command).getVoltage());
-            this.measurement.setProperty(PropertyKey.LAMBDA_VOLTAGE_ER, command
+            this.measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE_ER, command
                     .getEquivalenceRatio());
         } else if (command instanceof O2LambdaProbeCurrent) {
-            this.measurement.setProperty(PropertyKey.LAMBDA_CURRENT, ((O2LambdaProbeCurrent)
+            this.measurement.setProperty(Measurement.PropertyKey.LAMBDA_CURRENT, ((O2LambdaProbeCurrent)
                     command).getCurrent());
-            this.measurement.setProperty(PropertyKey.LAMBDA_CURRENT_ER, command
+            this.measurement.setProperty(Measurement.PropertyKey.LAMBDA_CURRENT_ER, command
                     .getEquivalenceRatio());
         }
     }
 
     public void newShortTermTrimBank1(Number numberResult) {
-        this.measurement.setProperty(PropertyKey.SHORT_TERM_TRIM_1, numberResult.doubleValue());
+        this.measurement.setProperty(Measurement.PropertyKey.SHORT_TERM_TRIM_1, numberResult.doubleValue());
     }
 
     public void newLongTermTrimBank1(Number numberResult) {
-        this.measurement.setProperty(PropertyKey.LONG_TERM_TRIM_1, numberResult.doubleValue());
+        this.measurement.setProperty(Measurement.PropertyKey.LONG_TERM_TRIM_1, numberResult.doubleValue());
     }
 
 

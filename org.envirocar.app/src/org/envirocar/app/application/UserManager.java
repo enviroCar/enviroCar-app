@@ -7,18 +7,16 @@ import android.graphics.Bitmap;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.TrackHandler;
-import org.envirocar.app.events.NewUserSettingsEvent;
-import org.envirocar.app.injection.InjectApplicationScope;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.User;
-import org.envirocar.app.model.dao.DAOProvider;
-import org.envirocar.app.model.dao.exception.UnauthorizedException;
-import org.envirocar.app.model.dao.exception.UserRetrievalException;
-import org.envirocar.app.model.gravatar.GravatarUtils;
-import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.storage.DbAdapterImpl;
+import org.envirocar.core.events.NewUserSettingsEvent;
+import org.envirocar.core.entity.User;
+import org.envirocar.core.entity.UserImpl;
+import org.envirocar.core.exception.DataRetrievalFailureException;
+import org.envirocar.core.exception.UnauthorizedException;
+import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.app.injection.DAOProvider;
+import org.envirocar.remote.gravatar.GravatarUtils;
 
 import java.io.IOException;
 
@@ -28,7 +26,7 @@ import rx.Observable;
 
 import static android.content.Context.MODE_PRIVATE;
 
-public class UserManager {
+public class UserManager implements org.envirocar.core.UserManager {
     private static final Logger LOG = Logger.getLogger(UserManager.class);
 
     private static final String USERNAME = "username";
@@ -37,29 +35,7 @@ public class UserManager {
     private static final String ACCEPTED_TERMS_OF_USE_VERSION = "acceptedTermsOfUseVersion";
     private static final String USER_PREFERENCES = "userPrefs";
 
-    /**
-     * Callback interface for the login process.
-     */
-    public interface LoginCallback {
-        /**
-         * Called when the specific user has been successfully logged in.
-         *
-         * @param user the valid {@link User} instance that has been logged in.
-         */
-        void onSuccess(User user);
 
-        /**
-         * Called when the password is incorrect.
-         *
-         * @param password the incorrect password string.
-         */
-        void onPasswordIncorrect(String password);
-
-        /**
-         * Called when no connection could be established to the server.
-         */
-        void onUnableToCommunicateServer();
-    }
 
     @Inject
     protected Bus mBus;
@@ -89,14 +65,15 @@ public class UserManager {
      *
      * @return user
      */
+    @Override
     public User getUser() {
         if (mUser == null) {
             SharedPreferences prefs = getUserPreferences();
             String username = prefs.getString(USERNAME, null);
             String token = prefs.getString(TOKEN, null);
             String mail = prefs.getString(EMAIL, null);
-            mUser = new User(username, token, mail);
-            mUser.setTouVersion(prefs.getString(ACCEPTED_TERMS_OF_USE_VERSION, null));
+            mUser = new UserImpl(username, token, mail);
+            mUser.setTermsOfUseVersion(prefs.getString(ACCEPTED_TERMS_OF_USE_VERSION, null));
         }
         return mUser;
     }
@@ -106,13 +83,14 @@ public class UserManager {
      *
      * @param user The user you want to set
      */
+    @Override
     public void setUser(User user) {
         // First set the user in the preferences
         Editor e = getUserPreferences().edit();
         e.putString(USERNAME, user.getUsername());
         e.putString(TOKEN, user.getToken());
         e.putString(EMAIL, user.getMail());
-        e.putString(ACCEPTED_TERMS_OF_USE_VERSION, user.getTouVersion());
+        e.putString(ACCEPTED_TERMS_OF_USE_VERSION, user.getTermsOfUseVersion());
         e.commit();
 
         // Set the local user reference to the current user.
@@ -127,6 +105,7 @@ public class UserManager {
      *
      * @return
      */
+    @Override
     public boolean isLoggedIn() {
         SharedPreferences prefs = getUserPreferences();
         if (prefs.contains(USERNAME) && prefs.contains(TOKEN)) {
@@ -139,6 +118,7 @@ public class UserManager {
     /**
      * Logs out the user.
      */
+    @Override
     public void logOut() {
         // Removes all the preferences from the editor.
         SharedPreferences prefs = getUserPreferences();
@@ -172,7 +152,7 @@ public class UserManager {
         User currentUser = getUser();
 
         if (currentUser == null || currentUser.getToken() == null) {
-            User candidateUser = new User(user, token);
+            User candidateUser = new UserImpl(user, token);
             setUser(candidateUser);
         }
 
@@ -188,7 +168,7 @@ public class UserManager {
             LOG.warn(e.getMessage(), e);
             // Password is incorrect. Inform the callback about this.
             callback.onPasswordIncorrect(token);
-        } catch (UserRetrievalException e) {
+        } catch (DataRetrievalFailureException e) {
             LOG.warn(e.getMessage(), e);
             // Unable to communicate with the server. Inform the callback about this.
             callback.onUnableToCommunicateServer();

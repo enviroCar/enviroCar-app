@@ -27,9 +27,6 @@ package org.envirocar.app.bluetooth.obd.commands;
  */
 public class SelectAutoProtocol extends StringResultCommand {
 
-	/**
-	 * @param command
-	 */
 	public SelectAutoProtocol() {
 		super("AT SP " + 0);
 	}

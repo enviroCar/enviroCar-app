@@ -9,6 +9,8 @@ buildscript {
 
         //use lombok version that does not whine about lambdas
         classpath 'me.tatarka.retrolambda.projectlombok:lombok.ast:0.2.3.a2'
+
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.4+'
     }
 
     // Exclude the lombok version that the android plugin depends on.

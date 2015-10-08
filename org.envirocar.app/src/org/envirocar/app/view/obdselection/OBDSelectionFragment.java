@@ -22,8 +22,8 @@ import org.envirocar.app.R;
 import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.app.events.bluetooth.BluetoothPairingChangedEvent;
 import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.logging.Logger;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.injection.BaseInjectorFragment;
 
 import java.util.Set;
 

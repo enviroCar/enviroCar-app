@@ -17,19 +17,16 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
-import org.envirocar.app.activity.ListTracksFragment;
-import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UserManager;
-import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.json.TrackWithoutMeasurementsException;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.dao.DAOProvider;
 import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.storage.RemoteTrack;
-import org.envirocar.app.storage.Track;
-import org.envirocar.app.util.Util;
+import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.Util;
+import org.envirocar.app.injection.DAOProvider;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -48,7 +45,7 @@ import rx.android.schedulers.AndroidSchedulers;
  * @author dewall
  */
 public class TrackListFragment extends BaseInjectorFragment {
-    private static final Logger LOGGER = Logger.getLogger(ListTracksFragment.class);
+    private static final Logger LOGGER = Logger.getLogger(TrackListFragment.class);
 
     @Inject
     protected UserManager mUserManager;
@@ -115,34 +112,34 @@ public class TrackListFragment extends BaseInjectorFragment {
                  */
                 @Override
                 public void onTrackDetailsClicked(Track track, View transitionView) {
-                    LOGGER.info(String.format("onTrackDetailsClicked(%s)", track.getTrackId()
+                    LOGGER.info(String.format("onTrackDetailsClicked(%s)", track.getTrackID()
                             .toString()));
-                    int trackID = (int) track.getTrackId().getId();
+                    int trackID = (int) track.getTrackID().getId();
                     TrackDetailsActivity.navigate(getActivity(), transitionView, trackID);
                 }
 
                 @Override
                 public void onDeleteTrackClicked(Track track) {
-                    LOGGER.info(String.format("onDeleteTrackClicked(%s)", track.getTrackId()));
+                    LOGGER.info(String.format("onDeleteTrackClicked(%s)", track.getTrackID()));
                     // create a dialog
                     createDeleteTrackDialog(track);
                 }
 
                 @Override
                 public void onUploadTrackClicked(Track track) {
-                    LOGGER.info(String.format("onUploadTrackClicked(%s)", track.getTrackId()));
+                    LOGGER.info(String.format("onUploadTrackClicked(%s)", track.getTrackID()));
                     // Upload the track
                     uploadTrack(track);
                 }
 
                 @Override
                 public void onExportTrackClicked(Track track) {
-                    LOGGER.info(String.format("onExportTrackClicked(%s)", track.getTrackId()));
+                    LOGGER.info(String.format("onExportTrackClicked(%s)", track.getTrackID()));
                     exportTrack(track);
                 }
 
                 @Override
-                public void onDownloadTrackClicked(RemoteTrack track, AbstractTrackListCardAdapter
+                public void onDownloadTrackClicked(Track track, AbstractTrackListCardAdapter
                         .TrackCardViewHolder holder) {
 
                 }
@@ -192,7 +189,7 @@ public class TrackListFragment extends BaseInjectorFragment {
      */
     private void createDeleteTrackDialog(Track track) {
         // Get the up to date reference of the current track.
-        Track upToDateRef = mDBAdapter.getTrack(track.getTrackId(), true);
+        Track upToDateRef = mDBAdapter.getTrack(track.getTrackID(), true);
 
         // If the track is a local track
         if (upToDateRef.isLocalTrack()) {
@@ -217,10 +214,10 @@ public class TrackListFragment extends BaseInjectorFragment {
 
     private void deleteTrack(Track track) {
         // Get the up to date reference of the current track.
-        Track upToDateRef = mDBAdapter.getTrack(track.getTrackId(), true);
+        Track upToDateRef = mDBAdapter.getTrack(track.getTrackID(), true);
 
         // If the track has been successfully deleted.
-        if (upToDateRef.isLocalTrack() && mTrackHandler.deleteLocalTrack(upToDateRef.getTrackId())) {
+        if (upToDateRef.isLocalTrack() && mTrackHandler.deleteLocalTrack(upToDateRef.getTrackID())) {
             // Show a snackbar notification
             Snackbar.make(getView(), R.string
                             .trackviews_delete_track_snackbar_success,
@@ -231,7 +228,7 @@ public class TrackListFragment extends BaseInjectorFragment {
             mTrackList.remove(track);
             mRecyclerViewAdapter.notifyDataSetChanged();
 
-            LOGGER.info("deleteLocalTrack: Successfully delete track with id=" + track.getTrackId());
+            LOGGER.info("deleteLocalTrack: Successfully delete track with id=" + track.getTrackID());
         }
     }
 
@@ -240,7 +237,7 @@ public class TrackListFragment extends BaseInjectorFragment {
         boolean isObfuscationEnabled =
                 PreferenceManager
                         .getDefaultSharedPreferences(getActivity())
-                        .getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
+                        .getBoolean(PreferenceConstants.OBFUSCATE_POSITION, false);
 
         try {
             // Create an sharing intent.
@@ -254,9 +251,9 @@ public class TrackListFragment extends BaseInjectorFragment {
 
             // Wrap the intent with a chooser.
             startActivity(Intent.createChooser(sharingIntent, "Share via"));
-        } catch (TrackWithoutMeasurementsException e) {
-            LOGGER.warn(e.getMessage(), e);
-            Snackbar.make(getView(), R.string.error_json, Snackbar.LENGTH_LONG).show();
+//        } catch (TrackWithoutMeasurementsException e) {
+//            LOGGER.warn(e.getMessage(), e);
+//            Snackbar.make(getView(), R.string.error_json, Snackbar.LENGTH_LONG).show();
         } catch (JSONException e) {
             LOGGER.warn(e.getMessage(), e);
             Snackbar.make(getView(), R.string.error_io, Snackbar.LENGTH_LONG).show();

@@ -70,7 +70,7 @@
 //import org.envirocar.app.model.dao.DAOProvider;
 //import org.envirocar.app.model.dao.exception.AnnouncementsRetrievalException;
 //import org.envirocar.app.exception.InvalidObjectStateException;
-//import org.envirocar.app.logging.Logger;
+//import org.envirocar.core.logging.Logger;
 //import org.envirocar.app.model.Announcement;
 //import org.envirocar.app.storage.DbAdapterImpl;
 //import org.envirocar.app.util.Util;

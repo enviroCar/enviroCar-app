@@ -27,9 +27,9 @@
 //import android.os.Bundle;
 //
 //import org.envirocar.app.event.EventBus;
-//import org.envirocar.app.events.GpsDOPEvent;
-//import org.envirocar.app.events.GpsSatelliteFixEvent;
-//import org.envirocar.app.logging.Logger;
+//import org.envirocar.core.events.gps.GpsDOPEvent;
+//import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
+//import org.envirocar.core.logging.Logger;
 //
 //public class LocationUpdateListener implements LocationListener, NmeaListener {
 //

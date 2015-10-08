@@ -12,15 +12,15 @@ import android.os.Bundle;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.events.GpsDOP;
-import org.envirocar.app.events.GpsDOPEvent;
-import org.envirocar.app.events.GpsSatelliteFix;
-import org.envirocar.app.events.GpsSatelliteFixEvent;
-import org.envirocar.app.events.GpsStateChangedEvent;
-import org.envirocar.app.events.LocationChangedEvent;
-import org.envirocar.app.injection.InjectApplicationScope;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
+import org.envirocar.core.events.gps.GpsDOP;
+import org.envirocar.core.events.gps.GpsDOPEvent;
+import org.envirocar.core.events.gps.GpsSatelliteFix;
+import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
+import org.envirocar.core.events.gps.GpsStateChangedEvent;
+import org.envirocar.core.events.gps.LocationChangedEvent;
+import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
 

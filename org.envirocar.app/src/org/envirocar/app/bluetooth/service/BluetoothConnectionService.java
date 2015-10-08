@@ -2,7 +2,8 @@ package org.envirocar.app.bluetooth.service;
 
 import android.content.Context;
 
-import org.envirocar.app.logging.Handler;
+import org.envirocar.core.logging.Handler;
+
 
 /**
  * @author dewall

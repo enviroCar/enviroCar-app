@@ -27,9 +27,6 @@ package org.envirocar.app.bluetooth.obd.commands;
  */
 public class SpacesOff extends StringResultCommand {
 
-	/**
-	 * @param command
-	 */
 	public SpacesOff() {
 		super("AT S0");
 	}

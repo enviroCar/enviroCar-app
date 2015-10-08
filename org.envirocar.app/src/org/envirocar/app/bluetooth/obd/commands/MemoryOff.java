@@ -27,9 +27,6 @@ package org.envirocar.app.bluetooth.obd.commands;
  */
 public class MemoryOff extends StringResultCommand {
 
-	/**
-	 * @param command
-	 */
 	public MemoryOff() {
 		super("AT M0");
 	}

@@ -16,11 +16,12 @@ import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 import com.mapbox.mapboxsdk.views.MapView;
 
 import org.envirocar.app.R;
-import org.envirocar.app.exception.MeasurementsException;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.Track;
+import org.envirocar.core.logging.Logger;
 import org.envirocar.app.view.trackdetails.TrackSpeedMapOverlay;
 import org.envirocar.app.view.utils.MapUtils;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.exception.MeasurementsException;
+import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -34,12 +35,14 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 
 /**
  * @author dewall
  */
-public abstract class AbstractTrackListCardAdapter<T extends Track, E extends AbstractTrackListCardAdapter
-        .TrackCardViewHolder> extends RecyclerView.Adapter<E> {
+public abstract class AbstractTrackListCardAdapter<T extends Track, E extends
+        AbstractTrackListCardAdapter
+                .TrackCardViewHolder> extends RecyclerView.Adapter<E> {
     private static final Logger LOGGER = Logger.getLogger(AbstractTrackListCardAdapter.class);
 
     protected static final DecimalFormat DECIMAL_FORMATTER_TWO = new DecimalFormat("#.##");
@@ -113,16 +116,26 @@ public abstract class AbstractTrackListCardAdapter<T extends Track, E extends Ab
                 // Set the duration text.
                 try {
                     String date = UTC_DATE_FORMATTER.format(new Date(
-                            track.getDurationInMillis()));
-                    mMainThreadWorker.schedule(() -> holder.mDuration.setText(date));
+                            track.getDuration()));
+                    mMainThreadWorker.schedule(new Action0() {
+                        @Override
+                        public void call() {
+                            holder.mDuration.setText(date);
+                        }
+                    });
                 } catch (MeasurementsException e) {
                     e.printStackTrace();
                 }
 
                 // Set the tracklength parameter.
                 String tracklength = String.format("%s km", DECIMAL_FORMATTER_TWO.format(
-                        track.getLengthOfTrack()));
-                mMainThreadWorker.schedule(() -> holder.mDistance.setText(tracklength));
+                        ((TrackStatisticsProvider) track).getDistanceOfTrack()));
+                mMainThreadWorker.schedule(new Action0() {
+                    @Override
+                    public void call() {
+                        holder.mDistance.setText(tracklength);
+                    }
+                });
 
                 return null;
             }
@@ -136,7 +149,7 @@ public abstract class AbstractTrackListCardAdapter<T extends Track, E extends Ab
         }
 
         holder.mToolbar.setOnMenuItemClickListener(item -> {
-            LOGGER.info("Item clicked for track " + track.getTrackId());
+            LOGGER.info("Item clicked for track " + track.getTrackID());
 
             switch (item.getItemId()) {
                 case R.id.menu_tracklist_cardlayout_item_details:
@@ -199,13 +212,17 @@ public abstract class AbstractTrackListCardAdapter<T extends Track, E extends Ab
                 final BoundingBox viewBbox = trackMapOverlay.getViewBoundingBox();
                 final BoundingBox scrollableLimit = trackMapOverlay.getScrollableLimitBox();
 
-                mMainThreadWorker.schedule(() -> {
-                    holder.mMapView.getOverlays().add(trackMapOverlay);
+                mMainThreadWorker.schedule(new Action0() {
+                    @Override
+                    public void call() {
 
-                    // Set the computed parameters on the main thread.
-                    holder.mMapView.setScrollableAreaLimit(scrollableLimit);
-                    holder.mMapView.setConstraintRegionFit(true);
-                    holder.mMapView.zoomToBoundingBox(viewBbox, true);
+                        holder.mMapView.getOverlays().add(trackMapOverlay);
+
+                        // Set the computed parameters on the main thread.
+                        holder.mMapView.setScrollableAreaLimit(scrollableLimit);
+                        holder.mMapView.setConstraintRegionFit(true);
+                        holder.mMapView.zoomToBoundingBox(viewBbox, true);
+                    }
                 });
                 return null;
             }

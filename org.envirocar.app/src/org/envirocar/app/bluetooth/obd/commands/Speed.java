@@ -22,7 +22,7 @@
 package org.envirocar.app.bluetooth.obd.commands;
 
 import org.envirocar.app.bluetooth.obd.commands.PIDUtil.PID;
-import org.envirocar.app.logging.Logger;
+import org.envirocar.core.logging.Logger;
 
 /**
  * Speed Command PID 01 0D

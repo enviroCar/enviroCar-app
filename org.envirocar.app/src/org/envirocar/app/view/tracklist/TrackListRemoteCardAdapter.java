@@ -6,15 +6,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.envirocar.app.R;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.RemoteTrack;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.entity.Track;
 
 import java.util.List;
 
 /**
  * @author dewall
  */
-public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<RemoteTrack,
+public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<Track,
         AbstractTrackListCardAdapter.RemoteTrackCardViewHolder> {
     private static final Logger LOG = Logger.getLogger(TrackListRemoteCardAdapter.class);
 
@@ -29,7 +29,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<Rem
      * @param tracks   the list of tracks to show cards for.
      * @param callback
      */
-    public TrackListRemoteCardAdapter(Context context, List<RemoteTrack> tracks,
+    public TrackListRemoteCardAdapter(Context context, List<Track> tracks,
                                       OnTrackInteractionCallback callback) {
         super(tracks, callback);
         this.mContext = context;
@@ -47,9 +47,9 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<Rem
     public void onBindViewHolder(RemoteTrackCardViewHolder holder, int position) {
         LOG.info("onBindViewHolder()");
 
-        final RemoteTrack remoteTrack = mTrackDataset.get(position);
+        final Track remoteTrack = mTrackDataset.get(position);
 
-        if (remoteTrack.isDownloaded()) {
+        if (remoteTrack.getRemoteID() != null && remoteTrack.isDownloaded()) {
             holder.mContentView.setVisibility(View.VISIBLE);
             holder.mProgressCircle.setVisibility(View.GONE);
             holder.mDownloadButton.setVisibility(View.GONE);

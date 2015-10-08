@@ -7,9 +7,7 @@ import android.os.IBinder;
 /**
  * @author dewall
  */
-public class BluetoothBackgroundService extends Service{
-
-
+public class BluetoothBackgroundService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;

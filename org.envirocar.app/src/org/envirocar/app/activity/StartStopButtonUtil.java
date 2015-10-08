@@ -32,10 +32,11 @@ import org.envirocar.app.activity.DialogUtil.DialogCallback;
 import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.application.NavMenuItem;
 import org.envirocar.app.bluetooth.service.BluetoothServiceState;
-import org.envirocar.app.injection.InjectionActivityScope;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
 import org.envirocar.app.services.OBDConnectionService;
+import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.core.injection.InjectionActivityScope;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -47,7 +48,7 @@ import javax.inject.Inject;
  * @author matthes rieke
  */
 public class StartStopButtonUtil {
-    private static final Logger LOGGER = Logger.getLogger(StartStopButtonUtil.class);
+    private static final Logger LOG = Logger.getLogger(StartStopButtonUtil.class);
 
     @Inject
     @InjectionActivityScope
@@ -86,7 +87,7 @@ public class StartStopButtonUtil {
      * @param button the drawer button
      */
     public void updateStartStopButtonOnServiceStateChange(NavMenuItem button) {
-        LOGGER.info("updateStartStopButtonOnServiceStateChange called with state: " +
+        LOG.info("updateStartStopButtonOnServiceStateChange called with state: " +
                 serviceState + " / trackMode: " + trackMode +
                 " discovery: " + deviceDiscoveryActive);
 
@@ -117,7 +118,7 @@ public class StartStopButtonUtil {
      * @param trackModeListener a callback to handle the inputs of the user
      */
     public void processButtonClick(OnTrackModeChangeListener trackModeListener) {
-        LOGGER.info("processButtonClick called with state: " + serviceState + " / trackMode: " +
+        LOG.info("processButtonClick called with state: " + serviceState + " / trackMode: " +
                 trackMode +
                 " discovery: " + deviceDiscoveryActive);
 
@@ -126,7 +127,7 @@ public class StartStopButtonUtil {
                 processStoppedStateClick(trackModeListener);
                 break;
             case SERVICE_DEVICE_DISCOVERY_PENDING:
-//                processPendingStateClick();
+                //                processPendingStateClick();
                 break;
             case SERVICE_STARTING:
                 processStartingStateClick();
@@ -180,7 +181,7 @@ public class StartStopButtonUtil {
                 messageId = R.string.stop_automatic_mode_long;
                 break;
             default:
-//                Crouton.makeText(mContext, "not supported", Style.INFO).show();
+                //                Crouton.makeText(mContext, "not supported", Style.INFO).show();
                 return;
         }
 
@@ -215,13 +216,17 @@ public class StartStopButtonUtil {
                                         new Intent(mContext, OBDConnectionService.class));
                                 break;
                             case 1:
-//                                listener.onTrackModeChange(BaseMainActivity.TRACK_MODE_AUTO);
-//                                mContext.getApplicationContext().startService(
-//                                        new Intent(mContext, DeviceInRangeService.class));
+                                //                                listener.onTrackModeChange
+                                // (BaseMainActivity.TRACK_MODE_AUTO);
+                                //                                mContext.getApplicationContext
+                                // ().startService(
+                                //                                        new Intent(mContext,
+                                // DeviceInRangeService.class));
                                 break;
                         }
 
-//                        Crouton.makeText(mContext, R.string.start_connection, Style.INFO).show();
+                        //                        Crouton.makeText(mContext, R.string
+                        // .start_connection, Style.INFO).show();
                     }
 
                     @Override
@@ -284,9 +289,8 @@ public class StartStopButtonUtil {
         SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(mContext);
 
-        String remoteDevice = preferences.getString(
-                org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,
-                null);
+        String remoteDevice = preferences.getString(PreferenceConstants
+                        .PREFERENCE_TAG_BLUETOOTH_LIST, null);
 
         if (remoteDevice != null) {
             if (mCarManager.getCar() == null) {
@@ -294,7 +298,7 @@ public class StartStopButtonUtil {
                         .no_sensor_selected);
             } else {
                 defineButtonContents(button, true, R.drawable.av_play, preferences.getString
-                        (SettingsActivity.BLUETOOTH_NAME, ""));
+                        (PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME, ""));
             }
         } else {
             defineButtonContents(button, false, R.drawable.not_available, R.string
@@ -308,18 +312,18 @@ public class StartStopButtonUtil {
         createStartTrackDialog(onTrackModeChangeListener);
     }
 
-//    private void processPendingStateClick() {
-//        /*
-//         * this broadcast stops the DeviceInRangeService
-//		 */
-//        mContext.getApplicationContext().stopService(
-//                new Intent(mContext.getApplicationContext(), DeviceInRangeService.class));
-//    }
+    //    private void processPendingStateClick() {
+    //        /*
+    //         * this broadcast stops the DeviceInRangeService
+    //		 */
+    //        mContext.getApplicationContext().stopService(
+    //                new Intent(mContext.getApplicationContext(), DeviceInRangeService.class));
+    //    }
 
     private void processStartingStateClick() {
         mContext.getApplicationContext().stopService(
                 new Intent(mContext, OBDConnectionService.class));
-//        Crouton.makeText(mContext, R.string.stop_connection, Style.INFO).show();
+        //        Crouton.makeText(mContext, R.string.stop_connection, Style.INFO).show();
     }
 
     private void processStartedStateClick(OnTrackModeChangeListener l) {

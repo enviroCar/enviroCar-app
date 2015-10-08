@@ -5,8 +5,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.envirocar.app.R;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.Track;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.entity.Track;
 
 import java.util.List;
 

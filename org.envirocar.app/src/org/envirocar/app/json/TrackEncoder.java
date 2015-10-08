@@ -26,13 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.envirocar.app.exception.MeasurementsException;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.Measurement;
-import org.envirocar.app.storage.Track;
-import org.envirocar.app.storage.Measurement.PropertyKey;
-import static org.envirocar.app.storage.Measurement.PropertyKey.*;
-import org.envirocar.app.util.Util;
+import org.envirocar.core.entity.Measurement;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.exception.MeasurementsException;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.Util;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,34 +40,34 @@ public class TrackEncoder {
 	
 	private static final Logger logger = Logger.getLogger(TrackEncoder.class);
 
-	public static final Set<PropertyKey> supportedPhenomenons = new HashSet<PropertyKey>();
+	public static final Set<Measurement.PropertyKey> supportedPhenomenons = new HashSet<Measurement.PropertyKey>();
 
 	static {
-		supportedPhenomenons.add(CALCULATED_MAF);
-		supportedPhenomenons.add(MAF);
-		supportedPhenomenons.add(CO2);
-		supportedPhenomenons.add(SPEED);
-		supportedPhenomenons.add(RPM);
-		supportedPhenomenons.add(INTAKE_PRESSURE);
-		supportedPhenomenons.add(INTAKE_TEMPERATURE);
-		supportedPhenomenons.add(CONSUMPTION);
-		supportedPhenomenons.add(ENGINE_LOAD);
-		supportedPhenomenons.add(THROTTLE_POSITON);
-		supportedPhenomenons.add(GPS_ACCURACY);
-		supportedPhenomenons.add(GPS_ALTITUDE);
-		supportedPhenomenons.add(GPS_BEARING);
-		supportedPhenomenons.add(GPS_HDOP);
-		supportedPhenomenons.add(GPS_PDOP);
-		supportedPhenomenons.add(GPS_VDOP);
-		supportedPhenomenons.add(GPS_SPEED);
-		supportedPhenomenons.add(SHORT_TERM_TRIM_1);
-		supportedPhenomenons.add(LONG_TERM_TRIM_1);
-		supportedPhenomenons.add(LAMBDA_CURRENT);
-		supportedPhenomenons.add(LAMBDA_CURRENT_ER);
-		supportedPhenomenons.add(LAMBDA_VOLTAGE);
-		supportedPhenomenons.add(LAMBDA_VOLTAGE_ER);
-		supportedPhenomenons.add(FUEL_SYSTEM_LOOP);
-		supportedPhenomenons.add(FUEL_SYSTEM_STATUS_CODE);
+		supportedPhenomenons.add(Measurement.PropertyKey.CALCULATED_MAF);
+		supportedPhenomenons.add(Measurement.PropertyKey.MAF);
+		supportedPhenomenons.add(Measurement.PropertyKey.CO2);
+		supportedPhenomenons.add(Measurement.PropertyKey.SPEED);
+		supportedPhenomenons.add(Measurement.PropertyKey.RPM);
+		supportedPhenomenons.add(Measurement.PropertyKey.INTAKE_PRESSURE);
+		supportedPhenomenons.add(Measurement.PropertyKey.INTAKE_TEMPERATURE);
+		supportedPhenomenons.add(Measurement.PropertyKey.CONSUMPTION);
+		supportedPhenomenons.add(Measurement.PropertyKey.ENGINE_LOAD);
+		supportedPhenomenons.add(Measurement.PropertyKey.THROTTLE_POSITON);
+		supportedPhenomenons.add(Measurement.PropertyKey.GPS_ACCURACY);
+		supportedPhenomenons.add(Measurement.PropertyKey.GPS_ALTITUDE);
+		supportedPhenomenons.add(Measurement.PropertyKey.GPS_BEARING);
+		supportedPhenomenons.add(Measurement.PropertyKey.GPS_HDOP);
+		supportedPhenomenons.add(Measurement.PropertyKey.GPS_PDOP);
+		supportedPhenomenons.add(Measurement.PropertyKey.GPS_VDOP);
+		supportedPhenomenons.add(Measurement.PropertyKey.GPS_SPEED);
+		supportedPhenomenons.add(Measurement.PropertyKey.SHORT_TERM_TRIM_1);
+		supportedPhenomenons.add(Measurement.PropertyKey.LONG_TERM_TRIM_1);
+		supportedPhenomenons.add(Measurement.PropertyKey.LAMBDA_CURRENT);
+		supportedPhenomenons.add(Measurement.PropertyKey.LAMBDA_CURRENT_ER);
+		supportedPhenomenons.add(Measurement.PropertyKey.LAMBDA_VOLTAGE);
+		supportedPhenomenons.add(Measurement.PropertyKey.LAMBDA_VOLTAGE_ER);
+		supportedPhenomenons.add(Measurement.PropertyKey.FUEL_SYSTEM_LOOP);
+		supportedPhenomenons.add(Measurement.PropertyKey.FUEL_SYSTEM_STATUS_CODE);
 	}
 	
 	/**
@@ -239,8 +237,8 @@ public class TrackEncoder {
 
 	private JSONObject createPhenomenons(Measurement measurement) throws JSONException {
 		JSONObject result = new JSONObject();
-		Map<PropertyKey, Double> props = measurement.getAllProperties();
-		for (PropertyKey key : props.keySet()) {
+		Map<Measurement.PropertyKey, Double> props = measurement.getAllProperties();
+		for (Measurement.PropertyKey key : props.keySet()) {
 			if (supportedPhenomenons.contains(key)) {
 				result.put(key.toString(), createValue(props.get(key)));
 			}

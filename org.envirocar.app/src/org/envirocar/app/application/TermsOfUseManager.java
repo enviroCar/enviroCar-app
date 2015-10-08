@@ -22,24 +22,26 @@ package org.envirocar.app.application;
 
 import android.app.Activity;
 import android.content.Context;
+import android.os.AsyncTask;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.injection.InjectApplicationScope;
-import org.envirocar.app.injection.Injector;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.DialogUtil;
 import org.envirocar.app.activity.DialogUtil.PositiveNegativeCallback;
-import org.envirocar.app.model.dao.DAOProvider;
-import org.envirocar.app.model.dao.DAOProvider.AsyncExecutionWithCallback;
-import org.envirocar.app.model.dao.exception.DAOException;
-import org.envirocar.app.model.dao.exception.TermsOfUseRetrievalException;
 import org.envirocar.app.exception.ServerException;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.TermsOfUse;
-import org.envirocar.app.model.TermsOfUseInstance;
-import org.envirocar.app.model.User;
+import org.envirocar.core.entity.TermsOfUse;
+import org.envirocar.core.entity.User;
+import org.envirocar.core.exception.DataRetrievalFailureException;
+import org.envirocar.core.exception.DataUpdateFailureException;
+import org.envirocar.core.exception.NotConnectedException;
+import org.envirocar.core.exception.UnauthorizedException;
+import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.app.injection.DAOProvider;
 
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 
 import javax.inject.Inject;
@@ -51,7 +53,7 @@ public class TermsOfUseManager {
     private static final Logger LOGGER = Logger.getLogger(TermsOfUseManager.class);
     // Mutex for locking when downloading.
     private final Object mMutex = new Object();
-    protected TermsOfUse list;
+    protected List<TermsOfUse> list;
 
     // Injected variables.
     @Inject
@@ -65,18 +67,18 @@ public class TermsOfUseManager {
     protected DAOProvider mDAOProvider;
 
 
-    private TermsOfUseInstance current;
+    private TermsOfUse current;
 
     public TermsOfUseManager(Context context) {
 
         // Inject ourselves.
         ((Injector) context).injectObjects(this);
 
-        try {
-            retrieveTermsOfUse();
-        } catch (ServerException e) {
-            LOGGER.warn(e.getMessage(), e);
-        }
+//        try {
+//            retrieveTermsOfUse();
+//        } catch (ServerException e) {
+//            LOGGER.warn(e.getMessage(), e);
+//        }
     }
 
     /**
@@ -88,17 +90,17 @@ public class TermsOfUseManager {
      * @param callback
      */
     public void askForTermsOfUseAcceptance(final User user, final Activity activity,
-                                                  final PositiveNegativeCallback callback) {
+                                           final PositiveNegativeCallback callback) {
         boolean verified = false;
         try {
-            verified = verifyTermsUseOfVersion(user.getTouVersion());
+            verified = verifyTermsUseOfVersion(user.getTermsOfUseVersion());
         } catch (ServerException e) {
             LOGGER.warn(e.getMessage(), e);
             return;
         }
         if (!verified) {
 
-            final TermsOfUseInstance current;
+            final TermsOfUse current;
             try {
                 current = getCurrentTermsOfUse();
             } catch (ServerException e) {
@@ -107,12 +109,13 @@ public class TermsOfUseManager {
             }
 
             DialogUtil.createTermsOfUseDialog(current,
-                    user.getTouVersion() == null, new DialogUtil.PositiveNegativeCallback() {
+                    user.getTermsOfUseVersion() == null, new DialogUtil.PositiveNegativeCallback() {
 
                         @Override
                         public void negative() {
                             LOGGER.info("User did not accept the ToU.");
-                            Crouton.makeText(activity, activity.getString(R.string.terms_of_use_cant_continue), Style.ALERT).show();
+                            Crouton.makeText(activity, activity.getString(R.string
+                                    .terms_of_use_cant_continue), Style.ALERT).show();
                             if (callback != null) {
                                 callback.negative();
                             }
@@ -121,7 +124,8 @@ public class TermsOfUseManager {
                         @Override
                         public void positive() {
                             userAcceptedTermsOfUse(user, current.getIssuedDate());
-                            Crouton.makeText(activity, activity.getString(R.string.terms_of_use_updating_server), Style.INFO).show();
+                            Crouton.makeText(activity, activity.getString(R.string
+                                    .terms_of_use_updating_server), Style.INFO).show();
                             if (callback != null) {
                                 callback.positive();
                             }
@@ -133,7 +137,7 @@ public class TermsOfUseManager {
         }
     }
 
-    public TermsOfUseInstance getCurrentTermsOfUse() throws ServerException {
+    public TermsOfUse getCurrentTermsOfUse() throws ServerException {
         if (this.current == null) {
             retrieveTermsOfUse();
         }
@@ -141,7 +145,7 @@ public class TermsOfUseManager {
         return current;
     }
 
-    public TermsOfUse getInstancesReferences() {
+    public List<TermsOfUse> getInstancesReferences() {
         return list;
     }
 
@@ -149,12 +153,14 @@ public class TermsOfUseManager {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                TermsOfUse response;
+                List<TermsOfUse> response;
                 try {
-                    response = mDAOProvider.getTermsOfUseDAO().getTermsOfUse();
+                    response = mDAOProvider.getTermsOfUseDAO().getAllTermsOfUse();
                     setList(response);
                     retrieveLatestInstance();
-                } catch (TermsOfUseRetrievalException e) {
+                } catch (DataRetrievalFailureException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                } catch (NotConnectedException e) {
                     LOGGER.warn(e.getMessage(), e);
                 }
             }
@@ -166,7 +172,8 @@ public class TermsOfUseManager {
                     mMutex.wait(5000);
 
                     if (current == null) {
-                        throw new ServerException(new TimeoutException("Waiting to long for a response."));
+                        throw new ServerException(new TimeoutException("Waiting to long for a " +
+                                "response."));
                     }
                 } catch (InterruptedException e) {
                     throw new ServerException(e);
@@ -176,12 +183,14 @@ public class TermsOfUseManager {
     }
 
     private void retrieveLatestInstance() {
-        if (list != null && list.getInstances() != null && list.getInstances().size() > 0) {
-            String id = list.getInstances().get(0).getId();
+        if (list != null && list != null && list.size() > 0) {
+            String id = list.get(0).getId();
             try {
-                TermsOfUseInstance inst = mDAOProvider.getTermsOfUseDAO().getTermsOfUseInstance(id);
+                TermsOfUse inst = mDAOProvider.getTermsOfUseDAO().getTermsOfUse(id);
                 setCurrent(inst);
-            } catch (TermsOfUseRetrievalException e) {
+            } catch (DataRetrievalFailureException e) {
+                LOGGER.warn(e.getMessage(), e);
+            } catch (NotConnectedException e) {
                 LOGGER.warn(e.getMessage(), e);
             }
         } else {
@@ -189,7 +198,7 @@ public class TermsOfUseManager {
         }
     }
 
-    private void setCurrent(TermsOfUseInstance t) {
+    private void setCurrent(TermsOfUse t) {
         LOGGER.info("Current Terms Of Use: " + t.getIssuedDate());
         current = t;
 
@@ -198,33 +207,29 @@ public class TermsOfUseManager {
         }
     }
 
-    private void setList(TermsOfUse termsOfUse) {
-        LOGGER.info("List of TermsOfUse size: " + termsOfUse.getInstances().size());
+    private void setList(List<TermsOfUse> termsOfUse) {
+        LOGGER.info("List of TermsOfUse size: " + termsOfUse.size());
         list = termsOfUse;
     }
 
     public void userAcceptedTermsOfUse(final User user, final String issuedDate) {
-        DAOProvider.async(new AsyncExecutionWithCallback<Void>() {
+        new AsyncTask<Void, Void, Void>() {
 
             @Override
-            public Void execute() throws DAOException {
-                user.setTouVersion(issuedDate);
-                mDAOProvider.getUserDAO().updateUser(user);
-                return null;
-            }
-
-            @Override
-            public Void onResult(Void result, boolean fail, Exception exception) {
-                if (!fail) {
-                    user.setTouVersion(issuedDate);
+            protected Void doInBackground(Void... params) {
+                try {
+                    user.setTermsOfUseVersion(issuedDate);
+                    mDAOProvider.getUserDAO().updateUser(user);
                     mUserManager.setUser(user);
                     LOGGER.info("User successfully updated.");
-                } else {
-                    LOGGER.warn(exception.getMessage(), exception);
+                } catch (DataUpdateFailureException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                } catch (UnauthorizedException e) {
+                    LOGGER.warn(e.getMessage(), e);
                 }
                 return null;
             }
-        });
+        }.execute();
     }
 
     /**

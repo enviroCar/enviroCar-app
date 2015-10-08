@@ -8,8 +8,8 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 
 import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
 

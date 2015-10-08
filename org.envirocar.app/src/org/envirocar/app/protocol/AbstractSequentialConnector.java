@@ -20,6 +20,30 @@
  */
 package org.envirocar.app.protocol;
 
+import android.util.Base64;
+
+import org.envirocar.app.FeatureFlags;
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand.CommonCommandState;
+import org.envirocar.app.bluetooth.obd.commands.EngineLoad;
+import org.envirocar.app.bluetooth.obd.commands.FuelSystemStatus;
+import org.envirocar.app.bluetooth.obd.commands.IntakePressure;
+import org.envirocar.app.bluetooth.obd.commands.IntakeTemperature;
+import org.envirocar.app.bluetooth.obd.commands.LongTermTrimBank1;
+import org.envirocar.app.bluetooth.obd.commands.MAF;
+import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbe;
+import org.envirocar.app.bluetooth.obd.commands.PIDSupported;
+import org.envirocar.app.bluetooth.obd.commands.PIDUtil;
+import org.envirocar.app.bluetooth.obd.commands.PIDUtil.PID;
+import org.envirocar.app.bluetooth.obd.commands.RPM;
+import org.envirocar.app.bluetooth.obd.commands.ShortTermTrimBank1;
+import org.envirocar.app.bluetooth.obd.commands.Speed;
+import org.envirocar.app.bluetooth.obd.commands.TPS;
+import org.envirocar.app.protocol.exception.AdapterFailedException;
+import org.envirocar.app.protocol.exception.ConnectionLostException;
+import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
+import org.envirocar.core.logging.Logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,30 +64,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.envirocar.app.FeatureFlags;
-import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
-import org.envirocar.app.bluetooth.obd.commands.EngineLoad;
-import org.envirocar.app.bluetooth.obd.commands.FuelSystemStatus;
-import org.envirocar.app.bluetooth.obd.commands.IntakePressure;
-import org.envirocar.app.bluetooth.obd.commands.IntakeTemperature;
-import org.envirocar.app.bluetooth.obd.commands.LongTermTrimBank1;
-import org.envirocar.app.bluetooth.obd.commands.MAF;
-import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbe;
-import org.envirocar.app.bluetooth.obd.commands.PIDSupported;
-import org.envirocar.app.bluetooth.obd.commands.PIDUtil;
-import org.envirocar.app.bluetooth.obd.commands.ShortTermTrimBank1;
-import org.envirocar.app.bluetooth.obd.commands.TPS;
-import org.envirocar.app.bluetooth.obd.commands.PIDUtil.PID;
-import org.envirocar.app.bluetooth.obd.commands.RPM;
-import org.envirocar.app.bluetooth.obd.commands.Speed;
-import org.envirocar.app.bluetooth.obd.commands.CommonCommand.CommonCommandState;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.protocol.exception.AdapterFailedException;
-import org.envirocar.app.protocol.exception.ConnectionLostException;
-import org.envirocar.app.protocol.exception.UnmatchedCommandResponseException;
-
-import android.util.Base64;
-
 /**
  * This class acts as the basis for adapters which work
  * in a request/response fashion (in particular, they do not
@@ -72,7 +72,6 @@ import android.util.Base64;
  * @author matthes rieke
  */
 public abstract class AbstractSequentialConnector implements OBDConnector {
-	
 	private static final Logger logger = Logger.getLogger(AbstractSequentialConnector.class.getName());
 	private static final int SLEEP_TIME = 25;
 	private static final int MAX_SLEEP_TIME = 5000;

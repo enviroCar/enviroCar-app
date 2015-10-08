@@ -6,7 +6,7 @@ import java.util.List;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.logging.Logger;
+import org.envirocar.core.logging.Logger;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;

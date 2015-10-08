@@ -27,9 +27,6 @@ package org.envirocar.app.bluetooth.obd.commands;
  */
 public class Defaults extends StringResultCommand {
 
-	/**
-	 * @param command
-	 */
 	public Defaults() {
 		super("AT D");
 	}

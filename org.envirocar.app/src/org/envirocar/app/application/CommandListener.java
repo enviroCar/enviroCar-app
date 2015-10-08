@@ -26,7 +26,6 @@ import android.preference.PreferenceManager;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
 import org.envirocar.app.bluetooth.obd.commands.EngineLoad;
 import org.envirocar.app.bluetooth.obd.commands.FuelSystemStatus;
@@ -44,15 +43,16 @@ import org.envirocar.app.bluetooth.obd.events.IntakePreasureUpdateEvent;
 import org.envirocar.app.bluetooth.obd.events.IntakeTemperatureUpdateEvent;
 import org.envirocar.app.bluetooth.obd.events.RPMUpdateEvent;
 import org.envirocar.app.bluetooth.obd.events.SpeedUpdateEvent;
-import org.envirocar.app.events.GpsDOPEvent;
-import org.envirocar.app.injection.InjectApplicationScope;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
+import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.core.entity.Measurement;
+import org.envirocar.core.events.gps.GpsDOPEvent;
 import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.MeasurementSerializationException;
 import org.envirocar.app.storage.TrackAlreadyFinishedException;
-import org.envirocar.app.storage.TrackMetadata;
+import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.TrackMetadata;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -115,7 +115,7 @@ public class CommandListener implements Listener, MeasurementListener {
         this.mBus.register(this);
 
         String samplingRate = PreferenceManager.getDefaultSharedPreferences
-                (context.getApplicationContext()).getString(SettingsActivity.SAMPLING_RATE, null);
+                (context.getApplicationContext()).getString(PreferenceConstants.SAMPLING_RATE, null);
 
         int val;
         if (samplingRate != null) {

@@ -9,13 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.envirocar.app.R;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.dao.exception.NotConnectedException;
-import org.envirocar.app.model.dao.exception.UnauthorizedException;
-import org.envirocar.app.storage.RemoteTrack;
-import org.envirocar.app.storage.Track;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.view.utils.ECAnimationUtils;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.exception.NotConnectedException;
+import org.envirocar.core.exception.UnauthorizedException;
+import org.envirocar.core.logging.Logger;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +26,7 @@ import rx.schedulers.Schedulers;
 /**
  * @author dewall
  */
-public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<RemoteTrack,
+public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<Track,
         TrackListRemoteCardAdapter> implements TrackListLocalCardFragment.OnTrackUploadedListener {
     private static final Logger LOG = Logger.getLogger(TrackListRemoteCardFragment.class);
 
@@ -53,7 +52,6 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<R
             mRecyclerViewAdapter.mTrackDataset.clear();
             ECAnimationUtils.animateShowView(getContext(), mTextView, R.anim.fade_in);
         }
-
     }
 
     @Override
@@ -70,42 +68,41 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<R
                      */
                     @Override
                     public void onTrackDetailsClicked(Track track, View transitionView) {
-                        LOG.info(String.format("onTrackDetailsClicked(%s)", track.getTrackId()
+                        LOG.info(String.format("onTrackDetailsClicked(%s)", track.getTrackID()
                                 .toString()));
-                        int trackID = (int) track.getTrackId().getId();
+                        int trackID = (int) track.getTrackID().getId();
                         TrackDetailsActivity.navigate(getActivity(), transitionView, trackID);
                     }
 
                     @Override
                     public void onDeleteTrackClicked(Track track) {
-                        LOG.info(String.format("onDeleteTrackClicked(%s)", track.getTrackId()));
+                        LOG.info(String.format("onDeleteTrackClicked(%s)", track.getTrackID()));
                         // create a dialog
                         createDeleteTrackDialog(track);
                     }
 
                     @Override
                     public void onUploadTrackClicked(Track track) {
-                        LOG.info(String.format("onUploadTrackClicked(%s)", track.getTrackId()));
+                        LOG.info(String.format("onUploadTrackClicked(%s)", track.getTrackID()));
                         // Upload the track
                         LOG.warn("onUploadTrackClicked() on remote tracks has no effect.");
                     }
 
                     @Override
                     public void onExportTrackClicked(Track track) {
-                        LOG.info(String.format("onExportTrackClicked(%s)", track.getTrackId()));
+                        LOG.info(String.format("onExportTrackClicked(%s)", track.getTrackID()));
                         exportTrack(track);
                     }
 
                     @Override
-                    public void onDownloadTrackClicked(
-                            RemoteTrack track, AbstractTrackListCardAdapter
+                    public void onDownloadTrackClicked(Track track, AbstractTrackListCardAdapter
                             .TrackCardViewHolder viewHolder) {
                         onDownloadTrackClickedInner(track, viewHolder);
                     }
                 });
     }
 
-    private void onDownloadTrackClickedInner(RemoteTrack track, AbstractTrackListCardAdapter
+    private void onDownloadTrackClickedInner(final Track track, AbstractTrackListCardAdapter
             .TrackCardViewHolder viewHolder) {
         AbstractTrackListCardAdapter.RemoteTrackCardViewHolder holder =
                 (AbstractTrackListCardAdapter.RemoteTrackCardViewHolder) viewHolder;
@@ -118,7 +115,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<R
         mTrackHandler.fetchRemoteTrackObservable(track)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<RemoteTrack>() {
+                .subscribe(new Observer<Track>() {
                     @Override
                     public void onCompleted() {
                         holder.mProgressCircle.beginFinalAnimation();
@@ -148,7 +145,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<R
                     }
 
                     @Override
-                    public void onNext(RemoteTrack remoteTrack) {
+                    public void onNext(Track remoteTrack) {
                         LOG.info("Successfully fetched remote track:");
                     }
                 });
@@ -159,15 +156,15 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<R
         protected Void doInBackground(Void... params) {
 
             //fetch db tracks (local+remote)
-            List<Track> tracks = mDBAdapter.getAllRemoteTracks(true);
+            List<Track> tracks = mDBAdapter.getAllRemoteTracks(false);
             for (Track t : tracks) {
-                mTrackList.add((RemoteTrack) t);
+                mTrackList.add(t);
             }
 
             try {
-                List<RemoteTrack> remoteTracks = mDAOProvider.getTrackDAO().getTrackIds(2000, 1);
+                List<Track> remoteTracks = mDAOProvider.getTrackDAO().getTrackIds(2000, 1);
 
-                for (RemoteTrack remoteTrack : remoteTracks) {
+                for (Track remoteTrack : remoteTracks) {
                     if (!mTrackList.contains(remoteTrack))
                         mTrackList.add(remoteTrack);
                 }
@@ -193,7 +190,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<R
 
     @Override
     public void onTrackUploaded(Track track) {
-        RemoteTrack currentRemoteTrackRef = (RemoteTrack) mDBAdapter.getTrack(track.getTrackId());
+        Track currentRemoteTrackRef = mDBAdapter.getTrack(track.getTrackID());
         mMainThreadWorker.schedule(() -> {
             mTrackList.add(currentRemoteTrackRef);
             mRecyclerViewAdapter.notifyDataSetChanged();

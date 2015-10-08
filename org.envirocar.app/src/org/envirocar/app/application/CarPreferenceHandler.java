@@ -24,26 +24,31 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.util.Base64;
+import android.util.Base64InputStream;
 import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.R;
-import org.envirocar.app.activity.SettingsActivity;
-import org.envirocar.app.activity.preference.CarSelectionPreference;
-import org.envirocar.app.events.NewCarTypeSelectedEvent;
-import org.envirocar.app.injection.InjectApplicationScope;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.Car;
-import org.envirocar.app.model.dao.DAOProvider;
-import org.envirocar.app.model.dao.exception.NotConnectedException;
-import org.envirocar.app.model.dao.exception.UnauthorizedException;
-import org.envirocar.app.util.CarUtils;
 import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.core.ContextInternetAccessProvider;
+import org.envirocar.core.entity.Car;
+import org.envirocar.core.events.NewCarTypeSelectedEvent;
+import org.envirocar.core.exception.DataCreationFailureException;
+import org.envirocar.core.exception.NotConnectedException;
+import org.envirocar.core.exception.UnauthorizedException;
+import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.CarUtils;
+import org.envirocar.app.injection.DAOProvider;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.StreamCorruptedException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -56,15 +61,7 @@ import javax.inject.Inject;
  * The manager for cars.
  */
 public class CarPreferenceHandler {
-    private static final Logger LOGGER = Logger.getLogger(CarPreferenceHandler.class);
-
-    // TODO DELETE.
-    public static final String PREF_KEY_CAR_MODEL = "carmodel";
-    public static final String PREF_KEY_CAR_MANUFACTURER = "manufacturer";
-    public static final String PREF_KEY_CAR_CONSTRUCTION_YEAR = "constructionyear";
-    public static final String PREF_KEY_FUEL_TYPE = "fueltype";
-    public static final String PREF_KEY_SENSOR_ID = "sensorid";
-    public static final String PREF_KEY_CAR_ENGINE_DISPLACEMENT = "pref_engine_displacement";
+    private static final Logger LOG = Logger.getLogger(CarPreferenceHandler.class);
 
     @Inject
     @InjectApplicationScope
@@ -93,8 +90,8 @@ public class CarPreferenceHandler {
         final SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(context);
 
-        mSelectedCar = CarSelectionPreference.instantiateCar(
-                preferences.getString(SettingsActivity.CAR, null));
+        mSelectedCar = instantiateCar(preferences.getString(PreferenceConstants
+                .PREFERENCE_TAG_CAR, null));
 
         // Get the serialized car strings of all added cars.
         mSerializedCarStrings = preferences
@@ -114,7 +111,7 @@ public class CarPreferenceHandler {
      * @return true if the car has been successfully added.
      */
     public boolean addCar(Car car) {
-        LOGGER.info(String.format("addCar(%s %s)", car.getManufacturer(), car.getModel()));
+        LOG.info(String.format("addCar(%s %s)", car.getManufacturer(), car.getModel()));
         // Serialize the car.
         String serializedCar = CarUtils.serializeCar(car);
 
@@ -136,12 +133,12 @@ public class CarPreferenceHandler {
      * @return true if the car has been successfully deleted.
      */
     public boolean removeCar(Car car) {
-        LOGGER.info(String.format("removeCar(%s %s)", car.getManufacturer(), car.getModel()));
+        LOG.info(String.format("removeCar(%s %s)", car.getManufacturer(), car.getModel()));
 
         // If the cartype equals the selected car, then set it to null and fire an event on the
         // event bus.
         if (mSelectedCar != null && mSelectedCar.equals(car)) {
-            LOGGER.info(String.format("%s %s equals the selected car type.",
+            LOG.info(String.format("%s %s equals the selected car type.",
                     car.getManufacturer(), car.getModel()));
             mSelectedCar = null;
 
@@ -178,9 +175,9 @@ public class CarPreferenceHandler {
      * @param c
      */
     public void setCar(Car c) {
-        LOGGER.info(String.format("setCar(%s %s)", c.getManufacturer(), c.getModel()));
+        LOG.info(String.format("setCar(%s %s)", c.getManufacturer(), c.getModel()));
         if (c == null || (mSelectedCar != null && this.mSelectedCar.equals(c))) {
-            LOGGER.info("setCar(): car is null or the same as already set");
+            LOG.info("setCar(): car is null or the same as already set");
             return;
         }
 
@@ -238,15 +235,17 @@ public class CarPreferenceHandler {
                 @Override
                 protected Void doInBackground(Void... params) {
                     try {
-                        String sensorId = mDAOProvider.getSensorDAO().saveSensor(car);
+                        String sensorId = mDAOProvider.getSensorDAO().createCar(car);
 
                         //put the sensor id into shared preferences
                         car.setId(sensorId);
 
                     } catch (final NotConnectedException e1) {
-                        LOGGER.warn(e1.getMessage());
+                        LOG.warn(e1.getMessage());
                     } catch (final UnauthorizedException e1) {
-                        LOGGER.warn(e1.getMessage());
+                        LOG.warn(e1.getMessage());
+                    } catch (DataCreationFailureException e1) {
+                        LOG.warn(e1.getMessage());
                     }
 
                     return null;
@@ -276,7 +275,7 @@ public class CarPreferenceHandler {
      * the application.
      */
     private void flushCarListState() {
-        LOGGER.info("flushCarListState()");
+        LOG.info("flushCarListState()");
 
         // First, delete the entry set of serialized car strings. Very important here to note is
         // that there has to be a commit happen before setting the next string set.
@@ -290,16 +289,16 @@ public class CarPreferenceHandler {
                 .commit();
 
         if (deleteSuccess && insertSuccess)
-            LOGGER.info("flushCarListState(): Successfully inserted into shared preferences");
+            LOG.info("flushCarListState(): Successfully inserted into shared preferences");
         else
-            LOGGER.severe("flushCarListState(): Error on insert.");
+            LOG.severe("flushCarListState(): Error on insert.");
     }
 
     /**
      * Stores and updates the currently selected car in the shared preferences of the application.
      */
     private void flushSelectedCarState() {
-        LOGGER.info("flushSelectedCarState()");
+        LOG.info("flushSelectedCarState()");
 
         // Delete the entry of the selected car and its hash code.
         boolean deleteSuccess = PreferenceManager.getDefaultSharedPreferences(mContext).edit()
@@ -308,10 +307,10 @@ public class CarPreferenceHandler {
                 .commit();
 
         if (deleteSuccess)
-            LOGGER.info("flushSelectedCarState(): Successfully deleted from the shared " +
+            LOG.info("flushSelectedCarState(): Successfully deleted from the shared " +
                     "preferences");
         else
-            LOGGER.severe("flushSelectedCarState(): Error on delete.");
+            LOG.severe("flushSelectedCarState(): Error on delete.");
 
         if (mSelectedCar != null) {
             // Set the new selected car type and hashcode.
@@ -323,11 +322,38 @@ public class CarPreferenceHandler {
                     .commit();
 
             if (insertSuccess)
-                LOGGER.info("flushSelectedCarState(): Successfully inserted into shared " +
+                LOG.info("flushSelectedCarState(): Successfully inserted into shared " +
                         "preferences");
             else
-                LOGGER.severe("flushSelectedCarState(): Error on insert.");
+                LOG.severe("flushSelectedCarState(): Error on insert.");
         }
+    }
+
+    public static Car instantiateCar(String object) {
+        if (object == null) return null;
+
+        ObjectInputStream ois = null;
+        try {
+            Base64InputStream b64 = new Base64InputStream(new ByteArrayInputStream(object
+                    .getBytes()), Base64.DEFAULT);
+            ois = new ObjectInputStream(b64);
+            Car car = (Car) ois.readObject();
+            return car;
+        } catch (StreamCorruptedException e) {
+            LOG.warn(e.getMessage(), e);
+        } catch (IOException e) {
+            LOG.warn(e.getMessage(), e);
+        } catch (ClassNotFoundException e) {
+            LOG.warn(e.getMessage(), e);
+        } finally {
+            if (ois != null)
+                try {
+                    ois.close();
+                } catch (IOException e) {
+                    LOG.warn(e.getMessage(), e);
+                }
+        }
+        return null;
     }
 
 }

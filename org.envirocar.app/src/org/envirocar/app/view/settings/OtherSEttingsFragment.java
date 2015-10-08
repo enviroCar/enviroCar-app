@@ -8,7 +8,7 @@ import android.preference.PreferenceFragment;
 import android.view.View;
 
 import org.envirocar.app.R;
-import org.envirocar.app.util.Util;
+import org.envirocar.core.util.Util;
 
 /**
  * @author dewall

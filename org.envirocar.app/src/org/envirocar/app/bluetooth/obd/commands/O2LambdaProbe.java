@@ -21,7 +21,7 @@
 package org.envirocar.app.bluetooth.obd.commands;
 
 import org.envirocar.app.bluetooth.obd.commands.PIDUtil.PID;
-import org.envirocar.app.logging.Logger;
+import org.envirocar.core.logging.Logger;
 
 public abstract class O2LambdaProbe extends NumberResultCommand {
 

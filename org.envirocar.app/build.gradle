@@ -1,84 +1,65 @@
 apply plugin: 'android'
 
 dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')
-
+    compile fileTree(include: '*.jar', dir: 'libs')
     compile 'com.android.support:appcompat-v7:23.0.1'
     compile 'com.android.support:design:23.0.1'
     compile 'com.android.support:cardview-v7:23.0.1'
     compile 'com.android.support:recyclerview-v7:23.0.1'
-
     // Dagger dependency injection.
     compile 'com.squareup.dagger:dagger:1.2.2'
-//    apt 'com.squareup.dagger:dagger-compiler:1.2.2'
+    //    apt 'com.squareup.dagger:dagger-compiler:1.2.2'
     provided 'com.squareup.dagger:dagger-compiler:1.2.2'
-
     // Otto event bus.
     compile 'com.squareup:otto:1.3.8'
-
     // Android Crash Report ACRA
     compile 'ch.acra:acra:4.6.2'
-
     // Google GSON
     compile 'com.google.code.gson:gson:2.3'
-
     // Crouton
     compile('de.keyboardsurfer.android.widget:crouton:1.8.5@aar') {
         // exclusion is not necessary, but generally a good idea.
         exclude group: 'com.google.android', module: 'support-v4'
     }
-
     // Google Guava
     compile 'com.google.guava:guava:18.0'
-
     // Commons compress
     compile 'org.apache.commons:commons-compress:1.5'
-
     // Butterknife
     compile 'com.jakewharton:butterknife:6.1.0'
-
     // RxJava for Android
-    compile 'io.reactivex:rxandroid:0.24.0'
+    // RxJava for Android
+//    compile 'io.reactivex:rxandroid:0.24.0'
 
     // MapBox SDK
     compile('com.mapbox.mapboxsdk:mapbox-android-sdk:0.7.4@aar') {
         transitive = true
     }
-
     compile 'com.github.jorgecastilloprz:fabprogresscircle:1.01@aar'
-
-//    compile 'com.github.clans:fab:1.5.5'
+    //    compile 'com.github.clans:fab:1.5.5'
     compile 'com.afollestad:material-dialogs:0.7.6.0'
-
     // HelloCharts dependency
     compile 'com.github.lecho:hellocharts-library:1.5.5@aar'
 
-    // Everything realted to retrofit...
-    compile 'com.squareup.retrofit:retrofit:2.0.0-beta1'
-    compile 'com.squareup.retrofit:converter-gson:2.0.0-beta1'
-    compile 'com.squareup.retrofit:retrofit-adapters:2.0.0-beta1'
-    compile 'com.squareup.retrofit:adapter-rxjava:2.0.0-beta1'
-
-
     testCompile 'junit:junit:4.12'
-    testCompile "org.mockito:mockito-core:1.9.5"
-    testCompile ('org.powermock:powermock-api-mockito:1.6.2') {
+    testCompile 'org.mockito:mockito-core:1.9.5'
+    testCompile('org.powermock:powermock-api-mockito:1.6.2') {
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
-    testCompile ('org.powermock:powermock-module-junit4:1.6.2') {
+    testCompile('org.powermock:powermock-module-junit4:1.6.2') {
         exclude module: 'hamcrest-core'
         exclude module: 'objenesis'
     }
-
     androidTestCompile 'junit:junit:4.12'
-    androidTestCompile ('com.android.support.test:runner:0.3') {
+    androidTestCompile('com.android.support.test:runner:0.3') {
         exclude module: 'support-annotations'
     }
-    androidTestCompile ('com.android.support.test:rules:0.3') {
+    androidTestCompile('com.android.support.test:rules:0.3') {
         exclude module: 'support-annotations'
     }
-
+    compile project(':org.envirocar.core')
+    compile project(':org.envirocar.remote')
 }
 
 

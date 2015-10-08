@@ -22,14 +22,14 @@ import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 import com.mapbox.mapboxsdk.views.MapView;
 
 import org.envirocar.app.R;
-import org.envirocar.app.exception.FuelConsumptionException;
-import org.envirocar.app.exception.MeasurementsException;
-import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.model.TrackId;
-import org.envirocar.app.protocol.algorithm.UnsupportedFuelTypeException;
 import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.storage.Track;
 import org.envirocar.app.view.utils.MapUtils;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.exception.FuelConsumptionException;
+import org.envirocar.core.exception.MeasurementsException;
+import org.envirocar.core.exception.UnsupportedFuelTypeException;
+import org.envirocar.core.injection.BaseInjectorActivity;
+import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -116,7 +116,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
         // Get the track to show.
         int mTrackID = getIntent().getIntExtra(EXTRA_TRACKID, -1);
-        TrackId trackid = new TrackId(mTrackID);
+        Track.TrackId trackid = new Track.TrackId(mTrackID);
         Track track = mDBAdapter.getTrack(trackid);
 
 
@@ -230,9 +230,10 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     private void initViewValues(Track track) {
         try {
             final String text = UTC_DATE_FORMATTER.format(new Date(
-                    track.getDurationInMillis()));
+                    track.getDuration()));
             mDistanceText.setText(String.format("%s km",
-                    DECIMAL_FORMATTER_TWO_DIGITS.format(track.getLengthOfTrack())));
+                    DECIMAL_FORMATTER_TWO_DIGITS.format(((TrackStatisticsProvider) track)
+                            .getDistanceOfTrack())));
             mDurationText.setText(text);
 
             mDescriptionText.setText(track.getDescription());
@@ -241,18 +242,18 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
             mEndText.setText(DATE_FORMAT.format(new Date(track.getEndTime())));
 
             mEmissionText.setText(DECIMAL_FORMATTER_TWO_DIGITS.format(
-                    track.getGramsPerKm()) + " g/km");
+                    ((TrackStatisticsProvider) track).getGramsPerKm()) + " g/km");
             mConsumptionText.setText(
                     String.format("%s l/h, %s l/100km",
                             DECIMAL_FORMATTER_TWO_DIGITS.format(
-                                    track.getFuelConsumptionPerHour()),
+                                    ((TrackStatisticsProvider) track).getFuelConsumptionPerHour()),
                             DECIMAL_FORMATTER_TWO_DIGITS.format(
-                                    track.getLiterPerHundredKm())));
+                                    ((TrackStatisticsProvider) track).getLiterPerHundredKm())));
+        } catch (FuelConsumptionException e) {
+            e.printStackTrace();
         } catch (MeasurementsException e) {
             e.printStackTrace();
         } catch (UnsupportedFuelTypeException e) {
-            e.printStackTrace();
-        } catch (FuelConsumptionException e) {
             e.printStackTrace();
         }
     }

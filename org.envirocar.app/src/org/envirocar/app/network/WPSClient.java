@@ -24,15 +24,12 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-import org.envirocar.app.exception.MeasurementsException;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.Track;
-import org.envirocar.app.util.Util;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.logging.Logger;
 
 import android.os.AsyncTask;
 
 public class WPSClient {
-
 	private static final Logger logger = Logger.getLogger(WPSClient.class);
 
 	/**
@@ -88,19 +85,19 @@ public class WPSClient {
 			@Override
 			protected void onPostExecute(Double executeResult) {
 
-				double result = executeResult;
-				if (!Double.isNaN(executeResult)) {
-					try {
-						result = executeResult
-								* (track.getLiterPerHundredKm() / 100)
-								* track.getLengthOfTrack();
+//				double result = executeResult;
+//				if (!Double.isNaN(executeResult)) {
+//					try {
+//						result = executeResult
+//								* (track.getLiterPerHundredKm() / 100)
+//								* track.getLengthOfTrack();
+//
+//					} catch (MeasurementsException e) {
+//						logger.warn(e.getMessage(), e);
+//					}
+//				}
 
-					} catch (MeasurementsException e) {
-						logger.warn(e.getMessage(), e);
-					}
-				}
-
-				callback.onResultAvailable(result);
+//				callback.onResultAvailable(result);
 
 			}
 

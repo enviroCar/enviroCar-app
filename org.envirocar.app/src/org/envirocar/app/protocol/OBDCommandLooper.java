@@ -20,6 +20,24 @@
  */
 package org.envirocar.app.protocol;
 
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+
+import org.envirocar.app.application.Listener;
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand.CommonCommandState;
+import org.envirocar.app.protocol.OBDConnector.ConnectionState;
+import org.envirocar.app.protocol.drivedeck.DriveDeckSportConnector;
+import org.envirocar.app.protocol.exception.AdapterFailedException;
+import org.envirocar.app.protocol.exception.AllAdaptersFailedException;
+import org.envirocar.app.protocol.exception.ConnectionLostException;
+import org.envirocar.app.protocol.exception.LooperStoppedException;
+import org.envirocar.app.protocol.sequential.AposW3Connector;
+import org.envirocar.app.protocol.sequential.ELM327Connector;
+import org.envirocar.app.protocol.sequential.OBDLinkMXConnector;
+import org.envirocar.core.logging.Logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,24 +46,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.envirocar.app.application.Listener;
-import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
-import org.envirocar.app.bluetooth.obd.commands.CommonCommand.CommonCommandState;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.protocol.OBDConnector.ConnectionState;
-import org.envirocar.app.protocol.drivedeck.DriveDeckSportConnector;
-import org.envirocar.app.protocol.exception.AdapterFailedException;
-import org.envirocar.app.protocol.exception.AllAdaptersFailedException;
-import org.envirocar.app.protocol.exception.LooperStoppedException;
-import org.envirocar.app.protocol.exception.ConnectionLostException;
-import org.envirocar.app.protocol.sequential.AposW3Connector;
-import org.envirocar.app.protocol.sequential.ELM327Connector;
-import org.envirocar.app.protocol.sequential.OBDLinkMXConnector;
-
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
 
 /**
  * this is the main class for interacting with a OBD-II adapter.

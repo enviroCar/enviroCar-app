@@ -14,10 +14,10 @@ import android.support.v4.app.NotificationCompat;
 
 import com.google.common.collect.Maps;
 
-import org.envirocar.app.injection.InjectApplicationScope;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
 import org.envirocar.app.services.SystemStartupService;
+import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
 
 import java.util.Map;
 

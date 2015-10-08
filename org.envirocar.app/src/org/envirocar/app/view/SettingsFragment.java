@@ -16,14 +16,14 @@ import android.widget.Toast;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.injection.Injector;
 import org.envirocar.app.R;
 import org.envirocar.app.events.bluetooth.BluetoothPairingChangedEvent;
 import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.util.Util;
+import org.envirocar.core.logging.Logger;
 import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.util.Util;
 
 import javax.inject.Inject;
 

@@ -27,9 +27,6 @@ package org.envirocar.app.bluetooth.obd.commands;
  */
 public class EchoOff extends StringResultCommand {
 
-	/**
-	 * @param command
-	 */
 	public EchoOff() {
 		super("AT E0");
 	}

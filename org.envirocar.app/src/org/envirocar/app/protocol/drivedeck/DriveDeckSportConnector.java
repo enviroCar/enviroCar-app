@@ -20,15 +20,10 @@
  */
 package org.envirocar.app.protocol.drivedeck;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import android.util.Base64;
 
 import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.bluetooth.obd.commands.IntakePressure;
 import org.envirocar.app.bluetooth.obd.commands.IntakeTemperature;
 import org.envirocar.app.bluetooth.obd.commands.MAF;
@@ -36,14 +31,19 @@ import org.envirocar.app.bluetooth.obd.commands.NumberResultCommand;
 import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbe;
 import org.envirocar.app.bluetooth.obd.commands.PIDSupported;
 import org.envirocar.app.bluetooth.obd.commands.RPM;
-import org.envirocar.app.bluetooth.obd.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.bluetooth.obd.commands.Speed;
-import org.envirocar.app.logging.Logger;
 import org.envirocar.app.protocol.AbstractAsynchronousConnector;
 import org.envirocar.app.protocol.ResponseParser;
 import org.envirocar.app.protocol.drivedeck.CycleCommand.PID;
+import org.envirocar.core.logging.Logger;
 
-import android.util.Base64;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 

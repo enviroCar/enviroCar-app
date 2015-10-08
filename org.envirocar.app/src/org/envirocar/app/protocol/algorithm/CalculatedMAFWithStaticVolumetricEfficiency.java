@@ -20,29 +20,32 @@
  */
 package org.envirocar.app.protocol.algorithm;
 
-import org.envirocar.app.model.Car;
+
+import org.envirocar.core.entity.Car;
+import org.envirocar.core.entity.CarImpl;
 
 public class CalculatedMAFWithStaticVolumetricEfficiency extends
-		AbstractCalculatedMAFAlgorithm {
+        AbstractCalculatedMAFAlgorithm {
 
-	private static final double GAS_CONSTANT = 8.3144621;
-	private static final double MOLECULAR_MASS_OF_AIR = 28.9644;
-	private double volumetricEfficiency = 85.0d;
-	private Car car;
-	
-	public CalculatedMAFWithStaticVolumetricEfficiency(Car car) {
-		this.car = car;
-	}
+    private static final double GAS_CONSTANT = 8.3144621;
+    private static final double MOLECULAR_MASS_OF_AIR = 28.9644;
+    private double volumetricEfficiency = 85.0d;
+    private Car car;
 
-	@Override
-	public double calculateMAF(double rpm, double intakeTemperature,
-			double intakePressure) {
-		//calculate alternative maf from iat (convert to °K), map, rpm
-		double imap = rpm * intakePressure / (intakeTemperature + 273.15d);
-		//VE = 85 in most modern cars
-		double calculatedMaf = imap / 120.0d * this.volumetricEfficiency / 100.0d * Car.ccmToLiter(this.car.getEngineDisplacement()) * MOLECULAR_MASS_OF_AIR / GAS_CONSTANT;	
+    public CalculatedMAFWithStaticVolumetricEfficiency(Car car) {
+        this.car = car;
+    }
 
-		return calculatedMaf;
-	}
+    @Override
+    public double calculateMAF(double rpm, double intakeTemperature,
+                               double intakePressure) {
+        //calculate alternative maf from iat (convert to °K), map, rpm
+        double imap = rpm * intakePressure / (intakeTemperature + 273.15d);
+        //VE = 85 in most modern cars
+        double calculatedMaf = imap / 120.0d * this.volumetricEfficiency / 100.0d * CarImpl
+                .ccmToLiter(this.car.getEngineDisplacement()) * MOLECULAR_MASS_OF_AIR / GAS_CONSTANT;
+
+        return calculatedMaf;
+    }
 
 }

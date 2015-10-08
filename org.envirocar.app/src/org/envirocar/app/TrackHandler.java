@@ -14,18 +14,22 @@ import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.app.bluetooth.service.BluetoothServiceState;
 import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.exception.ServerException;
-import org.envirocar.app.injection.InjectApplicationScope;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.TermsOfUseInstance;
-import org.envirocar.app.model.TrackId;
-import org.envirocar.app.model.User;
-import org.envirocar.app.model.dao.DAOProvider;
-import org.envirocar.app.model.dao.exception.NotConnectedException;
-import org.envirocar.app.model.dao.exception.UnauthorizedException;
+import org.envirocar.app.injection.DAOProvider;
 import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.storage.RemoteTrack;
-import org.envirocar.app.storage.Track;
+import org.envirocar.core.entity.TermsOfUse;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.entity.User;
+import org.envirocar.core.events.TrackFinishedEvent;
+import org.envirocar.core.exception.DataRetrievalFailureException;
+import org.envirocar.core.exception.DataUpdateFailureException;
+import org.envirocar.core.exception.MeasurementsException;
+import org.envirocar.core.exception.NotConnectedException;
+import org.envirocar.core.exception.UnauthorizedException;
+import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
+
+import java.util.ArrayList;
 
 import javax.inject.Inject;
 
@@ -102,7 +106,7 @@ public class TrackHandler {
      * @param trackID the id of the track to delete.
      * @return true if the track has been successfully deleted.
      */
-    public boolean deleteLocalTrack(TrackId trackID) {
+    public boolean deleteLocalTrack(Track.TrackId trackID) {
         Track dbRefTrack = mDBAdapter.getTrack(trackID, true);
         return deleteLocalTrack(dbRefTrack);
     }
@@ -114,12 +118,12 @@ public class TrackHandler {
      * @return true if the track has been successfully deleted.
      */
     public boolean deleteLocalTrack(Track trackRef) {
-        LOGGER.info(String.format("deleteLocalTrack(id = %s)", trackRef.getTrackId().getId()));
+        LOGGER.info(String.format("deleteLocalTrack(id = %s)", trackRef.getTrackID().getId()));
 
         // Only delete the track if the track is a local track.
         if (trackRef.isLocalTrack()) {
             LOGGER.info("deleteLocalTrack(...): Track is a local track.");
-            mDBAdapter.deleteTrack(trackRef.getTrackId());
+            mDBAdapter.deleteTrack(trackRef.getTrackID());
             return true;
         }
 
@@ -138,7 +142,7 @@ public class TrackHandler {
      */
     public boolean deleteRemoteTrack(Track trackRef) throws UnauthorizedException,
             NotConnectedException {
-        LOGGER.info(String.format("deleteRemoteTrack(id = %s)", trackRef.getTrackId().getId()));
+        LOGGER.info(String.format("deleteRemoteTrack(id = %s)", trackRef.getTrackID().getId()));
 
         // Check whether this track is a remote track.
         if (!trackRef.isRemoteTrack()) {
@@ -147,8 +151,12 @@ public class TrackHandler {
         }
 
         // Delete the track first remote and then the local reference.
-        mDAOProvider.getTrackDAO().deleteTrack(((RemoteTrack) trackRef).getRemoteID());
-        mDBAdapter.deleteTrack(trackRef.getTrackId());
+        try {
+            mDAOProvider.getTrackDAO().deleteTrack(trackRef.getRemoteID());
+        } catch (DataUpdateFailureException e) {
+            e.printStackTrace();
+        }
+        mDBAdapter.deleteTrack(trackRef.getTrackID());
 
         // Successfully deleted the remote track.
         LOGGER.info("deleteRemoteTrack(): Successfully deleted the remote track.");
@@ -162,13 +170,13 @@ public class TrackHandler {
     }
 
     public Track getTrackByID(long trackId) {
-        return getTrackByID(new TrackId(trackId));
+        return getTrackByID(new Track.TrackId(trackId));
     }
 
     /**
      *
      */
-    public Track getTrackByID(TrackId trackId) {
+    public Track getTrackByID(Track.TrackId trackId) {
         LOGGER.info(String.format("getTrackByID(%s)", trackId.toString()));
         return mDBAdapter.getTrack(trackId);
     }
@@ -196,7 +204,7 @@ public class TrackHandler {
         final User user = mUserManager.getUser();
         boolean verified = false;
         try {
-            verified = mTermsOfUseManager.verifyTermsUseOfVersion(user.getTouVersion());
+            verified = mTermsOfUseManager.verifyTermsUseOfVersion(user.getTermsOfUseVersion());
         } catch (ServerException e) {
             LOGGER.warn(e.getMessage(), e);
             String infoText = mContext.getString(R.string.trackviews_server_error);
@@ -207,7 +215,7 @@ public class TrackHandler {
         // If the user has not accepted the terms of use, then show a dialog where he
         // can accept the terms of use.
         if (!verified) {
-            final TermsOfUseInstance current;
+            final TermsOfUse current;
             try {
                 current = mTermsOfUseManager.getCurrentTermsOfUse();
             } catch (ServerException e) {
@@ -218,7 +226,7 @@ public class TrackHandler {
 
             // Create a dialog with which the user can accept the terms of use.
             DialogUtil.createTermsOfUseDialog(current,
-                    user.getTouVersion() == null, new DialogUtil
+                    user.getTermsOfUseVersion() == null, new DialogUtil
                             .PositiveNegativeCallback() {
 
                         @Override
@@ -246,30 +254,45 @@ public class TrackHandler {
         new UploadManager(activity).uploadSingleTrack(track, callback);
     }
 
-    public Track downloadTrack(String remoteID) throws NotConnectedException {
-        Track downloadedTrack = mDAOProvider.getTrackDAO().getTrack(remoteID);
-        mDBAdapter.insertTrack(downloadedTrack);
-
-        return downloadedTrack;
-    }
-
-    public Observable<RemoteTrack> fetchRemoteTrackObservable(RemoteTrack remoteTrack) {
-        return Observable.create(new Observable.OnSubscribe<RemoteTrack>() {
+    public Observable<Track> fetchRemoteTrackObservable(Track remoteTrack) {
+        return Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
-            public void call(Subscriber<? super RemoteTrack> subscriber) {
+            public void call(Subscriber<? super Track> subscriber) {
                 try {
                     subscriber.onNext(fetchRemoteTrack(remoteTrack));
                     subscriber.onCompleted();
                 } catch (NotConnectedException e) {
+                    throw OnErrorThrowable.from(e);
+                } catch (DataRetrievalFailureException e) {
+                    throw OnErrorThrowable.from(e);
+                } catch (UnauthorizedException e) {
                     throw OnErrorThrowable.from(e);
                 }
             }
         });
     }
 
-    public RemoteTrack fetchRemoteTrack(RemoteTrack remoteTrack) throws NotConnectedException {
-        Track downloadedTrack = mDAOProvider.getTrackDAO().getTrack(remoteTrack.getRemoteID());
-        remoteTrack.copyVariables(downloadedTrack);
+    public Track fetchRemoteTrack(Track remoteTrack) throws NotConnectedException,
+            UnauthorizedException, DataRetrievalFailureException {
+        try {
+            Track downloadedTrack = mDAOProvider.getTrackDAO().getTrackById(remoteTrack
+                    .getRemoteID());
+
+            // Deep copy... TODO improve this.
+            remoteTrack.setName(downloadedTrack.getName());
+            remoteTrack.setDescription(downloadedTrack.getDescription());
+            remoteTrack.setMeasurements(new ArrayList<>(downloadedTrack.getMeasurements()));
+            remoteTrack.setCar(downloadedTrack.getCar());
+            remoteTrack.setTrackStatus(downloadedTrack.getTrackStatus());
+            remoteTrack.setMetadata(downloadedTrack.getMetadata());
+
+            remoteTrack.setStartTime(downloadedTrack.getStartTime());
+            remoteTrack.setEndTime(downloadedTrack.getEndTime());
+        } catch (MeasurementsException e) {
+            e.printStackTrace();
+        }
+
+
         mDBAdapter.insertTrack(remoteTrack, true);
         return remoteTrack;
     }

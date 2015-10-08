@@ -1,2 +1,2 @@
-include ':org.envirocar.app'
+include ':org.envirocar.app', ':org.envirocar.core', ':org.envirocar.remote'
 include ':android-obd-simulator'

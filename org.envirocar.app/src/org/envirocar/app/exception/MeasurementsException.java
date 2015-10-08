@@ -1,41 +1,41 @@
-/* 
- * enviroCar 2013
- * Copyright (C) 2013  
- * Martin Dueren, Jakob Moellers, Gerald Pape, Christopher Stephan
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
- * 
- */
-
-package org.envirocar.app.exception;
-
-/**
- * This exception is thrown when there was a problem with a measurement. This
- * occurs most likely when there are no measurements in the track.
- * 
- * @author jakob
- * 
- */
-public class MeasurementsException extends Exception {
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 9058161248957680123L;
-
-	public MeasurementsException(String e) {
-		super(e);
-	}
-}
+///*
+// * enviroCar 2013
+// * Copyright (C) 2013
+// * Martin Dueren, Jakob Moellers, Gerald Pape, Christopher Stephan
+// *
+// * This program is free software; you can redistribute it and/or modify
+// * it under the terms of the GNU General Public License as published by
+// * the Free Software Foundation; either version 3 of the License, or
+// * (at your option) any later version.
+// *
+// * This program is distributed in the hope that it will be useful,
+// * but WITHOUT ANY WARRANTY; without even the implied warranty of
+// * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// * GNU General Public License for more details.
+// *
+// * You should have received a copy of the GNU General Public License
+// * along with this program; if not, write to the Free Software Foundation,
+// * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
+// *
+// */
+//
+//package org.envirocar.app.exception;
+//
+///**
+// * This exception is thrown when there was a problem with a measurement. This
+// * occurs most likely when there are no measurements in the track.
+// *
+// * @author jakob
+// *
+// */
+//public class MeasurementsException extends Exception {
+//
+//	/**
+//	 *
+//	 */
+//	private static final long serialVersionUID = 9058161248957680123L;
+//
+//	public MeasurementsException(String e) {
+//		super(e);
+//	}
+//}

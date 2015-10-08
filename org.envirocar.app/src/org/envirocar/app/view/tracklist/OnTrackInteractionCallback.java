@@ -2,8 +2,8 @@ package org.envirocar.app.view.tracklist;
 
 import android.view.View;
 
-import org.envirocar.app.storage.RemoteTrack;
-import org.envirocar.app.storage.Track;
+import org.envirocar.core.entity.Track;
+
 
 /**
  * @author dewall
@@ -33,5 +33,5 @@ interface OnTrackInteractionCallback {
     /**
      * @param track the track to download.
      */
-    void onDownloadTrackClicked(RemoteTrack track, AbstractTrackListCardAdapter.TrackCardViewHolder holder);
+    void onDownloadTrackClicked(Track track, AbstractTrackListCardAdapter.TrackCardViewHolder holder);
 }

@@ -20,7 +20,6 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
-import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.activity.StartStopButtonUtil;
 import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.bluetooth.BluetoothHandler;
@@ -28,16 +27,17 @@ import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.bluetooth.obd.events.Co2Event;
 import org.envirocar.app.bluetooth.obd.events.SpeedUpdateEvent;
 import org.envirocar.app.bluetooth.service.BluetoothServiceState;
-import org.envirocar.app.events.GpsDOPEvent;
-import org.envirocar.app.events.GpsSatelliteFix;
-import org.envirocar.app.events.GpsSatelliteFixEvent;
-import org.envirocar.app.events.LocationChangedEvent;
-import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.Car;
+import org.envirocar.app.view.settings.NewSettingsActivity;
+import org.envirocar.core.events.gps.GpsDOPEvent;
+import org.envirocar.core.events.gps.GpsSatelliteFix;
+import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
+import org.envirocar.core.events.gps.LocationChangedEvent;
 import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.app.views.LayeredImageRotateView;
 import org.envirocar.app.views.TypefaceEC;
+import org.envirocar.core.entity.Car;
+import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.core.logging.Logger;
 
 import java.text.DecimalFormat;
 
@@ -256,8 +256,7 @@ public class RealDashboardFragment extends BaseInjectorFragment {
     @OnClick(R.id.connectionStateImage)
     protected void onConnectionStateImageClicked() {
         String remoteDevice = PreferenceManager.getDefaultSharedPreferences(getActivity())
-                .getString(org.envirocar.app.activity.SettingsActivity.BLUETOOTH_KEY,
-                        null);
+                .getString(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_LIST, null);
 
         if (remoteDevice == null) {
             Toast.makeText(getActivity(), R.string.no_device_selected, Toast.LENGTH_SHORT).show();
@@ -268,7 +267,7 @@ public class RealDashboardFragment extends BaseInjectorFragment {
     public void onClickDashboardStartStop() {
         if (mBluetoothHandler.isBluetoothEnabled()) {
             if (mCarManager.getCar() == null) {
-                Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
+                Intent settingsIntent = new Intent(getActivity(), NewSettingsActivity.class);
                 startActivity(settingsIntent);
             } else {
                     /*

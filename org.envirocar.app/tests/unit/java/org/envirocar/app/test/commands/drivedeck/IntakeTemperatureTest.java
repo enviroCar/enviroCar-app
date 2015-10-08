@@ -28,7 +28,7 @@ import junit.framework.Assert;
 import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
 import org.envirocar.app.bluetooth.obd.commands.IntakeTemperature;
 import org.envirocar.app.logging.Handler;
-import org.envirocar.app.logging.Logger;
+import org.envirocar.core.logging.Logger;
 import org.envirocar.app.protocol.ResponseParser;
 import org.envirocar.app.protocol.drivedeck.DriveDeckSportConnector;
 import org.envirocar.app.util.Util;

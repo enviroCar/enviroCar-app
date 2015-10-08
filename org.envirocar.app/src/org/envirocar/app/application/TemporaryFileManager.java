@@ -25,12 +25,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.envirocar.app.injection.InjectApplicationScope;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.util.Util;
 
 import android.content.Context;
+
+import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.Util;
 
 import javax.inject.Inject;
 

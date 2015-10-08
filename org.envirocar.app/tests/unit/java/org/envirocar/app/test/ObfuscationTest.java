@@ -26,7 +26,7 @@ import java.util.List;
 import junit.framework.Assert;
 
 import org.envirocar.app.json.TrackEncoder;
-import org.envirocar.app.logging.Logger;
+import org.envirocar.core.logging.Logger;
 import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.storage.Measurement;

@@ -33,13 +33,12 @@ import java.util.UUID;
 import java.util.zip.GZIPOutputStream;
 
 import org.envirocar.app.application.TemporaryFileManager;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.Measurement;
-import org.envirocar.app.storage.Track;
-import org.envirocar.app.storage.Measurement.PropertyKey;
-import org.envirocar.app.util.FileWithMetadata;
-import org.envirocar.app.util.InputStreamWithLength;
-import org.envirocar.app.util.Util;
+import org.envirocar.core.entity.Measurement;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.FileWithMetadata;
+import org.envirocar.core.util.InputStreamWithLength;
+import org.envirocar.core.util.Util;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -202,8 +201,8 @@ public class StreamTrackEncoder extends TrackEncoder {
 		}
 		
 		JsonObject result = new JsonObject();
-		Map<PropertyKey, Double> props = measurement.getAllProperties();
-		for (PropertyKey key : props.keySet()) {
+		Map<Measurement.PropertyKey, Double> props = measurement.getAllProperties();
+		for (Measurement.PropertyKey key : props.keySet()) {
 			if (supportedPhenomenons.contains(key)) {
 				result.add(key.toString(), createValue(props.get(key)));
 			}

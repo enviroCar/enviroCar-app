@@ -27,9 +27,6 @@ package org.envirocar.app.bluetooth.obd.commands;
  */
 public class HeadersOff extends StringResultCommand {
 
-	/**
-	 * @param command
-	 */
 	public HeadersOff() {
 		super("AT H0");
 	}

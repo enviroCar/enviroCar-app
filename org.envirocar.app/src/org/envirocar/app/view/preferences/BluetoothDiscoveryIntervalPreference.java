@@ -10,8 +10,8 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 
 import org.envirocar.app.R;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.injection.Injector;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;

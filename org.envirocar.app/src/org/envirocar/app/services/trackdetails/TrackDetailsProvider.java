@@ -3,18 +3,15 @@ package org.envirocar.app.services.trackdetails;
 import android.location.Location;
 import android.os.SystemClock;
 
-import com.google.common.collect.Lists;
 import com.mapbox.mapboxsdk.overlay.PathOverlay;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.events.LocationChangedEvent;
-import org.envirocar.app.events.NewMeasurementEvent;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.Measurement;
-
-import java.util.List;
+import org.envirocar.core.entity.Measurement;
+import org.envirocar.core.events.NewMeasurementEvent;
+import org.envirocar.core.events.gps.LocationChangedEvent;
+import org.envirocar.core.logging.Logger;
 
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;

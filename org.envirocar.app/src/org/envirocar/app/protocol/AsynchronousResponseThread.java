@@ -20,18 +20,18 @@
  */
 package org.envirocar.app.protocol;
 
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+
+import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
+import org.envirocar.app.protocol.exception.LooperStoppedException;
+import org.envirocar.core.logging.Logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.protocol.exception.LooperStoppedException;
-
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
 
 public class AsynchronousResponseThread extends HandlerThread {
 	

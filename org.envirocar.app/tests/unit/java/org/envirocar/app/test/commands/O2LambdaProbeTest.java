@@ -29,7 +29,7 @@ import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbeCurrent;
 import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbeVoltage;
 import org.envirocar.app.bluetooth.obd.commands.PIDUtil;
 import org.envirocar.app.bluetooth.obd.commands.PIDUtil.PID;
-import org.envirocar.app.logging.Logger;
+import org.envirocar.core.logging.Logger;
 import org.envirocar.app.test.MockingEnvironmentTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;

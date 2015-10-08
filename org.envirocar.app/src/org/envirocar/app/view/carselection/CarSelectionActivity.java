@@ -27,11 +27,12 @@ import com.google.common.collect.Sets;
 
 import org.envirocar.app.R;
 import org.envirocar.app.application.CarPreferenceHandler;
-import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.Car;
-import org.envirocar.app.model.dao.DAOProvider;
 import org.envirocar.app.view.utils.ECAnimationUtils;
+import org.envirocar.core.entity.Car;
+import org.envirocar.core.entity.CarImpl;
+import org.envirocar.core.injection.BaseInjectorActivity;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.app.injection.DAOProvider;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -56,7 +57,7 @@ import rx.schedulers.Schedulers;
  * @author dewall
  */
 public class CarSelectionActivity extends BaseInjectorActivity {
-    private static final Logger LOGGER = Logger.getLogger(CarSelectionActivity.class);
+    private static final Logger LOG = Logger.getLogger(CarSelectionActivity.class);
 
     private static final int DURATION_SHEET_ANIMATION = 350;
 
@@ -275,8 +276,7 @@ public class CarSelectionActivity extends BaseInjectorActivity {
         }
 
         if (selectedCar == null) {
-            selectedCar = new Car(fuelType, manufacturer, model, null, year,
-                    engine);
+            selectedCar = new CarImpl(manufacturer, model, fuelType, year, engine);
             mCarManager.registerCarAtServer(selectedCar);
         }
 
@@ -352,30 +352,31 @@ public class CarSelectionActivity extends BaseInjectorActivity {
         List<Car> usedCars = mCarManager.getDeserialzedCars();
         mCarListAdapter = new CarSelectionListAdapter(this, selectedCar, usedCars, new
                 CarSelectionListAdapter
-                .OnCarListActionCallback() {
+                        .OnCarListActionCallback() {
 
-            @Override
-            public void onSelectCar(Car car) {
-                mCarManager.setCar(car);
-                showSnackbar(String.format("%s %s selected as my car",
-                        car.getManufacturer(), car.getModel()));
-            }
+                    @Override
+                    public void onSelectCar(Car car) {
+                        mCarManager.setCar(car);
+                        showSnackbar(String.format("%s %s selected as my car",
+                                car.getManufacturer(), car.getModel()));
+                    }
 
-            @Override
-            public void onDeleteCar(Car car) {
-                LOGGER.info(String.format("onDeleteCar(%s %s %s %s)", car.getManufacturer(), car
-                        .getModel(), "" + car.getConstructionYear(), "" + car
-                        .getEngineDisplacement()));
+                    @Override
+                    public void onDeleteCar(Car car) {
+                        LOG.info(String.format("onDeleteCar(%s %s %s %s)", car.getManufacturer
+                                (), car
+                                .getModel(), "" + car.getConstructionYear(), "" + car
+                                .getEngineDisplacement()));
 
-                // If the car has been removed successfully...
-                if (mCarManager.removeCar(car)) {
-                    // then remove it from the list and show a snackbar.
-                    mCarListAdapter.removeCarItem(car);
-                    showSnackbar(String.format("%s %s has been deleted!", car
-                            .getManufacturer(), car.getModel()));
-                }
-            }
-        });
+                        // If the car has been removed successfully...
+                        if (mCarManager.removeCar(car)) {
+                            // then remove it from the list and show a snackbar.
+                            mCarListAdapter.removeCarItem(car);
+                            showSnackbar(String.format("%s %s has been deleted!", car
+                                    .getManufacturer(), car.getModel()));
+                        }
+                    }
+                });
         mCarListView.setAdapter(mCarListAdapter);
     }
 
@@ -410,7 +411,8 @@ public class CarSelectionActivity extends BaseInjectorActivity {
 
     private void dispatchRemoteSensors() {
         mSensoreSubscription = AppObservable.bindActivity(this,
-                mDAOProvider.getSensorDAO().getAllSensorsObservable()
+                mDAOProvider.getSensorDAO()
+                        .getAllCarsObservable()
                         .onBackpressureBuffer(10000)
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.computation()))
@@ -431,7 +433,7 @@ public class CarSelectionActivity extends BaseInjectorActivity {
 
                     @Override
                     public void onError(Throwable e) {
-                        LOGGER.error(e.getMessage(), e);
+                        LOG.error(e.getMessage(), e);
                         mMainThreadWorker.schedule(() ->
                                 Toast.makeText(CarSelectionActivity.this, "ERROR!", Toast
                                         .LENGTH_SHORT).show());

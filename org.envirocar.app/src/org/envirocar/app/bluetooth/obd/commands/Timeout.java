@@ -29,7 +29,7 @@ package org.envirocar.app.bluetooth.obd.commands;
 public class Timeout extends StringResultCommand {
 
 	/**
-	 * @param a
+	 * @param timeout
 	 *            value between 0 and 255 that multiplied by 4 results in the
 	 *            desired timeout in milliseconds (ms).
 	 */

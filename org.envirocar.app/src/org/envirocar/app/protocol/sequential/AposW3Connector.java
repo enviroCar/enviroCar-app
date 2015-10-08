@@ -20,9 +20,6 @@
  */
 package org.envirocar.app.protocol.sequential;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
 import org.envirocar.app.bluetooth.obd.commands.EchoOff;
 import org.envirocar.app.bluetooth.obd.commands.LineFeedOff;
@@ -30,7 +27,10 @@ import org.envirocar.app.bluetooth.obd.commands.ObdReset;
 import org.envirocar.app.bluetooth.obd.commands.SelectAutoProtocol;
 import org.envirocar.app.bluetooth.obd.commands.StringResultCommand;
 import org.envirocar.app.bluetooth.obd.commands.Timeout;
-import org.envirocar.app.logging.Logger;
+import org.envirocar.core.logging.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AposW3Connector extends ELM327Connector {
 	

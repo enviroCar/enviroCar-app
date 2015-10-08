@@ -22,7 +22,8 @@ package org.envirocar.app.storage;
 
 import android.content.Context;
 
-import org.envirocar.app.injection.Injector;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.injection.Injector;
 
 import javax.inject.Inject;
 

@@ -24,25 +24,26 @@ package org.envirocar.app.application;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 
 import org.envirocar.app.NotificationHandler;
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
-import org.envirocar.app.activity.SettingsActivity;
-import org.envirocar.app.injection.InjectApplicationScope;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.json.TrackWithoutMeasurementsException;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.Car;
-import org.envirocar.app.model.dao.DAOProvider;
-import org.envirocar.app.model.dao.DAOProvider.AsyncExecutionWithCallback;
-import org.envirocar.app.model.dao.exception.DAOException;
-import org.envirocar.app.model.dao.exception.NotConnectedException;
-import org.envirocar.app.model.dao.exception.UnauthorizedException;
 import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.storage.Track;
-import org.envirocar.app.storage.TrackMetadata;
+import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.core.entity.Car;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.exception.DataCreationFailureException;
+import org.envirocar.core.exception.NotConnectedException;
+import org.envirocar.core.exception.UnauthorizedException;
+import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.TrackMetadata;
+import org.envirocar.core.util.TrackUtils;
+import org.envirocar.core.util.Util;
+import org.envirocar.app.injection.DAOProvider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -81,6 +82,8 @@ public class UploadManager {
     protected CarPreferenceHandler mCarManager;
     @Inject
     protected DAOProvider mDAOProvider;
+    @Inject
+    protected UserManager mUserManager;
 
     /**
      * Normal constructor for this manager. Specify the context and the dbadapter.
@@ -93,7 +96,7 @@ public class UploadManager {
 
     public boolean isObfuscationEnabled() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        return prefs.getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
+        return prefs.getBoolean(PreferenceConstants.OBFUSCATE_POSITION, false);
     }
 
     /**
@@ -109,11 +112,11 @@ public class UploadManager {
             callback) {
         if (track == null) return;
 
-        DAOProvider.async(new AsyncExecutionWithCallback<String>() {
+        new AsyncTask<Void, Void, Void>() {
 
             @Override
-            public String execute() throws DAOException {
-                Thread.currentThread().setName("TrackUploaderTask-" + track.getTrackId());
+            protected Void doInBackground(Void... params) {
+                Thread.currentThread().setName("TrackUploaderTask-" + track.getTrackID());
                 callback.onUploadStarted(track);
                 mNotificationHandler.createNotification("start");
 
@@ -121,28 +124,49 @@ public class UploadManager {
 				/*
                  * inject track metadata
 				 */
-                mDBAdapter.updateTrackMetadata(track.getTrackId(), new TrackMetadata(mContext));
 
-                if (hasTemporaryCar(track)) {
+                mDBAdapter.updateTrackMetadata(track.getTrackID(),
+                        new TrackMetadata(Util.getVersionString(mContext),
+                                mUserManager.getUser().getTermsOfUseVersion()));
+
+                try {
+                    if (hasTemporaryCar(track)) {
                     /*
                      * perhaps we already did a registration for this temp car.
 					 * the Map is application uptime scope (static).
 					 */
-                    if (!temporaryCarAlreadyRegistered(track)) {
-                        registerCarBeforeUpload(track);
+                        if (!temporaryCarAlreadyRegistered(track)) {
+                            registerCarBeforeUpload(track);
+                        }
                     }
-                }
 
-                try {
-                    String result = mDAOProvider.getTrackDAO().storeTrack(track,
-                            isObfuscationEnabled());
-                    return result;
-                } catch (TrackWithoutMeasurementsException e) {
-                    if (track.getNumberOfMeasurements() != 0) {
+                    String result = null;
+                    if (isObfuscationEnabled()) {
+                        Track obfuscatedTrack = TrackUtils.getObfuscatedTrack(track);
+                        result = mDAOProvider.getTrackDAO().createTrack(obfuscatedTrack);
+                    } else {
+                        result = mDAOProvider.getTrackDAO().createTrack(track);
+                    }
+
+                    mNotificationHandler.createNotification("success");
+                    //					track.setRemoteID(result);
+                    //					dbAdapter.updateTrack(track);
+                    mDBAdapter.transitLocalToRemoteTrack(track, result);
+
+                    if (callback != null) {
+                        callback.onSuccessfulUpload(track);
+                    }
+                } catch (Exception e) {
+                    if (track.getMeasurements().size() != 0) {
                         alertOnObfuscationMeasurements();
                     }
-                    throw new DAOException(e);
+                    logger.error(e.getMessage(), e);
+                    mNotificationHandler.createNotification(mContext
+                            .getString(R.string
+                                    .general_error_please_report));
                 }
+
+                return null;
             }
 
             private void alertOnObfuscationMeasurements() {
@@ -164,38 +188,14 @@ public class UploadManager {
                         (mContext.getString(R.string
                                 .uploading_track_no_measurements_after_obfuscation));
             }
-
-            @Override
-            public String onResult(String result, boolean fail,
-                                   Exception e) {
-                if (!fail) {
-                    /*
-                     * success, we got an ID
-					 */
-                    mNotificationHandler.createNotification("success");
-                    //					track.setRemoteID(result);
-                    //					dbAdapter.updateTrack(track);
-                    mDBAdapter.transitLocalToRemoteTrack(track, result);
-
-                    if (callback != null) {
-                        callback.onSuccessfulUpload(track);
-                    }
-                } else {
-                    logger.warn(e.getMessage(), e);
-                    mNotificationHandler.createNotification(mContext.getString(R.string
-                            .general_error_please_report));
-                }
-                return null;
-            }
-        });
-
+        }.execute();
     }
 
     private void registerCarBeforeUpload(Track track) throws NotConnectedException,
-            UnauthorizedException {
+            UnauthorizedException, DataCreationFailureException {
         Car car = track.getCar();
         String tempId = car.getId();
-        String sensorIdFromServer = mDAOProvider.getSensorDAO().saveSensor(car);
+        String sensorIdFromServer = mDAOProvider.getSensorDAO().createCar(car);
 
         car.setId(sensorIdFromServer);
 

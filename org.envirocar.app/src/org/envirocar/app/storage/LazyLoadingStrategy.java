@@ -20,6 +20,8 @@
  */
 package org.envirocar.app.storage;
 
+import org.envirocar.core.entity.Track;
+
 /**
  * An interface for providing a strategy to lazy load memory consuming
  * resources.

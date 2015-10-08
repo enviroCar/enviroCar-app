@@ -14,9 +14,8 @@ import android.view.ViewGroup;
 import com.google.common.collect.Lists;
 
 import org.envirocar.app.R;
-import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.storage.RemoteTrack;
-import org.envirocar.app.storage.Track;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.injection.BaseInjectorFragment;
 
 import java.util.Collections;
 import java.util.List;
@@ -59,7 +58,7 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
 
         private static final int NUM_PAGES = 2;
 
-        private final List<RemoteTrack> mRemoteTrackList = Collections.synchronizedList(Lists
+        private final List<Track> mRemoteTrackList = Collections.synchronizedList(Lists
                 .newArrayList());
         private final List<Track> mLocalTrackList = Collections.synchronizedList(Lists
                 .newArrayList());

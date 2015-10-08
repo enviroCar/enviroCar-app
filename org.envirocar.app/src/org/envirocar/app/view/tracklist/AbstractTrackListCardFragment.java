@@ -18,18 +18,17 @@ import com.google.common.collect.Lists;
 
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
-import org.envirocar.app.activity.SettingsActivity;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UserManager;
-import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.json.TrackWithoutMeasurementsException;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.dao.DAOProvider;
-import org.envirocar.app.model.dao.exception.NotConnectedException;
-import org.envirocar.app.model.dao.exception.UnauthorizedException;
+import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.core.logging.Logger;
 import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.storage.Track;
-import org.envirocar.app.util.Util;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.exception.NotConnectedException;
+import org.envirocar.core.exception.UnauthorizedException;
+import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.core.util.Util;
+import org.envirocar.app.injection.DAOProvider;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -108,7 +107,7 @@ public abstract class AbstractTrackListCardFragment<T extends Track, E extends R
         boolean isObfuscationEnabled =
                 PreferenceManager
                         .getDefaultSharedPreferences(getActivity())
-                        .getBoolean(SettingsActivity.OBFUSCATE_POSITION, false);
+                        .getBoolean(PreferenceConstants.OBFUSCATE_POSITION, false);
 
         try {
             // Create an sharing intent.
@@ -122,9 +121,10 @@ public abstract class AbstractTrackListCardFragment<T extends Track, E extends R
 
             // Wrap the intent with a chooser.
             startActivity(Intent.createChooser(sharingIntent, "Share via"));
-        } catch (TrackWithoutMeasurementsException e) {
-            LOG.warn(e.getMessage(), e);
-            Snackbar.make(getView(), R.string.error_json, Snackbar.LENGTH_LONG).show();
+            //        } catch (TrackWithoutMeasurementsException e) {
+            //            LOG.warn(e.getMessage(), e);
+            //            Snackbar.make(getView(), R.string.error_json, Snackbar.LENGTH_LONG)
+            // .show();
         } catch (JSONException e) {
             LOG.warn(e.getMessage(), e);
             Snackbar.make(getView(), R.string.error_io, Snackbar.LENGTH_LONG).show();
@@ -149,7 +149,7 @@ public abstract class AbstractTrackListCardFragment<T extends Track, E extends R
      */
     protected void createDeleteTrackDialog(Track track) {
         // Get the up to date reference of the current track.
-        final Track upToDateRef = mDBAdapter.getTrack(track.getTrackId(), true);
+        final Track upToDateRef = mDBAdapter.getTrack(track.getTrackID(), true);
 
         // Create a dialog that deletes on click on the positive button the track.
         new MaterialDialog.Builder(getActivity())
@@ -177,7 +177,7 @@ public abstract class AbstractTrackListCardFragment<T extends Track, E extends R
         LOG.info("deleteRemoteTrack()");
 
         // Get the up to date reference of the current track.
-        Track upToDateRef = mDBAdapter.getTrack(track.getTrackId(), true);
+        Track upToDateRef = mDBAdapter.getTrack(track.getTrackID(), true);
 
         if (!upToDateRef.isRemoteTrack()) {
             return;
@@ -213,10 +213,10 @@ public abstract class AbstractTrackListCardFragment<T extends Track, E extends R
      */
     protected void deleteLocalTrack(Track track) {
         // Get the up to date reference of the current track.
-        Track upToDateRef = mDBAdapter.getTrack(track.getTrackId(), true);
+        Track upToDateRef = mDBAdapter.getTrack(track.getTrackID(), true);
 
         // If the track has been successfully deleted.
-        if (upToDateRef.isLocalTrack() && mTrackHandler.deleteLocalTrack(upToDateRef.getTrackId()
+        if (upToDateRef.isLocalTrack() && mTrackHandler.deleteLocalTrack(upToDateRef.getTrackID()
         )) {
             // Show a snackbar notification
             Snackbar.make(getView(), R.string.trackviews_delete_track_snackbar_success,
@@ -226,7 +226,7 @@ public abstract class AbstractTrackListCardFragment<T extends Track, E extends R
             mTrackList.remove(track);
             mRecyclerViewAdapter.notifyDataSetChanged();
 
-            LOG.info("deleteLocalTrack: Successfully delete track with id=" + track.getTrackId());
+            LOG.info("deleteLocalTrack: Successfully delete track with id=" + track.getTrackID());
         }
     }
 }

@@ -30,14 +30,14 @@ import org.envirocar.app.TrackHandler;
 import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.app.bluetooth.service.BluetoothServiceState;
-import org.envirocar.app.events.GpsStateChangedEvent;
-import org.envirocar.app.events.NewCarTypeSelectedEvent;
+import org.envirocar.core.events.gps.GpsStateChangedEvent;
+import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.logging.Logger;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.ServiceUtils;
+import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -52,7 +52,7 @@ import rx.android.schedulers.AndroidSchedulers;
  * @author dewall
  */
 public class DashboardMainFragment extends BaseInjectorFragment {
-    private static final Logger LOGGER = Logger.getLogger(DashboardMainFragment.class);
+    private static final Logger LOG = Logger.getLogger(DashboardMainFragment.class);
     private OBDConnectionService mOBDConnectionService;
     private boolean mIsOBDConnectionBounded;
 
@@ -81,7 +81,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
     private ServiceConnection mOBDConnectionServiceCon = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            LOGGER.info("onServiceConnected(): Bound service connected.");
+            LOG.info("onServiceConnected(): Bound service connected.");
             // successfully bounded to the service, cast the binder interface to
             // get the service.
             Snackbar.make(mStartStopButton, "Connected", Snackbar.LENGTH_LONG).show();
@@ -94,7 +94,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            LOGGER.info("onServiceDisconnected(): Bound service disconnected.");
+            LOG.info("onServiceDisconnected(): Bound service disconnected.");
             // Service has been disconnected.
             mOBDConnectionService = null;
             mIsOBDConnectionBounded = false;
@@ -117,7 +117,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
-        LOGGER.info("onCreateView()");
+        LOG.info("onCreateView()");
 
         // This setting is an essential requirement to catch the events of a sub-fragment's
         // options shown in the toolbar.
@@ -303,7 +303,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
     @Subscribe
     public void onReceiveBluetoothServiceStateChangedEvent(
             BluetoothServiceStateChangedEvent event) {
-        LOGGER.info(String.format("onReceiveBluetoothServiceStateChangedEvent(): %s",
+        LOG.info(String.format("onReceiveBluetoothServiceStateChangedEvent(): %s",
                 event.toString()));
         mServiceState = event.mState;
         if (mServiceState == BluetoothServiceState.SERVICE_STARTED && mConnectingDialog != null) {
@@ -322,7 +322,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
 
     @Subscribe
     public void onReceiveBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
-        LOGGER.info(String.format("onReceiveBluetoothStateChangedEvent(isEnabled=%s)",
+        LOG.info(String.format("onReceiveBluetoothStateChangedEvent(isEnabled=%s)",
                 "" + event.isBluetoothEnabled));
         mMainThreadScheduler.schedule(() -> {
             updateStartStopButton(OBDConnectionService.CURRENT_SERVICE_STATE);
@@ -605,7 +605,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
     private void unbindService() {
         // If it is bounded, then unbind the service.
         if (mIsOBDConnectionBounded) {
-            LOGGER.info("onStop(): disconnect bound service");
+            LOG.info("onStop(): disconnect bound service");
             getActivity().unbindService(mOBDConnectionServiceCon);
             mIsOBDConnectionBounded = false;
         }
