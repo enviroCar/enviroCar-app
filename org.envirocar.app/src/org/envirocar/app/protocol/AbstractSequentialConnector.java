@@ -294,7 +294,8 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 //		} catch (InterruptedException e) {
 //			logger.warn(e.getMessage(), e);
 //		}
-		
+
+		logger.info("Waiting for result: "+cmd.getClass().getSimpleName());
 		if (!cmd.awaitsResults()) return; 
 		try {
 			int tries = 0;
@@ -313,7 +314,8 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 			
 		} catch (InterruptedException e) {
 			logger.warn(e.getMessage(), e);
-		}	
+		}
+		logger.info("Finished waiting for result: "+cmd.getClass().getSimpleName());
 	}
 	
 	/**
@@ -421,7 +423,9 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 			}
 			
 			try {
+				logger.info("Execcuting command: "+cmd.getClass().getSimpleName());
 				executeCommand(cmd);
+				logger.info("Finished command: "+cmd.getClass().getSimpleName());
 			} catch (UnmatchedCommandResponseException e) {
 				logger.warn("Unmatched Response detected! trying to read another line.");
 				readResponseLine(cmd);

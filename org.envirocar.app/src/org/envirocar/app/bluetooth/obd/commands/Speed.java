@@ -24,7 +24,7 @@ package org.envirocar.app.bluetooth.obd.commands;
 import org.envirocar.app.bluetooth.obd.commands.PIDUtil.PID;
 import org.envirocar.app.logging.Logger;
 
-/**
+/**E8 06 41 01 00 07 61 00 AA
  * Speed Command PID 01 0D
  *
  * @author jakob

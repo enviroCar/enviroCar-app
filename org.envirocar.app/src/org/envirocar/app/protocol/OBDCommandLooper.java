@@ -40,6 +40,7 @@ import org.envirocar.app.protocol.exception.AllAdaptersFailedException;
 import org.envirocar.app.protocol.exception.LooperStoppedException;
 import org.envirocar.app.protocol.exception.ConnectionLostException;
 import org.envirocar.app.protocol.sequential.AposW3Connector;
+import org.envirocar.app.protocol.sequential.CarTrendConnector;
 import org.envirocar.app.protocol.sequential.ELM327Connector;
 import org.envirocar.app.protocol.sequential.OBDLinkMXConnector;
 
@@ -286,6 +287,7 @@ public class OBDCommandLooper extends HandlerThread {
 		
 		long time = 0;
 		for (CommonCommand cmd : cmds) {
+			logger.info(cmd.getCommandName() +": "+cmd.getCommandState() +" / "+cmd.getRawData());
 			if (cmd.getCommandState() == CommonCommandState.FINISHED) {
 				commandListener.receiveUpdate(cmd);
 				time = cmd.getResultTime();
@@ -358,6 +360,7 @@ public class OBDCommandLooper extends HandlerThread {
 	private void setupAdapterCandidates() {
 		adapterCandidates.clear();
 		adapterCandidates.add(new ELM327Connector());
+		adapterCandidates.add(new CarTrendConnector());
 		adapterCandidates.add(new AposW3Connector());
 		adapterCandidates.add(new OBDLinkMXConnector());
 		adapterCandidates.add(new DriveDeckSportConnector());

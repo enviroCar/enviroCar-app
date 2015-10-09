@@ -20,6 +20,8 @@
  */
 package org.envirocar.app.bluetooth.obd.commands;
 
+import java.util.Arrays;
+
 public abstract class NumberResultCommand extends CommonCommand {
 
 	private static final CharSequence SEARCHING = "SEARCHING";
@@ -47,6 +49,12 @@ public abstract class NumberResultCommand extends CommonCommand {
 		
 		String dataString = new String(data);
 
+		//cartrend: 7E803410D00AAAAAAAA
+		//= 410D00AAAAAAAA
+		if (dataString.startsWith("7E803")) {
+			dataString = dataString.substring(5, dataString.length());
+		}
+
 		if (isSearching(dataString)) {
 			setCommandState(CommonCommandState.SEARCHING);
 			return;
@@ -55,6 +63,8 @@ public abstract class NumberResultCommand extends CommonCommand {
 			setCommandState(CommonCommandState.EXECUTION_ERROR);
 			return;
 		}
+
+		data = Arrays.copyOfRange(data, 5, data.length);
 		
 		buffr = new int[data.length / 2];
 		while (index + length <= data.length) {
@@ -88,7 +98,7 @@ public abstract class NumberResultCommand extends CommonCommand {
 		
 		setCommandState(CommonCommandState.FINISHED);
 	}
-	
+
 	public abstract Number getNumberResult();
 
 	public int[] getBuffer() {
