@@ -6,7 +6,7 @@ import com.google.common.base.Preconditions;
 
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.exception.MeasurementsException;
+import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
@@ -262,13 +262,13 @@ public class EnvirocarServiceUtils {
                     }
 
                     nonPrivateMeasurements.add(measurement);
-                } catch (MeasurementsException e) {
+                } catch (NoMeasurementsException e) {
                     LOG.warn(e.getMessage(), e);
                 }
 
             }
             /*
-			 * the private candidates which have made it until here
+             * the private candidates which have made it until here
 			 * shall be ignored
 			 */
             nonPrivateMeasurements.removeAll(privateCandidates);
@@ -280,19 +280,20 @@ public class EnvirocarServiceUtils {
 
     /**
      * TODO a circular criteria could lead to
+     *
      * @param measurement
      * @param track
      * @return
      */
-    private static boolean isSpatialObfuscationCandidate(Measurement measurement,
-                                                         Track track) {
+    private static boolean isSpatialObfuscationCandidate(Measurement measurement, Track track)
+            throws NoMeasurementsException {
         return (Util.getDistance(track.getFirstMeasurement(), measurement) <= 0.25)
                 || (Util.getDistance(track.getLastMeasurement(), measurement) <= 0.25);
     }
 
-    private static boolean isTemporalObfuscationCandidate(Measurement measurement,
-                                                          Track track) throws
-            MeasurementsException {
+    private static boolean isTemporalObfuscationCandidate(Measurement measurement, Track track)
+            throws
+            NoMeasurementsException {
         return (measurement.getTime() - track.getStartTime() <= 60000 ||
                 track.getEndTime() - measurement.getTime() <= 60000);
     }

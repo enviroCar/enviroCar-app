@@ -20,15 +20,15 @@ import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UserManager;
-import org.envirocar.app.view.preferences.PreferenceConstants;
-import org.envirocar.core.logging.Logger;
+import org.envirocar.app.injection.DAOProvider;
 import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
-import org.envirocar.app.injection.DAOProvider;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -216,15 +216,17 @@ public abstract class AbstractTrackListCardFragment<T extends Track, E extends R
         Track upToDateRef = mDBAdapter.getTrack(track.getTrackID(), true);
 
         // If the track has been successfully deleted.
-        if (upToDateRef.isLocalTrack() && mTrackHandler.deleteLocalTrack(upToDateRef.getTrackID()
-        )) {
+        if (upToDateRef.isLocalTrack() && mTrackHandler
+                .deleteLocalTrack(upToDateRef.getTrackID())) {
             // Show a snackbar notification
             Snackbar.make(getView(), R.string.trackviews_delete_track_snackbar_success,
                     Snackbar.LENGTH_LONG).show();
 
-            // and update the view elements
-            mTrackList.remove(track);
-            mRecyclerViewAdapter.notifyDataSetChanged();
+            mMainThreadWorker.schedule(() -> {
+                // and update the view elements
+                mTrackList.remove(track);
+                mRecyclerViewAdapter.notifyDataSetChanged();
+            });
 
             LOG.info("deleteLocalTrack: Successfully delete track with id=" + track.getTrackID());
         }

@@ -21,7 +21,7 @@
 package org.envirocar.app.protocol.algorithm;
 
 import org.envirocar.core.entity.Measurement;
-import org.envirocar.core.exception.MeasurementsException;
+import org.envirocar.core.exception.NoMeasurementsException;
 
 import static org.envirocar.core.entity.Measurement.PropertyKey.INTAKE_PRESSURE;
 import static org.envirocar.core.entity.Measurement.PropertyKey.INTAKE_TEMPERATURE;
@@ -33,16 +33,16 @@ public abstract class AbstractCalculatedMAFAlgorithm {
     public abstract double calculateMAF(double rpm, double intakeTemperature, double
             intakePressure);
 
-    public double calculateMAF(Measurement m) throws MeasurementsException {
+    public double calculateMAF(Measurement m) throws NoMeasurementsException {
         if (m == null) {
-            throw new MeasurementsException("Measurement was null!");
+            throw new NoMeasurementsException("Measurement was null!");
         } else if (m.hasProperty(RPM) && m.hasProperty(INTAKE_TEMPERATURE) && m.hasProperty
 				(INTAKE_PRESSURE)) {
             return calculateMAF(m.getProperty(RPM), m.getProperty(INTAKE_TEMPERATURE), m
 					.getProperty(INTAKE_PRESSURE));
         }
 
-        throw new MeasurementsException("Measurement did not carry all required properties!");
+        throw new NoMeasurementsException("Measurement did not carry all required properties!");
     }
 
 }

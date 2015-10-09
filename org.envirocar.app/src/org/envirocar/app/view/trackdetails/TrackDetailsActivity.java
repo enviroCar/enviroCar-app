@@ -26,7 +26,7 @@ import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.view.utils.MapUtils;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.FuelConsumptionException;
-import org.envirocar.core.exception.MeasurementsException;
+import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.injection.BaseInjectorActivity;
 import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
@@ -251,7 +251,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                                     ((TrackStatisticsProvider) track).getLiterPerHundredKm())));
         } catch (FuelConsumptionException e) {
             e.printStackTrace();
-        } catch (MeasurementsException e) {
+        } catch (NoMeasurementsException e) {
             e.printStackTrace();
         } catch (UnsupportedFuelTypeException e) {
             e.printStackTrace();

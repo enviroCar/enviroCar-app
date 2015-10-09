@@ -6,6 +6,8 @@ import org.envirocar.core.entity.Measurement;
 
 
 /**
+ * TODO JavaDoc
+ *
  * @author dewall
  */
 public class NewMeasurementEvent {

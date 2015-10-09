@@ -132,7 +132,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
                     .getId());
 
             //fetch db tracks (local+remote)
-            List<Track> tracks = mDBAdapter.getAllLocalTracks(true);
+            List<Track> tracks = mDBAdapter.getAllTracks();
             for (Track t : tracks) {
                 mTrackList.add(t);
             }

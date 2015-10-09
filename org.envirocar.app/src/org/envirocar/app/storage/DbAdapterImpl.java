@@ -38,6 +38,7 @@ import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.TrackImpl;
+import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
@@ -663,9 +664,12 @@ public class DbAdapterImpl implements DbAdapter {
     public synchronized Track finishCurrentTrack() {
         Track last = getLastUsedTrack();
         if (last != null) {
-            if (last.getLastMeasurement() == null) {
+            try {
+                last.getLastMeasurement();
+            } catch (NoMeasurementsException e) {
                 deleteTrack(last.getTrackID());
             }
+
             last.setTrackStatus(Track.TrackStatus.FINISHED);
             updateTrack(last);
 
@@ -736,58 +740,63 @@ public class DbAdapterImpl implements DbAdapter {
         // New track if last measurement is more than 60 minutes
         // ago
 
-        if (lastUsedTrack != null && lastUsedTrack.getTrackStatus() != Track.TrackStatus.FINISHED &&
-                lastUsedTrack.getLastMeasurement() != null) {
+        try {
+            if (lastUsedTrack != null && lastUsedTrack.getTrackStatus() != Track.TrackStatus.FINISHED &&
+                    lastUsedTrack.getLastMeasurement() != null) {
 
-            if ((System.currentTimeMillis() - lastUsedTrack
-                    .getLastMeasurement().getTime()) > this.maxTimeBetweenMeasurements) {
-                logger.info(String.format("Should create a new track: last measurement is more " +
-                                "than %d mins ago",
-                        (int) (this.maxTimeBetweenMeasurements / 1000 / 60)));
-                return false;
-            }
-
-            // new track if last position is significantly different
-            // from the current position (more than 3 km)
-            else if (location == null || Util.getDistance(lastUsedTrack.getLastMeasurement()
-                            .getLatitude(), lastUsedTrack.getLastMeasurement().getLongitude(),
-                    location.getLatitude(), location.getLongitude()) > this
-                    .maxDistanceBetweenMeasurements) {
-                logger.info(String.format("Should create a new track: last measurement's position" +
-                                " is more than %f km away",
-                        this.maxDistanceBetweenMeasurements));
-                return false;
-            }
-
-            // TODO: New track if user clicks on create new track button
-
-            // TODO: new track if VIN changed
-
-            else {
-                logger.info("Should append to the last track: last measurement is close enough in" +
-                        " space/time");
-                return true;
-            }
-
-        } else {
-            logger.info(String.format("Should create new Track. Last was null? %b; Last status " +
-                            "was: %s; Last measurement: %s",
-                    lastUsedTrack == null,
-                    lastUsedTrack == null ? "n/a" : lastUsedTrack.getTrackStatus().toString(),
-                    lastUsedTrack == null ? "n/a" : lastUsedTrack.getLastMeasurement()));
-
-            if (lastUsedTrack != null && !lastUsedTrack.isRemoteTrack()) {
-                List<Measurement> measurements = lastUsedTrack.getMeasurements();
-                if (measurements == null || measurements.isEmpty()) {
-                    logger.info(String.format("Track %s did not contain measurements and will not" +
-                            " be used. Deleting!", lastUsedTrack.getTrackID()));
-                    //                    deleteLocalTrack(lastUsedTrack.getTrackId());
+                if ((System.currentTimeMillis() - lastUsedTrack
+                        .getLastMeasurement().getTime()) > this.maxTimeBetweenMeasurements) {
+                    logger.info(String.format("Should create a new track: last measurement is more " +
+                                    "than %d mins ago",
+                            (int) (this.maxTimeBetweenMeasurements / 1000 / 60)));
+                    return false;
                 }
-            }
 
+                // new track if last position is significantly different
+                // from the current position (more than 3 km)
+                else if (location == null || Util.getDistance(lastUsedTrack.getLastMeasurement()
+                                .getLatitude(), lastUsedTrack.getLastMeasurement().getLongitude(),
+                        location.getLatitude(), location.getLongitude()) > this
+                        .maxDistanceBetweenMeasurements) {
+                    logger.info(String.format("Should create a new track: last measurement's position" +
+                                    " is more than %f km away",
+                            this.maxDistanceBetweenMeasurements));
+                    return false;
+                }
+
+                // TODO: New track if user clicks on create new track button
+
+                // TODO: new track if VIN changed
+
+                else {
+                    logger.info("Should append to the last track: last measurement is close enough in" +
+                            " space/time");
+                    return true;
+                }
+
+            } else {
+                logger.info("should craete a new track?");
+//                logger.info(String.format("Should create new Track. Last was null? %b; Last status " +
+//                                "was: %s; Last measurement: %s",
+//                        lastUsedTrack == null,
+//                        lastUsedTrack == null ? "n/a" : lastUsedTrack.getTrackStatus().toString(),
+//                        lastUsedTrack == null ? "n/a" : lastUsedTrack.getLastMeasurement()));
+
+                if (lastUsedTrack != null && !lastUsedTrack.isRemoteTrack()) {
+                    List<Measurement> measurements = lastUsedTrack.getMeasurements();
+                    if (measurements == null || measurements.isEmpty()) {
+                        logger.info(String.format("Track %s did not contain measurements and will not" +
+                                " be used. Deleting!", lastUsedTrack.getTrackID()));
+                        //                    deleteLocalTrack(lastUsedTrack.getTrackId());
+                    }
+                }
+
+                return false;
+            }
+        } catch (NoMeasurementsException e) {
+            logger.warn(e.getMessage(), e);
             return false;
         }
-
     }
 
     @Override

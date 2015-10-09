@@ -2,7 +2,7 @@ package org.envirocar.core.util;
 
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.exception.MeasurementsException;
+import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class TrackUtils {
 
     /**
      * resolve all not obfuscated measurements of a track.
-     * <p/>
+     * <p>
      * This returns all measurements, if obfuscation is disabled. Otherwise
      * measurements within the first and last minute and those within the start/end
      * radius of 250 m are ignored (only if they are in the beginning/end of the track).
@@ -68,7 +68,7 @@ public class TrackUtils {
                 }
 
                 nonPrivateMeasurements.add(measurement);
-            } catch (MeasurementsException e) {
+            } catch (NoMeasurementsException e) {
                 LOG.warn(e.getMessage(), e);
             }
 
@@ -81,15 +81,14 @@ public class TrackUtils {
         return nonPrivateMeasurements;
     }
 
-    private static boolean isSpatialObfuscationCandidate(Measurement measurement,
-                                                         Track track) {
+    private static boolean isSpatialObfuscationCandidate(Measurement measurement, Track track)
+            throws NoMeasurementsException {
         return (Util.getDistance(track.getFirstMeasurement(), measurement) <= 0.25)
                 || (Util.getDistance(track.getLastMeasurement(), measurement) <= 0.25);
     }
 
-    private static boolean isTemporalObfuscationCandidate(Measurement measurement,
-                                                          Track track) throws
-            MeasurementsException {
+    private static boolean isTemporalObfuscationCandidate(Measurement measurement, Track track)
+            throws NoMeasurementsException {
         return (measurement.getTime() - track.getStartTime() <= 60000 ||
                 track.getEndTime() - measurement.getTime() <= 60000);
     }

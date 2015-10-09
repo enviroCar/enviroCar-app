@@ -1,6 +1,6 @@
 package org.envirocar.core.entity;
 
-import org.envirocar.core.exception.MeasurementsException;
+import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.util.TrackMetadata;
 
 import java.util.List;
@@ -68,15 +68,15 @@ public interface Track extends BaseEntity, Comparable<Track> {
 
     boolean isRemoteTrack();
 
-    Long getStartTime() throws MeasurementsException;
+    Long getStartTime() throws NoMeasurementsException;
 
     void setStartTime(long startTime);
 
-    Long getEndTime() throws MeasurementsException;
+    Long getEndTime() throws NoMeasurementsException;
 
     void setEndTime(long endTime);
 
-    long getDuration() throws MeasurementsException;
+    long getDuration() throws NoMeasurementsException;
 
     TrackStatus getTrackStatus();
 
@@ -90,9 +90,9 @@ public interface Track extends BaseEntity, Comparable<Track> {
 
     void updateMetadata(TrackMetadata metadata);
 
-    Measurement getFirstMeasurement();
+    Measurement getFirstMeasurement() throws NoMeasurementsException;
 
-    Measurement getLastMeasurement();
+    Measurement getLastMeasurement() throws NoMeasurementsException;
 
     List<Measurement> getMeasurements();
 

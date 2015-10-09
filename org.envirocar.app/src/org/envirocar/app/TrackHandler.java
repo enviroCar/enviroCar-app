@@ -22,7 +22,7 @@ import org.envirocar.core.entity.User;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.DataUpdateFailureException;
-import org.envirocar.core.exception.MeasurementsException;
+import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
@@ -288,7 +288,7 @@ public class TrackHandler {
 
             remoteTrack.setStartTime(downloadedTrack.getStartTime());
             remoteTrack.setEndTime(downloadedTrack.getEndTime());
-        } catch (MeasurementsException e) {
+        } catch (NoMeasurementsException e) {
             e.printStackTrace();
         }
 

@@ -20,20 +20,20 @@
  */
 package org.envirocar.app.json;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.exception.MeasurementsException;
+import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 public class TrackEncoder {
@@ -155,7 +155,7 @@ public class TrackEncoder {
 					}
 					
 					nonPrivateMeasurements.add(measurement);
-				} catch (MeasurementsException e) {
+				} catch (NoMeasurementsException e) {
 					logger.warn(e.getMessage(), e);
 				}
 				
@@ -172,13 +172,13 @@ public class TrackEncoder {
 	}
 	
 	private boolean isSpatialObfuscationCandidate(Measurement measurement,
-			Track track) {
+			Track track) throws NoMeasurementsException {
 		return (Util.getDistance(track.getFirstMeasurement(), measurement) <= 0.25)
 				|| (Util.getDistance(track.getLastMeasurement(), measurement) <= 0.25);
 	}
 
 	private boolean isTemporalObfuscationCandidate(Measurement measurement,
-			Track track) throws MeasurementsException {
+			Track track) throws NoMeasurementsException {
 		return (measurement.getTime() - track.getStartTime() <= 60000 ||
 				track.getEndTime() - measurement.getTime() <= 60000);
 	}

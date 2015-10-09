@@ -1,11 +1,8 @@
 package org.envirocar.core.trackprocessing;
 
-import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.exception.FuelConsumptionException;
-import org.envirocar.core.exception.MeasurementsException;
+import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
-
-import java.util.List;
 
 /**
  * TODO JavaDoc
@@ -20,8 +17,9 @@ public interface TrackStatisticsProvider {
 
     double getCO2Average() throws FuelConsumptionException;
 
-    double getLiterPerHundredKm() throws FuelConsumptionException, MeasurementsException;
+    double getLiterPerHundredKm() throws FuelConsumptionException, NoMeasurementsException;
 
-    double getGramsPerKm() throws FuelConsumptionException, MeasurementsException, UnsupportedFuelTypeException;
+    double getGramsPerKm() throws FuelConsumptionException, NoMeasurementsException,
+            UnsupportedFuelTypeException;
 
 }

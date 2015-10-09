@@ -42,7 +42,7 @@ import org.envirocar.core.events.NewMeasurementEvent;
 import org.envirocar.core.events.gps.GpsDOP;
 import org.envirocar.core.events.gps.LocationChangedEvent;
 import org.envirocar.core.exception.FuelConsumptionException;
-import org.envirocar.core.exception.MeasurementsException;
+import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
@@ -170,7 +170,7 @@ public class Collector {
                         .mafAlgorithm
                         .calculateMAF(this.measurement));
                 fireConsumptionEvent();
-            } catch (MeasurementsException e) {
+            } catch (NoMeasurementsException e) {
                 logger.warn(e.getMessage(), e);
             }
         }

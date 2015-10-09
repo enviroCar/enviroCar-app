@@ -16,11 +16,11 @@ import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 import com.mapbox.mapboxsdk.views.MapView;
 
 import org.envirocar.app.R;
+import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.app.view.trackdetails.TrackSpeedMapOverlay;
 import org.envirocar.app.view.utils.MapUtils;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.exception.MeasurementsException;
 import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
 
 import java.text.DateFormat;
@@ -123,7 +123,7 @@ public abstract class AbstractTrackListCardAdapter<T extends Track, E extends
                             holder.mDuration.setText(date);
                         }
                     });
-                } catch (MeasurementsException e) {
+                } catch (NoMeasurementsException e) {
                     e.printStackTrace();
                 }
 

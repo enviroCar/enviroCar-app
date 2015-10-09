@@ -35,6 +35,7 @@ import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.app.bluetooth.service.BluetoothServiceState;
 import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
+import org.envirocar.app.injection.DAOProvider;
 import org.envirocar.app.injection.InjectionActivityModule;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.ServiceUtils;
@@ -53,12 +54,12 @@ import org.envirocar.core.entity.User;
 import org.envirocar.core.events.NewUserSettingsEvent;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.DataRetrievalFailureException;
+import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
 import org.envirocar.core.util.VersionRange;
-import org.envirocar.app.injection.DAOProvider;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -567,15 +568,19 @@ public class BaseMainActivity extends BaseInjectorActivity {
             if (event.mTrack == null) {
                 // Track is null and thus there was an error.
                 Crouton.makeText(this, R.string.track_finishing_failed, Style.ALERT).show();
-            } else if (event.mTrack.getLastMeasurement() == null) {
-                // Track has no measurements
-                Crouton.makeText(this, R.string.track_finished_no_measurements, Style.ALERT).show();
-            } else {
-                LOGGER.info("last is not null.. " + event.mTrack.getLastMeasurement().toString());
-                // Track has no measurements
-                Crouton.makeText(this,
-                        getString(R.string.track_finished).concat(event.mTrack.getName()),
-                        Style.INFO).show();
+            } else try {
+                if (event.mTrack.getLastMeasurement() == null) {
+                    // Track has no measurements
+                    Crouton.makeText(this, R.string.track_finished_no_measurements, Style.ALERT).show();
+                } else {
+                    LOGGER.info("last is not null.. " + event.mTrack.getLastMeasurement().toString());
+                    // Track has no measurements
+                    Crouton.makeText(this,
+                            getString(R.string.track_finished).concat(event.mTrack.getName()),
+                            Style.INFO).show();
+                }
+            } catch (NoMeasurementsException e) {
+                LOGGER.warn(e.getMessage(), e);
             }
         });
     }
