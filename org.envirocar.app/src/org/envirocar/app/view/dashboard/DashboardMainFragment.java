@@ -29,13 +29,13 @@ import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.application.CarPreferenceHandler;
 import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.bluetooth.service.BluetoothServiceState;
+import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.app.services.OBDConnectionService;
-import org.envirocar.app.services.ServiceUtils;
+import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.core.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 

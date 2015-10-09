@@ -24,7 +24,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 
-import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
+import org.envirocar.obd.commands.CommonCommand;
 import org.envirocar.app.protocol.exception.LooperStoppedException;
 import org.envirocar.core.logging.Logger;
 

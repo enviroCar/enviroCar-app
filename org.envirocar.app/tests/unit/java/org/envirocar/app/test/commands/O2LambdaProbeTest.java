@@ -24,11 +24,11 @@ import java.math.BigDecimal;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbe;
-import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbeCurrent;
-import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbeVoltage;
-import org.envirocar.app.bluetooth.obd.commands.PIDUtil;
-import org.envirocar.app.bluetooth.obd.commands.PIDUtil.PID;
+import org.envirocar.obd.commands.O2LambdaProbe;
+import org.envirocar.obd.commands.O2LambdaProbeCurrent;
+import org.envirocar.obd.commands.O2LambdaProbeVoltage;
+import org.envirocar.obd.commands.PIDUtil;
+import org.envirocar.obd.commands.PIDUtil.PID;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.app.test.MockingEnvironmentTest;
 import org.junit.Test;
@@ -37,7 +37,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import android.os.Environment;
-import android.test.AndroidTestCase;
 import android.util.Base64;
 
 @RunWith(PowerMockRunner.class)

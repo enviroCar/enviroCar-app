@@ -29,8 +29,7 @@ dependencies {
     compile 'com.jakewharton:butterknife:6.1.0'
     // RxJava for Android
     // RxJava for Android
-//    compile 'io.reactivex:rxandroid:0.24.0'
-
+    //    compile 'io.reactivex:rxandroid:0.24.0'
     // MapBox SDK
     compile('com.mapbox.mapboxsdk:mapbox-android-sdk:0.7.4@aar') {
         transitive = true
@@ -40,7 +39,6 @@ dependencies {
     compile 'com.afollestad:material-dialogs:0.7.6.0'
     // HelloCharts dependency
     compile 'com.github.lecho:hellocharts-library:1.5.5@aar'
-
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:1.9.5'
     testCompile('org.powermock:powermock-api-mockito:1.6.2') {
@@ -60,6 +58,7 @@ dependencies {
     }
     compile project(':org.envirocar.core')
     compile project(':org.envirocar.remote')
+    compile project(':org.envirocar.obd')
 }
 
 

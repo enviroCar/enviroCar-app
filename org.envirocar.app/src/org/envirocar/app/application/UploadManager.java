@@ -41,7 +41,7 @@ import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
-import org.envirocar.core.util.TrackUtils;
+import org.envirocar.core.utils.TrackUtils;
 import org.envirocar.core.util.Util;
 import org.envirocar.app.injection.DAOProvider;
 

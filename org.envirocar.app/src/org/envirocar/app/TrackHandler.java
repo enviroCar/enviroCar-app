@@ -11,7 +11,7 @@ import org.envirocar.app.application.TermsOfUseManager;
 import org.envirocar.app.application.UploadManager;
 import org.envirocar.app.application.UserManager;
 import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.bluetooth.service.BluetoothServiceState;
+import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.injection.DAOProvider;

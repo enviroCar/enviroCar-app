@@ -2,7 +2,7 @@ package org.envirocar.app.events.bluetooth;
 
 import com.google.common.base.MoreObjects;
 
-import org.envirocar.app.bluetooth.service.BluetoothServiceState;
+import org.envirocar.obd.service.BluetoothServiceState;
 
 
 /**

@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 
 import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.ServiceUtils;
 
 /**
  * Startup receiver that listens to ACTION_BOOT_COMPLETED broadcasts and therefore starts when

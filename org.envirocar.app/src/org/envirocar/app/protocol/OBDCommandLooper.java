@@ -25,8 +25,8 @@ import android.os.HandlerThread;
 import android.os.Looper;
 
 import org.envirocar.app.application.Listener;
-import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
-import org.envirocar.app.bluetooth.obd.commands.CommonCommand.CommonCommandState;
+import org.envirocar.obd.commands.CommonCommand;
+import org.envirocar.obd.commands.CommonCommand.CommonCommandState;
 import org.envirocar.app.protocol.OBDConnector.ConnectionState;
 import org.envirocar.app.protocol.drivedeck.DriveDeckSportConnector;
 import org.envirocar.app.protocol.exception.AdapterFailedException;

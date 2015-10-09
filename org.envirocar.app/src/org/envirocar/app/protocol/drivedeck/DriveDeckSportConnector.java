@@ -22,16 +22,16 @@ package org.envirocar.app.protocol.drivedeck;
 
 import android.util.Base64;
 
-import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
-import org.envirocar.app.bluetooth.obd.commands.CommonCommand.CommonCommandState;
-import org.envirocar.app.bluetooth.obd.commands.IntakePressure;
-import org.envirocar.app.bluetooth.obd.commands.IntakeTemperature;
-import org.envirocar.app.bluetooth.obd.commands.MAF;
-import org.envirocar.app.bluetooth.obd.commands.NumberResultCommand;
-import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbe;
-import org.envirocar.app.bluetooth.obd.commands.PIDSupported;
-import org.envirocar.app.bluetooth.obd.commands.RPM;
-import org.envirocar.app.bluetooth.obd.commands.Speed;
+import org.envirocar.obd.commands.CommonCommand;
+import org.envirocar.obd.commands.CommonCommand.CommonCommandState;
+import org.envirocar.obd.commands.IntakePressure;
+import org.envirocar.obd.commands.IntakeTemperature;
+import org.envirocar.obd.commands.MAF;
+import org.envirocar.obd.commands.NumberResultCommand;
+import org.envirocar.obd.commands.O2LambdaProbe;
+import org.envirocar.obd.commands.PIDSupported;
+import org.envirocar.obd.commands.RPM;
+import org.envirocar.obd.commands.Speed;
 import org.envirocar.app.protocol.AbstractAsynchronousConnector;
 import org.envirocar.app.protocol.ResponseParser;
 import org.envirocar.app.protocol.drivedeck.CycleCommand.PID;
@@ -230,7 +230,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 		else if (pid.equals("4D")) {
 			//TODO the current manual does not provide info on how to
 			//determine which probe value is returned.
-			result = O2LambdaProbe.fromPIDEnum(org.envirocar.app.bluetooth.obd.commands.PIDUtil.PID.O2_LAMBDA_PROBE_1_VOLTAGE);
+			result = O2LambdaProbe.fromPIDEnum(org.envirocar.obd.commands.PIDUtil.PID.O2_LAMBDA_PROBE_1_VOLTAGE);
 		}
 
 		oneTimePIDLog(pid, rawBytes);

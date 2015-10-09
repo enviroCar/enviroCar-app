@@ -22,12 +22,10 @@ package org.envirocar.app.test.commands;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.bluetooth.obd.commands.FuelSystemStatus;
-import org.envirocar.app.bluetooth.obd.commands.PIDUtil;
-import org.envirocar.app.bluetooth.obd.commands.PIDUtil.PID;
+import org.envirocar.obd.commands.FuelSystemStatus;
+import org.envirocar.obd.commands.PIDUtil;
+import org.envirocar.obd.commands.PIDUtil.PID;
 import org.junit.Test;
-
-import android.test.AndroidTestCase;
 
 public class FuelSystemStatusTest {
 

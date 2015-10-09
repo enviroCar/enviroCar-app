@@ -27,7 +27,7 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
-import org.envirocar.app.bluetooth.obd.events.SpeedUpdateEvent;
+import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.app.views.TypefaceEC;
 

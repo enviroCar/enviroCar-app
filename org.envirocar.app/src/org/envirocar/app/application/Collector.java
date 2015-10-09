@@ -26,12 +26,12 @@ import android.location.Location;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbe;
-import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbeCurrent;
-import org.envirocar.app.bluetooth.obd.commands.O2LambdaProbeVoltage;
-import org.envirocar.app.bluetooth.obd.events.Co2Event;
-import org.envirocar.app.bluetooth.obd.events.ConsumptionEvent;
-import org.envirocar.app.bluetooth.service.BluetoothServiceState;
+import org.envirocar.obd.commands.O2LambdaProbe;
+import org.envirocar.obd.commands.O2LambdaProbeCurrent;
+import org.envirocar.obd.commands.O2LambdaProbeVoltage;
+import org.envirocar.obd.events.Co2Event;
+import org.envirocar.obd.events.ConsumptionEvent;
+import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.protocol.algorithm.AbstractCalculatedMAFAlgorithm;
 import org.envirocar.app.protocol.algorithm.CalculatedMAFWithStaticVolumetricEfficiency;

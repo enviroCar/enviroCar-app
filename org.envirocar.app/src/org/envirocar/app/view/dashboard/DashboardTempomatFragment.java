@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
-import org.envirocar.app.bluetooth.obd.events.SpeedUpdateEvent;
+import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.app.view.preferences.Tempomat;
 import org.envirocar.core.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;

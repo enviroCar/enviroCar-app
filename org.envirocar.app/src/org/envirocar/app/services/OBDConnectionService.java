@@ -26,7 +26,7 @@ import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.app.bluetooth.BluetoothSocketWrapper;
 import org.envirocar.app.bluetooth.FallbackBluetoothSocket;
 import org.envirocar.app.bluetooth.NativeBluetoothSocket;
-import org.envirocar.app.bluetooth.service.BluetoothServiceState;
+import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.protocol.ConnectionListener;
 import org.envirocar.app.protocol.OBDCommandLooper;

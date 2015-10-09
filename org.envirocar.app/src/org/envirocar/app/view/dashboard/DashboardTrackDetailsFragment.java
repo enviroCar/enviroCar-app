@@ -13,7 +13,7 @@ import android.widget.TextView;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
-import org.envirocar.app.bluetooth.service.BluetoothServiceState;
+import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;

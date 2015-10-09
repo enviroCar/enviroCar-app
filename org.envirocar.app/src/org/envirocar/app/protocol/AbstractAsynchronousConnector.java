@@ -20,7 +20,7 @@
  */
 package org.envirocar.app.protocol;
 
-import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
+import org.envirocar.obd.commands.CommonCommand;
 import org.envirocar.app.protocol.exception.AdapterFailedException;
 import org.envirocar.app.protocol.exception.ConnectionLostException;
 import org.envirocar.core.logging.Logger;

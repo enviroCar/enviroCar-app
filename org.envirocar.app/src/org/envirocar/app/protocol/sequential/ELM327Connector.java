@@ -23,14 +23,13 @@ package org.envirocar.app.protocol.sequential;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
-import org.envirocar.app.bluetooth.obd.commands.EchoOff;
-import org.envirocar.app.bluetooth.obd.commands.LineFeedOff;
-import org.envirocar.app.bluetooth.obd.commands.ObdReset;
-import org.envirocar.app.bluetooth.obd.commands.SelectAutoProtocol;
-import org.envirocar.app.bluetooth.obd.commands.Speed;
-import org.envirocar.app.bluetooth.obd.commands.StringResultCommand;
-import org.envirocar.app.bluetooth.obd.commands.Timeout;
+import org.envirocar.obd.commands.CommonCommand;
+import org.envirocar.obd.commands.EchoOff;
+import org.envirocar.obd.commands.LineFeedOff;
+import org.envirocar.obd.commands.ObdReset;
+import org.envirocar.obd.commands.SelectAutoProtocol;
+import org.envirocar.obd.commands.StringResultCommand;
+import org.envirocar.obd.commands.Timeout;
 import org.envirocar.app.protocol.AbstractSequentialConnector;
 
 public class ELM327Connector extends AbstractSequentialConnector {

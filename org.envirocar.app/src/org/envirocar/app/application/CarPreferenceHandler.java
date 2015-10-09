@@ -42,7 +42,7 @@ import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.util.CarUtils;
+import org.envirocar.core.utils.CarUtils;
 import org.envirocar.app.injection.DAOProvider;
 
 import java.io.ByteArrayInputStream;
