@@ -24,6 +24,8 @@ package org.envirocar.app.storage;
 import org.envirocar.core.delete.Position;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.exception.MeasurementSerializationException;
+import org.envirocar.core.exception.TrackAlreadyFinishedException;
 import org.envirocar.core.util.TrackMetadata;
 
 import java.util.ArrayList;
@@ -67,7 +69,7 @@ public interface DbAdapter {
 	 * @param measurement
 	 *            The measurement that should be inserted
 	 * @throws TrackAlreadyFinishedException
-	 * @throws MeasurementSerializationException 
+	 * @throws MeasurementSerializationException
 	 */
 	public void insertNewMeasurement(Measurement measurement) throws TrackAlreadyFinishedException, MeasurementSerializationException;
 

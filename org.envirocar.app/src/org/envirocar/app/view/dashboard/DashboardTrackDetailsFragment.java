@@ -15,11 +15,11 @@ import com.squareup.otto.Subscribe;
 import org.envirocar.app.R;
 import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
-import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
-import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.app.services.trackdetails.AvrgSpeedUpdateEvent;
-import org.envirocar.app.services.trackdetails.DistanceValueUpdateEvent;
-import org.envirocar.app.services.trackdetails.StartingTimeEvent;
+import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
+import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
+import org.envirocar.app.events.AvrgSpeedUpdateEvent;
+import org.envirocar.app.events.DistanceValueUpdateEvent;
+import org.envirocar.app.events.StartingTimeEvent;
 import org.envirocar.core.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 

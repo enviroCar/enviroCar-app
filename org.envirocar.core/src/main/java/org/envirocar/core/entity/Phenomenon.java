@@ -5,7 +5,7 @@ package org.envirocar.core.entity;
  *
  * @author dewall
  */
-public interface Phenomenon extends BaseEntity {
+public interface Phenomenon extends BaseEntity<Phenomenon> {
 
     String getPhenomenonName();
 

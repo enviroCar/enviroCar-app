@@ -28,13 +28,13 @@ import com.google.common.collect.Lists;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.activity.DialogUtil;
-import org.envirocar.app.application.CarPreferenceHandler;
-import org.envirocar.app.application.TemporaryFileManager;
-import org.envirocar.app.application.UserManager;
+import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.TemporaryFileManager;
+import org.envirocar.app.handler.UserManager;
 import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.obd.service.BluetoothServiceState;
-import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
-import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
+import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
+import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.app.injection.DAOProvider;
 import org.envirocar.app.injection.InjectionActivityModule;
 import org.envirocar.app.services.OBDConnectionService;

@@ -8,7 +8,7 @@ import java.util.Map;
  *
  * @author dewall
  */
-public interface Measurement extends BaseEntity {
+public interface Measurement extends BaseEntity<Measurement> {
 
     // All measurement values
     enum PropertyKey {

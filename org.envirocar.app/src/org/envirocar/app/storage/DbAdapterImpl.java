@@ -30,7 +30,7 @@ import android.util.Log;
 import com.google.common.collect.Lists;
 
 import org.envirocar.app.R;
-import org.envirocar.app.application.CarPreferenceHandler;
+import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.core.delete.Position;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.CarImpl;
@@ -38,7 +38,9 @@ import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.TrackImpl;
+import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.core.exception.NoMeasurementsException;
+import org.envirocar.core.exception.TrackAlreadyFinishedException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;

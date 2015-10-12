@@ -7,7 +7,7 @@ import java.util.Map;
  *
  * @author dewall
  */
-public interface UserStatistics extends BaseEntity {
+public interface UserStatistics extends BaseEntity<UserStatistics> {
 
     Phenomenon getStatistic(String phenomenon);
 

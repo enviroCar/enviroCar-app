@@ -13,9 +13,9 @@ import android.preference.PreferenceManager;
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.events.bluetooth.BluetoothDeviceDiscoveredEvent;
-import org.envirocar.app.events.bluetooth.BluetoothDeviceSelectedEvent;
-import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
+import org.envirocar.core.events.bluetooth.BluetoothDeviceDiscoveredEvent;
+import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
+import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.app.view.preferences.PreferenceConstants;

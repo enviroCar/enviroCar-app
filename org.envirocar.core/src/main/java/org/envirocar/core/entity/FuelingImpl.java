@@ -27,4 +27,8 @@ public class FuelingImpl implements Fueling {
 
     }
 
+    @Override
+    public Fueling carbonCopy() {
+        return null;
+    }
 }

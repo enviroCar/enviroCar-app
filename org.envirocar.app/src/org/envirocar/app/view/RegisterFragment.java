@@ -40,8 +40,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import org.envirocar.app.R;
-import org.envirocar.app.application.TermsOfUseManager;
-import org.envirocar.app.application.UserManager;
+import org.envirocar.app.handler.TermsOfUseManager;
+import org.envirocar.app.handler.UserManager;
 import org.envirocar.app.view.dashboard.RealDashboardFragment;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.core.entity.User;

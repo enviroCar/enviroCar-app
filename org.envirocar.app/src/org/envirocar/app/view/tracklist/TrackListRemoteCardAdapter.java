@@ -49,10 +49,12 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<Tra
 
         final Track remoteTrack = mTrackDataset.get(position);
 
+        holder.mContentView.setVisibility(View.GONE);
+        holder.mProgressCircle.setVisibility(View.GONE);
+        holder.mDownloadButton.setVisibility(View.GONE);
+
         if (remoteTrack.getRemoteID() != null && remoteTrack.isDownloaded()) {
             holder.mContentView.setVisibility(View.VISIBLE);
-            holder.mProgressCircle.setVisibility(View.GONE);
-            holder.mDownloadButton.setVisibility(View.GONE);
 
             bindLocalTrackViewHolder(holder, remoteTrack);
         } else {

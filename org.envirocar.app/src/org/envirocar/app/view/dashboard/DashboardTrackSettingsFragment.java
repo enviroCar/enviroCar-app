@@ -13,10 +13,10 @@ import android.widget.TextView;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
-import org.envirocar.app.application.CarPreferenceHandler;
+import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.events.bluetooth.BluetoothDeviceSelectedEvent;
-import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
+import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
+import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.app.view.carselection.CarSelectionActivity;
 import org.envirocar.app.view.obdselection.OBDSelectionActivity;

@@ -49,8 +49,6 @@ import rx.Observable;
 public class RemoteUserDAO extends BaseRemoteDAO<UserDAO> implements UserDAO {
     private static final Logger LOG = Logger.getLogger(RemoteUserDAO.class);
 
-
-
     @Override
     public User getUser(String id) throws DataRetrievalFailureException, UnauthorizedException {
         // Get the service for the user endpoints and initiates a call.
@@ -110,9 +108,16 @@ public class RemoteUserDAO extends BaseRemoteDAO<UserDAO> implements UserDAO {
 
     @Override
     public void updateUser(User user) throws DataUpdateFailureException, UnauthorizedException {
+        // Workaround: The server only requires mail and TOU version to update the
+        // terms of use.  The serialization, however, serializes everything. If the
+        // request body contains the username as well as the token, then it throws an 405.
+        User update = user.carbonCopy();
+        update.setUsername(null);
+        update.setToken(null);
+
         // Get the service for the user endpoints and initiate a call.
         UserService userService = EnviroCarService.getUserService();
-        Call<ResponseBody> userCall = userService.updateUser(user);
+        Call<ResponseBody> userCall = userService.updateUser(user.getUsername(), update);
 
         try {
             // execute the call

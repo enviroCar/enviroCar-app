@@ -27,10 +27,10 @@ import junit.framework.Assert;
 
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
-import org.envirocar.app.storage.MeasurementSerializationException;
+import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Track.TrackStatus;
-import org.envirocar.app.storage.TrackAlreadyFinishedException;
+import org.envirocar.core.exception.TrackAlreadyFinishedException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

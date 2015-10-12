@@ -1,7 +1,5 @@
 package org.envirocar.core.entity;
 
-import java.io.Serializable;
-
 /**
  * TODO JavaDoc
  *
@@ -181,5 +179,17 @@ public class CarImpl implements Car {
         result = 31 * result + constructionYear;
         result = 31 * result + engineDisplacement;
         return result;
+    }
+
+    @Override
+    public Car carbonCopy() {
+        CarImpl res = new CarImpl();
+        res.id = id;
+        res.model = model;
+        res.manufacturer = manufacturer;
+        res.fuelType = fuelType;
+        res.constructionYear = constructionYear;
+        res.engineDisplacement = engineDisplacement;
+        return res;
     }
 }

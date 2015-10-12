@@ -5,11 +5,11 @@ package org.envirocar.core.entity;
  *
  * @author dewall
  */
-public interface TermsOfUse extends BaseEntity {
+public interface TermsOfUse extends BaseEntity<TermsOfUse> {
     String KEY_TERMSOFUSE = "termsOfUse";
     String KEY_TERMSOFUSE_ID = "id";
     String KEY_TERMSOFUSE_ISSUEDDATE = "issuedDate";
-
+    String KEY_TERMSOFUSE_CONTENTS = "contents";
     /**
      * Returns the id of the terms of use.
      *

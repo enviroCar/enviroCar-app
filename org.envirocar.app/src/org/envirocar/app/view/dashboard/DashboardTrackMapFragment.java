@@ -17,7 +17,7 @@ import com.mapbox.mapboxsdk.views.MapView;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
-import org.envirocar.app.services.trackdetails.TrackPathOverlayEvent;
+import org.envirocar.app.events.TrackPathOverlayEvent;
 import org.envirocar.app.view.utils.MapUtils;
 import org.envirocar.core.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;

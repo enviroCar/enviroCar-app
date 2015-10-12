@@ -26,7 +26,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import org.envirocar.app.R;
-import org.envirocar.app.application.CarPreferenceHandler;
+import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.CarImpl;

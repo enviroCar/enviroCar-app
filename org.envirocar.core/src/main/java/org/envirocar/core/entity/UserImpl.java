@@ -93,4 +93,14 @@ public class UserImpl implements User {
     public void setVersionRange() {
 
     }
+
+    @Override
+    public User carbonCopy() {
+        UserImpl user = new UserImpl();
+        user.username = username;
+        user.token = token;
+        user.touVersion = touVersion;
+        user.mail = mail;
+        return user;
+    }
 }

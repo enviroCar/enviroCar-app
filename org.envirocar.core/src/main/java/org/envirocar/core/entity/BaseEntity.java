@@ -3,6 +3,8 @@ package org.envirocar.core.entity;
 /**
  * TODO JavaDoc
  */
-public interface BaseEntity {
+public interface BaseEntity<E extends BaseEntity> {
+
+    E carbonCopy();
 
 }

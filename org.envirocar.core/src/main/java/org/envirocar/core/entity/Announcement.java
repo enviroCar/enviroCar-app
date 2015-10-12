@@ -3,12 +3,11 @@ package org.envirocar.core.entity;
 import com.google.gson.JsonObject;
 
 import org.envirocar.core.util.VersionRange;
-import org.json.JSONObject;
 
 /**
  * @author dewall
  */
-public interface Announcement extends BaseEntity {
+public interface Announcement extends BaseEntity<Announcement> {
     String KEY_ANNOUNCEMENTS = "announcements";
     String KEY_ANNOUNCEMENTS_ID = "id";
     String KEY_ANNOUNCEMENTS_VERSIONS = "versions";

@@ -4,7 +4,10 @@ package org.envirocar.remote.service;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 
 import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.Announcement;
@@ -19,6 +22,7 @@ import org.envirocar.remote.serializer.CarListDeserializer;
 import org.envirocar.remote.serializer.CarSerializer;
 import org.envirocar.remote.serializer.MeasurementSerializer;
 import org.envirocar.remote.serializer.RemoteTrackListDeserializer;
+import org.envirocar.remote.serializer.TermsOfUseListSerializer;
 import org.envirocar.remote.serializer.TermsOfUseSerializer;
 import org.envirocar.remote.serializer.TrackSerializer;
 import org.envirocar.remote.serializer.UserSerializer;
@@ -26,6 +30,7 @@ import org.envirocar.remote.serializer.UserStatisticDeserializer;
 import org.envirocar.remote.util.AuthenticationInterceptor;
 import org.envirocar.remote.util.JsonContentTypeInterceptor;
 
+import java.io.IOException;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -52,6 +57,13 @@ public class EnviroCarService {
         OkHttpClient client = new OkHttpClient();
         client.interceptors().add(new AuthenticationInterceptor(mUsermanager));
         client.interceptors().add(new JsonContentTypeInterceptor());
+        client.networkInterceptors().add(new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Request request = chain.request();
+                return chain.proceed(request);
+            }
+        });
 
         return new Retrofit.Builder()
                 .baseUrl(BASE_URL)
@@ -107,6 +119,8 @@ public class EnviroCarService {
     public static TermsOfUseService getTermsOfUseService() {
         Gson gson = new GsonBuilder()
                 .registerTypeAdapter(TermsOfUse.class, new TermsOfUseSerializer())
+                .registerTypeAdapter(new TypeToken<List<TermsOfUse>>() {
+                }.getType(), new TermsOfUseListSerializer())
                 .create();
 
         OkHttpClient client = new OkHttpClient();

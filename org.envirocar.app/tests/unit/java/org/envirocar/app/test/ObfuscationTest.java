@@ -31,7 +31,7 @@ import org.envirocar.app.model.Car;
 import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
-import org.envirocar.app.storage.TrackAlreadyFinishedException;
+import org.envirocar.core.exception.TrackAlreadyFinishedException;
 import org.json.JSONException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,7 +40,6 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import android.os.Environment;
-import android.test.AndroidTestCase;
 import android.util.Base64;
 
 @RunWith(PowerMockRunner.class)

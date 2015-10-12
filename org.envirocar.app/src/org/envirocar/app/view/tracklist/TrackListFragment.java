@@ -17,8 +17,8 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
-import org.envirocar.app.application.TermsOfUseManager;
-import org.envirocar.app.application.UserManager;
+import org.envirocar.app.handler.TermsOfUseManager;
+import org.envirocar.app.handler.UserManager;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;

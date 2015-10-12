@@ -26,16 +26,14 @@ import org.envirocar.app.model.Position;
 import org.envirocar.app.model.TrackId;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.Measurement;
-import org.envirocar.app.storage.MeasurementSerializationException;
-import org.envirocar.app.storage.TrackAlreadyFinishedException;
+import org.envirocar.core.exception.MeasurementSerializationException;
+import org.envirocar.core.exception.TrackAlreadyFinishedException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import android.preference.PreferenceManager;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.runner.AndroidJUnit4;
-import android.test.InstrumentationTestCase;
 
 @RunWith(AndroidJUnit4.class)
 public class TrackCreateDecisionTest {

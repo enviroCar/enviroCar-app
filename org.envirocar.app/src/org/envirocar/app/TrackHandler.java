@@ -7,12 +7,12 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.activity.DialogUtil;
-import org.envirocar.app.application.TermsOfUseManager;
-import org.envirocar.app.application.UploadManager;
-import org.envirocar.app.application.UserManager;
+import org.envirocar.app.handler.TermsOfUseManager;
+import org.envirocar.app.handler.UploadManager;
+import org.envirocar.app.handler.UserManager;
 import org.envirocar.app.bluetooth.BluetoothHandler;
 import org.envirocar.obd.service.BluetoothServiceState;
-import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
+import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.injection.DAOProvider;
 import org.envirocar.app.storage.DbAdapter;

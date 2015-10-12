@@ -71,4 +71,15 @@ public class PhenomenonImpl implements Phenomenon {
                 .add("phenomenonUnit", phenomenonUnit)
                 .toString();
     }
+
+    @Override
+    public Phenomenon carbonCopy() {
+        PhenomenonImpl res = new PhenomenonImpl();
+        res.phenomenonName = phenomenonName;
+        res.phenomenonUnit = phenomenonUnit;
+        res.max = max;
+        res.avg = avg;
+        res.min = min;
+        return res;
+    }
 }

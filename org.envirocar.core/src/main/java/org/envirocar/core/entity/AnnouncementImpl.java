@@ -66,4 +66,14 @@ public class AnnouncementImpl implements Announcement {
         this.contents = content;
     }
 
+    @Override
+    public Announcement carbonCopy() {
+        AnnouncementImpl result = new AnnouncementImpl();
+        result.id = id;
+        result.versionRange = versionRange;
+        result.priority = priority;
+        result.category = category;
+        result.contents = contents;
+        return result;
+    }
 }

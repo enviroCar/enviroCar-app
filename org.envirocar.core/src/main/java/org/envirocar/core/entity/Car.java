@@ -7,7 +7,7 @@ import java.io.Serializable;
  *
  * @author dewall
  */
-public interface Car extends BaseEntity, Serializable {
+public interface Car extends BaseEntity<Car>, Serializable {
     String KEY_ROOT = "sensors";
     String KEY_CAR = "properties";
     String KEY_CAR_TYPE = "type";

@@ -112,13 +112,6 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO> implements
                         .message());
             }
 
-            // Success
-            //            if (mCache != null) {
-            //                //                mCache.storeTermsOfUse(touResponse.body()
-            // touResponse.raw().body
-            //                // ().string());
-            //            }
-
             // Return the terms of use.
             return touResponse.body();
         } catch (Exception e) {

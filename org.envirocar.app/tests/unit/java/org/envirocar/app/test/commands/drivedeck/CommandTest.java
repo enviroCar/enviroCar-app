@@ -20,12 +20,10 @@
  */
 package org.envirocar.app.test.commands.drivedeck;
 
-import org.envirocar.app.protocol.ResponseParser;
-import org.envirocar.app.protocol.drivedeck.DriveDeckSportConnector;
+import org.envirocar.obd.protocol.ResponseParser;
+import org.envirocar.obd.protocol.drivedeck.DriveDeckSportConnector;
 import org.envirocar.app.test.MockingEnvironmentTest;
 import org.junit.Test;
-
-import android.test.AndroidTestCase;
 
 public class CommandTest extends MockingEnvironmentTest {
 

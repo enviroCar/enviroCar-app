@@ -21,8 +21,13 @@ public class UserSerializer implements JsonSerializer<User>, JsonDeserializer<Us
     @Override
     public JsonElement serialize(User src, Type typeOfSrc, JsonSerializationContext context) {
         JsonObject user = new JsonObject();
-        user.addProperty(User.KEY_USER_NAME, src.getUsername());
-        user.addProperty(User.KEY_USER_TOKEN, src.getToken());
+        if (src.getUsername() != null) {
+            user.addProperty(User.KEY_USER_NAME, src.getUsername());
+        }
+
+        if (src.getToken() != null) {
+            user.addProperty(User.KEY_USER_TOKEN, src.getToken());
+        }
 
         if (src.getMail() != null) {
             user.addProperty(User.KEY_USER_MAIL, src.getMail());
@@ -46,7 +51,7 @@ public class UserSerializer implements JsonSerializer<User>, JsonDeserializer<Us
         user.setUsername(username);
         user.setMail(mail);
 
-        if(userObject.has(User.KEY_USER_TOU_VERSION)){
+        if (userObject.has(User.KEY_USER_TOU_VERSION)) {
             String touVersion = userObject.get(User.KEY_USER_TOU_VERSION).getAsString();
             user.setTermsOfUseVersion(touVersion);
         }

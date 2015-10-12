@@ -2,6 +2,7 @@ package org.envirocar.core.entity;
 
 import com.google.common.collect.Maps;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -30,5 +31,12 @@ public class UserStatisticsImpl implements UserStatistics {
     @Override
     public void setStatistics(Map<String, Phenomenon> statistics) {
         this.phenomenonMap = statistics;
+    }
+
+    @Override
+    public UserStatistics carbonCopy() {
+        UserStatisticsImpl userStatistics = new UserStatisticsImpl();
+        userStatistics.phenomenonMap = new HashMap<>(phenomenonMap);
+        return userStatistics;
     }
 }

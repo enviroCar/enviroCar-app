@@ -3,7 +3,7 @@ package org.envirocar.core.entity;
 /**
  * @author dewall
  */
-public class TermsOfUseImpl implements TermsOfUse{
+public class TermsOfUseImpl implements TermsOfUse {
     protected String id;
     protected String issuedDate;
     protected String contents;
@@ -30,5 +30,14 @@ public class TermsOfUseImpl implements TermsOfUse{
 
     public void setContents(String contents) {
         this.contents = contents;
+    }
+
+    @Override
+    public TermsOfUse carbonCopy() {
+        TermsOfUseImpl res = new TermsOfUseImpl();
+        res.id = id;
+        res.issuedDate = issuedDate;
+        res.contents = contents;
+        return res;
     }
 }

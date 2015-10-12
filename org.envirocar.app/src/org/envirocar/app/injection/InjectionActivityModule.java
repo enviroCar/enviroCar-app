@@ -6,9 +6,9 @@ import android.content.Context;
 
 import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.activity.StartStopButtonUtil;
-import org.envirocar.app.application.CarPreferenceHandler;
-import org.envirocar.app.application.TermsOfUseManager;
-import org.envirocar.app.application.UploadManager;
+import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.TermsOfUseManager;
+import org.envirocar.app.handler.UploadManager;
 import org.envirocar.app.view.LogbookFragment;
 import org.envirocar.app.view.RegisterFragment;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;

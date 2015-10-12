@@ -63,9 +63,16 @@ public class TermsOfUseSerializer implements JsonSerializer<TermsOfUse>,
         String issuedDate = termsOfUseObject.get(TermsOfUse.KEY_TERMSOFUSE_ISSUEDDATE)
                 .getAsString();
 
+        // Get the optinal content.
+        String content = null;
+        if (termsOfUseObject.has(TermsOfUse.KEY_TERMSOFUSE_CONTENTS)) {
+            content = termsOfUseObject.get(TermsOfUse.KEY_TERMSOFUSE_CONTENTS).getAsString();
+        }
+
         TermsOfUse result = new TermsOfUseImpl();
         result.setId(id);
         result.setIssuedDate(issuedDate);
+        result.setContents(content);
 
         return result;
     }

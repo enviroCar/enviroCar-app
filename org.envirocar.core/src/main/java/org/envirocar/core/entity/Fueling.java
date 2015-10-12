@@ -5,7 +5,7 @@ package org.envirocar.core.entity;
  *
  * @author dewall
  */
-public interface Fueling extends BaseEntity {
+public interface Fueling extends BaseEntity<Fueling> {
 
     Car getCar();
 
@@ -14,6 +14,4 @@ public interface Fueling extends BaseEntity {
     String getComment();
 
     void setComment(String comment);
-
-
 }

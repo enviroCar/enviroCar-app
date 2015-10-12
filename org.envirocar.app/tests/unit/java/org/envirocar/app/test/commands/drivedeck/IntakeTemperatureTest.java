@@ -29,7 +29,7 @@ import org.envirocar.obd.commands.CommonCommand;
 import org.envirocar.obd.commands.IntakeTemperature;
 import org.envirocar.app.logging.Handler;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.app.protocol.ResponseParser;
+import org.envirocar.obd.protocol.ResponseParser;
 import org.envirocar.app.util.Util;
 import org.junit.Before;
 import org.junit.Test;

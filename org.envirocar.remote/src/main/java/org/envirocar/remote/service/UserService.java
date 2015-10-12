@@ -28,8 +28,8 @@ public interface UserService {
     @POST("users/")
     Call<ResponseBody> createUser(@Body User user);
 
-    @PUT("users/")
-    Call<ResponseBody> updateUser(@Body User user);
+    @PUT("users/{user}")
+    Call<ResponseBody> updateUser(@Path("user") String user, @Body User body);
 
     @GET("users/{user}/statistics")
     Call<UserStatistics> getUserStatistics(@Path("user") String user);

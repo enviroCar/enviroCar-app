@@ -10,7 +10,7 @@ import java.util.List;
  *
  * @author dewall
  */
-public interface Track extends BaseEntity, Comparable<Track> {
+public interface Track extends BaseEntity<Track>, Comparable<Track> {
     String KEY_TRACK_TYPE = "type";
     String KEY_TRACK_PROPERTIES = "properties";
     String KEY_TRACK_PROPERTIES_ID = "id";
