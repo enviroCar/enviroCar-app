@@ -18,55 +18,68 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.bluetooth;
+package org.envirocar.obd.bluetooth;
+
+import android.bluetooth.BluetoothSocket;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 
-import android.bluetooth.BluetoothSocket;
+public class FallbackBluetoothSocket extends NativeBluetoothSocket {
 
-public class NativeBluetoothSocket implements BluetoothSocketWrapper {
+	private BluetoothSocket fallbackSocket;
 
-	private BluetoothSocket socket;
-
-	public NativeBluetoothSocket(BluetoothSocket tmp) {
-		this.socket = tmp;
+	public FallbackBluetoothSocket(BluetoothSocket tmp) throws FallbackException {
+		super(tmp);
+        try
+        {
+          Class<?> clazz = tmp.getRemoteDevice().getClass();
+          Class<?>[] paramTypes = new Class<?>[] {Integer.TYPE};
+          Method m = clazz.getMethod("createRfcommSocket", paramTypes);
+          Object[] params = new Object[] {Integer.valueOf(1)};
+          fallbackSocket = (BluetoothSocket) m.invoke(tmp.getRemoteDevice(), params);
+        }
+        catch (Exception e)
+        {
+        	throw new FallbackException(e);
+        }
 	}
 
 	@Override
 	public InputStream getInputStream() throws IOException {
-		return socket.getInputStream();
+		return fallbackSocket.getInputStream();
 	}
 
 	@Override
 	public OutputStream getOutputStream() throws IOException {
-		return socket.getOutputStream();
+		return fallbackSocket.getOutputStream();
 	}
 
-	@Override
-	public String getRemoteDeviceName() {
-		return socket.getRemoteDevice().getName();
-	}
 
 	@Override
 	public void connect() throws IOException {
-		socket.connect();
+		fallbackSocket.connect();
 	}
 
-	@Override
-	public String getRemoteDeviceAddress() {
-		return socket.getRemoteDevice().getAddress();
-	}
 
 	@Override
 	public void close() throws IOException {
-		socket.close();
+		fallbackSocket.close();
 	}
 
-	@Override
-	public BluetoothSocket getUnderlyingSocket() {
-		return socket;
-	}
+	
+	public static class FallbackException extends Exception {
 
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		public FallbackException(Exception e) {
+			super(e);
+		}
+		
+	}
 }

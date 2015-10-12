@@ -32,7 +32,7 @@ import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.core.events.NewMeasurementEvent;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.core.events.gps.GpsDOP;
-import org.envirocar.core.events.gps.LocationChangedEvent;
+import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
@@ -332,7 +332,7 @@ public class Collector {
 
 
     @Subscribe
-    public void onReceiveLocationChangedEvent(LocationChangedEvent event) {
+    public void onReceiveLocationChangedEvent(GpsLocationChangedEvent event) {
         LOG.warn(String.format("Received event: %s", event.toString()));
         newLocation(event.mLocation);
     }

@@ -229,6 +229,11 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
 
     @Override
     public int compareTo(Track another) {
+
+        if(another.isRemoteTrack()){
+            return another.isDownloaded() ? 1 : -1;
+        }
+
         try {
             if (another.getStartTime() == null && another.getEndTime() == null) {
                 /*

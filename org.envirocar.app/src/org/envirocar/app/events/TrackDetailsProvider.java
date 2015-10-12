@@ -10,7 +10,7 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.NewMeasurementEvent;
-import org.envirocar.core.events.gps.LocationChangedEvent;
+import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.logging.Logger;
 
 import rx.Scheduler;
@@ -69,7 +69,7 @@ public class TrackDetailsProvider {
     //    }
 
     @Subscribe
-    public void onReceiveLocationChangedEvent(LocationChangedEvent event) {
+    public void onReceiveLocationChangedEvent(GpsLocationChangedEvent event) {
         LOGGER.info(String.format("Received event: %s", event.toString()));
 
     }

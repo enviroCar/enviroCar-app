@@ -17,16 +17,16 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.NotificationHandler;
 import org.envirocar.app.TrackHandler;
+import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
-import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.core.utils.ServiceUtils;
-import org.envirocar.obd.service.BluetoothServiceState;
-import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
-import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
+import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.ServiceUtils;
+import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
+import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.util.concurrent.TimeUnit;
 

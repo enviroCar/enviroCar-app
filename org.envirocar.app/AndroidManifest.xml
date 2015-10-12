@@ -82,7 +82,7 @@
             android:name="org.envirocar.app.services.SystemStartupService"
             android:enabled="true"/>
         <service
-            android:name="org.envirocar.app.services.OBDConnectionService"
+            android:name=".services.OBDConnectionService"
             android:enabled="true"/>
 
         <activity

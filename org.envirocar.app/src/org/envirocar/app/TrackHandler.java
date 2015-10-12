@@ -7,13 +7,11 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.activity.DialogUtil;
+import org.envirocar.app.exception.ServerException;
+import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.UploadManager;
 import org.envirocar.app.handler.UserManager;
-import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.obd.service.BluetoothServiceState;
-import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
-import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.injection.DAOProvider;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.core.entity.TermsOfUse;
@@ -28,6 +26,8 @@ import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
+import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.util.ArrayList;
 

@@ -7,7 +7,7 @@
 //import android.os.IBinder;
 //import android.support.v4.content.LocalBroadcastManager;
 //
-//import org.envirocar.app.bluetooth.BluetoothHandler;
+//import org.envirocar.obd.bluetooth.BluetoothHandler;
 //import org.envirocar.core.injection.Injector;
 //import org.envirocar.core.logging.Logger;
 //

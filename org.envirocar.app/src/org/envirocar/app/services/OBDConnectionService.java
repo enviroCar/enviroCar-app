@@ -19,23 +19,25 @@ import android.util.Log;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.handler.LocationHandler;
-import org.envirocar.app.R;
 import org.envirocar.app.CommandListener;
-import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.bluetooth.BluetoothSocketWrapper;
-import org.envirocar.app.bluetooth.FallbackBluetoothSocket;
-import org.envirocar.app.bluetooth.NativeBluetoothSocket;
-import org.envirocar.obd.service.BluetoothServiceState;
-import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
-import org.envirocar.obd.protocol.ConnectionListener;
-import org.envirocar.obd.protocol.OBDCommandLooper;
+import org.envirocar.app.R;
 import org.envirocar.app.events.TrackDetailsProvider;
+import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFix;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.bluetooth.BluetoothSocketWrapper;
+import org.envirocar.obd.bluetooth.FallbackBluetoothSocket;
+import org.envirocar.obd.bluetooth.NativeBluetoothSocket;
+import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
+import org.envirocar.obd.events.SpeedUpdateEvent;
+import org.envirocar.obd.protocol.ConnectionListener;
+import org.envirocar.obd.protocol.OBDCommandLooper;
+import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,14 +46,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.content.ContentObservable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -103,6 +108,8 @@ public class OBDConnectionService extends Service {
 
     private PowerManager.WakeLock mWakeLock;
 
+    private OBDConnectionRecognizer connectionRecognizer = new OBDConnectionRecognizer();
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -113,6 +120,7 @@ public class OBDConnectionService extends Service {
         // register on the event bus
         this.mBus.register(this);
         this.mBus.register(mTrackDetailsProvider);
+        this.mBus.register(connectionRecognizer);
 
         mTTS = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
@@ -221,6 +229,7 @@ public class OBDConnectionService extends Service {
         // Unregister from the event bus.
         mBus.unregister(this);
         mBus.unregister(mTrackDetailsProvider);
+        mBus.unregister(connectionRecognizer);
         mTrackDetailsProvider.onOBDConnectionStopped();
     }
 
@@ -559,6 +568,60 @@ public class OBDConnectionService extends Service {
         private void cancelConnection() {
             mIsRunning = false;
             shutdownSocket(mSocketWrapper);
+        }
+    }
+
+    public class OBDConnectionRecognizer {
+        private static final long OBD_INTERVAL = 1000 * 10; // 10 seconds;
+        private static final long GPS_INTERVAL = 1000 * 15; // 15 seconds;
+
+        private long timeLastSpeedMeasurement;
+        private long timeLastGpsMeasurement;
+
+        private final Scheduler.Worker mBackgroundWorker = Schedulers.io().createWorker();
+        private Subscription mOBDCheckerSubscription;
+        private Subscription mGPSCheckerSubscription;
+
+        private final Action0 OBDConnectionCloser = new Action0() {
+            @Override
+            public void call() {
+                LOGGER.warn("CONNECTION CLOSED");
+                stopOBDConnection();
+            }
+        };
+
+        /**
+         * Constructor.
+         */
+        public OBDConnectionRecognizer() {
+            //        ((Injector) context).injectObjects(this);
+
+        }
+
+        @Subscribe
+        public void onReceiveGpsLocationChangedEvent(GpsLocationChangedEvent event) {
+            if (mGPSCheckerSubscription != null) {
+                mGPSCheckerSubscription.unsubscribe();
+                mGPSCheckerSubscription = null;
+            }
+
+            timeLastGpsMeasurement = System.currentTimeMillis();
+
+            mOBDCheckerSubscription = mBackgroundWorker.schedule(
+                    OBDConnectionCloser, GPS_INTERVAL, TimeUnit.MILLISECONDS);
+        }
+
+        @Subscribe
+        public void onReceiveSpeedUpdateEvent(SpeedUpdateEvent event) {
+            if (mOBDCheckerSubscription != null) {
+                mOBDCheckerSubscription.unsubscribe();
+                mOBDCheckerSubscription = null;
+            }
+
+            timeLastSpeedMeasurement = System.currentTimeMillis();
+
+            mOBDCheckerSubscription = mBackgroundWorker.schedule(
+                    OBDConnectionCloser, OBD_INTERVAL, TimeUnit.MILLISECONDS);
         }
     }
 

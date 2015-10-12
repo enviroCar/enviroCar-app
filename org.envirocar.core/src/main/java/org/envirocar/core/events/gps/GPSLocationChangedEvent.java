@@ -7,7 +7,7 @@ import com.google.common.base.MoreObjects;
 /**
  * @author dewall
  */
-public class LocationChangedEvent {
+public class GpsLocationChangedEvent {
 
     public final Location mLocation;
 
@@ -16,7 +16,7 @@ public class LocationChangedEvent {
      *
      * @param location  the new location.
      */
-    public LocationChangedEvent(final Location location){
+    public GpsLocationChangedEvent(final Location location){
         this.mLocation = location;
     }
 

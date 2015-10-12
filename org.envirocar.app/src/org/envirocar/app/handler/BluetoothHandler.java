@@ -1,4 +1,4 @@
-package org.envirocar.app.bluetooth;
+package org.envirocar.app.handler;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;

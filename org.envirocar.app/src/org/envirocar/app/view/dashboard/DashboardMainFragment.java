@@ -24,20 +24,20 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
+import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
-import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.obd.service.BluetoothServiceState;
-import org.envirocar.core.events.gps.GpsStateChangedEvent;
-import org.envirocar.core.events.NewCarTypeSelectedEvent;
-import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
-import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
+import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.services.OBDConnectionService;
-import org.envirocar.core.utils.ServiceUtils;
+import org.envirocar.core.events.NewCarTypeSelectedEvent;
+import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
+import org.envirocar.core.events.gps.GpsStateChangedEvent;
 import org.envirocar.core.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.ServiceUtils;
+import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
+import org.envirocar.obd.service.BluetoothServiceState;
 
 import javax.inject.Inject;
 

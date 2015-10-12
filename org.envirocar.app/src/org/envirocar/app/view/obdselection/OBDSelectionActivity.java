@@ -11,10 +11,10 @@ import android.widget.TextView;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
-import org.envirocar.app.bluetooth.BluetoothHandler;
+import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.core.logging.Logger;
 import org.envirocar.core.injection.BaseInjectorActivity;
+import org.envirocar.core.logging.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;

@@ -17,7 +17,7 @@ import org.envirocar.core.events.gps.GpsDOPEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFix;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
-import org.envirocar.core.events.gps.LocationChangedEvent;
+import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
@@ -39,7 +39,7 @@ public class LocationHandler {
         public void onLocationChanged(Location location) {
             LOGGER.warn("New Location Update");
             mLastBestLocation = location;
-            mBus.post(new LocationChangedEvent(mLastBestLocation));
+            mBus.post(new GpsLocationChangedEvent(mLastBestLocation));
         }
 
         @Override
@@ -223,10 +223,10 @@ public class LocationHandler {
     }
 
     //    @Produce
-    public LocationChangedEvent produceLocationChangedEvent() {
+    public GpsLocationChangedEvent produceLocationChangedEvent() {
         if (mLastBestLocation == null)
             return null;
-        return new LocationChangedEvent(mLastBestLocation);
+        return new GpsLocationChangedEvent(mLastBestLocation);
     }
 
     //    @Produce

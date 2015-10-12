@@ -18,13 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.app.bluetooth;
+package org.envirocar.obd.bluetooth;
+
+import android.bluetooth.BluetoothSocket;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
-import android.bluetooth.BluetoothSocket;
 
 public interface BluetoothSocketWrapper {
 

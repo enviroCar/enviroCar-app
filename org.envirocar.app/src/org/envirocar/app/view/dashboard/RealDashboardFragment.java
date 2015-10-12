@@ -21,23 +21,23 @@ import com.squareup.otto.Subscribe;
 import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
 import org.envirocar.app.activity.StartStopButtonUtil;
+import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
-import org.envirocar.app.bluetooth.BluetoothHandler;
+import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.app.view.settings.NewSettingsActivity;
+import org.envirocar.app.views.LayeredImageRotateView;
+import org.envirocar.app.views.TypefaceEC;
+import org.envirocar.core.entity.Car;
+import org.envirocar.core.events.gps.GpsDOPEvent;
+import org.envirocar.core.events.gps.GpsSatelliteFix;
+import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
+import org.envirocar.core.events.gps.GpsLocationChangedEvent;
+import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.obd.events.Co2Event;
 import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
-import org.envirocar.app.view.settings.NewSettingsActivity;
-import org.envirocar.core.events.gps.GpsDOPEvent;
-import org.envirocar.core.events.gps.GpsSatelliteFix;
-import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
-import org.envirocar.core.events.gps.LocationChangedEvent;
-import org.envirocar.app.view.preferences.PreferenceConstants;
-import org.envirocar.app.views.LayeredImageRotateView;
-import org.envirocar.app.views.TypefaceEC;
-import org.envirocar.core.entity.Car;
-import org.envirocar.core.injection.BaseInjectorFragment;
-import org.envirocar.core.logging.Logger;
 
 import java.text.DecimalFormat;
 
@@ -192,7 +192,7 @@ public class RealDashboardFragment extends BaseInjectorFragment {
     }
 
     @Subscribe
-    public void onReceiveLocationChangedEvent(LocationChangedEvent event) {
+    public void onReceiveLocationChangedEvent(GpsLocationChangedEvent event) {
         LOGGER.debug(String.format("Received event: %s", event.toString()));
         this.mLocation = event.mLocation;
         checkUIUpdate();
