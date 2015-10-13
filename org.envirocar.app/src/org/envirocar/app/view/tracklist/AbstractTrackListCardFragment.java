@@ -19,7 +19,7 @@ import com.google.common.collect.Lists;
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
-import org.envirocar.app.handler.UserManager;
+import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.DAOProvider;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.view.preferences.PreferenceConstants;
@@ -51,7 +51,7 @@ public abstract class AbstractTrackListCardFragment<T extends Track, E extends R
     private static final Logger LOG = Logger.getLogger(AbstractTrackListCardFragment.class);
 
     @Inject
-    protected UserManager mUserManager;
+    protected UserHandler mUserManager;
     @Inject
     protected DbAdapter mDBAdapter;
     @Inject

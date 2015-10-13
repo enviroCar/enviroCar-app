@@ -91,7 +91,6 @@ public class UserImpl implements User {
 
     @Override
     public void setVersionRange() {
-
     }
 
     @Override

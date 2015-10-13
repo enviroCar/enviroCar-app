@@ -41,7 +41,7 @@ import android.widget.TextView;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.TermsOfUseManager;
-import org.envirocar.app.handler.UserManager;
+import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.view.dashboard.RealDashboardFragment;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.core.entity.User;
@@ -90,7 +90,7 @@ public class RegisterFragment extends BaseInjectorFragment {
     @Inject
     protected DAOProvider mDAOProvider;
     @Inject
-    protected UserManager mUserManager;
+    protected UserHandler mUserManager;
     @Inject
     protected TermsOfUseManager mTermsOfUseManager;
 

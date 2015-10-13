@@ -182,7 +182,8 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<T
 
             Collections.sort(mTrackList);
 
-            getActivity().runOnUiThread(() -> mRecyclerViewAdapter.notifyDataSetChanged());
+            if (getActivity() != null)
+                getActivity().runOnUiThread(() -> mRecyclerViewAdapter.notifyDataSetChanged());
 
             return null;
         }

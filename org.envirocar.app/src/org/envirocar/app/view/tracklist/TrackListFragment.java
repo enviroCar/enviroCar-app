@@ -18,7 +18,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
-import org.envirocar.app.handler.UserManager;
+import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
@@ -48,7 +48,7 @@ public class TrackListFragment extends BaseInjectorFragment {
     private static final Logger LOGGER = Logger.getLogger(TrackListFragment.class);
 
     @Inject
-    protected UserManager mUserManager;
+    protected UserHandler mUserManager;
     @Inject
     protected DbAdapter mDBAdapter;
     @Inject

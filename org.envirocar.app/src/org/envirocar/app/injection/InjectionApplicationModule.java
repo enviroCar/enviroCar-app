@@ -15,9 +15,11 @@ import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.TermsOfUseManager;
-import org.envirocar.app.handler.UserManager;
+import org.envirocar.app.handler.UploadManager;
+import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.SystemStartupService;
+import org.envirocar.app.services.TrackUploadService;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.LazyLoadingStrategy;
@@ -84,7 +86,7 @@ import dagger.Provides;
                 Collector.class,
                 LazyLoadingStrategyImpl.class,
                 TrackHandler.class,
-                UserManager.class,
+                UserHandler.class,
                 TrackListFragment.class,
                 TrackDetailsActivity.class,
                 CarSelectionActivity.class,
@@ -101,7 +103,9 @@ import dagger.Provides;
                 OBDSettingsFragment.class,
                 TrackListPagerFragment.class,
                 TrackListLocalCardFragment.class,
-                TrackListRemoteCardFragment.class
+                TrackListRemoteCardFragment.class,
+                TrackUploadService.class,
+                UploadManager.class
         },
         staticInjections = {EnviroCarService.class},
         library = true,
@@ -181,14 +185,14 @@ public class InjectionApplicationModule {
     }
 
     /**
-     * Provides the UserManager of the application
+     * Provides the UserHandler of the application
      *
-     * @return the UserManager of the application
+     * @return the UserHandler of the application
      */
     @Provides
     @Singleton
-    UserManager provideUserManager() {
-        return new UserManager(mAppContext);
+    UserHandler provideUserManager() {
+        return new UserHandler(mAppContext);
     }
 
     @Provides

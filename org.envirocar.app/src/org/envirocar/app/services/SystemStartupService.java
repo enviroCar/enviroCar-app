@@ -99,6 +99,8 @@ public class SystemStartupService extends Service {
             mIsOBDConnectionBounded = false;
         }
     };
+
+
     // Broadcast receiver that handles the different actions that could be issued by the
     // corresponding notification of the notification bar.
     private final BroadcastReceiver mBroadcastReciever = new BroadcastReceiver() {

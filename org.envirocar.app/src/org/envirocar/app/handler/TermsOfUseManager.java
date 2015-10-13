@@ -42,12 +42,13 @@ import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 
 import java.util.List;
-import java.util.concurrent.TimeoutException;
 
 import javax.inject.Inject;
 
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
+import rx.exceptions.OnErrorThrowable;
+import rx.functions.Func1;
 
 public class TermsOfUseManager {
     private static final Logger LOGGER = Logger.getLogger(TermsOfUseManager.class);
@@ -62,7 +63,7 @@ public class TermsOfUseManager {
     @Inject
     protected Bus mBus;
     @Inject
-    protected UserManager mUserManager;
+    protected UserHandler mUserManager;
     @Inject
     protected DAOProvider mDAOProvider;
 
@@ -139,73 +140,105 @@ public class TermsOfUseManager {
 
     public TermsOfUse getCurrentTermsOfUse() throws ServerException {
         if (this.current == null) {
-            retrieveTermsOfUse();
+            mDAOProvider.getTermsOfUseDAO()
+                    .getAllTermsOfUseObservable()
+                    .map(new Func1<List<TermsOfUse>, TermsOfUse>() {
+                        @Override
+                        public TermsOfUse call(List<TermsOfUse> termsOfUses) {
+                            if (termsOfUses != null) {
+                                list = termsOfUses;
+                                String id = termsOfUses.get(0).getId();
+                                try {
+                                    TermsOfUse inst = mDAOProvider.getTermsOfUseDAO()
+                                            .getTermsOfUse(id);
+                                    current = inst;
+                                } catch (DataRetrievalFailureException e) {
+                                    LOGGER.warn(e.getMessage(), e);
+                                    throw OnErrorThrowable.from(e);
+                                } catch (NotConnectedException e) {
+                                    LOGGER.warn(e.getMessage(), e);
+                                    throw OnErrorThrowable.from(e);
+                                }
+                            } else {
+                                LOGGER.warn("Could not retrieve latest instance as their is no " +
+                                        "list available!");
+                            }
+                            LOGGER.info("Successfully retrieved the current terms of use.");
+                            return current;
+                        }
+                    })
+                    .toBlocking()
+                    .last();
         }
-
+        LOGGER.info("Returning the current terms of use.");
         return current;
     }
 
-    public List<TermsOfUse> getInstancesReferences() {
-        return list;
-    }
 
-    private void retrieveTermsOfUse() throws ServerException {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                List<TermsOfUse> response;
-                try {
-                    response = mDAOProvider.getTermsOfUseDAO().getAllTermsOfUse();
-                    setList(response);
-                    retrieveLatestInstance();
-                } catch (DataRetrievalFailureException e) {
-                    LOGGER.warn(e.getMessage(), e);
-                } catch (NotConnectedException e) {
-                    LOGGER.warn(e.getMessage(), e);
-                }
-            }
-        }).start();
+//    private void retrieveTermsOfUse() throws ServerException {
+//
+//        mDAOProvider.getTermsOfUseDAO()
+//                .getAllTermsOfUseObservable()
+//                .subscribeOn(Schedulers.io())
+//                .obser
+//
+//
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                List<TermsOfUse> response;
+//                try {
+//                    response = mDAOProvider.getTermsOfUseDAO().getAllTermsOfUse();
+//                    setList(response);
+//                    retrieveLatestInstance();
+//                } catch (DataRetrievalFailureException e) {
+//                    LOGGER.warn(e.getMessage(), e);
+//                } catch (NotConnectedException e) {
+//                    LOGGER.warn(e.getMessage(), e);
+//                }
+//            }
+//        }).start();
+//
+//        synchronized (mMutex) {
+//            while (current == null) {
+//                try {
+//                    mMutex.wait(5000);
+//
+//                    if (current == null) {
+//                        throw new ServerException(new TimeoutException("Waiting to long for a " +
+//                                "response."));
+//                    }
+//                } catch (InterruptedException e) {
+//                    throw new ServerException(e);
+//                }
+//            }
+//        }
+//    }
 
-        synchronized (mMutex) {
-            while (current == null) {
-                try {
-                    mMutex.wait(5000);
+//    private void retrieveLatestInstance() {
+//        if (list != null && list != null && list.size() > 0) {
+//            String id = list.get(0).getId();
+//            try {
+//                TermsOfUse inst = mDAOProvider.getTermsOfUseDAO().getTermsOfUse(id);
+//                setCurrent(inst);
+//            } catch (DataRetrievalFailureException e) {
+//                LOGGER.warn(e.getMessage(), e);
+//            } catch (NotConnectedException e) {
+//                LOGGER.warn(e.getMessage(), e);
+//            }
+//        } else {
+//            LOGGER.warn("Could not retrieve latest instance as their is no list available!");
+//        }
+//    }
 
-                    if (current == null) {
-                        throw new ServerException(new TimeoutException("Waiting to long for a " +
-                                "response."));
-                    }
-                } catch (InterruptedException e) {
-                    throw new ServerException(e);
-                }
-            }
-        }
-    }
-
-    private void retrieveLatestInstance() {
-        if (list != null && list != null && list.size() > 0) {
-            String id = list.get(0).getId();
-            try {
-                TermsOfUse inst = mDAOProvider.getTermsOfUseDAO().getTermsOfUse(id);
-                setCurrent(inst);
-            } catch (DataRetrievalFailureException e) {
-                LOGGER.warn(e.getMessage(), e);
-            } catch (NotConnectedException e) {
-                LOGGER.warn(e.getMessage(), e);
-            }
-        } else {
-            LOGGER.warn("Could not retrieve latest instance as their is no list available!");
-        }
-    }
-
-    private void setCurrent(TermsOfUse t) {
-        LOGGER.info("Current Terms Of Use: " + t.getIssuedDate());
-        current = t;
-
-        synchronized (mMutex) {
-            mMutex.notifyAll();
-        }
-    }
+//    private void setCurrent(TermsOfUse t) {
+//        LOGGER.info("Current Terms Of Use: " + t.getIssuedDate());
+//        current = t;
+//
+//        synchronized (mMutex) {
+//            mMutex.notifyAll();
+//        }
+//    }
 
     private void setList(List<TermsOfUse> termsOfUse) {
         LOGGER.info("List of TermsOfUse size: " + termsOfUse.size());
@@ -214,11 +247,9 @@ public class TermsOfUseManager {
 
     public void userAcceptedTermsOfUse(final User user, final String issuedDate) {
         new AsyncTask<Void, Void, Void>() {
-
             @Override
             protected Void doInBackground(Void... params) {
                 try {
-
                     // set the terms of use in the user of the normal preferences.
                     user.setTermsOfUseVersion(issuedDate);
                     mDAOProvider.getUserDAO().updateUser(user);
@@ -247,9 +278,7 @@ public class TermsOfUseManager {
         if (acceptedTermsOfUseVersion == null)
             return false;
 
-        return getCurrentTermsOfUse()
-                .getIssuedDate()
-                .equals(acceptedTermsOfUseVersion);
+        return getCurrentTermsOfUse().getIssuedDate().equals(acceptedTermsOfUseVersion);
     }
 
 }

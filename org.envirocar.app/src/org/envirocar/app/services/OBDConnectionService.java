@@ -582,12 +582,9 @@ public class OBDConnectionService extends Service {
         private Subscription mOBDCheckerSubscription;
         private Subscription mGPSCheckerSubscription;
 
-        private final Action0 OBDConnectionCloser = new Action0() {
-            @Override
-            public void call() {
-                LOGGER.warn("CONNECTION CLOSED");
-                stopOBDConnection();
-            }
+        private final Action0 OBDConnectionCloser = () -> {
+            LOGGER.warn("CONNECTION CLOSED");
+            stopOBDConnection();
         };
 
         /**
@@ -607,7 +604,7 @@ public class OBDConnectionService extends Service {
 
             timeLastGpsMeasurement = System.currentTimeMillis();
 
-            mOBDCheckerSubscription = mBackgroundWorker.schedule(
+            mGPSCheckerSubscription = mBackgroundWorker.schedule(
                     OBDConnectionCloser, GPS_INTERVAL, TimeUnit.MILLISECONDS);
         }
 

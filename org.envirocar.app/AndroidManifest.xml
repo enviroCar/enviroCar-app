@@ -31,6 +31,8 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
         android:name="org.envirocar.app.BaseApplication"
@@ -50,15 +52,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity
-            android:name="org.envirocar.app.activity.SettingsActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:label="@string/title_activity_settings"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="org.envirocar.app.BaseMainActivity"/>
-        </activity>
+
         <activity
             android:name="org.envirocar.app.view.trackdetails.TrackDetailsActivity"
             android:screenOrientation="portrait"/>
@@ -84,18 +78,21 @@
         <service
             android:name=".services.OBDConnectionService"
             android:enabled="true"/>
-
-        <activity
-            android:name="org.envirocar.app.activity.Map"
-            android:label="@string/title_activity_map"
-            android:theme="@android:style/Theme.Dialog">
-        </activity>
-
+        <service
+            android:name=".services.TrackUploadService"
+            android:enabled="true"/>
 
         <receiver android:name="org.envirocar.app.services.SystemStartupReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED"/>
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED"/>
+            </intent-filter>
+        </receiver>
+
+        <receiver android:name=".services.WlanConnectionReceiver">
+            <intent-filter>
+                <action android:name="android.net.wifi.STATE_CHANGE"/>
+                <action android:name="android.net.wifi.supplicant.CONNECTION_CHANG"/>w
             </intent-filter>
         </receiver>
 

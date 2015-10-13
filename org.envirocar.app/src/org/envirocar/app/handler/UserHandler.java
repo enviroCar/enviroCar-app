@@ -7,15 +7,16 @@ import android.graphics.Bitmap;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.core.events.NewUserSettingsEvent;
+import org.envirocar.app.injection.DAOProvider;
+import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
+import org.envirocar.core.events.NewUserSettingsEvent;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.app.injection.DAOProvider;
 import org.envirocar.remote.gravatar.GravatarUtils;
 
 import java.io.IOException;
@@ -26,8 +27,8 @@ import rx.Observable;
 
 import static android.content.Context.MODE_PRIVATE;
 
-public class UserManager implements org.envirocar.core.UserManager {
-    private static final Logger LOG = Logger.getLogger(UserManager.class);
+public class UserHandler implements UserManager {
+    private static final Logger LOG = Logger.getLogger(UserHandler.class);
 
     private static final String USERNAME = "username";
     private static final String TOKEN = "token";
@@ -55,7 +56,7 @@ public class UserManager implements org.envirocar.core.UserManager {
      *
      * @param context the context of the current scope.
      */
-    public UserManager(Context context) {
+    public UserHandler(Context context) {
         // Inject ourselves.
         ((Injector) context).injectObjects(this);
     }

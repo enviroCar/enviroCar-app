@@ -7,11 +7,14 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.activity.DialogUtil;
+import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
+import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.exception.ServerException;
+import org.envirocar.app.exception.TrackAlreadyUploadedException;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.UploadManager;
-import org.envirocar.app.handler.UserManager;
+import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.DAOProvider;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.core.entity.TermsOfUse;
@@ -30,6 +33,7 @@ import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -37,6 +41,7 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.exceptions.OnErrorThrowable;
+import rx.observables.BlockingObservable;
 import rx.schedulers.Schedulers;
 
 /**
@@ -81,7 +86,7 @@ public class TrackHandler {
     @Inject
     protected DAOProvider mDAOProvider;
     @Inject
-    protected UserManager mUserManager;
+    protected UserHandler mUserManager;
     @Inject
     protected TermsOfUseManager mTermsOfUseManager;
 
@@ -181,6 +186,190 @@ public class TrackHandler {
         return mDBAdapter.getTrack(trackId);
     }
 
+    public Observable<Track> uploadAllTracksObservable(){
+        return Observable.create(new Observable.OnSubscribe<Track>() {
+            @Override
+            public void call(Subscriber<? super Track> subscriber) {
+                try {
+                    assertIsUserLoggedIn();
+                    assertHasAcceptedTermsOfUse();
+                } catch (NotLoggedInException e) {
+                    subscriber.onError(e);
+                    subscriber.onCompleted();
+                    return;
+                } catch (NotAcceptedTermsOfUseException e) {
+                    subscriber.onError(e);
+                    subscriber.onCompleted();
+                    return;
+                }
+
+
+            }
+        });
+
+    }
+
+
+    private boolean assertIsUserLoggedIn() throws NotLoggedInException {
+        if(mUserManager.isLoggedIn()){
+           return true;
+        } else {
+            throw new NotLoggedInException("Not Logged In");
+        }
+    }
+
+    public Observable<Track> uploadAllTracks() {
+        return Observable.create(new Observable.OnSubscribe<Track>() {
+            @Override
+            public void call(Subscriber<? super Track> subscriber) {
+                if (!assertIsUserLoggedIn(subscriber)
+                        || !assertHasAcceptedTermsOfUse(subscriber)) {
+                    return;
+                }
+
+                List<Track> allLocalTracks = mDBAdapter.getAllLocalTracks();
+
+                UploadManager uploadManager = new UploadManager(mContext);
+                for (Track track : allLocalTracks) {
+                    if (!assertIsLocalTrack(track, subscriber)) {
+                        LOGGER.warn(String.format("Track with id=%s is no local track",
+                                track.getTrackID()));
+                        allLocalTracks.remove(track);
+                    }
+                }
+
+                uploadManager.uploadTracks(allLocalTracks)
+                        .subscribe(new Subscriber<Track>() {
+                            @Override
+                            public void onCompleted() {
+                                subscriber.onCompleted();
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                subscriber.onError(e);
+                            }
+
+                            @Override
+                            public void onNext(Track track) {
+                                subscriber.onNext(track);
+                            }
+                        });
+            }
+        });
+    }
+
+    private BlockingObservable<Boolean> asserHasAcceptedTermsOfUseObservable(){
+        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+            @Override
+            public void call(Subscriber<? super Boolean> subscriber) {
+                // First, try to get whether the user has accepted the terms of use.
+                final User user = mUserManager.getUser();
+                boolean verified = false;
+                try {
+                    verified = mTermsOfUseManager.verifyTermsUseOfVersion(user.getTermsOfUseVersion());
+                } catch (ServerException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                    String infoText = mContext.getString(R.string.trackviews_server_error);
+                    subscriber.onError(new NotAcceptedTermsOfUseException(infoText));
+                }
+            }
+        }).toBlocking();
+    }
+
+    private boolean assertHasAcceptedTermsOfUse() throws NotAcceptedTermsOfUseException {
+        // First, try to get whether the user has accepted the terms of use.
+        final User user = mUserManager.getUser();
+        boolean verified = false;
+        try {
+            verified = mTermsOfUseManager.verifyTermsUseOfVersion(user.getTermsOfUseVersion());
+        } catch (ServerException e) {
+            LOGGER.warn(e.getMessage(), e);
+            String infoText = mContext.getString(R.string.trackviews_server_error);
+            throw new NotAcceptedTermsOfUseException(infoText);
+        }
+
+        return verified;
+    }
+
+    private boolean assertHasAcceptedTermsOfUse(Subscriber<? super Track> subscriber) {
+        // First, try to get whether the user has accepted the terms of use.
+        final User user = mUserManager.getUser();
+        boolean verified = false;
+        try {
+            verified = mTermsOfUseManager.verifyTermsUseOfVersion(user.getTermsOfUseVersion());
+        } catch (ServerException e) {
+            LOGGER.warn(e.getMessage(), e);
+            String infoText = mContext.getString(R.string.trackviews_server_error);
+            subscriber.onError(e);
+            return false;
+        }
+
+        return verified;
+    }
+
+    private boolean assertIsLocalTrack(Track track, Subscriber<? super Track> subscriber){
+        // If the track is no local track, then popup a snackbar.
+        if (!track.isLocalTrack()) {
+            String infoText = String.format(mContext.getString(R.string
+                    .trackviews_is_already_uploaded), track.getName());
+            LOGGER.info(infoText);
+            subscriber.onError(new TrackAlreadyUploadedException(infoText));
+            return false;
+        }
+        return true;
+    }
+
+    private boolean assertIsUserLoggedIn(Subscriber<? super Track> subscriber){
+        // If the user is not logged in, then skip the upload and popup a snackbar.
+        if (!mUserManager.isLoggedIn()) {
+            LOGGER.warn("Cannot upload track, because the user is not logged in");
+            String infoText = mContext.getString(R.string.trackviews_not_logged_in);
+            subscriber.onError(new NotLoggedInException(infoText));
+            return false;
+        }
+        return true;
+    }
+
+    private boolean assertHasAcceptedTermsOfUse(TrackUploadCallback callback) {
+        // First, try to get whether the user has accepted the terms of use.
+        final User user = mUserManager.getUser();
+        boolean verified = false;
+        try {
+            verified = mTermsOfUseManager.verifyTermsUseOfVersion(user.getTermsOfUseVersion());
+        } catch (ServerException e) {
+            LOGGER.warn(e.getMessage(), e);
+            String infoText = mContext.getString(R.string.trackviews_server_error);
+            callback.onError(null, infoText);
+            return false;
+        }
+
+        return verified;
+    }
+
+    private boolean assertIsLocalTrack(Track track, TrackUploadCallback callback) {
+        // If the track is no local track, then popup a snackbar.
+        if (!track.isLocalTrack()) {
+            String infoText = String.format(mContext.getString(R.string
+                    .trackviews_is_already_uploaded), track.getName());
+            LOGGER.info(infoText);
+            callback.onError(track, infoText);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean assertIsUserLoggedIn(Track track, TrackUploadCallback callback) {
+        // If the user is not logged in, then skip the upload and popup a snackbar.
+        if (!mUserManager.isLoggedIn()) {
+            LOGGER.warn("Cannot upload track, because the user is not logged in");
+            String infoText = mContext.getString(R.string.trackviews_not_logged_in);
+            callback.onError(track, infoText);
+            return false;
+        }
+        return true;
+    }
+
     // TODO REMOVE THIS ACTIVITY STUFF... unbelievable.. no structure!
     public void uploadTrack(Activity activity, Track track, TrackUploadCallback callback) {
         // If the track is no local track, then popup a snackbar.
@@ -248,10 +437,10 @@ public class TrackHandler {
                     }, activity);
 
             return;
+        } else {
+            // Upload the track if everything is right.
+            new UploadManager(activity).uploadSingleTrack(track, callback);
         }
-
-        // Upload the track if everything is right.
-        new UploadManager(activity).uploadSingleTrack(track, callback);
     }
 
     public Observable<Track> fetchRemoteTrackObservable(Track remoteTrack) {

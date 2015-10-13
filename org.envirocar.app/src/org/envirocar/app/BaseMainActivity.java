@@ -31,7 +31,7 @@ import org.envirocar.app.activity.DialogUtil;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.TemporaryFileManager;
-import org.envirocar.app.handler.UserManager;
+import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.DAOProvider;
 import org.envirocar.app.injection.InjectionActivityModule;
 import org.envirocar.app.services.OBDConnectionService;
@@ -108,7 +108,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     // Injected variables
     @Inject
-    protected UserManager mUserManager;
+    protected UserHandler mUserManager;
     @Inject
     protected CarPreferenceHandler mCarManager;
     @Inject
@@ -620,16 +620,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
         }
         return false;
 
-    }
-
-    private boolean isAlwaysUpload() {
-        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PreferenceConstants
-                .ALWAYS_UPLOAD, false);
-    }
-
-    private boolean isUploadOnlyInWlan() {
-        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PreferenceConstants
-                .WIFI_UPLOAD, true);
     }
 
     private void checkKeepScreenOn() {

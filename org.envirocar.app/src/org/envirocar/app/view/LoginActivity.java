@@ -27,7 +27,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
-import org.envirocar.app.handler.UserManager;
+import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.core.dao.TrackDAO;
 import org.envirocar.core.entity.User;
@@ -106,7 +106,7 @@ public class LoginActivity extends BaseInjectorActivity {
     protected View mStatisticsProgressView;
 
     @Inject
-    protected UserManager mUserManager;
+    protected UserHandler mUserManager;
     @Inject
     protected DAOProvider mDAOProvider;
     @Inject
@@ -257,7 +257,7 @@ public class LoginActivity extends BaseInjectorActivity {
                     .show();
 
             mLoginSubscription = mBackgroundWorker.schedule(() -> {
-                mUserManager.logIn(username, password, new UserManager.LoginCallback() {
+                mUserManager.logIn(username, password, new UserHandler.LoginCallback() {
                     @Override
                     public void onSuccess(User user) {
                         dialog.dismiss();

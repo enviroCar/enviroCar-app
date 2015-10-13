@@ -69,7 +69,7 @@ public class CarPreferenceHandler {
     @Inject
     protected Bus mBus;
     @Inject
-    protected UserManager mUserManager;
+    protected UserHandler mUserManager;
     @Inject
     protected DAOProvider mDAOProvider;
 

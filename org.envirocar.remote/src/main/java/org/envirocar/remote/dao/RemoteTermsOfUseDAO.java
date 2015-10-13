@@ -36,6 +36,7 @@ import java.util.List;
 import retrofit.Call;
 import retrofit.Response;
 import rx.Observable;
+import rx.Subscriber;
 
 /**
  * Data access object that handles the access to the terms of use at the envirocar service.
@@ -122,7 +123,18 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO> implements
 
     @Override
     public Observable<List<TermsOfUse>> getAllTermsOfUseObservable() {
-        return null;
+        return Observable.create(new Observable.OnSubscribe<List<TermsOfUse>>() {
+            @Override
+            public void call(Subscriber<? super List<TermsOfUse>> subscriber) {
+                try {
+                    subscriber.onNext(getAllTermsOfUse());
+                } catch (DataRetrievalFailureException e) {
+                    subscriber.onError(e);
+                } catch (NotConnectedException e) {
+                    subscriber.onError(e);
+                }
+            }
+        });
     }
 
 

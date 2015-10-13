@@ -8,7 +8,6 @@ import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.activity.StartStopButtonUtil;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
-import org.envirocar.app.handler.UploadManager;
 import org.envirocar.app.view.LogbookFragment;
 import org.envirocar.app.view.RegisterFragment;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
@@ -35,7 +34,6 @@ import dagger.Provides;
                 RegisterFragment.class,
                 StartStopButtonUtil.class,
                 RealDashboardFragment.class,
-                UploadManager.class,
                 Tempomat.class,
                 DashboardMainFragment.class
         },

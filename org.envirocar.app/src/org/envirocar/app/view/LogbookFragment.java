@@ -91,7 +91,7 @@ public class LogbookFragment extends BaseInjectorFragment implements OnClickList
 //            settings.edit().putString(Default_Volume_Unit, Unit1.getText().toString()).commit();
 //            settings.edit().putString(Default_Currency_Unit, Currency.getText().toString()).commit();
 //
-////				String Username = UserManager.instance().getUser().getUsername();
+////				String Username = UserHandler.instance().getUser().getUsername();
 ////				String carmodel = CarManager.instance().getCar().getModel();
 ////				FuelType fueltype = CarManager.instance().getCar().getFuelType();
 //

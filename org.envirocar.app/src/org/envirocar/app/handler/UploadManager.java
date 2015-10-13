@@ -21,37 +21,45 @@
 
 package org.envirocar.app.handler;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.widget.Toast;
+
+import com.google.common.base.Preconditions;
 
 import org.envirocar.app.NotificationHandler;
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
+import org.envirocar.app.injection.DAOProvider;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.DataCreationFailureException;
+import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.NotConnectedException;
+import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
-import org.envirocar.core.utils.TrackUtils;
 import org.envirocar.core.util.Util;
-import org.envirocar.app.injection.DAOProvider;
+import org.envirocar.core.utils.TrackUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
 
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
+import rx.Observable;
+import rx.Scheduler;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 
 /**
  * Manager that can upload tracks and cars to the server.
@@ -70,8 +78,6 @@ public class UploadManager {
             String>();
 
     @Inject
-    protected Activity mActivity;
-    @Inject
     @InjectApplicationScope
     protected Context mContext;
     @Inject
@@ -83,7 +89,9 @@ public class UploadManager {
     @Inject
     protected DAOProvider mDAOProvider;
     @Inject
-    protected UserManager mUserManager;
+    protected UserHandler mUserManager;
+
+    private final Scheduler.Worker mainthreadWorker = AndroidSchedulers.mainThread().createWorker();
 
     /**
      * Normal constructor for this manager. Specify the context and the dbadapter.
@@ -105,6 +113,77 @@ public class UploadManager {
     public void uploadAllTracks(TrackHandler.TrackUploadCallback callback) {
         for (Track track : mDBAdapter.getAllLocalTracks()) {
             uploadSingleTrack(track, callback);
+        }
+    }
+
+    public Observable<Track> uploadTracks(final List<Track> tracks) {
+        Preconditions.checkNotNull(tracks, "Input tracks cannot be null");
+        return Observable.create(new Observable.OnSubscribe<Track>() {
+            @Override
+            public void call(Subscriber<? super Track> subscriber) {
+                mNotificationHandler.createNotification("start");
+
+                for (Track track : tracks) {
+                    mDBAdapter.updateTrackMetadata(track.getTrackID(),
+                            new TrackMetadata(Util.getVersionString(mContext),
+                                    mUserManager.getUser().getTermsOfUseVersion()));
+
+                    try {
+                        // assert the car of the track for validity.
+                        assertTermporaryCar(track);
+
+                        String result = null;
+                        if (isObfuscationEnabled()) {
+                            Track obfuscatedTrack = TrackUtils.getObfuscatedTrack(track);
+                            if (obfuscatedTrack.getMeasurements().size() == 0) {
+                                throw new NoMeasurementsException("Track has no measurements " +
+                                        "after obfuscation.");
+                            }
+                            result = mDAOProvider.getTrackDAO().createTrack(obfuscatedTrack);
+                        } else {
+                            result = mDAOProvider.getTrackDAO().createTrack(track);
+                        }
+
+                        // When successfully updated, then transit the track from local to remote.
+                        mDBAdapter.transitLocalToRemoteTrack(track, result);
+
+                        // Inform the subscriber about the successful transition.
+                        subscriber.onNext(track);
+                    } catch (ResourceConflictException e) {
+                        logger.error(e.getMessage(), e);
+                        subscriber.onError(e);
+                        continue;
+                    } catch (NotConnectedException e) {
+                        logger.error(e.getMessage(), e);
+                        subscriber.onError(e);
+                        continue;
+                    } catch (DataCreationFailureException e) {
+                        logger.error(e.getMessage(), e);
+                        subscriber.onError(e);
+                        continue;
+                    } catch (UnauthorizedException e) {
+                        logger.error(e.getMessage(), e);
+                        subscriber.onError(e);
+                        continue;
+                    } catch (NoMeasurementsException e) {
+                        logger.error(e.getMessage(), e);
+                        subscriber.onError(e);
+                        continue;
+                    }
+                }
+
+
+                subscriber.onCompleted();
+            }
+        });
+    }
+
+    private void assertTermporaryCar(Track track) throws NotConnectedException,
+            UnauthorizedException, DataCreationFailureException {
+        if (hasTemporaryCar(track)) {
+            if (!temporaryCarAlreadyRegistered(track)) {
+                registerCarBeforeUpload(track);
+            }
         }
     }
 
@@ -174,16 +253,14 @@ public class UploadManager {
                  * obfuscation removed all measurements
 				 */
 
-                if (mActivity != null) {
-                    mActivity.runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Crouton.makeText(mActivity,
-                                    R.string.uploading_track_no_measurements_after_obfuscation_long,
-                                    Style.ALERT).show();
-                        }
-                    });
-                }
+                mainthreadWorker.schedule(new Action0() {
+                    @Override
+                    public void call() {
+                        Toast.makeText(mContext,
+                                R.string.uploading_track_no_measurements_after_obfuscation_long,
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
                 mNotificationHandler.createNotification
                         (mContext.getString(R.string
                                 .uploading_track_no_measurements_after_obfuscation));
