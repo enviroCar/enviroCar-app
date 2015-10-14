@@ -6,22 +6,21 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.envirocar.app.R;
-import org.envirocar.core.logging.Logger;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.logging.Logger;
 
 import java.util.List;
 
 /**
  * @author dewall
  */
-public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<Track,
+public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
         AbstractTrackListCardAdapter.RemoteTrackCardViewHolder> {
     private static final Logger LOG = Logger.getLogger(TrackListRemoteCardAdapter.class);
 
     private static final int TYPE_REMOTE = 0;
     private static final int TYPE_LOCAL = 1;
 
-    private Context mContext;
 
     /**
      * Constructor.
@@ -32,7 +31,6 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<Tra
     public TrackListRemoteCardAdapter(Context context, List<Track> tracks,
                                       OnTrackInteractionCallback callback) {
         super(tracks, callback);
-        this.mContext = context;
     }
 
     @Override

@@ -42,7 +42,7 @@ import rx.functions.Action0;
  *
  * @author dewall
  */
-public abstract class AbstractTrackListCardAdapter<T extends Track, E extends
+public abstract class AbstractTrackListCardAdapter<E extends
         AbstractTrackListCardAdapter
                 .TrackCardViewHolder> extends RecyclerView.Adapter<E> {
     private static final Logger LOGGER = Logger.getLogger(AbstractTrackListCardAdapter.class);
@@ -56,7 +56,7 @@ public abstract class AbstractTrackListCardAdapter<T extends Track, E extends
         UTC_DATE_FORMATTER.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
-    protected final List<T> mTrackDataset;
+    protected final List<Track> mTrackDataset;
 
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
@@ -67,7 +67,7 @@ public abstract class AbstractTrackListCardAdapter<T extends Track, E extends
      *
      * @param tracks the list of tracks to show cards for.
      */
-    public AbstractTrackListCardAdapter(List<T> tracks, final OnTrackInteractionCallback callback) {
+    public AbstractTrackListCardAdapter(List<Track> tracks, final OnTrackInteractionCallback callback) {
         this.mTrackDataset = tracks;
         this.mTrackInteractionCallback = callback;
     }
@@ -82,7 +82,7 @@ public abstract class AbstractTrackListCardAdapter<T extends Track, E extends
      *
      * @param track the track to insert.
      */
-    public void addItem(T track) {
+    public void addItem(Track track) {
         mTrackDataset.add(track);
         notifyDataSetChanged();
     }
@@ -92,7 +92,7 @@ public abstract class AbstractTrackListCardAdapter<T extends Track, E extends
      *
      * @param track the track to remove.
      */
-    public void removeItem(T track) {
+    public void removeItem(Track track) {
         if (mTrackDataset.contains(track)) {
             mTrackDataset.remove(track);
             notifyDataSetChanged();

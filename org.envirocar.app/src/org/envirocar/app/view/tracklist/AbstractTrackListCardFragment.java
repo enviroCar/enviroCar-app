@@ -1,5 +1,6 @@
 package org.envirocar.app.view.tracklist;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -27,6 +28,7 @@ import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
 import org.json.JSONException;
@@ -41,12 +43,13 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 /**
  * @author dewall
  */
-public abstract class AbstractTrackListCardFragment<T extends Track, E extends RecyclerView.Adapter>
+public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapter>
         extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(AbstractTrackListCardFragment.class);
 
@@ -65,15 +68,31 @@ public abstract class AbstractTrackListCardFragment<T extends Track, E extends R
     protected TextView mTextView;
     @InjectView(R.id.fragment_tracklist_recycler_view)
     protected RecyclerView mRecyclerView;
+
     protected E mRecyclerViewAdapter;
     protected RecyclerView.LayoutManager mRecylcerViewLayoutManager;
 
-    protected final List<T> mTrackList = Collections.synchronizedList(Lists.newArrayList());
+    protected boolean tracksLoaded = false;
+    protected final List<Track> mTrackList = Collections.synchronizedList(Lists.newArrayList());
 
     // Different workers for main and background threads.
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     protected Scheduler.Worker mBackgroundWorker = Schedulers.computation().createWorker();
 
+    protected Object attachingActivityLock = new Object();
+    protected boolean isAttached = false;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        ((Injector) activity).injectObjects(this);
+
+        // notify the waiting thread that the activity has been attached.
+        synchronized (attachingActivityLock) {
+            isAttached = true;
+            attachingActivityLock.notifyAll();
+        }
+    }
 
     @Nullable
     @Override
@@ -101,6 +120,11 @@ public abstract class AbstractTrackListCardFragment<T extends Track, E extends R
      * @return
      */
     public abstract E getRecyclerViewAdapter();
+
+    /**
+     * This method is responsible for loading the track dataset into the cardlist.
+     */
+    protected abstract void loadDataset();
 
     protected void exportTrack(Track track) {
         // First get the obfuscation setting from the shared preferences
@@ -171,6 +195,18 @@ public abstract class AbstractTrackListCardFragment<T extends Track, E extends R
                     }
                 })
                 .show();
+    }
+
+    protected void showText(String text) {
+        if (mTrackList.isEmpty()) {
+            mMainThreadWorker.schedule(new Action0() {
+                @Override
+                public void call() {
+                    mTextView.setVisibility(View.VISIBLE);
+                    mTextView.setText(text);
+                }
+            });
+        }
     }
 
     protected void deleteRemoteTrack(Track track) {

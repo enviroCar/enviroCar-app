@@ -283,8 +283,8 @@ public class LoginActivity extends BaseInjectorActivity {
                             updateView(true);
 
                             // Then ask for terms of use acceptance.
-                            mTermsOfUseManager.askForTermsOfUseAcceptance(user,
-                                    LoginActivity.this, null);
+                            mBackgroundWorker.schedule(() -> mTermsOfUseManager
+                                    .askForTermsOfUseAcceptance(user, LoginActivity.this, null));
                         });
                     }
 

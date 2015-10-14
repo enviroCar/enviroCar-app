@@ -43,7 +43,6 @@ import org.envirocar.app.view.settings.NewSettingsActivity;
 import org.envirocar.app.view.settings.OBDSettingsFragment;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.view.trackdetails.TrackStatisticsActivity;
-import org.envirocar.app.view.tracklist.TrackListFragment;
 import org.envirocar.app.view.tracklist.TrackListLocalCardFragment;
 import org.envirocar.app.view.tracklist.TrackListPagerFragment;
 import org.envirocar.app.view.tracklist.TrackListRemoteCardFragment;
@@ -87,7 +86,6 @@ import dagger.Provides;
                 LazyLoadingStrategyImpl.class,
                 TrackHandler.class,
                 UserHandler.class,
-                TrackListFragment.class,
                 TrackDetailsActivity.class,
                 CarSelectionActivity.class,
                 OBDSelectionActivity.class,

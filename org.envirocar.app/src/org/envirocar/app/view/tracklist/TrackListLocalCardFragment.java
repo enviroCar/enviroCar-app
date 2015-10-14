@@ -1,7 +1,6 @@
 package org.envirocar.app.view.tracklist;
 
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 
@@ -18,25 +17,18 @@ import java.util.List;
 /**
  * @author dewall
  */
-public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Track,
+public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         TrackListLocalCardAdapter> {
-    private static final Logger LOGGER = Logger.getLogger(TrackListLocalCardFragment.class);
+    private static final Logger LOG = Logger.getLogger(TrackListLocalCardFragment.class);
 
     /**
      *
      */
-    interface OnTrackUploadedListener{
+    interface OnTrackUploadedListener {
         void onTrackUploaded(Track track);
     }
 
     private OnTrackUploadedListener onTrackUploadedListener;
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        new LoadLocalTracksTask().execute();
-    }
 
     private void uploadTrack(Track track) {
         mTrackHandler.uploadTrack(getActivity(), track, new TrackHandler.TrackUploadCallback() {
@@ -90,7 +82,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
              */
             @Override
             public void onTrackDetailsClicked(Track track, View transitionView) {
-                LOGGER.info(String.format("onTrackDetailsClicked(%s)", track.getTrackID()
+                LOG.info(String.format("onTrackDetailsClicked(%s)", track.getTrackID()
                         .toString()));
                 int trackID = (int) track.getTrackID().getId();
                 TrackDetailsActivity.navigate(getActivity(), transitionView, trackID);
@@ -98,21 +90,21 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
 
             @Override
             public void onDeleteTrackClicked(Track track) {
-                LOGGER.info(String.format("onDeleteTrackClicked(%s)", track.getTrackID()));
+                LOG.info(String.format("onDeleteTrackClicked(%s)", track.getTrackID()));
                 // create a dialog
                 createDeleteTrackDialog(track);
             }
 
             @Override
             public void onUploadTrackClicked(Track track) {
-                LOGGER.info(String.format("onUploadTrackClicked(%s)", track.getTrackID()));
+                LOG.info(String.format("onUploadTrackClicked(%s)", track.getTrackID()));
                 // Upload the track
                 uploadTrack(track);
             }
 
             @Override
             public void onExportTrackClicked(Track track) {
-                LOGGER.info(String.format("onExportTrackClicked(%s)", track.getTrackID()));
+                LOG.info(String.format("onExportTrackClicked(%s)", track.getTrackID()));
                 exportTrack(track);
             }
 
@@ -124,15 +116,35 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
         });
     }
 
+    @Override
+    protected void loadDataset() {
+        // Do not load the dataset twice.
+        if (!tracksLoaded) {
+            tracksLoaded = true;
+            new LoadLocalTracksTask().execute();
+        }
+    }
+
     private final class LoadLocalTracksTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... params) {
+            // Wait until the activity has been attached.
+            synchronized (attachingActivityLock) {
+                while (!isAttached) {
+                    try {
+                        attachingActivityLock.wait();
+                    } catch (InterruptedException e) {
+                        LOG.error(e.getMessage(), e);
+                    }
+                }
+            }
+
             Thread.currentThread().setName("TrackList-TrackRetriever" + Thread.currentThread()
                     .getId());
 
             //fetch db tracks (local+remote)
-            List<Track> tracks = mDBAdapter.getAllTracks();
+            List<Track> tracks = mDBAdapter.getAllLocalTracks();
             for (Track t : tracks) {
                 mTrackList.add(t);
             }
@@ -161,7 +173,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
      *
      * @param listener the listener to set.
      */
-    public void setOnTrackUploadedListener(OnTrackUploadedListener listener){
+    public void setOnTrackUploadedListener(OnTrackUploadedListener listener) {
         this.onTrackUploadedListener = listener;
     }
 }
