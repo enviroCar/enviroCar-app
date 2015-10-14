@@ -107,9 +107,9 @@ public class EnviroCarService {
         OkHttpClient client = new OkHttpClient();
         client.interceptors().add(new AuthenticationInterceptor(mUsermanager));
         client.interceptors().add(new JsonContentTypeInterceptor());
-        client.setConnectTimeout(30, TimeUnit.SECONDS); // connect timeout
-        client.setReadTimeout(30, TimeUnit.SECONDS);    // socket timeout
-        client.setWriteTimeout(30, TimeUnit.SECONDS);
+        client.setConnectTimeout(31, TimeUnit.SECONDS); // connect timeout
+        client.setReadTimeout(31, TimeUnit.SECONDS);    // socket timeout
+        client.setWriteTimeout(30, TimeUnit.SECONDS);   // write timeout
 
         return new Retrofit.Builder()
                 .baseUrl(BASE_URL)

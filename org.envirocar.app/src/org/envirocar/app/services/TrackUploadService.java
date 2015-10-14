@@ -13,9 +13,12 @@ import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
+import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
+
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -34,6 +37,8 @@ public class TrackUploadService extends Service {
 
     @Inject
     protected TrackHandler trackHandler;
+    @Inject
+    protected DbAdapter dbAdapter;
 
     @Override
     public void onCreate() {
@@ -48,46 +53,60 @@ public class TrackUploadService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         LOG.info("onStartCommand()");
 
-        trackHandler.uploadAllTracks()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<Track>() {
+        List<Track> localTrackList = dbAdapter.getAllLocalTracks(true);
+        if (localTrackList.size() > 0) {
+            LOG.info(String.format("%s local tracks to upload", localTrackList.size()));
 
-                    @Override
-                    public void onStart() {
-                        LOG.info("uploadAllTracks.onStart()");
-                        setNotification("enviroCar - Automatic Track Upload", "Uploading all " +
-                                "the local tracks.");
-                    }
+            trackHandler.uploadAllTracks()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<Track>() {
 
-                    @Override
-                    public void onCompleted() {
-                        LOG.info("Upload of tracks successful");
-                        setNotification("enviroCar - Automatic Track Upload", "Successfully " +
-                                "uploaded all local tracks.");
-                        try {
-                            finalize();
-                        } catch (Throwable throwable) {
-                            throwable.printStackTrace();
+                        @Override
+                        public void onStart() {
+                            LOG.info("uploadAllTracks.onStart()");
+                            setNotification("enviroCar - Automatic Track Upload", "Uploading all " +
+                                    "the local tracks.");
                         }
-                    }
 
-                    @Override
-                    public void onError(Throwable e) {
-                        LOG.error(e.getMessage(), e);
-                        if (e instanceof NotAcceptedTermsOfUseException) {
-                            setNotification("Error while uploading", "Can't automatically upload " +
-                                    "the tracks. You have not accepted the terms of use.");
-                        } else {
-                            setNotification("Error while uploading", "Unknown reason");
+                        @Override
+                        public void onCompleted() {
+                            LOG.info("Upload of tracks successful");
+                            setNotification("enviroCar - Automatic Track Upload", "Successfully " +
+                                    "uploaded all local tracks.");
+                            try {
+                                finalize();
+                            } catch (Throwable throwable) {
+                                throwable.printStackTrace();
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onNext(Track track) {
+                        @Override
+                        public void onError(Throwable e) {
+                            LOG.error(e.getMessage(), e);
+                            if (e instanceof NotAcceptedTermsOfUseException) {
+                                setNotification("Error while uploading", "Can't automatically " +
+                                        "upload " +
+                                        "the tracks. You have not accepted the terms of use.");
+                            } else {
+                                setNotification("Error while uploading", "Unknown reason");
+                            }
+                        }
 
-                    }
-                });
+                        @Override
+                        public void onNext(Track track) {
+
+                        }
+                    });
+        } else {
+            LOG.info("No local tracks to upload");
+            try {
+                finalize();
+            } catch (Throwable throwable) {
+                throwable.printStackTrace();
+            }
+        }
+
 
         return START_NOT_STICKY;
     }
@@ -117,7 +136,8 @@ public class TrackUploadService extends Service {
                         .setTicker(notification);
 
         NotificationManager mNotificationManager =
-                (NotificationManager) getBaseContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                (NotificationManager) getBaseContext().getSystemService(Context
+                        .NOTIFICATION_SERVICE);
         // mId allows you to update the notification later on.
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
     }
