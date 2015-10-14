@@ -168,7 +168,7 @@ public class TermsOfUseManager {
                         }
                     })
                     .toBlocking()
-                    .last();
+                    .first();
         }
         LOGGER.info("Returning the current terms of use.");
         return current;

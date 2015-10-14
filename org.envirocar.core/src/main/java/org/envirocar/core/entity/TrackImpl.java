@@ -143,7 +143,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
-    public void setStartTime(long startTime) {
+    public void setStartTime(Long startTime) {
         this.startTime = startTime;
     }
 
@@ -156,7 +156,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
-    public void setEndTime(long endTime) {
+    public void setEndTime(Long endTime) {
         this.endTime = endTime;
     }
 

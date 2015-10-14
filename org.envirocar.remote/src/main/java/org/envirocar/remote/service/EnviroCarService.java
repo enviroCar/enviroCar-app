@@ -32,6 +32,7 @@ import org.envirocar.remote.util.JsonContentTypeInterceptor;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -106,6 +107,9 @@ public class EnviroCarService {
         OkHttpClient client = new OkHttpClient();
         client.interceptors().add(new AuthenticationInterceptor(mUsermanager));
         client.interceptors().add(new JsonContentTypeInterceptor());
+        client.setConnectTimeout(30, TimeUnit.SECONDS); // connect timeout
+        client.setReadTimeout(30, TimeUnit.SECONDS);    // socket timeout
+        client.setWriteTimeout(30, TimeUnit.SECONDS);
 
         return new Retrofit.Builder()
                 .baseUrl(BASE_URL)

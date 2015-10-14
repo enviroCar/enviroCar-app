@@ -186,7 +186,7 @@ public class TrackHandler {
         return mDBAdapter.getTrack(trackId);
     }
 
-    public Observable<Track> uploadAllTracksObservable(){
+    public Observable<Track> uploadAllTracksObservable() {
         return Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
             public void call(Subscriber<? super Track> subscriber) {
@@ -211,8 +211,8 @@ public class TrackHandler {
 
 
     private boolean assertIsUserLoggedIn() throws NotLoggedInException {
-        if(mUserManager.isLoggedIn()){
-           return true;
+        if (mUserManager.isLoggedIn()) {
+            return true;
         } else {
             throw new NotLoggedInException("Not Logged In");
         }
@@ -222,6 +222,10 @@ public class TrackHandler {
         return Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
             public void call(Subscriber<? super Track> subscriber) {
+                subscriber.onStart();
+
+                // Before starting the upload, first check the login status and whether the user
+                // has accepted the terms of use.
                 if (!assertIsUserLoggedIn(subscriber)
                         || !assertHasAcceptedTermsOfUse(subscriber)) {
                     return;
@@ -259,7 +263,7 @@ public class TrackHandler {
         });
     }
 
-    private BlockingObservable<Boolean> asserHasAcceptedTermsOfUseObservable(){
+    private BlockingObservable<Boolean> asserHasAcceptedTermsOfUseObservable() {
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
@@ -267,7 +271,8 @@ public class TrackHandler {
                 final User user = mUserManager.getUser();
                 boolean verified = false;
                 try {
-                    verified = mTermsOfUseManager.verifyTermsUseOfVersion(user.getTermsOfUseVersion());
+                    verified = mTermsOfUseManager.verifyTermsUseOfVersion(user
+                            .getTermsOfUseVersion());
                 } catch (ServerException e) {
                     LOGGER.warn(e.getMessage(), e);
                     String infoText = mContext.getString(R.string.trackviews_server_error);
@@ -308,7 +313,7 @@ public class TrackHandler {
         return verified;
     }
 
-    private boolean assertIsLocalTrack(Track track, Subscriber<? super Track> subscriber){
+    private boolean assertIsLocalTrack(Track track, Subscriber<? super Track> subscriber) {
         // If the track is no local track, then popup a snackbar.
         if (!track.isLocalTrack()) {
             String infoText = String.format(mContext.getString(R.string
@@ -320,7 +325,7 @@ public class TrackHandler {
         return true;
     }
 
-    private boolean assertIsUserLoggedIn(Subscriber<? super Track> subscriber){
+    private boolean assertIsUserLoggedIn(Subscriber<? super Track> subscriber) {
         // If the user is not logged in, then skip the upload and popup a snackbar.
         if (!mUserManager.isLoggedIn()) {
             LOGGER.warn("Cannot upload track, because the user is not logged in");

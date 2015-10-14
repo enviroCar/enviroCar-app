@@ -70,11 +70,11 @@ public interface Track extends BaseEntity<Track>, Comparable<Track> {
 
     Long getStartTime() throws NoMeasurementsException;
 
-    void setStartTime(long startTime);
+    void setStartTime(Long startTime);
 
     Long getEndTime() throws NoMeasurementsException;
 
-    void setEndTime(long endTime);
+    void setEndTime(Long endTime);
 
     long getDuration() throws NoMeasurementsException;
 
