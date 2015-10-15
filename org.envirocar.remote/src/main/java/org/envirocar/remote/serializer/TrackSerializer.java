@@ -211,7 +211,7 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         LOG.info("deserialze(): storing measurements in database");
 
         // Create the track
-        Track track = new TrackImpl();
+        Track track = new TrackImpl(Track.DownloadState.DOWNLOADED);
         track.setRemoteID(id);
         track.setName(name);
         track.setDescription(description);

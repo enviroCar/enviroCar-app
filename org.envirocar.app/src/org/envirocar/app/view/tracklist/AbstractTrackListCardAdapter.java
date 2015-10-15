@@ -144,10 +144,9 @@ public abstract class AbstractTrackListCardAdapter<E extends
         }.execute();
 
         // if the menu is not already inflated, then..
-        if (!holder.mIsMenuInflated) {
+        if (!holder.mToolbar.getMenu().hasVisibleItems()) {
             // Inflate the menu and set an appropriate OnMenuItemClickListener.
             holder.mToolbar.inflateMenu(R.menu.menu_tracklist_cardlayout);
-            holder.mIsMenuInflated = true;
         }
 
         holder.mToolbar.setOnMenuItemClickListener(item -> {
@@ -237,7 +236,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
     static class TrackCardViewHolder extends RecyclerView.ViewHolder {
 
         protected final View mItemView;
-        protected boolean mIsMenuInflated = false;
 
         @InjectView(R.id.fragment_tracklist_cardlayout_toolbar)
         protected Toolbar mToolbar;
@@ -286,14 +284,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
      * of a remote track list. (i.e. users/{user}/tracks)
      */
     static class RemoteTrackCardViewHolder extends TrackCardViewHolder {
-
-        enum DownloadState {
-            NOTHING,
-            DOWNLOADING,
-            DOWNLOADED,
-        }
-
-        protected DownloadState mState = DownloadState.NOTHING;
 
         @InjectView(R.id.fragment_tracklist_cardlayout_remote_progresscircle)
         protected FABProgressCircle mProgressCircle;

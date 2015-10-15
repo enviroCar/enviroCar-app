@@ -140,9 +140,6 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                 }
             }
 
-            Thread.currentThread().setName("TrackList-TrackRetriever" + Thread.currentThread()
-                    .getId());
-
             //fetch db tracks (local+remote)
             List<Track> tracks = mDBAdapter.getAllLocalTracks();
             for (Track t : tracks) {

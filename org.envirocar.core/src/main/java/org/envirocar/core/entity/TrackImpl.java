@@ -27,11 +27,13 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     protected String name;
     protected String description;
     protected Car car;
+    protected Long lastModified;
     protected Long startTime;
     protected Long endTime;
     protected TrackMetadata metadata;
     protected Track.TrackStatus trackStatus = Track.TrackStatus.ONGOING;
     protected List<Measurement> measurements = new ArrayList<Measurement>();
+    protected DownloadState downloadState;
 
     protected boolean isLazyLoadingMeasurements = false;
 
@@ -40,6 +42,22 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     protected Double co2Average;
     protected Double literPerHundredKm;
     protected Double gramsPerKm;
+
+    /**
+     * Default constructor with downloaded state.
+     */
+    public TrackImpl() {
+        this(DownloadState.DOWNLOADED);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param downloadState the state of the track whether it is a re
+     */
+    public TrackImpl(DownloadState downloadState) {
+        this.downloadState = downloadState;
+    }
 
     @Override
     public TrackId getTrackID() {
@@ -73,7 +91,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
 
     @Override
     public Track carbonCopy() {
-        Track track = new TrackImpl();
+        Track track = new TrackImpl(downloadState);
         track.setTrackID(trackID);
         track.setRemoteID(remoteID);
         track.setName(name);
@@ -91,6 +109,21 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     @Override
     public boolean isDownloaded() {
         return car != null;
+    }
+
+    @Override
+    public boolean isDownloading() {
+        return downloadState == DownloadState.DOWNLOADING;
+    }
+
+    @Override
+    public DownloadState getDownloadState() {
+        return this.downloadState;
+    }
+
+    @Override
+    public void setDownloadState(DownloadState downloadState) {
+        this.downloadState = downloadState;
     }
 
     @Override
@@ -132,6 +165,16 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     @Override
     public boolean isRemoteTrack() {
         return !isLocalTrack();
+    }
+
+    @Override
+    public Long getLastModified() {
+        return lastModified;
+    }
+
+    @Override
+    public void setLastModified(long lastModified) {
+        this.lastModified = lastModified;
     }
 
     @Override
@@ -229,9 +272,16 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
 
     @Override
     public int compareTo(Track another) {
-
-        if(another.isRemoteTrack()){
-            return another.isDownloaded() ? 1 : -1;
+        if(downloadState == DownloadState.REMOTE){
+            if(another.getDownloadState() == DownloadState.REMOTE){
+                lastModified.compareTo(another.getLastModified());
+            } else {
+                return 1;
+            }
+        } else {
+            if(another.getDownloadState() == DownloadState.REMOTE){
+                return -1;
+            }
         }
 
         try {

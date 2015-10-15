@@ -137,6 +137,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         ECAnimationUtils.animateShowView(getContext(), holder.mDownloadNotification,
                 R.anim.fade_in);
         holder.mProgressCircle.show();
+        track.setDownloadState(Track.DownloadState.DOWNLOADING);
 
         mTrackHandler.fetchRemoteTrackObservable(track)
                 .subscribeOn(Schedulers.io())
@@ -145,8 +146,6 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                     @Override
                     public void onCompleted() {
                         holder.mProgressCircle.beginFinalAnimation();
-                        holder.mState = AbstractTrackListCardAdapter.RemoteTrackCardViewHolder
-                                .DownloadState.DOWNLOADED;
                         holder.mProgressCircle.attachListener(() -> {
                             // When the visualization is finished, then Init the
                             // content view including its mapview and track details.
@@ -167,6 +166,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         Snackbar.make(getView(), "Not Connected Exception", Snackbar
                                 .LENGTH_LONG).show();
                         holder.mProgressCircle.hide();
+                        track.setDownloadState(Track.DownloadState.DOWNLOADING);
                         holder.mDownloadNotification.setText("Error while downloading..");
                     }
 

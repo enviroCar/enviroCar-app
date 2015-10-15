@@ -87,11 +87,6 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
         super.onAttach(activity);
         ((Injector) activity).injectObjects(this);
 
-        // notify the waiting thread that the activity has been attached.
-        synchronized (attachingActivityLock) {
-            isAttached = true;
-            attachingActivityLock.notifyAll();
-        }
     }
 
     @Nullable
@@ -112,6 +107,12 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
         // setup the adapter for the recyclerview.
         mRecyclerViewAdapter = getRecyclerViewAdapter();
         mRecyclerView.setAdapter(mRecyclerViewAdapter);
+
+        // notify the waiting thread that the activity has been attached.
+        synchronized (attachingActivityLock) {
+            isAttached = true;
+            attachingActivityLock.notifyAll();
+        }
 
         return view;
     }

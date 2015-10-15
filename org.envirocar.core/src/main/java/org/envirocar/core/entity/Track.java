@@ -48,6 +48,12 @@ public interface Track extends BaseEntity<Track>, Comparable<Track> {
         }
     }
 
+    enum DownloadState {
+        REMOTE,
+        DOWNLOADING,
+        DOWNLOADED,
+    }
+
     TrackId getTrackID();
 
     void setTrackID(TrackId trackId);
@@ -67,6 +73,10 @@ public interface Track extends BaseEntity<Track>, Comparable<Track> {
     boolean isLocalTrack();
 
     boolean isRemoteTrack();
+
+    Long getLastModified();
+
+    void setLastModified(long lastModified);
 
     Long getStartTime() throws NoMeasurementsException;
 
@@ -109,6 +119,12 @@ public interface Track extends BaseEntity<Track>, Comparable<Track> {
     Track carbonCopy();
 
     boolean isDownloaded();
+
+    boolean isDownloading();
+
+    DownloadState getDownloadState();
+
+    void setDownloadState(DownloadState downloadState);
 
     /**
      * TODO JavaDoc

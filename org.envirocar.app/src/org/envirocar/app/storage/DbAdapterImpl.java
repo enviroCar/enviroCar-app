@@ -315,7 +315,7 @@ public class DbAdapterImpl implements DbAdapter {
 
         String remoteId = c.getString(c.getColumnIndex(KEY_TRACK_REMOTE));
 
-        Track track = new TrackImpl();
+        Track track = new TrackImpl(Track.DownloadState.DOWNLOADED);
         if(remoteId != null && !remoteId.isEmpty()){
             track.setRemoteID(remoteId);
         }
@@ -653,7 +653,7 @@ public class DbAdapterImpl implements DbAdapter {
 
         String date = format.format(new Date());
         Car car = mCarManager.getCar();
-        Track track = new TrackImpl();
+        Track track = new TrackImpl(Track.DownloadState.DOWNLOADED);
         track.setCar(car);
         track.setName("Track " + date);
         track.setDescription(String.format(mContext.getString(R.string.default_track_description)

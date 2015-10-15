@@ -482,6 +482,7 @@ public class TrackHandler {
 
             remoteTrack.setStartTime(downloadedTrack.getStartTime());
             remoteTrack.setEndTime(downloadedTrack.getEndTime());
+            remoteTrack.setDownloadState(Track.DownloadState.DOWNLOADED);
         } catch (NoMeasurementsException e) {
             e.printStackTrace();
         }
