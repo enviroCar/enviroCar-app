@@ -43,6 +43,7 @@ import org.envirocar.app.view.settings.NewSettingsActivity;
 import org.envirocar.app.view.settings.OBDSettingsFragment;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.view.trackdetails.TrackStatisticsActivity;
+import org.envirocar.app.view.tracklist.AbstractTrackListCardFragment;
 import org.envirocar.app.view.tracklist.TrackListLocalCardFragment;
 import org.envirocar.app.view.tracklist.TrackListPagerFragment;
 import org.envirocar.app.view.tracklist.TrackListRemoteCardFragment;
@@ -52,6 +53,8 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.Collector;
 import org.envirocar.obd.FeatureFlags;
 import org.envirocar.remote.service.EnviroCarService;
+import org.envirocar.storage.EnviroCarDB;
+import org.envirocar.storage.EnviroCarDBImpl;
 
 import javax.inject.Singleton;
 
@@ -100,6 +103,7 @@ import dagger.Provides;
                 NewSettingsActivity.class,
                 OBDSettingsFragment.class,
                 TrackListPagerFragment.class,
+                AbstractTrackListCardFragment.class,
                 TrackListLocalCardFragment.class,
                 TrackListRemoteCardFragment.class,
                 TrackUploadService.class,
@@ -299,6 +303,12 @@ public class InjectionApplicationModule {
     @Singleton
     LazyLoadingStrategy provideLazyLoadingStrategy() {
         return new LazyLoadingStrategyImpl(mAppContext);
+    }
+
+    @Provides
+    @Singleton
+    EnviroCarDB provideEnviroCarDB(){
+        return new EnviroCarDBImpl(mAppContext);
     }
 
     @Provides

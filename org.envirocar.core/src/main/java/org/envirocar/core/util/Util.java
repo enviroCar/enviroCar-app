@@ -307,7 +307,7 @@ public class Util {
     public static double getDistance(double lat1, double lng1, double lat2, double lng2) {
         float[] res = new float[1];
         Location.distanceBetween(lat1, lng1, lat2, lng2, res);
-        return res[0];
+        return res[0] / 1000.0d;
     }
 
     /**

@@ -13,15 +13,16 @@ import android.preference.PreferenceManager;
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 
+import org.envirocar.app.services.OBDConnectionService;
+import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceDiscoveredEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.app.services.OBDConnectionService;
-import org.envirocar.core.utils.ServiceUtils;
-import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.BroadcastUtils;
+import org.envirocar.core.utils.ServiceUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -31,7 +32,6 @@ import javax.inject.Inject;
 
 import rx.Observable;
 import rx.Subscription;
-import rx.android.content.ContentObservable;
 import rx.functions.Action1;
 
 /**
@@ -195,7 +195,7 @@ public class BluetoothHandler {
                     .commit();
         }
 
-        if (success){
+        if (success) {
             LOGGER.info("Successfully updated shared preferences");
             mBus.post(new BluetoothDeviceSelectedEvent(selectedDevice));
         }
@@ -306,7 +306,8 @@ public class BluetoothHandler {
             filter.addAction(BluetoothDevice.ACTION_FOUND);
             filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 
-            mDiscoverySubscription = ContentObservable.fromBroadcast(mContext, filter)
+            mDiscoverySubscription = BroadcastUtils
+                    .createBroadcastObservable(mContext, filter)
                     .subscribe(new Action1<Intent>() {
                         @Override
                         public void call(Intent intent) {

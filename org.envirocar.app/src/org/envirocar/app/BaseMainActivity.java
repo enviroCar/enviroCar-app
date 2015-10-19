@@ -24,6 +24,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.google.common.collect.Lists;
 import com.squareup.otto.Subscribe;
 
@@ -74,9 +75,8 @@ import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 import rx.Scheduler;
 import rx.Subscription;
-import rx.android.content.ContentObservable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * Main UI application that cares about the auto-upload, auto-connect and global
@@ -148,6 +148,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private Fragment mCurrentFragment;
     private Fragment mStartupFragment;
 
+    private CompositeSubscription subscriptions = new CompositeSubscription();
+
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
 
@@ -201,14 +203,14 @@ public class BaseMainActivity extends BaseInjectorActivity {
         // Subscribe for preference subscriptions. In this case, subscribe for changes to the
         // active screen settings.
         // TODO
-        mPreferenceSubscription = ContentObservable
-                .fromSharedPreferencesChanges(PreferenceManager.getDefaultSharedPreferences(this))
-                .subscribeOn(Schedulers.computation())
+        subscriptions.add(RxSharedPreferences
+                .create(PreferenceManager.getDefaultSharedPreferences(this))
+                .getBoolean(PreferenceConstants.DISPLAY_STAYS_ACTIV)
+                .asObservable()
                 .observeOn(AndroidSchedulers.mainThread())
-                .filter(prefKey -> PreferenceConstants.DISPLAY_STAYS_ACTIV.equals(prefKey))
-                .subscribe(prefKey -> {
+                .subscribe(aBoolean -> {
                     checkKeepScreenOn();
-                });
+                }));
 
 
         errorInformationReceiver = new BroadcastReceiver() {
@@ -285,6 +287,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         checkKeepScreenOn();
 
+
         //        new AsyncTask<Void, Void, Void>() {
         //            @Override
         //            protected Void doInBackground(Void... params) {
@@ -312,6 +315,10 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         // Unsubscribe all subscriptions.
         mPreferenceSubscription.unsubscribe();
+
+        if (!subscriptions.isUnsubscribed()) {
+            subscriptions.unsubscribe();
+        }
     }
 
     @Override
@@ -571,9 +578,11 @@ public class BaseMainActivity extends BaseInjectorActivity {
             } else try {
                 if (event.mTrack.getLastMeasurement() == null) {
                     // Track has no measurements
-                    Crouton.makeText(this, R.string.track_finished_no_measurements, Style.ALERT).show();
+                    Crouton.makeText(this, R.string.track_finished_no_measurements, Style.ALERT)
+                            .show();
                 } else {
-                    LOGGER.info("last is not null.. " + event.mTrack.getLastMeasurement().toString());
+                    LOGGER.info("last is not null.. " + event.mTrack.getLastMeasurement()
+                            .toString());
                     // Track has no measurements
                     Crouton.makeText(this,
                             getString(R.string.track_finished).concat(event.mTrack.getName()),

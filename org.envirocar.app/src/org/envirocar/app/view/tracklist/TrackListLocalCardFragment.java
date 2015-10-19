@@ -14,6 +14,10 @@ import org.envirocar.core.logging.Logger;
 import java.util.Collections;
 import java.util.List;
 
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
 /**
  * @author dewall
  */
@@ -121,7 +125,28 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         // Do not load the dataset twice.
         if (!tracksLoaded) {
             tracksLoaded = true;
-            new LoadLocalTracksTask().execute();
+//            new LoadLocalTracksTask().execute();
+
+            mEnvirocarDB.getAllLocalTracks()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<List<Track>>() {
+                        @Override
+                        public void onCompleted() {
+                            mRecyclerViewAdapter.notifyDataSetChanged();
+
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onNext(List<Track> tracks) {
+                            mTrackList.addAll(tracks);
+                        }
+                    });
         }
     }
 

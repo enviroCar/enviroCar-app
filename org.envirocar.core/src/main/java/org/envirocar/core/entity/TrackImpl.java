@@ -85,7 +85,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
-    public void setLazyLoadingMeasurements(boolean lazyLoadingMeasurements) {
+    public void setLazyMeasurements(boolean lazyLoadingMeasurements) {
         this.isLazyLoadingMeasurements = lazyLoadingMeasurements;
     }
 
@@ -102,7 +102,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
         track.setMetadata(metadata);
         track.setTrackStatus(trackStatus);
         track.setMeasurements(new ArrayList<>(measurements));
-        track.setLazyLoadingMeasurements(isLazyLoadingMeasurements);
+        track.setLazyMeasurements(isLazyLoadingMeasurements);
         return track;
     }
 

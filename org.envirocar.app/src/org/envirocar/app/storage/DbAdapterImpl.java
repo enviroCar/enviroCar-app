@@ -348,7 +348,7 @@ public class DbAdapterImpl implements DbAdapter {
         if (!lazyMeasurements) {
             loadMeasurements(track);
         } else {
-            track.setLazyLoadingMeasurements(true);
+            track.setLazyMeasurements(true);
             Measurement first = getFirstMeasurementForTrack(track);
             Measurement last = getLastMeasurementForTrack(track);
 
@@ -822,7 +822,7 @@ public class DbAdapterImpl implements DbAdapter {
     public void loadMeasurements(Track track) {
         List<Measurement> measurements = getAllMeasurementsForTrack(track);
         track.setMeasurements(measurements);
-        track.setLazyLoadingMeasurements(false);
+        track.setLazyMeasurements(false);
     }
 
     @Override

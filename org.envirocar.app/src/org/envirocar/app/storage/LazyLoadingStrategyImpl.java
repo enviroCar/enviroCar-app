@@ -47,7 +47,7 @@ public class LazyLoadingStrategyImpl implements LazyLoadingStrategy {
     @Override
 	public void lazyLoadMeasurements(Track track) {
 		mDBAdapter.loadMeasurements(track);
-		track.setLazyLoadingMeasurements(false);
+		track.setLazyMeasurements(false);
 	}
 
 }

@@ -29,9 +29,9 @@ import org.envirocar.app.views.LayeredImageRotateView;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.events.gps.GpsDOPEvent;
+import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFix;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
-import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
@@ -49,9 +49,8 @@ import butterknife.OnClick;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import rx.Scheduler;
 import rx.Subscription;
-import rx.android.content.ContentObservable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * @author dewall
@@ -93,6 +92,7 @@ public class RealDashboardFragment extends BaseInjectorFragment {
 
 
     private Subscription mPreferenceSubscription;
+    private CompositeSubscription subscriptions = new CompositeSubscription();
 
     private GpsSatelliteFix mGpsFix = new GpsSatelliteFix(0, false);
 
@@ -131,21 +131,25 @@ public class RealDashboardFragment extends BaseInjectorFragment {
         TypefaceEC.applyCustomFont((ViewGroup) view,
                 TypefaceEC.Newscycle(getActivity()));
 
-        // Subscribe for changes related to specific preference types.
-        mPreferenceSubscription = ContentObservable.fromSharedPreferencesChanges(PreferenceManager
-                .getDefaultSharedPreferences(getActivity()))
-                .subscribeOn(Schedulers.computation())
-                .observeOn(AndroidSchedulers.mainThread())
-                .filter(prefKey -> PreferenceConstants.PREFERENCE_TAG_CAR.equals(prefKey) ||
-                        PreferenceConstants.CAR_HASH_CODE.equals(prefKey) ||
-                        PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_LIST.equals(prefKey))
-                .subscribe(prefKey -> {
-                    if (prefKey.equals(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_LIST)) {
-                        updateStatusElements();
-                    } else {
-                        updateCarStatus();
-                    }
-                });
+//        // Subscribe for changes related to specific preference types.
+//        subscriptions.add(RxSharedPreferences
+//                .create(PreferenceManager.getDefaultSharedPreferences(getActivity()))
+//                .get
+//        ));
+//        mPreferenceSubscription = ContentObservable.fromSharedPreferencesChanges(PreferenceManager
+//                .getDefaultSharedPreferences(getActivity()))
+//                .subscribeOn(Schedulers.computation())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .filter(prefKey -> PreferenceConstants.PREFERENCE_TAG_CAR.equals(prefKey) ||
+//                        PreferenceConstants.CAR_HASH_CODE.equals(prefKey) ||
+//                        PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_LIST.equals(prefKey))
+//                .subscribe(prefKey -> {
+//                    if (prefKey.equals(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_LIST)) {
+//                        updateStatusElements();
+//                    } else {
+//                        updateCarStatus();
+//                    }
+//                });
 
         super.onViewCreated(view, savedInstanceState);
     }

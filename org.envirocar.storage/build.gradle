@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'me.tatarka.retrolambda'
 
 android {
@@ -10,6 +9,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
 
     defaultConfig {
         minSdkVersion 16
@@ -26,36 +26,13 @@ android {
 }
 
 dependencies {
-    compile rootProject.ext.supportV4
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    testCompile 'junit:junit:4.12'
     compile rootProject.ext.supportV7
 
-    compile rootProject.ext.dagger
-    apt rootProject.ext.daggerCompiler
-    compile rootProject.ext.daggerCompiler
-
-    compile rootProject.ext.acra
-    compile rootProject.ext.otto
-    compile rootProject.ext.guava
-    compile rootProject.ext.gson
-
-    compile rootProject.ext.rxAndroid
+    compile rootProject.ext.sqlBrite
     compile rootProject.ext.rxJava
+    compile rootProject.ext.rxAndroid
 
-    compile 'org.apache.commons:commons-compress:1.5'
+    compile project(':org.envirocar.core')
 }
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'me.tatarka:gradle-retrolambda:3.1.0'
-    }
-}
-
-// Required because retrolambda is on maven central
-repositories {
-    mavenCentral()
-}
-

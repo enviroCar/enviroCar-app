@@ -31,6 +31,7 @@ import org.envirocar.core.injection.BaseInjectorFragment;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
+import org.envirocar.storage.EnviroCarDB;
 import org.json.JSONException;
 
 import java.io.IOException;
@@ -57,6 +58,8 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected UserHandler mUserManager;
     @Inject
     protected DbAdapter mDBAdapter;
+    @Inject
+    protected EnviroCarDB mEnvirocarDB;
     @Inject
     protected TermsOfUseManager mTermsOfUseManager;
     @Inject

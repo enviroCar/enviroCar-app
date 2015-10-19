@@ -92,7 +92,7 @@ public class DAOProvider implements Injector, InjectionModuleProvider {
         if (this.mInternetAccessProvider.isConnected()) {
             return mObjectGraph.get(RemoteTrackDAO.class);
         }
-        return mObjectGraph.get(CacheTrackDAO.class);
+        return new CacheTrackDAO();
     }
 
     /**

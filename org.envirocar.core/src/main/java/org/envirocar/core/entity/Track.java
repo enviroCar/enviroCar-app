@@ -114,7 +114,7 @@ public interface Track extends BaseEntity<Track>, Comparable<Track> {
 
     boolean isLazyLoadingMeasurements();
 
-    void setLazyLoadingMeasurements(boolean lazyLoadingMeasurements);
+    void setLazyMeasurements(boolean lazyLoadingMeasurements);
 
     Track carbonCopy();
 

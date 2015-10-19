@@ -12,6 +12,7 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 
+import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -35,8 +36,8 @@ import javax.inject.Inject;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
-import rx.android.content.ContentObservable;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * @author dewall
@@ -74,7 +75,7 @@ public class SystemStartupService extends Service {
     // private member fields.
     private Subscription mWorkerSubscription;
     private Subscription mDiscoverySubscription;
-    private Subscription mSharedPrefSubscription;
+    private CompositeSubscription subscriptions = new CompositeSubscription();
 
     private BluetoothServiceState mBluetoothServiceState = BluetoothServiceState.SERVICE_STOPPED;
 
@@ -143,8 +144,9 @@ public class SystemStartupService extends Service {
             else if (ACTION_START_TRACK_RECORDING.equals(action)) {
                 LOGGER.info("Received Broadcast: Start Track Recording.");
                 startOBDConnectionService();
-//                mNotificationHandler.setNotificationState(SystemStartupService.this,
-//                        NotificationHandler.NotificationState.OBD_FOUND);
+                //                mNotificationHandler.setNotificationState(SystemStartupService
+                // .this,
+                //                        NotificationHandler.NotificationState.OBD_FOUND);
             }
 
             // Received action matches the command for stopping the recording process of a track.
@@ -206,33 +208,35 @@ public class SystemStartupService extends Service {
         // if the OBDConnectionService is running, then bind the service.
         bindOBDConnectionService();
 
-        mSharedPrefSubscription = ContentObservable.fromSharedPreferencesChanges(preferences)
-                .filter(prefKey ->
-                        PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT.equals(prefKey) ||
-                                PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL
-                                        .equals(prefKey))
-                .subscribe(prefKey -> {
-                    LOGGER.info(String.format("Received change in preferences [%s]", prefKey));
+        subscriptions.add(
+                RxSharedPreferences.create(preferences)
+                        .getBoolean(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT)
+                        .asObservable()
+                        .subscribe(aBoolean -> {
+                            LOGGER.info(String.format("Received changed autoconnect -> [%s]",
+                                    aBoolean));
+                            mIsAutoconnect = aBoolean;
+                            // if autoconnect has been enabled, then schedule a new discovery.
+                            if (mIsAutoconnect) {
+                                scheduleDiscovery(REDISCOVERY_INTERVAL);
+                            } else { // otherwise, unschedule
+                                unscheduleDiscovery();
+                            }
+                        }));
 
-                    if (prefKey.equals(PreferenceConstants
-                            .PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT)) {
-                        mIsAutoconnect = preferences.getBoolean(PreferenceConstants
-                                .PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT, false);
+        subscriptions.add(
+                RxSharedPreferences.create(preferences)
+                        .getInteger(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL)
+                        .asObservable()
+                        .subscribe(integer -> {
+                            LOGGER.info(String.format("Received changed discovery interval -> [%s]",
+                                    integer));
+                            mDiscoveryInterval = integer;
+                        }));
 
-                        // if autoconnect has been enabled, then schedule a new discovery.
-                        if(mIsAutoconnect) {
-                            scheduleDiscovery(REDISCOVERY_INTERVAL);
-                        }
-                        // otherwise, unschedule
-                        else {
-                            unscheduleDiscovery();
-                        }
-                    } else {
-                        mDiscoveryInterval = preferences.getInt(PreferenceConstants
-                                        .PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL,
-                                PreferenceConstants.DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);
-                    }
-                });
+        if (mIsAutoconnect) {
+            scheduleDiscovery(-1);
+        }
     }
 
 
@@ -269,11 +273,14 @@ public class SystemStartupService extends Service {
         unregisterReceiver(mBroadcastReciever);
 
         // Unsubscribe subscriptions.
-        mSharedPrefSubscription.unsubscribe();
         if (mWorkerSubscription != null)
             mWorkerSubscription.unsubscribe();
         if (mDiscoverySubscription != null)
             mDiscoverySubscription.unsubscribe();
+
+        if (!subscriptions.isUnsubscribed()) {
+            subscriptions.unsubscribe();
+        }
 
         // Close the corresponding notification.
         mNotificationHandler.closeNotification(this);
@@ -285,7 +292,7 @@ public class SystemStartupService extends Service {
         LOGGER.info(String.format("Received event. %s", event.toString()));
         if (!event.isBluetoothEnabled) {
             // When Bluetooth has been turned off, then this service is required to be closed.
-            if(mBluetoothHandler.isDiscovering())
+            if (mBluetoothHandler.isDiscovering())
                 mBluetoothHandler.stopBluetoothDeviceDiscovery();
             stopSelf();
         }
@@ -322,6 +329,7 @@ public class SystemStartupService extends Service {
             case SERVICE_STOPPED:
                 mNotificationHandler.setNotificationState(this, NotificationHandler
                         .NotificationState.UNCONNECTED);
+                scheduleDiscovery(REDISCOVERY_INTERVAL);
                 break;
             case SERVICE_DEVICE_DISCOVERY_RUNNING:
                 mNotificationHandler.setNotificationState(this, NotificationHandler
@@ -365,9 +373,9 @@ public class SystemStartupService extends Service {
     /**
      * Stops the current discovery and/or the scheduled upcoming discovery.
      */
-    private void unscheduleDiscovery(){
-        if(mWorkerSubscription != null){
-            if(mBluetoothHandler.isDiscovering())
+    private void unscheduleDiscovery() {
+        if (mWorkerSubscription != null) {
+            if (mBluetoothHandler.isDiscovering())
                 mBluetoothHandler.stopBluetoothDeviceDiscovery();
             mWorkerSubscription.unsubscribe();
         }
@@ -427,10 +435,11 @@ public class SystemStartupService extends Service {
     private void startDiscoveryForSelectedDevice() {
         BluetoothDevice device = mBluetoothHandler.getSelectedBluetoothDevice();
         if (device == null) {
-//            mWorkerThread.schedule(() -> {
-//                Toast.makeText(getApplicationContext(), "No paired bluetooth device " +
-//                        "selected", Toast.LENGTH_SHORT).show();
-//            });
+            //            mWorkerThread.schedule(() -> {
+            //                Toast.makeText(getApplicationContext(), "No paired bluetooth device
+            // " +
+            //                        "selected", Toast.LENGTH_SHORT).show();
+            //            });
 
         } else {
             // If the service is already discovering, then skip the current discovery and

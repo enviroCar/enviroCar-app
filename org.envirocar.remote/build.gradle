@@ -2,8 +2,8 @@ apply plugin: 'com.android.library'
 apply plugin: 'me.tatarka.retrolambda'
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.1"
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -25,27 +25,17 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:23.+'
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile rootProject.ext.supportV7
 
-    // Dagger dependency injection.
-    compile 'com.squareup.dagger:dagger:1.2.2'
-//    apt 'com.squareup.dagger:dagger-compiler:1.2.2'
-    provided 'com.squareup.dagger:dagger-compiler:1.2.2'
-
-    // Google GSON
-    compile 'com.google.code.gson:gson:2.3'
-
-    // Google Guava
-    compile 'com.google.guava:guava:18.0'
-
-    compile 'io.reactivex:rxandroid:0.24.0'
+    compile rootProject.ext.rxAndroid
+    compile rootProject.ext.rxJava
 
     // Everything realted to retrofit...
-    compile 'com.squareup.retrofit:retrofit:2.0.0-beta2'
-    compile 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
-    compile 'com.squareup.retrofit:retrofit-adapters:2.0.0-beta2'
-    compile 'com.squareup.retrofit:adapter-rxjava:2.0.0-beta2'
+    compile rootProject.ext.retrofit
+    compile rootProject.ext.retrofitGson
+    compile rootProject.ext.retrofitAdapters
+    compile rootProject.ext.retrofitRxJava
+
     compile project(':org.envirocar.core')
 }
 

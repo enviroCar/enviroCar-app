@@ -116,10 +116,11 @@ public class MeasurementImpl implements Measurement {
 
     @Override
     public void reset() {
-        trackId = null;
         latitude = 0;
         longitude = 0;
-        time = 0;
-        propertyMap.clear();
+
+        synchronized (this) {
+            propertyMap.clear();
+        }
     }
 }

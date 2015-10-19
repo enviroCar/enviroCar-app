@@ -36,12 +36,6 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         ((Injector) activity).injectObjects(this);
-
-        // notify the waiting thread that the activity has been attached.
-        synchronized (attachingActivityLock) {
-            isAttached = true;
-            attachingActivityLock.notifyAll();
-        }
     }
 
     @Override
