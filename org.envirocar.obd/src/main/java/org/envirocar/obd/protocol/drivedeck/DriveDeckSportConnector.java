@@ -342,7 +342,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
                 String pid = new String(bytes, start + 1, 2);
 
 				/*
-				 * METADATA Stuff
+                 * METADATA Stuff
 				 */
                 if (pid.equals("14")) {
                     logger.debug("Status: CONNECTING");
@@ -362,6 +362,12 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
                     // engine off (= RPM < 500)
                     logger.debug("Engine: Off");
                 } else {
+                    if (count < 6) {
+                        logger.warn("the response did only contain " + count + " bytes. For PID " +
+                                "responses 6 are minimum");
+                        return null;
+                    }
+
 					/*
 					 * A PID response
 					 */
@@ -383,7 +389,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
 
                     //TODO remove last arg (copy array) as its for deugging
                     CommonCommand result = parsePIDResponse(pid, pidResponseValue, now, Arrays
-                            .copyOfRange(bytes, start, count));
+                            .copyOfRange(bytes, start, 12));
 
                     if (result != null) {
                         lastResult = now;
