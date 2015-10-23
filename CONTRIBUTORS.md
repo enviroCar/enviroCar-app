@@ -16,13 +16,10 @@ Active enviroCar app contributors (sorted alphabeticaly)
 Former contributors
 ============================================
 
-* **[Christopher Stephan](https://github.com/ChristopherStephan)**
-
-* **[Gerald Pape](https://github.com/ubergesundheit)**
-
-* **[Jakob Möllers](https://github.com/jakobmoellers)**
-
-* **[Martin Düren](https://github.com/MartinDueren)**
+* Christopher Stephan
+* Gerald Pape
+* Jakob Möllesrmark
+* Martin Düren
 
 
 **[Full contributors list](https://github.com/enviroCar/enviroCar-app/graphs/contributors).**
