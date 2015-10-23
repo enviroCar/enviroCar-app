@@ -23,7 +23,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.activity.StartStopButtonUtil;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
-import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.view.settings.NewSettingsActivity;
 import org.envirocar.app.views.LayeredImageRotateView;
 import org.envirocar.app.views.TypefaceEC;
@@ -142,9 +142,9 @@ public class RealDashboardFragment extends BaseInjectorFragment {
 //                .observeOn(AndroidSchedulers.mainThread())
 //                .filter(prefKey -> PreferenceConstants.PREFERENCE_TAG_CAR.equals(prefKey) ||
 //                        PreferenceConstants.CAR_HASH_CODE.equals(prefKey) ||
-//                        PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_LIST.equals(prefKey))
+//                        PreferenceConstants.PREF_BLUETOOTH_LIST.equals(prefKey))
 //                .subscribe(prefKey -> {
-//                    if (prefKey.equals(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_LIST)) {
+//                    if (prefKey.equals(PreferenceConstants.PREF_BLUETOOTH_LIST)) {
 //                        updateStatusElements();
 //                    } else {
 //                        updateCarStatus();
@@ -260,7 +260,7 @@ public class RealDashboardFragment extends BaseInjectorFragment {
     @OnClick(R.id.connectionStateImage)
     protected void onConnectionStateImageClicked() {
         String remoteDevice = PreferenceManager.getDefaultSharedPreferences(getActivity())
-                .getString(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_LIST, null);
+                .getString(PreferenceConstants.PREF_BLUETOOTH_LIST, null);
 
         if (remoteDevice == null) {
             Toast.makeText(getActivity(), R.string.no_device_selected, Toast.LENGTH_SHORT).show();

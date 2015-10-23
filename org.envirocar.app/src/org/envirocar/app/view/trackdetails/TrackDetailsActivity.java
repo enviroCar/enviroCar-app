@@ -22,14 +22,15 @@ import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 import com.mapbox.mapboxsdk.views.MapView;
 
 import org.envirocar.app.R;
-import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.view.utils.MapUtils;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.injection.BaseInjectorActivity;
+import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
+import org.envirocar.storage.EnviroCarDB;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -44,11 +45,14 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import rx.schedulers.Schedulers;
 
 /**
  * @author dewall
  */
 public class TrackDetailsActivity extends BaseInjectorActivity {
+    private static final Logger LOG = Logger.getLogger(TrackDetailsActivity.class);
+
     private static final String EXTRA_TRACKID = "org.envirocar.app.extraTrackID";
     private static final String EXTRA_TITLE = "org.envirocar.app.extraTitle";
 
@@ -72,7 +76,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
 
     @Inject
-    protected DbAdapter mDBAdapter;
+    protected EnviroCarDB mEnvirocarDB;
 
     @InjectView(R.id.activity_track_details_fab)
     protected FloatingActionButton mFAB;
@@ -117,8 +121,10 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         // Get the track to show.
         int mTrackID = getIntent().getIntExtra(EXTRA_TRACKID, -1);
         Track.TrackId trackid = new Track.TrackId(mTrackID);
-        Track track = mDBAdapter.getTrack(trackid);
-
+        Track track = mEnvirocarDB.getTrack(trackid)
+                .subscribeOn(Schedulers.io())
+                .toBlocking()
+                .first();
 
         String itemTitle = track.getName();
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById

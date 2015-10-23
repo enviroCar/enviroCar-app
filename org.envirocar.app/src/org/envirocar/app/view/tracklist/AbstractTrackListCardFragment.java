@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -22,17 +23,16 @@ import org.envirocar.app.TrackHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.DAOProvider;
-import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.app.handler.PreferenceConstants;
+import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.BaseInjectorFragment;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.util.Util;
+import org.envirocar.remote.serializer.TrackSerializer;
 import org.envirocar.storage.EnviroCarDB;
-import org.json.JSONException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -43,8 +43,11 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import rx.Scheduler;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.exceptions.OnErrorThrowable;
 import rx.functions.Action0;
+import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -57,8 +60,6 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     @Inject
     protected UserHandler mUserManager;
     @Inject
-    protected DbAdapter mDBAdapter;
-    @Inject
     protected EnviroCarDB mEnvirocarDB;
     @Inject
     protected TermsOfUseManager mTermsOfUseManager;
@@ -69,6 +70,12 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
 
     @InjectView(R.id.fragment_tracklist_notification)
     protected TextView mTextView;
+    @InjectView(R.id.fragment_tracklist_progress_view)
+    protected View mProgressView;
+    @InjectView(R.id.fragment_tracklist_progress_text)
+    protected TextView mProgressText;
+    @InjectView(R.id.fragment_tracklist_progress_progressBar)
+    protected ProgressBar mProgressBar;
     @InjectView(R.id.fragment_tracklist_recycler_view)
     protected RecyclerView mRecyclerView;
 
@@ -89,7 +96,6 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         ((Injector) activity).injectObjects(this);
-
     }
 
     @Nullable
@@ -141,10 +147,10 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
             // Create an sharing intent.
             Intent sharingIntent = new Intent(Intent.ACTION_SEND);
             sharingIntent.setType("application/json");
-            Uri shareBody = Uri.fromFile(Util.saveTrackAndReturnFile(track,
-                    isObfuscationEnabled).getFile());
-            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "EnviroCar Track " +
-                    track.getName());
+            Uri shareBody = Uri.fromFile(TrackSerializer.exportTrack(track).getFile());
+
+            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
+                    "EnviroCar Track " + track.getName());
             sharingIntent.putExtra(android.content.Intent.EXTRA_STREAM, shareBody);
 
             // Wrap the intent with a chooser.
@@ -153,9 +159,9 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
             //            LOG.warn(e.getMessage(), e);
             //            Snackbar.make(getView(), R.string.error_json, Snackbar.LENGTH_LONG)
             // .show();
-        } catch (JSONException e) {
-            LOG.warn(e.getMessage(), e);
-            Snackbar.make(getView(), R.string.error_io, Snackbar.LENGTH_LONG).show();
+//        } catch (JSONException e) {
+//            LOG.warn(e.getMessage(), e);
+//            Snackbar.make(getView(), R.string.error_io, Snackbar.LENGTH_LONG).show();
         } catch (IOException e) {
             LOG.warn(e.getMessage(), e);
             if (isObfuscationEnabled) {
@@ -177,7 +183,10 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
      */
     protected void createDeleteTrackDialog(Track track) {
         // Get the up to date reference of the current track.
-        final Track upToDateRef = mDBAdapter.getTrack(track.getTrackID(), true);
+        // Create a dialog that deletes on click on the positive button the track.
+        final Track upToDateRef = mEnvirocarDB.getTrack(track.getTrackID())
+                .toBlocking()
+                .first();
 
         // Create a dialog that deletes on click on the positive button the track.
         new MaterialDialog.Builder(getActivity())
@@ -216,34 +225,27 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected void deleteRemoteTrack(Track track) {
         LOG.info("deleteRemoteTrack()");
 
-        // Get the up to date reference of the current track.
-        Track upToDateRef = mDBAdapter.getTrack(track.getTrackID(), true);
+        mEnvirocarDB.getTrack(track.getTrackID())
+                .map(new Func1<Track, Boolean>() {
+                    @Override
+                    public Boolean call(Track upToDateRef) {
+                        if (upToDateRef.isLocalTrack()) {
+                            LOG.info("Track to delete is a local track");
+                            return false;
+                        }
 
-        if (!upToDateRef.isRemoteTrack()) {
-            return;
-        }
-        try {
-            mTrackHandler.deleteRemoteTrack(upToDateRef);
-
-            // Show a snackbar notification
-            Snackbar.make(getView(), R.string.trackviews_delete_track_snackbar_success,
-                    Snackbar.LENGTH_LONG).show();
-
-            // and update the view elements
-            mMainThreadWorker.schedule(() -> {
-                mTrackList.remove(track);
-                mRecyclerViewAdapter.notifyDataSetChanged();
-            });
-
-        } catch (UnauthorizedException e) {
-            LOG.severe("The logged in user is not authorized to do that.", e);
-            Snackbar.make(getView(), "Unable to delete the track, because the user is not " +
-                    "authorized to do that", Snackbar.LENGTH_LONG).show();
-        } catch (NotConnectedException e) {
-            LOG.severe("Not connected", e);
-            Snackbar.make(getView(), "Unable to communicate with the server",
-                    Snackbar.LENGTH_LONG).show();
-        }
+                        try {
+                            mTrackHandler.deleteRemoteTrack(upToDateRef);
+                            return true;
+                        } catch (Exception e) {
+                            OnErrorThrowable.from(e);
+                        }
+                        return false;
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(getDeleteTrackSubscriber(track));
     }
 
     /**
@@ -251,24 +253,94 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
      *
      * @param track
      */
-    protected void deleteLocalTrack(Track track) {
-        // Get the up to date reference of the current track.
-        Track upToDateRef = mDBAdapter.getTrack(track.getTrackID(), true);
+    protected void deleteLocalTrack(final Track track) {
+        // Get the up to date reference of the current track and delete it
+        mEnvirocarDB.getTrack(track.getTrackID())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .map(upToDateRef -> {
+                    // If the track is a local track, then delete and return whether it was
+                    // successful.
+                    return upToDateRef.isLocalTrack() && mTrackHandler.deleteLocalTrack
+                            (upToDateRef.getTrackID());
+                })
+                .subscribe(getDeleteTrackSubscriber(track));
+    }
 
-        // If the track has been successfully deleted.
-        if (upToDateRef.isLocalTrack() && mTrackHandler
-                .deleteLocalTrack(upToDateRef.getTrackID())) {
-            // Show a snackbar notification
-            Snackbar.make(getView(), R.string.trackviews_delete_track_snackbar_success,
-                    Snackbar.LENGTH_LONG).show();
+    protected Subscriber<Boolean> getDeleteTrackSubscriber(final Track track) {
+        return new Subscriber<Boolean>() {
+            @Override
+            public void onStart() {
+                LOG.info(String.format("onStart() delete track -> [%s]", track.getName()));
+                showProgressView("Deleting Track...");
+            }
 
-            mMainThreadWorker.schedule(() -> {
-                // and update the view elements
-                mTrackList.remove(track);
-                mRecyclerViewAdapter.notifyDataSetChanged();
-            });
+            @Override
+            public void onCompleted() {
+                LOG.info(String.format("onCompleted() delete track -> [%s]",
+                        track.getName()));
 
-            LOG.info("deleteLocalTrack: Successfully delete track with id=" + track.getTrackID());
-        }
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                LOG.error(String.format("onError() delete track -> [%s]",
+                        track.getName()), e);
+
+                if (e instanceof UnauthorizedException) {
+                    LOG.error("The logged in user is not authorized to do that.", e);
+                    showSnackbar("Unable to delete the track, because the " +
+                            "user is not authorized to do that");
+                } else if (e instanceof NotConnectedException) {
+                    LOG.error("Not connected", e);
+                    showSnackbar("Unable to communicate with the server");
+                } else {
+                    showSnackbar(String.format(
+                            "Error while deleting track \"%s\".", track.getName()));
+                }
+
+                hideProgressView();
+            }
+
+            @Override
+            public void onNext(Boolean success) {
+                LOG.info("onNext() -> " + track.getName());
+                if (success) {
+                    LOG.info("deleteLocalTrack: Successfully delete track with" +
+                            " id=" + track.getTrackID());
+
+                    mTrackList.remove(track);
+                    mRecyclerViewAdapter.notifyDataSetChanged();
+                    showSnackbar(String.format(
+                            "%s has been successfully deleted.", track.getName()));
+                    hideProgressView();
+                } else {
+                    showSnackbar(String.format(
+                            "Error while deleting track \"%s\".", track.getName()));
+                }
+            }
+        };
+    }
+
+    protected void showSnackbar(final String message) {
+        mMainThreadWorker.schedule(new Action0() {
+            @Override
+            public void call() {
+                if (getView() != null) {
+                    Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    protected void showProgressView(String text) {
+        mMainThreadWorker.schedule(() -> {
+            mProgressView.setVisibility(View.VISIBLE);
+            mProgressText.setText(text);
+        });
+    }
+
+    protected void hideProgressView() {
+        ECAnimationUtils.animateHideView(getContext(), mProgressView, R.anim.fade_out);
     }
 }

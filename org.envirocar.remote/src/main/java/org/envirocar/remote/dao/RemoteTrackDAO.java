@@ -317,6 +317,9 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO> implements TrackDAO 
             throw new NotConnectedException(e);
         } catch (ResourceConflictException e) {
             throw new NotConnectedException(e);
+        } catch (Exception e){
+            LOG.warn("WARNING!!!");
+            throw e;
         }
     }
 

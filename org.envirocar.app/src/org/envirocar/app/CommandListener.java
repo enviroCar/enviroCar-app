@@ -28,7 +28,7 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.gps.GpsDOPEvent;
 import org.envirocar.core.exception.MeasurementSerializationException;

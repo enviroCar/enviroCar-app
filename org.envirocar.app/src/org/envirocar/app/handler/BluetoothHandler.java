@@ -14,7 +14,6 @@ import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 
 import org.envirocar.app.services.OBDConnectionService;
-import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceDiscoveredEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
@@ -31,8 +30,8 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import rx.Observable;
+import rx.Subscriber;
 import rx.Subscription;
-import rx.functions.Action1;
 
 /**
  * @author dewall
@@ -155,15 +154,15 @@ public class BluetoothHandler {
         // Get the preferences of the device.
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
         String deviceName = preferences.getString(
-                PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME,
-                PreferenceConstants.PREFERENCE_TAG_EMPTY);
+                PreferenceConstants.PREF_BLUETOOTH_NAME,
+                PreferenceConstants.PREF_EMPTY);
         String deviceAddress = preferences.getString(
-                PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_ADDRESS,
-                PreferenceConstants.PREFERENCE_TAG_EMPTY);
+                PreferenceConstants.PREF_BLUETOOTH_ADDRESS,
+                PreferenceConstants.PREF_EMPTY);
 
         // If the device address is not empty and the device is still a paired device, get the
         // corresponding BluetoothDevice and return it.
-        if (!deviceAddress.equals(PreferenceConstants.PREFERENCE_TAG_EMPTY)) {
+        if (!deviceAddress.equals(PreferenceConstants.PREF_EMPTY)) {
             Set<BluetoothDevice> devices = getPairedBluetoothDevices();
             for (BluetoothDevice device : devices) {
                 if (device.getAddress().equals(deviceAddress))
@@ -181,16 +180,16 @@ public class BluetoothHandler {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
 
         boolean success = preferences.edit()
-                .remove(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME)
-                .remove(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_ADDRESS)
+                .remove(PreferenceConstants.PREF_BLUETOOTH_NAME)
+                .remove(PreferenceConstants.PREF_BLUETOOTH_ADDRESS)
                 .commit();
 
         if (selectedDevice != null) {
             // Update the shared preference entry for the bluetooth selection tag.
             success &= preferences.edit()
-                    .putString(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME,
+                    .putString(PreferenceConstants.PREF_BLUETOOTH_NAME,
                             selectedDevice.getName())
-                    .putString(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_ADDRESS,
+                    .putString(PreferenceConstants.PREF_BLUETOOTH_ADDRESS,
                             selectedDevice.getAddress())
                     .commit();
         }
@@ -308,9 +307,21 @@ public class BluetoothHandler {
 
             mDiscoverySubscription = BroadcastUtils
                     .createBroadcastObservable(mContext, filter)
-                    .subscribe(new Action1<Intent>() {
+                    .subscribe(new Subscriber<Intent>() {
                         @Override
-                        public void call(Intent intent) {
+                        public void onCompleted() {
+                            LOGGER.info("onCompleted()");
+                            subscriber.onCompleted();
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            LOGGER.info("onError()");
+                            subscriber.onError(e);
+                        }
+
+                        @Override
+                        public void onNext(Intent intent) {
                             String action = intent.getAction();
                             LOGGER.info("Discovery: received action = " + action);
 
@@ -331,11 +342,6 @@ public class BluetoothHandler {
                             // If the discovery process has been finished.
                             else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                                 subscriber.onCompleted();
-
-                                if (mDiscoverySubscription != null) {
-                                    mDiscoverySubscription.unsubscribe();
-                                    mDiscoverySubscription = null;
-                                }
                             }
                         }
                     });

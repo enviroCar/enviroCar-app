@@ -2,6 +2,8 @@ package org.envirocar.storage;
 
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.exception.MeasurementSerializationException;
+import org.envirocar.core.exception.TrackSerializationException;
 
 import java.util.List;
 
@@ -43,9 +45,29 @@ public interface EnviroCarDB {
 
     Observable<Void> clearTables();
 
-    Observable<Void> insertTrack(Track track);
+    void insertTrack(Track track) throws TrackSerializationException;
 
-    Observable<Void> insertMeasurement(Measurement measurement);
+    Observable<Void> insertTrackObservable(Track track);
+
+    void deleteTrack(Track.TrackId trackId);
+
+    void deleteTrack(Track track);
+
+    Observable<Void> deleteTrackObservable(Track track);
+
+    Observable<Void> deleteAllRemoteTracks();
+
+    void insertMeasurement(Measurement measurement) throws MeasurementSerializationException;
+
+    Observable<Void> insertMeasurementObservable(Measurement measurement);
+
+    void updateTrackRemoteID(Track track, String remoteID);
+
+    Observable<Void> updateTrackRemoteIDObservable(Track track, String remoteID);
+
+    Observable<Track> fetchTracks(Observable<List<Track>> track, final boolean lazy);
+
+    Observable<Track> fetchTrack(Observable<Track> track, final boolean lazy);
 
 
 }

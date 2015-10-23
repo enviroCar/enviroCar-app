@@ -12,6 +12,8 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
 import org.json.JSONException;
 
+import rx.Observable;
+import rx.Subscriber;
 import rx.functions.Func1;
 
 /**
@@ -75,6 +77,25 @@ class TrackTable {
         @Override
         public Track call(Cursor cursor) {
             return fromCursor(cursor);
+        }
+    };
+
+    public static final Func1<? super Cursor, ? extends Observable<Track.TrackId>>
+            TO_TRACK_ID_MAPPER = new Func1<Cursor, Observable<Track.TrackId>>() {
+        @Override
+        public Observable<Track.TrackId> call(Cursor cursor) {
+            return Observable.create(new Observable.OnSubscribe<Track.TrackId>() {
+                @Override
+                public void call(Subscriber<? super Track.TrackId> subscriber) {
+                    subscriber.onStart();
+                    cursor.moveToFirst();
+                    for (int i = 1; cursor.moveToNext() && !subscriber.isUnsubscribed(); i++) {
+                        subscriber.onNext(new Track.TrackId(cursor.getLong(
+                                cursor.getColumnIndex(KEY_TRACK_ID))));
+                    }
+                    subscriber.onCompleted();
+                }
+            });
         }
     };
 

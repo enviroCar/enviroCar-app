@@ -32,7 +32,7 @@ import org.envirocar.app.activity.DialogUtil.DialogCallback;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.app.services.OBDConnectionService;
-import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.core.injection.InjectionActivityScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
@@ -289,7 +289,7 @@ public class StartStopButtonUtil {
                 .getDefaultSharedPreferences(mContext);
 
         String remoteDevice = preferences.getString(PreferenceConstants
-                        .PREFERENCE_TAG_BLUETOOTH_LIST, null);
+                        .PREF_BLUETOOTH_LIST, null);
 
         if (remoteDevice != null) {
             if (mCarManager.getCar() == null) {
@@ -297,7 +297,7 @@ public class StartStopButtonUtil {
                         .no_sensor_selected);
             } else {
                 defineButtonContents(button, true, R.drawable.av_play, preferences.getString
-                        (PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME, ""));
+                        (PreferenceConstants.PREF_BLUETOOTH_NAME, ""));
             }
         } else {
             defineButtonContents(button, false, R.drawable.not_available, R.string

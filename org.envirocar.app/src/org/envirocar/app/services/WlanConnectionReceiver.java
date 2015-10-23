@@ -8,7 +8,7 @@ import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.preference.PreferenceManager;
 
-import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
 

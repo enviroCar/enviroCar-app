@@ -1,4 +1,5 @@
-apply plugin: 'com.android.library'
+apply plugin: 'android-library'
+apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'me.tatarka.retrolambda'
 
 android {
@@ -6,33 +7,26 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility rootProject.ext.javaCompileVersion
+        targetCompatibility rootProject.ext.javaCompileVersion
     }
-
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
     }
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
     compile rootProject.ext.supportV7
-
+    compile rootProject.ext.dagger
+    apt rootProject.ext.daggerCompiler
     compile rootProject.ext.sqlBrite
     compile rootProject.ext.rxJava
     compile rootProject.ext.rxAndroid
 
+    testCompile 'junit:junit:4.12'
     compile project(':org.envirocar.core')
 }

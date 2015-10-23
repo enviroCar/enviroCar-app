@@ -67,7 +67,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
      *
      * @param tracks the list of tracks to show cards for.
      */
-    public AbstractTrackListCardAdapter(List<Track> tracks, final OnTrackInteractionCallback callback) {
+    public AbstractTrackListCardAdapter(List<Track> tracks, final OnTrackInteractionCallback
+            callback) {
         this.mTrackDataset = tracks;
         this.mTrackInteractionCallback = callback;
     }
@@ -125,19 +126,20 @@ public abstract class AbstractTrackListCardAdapter<E extends
                             holder.mDuration.setText(date);
                         }
                     });
-                } catch (NoMeasurementsException e) {
-                    e.printStackTrace();
-                }
 
-                // Set the tracklength parameter.
-                String tracklength = String.format("%s km", DECIMAL_FORMATTER_TWO.format(
-                        ((TrackStatisticsProvider) track).getDistanceOfTrack()));
-                mMainThreadWorker.schedule(new Action0() {
-                    @Override
-                    public void call() {
-                        holder.mDistance.setText(tracklength);
-                    }
-                });
+                    // Set the tracklength parameter.
+                    String tracklength = String.format("%s km", DECIMAL_FORMATTER_TWO.format(
+                            ((TrackStatisticsProvider) track).getDistanceOfTrack()));
+                    mMainThreadWorker.schedule(new Action0() {
+                        @Override
+                        public void call() {
+                            holder.mDistance.setText(tracklength);
+                        }
+                    });
+
+                } catch (NoMeasurementsException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                }
 
                 return null;
             }
@@ -147,6 +149,9 @@ public abstract class AbstractTrackListCardAdapter<E extends
         if (!holder.mToolbar.getMenu().hasVisibleItems()) {
             // Inflate the menu and set an appropriate OnMenuItemClickListener.
             holder.mToolbar.inflateMenu(R.menu.menu_tracklist_cardlayout);
+            if (track.isRemoteTrack()) {
+                holder.mToolbar.getMenu().removeItem(R.id.menu_tracklist_cardlayout_item_upload);
+            }
         }
 
         holder.mToolbar.setOnMenuItemClickListener(item -> {

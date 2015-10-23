@@ -34,7 +34,6 @@ import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.injection.DAOProvider;
 import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.DataCreationFailureException;

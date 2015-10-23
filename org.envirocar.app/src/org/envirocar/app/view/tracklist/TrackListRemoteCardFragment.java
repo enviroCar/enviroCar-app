@@ -21,8 +21,11 @@ import java.util.Collections;
 import java.util.List;
 
 import rx.Observer;
+import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * @author dewall
@@ -31,6 +34,13 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         TrackListRemoteCardAdapter> implements TrackListLocalCardFragment.OnTrackUploadedListener {
     private static final Logger LOG = Logger.getLogger(TrackListRemoteCardFragment.class);
 
+    private List<Track> remoteTrackCache;
+
+    private CompositeSubscription subscriptions = new CompositeSubscription();
+
+    private boolean hasLoadedRemote = false;
+    private boolean hasLoadedStored = false;
+    private boolean isSorted = false;
 
     @Override
     public void onAttach(Activity activity) {
@@ -51,6 +61,16 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
             mRecyclerViewAdapter.mTrackDataset.clear();
             mRecyclerViewAdapter.notifyDataSetChanged();
             ECAnimationUtils.animateShowView(getContext(), mTextView, R.anim.fade_in);
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        LOG.info("onDestroy()");
+        super.onDestroy();
+
+        if (!subscriptions.isUnsubscribed()) {
+            subscriptions.unsubscribe();
         }
     }
 
@@ -137,6 +157,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Track>() {
+
                     @Override
                     public void onCompleted() {
                         holder.mProgressCircle.beginFinalAnimation();
@@ -185,53 +206,145 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                 }
             }
 
-            //fetch db tracks (local+remote)
-            List<Track> tracks = mDBAdapter.getAllRemoteTracks(false);
-            for (Track t : tracks) {
-                mTrackList.add(t);
-            }
+            subscriptions.add(mEnvirocarDB.getAllRemoteTracks()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<List<Track>>() {
 
-            try {
-                List<Track> remoteTracks = mDAOProvider.getTrackDAO().getTrackIds(2000, 1);
+                        @Override
+                        public void onStart() {
+                            LOG.info("onStart() tracks in db");
+                            mMainThreadWorker.schedule(() -> {
+                                mProgressView.setVisibility(View.VISIBLE);
+                                mProgressText.setText("Loading...");
+                            });
+                        }
 
-                for (Track remoteTrack : remoteTracks) {
-                    if (!mTrackList.contains(remoteTrack))
-                        mTrackList.add(remoteTrack);
-                }
+                        @Override
+                        public void onCompleted() {
 
-                Collections.sort(remoteTracks);
-            } catch (NotConnectedException e) {
-                LOG.error("Unable to load remote tracks", e);
-                Snackbar.make(getView(), "Unable to load remote tracks. Maybe you have no " +
-                        "connection to the internet?", Snackbar.LENGTH_LONG).show();
-                if (mTrackList.isEmpty()) {
-                    showText("No connection to the internet");
-                }
-            } catch (UnauthorizedException e) {
-                LOG.error("Unauthorized to load the tracks.", e);
-                Snackbar.make(getView(), "Unauthorized to load the tracks", Snackbar.LENGTH_LONG)
-                        .show();
-                if (mTrackList.isEmpty()) {
-                    showText("Unauthorized to load tracks");
-                }
-            }
+                        }
 
-            Collections.sort(mTrackList);
+                        @Override
+                        public void onError(Throwable e) {
+                            LOG.error(e.getMessage(), e);
+                            Snackbar.make(getView(), "Error while loading local remote tracks!",
+                                    Snackbar.LENGTH_LONG).show();
+                        }
 
-            if (getActivity() != null)
-                getActivity().runOnUiThread(() -> mRecyclerViewAdapter.notifyDataSetChanged());
+                        @Override
+                        public void onNext(List<Track> tracks) {
+                            LOG.info("onNext(" + tracks.size() + ") locally stored tracks");
+                            for (Track track : tracks) {
+                                if (track.getMeasurements() == null ||
+                                        track.getMeasurements().isEmpty()) {
+                                    continue;
+                                } else if (mTrackList.contains(track)) {
+                                    mTrackList.set(mTrackList.indexOf(track), track);
+                                } else {
+                                    mTrackList.add(track);
+                                }
+                            }
+
+                            hasLoadedStored = true;
+                            updateView();
+                        }
+                    }));
+
+            subscriptions.add(mDAOProvider.getTrackDAO().getTrackIdsObservable()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<List<Track>>() {
+
+                        @Override
+                        public void onStart() {
+                            LOG.info("onStart() tracks in db");
+                            mMainThreadWorker.schedule(() -> {
+                                mProgressView.setVisibility(View.VISIBLE);
+                                mProgressText.setText("Loading...");
+                            });
+                        }
+
+                        @Override
+                        public void onCompleted() {
+
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            LOG.error(e.getMessage(), e);
+
+                            if (e instanceof NotConnectedException) {
+                                Snackbar.make(getView(), "Unable to load remote tracks.Maybe you" +
+                                                " have no connection to the internet ? ",
+                                        Snackbar.LENGTH_LONG).show();
+                                if (mTrackList.isEmpty()) {
+                                    showText("No connection to the internet");
+                                }
+                            } else if (e instanceof UnauthorizedException) {
+                                Snackbar.make(getView(), "Unauthorized to load the tracks",
+                                        Snackbar.LENGTH_LONG).show();
+                                if (mTrackList.isEmpty()) {
+                                    showText("Unauthorized to load tracks");
+                                }
+                            }
+
+                        }
+
+                        @Override
+                        public void onNext(List<Track> tracks) {
+                            LOG.info("onNext(" + tracks.size() + ") remotely stored tracks");
+
+                            // Add all tracks to the track list that are not in the
+                            // list so far
+                            for (Track track : tracks) {
+                                if (!mTrackList.contains(track)) {
+                                    mTrackList.add(track);
+                                }
+                            }
+                            hasLoadedRemote = true;
+
+                            // Sort the list and update the list
+                            updateView();
+                        }
+                    }));
 
             return null;
         }
     }
 
-
     @Override
     public void onTrackUploaded(Track track) {
-        Track currentRemoteTrackRef = mDBAdapter.getTrack(track.getTrackID());
-        mMainThreadWorker.schedule(() -> {
-            mTrackList.add(currentRemoteTrackRef);
+        mEnvirocarDB.getTrack(track.getTrackID())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<Track>() {
+                    @Override
+                    public void call(Track track) {
+                        mTrackList.add(track);
+                        mRecyclerViewAdapter.notifyDataSetChanged();
+                    }
+                });
+    }
+
+    private void updateView() {
+        if (hasLoadedStored && hasLoadedRemote) {
+            if(!isSorted){
+                isSorted = true;
+                Collections.sort(mTrackList);
+            }
+            ECAnimationUtils.animateHideView(getContext(), mProgressView, R.anim.fade_out);
+
+            if (mTrackList.isEmpty()) {
+                mTextView.setText("No Local Tracks");
+                mTextView.setVisibility(View.VISIBLE);
+            }
+        }
+
+        if (!mTrackList.isEmpty()) {
+            mRecyclerView.setVisibility(View.VISIBLE);
+            mTextView.setVisibility(View.GONE);
             mRecyclerViewAdapter.notifyDataSetChanged();
-        });
+        }
     }
 }

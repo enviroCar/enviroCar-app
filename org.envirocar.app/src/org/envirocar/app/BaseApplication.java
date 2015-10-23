@@ -17,7 +17,7 @@ import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.injection.InjectionApplicationModule;
 import org.envirocar.app.services.SystemStartupService;
-import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.core.injection.InjectionModuleProvider;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.ACRACustomSender;

@@ -29,6 +29,8 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -371,11 +373,4 @@ public class Util {
         return ctx.getPackageManager().getPackageInfo(ctx.getPackageName(), 0).versionName;
     }
 
-    public static FileWithMetadata saveTrackAndReturnFile(Track t, boolean obfuscate) throws
-            JSONException, IOException {
-        //        File log = new File(resolveExternalStorageBaseFolder(), "enviroCar-track-"+t
-        // .getTrackId()+".json");
-        //        return new StreamTrackEncoder().createTrackJsonAsFile(t, obfuscate, log);#
-        return null;
-    }
 }

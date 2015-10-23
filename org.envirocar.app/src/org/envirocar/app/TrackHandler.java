@@ -25,12 +25,14 @@ import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.NotConnectedException;
+import org.envirocar.core.exception.TrackSerializationException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
+import org.envirocar.storage.EnviroCarDB;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,6 +84,8 @@ public class TrackHandler {
     @Inject
     protected DbAdapter mDBAdapter;
     @Inject
+    protected EnviroCarDB mEnvirocarDB;
+    @Inject
     protected BluetoothHandler mBluetoothHandler;
     @Inject
     protected DAOProvider mDAOProvider;
@@ -112,8 +116,11 @@ public class TrackHandler {
      * @return true if the track has been successfully deleted.
      */
     public boolean deleteLocalTrack(Track.TrackId trackID) {
-        Track dbRefTrack = mDBAdapter.getTrack(trackID, true);
-        return deleteLocalTrack(dbRefTrack);
+        return deleteLocalTrack(
+                mEnvirocarDB.getTrack(trackID)
+                        .subscribeOn(Schedulers.io())
+                        .toBlocking()
+                        .first());
     }
 
     /**
@@ -128,7 +135,7 @@ public class TrackHandler {
         // Only delete the track if the track is a local track.
         if (trackRef.isLocalTrack()) {
             LOGGER.info("deleteLocalTrack(...): Track is a local track.");
-            mDBAdapter.deleteTrack(trackRef.getTrackID());
+            mEnvirocarDB.deleteTrack(trackRef);
             return true;
         }
 
@@ -161,7 +168,8 @@ public class TrackHandler {
         } catch (DataUpdateFailureException e) {
             e.printStackTrace();
         }
-        mDBAdapter.deleteTrack(trackRef.getTrackID());
+
+        mEnvirocarDB.deleteTrack(trackRef);
 
         // Successfully deleted the remote track.
         LOGGER.info("deleteRemoteTrack(): Successfully deleted the remote track.");
@@ -170,7 +178,10 @@ public class TrackHandler {
 
     public boolean deleteAllRemoteTracksLocally() {
         LOGGER.info("deleteAllRemoteTracksLocally()");
-        mDBAdapter.deleteAllRemoteTracks();
+        mEnvirocarDB.deleteAllRemoteTracks()
+                .subscribeOn(Schedulers.io())
+                .toBlocking()
+                .first();
         return true;
     }
 
@@ -202,8 +213,6 @@ public class TrackHandler {
                     subscriber.onCompleted();
                     return;
                 }
-
-
             }
         });
 
@@ -487,8 +496,12 @@ public class TrackHandler {
             e.printStackTrace();
         }
 
-
-        mDBAdapter.insertTrack(remoteTrack, true);
+        try {
+            mEnvirocarDB.insertTrack(remoteTrack);
+        } catch (TrackSerializationException e) {
+            e.printStackTrace();
+        }
+        //        mDBAdapter.insertTrack(remoteTrack, true);
         return remoteTrack;
     }
 

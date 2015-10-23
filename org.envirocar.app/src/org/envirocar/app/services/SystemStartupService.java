@@ -12,7 +12,6 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 
-import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -20,7 +19,8 @@ import org.envirocar.app.NotificationHandler;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
-import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.app.handler.PreferenceConstants;
+import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.injection.Injector;
@@ -36,6 +36,7 @@ import javax.inject.Inject;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
+import rx.observers.SafeSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -174,10 +175,10 @@ public class SystemStartupService extends Service {
         final SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
         this.mIsAutoconnect = preferences.getBoolean(PreferenceConstants
-                .PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT, PreferenceConstants
+                .PREF_BLUETOOTH_AUTOCONNECT, PreferenceConstants
                 .DEFAULT_BLUETOOTH_AUTOCONNECT);
         this.mDiscoveryInterval = preferences.getInt(PreferenceConstants
-                        .PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL,
+                        .PREF_BLUETOOTH_DISCOVERY_INTERVAL,
                 PreferenceConstants.DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);
 
         // Set the Notification to
@@ -208,14 +209,14 @@ public class SystemStartupService extends Service {
         // if the OBDConnectionService is running, then bind the service.
         bindOBDConnectionService();
 
+
         subscriptions.add(
-                RxSharedPreferences.create(preferences)
-                        .getBoolean(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT)
-                        .asObservable()
+                PreferencesHandler.getAutoconnectObservable(getApplicationContext())
                         .subscribe(aBoolean -> {
                             LOGGER.info(String.format("Received changed autoconnect -> [%s]",
                                     aBoolean));
                             mIsAutoconnect = aBoolean;
+
                             // if autoconnect has been enabled, then schedule a new discovery.
                             if (mIsAutoconnect) {
                                 scheduleDiscovery(REDISCOVERY_INTERVAL);
@@ -225,9 +226,7 @@ public class SystemStartupService extends Service {
                         }));
 
         subscriptions.add(
-                RxSharedPreferences.create(preferences)
-                        .getInteger(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL)
-                        .asObservable()
+                PreferencesHandler.getDiscoveryIntervalObservable(getApplicationContext())
                         .subscribe(integer -> {
                             LOGGER.info(String.format("Received changed discovery interval -> [%s]",
                                     integer));
@@ -453,7 +452,7 @@ public class SystemStartupService extends Service {
             // Initialize a new discovery of the bluetooth.
             mDiscoverySubscription = mBluetoothHandler
                     .startBluetoothDiscoveryForSingleDevice(device)
-                    .subscribe(new Subscriber<BluetoothDevice>() {
+                    .subscribe(new SafeSubscriber<BluetoothDevice>(new Subscriber<BluetoothDevice>() {
 
                         private boolean isFound = false;
 
@@ -523,6 +522,11 @@ public class SystemStartupService extends Service {
                         public void onError(Throwable e) {
                             LOGGER.error("Error while discovering for the selected Bluetooth " +
                                     "devices", e);
+                        }
+                    }){
+                        @Override
+                        public void onStart() {
+                            getActual().onStart();
                         }
                     });
         }

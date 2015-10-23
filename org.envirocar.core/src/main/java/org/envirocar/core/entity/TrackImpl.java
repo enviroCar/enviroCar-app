@@ -1,7 +1,5 @@
 package org.envirocar.core.entity;
 
-import com.google.common.base.Preconditions;
-
 import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
@@ -265,8 +263,8 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
 
     @Override
     public void setMeasurements(List<Measurement> measurements) {
-        Preconditions.checkState(measurements != null && measurements.size() > 0, "A track is not" +
-                " allowed to have empty measuremnts");
+//        Preconditions.checkState(measurements != null && measurements.size() > 0, "A track is not" +
+//                " allowed to have empty measuremnts");
         this.measurements = measurements;
     }
 

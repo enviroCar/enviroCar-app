@@ -82,5 +82,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
                 bindLocalTrackViewHolder(holder, remoteTrack);
                 break;
         }
+
+        holder.mMapView.postInvalidate();
     }
 }

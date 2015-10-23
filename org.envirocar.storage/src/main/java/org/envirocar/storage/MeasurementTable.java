@@ -3,6 +3,8 @@ package org.envirocar.storage;
 import android.content.ContentValues;
 import android.database.Cursor;
 
+import com.google.common.collect.Lists;
+
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.core.entity.Track;
@@ -12,6 +14,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
 import java.util.Map;
 
 import rx.functions.Func1;
@@ -51,7 +54,6 @@ class MeasurementTable {
         }
     };
 
-
     public static ContentValues toContentValues(Measurement measurement) throws
             MeasurementSerializationException {
         ContentValues values = new ContentValues();
@@ -59,6 +61,7 @@ class MeasurementTable {
         values.put(KEY_LONGITUDE, measurement.getLongitude());
         values.put(KEY_TIME, measurement.getTime());
         values.put(KEY_TRACK, measurement.getTrackId().getId());
+
         try {
             values.put(KEY_PROPERTIES, createPropertiesString(measurement));
         } catch (JSONException e) {
@@ -75,6 +78,17 @@ class MeasurementTable {
             result.put(key.name(), properties.get(key));
         }
         return result.toString();
+    }
+
+    public static List<Measurement> fromCursorToList(Cursor c) {
+        List<Measurement> res = Lists.newArrayList();
+
+        c.moveToFirst();
+        for (int i = 1; c.moveToNext(); i++) {
+            res.add(fromCursor(c));
+        }
+
+        return res;
     }
 
     public static Measurement fromCursor(Cursor c) {

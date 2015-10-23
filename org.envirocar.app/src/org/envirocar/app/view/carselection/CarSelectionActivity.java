@@ -420,7 +420,7 @@ public class CarSelectionActivity extends BaseInjectorActivity {
                             public void onCompleted() {
                                 mMainThreadWorker.schedule(() -> {
                                     Toast.makeText(CarSelectionActivity.this, "Received! " +
-                                            mManufacturerNames.size(), Toast.LENGTH_SHORT).show();
+                                            mCars.size(), Toast.LENGTH_SHORT).show();
                                     mManufacturerNameAdapter = new AutoCompleteArrayAdapter(
                                             CarSelectionActivity.this,
                                             android.R.layout.simple_dropdown_item_1line,

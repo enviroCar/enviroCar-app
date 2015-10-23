@@ -11,12 +11,10 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.os.PowerManager;
-import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -25,7 +23,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.LocationHandler;
-import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFix;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
@@ -136,20 +134,11 @@ public class OBDConnectionService extends Service {
             }
         });
 
-        mIsTTSPrefChecked = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext())
-                .getBoolean(PreferenceConstants.PREFERENCE_TAG_TEXT_TO_SPEECH, false);
-
-        subscriptions.add(RxSharedPreferences.create(
-                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()))
-                .getBoolean(PreferenceConstants.PREFERENCE_TAG_TEXT_TO_SPEECH)
-                .asObservable()
-                .subscribe(aBoolean -> {
+        subscriptions.add(
+                PreferencesHandler.getTextToSpeechObservable(getApplicationContext())
+                        .subscribe(aBoolean -> {
                             mIsTTSPrefChecked = aBoolean;
-                        }
-                ));
-
-
+                        }));
     }
 
     @Override

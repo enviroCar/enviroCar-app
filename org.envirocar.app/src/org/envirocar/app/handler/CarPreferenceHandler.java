@@ -24,15 +24,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
-import android.util.Base64;
-import android.util.Base64InputStream;
 import android.widget.Toast;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.app.injection.DAOProvider;
 import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
@@ -43,12 +41,7 @@ import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.CarUtils;
-import org.envirocar.app.injection.DAOProvider;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.StreamCorruptedException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -90,7 +83,7 @@ public class CarPreferenceHandler {
         final SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(context);
 
-        mSelectedCar = instantiateCar(preferences.getString(PreferenceConstants
+        mSelectedCar = CarUtils.instantiateCar(preferences.getString(PreferenceConstants
                 .PREFERENCE_TAG_CAR, null));
 
         // Get the serialized car strings of all added cars.
@@ -100,7 +93,13 @@ public class CarPreferenceHandler {
         // Instantiate the cars from the set of serialized strings.
         mDeserialzedCars = Sets.newHashSet();
         for (String serializedCar : mSerializedCarStrings) {
-            mDeserialzedCars.add(CarUtils.instantiateCar(serializedCar));
+            Car car = CarUtils.instantiateCar(serializedCar);
+            if(car == null){
+                mSerializedCarStrings.remove(serializedCar);
+                flushCarListState();
+            } else {
+                mDeserialzedCars.add(CarUtils.instantiateCar(serializedCar));
+            }
         }
     }
 
@@ -301,10 +300,7 @@ public class CarPreferenceHandler {
         LOG.info("flushSelectedCarState()");
 
         // Delete the entry of the selected car and its hash code.
-        boolean deleteSuccess = PreferenceManager.getDefaultSharedPreferences(mContext).edit()
-                .remove(PreferenceConstants.PREFERENCE_TAG_CAR)
-                .remove(PreferenceConstants.CAR_HASH_CODE)
-                .commit();
+        boolean deleteSuccess = removeSelectedCarState();
 
         if (deleteSuccess)
             LOG.info("flushSelectedCarState(): Successfully deleted from the shared " +
@@ -329,31 +325,12 @@ public class CarPreferenceHandler {
         }
     }
 
-    public static Car instantiateCar(String object) {
-        if (object == null) return null;
-
-        ObjectInputStream ois = null;
-        try {
-            Base64InputStream b64 = new Base64InputStream(new ByteArrayInputStream(object
-                    .getBytes()), Base64.DEFAULT);
-            ois = new ObjectInputStream(b64);
-            Car car = (Car) ois.readObject();
-            return car;
-        } catch (StreamCorruptedException e) {
-            LOG.warn(e.getMessage(), e);
-        } catch (IOException e) {
-            LOG.warn(e.getMessage(), e);
-        } catch (ClassNotFoundException e) {
-            LOG.warn(e.getMessage(), e);
-        } finally {
-            if (ois != null)
-                try {
-                    ois.close();
-                } catch (IOException e) {
-                    LOG.warn(e.getMessage(), e);
-                }
-        }
-        return null;
+    private boolean removeSelectedCarState(){
+        // Delete the entry of the selected car and its hash code.
+        return PreferenceManager.getDefaultSharedPreferences(mContext).edit()
+                .remove(PreferenceConstants.PREFERENCE_TAG_CAR)
+                .remove(PreferenceConstants.CAR_HASH_CODE)
+                .commit();
     }
 
 }

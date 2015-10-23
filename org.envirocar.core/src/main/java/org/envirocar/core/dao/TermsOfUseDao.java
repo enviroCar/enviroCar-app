@@ -10,6 +10,8 @@ import java.util.List;
 import rx.Observable;
 
 /**
+ * TODO JavaDoc
+ *
  * @author dewall
  */
 public interface TermsOfUseDAO {

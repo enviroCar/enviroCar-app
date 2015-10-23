@@ -1,7 +1,10 @@
 package org.envirocar.remote.serializer;
 
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -11,17 +14,23 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.stream.JsonWriter;
 
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.TrackImpl;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.FileWithMetadata;
 import org.envirocar.core.util.Util;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
@@ -241,4 +250,24 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         result.addProperty("value", double1);
         return result;
     }
+
+    public static FileWithMetadata exportTrack(Track track) throws IOException {
+        File result = new File(Util.resolveExternalStorageBaseFolder(), "enviroCar-track-" +
+                track.getTrackID() + ".json");
+
+        FileOutputStream out = new FileOutputStream(result);
+        JsonWriter writer = new JsonWriter(new OutputStreamWriter(out, "UTF-8"));
+        writer.setIndent("  ");
+
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Track.class, new TrackSerializer())
+                .create();
+        gson.toJson(track, Track.class, writer);
+
+        writer.flush();
+        writer.close();
+
+        return new FileWithMetadata(result, false);
+    }
+
 }

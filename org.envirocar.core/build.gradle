@@ -7,21 +7,15 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility rootProject.ext.javaCompileVersion
+        targetCompatibility rootProject.ext.javaCompileVersion
     }
 
     defaultConfig {
-        minSdkVersion 16
-        targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
     }
 }
 
@@ -31,7 +25,6 @@ dependencies {
 
     compile rootProject.ext.dagger
     apt rootProject.ext.daggerCompiler
-    compile rootProject.ext.daggerCompiler
 
     compile rootProject.ext.acra
     compile rootProject.ext.otto
@@ -44,18 +37,4 @@ dependencies {
     compile 'org.apache.commons:commons-compress:1.5'
 }
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'me.tatarka:gradle-retrolambda:3.1.0'
-    }
-}
-
-// Required because retrolambda is on maven central
-repositories {
-    mavenCentral()
-}
 

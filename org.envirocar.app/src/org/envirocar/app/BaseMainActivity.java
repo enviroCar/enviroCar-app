@@ -24,13 +24,14 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.google.common.collect.Lists;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.activity.DialogUtil;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.PreferenceConstants;
+import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.DAOProvider;
@@ -43,7 +44,6 @@ import org.envirocar.app.view.LoginActivity;
 import org.envirocar.app.view.SendLogFileFragment;
 import org.envirocar.app.view.TroubleshootingFragment;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
-import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.app.view.settings.NewSettingsActivity;
 import org.envirocar.app.view.tracklist.TrackListPagerFragment;
 import org.envirocar.core.entity.Announcement;
@@ -89,9 +89,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     public static final int TRACK_MODE_SINGLE = 0;
     public static final int TRACK_MODE_AUTO = 1;
-    public static final int REQUEST_MY_GARAGE = 1336;
-    public static final int REQUEST_REDPreferenceConstantsIRECT_TO_GARAGE = 1337;
-    private static final String TAG = BaseMainActivity.class.getSimpleName();
 
 
     private static final String TRACK_MODE = "trackMode";
@@ -203,15 +200,11 @@ public class BaseMainActivity extends BaseInjectorActivity {
         // Subscribe for preference subscriptions. In this case, subscribe for changes to the
         // active screen settings.
         // TODO
-        subscriptions.add(RxSharedPreferences
-                .create(PreferenceManager.getDefaultSharedPreferences(this))
-                .getBoolean(PreferenceConstants.DISPLAY_STAYS_ACTIV)
-                .asObservable()
+        subscriptions.add(PreferencesHandler.getDisplayStaysActiveObservable(this)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(aBoolean -> {
                     checkKeepScreenOn();
                 }));
-
 
         errorInformationReceiver = new BroadcastReceiver() {
             @Override
@@ -314,7 +307,9 @@ public class BaseMainActivity extends BaseInjectorActivity {
         mTemporaryFileManager.shutdown();
 
         // Unsubscribe all subscriptions.
-        mPreferenceSubscription.unsubscribe();
+        if (mPreferenceSubscription != null) {
+            mPreferenceSubscription.unsubscribe();
+        }
 
         if (!subscriptions.isUnsubscribed()) {
             subscriptions.unsubscribe();

@@ -4,7 +4,6 @@ import android.util.Base64;
 import android.util.Base64InputStream;
 import android.util.Base64OutputStream;
 
-
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.logging.Logger;
 
@@ -28,14 +27,20 @@ public class CarUtils {
         try {
             Base64InputStream b64 = new Base64InputStream(new ByteArrayInputStream(object.getBytes()), Base64.DEFAULT);
             ois = new ObjectInputStream(b64);
-            Car car = (Car) ois.readObject();
-            return car;
+            Object carObject = ois.readObject();
+            if (carObject instanceof Car) {
+                return (Car) carObject;
+            }
         } catch (StreamCorruptedException e) {
             logger.warn(e.getMessage(), e);
         } catch (IOException e) {
             logger.warn(e.getMessage(), e);
         } catch (ClassNotFoundException e) {
             logger.warn(e.getMessage(), e);
+            return null;
+        } catch (ClassCastException e){
+            logger.warn(e.getMessage(), e);
+            return null;
         } finally {
             if (ois != null)
                 try {
