@@ -1,15 +1,19 @@
-enviroCar Android App
-=====================
+# enviroCar Android App
 
-Main developers of this app
-  * Jakob Möllers (@jakobmoellers)
-  * Gerald Pape (@ubergesundheit)
-  * Christopher Stephan (@ChristopherStephan)
-  * Martin Düren (@MartinDueren)
+This is the app for the enviroCar platform. (www.envirocar.org)
 
-This is the app for the enviroCar ecosystem. (www.envirocar.org)
+## Installation
 
-In order to build your own app you should do the following steps
-  * clone the whole repository
-  * import the projects
-  * rename the base application package name (if you are planning to release the app in the google play store)
+Use the [Google Play Store](https://play.google.com/store/apps/details?id=org.envirocar.app) to install the app on your devide.
+
+We are planning to include the project into F-Droid in the near future.
+
+## Development
+
+This software uses the gradle build system and is optimized to work within Android Studio 1.3+.
+The setup of the source code should be straightforward. Just follow the Android Studio guidelines
+for existing projects.
+
+## Contributors
+
+[Here is the list of contributors to this project](https://github.com/enviroCar/enviroCar-app/blob/master/CONTRIBUTORS.md)
