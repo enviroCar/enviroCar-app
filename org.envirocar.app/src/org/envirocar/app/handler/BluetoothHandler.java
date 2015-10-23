@@ -26,12 +26,15 @@ import org.envirocar.core.utils.ServiceUtils;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
+import rx.schedulers.Schedulers;
 
 /**
  * @author dewall
@@ -44,9 +47,10 @@ public class BluetoothHandler {
     @Inject
     @InjectApplicationScope
     protected Context mContext;
-
     @Inject
     protected Bus mBus;
+
+    private final Scheduler.Worker mWorker = Schedulers.io().createWorker();
 
     private Subscription mDiscoverySubscription;
     private boolean mIsAutoconnecting;
@@ -290,10 +294,14 @@ public class BluetoothHandler {
     public Observable<BluetoothDevice> startBluetoothDiscovery() {
         return Observable.create(subscriber -> {
             LOGGER.info("startBluetoothDiscovery(): subscriber call");
-            // If the device is already discovering, cancel the discovery before starting.
-            if (mBluetoothAdapter.isDiscovering() && mDiscoverySubscription != null) {
-                mBluetoothAdapter.cancelDiscovery();
 
+            // If the device is already discovering, cancel the discovery before starting.
+            if (mBluetoothAdapter.isDiscovering()) {
+                mBluetoothAdapter.cancelDiscovery();
+            }
+
+
+            if (mDiscoverySubscription != null) {
                 // Cancel the pending subscription.
                 mDiscoverySubscription.unsubscribe();
                 mDiscoverySubscription = null;
@@ -308,6 +316,8 @@ public class BluetoothHandler {
             mDiscoverySubscription = BroadcastUtils
                     .createBroadcastObservable(mContext, filter)
                     .subscribe(new Subscriber<Intent>() {
+                        private Subscription thisSubscription;
+
                         @Override
                         public void onCompleted() {
                             LOGGER.info("onCompleted()");
@@ -328,6 +338,7 @@ public class BluetoothHandler {
                             // If the discovery process has been started.
                             if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
                                 subscriber.onStart();
+                                thisSubscription = mDiscoverySubscription;
                             }
 
                             // If the discovery process finds a device
@@ -342,6 +353,10 @@ public class BluetoothHandler {
                             // If the discovery process has been finished.
                             else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                                 subscriber.onCompleted();
+                                mWorker.schedule(() -> {
+                                            if (!thisSubscription.isUnsubscribed())
+                                                thisSubscription.unsubscribe();
+                                        }, 100, TimeUnit.MILLISECONDS);
                             }
                         }
                     });

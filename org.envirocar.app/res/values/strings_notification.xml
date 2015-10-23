@@ -3,10 +3,12 @@
     <string name="notification_no_car_title">No cartype selected</string>
     <string name="notification_no_car_description">You have no cartype selected.
         Please go to the car settings and select one.</string>
+    <string name="notification_no_car_action">Open Car Selection</string>
 
     <string name="notification_no_obd_title">No paired OBD adapter selected.</string>
     <string name="notification_no_obd_description">You have no paired OBDII adapter selected.
         Please go to the obd settings and pair/select one.</string>
+    <string name="notification_no_obd_action">Open OBD Selection</string>
 
     <string name="notification_unconnected_title">Unconnected</string>
     <string name="notification_unconnected_description">No track is currently recording.</string>
@@ -22,7 +24,7 @@
     <string name="notification_obd_found_action">Start Track</string>
 
     <string name="notification_connecting_title">Connecting...</string>
-    <string name="notification_connecting_description"></string>
+    <string name="notification_connecting_description">... and starting a track.</string>
     <string name="notification_connecting_action"></string>
 
     <string name="notification_connected_title">Recording...</string>

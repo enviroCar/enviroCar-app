@@ -140,18 +140,20 @@ public class DashboardTrackSettingsFragment extends BaseInjectorFragment {
      * @param device
      */
     private void setOBDTypeText(BluetoothDevice device) {
-        if (!mBluetoothHandler.isBluetoothEnabled()) {
-            mOBDTypeTextView.setText("Bluetooth is disabled.");
-            mOBDTypeSubTextView.setText("Please enable bluetooth.");
-            mOBDTypeSubTextView.setVisibility(View.VISIBLE);
-        } else if (device == null) {
-            mOBDTypeTextView.setText("No OBD device selected.");
-            mOBDTypeSubTextView.setVisibility(View.GONE);
-        } else {
-            mOBDTypeTextView.setText(device.getName());
-            mOBDTypeSubTextView.setText(device.getAddress());
-            mOBDTypeSubTextView.setVisibility(View.VISIBLE);
-        }
+        getActivity().runOnUiThread(() -> {
+            if (!mBluetoothHandler.isBluetoothEnabled()) {
+                mOBDTypeTextView.setText("Bluetooth is disabled.");
+                mOBDTypeSubTextView.setText("Please enable bluetooth.");
+                mOBDTypeSubTextView.setVisibility(View.VISIBLE);
+            } else if (device == null) {
+                mOBDTypeTextView.setText("No OBD device selected.");
+                mOBDTypeSubTextView.setVisibility(View.GONE);
+            } else {
+                mOBDTypeTextView.setText(device.getName());
+                mOBDTypeSubTextView.setText(device.getAddress());
+                mOBDTypeSubTextView.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     /**

@@ -15,6 +15,8 @@ import android.support.v4.app.NotificationCompat;
 import com.google.common.collect.Maps;
 
 import org.envirocar.app.services.SystemStartupService;
+import org.envirocar.app.view.carselection.CarSelectionActivity;
+import org.envirocar.app.view.obdselection.OBDSelectionActivity;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
@@ -204,6 +206,17 @@ public class NotificationHandler {
             public boolean isShowingBigText() {
                 return true;
             }
+
+            @Override
+            public NotificationActionHolder[] getActions(Context context) {
+                Intent intent = new Intent(context, CarSelectionActivity.class);
+                PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent,
+                        PendingIntent.FLAG_CANCEL_CURRENT);
+
+                return new NotificationActionHolder[]{
+                        new NotificationActionHolder(R.drawable.ic_drive_eta_black_24dp,
+                                R.string.notification_no_car_action, pendingIntent)};
+            }
         },
         NO_OBD_SELECTED {
             @Override
@@ -219,6 +232,17 @@ public class NotificationHandler {
             @Override
             public boolean isShowingBigText() {
                 return true;
+            }
+
+            @Override
+            public NotificationActionHolder[] getActions(Context context) {
+                Intent intent = new Intent(context, OBDSelectionActivity.class);
+                PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent,
+                        PendingIntent.FLAG_CANCEL_CURRENT);
+
+                return new NotificationActionHolder[]{
+                        new NotificationActionHolder(R.drawable.ic_bluetooth_black_24dp,
+                                R.string.notification_no_obd_action, pendingIntent)};
             }
         },
         UNCONNECTED {
@@ -437,6 +461,7 @@ public class NotificationHandler {
          * @return the actions to be added to the notification
          */
         NotificationActionHolder[] getActions(Context context);
+
     }
 
     /**

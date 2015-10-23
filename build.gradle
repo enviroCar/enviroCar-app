@@ -58,7 +58,6 @@ ext {
     // Google
     gson = 'com.google.code.gson:gson:2.3'
     guava = 'com.google.guava:guava:18.0'
-
     acra = 'ch.acra:acra:4.6.2'
 
     // other third party dependencies.
