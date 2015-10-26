@@ -27,7 +27,7 @@ import com.google.common.collect.Sets;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.CarPreferenceHandler;
-import org.envirocar.app.injection.DAOProvider;
+import org.envirocar.remote.DAOProvider;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.CarImpl;

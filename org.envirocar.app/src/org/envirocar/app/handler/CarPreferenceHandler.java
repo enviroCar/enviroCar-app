@@ -30,7 +30,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.injection.DAOProvider;
+import org.envirocar.remote.DAOProvider;
 import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;

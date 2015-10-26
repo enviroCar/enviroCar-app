@@ -15,8 +15,8 @@ import retrofit.http.Path;
 import rx.Observable;
 
 /**
- * Retrofit service interface that describes the access to the fuelings endpoints of the envirocar
- * service.
+ * Retrofit remoteService interface that describes the access to the fuelings endpoints of the envirocar
+ * remoteService.
  *
  * @author dewall
  */
@@ -46,7 +46,7 @@ public interface FuelingService {
      *
      * @param user    the name of the user that uploads the fueling
      * @param fueling the fueling instance to upload.
-     * @return the executable call of the service.
+     * @return the executable call of the remoteService.
      */
     @POST("users/{user}/fuelings")
     Call<ResponseBody> uploadFuelings(@Path("user") String user, @Body Fueling fueling);

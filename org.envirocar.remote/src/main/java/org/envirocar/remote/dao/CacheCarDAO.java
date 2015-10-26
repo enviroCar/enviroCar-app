@@ -20,6 +20,7 @@
  */
 package org.envirocar.remote.dao;
 
+import org.envirocar.core.dao.AbstractCacheDAO;
 import org.envirocar.core.dao.CarDAO;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.exception.DataCreationFailureException;
@@ -29,6 +30,8 @@ import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import rx.Observable;
 
@@ -40,6 +43,9 @@ import rx.Observable;
 public class CacheCarDAO extends AbstractCacheDAO implements CarDAO {
     private static final Logger logger = Logger.getLogger(CacheCarDAO.class);
     public static final String CAR_CACHE_FILE_NAME = "cache_cars";
+
+    @Inject
+    public CacheCarDAO(){}
 
     @Override
     public List<Car> getAllCars() throws NotConnectedException, DataRetrievalFailureException {

@@ -34,7 +34,7 @@ import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.UserHandler;
-import org.envirocar.app.injection.DAOProvider;
+import org.envirocar.remote.DAOProvider;
 import org.envirocar.app.injection.InjectionActivityModule;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.SystemStartupService;

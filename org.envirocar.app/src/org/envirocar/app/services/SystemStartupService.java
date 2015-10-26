@@ -81,14 +81,14 @@ public class SystemStartupService extends Service {
     private CompositeSubscription subscriptions = new CompositeSubscription();
 
 
-    // Background service for the connection to the OBD adapter.
+    // Background remoteService for the connection to the OBD adapter.
     private OBDConnectionService mOBDConnectionService;
     private boolean mIsOBDConnectionBounded;
     private ServiceConnection mOBDConnectionServiceCon = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            // successfully bounded to the service, cast the binder interface to
-            // get the service.
+            // successfully bounded to the remoteService, cast the binder interface to
+            // get the remoteService.
             OBDConnectionService.OBDConnectionBinder binder = (OBDConnectionService
                     .OBDConnectionBinder) service;
             mOBDConnectionService = binder.getService();
@@ -191,7 +191,7 @@ public class SystemStartupService extends Service {
         notificationClickedFilter.addAction(ACTION_STOP_TRACK_RECORDING);
         registerReceiver(mBroadcastReciever, notificationClickedFilter);
 
-        // if the OBDConnectionService is running, then bind the service.
+        // if the OBDConnectionService is running, then bind the remoteService.
         bindOBDConnectionService();
 
 
@@ -265,7 +265,7 @@ public class SystemStartupService extends Service {
         LOGGER.info("onDestroy()");
         super.onDestroy();
 
-        // Unbind the connection service.
+        // Unbind the connection remoteService.
         unbindOBDConnectionService();
 
         // unregister all boradcast receivers.
@@ -290,7 +290,7 @@ public class SystemStartupService extends Service {
     public void onReceiveBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
         LOGGER.info(String.format("Received event. %s", event.toString()));
         if (!event.isBluetoothEnabled) {
-            // When Bluetooth has been turned off, then this service is required to be closed.
+            // When Bluetooth has been turned off, then this remoteService is required to be closed.
             if (mBluetoothHandler.isDiscovering())
                 mBluetoothHandler.stopBluetoothDeviceDiscovery();
             stopSelf();
@@ -420,11 +420,11 @@ public class SystemStartupService extends Service {
     }
 
     /**
-     * Establishes a binding to the OBDConnectionService if the service is running.
+     * Establishes a binding to the OBDConnectionService if the remoteService is running.
      */
     private void bindOBDConnectionService() {
         if (ServiceUtils.isServiceRunning(getApplicationContext(),
-                // Defines callbacks for the service binding, passed to bindService()
+                // Defines callbacks for the remoteService binding, passed to bindService()
                 OBDConnectionService.class)) {
 
             // Bind to OBDConnectionService
@@ -452,15 +452,15 @@ public class SystemStartupService extends Service {
     }
 
     /**
-     * Removes a binding to the OBDConnection service if the service is running and this service
+     * Removes a binding to the OBDConnection remoteService if the remoteService is running and this remoteService
      * is bound.
      */
     private void unbindOBDConnectionService() {
-        // Only when the service is running and this service is bounded to that service.
+        // Only when the remoteService is running and this remoteService is bounded to that remoteService.
         if (mOBDConnectionService != null && ServiceUtils
                 .isServiceRunning(getApplicationContext(), OBDConnectionService.class)) {
 
-            // Unbinds the OBD connection service.
+            // Unbinds the OBD connection remoteService.
             unbindService(mOBDConnectionServiceCon);
         }
     }
@@ -476,7 +476,7 @@ public class SystemStartupService extends Service {
             mMainThreadWorker.schedule(() -> Toast.makeText(getApplicationContext(), "No paired " +
                     "bluetooth device selected", Toast.LENGTH_SHORT).show());
         } else {
-            // If the service is already discovering, then skip the current discovery and
+            // If the remoteService is already discovering, then skip the current discovery and
             // unsubscribe on the corresponding subscription.
             if (mDiscoverySubscription != null) {
                 mBluetoothHandler.stopBluetoothDeviceDiscovery();
@@ -508,7 +508,7 @@ public class SystemStartupService extends Service {
                             mBluetoothHandler.stopBluetoothDeviceDiscovery();
 
                             // Depending on the individual settings either start the background
-                            // service or update the notification state.
+                            // remoteService or update the notification state.
                             if (mIsAutoconnect) {
                                 LOGGER.info("[Autoconnect is on]. Try to start the connection to " +
                                         "the selected OBD adapter.");

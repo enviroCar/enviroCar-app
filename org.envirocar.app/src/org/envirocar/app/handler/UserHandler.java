@@ -7,7 +7,7 @@ import android.graphics.Bitmap;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.injection.DAOProvider;
+import org.envirocar.remote.DAOProvider;
 import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;

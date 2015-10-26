@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'me.tatarka.retrolambda'
 
 android {
@@ -28,6 +29,9 @@ android {
 dependencies {
     compile rootProject.ext.supportV7
 
+    compile rootProject.ext.dagger
+    apt rootProject.ext.daggerCompiler
+
     compile rootProject.ext.rxAndroid
     compile rootProject.ext.rxJava
 
@@ -38,20 +42,4 @@ dependencies {
     compile rootProject.ext.retrofitRxJava
 
     compile project(':org.envirocar.core')
-}
-
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'me.tatarka:gradle-retrolambda:3.1.0'
-    }
-}
-
-// Required because retrolambda is on maven central
-repositories {
-    mavenCentral()
 }

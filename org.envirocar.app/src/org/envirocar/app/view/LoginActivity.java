@@ -39,7 +39,7 @@ import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.app.injection.DAOProvider;
+import org.envirocar.remote.DAOProvider;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;

@@ -20,18 +20,29 @@
  */
 package org.envirocar.remote.dao;
 
+import org.envirocar.core.CacheDirectoryProvider;
+import org.envirocar.core.dao.AbstractCacheDAO;
 import org.envirocar.core.dao.UserDAO;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.ResourceConflictException;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import rx.Observable;
 
 /**
  * @author dewall
  */
-public class CacheUserDAO implements UserDAO {
+@Singleton
+public class CacheUserDAO extends AbstractCacheDAO implements UserDAO {
+
+    @Inject
+    public CacheUserDAO(CacheDirectoryProvider provider) {
+        super(provider);
+    }
 
     @Override
     public void updateUser(User user) throws DataUpdateFailureException {

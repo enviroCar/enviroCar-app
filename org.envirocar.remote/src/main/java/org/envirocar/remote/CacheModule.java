@@ -1,10 +1,9 @@
-package org.envirocar.app.injection;
+package org.envirocar.remote;
 
 import android.content.Context;
 
 import org.envirocar.core.CacheDirectoryProvider;
-import org.envirocar.core.ContextInternetAccessProvider;
-import org.envirocar.core.InternetAccessProvider;
+import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.util.Util;
 import org.envirocar.remote.dao.CacheAnnouncementsDAO;
 import org.envirocar.remote.dao.CacheCarDAO;
@@ -19,6 +18,7 @@ import org.envirocar.remote.dao.RemoteTermsOfUseDAO;
 import org.envirocar.remote.dao.RemoteTrackDAO;
 import org.envirocar.remote.dao.RemoteUserDAO;
 import org.envirocar.remote.dao.RemoteUserStatisticsDAO;
+import org.envirocar.remote.service.EnviroCarService;
 
 import java.io.File;
 
@@ -28,57 +28,33 @@ import dagger.Module;
 import dagger.Provides;
 
 /**
- * A module for dao-specific dependencies which require a Application-
- * {@link Context} or to create. This includes specific Map- and
- * Bus-dependencies and
+ * TODO JavaDoc
  *
  * @author dewall
- *
  */
 @Module(
+        complete = false,
+        library = true,
         injects = {
                 DAOProvider.class,
-                RemoteAnnouncementsDAO.class,
-                CacheAnnouncementsDAO.class,
-                RemoteFuelingDAO.class,
-                CacheFuelingDAO.class,
-                RemoteCarDAO.class,
-                CacheCarDAO.class,
-                RemoteTermsOfUseDAO.class,
-                CacheTermsOfUseDAO.class,
-                RemoteTrackDAO.class,
-                CacheTrackDAO.class,
-                RemoteUserDAO.class,
                 CacheUserDAO.class,
-                RemoteUserStatisticsDAO.class
+                CacheCarDAO.class,
+                CacheFuelingDAO.class,
+                CacheTermsOfUseDAO.class,
+                CacheTrackDAO.class,
+                CacheAnnouncementsDAO.class,
+                RemoteAnnouncementsDAO.class,
+                RemoteFuelingDAO.class,
+                RemoteCarDAO.class,
+                RemoteTermsOfUseDAO.class,
+                RemoteTrackDAO.class,
+                RemoteUserDAO.class,
+                RemoteUserStatisticsDAO.class,
+                DAOProvider.class
         },
-        addsTo = InjectionApplicationModule.class,
-        library = true,
-        complete = false
+        staticInjections = EnviroCarService.class
 )
-public class InjectionDAOModule {
-
-    private final Context mContext;
-
-    /**
-     * Constructor.
-     *
-     * @param context   the context of the current scope.
-     */
-    public InjectionDAOModule(Context context){
-        this.mContext = context;
-    }
-
-    /**
-     * Provides the InternetAccessProivder.
-     *
-     * @return the provider for internet access.
-     */
-    @Provides
-    @Singleton
-    public InternetAccessProvider provideInternetAccessProvider(){
-        return new ContextInternetAccessProvider(mContext);
-    }
+public class CacheModule {
 
     /**
      * Provides the CacheDirectoryProvider.
@@ -87,12 +63,14 @@ public class InjectionDAOModule {
      */
     @Provides
     @Singleton
-    public CacheDirectoryProvider provideCacheDirectoryProvider(){
+    public CacheDirectoryProvider provideCacheDirectoryProvider(
+            @InjectApplicationScope Context context) {
         return new CacheDirectoryProvider() {
             @Override
             public File getBaseFolder() {
-                return Util.resolveCacheFolder(mContext);
+                return Util.resolveCacheFolder(context);
             }
         };
     }
+
 }

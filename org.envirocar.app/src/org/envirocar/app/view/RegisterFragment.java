@@ -50,7 +50,7 @@ import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.app.injection.DAOProvider;
+import org.envirocar.remote.DAOProvider;
 
 import javax.inject.Inject;
 

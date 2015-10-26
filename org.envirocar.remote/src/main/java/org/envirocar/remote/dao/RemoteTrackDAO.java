@@ -41,6 +41,9 @@ import org.envirocar.remote.util.EnvirocarServiceUtils;
 import java.io.IOException;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import retrofit.Call;
 import retrofit.Response;
 import rx.Observable;
@@ -51,7 +54,8 @@ import rx.Subscriber;
  *
  * @author dewall
  */
-public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO> implements TrackDAO {
+@Singleton
+public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implements TrackDAO {
     private static final Logger LOG = Logger.getLogger(RemoteTrackDAO.class);
 
 
@@ -66,10 +70,12 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO> implements TrackDAO 
      * Constructor.
      *
      * @param cacheDao
+     * @param service
      * @param userManager
      */
-    public RemoteTrackDAO(TrackDAO cacheDao, UserManager userManager) {
-        super(cacheDao, userManager);
+    @Inject
+    public RemoteTrackDAO(CacheTrackDAO cacheDao, TrackService service, UserManager userManager) {
+        super(cacheDao, service, userManager);
     }
 
     @Override
@@ -191,7 +197,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO> implements TrackDAO 
             throw new UnauthorizedException("The user is not logged in");
         }
 
-        // Initiate the service and its call
+        // Initiate the remoteService and its call
         final TrackService trackService = EnviroCarService.getTrackService();
         Call<ResponseBody> uploadTrackCall =
                 trackService.uploadTrack(userManager.getUser().getUsername(), track);
@@ -298,7 +304,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO> implements TrackDAO 
             throw new UnauthorizedException("No User logged in.");
         }
 
-        // Init the retrofit service endpoint and the delete call
+        // Init the retrofit remoteService endpoint and the delete call
         final TrackService trackService = EnviroCarService.getTrackService();
         Call<ResponseBody> deleteTrackCall = trackService.deleteTrack(userManager.getUser()
                 .getUsername(), remoteID);
@@ -317,7 +323,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO> implements TrackDAO 
             throw new NotConnectedException(e);
         } catch (ResourceConflictException e) {
             throw new NotConnectedException(e);
-        } catch (Exception e){
+        } catch (Exception e) {
             LOG.warn("WARNING!!!");
             throw e;
         }

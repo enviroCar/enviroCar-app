@@ -11,8 +11,8 @@ import rx.Observable;
 
 /**
  *
- * Retrofit service interface that describes the access to the fuelings endpoints of the envirocar
- * service.
+ * Retrofit remoteService interface that describes the access to the fuelings endpoints of the envirocar
+ * remoteService.
  *
  * @author dewall
  */

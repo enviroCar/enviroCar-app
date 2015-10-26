@@ -77,13 +77,13 @@ public class DashboardMainFragment extends BaseInjectorFragment {
     private MaterialDialog mConnectingDialog;
 
 
-    // Defines callbacks for service binding, passed to bindService()
+    // Defines callbacks for remoteService binding, passed to bindService()
     private ServiceConnection mOBDConnectionServiceCon = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            LOG.info("onServiceConnected(): Bound service connected.");
-            // successfully bounded to the service, cast the binder interface to
-            // get the service.
+            LOG.info("onServiceConnected(): Bound remoteService connected.");
+            // successfully bounded to the remoteService, cast the binder interface to
+            // get the remoteService.
             Snackbar.make(mStartStopButton, "Connected", Snackbar.LENGTH_LONG).show();
             OBDConnectionService.OBDConnectionBinder binder = (OBDConnectionService
                     .OBDConnectionBinder) service;
@@ -94,7 +94,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            LOG.info("onServiceDisconnected(): Bound service disconnected.");
+            LOG.info("onServiceDisconnected(): Bound remoteService disconnected.");
             // Service has been disconnected.
             mOBDConnectionService = null;
             mIsOBDConnectionBounded = false;
@@ -135,7 +135,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
         mDashboardHeaderFragment = getChildFragmentManager()
                 .findFragmentById(R.id.fragment_dashboard_header_fragment);
 
-        // TODO fix this. The static service state is just a workaround.
+        // TODO fix this. The static remoteService state is just a workaround.
         onShowServiceStateUI(OBDConnectionService.CURRENT_SERVICE_STATE);
 
         // Initially hide the header fragment.
@@ -228,7 +228,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                                     // bluetooth devices.
                                     mBluetoothHandler.stopBluetoothDeviceDiscovery();
                                     if (found) {
-                                        // and if the service is already started, then
+                                        // and if the remoteService is already started, then
                                         // stop it.
                                         getActivity().stopService(new Intent
                                                 (getActivity(), OBDConnectionService
@@ -271,7 +271,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                         mConnectingDialog.setContent("Device in range. Connecting to " +
                                 device.getName());
 
-                        // Start the background service.
+                        // Start the background remoteService.
                         getActivity().startService(
                                 new Intent(getActivity(), OBDConnectionService.class));
                     }
@@ -594,7 +594,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
      * Creates a binding for the {@link OBDConnectionService}.
      */
     private void bindService() {
-        // if the service is currently running, then bind to the service.
+        // if the remoteService is currently running, then bind to the remoteService.
         if (ServiceUtils.isServiceRunning(getActivity(), OBDConnectionService.class)) {
             Toast.makeText(getActivity(), "is Running", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(getActivity(), OBDConnectionService.class);
@@ -603,9 +603,9 @@ public class DashboardMainFragment extends BaseInjectorFragment {
     }
 
     private void unbindService() {
-        // If it is bounded, then unbind the service.
+        // If it is bounded, then unbind the remoteService.
         if (mIsOBDConnectionBounded) {
-            LOG.info("onStop(): disconnect bound service");
+            LOG.info("onStop(): disconnect bound remoteService");
             getActivity().unbindService(mOBDConnectionServiceCon);
             mIsOBDConnectionBounded = false;
         }

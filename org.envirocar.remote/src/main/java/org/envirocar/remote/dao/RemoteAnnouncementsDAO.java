@@ -34,27 +34,34 @@ import org.envirocar.remote.util.EnvirocarServiceUtils;
 import java.io.IOException;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import retrofit.Call;
 import retrofit.Response;
 import rx.Observable;
 import rx.Subscriber;
 
 /**
- * The data access object for remote fuelings that are stored at the envirocar service.
+ * The data access object for remote fuelings that are stored at the envirocar remoteService.
  *
  * @author dewall
  */
-public class RemoteAnnouncementsDAO extends BaseRemoteDAO<AnnouncementDAO>
+public class RemoteAnnouncementsDAO extends BaseRemoteDAO<AnnouncementDAO, AnnouncementsService>
         implements AnnouncementDAO {
     private static final Logger LOG = Logger.getLogger(RemoteAnnouncementsDAO.class);
 
-    /**
-     * Constructor.
-     *
-     * @param cacheDao cache dao for accessing/storing local instances of announcement entities.
-     */
-    public RemoteAnnouncementsDAO(AnnouncementDAO cacheDao) {
-        super(cacheDao);
+//    /**
+//     * Constructor.
+//     *
+//     * @param cacheDao cache dao for accessing/storing local instances of announcement entities.
+//     */
+//    public RemoteAnnouncementsDAO(AnnouncementDAO cacheDao) {
+//        super(cacheDao);
+//    }
+
+    @Inject
+    public RemoteAnnouncementsDAO(CacheAnnouncementsDAO cacheDAO, AnnouncementsService service){
+        super(cacheDAO, service);
     }
 
     @Override
@@ -62,9 +69,9 @@ public class RemoteAnnouncementsDAO extends BaseRemoteDAO<AnnouncementDAO>
             NotConnectedException {
         LOG.info("getAllAnnouncements()");
 
-        // Instantiate the announcement service and the upload fueling call
+        // Instantiate the announcement remoteService and the upload fueling call
         final AnnouncementsService announcementsService = EnviroCarService.getAnnouncementService();
-        Call<List<Announcement>> allAnnouncementsCall = announcementsService.getAllAnnouncements();
+        Call<List<Announcement>> allAnnouncementsCall = remoteService.getAllAnnouncements();
 
         try {
             // Execute the call

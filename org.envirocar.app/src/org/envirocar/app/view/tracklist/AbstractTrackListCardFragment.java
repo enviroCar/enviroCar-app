@@ -22,7 +22,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.UserHandler;
-import org.envirocar.app.injection.DAOProvider;
+import org.envirocar.remote.DAOProvider;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;

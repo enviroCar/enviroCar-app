@@ -37,6 +37,9 @@ import org.envirocar.remote.util.EnvirocarServiceUtils;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import retrofit.Call;
 import retrofit.Response;
 import rx.Observable;
@@ -46,12 +49,18 @@ import rx.Observable;
  *
  * @author dewall
  */
-public class RemoteUserDAO extends BaseRemoteDAO<UserDAO> implements UserDAO {
+@Singleton
+public class RemoteUserDAO extends BaseRemoteDAO<UserDAO, UserService> implements UserDAO {
     private static final Logger LOG = Logger.getLogger(RemoteUserDAO.class);
+
+    @Inject
+    public RemoteUserDAO(CacheUserDAO cacheDao, UserService userService){
+        super(cacheDao, userService);
+    }
 
     @Override
     public User getUser(String id) throws DataRetrievalFailureException, UnauthorizedException {
-        // Get the service for the user endpoints and initiates a call.
+        // Get the remoteService for the user endpoints and initiates a call.
         UserService userService = EnviroCarService.getUserService();
         Call<User> userCall = userService.getUser(id);
 
@@ -75,7 +84,7 @@ public class RemoteUserDAO extends BaseRemoteDAO<UserDAO> implements UserDAO {
 
     @Override
     public Observable<User> getUserObservable(String id) {
-        // Get the service for the user endpoints and returns an user observable.
+        // Get the remoteService for the user endpoints and returns an user observable.
         UserService userService = EnviroCarService.getUserService();
         return userService.getUserObservable(id);
     }
@@ -83,7 +92,7 @@ public class RemoteUserDAO extends BaseRemoteDAO<UserDAO> implements UserDAO {
     @Override
     public void createUser(User newUser) throws DataUpdateFailureException,
             ResourceConflictException {
-        // Get the service for the user endpoints and initiate a call.
+        // Get the remoteService for the user endpoints and initiate a call.
         UserService userService = EnviroCarService.getUserService();
         Call<ResponseBody> userCall = userService.createUser(newUser);
 
@@ -115,7 +124,7 @@ public class RemoteUserDAO extends BaseRemoteDAO<UserDAO> implements UserDAO {
         update.setUsername(null);
         update.setToken(null);
 
-        // Get the service for the user endpoints and initiate a call.
+        // Get the remoteService for the user endpoints and initiate a call.
         UserService userService = EnviroCarService.getUserService();
         Call<ResponseBody> userCall = userService.updateUser(user.getUsername(), update);
 

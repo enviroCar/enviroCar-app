@@ -72,9 +72,9 @@ public class BaseApplication extends Application implements Injector, InjectionM
         //        ACRA.getConfig().setExcludeMatchingSharedPreferencesKeys(SettingsActivity
         //                .resolveIndividualKeys());
 
-        // check if the background service is already running.
+        // check if the background remoteService is already running.
         if (!isServiceRunning(SystemStartupService.class)) {
-            // Start a new service
+            // Start a new remoteService
             Intent startIntent = new Intent(this, SystemStartupService.class);
             startService(startIntent);
         }

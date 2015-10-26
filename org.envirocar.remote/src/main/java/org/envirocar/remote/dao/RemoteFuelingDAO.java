@@ -37,6 +37,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import retrofit.Call;
 import retrofit.Response;
 import rx.Observable;
@@ -46,17 +48,17 @@ import rx.Observable;
  *
  * @author dewall
  */
-public class RemoteFuelingDAO extends BaseRemoteDAO<FuelingDAO> implements FuelingDAO {
+public class RemoteFuelingDAO extends BaseRemoteDAO<FuelingDAO, FuelingService> implements FuelingDAO {
     private static final Logger LOG = Logger.getLogger(RemoteFuelingDAO.class);
-
 
     /**
      * Constructor.
      *
      * @param cacheDao the cache DAO for fuelings.
      */
-    public RemoteFuelingDAO(FuelingDAO cacheDao) {
-        super(cacheDao);
+    @Inject
+    public RemoteFuelingDAO(CacheFuelingDAO cacheDao, FuelingService service) {
+        super(cacheDao, service);
     }
 
     @Override
@@ -76,7 +78,7 @@ public class RemoteFuelingDAO extends BaseRemoteDAO<FuelingDAO> implements Fueli
             ResourceConflictException, UnauthorizedException {
         LOG.info("storeFueling()");
 
-        // Instantiate the fueling service and the upload fueling call
+        // Instantiate the fueling remoteService and the upload fueling call
         final FuelingService fuelingService = EnviroCarService.getFuelingService();
         Call<ResponseBody> uploadFuelingCall = fuelingService.uploadFuelings(
                 userManager.getUser().getUsername(), fueling);

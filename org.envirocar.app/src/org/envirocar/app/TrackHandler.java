@@ -15,7 +15,7 @@ import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.UploadManager;
 import org.envirocar.app.handler.UserHandler;
-import org.envirocar.app.injection.DAOProvider;
+import org.envirocar.remote.DAOProvider;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.Track;
@@ -506,20 +506,20 @@ public class TrackHandler {
     }
 
     /**
-     * Finishes the current track. On the one hand, the service that handles the connection to
+     * Finishes the current track. On the one hand, the remoteService that handles the connection to
      * the Bluetooth device gets closed and the track in the database gets finished.
      */
     public void finishCurrentTrack() {
         LOGGER.info("stopTrack()");
 
-        // Set the current service state to SERVICE_STOPPING.
+        // Set the current remoteService state to SERVICE_STOPPING.
         mBus.post(new BluetoothServiceStateChangedEvent(BluetoothServiceState.SERVICE_STOPPING));
 
-        // Schedule a new async task for closing the service, finishing the current track, and
+        // Schedule a new async task for closing the remoteService, finishing the current track, and
         // finally fireing an event on the event bus.
         mBackgroundWorker.schedule(() -> {
             LOGGER.info("backgroundworker");
-            // Stop the background service that is responsible for the OBDConnection.
+            // Stop the background remoteService that is responsible for the OBDConnection.
             mBluetoothHandler.stopOBDConnectionService();
 
             // Finish the current track.

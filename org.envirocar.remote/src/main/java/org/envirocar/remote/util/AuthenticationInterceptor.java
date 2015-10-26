@@ -3,15 +3,20 @@ package org.envirocar.remote.util;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.Response;
 
-
 import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.User;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 /**
+ * TODO JavaDoc
+ *
  * @author dewall
  */
+@Singleton
 public class AuthenticationInterceptor implements Interceptor {
 
     protected final UserManager mUserManager;
@@ -21,6 +26,7 @@ public class AuthenticationInterceptor implements Interceptor {
      *
      * @param userManager the user manager.
      */
+    @Inject
     public AuthenticationInterceptor(UserManager userManager) {
         this.mUserManager = userManager;
     }

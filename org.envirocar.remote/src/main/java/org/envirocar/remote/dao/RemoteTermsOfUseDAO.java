@@ -33,18 +33,21 @@ import org.envirocar.remote.util.EnvirocarServiceUtils;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import retrofit.Call;
 import retrofit.Response;
 import rx.Observable;
 import rx.Subscriber;
 
 /**
- * Data access object that handles the access to the terms of use at the envirocar service.
- * It uses the {@link TermsOfUseService} to get access to the service endpoint
+ * Data access object that handles the access to the terms of use at the envirocar remoteService.
+ * It uses the {@link TermsOfUseService} to get access to the remoteService endpoint
  *
  * @author dewall
  */
-public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO> implements TermsOfUseDAO {
+public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO, TermsOfUseService>
+        implements TermsOfUseDAO {
     private static final Logger LOG = Logger.getLogger(RemoteTermsOfUseDAO.class);
 
     /**
@@ -52,8 +55,9 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO> implements
      *
      * @param cacheDao the DAO for cached terms of use instances.
      */
-    public RemoteTermsOfUseDAO(TermsOfUseDAO cacheDao) {
-        super(cacheDao);
+    @Inject
+    public RemoteTermsOfUseDAO(CacheTermsOfUseDAO cacheDao, TermsOfUseService service) {
+        super(cacheDao, service);
     }
 
     @Override
@@ -61,7 +65,7 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO> implements
             NotConnectedException {
         LOG.info(String.format("getTermsOfUseInstance(%s)", id));
 
-        // Get the service and initiate the call.
+        // Get the remoteService and initiate the call.
         final TermsOfUseService touService = EnviroCarService.getTermsOfUseService();
         Call<TermsOfUse> termsOfUseCall = touService.getTermsOfUseByID(id);
 
@@ -76,10 +80,10 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO> implements
             }
 
             // Store the downloaded instance in the cache.
-//            if (mCache != null) {
-                //                mCache.storeTermsOfUseInstance(touResponse.raw().body().string
-                // (), id);
-//            }
+            //            if (mCache != null) {
+            //                mCache.storeTermsOfUseInstance(touResponse.raw().body().string
+            // (), id);
+            //            }
 
             // Return the terms of use instance.
             return touResponse.body();
@@ -98,7 +102,8 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO> implements
     public List<TermsOfUse> getAllTermsOfUse() throws DataRetrievalFailureException,
             NotConnectedException {
         LOG.info("getTermsOfUse()");
-        // Get the service and instantiate the call to the service endpoint in order to get the
+        // Get the remoteService and instantiate the call to the remoteService endpoint in order
+        // to get the
         // terms of use.
         final TermsOfUseService touService = EnviroCarService.getTermsOfUseService();
         Call<List<TermsOfUse>> termsOfUseCall = touService.getAllTermsOfUse();
@@ -141,7 +146,8 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO> implements
     //    @Override
     //    public TermsOfUse getTermsOfUse() throws TermsOfUseRetrievalException {
     //        LOG.info("getTermsOfUse()");
-    //        // Get the service and instantiate the call to the service endpoint in order to get
+    //        // Get the remoteService and instantiate the call to the remoteService endpoint in
+    // order to get
     // the
     //        // terms of use.
     //        final TermsOfUseService touService = EnviroCarService.getTermsOfUseService();
@@ -187,7 +193,7 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO> implements
     // TermsOfUseRetrievalException {
     //        LOG.info(String.format("getTermsOfUseInstance(%s)", id));
     //
-    //        // Get the service and initiate the call.
+    //        // Get the remoteService and initiate the call.
     //        final TermsOfUseService touService = EnviroCarService.getTermsOfUseService();
     //        Call<TermsOfUseInstance> termsOfUseCall = touService.getTermsOfUseByID(id);
     //

@@ -52,6 +52,9 @@ import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.Collector;
 import org.envirocar.obd.FeatureFlags;
+import org.envirocar.remote.CacheModule;
+import org.envirocar.remote.DAOProvider;
+import org.envirocar.remote.RemoteModule;
 import org.envirocar.remote.service.EnviroCarService;
 import org.envirocar.storage.EnviroCarDB;
 import org.envirocar.storage.EnviroCarDBImpl;
@@ -68,6 +71,10 @@ import dagger.Provides;
  * @author dewall
  */
 @Module(
+        includes = {
+                RemoteModule.class,
+                CacheModule.class
+        },
         injects = {
                 TermsOfUseManager.class,
                 CarPreferenceHandler.class,

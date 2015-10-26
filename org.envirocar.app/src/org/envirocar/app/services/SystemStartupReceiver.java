@@ -12,7 +12,7 @@ import org.envirocar.core.utils.ServiceUtils;
 
 /**
  * Startup receiver that listens to ACTION_BOOT_COMPLETED broadcasts and therefore starts when
- * the device has been successfully booted. This receiver starts the general background service of
+ * the device has been successfully booted. This receiver starts the general background remoteService of
  * the mobile application.
  *
  * @author dewall
@@ -29,7 +29,7 @@ public class SystemStartupReceiver extends BroadcastReceiver {
         if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
             LOGGER.info("Received ACTION_BOOT_COMPLETED broadcast.");
 
-            // If bluetooth is enabled, then start the background service.
+            // If bluetooth is enabled, then start the background remoteService.
             if (BluetoothAdapter.getDefaultAdapter().isEnabled())
                 startSystemStartupService(context);
 
@@ -41,7 +41,7 @@ public class SystemStartupReceiver extends BroadcastReceiver {
 
             switch (state) {
                 case BluetoothAdapter.STATE_ON:
-                    // If bluetooth has been turned on, then check wheterh the background service
+                    // If bluetooth has been turned on, then check wheterh the background remoteService
                     // needs to be started.
                     startSystemStartupService(context);
                     break;
@@ -50,7 +50,7 @@ public class SystemStartupReceiver extends BroadcastReceiver {
     }
 
     /**
-     * Starts the SystemStartupService if the preference is setted and the service is not already
+     * Starts the SystemStartupService if the preference is setted and the remoteService is not already
      * running.
      *
      * @param context the context of the current scope.
@@ -60,8 +60,8 @@ public class SystemStartupReceiver extends BroadcastReceiver {
         boolean autoStartService = PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(PreferenceConstants.PREF_BLUETOOTH_SERVICE_AUTOSTART, false);
 
-        // If autostart service is on and the service is not already running,
-        // then start the background service.
+        // If autostart remoteService is on and the remoteService is not already running,
+        // then start the background remoteService.
         if (autoStartService && !ServiceUtils.isServiceRunning(
                 context, SystemStartupService.class)) {
             Intent startIntent = new Intent(context, SystemStartupService.class);

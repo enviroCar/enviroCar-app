@@ -1,4 +1,4 @@
-package org.envirocar.remote.dao;
+package org.envirocar.core.dao;
 
 import com.google.gson.JsonObject;
 
@@ -8,8 +8,6 @@ import org.envirocar.core.util.Util;
 import java.io.File;
 import java.io.IOException;
 
-import javax.inject.Inject;
-
 /**
  * TODO JavaDoc
  *
@@ -17,8 +15,20 @@ import javax.inject.Inject;
  */
 public class AbstractCacheDAO {
 
-    @Inject
-    protected CacheDirectoryProvider cacheDirectoryProvider;
+    protected final CacheDirectoryProvider cacheDirectoryProvider;
+
+    public AbstractCacheDAO() {
+        cacheDirectoryProvider = null;
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param provider the directory provider.
+     */
+    public AbstractCacheDAO(CacheDirectoryProvider provider) {
+        this.cacheDirectoryProvider = provider;
+    }
 
     public JsonObject readCache(String cachedFile) throws IOException {
         File directory = cacheDirectoryProvider.getBaseFolder();

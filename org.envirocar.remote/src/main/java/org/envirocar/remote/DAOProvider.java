@@ -1,8 +1,6 @@
-package org.envirocar.app.injection;
+package org.envirocar.remote;
 
 import android.content.Context;
-
-import com.google.common.base.Preconditions;
 
 import org.envirocar.core.CacheDirectoryProvider;
 import org.envirocar.core.InternetAccessProvider;
@@ -13,7 +11,6 @@ import org.envirocar.core.dao.TermsOfUseDAO;
 import org.envirocar.core.dao.TrackDAO;
 import org.envirocar.core.dao.UserDAO;
 import org.envirocar.core.dao.UserStatisticsDAO;
-import org.envirocar.core.injection.InjectionModuleProvider;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.remote.dao.CacheAnnouncementsDAO;
 import org.envirocar.remote.dao.CacheCarDAO;
@@ -29,9 +26,6 @@ import org.envirocar.remote.dao.RemoteTrackDAO;
 import org.envirocar.remote.dao.RemoteUserDAO;
 import org.envirocar.remote.dao.RemoteUserStatisticsDAO;
 
-import java.util.Arrays;
-import java.util.List;
-
 import javax.inject.Inject;
 
 import dagger.ObjectGraph;
@@ -41,7 +35,7 @@ import dagger.ObjectGraph;
  *
  * @author dewall
  */
-public class DAOProvider implements Injector, InjectionModuleProvider {
+public class DAOProvider {
 
     // No injection here.
     protected Context mAppContext;
@@ -55,7 +49,6 @@ public class DAOProvider implements Injector, InjectionModuleProvider {
     // Graph for Dependency Injection.
     private ObjectGraph mObjectGraph;
 
-
     /**
      * Constructor.
      *
@@ -65,8 +58,7 @@ public class DAOProvider implements Injector, InjectionModuleProvider {
         this.mAppContext = context;
 
         // Extend the object graph with the injection modules for DAOs
-        this.mObjectGraph = ((Injector) context).getObjectGraph()
-                .plus(getInjectionModules().toArray());
+        this.mObjectGraph = ((Injector) context).getObjectGraph();
         this.mObjectGraph.inject(this);
     }
 
@@ -76,12 +68,8 @@ public class DAOProvider implements Injector, InjectionModuleProvider {
     public CarDAO getSensorDAO() {
         CacheCarDAO cacheSensorDao = mObjectGraph.get(CacheCarDAO.class);
         if (this.mInternetAccessProvider.isConnected()) {
-            // TODO use injection for this.
-            RemoteCarDAO remoteSensorDAO = new RemoteCarDAO(cacheSensorDao);
-            injectObjects(remoteSensorDAO);
-            return remoteSensorDAO;
+            return mObjectGraph.get(RemoteCarDAO.class);
         }
-
         return cacheSensorDao;
     }
 
@@ -92,7 +80,7 @@ public class DAOProvider implements Injector, InjectionModuleProvider {
         if (this.mInternetAccessProvider.isConnected()) {
             return mObjectGraph.get(RemoteTrackDAO.class);
         }
-        return new CacheTrackDAO();
+        return mObjectGraph.get(CacheTrackDAO.class);
     }
 
     /**
@@ -116,54 +104,27 @@ public class DAOProvider implements Injector, InjectionModuleProvider {
      * @return the {@link FuelingDAO}
      */
     public FuelingDAO getFuelingDAO() {
-        CacheFuelingDAO cacheFuelingDAO = mObjectGraph.get(CacheFuelingDAO.class);
         if (this.mInternetAccessProvider.isConnected()) {
-            RemoteFuelingDAO remoteFuelingDAO = new RemoteFuelingDAO(cacheFuelingDAO);
-            injectObjects(remoteFuelingDAO);
-            return remoteFuelingDAO;
+            return mObjectGraph.get(RemoteFuelingDAO.class);
         }
-        return cacheFuelingDAO;
+        return mObjectGraph.get(CacheFuelingDAO.class);
     }
 
     /**
      * @return the {@link TermsOfUseDAO}
      */
     public TermsOfUseDAO getTermsOfUseDAO() {
-        CacheTermsOfUseDAO cacheTermsOfUseDAO = mObjectGraph.get(CacheTermsOfUseDAO.class);
         if (this.mInternetAccessProvider.isConnected()) {
-            RemoteTermsOfUseDAO remoteTermsOfUseDAO = new RemoteTermsOfUseDAO(cacheTermsOfUseDAO);
-            injectObjects(remoteTermsOfUseDAO);
-            return remoteTermsOfUseDAO;
+            return mObjectGraph.get(RemoteTermsOfUseDAO.class);
         }
-        return cacheTermsOfUseDAO;
+        return mObjectGraph.get(CacheTermsOfUseDAO.class);
     }
 
     public AnnouncementDAO getAnnouncementsDAO() {
-
-        CacheAnnouncementsDAO cacheAnnouncementsDAO = mObjectGraph.get(CacheAnnouncementsDAO.class);
         if (this.mInternetAccessProvider.isConnected()) {
-            RemoteAnnouncementsDAO remoteAnnouncementsDAO = new RemoteAnnouncementsDAO
-                    (cacheAnnouncementsDAO);
-            injectObjects(remoteAnnouncementsDAO);
-            return remoteAnnouncementsDAO;
+            return mObjectGraph.get(RemoteAnnouncementsDAO.class);
         }
-        return cacheAnnouncementsDAO;
-    }
-
-    @Override
-    public List<Object> getInjectionModules() {
-        return Arrays.<Object>asList(new InjectionDAOModule(mAppContext));
-    }
-
-    @Override
-    public ObjectGraph getObjectGraph() {
-        return mObjectGraph;
-    }
-
-    @Override
-    public void injectObjects(Object instance) {
-        Preconditions.checkNotNull(instance, "The instance of the object to get injected cannot " +
-                "be null");
-        mObjectGraph.inject(instance);
+        return mObjectGraph.get(CacheAnnouncementsDAO.class);
     }
 }
+

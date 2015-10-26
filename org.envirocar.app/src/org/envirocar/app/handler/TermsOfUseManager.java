@@ -30,7 +30,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.activity.DialogUtil;
 import org.envirocar.app.activity.DialogUtil.PositiveNegativeCallback;
 import org.envirocar.app.exception.ServerException;
-import org.envirocar.app.injection.DAOProvider;
+import org.envirocar.remote.DAOProvider;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.DataRetrievalFailureException;

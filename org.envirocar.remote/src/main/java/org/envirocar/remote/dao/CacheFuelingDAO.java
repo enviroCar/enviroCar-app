@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
+import org.envirocar.core.dao.AbstractCacheDAO;
 import org.envirocar.core.dao.FuelingDAO;
 import org.envirocar.core.entity.Announcement;
 import org.envirocar.core.entity.Fueling;
@@ -33,6 +34,8 @@ import org.envirocar.remote.serializer.FuelingSerializer;
 
 import java.io.IOException;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -48,6 +51,8 @@ public class CacheFuelingDAO extends AbstractCacheDAO implements FuelingDAO {
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(Fueling.class, new FuelingSerializer()).create();
 
+    @Inject
+    public CacheFuelingDAO(){}
 
     @Override
     public List<Fueling> getFuelings() throws DataRetrievalFailureException {

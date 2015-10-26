@@ -36,6 +36,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
+
 import retrofit.Call;
 import retrofit.Response;
 import rx.Observable;
@@ -46,7 +48,7 @@ import rx.functions.Func1;
  *
  * @author dewall
  */
-public class RemoteCarDAO extends BaseRemoteDAO<CarDAO> implements CarDAO {
+public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements CarDAO {
     private static final Logger LOG = Logger.getLogger(RemoteCarDAO.class);
 
     /**
@@ -54,8 +56,9 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO> implements CarDAO {
      *
      * @param cacheDao cache dao for accessing local cars.
      */
-    public RemoteCarDAO(CarDAO cacheDao) {
-        super(cacheDao);
+    @Inject
+    public RemoteCarDAO(CacheCarDAO cacheDao, CarService service) {
+        super(cacheDao, service);
     }
 
     @Override
@@ -70,7 +73,7 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO> implements CarDAO {
      */
     private List<Car> getAllCars(int page) throws DataRetrievalFailureException {
         final CarService carService = EnviroCarService.getCarService();
-        Call<List<Car>> carsCall = carService.getAllCars(page);
+        Call<List<Car>> carsCall = remoteService.getAllCars(page);
 
         try {
             Response<List<Car>> carsResponse = carsCall.execute();
@@ -129,7 +132,7 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO> implements CarDAO {
     }
 
     /**
-     * This method recursively calls the enviroCar service until each page has been requested.
+     * This method recursively calls the enviroCar remoteService until each page has been requested.
      *
      * @param page the page to request the data from.
      * @return an observable stream of data.

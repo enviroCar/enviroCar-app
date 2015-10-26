@@ -2,44 +2,39 @@ package org.envirocar.core.dao;
 
 import org.envirocar.core.UserManager;
 
-import javax.inject.Inject;
-
 /**
  * TODO JavaDoc
  *
  * @author dewall
  */
-public class BaseRemoteDAO<C> {
+public class BaseRemoteDAO<C, S> {
 
     protected final C cacheDao;
+    protected final S remoteService;
+    protected final UserManager userManager;
 
-    @Inject
-    protected UserManager userManager;
+
 
     /**
      * Constructor.
+     *
+     * @param cacheDao      the caching dao.
+     * @param remoteService the remote service of this dao.
      */
-    public BaseRemoteDAO(){
-        this(null);
+    public BaseRemoteDAO(C cacheDao, S remoteService) {
+        this(cacheDao, remoteService, null);
     }
 
     /**
      * Constructor.
      *
-     * @param cacheDao data access object for local entities.
+     * @param cacheDao      the cache dao
+     * @param remoteService the remote service of this dao
+     * @param userManager   the user manager
      */
-    public BaseRemoteDAO(C cacheDao) {
-        this(cacheDao, null);
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param cacheDao    data access object for local entities.
-     * @param userManager an instance of the user manager.
-     */
-    public BaseRemoteDAO(C cacheDao, UserManager userManager) {
+    public BaseRemoteDAO(C cacheDao, S remoteService, UserManager userManager) {
         this.userManager = userManager;
         this.cacheDao = cacheDao;
+        this.remoteService = remoteService;
     }
 }

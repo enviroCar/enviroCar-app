@@ -20,6 +20,8 @@
  */
 package org.envirocar.remote.dao;
 
+import org.envirocar.core.CacheDirectoryProvider;
+import org.envirocar.core.dao.AbstractCacheDAO;
 import org.envirocar.core.dao.TrackDAO;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.DataCreationFailureException;
@@ -31,6 +33,8 @@ import org.envirocar.core.exception.UnauthorizedException;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import rx.Observable;
 
 /**
@@ -38,7 +42,12 @@ import rx.Observable;
  *
  * @author dewall
  */
-public class CacheTrackDAO implements TrackDAO {
+public class CacheTrackDAO extends AbstractCacheDAO implements TrackDAO {
+
+    @Inject
+    public CacheTrackDAO(CacheDirectoryProvider provider){
+        super(provider);
+    }
 
     @Override
     public Track getTrackById(String id) throws DataRetrievalFailureException,

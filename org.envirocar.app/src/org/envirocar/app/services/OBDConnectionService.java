@@ -170,12 +170,12 @@ public class OBDConnectionService extends Service {
     }
 
     /**
-     * Sets the current service state and fire an event on the bus.
+     * Sets the current remoteService state and fire an event on the bus.
      *
-     * @param state the state of the service.
+     * @param state the state of the remoteService.
      */
     private void setBluetoothServiceState(BluetoothServiceState state) {
-        // Set the new service state
+        // Set the new remoteService state
         this.mServiceState = state;
         CURRENT_SERVICE_STATE = state; // TODO FIX
         // and fire an event on the event bus.
@@ -210,7 +210,7 @@ public class OBDConnectionService extends Service {
         if (mPreferenceSubscription != null)
             mPreferenceSubscription.unsubscribe();
 
-        // Stop this service and emove this service from foreground state.
+        // Stop this remoteService and emove this remoteService from foreground state.
         stopOBDConnection();
         stopForeground(true);
 
@@ -310,7 +310,7 @@ public class OBDConnectionService extends Service {
     private void startOBDConnection(final BluetoothDevice device) {
         LOG.info("startOBDConnection");
 
-        // Set service state to STARTING and fire an event on the bus.
+        // Set remoteService state to STARTING and fire an event on the bus.
         setBluetoothServiceState(BluetoothServiceState.SERVICE_STARTING);
 
         if (device.fetchUuidsWithSdp())
@@ -325,7 +325,7 @@ public class OBDConnectionService extends Service {
     }
 
     /**
-     * Method that stops the service, removes everything from the waiting list
+     * Method that stops the remoteService, removes everything from the waiting list
      */
     private void stopOBDConnection() {
         LOG.info("stopOBDConnection called");
@@ -352,7 +352,7 @@ public class OBDConnectionService extends Service {
 
             doTextToSpeech("Device disconnected");
 
-            // Set state of the service to stopped.
+            // Set state of the remoteService to stopped.
             setBluetoothServiceState(BluetoothServiceState.SERVICE_STOPPED);
         }).start();
     }
@@ -593,15 +593,15 @@ public class OBDConnectionService extends Service {
 
 
     /**
-     * Class used for the client Binder. The service is running in the same process as its
+     * Class used for the client Binder. The remoteService is running in the same process as its
      * client, so it is not required to deal with IPC.
      */
     public class OBDConnectionBinder extends Binder {
 
         /**
-         * Returns the instance of the enclosing service.
+         * Returns the instance of the enclosing remoteService.
          *
-         * @return the enclosing service.
+         * @return the enclosing remoteService.
          */
         public OBDConnectionService getService() {
             return OBDConnectionService.this;

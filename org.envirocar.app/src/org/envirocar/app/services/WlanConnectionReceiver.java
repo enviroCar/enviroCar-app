@@ -73,7 +73,7 @@ public class WlanConnectionReceiver extends BroadcastReceiver {
     }
 
     /**
-     * Starts the track upload background service when currently inactive.
+     * Starts the track upload background remoteService when currently inactive.
      *
      * @param context the context of the current scope.
      */
@@ -81,12 +81,12 @@ public class WlanConnectionReceiver extends BroadcastReceiver {
         LOG.info("startUploadTracksService()");
         if (!ServiceUtils.isServiceRunning(context, TrackUploadService.class)) {
             context.startService(new Intent(context, TrackUploadService.class));
-            LOG.info("Successfully started the track upload service.");
+            LOG.info("Successfully started the track upload remoteService.");
         }
     }
 
     /**
-     * Stops the track upload background service when currently active.
+     * Stops the track upload background remoteService when currently active.
      *
      * @param context the context of the current scope.
      */
@@ -94,7 +94,7 @@ public class WlanConnectionReceiver extends BroadcastReceiver {
         LOG.info("stopIploadTracksService()");
         if (ServiceUtils.isServiceRunning(context, TrackUploadService.class)) {
             context.stopService(new Intent(context, TrackUploadService.class));
-            LOG.info("Successfully stopped the track upload service.");
+            LOG.info("Successfully stopped the track upload remoteService.");
         }
     }
 

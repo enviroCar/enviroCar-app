@@ -20,6 +20,7 @@
  */
 package org.envirocar.remote.dao;
 
+import org.envirocar.core.dao.AbstractCacheDAO;
 import org.envirocar.core.dao.TermsOfUseDAO;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.exception.DataRetrievalFailureException;
@@ -28,87 +29,96 @@ import org.envirocar.core.logging.Logger;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 import rx.Observable;
 
 public class CacheTermsOfUseDAO extends AbstractCacheDAO implements TermsOfUseDAO {
-	private static final Logger logger = Logger.getLogger(CacheTermsOfUseDAO.class);
-	private static final String LIST_CACHE_FILE_NAME = "tou-list";
-	private static final String INSTANCE_CACHE_FILE_NAME = "tou-instance-";
+    private static final Logger logger = Logger.getLogger(CacheTermsOfUseDAO.class);
+    private static final String LIST_CACHE_FILE_NAME = "tou-list";
+    private static final String INSTANCE_CACHE_FILE_NAME = "tou-instance-";
 
-	@Override
-	public TermsOfUse getTermsOfUse(String id) throws DataRetrievalFailureException, NotConnectedException {
-		return null;
-	}
+    @Inject
+    public CacheTermsOfUseDAO() {}
 
-	@Override
-	public Observable<TermsOfUse> getTermsOfUseObservable(String id) {
-		return null;
-	}
+    @Override
+    public TermsOfUse getTermsOfUse(String id) throws DataRetrievalFailureException,
+            NotConnectedException {
+        return null;
+    }
 
-	@Override
-	public List<TermsOfUse> getAllTermsOfUse() throws DataRetrievalFailureException, NotConnectedException {
-		return null;
-	}
+    @Override
+    public Observable<TermsOfUse> getTermsOfUseObservable(String id) {
+        return null;
+    }
 
-	@Override
-	public Observable<List<TermsOfUse>> getAllTermsOfUseObservable() {
-		return null;
-	}
+    @Override
+    public List<TermsOfUse> getAllTermsOfUse() throws DataRetrievalFailureException,
+			NotConnectedException {
+        return null;
+    }
+
+    @Override
+    public Observable<List<TermsOfUse>> getAllTermsOfUseObservable() {
+        return null;
+    }
 
 
-	//	@Override
-//	public TermsOfUse getTermsOfUse() throws TermsOfUseRetrievalException {
-//		try {
-//			return TermsOfUse.fromJson(readCache(LIST_CACHE_FILE_NAME));
-//		} catch (IOException e) {
-//			logger.warn(e.getMessage());
-//			throw new TermsOfUseRetrievalException(e);
-//		} catch (JSONException e) {
-//			logger.warn(e.getMessage());
-//			throw new TermsOfUseRetrievalException(e);
-//		}
-//	}
-//
-//	@Override
-//	public Observable<TermsOfUse> getTermsOfUseObservable() {
-//		return null;
-//	}
-//
-//	@Override
-//	public List<TermsOfUse> getAllTermsOfUse() throws DataRetrievalFailureException, NotConnectedException {
-//		return null;
-//	}
-//
-//	@Override
-//	public Observable<List<TermsOfUse>> getAllTermsOfUseObservable() {
-//		return null;
-//	}
-//
-//	@Override
-//	public TermsOfUseInstance getTermsOfUseInstance(String id) throws TermsOfUseRetrievalException {
-//		try {
-//			return TermsOfUseInstance.fromJson(readCache(INSTANCE_CACHE_FILE_NAME+id));
-//		} catch (IOException e) {
-//			logger.warn(e.getMessage());
-//			throw new TermsOfUseRetrievalException(e);
-//		} catch (JSONException e) {
-//			logger.warn(e.getMessage());
-//			throw new TermsOfUseRetrievalException(e);
-//		}
-//	}
-//
-//	@Override
-//	public Observable<TermsOfUseInstance> getTermsOfUseInstanceObservable(String id) {
-//		return null;
-//	}
-//
-//	public void storeTermsOfUse(String content) throws IOException {
-//		storeCache(LIST_CACHE_FILE_NAME, content);
-//	}
-//
-//	public void storeTermsOfUseInstance(String content, String id) throws IOException {
-//		storeCache(INSTANCE_CACHE_FILE_NAME+id, content);
-//	}
-	
+    //	@Override
+    //	public TermsOfUse getTermsOfUse() throws TermsOfUseRetrievalException {
+    //		try {
+    //			return TermsOfUse.fromJson(readCache(LIST_CACHE_FILE_NAME));
+    //		} catch (IOException e) {
+    //			logger.warn(e.getMessage());
+    //			throw new TermsOfUseRetrievalException(e);
+    //		} catch (JSONException e) {
+    //			logger.warn(e.getMessage());
+    //			throw new TermsOfUseRetrievalException(e);
+    //		}
+    //	}
+    //
+    //	@Override
+    //	public Observable<TermsOfUse> getTermsOfUseObservable() {
+    //		return null;
+    //	}
+    //
+    //	@Override
+    //	public List<TermsOfUse> getAllTermsOfUse() throws DataRetrievalFailureException,
+    // NotConnectedException {
+    //		return null;
+    //	}
+    //
+    //	@Override
+    //	public Observable<List<TermsOfUse>> getAllTermsOfUseObservable() {
+    //		return null;
+    //	}
+    //
+    //	@Override
+    //	public TermsOfUseInstance getTermsOfUseInstance(String id) throws
+    // TermsOfUseRetrievalException {
+    //		try {
+    //			return TermsOfUseInstance.fromJson(readCache(INSTANCE_CACHE_FILE_NAME+id));
+    //		} catch (IOException e) {
+    //			logger.warn(e.getMessage());
+    //			throw new TermsOfUseRetrievalException(e);
+    //		} catch (JSONException e) {
+    //			logger.warn(e.getMessage());
+    //			throw new TermsOfUseRetrievalException(e);
+    //		}
+    //	}
+    //
+    //	@Override
+    //	public Observable<TermsOfUseInstance> getTermsOfUseInstanceObservable(String id) {
+    //		return null;
+    //	}
+    //
+    //	public void storeTermsOfUse(String content) throws IOException {
+    //		storeCache(LIST_CACHE_FILE_NAME, content);
+    //	}
+    //
+    //	public void storeTermsOfUseInstance(String content, String id) throws IOException {
+    //		storeCache(INSTANCE_CACHE_FILE_NAME+id, content);
+    //	}
+
 
 }

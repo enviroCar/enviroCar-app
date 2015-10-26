@@ -63,7 +63,7 @@ public class NotificationHandler {
         // Inject ourselves
         ((Injector) context).injectObjects(this);
 
-        // get the system service for notifications.
+        // get the system remoteService for notifications.
         mNotificationManager = (NotificationManager) mContext.getSystemService(Context
                 .NOTIFICATION_SERVICE);
 
@@ -170,9 +170,9 @@ public class NotificationHandler {
     }
 
     /**
-     * Closes the notification for a given service.
+     * Closes the notification for a given remoteService.
      *
-     * @param service the service for which the notification is required to be closed.
+     * @param service the remoteService for which the notification is required to be closed.
      */
     public void closeNotification(Service service) {
         if (mNotificationManager != null) {

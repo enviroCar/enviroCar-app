@@ -80,7 +80,7 @@ public class StartStopButtonUtil {
 
     /**
      * Update the UI contents of the button. This method
-     * DOES NOT fire any service state changes, it is completely
+     * DOES NOT fire any remoteService state changes, it is completely
      * passive.
      *
      * @param button the drawer button
@@ -112,7 +112,7 @@ public class StartStopButtonUtil {
     /**
      * React to a button click, considering the current state of the
      * application and its services. This method fires events
-     * and service starts actively.
+     * and remoteService starts actively.
      *
      * @param trackModeListener a callback to handle the inputs of the user
      */
