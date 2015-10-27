@@ -86,7 +86,7 @@ public class TrackMetadata {
 		for (String key : newMetadata.entries.keySet()) {
 			String newValue = newMetadata.entries.get(key);
 			if (newValue != null && !newValue.isEmpty()) {
-				this.entries.put(key, newMetadata.entries.get(key));
+				this.entries.put(key, newValue);
 			}
 		}
 	}
