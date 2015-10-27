@@ -14,6 +14,15 @@ This software uses the gradle build system and is optimized to work within Andro
 The setup of the source code should be straightforward. Just follow the Android Studio guidelines
 for existing projects.
 
+## License
+
+The enviroCar App is licensed under the [GNU General Public License, Version 3](https://github.com/enviroCar/enviroCar-app/blob/master/LICENSE).
+
+## OBD simulator
+
+The repository also contains a simple OBD simulator (dumb, nothing fancy) that can
+be used on another Android device and mock the actual car adapter.
+
 ## Contributors
 
 [Here is the list of contributors to this project](https://github.com/enviroCar/enviroCar-app/blob/master/CONTRIBUTORS.md)
