@@ -256,7 +256,7 @@ public interface DbAdapter {
 	void insertMeasurement(Measurement measurement, boolean ignoreFinished)
 			throws MeasurementSerializationException, TrackAlreadyFinishedException;
 
-	public void updateTrackMetadata(Track.TrackId trackId, TrackMetadata trackMetadata);
+	public TrackMetadata updateTrackMetadata(Track.TrackId trackId, TrackMetadata trackMetadata);
 
 	public void transitLocalToRemoteTrack(Track track, String remoteId);
 

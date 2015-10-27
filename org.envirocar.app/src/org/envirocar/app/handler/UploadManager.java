@@ -123,9 +123,9 @@ public class UploadManager {
                 mNotificationHandler.createNotification("start");
 
                 for (Track track : tracks) {
-                    mDBAdapter.updateTrackMetadata(track.getTrackID(),
+                    track.setMetadata(mDBAdapter.updateTrackMetadata(track.getTrackID(),
                             new TrackMetadata(Util.getVersionString(mContext),
-                                    mUserManager.getUser().getTermsOfUseVersion()));
+                                    mUserManager.getUser().getTermsOfUseVersion())));
 
                     try {
                         // assert the car of the track for validity.
@@ -203,9 +203,9 @@ public class UploadManager {
                  * inject track metadata
 				 */
 
-                mDBAdapter.updateTrackMetadata(track.getTrackID(),
+                track.setMetadata(mDBAdapter.updateTrackMetadata(track.getTrackID(),
                         new TrackMetadata(Util.getVersionString(mContext),
-                                mUserManager.getUser().getTermsOfUseVersion()));
+                                mUserManager.getUser().getTermsOfUseVersion())));
 
                 try {
                     if (hasTemporaryCar(track)) {

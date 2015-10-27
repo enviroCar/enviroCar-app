@@ -287,6 +287,7 @@ public class OBDCommandLooper extends HandlerThread {
 		
 		long time = 0;
 		for (CommonCommand cmd : cmds) {
+			logger.info("COMMAND: "+cmd.getCommandName() +": "+cmd.getCommandState() +" / "+ Arrays.toString(cmd.getRawData()));
 			if (cmd.getCommandState() == CommonCommandState.FINISHED) {
 				commandListener.receiveUpdate(cmd);
 				time = cmd.getResultTime();
