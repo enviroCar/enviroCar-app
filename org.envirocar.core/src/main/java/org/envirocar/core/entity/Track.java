@@ -98,7 +98,7 @@ public interface Track extends BaseEntity<Track>, Comparable<Track> {
 
     void setMetadata(TrackMetadata metadata);
 
-    void updateMetadata(TrackMetadata metadata);
+    TrackMetadata updateMetadata(TrackMetadata metadata);
 
     Measurement getFirstMeasurement() throws NoMeasurementsException;
 
