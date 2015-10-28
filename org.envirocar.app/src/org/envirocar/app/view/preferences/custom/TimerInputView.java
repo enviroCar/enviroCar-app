@@ -8,7 +8,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import org.envirocar.app.R;
-import org.envirocar.app.logging.Logger;
+import org.envirocar.core.logging.Logger;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;

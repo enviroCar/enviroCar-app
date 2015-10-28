@@ -11,10 +11,10 @@ import android.view.ViewGroup;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
-import org.envirocar.app.bluetooth.obd.events.SpeedUpdateEvent;
-import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.logging.Logger;
+import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.app.view.preferences.Tempomat;
+import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.core.logging.Logger;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -23,7 +23,7 @@ import butterknife.InjectView;
  * @author dewall
  */
 public class DashboardTempomatFragment extends BaseInjectorFragment {
-    private static final Logger LOGGER = Logger.getLogger(DashboardTempomatFragment.class);
+    private static final Logger LOG = Logger.getLogger(DashboardTempomatFragment.class);
 
     @InjectView(R.id.fragment_dashboard_tempomat_view)
     protected Tempomat mTempomatView;
@@ -32,7 +32,7 @@ public class DashboardTempomatFragment extends BaseInjectorFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
-        LOGGER.info("onCreateView()");
+        LOG.info("onCreateView()");
 
         setHasOptionsMenu(true);
 
@@ -48,19 +48,19 @@ public class DashboardTempomatFragment extends BaseInjectorFragment {
 
     @Override
     public void onResume() {
-        LOGGER.info("onResume()");
+        LOG.info("onResume()");
         super.onResume();
     }
 
     @Override
     public void onPause(){
-        LOGGER.info("onPause()");
+        LOG.info("onPause()");
         super.onPause();
     }
 
     @Override
     public void onDestroy() {
-        LOGGER.info("onDestroy()");
+        LOG.info("onDestroy()");
         super.onDestroy();
         mTempomatView.destroyDrawingCache();
         mTempomatView = null;
@@ -79,7 +79,7 @@ public class DashboardTempomatFragment extends BaseInjectorFragment {
      */
     @Subscribe
     public void onReceiveSpeedUpdateEvent(SpeedUpdateEvent event) {
-        LOGGER.debug(String.format("Received event: %s", event.toString()));
+        LOG.debug(String.format("Received event: %s", event.toString()));
         if(mTempomatView != null){
             mTempomatView.setSpeed(event.mSpeed);
         }

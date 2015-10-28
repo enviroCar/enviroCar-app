@@ -30,17 +30,22 @@ import android.util.Log;
 import com.google.common.collect.Lists;
 
 import org.envirocar.app.R;
-import org.envirocar.app.application.CarPreferenceHandler;
-import org.envirocar.app.injection.InjectApplicationScope;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.Car;
-import org.envirocar.app.model.Car.FuelType;
-import org.envirocar.app.model.Position;
-import org.envirocar.app.model.TrackId;
-import org.envirocar.app.storage.Measurement.PropertyKey;
-import org.envirocar.app.storage.Track.TrackStatus;
-import org.envirocar.app.util.Util;
+import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.core.delete.Position;
+import org.envirocar.core.entity.Car;
+import org.envirocar.core.entity.CarImpl;
+import org.envirocar.core.entity.Measurement;
+import org.envirocar.core.entity.MeasurementImpl;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.entity.TrackImpl;
+import org.envirocar.core.exception.MeasurementSerializationException;
+import org.envirocar.core.exception.NoMeasurementsException;
+import org.envirocar.core.exception.TrackAlreadyFinishedException;
+import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.TrackMetadata;
+import org.envirocar.core.util.Util;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -149,7 +154,7 @@ public class DbAdapterImpl implements DbAdapter {
     @Inject
     protected CarPreferenceHandler mCarManager;
 
-    private TrackId activeTrackReference;
+    private Track.TrackId activeTrackReference;
 
     private long lastMeasurementsInsertionTimestamp;
 
@@ -203,7 +208,7 @@ public class DbAdapterImpl implements DbAdapter {
             Track tempTrack = getTrack(measurement.getTrackId(), true);
             if (tempTrack.isFinished()) {
                 throw new TrackAlreadyFinishedException("The linked track (" + tempTrack
-                        .getTrackId() + ") is already finished!");
+                        .getTrackID() + ") is already finished!");
             }
         }
 
@@ -228,7 +233,7 @@ public class DbAdapterImpl implements DbAdapter {
     @Override
     public synchronized void insertNewMeasurement(Measurement measurement) throws
             TrackAlreadyFinishedException, MeasurementSerializationException {
-        TrackId activeTrack = getActiveTrackReference(
+        Track.TrackId activeTrack = getActiveTrackReference(
                 new Position(measurement.getLatitude(), measurement.getLongitude()));
 
         measurement.setTrackId(activeTrack);
@@ -242,12 +247,12 @@ public class DbAdapterImpl implements DbAdapter {
         ContentValues values = createDbEntry(track);
 
         long result = mDb.insert(TABLE_TRACK, null, values);
-        track.setTrackId(new TrackId(result));
+        track.setTrackID(new Track.TrackId(result));
 
         removeMeasurementArtifacts(result);
 
         for (Measurement m : track.getMeasurements()) {
-            m.setTrackId(track.getTrackId());
+            m.setTrackId(track.getTrackID());
             try {
                 insertMeasurement(m, remote);
             } catch (TrackAlreadyFinishedException e) {
@@ -271,7 +276,7 @@ public class DbAdapterImpl implements DbAdapter {
 
     @Override
     public synchronized boolean updateTrack(Track track) {
-        logger.debug("updateTrack: " + track.getTrackId());
+        logger.debug("updateTrack: " + track.getTrackID());
         ContentValues values = createDbEntry(track);
         long result = mDb.replace(TABLE_TRACK, null, values);
         return (result != -1 ? true : false);
@@ -289,7 +294,7 @@ public class DbAdapterImpl implements DbAdapter {
         c.moveToFirst();
         for (int i = 0; i < c.getCount(); i++) {
             long id = c.getLong(c.getColumnIndex(KEY_TRACK_ID));
-            tracks.add(getTrack(new TrackId(id), lazyMeasurements));
+            tracks.add(getTrack(new Track.TrackId(id), lazyMeasurements));
             c.moveToNext();
         }
         c.close();
@@ -302,7 +307,7 @@ public class DbAdapterImpl implements DbAdapter {
     }
 
     @Override
-    public Track getTrack(TrackId id, boolean lazyMeasurements) {
+    public Track getTrack(Track.TrackId id, boolean lazyMeasurements) {
         Cursor c = getCursorForTrackID(id.getId());
         if (!c.moveToFirst()) {
             return null;
@@ -310,26 +315,20 @@ public class DbAdapterImpl implements DbAdapter {
 
         String remoteId = c.getString(c.getColumnIndex(KEY_TRACK_REMOTE));
 
-        Track track;
-        if (remoteId != null && !remoteId.isEmpty()) {
-            track = Track.createRemoteTrack(remoteId);
-        } else {
-            track = Track.createLocalTrack();
+        Track track = new TrackImpl(Track.DownloadState.DOWNLOADED);
+        if(remoteId != null && !remoteId.isEmpty()){
+            track.setRemoteID(remoteId);
         }
 
-        track.setTrackId(id);
-
+        track.setTrackID(id);
         track.setName(c.getString(c.getColumnIndex(KEY_TRACK_NAME)));
         track.setDescription(c.getString(c.getColumnIndex(KEY_TRACK_DESCRIPTION)));
 
         int statusColumn = c.getColumnIndex(KEY_TRACK_STATE);
         if (statusColumn != -1) {
-            track.setStatus(TrackStatus.valueOf(c.getString(statusColumn)));
+            track.setTrackStatus(Track.TrackStatus.valueOf(c.getString(statusColumn)));
         } else {
-            /*
-             * if its a legacy track (column not there), set to finished
-			 */
-            track.setStatus(TrackStatus.FINISHED);
+            track.setTrackStatus(Track.TrackStatus.FINISHED);
         }
 
         String metadata = c.getString(c.getColumnIndex(KEY_TRACK_METADATA));
@@ -349,7 +348,7 @@ public class DbAdapterImpl implements DbAdapter {
         if (!lazyMeasurements) {
             loadMeasurements(track);
         } else {
-            track.setLazyLoadingMeasurements(true);
+            track.setLazyMeasurements(true);
             Measurement first = getFirstMeasurementForTrack(track);
             Measurement last = getLastMeasurementForTrack(track);
 
@@ -364,7 +363,7 @@ public class DbAdapterImpl implements DbAdapter {
             /*
              * remote tracks are always finished
 			 */
-            track.setStatus(TrackStatus.FINISHED);
+            track.setTrackStatus(Track.TrackStatus.FINISHED);
         }
 
         return track;
@@ -385,16 +384,17 @@ public class DbAdapterImpl implements DbAdapter {
         String manufacturer = c.getString(c.getColumnIndex(KEY_TRACK_CAR_MANUFACTURER));
         String model = c.getString(c.getColumnIndex(KEY_TRACK_CAR_MODEL));
         String carId = c.getString(c.getColumnIndex(KEY_TRACK_CAR_ID));
-        FuelType fuelType = FuelType.valueOf(c.getString(c.getColumnIndex
+        Car.FuelType fuelType = Car.FuelType.valueOf(c.getString(c.getColumnIndex
                 (KEY_TRACK_CAR_FUEL_TYPE)));
         int engineDisplacement = c.getInt(c.getColumnIndex(KEY_TRACK_CAR_ENGINE_DISPLACEMENT));
         int year = c.getInt(c.getColumnIndex(KEY_TRACK_CAR_YEAR));
-        return new Car(fuelType, manufacturer, model, carId, year, engineDisplacement);
+
+        return new CarImpl(carId, manufacturer, model, fuelType, year, engineDisplacement);
     }
 
     private Measurement getLastMeasurementForTrack(Track track) {
         Cursor c = mDb.query(TABLE_MEASUREMENT, ALL_MEASUREMENT_KEYS,
-                KEY_MEASUREMENT_TRACK + "=\"" + track.getTrackId() + "\"", null, null, null,
+                KEY_MEASUREMENT_TRACK + "=\"" + track.getTrackID() + "\"", null, null, null,
                 KEY_MEASUREMENT_TIME + " DESC", "1");
 
 
@@ -409,7 +409,7 @@ public class DbAdapterImpl implements DbAdapter {
 
     private Measurement getFirstMeasurementForTrack(Track track) {
         Cursor c = mDb.query(TABLE_MEASUREMENT, ALL_MEASUREMENT_KEYS,
-                KEY_MEASUREMENT_TRACK + "=\"" + track.getTrackId() + "\"", null, null, null,
+                KEY_MEASUREMENT_TRACK + "=\"" + track.getTrackID() + "\"", null, null, null,
                 KEY_MEASUREMENT_TIME + " ASC", "1");
 
         Measurement measurement = null;
@@ -426,9 +426,9 @@ public class DbAdapterImpl implements DbAdapter {
         double lon = c.getDouble(c.getColumnIndex(KEY_MEASUREMENT_LONGITUDE));
         long time = c.getLong(c.getColumnIndex(KEY_MEASUREMENT_TIME));
         String rawData = c.getString(c.getColumnIndex(KEY_MEASUREMENT_PROPERTIES));
-        Measurement measurement = new Measurement(lat, lon);
+        Measurement measurement = new MeasurementImpl(lat, lon);
         measurement.setTime(time);
-        measurement.setTrackId(track.getTrackId());
+        measurement.setTrackId(track.getTrackID());
 
         if (rawData != null) {
             try {
@@ -437,7 +437,7 @@ public class DbAdapterImpl implements DbAdapter {
                 if (names != null) {
                     for (int j = 0; j < names.length(); j++) {
                         String key = names.getString(j);
-                        measurement.setProperty(PropertyKey.valueOf(key), json.getDouble(key));
+                        measurement.setProperty(Measurement.PropertyKey.valueOf(key), json.getDouble(key));
                     }
                 }
             } catch (JSONException e) {
@@ -448,12 +448,12 @@ public class DbAdapterImpl implements DbAdapter {
     }
 
     @Override
-    public Track getTrack(TrackId id) {
+    public Track getTrack(Track.TrackId id) {
         return getTrack(id, false);
     }
 
     @Override
-    public boolean hasTrack(TrackId id) {
+    public boolean hasTrack(Track.TrackId id) {
         Cursor cursor = getCursorForTrackID(id.getId());
         if (cursor.getCount() > 0) {
             return true;
@@ -495,7 +495,7 @@ public class DbAdapterImpl implements DbAdapter {
     }
 
     @Override
-    public void deleteTrack(TrackId id) {
+    public void deleteTrack(Track.TrackId id) {
         logger.debug("deleteLocalTrack: " + id);
         mDb.delete(TABLE_TRACK, KEY_TRACK_ID + "='" + id + "'", null);
         removeMeasurementArtifacts(id.getId());
@@ -547,7 +547,7 @@ public class DbAdapterImpl implements DbAdapter {
                 null, null, null);
         c.moveToFirst();
         for (int i = 0; i < c.getCount(); i++) {
-            tracks.add(getTrack(new TrackId(c.getLong(c.getColumnIndex(KEY_TRACK_ID))),
+            tracks.add(getTrack(new Track.TrackId(c.getLong(c.getColumnIndex(KEY_TRACK_ID))),
                     lazyMeasurements));
             c.moveToNext();
         }
@@ -567,7 +567,7 @@ public class DbAdapterImpl implements DbAdapter {
                 null, null, null, null);
         c.moveToFirst();
         for (int i = 0; i < c.getCount(); i++) {
-            tracks.add(getTrack(new TrackId(c.getLong(c.getColumnIndex(KEY_TRACK_ID))),
+            tracks.add(getTrack(new Track.TrackId(c.getLong(c.getColumnIndex(KEY_TRACK_ID))),
                     lazyMeasurements));
             c.moveToNext();
         }
@@ -577,15 +577,15 @@ public class DbAdapterImpl implements DbAdapter {
 
     private ContentValues createDbEntry(Track track) {
         ContentValues values = new ContentValues();
-        if (track.getTrackId() != null && track.getTrackId().getId() != 0) {
-            values.put(KEY_TRACK_ID, track.getTrackId().getId());
+        if (track.getTrackID() != null && track.getTrackID().getId() != 0) {
+            values.put(KEY_TRACK_ID, track.getTrackID().getId());
         }
         values.put(KEY_TRACK_NAME, track.getName());
         values.put(KEY_TRACK_DESCRIPTION, track.getDescription());
         if (track.isRemoteTrack()) {
-            values.put(KEY_TRACK_REMOTE, ((RemoteTrack) track).getRemoteID());
+            values.put(KEY_TRACK_REMOTE, track.getRemoteID());
         }
-        values.put(KEY_TRACK_STATE, track.getStatus().toString());
+        values.put(KEY_TRACK_STATE, track.getTrackStatus().toString());
         if (track.getCar() != null) {
             values.put(KEY_TRACK_CAR_MANUFACTURER, track.getCar().getManufacturer());
             values.put(KEY_TRACK_CAR_MODEL, track.getCar().getModel());
@@ -609,8 +609,8 @@ public class DbAdapterImpl implements DbAdapter {
     public JSONObject createJsonObjectForProperties(Measurement measurement) throws JSONException {
         JSONObject result = new JSONObject();
 
-        Map<PropertyKey, Double> properties = measurement.getAllProperties();
-        for (PropertyKey key : properties.keySet()) {
+        Map<Measurement.PropertyKey, Double> properties = measurement.getAllProperties();
+        for (Measurement.PropertyKey key : properties.keySet()) {
             result.put(key.name(), properties.get(key));
         }
 
@@ -628,7 +628,7 @@ public class DbAdapterImpl implements DbAdapter {
         ArrayList<Measurement> allMeasurements = new ArrayList<Measurement>();
 
         Cursor c = mDb.query(TABLE_MEASUREMENT, ALL_MEASUREMENT_KEYS,
-                KEY_MEASUREMENT_TRACK + "=\"" + track.getTrackId() + "\"", null, null, null,
+                KEY_MEASUREMENT_TRACK + "=\"" + track.getTrackID() + "\"", null, null, null,
                 KEY_MEASUREMENT_TIME + " ASC");
 
         if (!c.moveToFirst()) {
@@ -653,7 +653,7 @@ public class DbAdapterImpl implements DbAdapter {
 
         String date = format.format(new Date());
         Car car = mCarManager.getCar();
-        Track track = Track.createLocalTrack();
+        Track track = new TrackImpl(Track.DownloadState.DOWNLOADED);
         track.setCar(car);
         track.setName("Track " + date);
         track.setDescription(String.format(mContext.getString(R.string.default_track_description)
@@ -666,19 +666,22 @@ public class DbAdapterImpl implements DbAdapter {
     public synchronized Track finishCurrentTrack() {
         Track last = getLastUsedTrack();
         if (last != null) {
-            if (last.getLastMeasurement() == null) {
-                deleteTrack(last.getTrackId());
+            try {
+                last.getLastMeasurement();
+            } catch (NoMeasurementsException e) {
+                deleteTrack(last.getTrackID());
             }
-            last.setStatus(TrackStatus.FINISHED);
+
+            last.setTrackStatus(Track.TrackStatus.FINISHED);
             updateTrack(last);
 
-            if (last.getTrackId().equals(activeTrackReference)) {
+            if (last.getTrackID().equals(activeTrackReference)) {
                 logger.info("removing activeTrackReference: " + activeTrackReference);
             } else {
                 logger.info(String.format(
                         "Finished track did not have the same ID as the activeTrackReference. " +
                                 "Finished: %s vs. active: %s",
-                        last.getTrackId(), activeTrackReference));
+                        last.getTrackID(), activeTrackReference));
             }
 
             activeTrackReference = null;
@@ -695,7 +698,7 @@ public class DbAdapterImpl implements DbAdapter {
     }
 
     @Override
-    public synchronized TrackId getActiveTrackReference(Position pos) {
+    public synchronized Track.TrackId getActiveTrackReference(Position pos) {
         /*
 		 * make this performant. if we have an activeTrackReference
 		 * and its not too old, use it
@@ -716,13 +719,11 @@ public class DbAdapterImpl implements DbAdapter {
         logger.info(
                 String.format("getActiveTrackReference - Track: %s / id: %s",
                         lastUsed.getName(),
-                        lastUsed.getTrackId()));
+                        lastUsed.getTrackID()));
 
-        activeTrackReference = lastUsed.getTrackId();
+        activeTrackReference = lastUsed.getTrackID();
 
-        if (this.obdDeviceMetadata != null) {
-            updateTrackMetadata(activeTrackReference, this.obdDeviceMetadata);
-        }
+        setConnectedOBDDevice(this.obdDeviceMetadata);
 
         return activeTrackReference;
     }
@@ -739,65 +740,71 @@ public class DbAdapterImpl implements DbAdapter {
         // New track if last measurement is more than 60 minutes
         // ago
 
-        if (lastUsedTrack != null && lastUsedTrack.getStatus() != TrackStatus.FINISHED &&
-                lastUsedTrack.getLastMeasurement() != null) {
+        try {
+            if (lastUsedTrack != null && lastUsedTrack.getTrackStatus() != Track.TrackStatus.FINISHED &&
+                    lastUsedTrack.getLastMeasurement() != null) {
 
-            if ((System.currentTimeMillis() - lastUsedTrack
-                    .getLastMeasurement().getTime()) > this.maxTimeBetweenMeasurements) {
-                logger.info(String.format("Should create a new track: last measurement is more " +
-                                "than %d mins ago",
-                        (int) (this.maxTimeBetweenMeasurements / 1000 / 60)));
-                return false;
-            }
-
-            // new track if last position is significantly different
-            // from the current position (more than 3 km)
-            else if (location == null || Util.getDistance(lastUsedTrack.getLastMeasurement()
-                            .getLatitude(), lastUsedTrack.getLastMeasurement().getLongitude(),
-                    location.getLatitude(), location.getLongitude()) > this
-                    .maxDistanceBetweenMeasurements) {
-                logger.info(String.format("Should create a new track: last measurement's position" +
-                                " is more than %f km away",
-                        this.maxDistanceBetweenMeasurements));
-                return false;
-            }
-
-            // TODO: New track if user clicks on create new track button
-
-            // TODO: new track if VIN changed
-
-            else {
-                logger.info("Should append to the last track: last measurement is close enough in" +
-                        " space/time");
-                return true;
-            }
-
-        } else {
-            logger.info(String.format("Should create new Track. Last was null? %b; Last status " +
-                            "was: %s; Last measurement: %s",
-                    lastUsedTrack == null,
-                    lastUsedTrack == null ? "n/a" : lastUsedTrack.getStatus().toString(),
-                    lastUsedTrack == null ? "n/a" : lastUsedTrack.getLastMeasurement()));
-
-            if (lastUsedTrack != null && !lastUsedTrack.isRemoteTrack()) {
-                List<Measurement> measurements = lastUsedTrack.getMeasurements();
-                if (measurements == null || measurements.isEmpty()) {
-                    logger.info(String.format("Track %s did not contain measurements and will not" +
-                            " be used. Deleting!", lastUsedTrack.getTrackId()));
-                    //                    deleteLocalTrack(lastUsedTrack.getTrackId());
+                if ((System.currentTimeMillis() - lastUsedTrack
+                        .getLastMeasurement().getTime()) > this.maxTimeBetweenMeasurements) {
+                    logger.info(String.format("Should create a new track: last measurement is more " +
+                                    "than %d mins ago",
+                            (int) (this.maxTimeBetweenMeasurements / 1000 / 60)));
+                    return false;
                 }
-            }
 
+                // new track if last position is significantly different
+                // from the current position (more than 3 km)
+                else if (location == null || Util.getDistance(lastUsedTrack.getLastMeasurement()
+                                .getLatitude(), lastUsedTrack.getLastMeasurement().getLongitude(),
+                        location.getLatitude(), location.getLongitude()) > this
+                        .maxDistanceBetweenMeasurements) {
+                    logger.info(String.format("Should create a new track: last measurement's position" +
+                                    " is more than %f km away",
+                            this.maxDistanceBetweenMeasurements));
+                    return false;
+                }
+
+                // TODO: New track if user clicks on create new track button
+
+                // TODO: new track if VIN changed
+
+                else {
+                    logger.info("Should append to the last track: last measurement is close enough in" +
+                            " space/time");
+                    return true;
+                }
+
+            } else {
+                logger.info("should craete a new track?");
+//                logger.info(String.format("Should create new Track. Last was null? %b; Last status " +
+//                                "was: %s; Last measurement: %s",
+//                        lastUsedTrack == null,
+//                        lastUsedTrack == null ? "n/a" : lastUsedTrack.getTrackStatus().toString(),
+//                        lastUsedTrack == null ? "n/a" : lastUsedTrack.getLastMeasurement()));
+
+                if (lastUsedTrack != null && !lastUsedTrack.isRemoteTrack()) {
+                    List<Measurement> measurements = lastUsedTrack.getMeasurements();
+                    if (measurements == null || measurements.isEmpty()) {
+                        logger.info(String.format("Track %s did not contain measurements and will not" +
+                                " be used. Deleting!", lastUsedTrack.getTrackID()));
+                        //                    deleteLocalTrack(lastUsedTrack.getTrackId());
+                    }
+                }
+
+                return false;
+            }
+        } catch (NoMeasurementsException e) {
+            logger.warn(e.getMessage(), e);
             return false;
         }
-
     }
 
     @Override
-    public void updateTrackMetadata(TrackId trackId, TrackMetadata trackMetadata) {
+    public TrackMetadata updateTrackMetadata(Track.TrackId trackId, TrackMetadata trackMetadata) {
         Track tempTrack = getTrack(trackId, true);
-        tempTrack.updateMetadata(trackMetadata);
+        TrackMetadata result = tempTrack.updateMetadata(trackMetadata);
         updateTrack(tempTrack);
+        return result;
     }
 
     @Override
@@ -806,23 +813,23 @@ public class DbAdapterImpl implements DbAdapter {
         newValues.put(KEY_TRACK_REMOTE, remoteId);
 
         mDb.update(TABLE_TRACK, newValues, KEY_TRACK_ID + "=?", new String[]{
-                Long.toString(track.getTrackId().getId())
+                Long.toString(track.getTrackID().getId())
         });
     }
 
     @Override
     public void loadMeasurements(Track track) {
         List<Measurement> measurements = getAllMeasurementsForTrack(track);
-        track.setMeasurementsAsArrayList(measurements);
-        track.setLazyLoadingMeasurements(false);
+        track.setMeasurements(measurements);
+        track.setLazyMeasurements(false);
     }
 
     @Override
     public void setConnectedOBDDevice(TrackMetadata obdDeviceMetadata) {
         this.obdDeviceMetadata = obdDeviceMetadata;
 
-        if (this.activeTrackReference != null) {
-            updateTrackMetadata(activeTrackReference, obdDeviceMetadata);
+        if (this.obdDeviceMetadata != null && this.activeTrackReference != null) {
+            updateTrackMetadata(activeTrackReference, this.obdDeviceMetadata);
         }
     }
 
@@ -847,5 +854,4 @@ public class DbAdapterImpl implements DbAdapter {
             onCreate(db);
         }
     }
-
 }

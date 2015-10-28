@@ -22,7 +22,8 @@ package org.envirocar.app.storage;
 
 import android.content.Context;
 
-import org.envirocar.app.injection.Injector;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.injection.Injector;
 
 import javax.inject.Inject;
 
@@ -46,7 +47,7 @@ public class LazyLoadingStrategyImpl implements LazyLoadingStrategy {
     @Override
 	public void lazyLoadMeasurements(Track track) {
 		mDBAdapter.loadMeasurements(track);
-		track.setLazyLoadingMeasurements(false);
+		track.setLazyMeasurements(false);
 	}
 
 }

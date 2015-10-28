@@ -36,15 +36,13 @@ import org.envirocar.app.model.Car.FuelType;
 import org.envirocar.app.storage.Measurement;
 import org.envirocar.app.storage.Track;
 import org.envirocar.app.storage.Measurement.PropertyKey;
-import org.envirocar.app.storage.TrackAlreadyFinishedException;
+import org.envirocar.core.exception.TrackAlreadyFinishedException;
 import org.envirocar.app.storage.TrackMetadata;
 import org.envirocar.app.util.InputStreamWithLength;
 import org.envirocar.app.util.Util;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
-
-import android.test.AndroidTestCase;
 
 public class TrackEncoderTest {
 	

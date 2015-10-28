@@ -71,7 +71,8 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="@dimen/fab_margin_16"
-                android:paddingTop="@dimen/fab_margin_download_button_top">
+                android:paddingTop="@dimen/fab_margin_download_button_top"
+                card_view:reusable="true">
 
                 <android.support.design.widget.FloatingActionButton
                     android:id="@+id/fragment_tracklist_cardlayout_remote_downloadfab"

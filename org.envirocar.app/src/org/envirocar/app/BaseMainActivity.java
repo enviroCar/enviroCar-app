@@ -24,42 +24,43 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.common.collect.Lists;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.activity.DialogUtil;
-import org.envirocar.app.activity.HelpFragment;
-import org.envirocar.app.activity.ListTracksFragment;
-import org.envirocar.app.activity.LogbookFragment;
-import org.envirocar.app.activity.SendLogFileFragment;
-import org.envirocar.app.activity.SettingsActivity;
-import org.envirocar.app.activity.TroubleshootingFragment;
-import org.envirocar.app.application.CarPreferenceHandler;
-import org.envirocar.app.application.TemporaryFileManager;
-import org.envirocar.app.application.UserManager;
-import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.bluetooth.service.BluetoothServiceState;
-import org.envirocar.app.events.NewUserSettingsEvent;
-import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
-import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.injection.module.InjectionActivityModule;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.Announcement;
-import org.envirocar.app.model.User;
-import org.envirocar.app.model.dao.DAOProvider;
-import org.envirocar.app.model.dao.exception.AnnouncementsRetrievalException;
-import org.envirocar.app.model.dao.service.utils.EnvirocarServiceUtils;
+import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.PreferenceConstants;
+import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.handler.TemporaryFileManager;
+import org.envirocar.app.handler.UserHandler;
+import org.envirocar.remote.DAOProvider;
+import org.envirocar.app.injection.InjectionActivityModule;
 import org.envirocar.app.services.OBDConnectionService;
-import org.envirocar.app.services.ServiceUtils;
 import org.envirocar.app.services.SystemStartupService;
-import org.envirocar.app.util.Util;
-import org.envirocar.app.util.VersionRange;
+import org.envirocar.app.view.HelpFragment;
+import org.envirocar.app.view.LogbookFragment;
 import org.envirocar.app.view.LoginActivity;
+import org.envirocar.app.view.SendLogFileFragment;
+import org.envirocar.app.view.TroubleshootingFragment;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
-import org.envirocar.app.view.preferences.PreferenceConstants;
 import org.envirocar.app.view.settings.NewSettingsActivity;
 import org.envirocar.app.view.tracklist.TrackListPagerFragment;
-import org.envirocar.app.view.tracklist.TrackListFragment;
+import org.envirocar.core.entity.Announcement;
+import org.envirocar.core.entity.User;
+import org.envirocar.core.events.NewUserSettingsEvent;
+import org.envirocar.core.events.TrackFinishedEvent;
+import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
+import org.envirocar.core.exception.DataRetrievalFailureException;
+import org.envirocar.core.exception.NoMeasurementsException;
+import org.envirocar.core.exception.NotConnectedException;
+import org.envirocar.core.injection.BaseInjectorActivity;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.Util;
+import org.envirocar.core.util.VersionRange;
+import org.envirocar.core.utils.ServiceUtils;
+import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
+import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -74,9 +75,8 @@ import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 import rx.Scheduler;
 import rx.Subscription;
-import rx.android.content.ContentObservable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * Main UI application that cares about the auto-upload, auto-connect and global
@@ -89,9 +89,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     public static final int TRACK_MODE_SINGLE = 0;
     public static final int TRACK_MODE_AUTO = 1;
-    public static final int REQUEST_MY_GARAGE = 1336;
-    public static final int REQUEST_REDPreferenceConstantsIRECT_TO_GARAGE = 1337;
-    private static final String TAG = BaseMainActivity.class.getSimpleName();
 
 
     private static final String TRACK_MODE = "trackMode";
@@ -108,7 +105,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     // Injected variables
     @Inject
-    protected UserManager mUserManager;
+    protected UserHandler mUserManager;
     @Inject
     protected CarPreferenceHandler mCarManager;
     @Inject
@@ -147,6 +144,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
     private BluetoothServiceState mServiceState = BluetoothServiceState.SERVICE_STOPPED;
     private Fragment mCurrentFragment;
     private Fragment mStartupFragment;
+
+    private CompositeSubscription subscriptions = new CompositeSubscription();
 
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
@@ -200,15 +199,12 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         // Subscribe for preference subscriptions. In this case, subscribe for changes to the
         // active screen settings.
-        mPreferenceSubscription = ContentObservable
-                .fromSharedPreferencesChanges(PreferenceManager.getDefaultSharedPreferences(this))
-                .subscribeOn(Schedulers.computation())
+        // TODO
+        subscriptions.add(PreferencesHandler.getDisplayStaysActiveObservable(this)
                 .observeOn(AndroidSchedulers.mainThread())
-                .filter(prefKey -> PreferenceConstants.DISPLAY_STAYS_ACTIV.equals(prefKey))
-                .subscribe(prefKey -> {
+                .subscribe(aBoolean -> {
                     checkKeepScreenOn();
-                });
-
+                }));
 
         errorInformationReceiver = new BroadcastReceiver() {
             @Override
@@ -284,6 +280,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         checkKeepScreenOn();
 
+
         //        new AsyncTask<Void, Void, Void>() {
         //            @Override
         //            protected Void doInBackground(Void... params) {
@@ -310,7 +307,13 @@ public class BaseMainActivity extends BaseInjectorActivity {
         mTemporaryFileManager.shutdown();
 
         // Unsubscribe all subscriptions.
-        mPreferenceSubscription.unsubscribe();
+        if (mPreferenceSubscription != null) {
+            mPreferenceSubscription.unsubscribe();
+        }
+
+        if (!subscriptions.isUnsubscribed()) {
+            subscriptions.unsubscribe();
+        }
     }
 
     @Override
@@ -329,12 +332,14 @@ public class BaseMainActivity extends BaseInjectorActivity {
     }
 
     private void checkAffectingAnnouncements() {
-        final List<Announcement> annos;
+        final List<Announcement> annos = Lists.newArrayList();
         try {
-            annos = mDAOProvider.getAnnouncementsDAO().getAllAnnouncements();
-        } catch (AnnouncementsRetrievalException e) {
+            annos.addAll(mDAOProvider.getAnnouncementsDAO().getAllAnnouncements());
+        } catch (DataRetrievalFailureException e) {
             LOGGER.warn(e.getMessage(), e);
             return;
+        } catch (NotConnectedException e) {
+            e.printStackTrace();
         }
 
         final VersionRange.Version version;
@@ -358,8 +363,18 @@ public class BaseMainActivity extends BaseInjectorActivity {
     }
 
     private void showAnnouncement(final Announcement announcement) {
-        String title = announcement.createUITitle(this);
-        String content = announcement.getContent();
+        String priorityi18n;
+        if (announcement.getPriority().equals(Announcement.Priority.HIGH)) {
+            priorityi18n = this.getString(R.string.category_high);
+        } else if (announcement.getPriority().equals(Announcement.Priority.MEDIUM)) {
+            priorityi18n = this.getString(R.string.category_normal);
+        } else {
+            priorityi18n = this.getString(R.string.category_low);
+        }
+        String title = String.format("[%s] %s %s", priorityi18n, announcement.getPriority(), this
+                .getString(R.string
+                        .announcement));
+        String content = announcement.getContent().getAsString();
 
         DialogUtil.createTitleMessageInfoDialog(title, Html.fromHtml(content), true, new
                 DialogUtil.PositiveNegativeCallback() {
@@ -455,9 +470,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
             case R.id.menu_nav_drawer_tracklist_new:
                 fragment = new TrackListPagerFragment();
                 break;
-            case R.id.menu_nav_drawer_tracklist:
-                fragment = new ListTracksFragment();
-                break;
             case R.id.menu_nav_drawer_logbook:
                 fragment = new LogbookFragment();
                 break;
@@ -516,11 +528,11 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     private void shutdownEnviroCar() {
 
-        if (ServiceUtils.isServiceRunning(this, OBDConnectionService.class)){
+        if (ServiceUtils.isServiceRunning(this, OBDConnectionService.class)) {
             Intent intent = new Intent(getApplicationContext(), OBDConnectionService.class);
             getApplicationContext().stopService(intent);
         }
-        if (ServiceUtils.isServiceRunning(this, SystemStartupService.class)){
+        if (ServiceUtils.isServiceRunning(this, SystemStartupService.class)) {
             Intent intent = new Intent(getApplicationContext(), SystemStartupService.class);
             getApplicationContext().stopService(intent);
         }
@@ -540,7 +552,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
             ft.setCustomAnimations(animIn, animOut);
         }
         ft.replace(R.id.content_frame, fragment, fragment.getClass().getSimpleName());
-//        ft.addToBackStack(null);
+        //        ft.addToBackStack(null);
         ft.commit();
     }
 
@@ -558,15 +570,21 @@ public class BaseMainActivity extends BaseInjectorActivity {
             if (event.mTrack == null) {
                 // Track is null and thus there was an error.
                 Crouton.makeText(this, R.string.track_finishing_failed, Style.ALERT).show();
-            } else if (event.mTrack.getLastMeasurement() == null) {
-                // Track has no measurements
-                Crouton.makeText(this, R.string.track_finished_no_measurements, Style.ALERT).show();
-            } else {
-                LOGGER.info("last is not null.. " + event.mTrack.getLastMeasurement().toString());
-                // Track has no measurements
-                Crouton.makeText(this,
-                        getString(R.string.track_finished).concat(event.mTrack.getName()),
-                        Style.INFO).show();
+            } else try {
+                if (event.mTrack.getLastMeasurement() == null) {
+                    // Track has no measurements
+                    Crouton.makeText(this, R.string.track_finished_no_measurements, Style.ALERT)
+                            .show();
+                } else {
+                    LOGGER.info("last is not null.. " + event.mTrack.getLastMeasurement()
+                            .toString());
+                    // Track has no measurements
+                    Crouton.makeText(this,
+                            getString(R.string.track_finished).concat(event.mTrack.getName()),
+                            Style.INFO).show();
+                }
+            } catch (NoMeasurementsException e) {
+                LOGGER.warn(e.getMessage(), e);
             }
         });
     }
@@ -608,16 +626,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     }
 
-    private boolean isAlwaysUpload() {
-        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PreferenceConstants
-                .ALWAYS_UPLOAD, false);
-    }
-
-    private boolean isUploadOnlyInWlan() {
-        return PreferenceManager.getDefaultSharedPreferences(this).getBoolean(PreferenceConstants
-                .WIFI_UPLOAD, true);
-    }
-
     private void checkKeepScreenOn() {
         if (PreferenceManager
                 .getDefaultSharedPreferences(this)
@@ -649,7 +657,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     protected void resolvePersistentSeenAnnouncements() {
         String pers = PreferenceManager.getDefaultSharedPreferences(this)
-                .getString(SettingsActivity.PERSISTENT_SEEN_ANNOUNCEMENTS, "");
+                .getString(PreferenceConstants.PERSISTENT_SEEN_ANNOUNCEMENTS, "");
 
         if (!pers.isEmpty()) {
             if (pers.contains(",")) {

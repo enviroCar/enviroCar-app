@@ -26,20 +26,20 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
-import org.envirocar.app.application.TermsOfUseManager;
-import org.envirocar.app.application.UserManager;
-import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.User;
-import org.envirocar.app.model.dao.DAOProvider;
-import org.envirocar.app.model.dao.TrackDAO;
-import org.envirocar.app.model.dao.exception.NotConnectedException;
-import org.envirocar.app.model.dao.exception.ResourceConflictException;
-import org.envirocar.app.model.dao.exception.TrackRetrievalException;
-import org.envirocar.app.model.dao.exception.UnauthorizedException;
-import org.envirocar.app.model.dao.exception.UserStatisticsRetrievalException;
-import org.envirocar.app.model.dao.exception.UserUpdateException;
+import org.envirocar.app.handler.TermsOfUseManager;
+import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.views.TypefaceEC;
+import org.envirocar.core.dao.TrackDAO;
+import org.envirocar.core.entity.User;
+import org.envirocar.core.entity.UserImpl;
+import org.envirocar.core.exception.DataRetrievalFailureException;
+import org.envirocar.core.exception.DataUpdateFailureException;
+import org.envirocar.core.exception.NotConnectedException;
+import org.envirocar.core.exception.ResourceConflictException;
+import org.envirocar.core.exception.UnauthorizedException;
+import org.envirocar.core.injection.BaseInjectorActivity;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.remote.DAOProvider;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -106,7 +106,7 @@ public class LoginActivity extends BaseInjectorActivity {
     protected View mStatisticsProgressView;
 
     @Inject
-    protected UserManager mUserManager;
+    protected UserHandler mUserManager;
     @Inject
     protected DAOProvider mDAOProvider;
     @Inject
@@ -257,7 +257,7 @@ public class LoginActivity extends BaseInjectorActivity {
                     .show();
 
             mLoginSubscription = mBackgroundWorker.schedule(() -> {
-                mUserManager.logIn(username, password, new UserManager.LoginCallback() {
+                mUserManager.logIn(username, password, new UserHandler.LoginCallback() {
                     @Override
                     public void onSuccess(User user) {
                         dialog.dismiss();
@@ -283,8 +283,8 @@ public class LoginActivity extends BaseInjectorActivity {
                             updateView(true);
 
                             // Then ask for terms of use acceptance.
-                            mTermsOfUseManager.askForTermsOfUseAcceptance(user,
-                                    LoginActivity.this, null);
+                            mBackgroundWorker.schedule(() -> mTermsOfUseManager
+                                    .askForTermsOfUseAcceptance(user, LoginActivity.this, null));
                         });
                     }
 
@@ -390,7 +390,7 @@ public class LoginActivity extends BaseInjectorActivity {
 
             mBackgroundWorker.schedule(() -> {
                 try {
-                    User newUser = new User(username, password);
+                    User newUser = new UserImpl(username, password);
                     newUser.setMail(email);
                     mDAOProvider.getUserDAO().createUser(newUser);
 
@@ -414,17 +414,6 @@ public class LoginActivity extends BaseInjectorActivity {
                                 getResources().getString(R.string.welcome_message),
                                 username), Snackbar.LENGTH_LONG).show();
                     });
-                } catch (UserUpdateException e) {
-                    LOG.warn(e.getMessage(), e);
-
-                    // Show an error.
-                    mMainThreadWorker.schedule(() -> {
-                        mRegisterUsername.setError(getString(R.string.error_host_not_found));
-                        mRegisterUsername.requestFocus();
-                    });
-
-                    // Dismuss the progress dialog.
-                    dialog.dismiss();
                 } catch (ResourceConflictException e) {
                     LOG.warn(e.getMessage(), e);
 
@@ -434,6 +423,17 @@ public class LoginActivity extends BaseInjectorActivity {
                                 R.string.error_username_already_in_use));
                         mRegisterEmail.setError(getString(
                                 R.string.error_email_already_in_use));
+                        mRegisterUsername.requestFocus();
+                    });
+
+                    // Dismuss the progress dialog.
+                    dialog.dismiss();
+                } catch (DataUpdateFailureException e) {
+                    LOG.warn(e.getMessage(), e);
+
+                    // Show an error.
+                    mMainThreadWorker.schedule(() -> {
+                        mRegisterUsername.setError(getString(R.string.error_host_not_found));
                         mRegisterUsername.requestFocus();
                     });
 
@@ -541,7 +541,9 @@ public class LoginActivity extends BaseInjectorActivity {
                     });
                 } catch (NotConnectedException e) {
                     e.printStackTrace();
-                } catch (TrackRetrievalException e) {
+                } catch (DataRetrievalFailureException e) {
+                    e.printStackTrace();
+                } catch (UnauthorizedException e) {
                     e.printStackTrace();
                 }
             });
@@ -553,14 +555,14 @@ public class LoginActivity extends BaseInjectorActivity {
                                     .getUserStatisticsDAO()
                                     .getUserStatistics(user)
                                     .getStatistics();
-                        } catch (UserStatisticsRetrievalException e) {
+                        } catch (UnauthorizedException e) {
+                            LOG.warn("The user is unauthorized to access this endpoint.", e);
+                        } catch (DataRetrievalFailureException e) {
                             LOG.warn("Error while trying to retrive user statistics.", e);
                             mMainThreadWorker.schedule(() ->
                                     animateHideView(mStatisticsProgressView, R.anim.fade_out,
                                             () -> animateViewTransition(mNoStatisticsInfo, R
                                                     .anim.fade_in, false)));
-                        } catch (UnauthorizedException e) {
-                            LOG.warn("The user is unauthorized to access this endpoint.", e);
                         }
                         return null;
                     })

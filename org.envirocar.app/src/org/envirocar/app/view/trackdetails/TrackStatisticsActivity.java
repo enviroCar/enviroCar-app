@@ -14,11 +14,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.envirocar.app.R;
-import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.model.TrackId;
 import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.storage.Measurement;
-import org.envirocar.app.storage.Track;
+import org.envirocar.core.entity.Measurement;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.injection.BaseInjectorActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +64,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
         setContentView(R.layout.activity_track_statistics_layout);
 
         int trackID = getIntent().getIntExtra(EXTRA_TRACKID, -1);
-        TrackId trackid = new TrackId(trackID);
+        Track.TrackId trackid = new Track.TrackId(trackID);
         mTrack = mDBAdapter.getTrack(trackid);
 
         // Inject all annotated views.

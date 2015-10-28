@@ -8,7 +8,7 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import org.envirocar.app.R;
-import org.envirocar.app.model.UserStatistics;
+import org.envirocar.core.entity.Phenomenon;
 
 import java.text.DecimalFormat;
 import java.util.List;
@@ -19,10 +19,10 @@ import butterknife.InjectView;
 /**
  * @author dewall
  */
-public class UserStatisticsAdapter extends ArrayAdapter<UserStatistics.PhenomenonStatisticHolder> {
+public class UserStatisticsAdapter extends ArrayAdapter<Phenomenon> {
     private static final DecimalFormat TWO_DIGITS_FORMATTER = new DecimalFormat("#.##");
 
-    private final List<UserStatistics.PhenomenonStatisticHolder> mValues;
+    private final List<Phenomenon> mValues;
 
     /**
      * Constructor.
@@ -30,18 +30,17 @@ public class UserStatisticsAdapter extends ArrayAdapter<UserStatistics.Phenomeno
      * @param context the context of the current scope.
      * @param values
      */
-    public UserStatisticsAdapter(
-            Context context, List<UserStatistics.PhenomenonStatisticHolder> values) {
+    public UserStatisticsAdapter(Context context, List<Phenomenon> values) {
         super(context, -1, values);
         this.mValues = values;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        UserStatistics.PhenomenonStatisticHolder phenomenon = mValues.get(position);
+        Phenomenon phenomenon = mValues.get(position);
 
         ViewHolder viewHolder = null;
-        if(convertView == null){
+        if (convertView == null) {
             LayoutInflater inflater = (LayoutInflater) getContext()
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(
@@ -57,18 +56,18 @@ public class UserStatisticsAdapter extends ArrayAdapter<UserStatistics.Phenomeno
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
-        viewHolder.mPhenomenonTextView.setText(phenomenon.phenomenon);
-        viewHolder.mAvgValue.setText(TWO_DIGITS_FORMATTER.format(phenomenon.avg)
-                + " " + phenomenon.phenomenonUnit);
-        viewHolder.mMaxValue.setText(TWO_DIGITS_FORMATTER.format(phenomenon.max)
-                + " " + phenomenon.phenomenonUnit);
-        viewHolder.mMinValue.setText(TWO_DIGITS_FORMATTER.format(phenomenon.min)
-                + " " + phenomenon.phenomenonUnit);
+        viewHolder.mPhenomenonTextView.setText(phenomenon.getPhenomenonName());
+        viewHolder.mAvgValue.setText(TWO_DIGITS_FORMATTER.format(phenomenon.getAvgValue())
+                + " " + phenomenon.getPhenomenonUnit());
+        viewHolder.mMaxValue.setText(TWO_DIGITS_FORMATTER.format(phenomenon.getMaxValue())
+                + " " + phenomenon.getPhenomenonUnit());
+        viewHolder.mMinValue.setText(TWO_DIGITS_FORMATTER.format(phenomenon.getMinValue())
+                + " " + phenomenon.getPhenomenonUnit());
 
         return convertView;
     }
 
-    static final class ViewHolder{
+    static final class ViewHolder {
         @InjectView(R.id.activity_account_statistics_list_entry_phenomenon)
         TextView mPhenomenonTextView;
         @InjectView(R.id.activity_account_statistics_list_entry_avg_value)

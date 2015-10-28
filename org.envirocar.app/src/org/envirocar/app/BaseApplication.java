@@ -10,20 +10,19 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
-import org.envirocar.app.activity.SettingsActivity;
-import org.envirocar.app.injection.InjectionModuleProvider;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.injection.module.InjectionApplicationModule;
-import org.envirocar.app.logging.ACRACustomSender;
-import org.envirocar.app.logging.Logger;
+import org.envirocar.app.injection.InjectionApplicationModule;
 import org.envirocar.app.services.SystemStartupService;
-import org.envirocar.app.util.Util;
+import org.envirocar.app.handler.PreferenceConstants;
+import org.envirocar.core.injection.InjectionModuleProvider;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.ACRACustomSender;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.Util;
 
 import java.util.Arrays;
 import java.util.List;
@@ -44,11 +43,11 @@ public class BaseApplication extends Application implements Injector, InjectionM
 
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceListener
             = (sharedPreferences, key) -> {
-                if (SettingsActivity.ENABLE_DEBUG_LOGGING.equals(key)) {
-                    Logger.initialize(Util.getVersionString(BaseApplication.this),
-                            sharedPreferences.getBoolean(SettingsActivity.ENABLE_DEBUG_LOGGING, false));
-                }
-            };
+        if (PreferenceConstants.ENABLE_DEBUG_LOGGING.equals(key)) {
+            Logger.initialize(Util.getVersionString(BaseApplication.this),
+                    sharedPreferences.getBoolean(PreferenceConstants.ENABLE_DEBUG_LOGGING, false));
+        }
+    };
 
     @Override
     public void onCreate() {
@@ -70,17 +69,17 @@ public class BaseApplication extends Application implements Injector, InjectionM
         ACRA.init(this);
         ACRACustomSender yourSender = new ACRACustomSender();
         ACRA.getErrorReporter().setReportSender(yourSender);
-        ACRA.getConfig().setExcludeMatchingSharedPreferencesKeys(SettingsActivity
-                .resolveIndividualKeys());
+        //        ACRA.getConfig().setExcludeMatchingSharedPreferencesKeys(SettingsActivity
+        //                .resolveIndividualKeys());
 
-        // check if the background service is already running.
+        // check if the background remoteService is already running.
         if (!isServiceRunning(SystemStartupService.class)) {
-            // Start a new service
+            // Start a new remoteService
             Intent startIntent = new Intent(this, SystemStartupService.class);
             startService(startIntent);
         }
 
-        mScreenReceiver = new BroadcastReceiver(){
+        mScreenReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
@@ -116,9 +115,9 @@ public class BaseApplication extends Application implements Injector, InjectionM
     @Override
     public void onTerminate() {
         super.onTerminate();
-        if(mScreenReceiver != null)
+        if (mScreenReceiver != null)
             unregisterReceiver(mScreenReceiver);
-        if(mGPSReceiver != null)
+        if (mGPSReceiver != null)
             unregisterReceiver(mGPSReceiver);
     }
 
@@ -146,7 +145,8 @@ public class BaseApplication extends Application implements Injector, InjectionM
 
     @Override
     public List<Object> getInjectionModules() {
-        return Arrays.<Object>asList(new InjectionApplicationModule(this));
+        return Arrays.<Object>asList(
+                new InjectionApplicationModule(this));
     }
 
     @Override

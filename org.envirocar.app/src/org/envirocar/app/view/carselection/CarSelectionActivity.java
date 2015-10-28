@@ -26,12 +26,13 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import org.envirocar.app.R;
-import org.envirocar.app.application.CarPreferenceHandler;
-import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.Car;
-import org.envirocar.app.model.dao.DAOProvider;
+import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.remote.DAOProvider;
 import org.envirocar.app.view.utils.ECAnimationUtils;
+import org.envirocar.core.entity.Car;
+import org.envirocar.core.entity.CarImpl;
+import org.envirocar.core.injection.BaseInjectorActivity;
+import org.envirocar.core.logging.Logger;
 
 import java.util.Arrays;
 import java.util.Calendar;
@@ -48,7 +49,6 @@ import butterknife.OnClick;
 import rx.Observer;
 import rx.Scheduler;
 import rx.Subscription;
-import rx.android.app.AppObservable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
@@ -56,7 +56,7 @@ import rx.schedulers.Schedulers;
  * @author dewall
  */
 public class CarSelectionActivity extends BaseInjectorActivity {
-    private static final Logger LOGGER = Logger.getLogger(CarSelectionActivity.class);
+    private static final Logger LOG = Logger.getLogger(CarSelectionActivity.class);
 
     private static final int DURATION_SHEET_ANIMATION = 350;
 
@@ -275,8 +275,7 @@ public class CarSelectionActivity extends BaseInjectorActivity {
         }
 
         if (selectedCar == null) {
-            selectedCar = new Car(fuelType, manufacturer, model, null, year,
-                    engine);
+            selectedCar = new CarImpl(manufacturer, model, fuelType, year, engine);
             mCarManager.registerCarAtServer(selectedCar);
         }
 
@@ -352,30 +351,31 @@ public class CarSelectionActivity extends BaseInjectorActivity {
         List<Car> usedCars = mCarManager.getDeserialzedCars();
         mCarListAdapter = new CarSelectionListAdapter(this, selectedCar, usedCars, new
                 CarSelectionListAdapter
-                .OnCarListActionCallback() {
+                        .OnCarListActionCallback() {
 
-            @Override
-            public void onSelectCar(Car car) {
-                mCarManager.setCar(car);
-                showSnackbar(String.format("%s %s selected as my car",
-                        car.getManufacturer(), car.getModel()));
-            }
+                    @Override
+                    public void onSelectCar(Car car) {
+                        mCarManager.setCar(car);
+                        showSnackbar(String.format("%s %s selected as my car",
+                                car.getManufacturer(), car.getModel()));
+                    }
 
-            @Override
-            public void onDeleteCar(Car car) {
-                LOGGER.info(String.format("onDeleteCar(%s %s %s %s)", car.getManufacturer(), car
-                        .getModel(), "" + car.getConstructionYear(), "" + car
-                        .getEngineDisplacement()));
+                    @Override
+                    public void onDeleteCar(Car car) {
+                        LOG.info(String.format("onDeleteCar(%s %s %s %s)", car.getManufacturer
+                                (), car
+                                .getModel(), "" + car.getConstructionYear(), "" + car
+                                .getEngineDisplacement()));
 
-                // If the car has been removed successfully...
-                if (mCarManager.removeCar(car)) {
-                    // then remove it from the list and show a snackbar.
-                    mCarListAdapter.removeCarItem(car);
-                    showSnackbar(String.format("%s %s has been deleted!", car
-                            .getManufacturer(), car.getModel()));
-                }
-            }
-        });
+                        // If the car has been removed successfully...
+                        if (mCarManager.removeCar(car)) {
+                            // then remove it from the list and show a snackbar.
+                            mCarListAdapter.removeCarItem(car);
+                            showSnackbar(String.format("%s %s has been deleted!", car
+                                    .getManufacturer(), car.getModel()));
+                        }
+                    }
+                });
         mCarListView.setAdapter(mCarListAdapter);
     }
 
@@ -409,42 +409,44 @@ public class CarSelectionActivity extends BaseInjectorActivity {
     }
 
     private void dispatchRemoteSensors() {
-        mSensoreSubscription = AppObservable.bindActivity(this,
-                mDAOProvider.getSensorDAO().getAllSensorsObservable()
+        mSensoreSubscription =
+                mDAOProvider.getSensorDAO()
+                        .getAllCarsObservable()
                         .onBackpressureBuffer(10000)
                         .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.computation()))
-                .subscribe(new Observer<List<Car>>() {
-                    @Override
-                    public void onCompleted() {
-                        mMainThreadWorker.schedule(() -> {
-                            Toast.makeText(CarSelectionActivity.this, "Received! " +
-                                    mManufacturerNames.size(), Toast.LENGTH_SHORT).show();
-                            mManufacturerNameAdapter = new AutoCompleteArrayAdapter(
-                                    CarSelectionActivity.this,
-                                    android.R.layout.simple_dropdown_item_1line,
-                                    mManufacturerNames.toArray(
-                                            new String[mManufacturerNames.size()]));
-                            mManufacturerTextView.setAdapter(mManufacturerNameAdapter);
+                        .observeOn(Schedulers.computation())
+                        .subscribe(new Observer<List<Car>>() {
+                            @Override
+                            public void onCompleted() {
+                                mMainThreadWorker.schedule(() -> {
+                                    Toast.makeText(CarSelectionActivity.this, "Received! " +
+                                            mCars.size(), Toast.LENGTH_SHORT).show();
+                                    mManufacturerNameAdapter = new AutoCompleteArrayAdapter(
+                                            CarSelectionActivity.this,
+                                            android.R.layout.simple_dropdown_item_1line,
+                                            mManufacturerNames.toArray(
+                                                    new String[mManufacturerNames.size()]));
+                                    mManufacturerTextView.setAdapter(mManufacturerNameAdapter);
+                                    mSensoreSubscription.unsubscribe();
+                                });
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                LOG.error(e.getMessage(), e);
+                                mMainThreadWorker.schedule(() ->
+                                        Toast.makeText(CarSelectionActivity.this, "ERROR!", Toast
+                                                .LENGTH_SHORT).show());
+                            }
+
+                            @Override
+                            public void onNext(List<Car> cars) {
+                                for (Car car : cars) {
+                                    if (car != null)
+                                        addCarToAutocompleteList(car);
+                                }
+                            }
                         });
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        LOGGER.error(e.getMessage(), e);
-                        mMainThreadWorker.schedule(() ->
-                                Toast.makeText(CarSelectionActivity.this, "ERROR!", Toast
-                                        .LENGTH_SHORT).show());
-                    }
-
-                    @Override
-                    public void onNext(List<Car> cars) {
-                        for (Car car : cars) {
-                            if (car != null)
-                                addCarToAutocompleteList(car);
-                        }
-                    }
-                });
     }
 
 

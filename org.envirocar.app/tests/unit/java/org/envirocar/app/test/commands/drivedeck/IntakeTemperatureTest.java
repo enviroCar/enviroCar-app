@@ -25,12 +25,11 @@ import android.util.Base64;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.bluetooth.obd.commands.CommonCommand;
-import org.envirocar.app.bluetooth.obd.commands.IntakeTemperature;
+import org.envirocar.obd.commands.CommonCommand;
+import org.envirocar.obd.commands.IntakeTemperature;
 import org.envirocar.app.logging.Handler;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.protocol.ResponseParser;
-import org.envirocar.app.protocol.drivedeck.DriveDeckSportConnector;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.protocol.ResponseParser;
 import org.envirocar.app.util.Util;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +39,6 @@ import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.io.File;
 import java.io.IOException;
 
 @RunWith(PowerMockRunner.class)

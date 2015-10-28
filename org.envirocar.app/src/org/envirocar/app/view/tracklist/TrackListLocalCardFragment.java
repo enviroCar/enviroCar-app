@@ -1,82 +1,82 @@
 package org.envirocar.app.view.tracklist;
 
 import android.os.AsyncTask;
-import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.TrackHandler;
-import org.envirocar.app.activity.ListTracksFragment;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.RemoteTrack;
-import org.envirocar.app.storage.Track;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.logging.Logger;
 
 import java.util.Collections;
 import java.util.List;
 
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
+import rx.schedulers.Schedulers;
 
 /**
  * @author dewall
  */
-public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Track,
+public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         TrackListLocalCardAdapter> {
-    private static final Logger LOGGER = Logger.getLogger(ListTracksFragment.class);
+    private static final Logger LOG = Logger.getLogger(TrackListLocalCardFragment.class);
 
     /**
      *
      */
-    interface OnTrackUploadedListener{
+    interface OnTrackUploadedListener {
         void onTrackUploaded(Track track);
     }
 
     private OnTrackUploadedListener onTrackUploadedListener;
 
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        new LoadLocalTracksTask().execute();
-    }
-
     private void uploadTrack(Track track) {
-        mTrackHandler.uploadTrack(getActivity(), track, new TrackHandler.TrackUploadCallback() {
-
-            private MaterialDialog mProgressDialog;
-
+        mBackgroundWorker.schedule(new Action0() {
             @Override
-            public void onUploadStarted(Track track) {
-                mMainThreadWorker.schedule(() ->
-                        mProgressDialog = new MaterialDialog.Builder(getActivity())
-                                .title("Progress Dialog")
-                                .content("Please wait...")
-                                .progress(true, 0)
-                                .show());
-            }
+            public void call() {
+                mTrackHandler.uploadTrack(getActivity(), track, new TrackHandler
+                        .TrackUploadCallback() {
 
-            @Override
-            public void onSuccessfulUpload(Track track) {
-                if (mProgressDialog != null) mProgressDialog.dismiss();
-                Snackbar.make(getView(), "Track upload was successful", Snackbar
-                        .LENGTH_LONG).show();
+                    private MaterialDialog mProgressDialog;
 
-                // Update the lists.
-                mMainThreadWorker.schedule(() -> {
-                    mRecyclerViewAdapter.removeItem(track);
-                    mRecyclerViewAdapter.notifyDataSetChanged();
+                    @Override
+                    public void onUploadStarted(Track track) {
+                        mMainThreadWorker.schedule(() ->
+                                mProgressDialog = new MaterialDialog.Builder(getActivity())
+                                        .title("Progress Dialog")
+                                        .content("Please wait...")
+                                        .progress(true, 0)
+                                        .show());
+                    }
+
+                    @Override
+                    public void onSuccessfulUpload(Track track) {
+                        if (mProgressDialog != null) mProgressDialog.dismiss();
+                        Snackbar.make(getView(), "Track upload was successful", Snackbar
+                                .LENGTH_LONG).show();
+
+                        // Update the lists.
+                        mMainThreadWorker.schedule(() -> {
+                            mRecyclerViewAdapter.removeItem(track);
+                            mRecyclerViewAdapter.notifyDataSetChanged();
+                        });
+
+                        onTrackUploadedListener.onTrackUploaded(track);
+                    }
+
+                    @Override
+                    public void onError(Track track, String message) {
+                        if (mProgressDialog != null)
+                            mProgressDialog.dismiss();
+                        Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
+                    }
                 });
-
-                onTrackUploadedListener.onTrackUploaded(track);
-            }
-
-            @Override
-            public void onError(Track track, String message) {
-                if (mProgressDialog != null)
-                    mProgressDialog.dismiss();
-                Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
             }
         });
     }
@@ -94,67 +94,125 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
              */
             @Override
             public void onTrackDetailsClicked(Track track, View transitionView) {
-                LOGGER.info(String.format("onTrackDetailsClicked(%s)", track.getTrackId()
+                LOG.info(String.format("onTrackDetailsClicked(%s)", track.getTrackID()
                         .toString()));
-                int trackID = (int) track.getTrackId().getId();
+                int trackID = (int) track.getTrackID().getId();
                 TrackDetailsActivity.navigate(getActivity(), transitionView, trackID);
             }
 
             @Override
             public void onDeleteTrackClicked(Track track) {
-                LOGGER.info(String.format("onDeleteTrackClicked(%s)", track.getTrackId()));
+                LOG.info(String.format("onDeleteTrackClicked(%s)", track.getTrackID()));
                 // create a dialog
                 createDeleteTrackDialog(track);
             }
 
             @Override
             public void onUploadTrackClicked(Track track) {
-                LOGGER.info(String.format("onUploadTrackClicked(%s)", track.getTrackId()));
+                LOG.info(String.format("onUploadTrackClicked(%s)", track.getTrackID()));
                 // Upload the track
                 uploadTrack(track);
             }
 
             @Override
             public void onExportTrackClicked(Track track) {
-                LOGGER.info(String.format("onExportTrackClicked(%s)", track.getTrackId()));
+                LOG.info(String.format("onExportTrackClicked(%s)", track.getTrackID()));
                 exportTrack(track);
             }
 
             @Override
-            public void onDownloadTrackClicked(RemoteTrack track, AbstractTrackListCardAdapter
+            public void onDownloadTrackClicked(Track track, AbstractTrackListCardAdapter
                     .TrackCardViewHolder holder) {
-
+                // NOT REQUIRED
             }
         });
     }
+
+    @Override
+    protected void loadDataset() {
+        // Do not load the dataset twice.
+        if (!tracksLoaded) {
+            tracksLoaded = true;
+            new LoadLocalTracksTask().execute();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (subscription != null && !subscription.isUnsubscribed()) {
+            subscription.unsubscribe();
+        }
+    }
+
+    private Subscription subscription;
 
     private final class LoadLocalTracksTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... params) {
-            Thread.currentThread().setName("TrackList-TrackRetriever" + Thread.currentThread()
-                    .getId());
-
-            //fetch db tracks (local+remote)
-            List<Track> tracks = mDBAdapter.getAllLocalTracks(true);
-            for (Track t : tracks) {
-                mTrackList.add(t);
-            }
-
-            Collections.sort(mTrackList);
-
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if (mTrackList.isEmpty()) {
-                        mTextView.setText("No Local Tracks");
-                        mTextView.setVisibility(View.VISIBLE);
-                    } else {
-                        mTextView.setVisibility(View.GONE);
-                        mRecyclerViewAdapter.notifyDataSetChanged();
+            // Wait until the activity has been attached.
+            synchronized (attachingActivityLock) {
+                while (!isAttached) {
+                    try {
+                        attachingActivityLock.wait();
+                    } catch (InterruptedException e) {
+                        LOG.error(e.getMessage(), e);
                     }
                 }
-            });
+            }
+
+            subscription = mEnvirocarDB.getAllLocalTracks()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<List<Track>>() {
+
+                        @Override
+                        public void onStart() {
+                            LOG.info("onStart() allLocalTracks");
+                            mMainThreadWorker.schedule(new Action0() {
+                                @Override
+                                public void call() {
+                                    mProgressView.setVisibility(View.VISIBLE);
+                                    mProgressText.setText("Loading...");
+                                }
+                            });
+
+                        }
+
+                        @Override
+                        public void onCompleted() {
+                            LOG.info("onCompleted() allLocalTracks");
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            LOG.error(e.getMessage(), e);
+                            mTextView.setText("Error!");
+
+                            Snackbar.make(getView(), "Error while loading data!", Snackbar
+                                    .LENGTH_LONG).show();
+                        }
+
+                        @Override
+                        public void onNext(List<Track> tracks) {
+                            LOG.info(String.format("onNext(%s)", tracks.size()));
+                            mTrackList.addAll(tracks);
+                            Collections.sort(mTrackList);
+
+                            mProgressView.setVisibility(View.INVISIBLE);
+
+                            if (!mTrackList.isEmpty()) {
+                                mRecyclerView.setVisibility(View.VISIBLE);
+                                mTextView.setVisibility(View.GONE);
+                                mRecyclerViewAdapter.notifyDataSetChanged();
+                            } else {
+                                mTextView.setText("No Local Tracks");
+                                mTextView.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    });
 
             return null;
         }
@@ -165,7 +223,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<Tr
      *
      * @param listener the listener to set.
      */
-    public void setOnTrackUploadedListener(OnTrackUploadedListener listener){
+    public void setOnTrackUploadedListener(OnTrackUploadedListener listener) {
         this.onTrackUploadedListener = listener;
     }
 }

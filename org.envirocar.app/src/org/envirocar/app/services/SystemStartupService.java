@@ -11,21 +11,25 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.widget.Toast;
 
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.NotificationHandler;
 import org.envirocar.app.TrackHandler;
-import org.envirocar.app.application.CarPreferenceHandler;
-import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
-import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.app.bluetooth.service.BluetoothServiceState;
-import org.envirocar.app.events.NewCarTypeSelectedEvent;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.PreferenceConstants;
+import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.core.events.NewCarTypeSelectedEvent;
+import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
+import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.ServiceUtils;
+import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
+import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.util.concurrent.TimeUnit;
 
@@ -34,8 +38,10 @@ import javax.inject.Inject;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
-import rx.android.content.ContentObservable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.observers.SafeSubscriber;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 /**
  * @author dewall
@@ -43,7 +49,7 @@ import rx.schedulers.Schedulers;
 public class SystemStartupService extends Service {
     private static final Logger LOGGER = Logger.getLogger(SystemStartupService.class);
 
-    private static final int REDISCOVERY_INTERVAL = 15;
+    private static final int REDISCOVERY_INTERVAL = 20;
 
     // Static identifiers for actions for the broadcast receiver.
     public static final String ACTION_START_BT_DISCOVERY = "action_start_bt_discovery";
@@ -64,27 +70,25 @@ public class SystemStartupService extends Service {
     @Inject
     protected CarPreferenceHandler mCarManager;
 
-
     private Scheduler.Worker mWorkerThread = Schedulers.newThread().createWorker();
+    private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private boolean mIsAutoconnect;
     private int mDiscoveryInterval;
-
 
     // private member fields.
     private Subscription mWorkerSubscription;
     private Subscription mDiscoverySubscription;
-    private Subscription mSharedPrefSubscription;
+    private CompositeSubscription subscriptions = new CompositeSubscription();
 
-    private BluetoothServiceState mBluetoothServiceState = BluetoothServiceState.SERVICE_STOPPED;
 
-    // Background service for the connection to the OBD adapter.
+    // Background remoteService for the connection to the OBD adapter.
     private OBDConnectionService mOBDConnectionService;
     private boolean mIsOBDConnectionBounded;
     private ServiceConnection mOBDConnectionServiceCon = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            // successfully bounded to the service, cast the binder interface to
-            // get the service.
+            // successfully bounded to the remoteService, cast the binder interface to
+            // get the remoteService.
             OBDConnectionService.OBDConnectionBinder binder = (OBDConnectionService
                     .OBDConnectionBinder) service;
             mOBDConnectionService = binder.getService();
@@ -98,6 +102,8 @@ public class SystemStartupService extends Service {
             mIsOBDConnectionBounded = false;
         }
     };
+
+
     // Broadcast receiver that handles the different actions that could be issued by the
     // corresponding notification of the notification bar.
     private final BroadcastReceiver mBroadcastReciever = new BroadcastReceiver() {
@@ -140,8 +146,9 @@ public class SystemStartupService extends Service {
             else if (ACTION_START_TRACK_RECORDING.equals(action)) {
                 LOGGER.info("Received Broadcast: Start Track Recording.");
                 startOBDConnectionService();
-//                mNotificationHandler.setNotificationState(SystemStartupService.this,
-//                        NotificationHandler.NotificationState.OBD_FOUND);
+                //                mNotificationHandler.setNotificationState(SystemStartupService
+                // .this,
+                //                        NotificationHandler.NotificationState.OBD_FOUND);
             }
 
             // Received action matches the command for stopping the recording process of a track.
@@ -169,11 +176,47 @@ public class SystemStartupService extends Service {
         final SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
         this.mIsAutoconnect = preferences.getBoolean(PreferenceConstants
-                .PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT, PreferenceConstants
+                .PREF_BLUETOOTH_AUTOCONNECT, PreferenceConstants
                 .DEFAULT_BLUETOOTH_AUTOCONNECT);
         this.mDiscoveryInterval = preferences.getInt(PreferenceConstants
-                        .PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL,
+                        .PREF_BLUETOOTH_DISCOVERY_INTERVAL,
                 PreferenceConstants.DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);
+
+        // Register a new BroadcastReceiver that waits for different incoming actions issued from
+        // the notification.
+        IntentFilter notificationClickedFilter = new IntentFilter();
+        notificationClickedFilter.addAction(ACTION_START_BT_DISCOVERY);
+        notificationClickedFilter.addAction(ACTION_STOP_BT_DISCOVERY);
+        notificationClickedFilter.addAction(ACTION_START_TRACK_RECORDING);
+        notificationClickedFilter.addAction(ACTION_STOP_TRACK_RECORDING);
+        registerReceiver(mBroadcastReciever, notificationClickedFilter);
+
+        // if the OBDConnectionService is running, then bind the remoteService.
+        bindOBDConnectionService();
+
+
+        subscriptions.add(
+                PreferencesHandler.getAutoconnectObservable(getApplicationContext())
+                        .subscribe(aBoolean -> {
+                            LOGGER.info(String.format("Received changed autoconnect -> [%s]",
+                                    aBoolean));
+                            mIsAutoconnect = aBoolean;
+
+                            // if autoconnect has been enabled, then schedule a new discovery.
+                            if (mIsAutoconnect) {
+                                scheduleDiscovery(REDISCOVERY_INTERVAL);
+                            } else { // otherwise, unschedule
+                                unscheduleDiscovery();
+                            }
+                        }));
+
+        subscriptions.add(
+                PreferencesHandler.getDiscoveryIntervalObservable(getApplicationContext())
+                        .subscribe(integer -> {
+                            LOGGER.info(String.format("Received changed discovery interval -> [%s]",
+                                    integer));
+                            mDiscoveryInterval = integer;
+                        }));
 
         // Set the Notification to
         if (this.mBluetoothHandler.isBluetoothEnabled()) {
@@ -187,49 +230,12 @@ public class SystemStartupService extends Service {
             } else {
                 this.mNotificationHandler.setNotificationState(this,
                         NotificationHandler.NotificationState.UNCONNECTED);
+
+                if (mIsAutoconnect) {
+                    scheduleDiscovery(-1);
+                }
             }
         }
-
-
-        // Register a new BroadcastReceiver that waits for different incoming actions issued from
-        // the notification.
-        IntentFilter notificationClickedFilter = new IntentFilter();
-        notificationClickedFilter.addAction(ACTION_START_BT_DISCOVERY);
-        notificationClickedFilter.addAction(ACTION_STOP_BT_DISCOVERY);
-        notificationClickedFilter.addAction(ACTION_START_TRACK_RECORDING);
-        notificationClickedFilter.addAction(ACTION_STOP_TRACK_RECORDING);
-        registerReceiver(mBroadcastReciever, notificationClickedFilter);
-
-        // if the OBDConnectionService is running, then bind the service.
-        bindOBDConnectionService();
-
-        mSharedPrefSubscription = ContentObservable.fromSharedPreferencesChanges(preferences)
-                .filter(prefKey ->
-                        PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT.equals(prefKey) ||
-                                PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL
-                                        .equals(prefKey))
-                .subscribe(prefKey -> {
-                    LOGGER.info(String.format("Received change in preferences [%s]", prefKey));
-
-                    if (prefKey.equals(PreferenceConstants
-                            .PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT)) {
-                        mIsAutoconnect = preferences.getBoolean(PreferenceConstants
-                                .PREFERENCE_TAG_BLUETOOTH_AUTOCONNECT, false);
-
-                        // if autoconnect has been enabled, then schedule a new discovery.
-                        if(mIsAutoconnect) {
-                            scheduleDiscovery(REDISCOVERY_INTERVAL);
-                        }
-                        // otherwise, unschedule
-                        else {
-                            unscheduleDiscovery();
-                        }
-                    } else {
-                        mDiscoveryInterval = preferences.getInt(PreferenceConstants
-                                        .PREFERENCE_TAG_BLUETOOTH_DISCOVERY_INTERVAL,
-                                PreferenceConstants.DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);
-                    }
-                });
     }
 
 
@@ -259,18 +265,21 @@ public class SystemStartupService extends Service {
         LOGGER.info("onDestroy()");
         super.onDestroy();
 
-        // Unbind the connection service.
+        // Unbind the connection remoteService.
         unbindOBDConnectionService();
 
         // unregister all boradcast receivers.
         unregisterReceiver(mBroadcastReciever);
 
         // Unsubscribe subscriptions.
-        mSharedPrefSubscription.unsubscribe();
         if (mWorkerSubscription != null)
             mWorkerSubscription.unsubscribe();
         if (mDiscoverySubscription != null)
             mDiscoverySubscription.unsubscribe();
+
+        if (!subscriptions.isUnsubscribed()) {
+            subscriptions.unsubscribe();
+        }
 
         // Close the corresponding notification.
         mNotificationHandler.closeNotification(this);
@@ -281,10 +290,28 @@ public class SystemStartupService extends Service {
     public void onReceiveBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
         LOGGER.info(String.format("Received event. %s", event.toString()));
         if (!event.isBluetoothEnabled) {
-            // When Bluetooth has been turned off, then this service is required to be closed.
-            if(mBluetoothHandler.isDiscovering())
+            // When Bluetooth has been turned off, then this remoteService is required to be closed.
+            if (mBluetoothHandler.isDiscovering())
                 mBluetoothHandler.stopBluetoothDeviceDiscovery();
             stopSelf();
+        }
+    }
+
+    @Subscribe
+    public void onReceiveBluetoothDeviceSelectedEvent(BluetoothDeviceSelectedEvent event) {
+        LOGGER.info(String.format("Received event. %s", event.toString()));
+        if (event.mDevice == null) {
+            mNotificationHandler.setNotificationState(this, NotificationHandler.NotificationState
+                    .NO_OBD_SELECTED);
+        } else if (mNotificationHandler.getCurrentNotificationState(this) == NotificationHandler
+                .NotificationState.NO_OBD_SELECTED) {
+            if (mCarManager.getCar() == null) {
+                mNotificationHandler.setNotificationState(this, NotificationHandler
+                        .NotificationState.NO_CAR_SELECTED);
+            } else {
+                mNotificationHandler.setNotificationState(this, NotificationHandler
+                        .NotificationState.UNCONNECTED);
+            }
         }
     }
 
@@ -298,7 +325,6 @@ public class SystemStartupService extends Service {
             BluetoothServiceStateChangedEvent event) {
         LOGGER.info(String.format("onReceiveBluetoothServiceStateChangedEvent(): %s",
                 event.toString()));
-        mBluetoothServiceState = event.mState;
 
         // Update the notification state depending on the event's state.
         switch (event.mState) {
@@ -319,6 +345,7 @@ public class SystemStartupService extends Service {
             case SERVICE_STOPPED:
                 mNotificationHandler.setNotificationState(this, NotificationHandler
                         .NotificationState.UNCONNECTED);
+                scheduleDiscovery(REDISCOVERY_INTERVAL);
                 break;
             case SERVICE_DEVICE_DISCOVERY_RUNNING:
                 mNotificationHandler.setNotificationState(this, NotificationHandler
@@ -333,15 +360,37 @@ public class SystemStartupService extends Service {
     @Subscribe
     public void onReceiveNewCarTypeSelectedEvent(NewCarTypeSelectedEvent event) {
         LOGGER.info(String.format("onReceiveNewCarTypeSelectedEvent(): %s", event.toString()));
-        if (mBluetoothServiceState == BluetoothServiceState.SERVICE_STOPPED && mNotificationHandler
-                .getCurrentNotificationState(this) == NotificationHandler.NotificationState
-                .NO_CAR_SELECTED) {
-
-            mNotificationHandler.setNotificationState(this, NotificationHandler.NotificationState
-                    .UNCONNECTED);
-            scheduleDiscovery(-1);
+        if (event.mCar == null) {
+            updateNotificationState(NotificationHandler.NotificationState.NO_CAR_SELECTED);
+        } else if (OBDConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState
+                .SERVICE_STOPPED) {
+            updateNotificationState(NotificationHandler.NotificationState.UNCONNECTED);
         }
     }
+
+
+    private void updateNotificationState(NotificationHandler.NotificationState state) {
+        if (OBDConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STOPPED) {
+            if (mBluetoothHandler.getSelectedBluetoothDevice() == null) {
+                mNotificationHandler.setNotificationState(this, NotificationHandler
+                        .NotificationState.NO_OBD_SELECTED);
+            } else if (mCarManager.getCar() == null) {
+                mNotificationHandler.setNotificationState(this, NotificationHandler
+                        .NotificationState.NO_CAR_SELECTED);
+            } else {
+                NotificationHandler.NotificationState currentState = mNotificationHandler
+                        .getCurrentNotificationState(this);
+                if (currentState != NotificationHandler.NotificationState.DISCOVERING &&
+                        state != NotificationHandler.NotificationState.DISCOVERING) {
+                    if (mIsAutoconnect) {
+                        scheduleDiscovery(REDISCOVERY_INTERVAL);
+                    }
+                }
+                mNotificationHandler.setNotificationState(this, state);
+            }
+        }
+    }
+
 
     /**
      * Schedules the discovery for the selected OBDII adapter with a specific delay.
@@ -362,20 +411,20 @@ public class SystemStartupService extends Service {
     /**
      * Stops the current discovery and/or the scheduled upcoming discovery.
      */
-    private void unscheduleDiscovery(){
-        if(mWorkerSubscription != null){
-            if(mBluetoothHandler.isDiscovering())
+    private void unscheduleDiscovery() {
+        if (mWorkerSubscription != null) {
+            if (mBluetoothHandler.isDiscovering())
                 mBluetoothHandler.stopBluetoothDeviceDiscovery();
             mWorkerSubscription.unsubscribe();
         }
     }
 
     /**
-     * Establishes a binding to the OBDConnectionService if the service is running.
+     * Establishes a binding to the OBDConnectionService if the remoteService is running.
      */
     private void bindOBDConnectionService() {
         if (ServiceUtils.isServiceRunning(getApplicationContext(),
-                // Defines callbacks for the service binding, passed to bindService()
+                // Defines callbacks for the remoteService binding, passed to bindService()
                 OBDConnectionService.class)) {
 
             // Bind to OBDConnectionService
@@ -403,15 +452,15 @@ public class SystemStartupService extends Service {
     }
 
     /**
-     * Removes a binding to the OBDConnection service if the service is running and this service
+     * Removes a binding to the OBDConnection remoteService if the remoteService is running and this remoteService
      * is bound.
      */
     private void unbindOBDConnectionService() {
-        // Only when the service is running and this service is bounded to that service.
+        // Only when the remoteService is running and this remoteService is bounded to that remoteService.
         if (mOBDConnectionService != null && ServiceUtils
                 .isServiceRunning(getApplicationContext(), OBDConnectionService.class)) {
 
-            // Unbinds the OBD connection service.
+            // Unbinds the OBD connection remoteService.
             unbindService(mOBDConnectionServiceCon);
         }
     }
@@ -424,13 +473,10 @@ public class SystemStartupService extends Service {
     private void startDiscoveryForSelectedDevice() {
         BluetoothDevice device = mBluetoothHandler.getSelectedBluetoothDevice();
         if (device == null) {
-//            mWorkerThread.schedule(() -> {
-//                Toast.makeText(getApplicationContext(), "No paired bluetooth device " +
-//                        "selected", Toast.LENGTH_SHORT).show();
-//            });
-
+            mMainThreadWorker.schedule(() -> Toast.makeText(getApplicationContext(), "No paired " +
+                    "bluetooth device selected", Toast.LENGTH_SHORT).show());
         } else {
-            // If the service is already discovering, then skip the current discovery and
+            // If the remoteService is already discovering, then skip the current discovery and
             // unsubscribe on the corresponding subscription.
             if (mDiscoverySubscription != null) {
                 mBluetoothHandler.stopBluetoothDeviceDiscovery();
@@ -441,7 +487,7 @@ public class SystemStartupService extends Service {
             // Initialize a new discovery of the bluetooth.
             mDiscoverySubscription = mBluetoothHandler
                     .startBluetoothDiscoveryForSingleDevice(device)
-                    .subscribe(new Subscriber<BluetoothDevice>() {
+                    .subscribe(new SafeSubscriber<BluetoothDevice>(new Subscriber<BluetoothDevice>() {
 
                         private boolean isFound = false;
 
@@ -462,7 +508,7 @@ public class SystemStartupService extends Service {
                             mBluetoothHandler.stopBluetoothDeviceDiscovery();
 
                             // Depending on the individual settings either start the background
-                            // service or update the notification state.
+                            // remoteService or update the notification state.
                             if (mIsAutoconnect) {
                                 LOGGER.info("[Autoconnect is on]. Try to start the connection to " +
                                         "the selected OBD adapter.");
@@ -511,6 +557,11 @@ public class SystemStartupService extends Service {
                         public void onError(Throwable e) {
                             LOGGER.error("Error while discovering for the selected Bluetooth " +
                                     "devices", e);
+                        }
+                    }) {
+                        @Override
+                        public void onStart() {
+                            getActual().onStart();
                         }
                     });
         }

@@ -21,7 +21,7 @@
 package org.envirocar.app.activity;
 
 import org.envirocar.app.R;
-import org.envirocar.app.model.TermsOfUseInstance;
+import org.envirocar.core.entity.TermsOfUse;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -164,7 +164,7 @@ public class DialogUtil {
 	}
 
 
-	public static void createTermsOfUseDialog(TermsOfUseInstance current,
+	public static void createTermsOfUseDialog(TermsOfUse current,
 			boolean firstTime, DialogCallback callback,
 			Context context) {
 		createTitleMessageDialog(context.getResources().getString(R.string.terms_of_use_title),
@@ -172,7 +172,7 @@ public class DialogUtil {
 	}
 
 
-	private static Spanned createTermsOfUseMarkup(TermsOfUseInstance current,
+	private static Spanned createTermsOfUseMarkup(TermsOfUse current,
 			boolean firstTime, Context context) {
 		StringBuilder sb = new StringBuilder();
 		

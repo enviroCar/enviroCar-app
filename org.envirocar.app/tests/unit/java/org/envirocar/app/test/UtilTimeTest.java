@@ -25,7 +25,7 @@ import java.text.ParseException;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.logging.Logger;
+import org.envirocar.core.logging.Logger;
 import org.envirocar.app.util.Util;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -3,8 +3,8 @@ package org.envirocar.app.view.utils;
 import com.google.common.collect.Maps;
 import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 
-import org.envirocar.app.storage.Track;
 import org.envirocar.app.view.trackdetails.TrackSpeedMapOverlay;
+import org.envirocar.core.entity.Track;
 
 import java.util.Map;
 
@@ -29,12 +29,12 @@ public class MapUtils {
     }
 
     public static TrackSpeedMapOverlay createTrackPathOverlay(Track track){
-        if(TRACKID_TO_OVERLAY_CACHE.containsKey(track.getTrackId().getId())){
-            return TRACKID_TO_OVERLAY_CACHE.get(track.getTrackId().getId());
+        if(TRACKID_TO_OVERLAY_CACHE.containsKey(track.getTrackID().getId())){
+            return TRACKID_TO_OVERLAY_CACHE.get(track.getTrackID().getId());
         }
 
         TrackSpeedMapOverlay overlay = new TrackSpeedMapOverlay(track);
-        TRACKID_TO_OVERLAY_CACHE.put(track.getTrackId().getId(), overlay);
+        TRACKID_TO_OVERLAY_CACHE.put(track.getTrackID().getId(), overlay);
         return overlay;
     }
 }

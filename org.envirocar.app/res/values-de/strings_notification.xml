@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_no_car_title">Kein Auto gesetzt</string>
+    <string name="notification_no_car_description">Hier klicken um ein Auto auszuwählen.</string>
+    <string name="notification_no_car_action">Öffne Autoauswahl</string>
+
+    <string name="notification_no_obd_title">Kein OBDII Adapter gesetzt</string>
+    <string name="notification_no_obd_description">Hier klicken um einen Adapter auszuwählen.</string>
+    <string name="notification_no_obd_action">Öffne OBDII-Auswahl</string>
+
+    <string name="notification_unconnected_title">Nicht verbunden</string>
+    <string name="notification_unconnected_description">Zur Zeit keine Aufzeichnung einer Fahrt.</string>
+    <string name="notification_unconnected_action">Suche nach OBDII Adapter</string>
+
+    <string name="notification_discovering_title">Suche läuft...</string>
+    <string name="notification_discovering_description">Suche nach ausgewählten OBDII Adapter.</string>
+    <string name="notification_discovering_action">Abbrechen</string>
+
+    <string name="notification_obd_found_title">OBDII in Reichweite</string>
+    <string name="notification_obd_found_description">a</string>
+    <string name="notification_obd_found_action">Aufzeichnung Starten</string>
+
+    <string name="notification_connecting_title">Starte Aufzeichnung...</string>
+    <string name="notification_connecting_description">Erstelle eine Verbindung zum OBDII und
+        starte die Aufzeichnung.</string>
+    <string name="notification_connecting_action"></string>
+
+    <string name="notification_connected_title">Zeiche auf...</string>
+    <string name="notification_connected_description">Fahrt wird aufgezeichnet.</string>
+    <string name="notification_connected_action">Aufzeichnung beenden</string>
+
+    <string name="notification_stopping_title">Beende Aufzeichnung...</string>
+    <string name="notification_stopping_description"></string>
+    <string name="notification_stopping_action"></string>
+</resources>

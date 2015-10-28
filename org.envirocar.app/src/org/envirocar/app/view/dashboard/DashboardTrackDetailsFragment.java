@@ -13,16 +13,15 @@ import android.widget.TextView;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
-import org.envirocar.app.bluetooth.service.BluetoothServiceState;
-import org.envirocar.app.events.GpsSatelliteFixEvent;
-import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
-import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.services.trackdetails.AvrgSpeedUpdateEvent;
-import org.envirocar.app.services.trackdetails.DistanceValueUpdateEvent;
-import org.envirocar.app.services.trackdetails.StartingTimeEvent;
-import org.envirocar.app.storage.Measurement;
+import org.envirocar.obd.service.BluetoothServiceState;
+import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
+import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
+import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
+import org.envirocar.app.events.AvrgSpeedUpdateEvent;
+import org.envirocar.app.events.DistanceValueUpdateEvent;
+import org.envirocar.app.events.StartingTimeEvent;
+import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.core.logging.Logger;
 
 import java.text.DecimalFormat;
 
@@ -30,7 +29,6 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 
 /**
  * @author dewall

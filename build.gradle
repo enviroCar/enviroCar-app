@@ -1,25 +1,68 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
         mavenCentral()
         jcenter()
     }
+
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.2.3'
-
-        //use lombok version that does not whine about lambdas
-        classpath 'me.tatarka.retrolambda.projectlombok:lombok.ast:0.2.3.a2'
+        classpath 'me.tatarka:gradle-retrolambda:3.2.3'
+        classpath 'com.android.tools.build:gradle:1.3.0'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.7+'
     }
-
-    // Exclude the lombok version that the android plugin depends on.
-    configurations.classpath.exclude group: 'com.android.tools.external.lombok'
 }
-
-
 
 allprojects {
     repositories {
-        jcenter()
         mavenCentral()
+        jcenter()
     }
+}
+
+ext {
+    androidPlugin = 'com.android.tools.build:gradle:1.3.0'
+    minSdkVersion = 16
+    compileSdkVersion = 23
+    targetSdkVersion = 23
+    buildToolsVersion = '23.0.1'
+    versionCode = 1
+    versionName = "1.0"
+
+    javaCompileVersion = JavaVersion.VERSION_1_8
+
+    // Android dependencies.
+    supportV4 = 'com.android.support:support-v4:23.0.1'
+    supportV7 = 'com.android.support:appcompat-v7:23.0.1'
+    supportDesign = 'com.android.support:design:23.0.1'
+    supportCardview = 'com.android.support:cardview-v7:23.0.1'
+    supportRecyclerview = 'com.android.support:recyclerview-v7:23.0.1'
+
+    // Dependency injection, view injection, event bus...
+    dagger = 'com.squareup.dagger:dagger:1.2.2'
+    daggerCompiler = 'com.squareup.dagger:dagger-compiler:1.2.2'
+    butterKnife = 'com.jakewharton:butterknife:6.1.0'
+    otto = 'com.squareup:otto:1.3.8'
+
+    // Retrofit dependencies.
+    retrofit = 'com.squareup.retrofit:retrofit:2.0.0-beta2'
+    retrofitGson = 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
+    retrofitAdapters = 'com.squareup.retrofit:retrofit-adapters:2.0.0-beta2'
+    retrofitRxJava = 'com.squareup.retrofit:adapter-rxjava:2.0.0-beta2'
+
+    // RxJava dependencies.
+    rxJava = 'io.reactivex:rxjava:1.0.14'
+    rxAndroid = 'io.reactivex:rxandroid:1.0.1'
+    rxBinding = 'com.jakewharton.rxbinding:rxbinding:0.2.0'
+    rxPreferences = 'com.f2prateek.rx.preferences:rx-preferences:1.0.0'
+    sqlBrite = 'com.squareup.sqlbrite:sqlbrite:0.4.1'
+
+    // Google
+    gson = 'com.google.code.gson:gson:2.3'
+    guava = 'com.google.guava:guava:18.0'
+    acra = 'ch.acra:acra:4.6.2'
+
+    // other third party dependencies.
+    materialDialogs = 'com.afollestad:material-dialogs:0.7.6.0'
+    helloCharts = 'com.github.lecho:hellocharts-library:1.5.5@aar'
+    fabProgressCircle = 'com.github.jorgecastilloprz:fabprogresscircle:1.01@aar'
+    mapbox = 'com.mapbox.mapboxsdk:mapbox-android-sdk:0.7.4@aar'
 }

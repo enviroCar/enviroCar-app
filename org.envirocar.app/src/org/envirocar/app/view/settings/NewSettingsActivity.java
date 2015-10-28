@@ -8,7 +8,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import org.envirocar.app.R;
-import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.core.injection.BaseInjectorActivity;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;

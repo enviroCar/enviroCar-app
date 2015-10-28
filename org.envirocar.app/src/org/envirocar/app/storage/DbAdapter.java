@@ -21,13 +21,15 @@
 
 package org.envirocar.app.storage;
 
+import org.envirocar.core.delete.Position;
+import org.envirocar.core.entity.Measurement;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.exception.MeasurementSerializationException;
+import org.envirocar.core.exception.TrackAlreadyFinishedException;
+import org.envirocar.core.util.TrackMetadata;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.envirocar.app.exception.MeasurementsException;
-import org.envirocar.app.model.Position;
-import org.envirocar.app.model.TrackId;
-import org.envirocar.app.storage.Track.TrackStatus;
 
 import rx.Observable;
 
@@ -66,9 +68,8 @@ public interface DbAdapter {
 	 * 
 	 * @param measurement
 	 *            The measurement that should be inserted
-	 * @throws MeasurementsException 
-	 * @throws TrackAlreadyFinishedException 
-	 * @throws MeasurementSerializationException 
+	 * @throws TrackAlreadyFinishedException
+	 * @throws MeasurementSerializationException
 	 */
 	public void insertNewMeasurement(Measurement measurement) throws TrackAlreadyFinishedException, MeasurementSerializationException;
 
@@ -114,7 +115,7 @@ public interface DbAdapter {
 	 * @param currentLocation the current location
 	 * @return the current active track as reference via TrackId
 	 */
-	public TrackId getActiveTrackReference(Position currentLocation);
+	public Track.TrackId getActiveTrackReference(Position currentLocation);
 	
 	/**
 	 * Returns all tracks as an ArrayList<Track>
@@ -141,7 +142,7 @@ public interface DbAdapter {
 	 *            The id of the track that should be returned
 	 * @return The desired track or null if it does not exist
 	 */
-	public Track getTrack(TrackId id);
+	public Track getTrack(Track.TrackId id);
 	
 	/**
 	 * Returns one track specified by the id
@@ -151,7 +152,7 @@ public interface DbAdapter {
 	 * {@link Track} that loads its measurements in lazy fashion
 	 * @return the desired track
 	 */
-	public Track getTrack(TrackId id, boolean lazyMeasurements);
+	public Track getTrack(Track.TrackId id, boolean lazyMeasurements);
 	
 	/**
 	 * Returns <code>true</code> if a track with the given id is in the Database
@@ -160,7 +161,7 @@ public interface DbAdapter {
 	 * 		The id id ot the checked track
 	 * @return exists a track with the id
 	 */
-	public boolean hasTrack(TrackId id);
+	public boolean hasTrack(Track.TrackId id);
 
 	/**
 	 * Deletes all tracks and measurements in the database
@@ -194,7 +195,7 @@ public interface DbAdapter {
 	 * @param id
 	 *            id of the track to be deleted.
 	 */
-	public void deleteTrack(TrackId id);
+	public void deleteTrack(Track.TrackId id);
 
 	public int getNumberOfRemoteTracks();
 
@@ -225,23 +226,10 @@ public interface DbAdapter {
 
 	public List<Track> getAllRemoteTracks(boolean lazyMeasurements);
 
-	/**
-	 * an implementation shall create a new track. if there is a previously
-	 * used track ({@link #getLastUsedTrack()} != null), that track shall
-	 * be finialized ({@link Track#setStatus(org.envirocar.app.storage.Track.TrackStatus)} 
-	 * with status {@link TrackStatus#FINISHED} - e.g. through the {@link #finishCurrentTrack()}
-	 * implementation).
-	 * 
-	 * @return the new track
-	 */
+
 	public Track createNewTrack();
 
-	/**
-	 * an implemetation shall finialize the currrent
-	 * track ({@link #getLastUsedTrack()}). set the {@link Track#setStatus(org.envirocar.app.storage.Track.TrackStatus)} 
-	 * with status {@link TrackStatus#FINISHED}.
-	 * @return the finished track or null if there was no track
-	 */
+
 	public Track finishCurrentTrack();
 
 	/**
@@ -268,7 +256,7 @@ public interface DbAdapter {
 	void insertMeasurement(Measurement measurement, boolean ignoreFinished)
 			throws MeasurementSerializationException, TrackAlreadyFinishedException;
 
-	public void updateTrackMetadata(TrackId trackId, TrackMetadata trackMetadata);
+	public TrackMetadata updateTrackMetadata(Track.TrackId trackId, TrackMetadata trackMetadata);
 
 	public void transitLocalToRemoteTrack(Track track, String remoteId);
 
@@ -276,7 +264,7 @@ public interface DbAdapter {
 	 * use this method to load measurements for a track that
 	 * is marked as lazy loaded.
 	 * 
-	 * An implementation shall set the field {@link Track#isLazyLoadingMeasurements()}
+	 * An implementation shall set the field
 	 * to false after loading and setting the measurements.
 	 * 
 	 * @param t the track

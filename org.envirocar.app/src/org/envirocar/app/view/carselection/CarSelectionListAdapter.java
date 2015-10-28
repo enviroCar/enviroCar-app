@@ -12,8 +12,8 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.Car;
+import org.envirocar.core.entity.Car;
+import org.envirocar.core.logging.Logger;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ import butterknife.InjectView;
  * @author dewall
  */
 public class CarSelectionListAdapter extends ArrayAdapter<Car> {
-    private static final Logger LOGGER = Logger.getLogger(CarSelectionListAdapter.class);
+    private static final Logger LOG = Logger.getLogger(CarSelectionListAdapter.class);
 
     /**
      * Simple callback interface for the action types of the car list entries.
@@ -160,7 +160,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
                             mCallback.onDeleteCar(car);
                             break;
                         default:
-                            LOGGER.warn("No action selected!");
+                            LOG.warn("No action selected!");
                     }
                 })
                 .show());

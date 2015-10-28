@@ -21,7 +21,7 @@
 
 package org.envirocar.app.views;
 
-import org.envirocar.app.logging.Logger;
+import org.envirocar.core.logging.Logger;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;

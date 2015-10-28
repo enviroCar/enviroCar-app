@@ -4,7 +4,7 @@ import android.os.Environment;
 import android.util.Base64;
 
 import org.envirocar.app.logging.Handler;
-import org.envirocar.app.logging.Logger;
+import org.envirocar.core.logging.Logger;
 import org.junit.Before;
 import org.mockito.Matchers;
 import org.mockito.Mock;

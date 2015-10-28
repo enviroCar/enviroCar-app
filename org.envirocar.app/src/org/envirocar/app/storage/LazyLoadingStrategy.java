@@ -20,6 +20,8 @@
  */
 package org.envirocar.app.storage;
 
+import org.envirocar.core.entity.Track;
+
 /**
  * An interface for providing a strategy to lazy load memory consuming
  * resources.
@@ -30,7 +32,7 @@ public interface LazyLoadingStrategy {
 	/**
 	 * an implementation shall load all measurements
 	 * for the given track. after succesful loading,
-	 * {@link Track#setLazyLoadingMeasurements(boolean)} with
+	 * {@link Track#setLazyMeasurements(boolean)} with
 	 * false shall be set.
 	 * 
 	 * @param track the track

@@ -5,15 +5,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.envirocar.app.R;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.Track;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.logging.Logger;
 
 import java.util.List;
 
 /**
  * @author dewall
  */
-public class TrackListLocalCardAdapter extends AbstractTrackListCardAdapter<Track,
+public class TrackListLocalCardAdapter extends AbstractTrackListCardAdapter<
         AbstractTrackListCardAdapter.LocalTrackCardViewHolder> {
     private static final Logger LOGGER = Logger.getLogger(TrackListLocalCardAdapter.class);
 

@@ -11,7 +11,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.os.PowerManager;
-import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -19,23 +18,26 @@ import android.util.Log;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.LocationHandler;
+import org.envirocar.app.CommandListener;
 import org.envirocar.app.R;
-import org.envirocar.app.application.CommandListener;
-import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.bluetooth.BluetoothSocketWrapper;
-import org.envirocar.app.bluetooth.FallbackBluetoothSocket;
-import org.envirocar.app.bluetooth.NativeBluetoothSocket;
-import org.envirocar.app.bluetooth.service.BluetoothServiceState;
-import org.envirocar.app.events.GpsSatelliteFix;
-import org.envirocar.app.events.GpsSatelliteFixEvent;
-import org.envirocar.app.events.bluetooth.BluetoothServiceStateChangedEvent;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.protocol.ConnectionListener;
-import org.envirocar.app.protocol.OBDCommandLooper;
-import org.envirocar.app.services.trackdetails.TrackDetailsProvider;
-import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.app.events.TrackDetailsProvider;
+import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.handler.LocationHandler;
+import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.core.events.gps.GpsLocationChangedEvent;
+import org.envirocar.core.events.gps.GpsSatelliteFix;
+import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.BroadcastUtils;
+import org.envirocar.obd.bluetooth.BluetoothSocketWrapper;
+import org.envirocar.obd.bluetooth.FallbackBluetoothSocket;
+import org.envirocar.obd.bluetooth.NativeBluetoothSocket;
+import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
+import org.envirocar.obd.events.SpeedUpdateEvent;
+import org.envirocar.obd.protocol.ConnectionListener;
+import org.envirocar.obd.protocol.OBDCommandLooper;
+import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,14 +46,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
-import rx.android.content.ContentObservable;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -59,7 +63,7 @@ import rx.subscriptions.CompositeSubscription;
  * @author dewall
  */
 public class OBDConnectionService extends Service {
-    private static final Logger LOGGER = Logger.getLogger(OBDConnectionService.class);
+    private static final Logger LOG = Logger.getLogger(OBDConnectionService.class);
 
     protected static final int MAX_RECONNECT_COUNT = 2;
     public static final int BG_NOTIFICATION_ID = 42;
@@ -91,9 +95,10 @@ public class OBDConnectionService extends Service {
     private OBDBluetoothConnection mOBDConnection;
 
     // Different subscriptions
-    private CompositeSubscription mCompositeSubscription = new CompositeSubscription();
+    private CompositeSubscription subscriptions = new CompositeSubscription();
     private Subscription mUUIDSubscription;
     private Subscription mPreferenceSubscription;
+
 
     // This satellite fix indicates that there is no satellite connection yet.
     private GpsSatelliteFix mCurrentGpsSatelliteFix = new GpsSatelliteFix(0, false);
@@ -102,6 +107,8 @@ public class OBDConnectionService extends Service {
     private IBinder mBinder = new OBDConnectionBinder();
 
     private PowerManager.WakeLock mWakeLock;
+
+    private OBDConnectionRecognizer connectionRecognizer = new OBDConnectionRecognizer();
 
     @Override
     public void onCreate() {
@@ -113,6 +120,7 @@ public class OBDConnectionService extends Service {
         // register on the event bus
         this.mBus.register(this);
         this.mBus.register(mTrackDetailsProvider);
+        this.mBus.register(connectionRecognizer);
 
         mTTS = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
@@ -121,25 +129,16 @@ public class OBDConnectionService extends Service {
                     mIsTTSAvailable = true;
                     mTTS.setLanguage(Locale.ENGLISH);
                 } else {
-                    LOGGER.warn("TextToSpeech is not available.");
+                    LOG.warn("TextToSpeech is not available.");
                 }
             }
         });
 
-        mIsTTSPrefChecked = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext())
-                .getBoolean(PreferenceConstants.PREFERENCE_TAG_TEXT_TO_SPEECH, false);
-
-        mPreferenceSubscription = ContentObservable.fromSharedPreferencesChanges
-                (PreferenceManager.getDefaultSharedPreferences(getApplicationContext()))
-                .filter(prefKey ->
-                        PreferenceConstants.PREFERENCE_TAG_TEXT_TO_SPEECH.equals(prefKey))
-                .subscribe(prefKey -> {
-                    mIsTTSPrefChecked = PreferenceManager
-                            .getDefaultSharedPreferences(getApplicationContext())
-                            .getBoolean(PreferenceConstants.PREFERENCE_TAG_TEXT_TO_SPEECH,
-                                    false);
-                });
+        subscriptions.add(
+                PreferencesHandler.getTextToSpeechObservable(getApplicationContext())
+                        .subscribe(aBoolean -> {
+                            mIsTTSPrefChecked = aBoolean;
+                        }));
     }
 
     @Override
@@ -149,7 +148,7 @@ public class OBDConnectionService extends Service {
 
         // Acquire the wake lock for keeping the CPU active.
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,"wakelock");
+        mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "wakelock");
         mWakeLock.acquire();
 
         //
@@ -159,24 +158,24 @@ public class OBDConnectionService extends Service {
         BluetoothDevice device = mBluetoothHandler.getSelectedBluetoothDevice();
 
         if (device != null) {
-            LOGGER.info("Start the OBD connection");
+            LOG.info("Start the OBD connection");
 
             // Start the OBD Connection.
             startOBDConnection(device);
         } else {
-            LOGGER.severe("No default Bluetooth device selected");
+            LOG.severe("No default Bluetooth device selected");
         }
 
         return START_STICKY;
     }
 
     /**
-     * Sets the current service state and fire an event on the bus.
+     * Sets the current remoteService state and fire an event on the bus.
      *
-     * @param state the state of the service.
+     * @param state the state of the remoteService.
      */
     private void setBluetoothServiceState(BluetoothServiceState state) {
-        // Set the new service state
+        // Set the new remoteService state
         this.mServiceState = state;
         CURRENT_SERVICE_STATE = state; // TODO FIX
         // and fire an event on the event bus.
@@ -185,7 +184,7 @@ public class OBDConnectionService extends Service {
 
     //    @Produce
     public BluetoothServiceStateChangedEvent produceBluetoothServiceStateChangedEvent() {
-        LOGGER.info(String.format("produceBluetoothServiceStateChangedEvent(): %s",
+        LOG.info(String.format("produceBluetoothServiceStateChangedEvent(): %s",
                 mServiceState.toString()));
         return new BluetoothServiceStateChangedEvent(mServiceState);
     }
@@ -198,11 +197,11 @@ public class OBDConnectionService extends Service {
 
     @Override
     public void onDestroy() {
-        LOGGER.info("onDestroy()");
+        LOG.info("onDestroy()");
         super.onDestroy();
 
-        if (mCompositeSubscription != null)
-            mCompositeSubscription.unsubscribe();
+        if (subscriptions != null)
+            subscriptions.unsubscribe();
 
         // If there is an active UUID subscription.
         if (mUUIDSubscription != null)
@@ -211,16 +210,17 @@ public class OBDConnectionService extends Service {
         if (mPreferenceSubscription != null)
             mPreferenceSubscription.unsubscribe();
 
-        // Stop this service and emove this service from foreground state.
+        // Stop this remoteService and emove this remoteService from foreground state.
         stopOBDConnection();
         stopForeground(true);
 
-        if(mWakeLock != null)
+        if (mWakeLock != null)
             mWakeLock.release();
 
         // Unregister from the event bus.
         mBus.unregister(this);
         mBus.unregister(mTrackDetailsProvider);
+        mBus.unregister(connectionRecognizer);
         mTrackDetailsProvider.onOBDConnectionStopped();
     }
 
@@ -260,40 +260,18 @@ public class OBDConnectionService extends Service {
         });
     }
 
-    /**
-     * @param device
-     * @return
-     */
-    private Observable<Object> getUUIDs(final BluetoothDevice device) {
-        return ContentObservable.fromBroadcast(getApplicationContext(),
-                new IntentFilter(BluetoothDevice.ACTION_UUID)).flatMap(intent -> {
-                    // Get the device and the UUID provided by the incoming intent.
-                    BluetoothDevice deviceExtra = intent
-                            .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    Parcelable[] uuidExtra = intent
-                            .getParcelableArrayExtra(BluetoothDevice.EXTRA_UUID);
-
-                    // If the received broadcast does not belong to this receiver,
-                    // skip it.
-                    if (!deviceExtra.getAddress().equals(device.getAddress()))
-                        return null;
-
-                    return transformUUID(uuidExtra);
-                }
-        );
-    }
 
     /**
      * @param device
      * @return
      */
     private Observable<List<UUID>> getUUIDList(final BluetoothDevice device) {
-        LOGGER.info(String.format("getUUIDList(%s)", device.getName()));
+        LOG.info(String.format("getUUIDList(%s)", device.getName()));
 
-        return ContentObservable.fromBroadcast(getApplicationContext(),
+        return BroadcastUtils.createBroadcastObservable(getApplicationContext(),
                 new IntentFilter(BluetoothDevice.ACTION_UUID))
                 .map(intent -> {
-                    LOGGER.info("getUUIDList(): map call");
+                    LOG.info("getUUIDList(): map call");
 
                     // Get the device and the UUID provided by the incoming intent.
                     BluetoothDevice deviceExtra = intent
@@ -309,7 +287,7 @@ public class OBDConnectionService extends Service {
                     // Result list to return
                     List<UUID> res = new ArrayList<UUID>();
 
-                    LOGGER.info(String.format("Adding default UUID: %s", EMBEDDED_BOARD_SPP));
+                    LOG.info(String.format("Adding default UUID: %s", EMBEDDED_BOARD_SPP));
                     res.add(EMBEDDED_BOARD_SPP);
 
                     // Create a uuid for every string and return it
@@ -330,9 +308,9 @@ public class OBDConnectionService extends Service {
      * @param device the device to start a connection to.
      */
     private void startOBDConnection(final BluetoothDevice device) {
-        LOGGER.info("startOBDConnection");
+        LOG.info("startOBDConnection");
 
-        // Set service state to STARTING and fire an event on the bus.
+        // Set remoteService state to STARTING and fire an event on the bus.
         setBluetoothServiceState(BluetoothServiceState.SERVICE_STARTING);
 
         if (device.fetchUuidsWithSdp())
@@ -347,10 +325,10 @@ public class OBDConnectionService extends Service {
     }
 
     /**
-     * Method that stops the service, removes everything from the waiting list
+     * Method that stops the remoteService, removes everything from the waiting list
      */
     private void stopOBDConnection() {
-        LOGGER.info("stopOBDConnection called");
+        LOG.info("stopOBDConnection called");
         new Thread(() -> {
             shutdownConnectionAndHandler();
 
@@ -374,7 +352,7 @@ public class OBDConnectionService extends Service {
 
             doTextToSpeech("Device disconnected");
 
-            // Set state of the service to stopped.
+            // Set state of the remoteService to stopped.
             setBluetoothServiceState(BluetoothServiceState.SERVICE_STOPPED);
         }).start();
     }
@@ -401,7 +379,7 @@ public class OBDConnectionService extends Service {
 
                 @Override
                 public void onAllAdaptersFailed() {
-                    LOGGER.info("all adapters failed!");
+                    LOG.info("all adapters failed!");
                     stopOBDConnection();
                     doTextToSpeech("failed to connect to the OBD adapter");
                     //                  sendBroadcast(new Intent
@@ -416,16 +394,16 @@ public class OBDConnectionService extends Service {
                 @Override
                 public void requestConnectionRetry(IOException e) {
                     if (mReconnectCount++ >= MAX_RECONNECT_COUNT) {
-                        LOGGER.warn("Max count of reconnecctes reaced", e);
+                        LOG.warn("Max count of reconnecctes reaced", e);
                     } else {
-                        LOGGER.info("Restarting Device Connection...");
+                        LOG.info("Restarting Device Connection...");
                         doTextToSpeech("Connection lost. Trying to reconnect.");
                     }
                 }
             });
             this.mOBDCommandLooper.start();
         } catch (IOException e) {
-            LOGGER.warn(e.getMessage(), e);
+            LOG.warn(e.getMessage(), e);
             deviceDisconnected();
             return;
         }
@@ -434,7 +412,7 @@ public class OBDConnectionService extends Service {
     }
 
     public void deviceDisconnected() {
-        LOGGER.info("Bluetooth device disconnected.");
+        LOG.info("Bluetooth device disconnected.");
         stopOBDConnection();
     }
 
@@ -484,13 +462,13 @@ public class OBDConnectionService extends Service {
                     return;
 
                 try {
-                    LOGGER.info("Trying to create native bleutooth socket");
+                    LOG.info("Trying to create native bleutooth socket");
                     mSocketWrapper = new NativeBluetoothSocket(mDevice
                             .createRfcommSocketToServiceRecord(uuid));
                 } catch (IOException e) {
-                    LOGGER.info("Error");
+                    LOG.info("Error");
 
-                    LOGGER.warn(e.getMessage(), e);
+                    LOG.warn(e.getMessage(), e);
                     continue;
                 }
 
@@ -503,7 +481,7 @@ public class OBDConnectionService extends Service {
                     mSocketWrapper.connect();
                     mSuccess = true;
                 } catch (IOException e) {
-                    LOGGER.warn("Exception on bluetooth connection. Trying " +
+                    LOG.warn("Exception on bluetooth connection. Trying " +
                             "the fallback... : "
                             + e.getMessage(), e);
                     try {
@@ -526,7 +504,7 @@ public class OBDConnectionService extends Service {
                 }
 
                 if (mSuccess) {
-                    LOGGER.info("successful connected");
+                    LOG.info("successful connected");
                     onDeviceConnected(mSocketWrapper);
                     break;
                 }
@@ -534,7 +512,7 @@ public class OBDConnectionService extends Service {
         }
 
         private void shutdownSocket(BluetoothSocketWrapper socket) {
-            OBDConnectionService.LOGGER.info("Shutting down bluetooth socket.");
+            OBDConnectionService.LOG.info("Shutting down bluetooth socket.");
 
             try {
                 if (socket.getInputStream() != null)
@@ -562,17 +540,68 @@ public class OBDConnectionService extends Service {
         }
     }
 
+    public class OBDConnectionRecognizer {
+        private static final long OBD_INTERVAL = 1000 * 10; // 10 seconds;
+        private static final long GPS_INTERVAL = 1000 * 15; // 15 seconds;
+
+        private long timeLastSpeedMeasurement;
+        private long timeLastGpsMeasurement;
+
+        private final Scheduler.Worker mBackgroundWorker = Schedulers.io().createWorker();
+        private Subscription mOBDCheckerSubscription;
+        private Subscription mGPSCheckerSubscription;
+
+        private final Action0 OBDConnectionCloser = () -> {
+            LOG.warn("CONNECTION CLOSED");
+            stopOBDConnection();
+        };
+
+        /**
+         * Constructor.
+         */
+        public OBDConnectionRecognizer() {
+            //        ((Injector) context).injectObjects(this);
+
+        }
+
+        @Subscribe
+        public void onReceiveGpsLocationChangedEvent(GpsLocationChangedEvent event) {
+            if (mGPSCheckerSubscription != null) {
+                mGPSCheckerSubscription.unsubscribe();
+                mGPSCheckerSubscription = null;
+            }
+
+            timeLastGpsMeasurement = System.currentTimeMillis();
+
+            mGPSCheckerSubscription = mBackgroundWorker.schedule(
+                    OBDConnectionCloser, GPS_INTERVAL, TimeUnit.MILLISECONDS);
+        }
+
+        @Subscribe
+        public void onReceiveSpeedUpdateEvent(SpeedUpdateEvent event) {
+            if (mOBDCheckerSubscription != null) {
+                mOBDCheckerSubscription.unsubscribe();
+                mOBDCheckerSubscription = null;
+            }
+
+            timeLastSpeedMeasurement = System.currentTimeMillis();
+
+            mOBDCheckerSubscription = mBackgroundWorker.schedule(
+                    OBDConnectionCloser, OBD_INTERVAL, TimeUnit.MILLISECONDS);
+        }
+    }
+
 
     /**
-     * Class used for the client Binder. The service is running in the same process as its
+     * Class used for the client Binder. The remoteService is running in the same process as its
      * client, so it is not required to deal with IPC.
      */
     public class OBDConnectionBinder extends Binder {
 
         /**
-         * Returns the instance of the enclosing service.
+         * Returns the instance of the enclosing remoteService.
          *
-         * @return the enclosing service.
+         * @return the enclosing remoteService.
          */
         public OBDConnectionService getService() {
             return OBDConnectionService.this;

@@ -39,17 +39,18 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import org.envirocar.app.view.dashboard.RealDashboardFragment;
-import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.R;
-import org.envirocar.app.application.TermsOfUseManager;
-import org.envirocar.app.application.UserManager;
-import org.envirocar.app.model.dao.DAOProvider;
-import org.envirocar.app.model.dao.exception.ResourceConflictException;
-import org.envirocar.app.model.dao.exception.UserUpdateException;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.User;
+import org.envirocar.app.handler.TermsOfUseManager;
+import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.view.dashboard.RealDashboardFragment;
 import org.envirocar.app.views.TypefaceEC;
+import org.envirocar.core.entity.User;
+import org.envirocar.core.entity.UserImpl;
+import org.envirocar.core.exception.DataUpdateFailureException;
+import org.envirocar.core.exception.ResourceConflictException;
+import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.core.logging.Logger;
+import org.envirocar.remote.DAOProvider;
 
 import javax.inject.Inject;
 
@@ -89,7 +90,7 @@ public class RegisterFragment extends BaseInjectorFragment {
     @Inject
     protected DAOProvider mDAOProvider;
     @Inject
-    protected UserManager mUserManager;
+    protected UserHandler mUserManager;
     @Inject
     protected TermsOfUseManager mTermsOfUseManager;
 
@@ -295,7 +296,7 @@ public class RegisterFragment extends BaseInjectorFragment {
                     @Override
                     public void run() {
                         Crouton.makeText(getActivity(), getResources().getString(R.string.welcome_message) + mUsername, Style.CONFIRM).show();
-                        User user = new User(mUsername, mPassword);
+                        User user = new UserImpl(mUsername, mPassword);
                         mUserManager.setUser(user);
 
                         mTermsOfUseManager.askForTermsOfUseAcceptance(user, getActivity(), null);
@@ -306,7 +307,7 @@ public class RegisterFragment extends BaseInjectorFragment {
                                 .commit();
                     }
                 });
-            } catch (UserUpdateException e) {
+            } catch (DataUpdateFailureException e) {
                 logger.warn(e.getMessage(), e);
                 getActivity().runOnUiThread(new Runnable() {
 
@@ -347,10 +348,9 @@ public class RegisterFragment extends BaseInjectorFragment {
     /*
      * Use this method to sign up a new user
      */
-    public boolean createUser(String user, String token, String mail) throws UserUpdateException, ResourceConflictException {
-        User newUser = new User(user, token);
+    public boolean createUser(String user, String token, String mail) throws ResourceConflictException, DataUpdateFailureException {
+        User newUser = new UserImpl(user, token);
         newUser.setMail(mail);
-
         mDAOProvider.getUserDAO().createUser(newUser);
         return true;
     }

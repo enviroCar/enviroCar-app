@@ -17,10 +17,10 @@ import com.mapbox.mapboxsdk.views.MapView;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
-import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.services.trackdetails.TrackPathOverlayEvent;
+import org.envirocar.app.events.TrackPathOverlayEvent;
 import org.envirocar.app.view.utils.MapUtils;
+import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.core.logging.Logger;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
@@ -33,7 +33,7 @@ import rx.android.schedulers.AndroidSchedulers;
  * @author dewall
  */
 public class DashboardTrackMapFragment extends BaseInjectorFragment {
-    private static final Logger LOGGER = Logger.getLogger(DashboardTrackMapFragment.class);
+    private static final Logger LOG = Logger.getLogger(DashboardTrackMapFragment.class);
 
     @InjectView(R.id.fragment_dashboard_frag_map_mapview)
     protected MapView mMapView;
@@ -51,7 +51,7 @@ public class DashboardTrackMapFragment extends BaseInjectorFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
-        LOGGER.info("onCreateView()");
+        LOG.info("onCreateView()");
 
         setHasOptionsMenu(true);
 

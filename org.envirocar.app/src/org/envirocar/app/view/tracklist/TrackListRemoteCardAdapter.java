@@ -6,22 +6,17 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.envirocar.app.R;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.storage.RemoteTrack;
+import org.envirocar.core.entity.Track;
+import org.envirocar.core.logging.Logger;
 
 import java.util.List;
 
 /**
  * @author dewall
  */
-public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<RemoteTrack,
+public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
         AbstractTrackListCardAdapter.RemoteTrackCardViewHolder> {
     private static final Logger LOG = Logger.getLogger(TrackListRemoteCardAdapter.class);
-
-    private static final int TYPE_REMOTE = 0;
-    private static final int TYPE_LOCAL = 1;
-
-    private Context mContext;
 
     /**
      * Constructor.
@@ -29,17 +24,18 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<Rem
      * @param tracks   the list of tracks to show cards for.
      * @param callback
      */
-    public TrackListRemoteCardAdapter(Context context, List<RemoteTrack> tracks,
+    public TrackListRemoteCardAdapter(Context context, List<Track> tracks,
                                       OnTrackInteractionCallback callback) {
         super(tracks, callback);
-        this.mContext = context;
     }
 
     @Override
     public RemoteTrackCardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        // Inflate the content view of the card.
         View remoteView = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.fragment_tracklist_cardlayout_remote, parent, false);
 
+        // and create a new viewholder.
         return new RemoteTrackCardViewHolder(remoteView);
     }
 
@@ -47,28 +43,46 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<Rem
     public void onBindViewHolder(RemoteTrackCardViewHolder holder, int position) {
         LOG.info("onBindViewHolder()");
 
-        final RemoteTrack remoteTrack = mTrackDataset.get(position);
+        final Track remoteTrack = mTrackDataset.get(position);
 
-        if (remoteTrack.isDownloaded()) {
-            holder.mContentView.setVisibility(View.VISIBLE);
-            holder.mProgressCircle.setVisibility(View.GONE);
-            holder.mDownloadButton.setVisibility(View.GONE);
+        // Reset the most important settings of the views.
+        holder.mTitleTextView.setText(remoteTrack.getName());
+        holder.mMapView.getOverlays().clear();
+        holder.mDownloadButton.setOnClickListener(null);
+        holder.mToolbar.getMenu().clear();
 
-            bindLocalTrackViewHolder(holder, remoteTrack);
-        } else {
-            if (holder.mState == RemoteTrackCardViewHolder.DownloadState.NOTHING) {
+        // Depending on the tracks state
+        switch (remoteTrack.getDownloadState()) {
+            case REMOTE:
+                holder.mContentView.setVisibility(View.GONE);
+                holder.mProgressCircle.setVisibility(View.VISIBLE);
+
+                // Workaround: Sometimes the inner arcview can be null when set visible
+                holder.mProgressCircle.post(() -> {
+                    holder.mProgressCircle.hide();
+                });
+                holder.mDownloadButton.setVisibility(View.VISIBLE);
                 holder.mDownloadButton.setOnClickListener(v -> {
+                    holder.mDownloadButton.setOnClickListener(null);
                     mTrackInteractionCallback.onDownloadTrackClicked(remoteTrack, holder);
                 });
-            } else if (holder.mState == RemoteTrackCardViewHolder.DownloadState.DOWNLOADING) {
-                holder.mDownloadButton.setOnClickListener(null);
+                holder.mDownloadNotification.setVisibility(View.GONE);
+                break;
+            case DOWNLOADING:
+                holder.mContentView.setVisibility(View.GONE);
+                holder.mProgressCircle.setVisibility(View.VISIBLE);
                 holder.mProgressCircle.show();
-            } else if (holder.mState == RemoteTrackCardViewHolder.DownloadState.DOWNLOADED) {
+                holder.mDownloadButton.setVisibility(View.VISIBLE);
+                holder.mDownloadNotification.setVisibility(View.VISIBLE);
+                break;
+            case DOWNLOADED:
+                holder.mContentView.setVisibility(View.VISIBLE);
                 holder.mProgressCircle.setVisibility(View.GONE);
-                holder.mDownloadButton.setVisibility(View.GONE);
-            }
-
-            holder.mTitleTextView.setText(remoteTrack.getName());
+                holder.mDownloadNotification.setVisibility(View.GONE);
+                bindLocalTrackViewHolder(holder, remoteTrack);
+                break;
         }
+
+        holder.mMapView.postInvalidate();
     }
 }

@@ -11,30 +11,29 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.google.common.collect.Lists;
-
 import org.envirocar.app.R;
-import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.storage.RemoteTrack;
-import org.envirocar.app.storage.Track;
-
-import java.util.Collections;
-import java.util.List;
+import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.core.logging.Logger;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import rx.Scheduler;
+import rx.android.schedulers.AndroidSchedulers;
 
 /**
  * @author dewall
  */
 public class TrackListPagerFragment extends BaseInjectorFragment {
+    private static final Logger LOG = Logger.getLogger(TrackListPagerFragment.class);
 
     @InjectView(R.id.fragment_tracklist_layout_tablayout)
     protected TabLayout mTabLayout;
     @InjectView(R.id.fragment_tracklist_layout_viewpager)
     protected ViewPager mViewPager;
 
-    private TrackListPagerAdapter mTrackListPageAdapter;
+    private TrackListPagerAdapter trackListPageAdapter;
+
+    private Scheduler.Worker mtWorker = AndroidSchedulers.mainThread().createWorker();
 
     @Nullable
     @Override
@@ -44,12 +43,46 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
 
         ButterKnife.inject(this, content);
 
-        mTrackListPageAdapter = new TrackListPagerAdapter(getFragmentManager());
-        mViewPager.setAdapter(mTrackListPageAdapter);
+        trackListPageAdapter = new TrackListPagerAdapter(getFragmentManager());
+        mViewPager.setAdapter(trackListPageAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
 
-        mTabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.green_dark_cario));
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int
+                    positionOffsetPixels) {
+                // Nothing to do..
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                LOG.info("Page selected=" + position);
+                if (position == 0) {
+                    trackListPageAdapter.localCardFragment.loadDataset();
+                } else if (position == 1) {
+                    trackListPageAdapter.remoteCardFragment.loadDataset();
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                // Nothing to do..
+            }
+        });
+
+        mTabLayout.setSelectedTabIndicatorColor(getResources()
+                .getColor(R.color.green_dark_cario));
         return content;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (mViewPager.getCurrentItem() == 0) {
+            trackListPageAdapter.localCardFragment.loadDataset();
+        } else {
+            trackListPageAdapter.remoteCardFragment.loadDataset();
+        }
     }
 
     /**
@@ -59,13 +92,10 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
 
         private static final int NUM_PAGES = 2;
 
-        private final List<RemoteTrack> mRemoteTrackList = Collections.synchronizedList(Lists
-                .newArrayList());
-        private final List<Track> mLocalTrackList = Collections.synchronizedList(Lists
-                .newArrayList());
-
-        private TrackListLocalCardFragment localCardFragment = new TrackListLocalCardFragment();
-        private TrackListRemoteCardFragment remoteCardFragment = new TrackListRemoteCardFragment();
+        private TrackListLocalCardFragment localCardFragment =
+                new TrackListLocalCardFragment();
+        private TrackListRemoteCardFragment remoteCardFragment =
+                new TrackListRemoteCardFragment();
 
         /**
          * Constructor.
@@ -83,12 +113,11 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
         @Override
         public Fragment getItem(int position) {
             if (position == 0) {
-                return new TrackListLocalCardFragment();
+                return localCardFragment;
             } else {
-                return new TrackListRemoteCardFragment();
+                return remoteCardFragment;
             }
         }
-
 
         @Override
         public int getCount() {

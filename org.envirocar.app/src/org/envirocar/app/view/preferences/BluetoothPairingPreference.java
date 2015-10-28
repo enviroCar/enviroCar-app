@@ -19,12 +19,12 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
-import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.events.bluetooth.BluetoothPairingChangedEvent;
-import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
+import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.view.preferences.bluetooth.BluetoothDeviceListAdapter;
+import org.envirocar.core.events.bluetooth.BluetoothPairingChangedEvent;
+import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
 
 import java.util.Set;
 

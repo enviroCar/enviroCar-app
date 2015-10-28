@@ -22,11 +22,9 @@ package org.envirocar.app.test.commands;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.bluetooth.obd.commands.LongTermTrimBank1;
-import org.envirocar.app.bluetooth.obd.commands.ShortTermTrimBank1;
+import org.envirocar.obd.commands.LongTermTrimBank1;
+import org.envirocar.obd.commands.ShortTermTrimBank1;
 import org.junit.Test;
-
-import android.test.AndroidTestCase;
 
 public class FuelTrimBankTest {
 

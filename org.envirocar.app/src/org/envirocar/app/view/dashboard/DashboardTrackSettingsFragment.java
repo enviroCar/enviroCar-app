@@ -13,16 +13,16 @@ import android.widget.TextView;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
-import org.envirocar.app.application.CarPreferenceHandler;
-import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.events.bluetooth.BluetoothDeviceSelectedEvent;
-import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.app.events.NewCarTypeSelectedEvent;
-import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.model.Car;
+import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.view.carselection.CarSelectionActivity;
 import org.envirocar.app.view.obdselection.OBDSelectionActivity;
+import org.envirocar.core.entity.Car;
+import org.envirocar.core.events.NewCarTypeSelectedEvent;
+import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
+import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
+import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -33,7 +33,7 @@ import butterknife.InjectView;
  * @author dewall
  */
 public class DashboardTrackSettingsFragment extends BaseInjectorFragment {
-    private static final Logger LOGGER = Logger.getLogger(DashboardTrackSettingsFragment.class);
+    private static final Logger LOG = Logger.getLogger(DashboardTrackSettingsFragment.class);
 
     @Inject
     protected CarPreferenceHandler mCarPrefHandler;
@@ -58,7 +58,7 @@ public class DashboardTrackSettingsFragment extends BaseInjectorFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
-        LOGGER.info("onCreateView()");
+        LOG.info("onCreateView()");
 
         // First inflate the general dashboard view.
         View contentView = inflater.inflate(R.layout.fragment_startup_settings_layout,
@@ -120,19 +120,19 @@ public class DashboardTrackSettingsFragment extends BaseInjectorFragment {
 
     @Subscribe
     public void onReceiveNewCarTypeSelectedEvent(NewCarTypeSelectedEvent event) {
-        LOGGER.debug(String.format("Received event: %s", event.toString()));
+        LOG.debug(String.format("Received event: %s", event.toString()));
         setCarTypeText(event.mCar);
     }
 
     @Subscribe
     public void onReceiveBluetoothDeviceSelectedEvent(BluetoothDeviceSelectedEvent event) {
-        LOGGER.debug(String.format("Received event: %s", event.toString()));
+        LOG.debug(String.format("Received event: %s", event.toString()));
         setOBDTypeText(event.mDevice);
     }
 
     @Subscribe
     public void onReceiveBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
-        LOGGER.debug(String.format("Received event: %s", event.toString()));
+        LOG.debug(String.format("Received event: %s", event.toString()));
         setOBDTypeText(mBluetoothHandler.getSelectedBluetoothDevice());
     }
 
@@ -140,18 +140,20 @@ public class DashboardTrackSettingsFragment extends BaseInjectorFragment {
      * @param device
      */
     private void setOBDTypeText(BluetoothDevice device) {
-        if (!mBluetoothHandler.isBluetoothEnabled()) {
-            mOBDTypeTextView.setText("Bluetooth is disabled.");
-            mOBDTypeSubTextView.setText("Please enable bluetooth.");
-            mOBDTypeSubTextView.setVisibility(View.VISIBLE);
-        } else if (device == null) {
-            mOBDTypeTextView.setText("No OBD device selected.");
-            mOBDTypeSubTextView.setVisibility(View.GONE);
-        } else {
-            mOBDTypeTextView.setText(device.getName());
-            mOBDTypeSubTextView.setText(device.getAddress());
-            mOBDTypeSubTextView.setVisibility(View.VISIBLE);
-        }
+        getActivity().runOnUiThread(() -> {
+            if (!mBluetoothHandler.isBluetoothEnabled()) {
+                mOBDTypeTextView.setText("Bluetooth is disabled.");
+                mOBDTypeSubTextView.setText("Please enable bluetooth.");
+                mOBDTypeSubTextView.setVisibility(View.VISIBLE);
+            } else if (device == null) {
+                mOBDTypeTextView.setText("No OBD device selected.");
+                mOBDTypeSubTextView.setVisibility(View.GONE);
+            } else {
+                mOBDTypeTextView.setText(device.getName());
+                mOBDTypeSubTextView.setText(device.getAddress());
+                mOBDTypeSubTextView.setVisibility(View.VISIBLE);
+            }
+        });
     }
 
     /**

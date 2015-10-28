@@ -7,22 +7,23 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.mapbox.mapboxsdk.overlay.UserLocationOverlay;
-import com.mapbox.mapboxsdk.tileprovider.MapTileCache;
 import com.mapbox.mapboxsdk.views.MapView;
 
 import org.envirocar.app.R;
-import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.logging.Logger;
 import org.envirocar.app.view.utils.MapUtils;
+import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.core.logging.Logger;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 /**
+ * TODO JavaDoc
+ *
  * @author dewall
  */
 public class DashboardMapFragment extends BaseInjectorFragment {
-    private static final Logger LOGGER = Logger.getLogger(DashboardMapFragment.class);
+    private static final Logger LOG = Logger.getLogger(DashboardMapFragment.class);
 
     @InjectView(R.id.fragment_dashboard_frag_map_mapview)
     protected MapView mMapView;
@@ -31,7 +32,7 @@ public class DashboardMapFragment extends BaseInjectorFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
-        LOGGER.info("onCreateView()");
+        LOG.info("onCreateView()");
 
         // First inflate the general dashboard view.
         View contentView = inflater.inflate(R.layout.fragment_dashboard_frag_map, container, false);

@@ -13,12 +13,12 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
-import org.envirocar.app.bluetooth.BluetoothHandler;
-import org.envirocar.app.events.bluetooth.BluetoothPairingChangedEvent;
-import org.envirocar.app.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
-import org.envirocar.app.view.preferences.PreferenceConstants;
+import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.handler.PreferenceConstants;
+import org.envirocar.core.events.bluetooth.BluetoothPairingChangedEvent;
+import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
 
@@ -50,13 +50,13 @@ public class OBDSettingsFragment extends PreferenceFragment {
 
         // Get the switch preference indicating the enabled bluetooth setting.
         mBluetoothIsActivePreference = (SwitchPreference) getPreferenceScreen()
-                .findPreference(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_ENABLER);
+                .findPreference(PreferenceConstants.PREF_BLUETOOTH_ENABLER);
         // Get the bluetooth pairing preference if possible
         mBluetoothPairingPreference = getPreferenceScreen()
-                .findPreference(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_PAIRING);
+                .findPreference(PreferenceConstants.PREF_BLUETOOTH_PAIRING);
         // Get the bluetooth preference if possible
         mBluetoothDeviceListPreference = getPreferenceScreen()
-                .findPreference(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_LIST);
+                .findPreference(PreferenceConstants.PREF_BLUETOOTH_LIST);
 
         updateBluetoothPreferences(mBluetoothHandler.isBluetoothEnabled());
     }
@@ -125,8 +125,8 @@ public class OBDSettingsFragment extends PreferenceFragment {
 
             // remove the shared preference entries for the bluetooth selection tag.
             PreferenceManager.getDefaultSharedPreferences(getActivity()).edit()
-                    .remove(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_NAME)
-                    .remove(PreferenceConstants.PREFERENCE_TAG_BLUETOOTH_ADDRESS).commit();
+                    .remove(PreferenceConstants.PREF_BLUETOOTH_NAME)
+                    .remove(PreferenceConstants.PREF_BLUETOOTH_ADDRESS).commit();
         }
     }
 

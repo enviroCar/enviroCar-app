@@ -1,0 +1,45 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'me.tatarka.retrolambda'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    compileOptions {
+        sourceCompatibility rootProject.ext.javaCompileVersion
+        targetCompatibility rootProject.ext.javaCompileVersion
+    }
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile rootProject.ext.supportV7
+
+    compile rootProject.ext.dagger
+    apt rootProject.ext.daggerCompiler
+
+    compile rootProject.ext.rxAndroid
+    compile rootProject.ext.rxJava
+
+    // Everything realted to retrofit...
+    compile rootProject.ext.retrofit
+    compile rootProject.ext.retrofitGson
+    compile rootProject.ext.retrofitAdapters
+    compile rootProject.ext.retrofitRxJava
+
+    compile project(':org.envirocar.core')
+}

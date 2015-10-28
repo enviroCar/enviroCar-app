@@ -14,10 +14,12 @@ import android.support.v4.app.NotificationCompat;
 
 import com.google.common.collect.Maps;
 
-import org.envirocar.app.injection.InjectApplicationScope;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
 import org.envirocar.app.services.SystemStartupService;
+import org.envirocar.app.view.carselection.CarSelectionActivity;
+import org.envirocar.app.view.obdselection.OBDSelectionActivity;
+import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.injection.Injector;
+import org.envirocar.core.logging.Logger;
 
 import java.util.Map;
 
@@ -61,7 +63,7 @@ public class NotificationHandler {
         // Inject ourselves
         ((Injector) context).injectObjects(this);
 
-        // get the system service for notifications.
+        // get the system remoteService for notifications.
         mNotificationManager = (NotificationManager) mContext.getSystemService(Context
                 .NOTIFICATION_SERVICE);
 
@@ -123,25 +125,25 @@ public class NotificationHandler {
         mNotificationStateMap.put(service.getClass(), state);
 
         Notification.Builder builder = new Notification.Builder(mContext);
-        builder.setContentTitle(state.getNotificationTitle());
+        builder.setContentTitle("enviroCar - " + mContext.getString(state.getNotificationTitle()));
         builder.setPriority(Notification.PRIORITY_MAX);
-        builder.setContentText(state.getNotificationContent());
+        builder.setContentText(mContext.getString(state.getNotificationContent()));
         builder.setSmallIcon(state.getSmallIconId());
 
         // TODO
-//        builder.setLargeIcon(getBitmap(
-//                mContext.getResources().getDrawable(state.getLargeIconId())));
+        //        builder.setLargeIcon(getBitmap(
+        //                mContext.getResources().getDrawable(state.getLargeIconId())));
         builder.setContentIntent(mBaseContentIntent);
 
         if (state.isShowingBigText()) {
             Notification.BigTextStyle bigTextStyle = new Notification.BigTextStyle();
-            bigTextStyle.setBigContentTitle(state.getNotificationTitle());
-            bigTextStyle.bigText(state.getNotificationContent());
+            bigTextStyle.setBigContentTitle("enviroCar - " + mContext.getString(state.getNotificationTitle()));
+            bigTextStyle.bigText(mContext.getString(state.getNotificationContent()));
             builder.setStyle(bigTextStyle);
         }
 
         for (NotificationActionHolder holder : state.getActions(mContext)) {
-            builder.addAction(holder.mActionIcon, holder.mActionTitle, holder.mPendingIntent);
+            builder.addAction(holder.mActionIcon, mContext.getString(holder.mActionTitle), holder.mPendingIntent);
         }
 
         mNotificationManager.notify(notificationID, builder.build());
@@ -168,9 +170,9 @@ public class NotificationHandler {
     }
 
     /**
-     * Closes the notification for a given service.
+     * Closes the notification for a given remoteService.
      *
-     * @param service the service for which the notification is required to be closed.
+     * @param service the remoteService for which the notification is required to be closed.
      */
     public void closeNotification(Service service) {
         if (mNotificationManager != null) {
@@ -180,7 +182,7 @@ public class NotificationHandler {
         }
     }
 
-    public NotificationState getCurrentNotificationState(Service service){
+    public NotificationState getCurrentNotificationState(Service service) {
         return mNotificationStateMap.get(service.getClass());
     }
 
@@ -189,48 +191,69 @@ public class NotificationHandler {
      * Enumeration reflecting the possible states of the application.
      */
     public enum NotificationState implements NotificationContent {
-        NO_CAR_SELECTED{
+        NO_CAR_SELECTED {
             @Override
-            public String getNotificationTitle() {
-                return "No Car Type Selected";
+            public int getNotificationTitle() {
+                return R.string.notification_no_car_title;
             }
 
             @Override
-            public String getNotificationContent() {
-                return "You have not car type selected. Go to the settings and select one.";
+            public int getNotificationContent() {
+                return R.string.notification_no_car_description;
             }
 
             @Override
             public boolean isShowingBigText() {
                 return true;
+            }
+
+            @Override
+            public NotificationActionHolder[] getActions(Context context) {
+                Intent intent = new Intent(context, CarSelectionActivity.class);
+                PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent,
+                        PendingIntent.FLAG_CANCEL_CURRENT);
+
+                return new NotificationActionHolder[]{
+                        new NotificationActionHolder(R.drawable.ic_drive_eta_black_24dp,
+                                R.string.notification_no_car_action, pendingIntent)};
             }
         },
         NO_OBD_SELECTED {
             @Override
-            public String getNotificationTitle() {
-                return "No OBDII Adapter Selected";
+            public int getNotificationTitle() {
+                return R.string.notification_no_obd_title;
             }
 
             @Override
-            public String getNotificationContent() {
-                return "You have no paired OBDII adapter selected. Go to the settings and " +
-                        "pair/select one.";
+            public int getNotificationContent() {
+                return R.string.notification_no_obd_description;
             }
 
             @Override
             public boolean isShowingBigText() {
                 return true;
             }
+
+            @Override
+            public NotificationActionHolder[] getActions(Context context) {
+                Intent intent = new Intent(context, OBDSelectionActivity.class);
+                PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent,
+                        PendingIntent.FLAG_CANCEL_CURRENT);
+
+                return new NotificationActionHolder[]{
+                        new NotificationActionHolder(R.drawable.ic_bluetooth_black_24dp,
+                                R.string.notification_no_obd_action, pendingIntent)};
+            }
         },
         UNCONNECTED {
             @Override
-            public String getNotificationTitle() {
-                return "Device is Unconnected.";
+            public int getNotificationTitle() {
+                return R.string.notification_unconnected_title;
             }
 
             @Override
-            public String getNotificationContent() {
-                return "The device is not connected to any OBD device yet.";
+            public int getNotificationContent() {
+                return R.string.notification_unconnected_description;
             }
 
             @Override
@@ -246,18 +269,18 @@ public class NotificationHandler {
 
                 return new NotificationActionHolder[]{
                         new NotificationActionHolder(R.drawable.ic_bluetooth_searching_black_24dp,
-                                "Start Bluetooth Discovery", pendingIntent)};
+                                R.string.notification_unconnected_action, pendingIntent)};
             }
         },
         DISCOVERING {
             @Override
-            public String getNotificationTitle() {
-                return "Discovering";
+            public int getNotificationTitle() {
+                return R.string.notification_discovering_title;
             }
 
             @Override
-            public String getNotificationContent() {
-                return "Discovering for other bluetooth devices in the near Environment.";
+            public int getNotificationContent() {
+                return R.string.notification_discovering_description;
             }
 
             @Override
@@ -278,18 +301,18 @@ public class NotificationHandler {
 
                 return new NotificationActionHolder[]{
                         new NotificationActionHolder(R.drawable.ic_close_black_24dp,
-                                "Cancel Discovery", pendingIntent)};
+                                R.string.notification_discovering_action, pendingIntent)};
             }
         },
         OBD_FOUND {
             @Override
-            public String getNotificationTitle() {
-                return "OBD Device in Range.";
+            public int getNotificationTitle() {
+                return R.string.notification_obd_found_title;
             }
 
             @Override
-            public String getNotificationContent() {
-                return "The selected OBD device is found. Trying to connect";
+            public int getNotificationContent() {
+                return R.string.notification_obd_found_description;
             }
 
             @Override
@@ -305,18 +328,18 @@ public class NotificationHandler {
 
                 return new NotificationActionHolder[]{
                         new NotificationActionHolder(R.drawable.ic_play_arrow_black_24dp,
-                                "Start Track", pendingIntent)};
+                                R.string.notification_obd_found_action, pendingIntent)};
             }
         },
         CONNECTING {
             @Override
-            public String getNotificationTitle() {
-                return "Connecting...";
+            public int getNotificationTitle() {
+                return R.string.notification_connecting_title;
             }
 
             @Override
-            public String getNotificationContent() {
-                return "Connecting and starting a new track";
+            public int getNotificationContent() {
+                return R.string.notification_connecting_description;
             }
 
             @Override
@@ -326,13 +349,13 @@ public class NotificationHandler {
         },
         CONNCECTED {
             @Override
-            public String getNotificationTitle() {
-                return "Recording...";
+            public int getNotificationTitle() {
+                return R.string.notification_connected_title;
             }
 
             @Override
-            public String getNotificationContent() {
-                return "Successfully connected to the OBD device.\nThe recording is in progress.";
+            public int getNotificationContent() {
+                return R.string.notification_connected_description;
             }
 
             @Override
@@ -353,18 +376,18 @@ public class NotificationHandler {
 
                 return new NotificationActionHolder[]{
                         new NotificationActionHolder(R.drawable.ic_stop_black_24dp,
-                                "Stop Track", pendingIntent)};
+                                R.string.notification_connected_action, pendingIntent)};
             }
         },
         STOPPING {
             @Override
-            public String getNotificationTitle() {
-                return "Stopping the Track";
+            public int getNotificationTitle() {
+                return R.string.notification_stopping_title;
             }
 
             @Override
-            public String getNotificationContent() {
-                return "The tracking process gets stopped and finalized.";
+            public int getNotificationContent() {
+                return R.string.notification_stopping_description;
             }
 
             @Override
@@ -401,14 +424,14 @@ public class NotificationHandler {
          *
          * @return the title of the notification.
          */
-        String getNotificationTitle();
+        int getNotificationTitle();
 
         /**
          * Returns the string for the notification content.
          *
          * @return the content of the notification.
          */
-        String getNotificationContent();
+        int getNotificationContent();
 
         /**
          * Returns a boolean value that indicates whether the notification is showing a big text.
@@ -438,6 +461,7 @@ public class NotificationHandler {
          * @return the actions to be added to the notification
          */
         NotificationActionHolder[] getActions(Context context);
+
     }
 
     /**
@@ -448,7 +472,7 @@ public class NotificationHandler {
      */
     private static final class NotificationActionHolder {
         int mActionIcon;
-        String mActionTitle;
+        int mActionTitle;
         PendingIntent mPendingIntent;
 
         /**
@@ -458,7 +482,7 @@ public class NotificationHandler {
          * @param actionTitle The title of the action.
          * @param intent      The pending intent of the action.
          */
-        NotificationActionHolder(int actionIcon, String actionTitle, PendingIntent intent) {
+        NotificationActionHolder(int actionIcon, int actionTitle, PendingIntent intent) {
             this.mActionIcon = actionIcon;
             this.mActionTitle = actionTitle;
             this.mPendingIntent = intent;

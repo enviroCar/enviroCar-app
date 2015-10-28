@@ -27,16 +27,11 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
-import org.envirocar.app.bluetooth.obd.events.SpeedUpdateEvent;
-import org.envirocar.app.injection.Injector;
-import org.envirocar.app.logging.Logger;
+import org.envirocar.obd.events.SpeedUpdateEvent;
+import org.envirocar.core.logging.Logger;
 import org.envirocar.app.views.TypefaceEC;
 
 import javax.inject.Inject;
-
-import rx.Scheduler;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 
 /**
  * @author dewall
@@ -171,7 +166,7 @@ public final class Tempomat extends FrameLayout {
         super.onAttachedToWindow();
 
         // Register on the Bus;
-//        mBus.register(this);
+        //        mBus.register(this);
     }
 
     @Override
@@ -179,7 +174,7 @@ public final class Tempomat extends FrameLayout {
         super.onDetachedFromWindow();
 
         // Unregister on the bus.
-//        mBus.unregister(this);
+        //        mBus.unregister(this);
     }
 
     @Override
@@ -245,7 +240,7 @@ public final class Tempomat extends FrameLayout {
         mHandler.post(() -> submitRotationToDegree(mCurrentDegree));
     }
 
-    public void setSpeed(int speed){
+    public void setSpeed(int speed) {
         float degree = 0.0f;
         if (speed <= SCALE_MIN_SPEED) {
             degree = SCALE_MIN_DEGREE;
@@ -353,7 +348,6 @@ public final class Tempomat extends FrameLayout {
     }
 
     /**
-     *
      * @param mode
      * @param size
      * @return
