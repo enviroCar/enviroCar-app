@@ -34,7 +34,6 @@ import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.DataUpdateFailureException;
-import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.BaseInjectorActivity;
@@ -57,6 +56,8 @@ import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 /**
+ * TODO JavaDoc
+ *
  * @author dewall
  */
 public class LoginActivity extends BaseInjectorActivity {
@@ -114,7 +115,6 @@ public class LoginActivity extends BaseInjectorActivity {
     @Inject
     protected TrackHandler mTrackHandler;
 
-
     private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers
             .mainThread().createWorker();
     private final Scheduler.Worker mBackgroundWorker = Schedulers
@@ -156,7 +156,21 @@ public class LoginActivity extends BaseInjectorActivity {
                 finish();
             }
         } else if (item.getTitle().equals("Logout")) {
-            logOut();
+
+            new MaterialDialog.Builder(this)
+                    .title(R.string.activity_login_logout_dialog_title)
+                    .content(R.string.activity_login_logout_dialog_content)
+                    .positiveText(R.string.ok)
+                    .negativeText(R.string.cancel)
+                    .callback(new MaterialDialog.ButtonCallback() {
+                        @Override
+                        public void onPositive(MaterialDialog dialog) {
+                            logOut();
+                        }
+                    })
+                    .build()
+                    .show();
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -251,7 +265,7 @@ public class LoginActivity extends BaseInjectorActivity {
 
             // Create a dialog indicating the log in process.
             final MaterialDialog dialog = new MaterialDialog.Builder(LoginActivity.this)
-                    .title("Logging in...")
+                    .title(R.string.activity_login_logging_in_dialog_title)
                     .progress(true, 0)
                     .cancelable(false)
                     .show();
@@ -446,21 +460,44 @@ public class LoginActivity extends BaseInjectorActivity {
 
     private void logOut() {
         if (mUserManager.isLoggedIn()) {
-            User user = mUserManager.getUser();
-            // Log out the user
-            mUserManager.logOut();
+            final MaterialDialog dialog = new MaterialDialog.Builder(LoginActivity.this)
+                    .title(R.string.activity_login_logout_progress_dialog_title)
+                    .content(R.string.activity_login_logout_progress_dialog_content)
+                    .progress(true, 0)
+                    .cancelable(false)
+                    .build();
+            dialog.show();
 
-            // Show a snackbar that indicates the finished logout
-            Snackbar.make(mExpToolbarContent,
-                    String.format(getString(R.string.goodbye_message), user.getUsername()),
-                    Snackbar.LENGTH_LONG).show();
+            User user = mUserManager.getUser();
+
+            mBackgroundWorker.schedule(() -> {
+                // Log out the user
+                mUserManager.logOut();
+
+                // Finally, delete all tracks that are associated to the previous user.
+                mTrackHandler.deleteAllRemoteTracksLocally();
+                // Close the dialog.
+                dialog.dismiss();
+
+                mMainThreadWorker.schedule(() -> {
+                    // Show a snackbar that indicates the finished logout
+                    Snackbar.make(mExpToolbarContent,
+                            String.format(getString(R.string.goodbye_message), user
+                                    .getUsername()),
+                            Snackbar.LENGTH_LONG).show();
+
+                    // Slide in the login card.
+                    slideInLoginCard();
+                });
+
+            });
 
             // hide the content of the list view and finally delete the adapter.
             animateHideView(mStatisticsListView, R.anim.fade_out,
                     () -> mStatisticsListView.setAdapter(null));
 
             // hide the content of the exp toolbar and finally slide in the login card.
-            animateHideView(mExpToolbarContent, R.anim.fade_out, () -> slideInLoginCard());
+            animateHideView(mExpToolbarContent, R.anim.fade_out, null);
 
             // hide the no statistics info if it is visible.
             if (mNoStatisticsInfo.getVisibility() == View.VISIBLE) {
@@ -476,8 +513,6 @@ public class LoginActivity extends BaseInjectorActivity {
                     mStatisticsDownloadSubscription = null;
                 }
             }
-
-            mTrackHandler.deleteAllRemoteTracksLocally();
         }
     }
 
@@ -539,12 +574,8 @@ public class LoginActivity extends BaseInjectorActivity {
                         mGlobalTrackNumber.setText(Integer.toString(totalTrackCount));
                         mRemoteTrackNumber.setText(Integer.toString(userTrackCount));
                     });
-                } catch (NotConnectedException e) {
-                    e.printStackTrace();
-                } catch (DataRetrievalFailureException e) {
-                    e.printStackTrace();
-                } catch (UnauthorizedException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    LOG.warn(e.getMessage(), e);
                 }
             });
 
@@ -723,47 +754,4 @@ public class LoginActivity extends BaseInjectorActivity {
 
         return animator;
     }
-
-    //    private void collapseExpToolbar() {
-    //        int finalHeight = mExpToolbar.getHeight();
-    //
-    //        // Create a new slide animator
-    //        ValueAnimator animator = createSlideAnimator(finalHeight, 0);
-    //        animator.addListener(new Animator.AnimatorListener() {
-    //            @Override
-    //            public void onAnimationStart(Animator animation) {
-    //                // nothing to do..
-    //            }
-    //
-    //            @Override
-    //            public void onAnimationEnd(Animator animation) {
-    //                mExpToolbar.setVisibility(View.GONE);
-    //            }
-    //
-    //            @Override
-    //            public void onAnimationCancel(Animator animation) {
-    //                // nothing to do..
-    //            }
-    //
-    //            @Override
-    //            public void onAnimationRepeat(Animator animation) {
-    //                // nothing to do..
-    //            }
-    //        });
-    //        animator.start();
-    //    }
-
-    //    private void expandExpToolbar() {
-    //        mExpToolbar.setVisibility(View.VISIBLE);
-    //
-    //        final int widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec
-    // .UNSPECIFIED);
-    //        final int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec
-    // .UNSPECIFIED);
-    //
-    //        mExpToolbar.measure(widthSpec, heightSpec);
-    //
-    //        ValueAnimator animator = createSlideAnimator(0, mExpToolbar.getMeasuredHeight());
-    //        animator.start();
-    //    }
 }

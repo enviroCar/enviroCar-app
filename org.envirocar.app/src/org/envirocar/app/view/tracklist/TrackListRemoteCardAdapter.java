@@ -71,7 +71,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
             case DOWNLOADING:
                 holder.mContentView.setVisibility(View.GONE);
                 holder.mProgressCircle.setVisibility(View.VISIBLE);
-                holder.mProgressCircle.show();
+                holder.mProgressCircle.post(() -> holder.mProgressCircle.show());
                 holder.mDownloadButton.setVisibility(View.VISIBLE);
                 holder.mDownloadNotification.setVisibility(View.VISIBLE);
                 break;

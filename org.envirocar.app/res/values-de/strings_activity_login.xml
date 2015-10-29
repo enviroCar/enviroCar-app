@@ -15,11 +15,11 @@
     <string name="error_invalid_password">Zu kurzes Passwort</string>
     <string name="error_incorrect_password">Falsches Passwort</string>
     <string name="error_field_required">Benötigtes Feld</string>
-    
+
     <string name="register_progress_signing_in">Registerung&#8230;</string>
     <string name="error_passwords_not_matching">Die Passwörter stimmen nicht überein</string>
     <string name="error_invalid_username">Dieser Username ist zu kurz</string>
-    
+
     <string name="error_username_already_in_use">Dieser Username ist bereits vergeben.</string>
     <string name="error_email_already_in_use">Diese Adresse ist bereits in Benutzung.</string>
     
@@ -27,4 +27,14 @@
 	phase. \nSchreibe an envirocar@52north.org um Beta-Tester zu werden!</string>
     <string name="error_host_not_found">Keine Verbindung zum Server möglich.</string>
 
+    <string name="activity_login_logout_dialog_title">Abmelden</string>
+    <string name="activity_login_logout_dialog_content">Sie sind dabei sich abzumelden.
+        Alle lokalen Kopien von hochgeladenen Tracks, die Ihrem Account zugeordnet sind,
+        werden damit lokal gelöscht.\n\nWollen Sie fortfahren?</string>
+
+    <string name="activity_login_logout_progress_dialog_title">Logge aus...</string>
+    <string name="activity_login_logout_progress_dialog_content">
+        Lösche alle lokal gespeicherten Kopien von hochgeladenen Fahrten.</string>
+
+    <string name="activity_login_logging_in_dialog_title">Logge ein...</string>
 </resources>

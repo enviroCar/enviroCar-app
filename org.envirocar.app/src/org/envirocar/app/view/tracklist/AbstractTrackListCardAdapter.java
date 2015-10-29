@@ -128,8 +128,9 @@ public abstract class AbstractTrackListCardAdapter<E extends
                     });
 
                     // Set the tracklength parameter.
+                    double distanceOfTrack = ((TrackStatisticsProvider) track).getDistanceOfTrack();
                     String tracklength = String.format("%s km", DECIMAL_FORMATTER_TWO.format(
-                            ((TrackStatisticsProvider) track).getDistanceOfTrack()));
+                            distanceOfTrack));
                     mMainThreadWorker.schedule(new Action0() {
                         @Override
                         public void call() {
@@ -139,6 +140,13 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
                 } catch (NoMeasurementsException e) {
                     LOGGER.warn(e.getMessage(), e);
+                    mMainThreadWorker.schedule(new Action0() {
+                        @Override
+                        public void call() {
+                            holder.mDistance.setText("0 km");
+                            holder.mDuration.setText("0:00");
+                        }
+                    });
                 }
 
                 return null;
@@ -203,36 +211,37 @@ public abstract class AbstractTrackListCardAdapter<E extends
         holder.mMapView.setCenter(holder.mMapView.getTileProvider().getCenterCoordinate());
         holder.mMapView.setZoom(0);
 
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params) {
-                // Configure the line representation.
-                Paint linePaint = new Paint();
-                linePaint.setStyle(Paint.Style.STROKE);
-                linePaint.setColor(Color.BLUE);
-                linePaint.setStrokeWidth(5);
+        if (track.getMeasurements().size() > 0) {
+            new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... params) {
+                    // Configure the line representation.
+                    Paint linePaint = new Paint();
+                    linePaint.setStyle(Paint.Style.STROKE);
+                    linePaint.setColor(Color.BLUE);
+                    linePaint.setStrokeWidth(5);
 
-                TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
-                trackMapOverlay.setPaint(linePaint);
+                    TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
+                    trackMapOverlay.setPaint(linePaint);
 
-                final BoundingBox viewBbox = trackMapOverlay.getViewBoundingBox();
-                final BoundingBox scrollableLimit = trackMapOverlay.getScrollableLimitBox();
+                    final BoundingBox viewBbox = trackMapOverlay.getViewBoundingBox();
+                    final BoundingBox scrollableLimit = trackMapOverlay.getScrollableLimitBox();
 
-                mMainThreadWorker.schedule(new Action0() {
-                    @Override
-                    public void call() {
+                    mMainThreadWorker.schedule(new Action0() {
+                        @Override
+                        public void call() {
+                            holder.mMapView.getOverlays().add(trackMapOverlay);
 
-                        holder.mMapView.getOverlays().add(trackMapOverlay);
-
-                        // Set the computed parameters on the main thread.
-                        holder.mMapView.setScrollableAreaLimit(scrollableLimit);
-                        holder.mMapView.setConstraintRegionFit(true);
-                        holder.mMapView.zoomToBoundingBox(viewBbox, true);
-                    }
-                });
-                return null;
-            }
-        }.execute();
+                            // Set the computed parameters on the main thread.
+                            holder.mMapView.setScrollableAreaLimit(scrollableLimit);
+                            holder.mMapView.setConstraintRegionFit(true);
+                            holder.mMapView.zoomToBoundingBox(viewBbox, true);
+                        }
+                    });
+                    return null;
+                }
+            }.execute();
+        }
     }
 
     /**

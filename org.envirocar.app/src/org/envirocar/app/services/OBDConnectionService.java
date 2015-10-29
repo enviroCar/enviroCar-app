@@ -542,7 +542,7 @@ public class OBDConnectionService extends Service {
 
     public class OBDConnectionRecognizer {
         private static final long OBD_INTERVAL = 1000 * 10; // 10 seconds;
-        private static final long GPS_INTERVAL = 1000 * 15; // 15 seconds;
+        private static final long GPS_INTERVAL = 1000 * 60 * 2; // 2 minutes;
 
         private long timeLastSpeedMeasurement;
         private long timeLastGpsMeasurement;
@@ -560,7 +560,6 @@ public class OBDConnectionService extends Service {
          * Constructor.
          */
         public OBDConnectionRecognizer() {
-            //        ((Injector) context).injectObjects(this);
 
         }
 

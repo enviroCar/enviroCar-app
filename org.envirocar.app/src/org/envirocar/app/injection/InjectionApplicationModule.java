@@ -56,8 +56,7 @@ import org.envirocar.remote.CacheModule;
 import org.envirocar.remote.DAOProvider;
 import org.envirocar.remote.RemoteModule;
 import org.envirocar.remote.service.EnviroCarService;
-import org.envirocar.storage.EnviroCarDB;
-import org.envirocar.storage.EnviroCarDBImpl;
+import org.envirocar.storage.EnviroCarDBModule;
 
 import javax.inject.Singleton;
 
@@ -73,7 +72,8 @@ import dagger.Provides;
 @Module(
         includes = {
                 RemoteModule.class,
-                CacheModule.class
+                CacheModule.class,
+                EnviroCarDBModule.class
         },
         injects = {
                 TermsOfUseManager.class,
@@ -206,7 +206,7 @@ public class InjectionApplicationModule {
 
     @Provides
     @Singleton
-    org.envirocar.core.UserManager provideUserManagerImpl() { return provideUserManager(); }
+    org.envirocar.core.UserManager provideUserManagerImpl(UserHandler userHandler) { return userHandler; }
 
     /**
      * Provides the FeatureFlags of the application
@@ -310,12 +310,6 @@ public class InjectionApplicationModule {
     @Singleton
     LazyLoadingStrategy provideLazyLoadingStrategy() {
         return new LazyLoadingStrategyImpl(mAppContext);
-    }
-
-    @Provides
-    @Singleton
-    EnviroCarDB provideEnviroCarDB(){
-        return new EnviroCarDBImpl(mAppContext);
     }
 
     @Provides

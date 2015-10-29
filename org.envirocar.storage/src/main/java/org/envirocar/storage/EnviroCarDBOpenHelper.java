@@ -4,13 +4,18 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import org.envirocar.core.injection.InjectionActivityScope;
 import org.envirocar.core.logging.Logger;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * TODO JavaDoc
  *
  * @author dewall
  */
+@Singleton
 public class EnviroCarDBOpenHelper extends SQLiteOpenHelper {
     private static final Logger LOG = Logger.getLogger(EnviroCarDBOpenHelper.class);
 
@@ -18,9 +23,12 @@ public class EnviroCarDBOpenHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 9;
 
     /**
+     * Constructor.
+     *
      * @param context the context of the current scope.
      */
-    public EnviroCarDBOpenHelper(Context context) {
+    @Inject
+    public EnviroCarDBOpenHelper(@InjectionActivityScope Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

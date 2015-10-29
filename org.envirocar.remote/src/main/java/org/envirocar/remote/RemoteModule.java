@@ -189,5 +189,4 @@ public class RemoteModule {
     protected AnnouncementsService provideAnnouncementService(Retrofit retrofit) {
         return retrofit.create(AnnouncementsService.class);
     }
-
 }

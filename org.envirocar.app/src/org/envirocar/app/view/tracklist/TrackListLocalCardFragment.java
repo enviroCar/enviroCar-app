@@ -35,6 +35,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     }
 
     private OnTrackUploadedListener onTrackUploadedListener;
+    private Subscription subscription;
 
     private void uploadTrack(Track track) {
         mBackgroundWorker.schedule(new Action0() {
@@ -138,15 +139,15 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
+    public void onDestroyView() {
+        LOG.info("onDestroyView()");
+        super.onDestroyView();
 
         if (subscription != null && !subscription.isUnsubscribed()) {
             subscription.unsubscribe();
         }
     }
 
-    private Subscription subscription;
 
     private final class LoadLocalTracksTask extends AsyncTask<Void, Void, Void> {
 
@@ -198,18 +199,27 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                         @Override
                         public void onNext(List<Track> tracks) {
                             LOG.info(String.format("onNext(%s)", tracks.size()));
-                            mTrackList.addAll(tracks);
-                            Collections.sort(mTrackList);
+
+                            boolean newTrackAdded = false;
+                            for(Track track : tracks){
+                                if(!mTrackList.contains(track)){
+                                    mTrackList.add(track);
+                                    newTrackAdded = true;
+                                }
+                            }
 
                             mProgressView.setVisibility(View.INVISIBLE);
+                            if(newTrackAdded){
+                                Collections.sort(mTrackList);
 
-                            if (!mTrackList.isEmpty()) {
-                                mRecyclerView.setVisibility(View.VISIBLE);
-                                mTextView.setVisibility(View.GONE);
-                                mRecyclerViewAdapter.notifyDataSetChanged();
-                            } else {
-                                mTextView.setText("No Local Tracks");
-                                mTextView.setVisibility(View.VISIBLE);
+                                if (!mTrackList.isEmpty()) {
+                                    mRecyclerView.setVisibility(View.VISIBLE);
+                                    mTextView.setVisibility(View.GONE);
+                                    mRecyclerViewAdapter.notifyDataSetChanged();
+                                } else {
+                                    mTextView.setText("No Local Tracks");
+                                    mTextView.setVisibility(View.VISIBLE);
+                                }
                             }
                         }
                     });

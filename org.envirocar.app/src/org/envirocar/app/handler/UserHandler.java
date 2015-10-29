@@ -7,16 +7,15 @@ import android.graphics.Bitmap;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.remote.DAOProvider;
 import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.events.NewUserSettingsEvent;
-import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.remote.DAOProvider;
 import org.envirocar.remote.gravatar.GravatarUtils;
 
 import java.io.IOException;
@@ -35,7 +34,6 @@ public class UserHandler implements UserManager {
     private static final String EMAIL = "email";
     private static final String ACCEPTED_TERMS_OF_USE_VERSION = "acceptedTermsOfUseVersion";
     private static final String USER_PREFERENCES = "userPrefs";
-
 
 
     @Inject
@@ -121,6 +119,10 @@ public class UserHandler implements UserManager {
      */
     @Override
     public void logOut() {
+        logOut(false);
+    }
+
+    private void logOut(boolean withoutEvent) {
         // Removes all the preferences from the editor.
         SharedPreferences prefs = getUserPreferences();
         Editor e = prefs.edit();
@@ -139,10 +141,12 @@ public class UserHandler implements UserManager {
         mGravatarBitmap = null;
 
         // Delete all local representations of tracks that are already uploaded.
-//        mTrackHandler.deleteAllRemoteTracksLocally();
+        //        mTrackHandler.deleteAllRemoteTracksLocally();
 
         // Fire a new event on the event bus holding indicating that no logged in user exist.
-        mBus.post(new NewUserSettingsEvent(null, false));
+        if (!withoutEvent) {
+            mBus.post(new NewUserSettingsEvent(null, false));
+        }
     }
 
     /**
@@ -167,16 +171,19 @@ public class UserHandler implements UserManager {
             return;
         } catch (UnauthorizedException e) {
             LOG.warn(e.getMessage(), e);
+
+            logOut(true);
             // Password is incorrect. Inform the callback about this.
             callback.onPasswordIncorrect(token);
-        } catch (DataRetrievalFailureException e) {
+        } catch (Exception e) {
             LOG.warn(e.getMessage(), e);
+
+            logOut(true);
             // Unable to communicate with the server. Inform the callback about this.
             callback.onUnableToCommunicateServer();
         }
 
-        // If any exception has been thrown, then set the state to logged out.
-        logOut();
+
     }
 
 
@@ -185,7 +192,7 @@ public class UserHandler implements UserManager {
                 .map(aBoolean -> {
                     if (isLoggedIn()) {
                         // If the gravatar bitmap already exist, then return it.
-                        if(mGravatarBitmap != null)
+                        if (mGravatarBitmap != null)
                             return mGravatarBitmap;
 
                         // Else try to download the bitmap.

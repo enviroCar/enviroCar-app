@@ -77,12 +77,22 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
 
     @Override
     public void onResume() {
+        LOG.info("onResume()");
         super.onResume();
         if (mViewPager.getCurrentItem() == 0) {
             trackListPageAdapter.localCardFragment.loadDataset();
         } else {
             trackListPageAdapter.remoteCardFragment.loadDataset();
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        LOG.info("onDestroyView()");
+        super.onDestroyView();
+
+        trackListPageAdapter.localCardFragment.onDestroyView();
+        trackListPageAdapter.remoteCardFragment.onDestroyView();
     }
 
     /**

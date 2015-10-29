@@ -263,21 +263,22 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
 
     @Override
     public void setMeasurements(List<Measurement> measurements) {
-//        Preconditions.checkState(measurements != null && measurements.size() > 0, "A track is not" +
-//                " allowed to have empty measuremnts");
+        //        Preconditions.checkState(measurements != null && measurements.size() > 0, "A
+        // track is not" +
+        //                " allowed to have empty measuremnts");
         this.measurements = measurements;
     }
 
     @Override
     public int compareTo(Track another) {
-        if(downloadState == DownloadState.REMOTE){
-            if(another.getDownloadState() == DownloadState.REMOTE){
+        if (downloadState == DownloadState.REMOTE) {
+            if (another.getDownloadState() == DownloadState.REMOTE) {
                 lastModified.compareTo(another.getLastModified());
             } else {
                 return 1;
             }
         } else {
-            if(another.getDownloadState() == DownloadState.REMOTE){
+            if (another.getDownloadState() == DownloadState.REMOTE) {
                 return -1;
             }
         }
@@ -334,6 +335,8 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
         TrackImpl track = (TrackImpl) o;
         if (remoteID != null && track.getRemoteID() != null) {
             return remoteID.equals(track.getRemoteID());
+        } else if (trackID != null && track.trackID != null) {
+            return trackID.getId() == track.trackID.getId();
         } else {
             if (trackID != null ? !trackID.equals(track.trackID) : track.trackID != null)
                 return false;
@@ -349,6 +352,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
             return !(metadata != null ? !metadata.equals(track.metadata) : track.metadata != null);
         }
     }
+
 
     @Override
     public int hashCode() {

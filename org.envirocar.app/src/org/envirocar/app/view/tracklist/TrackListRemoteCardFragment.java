@@ -34,8 +34,6 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         TrackListRemoteCardAdapter> implements TrackListLocalCardFragment.OnTrackUploadedListener {
     private static final Logger LOG = Logger.getLogger(TrackListRemoteCardFragment.class);
 
-    private List<Track> remoteTrackCache;
-
     private CompositeSubscription subscriptions = new CompositeSubscription();
 
     private boolean hasLoadedRemote = false;
@@ -56,6 +54,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
             mRecyclerView.setVisibility(View.VISIBLE);
             mTextView.setVisibility(View.GONE);
         } else {
+            mProgressView.setVisibility(View.INVISIBLE);
             mTextView.setText("Not Logged In!");
             mRecyclerView.setVisibility(View.GONE);
             mRecyclerViewAdapter.mTrackDataset.clear();
@@ -65,9 +64,9 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
     }
 
     @Override
-    public void onDestroy() {
-        LOG.info("onDestroy()");
-        super.onDestroy();
+    public void onDestroyView() {
+        LOG.info("onDestroyView()");
+        super.onDestroyView();
 
         if (!subscriptions.isUnsubscribed()) {
             subscriptions.unsubscribe();
@@ -125,7 +124,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
     @Override
     protected void loadDataset() {
         // Do not load the dataset twice.
-        if (!tracksLoaded) {
+        if (mUserManager.isLoggedIn() && !tracksLoaded) {
             tracksLoaded = true;
             new LoadRemoteTracksTask().execute();
         }
@@ -289,6 +288,8 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                                 }
                             }
 
+                            ECAnimationUtils.animateHideView(getContext(), mProgressView,
+                                    R.anim.fade_out);
                         }
 
                         @Override
