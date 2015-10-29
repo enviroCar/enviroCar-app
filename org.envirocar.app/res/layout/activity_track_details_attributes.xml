@@ -30,7 +30,7 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
-            android:text="@string/car"
+            android:text="@string/car2"
             android:textColor="#ff323232"/>
 
         <TextView

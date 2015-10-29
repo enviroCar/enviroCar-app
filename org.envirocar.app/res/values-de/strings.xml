@@ -115,9 +115,7 @@
     <string name="prompt_car_constructionYear">Baujahr</string>
     
     <string name="editName">Bezeichnung</string>
-    <string name="deleteTrack">Löschen</string>
-    <string name="uploadTrack">Fahrt als Open Data hochladen</string>
-    
+
    	<string name="open_drawer">Open</string>
 	<string name="close_drawer">Close</string>
     
@@ -139,7 +137,6 @@
     <string name="envirocar.org">http://www.envirocar.org</string>
     
     <string name="imperial_unit">Imperiale Maßeinheiten?</string>
-    <string name="shareTrack">Export</string>
     <string name="error_json">Interner Fehler beim JSON generieren.</string>
 	<string name="privacy">Position verbergen?</string>
 	

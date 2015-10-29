@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="track_list_local_tracks">Private</string>
+    <string name="track_list_remote_tracks">Public</string>
+
+    <string name="track_list_deleting_track">Deleting track...</string>
+    <string name="track_list_deleting_track_unauthorized">Unable to delete
+        the track, because the logged in user is not authorized to do that.</string>
+    <string name="track_list_communication_error">No connection to the server.</string>
+
+    <string name="track_list_delete_track_error_template">Error while deleting track "%s".</string>
+    <string name="track_list_delete_track_success_template">%s has been successfully deleted.</string>
+
+    <string name="track_list_upload_track_uploading">Uploading Track</string>
+    <string name="track_list_upload_track_please_wait">Please wait...</string>
+    <string name="track_list_upload_track_success_template">The upload of track \'%s\' was successful.</string>
+
+    <string name="track_list_loading_tracks">Loading...</string>
+    <string name="track_list_loading_tracks_error_snackbar">Error while loading the data.
+        \nPlease send an error report.</string>
+    <string name="track_list_loading_lremote_tracks_error">Error while loading
+        downloaded remote tracks.</string>
+    <string name="track_list_loading_remote_tracks_error">Unable to load remote tracks.
+        Maybe you have no connection to the internet?</string>
+
+    <string name="track_list_bg_error">Error!</string>
+    <string name="track_list_bg_no_local_tracks">No Local Tracks</string>
+    <string name="track_list_bg_not_logged_in">Not Logged In</string>
+    <string name="track_list_bg_no_connection">No Connection to the Internet</string>
+    <string name="track_list_bg_unauthorized">Unauthorized to Load the Tracks</string>
+
+    <string name="track_list_error_while_downloading">Error while downloading.</string>
+
+    <string name="track_list_menu_details">Show Details</string>
+    <string name="track_list_menu_delete">Delete Track</string>
+    <string name="track_list_menu_upload">Upload as Open Data</string>
+    <string name="track_list_menu_export">Export Track</string>
+</resources>

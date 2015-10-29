@@ -101,9 +101,6 @@
     <string name="prompt_car_engineDisplacement">Engine displacement (cc)</string>
     <string name="logged_in_as">Signed in as %1$s</string>
     <string name="editName">Edit Name</string>
-    <string name="detailsTrack">Track Details</string>
-    <string name="deleteTrack">Delete Track</string>
-    <string name="uploadTrack">Upload Track as Open Data</string>
 	<string name="dashboard_sensor_title">Car:</string>
 	<string name="retry">Retry</string>
 	<string name="description">Description:</string>
@@ -160,7 +157,6 @@
 	
 	<string name="imperial_unit">Use Imperial units</string>
 	<string name="privacy">Obfuscate positions</string>
-	<string name="shareTrack">Export</string>
 	<string name="error_json">Internal Error creating your JSON string</string>
 	<string name="error_io">File system error</string>
 	

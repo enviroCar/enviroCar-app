@@ -45,7 +45,7 @@ import rx.functions.Action0;
 public abstract class AbstractTrackListCardAdapter<E extends
         AbstractTrackListCardAdapter
                 .TrackCardViewHolder> extends RecyclerView.Adapter<E> {
-    private static final Logger LOGGER = Logger.getLogger(AbstractTrackListCardAdapter.class);
+    private static final Logger LOG = Logger.getLogger(AbstractTrackListCardAdapter.class);
 
     protected static final DecimalFormat DECIMAL_FORMATTER_TWO = new DecimalFormat("#.##");
     protected static final DateFormat DATE_FORMAT = DateFormat.getDateTimeInstance();
@@ -139,7 +139,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
                     });
 
                 } catch (NoMeasurementsException e) {
-                    LOGGER.warn(e.getMessage(), e);
+                    LOG.warn(e.getMessage(), e);
                     mMainThreadWorker.schedule(new Action0() {
                         @Override
                         public void call() {
@@ -163,7 +163,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
         }
 
         holder.mToolbar.setOnMenuItemClickListener(item -> {
-            LOGGER.info("Item clicked for track " + track.getTrackID());
+            LOG.info("Item clicked for track " + track.getTrackID());
 
             switch (item.getItemId()) {
                 case R.id.menu_tracklist_cardlayout_item_details:
@@ -185,7 +185,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
         // Initialize the OnClickListener for the invisible button that is overlaid
         // over the map view.
         holder.mInvisMapButton.setOnClickListener(v -> {
-            LOGGER.info("Clicked on the map. Navigate to the details activity");
+            LOG.info("Clicked on the map. Navigate to the details activity");
             mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
         });
     }

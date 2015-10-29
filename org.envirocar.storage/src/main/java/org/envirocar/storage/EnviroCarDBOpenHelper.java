@@ -4,7 +4,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import org.envirocar.core.injection.InjectionActivityScope;
+import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
@@ -28,7 +28,7 @@ public class EnviroCarDBOpenHelper extends SQLiteOpenHelper {
      * @param context the context of the current scope.
      */
     @Inject
-    public EnviroCarDBOpenHelper(@InjectionActivityScope Context context) {
+    public EnviroCarDBOpenHelper(@InjectApplicationScope Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 

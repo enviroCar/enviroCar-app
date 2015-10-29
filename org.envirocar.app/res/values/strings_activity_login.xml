@@ -22,7 +22,7 @@
     <string name="error_username_already_in_use">This username is already in use</string>
     <string name="error_email_already_in_use">This Email is already in use</string>
     <string name="error_email_not_in_beta">enviroCar is currently in a closed beta
-	phase. \nPlease contact envirocar@52north.org if you want to join the beta
+	phase.\nPlease contact envirocar@52north.org if you want to join the beta
 	testers or with any other inquiries.</string>
     <string name="error_host_not_found">Unable to communicate with the server.</string>
 

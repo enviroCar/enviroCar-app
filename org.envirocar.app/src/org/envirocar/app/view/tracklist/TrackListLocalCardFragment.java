@@ -6,6 +6,7 @@ import android.view.View;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 import org.envirocar.core.entity.Track;
@@ -17,7 +18,6 @@ import java.util.List;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 /**
@@ -38,10 +38,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     private Subscription subscription;
 
     private void uploadTrack(Track track) {
-        mBackgroundWorker.schedule(new Action0() {
-            @Override
-            public void call() {
-                mTrackHandler.uploadTrack(getActivity(), track, new TrackHandler
+        mBackgroundWorker.schedule(() -> mTrackHandler.uploadTrack(getActivity(), track,
+                new TrackHandler
                         .TrackUploadCallback() {
 
                     private MaterialDialog mProgressDialog;
@@ -50,8 +48,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                     public void onUploadStarted(Track track) {
                         mMainThreadWorker.schedule(() ->
                                 mProgressDialog = new MaterialDialog.Builder(getActivity())
-                                        .title("Progress Dialog")
-                                        .content("Please wait...")
+                                        .title(R.string.track_list_upload_track_uploading)
+                                        .content(R.string.track_list_upload_track_please_wait)
                                         .progress(true, 0)
                                         .show());
                     }
@@ -59,8 +57,9 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                     @Override
                     public void onSuccessfulUpload(Track track) {
                         if (mProgressDialog != null) mProgressDialog.dismiss();
-                        Snackbar.make(getView(), "Track upload was successful", Snackbar
-                                .LENGTH_LONG).show();
+                        showSnackbar(String.format(
+                                getString(R.string.track_list_upload_track_success_template),
+                                track.getName()));
 
                         // Update the lists.
                         mMainThreadWorker.schedule(() -> {
@@ -75,11 +74,9 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                     public void onError(Track track, String message) {
                         if (mProgressDialog != null)
                             mProgressDialog.dismiss();
-                        Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
+                        showSnackbar(message);
                     }
-                });
-            }
-        });
+                }));
     }
 
     @Override
@@ -172,12 +169,9 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                         @Override
                         public void onStart() {
                             LOG.info("onStart() allLocalTracks");
-                            mMainThreadWorker.schedule(new Action0() {
-                                @Override
-                                public void call() {
-                                    mProgressView.setVisibility(View.VISIBLE);
-                                    mProgressText.setText("Loading...");
-                                }
+                            mMainThreadWorker.schedule(() -> {
+                                mProgressView.setVisibility(View.VISIBLE);
+                                mProgressText.setText(R.string.track_list_loading_tracks);
                             });
 
                         }
@@ -190,10 +184,11 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                         @Override
                         public void onError(Throwable e) {
                             LOG.error(e.getMessage(), e);
-                            mTextView.setText("Error!");
+                            mTextView.setText(R.string.track_list_bg_error);
 
-                            Snackbar.make(getView(), "Error while loading data!", Snackbar
-                                    .LENGTH_LONG).show();
+                            Snackbar.make(getView(),
+                                    R.string.track_list_loading_tracks_error_snackbar,
+                                    Snackbar.LENGTH_LONG).show();
                         }
 
                         @Override
@@ -201,15 +196,15 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                             LOG.info(String.format("onNext(%s)", tracks.size()));
 
                             boolean newTrackAdded = false;
-                            for(Track track : tracks){
-                                if(!mTrackList.contains(track)){
+                            for (Track track : tracks) {
+                                if (!mTrackList.contains(track)) {
                                     mTrackList.add(track);
                                     newTrackAdded = true;
                                 }
                             }
 
                             mProgressView.setVisibility(View.INVISIBLE);
-                            if(newTrackAdded){
+                            if (newTrackAdded) {
                                 Collections.sort(mTrackList);
 
                                 if (!mTrackList.isEmpty()) {
@@ -217,7 +212,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                                     mTextView.setVisibility(View.GONE);
                                     mRecyclerViewAdapter.notifyDataSetChanged();
                                 } else {
-                                    mTextView.setText("No Local Tracks");
+                                    mTextView.setText(R.string.track_list_bg_no_local_tracks);
                                     mTextView.setVisibility(View.VISIBLE);
                                 }
                             }

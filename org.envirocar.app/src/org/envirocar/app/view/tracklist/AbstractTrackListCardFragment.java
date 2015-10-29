@@ -20,10 +20,9 @@ import com.google.common.collect.Lists;
 
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
+import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.UserHandler;
-import org.envirocar.remote.DAOProvider;
-import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NotConnectedException;
@@ -31,6 +30,7 @@ import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.BaseInjectorFragment;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.remote.DAOProvider;
 import org.envirocar.remote.serializer.TrackSerializer;
 import org.envirocar.storage.EnviroCarDB;
 
@@ -89,7 +89,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     protected Scheduler.Worker mBackgroundWorker = Schedulers.computation().createWorker();
 
-    protected Object attachingActivityLock = new Object();
+    protected final Object attachingActivityLock = new Object();
     protected boolean isAttached = false;
 
     @Override
@@ -159,9 +159,9 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
             //            LOG.warn(e.getMessage(), e);
             //            Snackbar.make(getView(), R.string.error_json, Snackbar.LENGTH_LONG)
             // .show();
-//        } catch (JSONException e) {
-//            LOG.warn(e.getMessage(), e);
-//            Snackbar.make(getView(), R.string.error_io, Snackbar.LENGTH_LONG).show();
+            //        } catch (JSONException e) {
+            //            LOG.warn(e.getMessage(), e);
+            //            Snackbar.make(getView(), R.string.error_io, Snackbar.LENGTH_LONG).show();
         } catch (IOException e) {
             LOG.warn(e.getMessage(), e);
             if (isObfuscationEnabled) {
@@ -272,7 +272,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
             @Override
             public void onStart() {
                 LOG.info(String.format("onStart() delete track -> [%s]", track.getName()));
-                showProgressView("Deleting Track...");
+                showProgressView(getString(R.string.track_list_deleting_track));
             }
 
             @Override
@@ -289,14 +289,14 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
 
                 if (e instanceof UnauthorizedException) {
                     LOG.error("The logged in user is not authorized to do that.", e);
-                    showSnackbar("Unable to delete the track, because the " +
-                            "user is not authorized to do that");
+                    showSnackbar(R.string.track_list_deleting_track_unauthorized);
                 } else if (e instanceof NotConnectedException) {
                     LOG.error("Not connected", e);
-                    showSnackbar("Unable to communicate with the server");
+                    showSnackbar(R.string.track_list_communication_error);
                 } else {
                     showSnackbar(String.format(
-                            "Error while deleting track \"%s\".", track.getName()));
+                            getString(R.string.track_list_delete_track_error_template),
+                            track.getName()));
                 }
 
                 hideProgressView();
@@ -306,20 +306,32 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
             public void onNext(Boolean success) {
                 LOG.info("onNext() -> " + track.getName());
                 if (success) {
-                    LOG.info("deleteLocalTrack: Successfully delete track with" +
+                    LOG.info("deleteLocalTrack: Successfully deleted track with" +
                             " id=" + track.getTrackID());
 
                     mTrackList.remove(track);
                     mRecyclerViewAdapter.notifyDataSetChanged();
-                    showSnackbar(String.format(
-                            "%s has been successfully deleted.", track.getName()));
+                    showSnackbar(String.format(getString(R.string
+                            .track_list_delete_track_success_template), track.getName()));
                     hideProgressView();
                 } else {
                     showSnackbar(String.format(
-                            "Error while deleting track \"%s\".", track.getName()));
+                            getString(R.string.track_list_delete_track_error_template),
+                            track.getName()));
                 }
             }
         };
+    }
+
+    protected void showSnackbar(final int message) {
+        mMainThreadWorker.schedule(new Action0() {
+            @Override
+            public void call() {
+                if (getView() != null) {
+                    Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
     protected void showSnackbar(final String message) {
