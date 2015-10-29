@@ -138,8 +138,7 @@
     
     <string name="imperial_unit">Imperiale Maßeinheiten?</string>
     <string name="error_json">Interner Fehler beim JSON generieren.</string>
-	<string name="privacy">Position verbergen?</string>
-	
+
 	<string name="help">Hilfe</string>
 
     <string name="help_head_1">1. Über enviroCar</string>
@@ -190,9 +189,7 @@ Ihr FeedBack (enviroCar@52north.org) ist sehr willkommen! Ihre Hinweise und Anre
 \n\n
 Bei festgestellten Problemen möchten wir Sie bitten, uns ein Fehlerprotokoll zu senden. (-> Problem melden). Das Fehlerprotokoll enthält Informationen über Prozessverläufe im System. Es unterstützt uns dabei, die Ursachen von Fehlfunktionen zu erkennen und zu beheben.</string>
     
-    <string name="track_obfuscation_on">Nur Messungen, die ab einer Entfernung von 250 Metern zum Start/Ziel sowie eine Minute nach Beginn und vor Ende der Route stattfanden, hochladen.</string>
-	<string name="imperial_unit_summary">Imperiale Maßeinheiten (Meilen) für die Anzeige nutzen</string>
-    <string name="action_send_log">Senden</string>
+	<string name="action_send_log">Senden</string>
     <string name="connection_state">Status</string>
     
     <string name="device_discovery_next_try">Geräte-Scan - %1$s:%2$s Minuten verbleibend</string>

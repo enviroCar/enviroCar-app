@@ -2,7 +2,10 @@ package org.envirocar.app.injection;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
+import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
@@ -321,4 +324,16 @@ public class InjectionApplicationModule {
     @Provides
     @Singleton
     TrackDetailsProvider provideTrackDetailsProvider() { return new TrackDetailsProvider(mBus); }
+
+    @Provides
+    @Singleton
+    SharedPreferences provideSharedPreferences(@InjectApplicationScope Context context){
+        return PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    @Provides
+    @Singleton
+    RxSharedPreferences provideRxSharedPreferences(SharedPreferences prefs){
+        return RxSharedPreferences.create(prefs);
+    }
 }

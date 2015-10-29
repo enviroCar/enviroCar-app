@@ -1,44 +1,53 @@
 <resources>
 
-    <!--<string name="title_activity_settings">Settings</string>-->
-
-    <string name="pref_bluetooth_switch_isenabled">Bluetooth is On</string>
-    <string name="pref_bluetooth_switch_isdisabled">Bluetooth is Off</string>
-
-    <string name="pref_bluetooth_pairing">Bluetooth Pairing</string>
-    <string name="pref_bluetooth_pairing_summery">Manage the pairings to Bluetooth devices.</string>
-
-    <string name="pref_bluetooth_select_adapter">Choose OBD adapter</string>
-    <string name="pref_bluetooth_select_adapter_summary">Please select an OBD adapter</string>
-    <string name="pref_bluetooth_select_adapter_title">Select OBD adapter</string>
+    <string name="pref_car_settings">Vehicle Settings</string>
 
 
-	<string name="pref_obd_settings">OBD Settings</string>
-	<string name="pref_car_settings">Vehicle Settings</string>
-	<string name="pref_general_settings">General Settings</string>
-	
-
-	
-    <string name="pref_upload_only_in_wifi">Upload only in WiFi</string>
-    <string name="pref_always_upload">Always upload tracks</string>
-    <string name="pref_display_always_activ">Display stays active</string>
     <string name="pref_auto_enable_bluetooth">Enable Bluetooth on app start</string>
-    
+
     <string name="pref_bluetooth_disabled">Please enable Bluetooth</string>
     <string name="pref_engine_displacement">Engine displacement</string>
-	<string name="pref_in_liters">in liters (e.g. 1.8)</string>
+    <string name="pref_in_liters">in liters (e.g. 1.8)</string>
 
     <string name="pref_about">enviroCar version</string>
     <string name="pref_select_car">Car data</string>
     <string name="pref_optional_features">Optional Features</string>
     <string name="pref_version">Version</string>
     <string name="pref_other">Other</string>
-    
+
     <string name="use_pid_supported">Use PID Supported Query</string>
     <string name="use_pid_supported_summary">Query the vehicle\'s ECU on the supported OBD commands</string>
-    
+
     <string name="sampling_rate_title">Sampling Rate (sec)</string>
     <string name="sampling_rate_summary">The time delta between two measurements in seconds (current value: %s). Note: the lower the value, the bigger the data volume.
         Only consider changing if you are aware of the consequences.</string>
-	
+
+    <!-- General Settings-->
+    <string name="pref_general_settings">General Settings</string>
+    <string name="pref_always_upload">Automatic Upload of Tracks (in WiFi only)</string>
+    <string name="pref_always_upload_sub">Enables the automatic upload of all recorded tracks when connecting to the wireless network.</string>
+    <string name="pref_display_always_activ">Keep the Screen On</string>
+    <string name="pref_display_always_activ_sub">When checked, this setting keeps the screen on when the application is running.</string>
+    <string name="pref_imperial_unit">Imperial Unit</string>
+    <string name="pref_imperial_unit_summary">Use imperial units (miles) for displaying values</string>
+    <string name="pref_obfuscate_track">Obfuscate Track?</string>
+    <string name="pref_obfuscate_track_summary">Only upload measurements which are taken 250 meter (820 feet) and one minute after start and before end of each track</string>
+    <string name="pref_text_to_speech">Verbal Announcments</string>
+    <string name="pref_text_to_speech_summary">Enabling the verbal announcements of specific events, e.g. OBD-connection established/lost, track finished.</string>
+
+    <!-- OBD-Settings -->
+    <string name="pref_obd_settings">OBD Adapter Settings</string>
+    <string name="pref_bluetooth_switch_isenabled">Bluetooth is On</string>
+    <string name="pref_bluetooth_switch_isdisabled">Bluetooth is Off</string>
+    <string name="pref_bluetooth_pairing">Bluetooth Pairing</string>
+    <string name="pref_bluetooth_pairing_summary">Manage the pairings to Bluetooth devices.</string>
+    <string name="pref_bluetooth_select_adapter">Choose OBD adapter</string>
+    <string name="pref_bluetooth_select_adapter_summary">Please select an OBD adapter</string>
+    <string name="pref_bluetooth_select_adapter_title">Select OBD adapter</string>
+    <string name="pref_bluetooth_auto_connect">Auto Connect</string>
+    <string name="pref_bluetooth_auto_connect_summary">Automatically connects to the OBDII adapter and starts the recording of a track. This feature periodically checks whether the selected OBDII adapter is in range. Therefore, this setting requires additional battery power.</string>
+    <string name="pref_bluetooth_start_background">Background Service</string>
+    <string name="pref_bluetooth_start_background_summary">Automatically starts the background service whenever Bluetooth gets activated.</string>
+    <string name="pref_bluetooth_discovery_interval">Discovery Interval</string>
+    <string name="pref_bluetooth_discovery_interval_summary">The search interval at which the device searches for the selected OBDII device. Note: the higher the value, the more battery gets drained.</string>
 </resources>

@@ -2,29 +2,29 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="@string/pref_general_settings">
-        <!--<CheckBoxPreference-->
-            <!--android:key="pref_wifi_upload"-->
-            <!--android:title="@string/pref_upload_only_in_wifi"/>-->
         <CheckBoxPreference
             android:key="pref_always_upload"
-            android:title="@string/pref_always_upload"/>
+            android:title="@string/pref_always_upload"
+            android:summary="@string/pref_always_upload_sub"/>
         <CheckBoxPreference
             android:key="pref_display_always_activ"
-            android:title="@string/pref_display_always_activ"/>
+            android:title="@string/pref_display_always_activ"
+            android:summary="@string/pref_display_always_activ_sub"/>
         <CheckBoxPreference
             android:key="pref_imperial_unit"
-            android:summary="@string/imperial_unit_summary"
-            android:title="@string/imperial_unit"/>
+            android:summary="@string/pref_imperial_unit_summary"
+            android:title="@string/imperial_unit"
+            android:enabled="false"/>
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="pref_privacy"
-            android:summary="@string/track_obfuscation_on"
-            android:title="@string/privacy"/>
+            android:summary="@string/pref_obfuscate_track_summary"
+            android:title="@string/pref_obfuscate_track_summary"/>
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_text_to_speech"
-            android:summary="Enabling the TextToSpeech functionality."
-            android:title="TextToSpeech" />
+            android:summary="@string/pref_text_to_speech_summary"
+            android:title="@string/pref_text_to_speech" />
     </PreferenceCategory>
 
 </PreferenceScreen>

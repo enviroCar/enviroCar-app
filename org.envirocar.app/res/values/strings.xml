@@ -129,7 +129,6 @@
 	<string name="not_yet_supported">not yet supported</string>
 	<string name="default_track_description">Track with Car %s.</string>
 	<string name="creating_temp_car">Creating temporary car.</string>
-	<string name="imperial_unit_summary">Use imperial units (miles) for displaying values</string>
 	<string name="open_drawer">Open</string>
 	<string name="close_drawer">Close</string>
 	
@@ -156,7 +155,6 @@
 	<string name="envirocar.org">http://www.envirocar.org</string>
 	
 	<string name="imperial_unit">Use Imperial units</string>
-	<string name="privacy">Obfuscate positions</string>
 	<string name="error_json">Internal Error creating your JSON string</string>
 	<string name="error_io">File system error</string>
 	
@@ -223,7 +221,6 @@ We welcome your feedback (enviroCar@52north.org)! Your advice and suggestions he
 If you discover and problems, please send us an error log (-> report problem). The error log contains information about the course of processes within the system. It helps us to recognize the causes of malfunctions and to fix them.</string>
     
 	
-    <string name="track_obfuscation_on">Only upload measurements which are taken 250 meter (820 feet) and one minute after start and before end of each track</string>
 	<string name="action_send_log">Send</string>
 	<string name="send_log_0">This feature helps us to reproduce unexpected behavior or program crashes.
 	    When sending in the Log file of the enviroCar app you help to improve it.</string>

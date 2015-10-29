@@ -2,6 +2,7 @@ package org.envirocar.app.view.settings;
 
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
@@ -9,6 +10,7 @@ import android.preference.SwitchPreference;
 import android.view.View;
 import android.widget.Toast;
 
+import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
@@ -32,11 +34,16 @@ public class OBDSettingsFragment extends PreferenceFragment {
     protected Bus mBus;
     @Inject
     protected BluetoothHandler mBluetoothHandler;
+    @Inject
+    protected RxSharedPreferences rxSharedPreferences;
 
     // Preferences.
     private SwitchPreference mBluetoothIsActivePreference;
     private Preference mBluetoothPairingPreference;
     private Preference mBluetoothDeviceListPreference;
+    private CheckBoxPreference mBackgroundServicePreference;
+    private CheckBoxPreference mAutoConnectPrefrence;
+    private Preference mSearchIntervalPreference;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,15 +55,20 @@ public class OBDSettingsFragment extends PreferenceFragment {
         // Set the preference resource.
         addPreferencesFromResource(R.xml.preferences_obd);
 
-        // Get the switch preference indicating the enabled bluetooth setting.
+
+        // Get all preferences that are containes within the obd settings.
         mBluetoothIsActivePreference = (SwitchPreference) getPreferenceScreen()
                 .findPreference(PreferenceConstants.PREF_BLUETOOTH_ENABLER);
-        // Get the bluetooth pairing preference if possible
         mBluetoothPairingPreference = getPreferenceScreen()
                 .findPreference(PreferenceConstants.PREF_BLUETOOTH_PAIRING);
-        // Get the bluetooth preference if possible
         mBluetoothDeviceListPreference = getPreferenceScreen()
                 .findPreference(PreferenceConstants.PREF_BLUETOOTH_LIST);
+        mBackgroundServicePreference = (CheckBoxPreference) getPreferenceScreen()
+                .findPreference(PreferenceConstants.PREF_BLUETOOTH_SERVICE_AUTOSTART);
+        mAutoConnectPrefrence = (CheckBoxPreference)  getPreferenceScreen()
+                .findPreference(PreferenceConstants.PREF_BLUETOOTH_AUTOCONNECT);
+        mSearchIntervalPreference = getPreferenceScreen()
+                .findPreference(PreferenceConstants.PREF_BLUETOOTH_DISCOVERY_INTERVAL);
 
         updateBluetoothPreferences(mBluetoothHandler.isBluetoothEnabled());
     }
@@ -87,6 +99,35 @@ public class OBDSettingsFragment extends PreferenceFragment {
             }
             return true;
         });
+
+        mBackgroundServicePreference.setOnPreferenceChangeListener((preference, newValue) -> {
+            boolean isChecked = (boolean) newValue;
+            mAutoConnectPrefrence.setEnabled(isChecked);
+            if (isChecked) {
+                mSearchIntervalPreference.setEnabled(mAutoConnectPrefrence.isChecked());
+            } else {
+                mSearchIntervalPreference.setEnabled(false);
+            }
+            return true;
+        });
+
+        mAutoConnectPrefrence.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                boolean isChecked = (boolean) newValue;
+                mSearchIntervalPreference.setEnabled(isChecked);
+                return true;
+            }
+        });
+
+        if(!mBackgroundServicePreference.isChecked()){
+            mAutoConnectPrefrence.setEnabled(false);
+            mSearchIntervalPreference.setEnabled(false);
+        }
+
+        if(!mAutoConnectPrefrence.isChecked()){
+            mSearchIntervalPreference.setEnabled(false);
+        }
 
         // Set the color of the background from transparent to white.
         getView().setBackgroundColor(getResources().getColor(R.color.white_cario));
@@ -137,7 +178,6 @@ public class OBDSettingsFragment extends PreferenceFragment {
 
         // No Bluetooth available...
         if (!isEnabled) {
-
             // Set the switch for enabling bluetooth stuff accordingly.
             mBluetoothIsActivePreference.setChecked(isEnabled);
             mBluetoothIsActivePreference.setTitle(R.string.pref_bluetooth_switch_isdisabled);
@@ -159,7 +199,7 @@ public class OBDSettingsFragment extends PreferenceFragment {
 
             // Update the pairing list preference
             mBluetoothPairingPreference.setEnabled(true);
-            mBluetoothPairingPreference.setSummary(R.string.pref_bluetooth_pairing_summery);
+            mBluetoothPairingPreference.setSummary(R.string.pref_bluetooth_pairing_summary);
 
             // Enable the Bluetooth Button.
             mBluetoothDeviceListPreference.setEnabled(true);
