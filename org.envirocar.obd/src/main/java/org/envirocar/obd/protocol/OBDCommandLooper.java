@@ -20,19 +20,11 @@
  */
 package org.envirocar.obd.protocol;
 
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
-
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.Listener;
-import org.envirocar.obd.commands.CommonCommand;
-import org.envirocar.obd.commands.CommonCommand.CommonCommandState;
+import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.protocol.drivedeck.DriveDeckSportConnector;
-import org.envirocar.obd.protocol.exception.AdapterFailedException;
 import org.envirocar.obd.protocol.exception.AllAdaptersFailedException;
-import org.envirocar.obd.protocol.exception.ConnectionLostException;
-import org.envirocar.obd.protocol.exception.LooperStoppedException;
 import org.envirocar.obd.protocol.sequential.AposW3Connector;
 import org.envirocar.obd.protocol.sequential.CarTrendConnector;
 import org.envirocar.obd.protocol.sequential.ELM327Connector;
@@ -42,11 +34,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import rx.Subscriber;
+import rx.schedulers.Schedulers;
 
 /**
  * this is the main class for interacting with a OBD-II adapter.
@@ -61,7 +55,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author matthes rieke
  *
  */
-public class OBDCommandLooper extends HandlerThread {
+public class OBDCommandLooper {
 
 	private enum Phase {
 		INITIALIZATION,
@@ -70,19 +64,13 @@ public class OBDCommandLooper extends HandlerThread {
 	
 	private static final Logger logger = Logger.getLogger(OBDCommandLooper.class);
 	protected static final long ADAPTER_TRY_PERIOD = 5000;
-	private static final Integer MAX_PHASE_COUNT = 2;
 	public static final long MAX_NODATA_TIME = 1000 * 60 * 1;
 	
 	private List<OBDConnector> adapterCandidates = new ArrayList<OBDConnector>();
 	private OBDConnector obdAdapter;
-	private Listener commandListener;
 	private InputStream inputStream;
 	private OutputStream outputStream;
-	private Handler commandExecutionHandler;
 	protected boolean running = true;
-	protected boolean connectionEstablished = false;
-	protected long requestPeriod = 100;
-	private int tries;
 	private int adapterIndex;
 	private ConnectionListener connectionListener;
 	private String deviceName;
@@ -90,122 +78,19 @@ public class OBDCommandLooper extends HandlerThread {
 	private MonitorRunnable monitor;
 	private long lastSuccessfulCommandTime;
 	private boolean userRequestedStop;
-	
-	private Runnable commonCommandsRunnable = new Runnable() {
-		public void run() {
-			if (!running) {
-				logger.info("Exiting commandHandler.");
-				throw new LooperStoppedException();
-			}
-			
-			try {
-				executeCommandRequests();
-			} catch (IOException e) {
-				running = false;
-				if (!userRequestedStop) {
-					connectionListener.requestConnectionRetry(e);
-				}
-				logger.info("Exiting commandHandler.");
-				throw new LooperStoppedException();
-			}
-			
-			if (!running) {
-				logger.info("Exiting commandHandler.");
-				throw new LooperStoppedException();
-			}
-			
-			commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
-		}
-	};
 
-
-	private Runnable initializationCommandsRunnable = new Runnable() {
-		public void run() {
-			if (running && !connectionEstablished) {
-				/*
-				 * an async connector will probably only verify its connection
-				 * after one try cycle of executeInitializationRequests.
-				 */
-				if (obdAdapter != null && obdAdapter.connectionState() == OBDConnector
-						.ConnectionState.CONNECTED) {
-					connectionEstablished();
-					return;
-				}
-				
-				try {
-					selectAdapter();
-				} catch (AllAdaptersFailedException e) {
-					running = false;
-					connectionListener.onAllAdaptersFailed();
-					throw new LooperStoppedException();
-				}
-				
-				String stmt = "Trying "+obdAdapter.getClass().getSimpleName() +".";
-				logger.info(stmt);
-				connectionListener.onStatusUpdate(stmt);
-			
-				try {
-					executeInitializationRequests();
-				} catch (IOException e) {
-					running = false;
-					if (!userRequestedStop) {
-						connectionListener.requestConnectionRetry(e);
-					}
-					logger.info("Exiting commandHandler.");
-					throw new LooperStoppedException();
-				} catch (AdapterFailedException e) {
-					logger.warn(e.getMessage());
-				}
-				
-				/*
-				 * a sequential connector might already have a satisfied
-				 * connection
-				 */
-				if (obdAdapter != null && obdAdapter.connectionState() == OBDConnector.ConnectionState.CONNECTED) {
-					connectionEstablished();
-					return;
-				}
-				
-				if (!running) {
-					logger.info("Exiting commandHandler.");
-					throw new LooperStoppedException();
-				}
-				
-				commandExecutionHandler.postDelayed(initializationCommandsRunnable, ADAPTER_TRY_PERIOD);
-			}
-			
-			if (!running) {
-				throw new LooperStoppedException();
-			}
-		}
-
-	};
 
 	/**
-	 * same as OBDCommandLooper#OBDCommandLooper(InputStream, OutputStream, Object, Listener, ConnectionListener, int) with NORM_PRIORITY
-	 */
-	public OBDCommandLooper(InputStream in, OutputStream out,
-			String deviceName, Listener l, ConnectionListener cl) {
-		this(in, out, deviceName, l, cl, NORM_PRIORITY);
-	}
-	
-
-	/**
-	 * An application shutting down the streams ({@link InputStream#close()} and
-	 * the like) SHALL synchronize on the inputMutex object when doing so.
-	 * Otherwise, the app might crash.
-	 * 
+	 *
 	 * @param in the inputStream of the connection
 	 * @param out the outputStream of the connection
 	 * @param l the listener which receives command responses
 	 * @param cl the connection listener which receives connection state changes
-	 * @param priority thread priority
 	 * @throws IllegalArgumentException if one of the inputs equals null
 	 */
 	public OBDCommandLooper(InputStream in, OutputStream out,
-			String deviceName, Listener l, ConnectionListener cl, int priority) {
-		super("OBD-CommandLooper-Handler", priority);
-		
+			String deviceName, Listener l, ConnectionListener cl) {
+
 		if (in == null) throw new IllegalArgumentException("in must not be null!");
 		if (out == null) throw new IllegalArgumentException("out must not be null!");
 		if (l == null) throw new IllegalArgumentException("l must not be null!");
@@ -214,17 +99,19 @@ public class OBDCommandLooper extends HandlerThread {
 		this.inputStream = in;
 		this.outputStream = out;
 		
-		this.commandListener = l;
 		this.connectionListener = cl;
 		
 		this.deviceName = deviceName;
 	
 		this.phaseCountMap.put(Phase.INITIALIZATION, new AtomicInteger());
 		this.phaseCountMap.put(Phase.COMMAND_EXECUTION, new AtomicInteger());
-		
+
+		setupAdapterCandidates();
+
+		startPreferredAdapter(this.deviceName);
 	}
 	
-	private void determinePreferredAdapter(String deviceName) {
+	private void startPreferredAdapter(String deviceName) {
 		for (OBDConnector ac : adapterCandidates) {
 			if (ac.supportsDevice(deviceName)) {
 				this.obdAdapter = ac;
@@ -236,8 +123,57 @@ public class OBDCommandLooper extends HandlerThread {
 			this.obdAdapter = adapterCandidates.get(0);
 		}
 		
-		this.obdAdapter.provideStreamObjects(inputStream, outputStream);
-		logger.info("Using "+this.obdAdapter.getClass().getName() +" connector as the preferred adapter.");
+		logger.info("Using " + this.obdAdapter.getClass().getSimpleName() + " connector as the preferred adapter.");
+		startInitialization();
+	}
+
+	private void startInitialization() {
+		this.obdAdapter.initialize(this.inputStream, this.outputStream)
+				.subscribeOn(Schedulers.io())
+				.subscribe(new Subscriber<Boolean>() {
+					@Override
+					public void onCompleted() {
+
+					}
+
+					@Override
+					public void onError(Throwable e) {
+						logger.warn("Adapter failed: " + obdAdapter.getClass().getSimpleName(), e);
+						try {
+							selectAdapter();
+						} catch (AllAdaptersFailedException e1) {
+							logger.warn("All Adapters failed", e1);
+							connectionListener.onAllAdaptersFailed();
+						}
+					}
+
+					@Override
+					public void onNext(Boolean aBoolean) {
+						startCollectingData();
+					}
+				});
+	}
+
+	private void startCollectingData() {
+		this.obdAdapter.observe()
+				.subscribeOn(Schedulers.io())
+				.observeOn(Schedulers.computation())
+				.subscribe(new Subscriber<DataResponse>() {
+					@Override
+					public void onCompleted() {
+
+					}
+
+					@Override
+					public void onError(Throwable e) {
+
+					}
+
+					@Override
+					public void onNext(DataResponse dataResponse) {
+
+					}
+				});
 	}
 
 
@@ -256,93 +192,6 @@ public class OBDCommandLooper extends HandlerThread {
 		
 		if (this.monitor != null) {
 			this.monitor.running = false;
-		}
-	}
-
-	private void executeInitializationRequests() throws IOException, AdapterFailedException {
-		try {
-			this.obdAdapter.executeInitializationCommands();
-		} catch (IOException e) {
-			if (!userRequestedStop) {
-				connectionListener.requestConnectionRetry(e);
-			}
-			running = false;
-			return;
-		}
-		
-	}
-
-	private void executeCommandRequests() throws IOException {
-		
-		List<CommonCommand> cmds;
-		try {
-			cmds = this.obdAdapter.executeRequestCommands();
-		} catch (ConnectionLostException e) {
-			switchPhase(Phase.INITIALIZATION, new IOException(e));
-			
-			return;
-		} catch (AdapterFailedException e) {
-			logger.severe("This should never happen!", e);
-			return;
-		}
-		
-		long time = 0;
-		for (CommonCommand cmd : cmds) {
-			logger.info("COMMAND: "+cmd.getCommandName() +": "+cmd.getCommandState() +" / "+ Arrays.toString(cmd.getRawData()));
-			if (cmd.getCommandState() == CommonCommandState.FINISHED) {
-				commandListener.receiveUpdate(cmd);
-				time = cmd.getResultTime();
-			}
-		}
-		
-		if (time != 0) {
-			lastSuccessfulCommandTime = time;
-		}
-		
-	}
-
-	
-	private void switchPhase(Phase phase, IOException reason) {
-		logger.info("Switching to Phase: " +phase + (reason != null ? " / Reason: "+reason.getMessage() : ""));
-		
-		
-		int phaseCount = phaseCountMap.get(phase).incrementAndGet();
-		
-		commandExecutionHandler.removeCallbacks(initializationCommandsRunnable);
-		commandExecutionHandler.removeCallbacks(commonCommandsRunnable);
-		
-		/*
-		 * if we were too often in the same phase (e.g. init),
-		 * request a reconnect
-		 */
-		if (phaseCount >= MAX_PHASE_COUNT) {
-			logger.warn("Too often in phase: "+phaseCount);
-			connectionListener.requestConnectionRetry(reason);
-			
-			running = false;
-			return;
-		}
-		
-		switch (phase) {
-		case INITIALIZATION:
-			connectionEstablished = false;
-			obdAdapter = null;
-			
-			setupAdapterCandidates();
-			
-			commandExecutionHandler.post(initializationCommandsRunnable);
-			break;
-		case COMMAND_EXECUTION:
-			this.connectionEstablished = true;
-			this.connectionListener.onConnectionVerified();
-			commandExecutionHandler.postDelayed(commonCommandsRunnable, requestPeriod);
-			commandListener.onConnected(deviceName);
-			
-			startMonitoring();
-			
-			break;
-		default:
-			break;
 		}
 	}
 
@@ -368,48 +217,18 @@ public class OBDCommandLooper extends HandlerThread {
 	}
 
 
-	private void connectionEstablished() {
-		logger.info("OBD Adapter " + this.obdAdapter.getClass().getName() +
-				" verified the responses. Connection Established!");
-
-		/*
-		 * switch to common command execution phase
-		 */
-		switchPhase(Phase.COMMAND_EXECUTION, null);
-	}
-
 
 	private void selectAdapter() throws AllAdaptersFailedException {
 		if (this.obdAdapter == null) {
-			determinePreferredAdapter(deviceName);
-			this.obdAdapter.provideStreamObjects(inputStream, outputStream);
+			startPreferredAdapter(deviceName);
 		}
-		
-		else if (++tries >= this.obdAdapter.getMaximumTriesForInitialization()) {
-			if (this.obdAdapter != null) {
-				this.obdAdapter.prepareShutdown();
-				this.obdAdapter.shutdown();
-				if (this.obdAdapter.connectionState() == OBDConnector.ConnectionState.CONNECTED) {
-					/*
-					 * the adapter was sure that it fits the device, so
-					 * we do not need to try others
-					 */
-					throw new AllAdaptersFailedException(this.obdAdapter.getClass().getSimpleName());
-				}
-			}
-			
-			if (adapterIndex+1 >= adapterCandidates.size()) {
-				throw new AllAdaptersFailedException(adapterCandidates.toString());
-			}
-			
-			this.obdAdapter = adapterCandidates.get(adapterIndex++ % adapterCandidates.size());
-			this.obdAdapter.provideStreamObjects(inputStream, outputStream);
-			tries = 0;
+
+		if (adapterIndex+1 >= adapterCandidates.size()) {
+			throw new AllAdaptersFailedException(adapterCandidates.toString());
 		}
-		
-		if (this.obdAdapter != null) {
-			this.requestPeriod = this.obdAdapter.getPreferredRequestPeriod();
-		}
+
+		this.obdAdapter = adapterCandidates.get(adapterIndex++ % adapterCandidates.size());
+		startInitialization();
 	}
 
 	private class MonitorRunnable implements Runnable {
@@ -429,12 +248,7 @@ public class OBDCommandLooper extends HandlerThread {
 				if (!running) return;
 				
 				if (System.currentTimeMillis() - lastSuccessfulCommandTime > MAX_NODATA_TIME) {
-					commandExecutionHandler.removeCallbacks(commonCommandsRunnable);
 					commandExecutionHandler.getLooper().quit();
-					
-					if (OBDCommandLooper.this.obdAdapter != null) {
-						OBDCommandLooper.this.obdAdapter.shutdown();
-					}
 					
 					connectionListener.requestConnectionRetry(new IOException("Waited too long for data."));
 					return;
@@ -442,23 +256,6 @@ public class OBDCommandLooper extends HandlerThread {
 			}
 		}
 		
-	}
-	
-	@Override
-	public void run() {
-		Looper.prepare();
-		logger.info("Command loop started. Hash:"+this.hashCode());
-		commandExecutionHandler = new Handler();
-		switchPhase(Phase.INITIALIZATION, null);
-		try {
-			Looper.loop();
-		} catch (LooperStoppedException e) {
-			logger.info("Command loop stopped. Hash:"+this.hashCode());
-		}
-		
-		if (this.obdAdapter != null) {
-			this.obdAdapter.shutdown();
-		}
 	}
 
 

@@ -239,7 +239,7 @@ public class OBDConnectionService extends Service {
 
     private void doTextToSpeech(String string) {
         if (mIsTTSAvailable && mIsTTSPrefChecked) {
-            mTTS.speak("enviro car ".concat(string), TextToSpeech.QUEUE_ADD, null);
+            mTTS.speak(string, TextToSpeech.QUEUE_ADD, null);
         }
     }
 
@@ -401,7 +401,6 @@ public class OBDConnectionService extends Service {
                     }
                 }
             });
-            this.mOBDCommandLooper.start();
         } catch (IOException e) {
             LOG.warn(e.getMessage(), e);
             deviceDisconnected();

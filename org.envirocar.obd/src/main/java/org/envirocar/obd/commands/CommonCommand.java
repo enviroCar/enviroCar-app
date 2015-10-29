@@ -21,6 +21,11 @@
 
 package org.envirocar.obd.commands;
 
+import org.envirocar.obd.commands.exception.AdapterSearchingException;
+import org.envirocar.obd.commands.exception.NoDataReceivedException;
+import org.envirocar.obd.commands.exception.UnmatchedResponseException;
+import org.envirocar.obd.protocol.exception.UnmatchedCommandResponseException;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -92,7 +97,7 @@ public abstract class CommonCommand {
 		return true;
 	}
 
-	public abstract void parseRawData();
+	public abstract void parseRawData() throws UnmatchedResponseException, AdapterSearchingException, NoDataReceivedException;
 
 
 	/**

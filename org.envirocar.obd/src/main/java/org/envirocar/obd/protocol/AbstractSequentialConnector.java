@@ -40,6 +40,9 @@ import org.envirocar.obd.commands.RPM;
 import org.envirocar.obd.commands.ShortTermTrimBank1;
 import org.envirocar.obd.commands.Speed;
 import org.envirocar.obd.commands.TPS;
+import org.envirocar.obd.commands.exception.AdapterSearchingException;
+import org.envirocar.obd.commands.exception.NoDataReceivedException;
+import org.envirocar.obd.commands.exception.UnmatchedResponseException;
 import org.envirocar.obd.protocol.exception.AdapterFailedException;
 import org.envirocar.obd.protocol.exception.ConnectionLostException;
 import org.envirocar.obd.protocol.exception.UnmatchedCommandResponseException;
@@ -327,7 +330,15 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 		cmd.setResultTime(System.currentTimeMillis());
 
 		// read string each two chars
-		cmd.parseRawData();
+		try {
+			cmd.parseRawData();
+		} catch (UnmatchedResponseException e) {
+			e.printStackTrace();
+		} catch (AdapterSearchingException e) {
+			e.printStackTrace();
+		} catch (NoDataReceivedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private byte[] readResponseLine(CommonCommand cmd) throws IOException {

@@ -39,8 +39,4 @@ public abstract class StringResultCommand extends CommonCommand {
 		return new String(getRawData());
 	}
 
-	public boolean isSuccessful() {
-		return true;
-	}
-
 }
