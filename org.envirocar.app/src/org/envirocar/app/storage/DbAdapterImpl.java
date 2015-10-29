@@ -723,9 +723,7 @@ public class DbAdapterImpl implements DbAdapter {
 
         activeTrackReference = lastUsed.getTrackID();
 
-        if (this.obdDeviceMetadata != null) {
-            updateTrackMetadata(activeTrackReference, this.obdDeviceMetadata);
-        }
+        setConnectedOBDDevice(this.obdDeviceMetadata);
 
         return activeTrackReference;
     }
@@ -802,10 +800,11 @@ public class DbAdapterImpl implements DbAdapter {
     }
 
     @Override
-    public void updateTrackMetadata(Track.TrackId trackId, TrackMetadata trackMetadata) {
+    public TrackMetadata updateTrackMetadata(Track.TrackId trackId, TrackMetadata trackMetadata) {
         Track tempTrack = getTrack(trackId, true);
-        tempTrack.updateMetadata(trackMetadata);
+        TrackMetadata result = tempTrack.updateMetadata(trackMetadata);
         updateTrack(tempTrack);
+        return result;
     }
 
     @Override
@@ -829,8 +828,8 @@ public class DbAdapterImpl implements DbAdapter {
     public void setConnectedOBDDevice(TrackMetadata obdDeviceMetadata) {
         this.obdDeviceMetadata = obdDeviceMetadata;
 
-        if (this.activeTrackReference != null) {
-            updateTrackMetadata(activeTrackReference, obdDeviceMetadata);
+        if (this.obdDeviceMetadata != null && this.activeTrackReference != null) {
+            updateTrackMetadata(activeTrackReference, this.obdDeviceMetadata);
         }
     }
 

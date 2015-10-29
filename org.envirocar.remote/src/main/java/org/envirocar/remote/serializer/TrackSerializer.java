@@ -117,6 +117,9 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
                             json.getString(names.get(i).toString()));
                 }
             }
+            else {
+                LOG.warn("The track does not provide metadata!");
+            }
         } catch (JSONException e) {
             LOG.severe("Error while parsing metadata of track", e);
         }

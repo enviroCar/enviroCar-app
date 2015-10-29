@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -287,6 +288,7 @@ public class OBDCommandLooper extends HandlerThread {
 		
 		long time = 0;
 		for (CommonCommand cmd : cmds) {
+			logger.info("COMMAND: "+cmd.getCommandName() +": "+cmd.getCommandState() +" / "+ Arrays.toString(cmd.getRawData()));
 			if (cmd.getCommandState() == CommonCommandState.FINISHED) {
 				commandListener.receiveUpdate(cmd);
 				time = cmd.getResultTime();

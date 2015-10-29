@@ -232,12 +232,14 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
-    public void updateMetadata(TrackMetadata metadata) {
+    public TrackMetadata updateMetadata(TrackMetadata metadata) {
         if (this.metadata != null) {
             this.metadata.merge(metadata);
         } else {
             setMetadata(metadata);
         }
+
+        return this.metadata;
     }
 
     @Override
