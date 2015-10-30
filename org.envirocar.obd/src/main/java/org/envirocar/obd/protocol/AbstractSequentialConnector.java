@@ -45,7 +45,7 @@ import org.envirocar.obd.commands.exception.NoDataReceivedException;
 import org.envirocar.obd.commands.exception.UnmatchedResponseException;
 import org.envirocar.obd.protocol.exception.AdapterFailedException;
 import org.envirocar.obd.protocol.exception.ConnectionLostException;
-import org.envirocar.obd.protocol.exception.UnmatchedCommandResponseException;
+import org.envirocar.obd.protocol.exception.InvalidCommandResponseException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -390,7 +390,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 						executeCommands(cmds);
 						executeCommand(new PIDSupported());
 						return true;
-					} catch (UnmatchedCommandResponseException e) {
+					} catch (InvalidCommandResponseException e) {
 						logger.warn("This should never happen!", e);
 					} catch (ConnectionLostException e) {
 						logger.warn("This should never happen!", e);
@@ -436,7 +436,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 				logger.info("Execcuting command: "+cmd.getClass().getSimpleName());
 				executeCommand(cmd);
 				logger.info("Finished command: "+cmd.getClass().getSimpleName());
-			} catch (UnmatchedCommandResponseException e) {
+			} catch (InvalidCommandResponseException e) {
 				logger.warn("Unmatched Response detected! trying to read another line.");
 				readResponseLine(cmd);
 			}
@@ -470,10 +470,10 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	 * 
 	 * @throws AdapterFailedException if the adapter could not establish a connection
 	 * @throws IOException if an exception occurred while accessing the stream objects
-	 * @throws UnmatchedCommandResponseException if the response did not match the requested command
+	 * @throws InvalidCommandResponseException if the response did not match the requested command
 	 * @throws ConnectionLostException if the maximum number of unmatched responses exceeded
 	 */
-	private void executeCommands(List<CommonCommand> cmds) throws AdapterFailedException, IOException, UnmatchedCommandResponseException, ConnectionLostException {
+	private void executeCommands(List<CommonCommand> cmds) throws AdapterFailedException, IOException, InvalidCommandResponseException, ConnectionLostException {
 		for (CommonCommand c : cmds) {
 			executeCommand(c);
 		}
@@ -484,10 +484,10 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 	 * 
 	 * @throws AdapterFailedException if the adapter could not establish a connection
 	 * @throws IOException if an exception occurred while accessing the stream objects
-	 * @throws UnmatchedCommandResponseException if the response did not match the requested command
+	 * @throws InvalidCommandResponseException if the response did not match the requested command
 	 * @throws ConnectionLostException if the maximum number of unmatched responses exceeded
 	 */
-	private void executeCommand(CommonCommand cmd) throws AdapterFailedException, IOException, UnmatchedCommandResponseException, ConnectionLostException {
+	private void executeCommand(CommonCommand cmd) throws AdapterFailedException, IOException, InvalidCommandResponseException, ConnectionLostException {
 		try {
 			if (cmd.getCommandState().equals(CommonCommandState.NEW)) {
 
@@ -552,7 +552,7 @@ public abstract class AbstractSequentialConnector implements OBDConnector {
 				}
 				else {
 					staleConnection = true;
-					throw new UnmatchedCommandResponseException();	
+					throw new InvalidCommandResponseException();
 				}
 			default:
 				break;

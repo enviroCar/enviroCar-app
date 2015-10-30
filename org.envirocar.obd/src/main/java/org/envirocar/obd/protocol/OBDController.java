@@ -37,6 +37,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import rx.Subscriber;
@@ -49,35 +51,27 @@ import rx.schedulers.Schedulers;
  * with updates. The {@link ConnectionListener} will get informed on
  * certain changes in the connection state.
  * 
- * Initialize this class and simply use the {@link #start()} and {@link #stopLooper()}
- * methods to manage its state.
- * 
  * @author matthes rieke
  *
  */
-public class OBDCommandLooper {
+public class OBDController {
 
-	private enum Phase {
-		INITIALIZATION,
-		COMMAND_EXECUTION
-	}
-	
-	private static final Logger logger = Logger.getLogger(OBDCommandLooper.class);
-	protected static final long ADAPTER_TRY_PERIOD = 5000;
-	public static final long MAX_NODATA_TIME = 1000 * 60 * 1;
-	
+	private static final Logger logger = Logger.getLogger(OBDController.class);
+	protected static final long ADAPTER_TRY_PERIOD = 15000;
+	public static final long MAX_NODATA_TIME = 10000;
+
+	private Subscriber<DataResponse> dataSubscription;
+	private Subscriber<Boolean> initialSubscriber;
+
 	private List<OBDConnector> adapterCandidates = new ArrayList<OBDConnector>();
 	private OBDConnector obdAdapter;
 	private InputStream inputStream;
 	private OutputStream outputStream;
-	protected boolean running = true;
 	private int adapterIndex;
 	private ConnectionListener connectionListener;
 	private String deviceName;
-	private Map<Phase, AtomicInteger> phaseCountMap = new HashMap<Phase, AtomicInteger>();
-	private MonitorRunnable monitor;
 	private long lastSuccessfulCommandTime;
-	private boolean userRequestedStop;
+	private boolean userRequestedStop = false;
 
 
 	/**
@@ -88,32 +82,37 @@ public class OBDCommandLooper {
 	 * @param cl the connection listener which receives connection state changes
 	 * @throws IllegalArgumentException if one of the inputs equals null
 	 */
-	public OBDCommandLooper(InputStream in, OutputStream out,
+	public OBDController(InputStream in, OutputStream out,
 			String deviceName, Listener l, ConnectionListener cl) {
-
 		if (in == null) throw new IllegalArgumentException("in must not be null!");
 		if (out == null) throw new IllegalArgumentException("out must not be null!");
 		if (l == null) throw new IllegalArgumentException("l must not be null!");
 		if (cl == null) throw new IllegalArgumentException("cl must not be null!");
-		
+
 		this.inputStream = in;
 		this.outputStream = out;
-		
+
 		this.connectionListener = cl;
-		
+
 		this.deviceName = deviceName;
 	
-		this.phaseCountMap.put(Phase.INITIALIZATION, new AtomicInteger());
-		this.phaseCountMap.put(Phase.COMMAND_EXECUTION, new AtomicInteger());
-
 		setupAdapterCandidates();
 
-		startPreferredAdapter(this.deviceName);
+		startPreferredAdapter();
 	}
-	
-	private void startPreferredAdapter(String deviceName) {
+
+	private void setupAdapterCandidates() {
+		adapterCandidates.clear();
+		adapterCandidates.add(new ELM327Connector());
+		adapterCandidates.add(new CarTrendConnector());
+		adapterCandidates.add(new AposW3Connector());
+		adapterCandidates.add(new OBDLinkMXConnector());
+		adapterCandidates.add(new DriveDeckSportConnector());
+	}
+
+	private void startPreferredAdapter() {
 		for (OBDConnector ac : adapterCandidates) {
-			if (ac.supportsDevice(deviceName)) {
+			if (ac.supportsDevice(this.deviceName)) {
 				this.obdAdapter = ac;
 				break;
 			}
@@ -127,102 +126,7 @@ public class OBDCommandLooper {
 		startInitialization();
 	}
 
-	private void startInitialization() {
-		this.obdAdapter.initialize(this.inputStream, this.outputStream)
-				.subscribeOn(Schedulers.io())
-				.subscribe(new Subscriber<Boolean>() {
-					@Override
-					public void onCompleted() {
-
-					}
-
-					@Override
-					public void onError(Throwable e) {
-						logger.warn("Adapter failed: " + obdAdapter.getClass().getSimpleName(), e);
-						try {
-							selectAdapter();
-						} catch (AllAdaptersFailedException e1) {
-							logger.warn("All Adapters failed", e1);
-							connectionListener.onAllAdaptersFailed();
-						}
-					}
-
-					@Override
-					public void onNext(Boolean aBoolean) {
-						startCollectingData();
-					}
-				});
-	}
-
-	private void startCollectingData() {
-		this.obdAdapter.observe()
-				.subscribeOn(Schedulers.io())
-				.observeOn(Schedulers.computation())
-				.subscribe(new Subscriber<DataResponse>() {
-					@Override
-					public void onCompleted() {
-
-					}
-
-					@Override
-					public void onError(Throwable e) {
-
-					}
-
-					@Override
-					public void onNext(DataResponse dataResponse) {
-
-					}
-				});
-	}
-
-
-	/**
-	 * stop the command looper. this removes all pending commands.
-	 * This object is no longer executable, a new instance has to
-	 * be created.
-	 * 
-	 * Only use this if the stop is from high-level (e.g. user request)
-	 * and NOT on any kind of exception
-	 */
-	public void stopLooper() {
-		logger.info("stopping the command execution!");
-		this.running = false;
-		this.userRequestedStop = true;
-		
-		if (this.monitor != null) {
-			this.monitor.running = false;
-		}
-	}
-
-
-
-	private void startMonitoring() {
-		if (this.monitor != null) {
-			this.monitor.running = false;
-		}
-		
-		this.monitor = new MonitorRunnable();
-		new Thread(this.monitor).start();
-	}
-
-
-	private void setupAdapterCandidates() {
-		adapterCandidates.clear();
-		adapterCandidates.add(new ELM327Connector());
-		adapterCandidates.add(new CarTrendConnector());
-		adapterCandidates.add(new AposW3Connector());
-		adapterCandidates.add(new OBDLinkMXConnector());
-		adapterCandidates.add(new DriveDeckSportConnector());
-	}
-
-
-
-	private void selectAdapter() throws AllAdaptersFailedException {
-		if (this.obdAdapter == null) {
-			startPreferredAdapter(deviceName);
-		}
-
+	private void selectNextAdapter() throws AllAdaptersFailedException {
 		if (adapterIndex+1 >= adapterCandidates.size()) {
 			throw new AllAdaptersFailedException(adapterCandidates.toString());
 		}
@@ -231,31 +135,114 @@ public class OBDCommandLooper {
 		startInitialization();
 	}
 
-	private class MonitorRunnable implements Runnable {
+	/**
+	 * start the init method of the adapter. This is used
+	 * to bootstrap and verify the connection of the adapter
+	 * with the ECU.
+	 *
+	 * The init times out fater a pre-defined period.
+	 */
+	private void startInitialization() {
+		this.initialSubscriber = new Subscriber<Boolean>() {
+			@Override
+			public void onCompleted() {
+			}
 
-		private boolean running = true;
-		
-		@Override
-		public void run() {
-			Thread.currentThread().setName("OBD-Data-Monitor");
-			while (running) {
+			@Override
+			public void onError(Throwable e) {
+				logger.warn("Adapter failed: " + obdAdapter.getClass().getSimpleName(), e);
 				try {
-					Thread.sleep(MAX_NODATA_TIME / 3);
-				} catch (InterruptedException e) {
-					logger.warn(e.getMessage(), e);
-				}
-				
-				if (!running) return;
-				
-				if (System.currentTimeMillis() - lastSuccessfulCommandTime > MAX_NODATA_TIME) {
-					commandExecutionHandler.getLooper().quit();
-					
-					connectionListener.requestConnectionRetry(new IOException("Waited too long for data."));
-					return;
+					selectNextAdapter();
+				} catch (AllAdaptersFailedException e1) {
+					logger.warn("All Adapters failed", e1);
+					connectionListener.onAllAdaptersFailed();
 				}
 			}
+
+			@Override
+			public void onNext(Boolean aBoolean) {
+				startCollectingData();
+			}
+		};
+
+		this.obdAdapter.initialize(this.inputStream, this.outputStream)
+				.subscribeOn(Schedulers.io())
+				.observeOn(Schedulers.computation())
+				.timeout(ADAPTER_TRY_PERIOD, TimeUnit.MILLISECONDS)
+				.subscribe(this.initialSubscriber);
+	}
+
+	/**
+	 * start the actual collection of data.
+	 *
+	 * the collection times out after a pre-defined period when no
+	 * new data has arrived.
+	 */
+	private void startCollectingData() {
+		/*
+		 * inform the listener about the successful conn
+		 */
+		this.connectionListener.onConnectionVerified();
+
+		this.dataSubscription = new Subscriber<DataResponse>() {
+			@Override
+			public void onCompleted() {
+			}
+
+			@Override
+			public void onError(Throwable e) {
+				/**
+				 * check if this is a demanded stop: still this can lead to
+				 * any kind of Exception (e.g. IOException)
+				 */
+				if (userRequestedStop) {
+					dataSubscription.unsubscribe();
+				}
+			}
+
+			@Override
+			public void onNext(DataResponse dataResponse) {
+				lastSuccessfulCommandTime = dataResponse.getTimestamp();
+			}
+		};
+
+		this.obdAdapter.observe()
+				.subscribeOn(Schedulers.io())
+				.observeOn(Schedulers.computation())
+				.timeout(MAX_NODATA_TIME, TimeUnit.MILLISECONDS)
+				.subscribe(this.dataSubscription);
+	}
+
+
+	/**
+	 * @deprecated Use {@link #shutdown} instead
+	 */
+	@Deprecated
+	public void stopLooper() {
+		shutdown();
+	}
+
+	/**
+	 * Shutdown the controller. this removes all pending commands.
+	 * This object is no longer executable, a new instance has to
+	 * be created.
+	 *
+	 * Only use this if the stop is from high-level (e.g. user request)
+	 * and NOT on any kind of exception
+	 */
+	public void shutdown() {
+		/**
+		 * save that this is a stop on demand
+		 */
+		userRequestedStop = true;
+
+		if (this.initialSubscriber != null) {
+			this.initialSubscriber.unsubscribe();
 		}
-		
+		if (this.dataSubscription != null) {
+			this.dataSubscription.unsubscribe();
+		}
+
 	}
 
 

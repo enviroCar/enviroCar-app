@@ -20,11 +20,18 @@
  */
 package org.envirocar.obd.protocol.exception;
 
-public class UnmatchedCommandResponseException extends Exception {
+import org.envirocar.obd.commands.PID;
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
+public class InvalidCommandResponseException extends Exception {
+
+	private final PID command;
+
+	public InvalidCommandResponseException(PID command) {
+		this.command = command;
+	}
+
+	public PID getCommand() {
+		return command;
+	}
 
 }

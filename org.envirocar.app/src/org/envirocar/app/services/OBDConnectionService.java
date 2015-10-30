@@ -36,7 +36,7 @@ import org.envirocar.obd.bluetooth.NativeBluetoothSocket;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.obd.protocol.ConnectionListener;
-import org.envirocar.obd.protocol.OBDCommandLooper;
+import org.envirocar.obd.protocol.OBDController;
 import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.io.IOException;
@@ -91,7 +91,7 @@ public class OBDConnectionService extends Service {
 
     // Member fields required for the connection to the OBD device.
     private CommandListener mCommandListener;
-    private OBDCommandLooper mOBDCommandLooper;
+    private OBDController mOBDCommandLooper;
     private OBDBluetoothConnection mOBDConnection;
 
     // Different subscriptions
@@ -367,7 +367,7 @@ public class OBDConnectionService extends Service {
             }
 
             this.mCommandListener = new CommandListener(getApplicationContext());
-            this.mOBDCommandLooper = new OBDCommandLooper(in, out, bluetoothSocket
+            this.mOBDCommandLooper = new OBDController(in, out, bluetoothSocket
                     .getRemoteDeviceName(), this.mCommandListener, new ConnectionListener() {
 
                 private int mReconnectCount = 0;

@@ -24,7 +24,6 @@ package org.envirocar.obd.commands;
 import org.envirocar.obd.commands.exception.AdapterSearchingException;
 import org.envirocar.obd.commands.exception.NoDataReceivedException;
 import org.envirocar.obd.commands.exception.UnmatchedResponseException;
-import org.envirocar.obd.protocol.exception.UnmatchedCommandResponseException;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -20,7 +20,7 @@
  */
 package org.envirocar.obd.commands;
 
-import org.envirocar.obd.commands.PIDUtil.PID;
+import org.envirocar.obd.commands.PID;
 
 public class FuelPressure extends NumberResultCommand {
 

@@ -23,7 +23,7 @@ package org.envirocar.obd.protocol;
 import java.io.IOException;
 
 /**
- * Interface is used by the {@link OBDCommandLooper} to provide
+ * Interface is used by the {@link OBDController} to provide
  * information on the connection state.
  * 
  * @author matthes rieke
