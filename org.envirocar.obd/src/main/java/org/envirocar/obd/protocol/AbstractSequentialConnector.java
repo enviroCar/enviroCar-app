@@ -24,6 +24,7 @@ import android.util.Base64;
 
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.FeatureFlags;
+import org.envirocar.obd.adapter.OBDConnector;
 import org.envirocar.obd.commands.CommonCommand;
 import org.envirocar.obd.commands.CommonCommand.CommonCommandState;
 import org.envirocar.obd.commands.EngineLoad;

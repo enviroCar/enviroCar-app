@@ -18,11 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.obd.protocol;
+package org.envirocar.obd.adapter;
 
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.Listener;
 import org.envirocar.obd.commands.response.DataResponse;
+import org.envirocar.obd.protocol.ConnectionListener;
 import org.envirocar.obd.protocol.drivedeck.DriveDeckSportConnector;
 import org.envirocar.obd.protocol.exception.AllAdaptersFailedException;
 import org.envirocar.obd.protocol.sequential.AposW3Connector;
@@ -30,16 +31,11 @@ import org.envirocar.obd.protocol.sequential.CarTrendConnector;
 import org.envirocar.obd.protocol.sequential.ELM327Connector;
 import org.envirocar.obd.protocol.sequential.OBDLinkMXConnector;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
@@ -161,6 +157,7 @@ public class OBDController {
 
 			@Override
 			public void onNext(Boolean aBoolean) {
+				initialSubscriber.unsubscribe();
 				startCollectingData();
 			}
 		};

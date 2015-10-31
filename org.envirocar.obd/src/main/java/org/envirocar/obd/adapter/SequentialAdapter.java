@@ -1,22 +1,14 @@
 package org.envirocar.obd.adapter;
 
 import org.envirocar.core.logging.Logger;
-import org.envirocar.obd.commands.CommonCommand;
-import org.envirocar.obd.commands.EngineLoad;
-import org.envirocar.obd.commands.IntakePressure;
-import org.envirocar.obd.commands.IntakeTemperature;
-import org.envirocar.obd.commands.MAF;
-import org.envirocar.obd.commands.O2LambdaProbe;
+import org.envirocar.obd.commands.BasicCommand;
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.PIDUtil;
-import org.envirocar.obd.commands.RPM;
-import org.envirocar.obd.commands.Speed;
-import org.envirocar.obd.commands.TPS;
 import org.envirocar.obd.commands.exception.AdapterSearchingException;
 import org.envirocar.obd.commands.exception.NoDataReceivedException;
+import org.envirocar.obd.commands.exception.UnmatchedResponseException;
 import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.commands.response.ResponseParser;
-import org.envirocar.obd.protocol.OBDConnector;
 import org.envirocar.obd.protocol.exception.AdapterFailedException;
 import org.envirocar.obd.protocol.exception.InvalidCommandResponseException;
 
@@ -25,7 +17,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -52,6 +43,7 @@ public abstract class SequentialAdapter implements OBDConnector {
     private ResponseParser parser = new ResponseParser();
 
     private Map<PID, AtomicInteger> failureMap = new HashMap<>();
+    private List<BasicCommand> requestCommands;
 
     public Observable<Boolean> initialize(InputStream is, OutputStream os) {
         commandExecutor = new CommandExecutor(is, os, ignoredChars, COMMAND_RECEIVE_END);
@@ -63,7 +55,7 @@ public abstract class SequentialAdapter implements OBDConnector {
                 subscriber.onStart();
 
                 while (!subscriber.isUnsubscribed()) {
-                    for (CommonCommand cc : preparePendingCommands()) {
+                    for (BasicCommand cc : preparePendingCommands()) {
                         try {
                             commandExecutor.execute(cc);
                             if (cc.awaitsResults()) {
@@ -111,7 +103,7 @@ public abstract class SequentialAdapter implements OBDConnector {
                             @Override
                             public void onNext(byte[] bytes) {
                                 try {
-                                    DataResponse response = parser.parse(filter(bytes));
+                                    DataResponse response = parser.parse(preProcess(bytes));
 
                                     if (response != null) {
                                         subscriber.onNext(response);
@@ -121,14 +113,16 @@ public abstract class SequentialAdapter implements OBDConnector {
                                 } catch (NoDataReceivedException e) {
                                     LOGGER.warn("No data received: "+e.getMessage());
                                 } catch (InvalidCommandResponseException e) {
-                                    increaseFailureCount(e.getCommand());
+                                    increaseFailureCount(PIDUtil.fromString(e.getCommand()));
+                                } catch (UnmatchedResponseException e) {
+                                    LOGGER.warn("Unmatched response: " + e.getMessage());
                                 }
                             }
                         });
                 subscriber.add(obs);
 
                 while (!subscriber.isUnsubscribed()) {
-                    for (CommonCommand cc : preparePendingCommands()) {
+                    for (BasicCommand cc : preparePendingCommands()) {
                         try {
                             commandExecutor.execute(cc);
                         } catch (IOException e) {
@@ -157,29 +151,32 @@ public abstract class SequentialAdapter implements OBDConnector {
         }
     }
 
-    protected List<CommonCommand> defaultCycleCommands() {
-        List<CommonCommand> requestCommands = new ArrayList<>();
+    protected List<BasicCommand> defaultCycleCommands() {
+        if (requestCommands == null) {
+            requestCommands = new ArrayList<>();
 
-        requestCommands.add(new Speed());
-        requestCommands.add(new MAF());
-        requestCommands.add(new RPM());
-        requestCommands.add(new IntakePressure());
-        requestCommands.add(new IntakeTemperature());
-        requestCommands.add(new EngineLoad());
-        requestCommands.add(new TPS());
-        requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_VOLTAGE));
-        requestCommands.add(O2LambdaProbe.fromPIDEnum(PID.O2_LAMBDA_PROBE_1_CURRENT));
+            requestCommands.add(PIDUtil.instantiateCommand(PID.SPEED));
+            requestCommands.add(PIDUtil.instantiateCommand(PID.MAF));
+            requestCommands.add(PIDUtil.instantiateCommand(PID.RPM));
+            requestCommands.add(PIDUtil.instantiateCommand(PID.INTAKE_MAP));
+            requestCommands.add(PIDUtil.instantiateCommand(PID.INTAKE_AIR_TEMP));
+            requestCommands.add(PIDUtil.instantiateCommand(PID.CALCULATED_ENGINE_LOAD));
+            requestCommands.add(PIDUtil.instantiateCommand(PID.TPS));
+            requestCommands.add(PIDUtil.instantiateCommand(PID.O2_LAMBDA_PROBE_1_VOLTAGE));
+            requestCommands.add(PIDUtil.instantiateCommand(PID.O2_LAMBDA_PROBE_1_CURRENT));
+        }
 
-        return Collections.unmodifiableList(requestCommands);
+        return requestCommands;
     }
 
-    private List<CommonCommand> preparePendingCommands() {
-        List<PID> pids = providePendingCommands();
-        List<CommonCommand> result = new ArrayList<>();
+    private List<BasicCommand> preparePendingCommands() {
+        List<BasicCommand> pending = providePendingCommands();
+        List<BasicCommand> result = new ArrayList<>();
 
-        for (PID pid : pids) {
-            if (!checkIsBlacklisted(pid))
-            result.add(PIDUtil.instantiateCommand(pid));
+        for (BasicCommand cmd : pending) {
+            if (!checkIsBlacklisted(cmd.getPid())) {
+                result.add(cmd);
+            }
         }
 
         return result;
@@ -189,7 +186,9 @@ public abstract class SequentialAdapter implements OBDConnector {
         return this.failureMap.containsKey(pid)  && this.failureMap.get(pid).get() > MAX_ERROR_PER_COMMAND;
     }
 
-    protected abstract List<PID> providePendingCommands();
+    public abstract boolean supportsDevice(String deviceName);
+
+    protected abstract List<BasicCommand> providePendingCommands();
 
     /**
      *
@@ -197,9 +196,7 @@ public abstract class SequentialAdapter implements OBDConnector {
      * @param sentCommand the originating command
      * @return true if the adapter established a meaningful connection
      */
-    protected abstract boolean analyzeMetadataResponse(byte[] response, CommonCommand sentCommand) throws AdapterFailedException;
+    protected abstract boolean analyzeMetadataResponse(byte[] response, BasicCommand sentCommand) throws AdapterFailedException;
 
-    public abstract boolean supportsDevice(String deviceName);
-
-    protected abstract byte[] filter(byte[] bytes);
+    protected abstract byte[] preProcess(byte[] bytes);
 }

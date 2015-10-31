@@ -140,7 +140,7 @@ public class RealDashboardFragment extends BaseInjectorFragment {
 //                .getDefaultSharedPreferences(getActivity()))
 //                .subscribeOn(Schedulers.computation())
 //                .observeOn(AndroidSchedulers.mainThread())
-//                .filter(prefKey -> PreferenceConstants.PREFERENCE_TAG_CAR.equals(prefKey) ||
+//                .preProcess(prefKey -> PreferenceConstants.PREFERENCE_TAG_CAR.equals(prefKey) ||
 //                        PreferenceConstants.CAR_HASH_CODE.equals(prefKey) ||
 //                        PreferenceConstants.PREF_BLUETOOTH_LIST.equals(prefKey))
 //                .subscribe(prefKey -> {

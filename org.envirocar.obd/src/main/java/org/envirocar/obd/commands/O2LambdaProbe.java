@@ -30,7 +30,8 @@ public abstract class O2LambdaProbe extends NumberResultCommand {
 	private double equivalenceRation = Double.NaN;
 	private String pid;
 
-	public static O2LambdaProbe fromPIDEnum(PID pid) {
+	public static O2LambdaProbe
+	fromPIDEnum(PID pid) {
 		switch (pid) {
 		case O2_LAMBDA_PROBE_1_VOLTAGE:
 			return new O2LambdaProbeVoltage(pid.toString()); 

@@ -24,13 +24,13 @@ import org.envirocar.obd.commands.PID;
 
 public class InvalidCommandResponseException extends Exception {
 
-	private final PID command;
+	private final String command;
 
-	public InvalidCommandResponseException(PID command) {
+	public InvalidCommandResponseException(String command) {
 		this.command = command;
 	}
 
-	public PID getCommand() {
+	public String getCommand() {
 		return command;
 	}
 

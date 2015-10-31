@@ -21,6 +21,7 @@
 package org.envirocar.obd.protocol;
 
 import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.adapter.OBDConnector;
 import org.envirocar.obd.commands.CommonCommand;
 import org.envirocar.obd.protocol.exception.AdapterFailedException;
 import org.envirocar.obd.protocol.exception.ConnectionLostException;

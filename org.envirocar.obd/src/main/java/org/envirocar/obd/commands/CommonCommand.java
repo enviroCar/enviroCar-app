@@ -33,8 +33,9 @@ import java.util.Set;
  * are imported from Android OBD Reader project!
  * 
  * @author jakob
- * 
+ * @deprecated Use {@link BasicCommand} API instead
  */
+@Deprecated
 public abstract class CommonCommand {
 
 	private static Set<Character> ignoredChars;
@@ -54,7 +55,7 @@ public abstract class CommonCommand {
 	private CommonCommandState commandState;
 	private String responseTypeId;
 	private long resultTime;
-	
+	private PID pid;
 
 
 	/**
@@ -77,6 +78,10 @@ public abstract class CommonCommand {
 		if (array != null && array.length > 1) {
 			this.responseTypeId = array[1];
 		}
+	}
+
+	public PID getPID() {
+		return this.pid;
 	}
 
 	/**

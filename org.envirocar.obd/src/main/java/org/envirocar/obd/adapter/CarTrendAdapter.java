@@ -1,6 +1,7 @@
 package org.envirocar.obd.adapter;
 
 import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.commands.BasicCommand;
 import org.envirocar.obd.commands.CommonCommand;
 import org.envirocar.obd.commands.StringResultCommand;
 import org.envirocar.obd.protocol.exception.AdapterFailedException;
@@ -22,12 +23,12 @@ public class CarTrendAdapter extends SequentialAdapter {
     private boolean connectionEstablished;
 
     @Override
-    protected List<CommonCommand> providePendingCommands() {
+    protected List<BasicCommand> providePendingCommands() {
         if (this.connectionEstablished) {
             return super.defaultCycleCommands();
         }
 
-        List<CommonCommand> result = new ArrayList<CommonCommand>();
+        List<BasicCommand> result = new ArrayList<BasicCommand>();
         result.add(new EmptyCommand());
         result.add(new IdentifyCommand());
         result.add(new EmptyCommand());
@@ -45,7 +46,7 @@ public class CarTrendAdapter extends SequentialAdapter {
     }
 
     @Override
-    protected boolean analyzeMetadataResponse(byte[] response, CommonCommand sentCommand) throws AdapterFailedException {
+    protected boolean analyzeMetadataResponse(byte[] response, BasicCommand sentCommand) throws AdapterFailedException {
         if (response == null || response.length == 0) {
             return false;
         }
@@ -70,6 +71,11 @@ public class CarTrendAdapter extends SequentialAdapter {
     }
 
     @Override
+    protected byte[] preProcess(byte[] bytes) {
+        return bytes;
+    }
+
+    @Override
     public boolean supportsDevice(String deviceName) {
         return deviceName.toLowerCase().contains("cartrend");
     }
@@ -90,13 +96,8 @@ public class CarTrendAdapter extends SequentialAdapter {
         }
 
         @Override
-        public byte[] getOutgoingBytes() {
-            return CarTrendAdapter.this.protocolFound ? new byte[0] : super.getOutgoingBytes();
-        }
-
-        @Override
-        public boolean responseAlwaysRequired() {
-            return true;
+        public byte[] getOutputBytes() {
+            return CarTrendAdapter.this.protocolFound ? new byte[0] : super.getOutputBytes();
         }
 
     }
@@ -105,16 +106,6 @@ public class CarTrendAdapter extends SequentialAdapter {
 
         protected EmptyCommand() {
             super("");
-        }
-
-        @Override
-        public byte[] getOutgoingBytes() {
-            return new byte[0];
-        }
-
-        @Override
-        public boolean responseAlwaysRequired() {
-            return true;
         }
 
     }
@@ -127,27 +118,17 @@ public class CarTrendAdapter extends SequentialAdapter {
 
     }
 
-    private static class GenericCommand extends StringResultCommand {
+    private static class GenericCommand extends BasicCommand {
 
         private final String name;
 
         protected GenericCommand(String content) {
-            super(content);
+            super(null, null);
             this.name = content;
         }
 
         @Override
-        public boolean responseAlwaysRequired() {
-            return true;
-        }
-
-        @Override
-        public String getCommandName() {
-            return name;
-        }
-
-        @Override
-        public byte[] getOutgoingBytes() {
+        public byte[] getOutputBytes() {
 
             try {
                 Thread.sleep(500);
@@ -155,7 +136,7 @@ public class CarTrendAdapter extends SequentialAdapter {
                 logger.warn(e.getMessage(), e);
             }
 
-            return super.getOutgoingBytes();
+            return this.name.getBytes();
         }
     }
 

@@ -3,6 +3,7 @@ package org.envirocar.obd.adapter;
 import android.util.Base64;
 
 import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.commands.BasicCommand;
 import org.envirocar.obd.commands.CommonCommand;
 import org.envirocar.obd.commands.exception.AdapterSearchingException;
 import org.envirocar.obd.commands.exception.NoDataReceivedException;
@@ -43,13 +44,13 @@ public class CommandExecutor {
         this.endOfLine = endOfLine;
     }
 
-    public void execute(CommonCommand cmd) throws IOException {
-
-        LOGGER.debug("Sending command " +cmd.getCommandName()+ " / "+ new String(cmd.getOutgoingBytes()));
+    public void execute(BasicCommand cmd) throws IOException {
+        byte[] bytes = cmd.getOutputBytes();
+        LOGGER.debug("Sending command " +cmd.getPid()+ " / "+ new String(bytes));
 
         // write to OutputStream, or in this case a BluetoothSocket
-        outputStream.write(cmd.getOutgoingBytes());
-        outputStream.write(cmd.getEndOfLineSend());
+        outputStream.write(bytes);
+        outputStream.write(endOfLine);
         outputStream.flush();
     }
 

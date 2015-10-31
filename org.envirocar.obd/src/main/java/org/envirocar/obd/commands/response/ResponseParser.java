@@ -4,9 +4,11 @@ import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.PIDUtil;
 import org.envirocar.obd.commands.exception.AdapterSearchingException;
 import org.envirocar.obd.commands.exception.NoDataReceivedException;
+import org.envirocar.obd.commands.exception.UnmatchedResponseException;
 import org.envirocar.obd.commands.response.entity.EngineLoadResponse;
 import org.envirocar.obd.commands.response.entity.EngineRPMResponse;
 import org.envirocar.obd.commands.response.entity.FuelPressureResponse;
+import org.envirocar.obd.commands.response.entity.FuelSystemStatusResponse;
 import org.envirocar.obd.commands.response.entity.IntakeAirPressureResponse;
 import org.envirocar.obd.commands.response.entity.IntakeManifoldAbsolutePressureResponse;
 import org.envirocar.obd.commands.response.entity.LambdaProbeCurrentResponse;
@@ -20,7 +22,7 @@ public class ResponseParser {
 
     private static final CharSequence SEARCHING = "SEARCHING";
     private static final CharSequence STOPPED = "STOPPED";
-    private static final CharSequence NODATA = "NODATA";
+    private static final CharSequence NO_DATA = "NODATA";
     private static final String STATUS_OK = "41";
 
     public ResponseParser() {
@@ -28,7 +30,7 @@ public class ResponseParser {
     }
 
     public DataResponse parse(byte[] data) throws AdapterSearchingException, NoDataReceivedException,
-            InvalidCommandResponseException {
+            InvalidCommandResponseException, UnmatchedResponseException {
 
         /**
          * we received a char array as hexadecimal -->
@@ -67,8 +69,8 @@ public class ResponseParser {
             // this is the ID byte
             else if (index == 2) {
                 pid = PIDUtil.fromString(tmp);
-                if (error) {
-                    throw new InvalidCommandResponseException(pid);
+                if (error || pid == null) {
+                    throw new InvalidCommandResponseException(pid == null ? tmp : pid.toString());
                 }
             }
 
@@ -78,37 +80,36 @@ public class ResponseParser {
                  */
                 buffer[index/2] = Integer.parseInt(tmp, 16);
                 if (buffer[index/2] < 0) {
-                    throw new InvalidCommandResponseException(pid);
+                    throw new InvalidCommandResponseException(pid.toString());
                 }
             }
 
             index += length;
         }
 
-        return createDataResponse(pid, buffer);
+        return createDataResponse(pid, buffer, data);
     }
 
-    private DataResponse createDataResponse(PID pid, int[] data) {
+    private DataResponse createDataResponse(PID pid, int[] processedData, byte[] rawData) throws InvalidCommandResponseException, UnmatchedResponseException {
         switch (pid) {
             case FUEL_SYSTEM_STATUS:
-                //TODO: Implement!
-                break;
+                return FuelSystemStatusResponse.fromRawData(rawData);
             case CALCULATED_ENGINE_LOAD:
-                return new EngineLoadResponse((data[0] * 100.0f) / 255.0f);
+                return new EngineLoadResponse((processedData[0] * 100.0f) / 255.0f);
             case FUEL_PRESSURE:
-                return new FuelPressureResponse(data[0] * 3);
+                return new FuelPressureResponse(processedData[0] * 3);
             case INTAKE_MAP:
-                return new IntakeManifoldAbsolutePressureResponse(data[2]);
+                return new IntakeManifoldAbsolutePressureResponse(processedData[2]);
             case RPM:
-                return new EngineRPMResponse((data[0] * 256 + data[1]) / 4);
+                return new EngineRPMResponse((processedData[0] * 256 + processedData[1]) / 4);
             case SPEED:
-                return new SpeedResponse(data[2]);
+                return new SpeedResponse(processedData[2]);
             case INTAKE_AIR_TEMP:
-                return new IntakeAirPressureResponse(data[0] - 40);
+                return new IntakeAirPressureResponse(processedData[0] - 40);
             case MAF:
-                return new MAFResponse((data[0] * 256 + data[1]) / 100.0f);
+                return new MAFResponse((processedData[0] * 256 + processedData[1]) / 100.0f);
             case TPS:
-                return new ThrottlePositionResponse((data[0] * 100) / 255);
+                return new ThrottlePositionResponse((processedData[0] * 100) / 255);
             case O2_LAMBDA_PROBE_1_VOLTAGE:
             case O2_LAMBDA_PROBE_2_VOLTAGE:
             case O2_LAMBDA_PROBE_3_VOLTAGE:
@@ -118,8 +119,8 @@ public class ResponseParser {
             case O2_LAMBDA_PROBE_7_VOLTAGE:
             case O2_LAMBDA_PROBE_8_VOLTAGE:
                 return new LambdaProbeVoltageResponse(
-                        ((data[2]*256d) + data[3] )/ 8192d,
-                        ((data[0]*256d) + data[1]) / 32768d);
+                        ((processedData[2]*256d) + processedData[3] )/ 8192d,
+                        ((processedData[0]*256d) + processedData[1]) / 32768d);
             case O2_LAMBDA_PROBE_1_CURRENT:
             case O2_LAMBDA_PROBE_2_CURRENT:
             case O2_LAMBDA_PROBE_3_CURRENT:
@@ -129,8 +130,8 @@ public class ResponseParser {
             case O2_LAMBDA_PROBE_7_CURRENT:
             case O2_LAMBDA_PROBE_8_CURRENT:
                 return new LambdaProbeCurrentResponse(
-                        ((data[2]*256d) + data[3])/256d - 128,
-                        ((data[0]*256d) + data[1]) / 32768d);
+                        ((processedData[2]*256d) + processedData[3])/256d - 128,
+                        ((processedData[0]*256d) + processedData[1]) / 32768d);
         }
 
         return null;
@@ -141,7 +142,7 @@ public class ResponseParser {
     }
 
     private boolean isNoDataCommand(String dataString) {
-        return dataString == null || dataString.contains(NODATA);
+        return dataString == null || dataString.contains(NO_DATA);
     }
 
 

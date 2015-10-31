@@ -34,7 +34,7 @@ import org.envirocar.obd.commands.PIDSupported;
 import org.envirocar.obd.commands.RPM;
 import org.envirocar.obd.commands.Speed;
 import org.envirocar.obd.protocol.AbstractAsynchronousConnector;
-import org.envirocar.obd.protocol.OBDConnector;
+import org.envirocar.obd.adapter.OBDConnector;
 import org.envirocar.obd.protocol.ResponseParser;
 
 import java.util.ArrayList;

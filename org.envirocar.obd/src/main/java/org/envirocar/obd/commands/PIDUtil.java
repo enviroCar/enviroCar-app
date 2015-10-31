@@ -23,7 +23,9 @@ package org.envirocar.obd.commands;
 public class PIDUtil {
 
 	public static PID fromString(String s) {
-		if (s == null || s.isEmpty()) return null;
+		if (s == null || s.isEmpty()) {
+			return null;
+		}
 		
 		for (PID p : PID.values()) {
 			if (s.equalsIgnoreCase(p.getHexadecimalRepresentation())) {
@@ -35,48 +37,32 @@ public class PIDUtil {
 	}
 
 	
-	public static CommonCommand instantiateCommand(String pid) {
+	public static BasicCommand instantiateCommand(String pid) {
 		return instantiateCommand(fromString(pid));
 	}
 	
-	public static CommonCommand instantiateCommand(PID pid) {
+	public static BasicCommand instantiateCommand(PID pid) {
 		switch (pid) {
-		case FUEL_SYSTEM_STATUS:
-			return new FuelSystemStatus();
-		case CALCULATED_ENGINE_LOAD:
-			return new EngineLoad();
-		case FUEL_PRESSURE:
-			return new FuelPressure();
-		case INTAKE_MAP:
-			return new IntakePressure();
-		case RPM:
-			return new RPM();
-		case SPEED:
-			return new Speed();
-		case INTAKE_AIR_TEMP:
-			return new IntakeTemperature();
-		case MAF:
-			return new MAF();
-		case TPS:
-			return new TPS();
-		case O2_LAMBDA_PROBE_1_VOLTAGE:
-			return O2LambdaProbe.fromPIDEnum(pid);
-		case O2_LAMBDA_PROBE_2_VOLTAGE:
-			return O2LambdaProbe.fromPIDEnum(pid);
-		case O2_LAMBDA_PROBE_3_VOLTAGE:
-			return O2LambdaProbe.fromPIDEnum(pid);
-		case O2_LAMBDA_PROBE_4_VOLTAGE:
-			return O2LambdaProbe.fromPIDEnum(pid);
-		case O2_LAMBDA_PROBE_5_VOLTAGE:
-			return O2LambdaProbe.fromPIDEnum(pid);
-		case O2_LAMBDA_PROBE_6_VOLTAGE:
-			return O2LambdaProbe.fromPIDEnum(pid);
-		case O2_LAMBDA_PROBE_7_VOLTAGE:
-			return O2LambdaProbe.fromPIDEnum(pid);
-		case O2_LAMBDA_PROBE_8_VOLTAGE:
-			return O2LambdaProbe.fromPIDEnum(pid);
-		default:
-			return null;
+			case FUEL_SYSTEM_STATUS:
+			case CALCULATED_ENGINE_LOAD:
+			case FUEL_PRESSURE:
+			case INTAKE_MAP:
+			case RPM:
+			case SPEED:
+			case INTAKE_AIR_TEMP:
+			case MAF:
+			case TPS:
+			case O2_LAMBDA_PROBE_1_VOLTAGE:
+			case O2_LAMBDA_PROBE_2_VOLTAGE:
+			case O2_LAMBDA_PROBE_3_VOLTAGE:
+			case O2_LAMBDA_PROBE_4_VOLTAGE:
+			case O2_LAMBDA_PROBE_5_VOLTAGE:
+			case O2_LAMBDA_PROBE_6_VOLTAGE:
+			case O2_LAMBDA_PROBE_7_VOLTAGE:
+			case O2_LAMBDA_PROBE_8_VOLTAGE:
+				return new ModeOneCommand(pid);
+			default:
+				return null;
 		}
 	}
 }

@@ -20,6 +20,8 @@
  */
 package org.envirocar.obd.protocol;
 
+import org.envirocar.obd.adapter.OBDController;
+
 import java.io.IOException;
 
 /**
