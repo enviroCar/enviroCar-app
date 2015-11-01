@@ -15,12 +15,14 @@ import org.envirocar.obd.protocol.exception.InvalidCommandResponseException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -44,6 +46,7 @@ public abstract class SequentialAdapter implements OBDConnector {
 
     private Map<PID, AtomicInteger> failureMap = new HashMap<>();
     private List<BasicCommand> requestCommands;
+    private Queue<BasicCommand> commandRingBuffer = new ArrayDeque<>();
 
     public Observable<Boolean> initialize(InputStream is, OutputStream os) {
         commandExecutor = new CommandExecutor(is, os, ignoredChars, COMMAND_RECEIVE_END);
@@ -54,21 +57,20 @@ public abstract class SequentialAdapter implements OBDConnector {
             public void call(Subscriber<? super Boolean> subscriber) {
                 subscriber.onStart();
 
-                while (!subscriber.isUnsubscribed()) {
-                    for (BasicCommand cc : preparePendingCommands()) {
-                        try {
-                            commandExecutor.execute(cc);
-                            if (cc.awaitsResults()) {
-                                byte[] resp = commandExecutor.retrieveLatestResponse();
-                                if (analyzeMetadataResponse(resp, cc)) {
-                                    subscriber.onNext(true);
-                                }
+                while (!subscriber.isUnsubscribed() && !commandRingBuffer.isEmpty()) {
+                    try {
+                        BasicCommand cc = pollNextCommand();
+                        commandExecutor.execute(cc);
+                        if (cc.awaitsResults()) {
+                            byte[] resp = commandExecutor.retrieveLatestResponse();
+                            if (analyzeMetadataResponse(resp, cc)) {
+                                subscriber.onNext(true);
                             }
-                        } catch (IOException e) {
-                            subscriber.onError(e);
-                        } catch (AdapterFailedException e) {
-                            subscriber.onError(e);
                         }
+                    } catch (IOException e) {
+                        subscriber.onError(e);
+                    } catch (AdapterFailedException e) {
+                        subscriber.onError(e);
                     }
                 }
 
@@ -81,6 +83,7 @@ public abstract class SequentialAdapter implements OBDConnector {
 
     public Observable<DataResponse> observe() {
         return Observable.create(new Observable.OnSubscribe<DataResponse>() {
+
             @Override
             public void call(Subscriber<? super DataResponse> subscriber) {
                 subscriber.onStart();
@@ -89,6 +92,8 @@ public abstract class SequentialAdapter implements OBDConnector {
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.computation())
                         .subscribe(new Observer<byte[]>() {
+                            private BasicCommand latestCommand;
+
                             @Override
                             public void onCompleted() {
                                 subscriber.onCompleted();
@@ -109,32 +114,67 @@ public abstract class SequentialAdapter implements OBDConnector {
                                         subscriber.onNext(response);
                                     }
                                 } catch (AdapterSearchingException e) {
-                                    LOGGER.warn("Adapter still searching: "+e.getMessage());
+                                    LOGGER.warn("Adapter still searching: " + e.getMessage());
                                 } catch (NoDataReceivedException e) {
-                                    LOGGER.warn("No data received: "+e.getMessage());
+                                    LOGGER.warn("No data received: " + e.getMessage());
+                                    increaseFailureCount(latestCommand.getPid());
                                 } catch (InvalidCommandResponseException e) {
                                     increaseFailureCount(PIDUtil.fromString(e.getCommand()));
                                 } catch (UnmatchedResponseException e) {
                                     LOGGER.warn("Unmatched response: " + e.getMessage());
                                 }
+
+                                /**
+                                 * poll the next command and push it to the adapter
+                                 */
+                                try {
+                                    latestCommand = pollNextCommand();
+                                    commandExecutor.execute(latestCommand);
+                                } catch (AdapterFailedException | IOException e) {
+                                    subscriber.onError(e);
+                                }
+
                             }
                         });
                 subscriber.add(obs);
 
-                while (!subscriber.isUnsubscribed()) {
-                    for (BasicCommand cc : preparePendingCommands()) {
-                        try {
-                            commandExecutor.execute(cc);
-                        } catch (IOException e) {
-                            LOGGER.warn("IOException on command " + cc.getClass().getSimpleName(), e);
-                            subscriber.onError(e);
-                        }
-                    }
+                preparePendingCommands();
+                try {
+                    commandExecutor.execute(pollNextCommand());
+                } catch (IOException e) {
+                    subscriber.onError(e);
+                } catch (AdapterFailedException e) {
+                    subscriber.onError(e);
                 }
 
-                subscriber.onCompleted();
             }
         });
+    }
+
+    private BasicCommand pollNextCommand() throws AdapterFailedException {
+        if (this.commandRingBuffer.isEmpty()) {
+            throw new AdapterFailedException("No available commands left in the buffer");
+        }
+
+        BasicCommand cmd = commandRingBuffer.poll();
+
+        if (cmd != null) {
+            if (!checkIsBlacklisted(cmd.getPid())) {
+                /**
+                 * not blacklisted: add it back as the last element of the ring
+                 */
+                commandRingBuffer.offer(cmd);
+                return cmd;
+            }
+            else {
+                /**
+                 * blacklisted: do not re-add it and return the next candidate
+                 */
+                return pollNextCommand();
+            }
+        }
+
+        return cmd;
     }
 
     protected void increaseFailureCount(PID command) {
@@ -169,17 +209,8 @@ public abstract class SequentialAdapter implements OBDConnector {
         return requestCommands;
     }
 
-    private List<BasicCommand> preparePendingCommands() {
-        List<BasicCommand> pending = providePendingCommands();
-        List<BasicCommand> result = new ArrayList<>();
-
-        for (BasicCommand cmd : pending) {
-            if (!checkIsBlacklisted(cmd.getPid())) {
-                result.add(cmd);
-            }
-        }
-
-        return result;
+    private void preparePendingCommands() {
+        commandRingBuffer = new ArrayDeque<>(providePendingCommands());
     }
 
     private boolean checkIsBlacklisted(PID pid) {

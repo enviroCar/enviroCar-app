@@ -22,7 +22,6 @@ package org.envirocar.app.test.commands;
 
 import junit.framework.Assert;
 
-import org.envirocar.obd.commands.FuelSystemStatus;
 import org.envirocar.obd.commands.PIDUtil;
 import org.envirocar.obd.commands.PIDUtil.PID;
 import org.junit.Test;

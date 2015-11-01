@@ -27,7 +27,6 @@ import org.envirocar.obd.commands.ObdReset;
 import org.envirocar.obd.commands.SelectAutoProtocol;
 import org.envirocar.obd.commands.StringResultCommand;
 import org.envirocar.obd.commands.Timeout;
-import org.envirocar.obd.protocol.AbstractSequentialConnector;
 import org.envirocar.obd.adapter.OBDConnector;
 
 import java.util.ArrayList;

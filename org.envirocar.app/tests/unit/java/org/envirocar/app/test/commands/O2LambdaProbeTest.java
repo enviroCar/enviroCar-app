@@ -24,9 +24,6 @@ import java.math.BigDecimal;
 
 import junit.framework.Assert;
 
-import org.envirocar.obd.commands.O2LambdaProbe;
-import org.envirocar.obd.commands.O2LambdaProbeCurrent;
-import org.envirocar.obd.commands.O2LambdaProbeVoltage;
 import org.envirocar.obd.commands.PIDUtil;
 import org.envirocar.obd.commands.PIDUtil.PID;
 import org.envirocar.core.logging.Logger;

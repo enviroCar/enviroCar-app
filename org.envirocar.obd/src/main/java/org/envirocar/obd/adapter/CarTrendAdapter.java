@@ -10,6 +10,7 @@ import org.envirocar.obd.protocol.sequential.ELM327Connector;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class CarTrendAdapter extends SequentialAdapter {
@@ -21,6 +22,7 @@ public class CarTrendAdapter extends SequentialAdapter {
     private boolean identifySuccess;
     private int metadataResponseCount;
     private boolean connectionEstablished;
+    private int dataStartPosition = -1;
 
     @Override
     protected List<BasicCommand> providePendingCommands() {
@@ -72,7 +74,20 @@ public class CarTrendAdapter extends SequentialAdapter {
 
     @Override
     protected byte[] preProcess(byte[] bytes) {
-        return bytes;
+        if (dataStartPosition == -1) {
+            String data = new String(bytes);
+            /**
+             * search for "41" (= status ok)
+             */
+            dataStartPosition = data.indexOf("41");
+        }
+
+        if (dataStartPosition < bytes.length) {
+            return Arrays.copyOfRange(bytes, dataStartPosition, bytes.length);
+        }
+        else {
+            return bytes;
+        }
     }
 
     @Override

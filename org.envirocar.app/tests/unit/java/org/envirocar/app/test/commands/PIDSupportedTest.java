@@ -27,7 +27,6 @@ import java.util.Set;
 
 import junit.framework.Assert;
 
-import org.envirocar.obd.commands.PIDSupported;
 import org.envirocar.obd.commands.CommonCommand.CommonCommandState;
 import org.envirocar.obd.commands.PIDUtil.PID;
 import org.junit.Test;
