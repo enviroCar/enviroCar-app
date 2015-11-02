@@ -42,19 +42,20 @@ import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 /**
+ * TODO JavaDoc
+ *
  * @author dewall
  */
 public class SystemStartupService extends Service {
     private static final Logger LOGGER = Logger.getLogger(SystemStartupService.class);
 
-    private static final int REDISCOVERY_INTERVAL = 20;
+    private static final int REDISCOVERY_INTERVAL = 30;
 
     // Static identifiers for actions for the broadcast receiver.
     public static final String ACTION_START_BT_DISCOVERY = "action_start_bt_discovery";
     public static final String ACTION_STOP_BT_DISCOVERY = "action_stop_bt_discvoery";
     public static final String ACTION_START_TRACK_RECORDING = "action_start_track_recording";
     public static final String ACTION_STOP_TRACK_RECORDING = "action_stop_track_recording";
-
 
     // Injected variables
     @Inject
@@ -77,30 +78,6 @@ public class SystemStartupService extends Service {
     private Subscription mWorkerSubscription;
     private Subscription mDiscoverySubscription;
     private CompositeSubscription subscriptions = new CompositeSubscription();
-
-
-    // Background remoteService for the connection to the OBD adapter.
-    //    private OBDConnectionService mOBDConnectionService;
-    //    private boolean mIsOBDConnectionBounded;
-    //    private ServiceConnection mOBDConnectionServiceCon = new ServiceConnection() {
-    //        @Override
-    //        public void onServiceConnected(ComponentName name, IBinder service) {
-    //            // successfully bounded to the remoteService, cast the binder interface to
-    //            // get the remoteService.
-    //            OBDConnectionService.OBDConnectionBinder binder = (OBDConnectionService
-    //                    .OBDConnectionBinder) service;
-    //            mOBDConnectionService = binder.getService();
-    //            mIsOBDConnectionBounded = true;
-    //        }
-    //
-    //        @Override
-    //        public void onServiceDisconnected(ComponentName name) {
-    //            // Service has been disconnected.
-    //            mOBDConnectionService = null;
-    //            mIsOBDConnectionBounded = false;
-    //        }
-    //    };
-
 
     // Broadcast receiver that handles the different actions that could be issued by the
     // corresponding notification of the notification bar.
@@ -190,7 +167,7 @@ public class SystemStartupService extends Service {
         registerReceiver(mBroadcastReciever, notificationClickedFilter);
 
         // if the OBDConnectionService is running, then bind the remoteService.
-//        bindOBDConnectionService();
+        //        bindOBDConnectionService();
 
 
         subscriptions.add(
@@ -264,7 +241,7 @@ public class SystemStartupService extends Service {
         super.onDestroy();
 
         // Unbind the connection remoteService.
-//        unbindOBDConnectionService();
+        //        unbindOBDConnectionService();
 
         // unregister all boradcast receivers.
         unregisterReceiver(mBroadcastReciever);
@@ -454,16 +431,16 @@ public class SystemStartupService extends Service {
      * this remoteService
      * is bound.
      */
-//    private void unbindOBDConnectionService() {
-//        // Only when the remoteService is running and this remoteService is bounded to that
-//        // remoteService.
-//        if (mOBDConnectionService != null && ServiceUtils
-//                .isServiceRunning(getApplicationContext(), OBDConnectionService.class)) {
-//
-//            // Unbinds the OBD connection remoteService.
-//            unbindService(mOBDConnectionServiceCon);
-//        }
-//    }
+    //    private void unbindOBDConnectionService() {
+    //        // Only when the remoteService is running and this remoteService is bounded to that
+    //        // remoteService.
+    //        if (mOBDConnectionService != null && ServiceUtils
+    //                .isServiceRunning(getApplicationContext(), OBDConnectionService.class)) {
+    //
+    //            // Unbinds the OBD connection remoteService.
+    //            unbindService(mOBDConnectionServiceCon);
+    //        }
+    //    }
 
     /**
      * Starts the discovery for the selected OBDII device. If the device has been found then the

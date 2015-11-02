@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/track_duration"
+            android:text="@string/track_list_details_duration"
             android:textSize="10sp"/>
     </LinearLayout>
 
@@ -51,7 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="@string/distance"
+            android:text="@string/track_list_details_distance"
             android:textSize="10sp"/>
     </LinearLayout>
 

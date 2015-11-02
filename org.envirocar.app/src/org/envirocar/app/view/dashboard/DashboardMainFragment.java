@@ -204,8 +204,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
 
     private void onButtonStartClicked() {
         if (!mBluetoothHandler.isBluetoothEnabled()) {
-            Snackbar.make(getView(),
-                    "Bluetooth is disabled. Please enable Bluetooth before starting a track",
+            Snackbar.make(getView(), R.string.dashboard_bluetooth_disabled_snackbar,
                     Snackbar.LENGTH_LONG);
             return;
         }
@@ -219,8 +218,9 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                     @Override
                     public void onStart() {
                         mConnectingDialog = new MaterialDialog.Builder(getActivity())
-                                .title("Connecting...")
-                                .content(String.format("Trying to find %s.",
+                                .title(R.string.dashboard_connecting)
+                                .content(String.format(getString(
+                                                R.string.dashboard_connecting_find_template),
                                         device.getName()))
                                 .progress(true, 0)
                                 .cancelListener(dialog -> {
@@ -244,12 +244,11 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                         if (!found) {
                             mConnectingDialog.dismiss();
                             mConnectingDialog = new MaterialDialog.Builder(getActivity())
-                                    .title("Not Found")
-                                    .content(String.format("%s not found. Please ensure " +
-                                            "that " +
-                                            "the OBD device is in range and correctly " +
-                                            "inserted.", device.getName()))
-                                    .negativeText("Okay")
+                                    .title(R.string.dashboard_dialog_obd_not_found)
+                                    .content(String.format(getString(R.string
+                                            .dashboard_dialog_obd_not_found_content_template),
+                                            device.getName()))
+                                    .negativeText(R.string.ok)
                                     .show();
                         }
                     }
@@ -268,8 +267,8 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                         mBluetoothHandler.stopBluetoothDeviceDiscovery();
 
                         // Update the content of the connecting dialog.
-                        mConnectingDialog.setContent("Device in range. Connecting to " +
-                                device.getName());
+                        mConnectingDialog.setContent(String.format(getString(
+                                R.string.dashboard_connecting_found_template), device.getName()));
 
                         // Start the background remoteService.
                         getActivity().startService(
@@ -281,10 +280,10 @@ public class DashboardMainFragment extends BaseInjectorFragment {
 
     private void onButtonStopClicked() {
         new MaterialDialog.Builder(getActivity())
-                .title("Stop Track?")
-                .content("Do you really want to stop the recording and finish the current track?")
+                .title(R.string.dashboard_dialog_stop_track)
+                .content(R.string.dashboard_dialog_stop_track_content)
                 .negativeText(R.string.cancel)
-                .positiveText("Okay")
+                .positiveText(R.string.ok)
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
@@ -414,20 +413,20 @@ public class DashboardMainFragment extends BaseInjectorFragment {
     private void updateInfoField() {
         boolean showInfo = false;
         StringBuilder sb = new StringBuilder();
-        sb.append("Please make the following settings:");
-        if (!mBluetoothHandler.isBluetoothEnabled()) {
-            sb.append("\n\u0009- Activate Bluetooth");
-            showInfo = true;
-        } else if (mBluetoothHandler.getSelectedBluetoothDevice() == null) {
-            sb.append("\n\u0009- Select OBD Device");
+        sb.append(getString(R.string.dashboard_info_base));
+        if (!mLocationHandler.isGPSEnabled()) {
+            sb.append(getString(R.string.dashboard_info_activate_gps));
             showInfo = true;
         }
-        if (!mLocationHandler.isGPSEnabled()) {
-            sb.append("\n\u0009- Activate GPS");
+        if (!mBluetoothHandler.isBluetoothEnabled()) {
+            sb.append(getString(R.string.dashboard_info_activate_bluetooth));
+            showInfo = true;
+        } else if (mBluetoothHandler.getSelectedBluetoothDevice() == null) {
+            sb.append(getString(R.string.dashboard_info_select_obd_adapter));
             showInfo = true;
         }
         if (mCarManager.getCar() == null) {
-            sb.append("\n\u0009- Select a Car Type");
+            sb.append(getString(R.string.dashboard_info_select_car_type));
             showInfo = true;
         }
         if (showInfo) {
@@ -444,22 +443,25 @@ public class DashboardMainFragment extends BaseInjectorFragment {
             case SERVICE_STOPPED:
                 if (hasSettingsSelected()) {
                     updateStartStopButton(getResources().getColor(R.color.green_dark_cario),
-                            "START TRACK", true);
+                            getString(R.string.dashboard_start_track), true);
                 } else {
-                    updateStartStopButton(Color.GRAY, "START TRACK", false);
+                    updateStartStopButton(Color.GRAY,
+                            getString(R.string.dashboard_start_track), false);
                 }
                 break;
             case SERVICE_STARTED:
                 // Update the StartStopButton
-                updateStartStopButton(Color.RED, "STOP TRACK", true);
+                updateStartStopButton(Color.RED, getString(R.string.dashboard_stop_track), true);
                 // hide the info field when the track is started.
                 mInfoField.setVisibility(View.INVISIBLE);
                 break;
             case SERVICE_STARTING:
-                updateStartStopButton(Color.GRAY, "TRACK IS STARTING...", false);
+                updateStartStopButton(Color.GRAY,
+                        getString(R.string.dashboard_track_is_starting), false);
                 break;
             case SERVICE_STOPPING:
-                updateStartStopButton(Color.GRAY, "TRACK IS STOPPING...", false);
+                updateStartStopButton(Color.GRAY,
+                        getString(R.string.dashboard_track_is_stopping), false);
                 break;
             default:
                 break;

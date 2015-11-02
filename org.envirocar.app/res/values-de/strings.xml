@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
-
+    <string name="cancel">Abbrechen</string>
     <string name="app_name">enviroCar</string>
     <string name="menu_settings">Einstellungen</string>
     <string name="menu_help">Hilfe</string>

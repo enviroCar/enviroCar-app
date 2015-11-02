@@ -207,14 +207,12 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                             if (newTrackAdded) {
                                 Collections.sort(mTrackList);
 
-                                if (!mTrackList.isEmpty()) {
-                                    mRecyclerView.setVisibility(View.VISIBLE);
-                                    mTextView.setVisibility(View.GONE);
-                                    mRecyclerViewAdapter.notifyDataSetChanged();
-                                } else {
-                                    mTextView.setText(R.string.track_list_bg_no_local_tracks);
-                                    mTextView.setVisibility(View.VISIBLE);
-                                }
+                                mRecyclerView.setVisibility(View.VISIBLE);
+                                mTextView.setVisibility(View.GONE);
+                                mRecyclerViewAdapter.notifyDataSetChanged();
+                            } else if (mTrackList.isEmpty()) {
+                                mTextView.setText(R.string.track_list_bg_no_local_tracks);
+                                mTextView.setVisibility(View.VISIBLE);
                             }
                         }
                     });

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="dashboard_start_track">START TRACK</string>
+    <string name="dashboard_stop_track">STOP TRACK</string>
+    <string name="dashboard_track_is_starting">TRACK IS STARTING...</string>
+    <string name="dashboard_track_is_stopping">TRACK IS STOPPING...</string>
+
+    <string name="dashboard_connecting">Connecting...</string>
+    <string name="dashboard_connecting_find_template">Trying to find \'%s\'.</string>
+    <string name="dashboard_connecting_found_template">\'s\' is in range. Trying to connect.</string>
+
+    <string name="dashboard_dialog_stop_track">Stop Track?</string>
+    <string name="dashboard_dialog_stop_track_content">Do you really want to stop the recording and finish the current track?</string>
+    <string name="dashboard_dialog_obd_not_found">OBD Adapter not Found</string>
+    <string name="dashboard_dialog_obd_not_found_content_template">\'%s\' not found. Please ensure that the OBD device is in range and correctly inserted into the OBD slot of your car.</string>
+
+    <string name="dashboard_bluetooth_disabled">Bluetooth is disabled</string>
+    <string name="dashboard_bluetooth_disabled_snackbar">Bluetooth is disabled. Bluetooth has to be enabled before you can start a track.</string>
+    <string name="dashboard_bluetooth_disabled_advise">Please enable Bluetooth.</string>
+
+    <string name="dashboard_obd_not_selected">No OBDII adapter selected</string>
+    <string name="dashboard_obd_not_selected_advise">Click here to select one</string>
+    <string name="dashboard_carselection_no_car_selected">No car type selected</string>
+    <string name="dashboard_carselection_no_car_selected_advise">Click here to create/select one</string>
+
+    <string name="dashboard_info_base">Please make the following settings:</string>
+    <string name="dashboard_info_activate_gps">\n - Activate GPS</string>
+    <string name="dashboard_info_activate_bluetooth">\n - Activate Bluetooth</string>
+    <string name="dashboard_info_select_obd_adapter">\n - Select an OBD adapter</string>
+    <string name="dashboard_info_select_car_type">\n - Select a car type</string>
+</resources>
