@@ -34,7 +34,7 @@ import rx.Observable;
  * @author matthes rieke
  *
  */
-public interface OBDConnector {
+public interface OBDAdapter {
 
 	
 	enum ConnectionState {

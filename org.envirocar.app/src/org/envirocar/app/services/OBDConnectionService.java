@@ -36,7 +36,7 @@ import org.envirocar.obd.bluetooth.NativeBluetoothSocket;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.obd.protocol.ConnectionListener;
-import org.envirocar.obd.adapter.OBDController;
+import org.envirocar.obd.OBDController;
 import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.io.IOException;

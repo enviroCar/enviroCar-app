@@ -26,7 +26,7 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.CommonCommand;
 import org.envirocar.obd.commands.CommonCommand.CommonCommandState;
 import org.envirocar.obd.protocol.AbstractAsynchronousConnector;
-import org.envirocar.obd.adapter.OBDConnector;
+import org.envirocar.obd.adapter.OBDAdapter;
 import org.envirocar.obd.protocol.ResponseParser;
 
 import java.util.ArrayList;
@@ -47,7 +47,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
     private String vin;
     private CycleCommand cycleCommand;
     private ResponseParser responseParser = new LocalResponseParser();
-    private OBDConnector.ConnectionState state = OBDConnector.ConnectionState.DISCONNECTED;
+    private OBDAdapter.ConnectionState state = OBDAdapter.ConnectionState.DISCONNECTED;
     public long lastResult;
     private Set<String> loggedPids = new HashSet<String>();
 
@@ -77,7 +77,7 @@ public class DriveDeckSportConnector extends AbstractAsynchronousConnector {
     }
 
     @Override
-    public OBDConnector.ConnectionState connectionState() {
+    public OBDAdapter.ConnectionState connectionState() {
         return this.state;
     }
 

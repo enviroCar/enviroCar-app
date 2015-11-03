@@ -18,10 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.obd.adapter;
+package org.envirocar.obd;
 
 import org.envirocar.core.logging.Logger;
-import org.envirocar.obd.Listener;
+import org.envirocar.obd.adapter.AposW3Adapter;
+import org.envirocar.obd.adapter.CarTrendAdapter;
+import org.envirocar.obd.adapter.ELM327Adapter;
+import org.envirocar.obd.adapter.OBDAdapter;
+import org.envirocar.obd.adapter.OBDLinkMXAdapter;
 import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.protocol.ConnectionListener;
 import org.envirocar.obd.protocol.drivedeck.DriveDeckSportConnector;
@@ -55,8 +59,8 @@ public class OBDController {
 	private Subscriber<DataResponse> dataSubscription;
 	private Subscriber<Boolean> initialSubscriber;
 
-	private List<OBDConnector> adapterCandidates = new ArrayList<OBDConnector>();
-	private OBDConnector obdAdapter;
+	private List<OBDAdapter> adapterCandidates = new ArrayList<OBDAdapter>();
+	private OBDAdapter obdAdapter;
 	private InputStream inputStream;
 	private OutputStream outputStream;
 	private int adapterIndex;
@@ -103,7 +107,7 @@ public class OBDController {
 	}
 
 	private void startPreferredAdapter() {
-		for (OBDConnector ac : adapterCandidates) {
+		for (OBDAdapter ac : adapterCandidates) {
 			if (ac.supportsDevice(this.deviceName)) {
 				this.obdAdapter = ac;
 				break;

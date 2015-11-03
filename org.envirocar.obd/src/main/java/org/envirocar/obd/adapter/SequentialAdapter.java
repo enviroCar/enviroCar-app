@@ -33,7 +33,7 @@ import rx.Subscriber;
 import rx.Subscription;
 import rx.schedulers.Schedulers;
 
-public abstract class SequentialAdapter implements OBDConnector {
+public abstract class SequentialAdapter implements OBDAdapter {
 
     private static final Logger LOGGER = Logger.getLogger(SequentialAdapter.class.getName());
     private static final char COMMAND_SEND_END = '\r';

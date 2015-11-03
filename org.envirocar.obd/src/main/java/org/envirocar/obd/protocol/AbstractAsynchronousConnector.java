@@ -21,7 +21,7 @@
 package org.envirocar.obd.protocol;
 
 import org.envirocar.core.logging.Logger;
-import org.envirocar.obd.adapter.OBDConnector;
+import org.envirocar.obd.adapter.OBDAdapter;
 import org.envirocar.obd.commands.CommonCommand;
 import org.envirocar.obd.exception.AdapterFailedException;
 import org.envirocar.obd.protocol.exception.ConnectionLostException;
@@ -32,7 +32,7 @@ import java.io.OutputStream;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class AbstractAsynchronousConnector implements OBDConnector {
+public abstract class AbstractAsynchronousConnector implements OBDAdapter {
 
 	private static final Logger logger = Logger.getLogger(AbstractAsynchronousConnector.class);
 	private InputStream inputStream;
