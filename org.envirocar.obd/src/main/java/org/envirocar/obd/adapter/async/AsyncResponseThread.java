@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.obd.protocol;
+package org.envirocar.obd.adapter.async;
 
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -26,6 +26,7 @@ import android.os.Looper;
 
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.CommonCommand;
+import org.envirocar.obd.protocol.ResponseParser;
 import org.envirocar.obd.protocol.exception.LooperStoppedException;
 
 import java.io.IOException;
@@ -33,9 +34,9 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AsynchronousResponseThread extends HandlerThread {
+public class AsyncResponseThread extends HandlerThread {
 	
-	private static final Logger logger = Logger.getLogger(AsynchronousResponseThread.class);
+	private static final Logger logger = Logger.getLogger(AsyncResponseThread.class);
 	private static final int MAX_BUFFER_SIZE = 32;
 	private Handler handler;
 	private InputStream inputStream;
@@ -49,7 +50,7 @@ public class AsynchronousResponseThread extends HandlerThread {
 	private int globalIndex;
 	private ResponseParser responseParser;
 
-	public AsynchronousResponseThread(final InputStream in, ResponseParser responseParser) {
+	public AsyncResponseThread(final InputStream in, ResponseParser responseParser) {
 		super("AsynchronousResponseThread");
 		this.inputStream = in;
 		
@@ -66,7 +67,7 @@ public class AsynchronousResponseThread extends HandlerThread {
 						cmd = readResponse();	
 						
 						if (cmd != null) {
-							synchronized (AsynchronousResponseThread.this) {
+							synchronized (AsyncResponseThread.this) {
 								buffer.add(cmd);	
 							}	
 						}

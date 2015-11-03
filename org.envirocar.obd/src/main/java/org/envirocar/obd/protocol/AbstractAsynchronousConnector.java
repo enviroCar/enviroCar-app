@@ -22,6 +22,7 @@ package org.envirocar.obd.protocol;
 
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.adapter.OBDAdapter;
+import org.envirocar.obd.adapter.async.AsyncResponseThread;
 import org.envirocar.obd.commands.CommonCommand;
 import org.envirocar.obd.exception.AdapterFailedException;
 import org.envirocar.obd.protocol.exception.ConnectionLostException;
@@ -37,7 +38,7 @@ public abstract class AbstractAsynchronousConnector implements OBDAdapter {
 	private static final Logger logger = Logger.getLogger(AbstractAsynchronousConnector.class);
 	private InputStream inputStream;
 	private OutputStream outputStream;
-	private AsynchronousResponseThread responseThread;
+	private AsyncResponseThread responseThread;
 
 	protected abstract List<CommonCommand> getRequestCommands();
 
@@ -131,7 +132,7 @@ public abstract class AbstractAsynchronousConnector implements OBDAdapter {
 	
 	protected void startResponseThread() {
 		if (responseThread == null || !responseThread.isRunning()) {
-			responseThread = new AsynchronousResponseThread(inputStream, getResponseParser());
+			responseThread = new AsyncResponseThread(inputStream, getResponseParser());
 			responseThread.start();
 		}
 	}
