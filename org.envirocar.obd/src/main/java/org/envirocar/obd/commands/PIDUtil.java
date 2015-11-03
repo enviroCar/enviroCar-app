@@ -37,11 +37,11 @@ public class PIDUtil {
 	}
 
 	
-	public static BasicCommand instantiateCommand(String pid) {
+	public static PIDCommand instantiateCommand(String pid) {
 		return instantiateCommand(fromString(pid));
 	}
 	
-	public static BasicCommand instantiateCommand(PID pid) {
+	public static PIDCommand instantiateCommand(PID pid) {
 		switch (pid) {
 			case FUEL_SYSTEM_STATUS:
 			case CALCULATED_ENGINE_LOAD:

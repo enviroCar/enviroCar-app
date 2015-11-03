@@ -13,7 +13,9 @@ import org.envirocar.obd.commands.response.entity.IntakeAirPressureResponse;
 import org.envirocar.obd.commands.response.entity.IntakeManifoldAbsolutePressureResponse;
 import org.envirocar.obd.commands.response.entity.LambdaProbeCurrentResponse;
 import org.envirocar.obd.commands.response.entity.LambdaProbeVoltageResponse;
+import org.envirocar.obd.commands.response.entity.LongTermFuelTrimResponse;
 import org.envirocar.obd.commands.response.entity.MAFResponse;
+import org.envirocar.obd.commands.response.entity.ShortTermFuelTrimResponse;
 import org.envirocar.obd.commands.response.entity.SpeedResponse;
 import org.envirocar.obd.commands.response.entity.ThrottlePositionResponse;
 import org.envirocar.obd.protocol.exception.InvalidCommandResponseException;
@@ -110,6 +112,10 @@ public class ResponseParser {
                 return new MAFResponse((processedData[0] * 256 + processedData[1]) / 100.0f);
             case TPS:
                 return new ThrottlePositionResponse((processedData[0] * 100) / 255);
+            case SHORT_TERM_FUEL_TRIM_BANK_1:
+                return new ShortTermFuelTrimResponse((processedData[0] - 128) * (100d / 128d), 1);
+            case LONG_TERM_FUEL_TRIM_BANK_1:
+                return new LongTermFuelTrimResponse((processedData[0] - 128) * (100d / 128d), 1);
             case O2_LAMBDA_PROBE_1_VOLTAGE:
             case O2_LAMBDA_PROBE_2_VOLTAGE:
             case O2_LAMBDA_PROBE_3_VOLTAGE:

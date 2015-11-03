@@ -33,7 +33,7 @@ import java.util.Set;
  * are imported from Android OBD Reader project!
  * 
  * @author jakob
- * @deprecated Use {@link BasicCommand} API instead
+ * @deprecated Use {@link PIDCommand} API instead
  */
 @Deprecated
 public abstract class CommonCommand {

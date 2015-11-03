@@ -2,6 +2,7 @@ package org.envirocar.obd.adapter;
 
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.BasicCommand;
+import org.envirocar.obd.commands.PIDCommand;
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.PIDUtil;
 import org.envirocar.obd.commands.exception.AdapterSearchingException;
@@ -45,9 +46,10 @@ public abstract class SequentialAdapter implements OBDConnector {
     private ResponseParser parser = new ResponseParser();
 
     private Map<PID, AtomicInteger> failureMap = new HashMap<>();
-    private List<BasicCommand> requestCommands;
-    private Queue<BasicCommand> commandRingBuffer = new ArrayDeque<>();
+    private List<PIDCommand> requestCommands;
+    private Queue<PIDCommand> commandRingBuffer = new ArrayDeque<>();
 
+    @Override
     public Observable<Boolean> initialize(InputStream is, OutputStream os) {
         commandExecutor = new CommandExecutor(is, os, ignoredChars, COMMAND_RECEIVE_END);
 
@@ -59,7 +61,7 @@ public abstract class SequentialAdapter implements OBDConnector {
 
                 while (!subscriber.isUnsubscribed() && !commandRingBuffer.isEmpty()) {
                     try {
-                        BasicCommand cc = pollNextCommand();
+                        BasicCommand cc = pollNextInitializationCommand();
                         commandExecutor.execute(cc);
                         if (cc.awaitsResults()) {
                             byte[] resp = commandExecutor.retrieveLatestResponse();
@@ -81,6 +83,7 @@ public abstract class SequentialAdapter implements OBDConnector {
         return obs;
     }
 
+    @Override
     public Observable<DataResponse> observe() {
         return Observable.create(new Observable.OnSubscribe<DataResponse>() {
 
@@ -92,7 +95,7 @@ public abstract class SequentialAdapter implements OBDConnector {
                         .subscribeOn(Schedulers.io())
                         .observeOn(Schedulers.computation())
                         .subscribe(new Observer<byte[]>() {
-                            private BasicCommand latestCommand;
+                            private PIDCommand latestCommand;
 
                             @Override
                             public void onCompleted() {
@@ -129,6 +132,7 @@ public abstract class SequentialAdapter implements OBDConnector {
                                  */
                                 try {
                                     latestCommand = pollNextCommand();
+                                    LOGGER.debug("Sending command " + latestCommand != null ? latestCommand.getPid().toString() : "n/a");
                                     commandExecutor.execute(latestCommand);
                                 } catch (AdapterFailedException | IOException e) {
                                     subscriber.onError(e);
@@ -151,12 +155,12 @@ public abstract class SequentialAdapter implements OBDConnector {
         });
     }
 
-    private BasicCommand pollNextCommand() throws AdapterFailedException {
+    private PIDCommand pollNextCommand() throws AdapterFailedException {
         if (this.commandRingBuffer.isEmpty()) {
             throw new AdapterFailedException("No available commands left in the buffer");
         }
 
-        BasicCommand cmd = commandRingBuffer.poll();
+        PIDCommand cmd = commandRingBuffer.poll();
 
         if (cmd != null) {
             if (!checkIsBlacklisted(cmd.getPid())) {
@@ -191,7 +195,7 @@ public abstract class SequentialAdapter implements OBDConnector {
         }
     }
 
-    protected List<BasicCommand> defaultCycleCommands() {
+    protected List<PIDCommand> defaultCycleCommands() {
         if (requestCommands == null) {
             requestCommands = new ArrayList<>();
 
@@ -217,9 +221,9 @@ public abstract class SequentialAdapter implements OBDConnector {
         return this.failureMap.containsKey(pid)  && this.failureMap.get(pid).get() > MAX_ERROR_PER_COMMAND;
     }
 
-    public abstract boolean supportsDevice(String deviceName);
+    protected abstract BasicCommand pollNextInitializationCommand();
 
-    protected abstract List<BasicCommand> providePendingCommands();
+    protected abstract List<PIDCommand> providePendingCommands();
 
     /**
      *

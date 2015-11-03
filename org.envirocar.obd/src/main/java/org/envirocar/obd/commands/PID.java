@@ -1,6 +1,6 @@
 package org.envirocar.obd.commands;
 
-public enum PID implements PIDCommand {
+public enum PID implements PIDEnumInstance {
 
     FUEL_SYSTEM_STATUS {
         @Override
@@ -12,6 +12,18 @@ public enum PID implements PIDCommand {
         @Override
         public String getHexadecimalRepresentation() {
             return "04";
+        }
+    },
+    SHORT_TERM_FUEL_TRIM_BANK_1 {
+        @Override
+        public String getHexadecimalRepresentation() {
+            return "06";
+        }
+    },
+    LONG_TERM_FUEL_TRIM_BANK_1 {
+        @Override
+        public String getHexadecimalRepresentation() {
+            return "07";
         }
     },
     FUEL_PRESSURE {

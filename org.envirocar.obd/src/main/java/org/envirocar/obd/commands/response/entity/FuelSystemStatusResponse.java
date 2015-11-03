@@ -20,8 +20,6 @@
  */
 package org.envirocar.obd.commands.response.entity;
 
-import org.envirocar.obd.commands.CommonCommand;
-import org.envirocar.obd.commands.NumberResultCommand;
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.exception.UnmatchedResponseException;
 import org.envirocar.obd.commands.response.DataResponse;

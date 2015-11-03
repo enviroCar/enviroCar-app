@@ -99,8 +99,8 @@ public class OBDController {
 
 	private void setupAdapterCandidates() {
 		adapterCandidates.clear();
-		adapterCandidates.add(new ELM327Connector());
-		adapterCandidates.add(new CarTrendConnector());
+		adapterCandidates.add(new ELM327Adapter());
+		adapterCandidates.add(new CarTrendAdapter());
 		adapterCandidates.add(new AposW3Connector());
 		adapterCandidates.add(new OBDLinkMXConnector());
 		adapterCandidates.add(new DriveDeckSportConnector());

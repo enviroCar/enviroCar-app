@@ -4,26 +4,15 @@ import android.util.Base64;
 
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.BasicCommand;
-import org.envirocar.obd.commands.CommonCommand;
-import org.envirocar.obd.commands.exception.AdapterSearchingException;
-import org.envirocar.obd.commands.exception.NoDataReceivedException;
-import org.envirocar.obd.commands.exception.UnmatchedResponseException;
-import org.envirocar.obd.commands.response.CommandResponse;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Set;
 
 import rx.Observable;
 import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.exceptions.OnErrorThrowable;
-import rx.functions.Func1;
-import rx.schedulers.Schedulers;
 
 /**
  * Created by matthes on 29.10.15.
@@ -45,8 +34,11 @@ public class CommandExecutor {
     }
 
     public void execute(BasicCommand cmd) throws IOException {
+        if (cmd == null) {
+            throw new IOException("Command cannot be null!");
+        }
+
         byte[] bytes = cmd.getOutputBytes();
-        LOGGER.debug("Sending command " +cmd.getPid()+ " / "+ new String(bytes));
 
         // write to OutputStream, or in this case a BluetoothSocket
         outputStream.write(bytes);

@@ -21,12 +21,7 @@
 package org.envirocar.obd.protocol.sequential;
 
 import org.envirocar.obd.commands.CommonCommand;
-import org.envirocar.obd.commands.EchoOff;
-import org.envirocar.obd.commands.LineFeedOff;
-import org.envirocar.obd.commands.ObdReset;
-import org.envirocar.obd.commands.SelectAutoProtocol;
-import org.envirocar.obd.commands.StringResultCommand;
-import org.envirocar.obd.commands.Timeout;
+import org.envirocar.obd.commands.elm.Timeout;
 import org.envirocar.obd.adapter.OBDConnector;
 
 import java.util.ArrayList;

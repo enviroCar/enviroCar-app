@@ -22,8 +22,6 @@ package org.envirocar.app.test.commands;
 
 import junit.framework.Assert;
 
-import org.envirocar.obd.commands.LongTermTrimBank1;
-import org.envirocar.obd.commands.ShortTermTrimBank1;
 import org.junit.Test;
 
 public class FuelTrimBankTest {

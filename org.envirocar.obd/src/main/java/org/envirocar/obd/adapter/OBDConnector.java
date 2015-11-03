@@ -65,8 +65,20 @@ public interface OBDConnector {
 		VERIFIED
 	}
 
+	/**
+	 * Initialize the connection.
+	 *
+	 * @param is the inpusttream
+	 * @param os this outputstream
+	 * @return an observable that provides a Boolean on connection state change
+	 */
 	Observable<Boolean> initialize(InputStream is, OutputStream os);
 
+	/**
+	 * Start the actual data collection
+	 *
+	 * @return an observable that provides data responses
+	 */
 	Observable<DataResponse> observe();
 	
 	/**

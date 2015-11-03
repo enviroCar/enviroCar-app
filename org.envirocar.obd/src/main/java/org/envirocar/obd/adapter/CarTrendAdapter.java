@@ -2,16 +2,14 @@ package org.envirocar.obd.adapter;
 
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.BasicCommand;
-import org.envirocar.obd.commands.CommonCommand;
-import org.envirocar.obd.commands.StringResultCommand;
+import org.envirocar.obd.commands.PIDCommand;
 import org.envirocar.obd.protocol.exception.AdapterFailedException;
-import org.envirocar.obd.protocol.sequential.ELM327Connector;
 
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Queue;
 
 public class CarTrendAdapter extends SequentialAdapter {
 
@@ -23,28 +21,41 @@ public class CarTrendAdapter extends SequentialAdapter {
     private int metadataResponseCount;
     private boolean connectionEstablished;
     private int dataStartPosition = -1;
+    private Queue<BasicCommand> initializeRing;
 
     @Override
-    protected List<BasicCommand> providePendingCommands() {
-        if (this.connectionEstablished) {
-            return super.defaultCycleCommands();
+    protected BasicCommand pollNextInitializationCommand() {
+        if (this.initializeRing == null) {
+            this.initializeRing = new ArrayDeque<>();
+            this.initializeRing.add(new EmptyCommand());
+            this.initializeRing.add(new IdentifyCommand());
+            this.initializeRing.add(new EmptyCommand());
+            this.initializeRing.add(new ProtocolCommand("S"));
+            this.initializeRing.add(new ProtocolCommand("1"));
+            this.initializeRing.add(new ProtocolCommand("2"));
+            this.initializeRing.add(new ProtocolCommand("3"));
+            this.initializeRing.add(new ProtocolCommand("4"));
+            this.initializeRing.add(new ProtocolCommand("5"));
+            this.initializeRing.add(new ProtocolCommand("6"));
+            this.initializeRing.add(new ConfigCommand("@E0"));
+            this.initializeRing.add(new ConfigCommand("@H0"));
         }
 
-        List<BasicCommand> result = new ArrayList<BasicCommand>();
-        result.add(new EmptyCommand());
-        result.add(new IdentifyCommand());
-        result.add(new EmptyCommand());
-        result.add(new ProtocolCommand("S"));
-        result.add(new ProtocolCommand("1"));
-        result.add(new ProtocolCommand("2"));
-        result.add(new ProtocolCommand("3"));
-        result.add(new ProtocolCommand("4"));
-        result.add(new ProtocolCommand("5"));
-        result.add(new ProtocolCommand("6"));
-        result.add(new ConfigCommand("@E0"));
-        result.add(new ConfigCommand("@H1"));
+        BasicCommand next = this.initializeRing.poll();
 
-        return result;
+        if (next instanceof ProtocolCommand) {
+            /**
+             * re-add protocol selection
+             */
+            this.initializeRing.offer(next);
+        }
+
+        return next;
+    }
+
+    @Override
+    protected List<PIDCommand> providePendingCommands() {
+        return super.defaultCycleCommands();
     }
 
     @Override
@@ -133,12 +144,11 @@ public class CarTrendAdapter extends SequentialAdapter {
 
     }
 
-    private static class GenericCommand extends BasicCommand {
+    private static class GenericCommand implements BasicCommand {
 
         private final String name;
 
         protected GenericCommand(String content) {
-            super(null, null);
             this.name = content;
         }
 
@@ -152,6 +162,11 @@ public class CarTrendAdapter extends SequentialAdapter {
             }
 
             return this.name.getBytes();
+        }
+
+        @Override
+        public boolean awaitsResults() {
+            return true;
         }
     }
 
