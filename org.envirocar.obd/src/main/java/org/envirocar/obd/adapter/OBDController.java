@@ -26,10 +26,6 @@ import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.protocol.ConnectionListener;
 import org.envirocar.obd.protocol.drivedeck.DriveDeckSportConnector;
 import org.envirocar.obd.protocol.exception.AllAdaptersFailedException;
-import org.envirocar.obd.protocol.sequential.AposW3Connector;
-import org.envirocar.obd.protocol.sequential.CarTrendConnector;
-import org.envirocar.obd.protocol.sequential.ELM327Connector;
-import org.envirocar.obd.protocol.sequential.OBDLinkMXConnector;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -101,8 +97,8 @@ public class OBDController {
 		adapterCandidates.clear();
 		adapterCandidates.add(new ELM327Adapter());
 		adapterCandidates.add(new CarTrendAdapter());
-		adapterCandidates.add(new AposW3Connector());
-		adapterCandidates.add(new OBDLinkMXConnector());
+		adapterCandidates.add(new AposW3Adapter());
+		adapterCandidates.add(new OBDLinkMXAdapter());
 		adapterCandidates.add(new DriveDeckSportConnector());
 	}
 

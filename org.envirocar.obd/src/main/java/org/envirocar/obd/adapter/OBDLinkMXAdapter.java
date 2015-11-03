@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.obd.protocol.sequential;
+package org.envirocar.obd.adapter;
 
-public class OBDLinkMXConnector extends ELM327Connector {
+public class OBDLinkMXAdapter extends ELM327Adapter {
 
 	@Override
 	public boolean supportsDevice(String deviceName) {

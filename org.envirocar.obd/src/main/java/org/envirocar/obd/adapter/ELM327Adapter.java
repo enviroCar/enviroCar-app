@@ -17,7 +17,7 @@ public class ELM327Adapter extends SequentialAdapter {
 
 
     private Queue<BasicCommand> initCommands;
-    private int succesfulCount;
+    protected int succesfulCount;
 
     @Override
     protected BasicCommand pollNextInitializationCommand() {
@@ -80,16 +80,16 @@ public class ELM327Adapter extends SequentialAdapter {
             }
         }
 
-        return succesfulCount >= 4;
+        return succesfulCount >= 5;
     }
 
     @Override
     protected byte[] preProcess(byte[] bytes) {
-        return new byte[0];
+        return bytes;
     }
 
     @Override
     public boolean supportsDevice(String deviceName) {
-        return false;
+        return deviceName.contains("OBDII") || deviceName.contains("ELM327");
     }
 }
