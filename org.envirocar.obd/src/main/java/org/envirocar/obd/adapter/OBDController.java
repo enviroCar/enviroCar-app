@@ -25,7 +25,7 @@ import org.envirocar.obd.Listener;
 import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.protocol.ConnectionListener;
 import org.envirocar.obd.protocol.drivedeck.DriveDeckSportConnector;
-import org.envirocar.obd.protocol.exception.AllAdaptersFailedException;
+import org.envirocar.obd.exception.AllAdaptersFailedException;
 
 import java.io.InputStream;
 import java.io.OutputStream;

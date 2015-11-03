@@ -1,4 +1,4 @@
-package org.envirocar.obd.commands.exception;
+package org.envirocar.obd.exception;
 
 /**
  * Created by matthes on 29.10.15.

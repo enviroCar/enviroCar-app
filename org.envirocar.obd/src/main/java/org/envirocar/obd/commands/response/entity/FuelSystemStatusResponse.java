@@ -21,7 +21,7 @@
 package org.envirocar.obd.commands.response.entity;
 
 import org.envirocar.obd.commands.PID;
-import org.envirocar.obd.commands.exception.UnmatchedResponseException;
+import org.envirocar.obd.exception.UnmatchedResponseException;
 import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.protocol.exception.InvalidCommandResponseException;
 

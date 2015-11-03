@@ -1,4 +1,6 @@
-package org.envirocar.obd.commands;
+package org.envirocar.obd.commands.request;
+
+import org.envirocar.obd.commands.PID;
 
 /**
  * Created by matthes on 31.10.15.

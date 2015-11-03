@@ -1,12 +1,11 @@
 package org.envirocar.obd.adapter;
 
 import org.envirocar.core.logging.Logger;
-import org.envirocar.obd.commands.BasicCommand;
-import org.envirocar.obd.commands.PIDCommand;
-import org.envirocar.obd.protocol.exception.AdapterFailedException;
+import org.envirocar.obd.commands.request.BasicCommand;
+import org.envirocar.obd.commands.request.PIDCommand;
+import org.envirocar.obd.exception.AdapterFailedException;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;

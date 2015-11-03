@@ -1,6 +1,6 @@
-package org.envirocar.obd.commands.elm;
+package org.envirocar.obd.commands.request.elm;
 
-import org.envirocar.obd.commands.BasicCommand;
+import org.envirocar.obd.commands.request.BasicCommand;
 
 public class ConfigurationCommand implements BasicCommand {
 

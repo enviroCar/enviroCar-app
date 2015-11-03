@@ -1,6 +1,4 @@
-package org.envirocar.obd.commands.exception;
-
-import org.envirocar.obd.commands.PID;
+package org.envirocar.obd.exception;
 
 /**
  * Created by matthes on 29.10.15.

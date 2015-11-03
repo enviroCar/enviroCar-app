@@ -1,10 +1,10 @@
 package org.envirocar.obd.adapter;
 
-import org.envirocar.obd.commands.BasicCommand;
-import org.envirocar.obd.commands.elm.ConfigurationCommand;
-import org.envirocar.obd.commands.elm.DelayedConfigurationCommand;
-import org.envirocar.obd.commands.elm.Timeout;
-import org.envirocar.obd.protocol.exception.AdapterFailedException;
+import org.envirocar.obd.commands.request.BasicCommand;
+import org.envirocar.obd.commands.request.elm.ConfigurationCommand;
+import org.envirocar.obd.commands.request.elm.DelayedConfigurationCommand;
+import org.envirocar.obd.commands.request.elm.Timeout;
+import org.envirocar.obd.exception.AdapterFailedException;
 
 import java.util.ArrayDeque;
 import java.util.Queue;

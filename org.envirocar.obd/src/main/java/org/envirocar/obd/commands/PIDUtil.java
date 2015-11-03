@@ -20,6 +20,9 @@
  */
 package org.envirocar.obd.commands;
 
+import org.envirocar.obd.commands.request.ModeOneCommand;
+import org.envirocar.obd.commands.request.PIDCommand;
+
 public class PIDUtil {
 
 	public static PID fromString(String s) {

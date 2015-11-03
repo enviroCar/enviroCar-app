@@ -1,16 +1,16 @@
 package org.envirocar.obd.adapter;
 
 import org.envirocar.core.logging.Logger;
-import org.envirocar.obd.commands.BasicCommand;
-import org.envirocar.obd.commands.PIDCommand;
+import org.envirocar.obd.commands.request.BasicCommand;
+import org.envirocar.obd.commands.request.PIDCommand;
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.PIDUtil;
-import org.envirocar.obd.commands.exception.AdapterSearchingException;
-import org.envirocar.obd.commands.exception.NoDataReceivedException;
-import org.envirocar.obd.commands.exception.UnmatchedResponseException;
+import org.envirocar.obd.exception.AdapterSearchingException;
+import org.envirocar.obd.exception.NoDataReceivedException;
+import org.envirocar.obd.exception.UnmatchedResponseException;
 import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.commands.response.ResponseParser;
-import org.envirocar.obd.protocol.exception.AdapterFailedException;
+import org.envirocar.obd.exception.AdapterFailedException;
 import org.envirocar.obd.protocol.exception.InvalidCommandResponseException;
 
 import java.io.IOException;

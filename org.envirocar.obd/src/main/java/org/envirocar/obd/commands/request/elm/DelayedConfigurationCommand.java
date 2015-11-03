@@ -1,4 +1,4 @@
-package org.envirocar.obd.commands.elm;
+package org.envirocar.obd.commands.request.elm;
 
 import org.envirocar.core.logging.Logger;
 

@@ -20,15 +20,10 @@
  */
 package org.envirocar.obd.adapter;
 
-import org.envirocar.obd.commands.CommonCommand;
 import org.envirocar.obd.commands.response.DataResponse;
-import org.envirocar.obd.protocol.exception.AdapterFailedException;
-import org.envirocar.obd.protocol.exception.ConnectionLostException;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
 
 import rx.Observable;
 
