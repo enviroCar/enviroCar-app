@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.obd.protocol.exception;
+package org.envirocar.obd.exception;
 
 public class LooperStoppedException extends RuntimeException {
 

@@ -28,7 +28,6 @@ import junit.framework.Assert;
 import org.envirocar.obd.commands.CommonCommand;
 import org.envirocar.app.logging.Handler;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.obd.protocol.ResponseParser;
 import org.envirocar.app.util.Util;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +46,7 @@ public class IntakeTemperatureTest extends CommandTest {
 
 	@Test
 	public void testParsing() throws IOException {
-		ResponseParser parser = getResponseParser();
+		AsyncResponseParser parser = getResponseParser();
 		
 		byte[] bytes = createBytes();
 		CommonCommand resp = parser.processResponse(bytes, 0, bytes.length);

@@ -18,25 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.obd.protocol;
+package org.envirocar.obd.exception;
+public class ConnectionLostException extends Exception {
 
-import org.envirocar.obd.commands.CommonCommand;
-
-public interface ResponseParser {
-
-	
-	/**
-	 * @param bytes the byte buffer
-	 * @param start offset index
-	 * @param count byte count
-	 * @return the parsed command response
-	 */
-	public CommonCommand processResponse(byte[] bytes, int start, int count);
+	public ConnectionLostException(String string) {
+		super(string);
+	}
 
 	/**
-	 * @return the end of line character
+	 * 
 	 */
-	public char getEndOfLine();
-
+	private static final long serialVersionUID = 1L;
 
 }

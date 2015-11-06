@@ -29,6 +29,8 @@ import java.util.List;
 
 public class CycleCommand implements BasicCommand {
 
+	private byte[] bytes;
+
 	public static enum DriveDeckPID implements DriveDeckPIDEnumInstance {
 		SPEED {
 			@Override
@@ -104,9 +106,6 @@ public class CycleCommand implements BasicCommand {
 		}
 	}
 
-	public static final char RESPONSE_PREFIX_CHAR = 'B';
-	public static final char TOKEN_SEPARATOR_CHAR = '<';
-	private byte[] bytes;
 
 	public CycleCommand(List<DriveDeckPID> pidList) {
 		bytes = new byte[3 + pidList.size()];

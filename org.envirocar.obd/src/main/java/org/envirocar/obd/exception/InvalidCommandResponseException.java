@@ -18,32 +18,20 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.obd.protocol.drivedeck;
+package org.envirocar.obd.exception;
 
-import org.envirocar.obd.commands.CommonCommand;
+import org.envirocar.obd.commands.PID;
 
-public class CarriageReturnCommand extends CommonCommand {
+public class InvalidCommandResponseException extends Exception {
 
-	private static final String NAME = "DriveDeck CR";
+	private final String command;
 
-	public CarriageReturnCommand() {
-		super(NAME);
+	public InvalidCommandResponseException(String command) {
+		this.command = command;
 	}
 
-	@Override
-	public void parseRawData() {
-		
+	public String getCommand() {
+		return command;
 	}
-
-	@Override
-	public String getCommandName() {
-		return NAME;
-	}
-	
-	@Override
-	public byte[] getOutgoingBytes() {
-		return new byte[0];
-	}
-
 
 }

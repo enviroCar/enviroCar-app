@@ -20,15 +20,14 @@
  */
 package org.envirocar.app.test.commands.drivedeck;
 
-import org.envirocar.obd.protocol.ResponseParser;
-import org.envirocar.obd.protocol.drivedeck.DriveDeckSportConnector;
+import org.envirocar.obd.adapter.async.DriveDeckSportAdapter;
 import org.envirocar.app.test.MockingEnvironmentTest;
 import org.junit.Test;
 
 public class CommandTest extends MockingEnvironmentTest {
 
-	protected ResponseParser getResponseParser() {
-		DriveDeckSportConnector conn = new DriveDeckSportConnector();
+	protected AsyncResponseParser getResponseParser() {
+		DriveDeckSportAdapter conn = new DriveDeckSportAdapter();
 		return conn.new LocalResponseParser();
 	}
 	

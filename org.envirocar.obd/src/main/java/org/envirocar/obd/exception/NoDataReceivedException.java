@@ -6,7 +6,8 @@ package org.envirocar.obd.exception;
 public class NoDataReceivedException extends Exception {
 
 
-    public NoDataReceivedException() {
+    public NoDataReceivedException(String s) {
+        super(s);
     }
 
 }

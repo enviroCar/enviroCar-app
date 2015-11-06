@@ -11,7 +11,7 @@ import org.envirocar.obd.exception.UnmatchedResponseException;
 import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.commands.response.ResponseParser;
 import org.envirocar.obd.exception.AdapterFailedException;
-import org.envirocar.obd.protocol.exception.InvalidCommandResponseException;
+import org.envirocar.obd.exception.InvalidCommandResponseException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,7 +51,7 @@ public abstract class SequentialAdapter implements OBDAdapter {
 
     @Override
     public Observable<Boolean> initialize(InputStream is, OutputStream os) {
-        commandExecutor = new CommandExecutor(is, os, ignoredChars, COMMAND_RECEIVE_END);
+        commandExecutor = new CommandExecutor(is, os, ignoredChars, COMMAND_RECEIVE_END, COMMAND_SEND_END);
 
         Observable<Boolean> obs = Observable.create(new Observable.OnSubscribe<Boolean>() {
 
@@ -59,21 +59,23 @@ public abstract class SequentialAdapter implements OBDAdapter {
             public void call(Subscriber<? super Boolean> subscriber) {
                 subscriber.onStart();
 
-                while (!subscriber.isUnsubscribed() && !commandRingBuffer.isEmpty()) {
-                    try {
-                        BasicCommand cc = pollNextInitializationCommand();
-                        commandExecutor.execute(cc);
-                        if (cc.awaitsResults()) {
-                            byte[] resp = commandExecutor.retrieveLatestResponse();
-                            if (analyzeMetadataResponse(resp, cc)) {
-                                subscriber.onNext(true);
+                try {
+                    while (!subscriber.isUnsubscribed() && !commandRingBuffer.isEmpty()) {
+
+                            BasicCommand cc = pollNextInitializationCommand();
+                            commandExecutor.execute(cc);
+                            if (cc.awaitsResults()) {
+                                byte[] resp = commandExecutor.retrieveLatestResponse();
+                                if (analyzeMetadataResponse(resp, cc)) {
+                                    subscriber.onNext(true);
+                                }
                             }
-                        }
-                    } catch (IOException e) {
-                        subscriber.onError(e);
-                    } catch (AdapterFailedException e) {
-                        subscriber.onError(e);
+
                     }
+                } catch (IOException e) {
+                    subscriber.onError(e);
+                } catch (AdapterFailedException e) {
+                    subscriber.onError(e);
                 }
 
                 subscriber.onCompleted();
@@ -106,10 +108,16 @@ public abstract class SequentialAdapter implements OBDAdapter {
                             public void onError(Throwable e) {
                                 //TODO switch over exceptions?
                                 subscriber.onError(e);
+                                subscriber.unsubscribe();
                             }
 
                             @Override
                             public void onNext(byte[] bytes) {
+                                if (subscriber.isUnsubscribed()) {
+                                    // we do not push more commands into the socket --> no more onNext calls for us
+                                    return;
+                                }
+
                                 try {
                                     DataResponse response = parser.parse(preProcess(bytes));
 
@@ -136,19 +144,23 @@ public abstract class SequentialAdapter implements OBDAdapter {
                                     commandExecutor.execute(latestCommand);
                                 } catch (AdapterFailedException | IOException e) {
                                     subscriber.onError(e);
+                                    subscriber.unsubscribe();
                                 }
 
                             }
                         });
-                subscriber.add(obs);
+//                subscriber.add(obs);
 
                 preparePendingCommands();
+
                 try {
                     commandExecutor.execute(pollNextCommand());
                 } catch (IOException e) {
                     subscriber.onError(e);
+                    subscriber.unsubscribe();
                 } catch (AdapterFailedException e) {
                     subscriber.onError(e);
+                    subscriber.unsubscribe();
                 }
 
             }

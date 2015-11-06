@@ -2,6 +2,7 @@ package org.envirocar.obd.commands.response;
 
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.PIDUtil;
+import org.envirocar.obd.commands.response.entity.GenericDataResponse;
 import org.envirocar.obd.exception.AdapterSearchingException;
 import org.envirocar.obd.exception.NoDataReceivedException;
 import org.envirocar.obd.exception.UnmatchedResponseException;
@@ -18,14 +19,14 @@ import org.envirocar.obd.commands.response.entity.MAFResponse;
 import org.envirocar.obd.commands.response.entity.ShortTermFuelTrimResponse;
 import org.envirocar.obd.commands.response.entity.SpeedResponse;
 import org.envirocar.obd.commands.response.entity.ThrottlePositionResponse;
-import org.envirocar.obd.protocol.exception.InvalidCommandResponseException;
+import org.envirocar.obd.exception.InvalidCommandResponseException;
 
 public class ResponseParser {
 
     private static final CharSequence SEARCHING = "SEARCHING";
     private static final CharSequence STOPPED = "STOPPED";
     private static final CharSequence NO_DATA = "NODATA";
-    private static final String STATUS_OK = "41";
+    public static final String STATUS_OK = "41";
 
     public ResponseParser() {
 
@@ -53,7 +54,7 @@ public class ResponseParser {
             throw new AdapterSearchingException();
         }
         else if (isNoDataCommand(dataString)) {
-            throw new NoDataReceivedException();
+            throw new NoDataReceivedException("the response did only contain " + count + " bytes. For PID " + "responses 6 are minimum");
         }
 
         int[] buffer = new int[data.length / 2];
@@ -140,8 +141,9 @@ public class ResponseParser {
                         ((processedData[0]*256d) + processedData[1]) / 32768d);
         }
 
-        return null;
+        return new GenericDataResponse(pid, processedData, rawData);
     }
+
 
     private boolean isSearching(String dataString) {
         return dataString.contains(SEARCHING) || dataString.contains(STOPPED);

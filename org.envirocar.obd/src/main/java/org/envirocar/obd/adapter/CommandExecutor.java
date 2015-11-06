@@ -21,16 +21,19 @@ public class CommandExecutor {
 
     private static final Logger LOGGER = Logger.getLogger(CommandExecutor.class.getName());
     private final Set<Character> ignoredChars;
-    private final Character endOfLine;
+    private final Character endOfLineOutput;
+    private final char endOfLineInput;
     private OutputStream outputStream;
     private InputStream inputStream;
 
+
     public CommandExecutor(InputStream is, OutputStream os,
-                           Set<Character> ignoredChars, Character endOfLine) {
+                           Set<Character> ignoredChars, Character endOfLineInput, Character endOfLineOutput) {
         this.inputStream = is;
         this.outputStream = os;
         this.ignoredChars = ignoredChars;
-        this.endOfLine = endOfLine;
+        this.endOfLineOutput = endOfLineOutput;
+        this.endOfLineInput = endOfLineInput;
     }
 
     public void execute(BasicCommand cmd) throws IOException {
@@ -41,22 +44,24 @@ public class CommandExecutor {
         byte[] bytes = cmd.getOutputBytes();
 
         // write to OutputStream, or in this case a BluetoothSocket
-        outputStream.write(bytes);
-        outputStream.write(endOfLine);
-        outputStream.flush();
+        synchronized (this) {
+            outputStream.write(bytes);
+            outputStream.write(endOfLineOutput);
+            outputStream.flush();
+        }
     }
 
     public Observable<byte[]> createRawByteObservable() {
         Observable<byte[]> obs = Observable.create(new Observable.OnSubscribe<byte[]>() {
             @Override
             public void call(Subscriber<? super byte[]> subscriber) {
-                while (subscriber.isUnsubscribed()) {
-                    try {
+                try {
+                    while (subscriber.isUnsubscribed()) {
                         byte[] bytes = readResponseLine();
                         subscriber.onNext(bytes);
-                    } catch (IOException e) {
-                        subscriber.onError(e);
                     }
+                } catch (IOException e) {
+                    subscriber.onError(e);
                 }
             }
         });
@@ -70,7 +75,7 @@ public class CommandExecutor {
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         // read until '>' arrives
-        while ((char) (b = (byte) inputStream.read()) != this.endOfLine) {
+        while ((char) (b = (byte) inputStream.read()) != this.endOfLineInput) {
             if (!ignoredChars.contains((char) b)){
                 baos.write(b);
             }
