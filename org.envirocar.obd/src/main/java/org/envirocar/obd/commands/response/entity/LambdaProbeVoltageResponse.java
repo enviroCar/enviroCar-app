@@ -18,7 +18,7 @@ public class LambdaProbeVoltageResponse extends DataResponse {
         return voltage;
     }
 
-    public double getEquivalenceRation() {
+    public double getEquivalenceRatio() {
         return equivalenceRation;
     }
 }

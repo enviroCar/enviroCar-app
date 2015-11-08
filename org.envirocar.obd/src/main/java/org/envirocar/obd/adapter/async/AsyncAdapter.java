@@ -44,7 +44,7 @@ public abstract class AsyncAdapter implements OBDAdapter {
     }
 
     @Override
-    public Observable<Boolean> initialize(InputStream is, OutputStream os) {
+    public Observable<Void> initialize(InputStream is, OutputStream os) {
         this.inputStream = is;
         this.outputStream = os;
         this.commandExecutor = new CommandExecutor(is, os, Collections.emptySet(), this.endOfLineInput, this.endOfLineOutput);
@@ -52,13 +52,13 @@ public abstract class AsyncAdapter implements OBDAdapter {
         /**
          *
          */
-        Observable<Boolean> obserable = Observable.create(new Observable.OnSubscribe<Boolean>() {
+        Observable<Void> obserable = Observable.create(new Observable.OnSubscribe<Void>() {
             @Override
-            public void call(final Subscriber<? super Boolean> subscriber) {
+            public void call(final Subscriber<? super Void> subscriber) {
 
                 /**
                  * use the data observable to inform about
-                 * successfull connection in an asynchronous fashion:
+                 * successful connection in an asynchronous fashion:
                  * Once data has arrived (adapter automatically connected)
                  * we mark the connection as verified and call the subscriber
                  */
@@ -77,7 +77,7 @@ public abstract class AsyncAdapter implements OBDAdapter {
 
                             @Override
                             public void onNext(DataResponse dataResponse) {
-                                subscriber.onNext(Boolean.TRUE);
+                                subscriber.onCompleted();
                             }
                         });
 

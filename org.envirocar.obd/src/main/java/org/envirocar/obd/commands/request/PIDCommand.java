@@ -26,7 +26,7 @@ public class PIDCommand implements BasicCommand {
     @Override
     public byte[] getOutputBytes() {
         int ml = mode.length();
-        String pidString = pid.toString();
+        String pidString = pid.getHexadecimalRepresentation();
         int pl = pidString.length();
         byte[] bytes = new byte[ml + pl + 1];
 

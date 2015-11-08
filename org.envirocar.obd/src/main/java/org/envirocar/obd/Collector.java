@@ -30,6 +30,8 @@ import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.core.events.NewMeasurementEvent;
+import org.envirocar.obd.commands.response.entity.LambdaProbeCurrentResponse;
+import org.envirocar.obd.commands.response.entity.LambdaProbeVoltageResponse;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.core.events.gps.GpsDOP;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
@@ -305,18 +307,16 @@ public class Collector {
         this.measurement.setProperty(Measurement.PropertyKey.FUEL_SYSTEM_STATUS_CODE, (double) status);
     }
 
-    public void newLambdaProbeValue(O2LambdaProbe command) {
-        if (command instanceof O2LambdaProbeVoltage) {
-            this.measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE, ((O2LambdaProbeVoltage)
-                    command).getVoltage());
-            this.measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE_ER, command
-                    .getEquivalenceRatio());
-        } else if (command instanceof O2LambdaProbeCurrent) {
-            this.measurement.setProperty(Measurement.PropertyKey.LAMBDA_CURRENT, ((O2LambdaProbeCurrent)
-                    command).getCurrent());
-            this.measurement.setProperty(Measurement.PropertyKey.LAMBDA_CURRENT_ER, command
-                    .getEquivalenceRatio());
-        }
+    public void newLambdaProbeValue(LambdaProbeVoltageResponse command) {
+        this.measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE, command.getVoltage());
+        this.measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE_ER, command
+                .getEquivalenceRatio());
+    }
+
+    public void newLambdaProbeValue(LambdaProbeCurrentResponse command) {
+        this.measurement.setProperty(Measurement.PropertyKey.LAMBDA_CURRENT, command.getCurrent());
+        this.measurement.setProperty(Measurement.PropertyKey.LAMBDA_CURRENT_ER, command
+                .getEquivalenceRatio());
     }
 
     public void newShortTermTrimBank1(Number numberResult) {

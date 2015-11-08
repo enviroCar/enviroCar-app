@@ -46,15 +46,15 @@ public class ResponseParser {
 
         //cartrend: 7E803410D00AAAAAAAA
         //= 410D00AAAAAAAA
-        if (dataString.startsWith("7E803")) {
-            dataString = dataString.substring(5, dataString.length());
-        }
+//        if (dataString.startsWith("7E803")) {
+//            dataString = dataString.substring(5, dataString.length());
+//        }
 
         if (isSearching(dataString)) {
             throw new AdapterSearchingException();
         }
         else if (isNoDataCommand(dataString)) {
-            throw new NoDataReceivedException("the response did only contain " + count + " bytes. For PID " + "responses 6 are minimum");
+            throw new NoDataReceivedException("NODATA was received");
         }
 
         int[] buffer = new int[data.length / 2];
@@ -98,25 +98,25 @@ public class ResponseParser {
             case FUEL_SYSTEM_STATUS:
                 return FuelSystemStatusResponse.fromRawData(rawData);
             case CALCULATED_ENGINE_LOAD:
-                return new EngineLoadResponse((processedData[0] * 100.0f) / 255.0f);
+                return new EngineLoadResponse((processedData[2] * 100.0f) / 255.0f);
             case FUEL_PRESSURE:
-                return new FuelPressureResponse(processedData[0] * 3);
+                return new FuelPressureResponse(processedData[2] * 3);
             case INTAKE_MAP:
                 return new IntakeManifoldAbsolutePressureResponse(processedData[2]);
             case RPM:
-                return new EngineRPMResponse((processedData[0] * 256 + processedData[1]) / 4);
+                return new EngineRPMResponse((processedData[2] * 256 + processedData[3]) / 4);
             case SPEED:
                 return new SpeedResponse(processedData[2]);
             case INTAKE_AIR_TEMP:
-                return new IntakeAirPressureResponse(processedData[0] - 40);
+                return new IntakeAirPressureResponse(processedData[2] - 40);
             case MAF:
-                return new MAFResponse((processedData[0] * 256 + processedData[1]) / 100.0f);
+                return new MAFResponse((processedData[2] * 256 + processedData[3]) / 100.0f);
             case TPS:
-                return new ThrottlePositionResponse((processedData[0] * 100) / 255);
+                return new ThrottlePositionResponse((processedData[2] * 100) / 255);
             case SHORT_TERM_FUEL_TRIM_BANK_1:
-                return new ShortTermFuelTrimResponse((processedData[0] - 128) * (100d / 128d), 1);
+                return new ShortTermFuelTrimResponse((processedData[2] - 128) * (100d / 128d), 1);
             case LONG_TERM_FUEL_TRIM_BANK_1:
-                return new LongTermFuelTrimResponse((processedData[0] - 128) * (100d / 128d), 1);
+                return new LongTermFuelTrimResponse((processedData[2] - 128) * (100d / 128d), 1);
             case O2_LAMBDA_PROBE_1_VOLTAGE:
             case O2_LAMBDA_PROBE_2_VOLTAGE:
             case O2_LAMBDA_PROBE_3_VOLTAGE:
@@ -126,8 +126,8 @@ public class ResponseParser {
             case O2_LAMBDA_PROBE_7_VOLTAGE:
             case O2_LAMBDA_PROBE_8_VOLTAGE:
                 return new LambdaProbeVoltageResponse(
-                        ((processedData[2]*256d) + processedData[3] )/ 8192d,
-                        ((processedData[0]*256d) + processedData[1]) / 32768d);
+                        ((processedData[4]*256d) + processedData[5] )/ 8192d,
+                        ((processedData[2]*256d) + processedData[3]) / 32768d);
             case O2_LAMBDA_PROBE_1_CURRENT:
             case O2_LAMBDA_PROBE_2_CURRENT:
             case O2_LAMBDA_PROBE_3_CURRENT:
@@ -137,8 +137,8 @@ public class ResponseParser {
             case O2_LAMBDA_PROBE_7_CURRENT:
             case O2_LAMBDA_PROBE_8_CURRENT:
                 return new LambdaProbeCurrentResponse(
-                        ((processedData[2]*256d) + processedData[3])/256d - 128,
-                        ((processedData[0]*256d) + processedData[1]) / 32768d);
+                        ((processedData[4]*256d) + processedData[5])/256d - 128,
+                        ((processedData[2]*256d) + processedData[3]) / 32768d);
         }
 
         return new GenericDataResponse(pid, processedData, rawData);

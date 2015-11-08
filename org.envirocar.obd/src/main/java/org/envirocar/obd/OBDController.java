@@ -56,7 +56,7 @@ public class OBDController {
 	public static final long MAX_NODATA_TIME = 10000;
 
 	private Subscriber<DataResponse> dataSubscription;
-	private Subscriber<Boolean> initialSubscriber;
+	private Subscriber<Void> initialSubscriber;
 
 	private List<OBDAdapter> adapterCandidates = new ArrayList<OBDAdapter>();
 	private OBDAdapter obdAdapter;
@@ -138,9 +138,11 @@ public class OBDController {
 	 * The init times out fater a pre-defined period.
 	 */
 	private void startInitialization() {
-		this.initialSubscriber = new Subscriber<Boolean>() {
+		this.initialSubscriber = new Subscriber<Void>() {
 			@Override
 			public void onCompleted() {
+				initialSubscriber.unsubscribe();
+				startCollectingData();
 			}
 
 			@Override
@@ -155,10 +157,9 @@ public class OBDController {
 			}
 
 			@Override
-			public void onNext(Boolean aBoolean) {
-				initialSubscriber.unsubscribe();
-				startCollectingData();
+			public void onNext(Void aVoid) {
 			}
+
 		};
 
 		this.obdAdapter.initialize(this.inputStream, this.outputStream)

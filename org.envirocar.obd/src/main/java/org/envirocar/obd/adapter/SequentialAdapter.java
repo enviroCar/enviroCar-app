@@ -7,6 +7,7 @@ import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.PIDUtil;
 import org.envirocar.obd.exception.AdapterSearchingException;
 import org.envirocar.obd.exception.NoDataReceivedException;
+import org.envirocar.obd.exception.StreamFinishedException;
 import org.envirocar.obd.exception.UnmatchedResponseException;
 import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.commands.response.ResponseParser;
@@ -29,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import rx.Observable;
 import rx.Observer;
+import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.schedulers.Schedulers;
@@ -50,35 +52,29 @@ public abstract class SequentialAdapter implements OBDAdapter {
     private Queue<PIDCommand> commandRingBuffer = new ArrayDeque<>();
 
     @Override
-    public Observable<Boolean> initialize(InputStream is, OutputStream os) {
+    public Observable<Void> initialize(InputStream is, OutputStream os) {
         commandExecutor = new CommandExecutor(is, os, ignoredChars, COMMAND_RECEIVE_END, COMMAND_SEND_END);
 
-        Observable<Boolean> obs = Observable.create(new Observable.OnSubscribe<Boolean>() {
+        Observable<Void> obs = Observable.create(new Observable.OnSubscribe<Void>() {
 
             @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
-                subscriber.onStart();
-
+            public void call(Subscriber<? super Void> subscriber) {
                 try {
-                    while (!subscriber.isUnsubscribed() && !commandRingBuffer.isEmpty()) {
-
-                            BasicCommand cc = pollNextInitializationCommand();
-                            commandExecutor.execute(cc);
-                            if (cc.awaitsResults()) {
-                                byte[] resp = commandExecutor.retrieveLatestResponse();
-                                if (analyzeMetadataResponse(resp, cc)) {
-                                    subscriber.onNext(true);
-                                }
+                    while (!subscriber.isUnsubscribed()) {
+                        BasicCommand cc = pollNextInitializationCommand();
+                        commandExecutor.execute(cc);
+                        if (cc.awaitsResults()) {
+                            byte[] resp = commandExecutor.retrieveLatestResponse();
+                            if (analyzeMetadataResponse(resp, cc)) {
+                                subscriber.onCompleted();
                             }
-
+                        }
                     }
-                } catch (IOException e) {
+                } catch (IOException | AdapterFailedException e) {
                     subscriber.onError(e);
-                } catch (AdapterFailedException e) {
-                    subscriber.onError(e);
+                } catch (StreamFinishedException e) {
+                    subscriber.onCompleted();
                 }
-
-                subscriber.onCompleted();
             }
         });
 
@@ -87,15 +83,20 @@ public abstract class SequentialAdapter implements OBDAdapter {
 
     @Override
     public Observable<DataResponse> observe() {
+        return observe(Schedulers.computation(), Schedulers.io());
+    }
+
+    protected Observable<DataResponse> observe(Scheduler observerScheduler, Scheduler subscriberScheduler) {
+        final Scheduler usedObsScheduler = observerScheduler == null ? Schedulers.computation() : observerScheduler;
+        final Scheduler usedSubScheduler = subscriberScheduler == null ? Schedulers.io() : subscriberScheduler;
+
         return Observable.create(new Observable.OnSubscribe<DataResponse>() {
 
             @Override
             public void call(Subscriber<? super DataResponse> subscriber) {
-                subscriber.onStart();
-
                 Subscription obs = commandExecutor.createRawByteObservable()
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(Schedulers.computation())
+                        .subscribeOn(usedSubScheduler)
+                        .observeOn(usedObsScheduler)
                         .subscribe(new Observer<byte[]>() {
                             private PIDCommand latestCommand;
 
@@ -167,7 +168,7 @@ public abstract class SequentialAdapter implements OBDAdapter {
         });
     }
 
-    private PIDCommand pollNextCommand() throws AdapterFailedException {
+    protected PIDCommand pollNextCommand() throws AdapterFailedException {
         if (this.commandRingBuffer.isEmpty()) {
             throw new AdapterFailedException("No available commands left in the buffer");
         }
@@ -226,7 +227,13 @@ public abstract class SequentialAdapter implements OBDAdapter {
     }
 
     private void preparePendingCommands() {
-        commandRingBuffer = new ArrayDeque<>(providePendingCommands());
+        commandRingBuffer = new ArrayDeque<>();
+
+        for (PIDCommand cmd : providePendingCommands()) {
+            if (cmd != null) {
+                commandRingBuffer.offer(cmd);
+            }
+        }
     }
 
     private boolean checkIsBlacklisted(PID pid) {

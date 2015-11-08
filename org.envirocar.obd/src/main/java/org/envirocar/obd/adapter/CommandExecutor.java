@@ -4,6 +4,7 @@ import android.util.Base64;
 
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.request.BasicCommand;
+import org.envirocar.obd.exception.StreamFinishedException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -56,12 +57,14 @@ public class CommandExecutor {
             @Override
             public void call(Subscriber<? super byte[]> subscriber) {
                 try {
-                    while (subscriber.isUnsubscribed()) {
+                    while (!subscriber.isUnsubscribed()) {
                         byte[] bytes = readResponseLine();
                         subscriber.onNext(bytes);
                     }
                 } catch (IOException e) {
                     subscriber.onError(e);
+                } catch (StreamFinishedException e) {
+                    subscriber.onCompleted();
                 }
             }
         });
@@ -70,15 +73,24 @@ public class CommandExecutor {
     }
 
 
-    private byte[] readResponseLine() throws IOException {
+    private byte[] readResponseLine() throws IOException, StreamFinishedException {
+        LOGGER.info("Reading response line...");
         byte b = 0;
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         // read until '>' arrives
-        while ((char) (b = (byte) inputStream.read()) != this.endOfLineInput) {
+        b = (byte) inputStream.read();
+        while ((char) b != this.endOfLineInput) {
+            if ((int) b == -1) {
+                throw new StreamFinishedException("Stream finished");
+            }
+
+            LOGGER.info("CHAR= "+ b);
             if (!ignoredChars.contains((char) b)){
                 baos.write(b);
             }
+
+            b = (byte) inputStream.read();
         }
 
         byte[] byteArray = baos.toByteArray();
@@ -90,7 +102,7 @@ public class CommandExecutor {
         return baos.toByteArray();
     }
 
-    public byte[] retrieveLatestResponse() throws IOException {
+    public byte[] retrieveLatestResponse() throws IOException, StreamFinishedException {
         return readResponseLine();
     }
 }

@@ -57,6 +57,7 @@ public class Logger {
 			handlers.add(getLocalFileHandler());
 		} catch (Exception e) {
 			Log.e(AndroidHandler.DEFAULT_TAG, e.getMessage(), e);
+			handlers.add(new AndroidHandler());
 		}
 //		try {
 //			handlers.add(new AndroidHandler());
