@@ -49,7 +49,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     private static final char CARRIAGE_RETURN = '\r';
     private static final char END_OF_LINE_RESPONSE = '>';
     private static final char RESPONSE_PREFIX_CHAR = 'B';
-    private static final char TOKEN_SEPARATOR_CHAR = '<';
+    private static final char CYCLIC_TOKEN_SEPARATOR_CHAR = '<';
     private static final long SEND_CYCLIC_COMMAND_DELTA = 10000;
 
     private Protocol protocol;
@@ -299,7 +299,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
         char type = (char) bytes[0];
 
         if (type == RESPONSE_PREFIX_CHAR) {
-            if ((char) bytes[4] == TOKEN_SEPARATOR_CHAR) return null;
+            if ((char) bytes[4] == CYCLIC_TOKEN_SEPARATOR_CHAR) return null;
 
             String pid = new String(bytes, 1, 2);
 
@@ -341,7 +341,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
                     if (target >= pidResponseValue.length)
                         break;
 
-                    if ((char) bytes[i] == TOKEN_SEPARATOR_CHAR)
+                    if ((char) bytes[i] == CYCLIC_TOKEN_SEPARATOR_CHAR)
                         break;
 
                     pidResponseValue[target] = bytes[i];

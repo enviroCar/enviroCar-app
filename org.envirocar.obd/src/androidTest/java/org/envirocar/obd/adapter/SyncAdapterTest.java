@@ -26,7 +26,7 @@ import rx.Subscription;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
-public class SequentialAdapterTest extends InstrumentationTestCase {
+public class SyncAdapterTest extends InstrumentationTestCase {
 
     @Test
     public void testInit() throws InterruptedException {
@@ -83,7 +83,7 @@ public class SequentialAdapterTest extends InstrumentationTestCase {
         Assert.assertThat(received.get(1), CoreMatchers.is(CoreMatchers.instanceOf(SpeedResponse.class)));
     }
 
-    private static class MockAdapter extends SequentialAdapter {
+    private static class MockAdapter extends SyncAdapter {
 
         private final Queue<BasicCommand> initCommands;
         private final Queue<PIDCommand> dataCommands;

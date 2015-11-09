@@ -35,9 +35,9 @@ import rx.Subscriber;
 import rx.Subscription;
 import rx.schedulers.Schedulers;
 
-public abstract class SequentialAdapter implements OBDAdapter {
+public abstract class SyncAdapter implements OBDAdapter {
 
-    private static final Logger LOGGER = Logger.getLogger(SequentialAdapter.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(SyncAdapter.class.getName());
     private static final char COMMAND_SEND_END = '\r';
     private static final char COMMAND_RECEIVE_END = '>';
     private static final char COMMAND_RECEIVE_SPACE = ' ';
@@ -108,7 +108,13 @@ public abstract class SequentialAdapter implements OBDAdapter {
                             @Override
                             public void onError(Throwable e) {
                                 //TODO switch over exceptions?
-                                subscriber.onError(e);
+                                if (e instanceof StreamFinishedException) {
+                                    subscriber.onCompleted();
+                                }
+                                else {
+                                    subscriber.onError(e);
+                                }
+
                                 subscriber.unsubscribe();
                             }
 

@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 
 import rx.Observable;
+import rx.Scheduler;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
@@ -28,14 +29,11 @@ public abstract class AsyncAdapter implements OBDAdapter {
 
     private static Logger LOGGER = Logger.getLogger(AsyncAdapter.class);
 
-    private static final long DEFAULT_NO_DATA_TIMEOUT = 15000;
+    private static final long DEFAULT_NO_DATA_TIMEOUT = 15000 * 10; //*10 for debug
     private final char endOfLineOutput;
     private final char endOfLineInput;
     private InputStream inputStream;
     private OutputStream outputStream;
-    private byte[] globalBuffer = new byte[64];
-    private int globalIndex;
-    private Observable<DataResponse> dataObservable;
     private CommandExecutor commandExecutor;
 
     public AsyncAdapter(char endOfLineOutput, char endOfLineInput) {
@@ -45,6 +43,13 @@ public abstract class AsyncAdapter implements OBDAdapter {
 
     @Override
     public Observable<Void> initialize(InputStream is, OutputStream os) {
+        return initialize(is, os, Schedulers.computation(), Schedulers.io());
+    }
+
+    protected Observable<Void> initialize(InputStream is, OutputStream os, Scheduler observerScheduler, Scheduler subscriberScheduler) {
+        final Scheduler usedObsScheduler = observerScheduler == null ? Schedulers.computation() : observerScheduler;
+        final Scheduler usedSubScheduler = subscriberScheduler == null ? Schedulers.io() : subscriberScheduler;
+
         this.inputStream = is;
         this.outputStream = os;
         this.commandExecutor = new CommandExecutor(is, os, Collections.emptySet(), this.endOfLineInput, this.endOfLineOutput);
@@ -52,7 +57,7 @@ public abstract class AsyncAdapter implements OBDAdapter {
         /**
          *
          */
-        Observable<Void> obserable = Observable.create(new Observable.OnSubscribe<Void>() {
+        Observable<Void> observable = Observable.create(new Observable.OnSubscribe<Void>() {
             @Override
             public void call(final Subscriber<? super Void> subscriber) {
 
@@ -62,9 +67,9 @@ public abstract class AsyncAdapter implements OBDAdapter {
                  * Once data has arrived (adapter automatically connected)
                  * we mark the connection as verified and call the subscriber
                  */
-                dataObservable
-                        .observeOn(Schedulers.io())
-                        .subscribeOn(Schedulers.computation())
+                createDataObservable()
+                        .subscribeOn(usedSubScheduler)
+                        .observeOn(usedObsScheduler)
                         .subscribe(new Subscriber<DataResponse>() {
                             @Override
                             public void onCompleted() {
@@ -78,23 +83,24 @@ public abstract class AsyncAdapter implements OBDAdapter {
                             @Override
                             public void onNext(DataResponse dataResponse) {
                                 subscriber.onCompleted();
+                                this.unsubscribe();
                             }
                         });
 
             }
         });
 
-        createDataObservable();
-
-        return obserable;
+        return observable;
     }
 
-    protected void createDataObservable() {
-        this.dataObservable = Observable.create(new Observable.OnSubscribe<DataResponse>() {
+    protected Observable<DataResponse> createDataObservable() {
+        Observable<DataResponse> dataObservable = Observable.create(new Observable.OnSubscribe<DataResponse>() {
             @Override
             public void call(Subscriber<? super DataResponse> subscriber) {
                 byte byteIn;
                 int intIn;
+                byte[] globalBuffer = new byte[64];
+                int globalIndex = 0;
 
                 while (!subscriber.isUnsubscribed()) {
                     /**
@@ -110,74 +116,82 @@ public abstract class AsyncAdapter implements OBDAdapter {
                         }
                     }
 
-                    /**
-                     * read the inputstream byte by byte
-                     */
-                    try {
-                        intIn = inputStream.read();
-                    } catch (IOException e) {
+                    while (true) {
                         /**
-                         * IOException signals broken connection,
-                         * notify subscriber accordingly
+                         * read the inputstream byte by byte
                          */
-                        subscriber.onError(e);
-                        subscriber.unsubscribe();
-                        return;
-                    }
-
-                    /**
-                     * is the end of the stream reached? --> break out of the loop and
-                     * notify the subscriber with onCompleted
-                     */
-                    if (intIn < 0) {
-                        break;
-                    }
-
-                    byteIn = (byte) intIn;
-
-                    if (byteIn == (byte) endOfLineInput) {
-                        /**
-                         * end of line: we can parse what we got until now
-                         */
-                        boolean isReplete = false;
-
-                        DataResponse result = null;
                         try {
-                            result = processResponse(Arrays.copyOfRange(globalBuffer,
-                                    0, globalIndex));
-                        } catch (AdapterSearchingException e) {
-                            LOGGER.warn("Adapter still searching: " + e.getMessage());
-                        } catch (NoDataReceivedException e) {
-                            LOGGER.warn("No data received: " + e.getMessage());
-                        } catch (InvalidCommandResponseException e) {
-                            LOGGER.warn("InvalidCommandResponseException: " + e.getMessage());
-                        } catch (UnmatchedResponseException e) {
-                            LOGGER.warn("Unmatched response: " + e.getMessage());
+                            intIn = inputStream.read();
+                        } catch (IOException e) {
+                            /**
+                             * IOException signals broken connection,
+                             * notify subscriber accordingly
+                             */
+                            subscriber.onError(e);
+                            subscriber.unsubscribe();
+                            return;
                         }
 
-                        //reset the index in order to be able to reuse the buffer
-                        globalIndex = 0;
-                        subscriber.onNext(result);
-                    } else {
                         /**
-                         * not end of line, data byte --> add to buffer
+                         * is the end of the stream reached? --> break out of the loop and
+                         * notify the subscriber with onCompleted
                          */
-                        globalBuffer[globalIndex++] = byteIn;
+                        if (intIn < 0) {
+                            subscriber.onCompleted();
+                            subscriber.unsubscribe();
+                            return;
+                        }
+
+                        byteIn = (byte) intIn;
+
+                        if (byteIn == (byte) endOfLineInput) {
+                            /**
+                             * end of line: we can parse what we got until now
+                             */
+                            boolean isReplete = false;
+
+                            DataResponse result = null;
+                            try {
+                                result = processResponse(Arrays.copyOfRange(globalBuffer,
+                                        0, globalIndex));
+                            } catch (AdapterSearchingException e) {
+                                LOGGER.warn("Adapter still searching: " + e.getMessage());
+                            } catch (NoDataReceivedException e) {
+                                LOGGER.warn("No data received: " + e.getMessage());
+                            } catch (InvalidCommandResponseException e) {
+                                LOGGER.warn("InvalidCommandResponseException: " + e.getMessage());
+                            } catch (UnmatchedResponseException e) {
+                                LOGGER.warn("Unmatched response: " + e.getMessage());
+                            }
+
+                            //reset the index in order to be able to reuse the buffer
+                            globalIndex = 0;
+
+                            /**
+                             * call our subscriber!
+                             */
+                            subscriber.onNext(result);
+                            break;
+                        } else {
+                            /**
+                             * not end of line, data byte --> add to buffer
+                             */
+                            globalBuffer[globalIndex++] = byteIn;
+                        }
                     }
 
                 }
 
                 subscriber.onCompleted();
             }
-        })
-            .timeout(DEFAULT_NO_DATA_TIMEOUT, TimeUnit.MILLISECONDS)
-                //use share() as we use the same observable at init phase
-            .share();
+        }).timeout(DEFAULT_NO_DATA_TIMEOUT, TimeUnit.MILLISECONDS);
+
+        return dataObservable;
     }
 
     @Override
     public Observable<DataResponse> observe() {
-        return dataObservable;
+        return createDataObservable();
     }
 
     /**

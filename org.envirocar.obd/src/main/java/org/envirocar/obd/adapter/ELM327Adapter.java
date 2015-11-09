@@ -13,7 +13,7 @@ import java.util.Queue;
 /**
  * Created by matthes on 02.11.15.
  */
-public class ELM327Adapter extends SequentialAdapter {
+public class ELM327Adapter extends SyncAdapter {
 
 
     private Queue<BasicCommand> initCommands;

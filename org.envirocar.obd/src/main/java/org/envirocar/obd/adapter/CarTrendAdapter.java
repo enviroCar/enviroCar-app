@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 
-public class CarTrendAdapter extends SequentialAdapter {
+public class CarTrendAdapter extends SyncAdapter {
 
     private static final Logger logger = Logger.getLogger(CarTrendAdapter.class);
     private static final int MAX_METADATA_COUNT = 25;
