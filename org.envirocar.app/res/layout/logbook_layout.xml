@@ -5,8 +5,9 @@
     android:gravity="bottom"
     android:orientation="vertical" >
 
+
     <Button
-        android:id="@+id/button1"
+        android:id="@+id/logbook_layout_add_fueling"
         style="?android:attr/buttonStyleSmall"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,6 +37,8 @@
         android:layout_marginTop="10dp"
         android:text="@string/volume"
         android:textAppearance="?android:attr/textAppearanceSmall" />
+
+
 
     <EditText
         android:id="@+id/editTextVolume"

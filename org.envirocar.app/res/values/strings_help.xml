@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="help_test">Various information about the car is required in order to calculate certain parameters based on the automotive sensor data.</string>
+    <string name="help_test2"><ul>  </ul></string>
+</resources>

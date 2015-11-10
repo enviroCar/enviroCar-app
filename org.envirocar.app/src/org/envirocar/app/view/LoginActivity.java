@@ -394,7 +394,7 @@ public class LoginActivity extends BaseInjectorActivity {
             // TODO
             //            mRegisterStatusMessageView.setText(R.string.register_progress_signing_in);
 
-            // Show a progress spinner, and kick off a background task to
+            // Show a progress spinner, and kick off a pground task to
             // perform the user register attempt.
             final MaterialDialog dialog = new MaterialDialog.Builder(LoginActivity.this)
                     .title(R.string.register_progress_signing_in)

@@ -1,4 +1,4 @@
-package org.envirocar.app.view.preferences.custom;
+package org.envirocar.app.view.utils;
 
 import android.content.Context;
 import android.util.AttributeSet;
@@ -19,10 +19,11 @@ import butterknife.InjectView;
 public class TimerInputView extends LinearLayout {
     private static final Logger LOGGER = Logger.getLogger(TimerInputView.class);
 
-    private static final int KEY_NUMBERS = 19;
-
-    private final OnClickListener mOnClickListener = v -> {
-
+    private final OnClickListener mOnClickListener = new OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            String t = v.getTag().toString();
+        }
     };
 
     @InjectView(R.id.preference_layout_timer_input_view_firstrow)
@@ -96,7 +97,7 @@ public class TimerInputView extends LinearLayout {
             mNumberButtons[i].setOnClickListener(mOnClickListener);
             mNumberButtons[i].setText("" + i);
             mNumberButtons[i].setTextColor(getResources().getColor(R.color.blue_light_cario));
-//            mNumberButtons[i].setTag(KEY_NUMBERS, i);
+            mNumberButtons[i].setTag(i);
         }
     }
 }

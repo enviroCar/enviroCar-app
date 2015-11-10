@@ -8,7 +8,7 @@
 
     <uses-sdk
         android:minSdkVersion="16"
-        android:targetSdkVersion="22"/>
+        android:targetSdkVersion="24"/>
 
     <uses-feature
         android:name="android.hardware.bluetooth"
@@ -70,6 +70,12 @@
             android:screenOrientation="portrait"/>
         <activity
             android:name="org.envirocar.app.view.settings.NewSettingsActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".view.logbook.LogbookActivity"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".view.help.HelpActivity"
             android:screenOrientation="portrait"/>
 
         <service

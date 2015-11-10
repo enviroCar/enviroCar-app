@@ -34,16 +34,15 @@ import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.UserHandler;
-import org.envirocar.remote.DAOProvider;
 import org.envirocar.app.injection.InjectionActivityModule;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.SystemStartupService;
-import org.envirocar.app.view.HelpFragment;
-import org.envirocar.app.view.LogbookFragment;
 import org.envirocar.app.view.LoginActivity;
 import org.envirocar.app.view.SendLogFileFragment;
 import org.envirocar.app.view.TroubleshootingFragment;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
+import org.envirocar.app.view.help.HelpActivity;
+import org.envirocar.app.view.logbook.LogbookActivity;
 import org.envirocar.app.view.settings.NewSettingsActivity;
 import org.envirocar.app.view.tracklist.TrackListPagerFragment;
 import org.envirocar.core.entity.Announcement;
@@ -61,6 +60,7 @@ import org.envirocar.core.util.VersionRange;
 import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
+import org.envirocar.remote.DAOProvider;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -471,8 +471,11 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 fragment = new TrackListPagerFragment();
                 break;
             case R.id.menu_nav_drawer_logbook:
-                fragment = new LogbookFragment();
-                break;
+                Intent intent3 = new Intent(BaseMainActivity.this, LogbookActivity.class);
+                startActivity(intent3);
+                return false;
+//                fragment = new LogbookFragment();
+//                break;
             case R.id.menu_nav_drawer_account_login:
                 Intent intent = new Intent(BaseMainActivity.this, LoginActivity.class);
                 startActivity(intent);
@@ -482,12 +485,26 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 startActivity(intent2);
                 return false;
             case R.id.menu_nav_drawer_settings_help:
-                fragment = new HelpFragment();
-                break;
+//                fragment = new HelpFragment();
+//                break;
+                Intent help = new Intent(BaseMainActivity.this, HelpActivity.class);
+                startActivity(help);
+                return false;
             case R.id.menu_nav_drawer_settings_sendlog:
                 fragment = new SendLogFileFragment();
                 break;
             case R.id.menu_nav_drawer_quit_app:
+//                new MaterialDialog.Builder(this)
+//                        .title("Test")
+//                        .customView(R.layout.util_currency_input_view, true)
+//                        .positiveText("Okay")
+//                        .callback(new MaterialDialog.ButtonCallback() {
+//                            @Override
+//                            public void onAny(MaterialDialog dialog) {
+//                                super.onAny(dialog);
+//                            }
+//                        })
+//                        .show();
                 new MaterialDialog.Builder(this)
                         .title("Shutdown enviroCar")
                         .positiveText("Shutdown")

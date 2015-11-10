@@ -22,6 +22,7 @@ package org.envirocar.remote.dao;
 
 import com.squareup.okhttp.ResponseBody;
 
+import org.envirocar.core.UserManager;
 import org.envirocar.core.dao.BaseRemoteDAO;
 import org.envirocar.core.dao.FuelingDAO;
 import org.envirocar.core.entity.Fueling;
@@ -34,7 +35,6 @@ import org.envirocar.remote.service.FuelingService;
 import org.envirocar.remote.util.EnvirocarServiceUtils;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -42,13 +42,15 @@ import javax.inject.Inject;
 import retrofit.Call;
 import retrofit.Response;
 import rx.Observable;
+import rx.Subscriber;
 
 /**
  * The data access object for remote fuelings that are stored at the server.
  *
  * @author dewall
  */
-public class RemoteFuelingDAO extends BaseRemoteDAO<FuelingDAO, FuelingService> implements FuelingDAO {
+public class RemoteFuelingDAO extends BaseRemoteDAO<FuelingDAO, FuelingService> implements
+        FuelingDAO {
     private static final Logger LOG = Logger.getLogger(RemoteFuelingDAO.class);
 
     /**
@@ -57,26 +59,54 @@ public class RemoteFuelingDAO extends BaseRemoteDAO<FuelingDAO, FuelingService> 
      * @param cacheDao the cache DAO for fuelings.
      */
     @Inject
-    public RemoteFuelingDAO(CacheFuelingDAO cacheDao, FuelingService service) {
-        super(cacheDao, service);
+    public RemoteFuelingDAO(CacheFuelingDAO cacheDao, FuelingService service, UserManager
+            userManager) {
+        super(cacheDao, service, userManager);
     }
 
     @Override
-    public List<Fueling> getFuelings() {
-        // TODO implement
-        return Collections.emptyList();
+    public List<Fueling> getFuelings() throws NotConnectedException, UnauthorizedException {
+        LOG.info("getFuelings()");
+
+        Call<List<Fueling>> getFuelingsCall = remoteService.getFuelings(
+                userManager.getUser().getUsername());
+
+        try {
+            Response<List<Fueling>> getFuelingsResponse = getFuelingsCall.execute();
+
+            // assert the responsecode if it was not an success.
+            if (!getFuelingsResponse.isSuccess()) {
+                EnvirocarServiceUtils.assertStatusCode(getFuelingsResponse.code(),
+                        getFuelingsResponse.message());
+            }
+
+            return getFuelingsResponse.body();
+        } catch (ResourceConflictException e) {
+            throw new NotConnectedException(e);
+        } catch (IOException e) {
+            throw new NotConnectedException(e);
+        }
     }
 
     @Override
     public Observable<List<Fueling>> getFuelingsObservable() {
-        // TODO implement
-        return Observable.just(getFuelings());
+        return Observable.create(new Observable.OnSubscribe<List<Fueling>>() {
+            @Override
+            public void call(Subscriber<? super List<Fueling>> subscriber) {
+                try {
+                    subscriber.onNext(getFuelings());
+                } catch (Exception e) {
+                    subscriber.onError(e);
+                }
+                subscriber.onCompleted();
+            }
+        });
     }
 
     @Override
     public void createFueling(Fueling fueling) throws NotConnectedException,
             ResourceConflictException, UnauthorizedException {
-        LOG.info("storeFueling()");
+        LOG.info("createFueling()");
 
         // Instantiate the fueling remoteService and the upload fueling call
         final FuelingService fuelingService = EnviroCarService.getFuelingService();

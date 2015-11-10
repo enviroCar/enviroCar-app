@@ -82,4 +82,11 @@
         <!--<item name="app:cardUseCompatPadding">true</item>-->
     </style>
 
+    <style name="enviroCar.Input.TextLabel" parent="TextAppearance.AppCompat">
+        <item name="android:textColorHint">@color/white_cario</item>
+        <item name="android:textSize">20sp</item>
+        <item name="colorAccent">@color/white_cario</item>
+        <item name="colorControlNormal">@color/white_cario</item>
+        <item name="colorControlActivated">@color/white_cario</item>
+    </style>
 </resources>

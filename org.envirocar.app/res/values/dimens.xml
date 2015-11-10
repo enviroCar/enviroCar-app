@@ -11,6 +11,11 @@
     <dimen name="spacing_xxxlarge">56dp</dimen>
     <dimen name="spacing_xxxxlarge">72dp</dimen>
 
+    <dimen name="text_small">12sp</dimen>
+    <dimen name="text_medium">14sp</dimen>
+    <dimen name="text_large">16sp</dimen>
+    <dimen name="text_xlarge">18sp</dimen>
+
     <dimen name="nav_drawer_layout_width">320dp</dimen>
 
     <dimen name="checklist_textwidth">220dp</dimen>

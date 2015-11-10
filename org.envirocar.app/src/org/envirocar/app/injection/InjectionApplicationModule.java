@@ -27,6 +27,8 @@ import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.LazyLoadingStrategy;
 import org.envirocar.app.storage.LazyLoadingStrategyImpl;
+import org.envirocar.app.view.help.HelpActivity;
+import org.envirocar.app.view.logbook.LogbookActivity;
 import org.envirocar.app.view.LogbookFragment;
 import org.envirocar.app.view.LoginActivity;
 import org.envirocar.app.view.RegisterFragment;
@@ -117,7 +119,9 @@ import dagger.Provides;
                 TrackListLocalCardFragment.class,
                 TrackListRemoteCardFragment.class,
                 TrackUploadService.class,
-                UploadManager.class
+                UploadManager.class,
+                LogbookActivity.class,
+                HelpActivity.class
         },
         staticInjections = {EnviroCarService.class},
         library = true,
