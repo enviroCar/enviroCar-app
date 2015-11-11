@@ -29,7 +29,7 @@ public abstract class AsyncAdapter implements OBDAdapter {
 
     private static Logger LOGGER = Logger.getLogger(AsyncAdapter.class);
 
-    private static final long DEFAULT_NO_DATA_TIMEOUT = 15000 * 10; //*10 for debug
+    private static final long DEFAULT_NO_DATA_TIMEOUT = 15000; //*10 for debug
     private final char endOfLineOutput;
     private final char endOfLineInput;
     private InputStream inputStream;

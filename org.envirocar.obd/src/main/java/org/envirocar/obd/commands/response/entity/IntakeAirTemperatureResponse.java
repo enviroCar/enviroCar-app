@@ -5,10 +5,10 @@ import org.envirocar.obd.commands.response.DataResponse;
 /**
  * Created by matthes on 30.10.15.
  */
-public class IntakeAirPressureResponse extends DataResponse {
+public class IntakeAirTemperatureResponse extends DataResponse {
     private final int value;
 
-    public IntakeAirPressureResponse(int v) {
+    public IntakeAirTemperatureResponse(int v) {
         this.value = v;
     }
 

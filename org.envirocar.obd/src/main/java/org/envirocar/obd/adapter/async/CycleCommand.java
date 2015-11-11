@@ -20,9 +20,7 @@
  */
 package org.envirocar.obd.adapter.async;
 
-import org.envirocar.obd.commands.CommonCommand;
 import org.envirocar.obd.commands.PID;
-import org.envirocar.obd.commands.PIDUtil;
 import org.envirocar.obd.commands.request.BasicCommand;
 
 import java.util.List;

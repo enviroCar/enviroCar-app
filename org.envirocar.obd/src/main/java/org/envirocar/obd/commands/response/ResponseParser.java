@@ -10,7 +10,7 @@ import org.envirocar.obd.commands.response.entity.EngineLoadResponse;
 import org.envirocar.obd.commands.response.entity.EngineRPMResponse;
 import org.envirocar.obd.commands.response.entity.FuelPressureResponse;
 import org.envirocar.obd.commands.response.entity.FuelSystemStatusResponse;
-import org.envirocar.obd.commands.response.entity.IntakeAirPressureResponse;
+import org.envirocar.obd.commands.response.entity.IntakeAirTemperatureResponse;
 import org.envirocar.obd.commands.response.entity.IntakeManifoldAbsolutePressureResponse;
 import org.envirocar.obd.commands.response.entity.LambdaProbeCurrentResponse;
 import org.envirocar.obd.commands.response.entity.LambdaProbeVoltageResponse;
@@ -108,7 +108,7 @@ public class ResponseParser {
             case SPEED:
                 return new SpeedResponse(processedData[2]);
             case INTAKE_AIR_TEMP:
-                return new IntakeAirPressureResponse(processedData[2] - 40);
+                return new IntakeAirTemperatureResponse(processedData[2] - 40);
             case MAF:
                 return new MAFResponse((processedData[2] * 256 + processedData[3]) / 100.0f);
             case TPS:

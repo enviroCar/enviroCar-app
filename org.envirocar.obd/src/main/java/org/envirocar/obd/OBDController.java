@@ -54,6 +54,7 @@ public class OBDController {
 	private static final Logger logger = Logger.getLogger(OBDController.class);
 	protected static final long ADAPTER_TRY_PERIOD = 15000;
 	public static final long MAX_NODATA_TIME = 10000;
+	private final Listener dataListener;
 
 	private Subscriber<DataResponse> dataSubscription;
 	private Subscriber<Void> initialSubscriber;
@@ -88,6 +89,8 @@ public class OBDController {
 		this.outputStream = out;
 
 		this.connectionListener = cl;
+		
+		this.dataListener = l;
 
 		this.deviceName = deviceName;
 	
@@ -143,6 +146,7 @@ public class OBDController {
 			public void onCompleted() {
 				initialSubscriber.unsubscribe();
 				startCollectingData();
+				dataListener.onConnected(deviceName);
 			}
 
 			@Override
@@ -153,6 +157,7 @@ public class OBDController {
 				} catch (AllAdaptersFailedException e1) {
 					logger.warn("All Adapters failed", e1);
 					connectionListener.onAllAdaptersFailed();
+					dataListener.shutdown();
 				}
 			}
 
@@ -184,6 +189,7 @@ public class OBDController {
 		this.dataSubscription = new Subscriber<DataResponse>() {
 			@Override
 			public void onCompleted() {
+				dataListener.shutdown();
 			}
 
 			@Override
@@ -193,13 +199,16 @@ public class OBDController {
 				 * any kind of Exception (e.g. IOException)
 				 */
 				if (userRequestedStop) {
-					dataSubscription.unsubscribe();
+					dataListener.shutdown();
 				}
+
+				dataSubscription.unsubscribe();
 			}
 
 			@Override
 			public void onNext(DataResponse dataResponse) {
 				lastSuccessfulCommandTime = dataResponse.getTimestamp();
+				dataListener.receiveUpdate(dataResponse);
 			}
 		};
 

@@ -21,12 +21,10 @@
 
 package org.envirocar.obd;
 
-import org.envirocar.obd.commands.CommonCommand;
+import org.envirocar.obd.commands.response.DataResponse;
 
 /**
- * Interface that listens for updates from the current obd job
- * 
- * @author jakob
+ * Interface that listens for parsed responses from the obd layer
  * 
  */
 
@@ -35,10 +33,10 @@ public interface Listener {
 	/**
 	 * Receive the current command
 	 * 
-	 * @param currentJob
-	 *            the answer-job
+	 * @param response
+	 *            the parsed obd response
 	 */
-	void receiveUpdate(CommonCommand currentJob);
+	void receiveUpdate(DataResponse response);
 
 	void shutdown();
 

@@ -25,7 +25,6 @@ import android.util.Base64;
 
 import junit.framework.Assert;
 
-import org.envirocar.obd.commands.CommonCommand;
 import org.envirocar.app.logging.Handler;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.app.util.Util;

@@ -40,7 +40,19 @@ import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.obd.Collector;
 import org.envirocar.obd.Listener;
 import org.envirocar.obd.MeasurementListener;
-import org.envirocar.obd.commands.CommonCommand;
+import org.envirocar.obd.commands.response.DataResponse;
+import org.envirocar.obd.commands.response.entity.EngineLoadResponse;
+import org.envirocar.obd.commands.response.entity.EngineRPMResponse;
+import org.envirocar.obd.commands.response.entity.FuelSystemStatusResponse;
+import org.envirocar.obd.commands.response.entity.IntakeAirTemperatureResponse;
+import org.envirocar.obd.commands.response.entity.IntakeManifoldAbsolutePressureResponse;
+import org.envirocar.obd.commands.response.entity.LambdaProbeCurrentResponse;
+import org.envirocar.obd.commands.response.entity.LambdaProbeVoltageResponse;
+import org.envirocar.obd.commands.response.entity.LongTermFuelTrimResponse;
+import org.envirocar.obd.commands.response.entity.MAFResponse;
+import org.envirocar.obd.commands.response.entity.ShortTermFuelTrimResponse;
+import org.envirocar.obd.commands.response.entity.SpeedResponse;
+import org.envirocar.obd.commands.response.entity.ThrottlePositionResponse;
 import org.envirocar.obd.events.IntakePreasureUpdateEvent;
 import org.envirocar.obd.events.IntakeTemperatureUpdateEvent;
 import org.envirocar.obd.events.RPMUpdateEvent;
@@ -67,8 +79,6 @@ public class CommandListener implements Listener, MeasurementListener {
     private static final Logger logger = Logger.getLogger(CommandListener.class);
 
     private Collector collector;
-
-
     private TrackMetadata obdDeviceMetadata;
 
     private boolean shutdownCompleted = false;
@@ -138,30 +148,22 @@ public class CommandListener implements Listener, MeasurementListener {
             collector.newDop(event.mDOP);
     }
 
-    public void receiveUpdate(CommonCommand command) {
-        // Get the name and the result of the Command
-
-        if (!(command instanceof NumberResultCommand)) return;
-
-        NumberResultCommand numberCommand = (NumberResultCommand) command;
-
-        if (isNoDataCommand(command))
-            return;
+    public void receiveUpdate(DataResponse command) {
 
 		/*
-         * Check which measurent is returned and save the value in the
+         * Check which measurment is returned and save the value in the
 		 * previously created measurement
 		 */
 
         // Speed
 
-        if (command instanceof Speed) {
+        if (command instanceof SpeedResponse) {
             try {
-                Integer speedMeasurement = (Integer) numberCommand.getNumberResult().intValue();
+                Integer speedMeasurement = ((SpeedResponse) command).getValue();
                 this.collector.newSpeed(speedMeasurement);
                 mBus.post(new SpeedUpdateEvent(speedMeasurement));
                 logger.info("Processed Speed Response: " + speedMeasurement + " time: " + command
-                        .getResultTime());
+                        .getTimestamp());
             } catch (NumberFormatException e) {
                 logger.warn("speed parse exception", e);
             }
@@ -169,10 +171,10 @@ public class CommandListener implements Listener, MeasurementListener {
 
         //RPM
 
-        else if (command instanceof RPM) {
+        else if (command instanceof EngineRPMResponse) {
 
             try {
-                Integer rpmMeasurement = (Integer) numberCommand.getNumberResult();
+                Integer rpmMeasurement = ((EngineRPMResponse) command).getValue();
                 this.collector.newRPM(rpmMeasurement);
                 mBus.post(new RPMUpdateEvent(rpmMeasurement));
 //				logger.info("Processed RPM Response: "+rpmMeasurement +" time: "+command
@@ -184,9 +186,9 @@ public class CommandListener implements Listener, MeasurementListener {
 
         //IntakePressure
 
-        else if (command instanceof IntakePressure) {
+        else if (command instanceof IntakeManifoldAbsolutePressureResponse) {
             try {
-                Integer intakePressureMeasurement = (Integer) numberCommand.getNumberResult();
+                Integer intakePressureMeasurement = ((IntakeManifoldAbsolutePressureResponse) command).getValue();
                 this.collector.newIntakePressure(intakePressureMeasurement);
                 mBus.post(new IntakePreasureUpdateEvent(intakePressureMeasurement));
 //				logger.info("Processed IAP Response: "+intakePressureMeasurement +" time:
@@ -198,9 +200,9 @@ public class CommandListener implements Listener, MeasurementListener {
 
         //IntakeTemperature
 
-        else if (command instanceof IntakeTemperature) {
+        else if (command instanceof IntakeAirTemperatureResponse) {
             try {
-                Integer intakeTemperatureMeasurement = (Integer) numberCommand.getNumberResult();
+                Integer intakeTemperatureMeasurement = ((IntakeAirTemperatureResponse) command).getValue();
                 this.collector.newIntakeTemperature(intakeTemperatureMeasurement);
                 this.mBus.post(new IntakeTemperatureUpdateEvent(intakeTemperatureMeasurement));
 //				logger.info("Processed IAT Response: "+intakeTemperatureMeasurement +" time:
@@ -208,45 +210,38 @@ public class CommandListener implements Listener, MeasurementListener {
             } catch (NumberFormatException e) {
                 logger.warn("Intake Temperature parse exception", e);
             }
-        } else if (command instanceof MAF) {
-            float mafMeasurement = (Float) numberCommand.getNumberResult();
+        } else if (command instanceof MAFResponse) {
+            float mafMeasurement = ((MAFResponse) command).getValue();
             this.collector.newMAF(mafMeasurement);
 //			logger.info("Processed MAF Response: "+mafMeasurement +" time: "+command.getResultTime
 // ());
-        } else if (command instanceof TPS) {
-            int tps = (Integer) numberCommand.getNumberResult();
+        } else if (command instanceof ThrottlePositionResponse) {
+            int tps = ((ThrottlePositionResponse) command).getValue();
             this.collector.newTPS(tps);
 //			logger.info("Processed TPS Response: "+tps +" time: "+command.getResultTime());
-        } else if (command instanceof EngineLoad) {
-            double load = (Float) numberCommand.getNumberResult();
+        } else if (command instanceof EngineLoadResponse) {
+            double load = ((EngineLoadResponse) command).getValue();
             this.collector.newEngineLoad(load);
 //			logger.info("Processed EngineLoad Response: "+load +" time: "+command.getResultTime());
-        } else if (command instanceof FuelSystemStatus) {
-            boolean loop = ((FuelSystemStatus) command).isInClosedLoop();
-            int status = ((FuelSystemStatus) command).getStatus();
+        } else if (command instanceof FuelSystemStatusResponse) {
+            boolean loop = ((FuelSystemStatusResponse) command).isInClosedLoop();
+            int status = ((FuelSystemStatusResponse) command).getStatus();
             this.collector.newFuelSystemStatus(loop, status);
 //			logger.info("Processed FuelSystemStatus Response: Closed? "+loop +" Status: "+ status
 // +"; time: "+command.getResultTime());
-        } else if (command instanceof O2LambdaProbe) {
-            this.collector.newLambdaProbeValue((O2LambdaProbe) command);
+        } else if (command instanceof LambdaProbeCurrentResponse) {
+            this.collector.newLambdaProbeValue((LambdaProbeCurrentResponse) command);
 //			logger.info("Processed O2LambdaProbe Response: "+ command.toString());
-        } else if (command instanceof ShortTermTrimBank1) {
-            this.collector.newShortTermTrimBank1(((ShortTermTrimBank1) command).getNumberResult());
+        } else if (command instanceof LambdaProbeVoltageResponse) {
+            this.collector.newLambdaProbeValue((LambdaProbeVoltageResponse) command);
+//			logger.info("Processed O2LambdaProbe Response: "+ command.toString());
+        } else if (command instanceof ShortTermFuelTrimResponse) {
+            this.collector.newShortTermTrimBank1(((ShortTermFuelTrimResponse) command).getValue());
 //			logger.info("Processed ShortTermTrimBank1: "+ command.toString());
-        } else if (command instanceof LongTermTrimBank1) {
-            this.collector.newLongTermTrimBank1(((LongTermTrimBank1) command).getNumberResult());
+        } else if (command instanceof LongTermFuelTrimResponse) {
+            this.collector.newLongTermTrimBank1(((LongTermFuelTrimResponse) command).getValue());
 //			logger.info("Processed LongTermTrimBank1: "+ command.toString());
         }
-    }
-
-
-    private boolean isNoDataCommand(CommonCommand command) {
-        if (command.getRawData() != null && (command.getRawData().equals("NODATA") ||
-                command.getRawData().equals(""))) return true;
-
-        if (command.getRawData() == null) return true;
-
-        return false;
     }
 
 
