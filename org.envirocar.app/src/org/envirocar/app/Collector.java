@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
  * 
  */
-package org.envirocar.obd;
+package org.envirocar.app;
 
 import android.content.Context;
 import android.location.Location;
@@ -30,6 +30,7 @@ import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.core.events.NewMeasurementEvent;
+import org.envirocar.obd.MeasurementListener;
 import org.envirocar.obd.commands.response.entity.LambdaProbeCurrentResponse;
 import org.envirocar.obd.commands.response.entity.LambdaProbeVoltageResponse;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;

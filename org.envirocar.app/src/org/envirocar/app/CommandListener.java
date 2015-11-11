@@ -37,7 +37,6 @@ import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
-import org.envirocar.obd.Collector;
 import org.envirocar.obd.Listener;
 import org.envirocar.obd.MeasurementListener;
 import org.envirocar.obd.commands.response.DataResponse;

@@ -50,7 +50,7 @@ import org.envirocar.app.view.tracklist.TrackListRemoteCardFragment;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.obd.Collector;
+import org.envirocar.app.Collector;
 import org.envirocar.obd.FeatureFlags;
 import org.envirocar.remote.CacheModule;
 import org.envirocar.remote.DAOProvider;
