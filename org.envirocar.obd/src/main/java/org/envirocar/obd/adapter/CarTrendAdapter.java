@@ -21,6 +21,8 @@ public class CarTrendAdapter extends SyncAdapter {
     private boolean connectionEstablished;
     private int dataStartPosition = -1;
     private Queue<BasicCommand> initializeRing;
+    private int ringSize;
+    private int initialCount;
 
     @Override
     protected BasicCommand pollNextInitializationCommand() {
@@ -38,6 +40,19 @@ public class CarTrendAdapter extends SyncAdapter {
             this.initializeRing.add(new ProtocolCommand("6"));
             this.initializeRing.add(new ConfigCommand("@E0"));
             this.initializeRing.add(new ConfigCommand("@H0"));
+
+            this.ringSize = this.initializeRing.size();
+        }
+
+        if (++initialCount == ringSize) {
+            try {
+                logger.info("One cycle of config commands sent, waiting a bit");
+                ringSize = this.initializeRing.size();
+                initialCount = 0;
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                logger.warn(e.getMessage(),  e);
+            }
         }
 
         BasicCommand next = this.initializeRing.poll();
