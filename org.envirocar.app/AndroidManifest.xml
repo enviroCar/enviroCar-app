@@ -75,7 +75,7 @@
             android:name=".view.logbook.LogbookActivity"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".view.help.HelpActivity"
+            android:name=".view.HelpActivity"
             android:screenOrientation="portrait"/>
 
         <service

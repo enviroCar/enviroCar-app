@@ -37,11 +37,11 @@ import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.InjectionActivityModule;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.SystemStartupService;
+import org.envirocar.app.view.HelpActivity;
 import org.envirocar.app.view.LoginActivity;
 import org.envirocar.app.view.SendLogFileFragment;
 import org.envirocar.app.view.TroubleshootingFragment;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
-import org.envirocar.app.view.help.HelpActivity;
 import org.envirocar.app.view.logbook.LogbookActivity;
 import org.envirocar.app.view.settings.NewSettingsActivity;
 import org.envirocar.app.view.tracklist.TrackListPagerFragment;
@@ -93,15 +93,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     private static final String TRACK_MODE = "trackMode";
     private static final String SEEN_ANNOUNCEMENTS = "seenAnnouncements";
-
-    private static final String DASHBOARD_TAG = "DASHBOARD";
-    private static final String LOGIN_TAG = "LOGIN";
-    private static final String MY_TRACKS_TAG = "MY_TRACKS";
-    private static final String HELP_TAG = "HELP";
     private static final String TROUBLESHOOTING_TAG = "TROUBLESHOOTING";
-    private static final String SEND_LOG_TAG = "SEND_LOG";
-    private static final String LOGBOOK_TAG = "LOGBOOK";
-    private static final String SETTINGS_TAG = "SETTINGS";
 
     // Injected variables
     @Inject

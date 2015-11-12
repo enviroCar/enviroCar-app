@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v4.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clipToPadding="false"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/spacing_large"
+        android:paddingRight="@dimen/spacing_large">
+
+        <TextView
+            style="@style/enviroCar.Help.headline1"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:text="@string/help_headline_1"/>
+
+        <TextView
+            style="@style/enviroCar.Help.content"
+            android:text="@string/help_content_1"/>
+
+        <include layout="@layout/help_divider"/>
+
+        <TextView
+            style="@style/enviroCar.Help.headline1"
+            android:text="@string/help_headline_2"/>
+
+        <TextView
+            style="@style/enviroCar.Help.headline2"
+            android:text="@string/help_headline_2_1"/>
+
+        <TextView
+            style="@style/enviroCar.Help.content"
+            android:text="@string/help_content_2_1"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/spacing_medium"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="1."
+                android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="10"
+                android:text="@string/help_content_2_1_enum_1"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/spacing_medium"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="2."
+                android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="10"
+                android:text="@string/help_content_2_1_enum_2"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/spacing_medium"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="3."
+                android:textStyle="bold"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="10"
+                android:text="@string/help_content_2_1_enum_3"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:text="@string/help_content_2_2"/>
+
+        <TextView
+            style="@style/enviroCar.Help.headline2"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:text="@string/help_headline_2_2"/>
+
+        <TextView
+            style="@style/enviroCar.Help.content"
+            android:text="@string/help_content_2_2"/>
+
+        <TextView
+            style="@style/enviroCar.Help.headline2"
+            android:layout_marginTop="@dimen/spacing_large"
+            android:text="@string/help_headline_2_3"/>
+
+        <TextView
+            style="@style/enviroCar.Help.content"
+            android:text="@string/help_content_2_3"/>
+
+        <include layout="@layout/help_divider"/>
+
+        <TextView
+            style="@style/enviroCar.Help.headline1"
+            android:text="@string/help_headline_3"/>
+
+        <TextView
+            style="@style/enviroCar.Help.content"
+            android:text="@string/help_content_3_1"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/spacing_medium"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="►"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="10"
+                android:text="@string/help_content_3_bullet_1"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/spacing_medium"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="►"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="10"
+                android:text="@string/help_content_3_bullet_2"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/spacing_medium"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="►"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="10"
+                android:text="@string/help_content_3_bullet_3"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/spacing_medium"
+            android:layout_marginTop="@dimen/spacing_medium"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="►"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="10"
+                android:text="@string/help_content_3_bullet_4"
+                android:textStyle="bold"/>
+        </LinearLayout>
+
+        <TextView
+            style="@style/enviroCar.Help.content"
+            android:text="@string/help_content_3_2"/>
+
+        <include layout="@layout/help_divider"/>
+
+        <!-- 4. -->
+        <TextView
+            style="@style/enviroCar.Help.headline1"
+            android:text="@string/help_headline_4"/>
+
+        <TextView
+            style="@style/enviroCar.Help.content"
+            android:text="@string/help_content_4_0"/>
+
+        <TextView
+            style="@style/enviroCar.Help.headline2"
+            android:text="@string/help_headline_4_1"/>
+
+        <TextView
+            style="@style/enviroCar.Help.content"
+            android:text="@string/help_content_4_1"/>
+
+        <TextView
+            style="@style/enviroCar.Help.headline2"
+            android:text="@string/help_headline_4_2"/>
+
+        <TextView
+            style="@style/enviroCar.Help.content"
+            android:text="@string/help_content_4_2"/>
+
+        <!--<TextView-->
+            <!--style="@style/enviroCar.Help.headline2"-->
+            <!--android:text="@string/help_headline_4_3"/>-->
+
+        <!--<TextView-->
+            <!--style="@style/enviroCar.Help.content"-->
+            <!--android:text="@string/help_content_4_3"/>-->
+
+        <include layout="@layout/help_divider"/>
+
+        <!-- 5. -->
+        <TextView
+            style="@style/enviroCar.Help.headline1"
+            android:text="@string/help_headline_6"/>
+
+        <TextView
+            style="@style/enviroCar.Help.content"
+            android:text="@string/help_content_6"/>
+    </LinearLayout>
+</android.support.v4.widget.NestedScrollView>
