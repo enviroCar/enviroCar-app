@@ -28,10 +28,9 @@ import org.envirocar.obd.commands.PIDSupported;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.exception.AdapterSearchingException;
+import org.envirocar.obd.exception.InvalidCommandResponseException;
 import org.envirocar.obd.exception.NoDataReceivedException;
 import org.envirocar.obd.exception.UnmatchedResponseException;
-import org.envirocar.obd.adapter.OBDAdapter;
-import org.envirocar.obd.exception.InvalidCommandResponseException;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -46,6 +45,10 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
 
     private static final Logger logger = Logger.getLogger(DriveDeckSportAdapter.class);
 
+    private static enum Protocol {
+        CAN11500, CAN11250, CAN29500, CAN29250, KWP_SLOW, KWP_FAST, ISO9141
+    }
+
     private static final char CARRIAGE_RETURN = '\r';
     private static final char END_OF_LINE_RESPONSE = '>';
     private static final char RESPONSE_PREFIX_CHAR = 'B';
@@ -55,16 +58,11 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     private Protocol protocol;
     private String vin;
     private CycleCommand cycleCommand;
-    private OBDAdapter.ConnectionState state = OBDAdapter.ConnectionState.DISCONNECTED;
     public long lastCyclicCommandSent;
     private Set<String> loggedPids = new HashSet<>();
     private org.envirocar.obd.commands.response.ResponseParser parser = new org.envirocar.obd.commands.response.ResponseParser();
-
     private Queue<BasicCommand> pendingCommands;
 
-    private static enum Protocol {
-        CAN11500, CAN11250, CAN29500, CAN29250, KWP_SLOW, KWP_FAST, ISO9141
-    }
 
     public DriveDeckSportAdapter() {
         super(CARRIAGE_RETURN, END_OF_LINE_RESPONSE);
@@ -133,18 +131,6 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     private void processVIN(String vinInt) {
         this.vin = vinInt;
         logger.info("VIN is: " + this.vin);
-
-        updateConnectionState();
-    }
-
-    private void updateConnectionState() {
-        if (state == ConnectionState.VERIFIED) {
-            return;
-        }
-
-        if (protocol != null || vin != null) {
-            state = ConnectionState.CONNECTED;
-        }
     }
 
     private void determineProtocol(String protocolInt) {
@@ -187,14 +173,12 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
         }
 
         logger.info("Protocol is: " + protocol.toString());
-
-        updateConnectionState();
     }
 
 
     @Override
     public boolean supportsDevice(String deviceName) {
-        return deviceName.contains("DRIVEDECK") && deviceName.contains("W4");
+        return deviceName != null && deviceName.toLowerCase().contains("drivedeck") && deviceName.toLowerCase().contains("w4");
     }
 
 
@@ -235,8 +219,6 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
         if (result != null) {
             byte[] rawData = createRawData(rawBytes, result.getHexadecimalRepresentation());
             DataResponse parsed = parser.parse(rawData);
-
-            this.state = ConnectionState.VERIFIED;
             return parsed;
         }
 
@@ -272,11 +254,6 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
 
     @Override
     protected BasicCommand pollNextCommand() {
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            logger.warn(e.getMessage(), e);
-        }
         BasicCommand result = this.pendingCommands.poll();
 
         /**
@@ -285,7 +262,17 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
          */
         if (result == null && System.currentTimeMillis() - lastCyclicCommandSent > SEND_CYCLIC_COMMAND_DELTA) {
             lastCyclicCommandSent = System.currentTimeMillis();
-            return this.cycleCommand;
+            result = this.cycleCommand;
+        }
+        else {
+            /**
+             * this is probably an init command, wait a bit
+             */
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                logger.warn(e.getMessage(), e);
+            }
         }
 
         return result;
@@ -294,12 +281,16 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     @Override
     protected DataResponse processResponse(byte[] bytes) throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
 
-        if (bytes.length <= 0) return null;
+        if (bytes.length <= 0) {
+            return null;
+        }
 
         char type = (char) bytes[0];
 
         if (type == RESPONSE_PREFIX_CHAR) {
-            if ((char) bytes[4] == CYCLIC_TOKEN_SEPARATOR_CHAR) return null;
+            if ((char) bytes[4] == CYCLIC_TOKEN_SEPARATOR_CHAR) {
+                return null;
+            }
 
             String pid = new String(bytes, 1, 2);
 
@@ -338,11 +329,13 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
                 int target;
                 for (int i =  4; i <= bytes.length; i++) {
                     target = i - 4;
-                    if (target >= pidResponseValue.length)
+                    if (target >= pidResponseValue.length) {
                         break;
+                    }
 
-                    if ((char) bytes[i] == CYCLIC_TOKEN_SEPARATOR_CHAR)
+                    if ((char) bytes[i] == CYCLIC_TOKEN_SEPARATOR_CHAR) {
                         break;
+                    }
 
                     pidResponseValue[target] = bytes[i];
                 }

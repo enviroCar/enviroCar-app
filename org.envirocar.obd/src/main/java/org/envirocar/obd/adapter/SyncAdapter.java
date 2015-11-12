@@ -1,7 +1,6 @@
 package org.envirocar.obd.adapter;
 
 import org.envirocar.core.logging.Logger;
-import org.envirocar.obd.OBDSchedulers;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.request.PIDCommand;
 import org.envirocar.obd.commands.PID;
@@ -18,7 +17,6 @@ import org.envirocar.obd.exception.InvalidCommandResponseException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.Time;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,8 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import rx.Observable;
@@ -37,9 +33,6 @@ import rx.Observer;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
-import rx.exceptions.OnErrorThrowable;
-import rx.functions.Action0;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public abstract class SyncAdapter implements OBDAdapter {
@@ -90,11 +83,11 @@ public abstract class SyncAdapter implements OBDAdapter {
 
     @Override
     public Observable<DataResponse> observe() {
-        return observe(OBDSchedulers.io());
+        return observe(Schedulers.io());
     }
 
     protected Observable<DataResponse> observe(Scheduler subscriberScheduler) {
-        final Scheduler usedSubScheduler = subscriberScheduler == null ? OBDSchedulers.io() : subscriberScheduler;
+        final Scheduler usedSubScheduler = subscriberScheduler == null ? Schedulers.io() : subscriberScheduler;
 
         return Observable.create(new Observable.OnSubscribe<DataResponse>() {
 

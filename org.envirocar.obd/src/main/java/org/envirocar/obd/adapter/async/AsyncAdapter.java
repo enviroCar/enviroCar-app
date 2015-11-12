@@ -7,6 +7,7 @@ import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.exception.AdapterSearchingException;
 import org.envirocar.obd.exception.NoDataReceivedException;
+import org.envirocar.obd.exception.StreamFinishedException;
 import org.envirocar.obd.exception.UnmatchedResponseException;
 import org.envirocar.obd.exception.InvalidCommandResponseException;
 
@@ -97,10 +98,6 @@ public abstract class AsyncAdapter implements OBDAdapter {
         Observable<DataResponse> dataObservable = Observable.create(new Observable.OnSubscribe<DataResponse>() {
             @Override
             public void call(Subscriber<? super DataResponse> subscriber) {
-                byte byteIn;
-                int intIn;
-                byte[] globalBuffer = new byte[64];
-                int globalIndex = 0;
 
                 while (!subscriber.isUnsubscribed()) {
                     /**
@@ -116,68 +113,44 @@ public abstract class AsyncAdapter implements OBDAdapter {
                         }
                     }
 
-                    while (true) {
-                        /**
-                         * read the inputstream byte by byte
-                         */
+                    /**
+                     * read the inputstream byte by byte
+                     */
+                    try {
+                        byte[] bytes = commandExecutor.retrieveLatestResponse();
+
                         try {
-                            intIn = inputStream.read();
-                        } catch (IOException e) {
-                            /**
-                             * IOException signals broken connection,
-                             * notify subscriber accordingly
-                             */
-                            subscriber.onError(e);
-                            subscriber.unsubscribe();
-                            return;
-                        }
-
-                        /**
-                         * is the end of the stream reached? --> break out of the loop and
-                         * notify the subscriber with onCompleted
-                         */
-                        if (intIn < 0) {
-                            subscriber.onCompleted();
-                            subscriber.unsubscribe();
-                            return;
-                        }
-
-                        byteIn = (byte) intIn;
-
-                        if (byteIn == (byte) endOfLineInput) {
-                            /**
-                             * end of line: we can parse what we got until now
-                             */
-                            boolean isReplete = false;
-
-                            DataResponse result = null;
-                            try {
-                                result = processResponse(Arrays.copyOfRange(globalBuffer,
-                                        0, globalIndex));
-                            } catch (AdapterSearchingException e) {
-                                LOGGER.warn("Adapter still searching: " + e.getMessage());
-                            } catch (NoDataReceivedException e) {
-                                LOGGER.warn("No data received: " + e.getMessage());
-                            } catch (InvalidCommandResponseException e) {
-                                LOGGER.warn("InvalidCommandResponseException: " + e.getMessage());
-                            } catch (UnmatchedResponseException e) {
-                                LOGGER.warn("Unmatched response: " + e.getMessage());
-                            }
-
-                            //reset the index in order to be able to reuse the buffer
-                            globalIndex = 0;
+                            DataResponse result = processResponse(bytes);
 
                             /**
                              * call our subscriber!
                              */
                             subscriber.onNext(result);
-                            break;
-                        } else {
-                            /**
-                             * not end of line, data byte --> add to buffer
-                             */
-                            globalBuffer[globalIndex++] = byteIn;
+                        } catch (AdapterSearchingException e) {
+                            LOGGER.warn("Adapter still searching: " + e.getMessage());
+                        } catch (NoDataReceivedException e) {
+                            LOGGER.warn("No data received: " + e.getMessage());
+                        } catch (InvalidCommandResponseException e) {
+                            LOGGER.warn("InvalidCommandResponseException: " + e.getMessage());
+                        } catch (UnmatchedResponseException e) {
+                            LOGGER.warn("Unmatched response: " + e.getMessage());
                         }
+
+                    } catch (IOException e) {
+                        /**
+                         * IOException signals broken connection,
+                         * notify subscriber accordingly
+                         */
+                        subscriber.onError(e);
+                        subscriber.unsubscribe();
+                        return;
+                    } catch (StreamFinishedException e) {
+                        /**
+                         * the stream has ended, notify the subscriber
+                         */
+                        subscriber.onCompleted();
+                        subscriber.unsubscribe();
+                        return;
                     }
 
                 }

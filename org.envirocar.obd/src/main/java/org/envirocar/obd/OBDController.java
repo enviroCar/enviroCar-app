@@ -171,7 +171,7 @@ public class OBDController {
 		};
 
 		this.obdAdapter.initialize(this.inputStream, this.outputStream)
-				.subscribeOn(OBDSchedulers.io())
+				.subscribeOn(Schedulers.io())
 				.observeOn(Schedulers.computation())
 				.timeout(ADAPTER_TRY_PERIOD, TimeUnit.MILLISECONDS)
 				.subscribe(this.initialSubscriber);
@@ -218,7 +218,7 @@ public class OBDController {
 		Schedulers.from(Executors.newSingleThreadExecutor());
 
 		this.obdAdapter.observe()
-				.subscribeOn(OBDSchedulers.io())
+				.subscribeOn(Schedulers.io())
 				.observeOn(Schedulers.computation())
 				.timeout(MAX_NODATA_TIME, TimeUnit.MILLISECONDS)
 				.subscribe(this.dataSubscription);
