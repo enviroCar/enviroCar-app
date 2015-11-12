@@ -68,7 +68,7 @@ public class SyncAdapterTest extends InstrumentationTestCase {
          */
         TestSubscriber<DataResponse> testSubscriber = new TestSubscriber<>();
 
-        adapter.observe(Schedulers.immediate(), Schedulers.immediate())
+        adapter.observe(Schedulers.immediate())
                 .observeOn(Schedulers.immediate())
                 .subscribeOn(Schedulers.immediate())
                 .subscribe(testSubscriber);

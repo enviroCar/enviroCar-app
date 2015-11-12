@@ -26,6 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import rx.Observable;
+import rx.Scheduler;
 
 /**
  * Interface for a OBD connector. It can provide device specific
@@ -65,7 +66,7 @@ public interface OBDAdapter {
 	 *
 	 * @param is the inpusttream
 	 * @param os this outputstream
-	 * @return an observable that provides a Boolean on connection state change
+	 * @return an observable that complets on successful connection
 	 */
 	Observable<Void> initialize(InputStream is, OutputStream os);
 
@@ -75,7 +76,7 @@ public interface OBDAdapter {
 	 * @return an observable that provides data responses
 	 */
 	Observable<DataResponse> observe();
-	
+
 	/**
 	 * An implementation shall return true if it 
 	 * might support the given bluetooth device.

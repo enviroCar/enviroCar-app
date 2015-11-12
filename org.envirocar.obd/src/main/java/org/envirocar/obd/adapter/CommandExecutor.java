@@ -15,9 +15,6 @@ import java.util.Set;
 import rx.Observable;
 import rx.Subscriber;
 
-/**
- * Created by matthes on 29.10.15.
- */
 public class CommandExecutor {
 
     private static final Logger LOGGER = Logger.getLogger(CommandExecutor.class.getName());
@@ -43,6 +40,10 @@ public class CommandExecutor {
         }
 
         byte[] bytes = cmd.getOutputBytes();
+
+        if (LOGGER.isEnabled(Logger.DEBUG)) {
+            LOGGER.debug("Sending bytes: "+ new String(bytes));
+        }
 
         // write to OutputStream, or in this case a BluetoothSocket
         synchronized (this) {
@@ -78,14 +79,13 @@ public class CommandExecutor {
         byte b = 0;
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        // read until '>' arrives
+        // read until end of line arrives
         b = (byte) inputStream.read();
         while ((char) b != this.endOfLineInput) {
             if ((int) b == -1) {
                 throw new StreamFinishedException("Stream finished");
             }
 
-            LOGGER.info("CHAR= "+ b);
             if (!ignoredChars.contains((char) b)){
                 baos.write(b);
             }
@@ -95,8 +95,10 @@ public class CommandExecutor {
 
         byte[] byteArray = baos.toByteArray();
         if (byteArray.length > 0) {
-            LOGGER.verbose("Response read. Data (base64): "+
-                    Base64.encodeToString(byteArray, Base64.DEFAULT));
+            if (LOGGER.isEnabled(LOGGER.VERBOSE)) {
+                LOGGER.verbose("Response read. Data (base64): "+
+                        Base64.encodeToString(byteArray, Base64.DEFAULT));
+            }
         }
 
         return baos.toByteArray();

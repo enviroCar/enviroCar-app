@@ -59,24 +59,27 @@ public class CarTrendAdapter extends SyncAdapter {
 
     @Override
     protected boolean analyzeMetadataResponse(byte[] response, BasicCommand sentCommand) throws AdapterFailedException {
+        logger.info("Parsing meta response: "+ new String(response)+ "; sentCommand="+new String(sentCommand.getOutputBytes()));
+
         if (response == null || response.length == 0) {
             return false;
         }
         
-        if (++this.metadataResponseCount > MAX_METADATA_COUNT) {
-            throw new AdapterFailedException("Too many tries. Could not establish data link");
-        }
-
         String asString = new String(response).toLowerCase();
 
-        if (sentCommand instanceof IdentifyCommand) {
-            if (asString.contains("MS4200")) {
-                identifySuccess = true;
-            }
+        if (asString.contains("ms4200")) {
+            identifySuccess = true;
+            logger.info("Received Identity response. This should be a CarTrend: "+asString);
         }
 
         if (identifySuccess && asString.contains("onnected")) {
             this.connectionEstablished = true;
+            logger.info(String.format("Connected on Protocol %s. Adapter responsed '%s'",
+                    new String(sentCommand.getOutputBytes()), new String(response)));
+        }
+
+        if (++this.metadataResponseCount > MAX_METADATA_COUNT && !this.connectionEstablished) {
+            throw new AdapterFailedException("Too many tries. Could not establish data link");
         }
 
         return this.connectionEstablished;
@@ -90,6 +93,8 @@ public class CarTrendAdapter extends SyncAdapter {
              * search for "41" (= status ok)
              */
             dataStartPosition = data.indexOf("41");
+            logger.info(String.format("Identified start position %s by response '%s'",
+                    dataStartPosition, new String(bytes)));
         }
 
         if (dataStartPosition < bytes.length) {

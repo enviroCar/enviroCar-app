@@ -34,8 +34,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import rx.Scheduler;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
@@ -52,7 +54,7 @@ import rx.schedulers.Schedulers;
 public class OBDController {
 
 	private static final Logger logger = Logger.getLogger(OBDController.class);
-	protected static final long ADAPTER_TRY_PERIOD = 15000;
+	protected static final long ADAPTER_TRY_PERIOD = 15000 *10;
 	public static final long MAX_NODATA_TIME = 10000;
 	private final Listener dataListener;
 
@@ -93,7 +95,8 @@ public class OBDController {
 		this.dataListener = l;
 
 		this.deviceName = deviceName;
-	
+		
+
 		setupAdapterCandidates();
 
 		startPreferredAdapter();
@@ -168,7 +171,7 @@ public class OBDController {
 		};
 
 		this.obdAdapter.initialize(this.inputStream, this.outputStream)
-				.subscribeOn(Schedulers.io())
+				.subscribeOn(OBDSchedulers.io())
 				.observeOn(Schedulers.computation())
 				.timeout(ADAPTER_TRY_PERIOD, TimeUnit.MILLISECONDS)
 				.subscribe(this.initialSubscriber);
@@ -212,8 +215,10 @@ public class OBDController {
 			}
 		};
 
+		Schedulers.from(Executors.newSingleThreadExecutor());
+
 		this.obdAdapter.observe()
-				.subscribeOn(Schedulers.io())
+				.subscribeOn(OBDSchedulers.io())
 				.observeOn(Schedulers.computation())
 				.timeout(MAX_NODATA_TIME, TimeUnit.MILLISECONDS)
 				.subscribe(this.dataSubscription);
