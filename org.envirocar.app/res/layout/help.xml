@@ -17,29 +17,37 @@
             android:id="@+id/textView_help_about_head"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/help_head_1" 
+			android:layout_marginTop="@dimen/spacing_medium"
+			android:layout_marginLeft="@dimen/spacing_medium"
+            android:text="@string/help_head_1"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <TextView
             android:id="@+id/textView_help_about_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+			android:layout_margin="@dimen/spacing_medium"
             android:text="@string/help_text_1" />
-
-		<View
-  			android:layout_width="1dp"
-  			android:layout_height="30dp">
-		</View>
+		
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:background="@color/blue_dark_cario"
+			android:orientation="vertical"
+			android:layout_margin="@dimen/spacing_medium"/>
 
         <TextView
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/spacing_medium"
+			android:layout_marginLeft="@dimen/spacing_medium"
             android:text="@string/help_head_2"
             android:textAppearance="?android:attr/textAppearanceLarge" />
 
         <TextView
             android:id="@+id/textView3"
+			android:layout_margin="@dimen/spacing_medium"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/help_text_2" />
@@ -100,10 +108,12 @@
 		    android:layout_height="wrap_content"
 		    android:text="@string/help_text_2_3" />
 
-		<View
-  			android:layout_width="1dp"
-  			android:layout_height="30dp">
-		</View>
+		<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:background="@color/blue_dark_cario"
+			android:orientation="vertical"
+			android:layout_margin="@dimen/spacing_medium"/>
 
 		<TextView
 		    android:id="@+id/textView9"

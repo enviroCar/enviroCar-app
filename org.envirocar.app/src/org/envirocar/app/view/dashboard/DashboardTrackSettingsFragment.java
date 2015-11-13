@@ -30,6 +30,8 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 
 /**
+ * TODO JavaDoc
+ *
  * @author dewall
  */
 public class DashboardTrackSettingsFragment extends BaseInjectorFragment {
@@ -67,41 +69,22 @@ public class DashboardTrackSettingsFragment extends BaseInjectorFragment {
         // Inject all dashboard-related views.
         ButterKnife.inject(this, contentView);
 
-        mCarTypeView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), CarSelectionActivity.class);
-                getActivity().startActivity(intent);
-            }
+        mCarTypeView.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), CarSelectionActivity.class);
+            getActivity().startActivity(intent);
         });
-        mOBDTypeView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), OBDSelectionActivity.class);
-                getActivity().startActivity(intent);
-            }
+        mOBDTypeView.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), OBDSelectionActivity.class);
+            getActivity().startActivity(intent);
         });
 
         setCarTypeText(mCarPrefHandler.getCar());
         setOBDTypeText(mBluetoothHandler.getSelectedBluetoothDevice());
-//        contentView.setVisibility(View.GONE);
 
         return contentView;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-//        animateShowView();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-//        animateHideView();
-    }
-
-    private void animateShowView(){
+    private void animateShowView() {
         getView().setVisibility(View.VISIBLE);
         getView().startAnimation(
                 AnimationUtils.loadAnimation(
@@ -111,7 +94,7 @@ public class DashboardTrackSettingsFragment extends BaseInjectorFragment {
     /**
      *
      */
-    private void animateHideView(){
+    private void animateHideView() {
         getView().startAnimation(
                 AnimationUtils.loadAnimation(
                         getActivity(), R.anim.anim_up));
@@ -142,12 +125,13 @@ public class DashboardTrackSettingsFragment extends BaseInjectorFragment {
     private void setOBDTypeText(BluetoothDevice device) {
         getActivity().runOnUiThread(() -> {
             if (!mBluetoothHandler.isBluetoothEnabled()) {
-                mOBDTypeTextView.setText("Bluetooth is disabled.");
-                mOBDTypeSubTextView.setText("Please enable bluetooth.");
+                mOBDTypeTextView.setText(R.string.dashboard_bluetooth_disabled);
+                mOBDTypeSubTextView.setText(R.string.dashboard_bluetooth_disabled_advise);
                 mOBDTypeSubTextView.setVisibility(View.VISIBLE);
             } else if (device == null) {
-                mOBDTypeTextView.setText("No OBD device selected.");
-                mOBDTypeSubTextView.setVisibility(View.GONE);
+                mOBDTypeTextView.setText(R.string.dashboard_obd_not_selected);
+                mOBDTypeSubTextView.setText(R.string.dashboard_obd_not_selected_advise);
+                mOBDTypeSubTextView.setVisibility(View.VISIBLE);
             } else {
                 mOBDTypeTextView.setText(device.getName());
                 mOBDTypeSubTextView.setText(device.getAddress());
@@ -172,8 +156,9 @@ public class DashboardTrackSettingsFragment extends BaseInjectorFragment {
 
             mCarTypeSubTextView.setVisibility(View.VISIBLE);
         } else {
-            mCarTypeTextView.setText(String.format("No Car selected"));
-            mCarTypeSubTextView.setVisibility(View.GONE);
+            mCarTypeTextView.setText(R.string.dashboard_carselection_no_car_selected);
+            mCarTypeSubTextView.setText(R.string.dashboard_carselection_no_car_selected_advise);
+            mCarTypeSubTextView.setVisibility(View.VISIBLE);
         }
     }
 }

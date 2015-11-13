@@ -8,7 +8,7 @@
             android:title="@string/pref_bluetooth_switch_isenabled"/>
         <org.envirocar.app.view.preferences.BluetoothPairingPreference
             android:key="bluetooth_pairing"
-            android:summary="@string/pref_bluetooth_pairing_summery"
+            android:summary="@string/pref_bluetooth_pairing_summary"
             android:title="@string/pref_bluetooth_pairing"/>
         <org.envirocar.app.view.preferences.SelectBluetoothPreference
             android:key="bluetooth_list"
@@ -60,18 +60,18 @@
             android:title="@string/pref_display_always_activ"/>
         <CheckBoxPreference
             android:key="pref_imperial_unit"
-            android:summary="@string/imperial_unit_summary"
+            android:summary="@string/pref_imperial_unit_summary"
             android:title="@string/imperial_unit"/>
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="pref_privacy"
-            android:summary="@string/track_obfuscation_on"
-            android:title="@string/privacy"/>
+            android:summary="@string/pref_obfuscate_track_summary"
+            android:title="@string/pref_obfuscate_track"/>
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_text_to_speech"
-            android:summary="Enabling the TextToSpeech functionality."
-            android:title="TextToSpeech" />
+            android:summary="@string/pref_text_to_speech_summary"
+            android:title="@string/pref_text_to_speech" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/pref_optional_features">

@@ -119,43 +119,4 @@
         app:layout_anchorGravity="bottom|right|end"
         app:layout_behavior="org.envirocar.app.view.trackdetails.ScrollAwareBehavior" ></android.support.design.widget.FloatingActionButton>
 
-    <!--<com.github.clans.fab.FloatingActionMenu-->
-    <!--android:id="@+id/activity_track_details_floating_menu"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:paddingLeft="10dp"-->
-    <!--android:paddingRight="10dp"-->
-    <!--app:layout_anchor="@id/activity_track_details_appbar_layout"-->
-    <!--app:layout_anchorGravity="bottom|right|end"-->
-    <!--app:layout_behavior="org.envirocar.app.view.trackdetails.FloatingActionMenuBehavior"-->
-    <!--app:menu_backgroundColor="@android:color/transparent"-->
-    <!--app:menu_labels_ellipsize="end"-->
-    <!--app:menu_labels_singleLine="true"-->
-    <!--app:menu_openDirection="down">-->
-
-    <!--<com.github.clans.fab.FloatingActionButton-->
-    <!--android:id="@+id/fab1"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:src="@drawable/ic_settings"-->
-    <!--app:fab_label="Menu item 1"-->
-    <!--app:fab_size="mini"/>-->
-
-    <!--<com.github.clans.fab.FloatingActionButton-->
-    <!--android:id="@+id/fab2"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:src="@drawable/ic_settings"-->
-    <!--app:fab_label="Menu item 1"-->
-    <!--app:fab_size="mini"/>-->
-
-    <!--<com.github.clans.fab.FloatingActionButton-->
-    <!--android:id="@+id/fab3"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:src="@drawable/ic_settings"-->
-    <!--app:fab_label="Menu item 1"-->
-    <!--app:fab_size="mini"/>-->
-
-    <!--</com.github.clans.fab.FloatingActionMenu>-->
 </android.support.design.widget.CoordinatorLayout>

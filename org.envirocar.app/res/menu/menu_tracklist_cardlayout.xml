@@ -2,14 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_tracklist_cardlayout_item_details"
-        android:title="@string/detailsTrack" />
+        android:title="@string/track_list_menu_details" />
     <item
         android:id="@+id/menu_tracklist_cardlayout_item_delete"
-        android:title="@string/deleteTrack" />
+        android:title="@string/track_list_menu_delete" />
     <item
         android:id="@+id/menu_tracklist_cardlayout_item_upload"
-        android:title="@string/uploadTrack" />
+        android:title="@string/track_list_menu_upload" />
     <item
         android:id="@+id/menu_tracklist_cardlayout_item_export"
-        android:title="@string/shareTrack" />
+        android:title="@string/track_list_menu_export" />
 </menu>

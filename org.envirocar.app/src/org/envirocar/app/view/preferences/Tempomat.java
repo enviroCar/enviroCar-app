@@ -166,7 +166,7 @@ public final class Tempomat extends FrameLayout {
         super.onAttachedToWindow();
 
         // Register on the Bus;
-        //        mBus.register(this);
+        //        bus.register(this);
     }
 
     @Override
@@ -174,7 +174,7 @@ public final class Tempomat extends FrameLayout {
         super.onDetachedFromWindow();
 
         // Unregister on the bus.
-        //        mBus.unregister(this);
+        //        bus.unregister(this);
     }
 
     @Override

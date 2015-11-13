@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="track_list_local_tracks">Privat</string>
+    <string name="track_list_remote_tracks">Hochgeladen</string>
+
+    <string name="track_list_deleting_track">Lösche track...</string>
+    <string name="track_list_deleting_track_unauthorized">Fehler beim Löschen des Tracks. Sie sind nicht
+        authentifiziert dies zu tun. Loggen Sie sich hierfür mit dem zugehörigen Account ein.</string>
+    <string name="track_list_delete_track_error_template">Fehler beim Löschen der Fahrt "%s"</string>
+    <string name="track_list_delete_track_success_template">%s wurde erfolgreich gelöscht.</string>
+
+    <string name="track_list_upload_track_uploading">Uploading Track</string>
+    <string name="track_list_upload_track_please_wait">Bitte Warten...</string>
+    <string name="track_list_upload_track_success_template">Die Fahrt \'%s\' wurde erfolgreich hochgeladen.</string>
+
+    <string name="track_list_loading_tracks">Lade Fahrten...</string>
+    <string name="track_list_loading_tracks_error_snackbar">Fehler beim Laden der Daten.\nBitte senden Sie einen Fehlerreport.</string>
+    <string name="track_list_loading_lremote_tracks_error">Fehler während des Ladens von heruntergladenen Fahrten.</string>
+    <string name="track_list_loading_remote_tracks_error">Fehler beim Laden von Fahrten vom Server. Eventuell besteht keine Verbindung zum Internet?</string>
+
+    <string name="track_list_bg_error">Fehler!</string>
+    <string name="track_list_bg_no_local_tracks">Keine lokalen Fahrten verfügbar.</string>
+    <string name="track_list_bg_not_logged_in">Nicht Angemeldet</string>
+    <string name="track_list_bg_no_connection">Keine Verbdinung zum Internet.</string>
+    <string name="track_list_bg_unauthorized">Nicht Authorisiert um die Fahrten zu laden.</string>
+    <string name="track_list_error_while_downloading">Fehler beim herunterladen von Tracks.</string>
+    <string name="track_list_communication_error">Keine Verbindung zum Server.</string>
+
+    <string name="track_list_menu_details">Detailansicht</string>
+    <string name="track_list_menu_delete">Lösche Fahrt</string>
+    <string name="track_list_menu_upload">Fahrt als Open Data hochladen</string>
+    <string name="track_list_menu_export">Exportiere Track</string>
+
+    <string name="track_list_details_duration">Dauer</string>
+    <string name="track_list_details_distance">Distanz</string>
+    <string name="track_list_details_car">Auto:</string>
+    <string name="track_list_details_start">Beginn:</string>
+    <string name="track_list_details_end">Ende:</string>
+    <string name="track_list_details_consumption">Verbrauch:</string>
+    <string name="track_list_details_emission">CO\u2082 Ausstoß:</string>
+
+</resources>

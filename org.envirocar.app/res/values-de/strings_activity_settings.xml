@@ -1,22 +1,10 @@
 <resources>
-
-    <string name="pref_bluetooth_pairing">Bluetooth Pairing</string>
-    <string name="pref_bluetooth_pairing_summery">Verbindungen zu
-        Bluetooth-Geräten</string>
-
-    <string name="pref_bluetooth_select_adapter">OBD Adapter wählen</string>
-    <string name="pref_bluetooth_select_adapter_summary">Bitte einen OBD Adapter auswählen</string>
-    <string name="pref_bluetooth_select_adapter_title">OBD Adapter auswählen</string>
-
-    <string name="pref_obd_settings">OBD-Einstellungen</string>
     <string name="pref_car_settings">Fahrzeug-Einstellungen</string>
-    <string name="pref_general_settings">Allgemeine Einstellungen</string>
 
 
     <string name="pref_upload_only_in_wifi">Nur in WLAN hochladen</string>
-    <string name="pref_always_upload">Automatisch hochladen</string>
-    <string name="pref_display_always_activ">Bildschirm bleibt aktiv</string>
     <string name="pref_auto_enable_bluetooth">Bluetooth beim Appstart einschalten</string>
+
     <string name="pref_engine_displacement">Hubraum</string>
     <string name="pref_in_liters">in Litern (z.B. 1.8)</string>
 
@@ -31,5 +19,33 @@
     <string name="use_pid_supported">Benutze \"PID Supported\"-Abfrage</string>
     <string name="use_pid_supported_summary">Erfrage bei der ECU des Fahrzeugs die unterstützten OBD-Befehle</string>
 
+    <!-- General Settings-->
+    <string name="pref_general_settings">Allgemeine Einstellungen</string>
+    <string name="pref_always_upload">Automatisches Hochladen von Tracks (nur in WiFi)</string>
+    <string name="pref_always_upload_sub">Ermöglicht das automatische Hochladen von aufgezeichneten Fahrten sobald eine WiFi Verbindung hergestellt wurde.</string>
+    <string name="pref_display_always_activ">Bildschrim bleibt aktiv</string>
+    <string name="pref_display_always_activ_sub">Behält den Bildschirm bei Ausführung der Applikation und Aufzeichnung eines Tracks aktiv.</string>
+    <string name="pref_imperial_unit">Imperiale Maßeinheiten</string>
+    <string name="pref_imperial_unit_summary">Imperiale Maßeinheiten (Meilen) für die Anzeige nutzen</string>
+    <string name="pref_obfuscate_track">Fahrtbeginn verschleiern?</string>
+    <string name="pref_obfuscate_track_summary">Nur Messungen, die ab einer Entfernung von 250 Metern zum Start/Ziel sowie eine Minute nach Beginn und vor Ende der Route stattfanden, hochladen.</string>
+    <string name="pref_text_to_speech">Sprachliche Ankündigungen</string>
+    <string name="pref_text_to_speech_summary">Ermöglicht die spracheliche Ausgabe von spezifischen Ereignissen, wie z.B. OBD-Verbindung hergestellt oder Aufzeichnung wurde beendet.</string>
+
+    <!-- OBD-Settings -->
+    <string name="pref_obd_settings">OBD Adapter Einstellungen</string>
+    <string name="pref_bluetooth_switch_isenabled">Bluetooth is An</string>
+    <string name="pref_bluetooth_switch_isdisabled">Bluetooth is Aus</string>
+    <string name="pref_bluetooth_pairing">Bluetooth Kopplung</string>
+    <string name="pref_bluetooth_pairing_summary">Verwalte die Kopplungen (Pairings) zu anderen Bluetooth Geräten</string>
+    <string name="pref_bluetooth_select_adapter">OBD Adapter auswählen</string>
+    <string name="pref_bluetooth_select_adapter_summary">Bitte wählen Sie einen OBDII Adapter.</string>
+    <string name="pref_bluetooth_select_adapter_title">Auswählen eins OBDII Adapters</string>
+    <string name="pref_bluetooth_auto_connect">Automatisches Verbinden</string>
+    <string name="pref_bluetooth_auto_connect_summary">Stellt automatisch eine Verbindung zum ausgewählten OBDII Adapter her und startet einen Track. Diese Einstellung benötigt zusätzliche Akkuleistung.</string>
+    <string name="pref_bluetooth_start_background">Ausführung im Hintergrund</string>
+    <string name="pref_bluetooth_start_background_summary">Startet automatisch einen Hintergrundsprozess immer wenn Bluetooth aktiviert wird.</string>
+    <string name="pref_bluetooth_discovery_interval">Suchinterval (Automatisches Verbinden)</string>
+    <string name="pref_bluetooth_discovery_interval_summary">Definiert das Suchinterval, bei dem das Gerät nach dem OBDII Adapter sucht. Beachte: ein höherer Wert bedeutet auch ein höherer Akkuverbrauch.</string>
 
 </resources>

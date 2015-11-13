@@ -17,8 +17,6 @@ import org.envirocar.core.logging.Logger;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import rx.Scheduler;
-import rx.android.schedulers.AndroidSchedulers;
 
 /**
  * @author dewall
@@ -33,12 +31,11 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
 
     private TrackListPagerAdapter trackListPageAdapter;
 
-    private Scheduler.Worker mtWorker = AndroidSchedulers.mainThread().createWorker();
-
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
+        LOG.info("onCreateView()");
         View content = inflater.inflate(R.layout.fragment_tracklist_layout, container, false);
 
         ButterKnife.inject(this, content);
@@ -77,6 +74,7 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
 
     @Override
     public void onResume() {
+        LOG.info("onResume()");
         super.onResume();
         if (mViewPager.getCurrentItem() == 0) {
             trackListPageAdapter.localCardFragment.loadDataset();
@@ -85,11 +83,19 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        LOG.info("onDestroyView()");
+        super.onDestroyView();
+
+        trackListPageAdapter.localCardFragment.onDestroyView();
+        trackListPageAdapter.remoteCardFragment.onDestroyView();
+    }
+
     /**
      * @author dewall
      */
     class TrackListPagerAdapter extends FragmentStatePagerAdapter {
-
         private static final int NUM_PAGES = 2;
 
         private TrackListLocalCardFragment localCardFragment =
@@ -127,9 +133,9 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
         @Override
         public CharSequence getPageTitle(int position) {
             if (position == 0) {
-                return "Local";
+                return getString(R.string.track_list_local_tracks);
             } else {
-                return "Uploaded";
+                return getString(R.string.track_list_remote_tracks);
             }
         }
     }

@@ -97,7 +97,6 @@ public class OBDConnectionService extends Service {
     // Different subscriptions
     private CompositeSubscription subscriptions = new CompositeSubscription();
     private Subscription mUUIDSubscription;
-    private Subscription mPreferenceSubscription;
 
 
     // This satellite fix indicates that there is no satellite connection yet.
@@ -207,9 +206,6 @@ public class OBDConnectionService extends Service {
         if (mUUIDSubscription != null)
             mUUIDSubscription.unsubscribe();
 
-        if (mPreferenceSubscription != null)
-            mPreferenceSubscription.unsubscribe();
-
         // Stop this remoteService and emove this remoteService from foreground state.
         stopOBDConnection();
         stopForeground(true);
@@ -226,7 +222,7 @@ public class OBDConnectionService extends Service {
 
     @Subscribe
     public void onReceiveGpsSatelliteFixEvent(GpsSatelliteFixEvent event) {
-        boolean isFix = mCurrentGpsSatelliteFix.isFix();
+        boolean isFix = event.mGpsSatelliteFix.isFix();
         if (isFix != mCurrentGpsSatelliteFix.isFix()) {
             if (isFix) {
                 doTextToSpeech("GPS positioning established");
@@ -541,7 +537,7 @@ public class OBDConnectionService extends Service {
 
     public class OBDConnectionRecognizer {
         private static final long OBD_INTERVAL = 1000 * 10; // 10 seconds;
-        private static final long GPS_INTERVAL = 1000 * 15; // 15 seconds;
+        private static final long GPS_INTERVAL = 1000 * 60 * 2; // 2 minutes;
 
         private long timeLastSpeedMeasurement;
         private long timeLastGpsMeasurement;
@@ -559,7 +555,6 @@ public class OBDConnectionService extends Service {
          * Constructor.
          */
         public OBDConnectionRecognizer() {
-            //        ((Injector) context).injectObjects(this);
 
         }
 

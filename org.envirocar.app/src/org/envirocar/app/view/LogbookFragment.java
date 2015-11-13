@@ -3,33 +3,37 @@ package org.envirocar.app.view;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.view.View;
+import android.widget.Button;
 
 import org.envirocar.core.injection.BaseInjectorFragment;
 
-public class LogbookFragment extends BaseInjectorFragment implements OnClickListener, android.view.View
-        .OnClickListener {
-    @Override
-    public void onClick(View v) {
-
-    }
-
-    @Override
-    public void onClick(DialogInterface dialog, int which) {
-
-    }
+public class LogbookFragment extends BaseInjectorFragment
+        implements OnClickListener, android.view.View.OnClickListener {
 
     //
-//    private static final String Default_Distance_Unit = "Settings_Distance_Unit";
-//    private static final String Default_Volume_Unit = "Settings_Volume_Unit";
-//    private static final String Default_Currency_Unit = "Settings_Currency_Unit";
-//    //Used Parameter
-//    private EditText Volume, Unit1, Cost, Currency, Unit2, Distance, Note;
-//    private Button btn;
+    private static final String Default_Distance_Unit = "Settings_Distance_Unit";
+    private static final String Default_Volume_Unit = "Settings_Volume_Unit";
+    private static final String Default_Currency_Unit = "Settings_Currency_Unit";
+    //Used Parameter
+    private Button btn;
+
+    //Date and Time
+//		Calendar c = Calendar.getInstance();
+//		SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+//		String formattedDate = df.format(c.getTime());
 //
-//    //Date and Time
-////		Calendar c = Calendar.getInstance();
-////		SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-////		String formattedDate = df.format(c.getTime());
+//    @InjectView(R.id.logbook_layout_cost_text)
+//    protected EditText costEditText;
+//    @InjectView(R.id.logbook_layout_cost_unit_spinner)
+//    protected Spinner costUnitSpinner;
+//    @InjectView(R.id.logbook_layout_volume_text)
+//    protected EditText volumeEditText;
+//    @InjectView(R.id.logbook_layout_volume_unit_spinner)
+//    protected Spinner volumeUnitSpinner;
+//    @InjectView(R.id.logbook_layout_milage_text)
+//    protected EditText milageEditText;
+//    @InjectView(R.id.logbook_layout_milage_unit_spinner)
+//    protected Spinner milageSpinner;
 //
 //    // Injected Variables
 //    @Inject
@@ -37,6 +41,9 @@ public class LogbookFragment extends BaseInjectorFragment implements OnClickList
 //    @Inject
 //    protected DAOProvider mDAOProvider;
 //
+//    @Inject
+//    protected SharedPreferences sharedPreferences;
+
 //    public View onCreateView(android.view.LayoutInflater inflater,
 //                             android.view.ViewGroup container,
 //                             android.os.Bundle savedInstanceState) {
@@ -211,18 +218,18 @@ public class LogbookFragment extends BaseInjectorFragment implements OnClickList
 //
 //
 //    }
-//
-//    @Override
-//    public void onClick(View v) {
-//        // TODO Auto-generated method stub
-//
-//    }
-//
-//
-//    @Override
-//    public void onClick(DialogInterface dialog, int which) {
-//        // TODO Auto-generated method stub
-//
-//    }
+
+    @Override
+    public void onClick(View v) {
+        // TODO Auto-generated method stub
+
+    }
+
+
+    @Override
+    public void onClick(DialogInterface dialog, int which) {
+        // TODO Auto-generated method stub
+
+    }
 
 }	

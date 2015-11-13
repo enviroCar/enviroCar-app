@@ -15,7 +15,6 @@ import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.UploadManager;
 import org.envirocar.app.handler.UserHandler;
-import org.envirocar.remote.DAOProvider;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.Track;
@@ -32,6 +31,7 @@ import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
+import org.envirocar.remote.DAOProvider;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.util.ArrayList;

@@ -6,8 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 
-import org.envirocar.core.logging.Logger;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,8 +18,6 @@ import dagger.ObjectGraph;
  */
 public abstract class BaseInjectorActivity extends AppCompatActivity implements Injector,
         InjectionModuleProvider {
-    private static final Logger LOGGER = Logger.getLogger(BaseInjectorActivity.class);
-
     private ObjectGraph mObjectGraph;
 
     // Injected variables.

@@ -1,7 +1,6 @@
 package org.envirocar.app;
 
 import android.annotation.TargetApi;
-import android.app.ActivityManager;
 import android.app.Application;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,9 +14,8 @@ import com.google.common.base.Preconditions;
 
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
-import org.envirocar.app.injection.InjectionApplicationModule;
-import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.handler.PreferenceConstants;
+import org.envirocar.app.injection.InjectionApplicationModule;
 import org.envirocar.core.injection.InjectionModuleProvider;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.ACRACustomSender;
@@ -69,15 +67,13 @@ public class BaseApplication extends Application implements Injector, InjectionM
         ACRA.init(this);
         ACRACustomSender yourSender = new ACRACustomSender();
         ACRA.getErrorReporter().setReportSender(yourSender);
-        //        ACRA.getConfig().setExcludeMatchingSharedPreferencesKeys(SettingsActivity
-        //                .resolveIndividualKeys());
 
-        // check if the background remoteService is already running.
-        if (!isServiceRunning(SystemStartupService.class)) {
-            // Start a new remoteService
-            Intent startIntent = new Intent(this, SystemStartupService.class);
-            startService(startIntent);
-        }
+//        // check if the background remoteService is already running.
+//        if (!ServiceUtils.isServiceRunning(this, SystemStartupService.class)) {
+//            // Start a new remoteService
+//            Intent startIntent = new Intent(this, SystemStartupService.class);
+//            startService(startIntent);
+//        }
 
         mScreenReceiver = new BroadcastReceiver() {
             @Override
@@ -156,18 +152,4 @@ public class BaseApplication extends Application implements Injector, InjectionM
         mObjectGraph.inject(instance);
     }
 
-    /**
-     * @param serviceClass
-     * @return
-     */
-    private boolean isServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo serviceInfo : manager.getRunningServices(Integer
-                .MAX_VALUE)) {
-            if (serviceClass.getName().equals(serviceInfo.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

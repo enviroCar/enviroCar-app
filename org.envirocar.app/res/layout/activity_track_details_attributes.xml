@@ -30,7 +30,7 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
-            android:text="@string/car"
+            android:text="@string/track_list_details_car"
             android:textColor="#ff323232"/>
 
         <TextView
@@ -67,7 +67,7 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
-            android:text="@string/begin"
+            android:text="@string/track_list_details_start"
             android:textColor="#ff323232"/>
 
         <TextView
@@ -101,7 +101,7 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
-            android:text="@string/end"
+            android:text="@string/track_list_details_end"
             android:textColor="#ff323232"/>
 
         <TextView
@@ -136,7 +136,7 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
-            android:text="@string/consumption"
+            android:text="@string/track_list_details_consumption"
             android:textColor="#ff323232"/>
 
         <TextView
@@ -172,7 +172,7 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:paddingLeft="48dp"
-            android:text="@string/Co2emission"
+            android:text="@string/track_list_details_emission"
             android:textColor="#ff323232"/>
 
         <TextView

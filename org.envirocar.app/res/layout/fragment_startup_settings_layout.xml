@@ -11,6 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/spacing_medium"
         android:layout_marginRight="@dimen/spacing_medium"
+        android:visibility="gone"
         app:cardCornerRadius="2dp"
         app:cardElevation="4dp"
         app:cardUseCompatPadding="true">
@@ -41,79 +42,6 @@
 
         </LinearLayout>
     </android.support.v7.widget.CardView>
-
-    <!--<android.support.v7.widget.CardView-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_marginLeft="@dimen/spacing_medium"-->
-    <!--android:layout_marginRight="@dimen/spacing_medium"-->
-    <!--app:cardUseCompatPadding="true"-->
-    <!--app:cardElevation="4dp"-->
-    <!--app:cardCornerRadius="2dp">-->
-
-    <!--<LinearLayout-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_margin="@dimen/spacing_large"-->
-    <!--android:orientation="horizontal">-->
-
-    <!--<RelativeLayout-->
-    <!--android:layout_width="0dp"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_weight="1">-->
-
-    <!--<TextView-->
-    <!--android:id="@+id/fragment_startup_settings_layout_bt_text"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_centerInParent="true"-->
-    <!--android:layout_marginLeft="@dimen/spacing_large"-->
-    <!--android:text="Bluetooth\nactivated"-->
-    <!--android:textColor="@color/blue_dark_cario"-->
-    <!--android:textSize="12sp"/>-->
-
-    <!--<ImageView-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_centerInParent="true"-->
-    <!--android:layout_toLeftOf="@id/fragment_startup_settings_layout_bt_text"-->
-    <!--android:alpha="0.54"-->
-    <!--android:src="@drawable/ic_bluetooth_searching_black_24dp"/>-->
-
-    <!--</RelativeLayout>-->
-    <!-- -->
-    <!--<LinearLayout-->
-    <!--android:layout_width="1dp"-->
-    <!--android:layout_height="match_parent"-->
-    <!--android:background="#3f3f3f3f"></LinearLayout>-->
-
-    <!--<RelativeLayout-->
-    <!--android:layout_width="0dp"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_weight="1">-->
-
-    <!--<TextView-->
-    <!--android:id="@+id/fragment_startup_settings_layout_bt_text2"-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_centerInParent="true"-->
-    <!--android:layout_marginLeft="@dimen/spacing_large"-->
-    <!--android:text="GPS"-->
-    <!--android:textColor="@color/blue_dark_cario"-->
-    <!--android:textSize="12sp"/>-->
-
-    <!--<ImageView-->
-    <!--android:layout_width="wrap_content"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:layout_centerInParent="true"-->
-    <!--android:layout_toLeftOf="@id/fragment_startup_settings_layout_bt_text2"-->
-    <!--android:alpha="0.54"-->
-    <!--android:src="@drawable/ic_location_off_black_24dp"/>-->
-    <!--</RelativeLayout>-->
-    <!--</LinearLayout>-->
-
-    <!--</android.support.v7.widget.CardView>-->
-
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
@@ -235,15 +163,7 @@
                         android:text="Car Attributes"
                         android:textSize="12sp"/>
                 </LinearLayout>
-
-                <!--<ImageButton-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:src=""-->
-
             </RelativeLayout>
-
         </LinearLayout>
     </android.support.v7.widget.CardView>
-
 </org.envirocar.app.view.utils.FractionLL>

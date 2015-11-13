@@ -2,7 +2,6 @@ package org.envirocar.app.view.tracklist;
 
 import android.app.Activity;
 import android.os.AsyncTask;
-import android.support.design.widget.Snackbar;
 import android.view.View;
 
 import com.squareup.otto.Subscribe;
@@ -23,7 +22,6 @@ import java.util.List;
 import rx.Observer;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -33,8 +31,6 @@ import rx.subscriptions.CompositeSubscription;
 public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         TrackListRemoteCardAdapter> implements TrackListLocalCardFragment.OnTrackUploadedListener {
     private static final Logger LOG = Logger.getLogger(TrackListRemoteCardFragment.class);
-
-    private List<Track> remoteTrackCache;
 
     private CompositeSubscription subscriptions = new CompositeSubscription();
 
@@ -56,7 +52,8 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
             mRecyclerView.setVisibility(View.VISIBLE);
             mTextView.setVisibility(View.GONE);
         } else {
-            mTextView.setText("Not Logged In!");
+            mProgressView.setVisibility(View.INVISIBLE);
+            mTextView.setText(R.string.track_list_bg_not_logged_in);
             mRecyclerView.setVisibility(View.GONE);
             mRecyclerViewAdapter.mTrackDataset.clear();
             mRecyclerViewAdapter.notifyDataSetChanged();
@@ -65,9 +62,9 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
     }
 
     @Override
-    public void onDestroy() {
-        LOG.info("onDestroy()");
-        super.onDestroy();
+    public void onDestroyView() {
+        LOG.info("onDestroyView()");
+        super.onDestroyView();
 
         if (!subscriptions.isUnsubscribed()) {
             subscriptions.unsubscribe();
@@ -125,7 +122,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
     @Override
     protected void loadDataset() {
         // Do not load the dataset twice.
-        if (!tracksLoaded) {
+        if (mUserManager.isLoggedIn() && !tracksLoaded) {
             tracksLoaded = true;
             new LoadRemoteTracksTask().execute();
         }
@@ -178,11 +175,11 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                     @Override
                     public void onError(Throwable e) {
                         LOG.error("Not connected exception", e);
-                        Snackbar.make(getView(), "Not Connected Exception", Snackbar
-                                .LENGTH_LONG).show();
+                        showSnackbar(R.string.track_list_communication_error);
                         holder.mProgressCircle.hide();
                         track.setDownloadState(Track.DownloadState.DOWNLOADING);
-                        holder.mDownloadNotification.setText("Error while downloading..");
+                        holder.mDownloadNotification.setText(
+                                R.string.track_list_error_while_downloading);
                     }
 
                     @Override
@@ -216,7 +213,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                             LOG.info("onStart() tracks in db");
                             mMainThreadWorker.schedule(() -> {
                                 mProgressView.setVisibility(View.VISIBLE);
-                                mProgressText.setText("Loading...");
+                                mProgressText.setText(R.string.track_list_loading_tracks);
                             });
                         }
 
@@ -228,21 +225,20 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         @Override
                         public void onError(Throwable e) {
                             LOG.error(e.getMessage(), e);
-                            Snackbar.make(getView(), "Error while loading local remote tracks!",
-                                    Snackbar.LENGTH_LONG).show();
+                            showSnackbar(R.string.track_list_loading_lremote_tracks_error);
                         }
 
                         @Override
                         public void onNext(List<Track> tracks) {
                             LOG.info("onNext(" + tracks.size() + ") locally stored tracks");
                             for (Track track : tracks) {
-                                if (track.getMeasurements() == null ||
-                                        track.getMeasurements().isEmpty()) {
-                                    continue;
-                                } else if (mTrackList.contains(track)) {
-                                    mTrackList.set(mTrackList.indexOf(track), track);
-                                } else {
-                                    mTrackList.add(track);
+                                if (track.getMeasurements() != null &&
+                                        !track.getMeasurements().isEmpty()) {
+                                    if (mTrackList.contains(track)) {
+                                        mTrackList.set(mTrackList.indexOf(track), track);
+                                    } else {
+                                        mTrackList.add(track);
+                                    }
                                 }
                             }
 
@@ -261,7 +257,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                             LOG.info("onStart() tracks in db");
                             mMainThreadWorker.schedule(() -> {
                                 mProgressView.setVisibility(View.VISIBLE);
-                                mProgressText.setText("Loading...");
+                                mProgressText.setText(R.string.track_list_loading_tracks);
                             });
                         }
 
@@ -275,20 +271,19 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                             LOG.error(e.getMessage(), e);
 
                             if (e instanceof NotConnectedException) {
-                                Snackbar.make(getView(), "Unable to load remote tracks.Maybe you" +
-                                                " have no connection to the internet ? ",
-                                        Snackbar.LENGTH_LONG).show();
+                                showSnackbar(R.string.track_list_loading_remote_tracks_error);
                                 if (mTrackList.isEmpty()) {
-                                    showText("No connection to the internet");
+                                    showText(getString(R.string.track_list_bg_no_connection));
                                 }
                             } else if (e instanceof UnauthorizedException) {
-                                Snackbar.make(getView(), "Unauthorized to load the tracks",
-                                        Snackbar.LENGTH_LONG).show();
+                                showSnackbar(R.string.track_list_bg_unauthorized);
                                 if (mTrackList.isEmpty()) {
-                                    showText("Unauthorized to load tracks");
+                                    showText(getString(R.string.track_list_bg_unauthorized));
                                 }
                             }
 
+                            ECAnimationUtils.animateHideView(getContext(), mProgressView,
+                                    R.anim.fade_out);
                         }
 
                         @Override
@@ -318,25 +313,22 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         mEnvirocarDB.getTrack(track.getTrackID())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Track>() {
-                    @Override
-                    public void call(Track track) {
-                        mTrackList.add(track);
-                        mRecyclerViewAdapter.notifyDataSetChanged();
-                    }
+                .subscribe(track1 -> {
+                    mTrackList.add(track1);
+                    mRecyclerViewAdapter.notifyDataSetChanged();
                 });
     }
 
     private void updateView() {
         if (hasLoadedStored && hasLoadedRemote) {
-            if(!isSorted){
+            if (!isSorted) {
                 isSorted = true;
                 Collections.sort(mTrackList);
             }
             ECAnimationUtils.animateHideView(getContext(), mProgressView, R.anim.fade_out);
 
             if (mTrackList.isEmpty()) {
-                mTextView.setText("No Local Tracks");
+                mTextView.setText(R.string.track_list_bg_no_local_tracks);
                 mTextView.setVisibility(View.VISIBLE);
             }
         }

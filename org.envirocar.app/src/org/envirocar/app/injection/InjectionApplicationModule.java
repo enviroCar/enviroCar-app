@@ -2,7 +2,10 @@ package org.envirocar.app.injection;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
+import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
@@ -24,6 +27,7 @@ import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.LazyLoadingStrategy;
 import org.envirocar.app.storage.LazyLoadingStrategyImpl;
+import org.envirocar.app.view.logbook.LogbookActivity;
 import org.envirocar.app.view.LogbookFragment;
 import org.envirocar.app.view.LoginActivity;
 import org.envirocar.app.view.RegisterFragment;
@@ -56,8 +60,7 @@ import org.envirocar.remote.CacheModule;
 import org.envirocar.remote.DAOProvider;
 import org.envirocar.remote.RemoteModule;
 import org.envirocar.remote.service.EnviroCarService;
-import org.envirocar.storage.EnviroCarDB;
-import org.envirocar.storage.EnviroCarDBImpl;
+import org.envirocar.storage.EnviroCarDBModule;
 
 import javax.inject.Singleton;
 
@@ -73,7 +76,8 @@ import dagger.Provides;
 @Module(
         includes = {
                 RemoteModule.class,
-                CacheModule.class
+                CacheModule.class,
+                EnviroCarDBModule.class
         },
         injects = {
                 TermsOfUseManager.class,
@@ -114,7 +118,8 @@ import dagger.Provides;
                 TrackListLocalCardFragment.class,
                 TrackListRemoteCardFragment.class,
                 TrackUploadService.class,
-                UploadManager.class
+                UploadManager.class,
+                LogbookActivity.class
         },
         staticInjections = {EnviroCarService.class},
         library = true,
@@ -206,7 +211,7 @@ public class InjectionApplicationModule {
 
     @Provides
     @Singleton
-    org.envirocar.core.UserManager provideUserManagerImpl() { return provideUserManager(); }
+    org.envirocar.core.UserManager provideUserManagerImpl(UserHandler userHandler) { return userHandler; }
 
     /**
      * Provides the FeatureFlags of the application
@@ -314,12 +319,6 @@ public class InjectionApplicationModule {
 
     @Provides
     @Singleton
-    EnviroCarDB provideEnviroCarDB(){
-        return new EnviroCarDBImpl(mAppContext);
-    }
-
-    @Provides
-    @Singleton
     TrackHandler provideTrackHandler() {
         return new TrackHandler(mAppContext);
     }
@@ -327,4 +326,16 @@ public class InjectionApplicationModule {
     @Provides
     @Singleton
     TrackDetailsProvider provideTrackDetailsProvider() { return new TrackDetailsProvider(mBus); }
+
+    @Provides
+    @Singleton
+    SharedPreferences provideSharedPreferences(@InjectApplicationScope Context context){
+        return PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    @Provides
+    @Singleton
+    RxSharedPreferences provideRxSharedPreferences(SharedPreferences prefs){
+        return RxSharedPreferences.create(prefs);
+    }
 }

@@ -1,11 +1,9 @@
 package org.envirocar.storage;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 
 import com.squareup.sqlbrite.BriteDatabase;
-import com.squareup.sqlbrite.SqlBrite;
 
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
@@ -17,6 +15,9 @@ import org.json.JSONException;
 
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func1;
@@ -26,19 +27,20 @@ import rx.functions.Func1;
  *
  * @author dewall
  */
+@Singleton
 public class EnviroCarDBImpl implements EnviroCarDB {
     private static final Logger LOG = Logger.getLogger(EnviroCarDBImpl.class);
 
-    private BriteDatabase briteDatabase;
+    protected BriteDatabase briteDatabase;
 
     /**
      * Constructor.
      *
-     * @param context the context of the current scope.
+     * @param briteDatabase the Database instance.
      */
-    public EnviroCarDBImpl(Context context) {
-        this.briteDatabase = SqlBrite.create()
-                .wrapDatabaseHelper(new EnviroCarDBOpenHelper(context));
+    @Inject
+    public EnviroCarDBImpl(BriteDatabase briteDatabase) {
+        this.briteDatabase = briteDatabase;
     }
 
     @Override
@@ -100,11 +102,13 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     public void insertTrack(final Track track) throws TrackSerializationException {
-        long result = briteDatabase.insert(TrackTable.TABLE_TRACK, TrackTable.toContentValues
-                (track));
-        Track.TrackId trackId = new Track.TrackId(result);
-        track.setTrackID(trackId);
+        BriteDatabase.Transaction transaction = briteDatabase.newTransaction();
         try {
+            long result = briteDatabase.insert(TrackTable.TABLE_TRACK, TrackTable.toContentValues
+                    (track));
+            Track.TrackId trackId = new Track.TrackId(result);
+            track.setTrackID(trackId);
+
             if (track.getMeasurements().size() > 0) {
                 for (Measurement measurement : track.getMeasurements()) {
                     measurement.setTrackId(trackId);
@@ -112,9 +116,13 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                             MeasurementTable.toContentValues(measurement));
                 }
             }
+
+            transaction.markSuccessful();
         } catch (MeasurementSerializationException e) {
             LOG.error(e.getMessage(), e);
             throw new TrackSerializationException(e);
+        } finally {
+            transaction.close();
         }
     }
 
@@ -163,9 +171,10 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                         " FROM " + TrackTable.TABLE_TRACK +
                         " WHERE " + TrackTable.KEY_REMOTE_ID + " IS NOT NULL")
                 .map(query -> query.run())
-                .flatMap(TrackTable.TO_TRACK_ID_MAPPER)
-                .map(trackId -> {
-                    deleteTrack(trackId);
+                .map(TrackTable.TO_TRACK_ID_LIST_MAPPER)
+                .map(trackIds -> {
+                    for (Track.TrackId trackId : trackIds)
+                        deleteTrack(trackId);
                     return null;
                 });
     }

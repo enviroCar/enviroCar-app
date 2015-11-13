@@ -1,25 +1,13 @@
 package org.envirocar.remote.service;
 
 
-import org.envirocar.core.UserManager;
-import org.envirocar.remote.dao.RemoteUserDAO;
-
 import javax.inject.Inject;
-
-import retrofit.Retrofit;
 
 /**
  * @author dewall
  */
 public class EnviroCarService {
     public static final String BASE_URL = "https://envirocar.org/api/dev/";
-
-    @Inject
-    protected static UserManager usermanager;
-    @Inject
-    protected static Retrofit retrofitClient;
-    @Inject
-    protected static RemoteUserDAO remoteUserDAO;
 
     @Inject
     protected static UserService userService;

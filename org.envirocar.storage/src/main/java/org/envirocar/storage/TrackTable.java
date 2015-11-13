@@ -12,6 +12,9 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
 import org.json.JSONException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func1;
@@ -96,6 +99,20 @@ class TrackTable {
                     subscriber.onCompleted();
                 }
             });
+        }
+    };
+
+    public static final Func1<? super Cursor, ? extends List<Track.TrackId>>
+            TO_TRACK_ID_LIST_MAPPER = new Func1<Cursor, List<Track.TrackId>>() {
+        @Override
+        public List<Track.TrackId> call(Cursor cursor) {
+            List<Track.TrackId> idList = new ArrayList<>(cursor.getCount());
+
+            while(cursor.moveToNext()){
+                idList.add(new Track.TrackId(cursor.getLong(
+                        cursor.getColumnIndex(KEY_TRACK_ID))));
+            }
+            return idList;
         }
     };
 

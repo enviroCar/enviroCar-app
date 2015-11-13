@@ -29,8 +29,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -40,9 +38,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 import org.envirocar.core.entity.Measurement;
-import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
-import org.json.JSONException;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;

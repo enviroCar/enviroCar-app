@@ -168,7 +168,7 @@ public class SettingsFragment extends PreferenceFragment {
 
             // Update the pairing list preference
             mBluetoothPairingPreference.setEnabled(true);
-            mBluetoothPairingPreference.setSummary(R.string.pref_bluetooth_pairing_summery);
+            mBluetoothPairingPreference.setSummary(R.string.pref_bluetooth_pairing_summary);
 
             // Enable the Bluetooth Button.
             mBluetoothDeviceListPreference.setEnabled(true);

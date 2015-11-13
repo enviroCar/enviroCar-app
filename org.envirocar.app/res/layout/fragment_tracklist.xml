@@ -19,6 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
         android:text="TEXT HERE..."
+        android:visibility="gone"
         android:textSize="26sp"/>
 
 
@@ -29,36 +30,34 @@
         android:layout_alignParentTop="true"
         android:background="#cd202020">
 
+        <ProgressBar
+            android:id="@+id/fragment_tracklist_progress_progressBar"
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center"
+            android:progressTint="@color/white_cario"
+            android:layout_marginLeft="@dimen/spacing_xlarge"
+            android:layout_marginRight="@dimen/spacing_medium" />
+
+        <TextView
+            android:id="@+id/fragment_tracklist_progress_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_gravity="center"
+            android:text="@string/track_list_loading_tracks"
+            android:textColor="@color/white_cario"
+            android:layout_marginLeft="@dimen/spacing_medium"
+            android:textSize="26sp"/>
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:layout_marginLeft="@dimen/spacing_large"
             android:layout_marginRight="@dimen/spacing_large">
-
-            <ProgressBar
-                android:id="@+id/fragment_tracklist_progress_progressBar"
-                style="?android:attr/progressBarStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_gravity="center"
-                android:progressTint="@color/white_cario"
-                android:layout_marginRight="@dimen/spacing_medium"
-                />
-
-
-            <TextView
-                android:id="@+id/fragment_tracklist_progress_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_gravity="center"
-                android:text="Loading..."
-                android:textColor="@color/white_cario"
-                android:layout_marginLeft="@dimen/spacing_medium"
-                android:textSize="26sp"/>
-
 
         </LinearLayout>
 

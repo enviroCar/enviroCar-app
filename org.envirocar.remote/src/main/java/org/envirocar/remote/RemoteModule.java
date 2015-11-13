@@ -12,6 +12,7 @@ import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.InternetAccessProvider;
 import org.envirocar.core.entity.Announcement;
 import org.envirocar.core.entity.Car;
+import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.Track;
@@ -34,6 +35,8 @@ import org.envirocar.remote.dao.RemoteUserStatisticsDAO;
 import org.envirocar.remote.serializer.AnnouncementSerializer;
 import org.envirocar.remote.serializer.CarListDeserializer;
 import org.envirocar.remote.serializer.CarSerializer;
+import org.envirocar.remote.serializer.FuelingListSerializer;
+import org.envirocar.remote.serializer.FuelingSerializer;
 import org.envirocar.remote.serializer.MeasurementSerializer;
 import org.envirocar.remote.serializer.RemoteTrackListDeserializer;
 import org.envirocar.remote.serializer.TermsOfUseListSerializer;
@@ -140,6 +143,9 @@ public class RemoteModule {
                 .registerTypeAdapter(new TypeToken<List<TermsOfUse>>() {
                 }.getType(), new TermsOfUseListSerializer())
                 .registerTypeAdapter(Announcement.class, new AnnouncementSerializer())
+                .registerTypeAdapter(Fueling.class, new FuelingSerializer())
+                .registerTypeAdapter(new TypeToken<List<Fueling>>() {
+                }.getType(), new FuelingListSerializer())
                 .create();
     }
 
@@ -189,5 +195,4 @@ public class RemoteModule {
     protected AnnouncementsService provideAnnouncementService(Retrofit retrofit) {
         return retrofit.create(AnnouncementsService.class);
     }
-
 }
