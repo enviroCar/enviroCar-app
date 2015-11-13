@@ -31,7 +31,6 @@ public class LogbookListAdapter extends ArrayAdapter<Fueling> {
     private static final DecimalFormat DECIMAL_FORMATTER = new DecimalFormat("#.##");
     private static final DateFormat DATE_FORMAT = DateFormat.getDateTimeInstance();
 
-
     private final List<Fueling> fuelings;
 
     /**
@@ -70,7 +69,7 @@ public class LogbookListAdapter extends ArrayAdapter<Fueling> {
                 getContext(), fueling.getTime()));
         holder.totalPrice.setText(String.format("%s €",
                 DECIMAL_FORMATTER.format(fueling.getCost())));
-        holder.pricePerLiter.setText(String.format("%s l",
+        holder.pricePerLiter.setText(String.format("%s l/€",
                 DECIMAL_FORMATTER.format(fueling.getCost() / fueling.getVolume())));
         holder.kmAndLiter.setText(String.format("%s km   -   %s l",
                 fueling.getMilage(), fueling.getVolume()));
@@ -89,7 +88,7 @@ public class LogbookListAdapter extends ArrayAdapter<Fueling> {
         }
 
         holder.missedFillUpView.setVisibility(fueling.isMissedFuelStop() ?
-                View.VISIBLE : View.INVISIBLE);
+                View.VISIBLE : View.GONE);
 
 
         return convertView;

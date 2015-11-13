@@ -1,6 +1,15 @@
-package org.envirocar.core.dao;
+package org.envirocar.remote.dao;
 
 import org.envirocar.core.UserManager;
+import org.envirocar.core.exception.NotConnectedException;
+import org.envirocar.core.exception.ResourceConflictException;
+import org.envirocar.core.exception.UnauthorizedException;
+import org.envirocar.remote.util.EnvirocarServiceUtils;
+
+import java.io.IOException;
+
+import retrofit.Call;
+import retrofit.Response;
 
 /**
  * TODO JavaDoc
@@ -12,8 +21,6 @@ public class BaseRemoteDAO<C, S> {
     protected final C cacheDao;
     protected final S remoteService;
     protected final UserManager userManager;
-
-
 
     /**
      * Constructor.
@@ -37,4 +44,18 @@ public class BaseRemoteDAO<C, S> {
         this.cacheDao = cacheDao;
         this.remoteService = remoteService;
     }
+
+    protected <T> Response<T> executeCall(Call<T> call) throws IOException,
+            NotConnectedException, UnauthorizedException, ResourceConflictException {
+        Response<T> response = call.execute();
+
+        // assert the responsecode if it was not an success.
+        if (!response.isSuccess()) {
+            EnvirocarServiceUtils.assertStatusCode(response.code(),
+                    response.message());
+        }
+
+        return response;
+    }
+
 }

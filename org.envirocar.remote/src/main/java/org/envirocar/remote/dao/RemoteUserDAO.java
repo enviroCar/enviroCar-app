@@ -22,7 +22,6 @@ package org.envirocar.remote.dao;
 
 import com.squareup.okhttp.ResponseBody;
 
-import org.envirocar.core.dao.BaseRemoteDAO;
 import org.envirocar.core.dao.UserDAO;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.DataRetrievalFailureException;

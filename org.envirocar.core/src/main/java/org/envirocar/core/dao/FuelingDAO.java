@@ -25,4 +25,11 @@ public interface FuelingDAO {
 
     void createFueling(Fueling fueling) throws NotConnectedException,
             ResourceConflictException, UnauthorizedException;
+
+    Observable<Void> createFuelingObservable(Fueling fueling);
+
+    void deleteFueling(Fueling fueling) throws NotConnectedException,
+            UnauthorizedException;
+
+    Observable<Void> deleteFuelingObservable(Fueling fueling);
 }

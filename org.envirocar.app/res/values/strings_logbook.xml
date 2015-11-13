@@ -2,4 +2,17 @@
 <resources>
 
     <string name="logbook_volume">Volume</string>
+
+    <string name="logbook_communication_error">No connection to the server.</string>
+    <string name="logbook_error_unauthorized">You are not authorized to do that. Please login with the right account first.</string>
+    <string name="logbook_error_resource_conflict">Error while uploading: The fueling already exists.</string>
+    <string name="logbook_error_form_invalid_input">Invalid input</string>
+    <string name="logbook_error_form_blank_input">Cannot be blank</string>
+    <string name="logbook_deletion_success_tmp">Fueling has been successfully deleted from the server</string>
+
+    <string name="logbook_dialog_delete_fueling_header">Delete Fueling Entry?</string>
+    <string name="logbook_dialog_delete_fueling_content">
+        "Do you really want to delete this fueling?"</string>
+
+    <string name="logbook_dialog_uploading_fueling_header">Uploading Fueling</string>
 </resources>

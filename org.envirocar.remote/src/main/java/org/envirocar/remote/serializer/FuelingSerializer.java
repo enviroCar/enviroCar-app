@@ -27,6 +27,7 @@ public class FuelingSerializer implements JsonSerializer<Fueling>, JsonDeseriali
         result.addProperty(Fueling.KEY_CAR, src.getCar().getId());
         result.addProperty(Fueling.KEY_FUEL_TYPE, src.getCar().getFuelType().toString());
         result.addProperty(Fueling.KEY_TIME, Util.longToIsoDate(src.getTime()));
+        result.addProperty(Fueling.KEY_COMMENT, src.getComment());
 
         result.add(Fueling.KEY_COST, createFuelingProperty(src.getCost(),
                 src.getCostUnit().toString()));
@@ -52,11 +53,14 @@ public class FuelingSerializer implements JsonSerializer<Fueling>, JsonDeseriali
         JsonObject jsonObject = (JsonObject) json;
 
         Fueling result = new FuelingImpl();
+        result.setRemoteID(jsonObject.get(Fueling.KEY_REMOTE_ID).getAsString());
+
         try {
             result.setTime(Util.isoDateToLong(jsonObject.get(Fueling.KEY_TIME).getAsString()));
         } catch (ParseException e) {
             throw new JsonParseException(e);
         }
+
         result.setCar(context.deserialize(jsonObject.get(Fueling.KEY_CAR), Car.class));
         result.setMissedFuelStop(jsonObject.get(Fueling.KEY_MISSED_FUEL_STOP).getAsBoolean());
 
@@ -78,5 +82,4 @@ public class FuelingSerializer implements JsonSerializer<Fueling>, JsonDeseriali
 
         return result;
     }
-
 }

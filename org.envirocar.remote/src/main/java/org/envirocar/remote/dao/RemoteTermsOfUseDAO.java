@@ -21,7 +21,6 @@
 package org.envirocar.remote.dao;
 
 
-import org.envirocar.core.dao.BaseRemoteDAO;
 import org.envirocar.core.dao.TermsOfUseDAO;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.exception.DataRetrievalFailureException;

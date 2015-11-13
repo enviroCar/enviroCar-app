@@ -38,6 +38,7 @@ import org.envirocar.app.view.dashboard.DashboardTempomatFragment;
 import org.envirocar.app.view.dashboard.DashboardTrackDetailsFragment;
 import org.envirocar.app.view.dashboard.DashboardTrackMapFragment;
 import org.envirocar.app.view.dashboard.DashboardTrackSettingsFragment;
+import org.envirocar.app.view.logbook.LogbookAddFuelingFragment;
 import org.envirocar.app.view.obdselection.OBDSelectionActivity;
 import org.envirocar.app.view.obdselection.OBDSelectionFragment;
 import org.envirocar.app.view.preferences.BluetoothDiscoveryIntervalPreference;
@@ -119,7 +120,8 @@ import dagger.Provides;
                 TrackListRemoteCardFragment.class,
                 TrackUploadService.class,
                 UploadManager.class,
-                LogbookActivity.class
+                LogbookActivity.class,
+                LogbookAddFuelingFragment.class
         },
         staticInjections = {EnviroCarService.class},
         library = true,

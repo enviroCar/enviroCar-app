@@ -2,7 +2,6 @@ package org.envirocar.remote.dao;
 
 
 import org.envirocar.core.UserManager;
-import org.envirocar.core.dao.BaseRemoteDAO;
 import org.envirocar.core.dao.UserDAO;
 import org.envirocar.core.dao.UserStatisticsDAO;
 import org.envirocar.core.entity.User;

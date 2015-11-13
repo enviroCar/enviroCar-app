@@ -20,7 +20,6 @@
  */
 package org.envirocar.remote.dao;
 
-import org.envirocar.core.dao.BaseRemoteDAO;
 import org.envirocar.core.dao.CarDAO;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.exception.DataCreationFailureException;
