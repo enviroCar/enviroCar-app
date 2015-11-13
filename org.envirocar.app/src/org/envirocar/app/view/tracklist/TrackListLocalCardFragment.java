@@ -11,6 +11,8 @@ import org.envirocar.app.TrackHandler;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.TrackMetadata;
+import org.envirocar.core.util.Util;
 
 import java.util.Collections;
 import java.util.List;
@@ -115,6 +117,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
             @Override
             public void onExportTrackClicked(Track track) {
                 LOG.info(String.format("onExportTrackClicked(%s)", track.getTrackID()));
+                track.updateMetadata(new TrackMetadata(Util.getVersionString(getActivity()),
+                        mUserManager.getUser().getTermsOfUseVersion()));
                 exportTrack(track);
             }
 
