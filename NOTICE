@@ -1,0 +1,42 @@
+Copyright (C) 2013 - 2015 the enviroCar community
+
+The enviroCar app is free software: you can redistribute it and/or
+modify it under the terms of the GNU General Public License as published
+by the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+The enviroCar app is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+Public License for more details.
+
+You should have received a copy of the GNU General Public License along
+with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+
+This project further includes:
+
+  com.squareup.dagger:dagger under The Apache Software License, Version 2.0
+  com.jakewharton:butterknife under The Apache Software License, Version 2.0
+  com.squareup:otto under The Apache Software License, Version 2.0
+
+  com.squareup.retrofit:retrofit under The Apache Software License, Version 2.0
+  com.squareup.retrofit:converter-gson under The Apache Software License, Version 2.0
+  com.squareup.retrofit:retrofit-adapters under The Apache Software License, Version 2.0
+  com.squareup.retrofit:adapter-rxjava under The Apache Software License, Version 2.0
+
+  io.reactivex:rxjava under The Apache Software License, Version 2.0
+  io.reactivex:rxandroid under The Apache Software License, Version 2.0
+  com.jakewharton.rxbinding:rxbinding under The Apache Software License, Version 2.0
+  com.f2prateek.rx.preferences:rx-preferences under The Apache Software License, Version 2.0
+  com.squareup.sqlbrite:sqlbrite under The Apache Software License, Version 2.0
+
+  org.apache.commons:commons-compress under The Apache Software License, Version 2.0
+  com.google.code.gson:gson under The Apache Software License, Version 2.0
+  com.google.guava:guava under The Apache Software License, Version 2.0
+  ch.acra:acra under The Apache Software License, Version 2.0
+
+  com.afollestad:material-dialogs under MIT License
+  com.github.lecho:hellocharts-library under The Apache Software License, Version 2.0
+  com.github.jorgecastilloprz:fabprogresscircle under The Apache Software License, Version 2.0
+  com.mapbox.mapboxsdk:mapbox-android-sdk under The Apache Software License, Version 2.0
