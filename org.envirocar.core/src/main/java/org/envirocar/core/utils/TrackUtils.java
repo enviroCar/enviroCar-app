@@ -30,7 +30,7 @@ public class TrackUtils {
     public static Track getObfuscatedTrack(Track track) {
         Track result = track.carbonCopy();
         result.setMeasurements(getNonObfuscatedMeasurements(track));
-        return track;
+        return result;
     }
 
     private static List<Measurement> getNonObfuscatedMeasurements(Track track) {
