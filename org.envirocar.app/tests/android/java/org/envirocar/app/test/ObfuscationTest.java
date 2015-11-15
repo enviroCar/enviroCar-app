@@ -3,8 +3,6 @@ package org.envirocar.app.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Assert;
-
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.CarImpl;
 import org.envirocar.core.entity.Measurement;
@@ -13,20 +11,36 @@ import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.TrackImpl;
 import org.envirocar.core.exception.TrackAlreadyFinishedException;
 import org.envirocar.core.utils.TrackUtils;
-import org.envirocar.remote.serializer.MeasurementSerializer;
 import org.envirocar.remote.serializer.TrackSerializer;
+import org.hamcrest.CoreMatchers;
 import org.json.JSONException;
+import org.junit.Assert;
 import org.junit.Test;
 
-import android.test.AndroidTestCase;
 import android.test.InstrumentationTestCase;
 
 public class ObfuscationTest extends InstrumentationTestCase {
 
     private static int TARGET_LENGTH = 10;
+    private MeasurementImpl first;
+    private MeasurementImpl last;
+    private long start;
+    private long end;
+    private List<Measurement> inter;
 
     @Test
     public void testObfuscation() throws JSONException, TrackAlreadyFinishedException {
+        start = System.currentTimeMillis();
+        end = System.currentTimeMillis() + 1000*60*100;
+
+        first = new MeasurementImpl(51.0, 7.0);
+        first.setTime(start);
+        last = new MeasurementImpl(51.03, 7.03);
+        last.setTime(end);
+
+        //all intermediates should make it!
+        inter = createIntermediates();
+
         Track t = createTrack();
 
         TrackSerializer s = new TrackSerializer();
@@ -35,6 +49,9 @@ public class ObfuscationTest extends InstrumentationTestCase {
         List<Measurement> result = TrackUtils.getObfuscatedTrack(t).getMeasurements();
 
         Assert.assertTrue("Unexpected element count", result.size() == TARGET_LENGTH);
+        for (Measurement m : inter) {
+            Assert.assertThat(result.contains(m), CoreMatchers.is(true));
+        }
     }
 
     private Track createTrack() throws TrackAlreadyFinishedException {
@@ -50,19 +67,13 @@ public class ObfuscationTest extends InstrumentationTestCase {
     private List<Measurement> createMeasurements() {
         List<Measurement> result = new ArrayList<Measurement>();
 
-        long start = System.currentTimeMillis();
-        long end = System.currentTimeMillis() + 1000*60*100;
-        Measurement first = new MeasurementImpl(51.0, 7.0);
-        first.setTime(start);
-        Measurement last = new MeasurementImpl(51.03, 7.03);
-        last.setTime(end);
-
         result.add(first);
         //spatial near, this should be removed
         result.add(createMeasurementNear(first, start + 60 * 1000 + 1));
 
-        //all intermediates should make it!
-        createIntermediates(result, first, last);
+        for (Measurement m : inter) {
+            result.add(m);
+        }
 
         //this one should be removed due to time
         MeasurementImpl farDistanceCloseTime = new MeasurementImpl(51.03, 7.03);
@@ -72,8 +83,8 @@ public class ObfuscationTest extends InstrumentationTestCase {
         return result;
     }
 
-    private void createIntermediates(List<Measurement> result, Measurement first,
-                                     Measurement last) {
+    private List<Measurement> createIntermediates() {
+        List<Measurement> result = new ArrayList<>();
         double deltaLat = first.getLatitude() - last.getLatitude();
         double deltaLong = first.getLongitude() - last.getLongitude();
 
@@ -104,6 +115,8 @@ public class ObfuscationTest extends InstrumentationTestCase {
             m.setTime(targetTime);
             result.add(m);
         }
+
+        return result;
     }
 
     private Measurement createMeasurementNear(Measurement first, long time) {
