@@ -17,6 +17,9 @@ import java.util.List;
 public class TrackUtils {
     private static final Logger LOG = Logger.getLogger(TrackUtils.class);
 
+    private static final double OBFUSCATION_DISTANCE_KM = 0.25;
+    private static final int OBFUSCATION_TIME_MS = 60000;
+
     /**
      * resolve all not obfuscated measurements of a track.
      * <p>
@@ -36,61 +39,58 @@ public class TrackUtils {
     private static List<Measurement> getNonObfuscatedMeasurements(Track track) {
         List<Measurement> measurements = track.getMeasurements();
 
-        boolean wasAtLeastOneTimeNotObfuscated = false;
-        ArrayList<Measurement> privateCandidates = new ArrayList<Measurement>();
-        ArrayList<Measurement> nonPrivateMeasurements = new ArrayList<Measurement>();
-        for (Measurement measurement : measurements) {
-            try {
-                // Filter measurements by their temporal distance to the starting measurement.
-                if (isTemporalObfuscationCandidate(measurement, track)) {
-                    continue;
-                }
+        List<Measurement> nonPrivateMeasurements = new ArrayList<Measurement>();
+        try {
+            int first = determineFirstNonObfuscatedIndex(measurements, track);
+            int last = determineLastNonObfuscatedIndex(measurements, track);
 
-                // Filter measurements by their distance to the starting point
-                // TODO this is by far the worst implementation somebody could do...
-                if (isSpatialObfuscationCandidate(measurement, track)) {
-                    if (wasAtLeastOneTimeNotObfuscated) {
-                        privateCandidates.add(measurement);
-                        nonPrivateMeasurements.add(measurement);
-                    }
-                    continue;
-                }
-
-                /*
-                 * we may have found obfuscation candidates in the middle of the track
-                 * (may cross start or end point) in a PRIOR iteration
-                 * of this loop. these candidates can be removed now as we are again
-                 * out of obfuscation scope
-                 */
-                if (wasAtLeastOneTimeNotObfuscated) {
-                    privateCandidates.clear();
-                } else {
-                    wasAtLeastOneTimeNotObfuscated = true;
-                }
-
-                nonPrivateMeasurements.add(measurement);
-            } catch (NoMeasurementsException e) {
-                LOG.warn(e.getMessage(), e);
+            if (first == -1 || last == -1) {
+                LOG.warn("Could not determine first/last non-obfuscated measurements. Returning originals");
+                return measurements;
             }
 
+            for (int i = first; i <= last; i++) {
+                nonPrivateMeasurements.add(measurements.get(i));
+            }
+
+            return nonPrivateMeasurements;
+        } catch (NoMeasurementsException e) {
+            LOG.warn("Could not obfuscate track", e);
+            return measurements;
         }
-        /*
-         * the private candidates which have made it until here
-         * shall be ignored
-         */
-        nonPrivateMeasurements.removeAll(privateCandidates);
-        return nonPrivateMeasurements;
     }
 
-    private static boolean isSpatialObfuscationCandidate(Measurement measurement, Track track)
-            throws NoMeasurementsException {
-        return (Util.getDistance(track.getFirstMeasurement(), measurement) <= 0.25)
-                || (Util.getDistance(track.getLastMeasurement(), measurement) <= 0.25);
+    private static int determineFirstNonObfuscatedIndex(List<Measurement> measurements, Track track) throws NoMeasurementsException {
+        for (int i = 0; i < measurements.size(); i++) {
+            Measurement m = measurements.get(i);
+            if (!isTemporalObfuscated(m, track) && !isSpatialObfuscated(m, track)) {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
-    private static boolean isTemporalObfuscationCandidate(Measurement measurement, Track track)
+    private static int determineLastNonObfuscatedIndex(List<Measurement> measurements, Track track) throws NoMeasurementsException {
+        for (int i = measurements.size()-1; i >= 0; i--) {
+            Measurement m = measurements.get(i);
+            if (!isTemporalObfuscated(m, track) && !isSpatialObfuscated(m, track)) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private static boolean isSpatialObfuscated(Measurement measurement, Track track)
             throws NoMeasurementsException {
-        return (measurement.getTime() - track.getStartTime() <= 60000 ||
-                track.getEndTime() - measurement.getTime() <= 60000);
+        return (Util.getDistance(track.getFirstMeasurement(), measurement) <= OBFUSCATION_DISTANCE_KM)
+                || (Util.getDistance(track.getLastMeasurement(), measurement) <= OBFUSCATION_DISTANCE_KM);
+    }
+
+    private static boolean isTemporalObfuscated(Measurement measurement, Track track)
+            throws NoMeasurementsException {
+        return (measurement.getTime() - track.getStartTime() <= OBFUSCATION_TIME_MS ||
+                track.getEndTime() - measurement.getTime() <= OBFUSCATION_TIME_MS);
     }
 }
