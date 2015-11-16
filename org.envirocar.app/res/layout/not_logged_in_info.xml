@@ -15,7 +15,7 @@
             android:layout_height="175dp"
             android:layout_gravity="center"
             android:layout_margin="@dimen/spacing_xlarge"
-            android:alpha="0.34"
+            android:alpha="0.24"
             android:src="@drawable/img_logged_out"/>
 
         <TextView

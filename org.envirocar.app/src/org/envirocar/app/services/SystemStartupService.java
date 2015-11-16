@@ -14,7 +14,6 @@ import android.widget.Toast;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.NotificationHandler;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;

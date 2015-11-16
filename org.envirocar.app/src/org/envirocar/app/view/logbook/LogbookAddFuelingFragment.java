@@ -20,6 +20,7 @@ import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.entity.FuelingImpl;
+import org.envirocar.core.exception.DataCreationFailureException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
@@ -176,7 +177,11 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         }
 
         // upload the fueling
-        uploadFueling(fueling);
+        if (car.getId() == null || !car.getId().isEmpty()) {
+            uploadCarBeforeFueling(car, fueling);
+        } else {
+            uploadFueling(fueling);
+        }
     }
 
     private void initTextViews() {
@@ -272,6 +277,61 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         });
     }
 
+    private void uploadCarBeforeFueling(final Car car, final Fueling fueling) {
+        subscriptions.add(daoProvider.getSensorDAO()
+                .createCarObservable(car)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<Car>() {
+                    private MaterialDialog dialog;
+
+                    @Override
+                    public void onStart() {
+                        LOG.info("uploadCarBeforeFueling() has started");
+
+                        dialog = new MaterialDialog.Builder(getContext())
+                                .progress(true, 0)
+                                .title(R.string.logbook_dialog_uploading_fueling_header)
+                                .content(R.string.logbook_dialog_uploading_fueling_car)
+                                .cancelable(false)
+                                .show();
+                    }
+
+                    @Override
+                    public void onNext(Car car) {
+                        // car has been successfully uploaded
+                        LOG.info(String.format(
+                                "uploadCarBeforeFueling(): car has been uploaded -> [%s]",
+                                car.getId()));
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        LOG.info("uploadCarBeforeFueling(): was successful.");
+
+                        dialog.dismiss();
+
+                        // car upload was sucessful. Now upload the fueling.
+                        uploadFueling(fueling);
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.error(e.getMessage(), e);
+                        if (e instanceof NotConnectedException) {
+                            showSnackbarInfo(R.string.logbook_error_communication);
+                        } else if (e instanceof DataCreationFailureException) {
+                            showSnackbarInfo(R.string.logbook_error_resource_conflict);
+                        } else if (e instanceof UnauthorizedException) {
+                            showSnackbarInfo(R.string.logbook_error_unauthorized);
+                        } else {
+                            showSnackbarInfo(R.string.logbook_error_general);
+                        }
+                        dialog.dismiss();
+                    }
+                }));
+    }
+
     /**
      * Uploads the fueling to the enviroCar Server.
      *
@@ -290,6 +350,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                         dialog = new MaterialDialog.Builder(getContext())
                                 .progress(true, 0)
                                 .title(R.string.logbook_dialog_uploading_fueling_header)
+                                .content(R.string.logbook_dialog_uploading_fueling_content)
                                 .cancelable(false)
                                 .show();
                     }
@@ -309,7 +370,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                     public void onError(Throwable e) {
                         LOG.error(e.getMessage(), e);
                         if (e instanceof NotConnectedException) {
-                            showSnackbarInfo(R.string.logbook_communication_error);
+                            showSnackbarInfo(R.string.logbook_error_communication);
                         } else if (e instanceof ResourceConflictException) {
                             showSnackbarInfo(R.string.logbook_error_resource_conflict);
                         } else if (e instanceof UnauthorizedException) {

@@ -24,4 +24,6 @@ public interface CarDAO {
 
     String createCar(Car car) throws NotConnectedException, DataCreationFailureException,
             UnauthorizedException;
+
+    Observable<Car> createCarObservable(Car car);
 }

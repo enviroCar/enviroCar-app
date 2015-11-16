@@ -45,7 +45,8 @@
 
                     <TextView
                         style="@style/enviroCar.title"
-                        android:text="2 Fuelings"/>
+                        android:text="2 Fuelings"
+                        android:visibility="gone"/>
                 </LinearLayout>
 
                 <ListView

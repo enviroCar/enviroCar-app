@@ -188,7 +188,10 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                         @Override
                         public void onError(Throwable e) {
                             LOG.error(e.getMessage(), e);
-                            mTextView.setText(R.string.track_list_bg_error);
+
+                            showText(R.drawable.img_alert,
+                                    R.string.track_list_bg_error,
+                                    R.string.track_list_bg_error_sub);
 
                             Snackbar.make(getView(),
                                     R.string.track_list_loading_tracks_error_snackbar,
@@ -212,11 +215,12 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                                 Collections.sort(mTrackList);
 
                                 mRecyclerView.setVisibility(View.VISIBLE);
-                                mTextView.setVisibility(View.GONE);
+                                infoView.setVisibility(View.GONE);
                                 mRecyclerViewAdapter.notifyDataSetChanged();
                             } else if (mTrackList.isEmpty()) {
-                                mTextView.setText(R.string.track_list_bg_no_local_tracks);
-                                mTextView.setVisibility(View.VISIBLE);
+                                showText(R.drawable.img_tracks,
+                                        R.string.track_list_bg_no_local_tracks,
+                                        R.string.track_list_bg_no_local_tracks_sub);
                             }
                         }
                     });

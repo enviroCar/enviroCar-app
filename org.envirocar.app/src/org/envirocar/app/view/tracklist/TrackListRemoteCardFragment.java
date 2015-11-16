@@ -50,14 +50,16 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
 
         if (mUserManager.isLoggedIn()) {
             mRecyclerView.setVisibility(View.VISIBLE);
-            mTextView.setVisibility(View.GONE);
+            infoView.setVisibility(View.GONE);
         } else {
+            showText(R.drawable.img_logged_out,
+                    R.string.track_list_bg_not_logged_in,
+                    R.string.track_list_bg_not_logged_in_sub);
+
             mProgressView.setVisibility(View.INVISIBLE);
-            mTextView.setText(R.string.track_list_bg_not_logged_in);
             mRecyclerView.setVisibility(View.GONE);
             mRecyclerViewAdapter.mTrackDataset.clear();
             mRecyclerViewAdapter.notifyDataSetChanged();
-            ECAnimationUtils.animateShowView(getContext(), mTextView, R.anim.fade_in);
         }
     }
 
@@ -273,12 +275,16 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                             if (e instanceof NotConnectedException) {
                                 showSnackbar(R.string.track_list_loading_remote_tracks_error);
                                 if (mTrackList.isEmpty()) {
-                                    showText(getString(R.string.track_list_bg_no_connection));
+                                    showText(R.drawable.img_disconnected,
+                                            R.string.track_list_bg_no_connection,
+                                            R.string.track_list_bg_no_connection_sub);
                                 }
                             } else if (e instanceof UnauthorizedException) {
                                 showSnackbar(R.string.track_list_bg_unauthorized);
                                 if (mTrackList.isEmpty()) {
-                                    showText(getString(R.string.track_list_bg_unauthorized));
+                                    showText(R.drawable.img_logged_out,
+                                            R.string.track_list_bg_unauthorized,
+                                            R.string.track_list_bg_unauthorized_sub);
                                 }
                             }
 
@@ -328,14 +334,15 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
             ECAnimationUtils.animateHideView(getContext(), mProgressView, R.anim.fade_out);
 
             if (mTrackList.isEmpty()) {
-                mTextView.setText(R.string.track_list_bg_no_local_tracks);
-                mTextView.setVisibility(View.VISIBLE);
+                showText(R.drawable.img_tracks,
+                        R.string.track_list_bg_no_local_tracks,
+                        R.string.track_list_bg_no_local_tracks_sub);
             }
         }
 
         if (!mTrackList.isEmpty()) {
             mRecyclerView.setVisibility(View.VISIBLE);
-            mTextView.setVisibility(View.GONE);
+            infoView.setVisibility(View.GONE);
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
     }

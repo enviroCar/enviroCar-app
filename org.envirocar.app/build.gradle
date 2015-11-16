@@ -17,10 +17,12 @@ dependencies {
     compile rootProject.ext.butterKnife
     compile rootProject.ext.acra
     compile rootProject.ext.helloCharts
-    compile rootProject.ext.materialDialogs
     compile rootProject.ext.fabProgressCircle
     compile rootProject.ext.gson
     compile rootProject.ext.guava
+    compile('com.github.afollestad.material-dialogs:core:0.8.5.0@aar') {
+        transitive = true
+    }
 
     compile rootProject.ext.rxAndroid
     compile rootProject.ext.rxJava

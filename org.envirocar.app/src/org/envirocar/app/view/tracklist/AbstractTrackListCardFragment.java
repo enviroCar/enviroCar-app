@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -68,8 +69,15 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     @Inject
     protected TrackHandler mTrackHandler;
 
-    @InjectView(R.id.fragment_tracklist_notification)
-    protected TextView mTextView;
+    @InjectView(R.id.fragment_tracklist_info)
+    protected View infoView;
+    @InjectView(R.id.fragment_tracklist_info_img)
+    protected ImageView infoImg;
+    @InjectView(R.id.fragment_tracklist_info_text)
+    protected TextView infoText;
+    @InjectView(R.id.fragment_tracklist_info_subtext)
+    protected TextView infoSubtext;
+
     @InjectView(R.id.fragment_tracklist_progress_view)
     protected View mProgressView;
     @InjectView(R.id.fragment_tracklist_progress_text)
@@ -210,13 +218,15 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                 .show();
     }
 
-    protected void showText(String text) {
+    protected void showText(int imgResource, int textResource, int subtextResource) {
         if (mTrackList.isEmpty()) {
             mMainThreadWorker.schedule(new Action0() {
                 @Override
                 public void call() {
-                    mTextView.setVisibility(View.VISIBLE);
-                    mTextView.setText(text);
+                    infoImg.setImageResource(imgResource);
+                    infoText.setText(textResource);
+                    infoSubtext.setText(subtextResource);
+                    ECAnimationUtils.animateShowView(getContext(), infoView, R.anim.fade_in);
                 }
             });
         }
