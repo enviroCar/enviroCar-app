@@ -20,34 +20,25 @@
  */
 package org.envirocar.app.test;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+
 import java.io.IOException;
 
 import junit.framework.Assert;
 
-import org.envirocar.app.model.TermsOfUse;
-import org.envirocar.app.model.TermsOfUseInstance;
+import org.envirocar.core.entity.TermsOfUse;
+import org.envirocar.remote.serializer.TermsOfUseSerializer;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.junit.Test;
 
 public class TermsOfUseTest extends ResourceLoadingTestCase {
 
-	@Test
-	public void testTermsOfUseParsing() throws JSONException, IOException {
-		JSONObject json = new JSONObject(readJsonAsset("/terms_of_use_mockup.json"));
-		TermsOfUse tou = TermsOfUse.fromJson(json);
-		
-		Assert.assertTrue("Unexpected element count.", tou.getInstances().size() == 2);
-		Assert.assertTrue("Unexpected element id.", tou.getInstances().get(0).getId().equals(
-				"524bd2b6ff0bb8917e6f1665"));
-		Assert.assertTrue("Unexpected element id.", tou.getInstances().get(1).getId().equals(
-				"524bd1b0ff0bb8917e6f1663"));
-	}
 
 	@Test
 	public void testTermsOfUseInstanceParsing() throws JSONException, IOException {
-		JSONObject json = new JSONObject(readJsonAsset("/terms_of_use_instance_mockup.json"));
-		TermsOfUseInstance tou = TermsOfUseInstance.fromJson(json);
+		JsonElement gson = new Gson().fromJson(readJsonAsset("/terms_of_use_instance_mockup.json"), JsonElement.class);
+		TermsOfUse tou = new TermsOfUseSerializer().deserialize(gson, null, null);
 		
 		Assert.assertTrue("Unexpected issuedDate", tou.getIssuedDate().equals("2022-06-09"));
 		Assert.assertTrue("Unexpected contents", tou.getContents().equals("v50..."));
