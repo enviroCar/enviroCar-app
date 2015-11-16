@@ -466,8 +466,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 Intent intent3 = new Intent(BaseMainActivity.this, LogbookActivity.class);
                 startActivity(intent3);
                 return false;
-//                fragment = new LogbookFragment();
-//                break;
             case R.id.menu_nav_drawer_account_login:
                 Intent intent = new Intent(BaseMainActivity.this, LoginActivity.class);
                 startActivity(intent);

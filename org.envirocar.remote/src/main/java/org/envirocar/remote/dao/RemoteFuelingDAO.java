@@ -23,14 +23,12 @@ package org.envirocar.remote.dao;
 import com.squareup.okhttp.ResponseBody;
 
 import org.envirocar.core.UserManager;
-import org.envirocar.core.dao.BaseRemoteDAO;
 import org.envirocar.core.dao.FuelingDAO;
 import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.remote.service.EnviroCarService;
 import org.envirocar.remote.service.FuelingService;
 import org.envirocar.remote.util.EnvirocarServiceUtils;
 
@@ -39,7 +37,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import retrofit.Call;
 import retrofit.Response;
 import rx.Observable;
 import rx.Subscriber;
@@ -67,20 +64,11 @@ public class RemoteFuelingDAO extends BaseRemoteDAO<FuelingDAO, FuelingService> 
     @Override
     public List<Fueling> getFuelings() throws NotConnectedException, UnauthorizedException {
         LOG.info("getFuelings()");
-
-        Call<List<Fueling>> getFuelingsCall = remoteService.getFuelings(
-                userManager.getUser().getUsername());
-
         try {
-            Response<List<Fueling>> getFuelingsResponse = getFuelingsCall.execute();
-
-            // assert the responsecode if it was not an success.
-            if (!getFuelingsResponse.isSuccess()) {
-                EnvirocarServiceUtils.assertStatusCode(getFuelingsResponse.code(),
-                        getFuelingsResponse.message());
-            }
-
-            return getFuelingsResponse.body();
+            // Execute the call
+            return executeCall(
+                    remoteService.getFuelings(userManager.getUser().getUsername()))
+                    .body();
         } catch (ResourceConflictException e) {
             throw new NotConnectedException(e);
         } catch (IOException e) {
@@ -107,23 +95,62 @@ public class RemoteFuelingDAO extends BaseRemoteDAO<FuelingDAO, FuelingService> 
     public void createFueling(Fueling fueling) throws NotConnectedException,
             ResourceConflictException, UnauthorizedException {
         LOG.info("createFueling()");
-
-        // Instantiate the fueling remoteService and the upload fueling call
-        final FuelingService fuelingService = EnviroCarService.getFuelingService();
-        Call<ResponseBody> uploadFuelingCall = fuelingService.uploadFuelings(
-                userManager.getUser().getUsername(), fueling);
-
         try {
             // Execute the call
-            Response<ResponseBody> uploadFuelingResponse = uploadFuelingCall.execute();
-
-            // assert the responsecode if it was not an success.
-            if (!uploadFuelingResponse.isSuccess()) {
-                EnvirocarServiceUtils.assertStatusCode(uploadFuelingResponse.code(),
-                        uploadFuelingResponse.message());
-            }
+            Response<ResponseBody> response = executeCall(remoteService.uploadFuelings(
+                    userManager.getUser().getUsername(), fueling));
+            fueling.setRemoteID(
+                    EnvirocarServiceUtils.resolveRemtoteID(
+                            EnvirocarServiceUtils.resolveRemoteLocation(response)));
         } catch (IOException e) {
             throw new NotConnectedException(e);
         }
+    }
+
+    @Override
+    public Observable<Void> createFuelingObservable(Fueling fueling) {
+        LOG.info("createFuelingObservable()");
+        return Observable.create(new Observable.OnSubscribe<Void>() {
+            @Override
+            public void call(Subscriber<? super Void> subscriber) {
+                try {
+                    createFueling(fueling);
+                } catch (NotConnectedException | ResourceConflictException |
+                        UnauthorizedException e) {
+                    subscriber.onError(e);
+                }
+                subscriber.onCompleted();
+            }
+        });
+    }
+
+    @Override
+    public void deleteFueling(Fueling fueling) throws NotConnectedException, UnauthorizedException {
+        LOG.info(String.format("deleteFueling(%s)", fueling.getRemoteID()));
+        try {
+            // Execute the call
+            executeCall(remoteService
+                    .deleteFueling(userManager.getUser().getUsername(),
+                            fueling.getRemoteID()));
+        } catch (ResourceConflictException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            throw new NotConnectedException(e);
+        }
+    }
+
+    @Override
+    public Observable<Void> deleteFuelingObservable(Fueling fueling) {
+        return Observable.create(new Observable.OnSubscribe<Void>() {
+            @Override
+            public void call(Subscriber<? super Void> subscriber) {
+                try {
+                    deleteFueling(fueling);
+                } catch (NotConnectedException | UnauthorizedException e) {
+                    subscriber.onError(e);
+                }
+                subscriber.onCompleted();
+            }
+        });
     }
 }

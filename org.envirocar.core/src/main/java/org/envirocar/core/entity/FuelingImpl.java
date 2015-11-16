@@ -6,6 +6,8 @@ package org.envirocar.core.entity;
  * @uthor dewall
  */
 public class FuelingImpl implements Fueling {
+
+    private String remoteID;
     private Car car;
     private String comment;
     private long time;
@@ -20,7 +22,29 @@ public class FuelingImpl implements Fueling {
 
     @Override
     public Fueling carbonCopy() {
-        return null;
+        FuelingImpl result = new FuelingImpl();
+        result.remoteID = remoteID;
+        result.car = car;
+        result.comment = comment;
+        result.time = time;
+        result.missedFuelStop = missedFuelStop;
+        result.milage = milage;
+        result.milageUnit = milageUnit;
+        result.cost = cost;
+        result.costUnit = costUnit;
+        result.volume = volume;
+        result.volumeUnit = volumeUnit;
+        return result;
+    }
+
+    @Override
+    public String getRemoteID() {
+        return remoteID;
+    }
+
+    @Override
+    public void setRemoteID(String remoteID) {
+        this.remoteID = remoteID;
     }
 
     @Override
@@ -100,9 +124,9 @@ public class FuelingImpl implements Fueling {
 
     @Override
     public int compareTo(Fueling another) {
-        if(another.getTime() == time){
+        if (another.getTime() == time) {
             return 0;
-        } else if(another.getTime() > time){
+        } else if (another.getTime() > time) {
             return 1;
         } else {
             return -1;

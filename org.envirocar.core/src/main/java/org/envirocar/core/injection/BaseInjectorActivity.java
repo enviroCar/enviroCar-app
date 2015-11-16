@@ -2,6 +2,7 @@ package org.envirocar.core.injection;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
@@ -49,6 +50,16 @@ public abstract class BaseInjectorActivity extends AppCompatActivity implements 
 
         // Unregister from the bus.
         mBus.unregister(this);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        super.onOptionsItemSelected(item);
+        return false;
     }
 
     @Override

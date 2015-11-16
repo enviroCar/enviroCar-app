@@ -22,7 +22,6 @@ package org.envirocar.remote.dao;
 
 
 import org.envirocar.core.dao.AnnouncementDAO;
-import org.envirocar.core.dao.BaseRemoteDAO;
 import org.envirocar.core.entity.Announcement;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.NotConnectedException;

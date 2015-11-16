@@ -24,7 +24,6 @@ import com.google.common.base.Preconditions;
 import com.squareup.okhttp.ResponseBody;
 
 import org.envirocar.core.UserManager;
-import org.envirocar.core.dao.BaseRemoteDAO;
 import org.envirocar.core.dao.TrackDAO;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.DataCreationFailureException;

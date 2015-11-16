@@ -30,6 +30,7 @@ import org.envirocar.core.entity.Announcement;
 import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.NotConnectedException;
+import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.remote.serializer.FuelingSerializer;
 
 import java.io.IOException;
@@ -83,5 +84,22 @@ public class CacheFuelingDAO extends AbstractCacheDAO implements FuelingDAO {
     @Override
     public void createFueling(Fueling fueling) throws NotConnectedException {
         throw new NotConnectedException("CacheFuelingDAO does not support saving.");
+    }
+
+    @Override
+    public Observable<Void> createFuelingObservable(Fueling fueling) {
+        return Observable.error(new NotConnectedException(
+                "CacheFuelingDAO does not support saving."));
+    }
+
+    @Override
+    public void deleteFueling(Fueling fueling) throws NotConnectedException, UnauthorizedException {
+        throw new NotConnectedException("CacheFuelingDAO does not support saving.");
+    }
+
+    @Override
+    public Observable<Void> deleteFuelingObservable(Fueling fueling) {
+        return Observable.error(new NotConnectedException(
+                "CacheFuelingDAO does not support saving."));
     }
 }

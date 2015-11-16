@@ -64,21 +64,6 @@
 
             </LinearLayout>
 
-            <!-- Overlay that dims the screen -->
-            <FrameLayout
-                android:id="@+id/overlay"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#3f3f3f3f"
-                android:visibility="gone"/>
-
-            <!--<include-->
-            <!--layout="@layout/activity_car_selection_layout_sheet"/>-->
-
-            <!--<include-->
-            <!--layout="@layout/activity_logbook_toolbar_new_"-->
-            <!--android:visibility="gone"/>-->
-
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/activity_logbook_toolbar_new_fueling_fab"
                 style="@style/Widget.enviroCar.Fab"
@@ -87,13 +72,22 @@
                 android:layout_gravity="bottom|end"/>
 
         </RelativeLayout>
-
     </LinearLayout>
 
     <include
-        layout="@layout/activity_logbook_add_fueling_card"
+        android:id="@+id/activity_logbook_not_logged_in"
+        layout="@layout/not_logged_in_info"
+        android:visibility="gone"/>
+
+    <include
+        android:id="@+id/activity_logbook_no_fuelings_info_view"
+        layout="@layout/activity_logbook_no_fuelings_info"
+        android:visibility="gone"/>
+
+    <FrameLayout
+        android:id="@+id/activity_logbook_container"
         android:layout_width="match_parent"
-        android:visibility="gone"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:visibility="visible"/>
 
 </RelativeLayout>

@@ -2,20 +2,21 @@ package org.envirocar.remote.service;
 
 import com.squareup.okhttp.ResponseBody;
 
-
 import org.envirocar.core.entity.Fueling;
 
 import java.util.List;
 
 import retrofit.Call;
 import retrofit.http.Body;
+import retrofit.http.DELETE;
 import retrofit.http.GET;
 import retrofit.http.POST;
 import retrofit.http.Path;
 import rx.Observable;
 
 /**
- * Retrofit remoteService interface that describes the access to the fuelings endpoints of the envirocar
+ * Retrofit remoteService interface that describes the access to the fuelings endpoints of the
+ * envirocar
  * remoteService.
  *
  * @author dewall
@@ -50,4 +51,14 @@ public interface FuelingService {
      */
     @POST("users/{user}/fuelings")
     Call<ResponseBody> uploadFuelings(@Path("user") String user, @Body Fueling fueling);
+
+    /**
+     * Deletes a remote fueling of a user at the server.
+     *
+     * @param user      the name of the user for which the fueling has to be deleted.
+     * @param fuelingID the id of the fueling to delete.
+     * @return the executable call to the remoteService.
+     */
+    @DELETE("users/{user}/fuelings/{fueling}")
+    Call<ResponseBody> deleteFueling(@Path("user") String user, @Path("fueling") String fuelingID);
 }

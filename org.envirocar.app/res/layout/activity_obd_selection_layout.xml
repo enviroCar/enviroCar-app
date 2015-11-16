@@ -1,28 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
-
-    <include
-        android:id="@+id/activity_obd_selection_layout_toolbar"
-        layout="@layout/toolbar_default"/>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
-        android:id="@+id/activity_obd_selection_layout_enablebt_toolbar"
+        android:id="@+id/activity_obd_selection_layout_toolbar"
+        style="@style/ToolBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/blue_dark_cario"
         android:elevation="6dp"
-        android:orientation="horizontal"
-        app:elevation="6dp">
+        android:orientation="vertical"/>
+
+    <LinearLayout
+        android:id="@+id/activity_obd_selection_layout_enablebt_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:background="@color/blue_dark_cario"
+        android:elevation="6dp"
+        android:orientation="horizontal">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
             android:layout_marginLeft="64dp"
             android:layout_marginRight="@dimen/spacing_large"
+            android:gravity="center"
             android:orientation="horizontal">
 
             <TextView
@@ -44,7 +50,7 @@
 
         </LinearLayout>
 
-    </android.support.v7.widget.Toolbar>
+    </LinearLayout>
 
     <FrameLayout
         android:id="@+id/activity_obd_selection_layout_container"

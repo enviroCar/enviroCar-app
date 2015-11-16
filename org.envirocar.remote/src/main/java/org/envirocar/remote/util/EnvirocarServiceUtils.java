@@ -210,6 +210,17 @@ public class EnvirocarServiceUtils {
         return location;
     }
 
+    public static String resolveRemtoteID(String remoteLocation) {
+        String[] split = remoteLocation.split("/");
+
+        String remoteID = split[split.length - 1];
+        if (remoteID == "" || remoteID.isEmpty()) {
+            remoteID = split[split.length-2];
+        }
+
+        return remoteID;
+    }
+
 
     /**
      * resolve all not obfuscated measurements of a track.

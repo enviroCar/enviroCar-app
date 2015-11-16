@@ -6,6 +6,7 @@ package org.envirocar.core.entity;
  * @author dewall
  */
 public interface Fueling extends BaseEntity<Fueling>, Comparable<Fueling> {
+    String KEY_REMOTE_ID = "id";
     String KEY_FUELINGS = "fuelings";
     String KEY_COMMENT = "comment";
     String KEY_MISSED_FUEL_STOP = "missedFuelStop";
@@ -161,6 +162,9 @@ public interface Fueling extends BaseEntity<Fueling>, Comparable<Fueling> {
         }
     }
 
+    String getRemoteID();
+
+    void setRemoteID(String remoteID);
 
     Car getCar();
 
