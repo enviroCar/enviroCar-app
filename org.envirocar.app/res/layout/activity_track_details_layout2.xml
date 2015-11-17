@@ -116,7 +116,6 @@
         android:elevation="8dp"
         android:src="@drawable/ic_statistics_white"
         app:layout_anchor="@id/activity_track_details_appbar_layout"
-        app:layout_anchorGravity="bottom|right|end"
-        app:layout_behavior="org.envirocar.app.view.trackdetails.ScrollAwareBehavior" ></android.support.design.widget.FloatingActionButton>
+        app:layout_anchorGravity="bottom|right|end" ></android.support.design.widget.FloatingActionButton>
 
 </android.support.design.widget.CoordinatorLayout>
