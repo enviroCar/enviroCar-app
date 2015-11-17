@@ -7,7 +7,7 @@
 
     <string name="dashboard_connecting">Connecting...</string>
     <string name="dashboard_connecting_find_template">Trying to find \'%s\'.</string>
-    <string name="dashboard_connecting_found_template">\'s\' is in range. Trying to connect.</string>
+    <string name="dashboard_connecting_found_template">\'%s\' is in range. Trying to connect.</string>
 
     <string name="dashboard_dialog_stop_track">Stop Track?</string>
     <string name="dashboard_dialog_stop_track_content">Do you really want to stop the recording and finish the current track?</string>
