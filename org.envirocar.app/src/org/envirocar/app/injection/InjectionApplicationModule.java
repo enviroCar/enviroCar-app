@@ -10,7 +10,7 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
 import org.envirocar.app.CommandListener;
-import org.envirocar.app.NotificationHandler;
+import org.envirocar.app.services.NotificationHandler;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.app.handler.BluetoothHandler;

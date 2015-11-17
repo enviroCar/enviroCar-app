@@ -226,7 +226,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                     public void onError(Throwable e) {
                         LOG.warn(e.getMessage(), e);
                         if (e instanceof NotConnectedException) {
-                            showSnackbarInfo(R.string.logbook_communication_error);
+                            showSnackbarInfo(R.string.logbook_error_communication);
                         } else if (e instanceof UnauthorizedException) {
                             showSnackbarInfo(R.string.logbook_error_unauthorized);
                         }

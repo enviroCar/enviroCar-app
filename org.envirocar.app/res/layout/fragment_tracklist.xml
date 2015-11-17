@@ -1,27 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                tools:context=".BaseMainActivity">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".BaseMainActivity">
 
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/fragment_tracklist_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"/>
+        android:orientation="vertical" />
 
-    <TextView
-        android:id="@+id/fragment_tracklist_notification"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="TEXT HERE..."
-        android:visibility="gone"
-        android:textSize="26sp"/>
-
+    <include
+        android:id="@+id/fragment_tracklist_info"
+        layout="@layout/fragment_tracklist_info_view"
+        android:visibility="gone" />
 
     <RelativeLayout
         android:id="@+id/fragment_tracklist_progress_view"
@@ -37,9 +32,9 @@
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_gravity="center"
-            android:progressTint="@color/white_cario"
             android:layout_marginLeft="@dimen/spacing_xlarge"
-            android:layout_marginRight="@dimen/spacing_medium" />
+            android:layout_marginRight="@dimen/spacing_medium"
+            android:progressTint="@color/white_cario" />
 
         <TextView
             android:id="@+id/fragment_tracklist_progress_text"
@@ -47,10 +42,10 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:layout_gravity="center"
+            android:layout_marginLeft="@dimen/spacing_medium"
             android:text="@string/track_list_loading_tracks"
             android:textColor="@color/white_cario"
-            android:layout_marginLeft="@dimen/spacing_medium"
-            android:textSize="26sp"/>
+            android:textSize="26sp" />
 
         <LinearLayout
             android:layout_width="wrap_content"

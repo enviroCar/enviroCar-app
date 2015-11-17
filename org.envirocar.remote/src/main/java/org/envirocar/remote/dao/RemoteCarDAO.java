@@ -25,6 +25,7 @@ import org.envirocar.core.entity.Car;
 import org.envirocar.core.exception.DataCreationFailureException;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.NotConnectedException;
+import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.remote.service.CarService;
@@ -40,6 +41,7 @@ import javax.inject.Inject;
 import retrofit.Call;
 import retrofit.Response;
 import rx.Observable;
+import rx.Subscriber;
 import rx.functions.Func1;
 
 /**
@@ -101,15 +103,8 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements C
     @Override
     public String createCar(Car car) throws NotConnectedException, DataCreationFailureException,
             UnauthorizedException {
-        CarService carService = EnviroCarService.getCarService();
-        Call<Car> createCarCall = carService.createCar(car);
-
         try {
-            Response<Car> createCarResponse = createCarCall.execute();
-
-            if (!createCarResponse.isSuccess()) {
-                LOG.warn("error while creating remote car: " + createCarResponse.code());
-            }
+            Response<Car> createCarResponse = executeCall(remoteService.createCar(car));
 
             // Get all headers in order to find out the location of the uploaded car.
             Map<String, List<String>> headerListMap = createCarResponse.headers().toMultimap();
@@ -127,7 +122,28 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements C
             return location.substring(location.lastIndexOf("/") + 1, location.length());
         } catch (IOException e) {
             throw new NotConnectedException(e);
+        } catch (ResourceConflictException e) {
+            throw new DataCreationFailureException(e);
         }
+    }
+
+    @Override
+    public Observable<Car> createCarObservable(final Car car) {
+        return Observable.create(new Observable.OnSubscribe<Car>() {
+            @Override
+            public void call(Subscriber<? super Car> subscriber) {
+                try {
+                    String location = createCar(car);
+                    car.setId(location);
+                    subscriber.onNext(car);
+                } catch (DataCreationFailureException |
+                        NotConnectedException |
+                        UnauthorizedException e) {
+                    subscriber.onError(e);
+                }
+                subscriber.onCompleted();
+            }
+        });
     }
 
     /**

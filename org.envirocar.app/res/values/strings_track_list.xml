@@ -19,11 +19,16 @@
     <string name="track_list_loading_lremote_tracks_error">Error while loading downloaded remote tracks.</string>
     <string name="track_list_loading_remote_tracks_error">Unable to load remote tracks. Maybe you have no connection to the internet?</string>
 
-    <string name="track_list_bg_error">Error!</string>
-    <string name="track_list_bg_no_local_tracks">No Local Tracks</string>
-    <string name="track_list_bg_not_logged_in">Not Logged In</string>
-    <string name="track_list_bg_no_connection">No Connection to the Internet</string>
-    <string name="track_list_bg_unauthorized">Unauthorized to Load the Tracks</string>
+    <string name="track_list_bg_error">ERROR!</string>
+    <string name="track_list_bg_error_sub">Error while retrieving tracks.\nPlease retry.</string>
+    <string name="track_list_bg_no_local_tracks">NO LOCAL TRACKS</string>
+    <string name="track_list_bg_no_local_tracks_sub">You have 0 tracks that are not uploaded</string>
+    <string name="track_list_bg_not_logged_in">NOT LOGGED IN</string>
+    <string name="track_list_bg_not_logged_in_sub">To access your remote tracks\nyou have to log in fist.</string>
+    <string name="track_list_bg_no_connection">NOT CONNECTED</string>
+    <string name="track_list_bg_no_connection_sub">You have no connection\nto the internet.</string>
+    <string name="track_list_bg_unauthorized">UNAUTHORIZED</string>
+    <string name="track_list_bg_unauthorized_sub">You are not authorized to download\nthe list of tracks</string>
     <string name="track_list_error_while_downloading">Error while downloading.</string>
 
     <string name="track_list_menu_details">Show Details</string>
@@ -38,5 +43,6 @@
     <string name="track_list_details_end">End:</string>
     <string name="track_list_details_consumption">Consumption:</string>
     <string name="track_list_details_emission">CO\u2082 Emission:</string>
+
 
 </resources>

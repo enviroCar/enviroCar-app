@@ -54,11 +54,16 @@ public class CacheCarDAO extends AbstractCacheDAO implements CarDAO {
 
     @Override
     public Observable<List<Car>> getAllCarsObservable() {
-        return null;
+        return Observable.error(new NoSuchMethodException("Not implemented yet!"));
     }
 
     @Override
     public String createCar(Car car) throws NotConnectedException, DataCreationFailureException, UnauthorizedException {
         return null;
+    }
+
+    @Override
+    public Observable<Car> createCarObservable(Car car) {
+        return Observable.error(new NoSuchMethodException("Not implemented yet!"));
     }
 }

@@ -106,6 +106,11 @@ public class BaseApplication extends Application implements Injector, InjectionM
         IntentFilter filter2 = new IntentFilter();
         filter.addAction("android.location.PROVIDERS_CHANGED");
         registerReceiver(mGPSReceiver, filter2);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean obfus = prefs.getBoolean(PreferenceConstants.OBFUSCATE_POSITION, false);
+
+        LOGGER.info("Obfuscation enabled? "+ obfus);
     }
 
     @Override
