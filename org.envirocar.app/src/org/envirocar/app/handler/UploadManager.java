@@ -198,7 +198,7 @@ public class UploadManager {
             protected Void doInBackground(Void... params) {
                 Thread.currentThread().setName("TrackUploaderTask-" + track.getTrackID());
                 callback.onUploadStarted(track);
-                mNotificationHandler.createNotification("start");
+//                mNotificationHandler.createNotification("start");
 
 
 				/*
@@ -228,7 +228,7 @@ public class UploadManager {
                         result = mDAOProvider.getTrackDAO().createTrack(track);
                     }
 
-                    mNotificationHandler.createNotification("success");
+//                    mNotificationHandler.createNotification("success");
                     //					track.setRemoteID(result);
                     //					dbAdapter.updateTrack(track);
                     mDBAdapter.transitLocalToRemoteTrack(track, result);
