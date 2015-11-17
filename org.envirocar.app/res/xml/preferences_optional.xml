@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory android:title="@string/pref_optional_features">
-        <org.envirocar.app.activity.preference.EditPreferenceWithSummary
+        <org.envirocar.app.view.preferences.EditPreferenceWithSummary
             xmlns:enviroCar="http://envirocar.org"
             android:defaultValue="5"
             android:inputType="number"
