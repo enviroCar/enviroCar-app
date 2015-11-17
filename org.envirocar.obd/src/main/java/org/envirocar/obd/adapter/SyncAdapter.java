@@ -66,6 +66,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                         if (cc.awaitsResults()) {
                             byte[] resp = commandExecutor.retrieveLatestResponse();
                             if (analyzeMetadataResponse(resp, cc)) {
+                                subscriber.unsubscribe();
                                 subscriber.onCompleted();
                             }
                         }

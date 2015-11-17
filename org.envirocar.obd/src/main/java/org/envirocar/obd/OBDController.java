@@ -147,7 +147,6 @@ public class OBDController {
 		this.initialSubscriber = new Subscriber<Void>() {
 			@Override
 			public void onCompleted() {
-				initialSubscriber.unsubscribe();
 				startCollectingData();
 				dataListener.onConnected(deviceName);
 			}
