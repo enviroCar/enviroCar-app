@@ -133,6 +133,7 @@ public class UploadManager {
 
                         String result = null;
                         if (isObfuscationEnabled()) {
+                            logger.info("Obfuscation enabled! Calling TrackUtils.getObfuscatedTrack()");
                             Track obfuscatedTrack = TrackUtils.getObfuscatedTrack(track);
                             if (obfuscatedTrack.getMeasurements().size() == 0) {
                                 throw new NoMeasurementsException("Track has no measurements " +
@@ -140,6 +141,7 @@ public class UploadManager {
                             }
                             result = mDAOProvider.getTrackDAO().createTrack(obfuscatedTrack);
                         } else {
+                            logger.info("Obfuscation not enabled!");
                             result = mDAOProvider.getTrackDAO().createTrack(track);
                         }
 
