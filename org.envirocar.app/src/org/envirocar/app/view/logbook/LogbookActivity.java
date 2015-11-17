@@ -55,6 +55,8 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
 
     @InjectView(R.id.activity_logbook_toolbar)
     protected Toolbar toolbar;
+    @InjectView(R.id.activity_logbook_header)
+    protected View headerView;
     @InjectView(R.id.activity_logbook_toolbar_new_fueling_fab)
     protected View newFuelingFab;
     @InjectView(R.id.activity_logbook_toolbar_fuelinglist)
@@ -117,6 +119,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
             downloadFuelings();
             notLoggedInView.setVisibility(View.GONE);
         } else {
+            headerView.setVisibility(View.GONE);
             newFuelingFab.setVisibility(View.GONE);
             notLoggedInView.setVisibility(View.VISIBLE);
         }
@@ -214,7 +217,8 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                         // Remove the fueling from the local list.
                         fuelings.remove(fueling);
                         if (fuelings.isEmpty()) {
-                            noFuelingsView.setVisibility(View.VISIBLE);
+                            ECAnimationUtils.animateShowView(LogbookActivity.this,
+                                    noFuelingsView, R.anim.fade_in);
                         }
                         fuelingListAdapter.notifyDataSetChanged();
 

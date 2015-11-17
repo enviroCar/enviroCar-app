@@ -168,6 +168,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         fueling.setVolume(volume, Fueling.VolumeUnit.LITRES);
         fueling.setMilage(milage, Fueling.MilageUnit.KILOMETRES);
         fueling.setMissedFuelStop(missedFuelStop);
+        fueling.setPartialFueling(partialFueling);
 
         if (commentText.getText() != null) {
             String comment = commentText.getText().toString();

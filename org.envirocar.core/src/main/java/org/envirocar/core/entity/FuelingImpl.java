@@ -12,6 +12,7 @@ public class FuelingImpl implements Fueling {
     private String comment;
     private long time;
     private boolean missedFuelStop;
+    private boolean partialFueling;
 
     private double milage;
     private MilageUnit milageUnit;
@@ -81,6 +82,16 @@ public class FuelingImpl implements Fueling {
 
     public void setMissedFuelStop(boolean missedFuelStop) {
         this.missedFuelStop = missedFuelStop;
+    }
+
+    @Override
+    public boolean isPartialFueling() {
+        return partialFueling;
+    }
+
+    @Override
+    public void setPartialFueling(boolean partialFueling) {
+        this.partialFueling = partialFueling;
     }
 
     public double getMilage() {

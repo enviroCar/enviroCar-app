@@ -80,7 +80,7 @@ public class LogbookListAdapter extends ArrayAdapter<Fueling> {
                 car.getConstructionYear(), car.getEngineDisplacement()));
 
         String comment = fueling.getComment();
-        if(comment == null || comment.isEmpty()){
+        if (comment == null || comment.isEmpty()) {
             holder.commentView.setVisibility(View.GONE);
         } else {
             holder.commentText.setText(comment);
@@ -89,7 +89,8 @@ public class LogbookListAdapter extends ArrayAdapter<Fueling> {
 
         holder.missedFillUpView.setVisibility(fueling.isMissedFuelStop() ?
                 View.VISIBLE : View.GONE);
-
+        holder.filledUpView.setVisibility(fueling.isPartialFueling() ?
+                View.VISIBLE : View.GONE);
 
         return convertView;
     }

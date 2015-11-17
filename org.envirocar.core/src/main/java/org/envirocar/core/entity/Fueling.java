@@ -10,6 +10,7 @@ public interface Fueling extends BaseEntity<Fueling>, Comparable<Fueling> {
     String KEY_FUELINGS = "fuelings";
     String KEY_COMMENT = "comment";
     String KEY_MISSED_FUEL_STOP = "missedFuelStop";
+    String KEY_PARTIAL_FUELING = "partialFueling";
     String KEY_CAR = "car";
     String KEY_FUEL_TYPE = "fuelType";
     String KEY_COST = "cost";
@@ -181,6 +182,10 @@ public interface Fueling extends BaseEntity<Fueling>, Comparable<Fueling> {
     boolean isMissedFuelStop();
 
     void setMissedFuelStop(boolean missedFuelStop);
+
+    boolean isPartialFueling();
+
+    void setPartialFueling(boolean partialFueling);
 
     double getMilage();
 

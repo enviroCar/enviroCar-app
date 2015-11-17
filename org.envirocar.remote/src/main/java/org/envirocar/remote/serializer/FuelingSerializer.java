@@ -37,6 +37,8 @@ public class FuelingSerializer implements JsonSerializer<Fueling>, JsonDeseriali
                 src.getVolumeUnit().toString()));
 
         result.addProperty(Fueling.KEY_MISSED_FUEL_STOP, src.isMissedFuelStop());
+        result.addProperty(Fueling.KEY_PARTIAL_FUELING, src.isPartialFueling());
+
         return result;
     }
 
@@ -62,7 +64,18 @@ public class FuelingSerializer implements JsonSerializer<Fueling>, JsonDeseriali
         }
 
         result.setCar(context.deserialize(jsonObject.get(Fueling.KEY_CAR), Car.class));
-        result.setMissedFuelStop(jsonObject.get(Fueling.KEY_MISSED_FUEL_STOP).getAsBoolean());
+
+        if(jsonObject.has(Fueling.KEY_MISSED_FUEL_STOP)){
+            result.setMissedFuelStop(jsonObject.get(Fueling.KEY_MISSED_FUEL_STOP).getAsBoolean());
+        } else {
+            result.setMissedFuelStop(true);
+        }
+
+        if(jsonObject.has(Fueling.KEY_PARTIAL_FUELING)){
+            result.setPartialFueling(jsonObject.get(Fueling.KEY_PARTIAL_FUELING).getAsBoolean());
+        } else {
+            result.setPartialFueling(false);
+        }
 
         JsonObject milageObject = jsonObject.get(Fueling.KEY_MILEAGE).getAsJsonObject();
         result.setMilage(milageObject.get(Fueling.KEY_VALUE).getAsDouble(),
@@ -76,7 +89,7 @@ public class FuelingSerializer implements JsonSerializer<Fueling>, JsonDeseriali
         result.setCost(costObject.get(Fueling.KEY_VALUE).getAsDouble(),
                 Fueling.CostUnit.fromString(costObject.get(Fueling.KEY_UNIT).getAsString()));
 
-        if(jsonObject.has(Fueling.KEY_COMMENT)){
+        if(jsonObject.has(Fueling.KEY_COMMENT)) {
             result.setComment(jsonObject.get(Fueling.KEY_COMMENT).getAsString());
         }
 

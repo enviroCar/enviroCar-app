@@ -66,9 +66,8 @@ public class RemoteFuelingDAO extends BaseRemoteDAO<FuelingDAO, FuelingService> 
         LOG.info("getFuelings()");
         try {
             // Execute the call
-            return executeCall(
-                    remoteService.getFuelings(userManager.getUser().getUsername()))
-                    .body();
+            return executeCall(remoteService.getFuelings(
+                    userManager.getUser().getUsername())).body();
         } catch (ResourceConflictException e) {
             throw new NotConnectedException(e);
         } catch (IOException e) {
