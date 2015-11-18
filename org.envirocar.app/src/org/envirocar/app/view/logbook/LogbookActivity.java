@@ -1,13 +1,13 @@
 package org.envirocar.app.view.logbook;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
@@ -15,7 +15,6 @@ import org.envirocar.app.R;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.UserManager;
-import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
@@ -62,10 +61,19 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     @InjectView(R.id.activity_logbook_toolbar_fuelinglist)
     protected ListView fuelingList;
 
-    @InjectView(R.id.activity_logbook_not_logged_in)
-    protected View notLoggedInView;
-    @InjectView(R.id.activity_logbook_no_fuelings_info_view)
-    protected View noFuelingsView;
+    @InjectView(R.id.layout_general_info_background)
+    protected View infoBackground;
+    @InjectView(R.id.layout_general_info_background_img)
+    protected ImageView infoBackgroundImg;
+    @InjectView(R.id.layout_general_info_background_firstline)
+    protected TextView infoBackgroundFirst;
+    @InjectView(R.id.layout_general_info_background_secondline)
+    protected TextView infoBackgroundSecond;
+
+//    @InjectView(R.id.activity_logbook_not_logged_in)
+//    protected View notLoggedInView;
+//    @InjectView(R.id.activity_logbook_no_fuelings_info_view)
+//    protected View noFuelingsView;
 
     protected LogbookListAdapter fuelingListAdapter;
     protected final List<Fueling> fuelings = new ArrayList<Fueling>();
@@ -75,6 +83,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        LOG.info("onCreate()");
         super.onCreate(savedInstanceState);
 
         // First, set the content view.
@@ -102,12 +111,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                         .content(R.string.logbook_dialog_delete_fueling_content)
                         .positiveText(R.string.menu_delete)
                         .negativeText(R.string.cancel)
-                        .callback(new MaterialDialog.ButtonCallback() {
-                            @Override
-                            public void onPositive(MaterialDialog dialog) {
-                                deleteFueling(fueling);
-                            }
-                        })
+                        .onPositive((materialDialog, dialogAction) -> deleteFueling(fueling))
                         .show();
                 return false;
             }
@@ -117,16 +121,17 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         // in" notification.
         if (userManager.isLoggedIn()) {
             downloadFuelings();
-            notLoggedInView.setVisibility(View.GONE);
         } else {
+            LOG.info("User is not logged in.");
             headerView.setVisibility(View.GONE);
             newFuelingFab.setVisibility(View.GONE);
-            notLoggedInView.setVisibility(View.VISIBLE);
+            showNotLoggedInInfo();
         }
     }
 
     @Override
     protected void onDestroy() {
+        LOG.info("onDestroy()");
         super.onDestroy();
         if (!subscription.isUnsubscribed()) {
             subscription.unsubscribe();
@@ -136,8 +141,12 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
 
     @OnClick(R.id.activity_logbook_toolbar_new_fueling_fab)
     protected void onClickNewFuelingFAB() {
-        // Click on the fab should first hide the fab and then open the AddFuelingFragment
-        showAddFuelingCard();
+        if(carHandler.hasCars()) {
+            // Click on the fab should first hide the fab and then open the AddFuelingFragment
+            showAddFuelingCard();
+        } else {
+            showSnackbarInfo(R.string.logbook_background_no_cars_second);
+        }
     }
 
     @Override
@@ -147,15 +156,16 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
 
     @Override
     public void onFuelingUploaded(Fueling fueling) {
+        LOG.info("onFuelingUploaded()");
         if (!this.fuelings.contains(fueling)) {
             fuelings.add(fueling);
             Collections.sort(fuelings);
             fuelingListAdapter.notifyDataSetChanged();
 
             // Hide the NoFuelingsView if it is visible.
-            if (!fuelings.isEmpty() && noFuelingsView.getVisibility() == View.VISIBLE) {
+            if (!fuelings.isEmpty() && infoBackground.getVisibility() == View.VISIBLE) {
                 ECAnimationUtils.animateHideView(LogbookActivity.this,
-                        noFuelingsView, R.anim.fade_out);
+                        infoBackground, R.anim.fade_out);
             }
         }
     }
@@ -164,6 +174,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
      * Downloads the fuelings
      */
     private void downloadFuelings() {
+        LOG.info("downloadFuelings()");
         subscription.add(daoProvider.getFuelingDAO().getFuelingsObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -173,9 +184,9 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                         LOG.info("Download of fuelings completed");
 
                         if (fuelings.isEmpty()) {
-                            noFuelingsView.setVisibility(View.VISIBLE);
+                            showNoFuelingsInfo();
                         } else {
-                            noFuelingsView.setVisibility(View.GONE);
+                            infoBackground.setVisibility(View.GONE);
                         }
                     }
 
@@ -217,8 +228,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                         // Remove the fueling from the local list.
                         fuelings.remove(fueling);
                         if (fuelings.isEmpty()) {
-                            ECAnimationUtils.animateShowView(LogbookActivity.this,
-                                    noFuelingsView, R.anim.fade_in);
+                            showNoFuelingsInfo();
                         }
                         fuelingListAdapter.notifyDataSetChanged();
 
@@ -243,15 +253,42 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                 }));
     }
 
+    private void showNoFuelingsInfo() {
+        showInfoBackground(R.drawable.img_logbook,
+                R.string.logbook_background_no_fuelings_first,
+                R.string.logbook_background_no_fuelings_second);
+    }
+
+    private void showNoCarsInfo() {
+        showInfoBackground(R.drawable.img_car,
+                R.string.logbook_background_no_cars_first,
+                R.string.logbook_background_no_cars_second);
+    }
+
+    private void showNotLoggedInInfo() {
+        showInfoBackground(R.drawable.img_logged_out,
+                R.string.logbook_background_not_logged_in_first,
+                R.string.logbook_background_no_fuelings_second);
+    }
+
+    private void showInfoBackground(int imgResource, int firstLine, int secondLine) {
+        LOG.info("showInfoBackground()");
+        infoBackgroundImg.setImageResource(imgResource);
+        infoBackgroundFirst.setText(firstLine);
+        infoBackgroundSecond.setText(secondLine);
+        ECAnimationUtils.animateShowView(this, infoBackground, R.anim.fade_in);
+    }
+
     /**
      * Shows the AddFuelingCard
      */
     private void showAddFuelingCard() {
+        LOG.info("showAddFuelingCard()");
         ECAnimationUtils.animateHideView(this, newFuelingFab, R.anim.fade_out, () -> {
+            addFuelingFragment = new LogbookAddFuelingFragment();
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.activity_logbook_container,
-                            (addFuelingFragment = new LogbookAddFuelingFragment()))
+                    .replace(R.id.activity_logbook_container, addFuelingFragment)
                     .commit();
         });
     }
@@ -260,6 +297,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
      * Hides the AddFuelingCard
      */
     private void hideAddFuelingCard() {
+        LOG.info("hideAddFuelingCard()");
         getSupportFragmentManager()
                 .beginTransaction()
                 .remove(addFuelingFragment)
@@ -270,22 +308,5 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
 
     private void showSnackbarInfo(int resourceID) {
         Snackbar.make(toolbar, resourceID, Snackbar.LENGTH_LONG).show();
-    }
-
-    private void showSnackbarInfo(String info) {
-        Snackbar.make(toolbar, info, Snackbar.LENGTH_LONG).show();
-    }
-
-    private class CarSpinnerAdapter extends ArrayAdapter<Car> {
-        /**
-         * Constructor.
-         *
-         * @param context  the context of the current scope
-         * @param resource the resource id
-         * @param objects  the car objects to show
-         */
-        public CarSpinnerAdapter(Context context, int resource, List<Car> objects) {
-            super(context, resource, objects);
-        }
     }
 }

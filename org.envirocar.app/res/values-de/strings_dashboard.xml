@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="dashboard_start_track">STARTE AUFZEICHNUNG</string>
-    <string name="dashboard_stop_track">STOPPE AUFZEICHNUNG</string>
+    <string name="dashboard_start_track">AUFZEICHNUNG STARTEN</string>
+    <string name="dashboard_stop_track">AUFZEICHNUNG STOPPEN</string>
     <string name="dashboard_track_is_starting">AUFZEICHNUNG WIRD GESTARTET...</string>
     <string name="dashboard_track_is_stopping">AUFZEICHNUNG WIRD BEENDET...</string>
 

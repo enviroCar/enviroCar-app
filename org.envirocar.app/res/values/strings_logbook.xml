@@ -4,16 +4,24 @@
 
     <string name="logbook_error_general">Error while creating logbook entry. Please try again later and send a report.</string>
     <string name="logbook_error_communication">No connection to the server.</string>
-    <string name="logbook_error_unauthorized">You are not authorized to do that. Please login with the right account first.</string>
+    <string name="logbook_error_unauthorized">You are not authorized to do that. Please log in with the right account first.</string>
     <string name="logbook_error_resource_conflict">Error while uploading: The fueling already exists.</string>
     <string name="logbook_error_form_invalid_input">Invalid input</string>
     <string name="logbook_error_form_blank_input">Cannot be blank</string>
-    <string name="logbook_deletion_success_tmp">Fueling has been successfully deleted from the server</string>
+    <string name="logbook_deletion_success_tmp">Fueling has been successfully deleted from the server.</string>
 
     <string name="logbook_dialog_delete_fueling_header">Delete Fueling Entry?</string>
-    <string name="logbook_dialog_delete_fueling_content">"Do you really want to delete this fueling?"</string>
+    <string name="logbook_dialog_delete_fueling_content">Do you really want to delete this fueling?</string>
 
     <string name="logbook_dialog_uploading_fueling_header">Uploading</string>
     <string name="logbook_dialog_uploading_fueling_car">Registering car type before uploading fueling.</string>
     <string name="logbook_dialog_uploading_fueling_content">Uploading the fueling.</string>
+
+    <string name="logbook_background_not_logged_in_first">NOT LOGGED IN</string>
+    <string name="logbook_background_not_logged_in_second">Before you can access this\nfeature, you have to log in.</string>
+    <string name="logbook_background_no_fuelings_first">NO FUELINGS</string>
+    <string name="logbook_background_no_fuelings_second">There are no fuelings assigned\nto the current user.</string>
+    <string name="logbook_background_no_cars_first">NO CARS ADDED</string>
+    <string name="logbook_background_no_cars_second">Before you can access this\nfeature, you have to create/add a car.</string>
+
 </resources>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="track_list_local_tracks">Privat</string>
+    <string name="track_list_local_tracks">Lokal</string>
     <string name="track_list_remote_tracks">Hochgeladen</string>
 
     <string name="track_list_deleting_track">Lösche track...</string>
@@ -19,10 +19,15 @@
     <string name="track_list_loading_remote_tracks_error">Fehler beim Laden von Fahrten vom Server. Eventuell besteht keine Verbindung zum Internet?</string>
 
     <string name="track_list_bg_error">Fehler!</string>
-    <string name="track_list_bg_no_local_tracks">Keine lokalen Fahrten verfügbar.</string>
-    <string name="track_list_bg_not_logged_in">Nicht Angemeldet</string>
+    <string name="track_list_bg_error_sub">Fehler beim Laden der Fahrten.\nBitte versuchen Sie es erneut.</string>
+    <string name="track_list_bg_no_local_tracks">0 LOKALE FAHRTEN </string>
+    <string name="track_list_bg_no_local_tracks_sub">Sie verfügen derzeitig über keine lokale Fahrten.</string>
+    <string name="track_list_bg_not_logged_in">NICHT ANGEMELDET</string>
+    <string name="track_list_bg_not_logged_in_sub">Um Zugriff auf die Fahrten auf\ndem Server zu erhalten, loggen Sie\nsich bitte zuerst ein.</string>
     <string name="track_list_bg_no_connection">Keine Verbdinung zum Internet.</string>
-    <string name="track_list_bg_unauthorized">Nicht Authorisiert um die Fahrten zu laden.</string>
+    <string name="track_list_bg_no_connection_sub">Sie haben derzeitig keine\nVerbinding ins Internet.</string>
+    <string name="track_list_bg_unauthorized">NICHT AUTHORISERT</string>
+    <string name="track_list_bg_unauthorized_sub">Sie sind nicht nicht authorisiert dies zu tun.</string>
     <string name="track_list_error_while_downloading">Fehler beim herunterladen von Tracks.</string>
     <string name="track_list_communication_error">Keine Verbindung zum Server.</string>
 

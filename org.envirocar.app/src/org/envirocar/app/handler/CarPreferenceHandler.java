@@ -94,7 +94,7 @@ public class CarPreferenceHandler {
         mDeserialzedCars = Sets.newHashSet();
         for (String serializedCar : mSerializedCarStrings) {
             Car car = CarUtils.instantiateCar(serializedCar);
-            if(car == null){
+            if (car == null) {
                 mSerializedCarStrings.remove(serializedCar);
                 flushCarListState();
             } else {
@@ -145,20 +145,26 @@ public class CarPreferenceHandler {
             mBus.post(new NewCarTypeSelectedEvent(null));
         }
 
-        // Get the serialized car representation
-        String serializedCar = CarUtils.serializeCar(car);
 
         // Return false when the car is not contained in the set.
-        if (!mDeserialzedCars.contains(car) && !mSerializedCarStrings.contains(serializedCar))
+        if (!mDeserialzedCars.contains(car))
             return false;
 
         // Remove from both sets.
-        mSerializedCarStrings.remove(serializedCar);
         mDeserialzedCars.remove(car);
 
         // Finally flush the state to shared preferences
         flushCarListState();
         return true;
+    }
+
+    /**
+     * Returns true if there already are some cars created.
+     *
+     * @return true if there are some cars.
+     */
+    public boolean hasCars() {
+        return !(mSerializedCarStrings == null || mSerializedCarStrings.isEmpty());
     }
 
     /**
@@ -276,6 +282,12 @@ public class CarPreferenceHandler {
     private void flushCarListState() {
         LOG.info("flushCarListState()");
 
+        // Recreate serialized car strings.
+        mSerializedCarStrings.clear();
+        for(Car car : mDeserialzedCars){
+            mSerializedCarStrings.add(CarUtils.serializeCar(car));
+        }
+
         // First, delete the entry set of serialized car strings. Very important here to note is
         // that there has to be a commit happen before setting the next string set.
         boolean deleteSuccess = PreferenceManager.getDefaultSharedPreferences(mContext).edit()
@@ -325,7 +337,7 @@ public class CarPreferenceHandler {
         }
     }
 
-    private boolean removeSelectedCarState(){
+    private boolean removeSelectedCarState() {
         // Delete the entry of the selected car and its hash code.
         return PreferenceManager.getDefaultSharedPreferences(mContext).edit()
                 .remove(PreferenceConstants.PREFERENCE_TAG_CAR)

@@ -49,7 +49,8 @@
 
                 <TextView
                     style="@style/enviroCar.title"
-                    android:text="2 Cars"/>
+                    android:text="2 Cars"
+                    android:visibility="invisible"/>
             </LinearLayout>
 
             <ListView

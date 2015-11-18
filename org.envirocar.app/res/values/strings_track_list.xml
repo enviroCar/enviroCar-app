@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="track_list_local_tracks">Private</string>
-    <string name="track_list_remote_tracks">Public</string>
+    <string name="track_list_local_tracks">Local</string>
+    <string name="track_list_remote_tracks">Uploaded</string>
 
     <string name="track_list_deleting_track">Deleting track...</string>
     <string name="track_list_deleting_track_unauthorized">Unable to delete the track, because the logged in user is not authorized to do that.</string>
@@ -22,7 +22,7 @@
     <string name="track_list_bg_error">ERROR!</string>
     <string name="track_list_bg_error_sub">Error while retrieving tracks.\nPlease retry.</string>
     <string name="track_list_bg_no_local_tracks">NO LOCAL TRACKS</string>
-    <string name="track_list_bg_no_local_tracks_sub">You have 0 tracks that are not uploaded</string>
+    <string name="track_list_bg_no_local_tracks_sub">You have 0 local tracks</string>
     <string name="track_list_bg_not_logged_in">NOT LOGGED IN</string>
     <string name="track_list_bg_not_logged_in_sub">To access your remote tracks\nyou have to log in fist.</string>
     <string name="track_list_bg_no_connection">NOT CONNECTED</string>

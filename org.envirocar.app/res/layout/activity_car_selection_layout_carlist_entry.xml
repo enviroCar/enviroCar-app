@@ -108,7 +108,6 @@
         android:layout_alignParentBottom="true"
         android:layout_marginLeft="24dp"
         android:layout_toRightOf="@id/activity_car_selection_layout_carlist_entry_icon"
-        android:background="@color/envirocar_color_divider_grey"
-        ></LinearLayout>
+        android:background="@color/envirocar_color_divider_grey"></LinearLayout>
 
 </RelativeLayout>

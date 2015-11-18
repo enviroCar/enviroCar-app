@@ -86,6 +86,11 @@
         layout="@layout/activity_logbook_no_fuelings_info"
         android:visibility="gone"/>
 
+    <include
+        android:id="@+id/layout_general_info_background"
+        layout="@layout/layout_general_info_background"
+        android:visibility="gone"/>
+
     <FrameLayout
         android:id="@+id/activity_logbook_container"
         android:layout_width="match_parent"
