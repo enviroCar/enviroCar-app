@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/white"
-    android:orientation="vertical">
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/white"
+              android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/logbook_layout_addfueling_toolbar"
@@ -19,10 +19,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Add Fueling"
+            android:text="@string/logbook_add_fueling"
             android:textColor="@color/white_cario"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"/>
 
     </android.support.v7.widget.Toolbar>
 
@@ -43,9 +43,9 @@
                 android:layout_marginBottom="@dimen/spacing_medium"
                 android:layout_marginLeft="@dimen/spacing_large"
                 android:gravity="bottom"
-                android:text="Enter milage, volume and price..."
+                android:text="@string/logbook_enter_info"
                 android:textColor="@color/white_cario"
-                android:textSize="13sp" />
+                android:textSize="13sp"/>
         </RelativeLayout>
     </LinearLayout>
 
@@ -76,38 +76,38 @@
                     android:layout_alignParentLeft="true"
                     android:layout_alignParentTop="true"
                     android:layout_marginLeft="@dimen/spacing_medium"
-                    android:text="Fueling Details"
+                    android:text="@string/logbook_fueling_details_header"
                     android:textColor="@color/blue_dark_cario"
                     android:textSize="18sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="@dimen/spacing_medium">
+                    android:layout_marginTop="@dimen/spacing_medium"
+                    android:orientation="horizontal">
 
                     <ImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:layout_marginTop="@dimen/spacing_medium"
                         android:layout_marginLeft="@dimen/spacing_medium"
+                        android:layout_marginTop="@dimen/spacing_medium"
                         android:alpha="0.54"
-                        android:src="@drawable/ic_drive_eta_black_24dp" />
+                        android:src="@drawable/ic_drive_eta_black_24dp"/>
 
                     <Spinner
-                        android:gravity="center_vertical|left"
-                        android:layout_gravity="center_vertical"
                         android:id="@+id/activity_logbook_add_fueling_car_selection"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_small"
-                        android:paddingStart="0dp"
-                        android:paddingLeft="0dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginBottom="@dimen/spacing_small"
                         android:layout_marginRight="@dimen/spacing_large"
+                        android:layout_marginTop="2dp"
                         android:clipToPadding="true"
-                        android:spinnerMode="dropdown"
-                        android:layout_marginBottom="@dimen/spacing_small"/>
+                        android:gravity="center_vertical|left"
+                        android:paddingLeft="0dp"
+                        android:paddingStart="0dp"
+                        android:spinnerMode="dropdown"/>
 
                 </LinearLayout>
 
@@ -118,7 +118,7 @@
                     android:layout_marginBottom="@dimen/spacing_medium"
                     android:layout_marginLeft="@dimen/spacing_xxlarge"
                     android:layout_marginTop="@dimen/spacing_medium"
-                    android:background="#78787878" />
+                    android:background="#78787878"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -132,7 +132,7 @@
                         android:layout_gravity="center"
                         android:layout_margin="@dimen/spacing_medium"
                         android:alpha="0.54"
-                        android:src="@drawable/ic_fuel_consumption" />
+                        android:src="@drawable/ic_fuel_consumption"/>
 
                     <TextView
                         android:layout_width="0dp"
@@ -140,8 +140,8 @@
                         android:layout_gravity="center"
                         android:layout_margin="@dimen/spacing_medium"
                         android:layout_weight="3"
-                        android:text="Milage"
-                        android:textSize="12sp" />
+                        android:text="@string/logbook_milage"
+                        android:textSize="12sp"/>
 
                     <EditText
                         android:id="@+id/logbook_add_fueling_milagetext"
@@ -150,7 +150,7 @@
                         android:layout_marginRight="@dimen/spacing_large"
                         android:layout_weight="2"
                         android:hint="0.00 km"
-                        android:inputType="number" />
+                        android:inputType="number"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -166,7 +166,7 @@
                         android:layout_margin="@dimen/spacing_medium"
                         android:alpha="0.54"
                         android:src="@drawable/ic_fuel_consumption"
-                        android:visibility="invisible" />
+                        android:visibility="invisible"/>
 
                     <TextView
                         android:layout_width="0dp"
@@ -174,8 +174,8 @@
                         android:layout_gravity="center"
                         android:layout_margin="@dimen/spacing_medium"
                         android:layout_weight="3"
-                        android:text="Volume of Fuel"
-                        android:textSize="12sp" />
+                        android:text="@string/logbook_volume"
+                        android:textSize="12sp"/>
 
                     <EditText
                         android:id="@+id/logbook_add_fueling_volumetext"
@@ -184,7 +184,7 @@
                         android:layout_marginRight="@dimen/spacing_large"
                         android:layout_weight="2"
                         android:hint="0.00 l"
-                        android:inputType="numberDecimal" />
+                        android:inputType="numberDecimal"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -200,7 +200,7 @@
                         android:layout_margin="@dimen/spacing_medium"
                         android:alpha="0.54"
                         android:src="@drawable/ic_fuel_consumption"
-                        android:visibility="invisible" />
+                        android:visibility="invisible"/>
 
                     <TextView
                         android:layout_width="0dp"
@@ -208,8 +208,8 @@
                         android:layout_gravity="center"
                         android:layout_margin="@dimen/spacing_medium"
                         android:layout_weight="3"
-                        android:text="Price per Litre"
-                        android:textSize="12sp" />
+                        android:text="@string/logbook_priceperlitre"
+                        android:textSize="12sp"/>
 
                     <EditText
                         android:id="@+id/logbook_add_fueling_priceperlitretext"
@@ -218,7 +218,7 @@
                         android:layout_marginRight="@dimen/spacing_large"
                         android:layout_weight="2"
                         android:hint="0.00 €/l"
-                        android:inputType="numberDecimal" />
+                        android:inputType="numberDecimal"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -234,7 +234,7 @@
                         android:layout_margin="@dimen/spacing_medium"
                         android:alpha="0.54"
                         android:src="@drawable/ic_fuel_consumption"
-                        android:visibility="invisible" />
+                        android:visibility="invisible"/>
 
                     <TextView
                         android:layout_width="0dp"
@@ -242,8 +242,8 @@
                         android:layout_gravity="center"
                         android:layout_margin="@dimen/spacing_medium"
                         android:layout_weight="3"
-                        android:text="Total Price"
-                        android:textSize="12sp" />
+                        android:text="@string/logbook_total_price"
+                        android:textSize="12sp"/>
 
                     <EditText
                         android:id="@+id/logbook_add_fueling_totalpricetext"
@@ -252,7 +252,7 @@
                         android:layout_marginRight="@dimen/spacing_large"
                         android:layout_weight="2"
                         android:hint="0.00 €"
-                        android:inputType="numberDecimal" />
+                        android:inputType="numberDecimal"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -261,7 +261,7 @@
                     android:layout_marginBottom="@dimen/spacing_medium"
                     android:layout_marginLeft="@dimen/spacing_xxlarge"
                     android:layout_marginTop="@dimen/spacing_medium"
-                    android:background="#78787878" />
+                    android:background="#78787878"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -275,7 +275,7 @@
                         android:layout_gravity="center"
                         android:layout_margin="@dimen/spacing_medium"
                         android:alpha="0.54"
-                        android:src="@drawable/ic_info_black_24dp" />
+                        android:src="@drawable/ic_info_black_24dp"/>
 
                     <TextView
                         android:layout_width="0dp"
@@ -283,8 +283,8 @@
                         android:layout_gravity="center"
                         android:layout_margin="@dimen/spacing_medium"
                         android:layout_weight="3"
-                        android:text="Partial Fueling"
-                        android:textSize="12sp" />
+                        android:text="@string/logbook_partial_fueling"
+                        android:textSize="12sp"/>
 
                     <RelativeLayout
                         android:layout_width="0dp"
@@ -299,7 +299,7 @@
                             android:layout_height="wrap_content"
                             android:layout_centerHorizontal="true"
                             android:layout_gravity="center"
-                            android:gravity="center" />
+                            android:gravity="center"/>
 
                     </RelativeLayout>
 
@@ -318,7 +318,7 @@
                         android:layout_margin="@dimen/spacing_medium"
                         android:alpha="0.54"
                         android:src="@drawable/ic_fuel_consumption"
-                        android:visibility="invisible" />
+                        android:visibility="invisible"/>
 
                     <TextView
                         android:layout_width="0dp"
@@ -326,8 +326,8 @@
                         android:layout_gravity="center"
                         android:layout_margin="@dimen/spacing_medium"
                         android:layout_weight="3"
-                        android:text="Missed previous Fueling"
-                        android:textSize="12sp" />
+                        android:text="@string/logbook_missed_fueling"
+                        android:textSize="12sp"/>
 
                     <RelativeLayout
                         android:layout_width="0dp"
@@ -342,7 +342,7 @@
                             android:layout_height="wrap_content"
                             android:layout_centerHorizontal="true"
                             android:layout_gravity="center"
-                            android:gravity="center" />
+                            android:gravity="center"/>
 
                     </RelativeLayout>
 
@@ -354,7 +354,7 @@
                     android:layout_marginBottom="@dimen/spacing_medium"
                     android:layout_marginLeft="@dimen/spacing_xxlarge"
                     android:layout_marginTop="@dimen/spacing_medium"
-                    android:background="#78787878" />
+                    android:background="#78787878"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -368,7 +368,7 @@
                         android:layout_gravity="center_horizontal"
                         android:layout_margin="@dimen/spacing_medium"
                         android:alpha="0.54"
-                        android:src="@drawable/ic_comment_black_24dp" />
+                        android:src="@drawable/ic_comment_black_24dp"/>
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -381,7 +381,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Kommentar"
-                            android:textSize="12sp" />
+                            android:textSize="12sp"/>
 
                         <EditText
                             android:id="@+id/logbook_add_fueling_comment"
@@ -389,7 +389,7 @@
                             android:layout_height="wrap_content"
                             android:inputType="text"
                             android:maxLines="1"
-                            android:singleLine="true" />
+                            android:singleLine="true"/>
 
                     </LinearLayout>
                 </LinearLayout>

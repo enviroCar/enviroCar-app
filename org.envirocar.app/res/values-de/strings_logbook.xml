@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="logbook_volume">Volume</string>
+    <string name="logbook_add_fueling">Tankstop Hinzufügen</string>
+    <string name="logbook_enter_info">Geben Sie Kilometerstand, getanktes Volumen und Preis ein...</string>
+    <string name="logbook_fueling_details_header">Tankdetails</string>
+
+    <string name="logbook_milage">Kilometerstand</string>
+    <string name="logbook_volume">Getanktes Volumen</string>
+    <string name="logbook_priceperlitre">Preis/Liter</string>
+    <string name="logbook_total_price">Gesamtpreis</string>
+    <string name="logbook_partial_fueling">Nicht voll getankt?</string>
+    <string name="logbook_missed_fueling">Tankstop versäumt?</string>
 
     <string name="logbook_error_general">Fehler beim Erstellen eines Logbookeintrags. Versuchen Sie es später nochmal und senden Sie bestenfalls einen Fehlerreport.</string>
     <string name="logbook_error_communication">Keine Verbindung zum Server.</string>
@@ -16,4 +25,13 @@
     <string name="logbook_dialog_uploading_fueling_header">Hochladen</string>
     <string name="logbook_dialog_uploading_fueling_car">Registrierung des Fahrzeugtyps...</string>
     <string name="logbook_dialog_uploading_fueling_content">Der Tankeintrag wird hochgeladen...</string>
+
+    <string name="logbook_background_not_logged_in_first">AUSGELOGGT</string>
+    <string name="logbook_background_not_logged_in_second">Um Zugriff auf diese Funktion\nzu bekommen, müssen Sie sich einloggen.</string>
+    <string name="logbook_background_no_fuelings_first">KEINE EINTRÄGE</string>
+    <string name="logbook_background_no_fuelings_second">Es sind keine Tankeinträge\ndem eingeloggten Nutzer zugeordnet.</string>
+    <string name="logbook_background_no_cars_first">KEINE AUTOS</string>
+    <string name="logbook_background_no_cars_second">Um Zugriff auf diese Funktion zu bekommen,\nmüssen Sie zuerst mindestens ein Fahrzeug erstellen.</string>
+
+
 </resources>

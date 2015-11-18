@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="logbook_volume">Volume</string>
+    <string name="logbook_add_fueling">Add Fueling</string>
+    <string name="logbook_enter_info">Enter milage, volume and price...</string>
+    <string name="logbook_fueling_details_header">Fueling Details</string>
+
+    <string name="logbook_milage">Milage</string>
+    <string name="logbook_volume">Fueled Volume</string>
+    <string name="logbook_priceperlitre">Price per Litre</string>
+    <string name="logbook_total_price">Total Price</string>
+    <string name="logbook_partial_fueling">Partial Fueling?</string>
+    <string name="logbook_missed_fueling">Missed previous Fueling?</string>
 
     <string name="logbook_error_general">Error while creating logbook entry. Please try again later and send a report.</string>
     <string name="logbook_error_communication">No connection to the server.</string>
