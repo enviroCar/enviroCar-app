@@ -3,6 +3,8 @@ package org.envirocar.app.view.utils;
 import android.content.Context;
 import android.text.format.DateFormat;
 
+import org.envirocar.app.R;
+
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
