@@ -161,7 +161,7 @@
                     android:layout_marginTop="16dp"
                     android:paddingLeft="32dp"
                     android:paddingRight="32dp"
-                    android:text="Add Car"/>
+                    android:text="@string/car_selection_add_car"/>
             </LinearLayout>
         </android.support.v4.widget.NestedScrollView>
     </LinearLayout>

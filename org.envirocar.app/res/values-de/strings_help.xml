@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="help_headline_1">1. Über enviroCar</string>
+    <string name="help_content_1">Diese App ist Teil der Citizen Science Plattform enviroCar. Sie ermöglicht die Erfassung und Analyse von Messfahrten und die Bereitstellung dieser Messfahrten als Open Data.\n\nenviroCar befindet sich derzeit in einer Beta-Phase.\n\nIhr Feedback (envirocar@52north.org) ist sehr willkommen! Ihre Hinweise und Anregungen helfen uns, die Software zu verbessern.</string>
+
+    <string name="help_headline_2">2. Die ersten Schritte</string>
+    <string name="help_headline_2_1">2.1. Einloggen/Registrieren</string>
+    <string name="help_content_2_1">Um Zugriff auf den vollen Funktionsumfang der enviroCar App zu bekommen, wird ein Nutzerkonto in der enviroCar Plattform benötigt. Mittels eines Nutzerkontos können aufgezeichnete Fahrten als Open Data hochgeladen und Anhand von weiteren Analysemöglichkeiten auf der Webseite evaluiert werden.</string>
+    <string name="help_content_2_1_enum_1">Klicken Sie im seitlichen Navigationsmenü auf <b>\"Einloggen/Registrieren\"</b></string>
+    <string name="help_content_2_1_enum_2">Geben Sie im nachfolgenden Fenster Ihren Nutzernamen und Ihr Password ein</string>
+    <string name="help_content_2_1_enum_3">Klicken Sie anschließend auf <b>\"Einloggen\"</b></string>
+    <string name="help_content_2_1_2">Sofern Sie noch nicht als enviroCar Nutzer registriert sind, können Sie über dasselbe Fenster zu dem Registrierungsformular gelangen und sich hier durch Angabe eines Nutzernamens und einer E-Mail Addresse ein Nutzerkonto anlegen. Alternativ können Sie sich auch über die enviroCar Webseite (www.envirocar.org) registrieren.</string>
+
+    <string name="help_headline_2_2">2.2. Fahrzeug auswählen</string>
+    <string name="help_content_2_2">Für die Berechnung von Daten aus der Fahrzeugsensorik werden einige Angaben zu Ihrem Fahrzeug benötigt. Über den Startbildschirm gelangen Sie durch Antippen der Fahrzeugeinstellung zu dem Fahrzeugmanager. In dem Fahrzeugmanager können Sie Ihre Fahrzeugtypen verwalten. </string>
+
+    <string name="help_headline_2_3">2.3. Verbindung mit dem OBD-II Adapter</string>
+    <string name="help_content_2_3">Um zur Aufzeichnung einer Fahrt eine Verbindung mit einem OBD-II Adapter herstellen zu können, muss zunächst eine Paarung (engl. pairing) mit dem jeweiligen Adapter durchgeführt werden. Dazu stecken Sie den OBD-II Adapter in den passenden OBD-II Steckplatz Ihres Fahrzeugs und öffnen Sie dann das Bluetooth Auswahlfenster in der enviroCar App. Sollten Sie Bluetooth noch nicht aktiviert haben, dann können Sie hier durch betätigen des Switches Bluetooth aktivieren. </string>
+
+    <string name="help_headline_3">3. Starten der Fahrtaufzeichnung</string>
+    <string name="help_content_3_1">Zum Starten einer Aufzeichnung ist es absolut notwendig, dass die folgenden vier Vorraussetzungen zutreffen:</string>
+    <string name="help_content_3_bullet_1">Bluetooth aktiviert</string>
+    <string name="help_content_3_bullet_2">GPS aktiviert</string>
+    <string name="help_content_3_bullet_3">Fahrzeugtyp ausgewählt</string>
+    <string name="help_content_3_bullet_4">OBD-II Adapter ausgewählt</string>
+    <string name="help_content_3_2">Nachdem diese Einstellungen gesetzt wurden, schaltet sich der <b>\"Aufzeichnung Starten\"</b>-Knopf auf dem Startbildschirm frei und Sie können die Aufzeichnung durch betätigen dieses Buttons beginnen. Sobald der Motor gestartet, der OBD-Adapter in Kommunikationsreichweite und eine Verbindung zu dem Fahrzeug hergestellt wurde, wird automatisch die Anzeige des Tempomats angezeigt.\n\n<b>Beachten Sie:</b> Der Zeitanzeige beginnt erst dann zu zählen, sobald eine stabile GPS Verbindung vorhanden ist. Nur wenn valide GPS Positionsinformationen vorhanden sind werden auch Messwerte aufgezeichnet und gespeichert.</string>
+
+    <string name="help_headline_4">4. Aufgezeichnete Fahrten betrachten</string>
+    <string name="help_content_4_0">Über den Menüeintrag <b>\"Meine Fahrten\"</b> in der seitlichen Navigationsleiste erreichen Sie eine Liste aller aufgezeichneten Fahrten. Diese Liste ist unterteilt in lokale und hochgeladene Fahrten. Zu den lokalen Fahrten zählen alle aufgezeichneten Fahrten, die noch nicht als Open Data auf dem enviroCar Server zur Verfügung gestellt wurden. Zu den hochgeladenen Fahrten zählen alle Fahrten die Sie aufgezeichnet und anschließend als Open Data zur Verfügung gestellt haben. Diese Fahrten sind eindeutig ihrem Account zugeordnet und können auch nachträglich auf einem anderem Gerät heruntergeladen und betrachtet werden.</string>
+    <string name="help_headline_4_1">4.1. Details einer Fahrt</string>
+    <string name="help_content_4_1">Um die Details einer aufgezeichneten Fahrt zu betrachten, klicken Sie in der <b>\"Meine Fahrten\"</b>-Ansicht in der App auf die Kartendarstellung der zu inspizierenden Fahrt. Dies öffnet die Detailansicht einer Fahrt, in der einige der wichtigsten Attribute und Fahrtstatistiken auf einem Blick zur Verfügung stehen. Neben dieser allgemeinen Anzeige, können Sie zusätzlich auch einige der aufgezeichneten Attribute als Zeitreihe in einer Graphendarstellung visualisiert betrachten. Dazu klicken Sie in der Detailansicht auf das Graphensymbol zwischen Kartenansicht und den Details.</string>
+    <string name="help_headline_4_2">4.2. Hochladen von lokalen Fahrten</string>
+    <string name="help_content_4_2">Mit dieser Funktion haben Sie die Möglichkeit, die Messdaten der aufgezeichneten Daten auf den enviroCar Server hochzuladen. Eine grundlegende Voraussetzung für das Hochladen eines Tracks ist, dass Sie registriert und in der App eingeloggt sind. Um eine Fahrt als Open Data hochzuladen, klicken Sie in der <b>\"Meine Fahrten\"</b>-Ansicht in der Toolbar der hochzuladenen Fahrt auf den Button und wählen Sie „Als Open Data hochladen“ aus. Warten Sie anschließend, bis die App die Fahrt erfolgreich hochgeladen hat. Alle hochgeladenen Tracks können auf der enviroCar Webseite zusätzlich auf vielfältige Art analysiert und mit anderen Nutzergruppen verglichen werden.\n\n<b>Wichtig:</b> Mit dem Hochladen von enviroCar Daten stimmen Sie zu, dass die Daten der Messfahrten anonymisiert unter einer offenen Datenlizenz als Open Data publiziert werden. Die Nutzerdaten und auch die Information, welche Messfahrten von welchem Nutzer stammen, bleiben für andere Nutzer verborgen.</string>
+    <string name="help_headline_4_3">4.3. Herunterladen von hochgeladenen Fahrten</string>
+    <string name="help_content_4_3"></string>
+
+    <string name="help_headline_6">5. Probleme and Feedback</string>
+    <string name="help_content_6">Bei festgestellten Problemen möchten wir Sie bitten, uns ein Fehlerprotokoll zu senden (envirocar@52north.org). Das Fehlerprotokoll enthält Informationen über Prozessverläufe im System. Es unterstützt uns dabei, die Ursachen von Fehlfunktionen zu erkennen und zu beheben.</string>
+
+</resources>

@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="today">Heute</string>
+    <string name="yesterday">Gestern</string>
+
     <string name="cancel">Abbrechen</string>
     <string name="app_name">enviroCar</string>
     <string name="menu_settings">Einstellungen</string>

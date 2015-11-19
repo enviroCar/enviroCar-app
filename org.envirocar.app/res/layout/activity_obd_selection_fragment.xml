@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/spacing_medium"
                 android:layout_marginRight="@dimen/spacing_medium"
-                android:text="@string/bluetooth_pairing_prefrence_paired_devices"
+                android:text="@string/obd_selection_paired_devices"
                 android:textColor="@color/blue_dark_cario"
                 android:textSize="14sp"
                 android:visibility="gone"/>
@@ -48,7 +48,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Available"
+                    android:text="@string/obd_selection_avaiable_devices"
                     android:textColor="@color/blue_dark_cario"
                     android:textSize="14sp"/>
 

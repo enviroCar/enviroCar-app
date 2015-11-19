@@ -20,7 +20,7 @@
 
     <string name="track_list_bg_error">Fehler!</string>
     <string name="track_list_bg_error_sub">Fehler beim Laden der Fahrten.\nBitte versuchen Sie es erneut.</string>
-    <string name="track_list_bg_no_local_tracks">0 LOKALE FAHRTEN </string>
+    <string name="track_list_bg_no_local_tracks">KEINE LOKALE FAHRTEN</string>
     <string name="track_list_bg_no_local_tracks_sub">Sie verfügen derzeitig über keine lokale Fahrten.</string>
     <string name="track_list_bg_not_logged_in">NICHT ANGEMELDET</string>
     <string name="track_list_bg_not_logged_in_sub">Um Zugriff auf Ihre hochgeladenen Fahrten zu erhalten,\nloggen Sie sich bitte zuerst ein.</string>

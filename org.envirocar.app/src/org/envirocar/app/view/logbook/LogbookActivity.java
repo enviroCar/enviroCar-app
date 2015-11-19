@@ -139,6 +139,17 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         }
     }
 
+    @Override
+    public void onBackPressed() {
+        LOG.info("onBackPressed()");
+        if(addFuelingFragment.isVisible()){
+            hideAddFuelingCard();
+            LOG.info("AddFuelingCard was visible. Closing this card...");
+            return;
+        }
+        super.onBackPressed();
+    }
+
     @OnClick(R.id.activity_logbook_toolbar_new_fueling_fab)
     protected void onClickNewFuelingFAB() {
         if(carHandler.hasCars()) {
@@ -290,6 +301,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
                     .beginTransaction()
                     .replace(R.id.activity_logbook_container, addFuelingFragment)
                     .commit();
+            LOG.info("AddFuelingCard should now be visible");
         });
     }
 

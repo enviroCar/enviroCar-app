@@ -37,7 +37,7 @@
 
                     <TextView
                         style="@style/enviroCar.title"
-                        android:text="My Fuelings"/>
+                        android:text="@string/logbook_my_fuelings_header"/>
 
                     <FrameLayout
                         android:layout_width="1dp"
@@ -94,7 +94,6 @@
     <FrameLayout
         android:id="@+id/activity_logbook_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="visible"/>
+        android:layout_height="match_parent"/>
 
 </RelativeLayout>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="obd_selection_title">OBD-II Adapter Auswahl</string>
+    <string name="obd_selection_bluetooth_on">Bluetooth An</string>
+    <string name="obd_selection_bluetooth_off">Bluetooth Aus</string>
+    <string name="obd_selection_bluetooth_disabled">Bluetooth ist deaktiviert.</string>
+    <string name="obd_selection_bluetooth_disabled_snackbar">Bluetooth ist deaktiviert. Bitte aktivieren Sie Bluetooth, bevor Sie nach anderen Geräten suchen können.</string>
+    <string name="obd_selection_discovery_started">Suche gestartet!</string>
+    <string name="obd_selection_discovery_finished">Suche beendet!</string>
+    <string name="obd_selection_is_selected_template">%s ausgewählt.</string>
+
+    <string name="obd_selection_paired_devices">Gepaarte Geräte</string>
+    <string name="obd_selection_avaiable_devices">Verfügbare Geräte</string>
+
+    <string name="obd_selection_dialog_pairing_title">Mit Gerät koppeln</string>
+    <string name="obd_selection_dialog_pairing_content_template">Möchten Sie ihr Gerät mit %s koppeln?</string>
+    <string name="obd_selection_dialog_delete_pairing_title">Paarung löschen?</string>
+    <string name="obd_selection_dialog_delete_pairing_content_template">Möchten Sie die Kopplung mit \"%s\" löschen?</string>
+
+    <string name="obd_selection_device_unpaired_template">%s wurde entkoppelt.</string>
+    <string name="obd_selection_unpairing_error_template">Fehler beim Entkoppeln mit %s.</string>
+    <string name="obd_selection_pairing_started">Kopplung gestartet</string>
+    <string name="obd_selection_pairing_error">Ein Fehler trat bei dem Kopplungsprozess ein. Versuchen Sie es ggf. erneut.</string>
+    <string name="obd_selection_pairing_success_template">%s wurde erfolgreich gekoppelt.</string>
+
+</resources>

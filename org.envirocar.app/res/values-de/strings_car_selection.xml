@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="car_selection_my_cars">Meine Fahrzeuge</string>
+    <string name="car_selection_no_car_selected">Kein Fahrzeugtyp ausgewählt</string>
+    <string name="car_selection_add_car">Fahrzeug Hinzufügen</string>
+</resources>

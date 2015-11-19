@@ -56,7 +56,7 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
 
         // Set the toolbar as default actionbar.
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle("OBD-Device Selection");
+        getSupportActionBar().setTitle(R.string.obd_selection_title);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -76,7 +76,9 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
 
     private void setupBluetoothSwitch() {
         boolean isBTEnabled = mBluetoothHandler.isBluetoothEnabled();
-        mEnableBTText.setText(isBTEnabled ? "Bluetooth On" : "Bluetooth Off");
+        mEnableBTText.setText(isBTEnabled ?
+                R.string.obd_selection_bluetooth_on :
+                R.string.obd_selection_bluetooth_off);
         mSwitch.setChecked(mBluetoothHandler.isBluetoothEnabled());
 
         mSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -94,10 +96,10 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
         LOGGER.info(String.format("Received event: %s", event.toString()));
 
         if (event.isBluetoothEnabled) {
-            mEnableBTText.setText("Bluetooth On");
+            mEnableBTText.setText(R.string.obd_selection_bluetooth_on);
             mSwitch.setChecked(true);
         } else {
-            mEnableBTText.setText("Bluetooth Off");
+            mEnableBTText.setText(R.string.obd_selection_bluetooth_off);
             mSwitch.setChecked(false);
         }
     }

@@ -10,7 +10,7 @@ import android.widget.TextView;
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Fueling;
-import org.envirocar.core.utils.DateUtils;
+import org.envirocar.app.view.utils.DateUtils;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;

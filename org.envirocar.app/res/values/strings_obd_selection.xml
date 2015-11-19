@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="obd_selection_title">OBD-II Adapter Selection</string>
+    <string name="obd_selection_bluetooth_on">Bluetooth On</string>
+    <string name="obd_selection_bluetooth_off">Bluetooth Off</string>
+    <string name="obd_selection_bluetooth_disabled">Bluetooth is disabled.</string>
+    <string name="obd_selection_bluetooth_disabled_snackbar">Bluetooth is disabled. Please enable Bluetooth before you can discover other devices.</string>
+    <string name="obd_selection_discovery_started">Bluetooth discovery started.</string>
+    <string name="obd_selection_discovery_finished">Discovery Finished!</string>
+    <string name="obd_selection_is_selected_template">%s selected.</string>
+
+    <string name="obd_selection_paired_devices">Paired Devices</string>
+    <string name="obd_selection_avaiable_devices">Available</string>
+
+    <string name="obd_selection_dialog_pairing_title">Pair Device</string>
+    <string name="obd_selection_dialog_pairing_content_template">Do you want to pair with %s?</string>
+    <string name="obd_selection_dialog_delete_pairing_title">Delete Pairing?</string>
+    <string name="obd_selection_dialog_delete_pairing_content_template">Do you want to remove the pairing with "%s"?</string>
+
+    <string name="obd_selection_device_unpaired_template">%s has been unpaired.</string>
+    <string name="obd_selection_unpairing_error_template">Error while unpairing %s.</string>
+    <string name="obd_selection_pairing_started">Pairing Started</string>
+    <string name="obd_selection_pairing_error">An error occurred during the pairing process.</string>
+    <string name="obd_selection_pairing_success_template">%s has been successfully paired.</string>
+</resources>

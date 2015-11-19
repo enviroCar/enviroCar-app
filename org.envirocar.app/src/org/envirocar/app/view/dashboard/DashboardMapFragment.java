@@ -43,6 +43,7 @@ public class DashboardMapFragment extends BaseInjectorFragment {
         // Init the map view
         mMapView.setTileSource(MapUtils.getOSMTileLayer());
         mMapView.setDiskCacheEnabled(true);
+        mMapView.setZoom(0);
 
         return contentView;
     }
