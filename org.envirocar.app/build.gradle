@@ -2,6 +2,7 @@ apply plugin: 'android'
 apply plugin: 'com.android.application' //or apply plugin: 'java'
 apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'me.tatarka.retrolambda'
+apply plugin: "com.github.hierynomus.license"
 
 dependencies {
     compile rootProject.ext.supportV4
@@ -112,6 +113,14 @@ android {
     defaultConfig {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+}
+
+license {
+    header rootProject.file('LICENSE_HEADER')
+    strictCheck true
+    include "**/*.java"
+    include "**/*.xml"
+    include "**/*.html"
 }
 
 retrolambda {

@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2015 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
 <resources>
 
     <string name="help_headline_1">1. About enviroCar</string>
@@ -36,7 +56,7 @@ If you discover any problems, please send us an error log (-> report problem). T
     <string name="help_headline_4_1">4.1. Track details</string>
     <string name="help_content_4_1">In order to view the track details, click on the map display in the app’s <b>\"My tracks\"</b> menu. This opens a track view containing the track’s most important attributes and statistics. Click on the graph symbol to view select attributes as a time series.</string>
     <string name="help_headline_4_2">4.2. Upload track</string>
-    <string name="help_content_4_2">You have the possibility to upload your collected track data to the enviroCar server. You must be a registered user and logged in to the app to do this. If you would like to upload a track as Open Data, click on the toolbar of the track to be uploaded in the <b>\"My tracks\"</b> view and select “upload as Open Data”. Wait until the app has successfully completed the upload. On the enviroCar website, you can carry out various analysis of all uploaded tracks and compare your data with other user groups’ data.\n\n<b>Important note:</b> When you upload your enviroCar data, you agree to publish the data as anonymized, Open Data, under an open data license. User data and information, such as which tracks belong to which user, is hidden from other users.</string>
+    <string name="help_content_4_2">You have the possibility to upload your collected track data to the enviroCar server. You must be a registered user and logged in to the app to do this. If you would like to upload a track as Open Data, click on the toolbar of the track to be uploaded in the <b>\"My tracks\"</b> view and select “upload as Open Data�?. Wait until the app has successfully completed the upload. On the enviroCar website, you can carry out various analysis of all uploaded tracks and compare your data with other user groups’ data.\n\n<b>Important note:</b> When you upload your enviroCar data, you agree to publish the data as anonymized, Open Data, under an open data license. User data and information, such as which tracks belong to which user, is hidden from other users.</string>
     <string name="help_headline_4_3">4.3. Download uploaded tracks</string>
     <string name="help_content_4_3"></string>
 
