@@ -1,48 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-     File created by the Android Action Bar Style Generator
 
-     Copyright (C) 2011 The Android Open Source Project
-     Copyright (C) 2012 readyState Software Ltd
+    Copyright (C) 2013 - 2015 the enviroCar community
 
-     Licensed under the Apache License, Version 2.0 (the "License");
-     you may not use this file except in compliance with the License.
-     You may obtain a copy of the License at
-  
-          http://www.apache.org/licenses/LICENSE-2.0
-  
-     Unless required by applicable law or agreed to in writing, software
-     distributed under the License is distributed on an "AS IS" BASIS,
-     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-     See the License for the specific language governing permissions and
-     limitations under the License.
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
 -->
-
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.Cario" parent="@style/Theme.Sherlock.Light">
+    <style name="Theme.Cario" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="actionBarItemBackground">@drawable/selectable_background_cario</item>
         <item name="popupMenuStyle">@style/PopupMenu.Cario</item>
         <item name="dropDownListViewStyle">@style/DropDownListView.Cario</item>
         <item name="actionBarTabStyle">@style/ActionBarTabStyle.Cario</item>
         <item name="actionDropDownStyle">@style/DropDownNav.Cario</item>
-        <item name="actionBarStyle">@style/ActionBar.Solid.Cario</item>
         <item name="actionModeBackground">@drawable/cab_background_top_cario</item>
         <item name="actionModeSplitBackground">@drawable/cab_background_bottom_cario</item>
         <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Cario</item>
         <item name="android:buttonStyle">@style/ButtonStyle</item>
-        <item name="homeAsUpIndicator">@drawable/ic_drawer</item>
+        <item name="colorPrimary">@color/blue_dark_cario</item>
+        <item name="colorPrimaryDark">@color/green_dark_cario</item>
+        <item name="colorAccent">@color/blue_light_cario</item>
+        <item name="background">@color/background_material_dark</item>
     </style>
 
-    <style name="ActionBar.Solid.Cario" parent="@style/Widget.Sherlock.Light.ActionBar.Solid">
-        <item name="background">@drawable/ab_background_cario_gradient</item>
-        <item name="backgroundStacked">@drawable/ab_stacked_solid_cario</item>
-        <item name="backgroundSplit">@drawable/ab_bottom_solid_cario</item>
-        <item name="progressBarStyle">@style/ProgressBar.Cario</item>
-        <item name="titleTextStyle">@style/cario.TitleTextStyle</item>
-    </style>
     
-    <style name="cario.TitleTextStyle" parent="TextAppearance.Sherlock.Widget.ActionBar.Title">
+    <style name="cario.TitleTextStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
         <item name="android:textColor">@color/actionbar_title_font_cario</item>
         <!-- Drop do not work. see https://github.com/JakeWharton/ActionBarSherlock/issues/580
         <item name="android:shadowColor">@color/actionbar_title_shadow_cario</item>
@@ -61,41 +57,43 @@
         <item name="android:shadowRadius">1</item>
     </style>
 
-    <style name="ActionBar.Transparent.Cario" parent="@style/Widget.Sherlock.Light.ActionBar">
-        <item name="background">@drawable/ab_transparent_cario</item>
-        <item name="progressBarStyle">@style/ProgressBar.Cario</item>
-    </style>
 
-    <style name="PopupMenu.Cario" parent="@style/Widget.Sherlock.Light.ListPopupWindow">
+    <style name="PopupMenu.Cario" parent="Widget.AppCompat.Light.ListPopupWindow">
         <item name="android:popupBackground">@drawable/menu_dropdown_panel_cario</item>
     </style>
 
-    <style name="DropDownListView.Cario" parent="@style/Widget.Sherlock.Light.ListView.DropDown">
+    <style name="DropDownListView.Cario" parent="Widget.AppCompat.Light.ListView.DropDown">
         <item name="android:listSelector">@drawable/selectable_background_cario</item>
     </style>
 
-    <style name="ActionBarTabStyle.Cario" parent="@style/Widget.Sherlock.Light.ActionBar.TabView">
+    <style name="ActionBarTabStyle.Cario" parent="Widget.AppCompat.Light.ActionBar.TabView">
         <item name="android:background">@drawable/tab_indicator_ab_cario</item>
     </style>
 
-    <style name="DropDownNav.Cario" parent="@style/Widget.Sherlock.Light.Spinner.DropDown.ActionBar">
+    <style name="DropDownNav.Cario" parent="Widget.AppCompat.Light.Spinner.DropDown.ActionBar">
         <item name="android:background">@drawable/spinner_background_ab_cario</item>
         <item name="android:popupBackground">@drawable/menu_dropdown_panel_cario</item>
         <item name="android:dropDownSelector">@drawable/selectable_background_cario</item>
     </style>
 
-    <style name="ProgressBar.Cario" parent="@style/Widget.Sherlock.Light.ProgressBar.Horizontal">
+    <style name="ProgressBar.Cario" parent="Widget.AppCompat.ProgressBar.Horizontal">
         <item name="android:progressDrawable">@drawable/progress_horizontal_cario</item>
     </style>
 
-    <style name="ActionButton.CloseMode.Cario" parent="@style/Widget.Sherlock.Light.ActionButton.CloseMode">
+    <style name="ActionButton.CloseMode.Cario" parent="Widget.AppCompat.Light.ActionButton.CloseMode">
         <item name="android:background">@drawable/btn_cab_done_cario</item>
     </style>
 
     <!-- this style is only referenced in a Light.DarkActionBar based theme -->
-    <style name="Theme.Cario.Widget" parent="@style/Theme.Sherlock">
-        <item name="popupMenuStyle">@style/PopupMenu.Cario</item>
-        <item name="dropDownListViewStyle">@style/DropDownListView.Cario</item>
+    <style name="Theme.Cario.Widget" parent="Theme.AppCompat">
+        <item name="android:popupMenuStyle">@style/PopupMenu.Cario</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView.Cario</item>
     </style>
+
+    <style name="ToolBarStyle" parent="">
+        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+    </style>
+
 
 </resources>

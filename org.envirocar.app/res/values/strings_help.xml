@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2015 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<resources>
+
+    <string name="help_headline_1">1. About enviroCar</string>
+    <string name="help_content_1">This app is part of the Citizen Science platform enviroCar (<a href="www.enviroCar.org">www.enviroCar.org</a>). You can use it to collect and analyze test drives and provide the measured data as Open Data.
+\n\nenviroCar is currently in a beta phase, in other words, in an early and very dynamic development phase. We immediately provide you with all new developments for testing purposes. As a result, the software’s stability is not yet comparable to standards associated with mature software.
+\n\n
+We welcome your feedback (enviroCar@52north.org)! Your advice and suggestions help us to improve the software.
+\n\n
+If you discover any problems, please send us an error log (-> report problem). The error log contains information about the course of processes within the system. It helps us to recognize the causes of malfunctions and to fix them.</string>
+
+    <string name="help_headline_2">2. Getting started</string>
+    <string name="help_headline_2_1">2.1. Log in/Register</string>
+    <string name="help_content_2_1">In order to take full advantage of the enviroCar app\'s functional range, you must have a user account for the enviroCar platform. A user account enables you to upload your tracks as Open Data and evaluate them using the website\'s various analysis tools/options.</string>
+    <string name="help_content_2_1_enum_1">Click <b>\"Log in/Register\"</b>.</string>
+    <string name="help_content_2_1_enum_2">Fill in your User name and password in the following window.</string>
+    <string name="help_content_2_1_enum_3">Then click <b>\"Log in\"</b></string>
+    <string name="help_content_2_1_2"> If you are not yet registered as an enviroCar user, you can use the same window to set up a user account. Just type in your user name and email address. Alternately, you can register on the enviroCar website (www.envirocar.org).</string>
+
+    <string name="help_headline_2_2">2.2. Select car type</string>
+    <string name="help_content_2_2">Certain car-related information is needed to calculate data from the car diagnostics. You can access the car manager by clicking on "car settings" in the start menue. This is where you manage your car types.</string>
+
+    <string name="help_headline_2_3">2.3. Connect OBD-II adapter</string>
+    <string name="help_content_2_3">In order to record a track, you must connect to an ODB-II adapter. First pair the app with the appropriate adapter. Plug the ODB-II adapter in your car’s ODB-II port. Follow the Bluetooth adapter instructions for connecting your smartphone and the adapter.If Bluetooth has not been activated, you can turn it on here.</string>
+
+    <string name="help_headline_3">3. Record track</string>
+    <string name="help_content_3_1">In order to start recording a track, the following four requirements must be fulfilled:</string>
+    <string name="help_content_3_bullet_1">Activate Bluetooth</string>
+    <string name="help_content_3_bullet_2">Activate GPS</string>
+    <string name="help_content_3_bullet_3">Select car type</string>
+    <string name="help_content_3_bullet_4">Select OBD-II adapter</string>
+    <string name="help_content_3_2">Once these parameters have been set, you can click the <b>\"Start recording\"</b> button in the start menue to begin recording your track. As soon as the motor has been started, the ODB-II adapter is within communication range and a connection to the car has been established, the app will show the speed control display. \n\n<b>Please note:</b> the time display will begin once a stable GPS connections has been established. Measurements are recorded and saved only when the app receives valid GPS positioning information.</string>
+
+    <string name="help_headline_4">4. Observe tracks</string>
+    <string name="help_content_4_0">Click the menu button <b>\"My tracks\"</b> in the sidebar navigation to get a list of all your tracks. This list is divided into local and uploaded tracks. Local tracks are those that have been saved locally, but not yet uploaded to the enviroCar server. Uploaded tracks are those tracks that have been uploaded to the enviroCar server and are available as Open Data. These tracks have been explicitly assigned to your account. Subsequently, you can download them to another device and query them.</string>
+    <string name="help_headline_4_1">4.1. Track details</string>
+    <string name="help_content_4_1">In order to view the track details, click on the map display in the app’s <b>\"My tracks\"</b> menu. This opens a track view containing the track’s most important attributes and statistics. Click on the graph symbol to view select attributes as a time series.</string>
+    <string name="help_headline_4_2">4.2. Upload track</string>
+    <string name="help_content_4_2">You have the possibility to upload your collected track data to the enviroCar server. You must be a registered user and logged in to the app to do this. If you would like to upload a track as Open Data, click on the toolbar of the track to be uploaded in the <b>\"My tracks\"</b> view and select “upload as Open Data�?. Wait until the app has successfully completed the upload. On the enviroCar website, you can carry out various analysis of all uploaded tracks and compare your data with other user groups’ data.\n\n<b>Important note:</b> When you upload your enviroCar data, you agree to publish the data as anonymized, Open Data, under an open data license. User data and information, such as which tracks belong to which user, is hidden from other users.</string>
+    <string name="help_headline_4_3">4.3. Download uploaded tracks</string>
+    <string name="help_content_4_3"></string>
+
+    <string name="help_headline_6">5. Problems and feedback</string>
+    <string name="help_content_6">We welcome your feedback (enviroCar@52north.org)! Your advice and suggestions help us to improve the software.\n\nIf you discover any problems, please send us an error log (-> report problem). The error log (log report) contains information about the course of processes within the system. It helps us to recognize the causes of malfunctions and to fix them.</string>
+
+
+</resources>

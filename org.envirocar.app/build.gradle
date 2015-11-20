@@ -1,0 +1,128 @@
+apply plugin: 'android'
+apply plugin: 'com.android.application' //or apply plugin: 'java'
+apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'me.tatarka.retrolambda'
+apply plugin: "com.github.hierynomus.license"
+
+dependencies {
+    compile rootProject.ext.supportV4
+    compile rootProject.ext.supportV7
+    compile rootProject.ext.supportDesign
+    compile rootProject.ext.supportCardview
+    compile rootProject.ext.supportRecyclerview
+    compile rootProject.ext.dagger
+    apt rootProject.ext.daggerCompiler
+    compile rootProject.ext.daggerCompiler
+    compile rootProject.ext.sqlBrite
+    compile rootProject.ext.otto
+    compile rootProject.ext.butterKnife
+    compile rootProject.ext.acra
+    compile rootProject.ext.helloCharts
+    compile rootProject.ext.fabProgressCircle
+    compile rootProject.ext.gson
+    compile rootProject.ext.guava
+    compile('com.github.afollestad.material-dialogs:core:0.8.5.0@aar') {
+        transitive = true
+    }
+
+    compile rootProject.ext.rxAndroid
+    compile rootProject.ext.rxJava
+    compile rootProject.ext.rxPreferences
+
+    // Crouton
+    compile('de.keyboardsurfer.android.widget:crouton:1.8.5@aar') {
+        // exclusion is not necessary, but generally a good idea.
+        exclude group: 'com.google.android', module: 'support-v4'
+    }
+    // Commons compress
+    compile 'org.apache.commons:commons-compress:1.5'
+
+    // MapBox SDK
+    compile(rootProject.ext.mapbox) {
+        transitive = true
+    }
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:1.9.5'
+    testCompile('org.powermock:powermock-api-mockito:1.6.2') {
+        exclude module: 'hamcrest-core'
+        exclude module: 'objenesis'
+    }
+    testCompile('org.powermock:powermock-module-junit4:1.6.2') {
+        exclude module: 'hamcrest-core'
+        exclude module: 'objenesis'
+    }
+    androidTestCompile 'junit:junit:4.12'
+    androidTestCompile('com.android.support.test:runner:0.3') {
+        exclude module: 'support-annotations'
+    }
+    androidTestCompile('com.android.support.test:rules:0.3') {
+        exclude module: 'support-annotations'
+    }
+    compile project(':org.envirocar.core')
+    compile project(':org.envirocar.remote')
+    compile project(':org.envirocar.obd')
+    compile project(':org.envirocar.storage')
+}
+
+
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+
+        // Move the tests to tests/java, tests/res, etc...
+        test.setRoot('tests/unit')
+        androidTest.setRoot('tests/android')
+
+        // Move the build types to build-types/<type>
+        // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...
+        // This moves them out of them default location under src/<type>/... which would
+        // conflict with src/ being used by the main source set.
+        // Adding new build types or product flavors should be accompanied
+        // by a similar customization.
+        debug.setRoot('build-types/debug')
+        release.setRoot('build-types/release')
+    }
+
+    testOptions {
+        unitTests {
+            returnDefaultValues = true
+        }
+    }
+
+    packagingOptions {
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
+
+    defaultConfig {
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+}
+
+license {
+    header rootProject.file('LICENSE_HEADER')
+    strictCheck true
+    include "**/*.java"
+    include "**/*.xml"
+    include "**/*.html"
+}
+
+retrolambda {
+    javaVersion JavaVersion.VERSION_1_7
+}

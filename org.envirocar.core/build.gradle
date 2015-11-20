@@ -1,0 +1,41 @@
+apply plugin: 'com.android.library'
+apply plugin: 'com.neenbedankt.android-apt'
+apply plugin: 'me.tatarka.retrolambda'
+
+android {
+    compileSdkVersion rootProject.ext.compileSdkVersion
+    buildToolsVersion rootProject.ext.buildToolsVersion
+
+    compileOptions {
+        sourceCompatibility rootProject.ext.javaCompileVersion
+        targetCompatibility rootProject.ext.javaCompileVersion
+    }
+
+    defaultConfig {
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode rootProject.ext.versionCode
+        versionName rootProject.ext.versionName
+    }
+}
+
+dependencies {
+    compile rootProject.ext.supportV4
+    compile rootProject.ext.supportV7
+
+    compile rootProject.ext.dagger
+    apt rootProject.ext.daggerCompiler
+
+    compile rootProject.ext.acra
+    compile rootProject.ext.otto
+    compile rootProject.ext.guava
+    compile rootProject.ext.gson
+
+    compile rootProject.ext.rxAndroid
+    compile rootProject.ext.rxJava
+
+    compile 'org.apache.commons:commons-compress:1.5'
+}
+
+
+

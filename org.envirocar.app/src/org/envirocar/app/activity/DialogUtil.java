@@ -1,27 +1,25 @@
-/* 
- * enviroCar 2013
- * Copyright (C) 2013  
- * Martin Dueren, Jakob Moellers, Gerald Pape, Christopher Stephan
+/**
+ * Copyright (C) 2013 - 2015 the enviroCar community
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 3 of the License, or
+ * This file is part of the enviroCar app.
+ *
+ * The enviroCar app is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * The enviroCar app is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
- * 
+ * You should have received a copy of the GNU General Public License along
+ * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.app.activity;
 
 import org.envirocar.app.R;
-import org.envirocar.app.model.TermsOfUseInstance;
+import org.envirocar.core.entity.TermsOfUse;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -43,7 +41,7 @@ import android.widget.TextView;
 public class DialogUtil {
 
 	public static void createSingleChoiceItemsDialog(String title, String[] items,
-			DialogCallback callback, Activity activity) {
+			DialogCallback callback, Context activity) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
 		builder.setTitle(title);
@@ -57,7 +55,7 @@ public class DialogUtil {
 	}
 	
 	public static void createTitleMessageDialog(int titleIde, int messageId,
-			DialogCallback callback, Activity activity) {
+			DialogCallback callback, Context activity) {
 		createTitleMessageDialog(
 				activity.getString(titleIde),
 				new SpannableString(activity.getString(messageId)),
@@ -65,7 +63,7 @@ public class DialogUtil {
 	}
 	
 	public static void createTitleMessageDialog(String title, Spanned message,
-			DialogCallback callback, Activity activity) {
+			DialogCallback callback, Context activity) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
 		builder.setTitle(title);
@@ -82,7 +80,7 @@ public class DialogUtil {
 	}
 	
 	public static void createTitleMessageInfoDialog(String title, Spanned message,
-			DialogCallback callback, Activity activity) {
+			DialogCallback callback, Context activity) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
 		builder.setTitle(title);
@@ -97,7 +95,7 @@ public class DialogUtil {
 	
 	public static void createTitleMessageInfoDialog(String title, Spanned message,
 			boolean doNotShowAgainField,
-			DialogCallback callback, Activity activity) {
+			DialogCallback callback, Context activity) {
 		if (!doNotShowAgainField) {
 			createTitleMessageInfoDialog(title, message, callback, activity);
 			return;
@@ -164,24 +162,24 @@ public class DialogUtil {
 	}
 
 
-	public static void createTermsOfUseDialog(TermsOfUseInstance current,
+	public static void createTermsOfUseDialog(TermsOfUse current,
 			boolean firstTime, DialogCallback callback,
-			Activity activity) {
-		createTitleMessageDialog(activity.getResources().getString(R.string.terms_of_use_title),
-				createTermsOfUseMarkup(current, firstTime, activity), callback, activity);
+			Context context) {
+		createTitleMessageDialog(context.getResources().getString(R.string.terms_of_use_title),
+				createTermsOfUseMarkup(current, firstTime, context), callback, context);
 	}
 
 
-	private static Spanned createTermsOfUseMarkup(TermsOfUseInstance current,
-			boolean firstTime, Activity activity) {
+	private static Spanned createTermsOfUseMarkup(TermsOfUse current,
+			boolean firstTime, Context context) {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("<p>");
 		if (!firstTime) {
-			sb.append(activity.getString(R.string.terms_of_use_sorry));
+			sb.append(context.getString(R.string.terms_of_use_sorry));
 		}
 		else {
-			sb.append(activity.getString(R.string.terms_of_use_info));
+			sb.append(context.getString(R.string.terms_of_use_info));
 		}
 		sb.append(":</p>");
 		sb.append(current.getContents().replace("</li>", "<br/></li>"));

@@ -1,0 +1,65 @@
+/**
+ * Copyright (C) 2013 - 2015 the enviroCar community
+ *
+ * This file is part of the enviroCar app.
+ *
+ * The enviroCar app is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The enviroCar app is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+ */
+package org.envirocar.obd.commands;
+
+import org.envirocar.obd.commands.PIDUtil.PID;
+import org.envirocar.core.logging.Logger;
+
+/**
+ * Mass Air Flow Value PID 01 10
+ * 
+ * @author jakob
+ * 
+ */
+public class MAF extends NumberResultCommand {
+	
+	private static final Logger logger = Logger.getLogger(MAF.class);
+	public static final String NAME = "Mass Air Flow";
+	private float maf = Float.NaN;
+	
+	public MAF() {
+		super("01 ".concat(PID.MAF.toString()));
+	}
+
+
+	@Override
+	public String getCommandName() {
+		return NAME;
+	}
+
+	@Override
+	public Number getNumberResult() {
+		if (Float.isNaN(maf)) {
+			int[] buffer = getBuffer();
+			try {
+				if (getCommandState() != CommonCommandState.EXECUTION_ERROR) {
+					int bytethree = buffer[2];
+					int bytefour = buffer[3];
+					maf = (bytethree * 256 + bytefour) / 100.0f;
+				}
+			} catch (IndexOutOfBoundsException ioobe){
+				logger.warn("Get wrong result of the obd adapter");
+			} catch (Exception e) {
+				logger.warn("Error while creating the mass air flow value", e);
+			}
+
+		}
+		return maf;
+	}
+}

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2015 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<resources>
+    <string name="bluetooth_pairing_preference_toolbar_title">Bluetooth Pairing</string>
+    <string name="select_bluetooth_preference_info_no_device_found">No Bluetooth device found.</string>
+    <string name="bluetooth_pairing_preference_info_searching_devices">Searching for Bluetooth devices...</string>
+    <string name="bluetooth_pairing_preference_info_devices_found">%s Bluetooth devices found.</string>
+    <string name="bluetooth_pairing_preference_info_device_found">1 Bluetooth device found.</string>
+    <string name="bluetooth_pairing_preference_dialog_remove_pairing">Delete</string>
+
+    <string name="pref_bt_discovery_interval_title">Set Discovery Interval</string>
+    <string name="pref_bt_discovery_interval_summary">Defines the search interval at which the device searches for the selected OBD-II device.</string>
+    <string name="pref_bt_discovery_interval_explanation">Select the interval (in minutes + seconds) at which the application re-initiates the discovery process.</string>
+
+    <string name="pref_bt_service_autostart_title">Autostart Background Service</string>
+    <string name="pref_bt_service_autostart_summary">Automatically start the background service whenever Bluetooth gets activated.</string>
+
+    <string name="bluetooth_pairing_prefrence_paired_devices">Paired Devices</string>
+</resources>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2015 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/material_blue_grey_900">
+
+    <LinearLayout
+        android:id="@+id/fragment_startup_info_field"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#88263238"
+        android:elevation="6dp">
+
+        <TextView
+            android:id="@+id/fragment_startup_info_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Please make the following settings:"
+            android:layout_margin="@dimen/spacing_large"
+            android:textSize="14sp"
+            android:textColor="@color/white_cario"/>
+
+    </LinearLayout>
+
+    <fragment
+        android:id="@+id/fragment_dashboard_header_fragment"
+        android:name="org.envirocar.app.view.dashboard.DashboardTrackDetailsFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"/>
+
+    <FrameLayout
+        android:id="@+id/fragment_startup_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/fragment_dashboard_header_fragment"
+        android:visibility="visible"/>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/fragment_startup_start_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/spacing_xsmall"
+        android:layout_marginLeft="@dimen/spacing_medium"
+        android:layout_marginRight="@dimen/spacing_medium"
+        android:clickable="true"
+        android:foreground="?selectableItemBackground"
+        app:cardCornerRadius="2dp"
+        app:cardElevation="4dp"
+        app:cardUseCompatPadding="true">
+
+        <TextView
+            android:id="@+id/fragment_startup_start_button_inner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:background="@color/green_dark_cario"
+            android:fontFamily="sans-serif-medium"
+            android:gravity="center"
+            android:padding="12dp"
+            android:text="START TRACK"
+            android:textColor="@color/white_cario"/>
+
+    </android.support.v7.widget.CardView>
+
+    <fragment
+        android:id="@+id/fragment_startup_settings_layout"
+        android:name="org.envirocar.app.view.dashboard.DashboardTrackSettingsFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/fragment_startup_start_button"/>
+
+</RelativeLayout>

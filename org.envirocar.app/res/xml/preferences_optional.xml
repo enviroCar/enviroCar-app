@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2015 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/pref_optional_features">
+        <org.envirocar.app.view.preferences.EditPreferenceWithSummary
+            xmlns:enviroCar="http://envirocar.org"
+            android:defaultValue="5"
+            android:inputType="number"
+            android:key="ec_sampling_rate"
+            android:maxLength="8"
+            android:summary="@string/sampling_rate_summary"
+            android:title="@string/sampling_rate_title"
+            enviroCar:max="15"
+            enviroCar:min="0" />
+        <CheckBoxPreference
+            android:key="pref_pid_supported"
+            android:summary="@string/use_pid_supported_summary"
+            android:title="@string/use_pid_supported"/>
+        <CheckBoxPreference
+            android:key="pref_enable_debug_logging"
+            android:summary="@string/enable_debug_logging_summary"
+            android:title="@string/enable_debug_logging"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<!--
 
+    Copyright (C) 2013 - 2015 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="today">Heute</string>
+    <string name="yesterday">Gestern</string>
+
+    <string name="cancel">Abbrechen</string>
     <string name="app_name">enviroCar</string>
     <string name="menu_settings">Einstellungen</string>
     <string name="menu_help">Hilfe</string>
@@ -115,9 +138,7 @@
     <string name="prompt_car_constructionYear">Baujahr</string>
     
     <string name="editName">Bezeichnung</string>
-    <string name="deleteTrack">Löschen</string>
-    <string name="uploadTrack">Fahrt als Open Data hochladen</string>
-    
+
    	<string name="open_drawer">Open</string>
 	<string name="close_drawer">Close</string>
     
@@ -127,7 +148,8 @@
     <string name="dashboard">Dashboard</string>
 	<string name="my_tracks">Meine Fahrten</string>
 	
-	<string name="welcome_message">Willkommen, </string>
+	<string name="welcome_message">Willkommen, %s</string>
+    <string name="goodbye_message">Auf Wiederstehen, %s</string>
 	<string name="no_tracks">Keine Fahrten vorhanden</string>
 	<string name="start_measuring">Starte Messung.</string>
     <string name="stop_measuring">Messung gestoppt.</string>
@@ -138,10 +160,8 @@
     <string name="envirocar.org">http://www.envirocar.org</string>
     
     <string name="imperial_unit">Imperiale Maßeinheiten?</string>
-    <string name="shareTrack">Export</string>
     <string name="error_json">Interner Fehler beim JSON generieren.</string>
-	<string name="privacy">Position verbergen?</string>
-	
+
 	<string name="help">Hilfe</string>
 
     <string name="help_head_1">1. Über enviroCar</string>
@@ -180,7 +200,7 @@ Wenn Sie den Finger ca eine Sekunde auf dem Listeneintrag belassen, erscheint ei
 \n&#8226; <b>Nur in WLAN hochladen</b> - Messdaten sollen nur dann automatisch auf den envirCar Server hochgeladen werden, wenn eine WLAN-Verbindung zum Internet existiert
 \n&#8226; <b>Bildschirm bleibt aktiv</b> - Das Smartphone soll nicht in den Schlafmodus wechseln, so lange die envirCar App aktiv ist.
 \n&#8226; <b>Imperiale Maßeinheiten</b> - enviroCar verwendet in der Grundeinstellung metrische Maße (Km, Liter etc.), alternativ können imperiale Maßeinheiten (mph) verwendet werden.
-\n&#8226; <b>Messfahrten  beschneiden</b> - Beginn und Ende der Messfahrten werden vor anderen Nutzern verborgen, damit häufig angefahrene Standorte keinen Rückschluss auf den Fahrzeughalter ermöglichen. Beim Hochladen der Messfahrt auf den enviroCar Server werden hierzu die ersten und letzten 250 Meter (mindestens aber die erste und letzte Minute der Messfahrt) abgeschnitten. 
+\n&#8226; <b>Messfahrten beschneiden</b> - Beginn und Ende der Messfahrten werden vor anderen Nutzern verborgen, damit häufig angefahrene Standorte keinen Rückschluss auf den Fahrzeughalter ermöglichen. Beim Hochladen der Messfahrt auf den enviroCar Server werden hierzu die ersten und letzten 250 Meter (mindestens aber die erste und letzte Minute der Messfahrt) abgeschnitten.
 \n&#8226; <b>Daten zum Fahrzeug</b> - Für die Berechnung von Daten aus der Fahrzeugsensorik werden einige Angaben zum Fahrzeug benötigt. Sie können entweder ein vorhandenes Fahrzeugprofil wählen oder ein neues Fahrzeugprofil anlegen. Für das Anlegen eines neuen Profils müssen Sie beim enviroCar Server angemeldet sein.</string>
 	<string name="help_head_6_3">6.3 enviroCar Version</string>
 	<string name="help_text_6_3">Sie nutzen die</string>
@@ -192,9 +212,7 @@ Ihr FeedBack (enviroCar@52north.org) ist sehr willkommen! Ihre Hinweise und Anre
 \n\n
 Bei festgestellten Problemen möchten wir Sie bitten, uns ein Fehlerprotokoll zu senden. (-> Problem melden). Das Fehlerprotokoll enthält Informationen über Prozessverläufe im System. Es unterstützt uns dabei, die Ursachen von Fehlfunktionen zu erkennen und zu beheben.</string>
     
-    <string name="track_obfuscation_on">Nur Messungen, die ab einer Entfernung von 250 Metern zum Start/Ziel sowie eine Minute nach Beginn und vor Ende der Route stattfanden, hochladen.</string>
-	<string name="imperial_unit_summary">Imperiale Maßeinheiten (Meilen) für die Anzeige nutzen</string>
-    <string name="action_send_log">Senden</string>
+	<string name="action_send_log">Senden</string>
     <string name="connection_state">Status</string>
     
     <string name="device_discovery_next_try">Geräte-Scan - %1$s:%2$s Minuten verbleibend</string>

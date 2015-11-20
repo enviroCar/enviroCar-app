@@ -1,0 +1,60 @@
+/**
+ * Copyright (C) 2013 - 2015 the enviroCar community
+ *
+ * This file is part of the enviroCar app.
+ *
+ * The enviroCar app is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The enviroCar app is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+ */
+package org.envirocar.app.test.commands;
+
+import junit.framework.Assert;
+
+import org.envirocar.obd.commands.LongTermTrimBank1;
+import org.envirocar.obd.commands.ShortTermTrimBank1;
+import org.junit.Test;
+
+public class FuelTrimBankTest {
+
+	@Test
+	public void testShortTermParsing() {
+		ShortTermTrimBank1 st = new ShortTermTrimBank1();
+		st.setRawData(createShortTermData());
+		
+		st.parseRawData();
+		
+		Number result = st.getNumberResult();
+		
+		Assert.assertTrue("Expected 50.0", result.doubleValue() == 50.0);
+	}
+
+	private byte[] createShortTermData() {
+		return "4106C0".getBytes();
+	}
+
+    @Test
+	public void testLongTermParsing() {
+		LongTermTrimBank1 lt = new LongTermTrimBank1();
+		lt.setRawData(createLongTermData());
+		
+		lt.parseRawData();
+		
+		Number result = lt.getNumberResult();
+		
+		Assert.assertTrue("Expected -75.0", result.doubleValue() == -75.0);
+	}
+
+	private byte[] createLongTermData() {
+		return "410720".getBytes();
+	}
+}

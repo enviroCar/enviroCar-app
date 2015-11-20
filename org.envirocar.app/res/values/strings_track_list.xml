@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2015 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<resources>
+    <string name="track_list_local_tracks">Local</string>
+    <string name="track_list_remote_tracks">Uploaded</string>
+
+    <string name="track_list_deleting_track">Deleting track...</string>
+    <string name="track_list_deleting_track_unauthorized">Unable to delete the track, because the logged in user is not authorized to do that.</string>
+    <string name="track_list_communication_error">No connection to the server.</string>
+
+    <string name="track_list_delete_track_error_template">Error while deleting track "%s".</string>
+    <string name="track_list_delete_track_success_template">%s has been successfully deleted.</string>
+
+    <string name="track_list_upload_track_uploading">Uploading Track</string>
+    <string name="track_list_upload_track_please_wait">Please wait...</string>
+    <string name="track_list_upload_track_success_template">The upload of track \'%s\' was successful.</string>
+
+    <string name="track_list_loading_tracks">Loading...</string>
+    <string name="track_list_loading_tracks_error_snackbar">Error while loading the data.\nPlease send an error report.</string>
+    <string name="track_list_loading_lremote_tracks_error">Error while loading downloaded remote tracks.</string>
+    <string name="track_list_loading_remote_tracks_error">Unable to load remote tracks. Maybe you have no connection to the internet?</string>
+
+    <string name="track_list_bg_error">ERROR!</string>
+    <string name="track_list_bg_error_sub">Error while retrieving tracks.\nPlease retry.</string>
+    <string name="track_list_bg_no_local_tracks">NO LOCAL TRACKS</string>
+    <string name="track_list_bg_no_local_tracks_sub">You have 0 local tracks</string>
+    <string name="track_list_bg_not_logged_in">NOT LOGGED IN</string>
+    <string name="track_list_bg_not_logged_in_sub">To access your remote tracks\nyou have to log in fist.</string>
+    <string name="track_list_bg_no_connection">NOT CONNECTED</string>
+    <string name="track_list_bg_no_connection_sub">You have no connection\nto the internet.</string>
+    <string name="track_list_bg_unauthorized">UNAUTHORIZED</string>
+    <string name="track_list_bg_unauthorized_sub">You are not authorized to download\nthe list of tracks</string>
+    <string name="track_list_error_while_downloading">Error while downloading.</string>
+
+    <string name="track_list_menu_details">Show Details</string>
+    <string name="track_list_menu_delete">Delete Track</string>
+    <string name="track_list_menu_upload">Upload as Open Data</string>
+    <string name="track_list_menu_export">Export Track</string>
+
+    <string name="track_list_details_duration">Duration</string>
+    <string name="track_list_details_distance">Distance</string>
+    <string name="track_list_details_car">Car:</string>
+    <string name="track_list_details_start">Start:</string>
+    <string name="track_list_details_end">End:</string>
+    <string name="track_list_details_consumption">Consumption:</string>
+    <string name="track_list_details_emission">CO\u2082 Emission:</string>
+
+
+</resources>
