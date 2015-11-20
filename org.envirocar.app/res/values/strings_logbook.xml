@@ -32,6 +32,6 @@
     <string name="logbook_background_no_fuelings_first">NO FUELINGS</string>
     <string name="logbook_background_no_fuelings_second">There are no fuelings assigned\nto the current user.</string>
     <string name="logbook_background_no_cars_first">NO CARS ADDED</string>
-    <string name="logbook_background_no_cars_second">Before you can access this\nfeature, you have to create/add a car.</string>
+    <string name="logbook_background_no_cars_second">Please create a car before accessing this feature.</string>
 
 </resources>

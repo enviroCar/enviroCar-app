@@ -142,7 +142,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     @Override
     public void onBackPressed() {
         LOG.info("onBackPressed()");
-        if(addFuelingFragment.isVisible()){
+        if(addFuelingFragment != null && addFuelingFragment.isVisible()){
             hideAddFuelingCard();
             LOG.info("AddFuelingCard was visible. Closing this card...");
             return;

@@ -183,7 +183,7 @@ public class LoginActivity extends BaseInjectorActivity {
 
     @Override
     public void onBackPressed() {
-        if (mRegisterCard.getVisibility() == View.VISIBLE) {
+        if (mRegisterCard != null && mRegisterCard.getVisibility() == View.VISIBLE) {
             animateViewTransition(mRegisterCard, R.anim.translate_slide_out_right_card, true);
             animateViewTransition(mLoginCard, R.anim.translate_slide_in_left_card, false);
         } else {

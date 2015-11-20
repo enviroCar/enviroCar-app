@@ -193,12 +193,9 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
             return;
         }
 
-        double cost = Double.parseDouble(addFuelingTotalCostText.getText()
-                .toString().split(" ")[0]);
-        double milage = Double.parseDouble(addFuelingMilageText.getText()
-                .toString().split(" ")[0]);
-        double volume = Double.parseDouble(addFuelingVolumeText.getText()
-                .toString().split(" ")[0]);
+        double cost = getEditTextDoubleValue(addFuelingTotalCostText);
+        double milage = getEditTextDoubleValue(addFuelingMilageText);
+        double volume = getEditTextDoubleValue(addFuelingMilageText);
         boolean missedFuelStop = missedFuelingCheckbox.isChecked();
         boolean partialFueling = partialFuelingCheckbox.isChecked();
 
