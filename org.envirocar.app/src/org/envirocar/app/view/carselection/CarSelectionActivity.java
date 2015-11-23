@@ -40,8 +40,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.CarPreferenceHandler;
@@ -58,6 +56,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 
@@ -124,11 +123,11 @@ public class CarSelectionActivity extends BaseInjectorActivity {
     @Inject
     protected CarPreferenceHandler mCarManager;
 
-    private Set<Car> mCars = Sets.newHashSet();
+    private Set<Car> mCars = new HashSet<>();
     private Set<String> mManufacturerNames;
-    private Map<String, Set<String>> mCarToModelMap = Maps.newConcurrentMap();
-    private Map<String, Set<String>> mModelToYear = Maps.newConcurrentMap();
-    private Map<String, Set<String>> mModelToCCM = Maps.newConcurrentMap();
+    private Map<String, Set<String>> mCarToModelMap = new ConcurrentHashMap<>();
+    private Map<String, Set<String>> mModelToYear = new ConcurrentHashMap<>();
+    private Map<String, Set<String>> mModelToCCM = new ConcurrentHashMap<>();
 
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private Subscription mSensoreSubscription;

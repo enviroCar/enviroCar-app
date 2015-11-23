@@ -42,7 +42,6 @@ import android.view.WindowManager;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.common.collect.Lists;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.activity.DialogUtil;
@@ -80,6 +79,7 @@ import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.remote.DAOProvider;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -342,7 +342,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
     }
 
     private void checkAffectingAnnouncements() {
-        final List<Announcement> annos = Lists.newArrayList();
+        final List<Announcement> annos = new ArrayList<>();
         try {
             annos.addAll(mDAOProvider.getAnnouncementsDAO().getAllAnnouncements());
         } catch (DataRetrievalFailureException e) {

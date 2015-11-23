@@ -35,7 +35,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.common.collect.Lists;
 
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
@@ -54,6 +53,7 @@ import org.envirocar.remote.serializer.TrackSerializer;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -109,7 +109,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected RecyclerView.LayoutManager mRecylcerViewLayoutManager;
 
     protected boolean tracksLoaded = false;
-    protected final List<Track> mTrackList = Collections.synchronizedList(Lists.newArrayList());
+    protected final List<Track> mTrackList = Collections.synchronizedList(new ArrayList<>());
 
     // Different workers for main and background threads.
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();

@@ -30,8 +30,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.NotificationCompat;
 
-import com.google.common.collect.Maps;
-
 import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
 import org.envirocar.app.view.carselection.CarSelectionActivity;
@@ -41,6 +39,7 @@ import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 
@@ -70,8 +69,8 @@ public class NotificationHandler {
 
     private NotificationManager mNotificationManager;
     private PendingIntent mBaseContentIntent;
-    private Map<Class<?>, Integer> mServiceToNotificationID = Maps.newConcurrentMap();
-    private Map<Class<?>, NotificationState> mNotificationStateMap = Maps.newConcurrentMap();
+    private Map<Class<?>, Integer> mServiceToNotificationID = new ConcurrentHashMap<>();
+    private Map<Class<?>, NotificationState> mNotificationStateMap = new ConcurrentHashMap<>();
 
     /**
      * Constructor.

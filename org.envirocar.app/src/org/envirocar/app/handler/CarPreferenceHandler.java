@@ -24,8 +24,6 @@ import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.squareup.otto.Bus;
 
 import org.envirocar.remote.DAOProvider;
@@ -40,8 +38,10 @@ import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.CarUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -86,10 +86,10 @@ public class CarPreferenceHandler {
 
         // Get the serialized car strings of all added cars.
         mSerializedCarStrings = preferences
-                .getStringSet(PreferenceConstants.PREFERENCE_TAG_CARS, Sets.newHashSet());
+                .getStringSet(PreferenceConstants.PREFERENCE_TAG_CARS, new HashSet<>());
 
         // Instantiate the cars from the set of serialized strings.
-        mDeserialzedCars = Sets.newHashSet();
+        mDeserialzedCars = new HashSet<>();
         for (String serializedCar : mSerializedCarStrings) {
             Car car = CarUtils.instantiateCar(serializedCar);
             if (car == null) {
@@ -198,7 +198,7 @@ public class CarPreferenceHandler {
      * @return list of sorted cars. (Sorted by manufacturer and model)
      */
     public List<Car> getDeserialzedCars() {
-        List<Car> carList = Lists.newArrayList(mDeserialzedCars);
+        List<Car> carList = new ArrayList<>(mDeserialzedCars);
         Collections.sort(carList, new Comparator<Car>() {
             @Override
             public int compare(Car lhs, Car rhs) {

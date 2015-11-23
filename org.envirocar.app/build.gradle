@@ -11,8 +11,8 @@ dependencies {
     compile rootProject.ext.supportCardview
     compile rootProject.ext.supportRecyclerview
     compile rootProject.ext.dagger
-    apt rootProject.ext.daggerCompiler
-    compile rootProject.ext.daggerCompiler
+    //apt rootProject.ext.daggerCompiler
+    provided rootProject.ext.daggerCompiler
     compile rootProject.ext.sqlBrite
     compile rootProject.ext.otto
     compile rootProject.ext.butterKnife

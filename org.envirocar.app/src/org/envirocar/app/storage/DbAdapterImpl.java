@@ -25,8 +25,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import com.google.common.collect.Lists;
-
 import org.envirocar.app.R;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.core.delete.Position;
@@ -560,7 +558,7 @@ public class DbAdapterImpl implements DbAdapter {
 
     @Override
     public List<Track> getAllRemoteTracks(boolean lazyMeasurements) {
-        ArrayList<Track> tracks = Lists.newArrayList();
+        ArrayList<Track> tracks = new ArrayList<>();
         Cursor c = mDb.query(TABLE_TRACK, ALL_TRACK_KEYS, KEY_TRACK_REMOTE + " IS NOT NULL",
                 null, null, null, null);
         c.moveToFirst();
