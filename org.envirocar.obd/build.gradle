@@ -39,3 +39,4 @@ dependencies {
 
     compile project(':org.envirocar.core')
 }
+

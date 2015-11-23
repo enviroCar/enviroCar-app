@@ -1,3 +1,21 @@
+/**
+ * Copyright (C) 2013 - 2015 the enviroCar community
+ *
+ * This file is part of the enviroCar app.
+ *
+ * The enviroCar app is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The enviroCar app is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+ */
 package org.envirocar.core.entity;
 
 /**
@@ -10,6 +28,7 @@ public interface Fueling extends BaseEntity<Fueling>, Comparable<Fueling> {
     String KEY_FUELINGS = "fuelings";
     String KEY_COMMENT = "comment";
     String KEY_MISSED_FUEL_STOP = "missedFuelStop";
+    String KEY_PARTIAL_FUELING = "partialFueling";
     String KEY_CAR = "car";
     String KEY_FUEL_TYPE = "fuelType";
     String KEY_COST = "cost";
@@ -181,6 +200,10 @@ public interface Fueling extends BaseEntity<Fueling>, Comparable<Fueling> {
     boolean isMissedFuelStop();
 
     void setMissedFuelStop(boolean missedFuelStop);
+
+    boolean isPartialFueling();
+
+    void setPartialFueling(boolean partialFueling);
 
     double getMilage();
 

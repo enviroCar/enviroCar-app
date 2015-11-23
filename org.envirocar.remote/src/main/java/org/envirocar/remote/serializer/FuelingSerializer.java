@@ -1,3 +1,21 @@
+/**
+ * Copyright (C) 2013 - 2015 the enviroCar community
+ *
+ * This file is part of the enviroCar app.
+ *
+ * The enviroCar app is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The enviroCar app is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+ */
 package org.envirocar.remote.serializer;
 
 import com.google.gson.JsonDeserializationContext;
@@ -37,6 +55,8 @@ public class FuelingSerializer implements JsonSerializer<Fueling>, JsonDeseriali
                 src.getVolumeUnit().toString()));
 
         result.addProperty(Fueling.KEY_MISSED_FUEL_STOP, src.isMissedFuelStop());
+        result.addProperty(Fueling.KEY_PARTIAL_FUELING, src.isPartialFueling());
+
         return result;
     }
 
@@ -62,7 +82,18 @@ public class FuelingSerializer implements JsonSerializer<Fueling>, JsonDeseriali
         }
 
         result.setCar(context.deserialize(jsonObject.get(Fueling.KEY_CAR), Car.class));
-        result.setMissedFuelStop(jsonObject.get(Fueling.KEY_MISSED_FUEL_STOP).getAsBoolean());
+
+        if(jsonObject.has(Fueling.KEY_MISSED_FUEL_STOP)){
+            result.setMissedFuelStop(jsonObject.get(Fueling.KEY_MISSED_FUEL_STOP).getAsBoolean());
+        } else {
+            result.setMissedFuelStop(true);
+        }
+
+        if(jsonObject.has(Fueling.KEY_PARTIAL_FUELING)){
+            result.setPartialFueling(jsonObject.get(Fueling.KEY_PARTIAL_FUELING).getAsBoolean());
+        } else {
+            result.setPartialFueling(false);
+        }
 
         JsonObject milageObject = jsonObject.get(Fueling.KEY_MILEAGE).getAsJsonObject();
         result.setMilage(milageObject.get(Fueling.KEY_VALUE).getAsDouble(),
@@ -76,7 +107,7 @@ public class FuelingSerializer implements JsonSerializer<Fueling>, JsonDeseriali
         result.setCost(costObject.get(Fueling.KEY_VALUE).getAsDouble(),
                 Fueling.CostUnit.fromString(costObject.get(Fueling.KEY_UNIT).getAsString()));
 
-        if(jsonObject.has(Fueling.KEY_COMMENT)){
+        if(jsonObject.has(Fueling.KEY_COMMENT)) {
             result.setComment(jsonObject.get(Fueling.KEY_COMMENT).getAsString());
         }
 

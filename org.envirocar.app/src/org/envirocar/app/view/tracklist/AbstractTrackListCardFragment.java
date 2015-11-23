@@ -1,3 +1,21 @@
+/**
+ * Copyright (C) 2013 - 2015 the enviroCar community
+ *
+ * This file is part of the enviroCar app.
+ *
+ * The enviroCar app is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The enviroCar app is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+ */
 package org.envirocar.app.view.tracklist;
 
 import android.app.Activity;
@@ -17,7 +35,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.google.common.collect.Lists;
 
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
@@ -36,6 +53,7 @@ import org.envirocar.remote.serializer.TrackSerializer;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -91,7 +109,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected RecyclerView.LayoutManager mRecylcerViewLayoutManager;
 
     protected boolean tracksLoaded = false;
-    protected final List<Track> mTrackList = Collections.synchronizedList(Lists.newArrayList());
+    protected final List<Track> mTrackList = Collections.synchronizedList(new ArrayList<>());
 
     // Different workers for main and background threads.
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();

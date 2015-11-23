@@ -1,4 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2015 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -30,13 +50,14 @@
                 android:orientation="vertical">
 
                 <LinearLayout
+                    android:id="@+id/activity_logbook_header"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <TextView
                         style="@style/enviroCar.title"
-                        android:text="My Fuelings"/>
+                        android:text="@string/logbook_my_fuelings_header"/>
 
                     <FrameLayout
                         android:layout_width="1dp"
@@ -85,10 +106,14 @@
         layout="@layout/activity_logbook_no_fuelings_info"
         android:visibility="gone"/>
 
+    <include
+        android:id="@+id/layout_general_info_background"
+        layout="@layout/layout_general_info_background"
+        android:visibility="gone"/>
+
     <FrameLayout
         android:id="@+id/activity_logbook_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="visible"/>
+        android:layout_height="match_parent"/>
 
 </RelativeLayout>

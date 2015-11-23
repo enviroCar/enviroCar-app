@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<!--
 
+    Copyright (C) 2013 - 2015 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
+<resources>
+    <string name="today">Today</string>
+    <string name="yesterday">Yesterday</string>
     <string name="cancel">Cancel</string>
 
     <string name="app_name">enviroCar</string>
@@ -165,7 +186,7 @@
     <string name="help_head_2">2. Getting Started</string>
     <string name="help_text_2">The initial screen displays the current measured values of speed, CO2 emission and geographic location (position). In addition, it shows the type of car you have specified.\n\nBefore you can start recording your track data, you must complete the following steps.\n\nClick on the main menu (icon top left) to access the functions needed to do this.</string>
     <string name="help_head_2_1">2.1 Register</string>
-    <string name="help_text_2_1">If you have not yet registered as an enviroCar user, you can do so with the function “create user account”.</string>
+    <string name="help_text_2_1">If you have not yet registered as an enviroCar user, you can do so with the function “create user account�?.</string>
     <string name="help_head_2_2">2.2 Enter car data</string>
     <string name="help_text_2_2">Various information about the car is required in order to calculate certain parameters based on the automotive sensor data. Choose either an existing car profile for create a new car profile. You must be signed in in order to create a new profile.</string>
     <string name="help_head_2_3">2.3 Connect to car</string>
@@ -173,7 +194,7 @@
     <string name="help_head_3">3. Record track</string>
     <string name="help_text_3">As soon as you have connected the ODB-II adapter, started the motor and the GPS positioning in your smartphone is available, enviroCar starts to record measurements every few seconds and save them on your smartphone.\n\nThe antenna symbol on the main screen is green when all requirements have been fulfilled and measurements have occurred.</string>
     <string name="help_head_4">4. Observe tracks</string>
-	<string name="help_text_4">Click on “My tracks” in the main menu to get a list of all tracks.\n\nThis symbol shows that the track has only been saved locally and not yet uploaded to the enviroCar server.\n\nAll other tracks have been saved to the enviroCar server. The last ten tracks are downloaded from the enviroCar server to the smartphone when the enviroCar app is restarted or newly installed.\n\nIf you lightly tap one of the tracks in the list of tracks, you will see several parameters, such as length and duration of the track and fuel consumption (the latter only for gasoline vehicles).\n\nIf you rest your finger on the list entry for approximately a second, a new list appears with additional functions for processing and visualizing the track:
+	<string name="help_text_4">Click on “My tracks�? in the main menu to get a list of all tracks.\n\nThis symbol shows that the track has only been saved locally and not yet uploaded to the enviroCar server.\n\nAll other tracks have been saved to the enviroCar server. The last ten tracks are downloaded from the enviroCar server to the smartphone when the enviroCar app is restarted or newly installed.\n\nIf you lightly tap one of the tracks in the list of tracks, you will see several parameters, such as length and duration of the track and fuel consumption (the latter only for gasoline vehicles).\n\nIf you rest your finger on the list entry for approximately a second, a new list appears with additional functions for processing and visualizing the track:
 
 &#8226; <b>Map</b> - view track in an interactive map.
 \n&#8226; <b>Identification</b> - change identifier (only possible when the track has not yet been uploaded to the enviroCar server).

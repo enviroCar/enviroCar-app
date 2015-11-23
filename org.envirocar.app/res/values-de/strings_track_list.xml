@@ -1,6 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2015 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
 <resources>
-    <string name="track_list_local_tracks">Privat</string>
+    <string name="track_list_local_tracks">Lokal</string>
     <string name="track_list_remote_tracks">Hochgeladen</string>
 
     <string name="track_list_deleting_track">Lösche track...</string>
@@ -19,10 +39,15 @@
     <string name="track_list_loading_remote_tracks_error">Fehler beim Laden von Fahrten vom Server. Eventuell besteht keine Verbindung zum Internet?</string>
 
     <string name="track_list_bg_error">Fehler!</string>
-    <string name="track_list_bg_no_local_tracks">Keine lokalen Fahrten verfügbar.</string>
-    <string name="track_list_bg_not_logged_in">Nicht Angemeldet</string>
+    <string name="track_list_bg_error_sub">Fehler beim Laden der Fahrten.\nBitte versuchen Sie es erneut.</string>
+    <string name="track_list_bg_no_local_tracks">KEINE LOKALE FAHRTEN</string>
+    <string name="track_list_bg_no_local_tracks_sub">Sie verfügen derzeitig über keine lokale Fahrten.</string>
+    <string name="track_list_bg_not_logged_in">NICHT ANGEMELDET</string>
+    <string name="track_list_bg_not_logged_in_sub">Um Zugriff auf Ihre hochgeladenen Fahrten zu erhalten,\nloggen Sie sich bitte zuerst ein.</string>
     <string name="track_list_bg_no_connection">Keine Verbdinung zum Internet.</string>
-    <string name="track_list_bg_unauthorized">Nicht Authorisiert um die Fahrten zu laden.</string>
+    <string name="track_list_bg_no_connection_sub">Sie haben derzeitig keine\nVerbinding ins Internet.</string>
+    <string name="track_list_bg_unauthorized">NICHT AUTHORISERT</string>
+    <string name="track_list_bg_unauthorized_sub">Sie sind nicht nicht authorisiert dies zu tun.</string>
     <string name="track_list_error_while_downloading">Fehler beim herunterladen von Tracks.</string>
     <string name="track_list_communication_error">Keine Verbindung zum Server.</string>
 

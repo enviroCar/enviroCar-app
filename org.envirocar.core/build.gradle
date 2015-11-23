@@ -28,13 +28,16 @@ dependencies {
 
     compile rootProject.ext.acra
     compile rootProject.ext.otto
-    compile rootProject.ext.guava
+    //compile rootProject.ext.guava
     compile rootProject.ext.gson
+
+    compile rootProject.ext.findBugs
 
     compile rootProject.ext.rxAndroid
     compile rootProject.ext.rxJava
 
     compile 'org.apache.commons:commons-compress:1.5'
 }
+
 
 

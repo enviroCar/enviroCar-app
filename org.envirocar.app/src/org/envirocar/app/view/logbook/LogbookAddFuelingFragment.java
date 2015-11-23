@@ -1,3 +1,21 @@
+/**
+ * Copyright (C) 2013 - 2015 the enviroCar community
+ *
+ * This file is part of the enviroCar app.
+ *
+ * The enviroCar app is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The enviroCar app is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+ */
 package org.envirocar.app.view.logbook;
 
 import android.os.Bundle;
@@ -11,12 +29,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.entity.FuelingImpl;
@@ -29,6 +50,7 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.remote.DAOProvider;
 
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -54,6 +76,8 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
     @InjectView(R.id.logbook_layout_addfueling_toolbar)
     protected Toolbar addFuelingToolbar;
+    @InjectView(R.id.activity_logbook_add_fueling_card_content)
+    protected View contentView;
     @InjectView(R.id.activity_logbook_add_fueling_car_selection)
     protected Spinner addFuelingCarSelection;
     @InjectView(R.id.logbook_add_fueling_milagetext)
@@ -70,6 +94,15 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
     protected CheckBox missedFuelingCheckbox;
     @InjectView(R.id.logbook_add_fueling_comment)
     protected EditText commentText;
+
+    @InjectView(R.id.layout_general_info_background)
+    protected View infoBackground;
+    @InjectView(R.id.layout_general_info_background_img)
+    protected ImageView infoBackgroundImg;
+    @InjectView(R.id.layout_general_info_background_firstline)
+    protected TextView infoBackgroundFirst;
+    @InjectView(R.id.layout_general_info_background_secondline)
+    protected TextView infoBackgroundSecond;
 
     @Inject
     protected CarPreferenceHandler carHandler;
@@ -99,6 +132,28 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         });
 
         initTextViews();
+
+        Car selectedCar = carHandler.getCar();
+        List<Car> addedCars = carHandler.getDeserialzedCars();
+
+        // Inflate the values for the car spinner.
+        LogbookCarSpinnerAdapter carSpinnerAdapter = new LogbookCarSpinnerAdapter(getActivity(),
+                addedCars);
+        addFuelingCarSelection.setAdapter(carSpinnerAdapter);
+
+
+        if (selectedCar != null) {
+            // Set the position of the car inside the spinner as default.
+            int spinnerPosition = carSpinnerAdapter.getPosition(selectedCar);
+            addFuelingCarSelection.setSelection(spinnerPosition);
+        } else if (addedCars.isEmpty()) {
+            // Show a notification that there is no selected car
+            contentView.setVisibility(View.GONE);
+            infoBackgroundImg.setImageResource(R.drawable.img_car);
+            infoBackgroundFirst.setText(R.string.logbook_background_no_cars_first);
+            infoBackgroundSecond.setText(R.string.logbook_background_no_cars_second);
+            ECAnimationUtils.animateShowView(getContext(), infoBackground, R.anim.fade_in);
+        }
 
         return view;
     }
@@ -146,18 +201,19 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
             return;
         }
 
-        Car car = carHandler.getCar();
+        Car car = (Car) addFuelingCarSelection.getSelectedItem();
+
         if (car == null) {
             LOG.info("Cant create fueling entry, because the car is empty");
+            Snackbar.make(addFuelingToolbar,
+                    "You must have selected a car type for creating a fueling.",
+                    Snackbar.LENGTH_LONG).show();
             return;
         }
 
-        double cost = Double.parseDouble(addFuelingTotalCostText.getText()
-                .toString().split(" ")[0]);
-        double milage = Double.parseDouble(addFuelingMilageText.getText()
-                .toString().split(" ")[0]);
-        double volume = Double.parseDouble(addFuelingVolumeText.getText()
-                .toString().split(" ")[0]);
+        double cost = getEditTextDoubleValue(addFuelingTotalCostText);
+        double milage = getEditTextDoubleValue(addFuelingMilageText);
+        double volume = getEditTextDoubleValue(addFuelingMilageText);
         boolean missedFuelStop = missedFuelingCheckbox.isChecked();
         boolean partialFueling = partialFuelingCheckbox.isChecked();
 
@@ -168,6 +224,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         fueling.setVolume(volume, Fueling.VolumeUnit.LITRES);
         fueling.setMilage(milage, Fueling.MilageUnit.KILOMETRES);
         fueling.setMissedFuelStop(missedFuelStop);
+        fueling.setPartialFueling(partialFueling);
 
         if (commentText.getText() != null) {
             String comment = commentText.getText().toString();

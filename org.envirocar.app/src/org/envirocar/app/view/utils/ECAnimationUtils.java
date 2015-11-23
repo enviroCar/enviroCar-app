@@ -1,3 +1,21 @@
+/**
+ * Copyright (C) 2013 - 2015 the enviroCar community
+ *
+ * This file is part of the enviroCar app.
+ *
+ * The enviroCar app is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The enviroCar app is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+ */
 package org.envirocar.app.view.utils;
 
 
@@ -8,21 +26,26 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
+import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 
 /**
+ * TODO JavaDoc
+ *
  * @author dewall
  */
 public class ECAnimationUtils {
 
     public static void animateShowView(Context context, View view, int animResource) {
-        // Check whether the view is already visible and return in that case
-        if(view.getVisibility() == View.VISIBLE)
-            return;
+        AndroidSchedulers.mainThread().createWorker().schedule(() -> {
+            // Check whether the view is already visible and return in that case
+            if (view.getVisibility() == View.VISIBLE)
+                return;
 
-        Animation animation = AnimationUtils.loadAnimation(context, animResource);
-        view.setVisibility(View.VISIBLE);
-        view.startAnimation(animation);
+            Animation animation = AnimationUtils.loadAnimation(context, animResource);
+            view.setVisibility(View.VISIBLE);
+            view.startAnimation(animation);
+        });
     }
 
     /**
@@ -36,8 +59,8 @@ public class ECAnimationUtils {
         animateHideView(context, view, animResource, null);
     }
 
-    public static void animateHideView(Context context, int animResource, View... views){
-        for(View view : views){
+    public static void animateHideView(Context context, int animResource, View... views) {
+        for (View view : views) {
             animateHideView(context, view, animResource, null);
         }
     }
@@ -50,36 +73,40 @@ public class ECAnimationUtils {
      * @param animResource the animation resource.
      * @param action       the action that should happen when the animation is finished.
      */
-    public static void animateHideView(Context context, final View view, int animResource, Action0
-            action) {
-        Animation animation = AnimationUtils.loadAnimation(context, animResource);
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                // nothing to do..
-            }
+    public static void animateHideView(Context context, final View view, int animResource,
+                                       final Action0 action) {
+        AndroidSchedulers.mainThread().createWorker().schedule(() -> {
+            Animation animation = AnimationUtils.loadAnimation(context, animResource);
+            animation.setFillAfter(true);
 
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                view.setVisibility(View.GONE);
-                if (action != null) {
-                    action.call();
+            animation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                    // nothing to do..
                 }
-            }
 
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-                // nothing to do..
-            }
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    view.setVisibility(View.GONE);
+                    if (action != null) {
+                        action.call();
+                    }
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+                    // nothing to do..
+                }
+            });
+
+            view.startAnimation(animation);
         });
-        view.startAnimation(animation);
-        view.setVisibility(View.GONE);
     }
 
     /**
      * Expands the view to a specific height.
      *
-     * @param view  the view to expand to a given height.
+     * @param view   the view to expand to a given height.
      * @param height
      */
     public static void expandView(View view, int height) {

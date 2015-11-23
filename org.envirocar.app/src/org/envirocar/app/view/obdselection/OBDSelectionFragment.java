@@ -1,3 +1,21 @@
+/**
+ * Copyright (C) 2013 - 2015 the enviroCar community
+ *
+ * This file is part of the enviroCar app.
+ *
+ * The enviroCar app is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The enviroCar app is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+ */
 package org.envirocar.app.view.obdselection;
 
 import android.app.AlertDialog;
@@ -113,7 +131,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
             mContentView.setVisibility(View.GONE);
             mNewDevicesArrayAdapter.clear();
             mPairedDevicesAdapter.clear();
-            mNewDevicesInfoTextView.setText("Bluetooth is disabled.");
+            mNewDevicesInfoTextView.setText(R.string.obd_selection_bluetooth_disabled);
         } else {
             // Bluetooth is enabled. Show the content view, update the list, and start the
             // discovery of Bluetooth devices.
@@ -132,8 +150,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         // If bluetooth is not enabled, skip the discovery and show a toast.
         if (!mBluetoothHandler.isBluetoothEnabled()) {
             LOGGER.debug("startBluetoothDiscovery(): Bluetooth is disabled!");
-            showSnackbar("Bluetooth is disabled. Please enable Bluetooth before " +
-                    "discovering for other devices.");
+            showSnackbar(getString(R.string.obd_selection_bluetooth_disabled_snackbar));
             return;
         }
 
@@ -157,7 +174,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                                 // Set info view to "searching...".
                                 mNewDevicesInfoTextView.setText(R.string
                                         .bluetooth_pairing_preference_info_searching_devices);
-                                showSnackbar("Discovery Started!");
+                                showSnackbar(getString(R.string.obd_selection_discovery_started));
                             }
 
                             @Override
@@ -191,8 +208,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
 
                             @Override
                             public void onNext(BluetoothDevice device) {
-                                LOGGER.info(String.format("Bluetooth device detected: [name=%s, " +
-                                                "address=%s]",
+                                LOGGER.info(String.format(
+                                        "Bluetooth device detected: [name=%s, address=%s]",
                                         device.getName(), device.getAddress()));
 
                                 // if the discovered device is not already part of the list, then
@@ -221,8 +238,8 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                         mBluetoothHandler.setSelectedBluetoothDevice(device);
 
                         // Show a snackbar
-                        showSnackbar(String.format("%s selected.", device
-                                .getName()));
+                        showSnackbar(String.format(getString(
+                                R.string.obd_selection_is_selected_template), device.getName()));
                     }
 
                     @Override
@@ -254,20 +271,22 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
             // Set text view
             TextView textview = (TextView) contentView.findViewById(R.id
                     .bluetooth_selection_preference_pairing_dialog_text);
-            textview.setText(String.format("Do you want to pair with %s?", device.getName()));
+            textview.setText(String.format(getString(
+                    R.string.obd_selection_dialog_pairing_content_template), device.getName()));
 
             // Create the Dialog
             new AlertDialog.Builder(getActivity())
                     .setView(contentView)
-                    .setPositiveButton("Pair Device", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // If this button is clicked, pair with the given device
-                            view1.setClickable(false);
-                            pairDevice(device, view1);
-                        }
-                    })
-                    .setNegativeButton("Cancel", null) // Nothing to do on cancel
+                    .setPositiveButton(R.string.obd_selection_dialog_pairing_title,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // If this button is clicked, pair with the given device
+                                    view1.setClickable(false);
+                                    pairDevice(device, view1);
+                                }
+                            })
+                    .setNegativeButton(R.string.cancel, null) // Nothing to do on cancel
                     .create()
                     .show();
         });
@@ -280,7 +299,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         // Set toolbar style
         Toolbar toolbar1 = (Toolbar) contentView.findViewById(R.id
                 .bluetooth_selection_preference_pairing_dialog_toolbar);
-        toolbar1.setTitle("Delete Pairing?");
+        toolbar1.setTitle(R.string.obd_selection_dialog_delete_pairing_title);
         toolbar1.setNavigationIcon(R.drawable.ic_bluetooth_white_24dp);
         toolbar1.setTitleTextColor(
                 getResources().getColor(R.color.white_cario));
@@ -288,8 +307,9 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         // Set text view
         TextView textview = (TextView) contentView.findViewById(R.id
                 .bluetooth_selection_preference_pairing_dialog_text);
-        textview.setText(String.format("Do you want to remove the pairing with \"%s\"?", device
-                .getName()));
+        textview.setText(String.format(
+                getString(R.string.obd_selection_dialog_delete_pairing_content_template),
+                device.getName()));
 
         // Create the AlertDialog.
         new MaterialDialog.Builder(getActivity())
@@ -312,15 +332,17 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                 new BluetoothHandler.BluetoothDeviceUnpairingCallback() {
                     @Override
                     public void onDeviceUnpaired(BluetoothDevice device) {
-                        showSnackbar(String.format("%s (%s) has been unpaired.",
-                                device.getName(), device.getAddress()));
+                        showSnackbar(String.format(
+                                getString(R.string.obd_selection_device_unpaired_template),
+                                device.getName() + " (" + device.getAddress() + ")"));
                         mPairedDevicesAdapter.remove(device);
                     }
 
                     @Override
                     public void onUnpairingError(BluetoothDevice device) {
-                        showSnackbar(String.format("Error while unpairing %s (%s)",
-                                device.getName(), device.getAddress()));
+                        showSnackbar(String.format(
+                                getString(R.string.obd_selection_unpairing_error_template),
+                                device.getName() + " (" + device.getAddress() + ")"));
                     }
                 });
     }
@@ -359,7 +381,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
 
                     @Override
                     public void onPairingStarted(BluetoothDevice device) {
-                        showSnackbar("Pairing Started");
+                        showSnackbar(getString(R.string.obd_selection_pairing_started));
                         if (text != null) {
                             text.setText(device.getName() + " (Pairing started...)");
                         }
@@ -367,7 +389,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
 
                     @Override
                     public void onPairingError(BluetoothDevice device) {
-                        Toast.makeText(getActivity(), "Pairing Error",
+                        Toast.makeText(getActivity(), R.string.obd_selection_pairing_error,
                                 Toast.LENGTH_LONG).show();
                         if (text != null)
                             text.setText(device.getName());
@@ -377,7 +399,9 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                     public void onDevicePaired(BluetoothDevice device) {
                         // Device is paired. Add it to the array adapter for paired devices and
                         // remove it from the adapter for new devices.
-                        showSnackbar("Paired");
+                        showSnackbar(String.format(
+                                getString(R.string.obd_selection_pairing_success_template),
+                                device.getName()));
                         mNewDevicesArrayAdapter.remove(device);
                         mPairedDevicesAdapter.add(device);
 

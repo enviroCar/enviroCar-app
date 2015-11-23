@@ -1,25 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2015 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
 <resources>
-    <string name="notification_no_car_title">No cartype selected</string>
-    <string name="notification_no_car_description">You have no cartype selected.
+    <string name="notification_no_car_title">No car type selected</string>
+    <string name="notification_no_car_description">You have no car type selected.
         Please go to the car settings and select one.</string>
     <string name="notification_no_car_action">Open Car Selection</string>
 
-    <string name="notification_no_obd_title">No paired OBD adapter selected.</string>
-    <string name="notification_no_obd_description">You have no paired OBDII adapter selected.
-        Please go to the obd settings and pair/select one.</string>
-    <string name="notification_no_obd_action">Open OBD Selection</string>
+    <string name="notification_no_obd_title">No paired OBD-II adapter selected.</string>
+    <string name="notification_no_obd_description">You have no paired OBD-II adapter selected.
+        Please go to the OBD-II settings and pair/select one.</string>
+    <string name="notification_no_obd_action">Open OBD-II Selection</string>
 
     <string name="notification_unconnected_title">Unconnected</string>
-    <string name="notification_unconnected_description">No track is currently recording.</string>
-    <string name="notification_unconnected_action">Search for OBDII</string>
+    <string name="notification_unconnected_description">Track recording is not in progress.</string>
+    <string name="notification_unconnected_action">Search for OBD-II</string>
 
     <string name="notification_discovering_title">Discovering</string>
-    <string name="notification_discovering_description">Searching for OBDII Adapter.</string>
+    <string name="notification_discovering_description">Searching for OBD-II adapter.</string>
     <string name="notification_discovering_action">Cancel</string>
 
-    <string name="notification_obd_found_title">OBDII in Range</string>
-    <string name="notification_obd_found_description">The selected OBDII device is
+    <string name="notification_obd_found_title">OBD-II in range</string>
+    <string name="notification_obd_found_description">The selected OBD-II device is
         in communication range.</string>
     <string name="notification_obd_found_action">Start Track</string>
 
@@ -32,6 +52,6 @@
     <string name="notification_connected_action">Stop Track</string>
 
     <string name="notification_stopping_title">Stopping</string>
-    <string name="notification_stopping_description">Stopping the track and storing the data-</string>
+    <string name="notification_stopping_description">Stopping the track and storing the data.</string>
     <string name="notification_stopping_action"></string>
 </resources>

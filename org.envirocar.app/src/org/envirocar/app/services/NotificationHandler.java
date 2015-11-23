@@ -1,3 +1,21 @@
+/**
+ * Copyright (C) 2013 - 2015 the enviroCar community
+ *
+ * This file is part of the enviroCar app.
+ *
+ * The enviroCar app is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The enviroCar app is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+ */
 package org.envirocar.app.services;
 
 import android.app.Notification;
@@ -12,8 +30,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.app.NotificationCompat;
 
-import com.google.common.collect.Maps;
-
 import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
 import org.envirocar.app.view.carselection.CarSelectionActivity;
@@ -23,6 +39,7 @@ import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 
@@ -52,8 +69,8 @@ public class NotificationHandler {
 
     private NotificationManager mNotificationManager;
     private PendingIntent mBaseContentIntent;
-    private Map<Class<?>, Integer> mServiceToNotificationID = Maps.newConcurrentMap();
-    private Map<Class<?>, NotificationState> mNotificationStateMap = Maps.newConcurrentMap();
+    private Map<Class<?>, Integer> mServiceToNotificationID = new ConcurrentHashMap<>();
+    private Map<Class<?>, NotificationState> mNotificationStateMap = new ConcurrentHashMap<>();
 
     /**
      * Constructor.

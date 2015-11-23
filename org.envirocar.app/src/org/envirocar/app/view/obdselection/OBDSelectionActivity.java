@@ -1,3 +1,21 @@
+/**
+ * Copyright (C) 2013 - 2015 the enviroCar community
+ *
+ * This file is part of the enviroCar app.
+ *
+ * The enviroCar app is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The enviroCar app is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+ */
 package org.envirocar.app.view.obdselection;
 
 import android.os.Bundle;
@@ -56,7 +74,7 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
 
         // Set the toolbar as default actionbar.
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle("OBD-Device Selection");
+        getSupportActionBar().setTitle(R.string.obd_selection_title);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -76,7 +94,9 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
 
     private void setupBluetoothSwitch() {
         boolean isBTEnabled = mBluetoothHandler.isBluetoothEnabled();
-        mEnableBTText.setText(isBTEnabled ? "Bluetooth On" : "Bluetooth Off");
+        mEnableBTText.setText(isBTEnabled ?
+                R.string.obd_selection_bluetooth_on :
+                R.string.obd_selection_bluetooth_off);
         mSwitch.setChecked(mBluetoothHandler.isBluetoothEnabled());
 
         mSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -94,10 +114,10 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
         LOGGER.info(String.format("Received event: %s", event.toString()));
 
         if (event.isBluetoothEnabled) {
-            mEnableBTText.setText("Bluetooth On");
+            mEnableBTText.setText(R.string.obd_selection_bluetooth_on);
             mSwitch.setChecked(true);
         } else {
-            mEnableBTText.setText("Bluetooth Off");
+            mEnableBTText.setText(R.string.obd_selection_bluetooth_off);
             mSwitch.setChecked(false);
         }
     }

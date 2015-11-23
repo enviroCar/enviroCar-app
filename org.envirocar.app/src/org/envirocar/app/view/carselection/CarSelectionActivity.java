@@ -1,3 +1,21 @@
+/**
+ * Copyright (C) 2013 - 2015 the enviroCar community
+ *
+ * This file is part of the enviroCar app.
+ *
+ * The enviroCar app is free software: you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * The enviroCar app is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+ * Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+ */
 package org.envirocar.app.view.carselection;
 
 import android.content.Context;
@@ -22,8 +40,6 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.CarPreferenceHandler;
@@ -40,6 +56,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.inject.Inject;
 
@@ -106,11 +123,11 @@ public class CarSelectionActivity extends BaseInjectorActivity {
     @Inject
     protected CarPreferenceHandler mCarManager;
 
-    private Set<Car> mCars = Sets.newHashSet();
+    private Set<Car> mCars = new HashSet<>();
     private Set<String> mManufacturerNames;
-    private Map<String, Set<String>> mCarToModelMap = Maps.newConcurrentMap();
-    private Map<String, Set<String>> mModelToYear = Maps.newConcurrentMap();
-    private Map<String, Set<String>> mModelToCCM = Maps.newConcurrentMap();
+    private Map<String, Set<String>> mCarToModelMap = new ConcurrentHashMap<>();
+    private Map<String, Set<String>> mModelToYear = new ConcurrentHashMap<>();
+    private Map<String, Set<String>> mModelToCCM = new ConcurrentHashMap<>();
 
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private Subscription mSensoreSubscription;

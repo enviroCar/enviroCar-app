@@ -1,7 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+
+    Copyright (C) 2013 - 2015 the enviroCar community
+
+    This file is part of the enviroCar app.
+
+    The enviroCar app is free software: you can redistribute it and/or
+    modify it under the terms of the GNU General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    The enviroCar app is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
+
+-->
 <resources>
-    <string name="track_list_local_tracks">Private</string>
-    <string name="track_list_remote_tracks">Public</string>
+    <string name="track_list_local_tracks">Local</string>
+    <string name="track_list_remote_tracks">Uploaded</string>
 
     <string name="track_list_deleting_track">Deleting track...</string>
     <string name="track_list_deleting_track_unauthorized">Unable to delete the track, because the logged in user is not authorized to do that.</string>
@@ -22,7 +42,7 @@
     <string name="track_list_bg_error">ERROR!</string>
     <string name="track_list_bg_error_sub">Error while retrieving tracks.\nPlease retry.</string>
     <string name="track_list_bg_no_local_tracks">NO LOCAL TRACKS</string>
-    <string name="track_list_bg_no_local_tracks_sub">You have 0 tracks that are not uploaded</string>
+    <string name="track_list_bg_no_local_tracks_sub">You have 0 local tracks</string>
     <string name="track_list_bg_not_logged_in">NOT LOGGED IN</string>
     <string name="track_list_bg_not_logged_in_sub">To access your remote tracks\nyou have to log in fist.</string>
     <string name="track_list_bg_no_connection">NOT CONNECTED</string>
