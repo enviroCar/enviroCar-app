@@ -21,8 +21,6 @@ package org.envirocar.storage;
 import android.content.ContentValues;
 import android.database.Cursor;
 
-import com.google.common.collect.Lists;
-
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.core.entity.Track;
@@ -32,6 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -99,7 +98,7 @@ class MeasurementTable {
     }
 
     public static List<Measurement> fromCursorToList(Cursor c) {
-        List<Measurement> res = Lists.newArrayList();
+        List<Measurement> res = new ArrayList<>();
 
         c.moveToFirst();
         for (int i = 1; c.moveToNext(); i++) {

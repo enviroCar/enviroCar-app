@@ -20,7 +20,8 @@ dependencies {
     compile rootProject.ext.helloCharts
     compile rootProject.ext.fabProgressCircle
     compile rootProject.ext.gson
-    compile rootProject.ext.guava
+    //compile rootProject.ext.guava
+
     compile('com.github.afollestad.material-dialogs:core:0.8.5.0@aar') {
         transitive = true
     }
@@ -28,6 +29,7 @@ dependencies {
     compile rootProject.ext.rxAndroid
     compile rootProject.ext.rxJava
     compile rootProject.ext.rxPreferences
+    compile rootProject.ext.findBugs
 
     // Crouton
     compile('de.keyboardsurfer.android.widget:crouton:1.8.5@aar') {

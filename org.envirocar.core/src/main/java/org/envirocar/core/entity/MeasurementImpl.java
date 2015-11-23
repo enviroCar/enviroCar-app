@@ -18,8 +18,7 @@
  */
 package org.envirocar.core.entity;
 
-import com.google.common.collect.Maps;
-
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -32,7 +31,7 @@ public class MeasurementImpl implements Measurement {
     protected double latitude;
     protected double longitude;
     protected long time;
-    protected Map<Measurement.PropertyKey, Double> propertyMap = Maps.newHashMap();
+    protected Map<Measurement.PropertyKey, Double> propertyMap = new HashMap<>();
 
     /**
      * Constructor.

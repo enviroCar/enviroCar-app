@@ -65,13 +65,16 @@ ext {
     // RxJava dependencies.
     rxJava = 'io.reactivex:rxjava:1.0.16'
     rxAndroid = 'io.reactivex:rxandroid:1.0.1'
-    rxBinding = 'com.jakewharton.rxbinding:rxbinding:0.3.0'
+    //rxBinding = 'com.jakewharton.rxbinding:rxbinding:0.3.0'
     rxPreferences = 'com.f2prateek.rx.preferences:rx-preferences:1.0.1'
     sqlBrite = 'com.squareup.sqlbrite:sqlbrite:0.4.1'
 
     // Google
     gson = 'com.google.code.gson:gson:2.3'
-    guava = 'com.google.guava:guava:18.0'
+    //guava = 'com.google.guava:guava:18.0'
+    findBugs = 'com.google.code.findbugs:jsr305:3.0.0'
+
+    //acra
     acra = 'ch.acra:acra:4.6.2'
 
     // other third party dependencies.
@@ -79,4 +82,5 @@ ext {
     helloCharts = 'com.github.lecho:hellocharts-library:1.5.5@aar'
     fabProgressCircle = 'com.github.jorgecastilloprz:fabprogresscircle:1.01@aar'
     mapbox = 'com.mapbox.mapboxsdk:mapbox-android-sdk:0.7.4@aar'
+
 }
