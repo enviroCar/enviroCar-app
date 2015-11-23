@@ -20,6 +20,8 @@
  */
 package org.envirocar.obd;
 
+import com.google.common.base.Preconditions;
+
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.adapter.AposW3Adapter;
 import org.envirocar.obd.adapter.CarTrendAdapter;
@@ -32,12 +34,11 @@ import org.envirocar.obd.exception.AllAdaptersFailedException;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Queue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import rx.Scheduler;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
@@ -54,63 +55,60 @@ import rx.schedulers.Schedulers;
 public class OBDController {
 
 	private static final Logger logger = Logger.getLogger(OBDController.class);
-	protected static final long ADAPTER_TRY_PERIOD = 15000 *10;
+	protected static final long ADAPTER_TRY_PERIOD = 15000;
 	public static final long MAX_NODATA_TIME = 10000;
 	private final Listener dataListener;
 
 	private Subscriber<DataResponse> dataSubscription;
-	private Subscriber<Void> initialSubscriber;
+	private Subscriber<Void> initialSubscription;
 
-	private List<OBDAdapter> adapterCandidates = new ArrayList<OBDAdapter>();
+	private Queue<OBDAdapter> adapterCandidates = new ArrayDeque<>();
 	private OBDAdapter obdAdapter;
 	private InputStream inputStream;
 	private OutputStream outputStream;
-	private int adapterIndex;
 	private ConnectionListener connectionListener;
 	private String deviceName;
-	private long lastSuccessfulCommandTime;
 	private boolean userRequestedStop = false;
 
 
 	/**
+	 * Init the OBD control layer with the streams and listeners to be used.
 	 *
 	 * @param in the inputStream of the connection
 	 * @param out the outputStream of the connection
 	 * @param l the listener which receives command responses
 	 * @param cl the connection listener which receives connection state changes
-	 * @throws IllegalArgumentException if one of the inputs equals null
 	 */
 	public OBDController(InputStream in, OutputStream out,
 			String deviceName, Listener l, ConnectionListener cl) {
-		if (in == null) throw new IllegalArgumentException("in must not be null!");
-		if (out == null) throw new IllegalArgumentException("out must not be null!");
-		if (l == null) throw new IllegalArgumentException("l must not be null!");
-		if (cl == null) throw new IllegalArgumentException("cl must not be null!");
+		this.inputStream = Preconditions.checkNotNull(in);
+		this.outputStream = Preconditions.checkNotNull(out);
 
-		this.inputStream = in;
-		this.outputStream = out;
+		this.connectionListener = Preconditions.checkNotNull(cl);
+		this.dataListener = Preconditions.checkNotNull(l);
 
-		this.connectionListener = cl;
-		
-		this.dataListener = l;
-
-		this.deviceName = deviceName;
-		
+		this.deviceName = Preconditions.checkNotNull(deviceName);
 
 		setupAdapterCandidates();
 
 		startPreferredAdapter();
 	}
 
+	/**
+	 * setup the list of available Adapter implementations
+	 */
 	private void setupAdapterCandidates() {
 		adapterCandidates.clear();
-		adapterCandidates.add(new ELM327Adapter());
-		adapterCandidates.add(new CarTrendAdapter());
-		adapterCandidates.add(new AposW3Adapter());
-		adapterCandidates.add(new OBDLinkMXAdapter());
-		adapterCandidates.add(new DriveDeckSportAdapter());
+		adapterCandidates.offer(new ELM327Adapter());
+		adapterCandidates.offer(new CarTrendAdapter());
+		adapterCandidates.offer(new AposW3Adapter());
+		adapterCandidates.offer(new OBDLinkMXAdapter());
+		adapterCandidates.offer(new DriveDeckSportAdapter());
 	}
 
+	/**
+	 * start the preferred adapter, determined by the device name
+	 */
 	private void startPreferredAdapter() {
 		for (OBDAdapter ac : adapterCandidates) {
 			if (ac.supportsDevice(this.deviceName)) {
@@ -120,19 +118,30 @@ public class OBDController {
 		}
 
 		if (this.obdAdapter == null) {
-			this.obdAdapter = adapterCandidates.get(0);
+			//poll the first instead
+			this.obdAdapter = adapterCandidates.poll();
+		}
+		else {
+			//remove the preferred from the queue so it is not used again
+			this.adapterCandidates.remove(this.obdAdapter);
 		}
 		
 		logger.info("Using " + this.obdAdapter.getClass().getSimpleName() + " connector as the preferred adapter.");
 		startInitialization();
 	}
 
+	/**
+	 * select the next adapter candidates from the list of implementations
+	 *
+	 * @throws AllAdaptersFailedException if the list has reached its end
+	 */
 	private void selectNextAdapter() throws AllAdaptersFailedException {
-		if (adapterIndex+1 >= adapterCandidates.size()) {
-			throw new AllAdaptersFailedException(adapterCandidates.toString());
+		this.obdAdapter = adapterCandidates.poll();
+
+		if (this.obdAdapter == null) {
+			throw new AllAdaptersFailedException("All candidate adapters failed");
 		}
 
-		this.obdAdapter = adapterCandidates.get(adapterIndex++ % adapterCandidates.size());
 		startInitialization();
 	}
 
@@ -144,17 +153,19 @@ public class OBDController {
 	 * The init times out fater a pre-defined period.
 	 */
 	private void startInitialization() {
-		this.initialSubscriber = new Subscriber<Void>() {
+		this.initialSubscription = new Subscriber<Void>() {
 			@Override
 			public void onCompleted() {
 				startCollectingData();
 				dataListener.onConnected(deviceName);
+				this.unsubscribe();
 			}
 
 			@Override
 			public void onError(Throwable e) {
 				logger.warn("Adapter failed: " + obdAdapter.getClass().getSimpleName(), e);
 				try {
+					this.unsubscribe();
 					selectNextAdapter();
 				} catch (AllAdaptersFailedException e1) {
 					logger.warn("All Adapters failed", e1);
@@ -169,11 +180,14 @@ public class OBDController {
 
 		};
 
+		/**
+		 * start the observable and subscribe to it
+		 */
 		this.obdAdapter.initialize(this.inputStream, this.outputStream)
 				.subscribeOn(Schedulers.io())
 				.observeOn(Schedulers.computation())
 				.timeout(ADAPTER_TRY_PERIOD, TimeUnit.MILLISECONDS)
-				.subscribe(this.initialSubscriber);
+				.subscribe(this.initialSubscription);
 	}
 
 	/**
@@ -191,6 +205,7 @@ public class OBDController {
 		this.dataSubscription = new Subscriber<DataResponse>() {
 			@Override
 			public void onCompleted() {
+				this.unsubscribe();
 				dataListener.shutdown();
 			}
 
@@ -204,18 +219,21 @@ public class OBDController {
 					dataListener.shutdown();
 				}
 
-				dataSubscription.unsubscribe();
+				this.unsubscribe();
 			}
 
 			@Override
 			public void onNext(DataResponse dataResponse) {
-				lastSuccessfulCommandTime = dataResponse.getTimestamp();
+				//lastSuccessfulCommandTime = dataResponse.getTimestamp();
 				dataListener.receiveUpdate(dataResponse);
 			}
 		};
 
 		Schedulers.from(Executors.newSingleThreadExecutor());
 
+		/**
+		 * start the observable with a timeout
+		 */
 		this.obdAdapter.observe()
 				.subscribeOn(Schedulers.io())
 				.observeOn(Schedulers.computation())
@@ -246,8 +264,8 @@ public class OBDController {
 		 */
 		userRequestedStop = true;
 
-		if (this.initialSubscriber != null) {
-			this.initialSubscriber.unsubscribe();
+		if (this.initialSubscription != null) {
+			this.initialSubscription.unsubscribe();
 		}
 		if (this.dataSubscription != null) {
 			this.dataSubscription.unsubscribe();
