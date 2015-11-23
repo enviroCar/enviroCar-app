@@ -55,6 +55,10 @@ public abstract class SyncAdapter implements OBDAdapter {
     public Observable<Void> initialize(InputStream is, OutputStream os) {
         commandExecutor = new CommandExecutor(is, os, ignoredChars, COMMAND_RECEIVE_END, COMMAND_SEND_END);
 
+        /**
+         * create an observable that tries to verify the
+         * connection based on response analysis
+         */
         Observable<Void> obs = Observable.create(new Observable.OnSubscribe<Void>() {
 
             @Override
@@ -62,10 +66,16 @@ public abstract class SyncAdapter implements OBDAdapter {
                 try {
                     while (!subscriber.isUnsubscribed()) {
                         BasicCommand cc = pollNextInitializationCommand();
+
+                        //push the command to the output stream
                         commandExecutor.execute(cc);
+
+                        //check if the command needs a response (most likely)
                         if (cc.awaitsResults()) {
                             byte[] resp = commandExecutor.retrieveLatestResponse();
+
                             if (analyzeMetadataResponse(resp, cc)) {
+                                //the impl decided that it can support this kind of data stream
                                 subscriber.unsubscribe();
                                 subscriber.onCompleted();
                             }
@@ -73,8 +83,10 @@ public abstract class SyncAdapter implements OBDAdapter {
                     }
                 } catch (IOException | AdapterFailedException e) {
                     subscriber.onError(e);
+                    subscriber.unsubscribe();
                 } catch (StreamFinishedException e) {
                     subscriber.onCompleted();
+                    subscriber.unsubscribe();
                 }
             }
         });
@@ -87,6 +99,12 @@ public abstract class SyncAdapter implements OBDAdapter {
         return observe(Schedulers.io());
     }
 
+    /**
+     * start the actual data observable
+     *
+     * @param subscriberScheduler the Scheduler to be used
+     * @return the data observable
+     */
     protected Observable<DataResponse> observe(Scheduler subscriberScheduler) {
         final Scheduler usedSubScheduler = subscriberScheduler == null ? Schedulers.io() : subscriberScheduler;
 
@@ -94,8 +112,14 @@ public abstract class SyncAdapter implements OBDAdapter {
 
             @Override
             public void call(Subscriber<? super DataResponse> subscriber) {
+                /**
+                 * create an observable that provide raw bytes of the input stream
+                 * and subscribe an observer to it that parses the bytes
+                 */
                 Subscription obs = commandExecutor.createRawByteObservable()
+                        //subscribe (= where the i/o with the streams is done) on this scheduler:
                         .subscribeOn(usedSubScheduler)
+                        //observe (= where onNext is called) on this scheduler:
                         .observeOn(usedSubScheduler)
                         .subscribe(new Observer<byte[]>() {
                             private PIDCommand latestCommand;
@@ -103,6 +127,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                             @Override
                             public void onCompleted() {
                                 subscriber.onCompleted();
+                                subscriber.unsubscribe();
                             }
 
                             @Override
