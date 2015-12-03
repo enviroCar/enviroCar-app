@@ -25,7 +25,7 @@ import javax.inject.Inject;
  * @author dewall
  */
 public class EnviroCarService {
-    public static final String BASE_URL = "https://envirocar.org/api/dev/";
+    public static final String BASE_URL = "https://envirocar.org/api/stable/";
 
     @Inject
     protected static UserService userService;
