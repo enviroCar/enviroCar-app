@@ -181,7 +181,7 @@ public abstract class SyncAdapter implements OBDAdapter {
 
                             }
                         });
-//                subscriber.add(obs);
+                subscriber.add(obs);
 
                 preparePendingCommands();
 
