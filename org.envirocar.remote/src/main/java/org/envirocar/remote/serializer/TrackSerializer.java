@@ -19,8 +19,6 @@
 package org.envirocar.remote.serializer;
 
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -50,6 +48,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -86,7 +86,7 @@ import static org.envirocar.core.entity.Measurement.PropertyKey.THROTTLE_POSITON
 public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<Track> {
     private static final Logger LOG = Logger.getLogger(TrackSerializer.class);
 
-    public static final Set<Measurement.PropertyKey> supportedPhenomenons = Sets.newHashSet();
+    public static final Set<Measurement.PropertyKey> supportedPhenomenons = new HashSet<>();
 
     static {
         supportedPhenomenons.add(CALCULATED_MAF);
@@ -162,6 +162,7 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
 
         JsonObject result = new JsonObject();
         result.addProperty(Track.KEY_TRACK_TYPE, "FeatureCollection");
+        //TODO result.addProperty(Track.KEY_TRACK_PROPERTIES_LENGTH, src.getLengthOfTrack());
         result.add(Track.KEY_TRACK_PROPERTIES, trackProperties);
         result.add(Track.KEY_TRACK_FEATURES, trackFeatures);
 
@@ -231,7 +232,7 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         // Parse the measurements
         JsonArray measurementsJsonArray = json.getAsJsonObject().get(Track
                 .KEY_TRACK_FEATURES).getAsJsonArray();
-        List<Measurement> measurements = Lists.newArrayList();
+        List<Measurement> measurements = new ArrayList<>();
         for (int i = 0; i < measurementsJsonArray.size(); i++) {
             JsonObject measurementObject = measurementsJsonArray.get(i).getAsJsonObject();
             measurements.add(context.<Measurement>deserialize(

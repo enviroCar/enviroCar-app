@@ -22,7 +22,6 @@
     <string name="pref_car_settings">Fahrzeug-Einstellungen</string>
 
 
-    <string name="pref_upload_only_in_wifi">Nur in WLAN hochladen</string>
     <string name="pref_auto_enable_bluetooth">Bluetooth beim Appstart einschalten</string>
 
     <string name="pref_engine_displacement">Hubraum</string>
@@ -31,13 +30,16 @@
     <string name="pref_bluetooth_disabled">Bitte Bluetooth einschalten</string>
 
     <string name="pref_about">enviroCar version</string>
-
     <string name="pref_select_car">Daten des Fahrzeugs</string>
-
     <string name="pref_optional_features">Optionale Features</string>
 
     <string name="use_pid_supported">Benutze \"PID Supported\"-Abfrage</string>
     <string name="use_pid_supported_summary">Erfrage bei der ECU des Fahrzeugs die unterstützten OBD-Befehle</string>
+
+
+    <string name="pref_version">Version</string>
+    <string name="pref_other">Anderes</string>
+
 
     <!-- General Settings-->
     <string name="pref_general_settings">Allgemeine Einstellungen</string>
@@ -68,4 +70,9 @@
     <string name="pref_bluetooth_discovery_interval">Suchinterval (Automatisches Verbinden)</string>
     <string name="pref_bluetooth_discovery_interval_summary">Definiert das Suchinterval, bei dem das Gerät nach dem OBDII Adapter sucht. Beachte: ein höherer Wert bedeutet auch ein höherer Akkuverbrauch.</string>
 
+    <!-- Optional Settings -->
+    <string name="sampling_rate_title">Sampling Rate (in sekunden)</string>
+    <string name="sampling_rate_summary">Das Zeit-Delta zwischen zwei MEssungen in Sekunden (aktueller Wert: %s). HINWEIS: Je niedriger der Wert, desto größer ist die Datenmenge. Ändern Sie diesen Wert nur dann, wenn Sie such auch der Konsequenzen bewusst sind.</string>
+    <string name="enable_debug_logging">Debug-Protokollierung aktivieren</string>
+    <string name="enable_debug_logging_summary">Erhöhung der Protokollierungsstufe (in der Ausgabe/Problembericht verwendet).</string>
 </resources>

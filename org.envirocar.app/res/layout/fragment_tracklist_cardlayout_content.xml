@@ -35,7 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clickable="false"
-            android:transitionName="@string/transition_track_details"/>
+            android:transitionName="transition_track_details"/>
 
         <ImageButton
             android:id="@+id/fragment_tracklist_cardlayout_invis_mapbutton"
@@ -73,7 +73,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="@string/track_duration"
+                android:text="@string/track_list_details_duration"
                 android:textSize="10sp"/>
         </LinearLayout>
 
@@ -98,7 +98,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="@string/distance"
+                android:text="@string/track_list_details_distance"
                 android:textSize="10sp"/>
         </LinearLayout>
 

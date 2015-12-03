@@ -11,8 +11,8 @@ dependencies {
     compile rootProject.ext.supportCardview
     compile rootProject.ext.supportRecyclerview
     compile rootProject.ext.dagger
-    apt rootProject.ext.daggerCompiler
-    compile rootProject.ext.daggerCompiler
+    //apt rootProject.ext.daggerCompiler
+    provided rootProject.ext.daggerCompiler
     compile rootProject.ext.sqlBrite
     compile rootProject.ext.otto
     compile rootProject.ext.butterKnife
@@ -20,7 +20,8 @@ dependencies {
     compile rootProject.ext.helloCharts
     compile rootProject.ext.fabProgressCircle
     compile rootProject.ext.gson
-    compile rootProject.ext.guava
+    //compile rootProject.ext.guava
+
     compile('com.github.afollestad.material-dialogs:core:0.8.5.0@aar') {
         transitive = true
     }
@@ -28,6 +29,7 @@ dependencies {
     compile rootProject.ext.rxAndroid
     compile rootProject.ext.rxJava
     compile rootProject.ext.rxPreferences
+    compile rootProject.ext.findBugs
 
     // Crouton
     compile('de.keyboardsurfer.android.widget:crouton:1.8.5@aar') {
@@ -113,14 +115,6 @@ android {
     defaultConfig {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
-}
-
-license {
-    header rootProject.file('LICENSE_HEADER')
-    strictCheck true
-    include "**/*.java"
-    include "**/*.xml"
-    include "**/*.html"
 }
 
 retrolambda {

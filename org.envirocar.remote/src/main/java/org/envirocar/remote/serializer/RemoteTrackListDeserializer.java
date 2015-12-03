@@ -18,7 +18,6 @@
  */
 package org.envirocar.remote.serializer;
 
-import com.google.common.collect.Lists;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -33,6 +32,7 @@ import org.envirocar.core.util.Util;
 
 import java.lang.reflect.Type;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,7 +50,7 @@ public class RemoteTrackListDeserializer implements JsonDeserializer<List<Track>
 
         JsonArray trackArray = json.getAsJsonObject().get("tracks").getAsJsonArray();
 
-        List<Track> result = Lists.newArrayList();
+        List<Track> result = new ArrayList<>();
         for (int i = 0; i < trackArray.size(); i++) {
             JsonObject trackObject = trackArray.get(i).getAsJsonObject();
 

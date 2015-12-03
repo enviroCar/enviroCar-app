@@ -18,7 +18,6 @@
  */
 package org.envirocar.remote.serializer;
 
-import com.google.common.collect.Maps;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -34,6 +33,7 @@ import org.envirocar.core.entity.UserStatistics;
 import org.envirocar.core.entity.UserStatisticsImpl;
 
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -67,7 +67,7 @@ public class UserStatisticDeserializer implements JsonDeserializer<UserStatistic
                 .get(User.KEY_STATISTICS)
                 .getAsJsonArray();
 
-        Map<String, Phenomenon> statisticMap = Maps.newHashMap();
+        Map<String, Phenomenon> statisticMap = new HashMap<>();
 
         // Iterate through the array of phenomenons and its values.
         for (int i = 0; i < statistics.size(); i++) {

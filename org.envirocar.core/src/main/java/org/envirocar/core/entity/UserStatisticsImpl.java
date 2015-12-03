@@ -18,7 +18,6 @@
  */
 package org.envirocar.core.entity;
 
-import com.google.common.collect.Maps;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +28,7 @@ import java.util.Map;
  * @author dewall
  */
 public class UserStatisticsImpl implements UserStatistics {
-    protected Map<String, Phenomenon> phenomenonMap = Maps.newHashMap();
+    protected Map<String, Phenomenon> phenomenonMap = new HashMap<>();
 
     @Override
     public Phenomenon getStatistic(String phenomenon) {

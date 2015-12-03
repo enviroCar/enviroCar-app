@@ -18,20 +18,20 @@
  */
 package org.envirocar.app.view.utils;
 
-import com.google.common.collect.Maps;
 import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 
 import org.envirocar.app.view.trackdetails.TrackSpeedMapOverlay;
 import org.envirocar.core.entity.Track;
 
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author dewall
  */
 public class MapUtils {
 
-    private static Map<Long, TrackSpeedMapOverlay> TRACKID_TO_OVERLAY_CACHE = Maps.newConcurrentMap();
+    private static Map<Long, TrackSpeedMapOverlay> TRACKID_TO_OVERLAY_CACHE = new ConcurrentHashMap<>();
     private static WebSourceTileLayer OSM_TILE_LAYER;
 
     public static WebSourceTileLayer getOSMTileLayer() {

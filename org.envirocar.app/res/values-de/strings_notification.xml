@@ -52,4 +52,10 @@
     <string name="notification_stopping_title">Beende Aufzeichnung...</string>
     <string name="notification_stopping_description"></string>
     <string name="notification_stopping_action"></string>
+
+
+    <!-- Secondary Notification -->
+    <string name="service_state_starting">Herstellen einer Verbindung zum OBDII-Adapter.</string>
+    <string name="service_state_started">Verbunden mit OBD-II Adapter. Aufnahme läuft.</string>
+    <string name="service_state_stopped">OBD-II Adapter getrennt.</string>
 </resources>
