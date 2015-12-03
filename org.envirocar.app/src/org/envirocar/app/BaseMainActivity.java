@@ -493,8 +493,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 startActivity(intent2);
                 return false;
             case R.id.menu_nav_drawer_settings_help:
-//                fragment = new HelpFragment();
-//                break;
                 Intent help = new Intent(BaseMainActivity.this, HelpActivity.class);
                 startActivity(help);
                 return false;

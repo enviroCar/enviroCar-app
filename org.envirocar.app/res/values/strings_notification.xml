@@ -54,4 +54,10 @@
     <string name="notification_stopping_title">Stopping</string>
     <string name="notification_stopping_description">Stopping the track and storing the data.</string>
     <string name="notification_stopping_action"></string>
+
+
+    <!-- Secondary Notification -->
+    <string name="service_state_starting">Establishing connection to OBDII adapter</string>
+    <string name="service_state_started">Connected to OBDII adapter. Recording.</string>
+    <string name="service_state_stopped">OBDII adapter disconnected.</string>
 </resources>

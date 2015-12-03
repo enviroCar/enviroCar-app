@@ -48,7 +48,7 @@
                 android:layout_height="350dp"
                 android:fitsSystemWindows="true"
                 android:scaleType="centerCrop"
-                android:transitionName="@string/transition_track_details"
+                android:transitionName="transition_track_details"
                 app:layout_collapseMode="parallax" />
 
             <!--TODO-->

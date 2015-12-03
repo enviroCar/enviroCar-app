@@ -20,7 +20,7 @@
 
 -->
 <resources>
-    <string-array name="car_types">
+    <string-array name="car_types" translatable="false">
         <item>Acura</item>
         <item>Alfa Romeo</item>
         <item>Aston Martin</item>
