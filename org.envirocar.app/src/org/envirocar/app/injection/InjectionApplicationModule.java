@@ -49,7 +49,6 @@ import org.envirocar.app.view.logbook.LogbookActivity;
 import org.envirocar.app.view.LogbookFragment;
 import org.envirocar.app.view.LoginActivity;
 import org.envirocar.app.view.RegisterFragment;
-import org.envirocar.app.view.SettingsFragment;
 import org.envirocar.app.view.carselection.CarSelectionActivity;
 import org.envirocar.app.view.dashboard.DashboardMapFragment;
 import org.envirocar.app.view.dashboard.DashboardTempomatFragment;
@@ -105,7 +104,6 @@ import dagger.Provides;
                 RegisterFragment.class,
                 BluetoothPairingPreference.class,
                 BluetoothHandler.class,
-                SettingsFragment.class,
                 SelectBluetoothPreference.class,
                 TemporaryFileManager.class,
                 SystemStartupService.class,
