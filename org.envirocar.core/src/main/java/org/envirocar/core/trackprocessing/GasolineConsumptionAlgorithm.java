@@ -18,7 +18,6 @@
  */
 package org.envirocar.core.trackprocessing;
 
-import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
@@ -28,25 +27,12 @@ import org.envirocar.core.exception.UnsupportedFuelTypeException;
  *
  * @author dewall
  */
-public class BasicConsumptionAlgorithm extends AbstractConsumptionAlgorithm {
+public class GasolineConsumptionAlgorithm implements ConsumptionAlgorithm {
 
-    private final Car.FuelType fuelType;
-
-    /**
-     * Constructor.
-     *
-     * @param fuelType the fueltype for which it is required to compute the consumption for.
-     */
-    public BasicConsumptionAlgorithm(Car.FuelType fuelType) {
-        this.fuelType = fuelType;
-    }
 
     @Override
     public double calculateConsumption(Measurement measurement) throws FuelConsumptionException,
             UnsupportedFuelTypeException {
-        if (fuelType == Car.FuelType.DIESEL)
-            throw new UnsupportedFuelTypeException(Car.FuelType.DIESEL);
-
         double maf;
         if (measurement.hasProperty(Measurement.PropertyKey.MAF)) {
             maf = measurement.getProperty(Measurement.PropertyKey.MAF);
@@ -54,31 +40,15 @@ public class BasicConsumptionAlgorithm extends AbstractConsumptionAlgorithm {
             maf = measurement.getProperty(Measurement.PropertyKey.CALCULATED_MAF);
         } else throw new FuelConsumptionException("Get no MAF value");
 
-        double airFuelRatio;
-        double fuelDensity;
-
-        switch (fuelType){
-            case GASOLINE:
-                airFuelRatio = 14.7;
-                fuelDensity = 745;
-                break;
-            case DIESEL:
-                airFuelRatio = 14.5;
-                fuelDensity = 832;
-                break;
-            default:
-                throw new UnsupportedFuelTypeException(
-                        "FuelType not supported: " + fuelType.toString());
-        }
+        double airFuelRatio = 14.7;
+        double fuelDensity = 745;
 
         //convert from seconds to hour
-        double consumption = (maf / airFuelRatio) / fuelDensity * 3600;
-
-        return consumption;
+        return (maf / airFuelRatio) / fuelDensity * 3600;
     }
 
     @Override
     public double calculateCO2FromConsumption(double consumption) throws FuelConsumptionException {
-        return calculateCO2FromConsumption(consumption, fuelType);
+        return consumption * 2.35; //kg/h
     }
 }

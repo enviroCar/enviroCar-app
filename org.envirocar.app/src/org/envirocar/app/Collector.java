@@ -28,6 +28,7 @@ import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.core.events.NewMeasurementEvent;
+import org.envirocar.core.trackprocessing.DieselConsumptionAlgorithm;
 import org.envirocar.obd.MeasurementListener;
 import org.envirocar.obd.commands.response.entity.LambdaProbeCurrentResponse;
 import org.envirocar.obd.commands.response.entity.LambdaProbeVoltageResponse;
@@ -40,8 +41,8 @@ import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.AbstractCalculatedMAFAlgorithm;
-import org.envirocar.core.trackprocessing.AbstractConsumptionAlgorithm;
-import org.envirocar.core.trackprocessing.BasicConsumptionAlgorithm;
+import org.envirocar.core.trackprocessing.ConsumptionAlgorithm;
+import org.envirocar.core.trackprocessing.GasolineConsumptionAlgorithm;
 import org.envirocar.core.trackprocessing.CalculatedMAFWithStaticVolumetricEfficiency;
 import org.envirocar.obd.events.Co2Event;
 import org.envirocar.obd.events.ConsumptionEvent;
@@ -57,7 +58,7 @@ public class Collector {
     private MeasurementListener callback;
     private Car car;
     private AbstractCalculatedMAFAlgorithm mafAlgorithm;
-    private AbstractConsumptionAlgorithm consumptionAlgorithm;
+    private ConsumptionAlgorithm consumptionAlgorithm;
     private boolean fuelTypeNotSupportedLogged;
     private long samplingRateDelta = 5000;
 
@@ -99,7 +100,15 @@ public class Collector {
 
         this.mafAlgorithm = new CalculatedMAFWithStaticVolumetricEfficiency(this.car);
         LOG.info("Using MAF Algorithm " + this.mafAlgorithm.getClass());
-        this.consumptionAlgorithm = new BasicConsumptionAlgorithm(this.car.getFuelType());
+
+        Car.FuelType fuelType = this.car.getFuelType();
+
+        if (fuelType == Car.FuelType.DIESEL) {
+            this.consumptionAlgorithm = new DieselConsumptionAlgorithm();
+        }
+        else {
+            this.consumptionAlgorithm = new GasolineConsumptionAlgorithm();
+        }
         LOG.info("Using Consumption Algorithm " + this.consumptionAlgorithm.getClass());
 
         resetMeasurement();

@@ -29,28 +29,27 @@ import org.envirocar.core.exception.UnsupportedFuelTypeException;
  *
  * @author dewall
  */
-public abstract class AbstractConsumptionAlgorithm {
+public interface ConsumptionAlgorithm {
+
+
+    /**
+     * An implementation shall calculate the fuel consumption (l/h).
+     *
+     * @param measurement the measurement providing the required parameters
+     * @return fuel consumption in l/h
+     * @throws FuelConsumptionException if required parameters were missing
+     * @throws UnsupportedFuelTypeException
+     */
+    double calculateConsumption(Measurement measurement) throws
+            FuelConsumptionException, UnsupportedFuelTypeException;
 
     /**
      * An implementation shall calculate the CO2 emission (kg/h) for a fuel consumption value (l/h)
      *
      * @param consumption fuel consumption in l/h
-     * @param type        see {@link Car.FuelType}
      * @return CO2 emission in kg/h
      * @throws FuelConsumptionException if the fuelType is not supported
      */
-    public static double calculateCO2FromConsumption(double consumption, Car.FuelType type)
-            throws FuelConsumptionException {
-        if (type == Car.FuelType.GASOLINE) {
-            return consumption * 2.35; //kg/h
-        } else if (type == Car.FuelType.DIESEL) {
-            return consumption * 2.65; //kg/h
-        } else throw new FuelConsumptionException("Unsupported FuelType " + type);
-    }
-
-    public abstract double calculateConsumption(Measurement measurement) throws
-            FuelConsumptionException, UnsupportedFuelTypeException;
-
-    public abstract double calculateCO2FromConsumption(double consumption) throws
+    double calculateCO2FromConsumption(double consumption) throws
 			FuelConsumptionException;
 }
