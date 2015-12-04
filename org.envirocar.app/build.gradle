@@ -117,14 +117,6 @@ android {
     }
 }
 
-license {
-    header rootProject.file('LICENSE_HEADER')
-    strictCheck true
-    include "**/*.java"
-    include "**/*.xml"
-    include "**/*.html"
-}
-
 retrolambda {
     javaVersion JavaVersion.VERSION_1_7
 }

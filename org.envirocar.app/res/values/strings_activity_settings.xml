@@ -35,9 +35,7 @@
     <string name="use_pid_supported">Use PID Supported Query</string>
     <string name="use_pid_supported_summary">Query the vehicle\'s ECU on the supported OBD-II commands.</string>
 
-    <string name="sampling_rate_title">Sampling Rate (sec)</string>
-    <string name="sampling_rate_summary">The time delta between two measurements in seconds (current value: %s). Note: the lower the value, the bigger the data volume.
-        Only consider changing if you are aware of the consequences.</string>
+
 
     <!-- General Settings-->
     <string name="pref_general_settings">General Settings</string>
@@ -67,4 +65,11 @@
     <string name="pref_bluetooth_start_background_summary">Automatically starts the background service whenever Bluetooth gets activated.</string>
     <string name="pref_bluetooth_discovery_interval">Discovery Interval</string>
     <string name="pref_bluetooth_discovery_interval_summary">The search interval at which the device searches for the selected OBD-II device. Note: the higher the value, the more the battery gets drained.</string>
+
+    <!-- Optional Settings -->
+    <string name="sampling_rate_title">Sampling Rate (sec)</string>
+    <string name="sampling_rate_summary">The time delta between two measurements in seconds (current value: %s). Note: the lower the value, the bigger the data volume.
+        Only consider changing if you are aware of the consequences.</string>
+    <string name="enable_debug_logging">Enable Debug Logging</string>
+    <string name="enable_debug_logging_summary">Increase the log level (used in issue/problem reports)</string>
 </resources>
