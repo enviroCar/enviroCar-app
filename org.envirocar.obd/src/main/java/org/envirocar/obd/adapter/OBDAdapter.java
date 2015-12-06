@@ -37,7 +37,7 @@ import rx.Scheduler;
  */
 public interface OBDAdapter {
 
-	
+
 	enum ConnectionState {
 		
 		/**
@@ -66,9 +66,9 @@ public interface OBDAdapter {
 	 *
 	 * @param is the inpusttream
 	 * @param os this outputstream
-	 * @return an observable that complets on successful connection
+	 * @return an observable that calls onNext on successful connection
 	 */
-	Observable<Void> initialize(InputStream is, OutputStream os);
+	Observable<Boolean> initialize(InputStream is, OutputStream os);
 
 	/**
 	 * Start the actual data collection
@@ -85,5 +85,15 @@ public interface OBDAdapter {
 	 * @return if it suggests support for the device
 	 */
 	boolean supportsDevice(String deviceName);
+
+	/**
+	 * This method is used to decide if another adapter implementation is
+	 * worth a try. If an adapter verified a connection (e.g. via special metadata
+	 * responses) and is sure that it is the correct adapter, it shall return
+	 * true. Then no other adapter will be tried in order to do not waste time.
+	 *
+	 * @return true if the adapter has determined a compatible device
+	 */
+	boolean hasVerifiedConnection();
 
 }

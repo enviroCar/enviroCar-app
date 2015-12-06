@@ -92,4 +92,9 @@ public class ELM327Adapter extends SyncAdapter {
     public boolean supportsDevice(String deviceName) {
         return deviceName.contains("OBDII") || deviceName.contains("ELM327");
     }
+
+    @Override
+    public boolean hasVerifiedConnection() {
+        return false;
+    }
 }

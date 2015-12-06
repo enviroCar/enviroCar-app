@@ -52,20 +52,26 @@ public abstract class SyncAdapter implements OBDAdapter {
     private Queue<PIDCommand> commandRingBuffer = new ArrayDeque<>();
 
     @Override
-    public Observable<Void> initialize(InputStream is, OutputStream os) {
+    public Observable<Boolean> initialize(InputStream is, OutputStream os) {
         commandExecutor = new CommandExecutor(is, os, ignoredChars, COMMAND_RECEIVE_END, COMMAND_SEND_END);
 
         /**
          * create an observable that tries to verify the
          * connection based on response analysis
          */
-        Observable<Void> obs = Observable.create(new Observable.OnSubscribe<Void>() {
+        Observable<Boolean> obs = Observable.create(new Observable.OnSubscribe<Boolean>() {
 
             @Override
-            public void call(Subscriber<? super Void> subscriber) {
+            public void call(Subscriber<? super Boolean> subscriber) {
                 try {
                     while (!subscriber.isUnsubscribed()) {
                         BasicCommand cc = pollNextInitializationCommand();
+
+                        if (cc == null) {
+                            subscriber.onError(new AdapterFailedException(
+                                    "All init commands sent, but could not verify connection"));
+                            subscriber.unsubscribe();
+                        }
 
                         //push the command to the output stream
                         commandExecutor.execute(cc);
@@ -76,8 +82,8 @@ public abstract class SyncAdapter implements OBDAdapter {
 
                             if (analyzeMetadataResponse(resp, cc)) {
                                 //the impl decided that it can support this kind of data stream
+                                subscriber.onNext(true);
                                 subscriber.unsubscribe();
-                                subscriber.onCompleted();
                             }
                         }
                     }
@@ -85,7 +91,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                     subscriber.onError(e);
                     subscriber.unsubscribe();
                 } catch (StreamFinishedException e) {
-                    subscriber.onCompleted();
+                    subscriber.onError(new IOException("The stream was closed unexpectedly"));
                     subscriber.unsubscribe();
                 }
             }

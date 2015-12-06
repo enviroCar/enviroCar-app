@@ -181,6 +181,11 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
         return deviceName != null && deviceName.toLowerCase().contains("drivedeck") && deviceName.toLowerCase().contains("w4");
     }
 
+    @Override
+    public boolean hasVerifiedConnection() {
+        return protocol != null;
+    }
+
 
     private DataResponse parsePIDResponse(String pid, byte[] rawBytes) throws InvalidCommandResponseException, NoDataReceivedException,
             UnmatchedResponseException, AdapterSearchingException {

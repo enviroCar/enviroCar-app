@@ -125,6 +125,11 @@ public class CarTrendAdapter extends SyncAdapter {
         return deviceName.toLowerCase().contains("cartrend");
     }
 
+    @Override
+    public boolean hasVerifiedConnection() {
+        return this.identifySuccess;
+    }
+
 
     private static class ConfigCommand extends GenericCommand {
 

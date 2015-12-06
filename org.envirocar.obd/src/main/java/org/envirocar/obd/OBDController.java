@@ -55,12 +55,12 @@ import rx.schedulers.Schedulers;
 public class OBDController {
 
 	private static final Logger logger = Logger.getLogger(OBDController.class);
-	protected static final long ADAPTER_TRY_PERIOD = 15000;
+	protected static final long ADAPTER_TRY_PERIOD = 20000;
 	public static final long MAX_NODATA_TIME = 10000;
 	private final Listener dataListener;
 
 	private Subscriber<DataResponse> dataSubscription;
-	private Subscriber<Void> initialSubscription;
+	private Subscriber<Boolean> initialSubscription;
 
 	private Queue<OBDAdapter> adapterCandidates = new ArrayDeque<>();
 	private OBDAdapter obdAdapter;
@@ -153,11 +153,9 @@ public class OBDController {
 	 * The init times out fater a pre-defined period.
 	 */
 	private void startInitialization() {
-		this.initialSubscription = new Subscriber<Void>() {
+		this.initialSubscription = new Subscriber<Boolean>() {
 			@Override
 			public void onCompleted() {
-				startCollectingData();
-				dataListener.onConnected(deviceName);
 				this.unsubscribe();
 			}
 
@@ -166,7 +164,16 @@ public class OBDController {
 				logger.warn("Adapter failed: " + obdAdapter.getClass().getSimpleName(), e);
 				try {
 					this.unsubscribe();
-					selectNextAdapter();
+
+					if (obdAdapter.hasVerifiedConnection()) {
+						logger.warn("Adapter verified a connection but could not established ata: "
+								+ obdAdapter.getClass().getSimpleName());
+						connectionListener.onAllAdaptersFailed();
+						dataListener.shutdown();
+					}
+					else {
+						selectNextAdapter();
+					}
 				} catch (AllAdaptersFailedException e1) {
 					logger.warn("All Adapters failed", e1);
 					connectionListener.onAllAdaptersFailed();
@@ -175,7 +182,9 @@ public class OBDController {
 			}
 
 			@Override
-			public void onNext(Void aVoid) {
+			public void onNext(Boolean b) {
+				startCollectingData();
+				dataListener.onConnected(deviceName);
 			}
 
 		};

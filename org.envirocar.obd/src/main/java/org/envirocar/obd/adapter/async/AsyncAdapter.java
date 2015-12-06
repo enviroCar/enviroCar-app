@@ -43,11 +43,11 @@ public abstract class AsyncAdapter implements OBDAdapter {
     }
 
     @Override
-    public Observable<Void> initialize(InputStream is, OutputStream os) {
+    public Observable<Boolean> initialize(InputStream is, OutputStream os) {
         return initialize(is, os, Schedulers.computation(), Schedulers.io());
     }
 
-    protected Observable<Void> initialize(InputStream is, OutputStream os, Scheduler observerScheduler, Scheduler subscriberScheduler) {
+    protected Observable<Boolean> initialize(InputStream is, OutputStream os, Scheduler observerScheduler, Scheduler subscriberScheduler) {
         final Scheduler usedObsScheduler = observerScheduler == null ? Schedulers.computation() : observerScheduler;
         final Scheduler usedSubScheduler = subscriberScheduler == null ? Schedulers.io() : subscriberScheduler;
 
@@ -58,9 +58,9 @@ public abstract class AsyncAdapter implements OBDAdapter {
         /**
          *
          */
-        Observable<Void> observable = Observable.create(new Observable.OnSubscribe<Void>() {
+        Observable<Boolean> observable = Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
-            public void call(final Subscriber<? super Void> subscriber) {
+            public void call(final Subscriber<? super Boolean> subscriber) {
 
                 /**
                  * use the data observable to inform about
@@ -83,7 +83,7 @@ public abstract class AsyncAdapter implements OBDAdapter {
 
                             @Override
                             public void onNext(DataResponse dataResponse) {
-                                subscriber.onCompleted();
+                                subscriber.onNext(true);
                                 this.unsubscribe();
                             }
                         });
@@ -148,7 +148,7 @@ public abstract class AsyncAdapter implements OBDAdapter {
                         /**
                          * the stream has ended, notify the subscriber
                          */
-                        subscriber.onCompleted();
+                        subscriber.onError(new IOException("The stream was closed"));
                         subscriber.unsubscribe();
                         return;
                     }
