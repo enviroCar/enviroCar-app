@@ -195,6 +195,9 @@ public class OBDController {
 			public void onNext(Boolean b) {
 				startCollectingData();
 				dataListener.onConnected(deviceName);
+
+				//unsubscribe, otherwise we will get a timeout
+				initialSubscription.unsubscribe();
 			}
 
 		};
