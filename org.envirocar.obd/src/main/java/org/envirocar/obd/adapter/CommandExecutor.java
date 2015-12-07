@@ -60,6 +60,9 @@ public class CommandExecutor {
                 try {
                     while (!subscriber.isUnsubscribed()) {
                         byte[] bytes = readResponseLine();
+                        if (LOGGER.isEnabled(Logger.DEBUG)) {
+                            LOGGER.debug("Received bytes: "+ Base64.encodeToString(bytes, Base64.DEFAULT));
+                        }
                         subscriber.onNext(bytes);
                     }
                 } catch (IOException e) {
