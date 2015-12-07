@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
+import org.envirocar.core.logging.Logger;
 
 import static org.envirocar.core.entity.Measurement.PropertyKey.*;
 
@@ -30,6 +31,8 @@ import static org.envirocar.core.entity.Measurement.PropertyKey.*;
  *
  */
 public class DieselConsumptionAlgorithm implements ConsumptionAlgorithm {
+
+    private static final Logger LOG = Logger.getLogger(DieselConsumptionAlgorithm.class);
 
     /**
      * regression function co-efficients
@@ -61,11 +64,13 @@ public class DieselConsumptionAlgorithm implements ConsumptionAlgorithm {
          * we assume a consumption of zero if the lambda voltage exceeds 1.1
          */
         Double lambdaV = measurement.getProperty(LAMBDA_VOLTAGE);
+
         if (lambdaV > 1.1) {
-            return 0.0;
+            //TODO check with TU-BS - seems to happen very often
+            LOG.info("Lambda Voltage > 1.1; this might be no consumption at all?");
         }
 
-        double lambdaER = calculateLambdaVoltagER(measurement.getProperty(LAMBDA_VOLTAGE_ER), lambdaV);
+        double lambdaER = calculateLambdaVoltageER(measurement.getProperty(LAMBDA_VOLTAGE_ER), lambdaV);
         double maf = resolveMassAirFlow(measurement);
 
         /**
@@ -90,7 +95,7 @@ public class DieselConsumptionAlgorithm implements ConsumptionAlgorithm {
         throw new FuelConsumptionException("No MAF value available");
     }
 
-    private double calculateLambdaVoltagER(double lambdaER, double lambdaV) throws FuelConsumptionException {
+    private double calculateLambdaVoltageER(double lambdaER, double lambdaV) throws FuelConsumptionException {
         /**
          * we will use the provided lambda ER if it is less than 1.97 (= the observed capped max)
          */
