@@ -69,6 +69,7 @@ public class OBDController {
 	private ConnectionListener connectionListener;
 	private String deviceName;
 	private boolean userRequestedStop = false;
+	private boolean retried;
 
 
 	/**
@@ -136,13 +137,12 @@ public class OBDController {
 	 * @throws AllAdaptersFailedException if the list has reached its end
 	 */
 	private void selectNextAdapter() throws AllAdaptersFailedException {
+		this.retried = false;
 		this.obdAdapter = adapterCandidates.poll();
 
 		if (this.obdAdapter == null) {
 			throw new AllAdaptersFailedException("All candidate adapters failed");
 		}
-
-		startInitialization();
 	}
 
 	/**
@@ -166,14 +166,24 @@ public class OBDController {
 					this.unsubscribe();
 
 					if (obdAdapter.hasVerifiedConnection()) {
-						logger.warn("Adapter verified a connection but could not established ata: "
-								+ obdAdapter.getClass().getSimpleName());
-						connectionListener.onAllAdaptersFailed();
-						dataListener.shutdown();
+
+						if (!retried) {
+							//one retry if it was verified!
+							retried = true;
+						}
+						else {
+							throw new AllAdaptersFailedException("Adapter verified a connection but could not establishe data: "
+									+ obdAdapter.getClass().getSimpleName());
+						}
 					}
 					else {
 						selectNextAdapter();
 					}
+
+					/**
+					 * try the selected adapter
+					 */
+					startInitialization();
 				} catch (AllAdaptersFailedException e1) {
 					logger.warn("All Adapters failed", e1);
 					connectionListener.onAllAdaptersFailed();

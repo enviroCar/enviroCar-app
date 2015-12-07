@@ -596,6 +596,7 @@ public class OBDConnectionService extends Service {
 
         @Subscribe
         public void onReceiveSpeedUpdateEvent(SpeedUpdateEvent event) {
+            LOG.info("Received speed update, no stop required via mOBDCheckerSubscription!");
             if (mOBDCheckerSubscription != null) {
                 mOBDCheckerSubscription.unsubscribe();
                 mOBDCheckerSubscription = null;

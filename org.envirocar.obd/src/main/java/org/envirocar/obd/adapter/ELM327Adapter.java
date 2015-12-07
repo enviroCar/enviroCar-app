@@ -6,9 +6,13 @@ import org.envirocar.obd.commands.request.elm.ConfigurationCommand;
 import org.envirocar.obd.commands.request.elm.Timeout;
 import org.envirocar.obd.exception.AdapterFailedException;
 
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
+
+import rx.Observable;
 
 /**
  * Created by matthes on 02.11.15.
@@ -19,12 +23,16 @@ public class ELM327Adapter extends SyncAdapter {
     private Queue<BasicCommand> initCommands;
     protected int succesfulCount;
 
+
     @Override
     protected BasicCommand pollNextInitializationCommand() {
-        if (this.initCommands == null) {
-            this.initCommands = createInitCommands();
-        }
         return this.initCommands.poll();
+    }
+
+    @Override
+    public Observable<Boolean> initialize(InputStream is, OutputStream os) {
+        this.initCommands = createInitCommands();
+        return super.initialize(is, os);
     }
 
     protected Queue<BasicCommand> createInitCommands() {

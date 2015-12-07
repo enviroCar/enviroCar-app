@@ -28,9 +28,9 @@ public class CarTrendAdapter extends SyncAdapter {
     protected BasicCommand pollNextInitializationCommand() {
         if (this.initializeRing == null) {
             this.initializeRing = new ArrayDeque<>();
-            this.initializeRing.add(new EmptyCommand());
+//            this.initializeRing.add(new EmptyCommand());
             this.initializeRing.add(new IdentifyCommand());
-            this.initializeRing.add(new EmptyCommand());
+//            this.initializeRing.add(new EmptyCommand());
             this.initializeRing.add(new ProtocolCommand("S"));
             this.initializeRing.add(new ProtocolCommand("1"));
             this.initializeRing.add(new ProtocolCommand("2"));
@@ -45,14 +45,9 @@ public class CarTrendAdapter extends SyncAdapter {
         }
 
         if (++initialCount == ringSize) {
-            try {
-                logger.info("One cycle of config commands sent, waiting a bit");
-                ringSize = this.initializeRing.size();
-                initialCount = 0;
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                logger.warn(e.getMessage(),  e);
-            }
+            logger.info("One cycle of config commands sent, trying another round");
+            ringSize = this.initializeRing.size();
+            initialCount = 0;
         }
 
         BasicCommand next = this.initializeRing.poll();
@@ -89,7 +84,7 @@ public class CarTrendAdapter extends SyncAdapter {
 
         if (identifySuccess && asString.contains("onnected")) {
             this.connectionEstablished = true;
-            logger.info(String.format("Connected on Protocol %s. Adapter responsed '%s'",
+            logger.info(String.format("Connected on Protocol %s. Adapter responded '%s'",
                     new String(sentCommand.getOutputBytes()), new String(response)));
         }
 

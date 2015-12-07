@@ -84,6 +84,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                                 //the impl decided that it can support this kind of data stream
                                 subscriber.onNext(true);
                                 subscriber.unsubscribe();
+                                break;
                             }
                         }
                     }
