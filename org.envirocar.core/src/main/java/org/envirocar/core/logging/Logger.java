@@ -204,6 +204,9 @@ public class Logger {
 		sb.append(appVersion);
 
 		initLogger.info(sb.toString());
+
+		initLogger.info("Logging enabled. minimumLogLevel="+minimumLogLevel);
+		initLogger.log(minimumLogLevel, "Log Levels activated");
 	}
 
 	public boolean isEnabled(int level) {

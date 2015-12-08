@@ -316,6 +316,7 @@ public class Collector {
     }
 
     public void newLambdaProbeValue(LambdaProbeVoltageResponse command) {
+        LOG.debug("Lambda Voltage: "+command.getVoltage() +"; ER: "+command.getEquivalenceRatio());
         this.measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE, command.getVoltage());
         this.measurement.setProperty(Measurement.PropertyKey.LAMBDA_VOLTAGE_ER, command
                 .getEquivalenceRatio());

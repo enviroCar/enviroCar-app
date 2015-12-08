@@ -251,8 +251,6 @@ public class OBDController {
 			}
 		};
 
-		Schedulers.from(Executors.newSingleThreadExecutor());
-
 		/**
 		 * start the observable with a timeout
 		 */
