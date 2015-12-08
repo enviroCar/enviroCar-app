@@ -27,8 +27,8 @@ import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
+import org.envirocar.app.Collector;
 import org.envirocar.app.CommandListener;
-import org.envirocar.app.services.NotificationHandler;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.app.handler.BluetoothHandler;
@@ -38,14 +38,13 @@ import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.UploadManager;
 import org.envirocar.app.handler.UserHandler;
-import org.envirocar.app.services.OBDConnectionService;
+import org.envirocar.app.services.NotificationHandler;
 import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.services.TrackUploadService;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.LazyLoadingStrategy;
 import org.envirocar.app.storage.LazyLoadingStrategyImpl;
-import org.envirocar.app.view.logbook.LogbookActivity;
 import org.envirocar.app.view.LogbookFragment;
 import org.envirocar.app.view.LoginActivity;
 import org.envirocar.app.view.RegisterFragment;
@@ -55,6 +54,7 @@ import org.envirocar.app.view.dashboard.DashboardTempomatFragment;
 import org.envirocar.app.view.dashboard.DashboardTrackDetailsFragment;
 import org.envirocar.app.view.dashboard.DashboardTrackMapFragment;
 import org.envirocar.app.view.dashboard.DashboardTrackSettingsFragment;
+import org.envirocar.app.view.logbook.LogbookActivity;
 import org.envirocar.app.view.logbook.LogbookAddFuelingFragment;
 import org.envirocar.app.view.obdselection.OBDSelectionActivity;
 import org.envirocar.app.view.obdselection.OBDSelectionFragment;
@@ -72,7 +72,6 @@ import org.envirocar.app.view.tracklist.TrackListRemoteCardFragment;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.app.Collector;
 import org.envirocar.obd.FeatureFlags;
 import org.envirocar.remote.CacheModule;
 import org.envirocar.remote.DAOProvider;
@@ -111,7 +110,6 @@ import dagger.Provides;
                 CommandListener.class,
                 DbAdapterImpl.class,
                 LocationHandler.class,
-                OBDConnectionService.class,
                 BluetoothDiscoveryIntervalPreference.class,
                 Collector.class,
                 LazyLoadingStrategyImpl.class,

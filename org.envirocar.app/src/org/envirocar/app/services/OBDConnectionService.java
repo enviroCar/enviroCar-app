@@ -20,7 +20,6 @@ package org.envirocar.app.services;
 
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.Service;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
@@ -33,7 +32,6 @@ import android.speech.tts.TextToSpeech;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.CommandListener;
@@ -45,22 +43,23 @@ import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFix;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
-import org.envirocar.core.injection.Injector;
+import org.envirocar.core.injection.BaseInjectorService;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.BroadcastUtils;
+import org.envirocar.obd.ConnectionListener;
+import org.envirocar.obd.OBDController;
 import org.envirocar.obd.bluetooth.BluetoothSocketWrapper;
 import org.envirocar.obd.bluetooth.FallbackBluetoothSocket;
 import org.envirocar.obd.bluetooth.NativeBluetoothSocket;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.obd.events.SpeedUpdateEvent;
-import org.envirocar.obd.ConnectionListener;
-import org.envirocar.obd.OBDController;
 import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
@@ -80,7 +79,7 @@ import rx.subscriptions.CompositeSubscription;
 /**
  * @author dewall
  */
-public class OBDConnectionService extends Service {
+public class OBDConnectionService extends BaseInjectorService {
     private static final Logger LOG = Logger.getLogger(OBDConnectionService.class);
 
     protected static final int MAX_RECONNECT_COUNT = 2;
@@ -94,13 +93,13 @@ public class OBDConnectionService extends Service {
 
     // Injected fields.
     @Inject
-    protected Bus mBus;
-    @Inject
     protected BluetoothHandler mBluetoothHandler;
     @Inject
     protected LocationHandler mLocationHandler;
     @Inject
     protected TrackDetailsProvider mTrackDetailsProvider;
+    @Inject
+    protected PowerManager.WakeLock mWakeLock;
 
     // Text to speech variables.
     private TextToSpeech mTTS;
@@ -123,7 +122,6 @@ public class OBDConnectionService extends Service {
 
     private IBinder mBinder = new OBDConnectionBinder();
 
-    private PowerManager.WakeLock mWakeLock;
 
     private OBDConnectionRecognizer connectionRecognizer = new OBDConnectionRecognizer();
 
@@ -131,13 +129,10 @@ public class OBDConnectionService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        // Inject ourselves.
-        ((Injector) getApplicationContext()).injectObjects(this);
-
         // register on the event bus
-        this.mBus.register(this);
-        this.mBus.register(mTrackDetailsProvider);
-        this.mBus.register(connectionRecognizer);
+        this.bus.register(this);
+        this.bus.register(mTrackDetailsProvider);
+        this.bus.register(connectionRecognizer);
 
         mTTS = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
@@ -164,8 +159,6 @@ public class OBDConnectionService extends Service {
         mLocationHandler.startLocating();
 
         // Acquire the wake lock for keeping the CPU active.
-        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        mWakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "wakelock");
         mWakeLock.acquire();
 
         //
@@ -196,7 +189,7 @@ public class OBDConnectionService extends Service {
         this.mServiceState = state;
         CURRENT_SERVICE_STATE = state; // TODO FIX
         // and fire an event on the event bus.
-        this.mBus.post(produceBluetoothServiceStateChangedEvent());
+        this.bus.post(produceBluetoothServiceStateChangedEvent());
     }
 
     //    @Produce
@@ -232,10 +225,15 @@ public class OBDConnectionService extends Service {
             mWakeLock.release();
 
         // Unregister from the event bus.
-        mBus.unregister(this);
-        mBus.unregister(mTrackDetailsProvider);
-        mBus.unregister(connectionRecognizer);
+        bus.unregister(this);
+        bus.unregister(mTrackDetailsProvider);
+        bus.unregister(connectionRecognizer);
         mTrackDetailsProvider.onOBDConnectionStopped();
+    }
+
+    @Override
+    public List<Object> getInjectionModules() {
+        return Arrays.<Object>asList(new OBDServiceModule());
     }
 
     @Subscribe
