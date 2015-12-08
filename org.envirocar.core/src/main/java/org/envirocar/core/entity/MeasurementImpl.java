@@ -98,7 +98,9 @@ public class MeasurementImpl implements Measurement {
 
     @Override
     public void setProperty(PropertyKey key, Double value) {
-        propertyMap.put(key, value);
+        if (value != null) {
+            propertyMap.put(key, value);
+        }
     }
 
     @Override

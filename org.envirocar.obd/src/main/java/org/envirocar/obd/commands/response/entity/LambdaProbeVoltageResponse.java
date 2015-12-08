@@ -1,5 +1,6 @@
 package org.envirocar.obd.commands.response.entity;
 
+import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.response.DataResponse;
 
 /**
@@ -20,5 +21,15 @@ public class LambdaProbeVoltageResponse extends DataResponse {
 
     public double getEquivalenceRatio() {
         return equivalenceRation;
+    }
+
+    @Override
+    public PID getPid() {
+        return PID.O2_LAMBDA_PROBE_1_VOLTAGE;
+    }
+
+    @Override
+    public Number getValue() {
+        return getEquivalenceRatio();
     }
 }

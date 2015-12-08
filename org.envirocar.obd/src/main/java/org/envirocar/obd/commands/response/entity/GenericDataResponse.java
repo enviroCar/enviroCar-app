@@ -21,6 +21,11 @@ public class GenericDataResponse extends DataResponse {
         return pid;
     }
 
+    @Override
+    public Number getValue() {
+        return null;
+    }
+
     public int[] getProcessedData() {
         return processedData;
     }

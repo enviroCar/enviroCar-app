@@ -1,6 +1,8 @@
 package org.envirocar.obd.commands.response;
 
-public class DataResponse extends CommandResponse {
+import org.envirocar.obd.commands.PID;
+
+public abstract class DataResponse extends CommandResponse {
 
     private long timestamp;
 
@@ -11,4 +13,8 @@ public class DataResponse extends CommandResponse {
     public long getTimestamp() {
         return timestamp;
     }
+
+    public abstract PID getPid();
+
+    public abstract Number getValue();
 }

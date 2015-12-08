@@ -1,5 +1,6 @@
 package org.envirocar.obd.commands.response.entity;
 
+import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.response.DataResponse;
 
 /**
@@ -14,11 +15,16 @@ public class ShortTermFuelTrimResponse extends DataResponse {
         this.bank = bank;
     }
 
-    public double getValue() {
+    public Number getValue() {
         return value;
     }
 
     public int getBank() {
         return bank;
+    }
+
+    @Override
+    public PID getPid() {
+        return PID.SHORT_TERM_FUEL_TRIM_BANK_1;
     }
 }
