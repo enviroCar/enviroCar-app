@@ -24,6 +24,9 @@ import android.util.Base64OutputStream;
 
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.trackprocessing.ConsumptionAlgorithm;
+import org.envirocar.core.trackprocessing.DieselConsumptionAlgorithm;
+import org.envirocar.core.trackprocessing.GasolineConsumptionAlgorithm;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -101,5 +104,14 @@ public class CarUtils {
                 }
         }
         return null;
+    }
+
+    public static ConsumptionAlgorithm resolveConsumptionAlgorithm(Car.FuelType fuelType) {
+        if (fuelType == Car.FuelType.DIESEL) {
+            return new DieselConsumptionAlgorithm();
+        }
+        else {
+            return new GasolineConsumptionAlgorithm();
+        }
     }
 }

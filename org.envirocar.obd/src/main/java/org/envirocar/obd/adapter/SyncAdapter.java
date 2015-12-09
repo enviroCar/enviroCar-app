@@ -117,8 +117,31 @@ public abstract class SyncAdapter implements OBDAdapter {
 
         return Observable.create(new Observable.OnSubscribe<DataResponse>() {
 
+            private PIDCommand latestCommand;
+
             @Override
             public void call(Subscriber<? super DataResponse> subscriber) {
+
+                /**
+                 * prepare all pending data commands
+                 */
+                preparePendingCommands();
+
+                /**
+                 * write the first one, after that the writing is done within the observable
+                 */
+                try {
+                    latestCommand = pollNextCommand();
+                    LOGGER.debug("Sending command " + latestCommand != null ? latestCommand.getPid().toString() : "n/a");
+                    commandExecutor.execute(latestCommand);
+                } catch (IOException e) {
+                    subscriber.onError(e);
+                    subscriber.unsubscribe();
+                } catch (AdapterFailedException e) {
+                    subscriber.onError(e);
+                    subscriber.unsubscribe();
+                }
+
                 /**
                  * create an observable that provide raw bytes of the input stream
                  * and subscribe an observer to it that parses the bytes
@@ -129,7 +152,6 @@ public abstract class SyncAdapter implements OBDAdapter {
                         //observe (= where onNext is called) on this scheduler:
                         .observeOn(usedSubScheduler)
                         .subscribe(new Observer<byte[]>() {
-                            private PIDCommand latestCommand;
 
                             @Override
                             public void onCompleted() {
@@ -189,18 +211,6 @@ public abstract class SyncAdapter implements OBDAdapter {
                             }
                         });
                 subscriber.add(obs);
-
-                preparePendingCommands();
-
-                try {
-                    commandExecutor.execute(pollNextCommand());
-                } catch (IOException e) {
-                    subscriber.onError(e);
-                    subscriber.unsubscribe();
-                } catch (AdapterFailedException e) {
-                    subscriber.onError(e);
-                    subscriber.unsubscribe();
-                }
 
             }
         });

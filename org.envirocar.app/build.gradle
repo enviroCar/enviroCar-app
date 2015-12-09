@@ -21,16 +21,13 @@ dependencies {
     compile rootProject.ext.fabProgressCircle
     compile rootProject.ext.gson
     //compile rootProject.ext.guava
-
     compile('com.github.afollestad.material-dialogs:core:0.8.5.0@aar') {
         transitive = true
     }
-
     compile rootProject.ext.rxAndroid
     compile rootProject.ext.rxJava
     compile rootProject.ext.rxPreferences
     compile rootProject.ext.findBugs
-
     // Crouton
     compile('de.keyboardsurfer.android.widget:crouton:1.8.5@aar') {
         // exclusion is not necessary, but generally a good idea.
@@ -38,7 +35,6 @@ dependencies {
     }
     // Commons compress
     compile 'org.apache.commons:commons-compress:1.5'
-
     // MapBox SDK
     compile(rootProject.ext.mapbox) {
         transitive = true
@@ -64,6 +60,7 @@ dependencies {
     compile project(':org.envirocar.remote')
     compile project(':org.envirocar.obd')
     compile project(':org.envirocar.storage')
+    compile project(':org.envirocar.algorithm')
 }
 
 

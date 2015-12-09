@@ -1,5 +1,6 @@
 package org.envirocar.obd.commands.response.entity;
 
+import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.response.DataResponse;
 
 /**
@@ -20,5 +21,25 @@ public class LambdaProbeCurrentResponse extends DataResponse {
 
     public double getEquivalenceRatio() {
         return equivalenceRatio;
+    }
+
+    @Override
+    public PID getPid() {
+        return PID.O2_LAMBDA_PROBE_1_CURRENT;
+    }
+
+    @Override
+    public Number getValue() {
+        return getEquivalenceRatio();
+    }
+
+    @Override
+    public boolean isComposite() {
+        return true;
+    }
+
+    @Override
+    public Number[] getCompositeValues() {
+        return new Number[] {equivalenceRatio, current};
     }
 }

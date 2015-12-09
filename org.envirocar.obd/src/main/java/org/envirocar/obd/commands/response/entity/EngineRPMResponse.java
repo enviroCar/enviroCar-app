@@ -1,5 +1,6 @@
 package org.envirocar.obd.commands.response.entity;
 
+import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.response.DataResponse;
 
 /**
@@ -12,7 +13,12 @@ public class EngineRPMResponse extends DataResponse {
         this.value = v;
     }
 
-    public int getValue() {
+    public Number getValue() {
         return value;
+    }
+
+    @Override
+    public PID getPid() {
+        return PID.RPM;
     }
 }

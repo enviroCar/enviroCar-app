@@ -125,4 +125,13 @@ public class FuelSystemStatusResponse extends DataResponse {
 		return setBit;
 	}
 
+	@Override
+	public PID getPid() {
+		return PID.FUEL_SYSTEM_STATUS;
+	}
+
+	@Override
+	public Number getValue() {
+		return getStatus();
+	}
 }

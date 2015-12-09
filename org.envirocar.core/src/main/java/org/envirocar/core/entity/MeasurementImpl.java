@@ -28,8 +28,8 @@ import java.util.Map;
  */
 public class MeasurementImpl implements Measurement {
     protected Track.TrackId trackId;
-    protected double latitude;
-    protected double longitude;
+    protected Double latitude;
+    protected Double longitude;
     protected long time;
     protected Map<Measurement.PropertyKey, Double> propertyMap = new HashMap<>();
 
@@ -62,7 +62,7 @@ public class MeasurementImpl implements Measurement {
     }
 
     @Override
-    public double getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
@@ -72,7 +72,7 @@ public class MeasurementImpl implements Measurement {
     }
 
     @Override
-    public double getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
@@ -98,7 +98,9 @@ public class MeasurementImpl implements Measurement {
 
     @Override
     public void setProperty(PropertyKey key, Double value) {
-        propertyMap.put(key, value);
+        if (value != null) {
+            propertyMap.put(key, value);
+        }
     }
 
     @Override
@@ -133,8 +135,8 @@ public class MeasurementImpl implements Measurement {
 
     @Override
     public void reset() {
-        latitude = 0;
-        longitude = 0;
+        latitude = null;
+        longitude = null;
 
         synchronized (this) {
             propertyMap.clear();

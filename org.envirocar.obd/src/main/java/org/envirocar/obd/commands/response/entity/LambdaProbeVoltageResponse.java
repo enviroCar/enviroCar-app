@@ -1,5 +1,6 @@
 package org.envirocar.obd.commands.response.entity;
 
+import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.response.DataResponse;
 
 /**
@@ -7,11 +8,11 @@ import org.envirocar.obd.commands.response.DataResponse;
  */
 public class LambdaProbeVoltageResponse extends DataResponse {
     private final double voltage;
-    private final double equivalenceRation;
+    private final double equivalenceRatio;
 
     public LambdaProbeVoltageResponse(double voltage, double er) {
         this.voltage = voltage;
-        this.equivalenceRation = er;
+        this.equivalenceRatio = er;
     }
 
     public double getVoltage() {
@@ -19,6 +20,26 @@ public class LambdaProbeVoltageResponse extends DataResponse {
     }
 
     public double getEquivalenceRatio() {
-        return equivalenceRation;
+        return equivalenceRatio;
+    }
+
+    @Override
+    public PID getPid() {
+        return PID.O2_LAMBDA_PROBE_1_VOLTAGE;
+    }
+
+    @Override
+    public Number getValue() {
+        return getEquivalenceRatio();
+    }
+
+    @Override
+    public boolean isComposite() {
+        return true;
+    }
+
+    @Override
+    public Number[] getCompositeValues() {
+        return new Number[] {equivalenceRatio, voltage};
     }
 }

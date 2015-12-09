@@ -33,18 +33,32 @@ import android.support.v4.app.NotificationCompat;
 
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.CommandListener;
+import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.R;
 import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.core.entity.Car;
+import org.envirocar.core.entity.Measurement;
+import org.envirocar.core.events.NewMeasurementEvent;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFix;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
+import org.envirocar.core.exception.FuelConsumptionException;
+import org.envirocar.core.exception.MeasurementSerializationException;
+import org.envirocar.core.exception.NoMeasurementsException;
+import org.envirocar.core.exception.TrackAlreadyFinishedException;
+import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.injection.BaseInjectorService;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.trackprocessing.AbstractCalculatedMAFAlgorithm;
+import org.envirocar.core.trackprocessing.CalculatedMAFWithStaticVolumetricEfficiency;
+import org.envirocar.core.trackprocessing.ConsumptionAlgorithm;
 import org.envirocar.core.utils.BroadcastUtils;
+import org.envirocar.core.utils.CarUtils;
 import org.envirocar.obd.ConnectionListener;
 import org.envirocar.obd.OBDController;
 import org.envirocar.obd.bluetooth.BluetoothSocketWrapper;
@@ -101,8 +115,17 @@ public class OBDConnectionService extends BaseInjectorService {
     protected PowerManager.WakeLock mWakeLock;
     @Inject
     protected OBDController mOBDController;
+
     @Inject
-    protected CommandListener mCommandListener;
+    protected MeasurementProvider measurementProvider;
+
+    @Inject
+    protected CarPreferenceHandler carHandler;
+
+    @Inject
+    protected DbAdapter dbAdapter;
+
+    private AbstractCalculatedMAFAlgorithm mafAlgorithm;
 
     // Text to speech variables.
     private TextToSpeech mTTS;
@@ -128,6 +151,7 @@ public class OBDConnectionService extends BaseInjectorService {
 
 
     private OBDConnectionRecognizer connectionRecognizer = new OBDConnectionRecognizer();
+    private ConsumptionAlgorithm consumptionAlgorithm;
 
     @Override
     public void onCreate() {
@@ -155,6 +179,50 @@ public class OBDConnectionService extends BaseInjectorService {
                         .subscribe(aBoolean -> {
                             mIsTTSPrefChecked = aBoolean;
                         }));
+
+        /**
+         * create the consumption and MAF algorithm, final for this connection
+         */
+        Car car = carHandler.getCar();
+        this.consumptionAlgorithm = CarUtils.resolveConsumptionAlgorithm(car.getFuelType());
+        this.mafAlgorithm = new CalculatedMAFWithStaticVolumetricEfficiency(car);
+
+        /**
+         * this is the first access to the measurement objects
+         * push it further
+         */
+        Long samplingRate = PreferencesHandler.getSamplingRate(getApplicationContext()) * 1000;
+        measurementProvider.measurements(samplingRate)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.computation())
+                .subscribe(measurement -> {
+                    try {
+                        if (!measurement.hasProperty(Measurement.PropertyKey.MAF)) {
+                            try {
+                                measurement.setProperty(Measurement.PropertyKey.CALCULATED_MAF, mafAlgorithm.calculateMAF(measurement));
+                            } catch (NoMeasurementsException e) {
+                                LOG.warn(e.getMessage());
+                            }
+                        }
+                        double consumption = this.consumptionAlgorithm.calculateConsumption(measurement);
+                        double co2 = this.consumptionAlgorithm.calculateCO2FromConsumption(consumption);
+                        measurement.setProperty(Measurement.PropertyKey.CONSUMPTION, consumption);
+                        measurement.setProperty(Measurement.PropertyKey.CO2, co2);
+                    } catch (FuelConsumptionException e) {
+                        LOG.warn(e.getMessage(), e);
+                    } catch (UnsupportedFuelTypeException e) {
+                        LOG.warn(e.getMessage(), e);
+                    }
+
+                    bus.post(new NewMeasurementEvent(measurement));
+                    try {
+                        dbAdapter.insertNewMeasurement(measurement);
+                    } catch (TrackAlreadyFinishedException e) {
+                        LOG.warn(e.getMessage(), e);
+                    } catch (MeasurementSerializationException e) {
+                        LOG.warn(e.getMessage(), e);
+                    }
+                });
     }
 
     @Override
@@ -448,10 +516,6 @@ public class OBDConnectionService extends BaseInjectorService {
 
             mLocationHandler.stopLocating();
 
-            if (mCommandListener != null) {
-                mCommandListener.shutdown();
-            }
-
             Notification noti = new NotificationCompat.Builder(getApplicationContext())
                     .setContentTitle("enviroCar")
                     .setContentText(getResources()
@@ -474,12 +538,9 @@ public class OBDConnectionService extends BaseInjectorService {
             InputStream in = bluetoothSocket.getInputStream();
             OutputStream out = bluetoothSocket.getOutputStream();
 
-            if (mCommandListener != null) {
-                mCommandListener.shutdown();
-            }
 
             this.mOBDCommandLooper = new OBDController(in, out, bluetoothSocket
-                    .getRemoteDeviceName(), this.mCommandListener, new ConnectionListener() {
+                    .getRemoteDeviceName(), new ConnectionListener() {
 
                 private int mReconnectCount = 0;
 
@@ -511,7 +572,7 @@ public class OBDConnectionService extends BaseInjectorService {
                         doTextToSpeech("Connection lost. Trying to reconnect.");
                     }
                 }
-            });
+            }, bus);
         } catch (IOException e) {
             LOG.warn(e.getMessage(), e);
             deviceDisconnected();

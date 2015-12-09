@@ -129,6 +129,9 @@ public class BaseApplication extends Application implements Injector, InjectionM
         boolean obfus = prefs.getBoolean(PreferenceConstants.OBFUSCATE_POSITION, false);
 
         LOGGER.info("Obfuscation enabled? "+ obfus);
+
+        Logger.initialize(Util.getVersionString(this),
+                prefs.getBoolean(PreferenceConstants.ENABLE_DEBUG_LOGGING, false));
     }
 
     @Override

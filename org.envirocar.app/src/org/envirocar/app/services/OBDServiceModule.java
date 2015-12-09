@@ -23,7 +23,8 @@ import android.os.PowerManager;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.CommandListener;
+import org.envirocar.algorithm.InterpolationMeasurementProvider;
+import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.obd.OBDController;
@@ -39,7 +40,7 @@ import dagger.Provides;
 @Module(
         complete = false,
         library = true,
-        injects = {OBDConnectionService.class, CommandListener.class}
+        injects = {OBDConnectionService.class}
 )
 public class OBDServiceModule {
 
@@ -60,5 +61,11 @@ public class OBDServiceModule {
     @Provides
     TrackDetailsProvider provideTrackDetails(Bus bus){
         return new TrackDetailsProvider(bus);
+    }
+
+    @Singleton
+    @Provides
+    MeasurementProvider provideMeasurementProvider(Bus bus) {
+        return new InterpolationMeasurementProvider(bus);
     }
 }

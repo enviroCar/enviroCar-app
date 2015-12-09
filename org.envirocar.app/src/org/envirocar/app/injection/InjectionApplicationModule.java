@@ -27,7 +27,6 @@ import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
-import org.envirocar.app.Collector;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.app.handler.BluetoothHandler;
@@ -109,7 +108,6 @@ import dagger.Provides;
                 DbAdapterImpl.class,
                 LocationHandler.class,
                 BluetoothDiscoveryIntervalPreference.class,
-                Collector.class,
                 LazyLoadingStrategyImpl.class,
                 TrackHandler.class,
                 UserHandler.class,
