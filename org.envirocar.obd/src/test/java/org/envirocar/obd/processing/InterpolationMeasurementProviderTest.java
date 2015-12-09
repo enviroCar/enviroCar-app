@@ -56,6 +56,9 @@ public class InterpolationMeasurementProviderTest {
         imp.consider(m2);
         imp.consider(m3);
 
+        imp.newPosition(new MeasurementProvider.Position(1000, 52.0, 7.0));
+        imp.newPosition(new MeasurementProvider.Position(3500, 52.5, 7.25)); //this should be the result
+
         TestSubscriber<Measurement> ts = new TestSubscriber<Measurement>();
         
         imp.measurements(500)
@@ -67,10 +70,15 @@ public class InterpolationMeasurementProviderTest {
         List<Measurement> events = ts.getOnNextEvents();
         Assert.assertThat(events.size(), CoreMatchers.is(1));
 
-        Assert.assertThat(events.get(0).getTime(), CoreMatchers.is(3500L));
+        Measurement first = events.get(0);
 
-        Assert.assertThat(events.get(0).getProperty(Measurement.PropertyKey.MAF), CoreMatchers.is(48.0));
-        Assert.assertThat(events.get(0).getProperty(Measurement.PropertyKey.SPEED), CoreMatchers.is(68.125));
+        Assert.assertThat(first.getTime(), CoreMatchers.is(3500L));
+
+        Assert.assertThat(first.getProperty(Measurement.PropertyKey.MAF), CoreMatchers.is(48.0));
+        Assert.assertThat(first.getProperty(Measurement.PropertyKey.SPEED), CoreMatchers.is(68.125));
+
+        Assert.assertThat(first.getLatitude(), CoreMatchers.is(52.5));
+        Assert.assertThat(first.getLongitude(), CoreMatchers.is(7.25));
     }
 
     @Test

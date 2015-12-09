@@ -263,14 +263,7 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
 
     @Override
     public synchronized void consider(DataResponse dr) {
-        this.lastTimestampToBeConsidered = Math.max(this.lastTimestampToBeConsidered, dr.getTimestamp());
-
-        if (this.firstTimestampToBeConsidered == 0) {
-            this.firstTimestampToBeConsidered = dr.getTimestamp();
-        }
-        else {
-            this.firstTimestampToBeConsidered = Math.min(this.firstTimestampToBeConsidered, dr.getTimestamp());
-        }
+        updateTimestamps(dr);
 
         PID pid = dr.getPid();
         if (bufferedResponses.containsKey(pid)) {
@@ -280,6 +273,23 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
             List<DataResponse> list = new ArrayList<>();
             list.add(dr);
             bufferedResponses.put(pid, list);
+        }
+    }
+
+    @Override
+    public synchronized void newPosition(Position pos) {
+        super.newPosition(pos);
+        updateTimestamps(pos);
+    }
+
+    private void updateTimestamps(Timestamped dr) {
+        this.lastTimestampToBeConsidered = Math.max(this.lastTimestampToBeConsidered, dr.getTimestamp());
+
+        if (this.firstTimestampToBeConsidered == 0) {
+            this.firstTimestampToBeConsidered = dr.getTimestamp();
+        }
+        else {
+            this.firstTimestampToBeConsidered = Math.min(this.firstTimestampToBeConsidered, dr.getTimestamp());
         }
     }
 }

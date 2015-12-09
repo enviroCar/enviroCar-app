@@ -38,39 +38,14 @@ public abstract class AbstractMeasurementProvider implements MeasurementProvider
     }
 
     @Override
-    public synchronized void newLocation(Location mLocation) {
-        this.positionBuffer.add(new Position(System.currentTimeMillis(),
-                mLocation.getLatitude(), mLocation.getLongitude()));
+    public synchronized void newPosition(Position pos) {
+        this.positionBuffer.add(pos);
     }
 
     public synchronized List<Position> getAndClearPositionBuffer() {
         List<Position> result = Collections.unmodifiableList(positionBuffer);
-        positionBuffer.clear();
+        positionBuffer = new ArrayList<>(result.size());
         return result;
     }
 
-    protected class Position implements Timestamped {
-
-        private final long timestamp;
-        private final double latitude;
-        private final double longitude;
-
-        public Position(long timestamp, double latitude, double longitude) {
-            this.timestamp = timestamp;
-            this.latitude = latitude;
-            this.longitude = longitude;
-        }
-
-        public long getTimestamp() {
-            return timestamp;
-        }
-
-        public double getLatitude() {
-            return latitude;
-        }
-
-        public double getLongitude() {
-            return longitude;
-        }
-    }
 }
