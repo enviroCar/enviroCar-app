@@ -18,9 +18,15 @@
  */
 package org.envirocar.app.services;
 
+import android.content.Context;
+import android.os.PowerManager;
+
 import com.squareup.otto.Bus;
 
+import org.envirocar.app.CommandListener;
 import org.envirocar.app.events.TrackDetailsProvider;
+import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.obd.OBDController;
 
 import javax.inject.Singleton;
 
@@ -33,15 +39,22 @@ import dagger.Provides;
 @Module(
         complete = false,
         library = true,
-        injects = {}
+        injects = {OBDConnectionService.class, CommandListener.class}
 )
 public class OBDServiceModule {
 
-//    @Singleton
-//    @Provides
-//    TextToSpeech provideTextToSpeech(){
-//        return new TextToSpeech()
-//    }
+    @Singleton
+    @Provides
+    OBDController provideOBDController(){
+        return new OBDController();
+    }
+
+    @Singleton
+    @Provides
+    PowerManager.WakeLock provideWakeLock(@InjectApplicationScope Context context){
+        return ((PowerManager) context.getSystemService(Context.POWER_SERVICE))
+                .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "wakelock");
+    }
 
     @Singleton
     @Provides

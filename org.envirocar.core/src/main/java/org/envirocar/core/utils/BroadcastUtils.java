@@ -41,6 +41,9 @@ public class BroadcastUtils {
         return Observable.create(new Observable.OnSubscribe<Intent>() {
             @Override
             public void call(Subscriber<? super Intent> subscriber) {
+                // Start it
+                subscriber.onStart();
+
                 // Broadcast receiver for the specific intentfilter
                 final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
                     @Override

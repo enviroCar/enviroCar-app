@@ -59,42 +59,44 @@ import rx.schedulers.Schedulers;
  */
 public class OBDController {
 
-	private static final Logger logger = Logger.getLogger(OBDController.class);
-	protected static final long ADAPTER_TRY_PERIOD = 20000;
-	public static final long MAX_NODATA_TIME = 10000;
-	private final Listener dataListener;
+    private static final Logger logger = Logger.getLogger(OBDController.class);
+    protected static final long ADAPTER_TRY_PERIOD = 20000;
+    public static final long MAX_NODATA_TIME = 10000;
+    private final Listener dataListener;
 
-	private Subscriber<DataResponse> dataSubscription;
-	private Subscriber<Boolean> initialSubscription;
+    private Subscriber<DataResponse> dataSubscription;
+    private Subscriber<Boolean> initialSubscription;
 
-	private Queue<OBDAdapter> adapterCandidates = new ArrayDeque<>();
-	private OBDAdapter obdAdapter;
-	private InputStream inputStream;
-	private OutputStream outputStream;
-	private ConnectionListener connectionListener;
-	private String deviceName;
-	private boolean userRequestedStop = false;
-	private boolean retried;
+    private Queue<OBDAdapter> adapterCandidates = new ArrayDeque<>();
+    private OBDAdapter obdAdapter;
+    private InputStream inputStream;
+    private OutputStream outputStream;
+    private ConnectionListener connectionListener;
+    private String deviceName;
+    private boolean userRequestedStop = false;
+    private boolean retried;
 	private Bus eventBus;
 	private Scheduler.Worker eventBusWorker;
+	
 
+    public OBDController(){ dataListener = null;}
 
-	/**
-	 * Init the OBD control layer with the streams and listeners to be used.
-	 *
-	 * @param in the inputStream of the connection
-	 * @param out the outputStream of the connection
-	 * @param l the listener which receives command responses
-	 * @param cl the connection listener which receives connection state changes
-	 */
-	public OBDController(InputStream in, OutputStream out,
-			String deviceName, Listener l, ConnectionListener cl) {
-		this.inputStream = Preconditions.checkNotNull(in);
-		this.outputStream = Preconditions.checkNotNull(out);
+    /**
+     * Init the OBD control layer with the streams and listeners to be used.
+     *
+     * @param in the inputStream of the connection
+     * @param out the outputStream of the connection
+     * @param l the listener which receives command responses
+     * @param cl the connection listener which receives connection state changes
+     */
+    public OBDController(InputStream in, OutputStream out,
+                         String deviceName, Listener l, ConnectionListener cl) {
+        this.inputStream = Preconditions.checkNotNull(in);
+        this.outputStream = Preconditions.checkNotNull(out);
 
 		this.connectionListener = Preconditions.checkNotNull(cl);
 		this.dataListener = Preconditions.checkNotNull(l);
-
+		
 		this.deviceName = Preconditions.checkNotNull(deviceName);
 
 		setupAdapterCandidates();
@@ -137,7 +139,7 @@ public class OBDController {
 			//remove the preferred from the queue so it is not used again
 			this.adapterCandidates.remove(this.obdAdapter);
 		}
-		
+
 		logger.info("Using " + this.obdAdapter.getClass().getSimpleName() + " connector as the preferred adapter.");
 		startInitialization();
 	}
@@ -275,9 +277,9 @@ public class OBDController {
 
 	private void pushToEventBus(DataResponse dataResponse) {
 		eventBusWorker.schedule(() -> {
-            PropertyKeyEvent[] pkes = createEventsFromDataResponse(dataResponse);
+			PropertyKeyEvent[] pkes = createEventsFromDataResponse(dataResponse);
 
-            for (PropertyKeyEvent pke : pkes) {
+			for (PropertyKeyEvent pke : pkes) {
                 eventBus.post(pke);
             }
         });

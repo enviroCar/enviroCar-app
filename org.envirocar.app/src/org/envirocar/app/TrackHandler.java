@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -53,7 +53,6 @@ import org.envirocar.remote.DAOProvider;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import javax.inject.Inject;
 
@@ -212,7 +211,7 @@ public class TrackHandler {
      */
     public Track getTrackByID(Track.TrackId trackId) {
         LOGGER.info(String.format("getTrackByID(%s)", trackId.toString()));
-        return mDBAdapter.getTrack(trackId);
+        return mEnvirocarDB.getTrack(trackId).toBlocking().first();
     }
 
     public Observable<Track> uploadAllTracksObservable() {
@@ -258,18 +257,19 @@ public class TrackHandler {
                     return;
                 }
 
-                List<Track> allLocalTracks = mDBAdapter.getAllLocalTracks();
-
                 UploadManager uploadManager = new UploadManager(mContext);
-                for (Track track : allLocalTracks) {
-                    if (!assertIsLocalTrack(track, subscriber)) {
-                        LOGGER.warn(String.format("Track with id=%s is no local track",
-                                track.getTrackID()));
-                        allLocalTracks.remove(track);
-                    }
-                }
-
-                uploadManager.uploadTracks(allLocalTracks)
+                subscriber.add(mEnvirocarDB.getAllLocalTracks()
+                        .map(tracks -> {
+                            for (Track track : tracks) {
+                                if (!assertIsLocalTrack(track, subscriber)) {
+                                    LOGGER.warn(String.format("Track with id=%s is no local track",
+                                            track.getTrackID()));
+                                    tracks.remove(track);
+                                }
+                            }
+                            return tracks;
+                        })
+                        .concatMap(tracks -> uploadManager.uploadTracks(tracks))
                         .subscribe(new Subscriber<Track>() {
                             @Override
                             public void onCompleted() {
@@ -285,7 +285,7 @@ public class TrackHandler {
                             public void onNext(Track track) {
                                 subscriber.onNext(track);
                             }
-                        });
+                        }));
             }
         });
     }

@@ -25,14 +25,13 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.handler.CarPreferenceHandler;
-import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.handler.PreferenceConstants;
+import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.gps.GpsDOPEvent;
 import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.core.exception.TrackAlreadyFinishedException;
 import org.envirocar.core.injection.InjectApplicationScope;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.obd.Listener;
@@ -63,6 +62,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Standalone listener class for OBDII commands. It provides all
@@ -70,6 +70,7 @@ import javax.inject.Inject;
  *
  * @author matthes rieke
  */
+@Singleton
 public class CommandListener implements Listener, MeasurementListener {
     // TODO change listener stuff
 
@@ -95,26 +96,30 @@ public class CommandListener implements Listener, MeasurementListener {
             });
 
     // Injected variables
-    @Inject
-    @InjectApplicationScope
     protected Context mContext;
-    @Inject
     protected Bus mBus;
-    @Inject
     protected CarPreferenceHandler mCarManager;
-    @Inject
     protected DbAdapter mDBAdapter;
 
-
-    public CommandListener(Context context) {
+    /**
+     *
+     * @param context
+     */
+    @Inject
+    public CommandListener(@InjectApplicationScope Context context, Bus bus,
+                           CarPreferenceHandler carHandler, DbAdapter mDBAdapter) {
         // First, inject all annotated fields.
-        ((Injector) context).injectObjects(this);
+        this.mContext = context;
+        this.mBus = bus;
+        this.mCarManager = carHandler;
+        this.mDBAdapter = mDBAdapter;
 
         // then register on the bus.
         this.mBus.register(this);
 
         String samplingRate = PreferenceManager.getDefaultSharedPreferences
-                (context.getApplicationContext()).getString(PreferenceConstants.SAMPLING_RATE, null);
+                (context.getApplicationContext()).getString(PreferenceConstants.SAMPLING_RATE,
+                null);
 
         int val;
         if (samplingRate != null) {
@@ -268,7 +273,7 @@ public class CommandListener implements Listener, MeasurementListener {
 
     public void shutdown() {
         logger.info("shutting down CommandListener. Hash: " + System.identityHashCode(this));
-        if(!shutdownCompleted)
+        if (!shutdownCompleted)
             return;
 
         // Unregister from the eventbus.

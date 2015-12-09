@@ -103,15 +103,6 @@ public class UploadManager {
         return prefs.getBoolean(PreferenceConstants.OBFUSCATE_POSITION, false);
     }
 
-    /**
-     * This methods uploads all local tracks to the server
-     */
-    public void uploadAllTracks(TrackHandler.TrackUploadCallback callback) {
-        for (Track track : mDBAdapter.getAllLocalTracks()) {
-            uploadSingleTrack(track, callback);
-        }
-    }
-
     public Observable<Track> uploadTracks(final List<Track> tracks) {
         Preconditions.checkNotNull(tracks, "Input tracks cannot be null");
         return Observable.create(new Observable.OnSubscribe<Track>() {
