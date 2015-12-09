@@ -99,6 +99,10 @@ public class OBDConnectionService extends BaseInjectorService {
     protected TrackDetailsProvider mTrackDetailsProvider;
     @Inject
     protected PowerManager.WakeLock mWakeLock;
+    @Inject
+    protected OBDController mOBDController;
+    @Inject
+    protected CommandListener mCommandListener;
 
     // Text to speech variables.
     private TextToSpeech mTTS;
@@ -106,7 +110,6 @@ public class OBDConnectionService extends BaseInjectorService {
     private boolean mIsTTSPrefChecked;
 
     // Member fields required for the connection to the OBD device.
-    private CommandListener mCommandListener;
     private OBDController mOBDCommandLooper;
     private OBDBluetoothConnection mOBDConnection;
 
@@ -321,17 +324,19 @@ public class OBDConnectionService extends BaseInjectorService {
      * @param device the device to start a connection to.
      */
     private void startOBDConnection(final BluetoothDevice device) {
-        LOG.info("startOBDConnection");
-
-        // Set remoteService state to STARTING and fire an event on the bus.
-        setBluetoothServiceState(BluetoothServiceState.SERVICE_STARTING);
-
         if (device.fetchUuidsWithSdp())
             mConnectingSubscription = getUUIDList(device)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .concatMap(uuids -> createOBDBluetoothObservable(device, uuids))
                     .subscribe(new Subscriber<BluetoothSocketWrapper>() {
+                        @Override
+                        public void onStart() {
+                            LOG.info("onStart() connection");
+                            // Set remoteService state to STARTING and fire an event on the bus.
+                            setBluetoothServiceState(BluetoothServiceState.SERVICE_STARTING);
+                        }
+
                         @Override
                         public void onCompleted() {
                             LOG.info("onCompleted(): BluetoothSocketWrapper connection completed");
@@ -473,7 +478,6 @@ public class OBDConnectionService extends BaseInjectorService {
                 mCommandListener.shutdown();
             }
 
-            this.mCommandListener = new CommandListener(getApplicationContext());
             this.mOBDCommandLooper = new OBDController(in, out, bluetoothSocket
                     .getRemoteDeviceName(), this.mCommandListener, new ConnectionListener() {
 
@@ -524,7 +528,7 @@ public class OBDConnectionService extends BaseInjectorService {
 
     private void shutdownConnectionAndHandler() {
         if (mOBDCommandLooper != null) {
-            mOBDCommandLooper.stopLooper();
+            mOBDCommandLooper.shutdown();
         }
 
         if (mOBDConnection != null) {

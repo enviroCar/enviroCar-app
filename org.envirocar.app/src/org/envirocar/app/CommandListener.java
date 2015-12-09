@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -25,14 +25,13 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.handler.CarPreferenceHandler;
-import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.handler.PreferenceConstants;
+import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.gps.GpsDOPEvent;
 import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.core.exception.TrackAlreadyFinishedException;
 import org.envirocar.core.injection.InjectApplicationScope;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.obd.Listener;
@@ -63,6 +62,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * Standalone listener class for OBDII commands. It provides all
@@ -70,6 +70,7 @@ import javax.inject.Inject;
  *
  * @author matthes rieke
  */
+@Singleton
 public class CommandListener implements Listener, MeasurementListener {
     // TODO change listener stuff
 
@@ -95,26 +96,30 @@ public class CommandListener implements Listener, MeasurementListener {
             });
 
     // Injected variables
-    @Inject
-    @InjectApplicationScope
     protected Context mContext;
-    @Inject
     protected Bus mBus;
-    @Inject
     protected CarPreferenceHandler mCarManager;
-    @Inject
     protected DbAdapter mDBAdapter;
 
-
-    public CommandListener(Context context) {
+    /**
+     *
+     * @param context
+     */
+    @Inject
+    public CommandListener(@InjectApplicationScope Context context, Bus bus,
+                           CarPreferenceHandler carHandler, DbAdapter mDBAdapter) {
         // First, inject all annotated fields.
-        ((Injector) context).injectObjects(this);
+        this.mContext = context;
+        this.mBus = bus;
+        this.mCarManager = carHandler;
+        this.mDBAdapter = mDBAdapter;
 
         // then register on the bus.
         this.mBus.register(this);
 
         String samplingRate = PreferenceManager.getDefaultSharedPreferences
-                (context.getApplicationContext()).getString(PreferenceConstants.SAMPLING_RATE, null);
+                (context.getApplicationContext()).getString(PreferenceConstants.SAMPLING_RATE,
+                null);
 
         int val;
         if (samplingRate != null) {
@@ -185,7 +190,8 @@ public class CommandListener implements Listener, MeasurementListener {
 
         else if (command instanceof IntakeManifoldAbsolutePressureResponse) {
             try {
-                Integer intakePressureMeasurement = ((IntakeManifoldAbsolutePressureResponse) command).getValue();
+                Integer intakePressureMeasurement = ((IntakeManifoldAbsolutePressureResponse)
+                        command).getValue();
                 this.collector.newIntakePressure(intakePressureMeasurement);
                 mBus.post(new IntakePreasureUpdateEvent(intakePressureMeasurement));
 //				logger.info("Processed IAP Response: "+intakePressureMeasurement +" time:
@@ -199,7 +205,8 @@ public class CommandListener implements Listener, MeasurementListener {
 
         else if (command instanceof IntakeAirTemperatureResponse) {
             try {
-                Integer intakeTemperatureMeasurement = ((IntakeAirTemperatureResponse) command).getValue();
+                Integer intakeTemperatureMeasurement = ((IntakeAirTemperatureResponse) command)
+                        .getValue();
                 this.collector.newIntakeTemperature(intakeTemperatureMeasurement);
                 this.mBus.post(new IntakeTemperatureUpdateEvent(intakeTemperatureMeasurement));
 //				logger.info("Processed IAT Response: "+intakeTemperatureMeasurement +" time:
@@ -268,7 +275,7 @@ public class CommandListener implements Listener, MeasurementListener {
 
     public void shutdown() {
         logger.info("shutting down CommandListener. Hash: " + System.identityHashCode(this));
-        if(!shutdownCompleted)
+        if (!shutdownCompleted)
             return;
 
         // Unregister from the eventbus.

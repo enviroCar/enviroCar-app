@@ -23,8 +23,10 @@ import android.os.PowerManager;
 
 import com.squareup.otto.Bus;
 
+import org.envirocar.app.CommandListener;
 import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.obd.OBDController;
 
 import javax.inject.Singleton;
 
@@ -37,15 +39,15 @@ import dagger.Provides;
 @Module(
         complete = false,
         library = true,
-        injects = {OBDConnectionService.class}
+        injects = {OBDConnectionService.class, CommandListener.class}
 )
 public class OBDServiceModule {
 
-//    @Singleton
-//    @Provides
-//    TextToSpeech provideTextToSpeech(){
-//        return new TextToSpeech()
-//    }
+    @Singleton
+    @Provides
+    OBDController provideOBDController(){
+        return new OBDController();
+    }
 
     @Singleton
     @Provides

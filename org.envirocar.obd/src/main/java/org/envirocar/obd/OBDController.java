@@ -48,252 +48,254 @@ import rx.schedulers.Schedulers;
  * to do the actual raw communication. A {@link Listener} is provided
  * with updates. The {@link ConnectionListener} will get informed on
  * certain changes in the connection state.
- * 
+ *
  * @author matthes rieke
  *
  */
 public class OBDController {
 
-	private static final Logger logger = Logger.getLogger(OBDController.class);
-	protected static final long ADAPTER_TRY_PERIOD = 20000;
-	public static final long MAX_NODATA_TIME = 10000;
-	private final Listener dataListener;
+    private static final Logger logger = Logger.getLogger(OBDController.class);
+    protected static final long ADAPTER_TRY_PERIOD = 20000;
+    public static final long MAX_NODATA_TIME = 10000;
+    private final Listener dataListener;
 
-	private Subscriber<DataResponse> dataSubscription;
-	private Subscriber<Boolean> initialSubscription;
+    private Subscriber<DataResponse> dataSubscription;
+    private Subscriber<Boolean> initialSubscription;
 
-	private Queue<OBDAdapter> adapterCandidates = new ArrayDeque<>();
-	private OBDAdapter obdAdapter;
-	private InputStream inputStream;
-	private OutputStream outputStream;
-	private ConnectionListener connectionListener;
-	private String deviceName;
-	private boolean userRequestedStop = false;
-	private boolean retried;
+    private Queue<OBDAdapter> adapterCandidates = new ArrayDeque<>();
+    private OBDAdapter obdAdapter;
+    private InputStream inputStream;
+    private OutputStream outputStream;
+    private ConnectionListener connectionListener;
+    private String deviceName;
+    private boolean userRequestedStop = false;
+    private boolean retried;
 
 
-	/**
-	 * Init the OBD control layer with the streams and listeners to be used.
-	 *
-	 * @param in the inputStream of the connection
-	 * @param out the outputStream of the connection
-	 * @param l the listener which receives command responses
-	 * @param cl the connection listener which receives connection state changes
-	 */
-	public OBDController(InputStream in, OutputStream out,
-			String deviceName, Listener l, ConnectionListener cl) {
-		this.inputStream = Preconditions.checkNotNull(in);
-		this.outputStream = Preconditions.checkNotNull(out);
+    public OBDController(){ dataListener = null;}
 
-		this.connectionListener = Preconditions.checkNotNull(cl);
-		this.dataListener = Preconditions.checkNotNull(l);
+    /**
+     * Init the OBD control layer with the streams and listeners to be used.
+     *
+     * @param in the inputStream of the connection
+     * @param out the outputStream of the connection
+     * @param l the listener which receives command responses
+     * @param cl the connection listener which receives connection state changes
+     */
+    public OBDController(InputStream in, OutputStream out,
+                         String deviceName, Listener l, ConnectionListener cl) {
+        this.inputStream = Preconditions.checkNotNull(in);
+        this.outputStream = Preconditions.checkNotNull(out);
 
-		this.deviceName = Preconditions.checkNotNull(deviceName);
+        this.connectionListener = Preconditions.checkNotNull(cl);
+        this.dataListener = Preconditions.checkNotNull(l);
 
-		setupAdapterCandidates();
+        this.deviceName = Preconditions.checkNotNull(deviceName);
 
-		startPreferredAdapter();
-	}
+        setupAdapterCandidates();
 
-	/**
-	 * setup the list of available Adapter implementations
-	 */
-	private void setupAdapterCandidates() {
-		adapterCandidates.clear();
-		adapterCandidates.offer(new ELM327Adapter());
-		adapterCandidates.offer(new CarTrendAdapter());
-		adapterCandidates.offer(new AposW3Adapter());
-		adapterCandidates.offer(new OBDLinkMXAdapter());
-		adapterCandidates.offer(new DriveDeckSportAdapter());
-	}
+        startPreferredAdapter();
+    }
 
-	/**
-	 * start the preferred adapter, determined by the device name
-	 */
-	private void startPreferredAdapter() {
-		for (OBDAdapter ac : adapterCandidates) {
-			if (ac.supportsDevice(this.deviceName)) {
-				this.obdAdapter = ac;
-				break;
-			}
-		}
+    /**
+     * setup the list of available Adapter implementations
+     */
+    private void setupAdapterCandidates() {
+        adapterCandidates.clear();
+        adapterCandidates.offer(new ELM327Adapter());
+        adapterCandidates.offer(new CarTrendAdapter());
+        adapterCandidates.offer(new AposW3Adapter());
+        adapterCandidates.offer(new OBDLinkMXAdapter());
+        adapterCandidates.offer(new DriveDeckSportAdapter());
+    }
 
-		if (this.obdAdapter == null) {
-			//poll the first instead
-			this.obdAdapter = adapterCandidates.poll();
-		}
-		else {
-			//remove the preferred from the queue so it is not used again
-			this.adapterCandidates.remove(this.obdAdapter);
-		}
-		
-		logger.info("Using " + this.obdAdapter.getClass().getSimpleName() + " connector as the preferred adapter.");
-		startInitialization();
-	}
+    /**
+     * start the preferred adapter, determined by the device name
+     */
+    private void startPreferredAdapter() {
+        for (OBDAdapter ac : adapterCandidates) {
+            if (ac.supportsDevice(this.deviceName)) {
+                this.obdAdapter = ac;
+                break;
+            }
+        }
 
-	/**
-	 * select the next adapter candidates from the list of implementations
-	 *
-	 * @throws AllAdaptersFailedException if the list has reached its end
-	 */
-	private void selectNextAdapter() throws AllAdaptersFailedException {
-		this.retried = false;
-		this.obdAdapter = adapterCandidates.poll();
+        if (this.obdAdapter == null) {
+            //poll the first instead
+            this.obdAdapter = adapterCandidates.poll();
+        }
+        else {
+            //remove the preferred from the queue so it is not used again
+            this.adapterCandidates.remove(this.obdAdapter);
+        }
 
-		if (this.obdAdapter == null) {
-			throw new AllAdaptersFailedException("All candidate adapters failed");
-		}
-	}
+        logger.info("Using " + this.obdAdapter.getClass().getSimpleName() + " connector as the preferred adapter.");
+        startInitialization();
+    }
 
-	/**
-	 * start the init method of the adapter. This is used
-	 * to bootstrap and verify the connection of the adapter
-	 * with the ECU.
-	 *
-	 * The init times out fater a pre-defined period.
-	 */
-	private void startInitialization() {
-		this.initialSubscription = new Subscriber<Boolean>() {
-			@Override
-			public void onCompleted() {
-				this.unsubscribe();
-			}
+    /**
+     * select the next adapter candidates from the list of implementations
+     *
+     * @throws AllAdaptersFailedException if the list has reached its end
+     */
+    private void selectNextAdapter() throws AllAdaptersFailedException {
+        this.retried = false;
+        this.obdAdapter = adapterCandidates.poll();
 
-			@Override
-			public void onError(Throwable e) {
-				logger.warn("Adapter failed: " + obdAdapter.getClass().getSimpleName(), e);
-				try {
-					this.unsubscribe();
+        if (this.obdAdapter == null) {
+            throw new AllAdaptersFailedException("All candidate adapters failed");
+        }
+    }
 
-					if (obdAdapter.hasVerifiedConnection()) {
+    /**
+     * start the init method of the adapter. This is used
+     * to bootstrap and verify the connection of the adapter
+     * with the ECU.
+     *
+     * The init times out fater a pre-defined period.
+     */
+    private void startInitialization() {
+        this.initialSubscription = new Subscriber<Boolean>() {
+            @Override
+            public void onCompleted() {
+                this.unsubscribe();
+            }
 
-						if (!retried) {
-							//one retry if it was verified!
-							retried = true;
-						}
-						else {
-							throw new AllAdaptersFailedException("Adapter verified a connection but could not establishe data: "
-									+ obdAdapter.getClass().getSimpleName());
-						}
-					}
-					else {
-						selectNextAdapter();
-					}
+            @Override
+            public void onError(Throwable e) {
+                logger.warn("Adapter failed: " + obdAdapter.getClass().getSimpleName(), e);
+                try {
+                    this.unsubscribe();
 
-					/**
-					 * try the selected adapter
-					 */
-					startInitialization();
-				} catch (AllAdaptersFailedException e1) {
-					logger.warn("All Adapters failed", e1);
-					connectionListener.onAllAdaptersFailed();
-					dataListener.shutdown();
-				}
-			}
+                    if (obdAdapter.hasVerifiedConnection()) {
 
-			@Override
-			public void onNext(Boolean b) {
-				startCollectingData();
-				dataListener.onConnected(deviceName);
+                        if (!retried) {
+                            //one retry if it was verified!
+                            retried = true;
+                        }
+                        else {
+                            throw new AllAdaptersFailedException("Adapter verified a connection but could not establishe data: "
+                                    + obdAdapter.getClass().getSimpleName());
+                        }
+                    }
+                    else {
+                        selectNextAdapter();
+                    }
 
-				//unsubscribe, otherwise we will get a timeout
-				initialSubscription.unsubscribe();
-			}
+                    /**
+                     * try the selected adapter
+                     */
+                    startInitialization();
+                } catch (AllAdaptersFailedException e1) {
+                    logger.warn("All Adapters failed", e1);
+                    connectionListener.onAllAdaptersFailed();
+                    dataListener.shutdown();
+                }
+            }
 
-		};
+            @Override
+            public void onNext(Boolean b) {
+                startCollectingData();
+                dataListener.onConnected(deviceName);
 
-		/**
-		 * start the observable and subscribe to it
-		 */
-		this.obdAdapter.initialize(this.inputStream, this.outputStream)
-				.subscribeOn(Schedulers.io())
-				.observeOn(Schedulers.computation())
-				.timeout(ADAPTER_TRY_PERIOD, TimeUnit.MILLISECONDS)
-				.subscribe(this.initialSubscription);
-	}
+                //unsubscribe, otherwise we will get a timeout
+                initialSubscription.unsubscribe();
+            }
 
-	/**
-	 * start the actual collection of data.
-	 *
-	 * the collection times out after a pre-defined period when no
-	 * new data has arrived.
-	 */
-	private void startCollectingData() {
+        };
+
+        /**
+         * start the observable and subscribe to it
+         */
+        this.obdAdapter.initialize(this.inputStream, this.outputStream)
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
+                .timeout(ADAPTER_TRY_PERIOD, TimeUnit.MILLISECONDS)
+                .subscribe(this.initialSubscription);
+    }
+
+    /**
+     * start the actual collection of data.
+     *
+     * the collection times out after a pre-defined period when no
+     * new data has arrived.
+     */
+    private void startCollectingData() {
 		/*
 		 * inform the listener about the successful conn
 		 */
-		this.connectionListener.onConnectionVerified();
+        this.connectionListener.onConnectionVerified();
 
-		this.dataSubscription = new Subscriber<DataResponse>() {
-			@Override
-			public void onCompleted() {
-				this.unsubscribe();
-				dataListener.shutdown();
-			}
+        this.dataSubscription = new Subscriber<DataResponse>() {
+            @Override
+            public void onCompleted() {
+                this.unsubscribe();
+                dataListener.shutdown();
+            }
 
-			@Override
-			public void onError(Throwable e) {
-				/**
-				 * check if this is a demanded stop: still this can lead to
-				 * any kind of Exception (e.g. IOException)
-				 */
-				if (userRequestedStop) {
-					dataListener.shutdown();
-				}
+            @Override
+            public void onError(Throwable e) {
+                /**
+                 * check if this is a demanded stop: still this can lead to
+                 * any kind of Exception (e.g. IOException)
+                 */
+                if (userRequestedStop) {
+                    dataListener.shutdown();
+                }
 
-				this.unsubscribe();
-			}
+                this.unsubscribe();
+            }
 
-			@Override
-			public void onNext(DataResponse dataResponse) {
-				//lastSuccessfulCommandTime = dataResponse.getTimestamp();
-				dataListener.receiveUpdate(dataResponse);
-			}
-		};
+            @Override
+            public void onNext(DataResponse dataResponse) {
+                //lastSuccessfulCommandTime = dataResponse.getTimestamp();
+                dataListener.receiveUpdate(dataResponse);
+            }
+        };
 
-		Schedulers.from(Executors.newSingleThreadExecutor());
+        Schedulers.from(Executors.newSingleThreadExecutor());
 
-		/**
-		 * start the observable with a timeout
-		 */
-		this.obdAdapter.observe()
-				.subscribeOn(Schedulers.io())
-				.observeOn(Schedulers.computation())
-				.timeout(MAX_NODATA_TIME, TimeUnit.MILLISECONDS)
-				.subscribe(this.dataSubscription);
-	}
+        /**
+         * start the observable with a timeout
+         */
+        this.obdAdapter.observe()
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.computation())
+                .timeout(MAX_NODATA_TIME, TimeUnit.MILLISECONDS)
+                .subscribe(this.dataSubscription);
+    }
 
 
-	/**
-	 * @deprecated Use {@link #shutdown} instead
-	 */
-	@Deprecated
-	public void stopLooper() {
-		shutdown();
-	}
+    /**
+     * @deprecated Use {@link #shutdown} instead
+     */
+    @Deprecated
+    public void stopLooper() {
+        shutdown();
+    }
 
-	/**
-	 * Shutdown the controller. this removes all pending commands.
-	 * This object is no longer executable, a new instance has to
-	 * be created.
-	 *
-	 * Only use this if the stop is from high-level (e.g. user request)
-	 * and NOT on any kind of exception
-	 */
-	public void shutdown() {
-		/**
-		 * save that this is a stop on demand
-		 */
-		userRequestedStop = true;
+    /**
+     * Shutdown the controller. this removes all pending commands.
+     * This object is no longer executable, a new instance has to
+     * be created.
+     *
+     * Only use this if the stop is from high-level (e.g. user request)
+     * and NOT on any kind of exception
+     */
+    public void shutdown() {
+        /**
+         * save that this is a stop on demand
+         */
+        userRequestedStop = true;
 
-		if (this.initialSubscription != null) {
-			this.initialSubscription.unsubscribe();
-		}
-		if (this.dataSubscription != null) {
-			this.dataSubscription.unsubscribe();
-		}
+        if (this.initialSubscription != null) {
+            this.initialSubscription.unsubscribe();
+        }
+        if (this.dataSubscription != null) {
+            this.dataSubscription.unsubscribe();
+        }
 
-	}
+    }
 
 
 }
