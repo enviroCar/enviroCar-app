@@ -59,8 +59,7 @@ public interface DbAdapter {
 
 	/**
 	 * Inserts a measurements into the database
-	 * 
-	 * @param measurement
+	 * <
 	 *            The measurement that should be inserted
 	 * @throws TrackAlreadyFinishedException
 	 * @throws MeasurementSerializationException
@@ -105,7 +104,7 @@ public interface DbAdapter {
 	 * the system time and the provided currentLocation)
 	 * If there is no non-finalized track or appending is not
 	 * reasonable, a new track shall be created.
-	 * 
+	 *
 	 * @param currentLocation the current location
 	 * @return the current active track as reference via TrackId
 	 */
