@@ -30,7 +30,6 @@ import android.os.Parcelable;
 import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.squareup.otto.Subscribe;
 
@@ -113,7 +112,9 @@ public class OBDConnectionService extends BaseInjectorService {
 
     // Different subscriptions
     private CompositeSubscription subscriptions = new CompositeSubscription();
-    private Subscription mUUIDSubscription;
+    private Subscription mConnectingSubscription;
+
+    private BluetoothSocketWrapper bluetoothSocketWrapper;
 
 
     // This satellite fix indicates that there is no satellite connection yet.
@@ -214,8 +215,8 @@ public class OBDConnectionService extends BaseInjectorService {
             subscriptions.unsubscribe();
 
         // If there is an active UUID subscription.
-        if (mUUIDSubscription != null)
-            mUUIDSubscription.unsubscribe();
+        if (mConnectingSubscription != null)
+            mConnectingSubscription.unsubscribe();
 
         // Stop this remoteService and emove this remoteService from foreground state.
         stopOBDConnection();
@@ -326,14 +327,108 @@ public class OBDConnectionService extends BaseInjectorService {
         setBluetoothServiceState(BluetoothServiceState.SERVICE_STARTING);
 
         if (device.fetchUuidsWithSdp())
-            mUUIDSubscription = getUUIDList(device)
+            mConnectingSubscription = getUUIDList(device)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(uuids -> {
-                        Log.i("yea", "start bluetooth connection thread");
-                        (mOBDConnection = new OBDBluetoothConnection(device, uuids)).start();
-                        mUUIDSubscription.unsubscribe();
+                    .concatMap(uuids -> createOBDBluetoothObservable(device, uuids))
+                    .subscribe(new Subscriber<BluetoothSocketWrapper>() {
+                        @Override
+                        public void onCompleted() {
+                            LOG.info("onCompleted(): BluetoothSocketWrapper connection completed");
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            LOG.error(e.getMessage(), e);
+                            unsubscribe();
+                        }
+
+                        @Override
+                        public void onNext(BluetoothSocketWrapper socketWrapper) {
+                            bluetoothSocketWrapper = socketWrapper;
+                            onDeviceConnected(bluetoothSocketWrapper);
+                            unsubscribe();
+                        }
                     });
+    }
+
+    private Observable<BluetoothSocketWrapper> createOBDBluetoothObservable(
+            BluetoothDevice device, List<UUID> uuids) {
+        return Observable.create(new Observable.OnSubscribe<BluetoothSocketWrapper>() {
+
+            private BluetoothSocketWrapper socketWrapper;
+
+            @Override
+            public void call(Subscriber<? super BluetoothSocketWrapper> subscriber) {
+                for (UUID uuid : uuids) {
+                    // Stop if the subscriber is unsubscribed.
+                    if (subscriber.isUnsubscribed())
+                        return;
+
+                    try {
+                        LOG.info("Trying to create native bleutooth socket");
+                        socketWrapper = new NativeBluetoothSocket(device
+                                .createRfcommSocketToServiceRecord(uuid));
+                    } catch (IOException e) {
+                        LOG.warn(e.getMessage(), e);
+                        continue;
+                    }
+
+                    try {
+                        connectSocket();
+                    } catch (FallbackBluetoothSocket.FallbackException |
+                            InterruptedException |
+                            IOException e) {
+                        LOG.warn(e.getMessage(), e);
+                        shutdownSocket(socketWrapper);
+                        socketWrapper = null;
+                    }
+
+                    if (socketWrapper != null) {
+                        LOG.info("successful connected");
+                        subscriber.onNext(socketWrapper);
+                        subscriber.onCompleted();
+                        break;
+                    }
+                }
+
+                if (socketWrapper == null) {
+                    subscriber.onError(new NoOBDSocketConnectedException());
+                }
+            }
+
+            private void connectSocket() throws FallbackBluetoothSocket
+                    .FallbackException, InterruptedException, IOException {
+                try {
+                    // This is a blocking call and will only return on a
+                    // successful connection or an exception
+                    socketWrapper.connect();
+                } catch (IOException e) {
+                    LOG.warn("Exception on bluetooth connection. Trying the fallback... : "
+                            + e.getMessage(), e);
+
+                    //try the fallback
+                    socketWrapper = new FallbackBluetoothSocket(
+                            socketWrapper.getUnderlyingSocket());
+                    Thread.sleep(500);
+                    socketWrapper.connect();
+                }
+            }
+
+            private void shutdownSocket(BluetoothSocketWrapper socket) {
+                LOG.info("Shutting down bluetooth socket.");
+
+                try {
+                    if (socket.getInputStream() != null)
+                        socket.getInputStream().close();
+                    if (socket.getOutputStream() != null)
+                        socket.getOutputStream().close();
+                    socket.close();
+                } catch (Exception e) {
+                    LOG.severe(e.getMessage(), e);
+                }
+            }
+        });
     }
 
     /**
