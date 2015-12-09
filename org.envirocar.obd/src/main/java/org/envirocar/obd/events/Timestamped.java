@@ -1,4 +1,4 @@
-package org.envirocar.obd.commands;
+package org.envirocar.obd.events;
 
 public interface Timestamped {
 

@@ -156,7 +156,7 @@ public class CommandListener implements Listener, MeasurementListener {
 
         if (command instanceof SpeedResponse) {
             try {
-                Integer speedMeasurement = ((SpeedResponse) command).getValue();
+                Integer speedMeasurement = ((SpeedResponse) command).getValue().intValue();
                 this.collector.newSpeed(speedMeasurement);
                 mBus.post(new SpeedUpdateEvent(speedMeasurement));
                 logger.info("Processed Speed Response: " + speedMeasurement + " time: " + command
@@ -171,7 +171,7 @@ public class CommandListener implements Listener, MeasurementListener {
         else if (command instanceof EngineRPMResponse) {
 
             try {
-                Integer rpmMeasurement = ((EngineRPMResponse) command).getValue();
+                Integer rpmMeasurement = ((EngineRPMResponse) command).getValue().intValue();
                 this.collector.newRPM(rpmMeasurement);
                 mBus.post(new RPMUpdateEvent(rpmMeasurement));
 //				logger.info("Processed RPM Response: "+rpmMeasurement +" time: "+command
@@ -185,7 +185,7 @@ public class CommandListener implements Listener, MeasurementListener {
 
         else if (command instanceof IntakeManifoldAbsolutePressureResponse) {
             try {
-                Integer intakePressureMeasurement = ((IntakeManifoldAbsolutePressureResponse) command).getValue();
+                Integer intakePressureMeasurement = ((IntakeManifoldAbsolutePressureResponse) command).getValue().intValue();
                 this.collector.newIntakePressure(intakePressureMeasurement);
                 mBus.post(new IntakePreasureUpdateEvent(intakePressureMeasurement));
 //				logger.info("Processed IAP Response: "+intakePressureMeasurement +" time:
@@ -199,7 +199,7 @@ public class CommandListener implements Listener, MeasurementListener {
 
         else if (command instanceof IntakeAirTemperatureResponse) {
             try {
-                Integer intakeTemperatureMeasurement = ((IntakeAirTemperatureResponse) command).getValue();
+                Integer intakeTemperatureMeasurement = ((IntakeAirTemperatureResponse) command).getValue().intValue();
                 this.collector.newIntakeTemperature(intakeTemperatureMeasurement);
                 this.mBus.post(new IntakeTemperatureUpdateEvent(intakeTemperatureMeasurement));
 //				logger.info("Processed IAT Response: "+intakeTemperatureMeasurement +" time:
@@ -208,16 +208,16 @@ public class CommandListener implements Listener, MeasurementListener {
                 logger.warn("Intake Temperature parse exception", e);
             }
         } else if (command instanceof MAFResponse) {
-            float mafMeasurement = ((MAFResponse) command).getValue();
+            float mafMeasurement = ((MAFResponse) command).getValue().floatValue();
             this.collector.newMAF(mafMeasurement);
 //			logger.info("Processed MAF Response: "+mafMeasurement +" time: "+command.getResultTime
 // ());
         } else if (command instanceof ThrottlePositionResponse) {
-            int tps = ((ThrottlePositionResponse) command).getValue();
+            int tps = ((ThrottlePositionResponse) command).getValue().intValue();
             this.collector.newTPS(tps);
 //			logger.info("Processed TPS Response: "+tps +" time: "+command.getResultTime());
         } else if (command instanceof EngineLoadResponse) {
-            double load = ((EngineLoadResponse) command).getValue();
+            double load = ((EngineLoadResponse) command).getValue().doubleValue();
             this.collector.newEngineLoad(load);
 //			logger.info("Processed EngineLoad Response: "+load +" time: "+command.getResultTime());
         } else if (command instanceof FuelSystemStatusResponse) {

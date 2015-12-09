@@ -18,6 +18,7 @@
  */
 package org.envirocar.obd.commands;
 
+import org.envirocar.core.entity.Measurement;
 import org.envirocar.obd.commands.request.ModeOneCommand;
 import org.envirocar.obd.commands.request.PIDCommand;
 
@@ -65,5 +66,9 @@ public class PIDUtil {
 			default:
 				return null;
 		}
+	}
+
+	public static Measurement.PropertyKey toPropertyKey(PID pid) {
+		return null;
 	}
 }

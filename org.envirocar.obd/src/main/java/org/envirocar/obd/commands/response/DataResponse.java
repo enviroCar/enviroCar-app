@@ -1,7 +1,7 @@
 package org.envirocar.obd.commands.response;
 
 import org.envirocar.obd.commands.PID;
-import org.envirocar.obd.commands.Timestamped;
+import org.envirocar.obd.events.Timestamped;
 
 public abstract class DataResponse extends CommandResponse implements Timestamped {
 

@@ -21,24 +21,29 @@
 package org.envirocar.obd;
 
 import com.google.common.base.Preconditions;
+import com.squareup.otto.Bus;
 
+import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.adapter.AposW3Adapter;
 import org.envirocar.obd.adapter.CarTrendAdapter;
 import org.envirocar.obd.adapter.ELM327Adapter;
 import org.envirocar.obd.adapter.OBDAdapter;
 import org.envirocar.obd.adapter.OBDLinkMXAdapter;
+import org.envirocar.obd.commands.PID;
+import org.envirocar.obd.commands.PIDUtil;
 import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.adapter.async.DriveDeckSportAdapter;
+import org.envirocar.obd.events.PropertyKeyEvent;
 import org.envirocar.obd.exception.AllAdaptersFailedException;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.Queue;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import rx.Scheduler;
 import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
@@ -70,6 +75,8 @@ public class OBDController {
 	private String deviceName;
 	private boolean userRequestedStop = false;
 	private boolean retried;
+	private Bus eventBus;
+	private Scheduler.Worker eventBusWorker;
 
 
 	/**
@@ -93,6 +100,10 @@ public class OBDController {
 		setupAdapterCandidates();
 
 		startPreferredAdapter();
+
+		if (this.eventBus != null) {
+			this.eventBusWorker = Schedulers.computation().createWorker();
+		}
 	}
 
 	/**
@@ -248,6 +259,7 @@ public class OBDController {
 			public void onNext(DataResponse dataResponse) {
 				//lastSuccessfulCommandTime = dataResponse.getTimestamp();
 				dataListener.receiveUpdate(dataResponse);
+				pushToEventBus(dataResponse);
 			}
 		};
 
@@ -261,6 +273,66 @@ public class OBDController {
 				.subscribe(this.dataSubscription);
 	}
 
+	private void pushToEventBus(DataResponse dataResponse) {
+		eventBusWorker.schedule(() -> {
+            PropertyKeyEvent[] pkes = createEventsFromDataResponse(dataResponse);
+
+            for (PropertyKeyEvent pke : pkes) {
+                eventBus.post(pke);
+            }
+        });
+	}
+
+	protected PropertyKeyEvent[] createEventsFromDataResponse(DataResponse dataResponse) {
+		PID pid = dataResponse.getPid();
+		switch (pid) {
+			case FUEL_SYSTEM_STATUS:
+			case CALCULATED_ENGINE_LOAD:
+			case SHORT_TERM_FUEL_TRIM_BANK_1:
+			case LONG_TERM_FUEL_TRIM_BANK_1:
+			case FUEL_PRESSURE:
+			case INTAKE_MAP:
+			case RPM:
+			case SPEED:
+			case INTAKE_AIR_TEMP:
+			case MAF:
+			case TPS:
+				return new PropertyKeyEvent[] {
+						new PropertyKeyEvent(PIDUtil.toPropertyKey(pid),
+								dataResponse.getValue(), dataResponse.getTimestamp())
+				};
+			case O2_LAMBDA_PROBE_1_VOLTAGE:
+			case O2_LAMBDA_PROBE_2_VOLTAGE:
+			case O2_LAMBDA_PROBE_3_VOLTAGE:
+			case O2_LAMBDA_PROBE_4_VOLTAGE:
+			case O2_LAMBDA_PROBE_5_VOLTAGE:
+			case O2_LAMBDA_PROBE_6_VOLTAGE:
+			case O2_LAMBDA_PROBE_7_VOLTAGE:
+			case O2_LAMBDA_PROBE_8_VOLTAGE:
+				return new PropertyKeyEvent[] {
+						new PropertyKeyEvent(Measurement.PropertyKey.LAMBDA_VOLTAGE_ER,
+								dataResponse.getCompositeValues()[0], dataResponse.getTimestamp()),
+						new PropertyKeyEvent(Measurement.PropertyKey.LAMBDA_VOLTAGE,
+								dataResponse.getCompositeValues()[1], dataResponse.getTimestamp())
+				};
+			case O2_LAMBDA_PROBE_1_CURRENT:
+			case O2_LAMBDA_PROBE_2_CURRENT:
+			case O2_LAMBDA_PROBE_3_CURRENT:
+			case O2_LAMBDA_PROBE_4_CURRENT:
+			case O2_LAMBDA_PROBE_5_CURRENT:
+			case O2_LAMBDA_PROBE_6_CURRENT:
+			case O2_LAMBDA_PROBE_7_CURRENT:
+			case O2_LAMBDA_PROBE_8_CURRENT:
+				return new PropertyKeyEvent[] {
+						new PropertyKeyEvent(Measurement.PropertyKey.LAMBDA_CURRENT_ER,
+								dataResponse.getCompositeValues()[0], dataResponse.getTimestamp()),
+						new PropertyKeyEvent(Measurement.PropertyKey.LAMBDA_CURRENT,
+								dataResponse.getCompositeValues()[1], dataResponse.getTimestamp())
+				};
+		}
+
+		return new PropertyKeyEvent[0];
+	}
 
 	/**
 	 * @deprecated Use {@link #shutdown} instead
