@@ -1,10 +1,11 @@
 package org.envirocar.obd.commands.response;
 
 import org.envirocar.obd.commands.PID;
+import org.envirocar.obd.commands.Timestamped;
 
-public abstract class DataResponse extends CommandResponse {
+public abstract class DataResponse extends CommandResponse implements Timestamped {
 
-    private long timestamp;
+    private final long timestamp;
 
     public DataResponse() {
         this.timestamp = System.currentTimeMillis();
@@ -17,4 +18,12 @@ public abstract class DataResponse extends CommandResponse {
     public abstract PID getPid();
 
     public abstract Number getValue();
+
+    public boolean isComposite() {
+        return false;
+    }
+
+    public Number[] getCompositeValues() {
+        return new Number[] {getValue()};
+    }
 }

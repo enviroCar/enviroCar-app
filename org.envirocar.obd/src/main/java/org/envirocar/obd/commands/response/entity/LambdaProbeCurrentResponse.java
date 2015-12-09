@@ -32,4 +32,14 @@ public class LambdaProbeCurrentResponse extends DataResponse {
     public Number getValue() {
         return getEquivalenceRatio();
     }
+
+    @Override
+    public boolean isComposite() {
+        return true;
+    }
+
+    @Override
+    public Number[] getCompositeValues() {
+        return new Number[] {equivalenceRatio, current};
+    }
 }

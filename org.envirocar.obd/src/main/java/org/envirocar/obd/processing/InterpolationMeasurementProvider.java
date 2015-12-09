@@ -3,9 +3,8 @@ package org.envirocar.obd.processing;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.obd.commands.PID;
+import org.envirocar.obd.commands.Timestamped;
 import org.envirocar.obd.commands.response.DataResponse;
-import org.envirocar.obd.commands.response.entity.LambdaProbeCurrentResponse;
-import org.envirocar.obd.commands.response.entity.LambdaProbeVoltageResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,20 +14,13 @@ import java.util.Map;
 import rx.Observable;
 import rx.Subscriber;
 
-public class InterpolationMeasurementProvider implements MeasurementProvider {
+public class InterpolationMeasurementProvider extends AbstractMeasurementProvider {
 
     private Map<PID, List<DataResponse>> bufferedResponses = new HashMap<>();
     private long firstTimestampToBeConsidered;
-    private Map<PID, Measurement.PropertyKey> pidPropertyMap = new HashMap<>();
+    private long lastTimestampToBeConsidered;
 
     public InterpolationMeasurementProvider() {
-        pidPropertyMap.put(PID.SPEED, Measurement.PropertyKey.SPEED);
-        pidPropertyMap.put(PID.MAF, Measurement.PropertyKey.MAF);
-        pidPropertyMap.put(PID.CALCULATED_ENGINE_LOAD, Measurement.PropertyKey.CALCULATED_MAF);
-        pidPropertyMap.put(PID.RPM, Measurement.PropertyKey.RPM);
-        pidPropertyMap.put(PID.INTAKE_MAP, Measurement.PropertyKey.INTAKE_PRESSURE);
-        pidPropertyMap.put(PID.INTAKE_AIR_TEMP, Measurement.PropertyKey.INTAKE_TEMPERATURE);
-        pidPropertyMap.put(PID.O2_LAMBDA_PROBE_1_VOLTAGE, Measurement.PropertyKey.LAMBDA_VOLTAGE);
     }
 
     @Override
@@ -59,27 +51,59 @@ public class InterpolationMeasurementProvider implements MeasurementProvider {
     }
 
     private synchronized Measurement createMeasurement() {
-        long latestTimestampToBeConsidered = System.currentTimeMillis();
         /**
          * use the middle of the time window
          */
-        long targetTimestamp = firstTimestampToBeConsidered + ((latestTimestampToBeConsidered - firstTimestampToBeConsidered) / 2);
+        long targetTimestamp = firstTimestampToBeConsidered + ((lastTimestampToBeConsidered - firstTimestampToBeConsidered) / 2);
 
         Measurement m = new MeasurementImpl();
         m.setTime(targetTimestamp);
 
         for (PID pid : this.bufferedResponses.keySet()) {
-            appendToMeasurement(pid, this.bufferedResponses.get(pid), m, targetTimestamp);
+            appendToMeasurement(pid, this.bufferedResponses.get(pid), m);
         }
 
         /**
          * clear the buffer of DataResponses to be considered
          */
         clearBuffer();
+        setPosition(m, getAndClearPositionBuffer());
         return m;
     }
 
-    private void appendToMeasurement(PID pid, List<DataResponse> dataResponses, Measurement m, long targetTimestamp) {
+    private void setPosition(Measurement m, List<Position> positionBuffer) {
+        if (positionBuffer == null || positionBuffer.isEmpty()) {
+            return;
+        }
+
+        if (positionBuffer.size() == 1) {
+            Position pos = positionBuffer.get(0);
+            m.setLatitude(pos.getLatitude());
+            m.setLongitude(pos.getLongitude());
+        }
+        else {
+            long targetTimestamp = m.getTime();
+
+            /**
+             * find the closest two measurements
+             */
+            int startIndex = findStartIndex(positionBuffer, targetTimestamp);
+            Position start = positionBuffer.get(startIndex);
+            Position end = startIndex + 1 < positionBuffer.size() ? positionBuffer.get(startIndex + 1) : null;
+
+            double lat = interpolateTwo(start.getLatitude(), end != null ? end.getLatitude() : null, targetTimestamp, start.getTimestamp(),
+                    end != null ? end.getTimestamp() : 0L);
+            double lon = interpolateTwo(start.getLongitude(), end != null ? end.getLongitude() : null, targetTimestamp, start.getTimestamp(),
+                    end != null ? end.getTimestamp() : 0L);
+
+            m.setLatitude(lat);
+            m.setLongitude(lon);
+        }
+
+    }
+
+    private void appendToMeasurement(PID pid, List<DataResponse> dataResponses, Measurement m) {
+        long targetTimestamp = m.getTime();
         switch (pid) {
             case FUEL_SYSTEM_STATUS:
                 m.setProperty(mapPidToProperty(pid), first(dataResponses));
@@ -93,7 +117,7 @@ public class InterpolationMeasurementProvider implements MeasurementProvider {
             case INTAKE_AIR_TEMP:
             case MAF:
             case TPS:
-                m.setProperty(mapPidToProperty(pid), interpolate(dataResponses, targetTimestamp));
+                m.setProperty(mapPidToProperty(pid), interpolate(dataResponses, m.getTime()));
                 break;
             case O2_LAMBDA_PROBE_1_VOLTAGE:
             case O2_LAMBDA_PROBE_2_VOLTAGE:
@@ -103,7 +127,7 @@ public class InterpolationMeasurementProvider implements MeasurementProvider {
             case O2_LAMBDA_PROBE_6_VOLTAGE:
             case O2_LAMBDA_PROBE_7_VOLTAGE:
             case O2_LAMBDA_PROBE_8_VOLTAGE:
-                appendLambdaVoltage(dataResponses, m, targetTimestamp);
+                appendLambdaVoltage(dataResponses, m);
                 break;
             case O2_LAMBDA_PROBE_1_CURRENT:
             case O2_LAMBDA_PROBE_2_CURRENT:
@@ -113,18 +137,55 @@ public class InterpolationMeasurementProvider implements MeasurementProvider {
             case O2_LAMBDA_PROBE_6_CURRENT:
             case O2_LAMBDA_PROBE_7_CURRENT:
             case O2_LAMBDA_PROBE_8_CURRENT:
-                appendLambdaCurrent(dataResponses, m, targetTimestamp);
+                appendLambdaCurrent(dataResponses, m);
                 break;
         }
 
     }
 
-    private void appendLambdaVoltage(List<DataResponse> dataResponses, Measurement m, long targetTimestamp) {
-
+    private void appendLambdaVoltage(List<DataResponse> dataResponses, Measurement m) {
+        appendComposite(dataResponses, m, m.getTime(),
+                new Measurement.PropertyKey[]{Measurement.PropertyKey.LAMBDA_VOLTAGE_ER,
+                        Measurement.PropertyKey.LAMBDA_VOLTAGE});
     }
 
-    private void appendLambdaCurrent(List<DataResponse> dataResponses, Measurement m, long targetTimestamp) {
+    private void appendLambdaCurrent(List<DataResponse> dataResponses, Measurement m) {
+        appendComposite(dataResponses, m, m.getTime(),
+                new Measurement.PropertyKey[] {Measurement.PropertyKey.LAMBDA_CURRENT_ER,
+                        Measurement.PropertyKey.LAMBDA_CURRENT});
     }
+
+    /**
+     * append a composite property to the measurement
+     *
+     * @param dataResponses the list of value responses
+     * @param m the measurement
+     * @param targetTimestamp the target timestamp used for interpolation
+     * @param propertyKeys the list of property keys. has to be in the same order as the
+     *                     values are provided via DataResponse#getCompositeValues
+     */
+    protected void appendComposite(List<DataResponse> dataResponses, Measurement m, long targetTimestamp, Measurement.PropertyKey[] propertyKeys) {
+        /**
+         * find the closest two measurements
+         */
+        int startIndex = findStartIndex(dataResponses, targetTimestamp);
+        DataResponse start = dataResponses.get(startIndex);
+        DataResponse end = startIndex + 1 < dataResponses.size() ? dataResponses.get(startIndex + 1) : null;
+
+        int length = Math.min(propertyKeys.length, start.getCompositeValues().length);
+
+        /**
+         * iterate through the properties and interpolate them
+         */
+        for (int i = 0; i < length; i++) {
+            Number startValue = start.getCompositeValues()[i];
+            Number endValue = end != null ? end.getCompositeValues()[i] : null;
+            double value = interpolateTwo(startValue, endValue, targetTimestamp, start.getTimestamp(),
+                    end != null ? end.getTimestamp() : 0L);
+            m.setProperty(propertyKeys[i], value);
+        }
+    }
+
 
     private Double first(List<DataResponse> dataResponses) {
         return dataResponses.isEmpty() ? null : dataResponses.get(0).getValue().doubleValue();
@@ -138,51 +199,55 @@ public class InterpolationMeasurementProvider implements MeasurementProvider {
         /**
          * find the closest two measurements
          */
-        int midIndex = dataResponses.size() / 2;
-        DataResponse start = null, end = null;
-        int i = midIndex;
-        while (i >= 0) {
-            if (dataResponses.get(i).getTimestamp() <= targetTimestamp) {
-                start = dataResponses.get(i);
-                break;
-            }
+        int startIndex = findStartIndex(dataResponses, targetTimestamp);
+        DataResponse start = dataResponses.get(startIndex);
+        DataResponse end = startIndex + 1 < dataResponses.size() ? dataResponses.get(startIndex + 1) : null;
 
-            i--;
-        }
+        return interpolateTwo(start.getValue(), end != null ? end.getValue() : null, targetTimestamp, start.getTimestamp(),
+                end != null ? end.getTimestamp() : 0L);
+    }
 
-        while (i < dataResponses.size()) {
-            if (dataResponses.get(i).getTimestamp() > targetTimestamp) {
-                end = dataResponses.get(i);
-                break;
+    private int findStartIndex(List<? extends Timestamped> dataResponses, long targetTimestamp) {
+        int i = 0;
+        while (i+1 < dataResponses.size()) {
+            if (dataResponses.get(i).getTimestamp() <= targetTimestamp
+                    && dataResponses.get(i+1).getTimestamp() >= targetTimestamp) {
+                return i;
             }
 
             i++;
         }
 
-        return interpolateTwo(start, end, targetTimestamp);
+        return 0;
     }
 
-    protected Double interpolateTwo(DataResponse start, DataResponse end, long targetTimestamp) {
+    /**
+     *
+     * @param start the start value
+     * @param end the end value
+     * @param targetTimestamp the target timestamp used for interpolation
+     * @param startTimestamp the timestamp of the start
+     * @param endTimestamp the timestamp of the lend
+     * @return the interpolated value
+     */
+    protected Double interpolateTwo(Number start, Number end, long targetTimestamp,
+                                    long startTimestamp, long endTimestamp) {
         if (start == null && end == null) {
             return null;
         }
         if (start == null) {
-            return end.getValue().doubleValue();
+            return end.doubleValue();
         }
         else if (end == null) {
-            return start.getValue().doubleValue();
+            return start.doubleValue();
         }
 
-        float duration = (float) (end.getTimestamp() - start.getTimestamp());
+        float duration = (float) (endTimestamp - startTimestamp);
 
-        float endWeight = (targetTimestamp - start.getTimestamp()) / duration;
-        float startWeight = (end.getTimestamp() - targetTimestamp) / duration;
+        float endWeight = (targetTimestamp - startTimestamp) / duration;
+        float startWeight = (endTimestamp - targetTimestamp) / duration;
 
-        return start.getValue().doubleValue() * startWeight + end.getValue().doubleValue() * endWeight;
-    }
-
-    private Measurement.PropertyKey mapPidToProperty(PID pid) {
-        return pidPropertyMap.get(pid);
+        return start.doubleValue() * startWeight + end.doubleValue() * endWeight;
     }
 
     private void clearBuffer() {
@@ -198,10 +263,15 @@ public class InterpolationMeasurementProvider implements MeasurementProvider {
 
     @Override
     public synchronized void consider(DataResponse dr) {
+        this.lastTimestampToBeConsidered = Math.max(this.lastTimestampToBeConsidered, dr.getTimestamp());
+
         if (this.firstTimestampToBeConsidered == 0) {
             this.firstTimestampToBeConsidered = dr.getTimestamp();
         }
-        
+        else {
+            this.firstTimestampToBeConsidered = Math.min(this.firstTimestampToBeConsidered, dr.getTimestamp());
+        }
+
         PID pid = dr.getPid();
         if (bufferedResponses.containsKey(pid)) {
             bufferedResponses.get(pid).add(dr);
