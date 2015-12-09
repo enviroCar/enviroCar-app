@@ -35,6 +35,7 @@ import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.storage.EnviroCarDB;
 
 import java.util.List;
 
@@ -57,6 +58,8 @@ public class TrackUploadService extends Service {
     protected TrackHandler trackHandler;
     @Inject
     protected DbAdapter dbAdapter;
+    @Inject
+    protected EnviroCarDB enviroCarDB;
 
     @Override
     public void onCreate() {
@@ -71,7 +74,9 @@ public class TrackUploadService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         LOG.info("onStartCommand()");
 
-        List<Track> localTrackList = dbAdapter.getAllLocalTracks(true);
+
+        // TODO change it to clean u
+        List<Track> localTrackList = enviroCarDB.getAllLocalTracks().first().toBlocking().first();
         if (localTrackList.size() > 0) {
             LOG.info(String.format("%s local tracks to upload", localTrackList.size()));
 
