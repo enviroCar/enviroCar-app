@@ -52,8 +52,7 @@ import rx.schedulers.Schedulers;
 /**
  * this is the main class for interacting with a OBD-II adapter.
  * It takes {@link InputStream} and {@link OutputStream} objects
- * to do the actual raw communication. A {@link Listener} is provided
- * with updates. The {@link ConnectionListener} will get informed on
+ * to do the actual raw communication. The {@link ConnectionListener} will get informed on
  * certain changes in the connection state.
  * 
  * @author matthes rieke
@@ -104,7 +103,7 @@ public class OBDController {
 
 		this.eventBus = bus;
 		if (this.eventBus != null) {
-			this.eventBusWorker = Schedulers.computation().createWorker();
+			this.eventBusWorker = Schedulers.io().createWorker();
 		}
 	}
 
@@ -222,7 +221,7 @@ public class OBDController {
 		 */
 		this.obdAdapter.initialize(this.inputStream, this.outputStream)
 				.subscribeOn(Schedulers.io())
-				.observeOn(Schedulers.computation())
+				.observeOn(OBDSchedulers.scheduler())
 				.timeout(ADAPTER_TRY_PERIOD, TimeUnit.MILLISECONDS)
 				.subscribe(this.initialSubscription);
 	}
@@ -258,15 +257,13 @@ public class OBDController {
 					//dataListener.shutdown();
 				}
 
+				logger.warn("onError() received", e);
+
 				this.unsubscribe();
 			}
 
 			@Override
 			public void onNext(DataResponse dataResponse) {
-				//lastSuccessfulCommandTime = dataResponse.getTimestamp();
-
-				//TODO implement equivalent notification method:
-				//dataListener.receiveUpdate(dataResponse);
 				pushToEventBus(dataResponse);
 			}
 		};
@@ -276,7 +273,7 @@ public class OBDController {
 		 */
 		this.obdAdapter.observe()
 				.subscribeOn(Schedulers.io())
-				.observeOn(Schedulers.computation())
+				.observeOn(OBDSchedulers.scheduler())
 				.timeout(MAX_NODATA_TIME, TimeUnit.MILLISECONDS)
 				.subscribe(this.dataSubscription);
 	}
@@ -292,8 +289,7 @@ public class OBDController {
 			PID pid = dataResponse.getPid();
 			if (pid == PID.SPEED) {
 				eventBus.post(new SpeedUpdateEvent(dataResponse.getValue().intValue()));
-			}
-			else if (pid == PID.RPM) {
+			} else if (pid == PID.RPM) {
 				eventBus.post(new RPMUpdateEvent(dataResponse.getValue().intValue()));
 			}
 		});

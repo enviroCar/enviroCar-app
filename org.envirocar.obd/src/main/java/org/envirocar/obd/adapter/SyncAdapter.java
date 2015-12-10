@@ -1,18 +1,18 @@
 package org.envirocar.obd.adapter;
 
 import org.envirocar.core.logging.Logger;
-import org.envirocar.obd.commands.request.BasicCommand;
-import org.envirocar.obd.commands.request.PIDCommand;
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.PIDUtil;
-import org.envirocar.obd.exception.AdapterSearchingException;
-import org.envirocar.obd.exception.NoDataReceivedException;
-import org.envirocar.obd.exception.StreamFinishedException;
-import org.envirocar.obd.exception.UnmatchedResponseException;
+import org.envirocar.obd.commands.request.BasicCommand;
+import org.envirocar.obd.commands.request.PIDCommand;
 import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.commands.response.ResponseParser;
 import org.envirocar.obd.exception.AdapterFailedException;
+import org.envirocar.obd.exception.AdapterSearchingException;
 import org.envirocar.obd.exception.InvalidCommandResponseException;
+import org.envirocar.obd.exception.NoDataReceivedException;
+import org.envirocar.obd.exception.StreamFinishedException;
+import org.envirocar.obd.exception.UnmatchedResponseException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,11 +29,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import rx.Observable;
-import rx.Observer;
-import rx.Scheduler;
 import rx.Subscriber;
-import rx.Subscription;
-import rx.schedulers.Schedulers;
 
 public abstract class SyncAdapter implements OBDAdapter {
 
@@ -103,21 +99,7 @@ public abstract class SyncAdapter implements OBDAdapter {
 
     @Override
     public Observable<DataResponse> observe() {
-        return observe(Schedulers.io());
-    }
-
-    /**
-     * start the actual data observable
-     *
-     * @param subscriberScheduler the Scheduler to be used
-     * @return the data observable
-     */
-    protected Observable<DataResponse> observe(Scheduler subscriberScheduler) {
-        final Scheduler usedSubScheduler = subscriberScheduler == null ? Schedulers.io() : subscriberScheduler;
-
         return Observable.create(new Observable.OnSubscribe<DataResponse>() {
-
-            private PIDCommand latestCommand;
 
             @Override
             public void call(Subscriber<? super DataResponse> subscriber) {
@@ -127,90 +109,53 @@ public abstract class SyncAdapter implements OBDAdapter {
                  */
                 preparePendingCommands();
 
-                /**
-                 * write the first one, after that the writing is done within the observable
-                 */
-                try {
-                    latestCommand = pollNextCommand();
-                    LOGGER.debug("Sending command " + latestCommand != null ? latestCommand.getPid().toString() : "n/a");
-                    commandExecutor.execute(latestCommand);
-                } catch (IOException e) {
-                    subscriber.onError(e);
-                    subscriber.unsubscribe();
-                } catch (AdapterFailedException e) {
-                    subscriber.onError(e);
-                    subscriber.unsubscribe();
+                PIDCommand latestCommand = null;
+                byte[] bytes = null;
+                while (!subscriber.isUnsubscribed()) {
+                    try {
+                        latestCommand = pollNextCommand();
+                        LOGGER.debug("Sending command " + (latestCommand != null ? latestCommand.getPid().toString() : "n/a"));
+
+                        /**
+                         * write the next pending command
+                         */
+                        commandExecutor.execute(latestCommand);
+
+                        /**
+                         * read the next incoming response
+                         */
+                        bytes = commandExecutor.retrieveLatestResponse();
+                    } catch (IOException e) {
+                        subscriber.onError(e);
+                        subscriber.unsubscribe();
+                    } catch (AdapterFailedException e) {
+                        subscriber.onError(e);
+                        subscriber.unsubscribe();
+                    } catch (StreamFinishedException e) {
+                        subscriber.onError(e);
+                        subscriber.unsubscribe();
+                    }
+
+                    try {
+                        DataResponse response = parser.parse(preProcess(bytes));
+
+                        if (response != null) {
+                            LOGGER.debug("isUnsubscribed? " + subscriber.isUnsubscribed());
+                            subscriber.onNext(response);
+                        }
+                    } catch (AdapterSearchingException e) {
+                        LOGGER.warn("Adapter still searching: " + e.getMessage());
+                    } catch (NoDataReceivedException e) {
+                        LOGGER.warn("No data received: " + e.getMessage());
+                        increaseFailureCount(latestCommand.getPid());
+                    } catch (InvalidCommandResponseException e) {
+                        LOGGER.warn("Received InvalidCommandResponseException: " + e.getCommand());
+                        increaseFailureCount(PIDUtil.fromString(e.getCommand()));
+                    } catch (UnmatchedResponseException e) {
+                        LOGGER.warn("Unmatched response: " + e.getMessage());
+                    }
+
                 }
-
-                /**
-                 * create an observable that provide raw bytes of the input stream
-                 * and subscribe an observer to it that parses the bytes
-                 */
-                Subscription obs = commandExecutor.createRawByteObservable()
-                        //subscribe (= where the i/o with the streams is done) on this scheduler:
-                        .subscribeOn(usedSubScheduler)
-                        //observe (= where onNext is called) on this scheduler:
-                        .observeOn(usedSubScheduler)
-                        .subscribe(new Observer<byte[]>() {
-
-                            @Override
-                            public void onCompleted() {
-                                subscriber.onCompleted();
-                                subscriber.unsubscribe();
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                //TODO switch over exceptions?
-                                if (e instanceof StreamFinishedException) {
-                                    subscriber.onCompleted();
-                                }
-                                else {
-                                    subscriber.onError(e);
-                                }
-
-                                subscriber.unsubscribe();
-                            }
-
-                            @Override
-                            public void onNext(byte[] bytes) {
-                                if (subscriber.isUnsubscribed()) {
-                                    // we do not push more commands into the socket --> no more onNext calls for us
-                                    return;
-                                }
-
-                                try {
-                                    DataResponse response = parser.parse(preProcess(bytes));
-
-                                    if (response != null) {
-                                        subscriber.onNext(response);
-                                    }
-                                } catch (AdapterSearchingException e) {
-                                    LOGGER.warn("Adapter still searching: " + e.getMessage());
-                                } catch (NoDataReceivedException e) {
-                                    LOGGER.warn("No data received: " + e.getMessage());
-                                    increaseFailureCount(latestCommand.getPid());
-                                } catch (InvalidCommandResponseException e) {
-                                    increaseFailureCount(PIDUtil.fromString(e.getCommand()));
-                                } catch (UnmatchedResponseException e) {
-                                    LOGGER.warn("Unmatched response: " + e.getMessage());
-                                }
-
-                                /**
-                                 * poll the next command and push it to the adapter
-                                 */
-                                try {
-                                    latestCommand = pollNextCommand();
-                                    LOGGER.debug("Sending command " + latestCommand != null ? latestCommand.getPid().toString() : "n/a");
-                                    commandExecutor.execute(latestCommand);
-                                } catch (AdapterFailedException | IOException e) {
-                                    subscriber.onError(e);
-                                    subscriber.unsubscribe();
-                                }
-
-                            }
-                        });
-                subscriber.add(obs);
 
             }
         });
