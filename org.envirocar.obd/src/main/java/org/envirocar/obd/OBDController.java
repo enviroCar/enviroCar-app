@@ -264,7 +264,6 @@ public class OBDController {
 
 			@Override
 			public void onNext(DataResponse dataResponse) {
-				logger.info("Received data onNext(): "+dataResponse.getPid() +"="+dataResponse.getValue());
 				pushToEventBus(dataResponse);
 			}
 		};
@@ -281,7 +280,6 @@ public class OBDController {
 
 	private void pushToEventBus(DataResponse dataResponse) {
 		eventBusWorker.schedule(() -> {
-            logger.debug("Pushing to EventBus: "+dataResponse.getPid() +"="+ dataResponse.getValue());
 			PropertyKeyEvent[] pkes = createEventsFromDataResponse(dataResponse);
 
 			for (PropertyKeyEvent pke : pkes) {
