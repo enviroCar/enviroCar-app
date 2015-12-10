@@ -186,43 +186,6 @@ public class OBDConnectionService extends BaseInjectorService {
         Car car = carHandler.getCar();
         this.consumptionAlgorithm = CarUtils.resolveConsumptionAlgorithm(car.getFuelType());
         this.mafAlgorithm = new CalculatedMAFWithStaticVolumetricEfficiency(car);
-
-        /**
-         * this is the first access to the measurement objects
-         * push it further
-         */
-        Long samplingRate = PreferencesHandler.getSamplingRate(getApplicationContext()) * 1000;
-        measurementProvider.measurements(samplingRate)
-                .subscribeOn(Schedulers.computation())
-                .observeOn(Schedulers.computation())
-                .subscribe(measurement -> {
-                    try {
-                        if (!measurement.hasProperty(Measurement.PropertyKey.MAF)) {
-                            try {
-                                measurement.setProperty(Measurement.PropertyKey.CALCULATED_MAF, mafAlgorithm.calculateMAF(measurement));
-                            } catch (NoMeasurementsException e) {
-                                LOG.warn(e.getMessage());
-                            }
-                        }
-                        double consumption = this.consumptionAlgorithm.calculateConsumption(measurement);
-                        double co2 = this.consumptionAlgorithm.calculateCO2FromConsumption(consumption);
-                        measurement.setProperty(Measurement.PropertyKey.CONSUMPTION, consumption);
-                        measurement.setProperty(Measurement.PropertyKey.CO2, co2);
-                    } catch (FuelConsumptionException e) {
-                        LOG.warn(e.getMessage(), e);
-                    } catch (UnsupportedFuelTypeException e) {
-                        LOG.warn(e.getMessage(), e);
-                    }
-
-                    bus.post(new NewMeasurementEvent(measurement));
-                    try {
-                        dbAdapter.insertNewMeasurement(measurement);
-                    } catch (TrackAlreadyFinishedException e) {
-                        LOG.warn(e.getMessage(), e);
-                    } catch (MeasurementSerializationException e) {
-                        LOG.warn(e.getMessage(), e);
-                    }
-                });
     }
 
     @Override
@@ -300,6 +263,7 @@ public class OBDConnectionService extends BaseInjectorService {
         bus.unregister(this);
         bus.unregister(mTrackDetailsProvider);
         bus.unregister(connectionRecognizer);
+        bus.unregister(measurementProvider);
         mTrackDetailsProvider.onOBDConnectionStopped();
     }
 
@@ -547,6 +511,7 @@ public class OBDConnectionService extends BaseInjectorService {
                 @Override
                 public void onConnectionVerified() {
                     setBluetoothServiceState(BluetoothServiceState.SERVICE_STARTED);
+                    subscribeForMeasurements();
                 }
 
                 @Override
@@ -580,6 +545,47 @@ public class OBDConnectionService extends BaseInjectorService {
         }
 
         doTextToSpeech("Connection established");
+    }
+
+    private void subscribeForMeasurements() {
+        /**
+         * this is the first access to the measurement objects
+         * push it further
+         */
+        Long samplingRate = PreferencesHandler.getSamplingRate(getApplicationContext()) * 1000;
+        subscriptions.add(measurementProvider.measurements(samplingRate)
+                .subscribeOn(Schedulers.computation())
+                .observeOn(Schedulers.computation())
+                .subscribe(measurement -> {
+                    try {
+                        if (!measurement.hasProperty(Measurement.PropertyKey.MAF)) {
+                            try {
+                                measurement.setProperty(Measurement.PropertyKey.CALCULATED_MAF, mafAlgorithm.calculateMAF(measurement));
+                            } catch (NoMeasurementsException e) {
+                                LOG.warn(e.getMessage());
+                            }
+                        }
+                        double consumption = this.consumptionAlgorithm.calculateConsumption(measurement);
+                        double co2 = this.consumptionAlgorithm.calculateCO2FromConsumption(consumption);
+                        measurement.setProperty(Measurement.PropertyKey.CONSUMPTION, consumption);
+                        measurement.setProperty(Measurement.PropertyKey.CO2, co2);
+                    } catch (FuelConsumptionException e) {
+                        LOG.warn(e.getMessage());
+                    } catch (UnsupportedFuelTypeException e) {
+                        LOG.warn(e.getMessage());
+                    }
+
+                    bus.post(new NewMeasurementEvent(measurement));
+
+                    try {
+                        dbAdapter.insertNewMeasurement(measurement);
+                    } catch (TrackAlreadyFinishedException e) {
+                        LOG.warn(e.getMessage(), e);
+                    } catch (MeasurementSerializationException e) {
+                        LOG.warn(e.getMessage(), e);
+                    }
+                })
+        );
     }
 
     public void deviceDisconnected() {
