@@ -60,7 +60,8 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
 
                         Measurement m = createMeasurement();
                         
-                        if (m != null && m.getLatitude() != null && m.getLongitude() != null) {
+                        if (m != null && m.getLatitude() != null && m.getLongitude() != null
+                                && m.hasProperty(Measurement.PropertyKey.SPEED)) {
                             subscriber.onNext(m);
                         }
                     }

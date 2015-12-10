@@ -176,9 +176,11 @@ public class TrackDetailsProvider {
      * @param measurement
      */
     private void updateAverageSpeed(Measurement measurement) {
-        mTotalSpeed += measurement.getProperty(Measurement.PropertyKey.SPEED);
-        mAvrgSpeed = (int) mTotalSpeed / mNumMeasurements;
-        mBus.post(provideAverageSpeed());
+        if (measurement.hasProperty(Measurement.PropertyKey.SPEED)){
+            mTotalSpeed += measurement.getProperty(Measurement.PropertyKey.SPEED);
+            mAvrgSpeed = (int) mTotalSpeed / mNumMeasurements;
+            mBus.post(provideAverageSpeed());
+        }
     }
 
 
