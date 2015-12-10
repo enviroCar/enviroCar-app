@@ -85,10 +85,10 @@ public interface DbAdapter {
 	 * @return the id of the track that has been inserted
 	 */
 	public long insertTrack(Track track, boolean remote);
-	
+
 	/**
 	 * Updates a Track in the database
-	 * 
+	 *
 	 * @param track
 	 *            the track to update
 	 * @return true or false if the query was successful
@@ -144,7 +144,6 @@ public interface DbAdapter {
 	 */
 	public Track getLastUsedTrack();
 
-
 	/**
 	 * @see #getLastUsedTrack()
 	 *
@@ -153,13 +152,13 @@ public interface DbAdapter {
 	 */
 	public Track getLastUsedTrack(boolean lazyMeasurements);
 	
-	/**
-	 * Delete track specified by id.
-	 * 
-	 * @param id
-	 *            id of the track to be deleted.
-	 */
-	public void deleteTrack(Track.TrackId id);
+//	/**
+//	 * Delete track specified by id.
+//	 *
+//	 * @param id
+//	 *            id of the track to be deleted.
+//	 */
+//	public void deleteTrack(Track.TrackId id);
 
 
 	public Track createNewTrack();
@@ -170,7 +169,7 @@ public interface DbAdapter {
 	/**
 	 * an implementation shall return all meaasurements
 	 * for the given track.
-	 * 
+	 *
 	 * @param track the track object
 	 * @return the list of Measurements
 	 */

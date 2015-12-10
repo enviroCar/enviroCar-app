@@ -160,6 +160,36 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     @Override
+    public boolean updateTrack(Track track) {
+        LOG.info(String.format("updateTrack(%s)", track.getTrackID()));
+        ContentValues trackValues = TrackTable.toContentValues(track);
+        int update = briteDatabase.update(TrackTable.TABLE_TRACK, trackValues,
+                TrackTable.KEY_TRACK_ID + "=" + track.getTrackID());
+        return update != -1;
+    }
+
+    @Override
+    public Observable<Boolean> updateTrackObservable(Track track) {
+        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+            @Override
+            public void call(Subscriber<? super Boolean> subscriber) {
+                subscriber.onStart();
+                subscriber.onNext(updateTrack(track));
+                subscriber.unsubscribe();
+            }
+        });
+    }
+
+    @Override
+    public boolean updateCarIdOfTracks(String currentId, String newId) {
+        ContentValues values = new ContentValues();
+        values.put(TrackTable.KEY_TRACK_CAR_ID, newId);
+        briteDatabase.update(TrackTable.TABLE_TRACK, values,
+                TrackTable.KEY_TRACK_CAR_ID + "=?", new String[]{currentId});
+        return true;
+    }
+
+    @Override
     public void deleteTrack(Track.TrackId trackId) {
         briteDatabase.delete(TrackTable.TABLE_TRACK,
                 TrackTable.KEY_TRACK_ID + "='" + trackId + "'");

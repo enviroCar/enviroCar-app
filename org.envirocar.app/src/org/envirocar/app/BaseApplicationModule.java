@@ -62,7 +62,7 @@ import org.envirocar.remote.CacheModule;
 import org.envirocar.remote.DAOProvider;
 import org.envirocar.remote.RemoteModule;
 import org.envirocar.remote.service.EnviroCarService;
-import org.envirocar.storage.EnviroCarDBModule;
+import org.envirocar.storage.DatabaseModule;
 
 import javax.inject.Singleton;
 
@@ -79,7 +79,7 @@ import dagger.Provides;
         includes = {
                 RemoteModule.class,
                 CacheModule.class,
-                EnviroCarDBModule.class
+                DatabaseModule.class
         },
         injects = {
                 TermsOfUseManager.class,

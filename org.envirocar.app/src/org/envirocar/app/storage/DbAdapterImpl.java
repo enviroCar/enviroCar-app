@@ -452,12 +452,12 @@ public class DbAdapterImpl implements DbAdapter {
         return getLastUsedTrack(false);
     }
 
-    @Override
-    public void deleteTrack(Track.TrackId id) {
-        logger.debug("deleteLocalTrack: " + id);
-        mDb.delete(TABLE_TRACK, KEY_TRACK_ID + "='" + id + "'", null);
-        removeMeasurementArtifacts(id.getId());
-    }
+//    @Override
+//    public void deleteTrack(Track.TrackId id) {
+//        logger.debug("deleteLocalTrack: " + id);
+//        mDb.delete(TABLE_TRACK, KEY_TRACK_ID + "='" + id + "'", null);
+//        removeMeasurementArtifacts(id.getId());
+//    }
 
     private ContentValues createDbEntry(Track track) {
         ContentValues values = new ContentValues();
@@ -553,7 +553,7 @@ public class DbAdapterImpl implements DbAdapter {
             try {
                 last.getLastMeasurement();
             } catch (NoMeasurementsException e) {
-                deleteTrack(last.getTrackID());
+//                deleteTrack(last.getTrackID());
             }
 
             last.setTrackStatus(Track.TrackStatus.FINISHED);

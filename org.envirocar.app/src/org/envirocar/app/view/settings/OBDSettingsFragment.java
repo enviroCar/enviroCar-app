@@ -44,7 +44,7 @@ import javax.inject.Inject;
 
 /**
  * TODO JavaDoc
- * 
+ *
  * @author dewall
  */
 public class OBDSettingsFragment extends PreferenceFragment {
