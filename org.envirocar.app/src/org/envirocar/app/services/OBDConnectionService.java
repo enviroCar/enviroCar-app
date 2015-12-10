@@ -114,14 +114,9 @@ public class OBDConnectionService extends BaseInjectorService {
     @Inject
     protected PowerManager.WakeLock mWakeLock;
     @Inject
-    protected OBDController mOBDController;
-
-    @Inject
     protected MeasurementProvider measurementProvider;
-
     @Inject
     protected CarPreferenceHandler carHandler;
-
     @Inject
     protected DbAdapter dbAdapter;
 
@@ -133,7 +128,7 @@ public class OBDConnectionService extends BaseInjectorService {
     private boolean mIsTTSPrefChecked;
 
     // Member fields required for the connection to the OBD device.
-    private OBDController mOBDCommandLooper;
+    private OBDController mOBDController;
     private OBDBluetoothConnection mOBDConnection;
 
     // Different subscriptions
@@ -199,13 +194,16 @@ public class OBDConnectionService extends BaseInjectorService {
                     try {
                         if (!measurement.hasProperty(Measurement.PropertyKey.MAF)) {
                             try {
-                                measurement.setProperty(Measurement.PropertyKey.CALCULATED_MAF, mafAlgorithm.calculateMAF(measurement));
+                                measurement.setProperty(Measurement.PropertyKey.CALCULATED_MAF,
+                                        mafAlgorithm.calculateMAF(measurement));
                             } catch (NoMeasurementsException e) {
                                 LOG.warn(e.getMessage());
                             }
                         }
-                        double consumption = this.consumptionAlgorithm.calculateConsumption(measurement);
-                        double co2 = this.consumptionAlgorithm.calculateCO2FromConsumption(consumption);
+                        double consumption = this.consumptionAlgorithm.calculateConsumption
+                                (measurement);
+                        double co2 = this.consumptionAlgorithm.calculateCO2FromConsumption
+                                (consumption);
                         measurement.setProperty(Measurement.PropertyKey.CONSUMPTION, consumption);
                         measurement.setProperty(Measurement.PropertyKey.CO2, co2);
                     } catch (FuelConsumptionException e) {
@@ -539,7 +537,7 @@ public class OBDConnectionService extends BaseInjectorService {
             OutputStream out = bluetoothSocket.getOutputStream();
 
 
-            this.mOBDCommandLooper = new OBDController(in, out, bluetoothSocket
+            this.mOBDController = new OBDController(in, out, bluetoothSocket
                     .getRemoteDeviceName(), new ConnectionListener() {
 
                 private int mReconnectCount = 0;
@@ -588,8 +586,8 @@ public class OBDConnectionService extends BaseInjectorService {
     }
 
     private void shutdownConnectionAndHandler() {
-        if (mOBDCommandLooper != null) {
-            mOBDCommandLooper.shutdown();
+        if (mOBDController != null) {
+            mOBDController.shutdown();
         }
 
         if (mOBDConnection != null) {

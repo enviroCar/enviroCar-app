@@ -27,13 +27,13 @@ import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
-import org.envirocar.app.TrackHandler;
 import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.TermsOfUseManager;
+import org.envirocar.app.handler.TrackHandler;
 import org.envirocar.app.handler.UploadManager;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.services.NotificationHandler;
@@ -43,30 +43,17 @@ import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.LazyLoadingStrategy;
 import org.envirocar.app.storage.LazyLoadingStrategyImpl;
-import org.envirocar.app.view.LogbookFragment;
 import org.envirocar.app.view.LoginActivity;
-import org.envirocar.app.view.RegisterFragment;
 import org.envirocar.app.view.carselection.CarSelectionActivity;
-import org.envirocar.app.view.dashboard.DashboardMapFragment;
-import org.envirocar.app.view.dashboard.DashboardTempomatFragment;
-import org.envirocar.app.view.dashboard.DashboardTrackDetailsFragment;
-import org.envirocar.app.view.dashboard.DashboardTrackMapFragment;
-import org.envirocar.app.view.dashboard.DashboardTrackSettingsFragment;
 import org.envirocar.app.view.logbook.LogbookActivity;
 import org.envirocar.app.view.logbook.LogbookAddFuelingFragment;
 import org.envirocar.app.view.obdselection.OBDSelectionActivity;
-import org.envirocar.app.view.obdselection.OBDSelectionFragment;
 import org.envirocar.app.view.preferences.BluetoothDiscoveryIntervalPreference;
 import org.envirocar.app.view.preferences.BluetoothPairingPreference;
 import org.envirocar.app.view.preferences.SelectBluetoothPreference;
 import org.envirocar.app.view.settings.NewSettingsActivity;
-import org.envirocar.app.view.settings.OBDSettingsFragment;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.view.trackdetails.TrackStatisticsActivity;
-import org.envirocar.app.view.tracklist.AbstractTrackListCardFragment;
-import org.envirocar.app.view.tracklist.TrackListLocalCardFragment;
-import org.envirocar.app.view.tracklist.TrackListPagerFragment;
-import org.envirocar.app.view.tracklist.TrackListRemoteCardFragment;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
@@ -97,8 +84,6 @@ import dagger.Provides;
         injects = {
                 TermsOfUseManager.class,
                 CarPreferenceHandler.class,
-                LogbookFragment.class,
-                RegisterFragment.class,
                 BluetoothPairingPreference.class,
                 BluetoothHandler.class,
                 SelectBluetoothPreference.class,
@@ -114,20 +99,9 @@ import dagger.Provides;
                 TrackDetailsActivity.class,
                 CarSelectionActivity.class,
                 OBDSelectionActivity.class,
-                DashboardTrackDetailsFragment.class,
-                DashboardTempomatFragment.class,
-                DashboardTrackSettingsFragment.class,
-                DashboardMapFragment.class,
-                OBDSelectionFragment.class,
-                DashboardTrackMapFragment.class,
                 TrackStatisticsActivity.class,
                 LoginActivity.class,
                 NewSettingsActivity.class,
-                OBDSettingsFragment.class,
-                TrackListPagerFragment.class,
-                AbstractTrackListCardFragment.class,
-                TrackListLocalCardFragment.class,
-                TrackListRemoteCardFragment.class,
                 TrackUploadService.class,
                 UploadManager.class,
                 LogbookActivity.class,

@@ -25,7 +25,7 @@ import android.view.View;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
-import org.envirocar.app.TrackHandler;
+import org.envirocar.app.handler.TrackHandler;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;

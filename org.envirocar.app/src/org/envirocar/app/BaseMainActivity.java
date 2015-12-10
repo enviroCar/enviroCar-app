@@ -92,7 +92,6 @@ import butterknife.InjectView;
 import de.keyboardsurfer.android.widget.crouton.Crouton;
 import de.keyboardsurfer.android.widget.crouton.Style;
 import rx.Scheduler;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -150,7 +149,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     private boolean paused;
     private ActionBarDrawerToggle mDrawerToggle;
-    private Subscription mPreferenceSubscription;
     private BluetoothServiceState mServiceState = BluetoothServiceState.SERVICE_STOPPED;
     private Fragment mCurrentFragment;
     private Fragment mStartupFragment;
@@ -315,11 +313,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
         this.unregisterReceiver(errorInformationReceiver);
 
         mTemporaryFileManager.shutdown();
-
-        // Unsubscribe all subscriptions.
-        if (mPreferenceSubscription != null) {
-            mPreferenceSubscription.unsubscribe();
-        }
 
         if (!subscriptions.isUnsubscribed()) {
             subscriptions.unsubscribe();
@@ -596,6 +589,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
             } else try {
                 if (event.mTrack.getLastMeasurement() == null) {
                     // Track has no measurements
+
                     Crouton.makeText(this, R.string.track_finished_no_measurements, Style.ALERT)
                             .show();
                 } else {

@@ -29,8 +29,19 @@ import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.view.LogbookFragment;
 import org.envirocar.app.view.RegisterFragment;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
+import org.envirocar.app.view.dashboard.DashboardMapFragment;
+import org.envirocar.app.view.dashboard.DashboardTempomatFragment;
+import org.envirocar.app.view.dashboard.DashboardTrackDetailsFragment;
+import org.envirocar.app.view.dashboard.DashboardTrackMapFragment;
+import org.envirocar.app.view.dashboard.DashboardTrackSettingsFragment;
 import org.envirocar.app.view.dashboard.RealDashboardFragment;
+import org.envirocar.app.view.obdselection.OBDSelectionFragment;
 import org.envirocar.app.view.preferences.Tempomat;
+import org.envirocar.app.view.settings.OBDSettingsFragment;
+import org.envirocar.app.view.tracklist.AbstractTrackListCardFragment;
+import org.envirocar.app.view.tracklist.TrackListLocalCardFragment;
+import org.envirocar.app.view.tracklist.TrackListPagerFragment;
+import org.envirocar.app.view.tracklist.TrackListRemoteCardFragment;
 import org.envirocar.core.injection.InjectionActivityScope;
 
 import javax.inject.Singleton;
@@ -53,7 +64,20 @@ import dagger.Provides;
                 StartStopButtonUtil.class,
                 RealDashboardFragment.class,
                 Tempomat.class,
-                DashboardMainFragment.class
+                DashboardMainFragment.class,
+                LogbookFragment.class,
+                RegisterFragment.class,
+                DashboardTrackDetailsFragment.class,
+                DashboardTempomatFragment.class,
+                DashboardTrackSettingsFragment.class,
+                DashboardMapFragment.class,
+                OBDSelectionFragment.class,
+                DashboardTrackMapFragment.class,
+                OBDSettingsFragment.class,
+                TrackListPagerFragment.class,
+                AbstractTrackListCardFragment.class,
+                TrackListLocalCardFragment.class,
+                TrackListRemoteCardFragment.class,
         },
         addsTo = InjectionApplicationModule.class,
         library = true,

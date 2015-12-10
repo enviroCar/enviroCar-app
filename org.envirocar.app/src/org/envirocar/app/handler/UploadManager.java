@@ -28,7 +28,6 @@ import com.google.common.base.Preconditions;
 
 import org.envirocar.app.services.NotificationHandler;
 import org.envirocar.app.R;
-import org.envirocar.app.TrackHandler;
 import org.envirocar.remote.DAOProvider;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.core.entity.Car;
