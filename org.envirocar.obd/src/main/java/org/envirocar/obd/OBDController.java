@@ -275,7 +275,7 @@ public class OBDController {
 		this.obdAdapter.observe()
 				.subscribeOn(Schedulers.io())
 				.observeOn(OBDSchedulers.scheduler())
-				.timeout(MAX_NODATA_TIME, TimeUnit.SECONDS)
+				.timeout(MAX_NODATA_TIME, TimeUnit.MILLISECONDS)
 				.subscribe(this.dataSubscription);
 	}
 
