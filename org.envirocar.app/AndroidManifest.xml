@@ -69,7 +69,7 @@
             android:name="org.envirocar.app.view.LoginActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="org.envirocar.app.view.settings.NewSettingsActivity"
+            android:name=".view.settings.SettingsActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.logbook.LogbookActivity"

@@ -28,6 +28,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -51,7 +52,6 @@ import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.UserHandler;
-import org.envirocar.app.injection.InjectionActivityModule;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.view.HelpActivity;
@@ -60,7 +60,7 @@ import org.envirocar.app.view.SendLogFileFragment;
 import org.envirocar.app.view.TroubleshootingFragment;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
 import org.envirocar.app.view.logbook.LogbookActivity;
-import org.envirocar.app.view.settings.NewSettingsActivity;
+import org.envirocar.app.view.settings.SettingsActivity;
 import org.envirocar.app.view.tracklist.TrackListPagerFragment;
 import org.envirocar.core.entity.Announcement;
 import org.envirocar.core.entity.User;
@@ -89,8 +89,6 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -308,8 +306,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        Crouton.cancelAllCroutons();
-
         this.unregisterReceiver(errorInformationReceiver);
 
         mTemporaryFileManager.shutdown();
@@ -482,7 +478,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 startActivity(intent);
                 return false;
             case R.id.menu_nav_drawer_settings_general:
-                Intent intent2 = new Intent(BaseMainActivity.this, NewSettingsActivity.class);
+                Intent intent2 = new Intent(BaseMainActivity.this, SettingsActivity.class);
                 startActivity(intent2);
                 return false;
             case R.id.menu_nav_drawer_settings_help:
@@ -574,7 +570,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     @Override
     public List<Object> getInjectionModules() {
-        return Arrays.<Object>asList(new InjectionActivityModule(this));
+        return Arrays.<Object>asList(new MainActivityModule(this));
     }
 
     @Subscribe
@@ -585,20 +581,16 @@ public class BaseMainActivity extends BaseInjectorActivity {
         mMainThreadWorker.schedule(() -> {
             if (event.mTrack == null) {
                 // Track is null and thus there was an error.
-                Crouton.makeText(this, R.string.track_finishing_failed, Style.ALERT).show();
+                showSnackbar(R.string.track_finishing_failed);
             } else try {
                 if (event.mTrack.getLastMeasurement() == null) {
                     // Track has no measurements
-
-                    Crouton.makeText(this, R.string.track_finished_no_measurements, Style.ALERT)
-                            .show();
+                    showSnackbar(R.string.track_finished_no_measurements);
                 } else {
                     LOGGER.info("last is not null.. " + event.mTrack.getLastMeasurement()
                             .toString());
                     // Track has no measurements
-                    Crouton.makeText(this,
-                            getString(R.string.track_finished).concat(event.mTrack.getName()),
-                            Style.INFO).show();
+                    showSnackbar(getString(R.string.track_finished).concat(event.mTrack.getName()));
                 }
             } catch (NoMeasurementsException e) {
                 LOGGER.warn(e.getMessage(), e);
@@ -694,6 +686,18 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         outState.putInt(TRACK_MODE, trackMode);
         outState.putSerializable(SEEN_ANNOUNCEMENTS, this.seenAnnouncements.toArray());
+    }
+
+    private void showSnackbar(int infoRes){
+        showSnackbar(getString(infoRes));
+    }
+
+    private void showSnackbar(String info){
+        mMainThreadWorker.schedule(() -> {
+            if (mDrawerLayout != null) {
+                Snackbar.make(mDrawerLayout, info, Snackbar.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void readSavedState(Bundle savedInstanceState) {

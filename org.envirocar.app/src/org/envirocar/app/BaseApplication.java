@@ -33,7 +33,6 @@ import com.google.common.base.Preconditions;
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.handler.PreferenceConstants;
-import org.envirocar.app.injection.InjectionApplicationModule;
 import org.envirocar.core.injection.InjectionModuleProvider;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.ACRACustomSender;
@@ -168,7 +167,7 @@ public class BaseApplication extends Application implements Injector, InjectionM
     @Override
     public List<Object> getInjectionModules() {
         return Arrays.<Object>asList(
-                new InjectionApplicationModule(this));
+                new BaseApplicationModule(this));
     }
 
     @Override
