@@ -43,6 +43,7 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.core.util.Util;
 import org.envirocar.core.utils.TrackUtils;
+import org.envirocar.storage.EnviroCarDB;
 
 import java.util.HashMap;
 import java.util.List;
@@ -77,6 +78,8 @@ public class UploadManager {
     protected Context mContext;
     @Inject
     protected DbAdapter mDBAdapter;
+    @Inject
+    protected EnviroCarDB mEnviroCarDB;
     @Inject
     protected NotificationHandler mNotificationHandler;
     @Inject
@@ -160,7 +163,6 @@ public class UploadManager {
                     }
                 }
 
-
                 subscriber.onCompleted();
             }
         });
@@ -191,7 +193,6 @@ public class UploadManager {
 				/*
                  * inject track metadata
 				 */
-
                 track.setMetadata(mDBAdapter.updateTrackMetadata(track.getTrackID(),
                         new TrackMetadata(Util.getVersionString(mContext),
                                 mUserManager.getUser().getTermsOfUseVersion())));
@@ -266,6 +267,7 @@ public class UploadManager {
 
         logger.info("Car id tmpTrack: " + track.getCar().getId());
 
+        mEnviroCarDB.updateTrack(track);
         mDBAdapter.updateTrack(track);
         mDBAdapter.updateCarIdOfTracks(tempId, car.getId());
 

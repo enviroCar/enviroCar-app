@@ -67,6 +67,12 @@ public interface EnviroCarDB {
 
     Observable<Void> insertTrackObservable(Track track);
 
+    boolean updateTrack(Track track);
+
+    Observable<Boolean> updateTrackObservable(Track track);
+
+    boolean updateCarIdOfTracks(String currentId, String newId);
+
     void deleteTrack(Track.TrackId trackId);
 
     void deleteTrack(Track track);
