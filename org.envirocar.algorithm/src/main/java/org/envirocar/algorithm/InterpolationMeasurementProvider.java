@@ -1,10 +1,14 @@
 package org.envirocar.algorithm;
 
+import android.location.Location;
+
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.MeasurementImpl;
+import org.envirocar.core.events.gps.GpsDOP;
+import org.envirocar.core.events.gps.GpsDOPEvent;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.PropertyKeyEvent;
@@ -243,8 +247,27 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
 
     @Subscribe
     public void newLocation(GpsLocationChangedEvent loc) {
-        newPosition(new Position(System.currentTimeMillis(),
-                loc.mLocation.getLatitude(), loc.mLocation.getLongitude()));
+        Location location = loc.mLocation;
+        long now = System.currentTimeMillis();
+
+        newPosition(new Position(now,
+                location.getLatitude(), location.getLongitude()));
+
+        if (location.hasAccuracy()) {
+            consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_ACCURACY, location.getAccuracy(), now));
+        }
+
+        if (location.hasAltitude()) {
+            consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_ALTITUDE, location.getAltitude(), now));
+        }
+
+        if (location.hasBearing()) {
+            consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_BEARING, location.getBearing(), now));
+        }
+
+        if (location.hasSpeed()) {
+            consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_SPEED, location.getSpeed(), now));
+        }
     }
 
     private void updateTimestamps(Timestamped dr) {
@@ -257,4 +280,23 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
             this.firstTimestampToBeConsidered = Math.min(this.firstTimestampToBeConsidered, dr.getTimestamp());
         }
     }
+
+    @Subscribe
+    public void receiveGpsDOP(GpsDOPEvent e) {
+        GpsDOP dop = e.mDOP;
+        long now = System.currentTimeMillis();
+        
+        if (dop.hasHdop()) {
+            consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_HDOP, dop.getHdop(), now));
+        }
+
+        if (dop.hasVdop()) {
+            consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_VDOP, dop.getVdop(), now));
+        }
+
+        if (dop.hasPdop()) {
+            consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_PDOP, dop.getPdop(), now));
+        }
+    }
+
 }
