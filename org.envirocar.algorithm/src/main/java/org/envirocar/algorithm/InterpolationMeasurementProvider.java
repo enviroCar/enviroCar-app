@@ -10,7 +10,6 @@ import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.core.events.gps.GpsDOP;
 import org.envirocar.core.events.gps.GpsDOPEvent;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
-import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.PropertyKeyEvent;
 import org.envirocar.obd.events.Timestamped;
 
@@ -25,8 +24,6 @@ import rx.Observable;
 import rx.Subscriber;
 
 public class InterpolationMeasurementProvider extends AbstractMeasurementProvider {
-
-    private static final Logger logger = Logger.getLogger(InterpolationMeasurementProvider.class);
 
     private final Bus eventBus;
     private Map<Measurement.PropertyKey, List<PropertyKeyEvent>> bufferedResponses = new HashMap<>();
@@ -129,9 +126,9 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
 
     private void appendToMeasurement(Measurement.PropertyKey pk, List<PropertyKeyEvent> dataResponses, Measurement m) {
         if (pk == null) {
-            logger.warn("PropertyKey was null!");
             return;
         }
+
         switch (pk) {
             case FUEL_SYSTEM_STATUS_CODE:
                 m.setProperty(pk, first(dataResponses));
@@ -225,7 +222,6 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
         Measurement.PropertyKey pk = pke.getPropertyKey();
 
         if (pk == null) {
-            logger.warn("PropertyKey is null!");
             return;
         }
 
@@ -285,7 +281,7 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
     public void receiveGpsDOP(GpsDOPEvent e) {
         GpsDOP dop = e.mDOP;
         long now = System.currentTimeMillis();
-        
+
         if (dop.hasHdop()) {
             consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_HDOP, dop.getHdop(), now));
         }
