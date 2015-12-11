@@ -44,6 +44,7 @@ import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.remote.DAOProvider;
@@ -232,6 +233,16 @@ public class TrackHandler {
 
     }
 
+
+    public Observable<TrackMetadata> updateTrackMetadata(
+            Track.TrackId trackId, TrackMetadata trackMetadata){
+        return mEnvirocarDB.getTrack(trackId, true)
+                .map(track -> {
+                    TrackMetadata result = track.updateMetadata(trackMetadata);
+                    mEnvirocarDB.updateTrack(track);
+                    return result;
+                });
+    }
 
     private boolean assertIsUserLoggedIn() throws NotLoggedInException {
         if (mUserManager.isLoggedIn()) {

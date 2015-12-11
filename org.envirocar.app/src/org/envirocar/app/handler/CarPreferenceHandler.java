@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -26,7 +26,6 @@ import android.widget.Toast;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.remote.DAOProvider;
 import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
@@ -34,9 +33,9 @@ import org.envirocar.core.exception.DataCreationFailureException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.CarUtils;
+import org.envirocar.remote.DAOProvider;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,21 +46,18 @@ import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * The manager for cars.
  */
+@Singleton
 public class CarPreferenceHandler {
     private static final Logger LOG = Logger.getLogger(CarPreferenceHandler.class);
 
-    @Inject
-    @InjectApplicationScope
     protected Context mContext;
-    @Inject
     protected Bus mBus;
-    @Inject
     protected UserHandler mUserManager;
-    @Inject
     protected DAOProvider mDAOProvider;
 
     private Car mSelectedCar;
@@ -73,9 +69,13 @@ public class CarPreferenceHandler {
      *
      * @param context the context of the activity or application.
      */
-    public CarPreferenceHandler(Context context) {
-        // Inject all annotated fields.
-        ((Injector) context).injectObjects(this);
+    @Inject
+    public CarPreferenceHandler(@InjectApplicationScope Context context, Bus bus, UserHandler
+            userManager, DAOProvider daoProvider) {
+        this.mContext = context;
+        this.mBus = bus;
+        this.mUserManager = userManager;
+        this.mDAOProvider = daoProvider;
 
         // get the default PreferenceManager
         final SharedPreferences preferences = PreferenceManager
@@ -282,7 +282,7 @@ public class CarPreferenceHandler {
 
         // Recreate serialized car strings.
         mSerializedCarStrings.clear();
-        for(Car car : mDeserialzedCars){
+        for (Car car : mDeserialzedCars) {
             mSerializedCarStrings.add(CarUtils.serializeCar(car));
         }
 

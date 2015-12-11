@@ -260,17 +260,6 @@ public class BaseApplicationModule {
      */
     @Provides
     @Singleton
-    CarPreferenceHandler provideCarManager() {
-        return new CarPreferenceHandler(mAppContext);
-    }
-
-    /**
-     * Provides the CarManager of the application
-     *
-     * @return the CarManager of the application.
-     */
-    @Provides
-    @Singleton
     NotificationHandler provideNotificationHandler() {
         return new NotificationHandler(mAppContext);
     }
