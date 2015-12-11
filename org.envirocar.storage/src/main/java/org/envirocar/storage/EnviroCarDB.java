@@ -22,6 +22,7 @@ import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.core.exception.TrackSerializationException;
+import org.envirocar.core.util.TrackMetadata;
 
 import java.util.List;
 
@@ -93,5 +94,11 @@ public interface EnviroCarDB {
 
     Observable<Track> fetchTrack(Observable<Track> track, final boolean lazy);
 
+    Observable<Track> getActiveTrackObservable();
 
+    void updateTrackMetadata(final Track track, final TrackMetadata trackMetadata) throws
+            TrackSerializationException;
+
+    Observable<TrackMetadata> updateTrackMetadataObservable(final Track track, final TrackMetadata trackMetadata) throws
+            TrackSerializationException;
 }

@@ -40,6 +40,7 @@ import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.handler.TrackHandler;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
@@ -57,6 +58,7 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.AbstractCalculatedMAFAlgorithm;
 import org.envirocar.core.trackprocessing.CalculatedMAFWithStaticVolumetricEfficiency;
 import org.envirocar.core.trackprocessing.ConsumptionAlgorithm;
+import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.core.utils.BroadcastUtils;
 import org.envirocar.core.utils.CarUtils;
 import org.envirocar.obd.ConnectionListener;
@@ -67,6 +69,7 @@ import org.envirocar.obd.bluetooth.NativeBluetoothSocket;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
+import org.envirocar.storage.EnviroCarDB;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,6 +80,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
@@ -119,6 +123,10 @@ public class OBDConnectionService extends BaseInjectorService {
     protected CarPreferenceHandler carHandler;
     @Inject
     protected DbAdapter dbAdapter;
+    @Inject
+    protected EnviroCarDB enviroCarDB;
+    @Inject
+    protected TrackHandler trackHandler;
 
     private AbstractCalculatedMAFAlgorithm mafAlgorithm;
 
@@ -497,16 +505,16 @@ public class OBDConnectionService extends BaseInjectorService {
             InputStream in = bluetoothSocket.getInputStream();
             OutputStream out = bluetoothSocket.getOutputStream();
 
+            String deviceName = bluetoothSocket.getRemoteDeviceName();
 
-            this.mOBDController = new OBDController(in, out, bluetoothSocket
-                    .getRemoteDeviceName(), new ConnectionListener() {
+            this.mOBDController = new OBDController(in, out, deviceName, new ConnectionListener() {
 
                 private int mReconnectCount = 0;
 
                 @Override
                 public void onConnectionVerified() {
                     setBluetoothServiceState(BluetoothServiceState.SERVICE_STARTED);
-                    subscribeForMeasurements();
+                    subscribeForMeasurements(deviceName);
                 }
 
                 @Override
@@ -542,7 +550,8 @@ public class OBDConnectionService extends BaseInjectorService {
         doTextToSpeech("Connection established");
     }
 
-    private void subscribeForMeasurements() {
+    private void subscribeForMeasurements(String deviceName) {
+        AtomicBoolean firstMeasurement = new AtomicBoolean(true);
         /**
          * this is the first access to the measurement objects
          * push it further
@@ -574,6 +583,17 @@ public class OBDConnectionService extends BaseInjectorService {
 
                     try {
                         dbAdapter.insertNewMeasurement(measurement);
+
+                        if (firstMeasurement.getAndSet(false)) {
+                            /**
+                             * we are connected, update the track metadata with the device name
+                             */
+                            enviroCarDB.getActiveTrackObservable()
+                                    .flatMap(track -> trackHandler.updateTrackMetadata(track.getTrackID(),
+                                            new TrackMetadata().add(TrackMetadata.OBD_DEVICE, deviceName)))
+                                    .subscribe(trackMetadata -> LOG.info("TrackMetadata updated: " + trackMetadata),
+                                            throwable -> LOG.warn(throwable.getMessage(), throwable));
+                        }
                     } catch (TrackAlreadyFinishedException e) {
                         LOG.warn(e.getMessage(), e);
                     } catch (MeasurementSerializationException e) {

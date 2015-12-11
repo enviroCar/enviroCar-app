@@ -288,11 +288,11 @@ public class EnviroCarDBImpl implements EnviroCarDB {
         }
     }
 
-    public Observable<Void> updateTrackMetadataObservable(final Track track, final TrackMetadata
+    public Observable<TrackMetadata> updateTrackMetadataObservable(final Track track, final TrackMetadata
             trackMetadata) {
-        return Observable.create(new Observable.OnSubscribe<Void>() {
+        return Observable.create(new Observable.OnSubscribe<TrackMetadata>() {
             @Override
-            public void call(Subscriber<? super Void> subscriber) {
+            public void call(Subscriber<? super TrackMetadata> subscriber) {
                 try {
                     updateTrackMetadata(track, trackMetadata);
                 } catch (TrackSerializationException e) {
@@ -330,6 +330,16 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                         return lazy ? fetchStartTime(track) : fetchMeasurements(track);
                     }
                 });
+    }
+
+    @Override
+    public Observable<Track> getActiveTrackObservable() {
+        return fetchTrackObservable(
+                "SELECT * FROM " + TrackTable.TABLE_TRACK +
+                        " WHERE " + TrackTable.KEY_TRACK_STATE + "='" +
+                        Track.TrackStatus.ONGOING + "'" +
+                        " ORDER BY " + TrackTable.KEY_TRACK_ID + " DESC" +
+                        " LIMIT 1", true);
     }
 
     private void deleteMeasurementsOfTrack(Track.TrackId trackId) {
@@ -433,9 +443,11 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                         " WHERE " + MeasurementTable.KEY_TRACK +
                         "=\"" + track.getTrackID() + "\"" +
                         " ORDER BY " + MeasurementTable.KEY_TIME + " ASC LIMIT 1");
-        track.setStartTime(
-                startTime.getLong(
-                        startTime.getColumnIndex(MeasurementTable.KEY_TIME)));
+        if (startTime.moveToFirst()) {
+            track.setStartTime(
+                    startTime.getLong(
+                            startTime.getColumnIndex(MeasurementTable.KEY_TIME)));
+        }
 
         Cursor endTime = briteDatabase.query(
                 "SELECT " + MeasurementTable.KEY_TIME +
@@ -443,9 +455,12 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                         " WHERE " + MeasurementTable.KEY_TRACK +
                         "=\"" + track.getTrackID() + "\"" +
                         " ORDER BY " + MeasurementTable.KEY_TIME + " DESC LIMIT 1");
-        track.setEndTime(
-                endTime.getLong(
-                        startTime.getColumnIndex(MeasurementTable.KEY_TIME)));
+
+        if (endTime.moveToFirst()) {
+            track.setEndTime(
+                    endTime.getLong(
+                            startTime.getColumnIndex(MeasurementTable.KEY_TIME)));
+        }
 
         return track;
     }

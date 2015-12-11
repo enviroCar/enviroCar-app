@@ -56,12 +56,12 @@ public class TrackEncoderTest {
 //	public void testMetadataEncoding() throws TrackAlreadyFinishedException, JSONException, TrackWithoutMeasurementsException {
 //		Track t = createTrack();
 //		TrackMetadata m1 = new TrackMetadata();
-//		m1.putEntry(TrackMetadata.APP_VERSION, "v1");
-//		m1.putEntry(TrackMetadata.OBD_DEVICE, "OBDIII");
+//		m1.add(TrackMetadata.APP_VERSION, "v1");
+//		m1.add(TrackMetadata.OBD_DEVICE, "OBDIII");
 //		t.setMetadata(m1);
 //
 //		TrackMetadata m2 = new TrackMetadata();
-//		m2.putEntry(TrackMetadata.TOU_VERSION, "2020-10-01");
+//		m2.add(TrackMetadata.TOU_VERSION, "2020-10-01");
 //
 //		t.updateMetadata(m2);
 //

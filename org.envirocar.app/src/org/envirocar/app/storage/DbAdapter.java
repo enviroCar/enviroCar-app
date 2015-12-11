@@ -206,7 +206,4 @@ public interface DbAdapter {
 	public void loadMeasurements(Track t);
 
 	public void setConnectedOBDDevice(TrackMetadata obdDeviceMetadata);
-
-
-	
 }
