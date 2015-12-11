@@ -158,7 +158,20 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        /**
+         * try-catch: very dirty hack for broken fragmentmanager impl on some (one?) device
+         */
+        try {
+            super.onCreate(savedInstanceState);
+        }
+        catch (IllegalStateException e) {
+            LOGGER.warn("Trying to reconstruct fragment state. Got Exception,e");
+            if (e.getMessage().contains("No instantiated fragment for index #")) {
+                TrackListPagerFragment pagerFragment = new TrackListPagerFragment();
+                MenuItem menuItem = mNavigationView.getMenu().findItem(R.id.menu_nav_drawer_tracklist_new);
+                transitToFragment(menuItem, pagerFragment);
+            }
+        }
 
         // Set the content view of the application
         setContentView(R.layout.main_layout);
@@ -520,6 +533,13 @@ public class BaseMainActivity extends BaseInjectorActivity {
         if (fragment == null || isFragmentVisible(fragment.getClass().getSimpleName()))
             return false;
 
+        //now do the transition
+        transitToFragment(menuItem, fragment);
+
+        return true;
+    }
+
+    private void transitToFragment(MenuItem menuItem, Fragment fragment) {
         // Insert the fragment by replacing the existent fragment in the content frame.
         replaceFragment(fragment,
                 selectedMenuItemID > menuItem.getItemId() ?
@@ -534,8 +554,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         /// update the title of the toolbar.
         setTitle(menuItem.getTitle());
-
-        return true;
     }
 
     private void shutdownEnviroCar() {
