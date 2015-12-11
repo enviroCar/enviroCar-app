@@ -43,7 +43,7 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
-import org.envirocar.app.TrackHandler;
+import org.envirocar.app.handler.TrackHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.views.TypefaceEC;
@@ -316,7 +316,7 @@ public class LoginActivity extends BaseInjectorActivity {
 
                             // Then ask for terms of use acceptance.
                             mBackgroundWorker.schedule(() -> mTermsOfUseManager
-                                    .askForTermsOfUseAcceptance(user, LoginActivity.this, null));
+                                    .askForTermsOfUseAcceptance(user, null));
                         });
                     }
 
@@ -431,8 +431,7 @@ public class LoginActivity extends BaseInjectorActivity {
                     mMainThreadWorker.schedule(() -> {
                         // Set the new user as the logged in user.
                         mUserManager.setUser(newUser);
-                        mTermsOfUseManager.askForTermsOfUseAcceptance(
-                                newUser, LoginActivity.this, null);
+                        mTermsOfUseManager.askForTermsOfUseAcceptance(newUser, null);
 
                         // Update the view, i.e., hide the registration card and show the profile
                         // page.

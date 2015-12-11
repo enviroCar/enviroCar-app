@@ -25,7 +25,7 @@ import android.preference.PreferenceManager;
 
 import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
-import org.envirocar.app.TrackHandler;
+import org.envirocar.app.handler.TrackHandler;
 import org.envirocar.app.activity.DialogUtil.DialogCallback;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.obd.service.BluetoothServiceState;

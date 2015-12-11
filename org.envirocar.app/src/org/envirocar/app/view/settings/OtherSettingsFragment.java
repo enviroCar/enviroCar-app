@@ -32,6 +32,8 @@ import org.envirocar.app.R;
 import org.envirocar.core.util.Util;
 
 /**
+ * TODO JavaDoc
+ *
  * @author dewall
  */
 public class OtherSettingsFragment extends PreferenceFragment {

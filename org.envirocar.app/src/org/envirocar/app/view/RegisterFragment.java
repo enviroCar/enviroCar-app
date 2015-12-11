@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -25,6 +25,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -50,9 +51,6 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.remote.DAOProvider;
 
 import javax.inject.Inject;
-
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
 
 /**
  * Activity which displays a register screen to the user, offering registration
@@ -192,7 +190,8 @@ public class RegisterFragment extends BaseInjectorFragment {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if (!mEmail.matches("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")) {
+        } else if (!mEmail.matches("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\" +
+                ".[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")) {
             mEmailView.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
@@ -220,7 +219,7 @@ public class RegisterFragment extends BaseInjectorFragment {
         if (cancel) {
             // There was an error; don't attempt register and focus the first
             // form field with an error.
-                    focusView.requestFocus();
+            focusView.requestFocus();
         } else {
             //hide the keyboard
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
@@ -292,13 +291,16 @@ public class RegisterFragment extends BaseInjectorFragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Crouton.makeText(getActivity(), getResources().getString(R.string.welcome_message) + mUsername, Style.CONFIRM).show();
+                        Snackbar.make(getView(), getResources().getString(R.string
+                                .welcome_message) + mUsername, Snackbar.LENGTH_LONG).show();
+
                         User user = new UserImpl(mUsername, mPassword);
                         mUserManager.setUser(user);
 
-                        mTermsOfUseManager.askForTermsOfUseAcceptance(user, getActivity(), null);
+                        mTermsOfUseManager.askForTermsOfUseAcceptance(user, null);
 
-                        getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                        getActivity().getSupportFragmentManager().popBackStack(null,
+                                FragmentManager.POP_BACK_STACK_INCLUSIVE);
                         getActivity().getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.content_frame, mDashboardFragment)
                                 .commit();
@@ -345,7 +347,8 @@ public class RegisterFragment extends BaseInjectorFragment {
     /*
      * Use this method to sign up a new user
      */
-    public boolean createUser(String user, String token, String mail) throws ResourceConflictException, DataUpdateFailureException {
+    public boolean createUser(String user, String token, String mail) throws
+            ResourceConflictException, DataUpdateFailureException {
         User newUser = new UserImpl(user, token);
         newUser.setMail(mail);
         mDAOProvider.getUserDAO().createUser(newUser);

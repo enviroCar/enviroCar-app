@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -26,10 +26,8 @@ import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 
-import org.envirocar.app.services.NotificationHandler;
 import org.envirocar.app.R;
-import org.envirocar.app.TrackHandler;
-import org.envirocar.remote.DAOProvider;
+import org.envirocar.app.services.NotificationHandler;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Track;
@@ -44,6 +42,8 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.core.util.Util;
 import org.envirocar.core.utils.TrackUtils;
+import org.envirocar.remote.DAOProvider;
+import org.envirocar.storage.EnviroCarDB;
 
 import java.util.HashMap;
 import java.util.List;
@@ -79,6 +79,8 @@ public class UploadManager {
     @Inject
     protected DbAdapter mDBAdapter;
     @Inject
+    protected EnviroCarDB mEnviroCarDB;
+    @Inject
     protected NotificationHandler mNotificationHandler;
     @Inject
     protected CarPreferenceHandler mCarManager;
@@ -86,6 +88,8 @@ public class UploadManager {
     protected DAOProvider mDAOProvider;
     @Inject
     protected UserHandler mUserManager;
+    @Inject
+    protected TrackHandler mTrackHandler;
 
     private final Scheduler.Worker mainthreadWorker = AndroidSchedulers.mainThread().createWorker();
 
@@ -103,26 +107,27 @@ public class UploadManager {
         return prefs.getBoolean(PreferenceConstants.OBFUSCATE_POSITION, false);
     }
 
-    /**
-     * This methods uploads all local tracks to the server
-     */
-    public void uploadAllTracks(TrackHandler.TrackUploadCallback callback) {
-        for (Track track : mDBAdapter.getAllLocalTracks()) {
-            uploadSingleTrack(track, callback);
-        }
+    private void updateTrackMetadata(Track track) {
+        TrackMetadata metadata = new TrackMetadata(Util.getVersionString(mContext),
+                mUserManager.getUser().getTermsOfUseVersion());
+        metadata = mTrackHandler
+                .updateTrackMetadata(track.getTrackID(), metadata)
+                .toBlocking()
+                .first();
+        track.setMetadata(metadata);
     }
 
     public Observable<Track> uploadTracks(final List<Track> tracks) {
         Preconditions.checkNotNull(tracks, "Input tracks cannot be null");
+
         return Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
             public void call(Subscriber<? super Track> subscriber) {
                 mNotificationHandler.createNotification("start");
 
                 for (Track track : tracks) {
-                    track.setMetadata(mDBAdapter.updateTrackMetadata(track.getTrackID(),
-                            new TrackMetadata(Util.getVersionString(mContext),
-                                    mUserManager.getUser().getTermsOfUseVersion())));
+                    // First, update the metadata of the track.
+                    updateTrackMetadata(track);
 
                     try {
                         // assert the car of the track for validity.
@@ -130,7 +135,8 @@ public class UploadManager {
 
                         String result = null;
                         if (isObfuscationEnabled()) {
-                            logger.info("Obfuscation enabled! Calling TrackUtils.getObfuscatedTrack()");
+                            logger.info("Obfuscation enabled! Calling TrackUtils" +
+                                    ".getObfuscatedTrack()");
                             Track obfuscatedTrack = TrackUtils.getObfuscatedTrack(track);
                             if (obfuscatedTrack.getMeasurements().size() == 0) {
                                 throw new NoMeasurementsException("Track has no measurements " +
@@ -170,7 +176,6 @@ public class UploadManager {
                     }
                 }
 
-
                 subscriber.onCompleted();
             }
         });
@@ -197,14 +202,8 @@ public class UploadManager {
                 callback.onUploadStarted(track);
 //                mNotificationHandler.createNotification("start");
 
-
-				/*
-                 * inject track metadata
-				 */
-
-                track.setMetadata(mDBAdapter.updateTrackMetadata(track.getTrackID(),
-                        new TrackMetadata(Util.getVersionString(mContext),
-                                mUserManager.getUser().getTermsOfUseVersion())));
+                // inject track metadata
+                updateTrackMetadata(track);
 
                 try {
                     if (hasTemporaryCar(track)) {
@@ -276,6 +275,7 @@ public class UploadManager {
 
         logger.info("Car id tmpTrack: " + track.getCar().getId());
 
+//        mEnviroCarDB.updateTrack(track);
         mDBAdapter.updateTrack(track);
         mDBAdapter.updateCarIdOfTracks(tempId, car.getId());
 

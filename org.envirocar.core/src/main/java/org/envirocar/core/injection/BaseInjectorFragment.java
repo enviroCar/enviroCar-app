@@ -97,7 +97,6 @@ public abstract class BaseInjectorFragment extends Fragment implements Injector,
 
             Preconditions.checkState(mBus != null, "Bus has to be injected before "
                     + "registering the providers and subscribers.");
-
         }
 
         if(!mIsRegistered){

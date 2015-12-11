@@ -25,6 +25,7 @@ import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.CarUtils;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ import java.util.List;
 public class TrackStatisticsProcessor {
     private static final Logger LOG = Logger.getLogger(TrackStatisticsProcessor.class);
 
-    protected AbstractConsumptionAlgorithm consumptionAlgorithm;
+    protected ConsumptionAlgorithm consumptionAlgorithm;
 
     /**
      * Constructor.
@@ -44,7 +45,7 @@ public class TrackStatisticsProcessor {
      * @param fuelType the fuel type of the corresponding car.
      */
     public TrackStatisticsProcessor(Car.FuelType fuelType) {
-        consumptionAlgorithm = new BasicConsumptionAlgorithm(fuelType);
+        this.consumptionAlgorithm = CarUtils.resolveConsumptionAlgorithm(fuelType);
     }
 
     public double computeDistanceOfTrack(List<Measurement> measurements) {

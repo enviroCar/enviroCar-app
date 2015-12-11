@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +43,7 @@ import org.envirocar.app.activity.StartStopButtonUtil;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.PreferenceConstants;
-import org.envirocar.app.view.settings.NewSettingsActivity;
+import org.envirocar.app.view.settings.SettingsActivity;
 import org.envirocar.app.views.LayeredImageRotateView;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.core.entity.Car;
@@ -64,7 +65,6 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import de.keyboardsurfer.android.widget.crouton.Crouton;
 import rx.Scheduler;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -158,7 +158,7 @@ public class RealDashboardFragment extends BaseInjectorFragment {
 //                .getDefaultSharedPreferences(getActivity()))
 //                .subscribeOn(Schedulers.computation())
 //                .observeOn(AndroidSchedulers.mainThread())
-//                .filter(prefKey -> PreferenceConstants.PREFERENCE_TAG_CAR.equals(prefKey) ||
+//                .preProcess(prefKey -> PreferenceConstants.PREFERENCE_TAG_CAR.equals(prefKey) ||
 //                        PreferenceConstants.CAR_HASH_CODE.equals(prefKey) ||
 //                        PreferenceConstants.PREF_BLUETOOTH_LIST.equals(prefKey))
 //                .subscribe(prefKey -> {
@@ -182,8 +182,8 @@ public class RealDashboardFragment extends BaseInjectorFragment {
 
         Car car = mCarManager.getCar();
         if (car != null && car.getFuelType() == Car.FuelType.DIESEL) {
-            Crouton.makeText(getActivity(), R.string.diesel_not_yet_supported,
-                    de.keyboardsurfer.android.widget.crouton.Style.ALERT).show();
+            Snackbar.make(getView(), R.string.diesel_not_yet_supported, Snackbar.LENGTH_LONG)
+                    .show();
         }
 
         mUseImperialUnits = PreferenceManager.getDefaultSharedPreferences(getActivity())
@@ -289,7 +289,7 @@ public class RealDashboardFragment extends BaseInjectorFragment {
     public void onClickDashboardStartStop() {
         if (mBluetoothHandler.isBluetoothEnabled()) {
             if (mCarManager.getCar() == null) {
-                Intent settingsIntent = new Intent(getActivity(), NewSettingsActivity.class);
+                Intent settingsIntent = new Intent(getActivity(), SettingsActivity.class);
                 startActivity(settingsIntent);
             } else {
                     /*
@@ -365,7 +365,7 @@ public class RealDashboardFragment extends BaseInjectorFragment {
      * Updates the drawbale of the GpsFix ImageView depending on the current GPSFix.
      */
     private void updateGpsStatus() {
-        if(mGpsFixView == null && mGpsFix == null){
+        if (mGpsFixView == null && mGpsFix == null) {
             return;
         }
 

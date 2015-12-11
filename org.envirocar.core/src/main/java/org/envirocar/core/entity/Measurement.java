@@ -187,11 +187,11 @@ public interface Measurement extends BaseEntity<Measurement> {
 
     void setTrackId(Track.TrackId trackId);
 
-    double getLatitude();
+    Double getLatitude();
 
     void setLatitude(double latitude);
 
-    double getLongitude();
+    Double getLongitude();
 
     void setLongitude(double longitude);
 

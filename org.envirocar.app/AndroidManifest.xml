@@ -3,8 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.envirocar.app"
     android:installLocation="internalOnly"
-    android:versionCode="25"
-    android:versionName="0.20.1">
+    android:versionCode="26"
+    android:versionName="0.20.2">
 
     <uses-sdk
         android:minSdkVersion="16"
@@ -69,7 +69,7 @@
             android:name="org.envirocar.app.view.LoginActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="org.envirocar.app.view.settings.NewSettingsActivity"
+            android:name=".view.settings.SettingsActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".view.logbook.LogbookActivity"

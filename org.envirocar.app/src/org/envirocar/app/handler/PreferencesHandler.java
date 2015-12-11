@@ -91,4 +91,15 @@ public class PreferencesHandler implements PreferenceConstants {
     private static RxSharedPreferences getRxSharedPreferences(Context context) {
         return RxSharedPreferences.create(getSharedPreferences(context));
     }
+
+    public static Observable<Long> getRxSharedSamplingRate(Context context) {
+        return getRxSharedPreferences(context)
+                .getString(SAMPLING_RATE, "5")
+                .asObservable().map(s -> Long.parseLong(s));
+    }
+
+    public static Long getSamplingRate(Context context) {
+        return Long.parseLong(getSharedPreferences(context)
+                .getString(SAMPLING_RATE, "5"));
+    }
 }

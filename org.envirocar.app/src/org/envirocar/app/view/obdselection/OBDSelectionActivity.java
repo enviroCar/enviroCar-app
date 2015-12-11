@@ -36,6 +36,8 @@ import org.envirocar.core.logging.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -154,5 +156,10 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public List<Object> getInjectionModules() {
+        return Arrays.asList(new OBDSelectionModule());
     }
 }

@@ -1,34 +1,33 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.app.handler;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Bus;
 
 import org.envirocar.app.R;
-import org.envirocar.app.activity.DialogUtil;
 import org.envirocar.app.activity.DialogUtil.PositiveNegativeCallback;
 import org.envirocar.app.exception.ServerException;
-import org.envirocar.remote.DAOProvider;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.DataRetrievalFailureException;
@@ -38,13 +37,12 @@ import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.remote.DAOProvider;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
 import rx.exceptions.OnErrorThrowable;
 import rx.functions.Func1;
 
@@ -85,11 +83,9 @@ public class TermsOfUseManager {
      * feedback, update the User.
      *
      * @param user
-     * @param activity
      * @param callback
      */
-    public void askForTermsOfUseAcceptance(final User user, final Activity activity,
-                                           final PositiveNegativeCallback callback) {
+    public void askForTermsOfUseAcceptance(final User user, final PositiveNegativeCallback callback) {
         boolean verified = false;
         try {
             verified = verifyTermsUseOfVersion(user.getTermsOfUseVersion());
@@ -107,30 +103,28 @@ public class TermsOfUseManager {
                 return;
             }
 
-            DialogUtil.createTermsOfUseDialog(current,
-                    user.getTermsOfUseVersion() == null, new DialogUtil.PositiveNegativeCallback() {
-
-                        @Override
-                        public void negative() {
-                            LOGGER.info("User did not accept the ToU.");
-                            Crouton.makeText(activity, activity.getString(R.string
-                                    .terms_of_use_cant_continue), Style.ALERT).show();
-                            if (callback != null) {
-                                callback.negative();
-                            }
+            new MaterialDialog.Builder(mContext)
+                    .title(R.string.terms_of_use_title)
+                    .content((user.getTermsOfUseVersion() == null) ?
+                            R.string.terms_of_use_sorry :
+                            R.string.terms_of_use_info)
+                    .onPositive((materialDialog, dialogAction) -> {
+                        userAcceptedTermsOfUse(user, current.getIssuedDate());
+                        Toast.makeText(mContext, R.string.terms_of_use_updating_server, Toast
+                                .LENGTH_LONG).show();
+                        if (callback != null) {
+                            callback.positive();
                         }
-
-                        @Override
-                        public void positive() {
-                            userAcceptedTermsOfUse(user, current.getIssuedDate());
-                            Crouton.makeText(activity, activity.getString(R.string
-                                    .terms_of_use_updating_server), Style.INFO).show();
-                            if (callback != null) {
-                                callback.positive();
-                            }
+                    })
+                    .onNegative((materialDialog, dialogAction) -> {
+                        LOGGER.info("User did not accept the ToU.");
+                        Toast.makeText(mContext, R.string.terms_of_use_cant_continue, Toast
+                                .LENGTH_LONG).show();
+                        if (callback != null) {
+                            callback.negative();
                         }
-
-                    }, activity);
+                    })
+                    .show();
         } else {
             LOGGER.info("User has accpeted ToU in current version.");
         }

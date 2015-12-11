@@ -53,6 +53,7 @@ public class Logger {
 			handlers.add(getLocalFileHandler());
 		} catch (Exception e) {
 			Log.e(AndroidHandler.DEFAULT_TAG, e.getMessage(), e);
+			handlers.add(new AndroidHandler());
 		}
 //		try {
 //			handlers.add(new AndroidHandler());
@@ -108,8 +109,8 @@ public class Logger {
 		StringBuilder sb = new StringBuilder();
 		sb.append("[");
 		sb.append(this.name);
-		sb.append(":");
-		sb.append(Thread.currentThread().getStackTrace()[5].getLineNumber());
+//		sb.append(":");
+//		sb.append(Thread.currentThread().getStackTrace()[5].getLineNumber());
 		sb.append("] ");
 		sb.append(message);
 		
@@ -166,7 +167,7 @@ public class Logger {
 		sb.append(e.getClass().getCanonicalName());
 		sb.append(": ");
 		sb.append(e.getMessage());
-		sb.append("; StackTracke: ");
+		sb.append("; StackTrace: ");
 		sb.append(Util.NEW_LINE_CHAR);
 
 		int count = 0;
@@ -203,6 +204,12 @@ public class Logger {
 		sb.append(appVersion);
 
 		initLogger.info(sb.toString());
+
+		initLogger.info("Logging enabled. minimumLogLevel="+minimumLogLevel);
+		initLogger.log(minimumLogLevel, "Log Levels activated");
 	}
 
+	public boolean isEnabled(int level) {
+		return level <= minimumLogLevel;
+	}
 }

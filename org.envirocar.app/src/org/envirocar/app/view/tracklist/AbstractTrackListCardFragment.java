@@ -37,7 +37,7 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
-import org.envirocar.app.TrackHandler;
+import org.envirocar.app.handler.TrackHandler;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.UserHandler;

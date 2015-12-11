@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -157,6 +157,36 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                 subscriber.onCompleted();
             }
         });
+    }
+
+    @Override
+    public boolean updateTrack(Track track) {
+        LOG.info(String.format("updateTrack(%s)", track.getTrackID()));
+        ContentValues trackValues = TrackTable.toContentValues(track);
+        int update = briteDatabase.update(TrackTable.TABLE_TRACK, trackValues,
+                TrackTable.KEY_TRACK_ID + "=" + track.getTrackID());
+        return update != -1;
+    }
+
+    @Override
+    public Observable<Boolean> updateTrackObservable(Track track) {
+        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+            @Override
+            public void call(Subscriber<? super Boolean> subscriber) {
+                subscriber.onStart();
+                subscriber.onNext(updateTrack(track));
+                subscriber.unsubscribe();
+            }
+        });
+    }
+
+    @Override
+    public boolean updateCarIdOfTracks(String currentId, String newId) {
+        ContentValues values = new ContentValues();
+        values.put(TrackTable.KEY_TRACK_CAR_ID, newId);
+        briteDatabase.update(TrackTable.TABLE_TRACK, values,
+                TrackTable.KEY_TRACK_CAR_ID + "=?", new String[]{currentId});
+        return true;
     }
 
     @Override
@@ -355,43 +385,34 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     private Observable<Track> fetchTrackObservable(String sql, boolean lazy) {
-        return fetchTrackObservable(briteDatabase
+        return briteDatabase
                 .createQuery(TrackTable.TABLE_TRACK, sql)
                 .mapToOne(TrackTable.MAPPER)
-                .take(1), lazy);
+                .take(1)
+                .compose(fetchTrackObservable(lazy));
     }
 
-    private Observable<Track> fetchTrackObservable(
-            Observable<Track> track, final boolean lazy) {
-        return track.map(new Func1<Track, Track>() {
-            @Override
-            public Track call(Track track) {
-                return lazy ? fetchStartEndTimeSilent(track) :
-                        fetchMeasurementsSilent(track);
-            }
-        });
+    private Observable.Transformer<Track, Track> fetchTrackObservable(final boolean lazy) {
+        return trackObservable -> trackObservable.map(track ->
+                lazy ? fetchStartEndTimeSilent(track) : fetchMeasurementsSilent(track));
     }
 
     private Observable<List<Track>> fetchTracksObservable(String sql, boolean lazy) {
-        return fetchTracksObservable(
-                briteDatabase.createQuery(TrackTable.TABLE_TRACK, sql)
-                        .mapToList(TrackTable.MAPPER), lazy);
+        return briteDatabase.createQuery(TrackTable.TABLE_TRACK, sql)
+                .mapToList(TrackTable.MAPPER)
+                .compose(fetchTracks(lazy));
     }
 
-    private Observable<List<Track>> fetchTracksObservable(
-            Observable<List<Track>> tracks, boolean lazy) {
-        return tracks.map(new Func1<List<Track>, List<Track>>() {
-            @Override
-            public List<Track> call(List<Track> tracks) {
-                for (Track track : tracks) {
-                    if (lazy) {
-                        fetchStartEndTimeSilent(track);
-                    } else {
-                        fetchMeasurementsSilent(track);
-                    }
+    private Observable.Transformer<List<Track>, List<Track>> fetchTracks(boolean lazy) {
+        return trackObservable -> trackObservable.map(tracks -> {
+            for (Track track : tracks) {
+                if (lazy) {
+                    fetchStartEndTimeSilent(track);
+                } else {
+                    fetchMeasurementsSilent(track);
                 }
-                return tracks;
             }
+            return tracks;
         });
     }
 
@@ -429,12 +450,4 @@ public class EnviroCarDBImpl implements EnviroCarDB {
         return track;
     }
 
-    //    @Override
-    //    public Observable<Track> getAllLocalTracks(boolean lazy) {
-    //        return fetchTracks(briteDatabase.createQuery(
-    //                TrackTable.TABLE_TRACK,
-    //                "SELECT * FROM " + TrackTable.TABLE_TRACK +
-    //                        " WHERE " + TrackTable.KEY_REMOTE_ID + " IS NULL")
-    //                .mapToList(TrackTable.MAPPER), lazy);
-    //    }
 }

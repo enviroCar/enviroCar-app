@@ -56,8 +56,6 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import rx.Observable;
-
 public class DbAdapterImpl implements DbAdapter {
 
     private static final Logger logger = Logger.getLogger(DbAdapterImpl.class);
@@ -279,11 +277,6 @@ public class DbAdapterImpl implements DbAdapter {
     }
 
     @Override
-    public ArrayList<Track> getAllTracks() {
-        return getAllTracks(false);
-    }
-
-    @Override
     public ArrayList<Track> getAllTracks(boolean lazyMeasurements) {
         ArrayList<Track> tracks = new ArrayList<Track>();
         Cursor c = mDb.query(TABLE_TRACK, new String[]{KEY_TRACK_ID}, null, null, null, null, null);
@@ -295,11 +288,6 @@ public class DbAdapterImpl implements DbAdapter {
         }
         c.close();
         return tracks;
-    }
-
-    @Override
-    public Observable<Track> getTrackObservable(boolean lazyMeasurements) {
-        return null;
     }
 
     @Override
@@ -449,32 +437,6 @@ public class DbAdapterImpl implements DbAdapter {
     }
 
     @Override
-    public boolean hasTrack(Track.TrackId id) {
-        Cursor cursor = getCursorForTrackID(id.getId());
-        if (cursor.getCount() > 0) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public void deleteAllTracks() {
-        mDb.delete(TABLE_MEASUREMENT, null, null);
-        mDb.delete(TABLE_TRACK, null, null);
-    }
-
-    @Override
-    public int getNumberOfStoredTracks() {
-        Cursor cursor = mDb.rawQuery("SELECT COUNT(" + KEY_TRACK_ID + ") FROM " + TABLE_TRACK,
-                null);
-        cursor.moveToFirst();
-        int count = cursor.getInt(0);
-        cursor.close();
-        return count;
-    }
-
-    @Override
     public Track getLastUsedTrack(boolean lazyMeasurements) {
         ArrayList<Track> trackList = getAllTracks(lazyMeasurements);
         if (trackList.size() > 0) {
@@ -490,86 +452,12 @@ public class DbAdapterImpl implements DbAdapter {
         return getLastUsedTrack(false);
     }
 
-    @Override
-    public void deleteTrack(Track.TrackId id) {
-        logger.debug("deleteLocalTrack: " + id);
-        mDb.delete(TABLE_TRACK, KEY_TRACK_ID + "='" + id + "'", null);
-        removeMeasurementArtifacts(id.getId());
-    }
-
-    @Override
-    public int getNumberOfRemoteTracks() {
-        Cursor cursor = mDb.rawQuery("SELECT COUNT(" + KEY_TRACK_REMOTE + ") FROM " +
-                TABLE_TRACK, null);
-        cursor.moveToFirst();
-        int count = cursor.getInt(0);
-        cursor.close();
-        return count;
-    }
-
-    @Override
-    public int getNumberOfLocalTracks() {
-        // TODO Auto-generated method stub
-        logger.warn("implement it!!!");
-        return 0;
-    }
-
-    @Override
-    public void deleteAllLocalTracks() {
-        // TODO Auto-generated method stub
-        logger.warn("implement it!!!");
-    }
-
-    @Override
-    public void deleteAllRemoteTracks() {
-        Cursor cursor = mDb.rawQuery("SELECT COUNT(" + KEY_TRACK_REMOTE + ") FROM " +
-                TABLE_TRACK, null);
-        cursor.moveToFirst();
-        int count = cursor.getInt(0);
-        cursor.close();
-        logger.info("" + count);
-        mDb.delete(TABLE_TRACK, KEY_TRACK_REMOTE + " IS NOT NULL", null);
-    }
-
-    @Override
-    public List<Track> getAllLocalTracks() {
-        return getAllLocalTracks(false);
-    }
-
-    @Override
-    public List<Track> getAllLocalTracks(boolean lazyMeasurements) {
-        ArrayList<Track> tracks = new ArrayList<Track>();
-        Cursor c = mDb.query(TABLE_TRACK, ALL_TRACK_KEYS, KEY_TRACK_REMOTE + " IS NULL", null,
-                null, null, null);
-        c.moveToFirst();
-        for (int i = 0; i < c.getCount(); i++) {
-            tracks.add(getTrack(new Track.TrackId(c.getLong(c.getColumnIndex(KEY_TRACK_ID))),
-                    lazyMeasurements));
-            c.moveToNext();
-        }
-        c.close();
-        return tracks;
-    }
-
-    @Override
-    public List<Track> getAllRemoteTracks() {
-        return getAllRemoteTracks(false);
-    }
-
-    @Override
-    public List<Track> getAllRemoteTracks(boolean lazyMeasurements) {
-        ArrayList<Track> tracks = new ArrayList<>();
-        Cursor c = mDb.query(TABLE_TRACK, ALL_TRACK_KEYS, KEY_TRACK_REMOTE + " IS NOT NULL",
-                null, null, null, null);
-        c.moveToFirst();
-        for (int i = 0; i < c.getCount(); i++) {
-            tracks.add(getTrack(new Track.TrackId(c.getLong(c.getColumnIndex(KEY_TRACK_ID))),
-                    lazyMeasurements));
-            c.moveToNext();
-        }
-        c.close();
-        return tracks;
-    }
+//    @Override
+//    public void deleteTrack(Track.TrackId id) {
+//        logger.debug("deleteLocalTrack: " + id);
+//        mDb.delete(TABLE_TRACK, KEY_TRACK_ID + "='" + id + "'", null);
+//        removeMeasurementArtifacts(id.getId());
+//    }
 
     private ContentValues createDbEntry(Track track) {
         ContentValues values = new ContentValues();
@@ -665,7 +553,7 @@ public class DbAdapterImpl implements DbAdapter {
             try {
                 last.getLastMeasurement();
             } catch (NoMeasurementsException e) {
-                deleteTrack(last.getTrackID());
+//                deleteTrack(last.getTrackID());
             }
 
             last.setTrackStatus(Track.TrackStatus.FINISHED);

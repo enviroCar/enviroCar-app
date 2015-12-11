@@ -43,6 +43,8 @@ import org.envirocar.core.logging.Logger;
 import javax.inject.Inject;
 
 /**
+ * TODO JavaDoc
+ *
  * @author dewall
  */
 public class OBDSettingsFragment extends PreferenceFragment {
