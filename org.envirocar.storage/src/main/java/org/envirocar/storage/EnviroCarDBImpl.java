@@ -145,12 +145,13 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     @Override
-    public Observable<Void> insertTrackObservable(final Track track) {
-        return Observable.create(new Observable.OnSubscribe<Void>() {
+    public Observable<Track> insertTrackObservable(final Track track) {
+        return Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
-            public void call(Subscriber<? super Void> subscriber) {
+            public void call(Subscriber<? super Track> subscriber) {
                 try {
                     insertTrack(track);
+                    subscriber.onNext(track);
                 } catch (TrackSerializationException e) {
                     subscriber.onError(e);
                 }
@@ -303,10 +304,6 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                 }
             }
         });
-    }
-
-    private Track getActiveTrackReference() {
-        return null;
     }
 
     @Override

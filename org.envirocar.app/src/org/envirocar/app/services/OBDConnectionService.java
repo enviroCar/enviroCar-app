@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -49,16 +49,13 @@ import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFix;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.exception.FuelConsumptionException;
-import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.core.exception.NoMeasurementsException;
-import org.envirocar.core.exception.TrackAlreadyFinishedException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.injection.BaseInjectorService;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.AbstractCalculatedMAFAlgorithm;
 import org.envirocar.core.trackprocessing.CalculatedMAFWithStaticVolumetricEfficiency;
 import org.envirocar.core.trackprocessing.ConsumptionAlgorithm;
-import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.core.utils.BroadcastUtils;
 import org.envirocar.core.utils.CarUtils;
 import org.envirocar.obd.ConnectionListener;
@@ -91,6 +88,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 import rx.subscriptions.CompositeSubscription;
 
 /**
@@ -552,54 +550,93 @@ public class OBDConnectionService extends BaseInjectorService {
 
     private void subscribeForMeasurements(String deviceName) {
         AtomicBoolean firstMeasurement = new AtomicBoolean(true);
+
+
         /**
          * this is the first access to the measurement objects
          * push it further
          */
         Long samplingRate = PreferencesHandler.getSamplingRate(getApplicationContext()) * 1000;
         subscriptions.add(measurementProvider.measurements(samplingRate)
-                .subscribeOn(Schedulers.computation())
-                .observeOn(Schedulers.computation())
-                .subscribe(measurement -> {
-                    try {
-                        if (!measurement.hasProperty(Measurement.PropertyKey.MAF)) {
-                            try {
-                                measurement.setProperty(Measurement.PropertyKey.CALCULATED_MAF, mafAlgorithm.calculateMAF(measurement));
-                            } catch (NoMeasurementsException e) {
-                                LOG.warn(e.getMessage());
+                        .subscribeOn(Schedulers.computation())
+                        .observeOn(Schedulers.computation())
+                        .subscribe(new Subscriber<Measurement>() {
+                            PublishSubject<Measurement> measurementPublisher =
+                                    PublishSubject.create();
+
+                            @Override
+                            public void onStart() {
+                                LOG.info("onStart(): MeasuremnetProvider Subscription");
+                                add(trackHandler.startNewTrack(measurementPublisher));
                             }
-                        }
-                        double consumption = this.consumptionAlgorithm.calculateConsumption(measurement);
-                        double co2 = this.consumptionAlgorithm.calculateCO2FromConsumption(consumption);
-                        measurement.setProperty(Measurement.PropertyKey.CONSUMPTION, consumption);
-                        measurement.setProperty(Measurement.PropertyKey.CO2, co2);
-                    } catch (FuelConsumptionException e) {
-                        LOG.warn(e.getMessage());
-                    } catch (UnsupportedFuelTypeException e) {
-                        LOG.warn(e.getMessage());
-                    }
 
-                    bus.post(new NewMeasurementEvent(measurement));
+                            @Override
+                            public void onCompleted() {
 
-                    try {
-                        dbAdapter.insertNewMeasurement(measurement);
+                            }
 
-                        if (firstMeasurement.getAndSet(false)) {
-                            /**
-                             * we are connected, update the track metadata with the device name
-                             */
-                            enviroCarDB.getActiveTrackObservable()
-                                    .flatMap(track -> trackHandler.updateTrackMetadata(track.getTrackID(),
-                                            new TrackMetadata().add(TrackMetadata.OBD_DEVICE, deviceName)))
-                                    .subscribe(trackMetadata -> LOG.info("TrackMetadata updated: " + trackMetadata),
-                                            throwable -> LOG.warn(throwable.getMessage(), throwable));
-                        }
-                    } catch (TrackAlreadyFinishedException e) {
-                        LOG.warn(e.getMessage(), e);
-                    } catch (MeasurementSerializationException e) {
-                        LOG.warn(e.getMessage(), e);
-                    }
-                })
+                            @Override
+                            public void onError(Throwable e) {
+                                LOG.error(e.getMessage(), e);
+                            }
+
+                            @Override
+                            public void onNext(Measurement measurement) {
+                                LOG.info("onNNNNENEEXT()");
+                                try {
+                                    if (!measurement.hasProperty(Measurement.PropertyKey.MAF)) {
+                                        try {
+                                            measurement.setProperty(Measurement.PropertyKey
+                                                    .CALCULATED_MAF, mafAlgorithm.calculateMAF
+                                                    (measurement));
+                                        } catch (NoMeasurementsException e) {
+                                            LOG.warn(e.getMessage());
+                                        }
+                                    }
+                                    double consumption = consumptionAlgorithm
+                                            .calculateConsumption(measurement);
+                                    double co2 = consumptionAlgorithm
+                                            .calculateCO2FromConsumption(consumption);
+                                    measurement.setProperty(Measurement.PropertyKey.CONSUMPTION,
+                                            consumption);
+                                    measurement.setProperty(Measurement.PropertyKey.CO2, co2);
+                                } catch (FuelConsumptionException e) {
+                                    LOG.warn(e.getMessage());
+                                } catch (UnsupportedFuelTypeException e) {
+                                    LOG.warn(e.getMessage());
+                                }
+
+                                measurementPublisher.onNext(measurement);
+                                bus.post(new NewMeasurementEvent(measurement));
+
+//                                try {
+//                                    dbAdapter.insertNewMeasurement(measurement);
+//
+//                                    if (firstMeasurement.getAndSet(false)) {
+//                                        /**
+//                                         * we are connected, update the track metadata with the
+//                                         * device name
+//                                         */
+//                                        enviroCarDB.getActiveTrackObservable()
+//                                                .flatMap(track -> trackHandler.updateTrackMetadata
+//                                                        (track.getTrackID(),
+//                                                                new TrackMetadata().add
+//                                                                        (TrackMetadata
+//                                                                        .OBD_DEVICE, deviceName)))
+//                                                .subscribe(trackMetadata -> LOG.info
+//                                                                ("TrackMetadata " +
+//                                                                "updated: " + trackMetadata),
+//                                                        throwable -> LOG.warn(throwable
+//                                                                        .getMessage(),
+//                                                                throwable));
+//                                    }
+//                                } catch (TrackAlreadyFinishedException e) {
+//                                    LOG.warn(e.getMessage(), e);
+//                                } catch (MeasurementSerializationException e) {
+//                                    LOG.warn(e.getMessage(), e);
+//                                }
+                            }
+                        })
         );
     }
 

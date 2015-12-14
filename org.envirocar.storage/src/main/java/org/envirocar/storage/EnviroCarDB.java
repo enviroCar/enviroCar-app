@@ -66,7 +66,7 @@ public interface EnviroCarDB {
 
     void insertTrack(Track track) throws TrackSerializationException;
 
-    Observable<Void> insertTrackObservable(Track track);
+    Observable<Track> insertTrackObservable(Track track);
 
     boolean updateTrack(Track track);
 

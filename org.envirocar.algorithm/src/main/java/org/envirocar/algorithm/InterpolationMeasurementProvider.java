@@ -47,6 +47,9 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
         return Observable.create(new Observable.OnSubscribe<Measurement>() {
             @Override
             public void call(Subscriber<? super Measurement> subscriber) {
+
+                subscriber.onStart();
+
                 while (!subscriber.isUnsubscribed()) {
                     synchronized (InterpolationMeasurementProvider.this) {
                         /**

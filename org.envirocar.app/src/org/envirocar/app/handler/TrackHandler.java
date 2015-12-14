@@ -31,12 +31,16 @@ import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.exception.TrackAlreadyUploadedException;
 import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.core.entity.Car;
+import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.entity.TrackImpl;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.DataUpdateFailureException;
+import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.TrackSerializationException;
@@ -50,16 +54,21 @@ import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.remote.DAOProvider;
 import org.envirocar.storage.EnviroCarDB;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.inject.Inject;
 
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
+import rx.Subscription;
 import rx.exceptions.OnErrorThrowable;
 import rx.observables.BlockingObservable;
 import rx.schedulers.Schedulers;
+import rx.subjects.PublishSubject;
 
 /**
  * @author de Wall
@@ -67,6 +76,8 @@ import rx.schedulers.Schedulers;
 public class TrackHandler {
     private static final Logger LOGGER = Logger.getLogger(TrackHandler.class);
     private static final String TRACK_MODE = "trackMode";
+
+    private static final DateFormat format = SimpleDateFormat.getDateTimeInstance();
 
     /**
      * Callback interface for uploading a track.
@@ -108,11 +119,15 @@ public class TrackHandler {
     protected UserHandler mUserManager;
     @Inject
     protected TermsOfUseManager mTermsOfUseManager;
+    @Inject
+    protected CarPreferenceHandler carHander;
 
     private Scheduler.Worker mBackgroundWorker = Schedulers.io().createWorker();
 
     private BluetoothServiceState mBluetoothServiceState = BluetoothServiceState.SERVICE_STOPPED;
 
+
+    private Track currentTrack;
 
     /**
      * Constructor.
@@ -122,6 +137,105 @@ public class TrackHandler {
     public TrackHandler(Context context) {
         // Inject all annotated fields.
         ((Injector) context).injectObjects(this);
+    }
+
+    public Subscription startNewTrack(PublishSubject<Measurement> publishSubject) {
+        return getActiveTrackReference()
+                .subscribeOn(Schedulers.immediate())
+                .observeOn(Schedulers.io())
+                .subscribe(track -> {
+                    publishSubject.subscribe(new Subscriber<Measurement>() {
+                        @Override
+                        public void onStart() {
+                            super.onStart();
+                            LOGGER.info("Subscribed on Measurement publisher");
+                        }
+
+                        @Override
+                        public void onCompleted() {
+                            LOGGER.info("NewMeasurementSubject onCompleted()");
+                            finishTrack(track);
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            LOGGER.error(e.getMessage(), e);
+                            finishTrack(track);
+                        }
+
+                        @Override
+                        public void onNext(Measurement measurement) {
+                            LOGGER.info("onNextMeasurement()");
+                            if (isUnsubscribed())
+                                return;
+                            LOGGER.info("Insert new measurement ");
+
+                            measurement.setTrackId(track.getTrackID());
+                            try {
+                                mEnvirocarDB.insertMeasurement(measurement);
+                            } catch (MeasurementSerializationException e) {
+                                LOGGER.error(e.getMessage(), e);
+                                finishTrack(track);
+                            }
+                        }
+                    });
+                });
+    }
+
+
+    private Observable<Void> insertNewMeasurement(Measurement measurement) {
+        return getActiveTrackReference()
+                .map(track -> {
+                    measurement.setTrackId(track.getTrackID());
+                    try {
+                        mEnvirocarDB.insertMeasurement(measurement);
+                    } catch (MeasurementSerializationException e) {
+                        OnErrorThrowable.from(e);
+                    }
+                    return null;
+                });
+    }
+
+    private void finishTrack(Track track) {
+        LOGGER.info(String.format("finishTrack(%s)", track.getTrackID()));
+        track.setTrackStatus(Track.TrackStatus.FINISHED);
+        mEnvirocarDB.updateTrack(track);
+    }
+
+    private Observable<Track> getActiveTrackReference() {
+        return Observable.just(currentTrack)
+                // is there a current reference ? if not, then try to find an instance in the
+                // enviroCar database.
+                .concatMap(track -> track == null ?
+                        mEnvirocarDB.getActiveTrackObservable() : Observable.just(track))
+                        // if there is no current reference in the database, then create a new
+                        // one and persist it.
+                .concatMap(track -> track == null ?
+                        createNewTrackObservable() : Observable.just(track))
+                        // Optimize it....
+                .map(track -> {
+                    currentTrack = track;
+                    return track;
+                });
+    }
+
+    private Observable<Track> createNewTrackObservable() {
+        return Observable.create(new Observable.OnSubscribe<Track>() {
+            @Override
+            public void call(Subscriber<? super Track> subscriber) {
+                String date = format.format(new Date());
+                Car car = carHander.getCar();
+
+                Track track = new TrackImpl();
+                track.setCar(car);
+                track.setName("Track " + date);
+                track.setDescription(String.format(
+                        mContext.getString(R.string.default_track_description), car
+                                != null ? car.getModel() : "null"));
+
+                subscriber.onNext(track);
+            }
+        }).flatMap(track -> mEnvirocarDB.insertTrackObservable(track));
     }
 
     /**
@@ -230,12 +344,11 @@ public class TrackHandler {
                 }
             }
         });
-
     }
 
 
     public Observable<TrackMetadata> updateTrackMetadata(
-            Track.TrackId trackId, TrackMetadata trackMetadata){
+            Track.TrackId trackId, TrackMetadata trackMetadata) {
         return mEnvirocarDB.getTrack(trackId, true)
                 .map(track -> {
                     TrackMetadata result = track.updateMetadata(trackMetadata);
