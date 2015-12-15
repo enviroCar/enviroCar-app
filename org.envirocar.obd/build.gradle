@@ -38,5 +38,6 @@ dependencies {
     compile rootProject.ext.rxJava
 
     compile project(':org.envirocar.core')
+    compile 'junit:junit:4.12'
 }
 
