@@ -157,7 +157,8 @@ public abstract class AsyncAdapter implements OBDAdapter {
                         /**
                          * the stream has ended, notify the subscriber
                          */
-                        subscriber.onError(new IOException("The stream was closed"));
+                        LOGGER.info("The stream was closed: "+e.getMessage());
+                        subscriber.onCompleted();
                         subscriber.unsubscribe();
                         return;
                     }

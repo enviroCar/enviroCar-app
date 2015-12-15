@@ -18,23 +18,19 @@
  */
 package org.envirocar.obd.commands;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.envirocar.obd.commands.request.BasicCommand;
-import org.envirocar.obd.commands.response.DataResponse;
-import org.envirocar.obd.commands.response.ResponseParser;
-import org.envirocar.obd.commands.response.entity.GenericDataResponse;
 import org.envirocar.obd.exception.AdapterSearchingException;
+import org.envirocar.obd.exception.InvalidCommandResponseException;
 import org.envirocar.obd.exception.NoDataReceivedException;
 import org.envirocar.obd.exception.UnmatchedResponseException;
-import org.envirocar.obd.exception.InvalidCommandResponseException;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
-/**
- * Turns off line-feed.
- */
 public class PIDSupported implements BasicCommand {
 
     private final byte[] output;
@@ -92,38 +88,56 @@ public class PIDSupported implements BasicCommand {
     }
 
 
-    public void parseRawData(byte[] rawData) throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
-        DataResponse parsed = new ResponseParser().parse(preProcessRawData(rawData));
-
-        GenericDataResponse generic;
-        if (parsed instanceof GenericDataResponse) {
-            generic = (GenericDataResponse) parsed;
+    public Set<PID> parsePIDs(byte[] rawData) throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
+        if (rawData.length != 8) {
+            throw new InvalidCommandResponseException("Invalid PIDSupported length: "+rawData.length);
         }
-        else {
-            return;
-        }
+        
+        List<Integer> pids = new ArrayList<>(8);
 
-        int index = 4;
-        int length = 2;
-
-        byte[] data = generic.getRawData();
-
-        bytes = new byte[data.length-4];
-
-        if (bytes.length != 8) {
-            throw new InvalidCommandResponseException(((GenericDataResponse) parsed).getPid().toString());
-        }
-
-        while (index < data.length) {
-			/*
-			 * this is a hex number
-			 */
-            bytes[index-4] = (byte) Integer.valueOf(String.valueOf((char) data[index]), 16).intValue();
-            if (bytes[index-4] < 0){
-                throw new InvalidCommandResponseException(((GenericDataResponse) parsed).getPid().toString());
+        char[] binaries;
+        byte b;
+        for (int i = 0; i < rawData.length; i++) {
+            b = rawData[i];
+            int fromHex = Integer.parseInt("0" + (char) b, 16);
+            binaries = createBinaryArray(fromHex);
+            for (int j = 0; j < binaries.length; j++) {
+                if (binaries[j] == '1') {
+                    pids.add(1 + (i*4 + j));
+                }
             }
-            index++;
         }
+
+        Set<PID> list = new HashSet<>();
+        for (Integer pidInt : pids) {
+            String hex = Integer.toHexString(pidInt);
+            if (hex.length() == 1) {
+                hex = "0".concat(hex);
+            }
+            PID tmp = PIDUtil.fromString(hex);
+            if (tmp != null) {
+                list.add(tmp);
+            }
+        }
+
+        return list;
+    }
+
+    private char[] createBinaryArray(int fromHex) {
+        char[] chars = Integer.toBinaryString(fromHex).toCharArray();
+        if (chars.length == 4) {
+            return chars;
+        }
+
+        char[] result = new char[4];
+        for (int i = 0; i < 4 - chars.length; i++) {
+            result[i] = '0';
+        }
+        for (int i = 4 - chars.length; i < 4; i++) {
+            result[i] = chars[3-i];
+        }
+
+        return result;
     }
 
 

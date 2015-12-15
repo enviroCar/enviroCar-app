@@ -1,5 +1,7 @@
 package org.envirocar.obd.commands.response;
 
+import android.test.InstrumentationTestCase;
+
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.exception.AdapterSearchingException;
 import org.envirocar.obd.exception.InvalidCommandResponseException;
@@ -9,7 +11,7 @@ import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ResponseParserTest {
+public class ResponseParserTest extends InstrumentationTestCase {
 
     @Test
     public void testLambdaParsing() throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {

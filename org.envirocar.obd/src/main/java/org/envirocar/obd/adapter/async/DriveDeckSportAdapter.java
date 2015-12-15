@@ -94,9 +94,15 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
 
         logger.info("PID Supported response: "+Base64.encodeToString(bytes, Base64.DEFAULT));
 
-//        String group = new String(bytes, start + 6, 2);
+//        if (bytes.length < 10) {
+//            logger.info("PID Supported response to small: "+bytes.length);
+//            return;
+//        }
 //
-//        if (group.equals("00")) {
+//        /**
+//         * check for group 00
+//         */
+//        if (bytes[6] == '0' && bytes[7] == '0') {
 //            /*
 //             * this is the first group containing the PIDs of major interest
 //			 */
@@ -108,14 +114,14 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
 //            rawBytes[3] = (byte) pidCmd.getGroup().charAt(1);
 //            int target = 4;
 //            String hexTmp;
-//            for (int i = 9; i < 14; i++) {
+//            for (int i = 9; i < bytes.length; i++) {
 //                if (i == 11) continue;
-//                hexTmp = oneByteToHex(bytes[i + start]);
+//                hexTmp = oneByteToHex(bytes[i]);
 //                rawBytes[target++] = (byte) hexTmp.charAt(0);
 //                rawBytes[target++] = (byte) hexTmp.charAt(1);
 //            }
 //
-//            pidCmd.parseRawData(rawBytes);
+//            pidCmd.parsePIDs(rawBytes);
 //
 //            logger.info("Supported PIDs: "+ Arrays.toString(pidCmd.getSupportedPIDs().toArray()));
 //        }

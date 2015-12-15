@@ -119,7 +119,9 @@ public abstract class SyncAdapter implements OBDAdapter {
                         /**
                          * write the next pending command
                          */
-                        commandExecutor.execute(latestCommand);
+                        if (latestCommand != null) {
+                            commandExecutor.execute(latestCommand);
+                        }
 
                         /**
                          * read the next incoming response
@@ -132,7 +134,8 @@ public abstract class SyncAdapter implements OBDAdapter {
                         subscriber.onError(e);
                         subscriber.unsubscribe();
                     } catch (StreamFinishedException e) {
-                        subscriber.onError(e);
+                        LOGGER.info("Stream finished: "+ e.getMessage());
+                        subscriber.onCompleted();
                         subscriber.unsubscribe();
                     }
 
