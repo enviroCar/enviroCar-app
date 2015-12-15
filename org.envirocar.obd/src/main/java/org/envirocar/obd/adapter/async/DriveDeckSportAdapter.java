@@ -24,7 +24,6 @@ import android.util.Base64;
 
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.PID;
-import org.envirocar.obd.commands.PIDSupported;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.exception.AdapterSearchingException;
@@ -34,7 +33,6 @@ import org.envirocar.obd.exception.UnmatchedResponseException;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -84,7 +82,6 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
 
         this.pendingCommands = new ArrayDeque<>();
         this.pendingCommands.offer(new CarriageReturnCommand());
-        this.pendingCommands.offer(this.cycleCommand);
     }
 
     private void processDiscoveredControlUnits(String substring) {
@@ -92,34 +89,36 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     }
 
     //TODO: not used atm, implement!
-    protected void processSupportedPID(byte[] bytes, int start, int count) throws InvalidCommandResponseException, NoDataReceivedException,
+    protected void processSupportedPID(byte[] bytes) throws InvalidCommandResponseException, NoDataReceivedException,
             UnmatchedResponseException, AdapterSearchingException {
 
-        String group = new String(bytes, start + 6, 2);
+        logger.info("PID Supported response: "+Base64.encodeToString(bytes, Base64.DEFAULT));
 
-        if (group.equals("00")) {
-            /*
-             * this is the first group containing the PIDs of major interest
-			 */
-            PIDSupported pidCmd = new PIDSupported();
-            byte[] rawBytes = new byte[12];
-            rawBytes[0] = '4';
-            rawBytes[1] = '1';
-            rawBytes[2] = (byte) pidCmd.getGroup().charAt(0);
-            rawBytes[3] = (byte) pidCmd.getGroup().charAt(1);
-            int target = 4;
-            String hexTmp;
-            for (int i = 9; i < 14; i++) {
-                if (i == 11) continue;
-                hexTmp = oneByteToHex(bytes[i + start]);
-                rawBytes[target++] = (byte) hexTmp.charAt(0);
-                rawBytes[target++] = (byte) hexTmp.charAt(1);
-            }
-
-            pidCmd.parseRawData(rawBytes);
-
-            logger.info("Supported PIDs: "+ Arrays.toString(pidCmd.getSupportedPIDs().toArray()));
-        }
+//        String group = new String(bytes, start + 6, 2);
+//
+//        if (group.equals("00")) {
+//            /*
+//             * this is the first group containing the PIDs of major interest
+//			 */
+//            PIDSupported pidCmd = new PIDSupported();
+//            byte[] rawBytes = new byte[12];
+//            rawBytes[0] = '4';
+//            rawBytes[1] = '1';
+//            rawBytes[2] = (byte) pidCmd.getGroup().charAt(0);
+//            rawBytes[3] = (byte) pidCmd.getGroup().charAt(1);
+//            int target = 4;
+//            String hexTmp;
+//            for (int i = 9; i < 14; i++) {
+//                if (i == 11) continue;
+//                hexTmp = oneByteToHex(bytes[i + start]);
+//                rawBytes[target++] = (byte) hexTmp.charAt(0);
+//                rawBytes[target++] = (byte) hexTmp.charAt(1);
+//            }
+//
+//            pidCmd.parseRawData(rawBytes);
+//
+//            logger.info("Supported PIDs: "+ Arrays.toString(pidCmd.getSupportedPIDs().toArray()));
+//        }
     }
 
     private String oneByteToHex(byte b) {
@@ -183,7 +182,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
 
     @Override
     public boolean hasVerifiedConnection() {
-        return protocol != null;
+        return vin != null || protocol != null;
     }
 
 
@@ -265,7 +264,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
          * send the cycle command once in a while to keep the connection alive
          * TODO: is this required?
          */
-        if (result == null && System.currentTimeMillis() - lastCyclicCommandSent > SEND_CYCLIC_COMMAND_DELTA) {
+        if (result == null && this.protocol != null && System.currentTimeMillis() - lastCyclicCommandSent > SEND_CYCLIC_COMMAND_DELTA) {
             lastCyclicCommandSent = System.currentTimeMillis();
             result = this.cycleCommand;
         }
@@ -285,7 +284,6 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
 
     @Override
     protected DataResponse processResponse(byte[] bytes) throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
-
         if (bytes.length <= 0) {
             return null;
         }
@@ -293,7 +291,8 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
         char type = (char) bytes[0];
 
         if (type == RESPONSE_PREFIX_CHAR) {
-            if ((char) bytes[4] == CYCLIC_TOKEN_SEPARATOR_CHAR) {
+            if (bytes.length < 3) {
+                logger.warn("Received a response with too less bytes. length="+bytes.length);
                 return null;
             }
 
@@ -307,10 +306,10 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
             } else if (pid.equals("15")) {
                 processVIN(new String(bytes, 3, bytes.length - 3));
             } else if (pid.equals("70")) {
-					/*
-					 * short term fix for #192: disable
-					 */
-                //					processSupportedPID(bytes, start, count);
+                /*
+                 * short term fix for #192: disable
+                 */
+                processSupportedPID(bytes);
             } else if (pid.equals("71")) {
                 processDiscoveredControlUnits(new String(bytes, 3, bytes.length - 3));
             } else if (pid.equals("31")) {
@@ -325,14 +324,18 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
                             "responses 6 are minimum");
                 }
 
-					/*
-					 * A PID response
-					 */
+                if ((char) bytes[4] == CYCLIC_TOKEN_SEPARATOR_CHAR) {
+                    return null;
+                }
+
+                /*
+                 * A PID response
+                 */
                 logger.verbose("Processing PID Response:" + pid);
 
                 byte[] pidResponseValue = new byte[2];
                 int target;
-                for (int i =  4; i <= bytes.length; i++) {
+                for (int i = 4; i <= bytes.length; i++) {
                     target = i - 4;
                     if (target >= pidResponseValue.length) {
                         break;

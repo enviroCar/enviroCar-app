@@ -206,6 +206,8 @@ public class OBDController {
 
 			@Override
 			public void onNext(Boolean b) {
+                logger.info("Connection verified - starting data collection");
+
 				startCollectingData();
 				//TODO implement equivalent notification method:
 				//dataListener.onConnected(deviceName);
