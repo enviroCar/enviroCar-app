@@ -289,7 +289,8 @@ public class EnviroCarDBImpl implements EnviroCarDB {
         }
     }
 
-    public Observable<TrackMetadata> updateTrackMetadataObservable(final Track track, final TrackMetadata
+    public Observable<TrackMetadata> updateTrackMetadataObservable(final Track track, final
+    TrackMetadata
             trackMetadata) {
         return Observable.create(new Observable.OnSubscribe<TrackMetadata>() {
             @Override
@@ -328,6 +329,12 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                     }
                 });
     }
+
+//    @Override
+//    public Track getActiveTrack() {
+//        return getActiveTrackObservable()
+//                .first().toBlocking().first();
+//    }
 
     @Override
     public Observable<Track> getActiveTrackObservable() {
@@ -394,14 +401,17 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     private Observable<Track> fetchTrackObservable(String sql, boolean lazy) {
         return briteDatabase
                 .createQuery(TrackTable.TABLE_TRACK, sql)
-                .mapToOne(TrackTable.MAPPER)
+                .mapToOneOrDefault(TrackTable.MAPPER, null)
                 .take(1)
                 .compose(fetchTrackObservable(lazy));
     }
 
     private Observable.Transformer<Track, Track> fetchTrackObservable(final boolean lazy) {
-        return trackObservable -> trackObservable.map(track ->
-                lazy ? fetchStartEndTimeSilent(track) : fetchMeasurementsSilent(track));
+        return trackObservable -> trackObservable.map(track -> {
+            if (track == null)
+                return null;
+            return lazy ? fetchStartEndTimeSilent(track) : fetchMeasurementsSilent(track);
+        });
     }
 
     private Observable<List<Track>> fetchTracksObservable(String sql, boolean lazy) {

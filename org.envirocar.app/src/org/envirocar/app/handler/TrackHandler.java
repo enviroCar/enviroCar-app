@@ -206,11 +206,11 @@ public class TrackHandler {
         return Observable.just(currentTrack)
                 // is there a current reference ? if not, then try to find an instance in the
                 // enviroCar database.
-                .concatMap(track -> track == null ?
+                .flatMap(track -> track == null ?
                         mEnvirocarDB.getActiveTrackObservable() : Observable.just(track))
                         // if there is no current reference in the database, then create a new
                         // one and persist it.
-                .concatMap(track -> track == null ?
+                .flatMap(track -> track == null ?
                         createNewTrackObservable() : Observable.just(track))
                         // Optimize it....
                 .map(track -> {
