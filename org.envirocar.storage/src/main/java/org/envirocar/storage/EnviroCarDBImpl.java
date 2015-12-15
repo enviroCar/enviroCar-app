@@ -320,8 +320,8 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     @Override
-    public Observable<Track> fetchTrack(Observable<Track> track, final boolean lazy) {
-        return track
+    public Observable<Track> fetchTrack(Observable<Track> trackObservable, final boolean lazy) {
+        return trackObservable
                 .flatMap(new Func1<Track, Observable<Track>>() {
                     @Override
                     public Observable<Track> call(Track track) {
@@ -329,12 +329,6 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                     }
                 });
     }
-
-//    @Override
-//    public Track getActiveTrack() {
-//        return getActiveTrackObservable()
-//                .first().toBlocking().first();
-//    }
 
     @Override
     public Observable<Track> getActiveTrackObservable() {
@@ -410,6 +404,8 @@ public class EnviroCarDBImpl implements EnviroCarDB {
         return trackObservable -> trackObservable.map(track -> {
             if (track == null)
                 return null;
+
+            // return the track either leither or completly fetched.
             return lazy ? fetchStartEndTimeSilent(track) : fetchMeasurementsSilent(track);
         });
     }
@@ -450,6 +446,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                         " WHERE " + MeasurementTable.KEY_TRACK +
                         "=\"" + track.getTrackID() + "\"" +
                         " ORDER BY " + MeasurementTable.KEY_TIME + " ASC LIMIT 1");
+
         if (startTime.moveToFirst()) {
             track.setStartTime(
                     startTime.getLong(

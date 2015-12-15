@@ -66,6 +66,7 @@ import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.exceptions.OnErrorThrowable;
+import rx.functions.Func1;
 import rx.observables.BlockingObservable;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
@@ -78,6 +79,9 @@ public class TrackHandler {
     private static final String TRACK_MODE = "trackMode";
 
     private static final DateFormat format = SimpleDateFormat.getDateTimeInstance();
+
+    private static final long DEFAULT_MAX_TIME_BETWEEN_MEASUREMENTS = 1000 * 60 * 15;
+    private static final double DEFAULT_MAX_DISTANCE_BETWEEN_MEASUREMENTS = 3.0;
 
     /**
      * Callback interface for uploading a track.
@@ -204,19 +208,50 @@ public class TrackHandler {
 
     private Observable<Track> getActiveTrackReference() {
         return Observable.just(currentTrack)
-                // is there a current reference ? if not, then try to find an instance in the
+                // Is there a current reference? if not, then try to find an instance in the
                 // enviroCar database.
                 .flatMap(track -> track == null ?
                         mEnvirocarDB.getActiveTrackObservable() : Observable.just(track))
-                        // if there is no current reference in the database, then create a new
-                        // one and persist it.
-                .flatMap(track -> track == null ?
-                        createNewTrackObservable() : Observable.just(track))
+                .flatMap(validateTrackRef())
                         // Optimize it....
                 .map(track -> {
                     currentTrack = track;
                     return track;
                 });
+    }
+
+    private Func1<Track, Observable<Track>> validateTrackRef() {
+        return new Func1<Track, Observable<Track>>() {
+            @Override
+            public Observable<Track> call(Track track) {
+                if (track != null && track.getTrackStatus() == Track.TrackStatus.FINISHED) {
+                    try {
+                        // Check whether the last unfinished track reference is too old to be
+                        // considered.
+                        if ((System.currentTimeMillis() - track.getEndTime() <
+                                DEFAULT_MAX_TIME_BETWEEN_MEASUREMENTS / 10))
+                            return Observable.just(track);
+
+                        // TODO: Spatial Filtering...
+
+                        // trackreference is too old. Set it to finished.
+                        track.setTrackStatus(Track.TrackStatus.FINISHED);
+                        mEnvirocarDB.updateTrack(track);
+                    } catch (NoMeasurementsException e) {
+                        LOGGER.info("Last unfinished track ref does not contain any measurements." +
+                                " Delete the track");
+
+                        // No Measurements in the last track and it cannot be considered as
+                        // active anymore. Therefore, delete the database entry.
+                        deleteLocalTrack(track);
+                    }
+                }
+
+                // if there is no current reference cached or in the database, then create a new
+                // one and persist it.
+                return createNewTrackObservable();
+            }
+        };
     }
 
     private Observable<Track> createNewTrackObservable() {
