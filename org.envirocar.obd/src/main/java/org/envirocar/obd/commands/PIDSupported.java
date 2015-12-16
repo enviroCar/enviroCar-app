@@ -155,7 +155,7 @@ public class PIDSupported implements BasicCommand {
 
     @Override
     public byte[] getOutputBytes() {
-        return bytes;
+        return output;
     }
 
     @Override

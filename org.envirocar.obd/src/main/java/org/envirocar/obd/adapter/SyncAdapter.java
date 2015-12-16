@@ -73,13 +73,13 @@ public abstract class SyncAdapter implements OBDAdapter {
                              * a successful data connection has been established:
                              * retrieve the supported PIDs
                              */
-                            PIDSupported pids = pidSupportedCommands.poll();
-                            while (pids != null) {
-                                commandExecutor.execute(pids);
+                            PIDSupported pid = pidSupportedCommands.poll();
+                            while (pid != null) {
+                                commandExecutor.execute(pid);
                                 byte[] resp = commandExecutor.retrieveLatestResponse();
-                                supportedPIDs.addAll(pids.parsePIDs(resp));
+                                supportedPIDs.addAll(pid.parsePIDs(resp));
                                 LOGGER.info("Currently supported PIDs: " + supportedPIDs.toString());
-                                pids = pidSupportedCommands.poll();
+                                pid = pidSupportedCommands.poll();
                             }
 
                             subscriber.onNext(true);
@@ -156,6 +156,13 @@ public abstract class SyncAdapter implements OBDAdapter {
                          * read the next incoming response
                          */
                         bytes = commandExecutor.retrieveLatestResponse();
+
+                        DataResponse response = parser.parse(preProcess(bytes));
+
+                        if (response != null) {
+                            LOGGER.debug("isUnsubscribed? " + subscriber.isUnsubscribed());
+                            subscriber.onNext(response);
+                        }
                     } catch (IOException e) {
                         subscriber.onError(e);
                         subscriber.unsubscribe();
@@ -166,15 +173,6 @@ public abstract class SyncAdapter implements OBDAdapter {
                         LOGGER.info("Stream finished: "+ e.getMessage());
                         subscriber.onCompleted();
                         subscriber.unsubscribe();
-                    }
-
-                    try {
-                        DataResponse response = parser.parse(preProcess(bytes));
-
-                        if (response != null) {
-                            LOGGER.debug("isUnsubscribed? " + subscriber.isUnsubscribed());
-                            subscriber.onNext(response);
-                        }
                     } catch (AdapterSearchingException e) {
                         LOGGER.warn("Adapter still searching: " + e.getMessage());
                     } catch (NoDataReceivedException e) {

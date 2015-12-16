@@ -32,7 +32,7 @@ public class SyncAdapterTest extends InstrumentationTestCase {
     public void testInit() throws InterruptedException {
         MockAdapter adapter = new MockAdapter();
 
-        ByteArrayInputStream bis = new ByteArrayInputStream("OK>OK>".getBytes());
+        ByteArrayInputStream bis = new ByteArrayInputStream("OK>OK>BE1FA813>1A090F01>".getBytes());
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         TestSubscriber<Boolean> testSubscriber = new TestSubscriber<>();
@@ -50,7 +50,8 @@ public class SyncAdapterTest extends InstrumentationTestCase {
     public void testData() {
         MockAdapter adapter = new MockAdapter();
 
-        ByteArrayInputStream bis = new ByteArrayInputStream("OK>OK>4110aabb>410daabb>".getBytes());
+        //Meta, Meta, PIDSupported0x00, PIDSupported0x20, data, data
+        ByteArrayInputStream bis = new ByteArrayInputStream("OK>OK>BE1FA813>1A090F01>4110aabb>410daabb>".getBytes());
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         TestSubscriber<Boolean> initSubscriber = new TestSubscriber<>();
