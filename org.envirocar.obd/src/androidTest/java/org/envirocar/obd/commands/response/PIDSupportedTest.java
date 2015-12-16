@@ -36,6 +36,31 @@ public class PIDSupportedTest extends InstrumentationTestCase {
         Assert.assertThat(pids, CoreMatchers.not(CoreMatchers.hasItems(
                 PID.INTAKE_MAP
         )));
+
+        pidSupported = new PIDSupported("20");
+
+        pids = pidSupported.parsePIDs("1A090F01".getBytes());
+
+        Assert.assertThat(pids, CoreMatchers.hasItems(
+                PID.O2_LAMBDA_PROBE_1_VOLTAGE,
+                PID.O2_LAMBDA_PROBE_2_VOLTAGE,
+                PID.O2_LAMBDA_PROBE_4_VOLTAGE,
+                PID.O2_LAMBDA_PROBE_2_CURRENT,
+                PID.O2_LAMBDA_PROBE_3_CURRENT,
+                PID.O2_LAMBDA_PROBE_4_CURRENT,
+                PID.O2_LAMBDA_PROBE_5_CURRENT
+        ));
+        Assert.assertThat(pids, CoreMatchers.not(CoreMatchers.hasItems(
+                PID.O2_LAMBDA_PROBE_3_VOLTAGE,
+                PID.O2_LAMBDA_PROBE_5_VOLTAGE,
+                PID.O2_LAMBDA_PROBE_6_VOLTAGE,
+                PID.O2_LAMBDA_PROBE_7_VOLTAGE,
+                PID.O2_LAMBDA_PROBE_8_VOLTAGE,
+                PID.O2_LAMBDA_PROBE_1_CURRENT,
+                PID.O2_LAMBDA_PROBE_6_CURRENT,
+                PID.O2_LAMBDA_PROBE_7_CURRENT,
+                PID.O2_LAMBDA_PROBE_8_CURRENT
+        )));
     }
 
 }

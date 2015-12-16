@@ -24,6 +24,7 @@ import org.envirocar.obd.exception.InvalidCommandResponseException;
 import org.envirocar.obd.exception.NoDataReceivedException;
 import org.envirocar.obd.exception.UnmatchedResponseException;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -93,51 +94,53 @@ public class PIDSupported implements BasicCommand {
             throw new InvalidCommandResponseException("Invalid PIDSupported length: "+rawData.length);
         }
         
-        List<Integer> pids = new ArrayList<>(8);
+        try {
+            List<Integer> pids = new ArrayList<>(8);
 
-        char[] binaries;
-        byte b;
-        for (int i = 0; i < rawData.length; i++) {
-            b = rawData[i];
-            int fromHex = Integer.parseInt("0" + (char) b, 16);
-            binaries = createBinaryArray(fromHex);
-            for (int j = 0; j < binaries.length; j++) {
-                if (binaries[j] == '1') {
-                    pids.add(1 + (i*4 + j));
+            int groupOffset = Integer.parseInt(this.group, 16);
+            char[] binaries;
+            byte b;
+
+            /**
+             * the 32 PIDs of the group are encoded bitwise from MSB to LSB (resulting in 8 bytes):
+             * assuming group 00 and the first byte is a 0x0A = (int) 10,
+             * then bits 4 (MSB) and 2 are set, resulting in PIDs 0x01 and 0x03 (counting starts at
+             * PID 0x01, 0x21, ...) are supported
+             */
+            for (int i = 0; i < rawData.length; i++) {
+                b = rawData[i];
+                int fromHex = Integer.parseInt(new String(new char[] {'0', (char) b}), 16);
+                BigInteger bigInt = BigInteger.valueOf(fromHex);
+                for (int j = 3; j >= 0; j--) {
+                    //check from MSB down to LSB
+                    if (bigInt.testBit(j)) {
+                        //create an int representation and apply the group offset
+                        pids.add(1 + (i*4 + 3-j) + groupOffset);
+                    }
                 }
             }
-        }
 
-        Set<PID> list = new HashSet<>();
-        for (Integer pidInt : pids) {
-            String hex = Integer.toHexString(pidInt);
-            if (hex.length() == 1) {
-                hex = "0".concat(hex);
+            Set<PID> list = new HashSet<>();
+            /**
+             * conver to hex string so the PIDUtil can parse it
+             */
+            for (Integer pidInt : pids) {
+                String hex = Integer.toHexString(pidInt);
+                if (hex.length() == 1) {
+                    hex = "0".concat(hex);
+                }
+                PID tmp = PIDUtil.fromString(hex);
+                if (tmp != null) {
+                    list.add(tmp);
+                }
             }
-            PID tmp = PIDUtil.fromString(hex);
-            if (tmp != null) {
-                list.add(tmp);
-            }
+
+            return list;
+        }
+        catch (RuntimeException e) {
+            throw new InvalidCommandResponseException("The response contained invalid byte values: "+e.getMessage());
         }
 
-        return list;
-    }
-
-    private char[] createBinaryArray(int fromHex) {
-        char[] chars = Integer.toBinaryString(fromHex).toCharArray();
-        if (chars.length == 4) {
-            return chars;
-        }
-
-        char[] result = new char[4];
-        for (int i = 0; i < 4 - chars.length; i++) {
-            result[i] = '0';
-        }
-        for (int i = 4 - chars.length; i < 4; i++) {
-            result[i] = chars[3-i];
-        }
-
-        return result;
     }
 
 
