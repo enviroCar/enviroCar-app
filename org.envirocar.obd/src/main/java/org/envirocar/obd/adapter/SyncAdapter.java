@@ -2,6 +2,7 @@ package org.envirocar.obd.adapter;
 
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.PID;
+import org.envirocar.obd.commands.PIDSupported;
 import org.envirocar.obd.commands.PIDUtil;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.request.PIDCommand;
@@ -43,9 +44,13 @@ public abstract class SyncAdapter implements OBDAdapter {
     private CommandExecutor commandExecutor;
     private ResponseParser parser = new ResponseParser();
 
+    private Set<PID> supportedPIDs = new HashSet<>();
+
     private Map<PID, AtomicInteger> failureMap = new HashMap<>();
     private List<PIDCommand> requestCommands;
     private Queue<PIDCommand> commandRingBuffer = new ArrayDeque<>();
+    private Queue<PIDSupported> pidSupportedCommands = new ArrayDeque<>(Arrays.asList(new PIDSupported[] {new PIDSupported(), new PIDSupported("20")}));
+
 
     @Override
     public Observable<Boolean> initialize(InputStream is, OutputStream os) {
@@ -60,27 +65,42 @@ public abstract class SyncAdapter implements OBDAdapter {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
                 try {
-                    while (!subscriber.isUnsubscribed()) {
-                        BasicCommand cc = pollNextInitializationCommand();
+                    boolean analyzedSuccessfully = false;
 
-                        if (cc == null) {
-                            subscriber.onError(new AdapterFailedException(
-                                    "All init commands sent, but could not verify connection"));
+                    while (!subscriber.isUnsubscribed()) {
+                        if (analyzedSuccessfully) {
+                            /**
+                             * a successful data connection has been established:
+                             * retrieve the supported PIDs
+                             */
+                            PIDSupported pids = pidSupportedCommands.poll();
+                            while (pids != null) {
+                                commandExecutor.execute(pids);
+                                byte[] resp = commandExecutor.retrieveLatestResponse();
+                                supportedPIDs.addAll(pids.parsePIDs(resp));
+                                LOGGER.info("Currently supported PIDs: "+ supportedPIDs.toString());
+                                pids = pidSupportedCommands.poll();
+                            }
+
+                            subscriber.onNext(true);
                             subscriber.unsubscribe();
                         }
+                        else {
+                            BasicCommand cc = pollNextInitializationCommand();
 
-                        //push the command to the output stream
-                        commandExecutor.execute(cc);
-
-                        //check if the command needs a response (most likely)
-                        if (cc.awaitsResults()) {
-                            byte[] resp = commandExecutor.retrieveLatestResponse();
-
-                            if (analyzeMetadataResponse(resp, cc)) {
-                                //the impl decided that it can support this kind of data stream
-                                subscriber.onNext(true);
+                            if (cc == null) {
+                                subscriber.onError(new AdapterFailedException(
+                                        "All init commands sent, but could not verify connection"));
                                 subscriber.unsubscribe();
-                                break;
+                            }
+
+                            //push the command to the output stream
+                            commandExecutor.execute(cc);
+
+                            //check if the command needs a response (most likely)
+                            if (cc.awaitsResults()) {
+                                byte[] resp = commandExecutor.retrieveLatestResponse();
+                                analyzedSuccessfully = analyzeMetadataResponse(resp, cc);
                             }
                         }
                     }
@@ -88,8 +108,17 @@ public abstract class SyncAdapter implements OBDAdapter {
                     subscriber.onError(e);
                     subscriber.unsubscribe();
                 } catch (StreamFinishedException e) {
-                    subscriber.onError(new IOException("The stream was closed unexpectedly"));
+                    LOGGER.warn("The stream was closed unexpectedly: "+e.getMessage());
+                    subscriber.onCompleted();
                     subscriber.unsubscribe();
+                } catch (InvalidCommandResponseException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                } catch (NoDataReceivedException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                } catch (UnmatchedResponseException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                } catch (AdapterSearchingException e) {
+                    LOGGER.warn(e.getMessage(), e);
                 }
             }
         });

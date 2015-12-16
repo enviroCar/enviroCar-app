@@ -74,7 +74,7 @@ public class CarTrendAdapter extends SyncAdapter {
         if (response == null || response.length == 0) {
             return false;
         }
-        
+
         String asString = new String(response).toLowerCase();
 
         if (asString.contains("ms4200")) {
