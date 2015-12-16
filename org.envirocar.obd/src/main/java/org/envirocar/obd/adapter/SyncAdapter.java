@@ -78,7 +78,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                                 commandExecutor.execute(pids);
                                 byte[] resp = commandExecutor.retrieveLatestResponse();
                                 supportedPIDs.addAll(pids.parsePIDs(resp));
-                                LOGGER.info("Currently supported PIDs: "+ supportedPIDs.toString());
+                                LOGGER.info("Currently supported PIDs: " + supportedPIDs.toString());
                                 pids = pidSupportedCommands.poll();
                             }
 
@@ -237,18 +237,30 @@ public abstract class SyncAdapter implements OBDAdapter {
         if (requestCommands == null) {
             requestCommands = new ArrayList<>();
 
-            requestCommands.add(PIDUtil.instantiateCommand(PID.SPEED));
-            requestCommands.add(PIDUtil.instantiateCommand(PID.MAF));
-            requestCommands.add(PIDUtil.instantiateCommand(PID.RPM));
-            requestCommands.add(PIDUtil.instantiateCommand(PID.INTAKE_MAP));
-            requestCommands.add(PIDUtil.instantiateCommand(PID.INTAKE_AIR_TEMP));
-            requestCommands.add(PIDUtil.instantiateCommand(PID.CALCULATED_ENGINE_LOAD));
-            requestCommands.add(PIDUtil.instantiateCommand(PID.TPS));
-            requestCommands.add(PIDUtil.instantiateCommand(PID.O2_LAMBDA_PROBE_1_VOLTAGE));
-            requestCommands.add(PIDUtil.instantiateCommand(PID.O2_LAMBDA_PROBE_1_CURRENT));
+            addIfSupported(PID.SPEED);
+            addIfSupported(PID.MAF);
+            addIfSupported(PID.RPM);
+            addIfSupported(PID.INTAKE_MAP);
+            addIfSupported(PID.INTAKE_AIR_TEMP);
+            addIfSupported(PID.CALCULATED_ENGINE_LOAD);
+            addIfSupported(PID.TPS);
+            addIfSupported(PID.O2_LAMBDA_PROBE_1_VOLTAGE);
+            addIfSupported(PID.O2_LAMBDA_PROBE_1_CURRENT);
         }
 
         return requestCommands;
+    }
+
+    protected void addIfSupported(PID pid) {
+        if (supportedPIDs == null || supportedPIDs.isEmpty()) {
+            requestCommands.add(PIDUtil.instantiateCommand(pid));
+        }
+        else if (supportedPIDs.contains(pid)) {
+            requestCommands.add(PIDUtil.instantiateCommand(pid));
+        }
+        else {
+            LOGGER.info("PID "+pid.toString()+" not supported. Skipping.");
+        }
     }
 
     private void preparePendingCommands() {
