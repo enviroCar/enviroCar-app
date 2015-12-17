@@ -20,7 +20,7 @@ public class PIDSupportedTest extends InstrumentationTestCase {
     public void testParsing() throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
         PIDSupported pidSupported = new PIDSupported();
 
-        Set<PID> pids = pidSupported.parsePIDs("BE1FA813".getBytes());
+        Set<PID> pids = pidSupported.parsePIDs("4100BE1FA813".getBytes());
 
         Assert.assertThat(pids, CoreMatchers.hasItems(
                 PID.FUEL_SYSTEM_STATUS,
@@ -39,7 +39,7 @@ public class PIDSupportedTest extends InstrumentationTestCase {
 
         pidSupported = new PIDSupported("20");
 
-        pids = pidSupported.parsePIDs("1A090F01".getBytes());
+        pids = pidSupported.parsePIDs("41201A090F01".getBytes());
 
         Assert.assertThat(pids, CoreMatchers.hasItems(
                 PID.O2_LAMBDA_PROBE_1_VOLTAGE,
@@ -61,6 +61,14 @@ public class PIDSupportedTest extends InstrumentationTestCase {
                 PID.O2_LAMBDA_PROBE_7_CURRENT,
                 PID.O2_LAMBDA_PROBE_8_CURRENT
         )));
+    }
+
+    @Test
+    public void testMalformedResponses() throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
+        PIDSupported pidSupported = new PIDSupported();
+        Set<PID> pids = pidSupported.parsePIDs("SEARCHING...4100BE3EB813".getBytes());
+
+        Assert.assertThat(pids, CoreMatchers.hasItems(PID.SPEED));
     }
 
 }

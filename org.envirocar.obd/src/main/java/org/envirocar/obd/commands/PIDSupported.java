@@ -90,6 +90,27 @@ public class PIDSupported implements BasicCommand {
 
 
     public Set<PID> parsePIDs(byte[] rawData) throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
+        if (rawData == null) {
+            throw new InvalidCommandResponseException("Null response on PIDSupported request");
+        }
+
+        String rawAsString = new String(rawData);
+        int startIndex = rawAsString.indexOf("41".concat(group));
+        if (startIndex >= 0) {
+            if (rawData.length < startIndex + 12) {
+                throw new InvalidCommandResponseException("The response was too small");
+            }
+
+            String receivedGroup = rawAsString.substring(startIndex + 2, startIndex + 4);
+            if (!receivedGroup.equals(group)) {
+                throw new InvalidCommandResponseException("Unexpected group received: "+receivedGroup);
+            }
+            rawData = rawAsString.substring(startIndex+4, startIndex + 12).getBytes();
+        }
+        else {
+            throw new InvalidCommandResponseException("The expected status response '41"+ group +"' was not in the response");
+        }
+
         if (rawData.length != 8) {
             throw new InvalidCommandResponseException("Invalid PIDSupported length: "+rawData.length);
         }
