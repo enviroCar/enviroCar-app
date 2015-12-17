@@ -17,6 +17,11 @@ public class PIDSupportedQuirk implements ResponseQuirkWorkaround {
                     return false;
                 }
             }
+
+            //it is a PID supported, check the correct length
+            if (byteArray.length < 14) {
+                return true;
+            }
         }
 
         return false;

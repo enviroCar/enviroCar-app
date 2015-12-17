@@ -2,6 +2,7 @@ package org.envirocar.obd.adapter.async;
 
 import android.test.InstrumentationTestCase;
 
+import org.envirocar.obd.adapter.ResponseQuirkWorkaround;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.commands.response.entity.SpeedResponse;
@@ -67,6 +68,11 @@ public class AsyncAdapterTest extends InstrumentationTestCase {
 
             this.commands.offer(new CarriageReturnCommand());
             this.commands.offer(new CycleCommand(Collections.singletonList(CycleCommand.DriveDeckPID.SPEED)));
+        }
+
+        @Override
+        protected ResponseQuirkWorkaround getQuirk() {
+            return null;
         }
 
         @Override

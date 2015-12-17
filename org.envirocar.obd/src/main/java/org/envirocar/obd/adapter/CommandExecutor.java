@@ -98,9 +98,12 @@ public class CommandExecutor {
 
         byte[] byteArray = baos.toByteArray();
 
-        //some adapter (i.e. the drivedeck) respond with linebreaks as actual data - detect this
+        //some adapter (i.e. the drivedeck) MIGHT respond with linebreaks as actual data - detect this
         if (quirk != null && quirk.shouldWaitForNextTokenLine(byteArray)) {
-            LOGGER.info("Detected quirk!");
+            LOGGER.info("Detected quirk: "+this.quirk.getClass().getSimpleName());
+
+            //re-add the end of line, it was dismissed previously
+            baos.write(this.endOfLineInput);
             readUntilLineEnd(baos);
             byteArray = baos.toByteArray();
         }

@@ -3,6 +3,7 @@ package org.envirocar.obd.adapter.async;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.adapter.CommandExecutor;
 import org.envirocar.obd.adapter.OBDAdapter;
+import org.envirocar.obd.adapter.ResponseQuirkWorkaround;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.exception.AdapterSearchingException;
@@ -16,6 +17,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collections;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -35,10 +37,21 @@ public abstract class AsyncAdapter implements OBDAdapter {
     private OutputStream outputStream;
     private CommandExecutor commandExecutor;
     private Subscription dataObservable;
+    private AtomicBoolean quirkDisabled = new AtomicBoolean(false);
 
     public AsyncAdapter(char endOfLineOutput, char endOfLineInput) {
         this.endOfLineOutput = endOfLineOutput;
         this.endOfLineInput = endOfLineInput;
+    }
+
+    /**
+     * use this method to disable a CommandExecutor quirk.
+     * @see {@link #getQuirk()}
+     */
+    public void disableQuirk() {
+        if (!quirkDisabled.getAndSet(true)) {
+            commandExecutor.setQuirk(null);
+        }
     }
 
     @Override
@@ -46,6 +59,7 @@ public abstract class AsyncAdapter implements OBDAdapter {
         this.inputStream = is;
         this.outputStream = os;
         this.commandExecutor = new CommandExecutor(is, os, Collections.emptySet(), this.endOfLineInput, this.endOfLineOutput);
+        this.commandExecutor.setQuirk(getQuirk());
 
         /**
          *
@@ -99,6 +113,13 @@ public abstract class AsyncAdapter implements OBDAdapter {
 
         return observable;
     }
+
+    /**
+     * an implementation can provide a quirk for response parsing/filtering
+     *
+     * @return a quirk that filters a line of raw data
+     */
+    protected abstract ResponseQuirkWorkaround getQuirk();
 
     protected Observable<DataResponse> createDataObservable() {
 

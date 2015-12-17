@@ -23,6 +23,7 @@ package org.envirocar.obd.adapter.async;
 import android.util.Base64;
 
 import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.adapter.ResponseQuirkWorkaround;
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.response.DataResponse;
@@ -47,8 +48,9 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
         CAN11500, CAN11250, CAN29500, CAN29250, KWP_SLOW, KWP_FAST, ISO9141
     }
 
-    private static final char CARRIAGE_RETURN = '\r';
-    private static final char END_OF_LINE_RESPONSE = '>';
+    public static final char CARRIAGE_RETURN = '\r';
+    public static final char END_OF_LINE_RESPONSE = '>';
+
     private static final char RESPONSE_PREFIX_CHAR = 'B';
     private static final char CYCLIC_TOKEN_SEPARATOR_CHAR = '<';
     private static final long SEND_CYCLIC_COMMAND_DELTA = 60000;
@@ -65,6 +67,11 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     public DriveDeckSportAdapter() {
         super(CARRIAGE_RETURN, END_OF_LINE_RESPONSE);
         createCommand();
+    }
+
+    @Override
+    protected ResponseQuirkWorkaround getQuirk() {
+        return new PIDSupportedQuirk();
     }
 
     private void createCommand() {
@@ -343,6 +350,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
                  * A PID response
                  */
                 logger.verbose("Processing PID Response:" + pid);
+                super.disableQuirk();
 
                 byte[] pidResponseValue = new byte[2];
                 int target;
