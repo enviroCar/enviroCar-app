@@ -26,10 +26,9 @@ import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 
-import org.envirocar.app.services.NotificationHandler;
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
-import org.envirocar.remote.DAOProvider;
+import org.envirocar.app.services.NotificationHandler;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Track;
@@ -44,6 +43,7 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.core.util.Util;
 import org.envirocar.core.utils.TrackUtils;
+import org.envirocar.remote.DAOProvider;
 
 import java.util.HashMap;
 import java.util.List;
@@ -130,7 +130,8 @@ public class UploadManager {
 
                         String result = null;
                         if (isObfuscationEnabled()) {
-                            logger.info("Obfuscation enabled! Calling TrackUtils.getObfuscatedTrack()");
+                            logger.info("Obfuscation enabled! Calling TrackUtils" +
+                                    ".getObfuscatedTrack()");
                             Track obfuscatedTrack = TrackUtils.getObfuscatedTrack(track);
                             if (obfuscatedTrack.getMeasurements().size() == 0) {
                                 throw new NoMeasurementsException("Track has no measurements " +
@@ -233,14 +234,17 @@ public class UploadManager {
                     if (callback != null) {
                         callback.onSuccessfulUpload(track);
                     }
-                } catch (Exception e) {
-                    if (track.getMeasurements().size() != 0) {
+                } catch (ResourceConflictException | NotConnectedException | DataCreationFailureException
+                        | UnauthorizedException | NoMeasurementsException e) {
+                    logger.error(e.getMessage(), e);
+                    if (track.getMeasurements().size() == 0) {
                         alertOnObfuscationMeasurements();
                     }
-                    logger.error(e.getMessage(), e);
-                    mNotificationHandler.createNotification(mContext
-                            .getString(R.string
-                                    .general_error_please_report));
+                    else {
+                        mNotificationHandler.createNotification(mContext
+                                .getString(R.string
+                                        .general_error_please_report));
+                    }
                 }
 
                 return null;
@@ -291,8 +295,8 @@ public class UploadManager {
     }
 
     private boolean hasTemporaryCar(Track track) {
-        //        return true;
-        return track.getCar().getId().startsWith(Car.TEMPORARY_SENSOR_ID);
+        String id = track.getCar().getId();
+        return (id != null) && (id.startsWith(Car.TEMPORARY_SENSOR_ID));
     }
 
 

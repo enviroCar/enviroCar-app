@@ -28,7 +28,6 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
 import org.envirocar.app.CommandListener;
-import org.envirocar.app.services.NotificationHandler;
 import org.envirocar.app.TrackHandler;
 import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.app.handler.BluetoothHandler;
@@ -38,6 +37,7 @@ import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.UploadManager;
 import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.services.NotificationHandler;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.services.TrackUploadService;
@@ -45,17 +45,16 @@ import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.storage.LazyLoadingStrategy;
 import org.envirocar.app.storage.LazyLoadingStrategyImpl;
-import org.envirocar.app.view.logbook.LogbookActivity;
 import org.envirocar.app.view.LogbookFragment;
 import org.envirocar.app.view.LoginActivity;
 import org.envirocar.app.view.RegisterFragment;
-import org.envirocar.app.view.SettingsFragment;
 import org.envirocar.app.view.carselection.CarSelectionActivity;
 import org.envirocar.app.view.dashboard.DashboardMapFragment;
 import org.envirocar.app.view.dashboard.DashboardTempomatFragment;
 import org.envirocar.app.view.dashboard.DashboardTrackDetailsFragment;
 import org.envirocar.app.view.dashboard.DashboardTrackMapFragment;
 import org.envirocar.app.view.dashboard.DashboardTrackSettingsFragment;
+import org.envirocar.app.view.logbook.LogbookActivity;
 import org.envirocar.app.view.logbook.LogbookAddFuelingFragment;
 import org.envirocar.app.view.obdselection.OBDSelectionActivity;
 import org.envirocar.app.view.obdselection.OBDSelectionFragment;
@@ -105,7 +104,6 @@ import dagger.Provides;
                 RegisterFragment.class,
                 BluetoothPairingPreference.class,
                 BluetoothHandler.class,
-                SettingsFragment.class,
                 SelectBluetoothPreference.class,
                 TemporaryFileManager.class,
                 SystemStartupService.class,

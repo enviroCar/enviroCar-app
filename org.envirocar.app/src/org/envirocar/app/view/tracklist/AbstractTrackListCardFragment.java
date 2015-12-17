@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
@@ -38,7 +37,6 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
 import org.envirocar.app.TrackHandler;
-import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.view.utils.ECAnimationUtils;
@@ -163,11 +161,6 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected abstract void loadDataset();
 
     protected void exportTrack(Track track) {
-        // First get the obfuscation setting from the shared preferences
-        boolean isObfuscationEnabled =
-                PreferenceManager
-                        .getDefaultSharedPreferences(getActivity())
-                        .getBoolean(PreferenceConstants.OBFUSCATE_POSITION, false);
 
         try {
             // Create an sharing intent.
@@ -181,24 +174,11 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
 
             // Wrap the intent with a chooser.
             startActivity(Intent.createChooser(sharingIntent, "Share via"));
-            //        } catch (TrackWithoutMeasurementsException e) {
-            //            LOG.warn(e.getMessage(), e);
-            //            Snackbar.make(getView(), R.string.error_json, Snackbar.LENGTH_LONG)
-            // .show();
-            //        } catch (JSONException e) {
-            //            LOG.warn(e.getMessage(), e);
-            //            Snackbar.make(getView(), R.string.error_io, Snackbar.LENGTH_LONG).show();
         } catch (IOException e) {
             LOG.warn(e.getMessage(), e);
-            if (isObfuscationEnabled) {
-                Snackbar.make(getView(),
-                        R.string.uploading_track_no_measurements_after_obfuscation_long,
-                        Snackbar.LENGTH_LONG).show();
-            } else {
-                Snackbar.make(getView(),
-                        R.string.uploading_track_no_measurements_after_obfuscation_long,
-                        Snackbar.LENGTH_LONG).show();
-            }
+            Snackbar.make(getView(),
+                    R.string.general_error_please_report,
+                    Snackbar.LENGTH_LONG).show();
         }
     }
 
