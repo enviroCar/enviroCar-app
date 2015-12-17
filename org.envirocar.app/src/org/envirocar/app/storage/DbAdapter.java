@@ -18,6 +18,8 @@
  */
 package org.envirocar.app.storage;
 
+import org.envirocar.core.entity.Track;
+
 /**
  * DB Adapter Interface that saves measurements in a local SQLite Database
  * 
@@ -182,7 +184,7 @@ public interface DbAdapter {
 //
 //	public TrackMetadata updateTrackMetadata(Track.TrackId trackId, TrackMetadata trackMetadata);
 
-//	public void transitLocalToRemoteTrack(Track track, String remoteId);
+	public void transitLocalToRemoteTrack(Track track, String remoteId);
 
 //	/**
 //	 * use this method to load measurements for a track that
