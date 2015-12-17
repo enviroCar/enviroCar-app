@@ -199,7 +199,7 @@ public class TrackHandler {
                 .flatMap(track -> track == null ?
                         mEnvirocarDB.getActiveTrackObservable() : Observable.just(track))
                 .flatMap(validateTrackRef(createNew))
-                        // Optimize it....
+                // Optimize it....
                 .map(track -> {
                     currentTrack = track;
                     return track;
@@ -233,9 +233,14 @@ public class TrackHandler {
                     }
                 }
 
-                // if there is no current reference cached or in the database, then create a new
-                // one and persist it.
-                return createNew ? createNewTrackObservable() : Observable.just(null);
+
+                if (track != null) {
+                    return Observable.just(track);
+                } else {
+                    // if there is no current reference cached or in the database, then create a new
+                    // one and persist it.
+                    return createNew ? createNewTrackObservable() : Observable.just(null);
+                }
             }
         };
     }

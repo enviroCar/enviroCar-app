@@ -122,8 +122,8 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     public void insertTrack(final Track track) throws TrackSerializationException {
         BriteDatabase.Transaction transaction = briteDatabase.newTransaction();
         try {
-            long result = briteDatabase.insert(TrackTable.TABLE_TRACK, TrackTable.toContentValues
-                    (track));
+            long result = briteDatabase.insert(TrackTable.TABLE_TRACK,
+                    TrackTable.toContentValues(track));
             Track.TrackId trackId = new Track.TrackId(result);
             track.setTrackID(trackId);
 
