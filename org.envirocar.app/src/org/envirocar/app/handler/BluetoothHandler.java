@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -316,8 +316,15 @@ public class BluetoothHandler {
             // If the device is already discovering, cancel the discovery before starting.
             if (mBluetoothAdapter.isDiscovering()) {
                 mBluetoothAdapter.cancelDiscovery();
-            }
 
+                // Small timeout such that the broadcast receiver does not receive the first
+                // ACTION_DISCOVERY_FINISHED
+                try {
+                    wait(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
 
             if (mDiscoverySubscription != null) {
                 // Cancel the pending subscription.
@@ -372,13 +379,14 @@ public class BluetoothHandler {
                             else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                                 subscriber.onCompleted();
                                 mWorker.schedule(() -> {
-                                            if (!thisSubscription.isUnsubscribed())
-                                                thisSubscription.unsubscribe();
-                                        }, 100, TimeUnit.MILLISECONDS);
+                                    if (!thisSubscription.isUnsubscribed())
+                                        thisSubscription.unsubscribe();
+                                }, 100, TimeUnit.MILLISECONDS);
                             }
                         }
                     });
 
+            subscriber.add(mDiscoverySubscription);
             mBluetoothAdapter.startDiscovery();
         });
     }
