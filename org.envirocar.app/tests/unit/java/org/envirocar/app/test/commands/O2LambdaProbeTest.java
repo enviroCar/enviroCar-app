@@ -18,28 +18,27 @@
  */
 package org.envirocar.app.test.commands;
 
-import java.math.BigDecimal;
+import android.os.Environment;
+import android.util.Base64;
 
 import junit.framework.Assert;
 
+import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.O2LambdaProbe;
 import org.envirocar.obd.commands.O2LambdaProbeCurrent;
 import org.envirocar.obd.commands.O2LambdaProbeVoltage;
 import org.envirocar.obd.commands.PIDUtil;
 import org.envirocar.obd.commands.PIDUtil.PID;
-import org.envirocar.core.logging.Logger;
-import org.envirocar.app.test.MockingEnvironmentTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import android.os.Environment;
-import android.util.Base64;
+import java.math.BigDecimal;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({ Environment.class, Logger.class, Base64.class})
-public class O2LambdaProbeTest extends MockingEnvironmentTest{
+public class O2LambdaProbeTest {
 
 	@Test
 	public void testVoltageParsing() {
