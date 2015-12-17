@@ -18,8 +18,7 @@
  */
 package org.envirocar.app.test;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.test.InstrumentationTestCase;
 
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.CarImpl;
@@ -27,6 +26,7 @@ import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.TrackImpl;
+import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.TrackAlreadyFinishedException;
 import org.envirocar.core.utils.TrackUtils;
 import org.envirocar.remote.serializer.TrackSerializer;
@@ -35,7 +35,8 @@ import org.json.JSONException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import android.test.InstrumentationTestCase;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ObfuscationTest extends InstrumentationTestCase {
 
@@ -47,7 +48,7 @@ public class ObfuscationTest extends InstrumentationTestCase {
     private List<Measurement> inter;
 
     @Test
-    public void testObfuscation() throws JSONException, TrackAlreadyFinishedException {
+    public void testObfuscation() throws JSONException, TrackAlreadyFinishedException, NoMeasurementsException {
         start = System.currentTimeMillis();
         end = System.currentTimeMillis() + 1000*60*100;
 

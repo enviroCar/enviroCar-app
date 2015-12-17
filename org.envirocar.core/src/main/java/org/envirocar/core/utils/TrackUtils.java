@@ -48,34 +48,29 @@ public class TrackUtils {
      * @param track
      * @return
      */
-    public static Track getObfuscatedTrack(Track track) {
+    public static Track getObfuscatedTrack(Track track) throws NoMeasurementsException {
         Track result = track.carbonCopy();
         result.setMeasurements(getNonObfuscatedMeasurements(track));
         return result;
     }
 
-    private static List<Measurement> getNonObfuscatedMeasurements(Track track) {
+    private static List<Measurement> getNonObfuscatedMeasurements(Track track) throws NoMeasurementsException {
         List<Measurement> measurements = track.getMeasurements();
 
         List<Measurement> nonPrivateMeasurements = new ArrayList<Measurement>();
-        try {
-            int first = determineFirstNonObfuscatedIndex(measurements, track);
-            int last = determineLastNonObfuscatedIndex(measurements, track);
+        int first = determineFirstNonObfuscatedIndex(measurements, track);
+        int last = determineLastNonObfuscatedIndex(measurements, track);
 
-            if (first == -1 || last == -1) {
-                LOG.warn("Could not determine first/last non-obfuscated measurements. Returning originals");
-                return measurements;
-            }
-
-            for (int i = first; i <= last; i++) {
-                nonPrivateMeasurements.add(measurements.get(i));
-            }
-
-            return nonPrivateMeasurements;
-        } catch (NoMeasurementsException e) {
-            LOG.warn("Could not obfuscate track", e);
+        if (first == -1 || last == -1) {
+            LOG.warn("Could not determine first/last non-obfuscated measurements. Returning originals");
             return measurements;
         }
+
+        for (int i = first; i <= last; i++) {
+            nonPrivateMeasurements.add(measurements.get(i));
+        }
+
+        return nonPrivateMeasurements;
     }
 
     private static int determineFirstNonObfuscatedIndex(List<Measurement> measurements, Track track) throws NoMeasurementsException {

@@ -23,6 +23,8 @@ allprojects {
         include "**/*.java"
         include "**/*.xml"
         include "**/*.html"
+        exclude "**/MoreObjects.java"
+        exclude "**/Preconditions.java"
     }
 
     repositories {
