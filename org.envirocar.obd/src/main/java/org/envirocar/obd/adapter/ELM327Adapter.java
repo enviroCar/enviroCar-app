@@ -88,7 +88,7 @@ public class ELM327Adapter extends SyncAdapter {
             }
         }
 
-        return succesfulCount >= 5;
+        return hasVerifiedConnection();
     }
 
     @Override
@@ -98,11 +98,11 @@ public class ELM327Adapter extends SyncAdapter {
 
     @Override
     public boolean supportsDevice(String deviceName) {
-        return deviceName.contains("OBDII") || deviceName.contains("ELM327");
+        return deviceName.contains("OBDII") || deviceName.contains("ELM327") || deviceName.toLowerCase().contains("obdlink mx");
     }
 
     @Override
     public boolean hasVerifiedConnection() {
-        return false;
+        return succesfulCount >= 5;
     }
 }

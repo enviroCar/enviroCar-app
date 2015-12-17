@@ -32,10 +32,10 @@ public class SyncAdapterTest extends InstrumentationTestCase {
     public void testInit() throws InterruptedException {
         MockAdapter adapter = new MockAdapter();
 
-        ByteArrayInputStream bis = new ByteArrayInputStream("OK>OK>".getBytes());
+        ByteArrayInputStream bis = new ByteArrayInputStream("OK>OK>BE1FA813>1A090F01>".getBytes());
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
-        TestSubscriber<Void> testSubscriber = new TestSubscriber<>();
+        TestSubscriber<Boolean> testSubscriber = new TestSubscriber<>();
 
         Subscription sub = adapter.initialize(bis, bos)
                 .observeOn(Schedulers.immediate())
@@ -43,17 +43,18 @@ public class SyncAdapterTest extends InstrumentationTestCase {
                 .subscribe(testSubscriber);
 
         testSubscriber.assertNoErrors();
-        testSubscriber.assertCompleted();
+        testSubscriber.assertValueCount(1);
     }
 
     @Test
     public void testData() {
         MockAdapter adapter = new MockAdapter();
 
-        ByteArrayInputStream bis = new ByteArrayInputStream("OK>OK>4110aabb>410daabb>".getBytes());
+        //Meta, Meta, PIDSupported0x00, PIDSupported0x20, data, data
+        ByteArrayInputStream bis = new ByteArrayInputStream("OK>OK>BE1FA813>1A090F01>4110aabb>410daabb>".getBytes());
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
-        TestSubscriber<Void> initSubscriber = new TestSubscriber<>();
+        TestSubscriber<Boolean> initSubscriber = new TestSubscriber<>();
 
         adapter.initialize(bis, bos)
                 .subscribeOn(Schedulers.immediate())
@@ -61,14 +62,14 @@ public class SyncAdapterTest extends InstrumentationTestCase {
                 .subscribe(initSubscriber);
 
         initSubscriber.assertNoErrors();
-        initSubscriber.assertCompleted();
+        initSubscriber.assertValueCount(1);
 
         /**
          * now the actual data stuff
          */
         TestSubscriber<DataResponse> testSubscriber = new TestSubscriber<>();
 
-        adapter.observe(Schedulers.immediate())
+        adapter.observe()
                 .observeOn(Schedulers.immediate())
                 .subscribeOn(Schedulers.immediate())
                 .subscribe(testSubscriber);
@@ -131,6 +132,11 @@ public class SyncAdapterTest extends InstrumentationTestCase {
 
         @Override
         public boolean supportsDevice(String deviceName) {
+            return true;
+        }
+
+        @Override
+        public boolean hasVerifiedConnection() {
             return true;
         }
     }

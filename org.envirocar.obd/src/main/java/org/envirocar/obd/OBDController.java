@@ -29,11 +29,10 @@ import org.envirocar.obd.adapter.AposW3Adapter;
 import org.envirocar.obd.adapter.CarTrendAdapter;
 import org.envirocar.obd.adapter.ELM327Adapter;
 import org.envirocar.obd.adapter.OBDAdapter;
-import org.envirocar.obd.adapter.OBDLinkMXAdapter;
+import org.envirocar.obd.adapter.async.DriveDeckSportAdapter;
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.PIDUtil;
 import org.envirocar.obd.commands.response.DataResponse;
-import org.envirocar.obd.adapter.async.DriveDeckSportAdapter;
 import org.envirocar.obd.events.PropertyKeyEvent;
 import org.envirocar.obd.events.RPMUpdateEvent;
 import org.envirocar.obd.events.SpeedUpdateEvent;
@@ -115,7 +114,6 @@ public class OBDController {
 		adapterCandidates.offer(new ELM327Adapter());
 		adapterCandidates.offer(new CarTrendAdapter());
 		adapterCandidates.offer(new AposW3Adapter());
-		adapterCandidates.offer(new OBDLinkMXAdapter());
 		adapterCandidates.offer(new DriveDeckSportAdapter());
 	}
 
@@ -206,6 +204,8 @@ public class OBDController {
 
 			@Override
 			public void onNext(Boolean b) {
+                logger.info("Connection verified - starting data collection");
+
 				startCollectingData();
 				//TODO implement equivalent notification method:
 				//dataListener.onConnected(deviceName);
