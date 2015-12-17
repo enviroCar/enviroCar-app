@@ -144,7 +144,7 @@ public class TrackHandler {
     }
 
     public Subscription startNewTrack(PublishSubject<Measurement> publishSubject) {
-        return getActiveTrackReference()
+        return getActiveTrackReference(true)
                 .subscribeOn(Schedulers.immediate())
                 .observeOn(Schedulers.io())
                 .subscribe(track -> {
@@ -186,33 +186,19 @@ public class TrackHandler {
                 });
     }
 
-
-    private Observable<Void> insertNewMeasurement(Measurement measurement) {
-        return getActiveTrackReference()
-                .map(track -> {
-                    measurement.setTrackId(track.getTrackID());
-                    try {
-                        mEnvirocarDB.insertMeasurement(measurement);
-                    } catch (MeasurementSerializationException e) {
-                        OnErrorThrowable.from(e);
-                    }
-                    return null;
-                });
-    }
-
     private void finishTrack(Track track) {
         LOGGER.info(String.format("finishTrack(%s)", track.getTrackID()));
         track.setTrackStatus(Track.TrackStatus.FINISHED);
         mEnvirocarDB.updateTrack(track);
     }
 
-    private Observable<Track> getActiveTrackReference() {
+    private Observable<Track> getActiveTrackReference(boolean createNew) {
         return Observable.just(currentTrack)
                 // Is there a current reference? if not, then try to find an instance in the
                 // enviroCar database.
                 .flatMap(track -> track == null ?
                         mEnvirocarDB.getActiveTrackObservable() : Observable.just(track))
-                .flatMap(validateTrackRef())
+                .flatMap(validateTrackRef(createNew))
                         // Optimize it....
                 .map(track -> {
                     currentTrack = track;
@@ -220,7 +206,7 @@ public class TrackHandler {
                 });
     }
 
-    private Func1<Track, Observable<Track>> validateTrackRef() {
+    private Func1<Track, Observable<Track>> validateTrackRef(boolean createNew) {
         return new Func1<Track, Observable<Track>>() {
             @Override
             public Observable<Track> call(Track track) {
@@ -249,7 +235,7 @@ public class TrackHandler {
 
                 // if there is no current reference cached or in the database, then create a new
                 // one and persist it.
-                return createNewTrackObservable();
+                return createNew ? createNewTrackObservable() : Observable.just(null);
             }
         };
     }
@@ -691,17 +677,28 @@ public class TrackHandler {
 
         // Schedule a new async task for closing the remoteService, finishing the current track, and
         // finally fireing an event on the event bus.
-        mBackgroundWorker.schedule(() -> {
-            LOGGER.info("backgroundworker");
-            // Stop the background remoteService that is responsible for the OBDConnection.
-            mBluetoothHandler.stopOBDConnectionService();
 
-            // Finish the current track.
-            final Track track = mDBAdapter.finishCurrentTrack();
+        Track track = getActiveTrackReference(false)
+                .map(track1 -> {
+                    // Stop the background remoteService that is responsible for the
+                    // OBDConnection.
+                    mBluetoothHandler.stopOBDConnectionService();
 
-            // Fire a new TrackFinishedEvent on the event bus.
-            mBus.post(new TrackFinishedEvent(track));
-        });
+                    if (track1 != null) {
+                        track1.setTrackStatus(Track.TrackStatus.FINISHED);
+                        mEnvirocarDB.updateTrack(track1);
+
+                        // Fire a new TrackFinishedEvent on the event bus.
+                        mBus.post(new TrackFinishedEvent(track1));
+                    }
+
+                    return track1;
+                })
+                .toBlocking()
+                .first();
+
+        LOGGER.info(String.format("Track with local id [%s] successful finished.",
+                track.getTrackID()));
     }
 
     @Subscribe

@@ -41,8 +41,6 @@ import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.services.TrackUploadService;
 import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.app.storage.DbAdapterImpl;
-import org.envirocar.app.storage.LazyLoadingStrategy;
-import org.envirocar.app.storage.LazyLoadingStrategyImpl;
 import org.envirocar.app.view.LoginActivity;
 import org.envirocar.app.view.carselection.CarSelectionActivity;
 import org.envirocar.app.view.logbook.LogbookActivity;
@@ -93,7 +91,6 @@ import dagger.Provides;
                 DbAdapterImpl.class,
                 LocationHandler.class,
                 BluetoothDiscoveryIntervalPreference.class,
-                LazyLoadingStrategyImpl.class,
                 TrackHandler.class,
                 UserHandler.class,
                 TrackDetailsActivity.class,
@@ -281,16 +278,16 @@ public class BaseApplicationModule {
         return new LocationHandler(mAppContext);
     }
 
-    /**
-     * Provides the LazyLoadingStrategy of the application.
-     *
-     * @return the LazyLoadingStrategy of the application.
-     */
-    @Provides
-    @Singleton
-    LazyLoadingStrategy provideLazyLoadingStrategy() {
-        return new LazyLoadingStrategyImpl(mAppContext);
-    }
+//    /**
+//     * Provides the LazyLoadingStrategy of the application.
+//     *
+//     * @return the LazyLoadingStrategy of the application.
+//     */
+//    @Provides
+//    @Singleton
+//    LazyLoadingStrategy provideLazyLoadingStrategy() {
+//        return new LazyLoadingStrategyImpl(mAppContext);
+//    }
 
     @Provides
     @Singleton

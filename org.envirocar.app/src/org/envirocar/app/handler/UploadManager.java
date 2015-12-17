@@ -275,8 +275,7 @@ public class UploadManager {
 
         logger.info("Car id tmpTrack: " + track.getCar().getId());
 
-//        mEnviroCarDB.updateTrack(track);
-        mDBAdapter.updateTrack(track);
+        mEnviroCarDB.updateTrack(track);
         mDBAdapter.updateCarIdOfTracks(tempId, car.getId());
 
 		/*
