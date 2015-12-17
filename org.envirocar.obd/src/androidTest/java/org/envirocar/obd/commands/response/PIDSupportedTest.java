@@ -65,7 +65,6 @@ public class PIDSupportedTest extends InstrumentationTestCase {
 
     @Test
     public void testMalformedResponses() throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
-        char c = '>';
         PIDSupported pidSupported = new PIDSupported();
         Set<PID> pids = pidSupported.parsePIDs("SEARCHING...4100BE3EB813".getBytes());
 

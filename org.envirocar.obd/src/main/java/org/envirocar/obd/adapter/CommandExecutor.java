@@ -24,6 +24,7 @@ public class CommandExecutor {
     private final byte endOfLineInput;
     private OutputStream outputStream;
     private InputStream inputStream;
+    private ResponseQuirkWorkaround quirk;
 
 
     public CommandExecutor(InputStream is, OutputStream os,
@@ -38,6 +39,10 @@ public class CommandExecutor {
 
         this.endOfLineOutput = (byte) endOfLineOutput.charValue();
         this.endOfLineInput = (byte) endOfLineInput.charValue();
+    }
+
+    public void setQuirk(ResponseQuirkWorkaround quirk) {
+        this.quirk = quirk;
     }
 
     public void execute(BasicCommand cmd) throws IOException {
@@ -87,7 +92,27 @@ public class CommandExecutor {
         LOGGER.info("Reading response line...");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
         // read until end of line arrives
+        readUntilLineEnd(baos);
+
+        byte[] byteArray = baos.toByteArray();
+
+        //some adapter (i.e. the drivedeck) respond with linebreaks as actual data - detect this
+        if (quirk != null && quirk.shouldWaitForNextTokenLine(byteArray)) {
+            LOGGER.info("Detected quirk!");
+            readUntilLineEnd(baos);
+            byteArray = baos.toByteArray();
+        }
+
+        if (byteArray.length > 0 && LOGGER.isEnabled(Logger.DEBUG)) {
+            LOGGER.debug("Received bytes: " + Base64.encodeToString(byteArray, Base64.DEFAULT));
+        }
+
+        return byteArray;
+    }
+
+    private void readUntilLineEnd(ByteArrayOutputStream baos) throws IOException, StreamFinishedException {
         byte b = (byte) inputStream.read();
         while (b != this.endOfLineInput) {
             if ((int) b == -1) {
@@ -100,13 +125,6 @@ public class CommandExecutor {
 
             b = (byte) inputStream.read();
         }
-
-        byte[] byteArray = baos.toByteArray();
-        if (byteArray.length > 0 && LOGGER.isEnabled(Logger.DEBUG)) {
-            LOGGER.debug("Received bytes: " + Base64.encodeToString(byteArray, Base64.DEFAULT));
-        }
-
-        return byteArray;
     }
 
     public byte[] retrieveLatestResponse() throws IOException, StreamFinishedException {

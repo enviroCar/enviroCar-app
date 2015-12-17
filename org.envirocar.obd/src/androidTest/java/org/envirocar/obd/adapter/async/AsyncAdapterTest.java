@@ -91,5 +91,10 @@ public class AsyncAdapterTest extends InstrumentationTestCase {
         public boolean hasVerifiedConnection() {
             return true;
         }
+
+        @Override
+        public long getExpectedInitPeriod() {
+            return 15000;
+        }
     }
 }
