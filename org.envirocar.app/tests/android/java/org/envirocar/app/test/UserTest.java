@@ -18,25 +18,15 @@
  */
 package org.envirocar.app.test;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import junit.framework.Assert;
-
-import org.envirocar.app.model.User;
-import org.json.JSONException;
-import org.junit.Test;
-
-
 public class UserTest extends ResourceLoadingTestCase {
 
-	@Test
-	public void testUserParsing() throws IOException, JSONException {
-		User user = User.fromJson(readJsonAsset("/user_mockup.json"));
-		
-		Assert.assertTrue("missing touVersion", user.getTouVersion() != null);
-		Assert.assertTrue("unexpected acceptedTermsOfUseVersion", user.getTouVersion().equals("2013-10-02"));
-		Assert.assertTrue("unexpected username", user.getUsername().equals("matthes"));
-	}
+//	@Test
+//	public void testUserParsing() throws IOException, JSONException {
+//		User user = User.fromJson(readJsonAsset("/user_mockup.json"));
+//
+//		Assert.assertTrue("missing touVersion", user.getTouVersion() != null);
+//		Assert.assertTrue("unexpected acceptedTermsOfUseVersion", user.getTouVersion().equals("2013-10-02"));
+//		Assert.assertTrue("unexpected username", user.getUsername().equals("matthes"));
+//	}
 	
 }
