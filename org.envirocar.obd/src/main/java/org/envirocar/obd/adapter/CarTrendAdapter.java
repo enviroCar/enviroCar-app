@@ -125,6 +125,10 @@ public class CarTrendAdapter extends SyncAdapter {
         return this.identifySuccess;
     }
 
+    @Override
+    public long getExpectedInitPeriod() {
+        return 35000;
+    }
 
     private static class ConfigCommand extends GenericCommand {
 

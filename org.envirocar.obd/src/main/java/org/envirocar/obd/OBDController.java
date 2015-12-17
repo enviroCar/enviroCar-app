@@ -60,7 +60,6 @@ import rx.schedulers.Schedulers;
 public class OBDController {
 
     private static final Logger logger = Logger.getLogger(OBDController.class);
-    protected static final long ADAPTER_TRY_PERIOD = 20000;
     public static final long MAX_NODATA_TIME = 10000;
 
     private Subscriber<DataResponse> dataSubscription;
@@ -222,7 +221,7 @@ public class OBDController {
 		this.obdAdapter.initialize(this.inputStream, this.outputStream)
 				.subscribeOn(Schedulers.io())
 				.observeOn(OBDSchedulers.scheduler())
-				.timeout(ADAPTER_TRY_PERIOD, TimeUnit.MILLISECONDS)
+				.timeout(this.obdAdapter.getExpectedInitPeriod(), TimeUnit.MILLISECONDS)
 				.subscribe(this.initialSubscription);
 	}
 

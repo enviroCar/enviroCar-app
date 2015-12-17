@@ -35,6 +35,9 @@ import rx.Subscriber;
 public abstract class SyncAdapter implements OBDAdapter {
 
     private static final Logger LOGGER = Logger.getLogger(SyncAdapter.class.getName());
+
+    protected static final long ADAPTER_TRY_PERIOD = 20000;
+
     private static final char COMMAND_SEND_END = '\r';
     private static final char COMMAND_RECEIVE_END = '>';
     private static final char COMMAND_RECEIVE_SPACE = ' ';
@@ -273,6 +276,11 @@ public abstract class SyncAdapter implements OBDAdapter {
 
     private boolean checkIsBlacklisted(PID pid) {
         return this.failureMap.containsKey(pid)  && this.failureMap.get(pid).get() > MAX_ERROR_PER_COMMAND;
+    }
+
+    @Override
+    public long getExpectedInitPeriod() {
+        return ADAPTER_TRY_PERIOD;
     }
 
     protected abstract BasicCommand pollNextInitializationCommand();
