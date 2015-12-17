@@ -51,7 +51,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     private static final char END_OF_LINE_RESPONSE = '>';
     private static final char RESPONSE_PREFIX_CHAR = 'B';
     private static final char CYCLIC_TOKEN_SEPARATOR_CHAR = '<';
-    private static final long SEND_CYCLIC_COMMAND_DELTA = 10000;
+    private static final long SEND_CYCLIC_COMMAND_DELTA = 60000;
 
     private Protocol protocol;
     private String vin;
@@ -70,14 +70,14 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     private void createCommand() {
         List<CycleCommand.DriveDeckPID> pidList = new ArrayList<>();
         pidList.add(CycleCommand.DriveDeckPID.SPEED);
-        pidList.add(CycleCommand.DriveDeckPID.MAF);
+//        pidList.add(CycleCommand.DriveDeckPID.MAF);
         pidList.add(CycleCommand.DriveDeckPID.RPM);
         pidList.add(CycleCommand.DriveDeckPID.IAP);
         pidList.add(CycleCommand.DriveDeckPID.IAT);
         pidList.add(CycleCommand.DriveDeckPID.ENGINE_LOAD);
         pidList.add(CycleCommand.DriveDeckPID.TPS);
-        pidList.add(CycleCommand.DriveDeckPID.O2_LAMBDA_PROBE_1_VOLTAGE);
-        pidList.add(CycleCommand.DriveDeckPID.O2_LAMBDA_PROBE_1_CURRENT);
+//        pidList.add(CycleCommand.DriveDeckPID.O2_LAMBDA_PROBE_1_VOLTAGE);
+//        pidList.add(CycleCommand.DriveDeckPID.O2_LAMBDA_PROBE_1_CURRENT);
         this.cycleCommand = new CycleCommand(pidList);
 
         this.pendingCommands = new ArrayDeque<>();
@@ -189,6 +189,11 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     @Override
     public boolean hasVerifiedConnection() {
         return vin != null || protocol != null;
+    }
+
+    @Override
+    public long getExpectedInitPeriod() {
+        return 30000;
     }
 
 
