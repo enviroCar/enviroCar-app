@@ -30,61 +30,62 @@ public class CycleCommand implements BasicCommand {
 	public static enum DriveDeckPID implements DriveDeckPIDEnumInstance {
 		SPEED {
 			@Override
-			public String getByteRepresentation() {
+			public byte getByteRepresentation() {
 				return convert(PID.SPEED.getHexadecimalRepresentation());
 			}
 		},
 		MAF {
 			@Override
-			public String getByteRepresentation() {
+			public byte getByteRepresentation() {
 				return convert(PID.MAF.getHexadecimalRepresentation());
 			}
 		},
 		RPM {
 			@Override
-			public String getByteRepresentation() {
+			public byte getByteRepresentation() {
 				return convert(PID.RPM.getHexadecimalRepresentation());
 			}
 		},
 		IAP {
 			@Override
-			public String getByteRepresentation() {
+			public byte getByteRepresentation() {
 				return convert(PID.INTAKE_MAP.getHexadecimalRepresentation());
 			}
 		},
 		IAT {
 			@Override
-			public String getByteRepresentation() {
+			public byte getByteRepresentation() {
 				return convert(PID.INTAKE_AIR_TEMP.getHexadecimalRepresentation());
 			}
 		},
 		TPS {
 			@Override
-			public String getByteRepresentation() {
+			public byte getByteRepresentation() {
 				return convert(PID.TPS.getHexadecimalRepresentation());
 			}
 		},
 		ENGINE_LOAD {
 			@Override
-			public String getByteRepresentation() {
+			public byte getByteRepresentation() {
 				return convert(PID.CALCULATED_ENGINE_LOAD.getHexadecimalRepresentation());
 			}
 		},
 		O2_LAMBDA_PROBE_1_VOLTAGE {
 			@Override
-			public String getByteRepresentation() {
+			public byte getByteRepresentation() {
 				return convert(PID.O2_LAMBDA_PROBE_1_VOLTAGE.getHexadecimalRepresentation());
 			}
 		},
 		O2_LAMBDA_PROBE_1_CURRENT {
 			@Override
-			public String getByteRepresentation() {
+			public byte getByteRepresentation() {
 				return convert(PID.O2_LAMBDA_PROBE_1_CURRENT.getHexadecimalRepresentation());
 			}
 		};
 		
-		protected String convert(String string) {
-			return Integer.toString(incrementBy13(hexToInt(string)));
+		protected byte convert(String pidHex) {
+            int by13 = incrementBy13(hexToInt(pidHex));
+            return (byte) by13;
 		}
 
 		protected int hexToInt(String string) {
@@ -93,12 +94,6 @@ public class CycleCommand implements BasicCommand {
 
 		protected int incrementBy13(int hexToInt) {
 			return hexToInt + 13;
-		}
-
-		protected String intToHex(int val) {
-			String result = Integer.toString(val, 16);
-			if (result.length() == 1) result = "0"+result;
-			return "0x".concat(result);
 		}
 
         public static DriveDeckPID fromDefaultPID(PID p) {
@@ -150,7 +145,7 @@ public class CycleCommand implements BasicCommand {
 
 	public CycleCommand(List<DriveDeckPID> pidList) {
 		bytes = new byte[3 + pidList.size()];
-		byte[] prefix = "a17".getBytes();
+		byte[] prefix = "A17".getBytes();
 		
 		for (int i = 0; i < prefix.length; i++) {
 			bytes[i] = prefix[i];
@@ -158,7 +153,7 @@ public class CycleCommand implements BasicCommand {
 		
 		int i = 0;
 		for (DriveDeckPID pid : pidList) {
-			bytes[prefix.length + i++] = (byte) Integer.valueOf(pid.getByteRepresentation()).intValue();
+			bytes[prefix.length + i++] = pid.getByteRepresentation();
 		}
 	}
 

@@ -69,6 +69,9 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
 
     public DriveDeckSportAdapter() {
         super(CARRIAGE_RETURN, END_OF_LINE_RESPONSE);
+
+        this.pendingCommands = new ArrayDeque<>();
+        this.pendingCommands.offer(new CarriageReturnCommand());
     }
 
     @Override
@@ -76,7 +79,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
         return new PIDSupportedQuirk();
     }
 
-    private void createCommand() {
+    private void createAndSendCycleCommand() {
         List<CycleCommand.DriveDeckPID> pidList = new ArrayList<>();
 
         for (PID p: PID.values()) {
@@ -84,10 +87,8 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
         }
 
         this.cycleCommand = new CycleCommand(pidList);
-        logger.info("Static Cycle Command: "+ Base64.encodeToString(this.cycleCommand.getOutputBytes(), Base64.DEFAULT));
-
-        this.pendingCommands = new ArrayDeque<>();
-        this.pendingCommands.offer(new CarriageReturnCommand());
+        logger.info("Static Cycle Command: " + Base64.encodeToString(this.cycleCommand.getOutputBytes(), Base64.DEFAULT));
+        this.pendingCommands.offer(this.cycleCommand);
     }
 
     private void addIfSupported(PID pid, List<CycleCommand.DriveDeckPID> pidList) {
@@ -148,7 +149,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
 
         if (++pidSupportedResponsesParsed == 2) {
             logger.info("Received two PID supported responses. Creating cycle command");
-            createCommand();
+            createAndSendCycleCommand();
         }
     }
 
@@ -304,15 +305,9 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
             lastCyclicCommandSent = System.currentTimeMillis();
             result = this.cycleCommand;
         }
-        else {
-            /**
-             * this is probably an init command, wait a bit
-             */
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                logger.warn(e.getMessage(), e);
-            }
+
+        if (result != null && result == this.cycleCommand) {
+            logger.info("Sending Cyclic command to DriveDeck - data should be received now");
         }
 
         return result;

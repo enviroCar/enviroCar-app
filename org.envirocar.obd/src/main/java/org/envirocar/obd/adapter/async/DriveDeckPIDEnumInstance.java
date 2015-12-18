@@ -5,6 +5,6 @@ package org.envirocar.obd.adapter.async;
  */
 public interface DriveDeckPIDEnumInstance {
 
-    String getByteRepresentation();
+    byte getByteRepresentation();
 
 }
