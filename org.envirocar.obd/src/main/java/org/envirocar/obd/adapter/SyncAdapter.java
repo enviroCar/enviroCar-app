@@ -80,7 +80,12 @@ public abstract class SyncAdapter implements OBDAdapter {
                             while (pid != null) {
                                 commandExecutor.execute(pid);
                                 byte[] resp = commandExecutor.retrieveLatestResponse();
-                                supportedPIDs.addAll(pid.parsePIDs(resp));
+                                try {
+                                    supportedPIDs.addAll(pid.parsePIDs(resp));
+                                } catch (InvalidCommandResponseException | NoDataReceivedException
+                                        | UnmatchedResponseException | AdapterSearchingException e) {
+                                    LOGGER.warn(e.getMessage(), e);
+                                }
                                 LOGGER.info("Currently supported PIDs: " + supportedPIDs.toString());
                                 pid = pidSupportedCommands.poll();
                             }
@@ -114,14 +119,6 @@ public abstract class SyncAdapter implements OBDAdapter {
                     LOGGER.warn("The stream was closed unexpectedly: "+e.getMessage());
                     subscriber.onCompleted();
                     subscriber.unsubscribe();
-                } catch (InvalidCommandResponseException e) {
-                    LOGGER.warn(e.getMessage(), e);
-                } catch (NoDataReceivedException e) {
-                    LOGGER.warn(e.getMessage(), e);
-                } catch (UnmatchedResponseException e) {
-                    LOGGER.warn(e.getMessage(), e);
-                } catch (AdapterSearchingException e) {
-                    LOGGER.warn(e.getMessage(), e);
                 }
             }
         });
