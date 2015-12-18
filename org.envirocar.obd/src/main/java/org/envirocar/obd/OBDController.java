@@ -72,7 +72,6 @@ public class OBDController {
     private ConnectionListener connectionListener;
     private String deviceName;
     private boolean userRequestedStop = false;
-    private boolean retried;
 	private Bus eventBus;
 	private Scheduler.Worker eventBusWorker;
 	
@@ -146,7 +145,6 @@ public class OBDController {
 	 * @throws AllAdaptersFailedException if the list has reached its end
 	 */
 	private void selectNextAdapter() throws AllAdaptersFailedException {
-		this.retried = false;
 		this.obdAdapter = adapterCandidates.poll();
 
 		if (this.obdAdapter == null) {
@@ -162,10 +160,12 @@ public class OBDController {
 	 * The init times out fater a pre-defined period.
 	 */
 	private void startInitialization() {
-		this.initialSubscription = new Subscriber<Boolean>() {
+		initialSubscription = new Subscriber<Boolean>() {
+
+            private boolean retried = false;
+
 			@Override
 			public void onCompleted() {
-				this.unsubscribe();
 			}
 
 			@Override
@@ -210,7 +210,7 @@ public class OBDController {
 				//dataListener.onConnected(deviceName);
 
 				//unsubscribe, otherwise we will get a timeout
-				initialSubscription.unsubscribe();
+				this.unsubscribe();
 			}
 
 		};

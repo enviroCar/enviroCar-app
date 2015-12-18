@@ -68,45 +68,48 @@ public abstract class AsyncAdapter implements OBDAdapter {
             @Override
             public void call(final Subscriber<? super Boolean> subscriber) {
                 while (!subscriber.isUnsubscribed()) {
+                    synchronized (inputStream) {
 
-                    /**
-                     * poll the next possible command
-                     */
-                    BasicCommand cmd = pollNextCommand();
-                    if (cmd != null) {
+                        /**
+                         * poll the next possible command
+                         */
+                        BasicCommand cmd = pollNextCommand();
+                        if (cmd != null) {
+                            try {
+                                commandExecutor.execute(cmd);
+                            } catch (IOException e) {
+                                subscriber.onError(e);
+                                subscriber.unsubscribe();
+                            }
+                        }
+
                         try {
-                            commandExecutor.execute(cmd);
+                            byte[] response = commandExecutor.retrieveLatestResponse();
+
+                            processResponse(response);
+
+                            if (hasVerifiedConnection()) {
+                                subscriber.onNext(true);
+                                subscriber.onCompleted();
+                            }
+
                         } catch (IOException e) {
                             subscriber.onError(e);
                             subscriber.unsubscribe();
+                        } catch (StreamFinishedException e) {
+                            subscriber.onError(e);
+                            subscriber.unsubscribe();
+                        } catch (InvalidCommandResponseException e) {
+                            LOGGER.warn(e.getMessage(), e);
+                        } catch (NoDataReceivedException e) {
+                            LOGGER.warn(e.getMessage(), e);
+                        } catch (UnmatchedResponseException e) {
+                            LOGGER.warn(e.getMessage(), e);
+                        } catch (AdapterSearchingException e) {
+                            LOGGER.warn(e.getMessage(), e);
                         }
                     }
 
-                    try {
-                        byte[] response = commandExecutor.retrieveLatestResponse();
-
-                        processResponse(response);
-
-                        if (hasVerifiedConnection()) {
-                            subscriber.onNext(true);
-                            subscriber.onCompleted();
-                        }
-
-                    } catch (IOException e) {
-                        subscriber.onError(e);
-                        subscriber.unsubscribe();
-                    } catch (StreamFinishedException e) {
-                        subscriber.onError(e);
-                        subscriber.unsubscribe();
-                    } catch (InvalidCommandResponseException e) {
-                        LOGGER.warn(e.getMessage(), e);
-                    } catch (NoDataReceivedException e) {
-                        LOGGER.warn(e.getMessage(), e);
-                    } catch (UnmatchedResponseException e) {
-                        LOGGER.warn(e.getMessage(), e);
-                    } catch (AdapterSearchingException e) {
-                        LOGGER.warn(e.getMessage(), e);
-                    }
                 }
             }
         });
@@ -128,60 +131,62 @@ public abstract class AsyncAdapter implements OBDAdapter {
             public void call(Subscriber<? super DataResponse> subscriber) {
 
                 while (!subscriber.isUnsubscribed()) {
-                    /**
-                     * poll the next possible command
-                     */
-                    BasicCommand cmd = pollNextCommand();
-                    if (cmd != null) {
+                    synchronized (inputStream) {
+                        /**
+                         * poll the next possible command
+                         */
+                        BasicCommand cmd = pollNextCommand();
+                        if (cmd != null) {
+                            try {
+                                commandExecutor.execute(cmd);
+                            } catch (IOException e) {
+                                subscriber.onError(e);
+                                subscriber.unsubscribe();
+                            }
+                        }
+
+                        /**
+                         * read the inputstream byte by byte
+                         */
                         try {
-                            commandExecutor.execute(cmd);
+                            byte[] bytes = commandExecutor.retrieveLatestResponse();
+
+                            try {
+                                DataResponse result = processResponse(bytes);
+
+                                /**
+                                 * call our subscriber!
+                                 */
+                                if (result != null) {
+                                    subscriber.onNext(result);
+                                }
+                            } catch (AdapterSearchingException e) {
+                                LOGGER.warn("Adapter still searching: " + e.getMessage());
+                            } catch (NoDataReceivedException e) {
+                                LOGGER.warn("No data received: " + e.getMessage());
+                            } catch (InvalidCommandResponseException e) {
+                                LOGGER.warn("InvalidCommandResponseException: " + e.getMessage());
+                            } catch (UnmatchedResponseException e) {
+                                LOGGER.warn("Unmatched response: " + e.getMessage());
+                            }
+
                         } catch (IOException e) {
+                            /**
+                             * IOException signals broken connection,
+                             * notify subscriber accordingly
+                             */
                             subscriber.onError(e);
                             subscriber.unsubscribe();
-                        }
-                    }
-
-                    /**
-                     * read the inputstream byte by byte
-                     */
-                    try {
-                        byte[] bytes = commandExecutor.retrieveLatestResponse();
-
-                        try {
-                            DataResponse result = processResponse(bytes);
-
+                            return;
+                        } catch (StreamFinishedException e) {
                             /**
-                             * call our subscriber!
+                             * the stream has ended, notify the subscriber
                              */
-                            if (result != null) {
-                                subscriber.onNext(result);
-                            }
-                        } catch (AdapterSearchingException e) {
-                            LOGGER.warn("Adapter still searching: " + e.getMessage());
-                        } catch (NoDataReceivedException e) {
-                            LOGGER.warn("No data received: " + e.getMessage());
-                        } catch (InvalidCommandResponseException e) {
-                            LOGGER.warn("InvalidCommandResponseException: " + e.getMessage());
-                        } catch (UnmatchedResponseException e) {
-                            LOGGER.warn("Unmatched response: " + e.getMessage());
+                            LOGGER.info("The stream was closed: "+e.getMessage());
+                            subscriber.onCompleted();
+                            subscriber.unsubscribe();
+                            return;
                         }
-
-                    } catch (IOException e) {
-                        /**
-                         * IOException signals broken connection,
-                         * notify subscriber accordingly
-                         */
-                        subscriber.onError(e);
-                        subscriber.unsubscribe();
-                        return;
-                    } catch (StreamFinishedException e) {
-                        /**
-                         * the stream has ended, notify the subscriber
-                         */
-                        LOGGER.info("The stream was closed: "+e.getMessage());
-                        subscriber.onCompleted();
-                        subscriber.unsubscribe();
-                        return;
                     }
 
                 }
