@@ -135,7 +135,6 @@ public class OBDConnectionService extends BaseInjectorService {
 
     // Member fields required for the connection to the OBD device.
     private OBDController mOBDController;
-    private OBDBluetoothConnection mOBDConnection;
 
     // Different subscriptions
     private CompositeSubscription subscriptions = new CompositeSubscription();
@@ -650,124 +649,45 @@ public class OBDConnectionService extends BaseInjectorService {
             mOBDController.shutdown();
         }
 
-        if (mOBDConnection != null) {
-            mOBDConnection.cancelConnection();
-        }
+        shutdownSocket(bluetoothSocketWrapper);
     }
 
+    private void shutdownSocket(BluetoothSocketWrapper socket) {
+        LOG.info("Shutting down bluetooth socket...");
 
-    /**
-     *
-     */
-    class OBDBluetoothConnection extends Thread {
-
-        // The required input variables.
-        private final BluetoothDevice mDevice;
-        private final List<UUID> mUUIDCandidates;
-
-        // Boolean variables indicating the state.
-        private boolean mSuccess;
-        private boolean mIsRunning;
-
-        // The socket wrapper for the connection.
-        private BluetoothSocketWrapper mSocketWrapper;
-
-        /**
-         * Constructor
-         *
-         * @param device
-         * @param uuids
-         */
-        public OBDBluetoothConnection(BluetoothDevice device, List<UUID> uuids) {
-            this.mDevice = device;
-            this.mUUIDCandidates = uuids;
-            this.mIsRunning = true;
-        }
-
-        @Override
-        public void run() {
-            for (UUID uuid : mUUIDCandidates) {
-                if (!mIsRunning)
-                    return;
-
-                try {
-                    LOG.info("Trying to create native bleutooth socket");
-                    mSocketWrapper = new NativeBluetoothSocket(mDevice
-                            .createRfcommSocketToServiceRecord(uuid));
-                } catch (IOException e) {
-                    LOG.info("Error");
-
-                    LOG.warn(e.getMessage(), e);
-                    continue;
-                }
-
-                if (mSocketWrapper == null)
-                    continue;
-
-                try {
-                    // This is a blocking call and will only return on a
-                    // successful connection or an exception
-                    mSocketWrapper.connect();
-                    mSuccess = true;
-                } catch (IOException e) {
-                    LOG.warn("Exception on bluetooth connection. Trying " +
-                            "the fallback... : "
-                            + e.getMessage(), e);
-                    try {
-                        //try the fallback
-                        if (mIsRunning) {
-
-                            mSocketWrapper = new FallbackBluetoothSocket(mSocketWrapper
-                                    .getUnderlyingSocket());
-                            Thread.sleep(500);
-                            mSocketWrapper.connect();
-                            mSuccess = true;
-                        }
-                    } catch (FallbackBluetoothSocket.FallbackException e1) {
-                        e1.printStackTrace();
-                    } catch (InterruptedException e1) {
-                        e1.printStackTrace();
-                    } catch (IOException e1) {
-                        shutdownSocket(mSocketWrapper);
-                    }
-                }
-
-                if (mSuccess) {
-                    LOG.info("successful connected");
-                    onDeviceConnected(mSocketWrapper);
-                    break;
-                }
+        try {
+            if (socket.getInputStream() != null) {
+                socket.getInputStream().close();
             }
-        }
-
-        private void shutdownSocket(BluetoothSocketWrapper socket) {
-            OBDConnectionService.LOG.info("Shutting down bluetooth socket.");
-
-            try {
-                if (socket.getInputStream() != null)
-                    socket.getInputStream().close();
-
-            } catch (Exception e) {
+            else {
+                LOG.warn("No socket InputStream found for closing");
             }
 
-            try {
-                if (socket.getOutputStream() != null)
-                    socket.getOutputStream().close();
-
-            } catch (Exception e) {
-            }
-
-            try {
-                socket.close();
-            } catch (Exception e) {
-            }
+        } catch (Exception e) {
+            LOG.warn(e.getMessage(), e);
         }
 
-        private void cancelConnection() {
-            mIsRunning = false;
-            shutdownSocket(mSocketWrapper);
+        try {
+            if (socket.getOutputStream() != null) {
+                socket.getOutputStream().close();
+            }
+            else {
+                LOG.warn("No socket OutputStream found for closing");
+            }
+
+        } catch (Exception e) {
+            LOG.warn(e.getMessage(), e);
         }
+
+        try {
+            socket.close();
+        } catch (Exception e) {
+            LOG.warn(e.getMessage(), e);
+        }
+
+        LOG.info("bluetooth socket down!");
     }
+
 
     public class OBDConnectionRecognizer {
         private static final long OBD_INTERVAL = 1000 * 10; // 10 seconds;
