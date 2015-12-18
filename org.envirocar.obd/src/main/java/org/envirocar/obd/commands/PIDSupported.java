@@ -51,37 +51,6 @@ public class PIDSupported implements BasicCommand {
         this.group = group;
     }
 
-    /**
-     * @return the set of PIDs that are supported by a car,
-     * encoded as their HEX byte strings
-     */
-    public Set<PID> getSupportedPIDs() {
-        if (pids == null) {
-            pids = new HashSet<PID>();
-
-            for (int i = 0; i < bytes.length; i++) {
-                int current = bytes[i];
-
-                for (int bit = 3; bit >= 0; bit--) {
-                    boolean is = ((current >> bit) & 1 ) == 1;
-                    if (is) {
-						/*
-						 * we are starting at PID 01 and not 00
-						 */
-                        PID pid = PIDUtil.fromString(createHex(i*4 + (3-bit) + 1));
-                        if (pid != null) {
-                            pids.add(pid);
-                        }
-                    }
-                }
-
-            }
-        }
-
-        return pids;
-    }
-
-
     private String createHex(int i) {
         String result = Integer.toString(i, 16);
         if (result.length() == 1) result = "0".concat(result);

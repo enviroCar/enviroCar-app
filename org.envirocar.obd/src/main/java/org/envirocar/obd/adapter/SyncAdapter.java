@@ -235,15 +235,10 @@ public abstract class SyncAdapter implements OBDAdapter {
         if (requestCommands == null) {
             requestCommands = new ArrayList<>();
 
-            addIfSupported(PID.SPEED);
-            addIfSupported(PID.MAF);
-            addIfSupported(PID.RPM);
-            addIfSupported(PID.INTAKE_MAP);
-            addIfSupported(PID.INTAKE_AIR_TEMP);
-            addIfSupported(PID.CALCULATED_ENGINE_LOAD);
-            addIfSupported(PID.TPS);
-            addIfSupported(PID.O2_LAMBDA_PROBE_1_VOLTAGE);
-            addIfSupported(PID.O2_LAMBDA_PROBE_1_CURRENT);
+            for (PID p: PID.values()) {
+                addIfSupported(p);
+            }
+
         }
 
         return requestCommands;

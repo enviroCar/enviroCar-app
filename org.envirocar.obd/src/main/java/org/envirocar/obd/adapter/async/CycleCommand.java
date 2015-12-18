@@ -100,6 +100,51 @@ public class CycleCommand implements BasicCommand {
 			if (result.length() == 1) result = "0"+result;
 			return "0x".concat(result);
 		}
+
+        public static DriveDeckPID fromDefaultPID(PID p) {
+            switch (p) {
+                case SHORT_TERM_FUEL_TRIM_BANK_1:
+                case LONG_TERM_FUEL_TRIM_BANK_1:
+                case FUEL_PRESSURE:
+                case FUEL_SYSTEM_STATUS:
+                    return null;
+                case CALCULATED_ENGINE_LOAD:
+                    return DriveDeckPID.ENGINE_LOAD;
+                case INTAKE_MAP:
+                    return DriveDeckPID.IAP;
+                case RPM:
+                    return DriveDeckPID.RPM;
+                case SPEED:
+                    return DriveDeckPID.SPEED;
+                case INTAKE_AIR_TEMP:
+                    return DriveDeckPID.IAT;
+                case MAF:
+                    return DriveDeckPID.MAF;
+                case TPS:
+                    return DriveDeckPID.TPS;
+                case O2_LAMBDA_PROBE_1_VOLTAGE:
+                    return DriveDeckPID.O2_LAMBDA_PROBE_1_VOLTAGE;
+                case O2_LAMBDA_PROBE_1_CURRENT:
+                    return DriveDeckPID.O2_LAMBDA_PROBE_1_CURRENT;
+                case O2_LAMBDA_PROBE_2_VOLTAGE:
+                case O2_LAMBDA_PROBE_3_VOLTAGE:
+                case O2_LAMBDA_PROBE_4_VOLTAGE:
+                case O2_LAMBDA_PROBE_5_VOLTAGE:
+                case O2_LAMBDA_PROBE_6_VOLTAGE:
+                case O2_LAMBDA_PROBE_7_VOLTAGE:
+                case O2_LAMBDA_PROBE_8_VOLTAGE:
+                case O2_LAMBDA_PROBE_2_CURRENT:
+                case O2_LAMBDA_PROBE_3_CURRENT:
+                case O2_LAMBDA_PROBE_4_CURRENT:
+                case O2_LAMBDA_PROBE_5_CURRENT:
+                case O2_LAMBDA_PROBE_6_CURRENT:
+                case O2_LAMBDA_PROBE_7_CURRENT:
+                case O2_LAMBDA_PROBE_8_CURRENT:
+                    return null;
+            }
+
+            return null;
+        }
 	}
 
 

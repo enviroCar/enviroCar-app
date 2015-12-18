@@ -25,6 +25,7 @@ import android.util.Base64;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.adapter.ResponseQuirkWorkaround;
 import org.envirocar.obd.commands.PID;
+import org.envirocar.obd.commands.PIDSupported;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.exception.AdapterSearchingException;
@@ -43,6 +44,7 @@ import java.util.Set;
 public class DriveDeckSportAdapter extends AsyncAdapter {
 
     private static final Logger logger = Logger.getLogger(DriveDeckSportAdapter.class);
+    private int pidSupportedResponsesParsed;
 
     private static enum Protocol {
         CAN11500, CAN11250, CAN29500, CAN29250, KWP_SLOW, KWP_FAST, ISO9141
@@ -62,11 +64,11 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     private Set<String> loggedPids = new HashSet<>();
     private org.envirocar.obd.commands.response.ResponseParser parser = new org.envirocar.obd.commands.response.ResponseParser();
     private Queue<BasicCommand> pendingCommands;
+    private Set<PID> supportedPIDs = new HashSet<>();
 
 
     public DriveDeckSportAdapter() {
         super(CARRIAGE_RETURN, END_OF_LINE_RESPONSE);
-        createCommand();
     }
 
     @Override
@@ -76,62 +78,78 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
 
     private void createCommand() {
         List<CycleCommand.DriveDeckPID> pidList = new ArrayList<>();
-        pidList.add(CycleCommand.DriveDeckPID.SPEED);
-//        pidList.add(CycleCommand.DriveDeckPID.MAF);
-        pidList.add(CycleCommand.DriveDeckPID.RPM);
-        pidList.add(CycleCommand.DriveDeckPID.IAP);
-        pidList.add(CycleCommand.DriveDeckPID.IAT);
-        pidList.add(CycleCommand.DriveDeckPID.ENGINE_LOAD);
-        pidList.add(CycleCommand.DriveDeckPID.TPS);
-//        pidList.add(CycleCommand.DriveDeckPID.O2_LAMBDA_PROBE_1_VOLTAGE);
-//        pidList.add(CycleCommand.DriveDeckPID.O2_LAMBDA_PROBE_1_CURRENT);
+
+        for (PID p: PID.values()) {
+            addIfSupported(p, pidList);
+        }
+
         this.cycleCommand = new CycleCommand(pidList);
+        logger.info("Static Cycle Command: "+ Base64.encodeToString(this.cycleCommand.getOutputBytes(), Base64.DEFAULT));
 
         this.pendingCommands = new ArrayDeque<>();
         this.pendingCommands.offer(new CarriageReturnCommand());
+    }
+
+    private void addIfSupported(PID pid, List<CycleCommand.DriveDeckPID> pidList) {
+        CycleCommand.DriveDeckPID driveDeckPID = CycleCommand.DriveDeckPID.fromDefaultPID(pid);
+
+        if (driveDeckPID == null) {
+            logger.info("No DriveDeck equivalent for PID: "+pid);
+            return;
+        }
+
+        if (supportedPIDs == null || supportedPIDs.isEmpty()) {
+            pidList.add(driveDeckPID);
+        }
+        else if (supportedPIDs.contains(pid)) {
+            pidList.add(driveDeckPID);
+        }
+        else {
+            logger.info("PID "+pid+" not supported. Skipping.");
+        }
     }
 
     private void processDiscoveredControlUnits(String substring) {
         logger.info("Discovered CUs... ");
     }
 
-    //TODO: not used atm, implement!
     protected void processSupportedPID(byte[] bytes) throws InvalidCommandResponseException, NoDataReceivedException,
             UnmatchedResponseException, AdapterSearchingException {
 
         logger.info("PID Supported response: "+Base64.encodeToString(bytes, Base64.DEFAULT));
 
-//        if (bytes.length < 10) {
-//            logger.info("PID Supported response to small: "+bytes.length);
-//            return;
-//        }
-//
-//        /**
-//         * check for group 00
-//         */
-//        if (bytes[6] == '0' && bytes[7] == '0') {
-//            /*
-//             * this is the first group containing the PIDs of major interest
-//			 */
-//            PIDSupported pidCmd = new PIDSupported();
-//            byte[] rawBytes = new byte[12];
-//            rawBytes[0] = '4';
-//            rawBytes[1] = '1';
-//            rawBytes[2] = (byte) pidCmd.getGroup().charAt(0);
-//            rawBytes[3] = (byte) pidCmd.getGroup().charAt(1);
-//            int target = 4;
-//            String hexTmp;
-//            for (int i = 9; i < bytes.length; i++) {
-//                if (i == 11) continue;
-//                hexTmp = oneByteToHex(bytes[i]);
-//                rawBytes[target++] = (byte) hexTmp.charAt(0);
-//                rawBytes[target++] = (byte) hexTmp.charAt(1);
-//            }
-//
-//            pidCmd.parsePIDs(rawBytes);
-//
-//            logger.info("Supported PIDs: "+ Arrays.toString(pidCmd.getSupportedPIDs().toArray()));
-//        }
+        if (bytes.length < 14) {
+            logger.info("PID Supported response to small: "+bytes.length);
+            return;
+        }
+
+        /**
+         * check for group 00
+         */
+        String group = new String(new byte[]{bytes[6], bytes[7]});
+        PIDSupported pidCmd = new PIDSupported(group);
+        byte[] rawBytes = new byte[12];
+        rawBytes[0] = '4';
+        rawBytes[1] = '1';
+        rawBytes[2] = (byte) pidCmd.getGroup().charAt(0);
+        rawBytes[3] = (byte) pidCmd.getGroup().charAt(1);
+        int target = 4;
+        String hexTmp;
+        for (int i = 9; i < bytes.length; i++) {
+            if (i == 11) continue;
+            hexTmp = oneByteToHex(bytes[i]);
+            rawBytes[target++] = (byte) hexTmp.charAt(0);
+            rawBytes[target++] = (byte) hexTmp.charAt(1);
+        }
+
+        this.supportedPIDs.addAll(pidCmd.parsePIDs(rawBytes));
+
+        logger.info("Supported PIDs: "+ this.supportedPIDs);
+
+        if (++pidSupportedResponsesParsed == 2) {
+            logger.info("Received two PID supported responses. Creating cycle command");
+            createCommand();
+        }
     }
 
     private String oneByteToHex(byte b) {
