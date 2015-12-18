@@ -1,5 +1,8 @@
 package org.envirocar.obd.adapter;
 
+import android.util.Base64;
+
+import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.request.PIDCommand;
 import org.envirocar.obd.commands.request.elm.ConfigurationCommand;
@@ -19,6 +22,7 @@ import rx.Observable;
  */
 public class ELM327Adapter extends SyncAdapter {
 
+    private static final Logger LOG = Logger.getLogger(ELM327Adapter.class);
 
     private Queue<BasicCommand> initCommands;
     protected int succesfulCount;
@@ -54,6 +58,7 @@ public class ELM327Adapter extends SyncAdapter {
     @Override
     protected boolean analyzeMetadataResponse(byte[] response, BasicCommand sentCommand) throws AdapterFailedException {
         String content = new String(response);
+        LOG.info("Analyzing metadata response: "+ Base64.encodeToString(response, Base64.DEFAULT));
 
         if (sentCommand == null || !(sentCommand instanceof ConfigurationCommand)) {
             return false;
@@ -62,10 +67,7 @@ public class ELM327Adapter extends SyncAdapter {
         ConfigurationCommand sent = (ConfigurationCommand) sentCommand;
 
         if (sent.getInstance() == ConfigurationCommand.Instance.ECHO_OFF) {
-            if (content.contains("ELM327v1.")) {
-                succesfulCount++;
-            }
-            else if (content.contains("ATE0") && content.contains("OK")) {
+            if (content.contains("ELM327v1.") || content.contains("OK")) {
                 succesfulCount++;
             }
         }
@@ -87,6 +89,8 @@ public class ELM327Adapter extends SyncAdapter {
                 succesfulCount++;
             }
         }
+
+        LOG.info("succesfulCount="+succesfulCount);
 
         return hasVerifiedConnection();
     }

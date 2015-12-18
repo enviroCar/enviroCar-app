@@ -1,5 +1,7 @@
 package org.envirocar.obd.adapter;
 
+import android.util.Base64;
+
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.request.PIDCommand;
@@ -69,7 +71,8 @@ public class CarTrendAdapter extends SyncAdapter {
 
     @Override
     protected boolean analyzeMetadataResponse(byte[] response, BasicCommand sentCommand) throws AdapterFailedException {
-        logger.info("Parsing meta response: "+ new String(response)+ "; sentCommand="+new String(sentCommand.getOutputBytes()));
+        logger.info("Parsing meta response: "+ Base64.encodeToString(response, Base64.DEFAULT)+
+                "; sentCommand="+Base64.encodeToString(sentCommand.getOutputBytes(), Base64.DEFAULT));
 
         if (response == null || response.length == 0) {
             return false;
