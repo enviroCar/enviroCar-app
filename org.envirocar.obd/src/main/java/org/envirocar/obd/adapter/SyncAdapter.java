@@ -53,12 +53,10 @@ public abstract class SyncAdapter implements OBDAdapter {
     private List<PIDCommand> requestCommands;
     private Queue<PIDCommand> commandRingBuffer = new ArrayDeque<>();
     private Queue<PIDSupported> pidSupportedCommands = new ArrayDeque<>(Arrays.asList(new PIDSupported[] {new PIDSupported(), new PIDSupported("20")}));
-    private InputStream inputStream;
 
 
     @Override
     public Observable<Boolean> initialize(InputStream is, OutputStream os) {
-        this.inputStream = is;
         commandExecutor = new CommandExecutor(is, os, ignoredChars, COMMAND_RECEIVE_END, COMMAND_SEND_END);
 
         /**
@@ -73,46 +71,44 @@ public abstract class SyncAdapter implements OBDAdapter {
                     boolean analyzedSuccessfully = false;
 
                     while (!subscriber.isUnsubscribed()) {
-                        synchronized (inputStream) {
-                            if (analyzedSuccessfully) {
-                                /**
-                                 * a successful data connection has been established:
-                                 * retrieve the supported PIDs
-                                 */
-                                PIDSupported pid = pidSupportedCommands.poll();
-                                while (pid != null) {
-                                    commandExecutor.execute(pid);
-                                    byte[] resp = commandExecutor.retrieveLatestResponse();
-                                    try {
-                                        supportedPIDs.addAll(pid.parsePIDs(resp));
-                                    } catch (InvalidCommandResponseException | NoDataReceivedException
-                                            | UnmatchedResponseException | AdapterSearchingException e) {
-                                        LOGGER.warn(e.getMessage(), e);
-                                    }
-                                    LOGGER.info("Currently supported PIDs: " + supportedPIDs.toString());
-                                    pid = pidSupportedCommands.poll();
+                        if (analyzedSuccessfully) {
+                            /**
+                             * a successful data connection has been established:
+                             * retrieve the supported PIDs
+                             */
+                            PIDSupported pid = pidSupportedCommands.poll();
+                            while (pid != null) {
+                                commandExecutor.execute(pid);
+                                byte[] resp = commandExecutor.retrieveLatestResponse();
+                                try {
+                                    supportedPIDs.addAll(pid.parsePIDs(resp));
+                                } catch (InvalidCommandResponseException | NoDataReceivedException
+                                        | UnmatchedResponseException | AdapterSearchingException e) {
+                                    LOGGER.warn(e.getMessage(), e);
                                 }
-    
-                                subscriber.onNext(true);
+                                LOGGER.info("Currently supported PIDs: " + supportedPIDs.toString());
+                                pid = pidSupportedCommands.poll();
+                            }
+
+                            subscriber.onNext(true);
+                            subscriber.unsubscribe();
+                        }
+                        else {
+                            BasicCommand cc = pollNextInitializationCommand();
+
+                            if (cc == null) {
+                                subscriber.onError(new AdapterFailedException(
+                                        "All init commands sent, but could not verify connection"));
                                 subscriber.unsubscribe();
                             }
-                            else {
-                                BasicCommand cc = pollNextInitializationCommand();
-    
-                                if (cc == null) {
-                                    subscriber.onError(new AdapterFailedException(
-                                            "All init commands sent, but could not verify connection"));
-                                    subscriber.unsubscribe();
-                                }
-    
-                                //push the command to the output stream
-                                commandExecutor.execute(cc);
-    
-                                //check if the command needs a response (most likely)
-                                if (cc.awaitsResults()) {
-                                    byte[] resp = commandExecutor.retrieveLatestResponse();
-                                    analyzedSuccessfully = analyzeMetadataResponse(resp, cc);
-                                }
+
+                            //push the command to the output stream
+                            commandExecutor.execute(cc);
+
+                            //check if the command needs a response (most likely)
+                            if (cc.awaitsResults()) {
+                                byte[] resp = commandExecutor.retrieveLatestResponse();
+                                analyzedSuccessfully = analyzeMetadataResponse(resp, cc);
                             }
                         }
                     }
@@ -145,52 +141,49 @@ public abstract class SyncAdapter implements OBDAdapter {
                 PIDCommand latestCommand = null;
                 byte[] bytes = null;
                 while (!subscriber.isUnsubscribed()) {
-                    synchronized (inputStream) {
-                        try {
-                            latestCommand = pollNextCommand();
-                            LOGGER.debug("Sending command " + (latestCommand != null ? latestCommand.getPid().toString() : "n/a"));
+                    try {
+                        latestCommand = pollNextCommand();
+                        LOGGER.debug("Sending command " + (latestCommand != null ? latestCommand.getPid().toString() : "n/a"));
 
-                            /**
-                             * write the next pending command
-                             */
-                            if (latestCommand != null) {
-                                commandExecutor.execute(latestCommand);
-                            }
-
-                            /**
-                             * read the next incoming response
-                             */
-                            bytes = commandExecutor.retrieveLatestResponse();
-
-                            DataResponse response = parser.parse(preProcess(bytes));
-
-                            if (response != null) {
-                                LOGGER.debug("isUnsubscribed? " + subscriber.isUnsubscribed());
-                                subscriber.onNext(response);
-                            }
-                        } catch (IOException e) {
-                            subscriber.onError(e);
-                            subscriber.unsubscribe();
-                        } catch (AdapterFailedException e) {
-                            subscriber.onError(e);
-                            subscriber.unsubscribe();
-                        } catch (StreamFinishedException e) {
-                            LOGGER.info("Stream finished: "+ e.getMessage());
-                            subscriber.onCompleted();
-                            subscriber.unsubscribe();
-                        } catch (AdapterSearchingException e) {
-                            LOGGER.warn("Adapter still searching: " + e.getMessage());
-                        } catch (NoDataReceivedException e) {
-                            LOGGER.warn("No data received: " + e.getMessage());
-                            increaseFailureCount(latestCommand.getPid());
-                        } catch (InvalidCommandResponseException e) {
-                            LOGGER.warn("Received InvalidCommandResponseException: " + e.getCommand());
-                            increaseFailureCount(PIDUtil.fromString(e.getCommand()));
-                        } catch (UnmatchedResponseException e) {
-                            LOGGER.warn("Unmatched response: " + e.getMessage());
+                        /**
+                         * write the next pending command
+                         */
+                        if (latestCommand != null) {
+                            commandExecutor.execute(latestCommand);
                         }
-                    }
 
+                        /**
+                         * read the next incoming response
+                         */
+                        bytes = commandExecutor.retrieveLatestResponse();
+
+                        DataResponse response = parser.parse(preProcess(bytes));
+
+                        if (response != null) {
+                            LOGGER.debug("isUnsubscribed? " + subscriber.isUnsubscribed());
+                            subscriber.onNext(response);
+                        }
+                    } catch (IOException e) {
+                        subscriber.onError(e);
+                        subscriber.unsubscribe();
+                    } catch (AdapterFailedException e) {
+                        subscriber.onError(e);
+                        subscriber.unsubscribe();
+                    } catch (StreamFinishedException e) {
+                        LOGGER.info("Stream finished: "+ e.getMessage());
+                        subscriber.onCompleted();
+                        subscriber.unsubscribe();
+                    } catch (AdapterSearchingException e) {
+                        LOGGER.warn("Adapter still searching: " + e.getMessage());
+                    } catch (NoDataReceivedException e) {
+                        LOGGER.warn("No data received: " + e.getMessage());
+                        increaseFailureCount(latestCommand.getPid());
+                    } catch (InvalidCommandResponseException e) {
+                        LOGGER.warn("Received InvalidCommandResponseException: " + e.getCommand());
+                        increaseFailureCount(PIDUtil.fromString(e.getCommand()));
+                    } catch (UnmatchedResponseException e) {
+                        LOGGER.warn("Unmatched response: " + e.getMessage());
+                    }
                 }
 
             }

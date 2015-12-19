@@ -166,6 +166,7 @@ public class OBDController {
 
 			@Override
 			public void onCompleted() {
+                this.unsubscribe();
 			}
 
 			@Override
