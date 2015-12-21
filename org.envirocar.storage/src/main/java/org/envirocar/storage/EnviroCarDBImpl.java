@@ -85,6 +85,12 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     @Override
+    public Observable<List<Track>> getAllTracksByCar(String carID, boolean lazy) {
+        return fetchTracksObservable("SELECT * FROM " + TrackTable.TABLE_TRACK +
+                " WHERE " + TrackTable.KEY_TRACK_CAR_ID + "='" + carID + "'", lazy);
+    }
+
+    @Override
     public Observable<List<Track>> getAllLocalTracks() {
         return getAllLocalTracks(false);
     }
@@ -170,13 +176,14 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     @Override
-    public Observable<Boolean> updateTrackObservable(Track track) {
-        return Observable.create(new Observable.OnSubscribe<Boolean>() {
+    public Observable<Track> updateTrackObservable(Track track) {
+        return Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
-            public void call(Subscriber<? super Boolean> subscriber) {
+            public void call(Subscriber<? super Track> subscriber) {
                 subscriber.onStart();
-                subscriber.onNext(updateTrack(track));
-                subscriber.unsubscribe();
+                if (updateTrack(track))
+                    subscriber.onNext(track);
+                subscriber.onCompleted();
             }
         });
     }

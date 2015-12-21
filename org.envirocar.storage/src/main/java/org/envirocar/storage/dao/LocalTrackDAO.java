@@ -98,6 +98,11 @@ public class LocalTrackDAO implements TrackDAO {
     }
 
     @Override
+    public Observable<Track> createTrackObservable(Track track) {
+        return null;
+    }
+
+    @Override
     public void deleteTrack(String remoteID) throws DataUpdateFailureException,
             NotConnectedException, UnauthorizedException {
 

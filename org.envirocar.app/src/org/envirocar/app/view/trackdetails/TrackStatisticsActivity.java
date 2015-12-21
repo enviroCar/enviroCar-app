@@ -32,7 +32,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.envirocar.app.R;
-import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.injection.BaseInjectorActivity;
@@ -74,8 +73,6 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
 
     @Inject
     protected EnviroCarDB enviroCarDB;
-    @Inject
-    protected DbAdapter mDBAdapter;
 
     @InjectView(R.id.activity_track_statistics_toolbar)
     protected Toolbar mToolbar;
@@ -143,126 +140,126 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
         return super.onOptionsItemSelected(item);
     }
 
-public static class PlaceholderFragment extends Fragment {
+    public static class PlaceholderFragment extends Fragment {
 
-    @InjectView(R.id.activity_track_statistics_fragment_chart)
-    protected LineChartView mChart;
-    @InjectView(R.id.activity_track_statistics_fragment_chart_preview)
-    protected PreviewLineChartView mPreviewChart;
+        @InjectView(R.id.activity_track_statistics_fragment_chart)
+        protected LineChartView mChart;
+        @InjectView(R.id.activity_track_statistics_fragment_chart_preview)
+        protected PreviewLineChartView mPreviewChart;
 
-    private LineChartData mChartData;
-    private LineChartData mPreviewChartData;
+        private LineChartData mChartData;
+        private LineChartData mPreviewChartData;
 
-    private final Track mTrack;
+        private final Track mTrack;
 
-    public PlaceholderFragment() {
-        this(null);
-    }
-
-    @SuppressLint("ValidFragment")
-    public PlaceholderFragment(Track track) {
-        this.mTrack = track;
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
-            savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.activity_track_statistics_fragment,
-                container, false);
-
-        // Inject all annotated views.
-        ButterKnife.inject(this, rootView);
-
-        generateData(Measurement.PropertyKey.SPEED);
-
-        mChart.setZoomEnabled(false);
-        mChart.setScrollEnabled(false);
-
-
-        mPreviewChart.setViewportChangeListener(new DummyVieportChangeListener() {
-            @Override
-            public void onViewportChanged(Viewport viewport) {
-                mChart.setCurrentViewport(viewport);
-            }
-        });
-
-        return rootView;
-    }
-
-    private void generateData(Measurement.PropertyKey propertyKey) {
-        List<PointValue> values = new ArrayList<PointValue>();
-
-        List<Measurement> measurements = mTrack.getMeasurements();
-
-        for (int i = 0; i < measurements.size(); i++) {
-            Measurement m = measurements.get(i);
-            if (m != null && m.hasProperty(propertyKey)) {
-                values.add(new PointValue(i, m.getProperty(propertyKey).floatValue()));
-            }
+        public PlaceholderFragment() {
+            this(null);
         }
 
-        Line line = new Line(values);
-        line.setColor(getResources().getColor(R.color.green_dark_cario));
-        line.setHasPoints(false);
-
-        List<Line> lines = new ArrayList<Line>();
-        lines.add(line);
-
-        mChartData = new LineChartData(lines);
-        mChartData.setAxisXBottom(new Axis());
-        mChartData.setAxisYLeft(new Axis().setHasLines(true));
-
-        mPreviewChartData = new LineChartData(mChartData);
-        mPreviewChartData.getLines().get(0).setColor(ChartUtils.DEFAULT_DARKEN_COLOR);
-
-        // Set the data in the charts.
-        mChart.setLineChartData(mChartData);
-        mPreviewChart.setLineChartData(mPreviewChartData);
-
-        // set the preview extent
-        previewX();
-    }
-
-    private void previewX() {
-        Viewport tempViewport = new Viewport(mChart.getMaximumViewport());
-        float dx = tempViewport.width() / 4;
-        tempViewport.inset(dx, 0);
-        mPreviewChart.setCurrentViewportWithAnimation(tempViewport);
-        mPreviewChart.setZoomType(ZoomType.HORIZONTAL);
-    }
-
-    private void previewY() {
-        Viewport tempViewport = new Viewport(mChart.getMaximumViewport());
-        float dy = tempViewport.height() / 4;
-        tempViewport.inset(0, dy);
-        mPreviewChart.setCurrentViewportWithAnimation(tempViewport);
-        mPreviewChart.setZoomType(ZoomType.VERTICAL);
-    }
-
-    private void generateDefaultData() {
-        int numValues = 50;
-
-        List<PointValue> values = new ArrayList<PointValue>();
-        for (int i = 0; i < numValues; ++i) {
-            values.add(new PointValue(i, (float) Math.random() * 100f));
+        @SuppressLint("ValidFragment")
+        public PlaceholderFragment(Track track) {
+            this.mTrack = track;
         }
 
-        Line line = new Line(values);
-        line.setColor(ChartUtils.COLOR_GREEN);
-        line.setHasPoints(false);// too many values so don't draw points.
+        @Nullable
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
+                savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.activity_track_statistics_fragment,
+                    container, false);
 
-        List<Line> lines = new ArrayList<Line>();
-        lines.add(line);
+            // Inject all annotated views.
+            ButterKnife.inject(this, rootView);
 
-        mChartData = new LineChartData(lines);
-        mChartData.setAxisXBottom(new Axis());
-        mChartData.setAxisYLeft(new Axis().setHasLines(true));
+            generateData(Measurement.PropertyKey.SPEED);
 
-        // prepare preview data, is better to use separate deep copy for preview chart.
-        // Set color to grey to make preview area more visible.
-        mPreviewChartData = new LineChartData(mChartData);
-        mPreviewChartData.getLines().get(0).setColor(ChartUtils.DEFAULT_DARKEN_COLOR);
+            mChart.setZoomEnabled(false);
+            mChart.setScrollEnabled(false);
+
+
+            mPreviewChart.setViewportChangeListener(new DummyVieportChangeListener() {
+                @Override
+                public void onViewportChanged(Viewport viewport) {
+                    mChart.setCurrentViewport(viewport);
+                }
+            });
+
+            return rootView;
+        }
+
+        private void generateData(Measurement.PropertyKey propertyKey) {
+            List<PointValue> values = new ArrayList<PointValue>();
+
+            List<Measurement> measurements = mTrack.getMeasurements();
+
+            for (int i = 0; i < measurements.size(); i++) {
+                Measurement m = measurements.get(i);
+                if (m != null && m.hasProperty(propertyKey)) {
+                    values.add(new PointValue(i, m.getProperty(propertyKey).floatValue()));
+                }
+            }
+
+            Line line = new Line(values);
+            line.setColor(getResources().getColor(R.color.green_dark_cario));
+            line.setHasPoints(false);
+
+            List<Line> lines = new ArrayList<Line>();
+            lines.add(line);
+
+            mChartData = new LineChartData(lines);
+            mChartData.setAxisXBottom(new Axis());
+            mChartData.setAxisYLeft(new Axis().setHasLines(true));
+
+            mPreviewChartData = new LineChartData(mChartData);
+            mPreviewChartData.getLines().get(0).setColor(ChartUtils.DEFAULT_DARKEN_COLOR);
+
+            // Set the data in the charts.
+            mChart.setLineChartData(mChartData);
+            mPreviewChart.setLineChartData(mPreviewChartData);
+
+            // set the preview extent
+            previewX();
+        }
+
+        private void previewX() {
+            Viewport tempViewport = new Viewport(mChart.getMaximumViewport());
+            float dx = tempViewport.width() / 4;
+            tempViewport.inset(dx, 0);
+            mPreviewChart.setCurrentViewportWithAnimation(tempViewport);
+            mPreviewChart.setZoomType(ZoomType.HORIZONTAL);
+        }
+
+        private void previewY() {
+            Viewport tempViewport = new Viewport(mChart.getMaximumViewport());
+            float dy = tempViewport.height() / 4;
+            tempViewport.inset(0, dy);
+            mPreviewChart.setCurrentViewportWithAnimation(tempViewport);
+            mPreviewChart.setZoomType(ZoomType.VERTICAL);
+        }
+
+        private void generateDefaultData() {
+            int numValues = 50;
+
+            List<PointValue> values = new ArrayList<PointValue>();
+            for (int i = 0; i < numValues; ++i) {
+                values.add(new PointValue(i, (float) Math.random() * 100f));
+            }
+
+            Line line = new Line(values);
+            line.setColor(ChartUtils.COLOR_GREEN);
+            line.setHasPoints(false);// too many values so don't draw points.
+
+            List<Line> lines = new ArrayList<Line>();
+            lines.add(line);
+
+            mChartData = new LineChartData(lines);
+            mChartData.setAxisXBottom(new Axis());
+            mChartData.setAxisYLeft(new Axis().setHasLines(true));
+
+            // prepare preview data, is better to use separate deep copy for preview chart.
+            // Set color to grey to make preview area more visible.
+            mPreviewChartData = new LineChartData(mChartData);
+            mPreviewChartData.getLines().get(0).setColor(ChartUtils.DEFAULT_DARKEN_COLOR);
+        }
     }
-}
 }

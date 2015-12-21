@@ -20,7 +20,6 @@ package org.envirocar.app.handler;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
@@ -28,8 +27,6 @@ import com.google.common.base.Preconditions;
 
 import org.envirocar.app.R;
 import org.envirocar.app.services.NotificationHandler;
-import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.DataCreationFailureException;
 import org.envirocar.core.exception.NoMeasurementsException;
@@ -45,9 +42,7 @@ import org.envirocar.core.utils.TrackUtils;
 import org.envirocar.remote.DAOProvider;
 import org.envirocar.storage.EnviroCarDB;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -55,7 +50,8 @@ import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
+import rx.exceptions.OnErrorThrowable;
+import rx.functions.Func1;
 
 /**
  * Manager that can upload tracks and cars to the server.
@@ -70,14 +66,11 @@ public class UploadManager {
     public static final String GENERAL_ERROR = "-1";
 
     private static Logger logger = Logger.getLogger(UploadManager.class);
-    private static Map<String, String> temporaryAlreadyRegisteredCars = new HashMap<String,
-            String>();
+
 
     @Inject
     @InjectApplicationScope
     protected Context mContext;
-    @Inject
-    protected DbAdapter mDBAdapter;
     @Inject
     protected EnviroCarDB mEnviroCarDB;
     @Inject
@@ -107,6 +100,14 @@ public class UploadManager {
         return prefs.getBoolean(PreferenceConstants.OBFUSCATE_POSITION, false);
     }
 
+    private Observable<TrackMetadata> updateTrackMetadataObservable(Track track) {
+        return Observable.just(track)
+                .map(track1 -> new TrackMetadata(Util.getVersionString(mContext),
+                        mUserManager.getUser().getTermsOfUseVersion()))
+                .flatMap(trackMetadata -> mTrackHandler.updateTrackMetadata(track.getTrackID(),
+                        trackMetadata));
+    }
+
     private void updateTrackMetadata(Track track) {
         TrackMetadata metadata = new TrackMetadata(Util.getVersionString(mContext),
                 mUserManager.getUser().getTermsOfUseVersion());
@@ -116,6 +117,7 @@ public class UploadManager {
                 .first();
         track.setMetadata(metadata);
     }
+
 
     public Observable<Track> uploadTracks(final List<Track> tracks) {
         Preconditions.checkNotNull(tracks, "Input tracks cannot be null");
@@ -131,7 +133,9 @@ public class UploadManager {
 
                     try {
                         // assert the car of the track for validity.
-                        assertTermporaryCar(track);
+                        mCarManager.assertTemporaryCar(track.getCar())
+                                .toBlocking()
+                                .first();
 
                         String result = null;
                         if (isObfuscationEnabled()) {
@@ -149,7 +153,10 @@ public class UploadManager {
                         }
 
                         // When successfully updated, then transit the track from local to remote.
-                        mDBAdapter.transitLocalToRemoteTrack(track, result);
+                        if(result != null) {
+                            track.setRemoteID(result);
+                            mEnviroCarDB.updateTrack(track);
+                        }
 
                         // Inform the subscriber about the successful transition.
                         subscriber.onNext(track);
@@ -181,126 +188,153 @@ public class UploadManager {
         });
     }
 
-    private void assertTermporaryCar(Track track) throws NotConnectedException,
-            UnauthorizedException, DataCreationFailureException {
-        if (hasTemporaryCar(track)) {
-            if (!temporaryCarAlreadyRegistered(track)) {
-                registerCarBeforeUpload(track);
-            }
-        }
-    }
-
-    public void uploadSingleTrack(final Track track, final TrackHandler.TrackUploadCallback
-            callback) {
-        if (track == null) return;
-
-        new AsyncTask<Void, Void, Void>() {
-
+    public Observable<Track> uploadSingleTrack(final Track track) {
+        Preconditions.checkNotNull(track, "Track to upload cannot be null.");
+        return Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
-            protected Void doInBackground(Void... params) {
-                Thread.currentThread().setName("TrackUploaderTask-" + track.getTrackID());
-                callback.onUploadStarted(track);
-//                mNotificationHandler.createNotification("start");
+            public void call(Subscriber<? super Track> subscriber) {
+                subscriber.onStart();
 
-                // inject track metadata
-                updateTrackMetadata(track);
+                subscriber.add(updateTrackMetadataObservable(track)
+                        .flatMap(trackMetadata -> mCarManager.assertTemporaryCar(track.getCar()))
+                                // Set the car reference
+                        .map(car -> {
+                            track.setCar(car);
+                            return track;
+                        })
+                                // obfuscate the track.
+                        .map(asObfuscatedTrackWhenChecked())
+                                // Upload the track
+                        .flatMap(track1 -> mDAOProvider.getTrackDAO().createTrackObservable(track1))
+                                // Update the database entry
+                        .flatMap(track1 -> mEnviroCarDB.updateTrackObservable(track1))
+                                // Subscribe
+                        .subscribe(new Subscriber<Track>() {
+                            @Override
+                            public void onCompleted() {
+                                subscriber.onCompleted();
+                            }
 
-                try {
-                    if (hasTemporaryCar(track)) {
-                    /*
-                     * perhaps we already did a registration for this temp car.
-					 * the Map is application uptime scope (static).
-					 */
-                        if (!temporaryCarAlreadyRegistered(track)) {
-                            registerCarBeforeUpload(track);
-                        }
+                            @Override
+                            public void onError(Throwable e) {
+                                logger.error(e.getMessage(), e);
+                                if (e instanceof NoMeasurementsException) {
+                                    mainthreadWorker.schedule(() -> Toast.makeText(mContext,
+                                            R.string.uploading_track_no_measurements_after_obfuscation_long,
+                                            Toast.LENGTH_LONG).show());
+                                    mNotificationHandler.createNotification
+                                            (mContext.getString(R.string
+                                                    .uploading_track_no_measurements_after_obfuscation));
+                                } else {
+                                    subscriber.onError(e);
+                                }
+                            }
+
+                            @Override
+                            public void onNext(Track track) {
+                                logger.info("track has been successful uploaded");
+                                subscriber.onNext(track);
+                                subscriber.unsubscribe();
+                            }
+                        }));
+            }
+        });
+    }
+
+    private Func1<Track, Track> asObfuscatedTrackWhenChecked() {
+        return new Func1<Track, Track>() {
+            @Override
+            public Track call(Track track) {
+                logger.info("asObfuscatedTrackWhenChecked()");
+                if (isObfuscationEnabled()) {
+                    logger.info("obfuscation is enabled.");
+                    try {
+                        return TrackUtils.getObfuscatedTrack(track);
+                    } catch (NoMeasurementsException e) {
+                        OnErrorThrowable.from(e);
+                        return track;
                     }
-
-                    String result = null;
-                    if (isObfuscationEnabled()) {
-                        Track obfuscatedTrack = TrackUtils.getObfuscatedTrack(track);
-                        result = mDAOProvider.getTrackDAO().createTrack(obfuscatedTrack);
-                    } else {
-                        result = mDAOProvider.getTrackDAO().createTrack(track);
-                    }
-
-//                    mNotificationHandler.createNotification("success");
-                    //					track.setRemoteID(result);
-                    //					dbAdapter.updateTrack(track);
-                    mDBAdapter.transitLocalToRemoteTrack(track, result);
-
-                    if (callback != null) {
-                        callback.onSuccessfulUpload(track);
-                    }
-                } catch (Exception e) {
-                    if (track.getMeasurements().size() != 0) {
-                        alertOnObfuscationMeasurements();
-                    }
-                    logger.error(e.getMessage(), e);
-                    mNotificationHandler.createNotification(mContext
-                            .getString(R.string
-                                    .general_error_please_report));
+                } else {
+                    logger.info("obfuscation is disabled.");
+                    return track;
                 }
-
-                return null;
             }
-
-            private void alertOnObfuscationMeasurements() {
-                /*
-                 * obfuscation removed all measurements
-				 */
-
-                mainthreadWorker.schedule(new Action0() {
-                    @Override
-                    public void call() {
-                        Toast.makeText(mContext,
-                                R.string.uploading_track_no_measurements_after_obfuscation_long,
-                                Toast.LENGTH_LONG).show();
-                    }
-                });
-                mNotificationHandler.createNotification
-                        (mContext.getString(R.string
-                                .uploading_track_no_measurements_after_obfuscation));
-            }
-        }.execute();
-    }
-
-    private void registerCarBeforeUpload(Track track) throws NotConnectedException,
-            UnauthorizedException, DataCreationFailureException {
-        Car car = track.getCar();
-        String tempId = car.getId();
-        String sensorIdFromServer = mDAOProvider.getSensorDAO().createCar(car);
-
-        car.setId(sensorIdFromServer);
-
-        logger.info("Car id tmpTrack: " + track.getCar().getId());
-
-        mEnviroCarDB.updateTrack(track);
-        mDBAdapter.updateCarIdOfTracks(tempId, car.getId());
-
-		/*
-         * we need this hack... Track objects
-		 * in memory are not informed through the DB update
-		 */
-        temporaryAlreadyRegisteredCars.put(tempId, car.getId());
-        if (mCarManager.getCar().getId().equals(tempId)) {
-            //        if (true) {
-            mCarManager.setCar(car);
-        }
-    }
-
-    private boolean hasTemporaryCar(Track track) {
-        //        return true;
-        return track.getCar().getId().startsWith(Car.TEMPORARY_SENSOR_ID);
+        };
     }
 
 
-    public boolean temporaryCarAlreadyRegistered(Track track) {
-        if (temporaryAlreadyRegisteredCars.containsKey(track.getCar().getId())) {
-            track.getCar().setId(temporaryAlreadyRegisteredCars.get(track.getCar().getId()));
-            return true;
-        }
-        return false;
-    }
-
+//    public void uploadSingleTrack(final Track track, final TrackHandler.TrackUploadCallback
+//            callback) {
+//        if (track == null) return;
+//
+//        new AsyncTask<Void, Void, Void>() {
+//
+//            @Override
+//            protected Void doInBackground(Void... params) {
+//                Thread.currentThread().setName("TrackUploaderTask-" + track.getTrackID());
+//                callback.onUploadStarted(track);
+////                mNotificationHandler.createNotification("start");
+//
+//                // inject track metadata
+//                updateTrackMetadata(track);
+//
+//                try {
+//                    if (hasTemporaryCar(track)) {
+//                    /*
+//                     * perhaps we already did a registration for this temp car.
+//					 * the Map is application uptime scope (static).
+//					 */
+//                        if (!temporaryCarAlreadyRegistered(track)) {
+//                            registerCarBeforeUpload(track);
+//                        }
+//                    }
+//
+//                    String result = null;
+//                    if (isObfuscationEnabled()) {
+//                        Track obfuscatedTrack = TrackUtils.getObfuscatedTrack(track);
+//                        result = mDAOProvider.getTrackDAO().createTrack(obfuscatedTrack);
+//                    } else {
+//                        result = mDAOProvider.getTrackDAO().createTrack(track);
+//                    }
+//
+////                    mNotificationHandler.createNotification("success");
+//                    //					track.setRemoteID(result);
+//                    //					dbAdapter.updateTrack(track);
+//                    mDBAdapter.transitLocalToRemoteTrack(track, result);
+//
+//                    if (callback != null) {
+//                        callback.onSuccessfulUpload(track);
+//                    }
+//                } catch (Exception e) {
+//                    if (track.getMeasurements().size() != 0) {
+//                        alertOnObfuscationMeasurements();
+//                    }
+//                    logger.error(e.getMessage(), e);
+//                    mNotificationHandler.createNotification(mContext
+//                            .getString(R.string
+//                                    .general_error_please_report));
+//                }
+//
+//                return null;
+//            }
+//
+//            private void alertOnObfuscationMeasurements() {
+//                /*
+//                 * obfuscation removed all measurements
+//				 */
+//
+//                mainthreadWorker.schedule(new Action0() {
+//                    @Override
+//                    public void call() {
+//                        Toast.makeText(mContext,
+//                                R.string.uploading_track_no_measurements_after_obfuscation_long,
+//                                Toast.LENGTH_LONG).show();
+//                    }
+//                });
+//                mNotificationHandler.createNotification
+//                        (mContext.getString(R.string
+//                                .uploading_track_no_measurements_after_obfuscation));
+//            }
+//        }.execute();
+//    }
 }

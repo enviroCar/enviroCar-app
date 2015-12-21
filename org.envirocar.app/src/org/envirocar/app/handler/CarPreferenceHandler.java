@@ -28,6 +28,7 @@ import com.squareup.otto.Bus;
 
 import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.Car;
+import org.envirocar.core.entity.Track;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.exception.DataCreationFailureException;
 import org.envirocar.core.exception.NotConnectedException;
@@ -36,17 +37,22 @@ import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.CarUtils;
 import org.envirocar.remote.DAOProvider;
+import org.envirocar.storage.EnviroCarDB;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import rx.Observable;
 
 /**
  * The manager for cars.
@@ -59,10 +65,12 @@ public class CarPreferenceHandler {
     protected Bus mBus;
     protected UserHandler mUserManager;
     protected DAOProvider mDAOProvider;
+    protected EnviroCarDB mEnviroCarDB;
 
     private Car mSelectedCar;
     private Set<Car> mDeserialzedCars;
     private Set<String> mSerializedCarStrings;
+    private Map<String, String> temporaryAlreadyRegisteredCars = new HashMap<>();
 
     /**
      * Constructor.
@@ -71,11 +79,12 @@ public class CarPreferenceHandler {
      */
     @Inject
     public CarPreferenceHandler(@InjectApplicationScope Context context, Bus bus, UserHandler
-            userManager, DAOProvider daoProvider) {
+            userManager, DAOProvider daoProvider, EnviroCarDB enviroCarDB) {
         this.mContext = context;
         this.mBus = bus;
         this.mUserManager = userManager;
         this.mDAOProvider = daoProvider;
+        this.mEnviroCarDB = enviroCarDB;
 
         // get the default PreferenceManager
         final SharedPreferences preferences = PreferenceManager
@@ -99,6 +108,55 @@ public class CarPreferenceHandler {
                 mDeserialzedCars.add(CarUtils.instantiateCar(serializedCar));
             }
         }
+    }
+
+    public Observable<Car> assertTemporaryCar(Car car) {
+        LOG.info("getUploadedCarReference()");
+        return Observable.just(car)
+                .flatMap(car1 -> {
+                    // If the car is already uploaded, then just return car instance.
+                    if (CarUtils.isCarUploaded(car1))
+                        return Observable.just(car1);
+
+                    // the car is already uploaded before but the car has not the right remote id
+                    if (temporaryAlreadyRegisteredCars.containsKey(car1.getId())) {
+                        car1.setId(temporaryAlreadyRegisteredCars.get(car1.getId()));
+                        return Observable.just(car1);
+                    }
+
+                    // create a new car instance.
+                    return registerCar(car1);
+                });
+    }
+
+    private Observable<Car> registerCar(Car car) {
+        LOG.info(String.format("registerCarBeforeUpload(%s)", car.toString()));
+        String oldID = car.getId();
+        return mDAOProvider.getSensorDAO()
+                // Create a new remote car and update the car remote id.
+                .createCarObservable(car)
+                        // update all IDs of tracks that have this car as a reference
+                .flatMap(updCar -> updateCarIDsOfTracksObservable(oldID, updCar))
+                        // sum all tracks to a list of tracks.
+                .toList()
+                        // Just set the current car reference to the updated one and return it.
+                .map(tracks -> {
+                    if (!temporaryAlreadyRegisteredCars.containsKey(oldID))
+                        temporaryAlreadyRegisteredCars.put(oldID, car.getId());
+                    if (getCar().getId().equals(oldID))
+                        setCar(car);
+                    return car;
+                });
+    }
+
+    private Observable<Track> updateCarIDsOfTracksObservable(String oldID, Car car) {
+        return mEnviroCarDB.getAllTracksByCar(car.getId(), true)
+                .flatMap(tracks -> Observable.from(tracks))
+                .map(track -> {
+                    track.setCar(car);
+                    return track;
+                })
+                .concatMap(track -> mEnviroCarDB.updateTrackObservable(track));
     }
 
     /**

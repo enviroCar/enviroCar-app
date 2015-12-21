@@ -18,7 +18,6 @@
  */
 package org.envirocar.app.handler;
 
-import android.app.Activity;
 import android.content.Context;
 
 import com.squareup.otto.Bus;
@@ -30,7 +29,6 @@ import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
 import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.exception.TrackAlreadyUploadedException;
-import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.TermsOfUse;
@@ -58,13 +56,14 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.exceptions.OnErrorThrowable;
 import rx.functions.Func1;
 import rx.observables.BlockingObservable;
@@ -112,8 +111,6 @@ public class TrackHandler {
     @Inject
     protected Bus mBus;
     @Inject
-    protected DbAdapter mDBAdapter;
-    @Inject
     protected EnviroCarDB mEnvirocarDB;
     @Inject
     protected BluetoothHandler mBluetoothHandler;
@@ -125,8 +122,6 @@ public class TrackHandler {
     protected TermsOfUseManager mTermsOfUseManager;
     @Inject
     protected CarPreferenceHandler carHander;
-
-    private Scheduler.Worker mBackgroundWorker = Schedulers.io().createWorker();
 
     private BluetoothServiceState mBluetoothServiceState = BluetoothServiceState.SERVICE_STOPPED;
 
@@ -349,7 +344,9 @@ public class TrackHandler {
      */
     public Track getTrackByID(Track.TrackId trackId) {
         LOGGER.info(String.format("getTrackByID(%s)", trackId.toString()));
-        return mEnvirocarDB.getTrack(trackId).toBlocking().first();
+        return mEnvirocarDB.getTrack(trackId)
+                .toBlocking()
+                .first();
     }
 
     public Observable<Track> uploadAllTracksObservable() {
@@ -550,7 +547,7 @@ public class TrackHandler {
     }
 
     // TODO REMOVE THIS ACTIVITY STUFF... unbelievable.. no structure!
-    public void uploadTrack(Activity activity, Track track, TrackUploadCallback callback) {
+    public void uploadTrack(Track track, TrackUploadCallback callback) {
         // If the track is no local track, then popup a snackbar.
         if (!track.isLocalTrack()) {
             String infoText = String.format(mContext.getString(R.string
@@ -610,16 +607,41 @@ public class TrackHandler {
                             // finally upload the track.
                             mTermsOfUseManager.userAcceptedTermsOfUse(user, current
                                     .getIssuedDate());
-                            new UploadManager(activity).uploadSingleTrack(track, callback);
+                            uploadTrack(track);
                         }
 
-                    }, activity);
+                    }, mContext);
 
             return;
         } else {
-            // Upload the track if everything is right.
-            new UploadManager(activity).uploadSingleTrack(track, callback);
+            uploadTrack(track);
         }
+    }
+
+    private void uploadTrack(Track track){
+        // Upload the track if everything is right.
+        new UploadManager(mContext)
+                .uploadSingleTrack(track)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .timeout(500, TimeUnit.SECONDS)
+                .subscribe(new Subscriber<Track>() {
+                    @Override
+                    public void onCompleted() {
+                        LOGGER.info("onCompleted() Upload Track");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOGGER.error(e.getMessage(), e);
+                    }
+
+                    @Override
+                    public void onNext(Track track) {
+                        LOGGER.info(String.format("track[%s] has been successfully uploaded.",
+                                track.getRemoteID()));
+                    }
+                });
     }
 
     public Observable<Track> fetchRemoteTrackObservable(Track remoteTrack) {

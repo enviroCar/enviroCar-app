@@ -99,6 +99,11 @@ public class CacheTrackDAO extends AbstractCacheDAO implements TrackDAO {
     }
 
     @Override
+    public Observable<Track> createTrackObservable(Track track) {
+        return Observable.error(new NotConnectedException("Not implemented for Cache DAO"));
+    }
+
+    @Override
     public void deleteTrack(String remoteID) throws DataUpdateFailureException,
             NotConnectedException, UnauthorizedException {
         throw new NotConnectedException("Not implemented for Cache DAO");

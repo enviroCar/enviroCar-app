@@ -41,7 +41,6 @@ import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackHandler;
-import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.NewMeasurementEvent;
@@ -119,8 +118,6 @@ public class OBDConnectionService extends BaseInjectorService {
     protected MeasurementProvider measurementProvider;
     @Inject
     protected CarPreferenceHandler carHandler;
-    @Inject
-    protected DbAdapter dbAdapter;
     @Inject
     protected EnviroCarDB enviroCarDB;
     @Inject

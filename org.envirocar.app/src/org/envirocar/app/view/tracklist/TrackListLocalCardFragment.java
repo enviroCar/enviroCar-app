@@ -58,7 +58,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     private Subscription subscription;
 
     private void uploadTrack(Track track) {
-        mBackgroundWorker.schedule(() -> mTrackHandler.uploadTrack(getActivity(), track,
+        mBackgroundWorker.schedule(() -> mTrackHandler.uploadTrack(track,
                 new TrackHandler
                         .TrackUploadCallback() {
 

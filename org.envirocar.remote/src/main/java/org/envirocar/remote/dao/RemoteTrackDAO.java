@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -219,6 +219,29 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
         } catch (ResourceConflictException e) {
             throw new NotConnectedException(e);
         }
+    }
+
+    @Override
+    public Observable<Track> createTrackObservable(Track track) {
+        return Observable.create(new Observable.OnSubscribe<Track>() {
+            @Override
+            public void call(Subscriber<? super Track> subscriber) {
+                LOG.info("call: creating remote track.");
+                subscriber.onStart();
+                try {
+                    String remoteID = createTrack(track);
+                    track.setRemoteID(remoteID);
+                    subscriber.onNext(track);
+                } catch (DataCreationFailureException |
+                        NotConnectedException |
+                        ResourceConflictException |
+                        UnauthorizedException e) {
+                    LOG.error(e.getMessage(), e);
+                    subscriber.onError(e);
+                }
+                subscriber.onCompleted();
+            }
+        });
     }
 
     @Override

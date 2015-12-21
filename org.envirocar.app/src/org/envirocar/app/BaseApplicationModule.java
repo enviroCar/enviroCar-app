@@ -39,8 +39,6 @@ import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.services.NotificationHandler;
 import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.services.TrackUploadService;
-import org.envirocar.app.storage.DbAdapter;
-import org.envirocar.app.storage.DbAdapterImpl;
 import org.envirocar.app.view.LoginActivity;
 import org.envirocar.app.view.carselection.CarSelectionActivity;
 import org.envirocar.app.view.logbook.LogbookActivity;
@@ -88,7 +86,6 @@ import dagger.Provides;
                 TemporaryFileManager.class,
                 SystemStartupService.class,
                 NotificationHandler.class,
-                DbAdapterImpl.class,
                 LocationHandler.class,
                 BluetoothDiscoveryIntervalPreference.class,
                 TrackHandler.class,
@@ -218,26 +215,6 @@ public class BaseApplicationModule {
         return new TemporaryFileManager(mAppContext);
     }
 
-    /**
-     * Provides the TemporaryFileManager of the application
-     *
-     * @return the TemporaryFileManager of the application.
-     */
-    @Provides
-    @Singleton
-    DbAdapter provideDBAdapter() {
-
-        DbAdapter adapter = null;
-        try {
-            adapter = new DbAdapterImpl(mAppContext);
-        } catch (InstantiationException e) {
-            LOGGER.warn("Could not initalize the database layer. The app will probably work " +
-                    "unstable.");
-            LOGGER.warn(e.getMessage(), e);
-        }
-
-        return adapter;
-    }
 
     /**
      * Provides the TermsOfUseManager of the application
@@ -277,17 +254,6 @@ public class BaseApplicationModule {
     LocationHandler provideLocationHandler() {
         return new LocationHandler(mAppContext);
     }
-
-//    /**
-//     * Provides the LazyLoadingStrategy of the application.
-//     *
-//     * @return the LazyLoadingStrategy of the application.
-//     */
-//    @Provides
-//    @Singleton
-//    LazyLoadingStrategy provideLazyLoadingStrategy() {
-//        return new LazyLoadingStrategyImpl(mAppContext);
-//    }
 
     @Provides
     @Singleton

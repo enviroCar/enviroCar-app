@@ -31,7 +31,6 @@ import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.TrackHandler;
 import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
-import org.envirocar.app.storage.DbAdapter;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
@@ -56,8 +55,6 @@ public class TrackUploadService extends Service {
 
     @Inject
     protected TrackHandler trackHandler;
-    @Inject
-    protected DbAdapter dbAdapter;
     @Inject
     protected EnviroCarDB enviroCarDB;
 

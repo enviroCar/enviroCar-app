@@ -60,6 +60,8 @@ public interface TrackDAO {
     String createTrack(Track track) throws DataCreationFailureException, NotConnectedException,
             ResourceConflictException, UnauthorizedException;
 
+    Observable<Track> createTrackObservable(Track track);
+
     void deleteTrack(String remoteID) throws DataUpdateFailureException, NotConnectedException,
             UnauthorizedException;
 

@@ -48,13 +48,13 @@ public class TrackUtils {
      * @param track
      * @return
      */
-    public static Track getObfuscatedTrack(Track track) {
+    public static Track getObfuscatedTrack(Track track) throws NoMeasurementsException {
         Track result = track.carbonCopy();
         result.setMeasurements(getNonObfuscatedMeasurements(track));
         return result;
     }
 
-    private static List<Measurement> getNonObfuscatedMeasurements(Track track) {
+    private static List<Measurement> getNonObfuscatedMeasurements(Track track) throws NoMeasurementsException {
         List<Measurement> measurements = track.getMeasurements();
 
         List<Measurement> nonPrivateMeasurements = new ArrayList<Measurement>();
@@ -74,7 +74,7 @@ public class TrackUtils {
             return nonPrivateMeasurements;
         } catch (NoMeasurementsException e) {
             LOG.warn("Could not obfuscate track", e);
-            return measurements;
+            throw e;
         }
     }
 

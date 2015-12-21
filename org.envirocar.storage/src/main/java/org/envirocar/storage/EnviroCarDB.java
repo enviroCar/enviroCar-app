@@ -54,6 +54,8 @@ public interface EnviroCarDB {
      */
     Observable<List<Track>> getAllTracks(boolean lazy);
 
+    Observable<List<Track>> getAllTracksByCar(String id, boolean lazy);
+
     Observable<List<Track>> getAllLocalTracks();
 
     Observable<List<Track>> getAllLocalTracks(boolean lazy);
@@ -70,7 +72,7 @@ public interface EnviroCarDB {
 
     boolean updateTrack(Track track);
 
-    Observable<Boolean> updateTrackObservable(Track track);
+    Observable<Track> updateTrackObservable(Track track);
 
     boolean updateCarIdOfTracks(String currentId, String newId);
 
