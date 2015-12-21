@@ -27,6 +27,7 @@ import com.squareup.otto.Bus;
 
 import org.envirocar.app.R;
 import org.envirocar.app.activity.DialogUtil.PositiveNegativeCallback;
+import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.exception.ServerException;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
@@ -43,6 +44,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import rx.Observable;
 import rx.exceptions.OnErrorThrowable;
 import rx.functions.Func1;
 
@@ -78,6 +80,27 @@ public class TermsOfUseManager {
         //        }
     }
 
+    public <T> Func1<T, Boolean> verifyTermsOfUse() {
+        return new Func1<T, Boolean>() {
+            @Override
+            public Boolean call(T input) {
+                boolean verified;
+                try {
+                    User user = mUserManager.getUser();
+                    if (user == null) {
+                        throw OnErrorThrowable.from(new NotLoggedInException(
+                                mContext.getString(R.string.trackviews_not_logged_in)));
+                    }
+                    verified = verifyTermsUseOfVersion(user.getTermsOfUseVersion());
+                } catch (ServerException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                    throw OnErrorThrowable.from(e);
+                }
+                return verified;
+            }
+        };
+    }
+
     /**
      * Checks if the Terms are accepted. If not, open Dialog. On positive
      * feedback, update the User.
@@ -85,7 +108,8 @@ public class TermsOfUseManager {
      * @param user
      * @param callback
      */
-    public void askForTermsOfUseAcceptance(final User user, final PositiveNegativeCallback callback) {
+    public void askForTermsOfUseAcceptance(final User user, final PositiveNegativeCallback
+            callback) {
         boolean verified = false;
         try {
             verified = verifyTermsUseOfVersion(user.getTermsOfUseVersion());
@@ -128,6 +152,49 @@ public class TermsOfUseManager {
         } else {
             LOGGER.info("User has accpeted ToU in current version.");
         }
+    }
+
+    public Observable<TermsOfUse> getCurrentTermsOfUseObservable() {
+        return Observable.just(current)
+                .flatMap(new Func1<TermsOfUse, Observable<TermsOfUse>>() {
+                    @Override
+                    public Observable<TermsOfUse> call(TermsOfUse termsOfUse) {
+                        // Return the current instance if it is not null. Otherwise, fetch it
+                        // from server
+                        return current == null ?
+                                getRemoteTermsOfUseObservable() :
+                                Observable.just(current);
+                    }
+                });
+    }
+
+    private Observable<TermsOfUse> getRemoteTermsOfUseObservable() {
+        LOGGER.info("getRemoteTermsOfUse() TermsOfUse are null. Try to fetch the last TermsOfUse.");
+        return mDAOProvider.getTermsOfUseDAO()
+                .getAllTermsOfUseObservable()
+                .map(termsOfUses -> {
+                    LOGGER.info("getCurrentTermsOfUse(): call");
+                    if (termsOfUses != null) {
+                        list = termsOfUses;
+                        String id = termsOfUses.get(0).getId();
+                        try {
+                            TermsOfUse inst = mDAOProvider.getTermsOfUseDAO()
+                                    .getTermsOfUse(id);
+                            current = inst;
+                        } catch (DataRetrievalFailureException e) {
+                            LOGGER.warn(e.getMessage(), e);
+                            throw OnErrorThrowable.from(e);
+                        } catch (NotConnectedException e) {
+                            LOGGER.warn(e.getMessage(), e);
+                            throw OnErrorThrowable.from(e);
+                        }
+                    } else {
+                        LOGGER.warn("Could not retrieve latest instance as their is no " +
+                                "list available!");
+                    }
+                    LOGGER.info("Successfully retrieved the current terms of use.");
+                    return current;
+                });
     }
 
     public TermsOfUse getCurrentTermsOfUse() throws ServerException {

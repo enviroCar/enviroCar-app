@@ -401,7 +401,7 @@ public class TrackHandler {
                     return;
                 }
 
-                UploadManager uploadManager = new UploadManager(mContext);
+                TrackUploadHandler uploadManager = new TrackUploadHandler(mContext);
                 subscriber.add(mEnvirocarDB.getAllLocalTracks()
                         .map(tracks -> {
                             for (Track track : tracks) {
@@ -413,7 +413,7 @@ public class TrackHandler {
                             }
                             return tracks;
                         })
-                        .concatMap(tracks -> uploadManager.uploadTracks(tracks))
+                        .concatMap(tracks -> uploadManager.uploadMultipleTracks(tracks))
                         .subscribe(new Subscriber<Track>() {
                             @Override
                             public void onCompleted() {
@@ -507,45 +507,6 @@ public class TrackHandler {
         return true;
     }
 
-    private boolean assertHasAcceptedTermsOfUse(TrackUploadCallback callback) {
-        // First, try to get whether the user has accepted the terms of use.
-        final User user = mUserManager.getUser();
-        boolean verified = false;
-        try {
-            verified = mTermsOfUseManager.verifyTermsUseOfVersion(user.getTermsOfUseVersion());
-        } catch (ServerException e) {
-            LOGGER.warn(e.getMessage(), e);
-            String infoText = mContext.getString(R.string.trackviews_server_error);
-            callback.onError(null, infoText);
-            return false;
-        }
-
-        return verified;
-    }
-
-    private boolean assertIsLocalTrack(Track track, TrackUploadCallback callback) {
-        // If the track is no local track, then popup a snackbar.
-        if (!track.isLocalTrack()) {
-            String infoText = String.format(mContext.getString(R.string
-                    .trackviews_is_already_uploaded), track.getName());
-            LOGGER.info(infoText);
-            callback.onError(track, infoText);
-            return false;
-        }
-        return true;
-    }
-
-    private boolean assertIsUserLoggedIn(Track track, TrackUploadCallback callback) {
-        // If the user is not logged in, then skip the upload and popup a snackbar.
-        if (!mUserManager.isLoggedIn()) {
-            LOGGER.warn("Cannot upload track, because the user is not logged in");
-            String infoText = mContext.getString(R.string.trackviews_not_logged_in);
-            callback.onError(track, infoText);
-            return false;
-        }
-        return true;
-    }
-
     // TODO REMOVE THIS ACTIVITY STUFF... unbelievable.. no structure!
     public void uploadTrack(Track track, TrackUploadCallback callback) {
         // If the track is no local track, then popup a snackbar.
@@ -620,7 +581,7 @@ public class TrackHandler {
 
     private void uploadTrack(Track track){
         // Upload the track if everything is right.
-        new UploadManager(mContext)
+        new TrackUploadHandler(mContext)
                 .uploadSingleTrack(track)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())

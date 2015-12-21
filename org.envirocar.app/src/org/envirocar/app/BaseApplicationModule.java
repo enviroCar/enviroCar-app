@@ -34,7 +34,7 @@ import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.TrackHandler;
-import org.envirocar.app.handler.UploadManager;
+import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.services.NotificationHandler;
 import org.envirocar.app.services.SystemStartupService;
@@ -97,7 +97,7 @@ import dagger.Provides;
                 LoginActivity.class,
                 SettingsActivity.class,
                 TrackUploadService.class,
-                UploadManager.class,
+                TrackUploadHandler.class,
                 LogbookActivity.class,
                 LogbookAddFuelingFragment.class
         },

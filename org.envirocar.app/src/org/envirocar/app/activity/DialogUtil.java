@@ -18,10 +18,6 @@
  */
 package org.envirocar.app.activity;
 
-import org.envirocar.app.R;
-import org.envirocar.core.entity.TermsOfUse;
-
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -37,6 +33,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
+
+import org.envirocar.app.R;
+import org.envirocar.core.entity.TermsOfUse;
 
 public class DialogUtil {
 
@@ -170,7 +169,7 @@ public class DialogUtil {
 	}
 
 
-	private static Spanned createTermsOfUseMarkup(TermsOfUse current,
+	public static Spanned createTermsOfUseMarkup(TermsOfUse current,
 			boolean firstTime, Context context) {
 		StringBuilder sb = new StringBuilder();
 		
