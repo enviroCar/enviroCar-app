@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 
 import rx.Scheduler;
 import rx.Subscriber;
+import rx.Subscription;
 import rx.schedulers.Schedulers;
 
 /**
@@ -53,17 +54,17 @@ import rx.schedulers.Schedulers;
  * It takes {@link InputStream} and {@link OutputStream} objects
  * to do the actual raw communication. The {@link ConnectionListener} will get informed on
  * certain changes in the connection state.
- * 
- * @author matthes rieke
  *
+ * @author matthes rieke
  */
 public class OBDController {
 
     private static final Logger logger = Logger.getLogger(OBDController.class);
     public static final long MAX_NODATA_TIME = 10000;
 
-    private Subscriber<DataResponse> dataSubscription;
-    private Subscriber<Boolean> initialSubscription;
+    private Subscription initSubscription;
+    private Subscription dataSubscription;
+
 
     private Queue<OBDAdapter> adapterCandidates = new ArrayDeque<>();
     private OBDAdapter obdAdapter;
@@ -72,310 +73,288 @@ public class OBDController {
     private ConnectionListener connectionListener;
     private String deviceName;
     private boolean userRequestedStop = false;
-	private Bus eventBus;
-	private Scheduler.Worker eventBusWorker;
-	
+    private Bus eventBus;
+    private Scheduler.Worker eventBusWorker;
 
-    public OBDController(){}
+
+    public OBDController() {
+    }
 
     /**
      * Init the OBD control layer with the streams and listeners to be used.
      *
-     * @param in the inputStream of the connection
+     * @param in  the inputStream of the connection
      * @param out the outputStream of the connection
-     * @param cl the connection listener which receives connection state changes
+     * @param cl  the connection listener which receives connection state changes
      */
     public OBDController(InputStream in, OutputStream out,
                          String deviceName, ConnectionListener cl, Bus bus) {
         this.inputStream = Preconditions.checkNotNull(in);
         this.outputStream = Preconditions.checkNotNull(out);
+        this.connectionListener = Preconditions.checkNotNull(cl);
+        this.deviceName = Preconditions.checkNotNull(deviceName);
 
-		this.connectionListener = Preconditions.checkNotNull(cl);
+        setupAdapterCandidates();
 
-		this.deviceName = Preconditions.checkNotNull(deviceName);
+        startPreferredAdapter();
 
-		setupAdapterCandidates();
+        this.eventBus = bus;
+        if (this.eventBus != null) {
+            this.eventBusWorker = Schedulers.io().createWorker();
+        }
+    }
 
-		startPreferredAdapter();
+    /**
+     * setup the list of available Adapter implementations
+     */
+    private void setupAdapterCandidates() {
+        adapterCandidates.clear();
+        adapterCandidates.offer(new ELM327Adapter());
+        adapterCandidates.offer(new CarTrendAdapter());
+        adapterCandidates.offer(new AposW3Adapter());
+        adapterCandidates.offer(new DriveDeckSportAdapter());
+    }
 
-		this.eventBus = bus;
-		if (this.eventBus != null) {
-			this.eventBusWorker = Schedulers.io().createWorker();
-		}
-	}
+    /**
+     * start the preferred adapter, determined by the device name
+     */
+    private void startPreferredAdapter() {
+        for (OBDAdapter ac : adapterCandidates) {
+            if (ac.supportsDevice(this.deviceName)) {
+                this.obdAdapter = ac;
+                break;
+            }
+        }
 
-	/**
-	 * setup the list of available Adapter implementations
-	 */
-	private void setupAdapterCandidates() {
-		adapterCandidates.clear();
-		adapterCandidates.offer(new ELM327Adapter());
-		adapterCandidates.offer(new CarTrendAdapter());
-		adapterCandidates.offer(new AposW3Adapter());
-		adapterCandidates.offer(new DriveDeckSportAdapter());
-	}
+        if (this.obdAdapter == null) {
+            //poll the first instead
+            this.obdAdapter = adapterCandidates.poll();
+        } else {
+            //remove the preferred from the queue so it is not used again
+            this.adapterCandidates.remove(this.obdAdapter);
+        }
 
-	/**
-	 * start the preferred adapter, determined by the device name
-	 */
-	private void startPreferredAdapter() {
-		for (OBDAdapter ac : adapterCandidates) {
-			if (ac.supportsDevice(this.deviceName)) {
-				this.obdAdapter = ac;
-				break;
-			}
-		}
+        logger.info("Using " + this.obdAdapter.getClass().getSimpleName() + " connector as the " +
+                "preferred adapter.");
+        startInitialization();
+    }
 
-		if (this.obdAdapter == null) {
-			//poll the first instead
-			this.obdAdapter = adapterCandidates.poll();
-		}
-		else {
-			//remove the preferred from the queue so it is not used again
-			this.adapterCandidates.remove(this.obdAdapter);
-		}
+    /**
+     * select the next adapter candidates from the list of implementations
+     *
+     * @throws AllAdaptersFailedException if the list has reached its end
+     */
+    private void selectNextAdapter() throws AllAdaptersFailedException {
+        this.obdAdapter = adapterCandidates.poll();
 
-		logger.info("Using " + this.obdAdapter.getClass().getSimpleName() + " connector as the preferred adapter.");
-		startInitialization();
-	}
+        if (this.obdAdapter == null) {
+            throw new AllAdaptersFailedException("All candidate adapters failed");
+        }
+    }
 
-	/**
-	 * select the next adapter candidates from the list of implementations
-	 *
-	 * @throws AllAdaptersFailedException if the list has reached its end
-	 */
-	private void selectNextAdapter() throws AllAdaptersFailedException {
-		this.obdAdapter = adapterCandidates.poll();
+    /**
+     * start the init method of the adapter. This is used
+     * to bootstrap and verify the connection of the adapter
+     * with the ECU.
+     * <p>
+     * The init times out fater a pre-defined period.
+     */
+    private void startInitialization() {
+        // start the observable and subscribe to it
+        this.initSubscription = this.obdAdapter.initialize(this.inputStream, this.outputStream)
+                .subscribeOn(Schedulers.io())
+                .observeOn(OBDSchedulers.scheduler())
+                .timeout(this.obdAdapter.getExpectedInitPeriod(), TimeUnit.MILLISECONDS)
+                .subscribe(getInitSubscriber());
+    }
 
-		if (this.obdAdapter == null) {
-			throw new AllAdaptersFailedException("All candidate adapters failed");
-		}
-	}
-
-	/**
-	 * start the init method of the adapter. This is used
-	 * to bootstrap and verify the connection of the adapter
-	 * with the ECU.
-	 *
-	 * The init times out fater a pre-defined period.
-	 */
-	private void startInitialization() {
-		initialSubscription = new Subscriber<Boolean>() {
+    private Subscriber<Boolean> getInitSubscriber() {
+        return new Subscriber<Boolean>() {
 
             private boolean retried = false;
 
-			@Override
-			public void onCompleted() {
-                this.unsubscribe();
-			}
+            @Override
+            public void onCompleted() {
+                logger.info("Connecting has been initialized!");
+            }
 
-			@Override
-			public void onError(Throwable e) {
-				logger.warn("Adapter failed: " + obdAdapter.getClass().getSimpleName(), e);
-				try {
-					this.unsubscribe();
+            @Override
+            public void onError(Throwable e) {
+                logger.warn("Adapter failed: " + obdAdapter.getClass().getSimpleName(), e);
+                try {
+                    this.unsubscribe();
 
-					if (obdAdapter.hasVerifiedConnection()) {
+                    if (obdAdapter.hasVerifiedConnection()) {
+                        if (!retried) {
+                            // one retry if it was verified!
+                            retried = true;
+                        } else {
+                            throw new AllAdaptersFailedException(
+                                    "Adapter verified a connection but could not establishe data: "
+                                            + obdAdapter.getClass().getSimpleName());
+                        }
+                    } else {
+                        selectNextAdapter();
+                    }
 
-						if (!retried) {
-							//one retry if it was verified!
-							retried = true;
-						}
-						else {
-							throw new AllAdaptersFailedException("Adapter verified a connection but could not establishe data: "
-									+ obdAdapter.getClass().getSimpleName());
-						}
-					}
-					else {
-						selectNextAdapter();
-					}
+                    // try the selected adapter
+                    startInitialization();
+                } catch (AllAdaptersFailedException e1) {
+                    logger.warn("All Adapters failed", e1);
+                    connectionListener.onAllAdaptersFailed();
+                    //TODO implement equivalent notification method:
+                    //dataListener.shutdown();
+                }
+            }
 
-					/**
-					 * try the selected adapter
-					 */
-					startInitialization();
-				} catch (AllAdaptersFailedException e1) {
-					logger.warn("All Adapters failed", e1);
-					connectionListener.onAllAdaptersFailed();
-					//TODO implement equivalent notification method:
-					//dataListener.shutdown();
-				}
-			}
-
-			@Override
-			public void onNext(Boolean b) {
+            @Override
+            public void onNext(Boolean b) {
                 logger.info("Connection verified - starting data collection");
 
-				startCollectingData();
-				//TODO implement equivalent notification method:
-				//dataListener.onConnected(deviceName);
+                startCollectingData();
+                //TODO implement equivalent notification method:
+                //dataListener.onConnected(deviceName);
 
-				//unsubscribe, otherwise we will get a timeout
-				this.unsubscribe();
-			}
+                //unsubscribe, otherwise we will get a timeout
+                this.unsubscribe();
+            }
 
-		};
+        };
+    }
 
-		/**
-		 * start the observable and subscribe to it
-		 */
-		this.obdAdapter.initialize(this.inputStream, this.outputStream)
-				.subscribeOn(Schedulers.io())
-				.observeOn(OBDSchedulers.scheduler())
-				.timeout(this.obdAdapter.getExpectedInitPeriod(), TimeUnit.MILLISECONDS)
-				.subscribe(this.initialSubscription);
-	}
+    /**
+     * start the actual collection of data.
+     * <p>
+     * the collection times out after a pre-defined period when no
+     * new data has arrived.
+     */
+    private void startCollectingData() {
+        //inform the listener about the successful conn
+        this.connectionListener.onConnectionVerified();
 
-	/**
-	 * start the actual collection of data.
-	 *
-	 * the collection times out after a pre-defined period when no
-	 * new data has arrived.
-	 */
-	private void startCollectingData() {
-		/*
-		 * inform the listener about the successful conn
-		 */
-		this.connectionListener.onConnectionVerified();
+        // start the observable with a timeout
+        this.dataSubscription = this.obdAdapter.observe()
+                .subscribeOn(Schedulers.io())
+                .observeOn(OBDSchedulers.scheduler())
+                .timeout(MAX_NODATA_TIME, TimeUnit.MILLISECONDS)
+                .subscribe(getCollectingDataSubscriber());
+    }
 
-		this.dataSubscription = new Subscriber<DataResponse>() {
-			@Override
-			public void onCompleted() {
-				this.unsubscribe();
-				//TODO implement equivalent notification method:
-				//dataListener.shutdown();
-			}
+    private Subscriber<DataResponse> getCollectingDataSubscriber() {
+        return new Subscriber<DataResponse>() {
+            @Override
+            public void onCompleted() {
+                this.unsubscribe();
+                //TODO implement equivalent notification method:
+                //dataListener.shutdown();
+            }
 
-			@Override
-			public void onError(Throwable e) {
-				/**
-				 * check if this is a demanded stop: still this can lead to
-				 * any kind of Exception (e.g. IOException)
-				 */
-				if (userRequestedStop) {
-					//TODO implement equivalent notification method:
-					//dataListener.shutdown();
-				}
+            @Override
+            public void onError(Throwable e) {
+                // check if this is a demanded stop: still this can lead to any kind of Exception
+                if (userRequestedStop) {
+                    //TODO implement equivalent notification method:
+                    //dataListener.shutdown();
+                }
 
-				logger.warn("onError() received", e);
+                logger.warn("onError() received", e);
+                this.unsubscribe();
+            }
 
-				this.unsubscribe();
-			}
+            @Override
+            public void onNext(DataResponse dataResponse) {
+                pushToEventBus(dataResponse);
+            }
+        };
+    }
 
-			@Override
-			public void onNext(DataResponse dataResponse) {
-				pushToEventBus(dataResponse);
-			}
-		};
+    private void pushToEventBus(DataResponse dataResponse) {
+        eventBusWorker.schedule(() -> {
+            PropertyKeyEvent[] pkes = createEventsFromDataResponse(dataResponse);
 
-		/**
-		 * start the observable with a timeout
-		 */
-		this.obdAdapter.observe()
-				.subscribeOn(Schedulers.io())
-				.observeOn(OBDSchedulers.scheduler())
-				.timeout(MAX_NODATA_TIME, TimeUnit.MILLISECONDS)
-				.subscribe(this.dataSubscription);
-	}
+            for (PropertyKeyEvent pke : pkes) {
+                eventBus.post(pke);
+            }
 
-	private void pushToEventBus(DataResponse dataResponse) {
-		eventBusWorker.schedule(() -> {
-			PropertyKeyEvent[] pkes = createEventsFromDataResponse(dataResponse);
+            PID pid = dataResponse.getPid();
+            if (pid == PID.SPEED) {
+                eventBus.post(new SpeedUpdateEvent(dataResponse.getValue().intValue()));
+            } else if (pid == PID.RPM) {
+                eventBus.post(new RPMUpdateEvent(dataResponse.getValue().intValue()));
+            }
+        });
+    }
 
-			for (PropertyKeyEvent pke : pkes) {
-				eventBus.post(pke);
-			}
+    protected PropertyKeyEvent[] createEventsFromDataResponse(DataResponse dataResponse) {
+        PID pid = dataResponse.getPid();
+        switch (pid) {
+            case FUEL_SYSTEM_STATUS:
+            case CALCULATED_ENGINE_LOAD:
+            case SHORT_TERM_FUEL_TRIM_BANK_1:
+            case LONG_TERM_FUEL_TRIM_BANK_1:
+            case FUEL_PRESSURE:
+            case INTAKE_MAP:
+            case RPM:
+            case SPEED:
+            case INTAKE_AIR_TEMP:
+            case MAF:
+            case TPS:
+                return new PropertyKeyEvent[]{
+                        new PropertyKeyEvent(PIDUtil.toPropertyKey(pid),
+                                dataResponse.getValue(), dataResponse.getTimestamp())
+                };
+            case O2_LAMBDA_PROBE_1_VOLTAGE:
+            case O2_LAMBDA_PROBE_2_VOLTAGE:
+            case O2_LAMBDA_PROBE_3_VOLTAGE:
+            case O2_LAMBDA_PROBE_4_VOLTAGE:
+            case O2_LAMBDA_PROBE_5_VOLTAGE:
+            case O2_LAMBDA_PROBE_6_VOLTAGE:
+            case O2_LAMBDA_PROBE_7_VOLTAGE:
+            case O2_LAMBDA_PROBE_8_VOLTAGE:
+                return new PropertyKeyEvent[]{
+                        new PropertyKeyEvent(Measurement.PropertyKey.LAMBDA_VOLTAGE_ER,
+                                dataResponse.getCompositeValues()[0], dataResponse.getTimestamp()),
+                        new PropertyKeyEvent(Measurement.PropertyKey.LAMBDA_VOLTAGE,
+                                dataResponse.getCompositeValues()[1], dataResponse.getTimestamp())
+                };
+            case O2_LAMBDA_PROBE_1_CURRENT:
+            case O2_LAMBDA_PROBE_2_CURRENT:
+            case O2_LAMBDA_PROBE_3_CURRENT:
+            case O2_LAMBDA_PROBE_4_CURRENT:
+            case O2_LAMBDA_PROBE_5_CURRENT:
+            case O2_LAMBDA_PROBE_6_CURRENT:
+            case O2_LAMBDA_PROBE_7_CURRENT:
+            case O2_LAMBDA_PROBE_8_CURRENT:
+                return new PropertyKeyEvent[]{
+                        new PropertyKeyEvent(Measurement.PropertyKey.LAMBDA_CURRENT_ER,
+                                dataResponse.getCompositeValues()[0], dataResponse.getTimestamp()),
+                        new PropertyKeyEvent(Measurement.PropertyKey.LAMBDA_CURRENT,
+                                dataResponse.getCompositeValues()[1], dataResponse.getTimestamp())
+                };
+        }
 
-			PID pid = dataResponse.getPid();
-			if (pid == PID.SPEED) {
-				eventBus.post(new SpeedUpdateEvent(dataResponse.getValue().intValue()));
-			} else if (pid == PID.RPM) {
-				eventBus.post(new RPMUpdateEvent(dataResponse.getValue().intValue()));
-			}
-		});
-	}
+        return new PropertyKeyEvent[0];
+    }
 
-	protected PropertyKeyEvent[] createEventsFromDataResponse(DataResponse dataResponse) {
-		PID pid = dataResponse.getPid();
-		switch (pid) {
-			case FUEL_SYSTEM_STATUS:
-			case CALCULATED_ENGINE_LOAD:
-			case SHORT_TERM_FUEL_TRIM_BANK_1:
-			case LONG_TERM_FUEL_TRIM_BANK_1:
-			case FUEL_PRESSURE:
-			case INTAKE_MAP:
-			case RPM:
-			case SPEED:
-			case INTAKE_AIR_TEMP:
-			case MAF:
-			case TPS:
-				return new PropertyKeyEvent[] {
-						new PropertyKeyEvent(PIDUtil.toPropertyKey(pid),
-								dataResponse.getValue(), dataResponse.getTimestamp())
-				};
-			case O2_LAMBDA_PROBE_1_VOLTAGE:
-			case O2_LAMBDA_PROBE_2_VOLTAGE:
-			case O2_LAMBDA_PROBE_3_VOLTAGE:
-			case O2_LAMBDA_PROBE_4_VOLTAGE:
-			case O2_LAMBDA_PROBE_5_VOLTAGE:
-			case O2_LAMBDA_PROBE_6_VOLTAGE:
-			case O2_LAMBDA_PROBE_7_VOLTAGE:
-			case O2_LAMBDA_PROBE_8_VOLTAGE:
-				return new PropertyKeyEvent[] {
-						new PropertyKeyEvent(Measurement.PropertyKey.LAMBDA_VOLTAGE_ER,
-								dataResponse.getCompositeValues()[0], dataResponse.getTimestamp()),
-						new PropertyKeyEvent(Measurement.PropertyKey.LAMBDA_VOLTAGE,
-								dataResponse.getCompositeValues()[1], dataResponse.getTimestamp())
-				};
-			case O2_LAMBDA_PROBE_1_CURRENT:
-			case O2_LAMBDA_PROBE_2_CURRENT:
-			case O2_LAMBDA_PROBE_3_CURRENT:
-			case O2_LAMBDA_PROBE_4_CURRENT:
-			case O2_LAMBDA_PROBE_5_CURRENT:
-			case O2_LAMBDA_PROBE_6_CURRENT:
-			case O2_LAMBDA_PROBE_7_CURRENT:
-			case O2_LAMBDA_PROBE_8_CURRENT:
-				return new PropertyKeyEvent[] {
-						new PropertyKeyEvent(Measurement.PropertyKey.LAMBDA_CURRENT_ER,
-								dataResponse.getCompositeValues()[0], dataResponse.getTimestamp()),
-						new PropertyKeyEvent(Measurement.PropertyKey.LAMBDA_CURRENT,
-								dataResponse.getCompositeValues()[1], dataResponse.getTimestamp())
-				};
-		}
+    /**
+     * Shutdown the controller. this removes all pending commands.
+     * This object is no longer executable, a new instance has to
+     * be created.
+     * <p>
+     * Only use this if the stop is from high-level (e.g. user request)
+     * and NOT on any kind of exception
+     */
+    public void shutdown() {
+        /**
+         * save that this is a stop on demand
+         */
+        userRequestedStop = true;
 
-		return new PropertyKeyEvent[0];
-	}
-
-	/**
-	 * @deprecated Use {@link #shutdown} instead
-	 */
-	@Deprecated
-	public void stopLooper() {
-		shutdown();
-	}
-
-	/**
-	 * Shutdown the controller. this removes all pending commands.
-	 * This object is no longer executable, a new instance has to
-	 * be created.
-	 *
-	 * Only use this if the stop is from high-level (e.g. user request)
-	 * and NOT on any kind of exception
-	 */
-	public void shutdown() {
-		/**
-		 * save that this is a stop on demand
-		 */
-		userRequestedStop = true;
-
-		if (this.initialSubscription != null) {
-			this.initialSubscription.unsubscribe();
-		}
-		if (this.dataSubscription != null) {
-			this.dataSubscription.unsubscribe();
-		}
-
-	}
-
-
+        if (this.initSubscription != null) {
+            this.initSubscription.unsubscribe();
+        }
+        if (this.dataSubscription != null) {
+            this.dataSubscription.unsubscribe();
+        }
+    }
 }
