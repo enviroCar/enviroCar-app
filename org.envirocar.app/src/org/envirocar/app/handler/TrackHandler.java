@@ -290,7 +290,7 @@ public class TrackHandler {
 
         // Delete the track first remote and then the local reference.
         try {
-            mDAOProvider.getTrackDAO().deleteTrack(trackRef.getRemoteID());
+            mDAOProvider.getTrackDAO().deleteTrack(trackRef);
         } catch (DataUpdateFailureException e) {
             e.printStackTrace();
         }

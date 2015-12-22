@@ -62,9 +62,6 @@ public interface TrackDAO {
 
     Observable<Track> createTrackObservable(Track track);
 
-    void deleteTrack(String remoteID) throws DataUpdateFailureException, NotConnectedException,
-            UnauthorizedException;
-
     void deleteTrack(Track track) throws DataUpdateFailureException, NotConnectedException,
             UnauthorizedException;
 }

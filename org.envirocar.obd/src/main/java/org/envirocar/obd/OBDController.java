@@ -58,13 +58,11 @@ import rx.schedulers.Schedulers;
  * @author matthes rieke
  */
 public class OBDController {
-
     private static final Logger logger = Logger.getLogger(OBDController.class);
     public static final long MAX_NODATA_TIME = 10000;
 
     private Subscription initSubscription;
     private Subscription dataSubscription;
-
 
     private Queue<OBDAdapter> adapterCandidates = new ArrayDeque<>();
     private OBDAdapter obdAdapter;
@@ -95,7 +93,6 @@ public class OBDController {
         this.deviceName = Preconditions.checkNotNull(deviceName);
 
         setupAdapterCandidates();
-
         startPreferredAdapter();
 
         this.eventBus = bus;
@@ -244,7 +241,7 @@ public class OBDController {
         return new Subscriber<DataResponse>() {
             @Override
             public void onCompleted() {
-                this.unsubscribe();
+                logger.info("onCompleted(): data collection");
                 //TODO implement equivalent notification method:
                 //dataListener.shutdown();
             }

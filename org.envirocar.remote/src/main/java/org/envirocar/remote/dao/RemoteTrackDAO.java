@@ -315,8 +315,11 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
     }
 
     @Override
-    public void deleteTrack(String remoteID) throws DataUpdateFailureException,
+    public void deleteTrack(Track track) throws DataUpdateFailureException,
             NotConnectedException, UnauthorizedException {
+        Preconditions.checkState(track.getRemoteID() != null, "No RemoteID for this Track.");
+
+        String remoteID = track.getRemoteID();
         LOG.info(String.format("deleteRemoteTrack(%s)", remoteID));
 
         // If not logged in, then throw an exception
@@ -347,13 +350,6 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
             LOG.warn("WARNING!!!");
             throw e;
         }
-    }
-
-    @Override
-    public void deleteTrack(Track track) throws DataUpdateFailureException,
-            NotConnectedException, UnauthorizedException {
-        Preconditions.checkState(track.getRemoteID() != null, "No RemoteID for this Track.");
-        deleteTrack(track.getRemoteID());
     }
 
 }
