@@ -31,6 +31,7 @@ import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.TrackHandler;
 import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
+import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
@@ -77,7 +78,8 @@ public class TrackUploadService extends Service {
         if (localTrackList.size() > 0) {
             LOG.info(String.format("%s local tracks to upload", localTrackList.size()));
 
-            trackHandler.uploadAllTracks()
+            new TrackUploadHandler(getApplicationContext())
+                    .uploadAllTracks()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Subscriber<Track>() {

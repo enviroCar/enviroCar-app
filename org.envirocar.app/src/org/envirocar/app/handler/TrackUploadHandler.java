@@ -145,45 +145,9 @@ public class TrackUploadHandler {
         });
     }
 
-    public Observable<Track> uploadSingleTrack(final Track track) {
-        Preconditions.checkNotNull(track, "Track to upload cannot be null.");
-        return Observable.create(new Observable.OnSubscribe<Track>() {
-            @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                subscriber.onStart();
-
-                subscriber.add(uploadTrack(track)
-                        // Subscribe
-                        .subscribe(new Subscriber<Track>() {
-                            @Override
-                            public void onCompleted() {
-                                subscriber.onCompleted();
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                logger.error(e.getMessage(), e);
-                                if (e instanceof NoMeasurementsException) {
-                                    mainthreadWorker.schedule(() -> Toast.makeText(mContext,
-                                            R.string.uploading_track_no_measurements_after_obfuscation_long,
-                                            Toast.LENGTH_LONG).show());
-                                    mNotificationHandler.createNotification
-                                            (mContext.getString(R.string
-                                                    .uploading_track_no_measurements_after_obfuscation));
-                                } else {
-                                    subscriber.onError(e);
-                                }
-                            }
-
-                            @Override
-                            public void onNext(Track track) {
-                                logger.info("track has been successful uploaded");
-                                subscriber.onNext(track);
-                                subscriber.unsubscribe();
-                            }
-                        }));
-            }
-        });
+    public Observable<Track> uploadAllTracks(){
+        return mEnviroCarDB.getAllLocalTracks()
+                .flatMap(tracks -> uploadMultipleTracks(tracks));
     }
 
     public Observable<Track> uploadMultipleTracks(List<Track> tracks) {

@@ -54,14 +54,12 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.exceptions.OnErrorThrowable;
 import rx.functions.Func1;
 import rx.observables.BlockingObservable;
@@ -210,13 +208,13 @@ public class TrackHandler {
                 } else {
                     // if there is no current reference cached or in the database, then create a new
                     // one and persist it.
-                    return createNew ? createNewTrackObservable() : Observable.just(null);
+                    return createNew ? createNewDatabaseTrackObservable() : Observable.just(null);
                 }
             }
         };
     }
 
-    private Observable<Track> createNewTrackObservable() {
+    private Observable<Track> createNewDatabaseTrackObservable() {
         return Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
             public void call(Subscriber<? super Track> subscriber) {
@@ -330,52 +328,6 @@ public class TrackHandler {
         }
     }
 
-    public Observable<Track> uploadAllTracks() {
-        return Observable.create(new Observable.OnSubscribe<Track>() {
-            @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                subscriber.onStart();
-
-                // Before starting the upload, first check the login status and whether the user
-                // has accepted the terms of use.
-                if (!assertIsUserLoggedIn(subscriber)
-                        || !assertHasAcceptedTermsOfUse(subscriber)) {
-                    return;
-                }
-
-                TrackUploadHandler uploadManager = new TrackUploadHandler(mContext);
-                subscriber.add(mEnvirocarDB.getAllLocalTracks()
-                        .map(tracks -> {
-                            for (Track track : tracks) {
-                                if (!assertIsLocalTrack(track, subscriber)) {
-                                    LOGGER.warn(String.format("Track with id=%s is no local track",
-                                            track.getTrackID()));
-                                    tracks.remove(track);
-                                }
-                            }
-                            return tracks;
-                        })
-                        .concatMap(tracks -> uploadManager.uploadMultipleTracks(tracks))
-                        .subscribe(new Subscriber<Track>() {
-                            @Override
-                            public void onCompleted() {
-                                subscriber.onCompleted();
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                subscriber.onError(e);
-                            }
-
-                            @Override
-                            public void onNext(Track track) {
-                                subscriber.onNext(track);
-                            }
-                        }));
-            }
-        });
-    }
-
     private BlockingObservable<Boolean> asserHasAcceptedTermsOfUseObservable() {
         return Observable.create(new Observable.OnSubscribe<Boolean>() {
             @Override
@@ -447,33 +399,6 @@ public class TrackHandler {
             return false;
         }
         return true;
-    }
-
-
-    private void uploadTrack(Track track){
-        // Upload the track if everything is right.
-        new TrackUploadHandler(mContext)
-                .uploadSingleTrack(track)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .timeout(500, TimeUnit.SECONDS)
-                .subscribe(new Subscriber<Track>() {
-                    @Override
-                    public void onCompleted() {
-                        LOGGER.info("onCompleted() Upload Track");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        LOGGER.error(e.getMessage(), e);
-                    }
-
-                    @Override
-                    public void onNext(Track track) {
-                        LOGGER.info(String.format("track[%s] has been successfully uploaded.",
-                                track.getRemoteID()));
-                    }
-                });
     }
 
     public Observable<Track> fetchRemoteTrackObservable(Track remoteTrack) {

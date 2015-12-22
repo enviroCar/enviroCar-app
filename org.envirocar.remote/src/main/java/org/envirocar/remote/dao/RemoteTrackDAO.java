@@ -301,6 +301,8 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
     public void deleteTrack(Track track) throws DataUpdateFailureException,
             NotConnectedException, UnauthorizedException {
         Preconditions.checkState(track.getRemoteID() != null, "No RemoteID for this Track.");
+        Preconditions.checkState(!track.isRemoteTrack(), "Track is not a remote track. Track " +
+                "cannot be deleted");
 
         String remoteID = track.getRemoteID();
         LOG.info(String.format("deleteRemoteTrack(%s)", remoteID));
