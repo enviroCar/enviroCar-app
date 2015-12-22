@@ -57,7 +57,7 @@ public interface TrackDAO {
 
     Integer getTotalTrackCount() throws DataRetrievalFailureException, NotConnectedException;
 
-    String createTrack(Track track) throws DataCreationFailureException, NotConnectedException,
+    Track createTrack(Track track) throws DataCreationFailureException, NotConnectedException,
             ResourceConflictException, UnauthorizedException;
 
     Observable<Track> createTrackObservable(Track track);

@@ -103,7 +103,7 @@ public class LocalTrackDAO implements TrackDAO {
     }
 
     @Override
-    public String createTrack(Track track) throws DataCreationFailureException,
+    public Track createTrack(Track track) throws DataCreationFailureException,
             NotConnectedException, ResourceConflictException, UnauthorizedException {
         return null;
     }

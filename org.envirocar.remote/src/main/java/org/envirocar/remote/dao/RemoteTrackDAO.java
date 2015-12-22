@@ -55,14 +55,6 @@ import rx.Subscriber;
 public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implements TrackDAO {
     private static final Logger LOG = Logger.getLogger(RemoteTrackDAO.class);
 
-
-    /**
-     * Constructor.
-     */
-    public RemoteTrackDAO() {
-        super(null, null);
-    }
-
     /**
      * Constructor.
      *
@@ -84,16 +76,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
 
         try {
             // Execute the request call
-            Response<Track> trackResponse = trackCall.execute();
-
-            // If the request call was not successful, then assert the status code and throw an
-            // exceptiom
-            if (!trackResponse.isSuccess()) {
-                LOG.warn(String.format("getTrack was not successful for the following reason: %s",
-                        trackResponse.message()));
-                EnvirocarServiceUtils.assertStatusCode(
-                        trackResponse.code(), trackResponse.message());
-            }
+            Response<Track> trackResponse = executeCall(trackCall);
 
             // If it was successful, then return the track.
             LOG.debug("getTrack() was successful");
@@ -185,7 +168,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
     }
 
     @Override
-    public String createTrack(Track track) throws DataCreationFailureException,
+    public Track createTrack(Track track) throws DataCreationFailureException,
             NotConnectedException, ResourceConflictException, UnauthorizedException {
         LOG.info("createTrack()");
 
@@ -212,8 +195,10 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
             String location = EnvirocarServiceUtils.resolveRemoteLocation(uploadTrackResponse);
             LOG.info("Uploaded remote location: " + location);
 
-            // Return the location;
-            return location.substring(location.lastIndexOf('/') + 1, location.length());
+            // Set the remoteID ...
+            track.setRemoteID(location.substring(location.lastIndexOf('/') + 1, location.length()));
+            // ... and return the track;
+            return track;
         } catch (IOException e) {
             throw new DataCreationFailureException(e);
         } catch (ResourceConflictException e) {
@@ -229,9 +214,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
                 LOG.info("call: creating remote track.");
                 subscriber.onStart();
                 try {
-                    String remoteID = createTrack(track);
-                    track.setRemoteID(remoteID);
-                    subscriber.onNext(track);
+                    subscriber.onNext(createTrack(track));
                 } catch (DataCreationFailureException |
                         NotConnectedException |
                         ResourceConflictException |
