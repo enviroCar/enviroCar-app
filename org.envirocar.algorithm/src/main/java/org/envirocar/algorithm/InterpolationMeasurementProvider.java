@@ -10,6 +10,7 @@ import org.envirocar.core.entity.MeasurementImpl;
 import org.envirocar.core.events.gps.GpsDOP;
 import org.envirocar.core.events.gps.GpsDOPEvent;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
+import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.PropertyKeyEvent;
 import org.envirocar.obd.events.Timestamped;
 
@@ -24,9 +25,11 @@ import rx.Observable;
 import rx.Subscriber;
 
 public class InterpolationMeasurementProvider extends AbstractMeasurementProvider {
+    private static final Logger LOG = Logger.getLogger(InterpolationMeasurementProvider.class);
 
     private final Bus eventBus;
-    private Map<Measurement.PropertyKey, List<PropertyKeyEvent>> bufferedResponses = new HashMap<>();
+    private Map<Measurement.PropertyKey, List<PropertyKeyEvent>> bufferedResponses = new
+            HashMap<>();
     private long firstTimestampToBeConsidered;
     private long lastTimestampToBeConsidered;
 
@@ -41,14 +44,12 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
     /*
      * TODO implement listing for GPS DOP Events
      */
-
-
     @Override
     public Observable<Measurement> measurements(long samplingRate) {
         return Observable.create(new Observable.OnSubscribe<Measurement>() {
             @Override
             public void call(Subscriber<? super Measurement> subscriber) {
-
+                LOG.info("measurements(): start collecting data");
                 subscriber.onStart();
 
                 while (!subscriber.isUnsubscribed()) {
@@ -63,13 +64,15 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
                         }
 
                         Measurement m = createMeasurement();
-                        
+
                         if (m != null && m.getLatitude() != null && m.getLongitude() != null
                                 && m.hasProperty(Measurement.PropertyKey.SPEED)) {
                             subscriber.onNext(m);
                         }
                     }
                 }
+                LOG.info("measurements(): finished the collection of data.");
+                subscriber.onCompleted();
             }
         });
     }
@@ -78,7 +81,8 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
         /**
          * use the middle of the time window
          */
-        long targetTimestamp = firstTimestampToBeConsidered + ((lastTimestampToBeConsidered - firstTimestampToBeConsidered) / 2);
+        long targetTimestamp = firstTimestampToBeConsidered + ((lastTimestampToBeConsidered -
+                firstTimestampToBeConsidered) / 2);
 
         Measurement m = new MeasurementImpl();
         m.setTime(targetTimestamp);
@@ -105,8 +109,7 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
             Position pos = positionBuffer.get(0);
             m.setLatitude(pos.getLatitude());
             m.setLongitude(pos.getLongitude());
-        }
-        else {
+        } else {
             long targetTimestamp = m.getTime();
 
             /**
@@ -114,11 +117,14 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
              */
             int startIndex = findStartIndex(positionBuffer, targetTimestamp);
             Position start = positionBuffer.get(startIndex);
-            Position end = startIndex + 1 < positionBuffer.size() ? positionBuffer.get(startIndex + 1) : null;
+            Position end = startIndex + 1 < positionBuffer.size() ? positionBuffer.get(startIndex
+                    + 1) : null;
 
-            double lat = interpolateTwo(start.getLatitude(), end != null ? end.getLatitude() : null, targetTimestamp, start.getTimestamp(),
+            double lat = interpolateTwo(start.getLatitude(), end != null ? end.getLatitude() :
+                            null, targetTimestamp, start.getTimestamp(),
                     end != null ? end.getTimestamp() : 0L);
-            double lon = interpolateTwo(start.getLongitude(), end != null ? end.getLongitude() : null, targetTimestamp, start.getTimestamp(),
+            double lon = interpolateTwo(start.getLongitude(), end != null ? end.getLongitude() :
+                            null, targetTimestamp, start.getTimestamp(),
                     end != null ? end.getTimestamp() : 0L);
 
             m.setLatitude(lat);
@@ -127,7 +133,8 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
 
     }
 
-    private void appendToMeasurement(Measurement.PropertyKey pk, List<PropertyKeyEvent> dataResponses, Measurement m) {
+    private void appendToMeasurement(Measurement.PropertyKey pk, List<PropertyKeyEvent>
+            dataResponses, Measurement m) {
         if (pk == null) {
             return;
         }
@@ -157,17 +164,19 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
          */
         int startIndex = findStartIndex(dataResponses, targetTimestamp);
         PropertyKeyEvent start = dataResponses.get(startIndex);
-        PropertyKeyEvent end = startIndex + 1 < dataResponses.size() ? dataResponses.get(startIndex + 1) : null;
+        PropertyKeyEvent end = startIndex + 1 < dataResponses.size() ? dataResponses.get
+                (startIndex + 1) : null;
 
-        return interpolateTwo(start.getValue(), end != null ? end.getValue() : null, targetTimestamp, start.getTimestamp(),
+        return interpolateTwo(start.getValue(), end != null ? end.getValue() : null,
+                targetTimestamp, start.getTimestamp(),
                 end != null ? end.getTimestamp() : 0L);
     }
 
     private int findStartIndex(List<? extends Timestamped> dataResponses, long targetTimestamp) {
         int i = 0;
-        while (i+1 < dataResponses.size()) {
+        while (i + 1 < dataResponses.size()) {
             if (dataResponses.get(i).getTimestamp() <= targetTimestamp
-                    && dataResponses.get(i+1).getTimestamp() >= targetTimestamp) {
+                    && dataResponses.get(i + 1).getTimestamp() >= targetTimestamp) {
                 return i;
             }
 
@@ -178,12 +187,11 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
     }
 
     /**
-     *
-     * @param start the start value
-     * @param end the end value
+     * @param start           the start value
+     * @param end             the end value
      * @param targetTimestamp the target timestamp used for interpolation
-     * @param startTimestamp the timestamp of the start
-     * @param endTimestamp the timestamp of the lend
+     * @param startTimestamp  the timestamp of the start
+     * @param endTimestamp    the timestamp of the lend
      * @return the interpolated value
      */
     protected Double interpolateTwo(Number start, Number end, long targetTimestamp,
@@ -193,8 +201,7 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
         }
         if (start == null) {
             return end.doubleValue();
-        }
-        else if (end == null) {
+        } else if (end == null) {
             return start.doubleValue();
         }
 
@@ -230,8 +237,7 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
 
         if (bufferedResponses.containsKey(pk)) {
             bufferedResponses.get(pk).add(pke);
-        }
-        else {
+        } else {
             List<PropertyKeyEvent> list = new ArrayList<>();
             list.add(pke);
             bufferedResponses.put(pk, list);
@@ -253,30 +259,35 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
                 location.getLatitude(), location.getLongitude()));
 
         if (location.hasAccuracy()) {
-            consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_ACCURACY, location.getAccuracy(), now));
+            consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_ACCURACY, location
+                    .getAccuracy(), now));
         }
 
         if (location.hasAltitude()) {
-            consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_ALTITUDE, location.getAltitude(), now));
+            consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_ALTITUDE, location
+                    .getAltitude(), now));
         }
 
         if (location.hasBearing()) {
-            consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_BEARING, location.getBearing(), now));
+            consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_BEARING, location
+                    .getBearing(), now));
         }
 
         if (location.hasSpeed()) {
-            consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_SPEED, location.getSpeed(), now));
+            consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_SPEED, location.getSpeed(),
+                    now));
         }
     }
 
     private void updateTimestamps(Timestamped dr) {
-        this.lastTimestampToBeConsidered = Math.max(this.lastTimestampToBeConsidered, dr.getTimestamp());
+        this.lastTimestampToBeConsidered = Math.max(this.lastTimestampToBeConsidered, dr
+                .getTimestamp());
 
         if (this.firstTimestampToBeConsidered == 0) {
             this.firstTimestampToBeConsidered = dr.getTimestamp();
-        }
-        else {
-            this.firstTimestampToBeConsidered = Math.min(this.firstTimestampToBeConsidered, dr.getTimestamp());
+        } else {
+            this.firstTimestampToBeConsidered = Math.min(this.firstTimestampToBeConsidered, dr
+                    .getTimestamp());
         }
     }
 

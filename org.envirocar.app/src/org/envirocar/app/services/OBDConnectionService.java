@@ -24,8 +24,6 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Binder;
-import android.os.IBinder;
 import android.os.Parcelable;
 import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
@@ -76,7 +74,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
@@ -143,9 +140,6 @@ public class OBDConnectionService extends BaseInjectorService {
     // This satellite fix indicates that there is no satellite connection yet.
     private GpsSatelliteFix mCurrentGpsSatelliteFix = new GpsSatelliteFix(0, false);
     private BluetoothServiceState mServiceState = BluetoothServiceState.SERVICE_STOPPED;
-
-    private IBinder mBinder = new OBDConnectionBinder();
-
 
     private OBDConnectionRecognizer connectionRecognizer = new OBDConnectionRecognizer();
     private ConsumptionAlgorithm consumptionAlgorithm;
@@ -231,11 +225,6 @@ public class OBDConnectionService extends BaseInjectorService {
         return new BluetoothServiceStateChangedEvent(mServiceState);
     }
 
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
-
 
     @Override
     public void onDestroy() {
@@ -244,6 +233,7 @@ public class OBDConnectionService extends BaseInjectorService {
 
         if (subscriptions != null)
             subscriptions.unsubscribe();
+        subscriptions = null;
 
         // If there is an active UUID subscription.
         if (mConnectingSubscription != null)
@@ -260,8 +250,11 @@ public class OBDConnectionService extends BaseInjectorService {
         bus.unregister(this);
         bus.unregister(mTrackDetailsProvider);
         bus.unregister(connectionRecognizer);
+        connectionRecognizer.shutDown();
         bus.unregister(measurementProvider);
         mTrackDetailsProvider.onOBDConnectionStopped();
+
+        LOG.info("OBDConnectionService successfully destroyed");
     }
 
     @Override
@@ -287,24 +280,6 @@ public class OBDConnectionService extends BaseInjectorService {
             mTTS.speak(string, TextToSpeech.QUEUE_ADD, null);
         }
     }
-
-    /**
-     * @param uuids
-     * @return
-     */
-    private Observable<UUID> transformUUID(final Parcelable uuids[]) {
-        return Observable.create(new Observable.OnSubscribe<UUID>() {
-            @Override
-            public void call(Subscriber<? super UUID> subscriber) {
-                // Create a uuid for every string and return it
-                for (Parcelable uuid : uuids) {
-                    subscriber.onNext(UUID.fromString(uuid.toString()));
-                }
-                subscriber.onCompleted();
-            }
-        });
-    }
-
 
     /**
      * @param device
@@ -381,7 +356,7 @@ public class OBDConnectionService extends BaseInjectorService {
                         public void onNext(BluetoothSocketWrapper socketWrapper) {
                             bluetoothSocketWrapper = socketWrapper;
                             onDeviceConnected(bluetoothSocketWrapper);
-                            unsubscribe();
+                            onCompleted();
                         }
                     });
     }
@@ -544,96 +519,70 @@ public class OBDConnectionService extends BaseInjectorService {
         doTextToSpeech("Connection established");
     }
 
+
+
     private void subscribeForMeasurements(String deviceName) {
-        AtomicBoolean firstMeasurement = new AtomicBoolean(true);
-
-
-        /**
-         * this is the first access to the measurement objects
-         * push it further
-         */
+        // this is the first access to the measurement objects push it further
         Long samplingRate = PreferencesHandler.getSamplingRate(getApplicationContext()) * 1000;
-        subscriptions.add(measurementProvider.measurements(samplingRate)
-                        .subscribeOn(Schedulers.computation())
-                        .observeOn(Schedulers.computation())
-                        .subscribe(new Subscriber<Measurement>() {
-                            PublishSubject<Measurement> measurementPublisher =
-                                    PublishSubject.create();
+        subscriptions.add(
+                measurementProvider.measurements(samplingRate)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(Schedulers.io())
+                        .subscribe(getMeasurementSubscriber()));
+    }
 
-                            @Override
-                            public void onStart() {
-                                LOG.info("onStart(): MeasuremnetProvider Subscription");
-                                add(trackHandler.startNewTrack(measurementPublisher));
-                            }
+    private Subscriber<Measurement> getMeasurementSubscriber() {
+        return new Subscriber<Measurement>() {
+            PublishSubject<Measurement> measurementPublisher =
+                    PublishSubject.create();
 
-                            @Override
-                            public void onCompleted() {
+            @Override
+            public void onStart() {
+                LOG.info("onStart(): MeasuremnetProvider Subscription");
+                add(trackHandler.startNewTrack(measurementPublisher));
+            }
 
-                            }
+            @Override
+            public void onCompleted() {
+                LOG.info("onCompleted(): MeasurementProvider");
+                measurementPublisher.onCompleted();
+                measurementPublisher = null;
+            }
 
-                            @Override
-                            public void onError(Throwable e) {
-                                LOG.error(e.getMessage(), e);
-                            }
+            @Override
+            public void onError(Throwable e) {
+                LOG.error(e.getMessage(), e);
+                measurementPublisher.onError(e);
+                measurementPublisher = null;
+            }
 
-                            @Override
-                            public void onNext(Measurement measurement) {
-                                LOG.info("onNNNNENEEXT()");
-                                try {
-                                    if (!measurement.hasProperty(Measurement.PropertyKey.MAF)) {
-                                        try {
-                                            measurement.setProperty(Measurement.PropertyKey
-                                                    .CALCULATED_MAF, mafAlgorithm.calculateMAF
-                                                    (measurement));
-                                        } catch (NoMeasurementsException e) {
-                                            LOG.warn(e.getMessage());
-                                        }
-                                    }
-                                    double consumption = consumptionAlgorithm
-                                            .calculateConsumption(measurement);
-                                    double co2 = consumptionAlgorithm
-                                            .calculateCO2FromConsumption(consumption);
-                                    measurement.setProperty(Measurement.PropertyKey.CONSUMPTION,
-                                            consumption);
-                                    measurement.setProperty(Measurement.PropertyKey.CO2, co2);
-                                } catch (FuelConsumptionException e) {
-                                    LOG.warn(e.getMessage());
-                                } catch (UnsupportedFuelTypeException e) {
-                                    LOG.warn(e.getMessage());
-                                }
+            @Override
+            public void onNext(Measurement measurement) {
+                LOG.info("onNNNNENEEXT()");
+                try {
+                    if (!measurement.hasProperty(Measurement.PropertyKey.MAF)) {
+                        try {
+                            measurement.setProperty(Measurement.PropertyKey
+                                    .CALCULATED_MAF, mafAlgorithm.calculateMAF(measurement));
+                        } catch (NoMeasurementsException e) {
+                            LOG.warn(e.getMessage());
+                        }
+                    }
 
-                                measurementPublisher.onNext(measurement);
-                                bus.post(new NewMeasurementEvent(measurement));
+                    double consumption = consumptionAlgorithm.calculateConsumption(measurement);
+                    double co2 = consumptionAlgorithm.calculateCO2FromConsumption(consumption);
+                    measurement.setProperty(Measurement.PropertyKey.CONSUMPTION, consumption);
+                    measurement.setProperty(Measurement.PropertyKey.CO2, co2);
+                } catch (FuelConsumptionException e) {
+                    LOG.warn(e.getMessage());
+                } catch (UnsupportedFuelTypeException e) {
+                    LOG.warn(e.getMessage());
+                }
 
-//                                try {
-//                                    dbAdapter.insertNewMeasurement(measurement);
-//
-//                                    if (firstMeasurement.getAndSet(false)) {
-//                                        /**
-//                                         * we are connected, update the track metadata with the
-//                                         * device name
-//                                         */
-//                                        enviroCarDB.getActiveTrackObservable()
-//                                                .flatMap(track -> trackHandler.updateTrackMetadata
-//                                                        (track.getTrackID(),
-//                                                                new TrackMetadata().add
-//                                                                        (TrackMetadata
-//                                                                        .OBD_DEVICE, deviceName)))
-//                                                .subscribe(trackMetadata -> LOG.info
-//                                                                ("TrackMetadata " +
-//                                                                "updated: " + trackMetadata),
-//                                                        throwable -> LOG.warn(throwable
-//                                                                        .getMessage(),
-//                                                                throwable));
-//                                    }
-//                                } catch (TrackAlreadyFinishedException e) {
-//                                    LOG.warn(e.getMessage(), e);
-//                                } catch (MeasurementSerializationException e) {
-//                                    LOG.warn(e.getMessage(), e);
-//                                }
-                            }
-                        })
-        );
+                measurementPublisher.onNext(measurement);
+                bus.post(new NewMeasurementEvent(measurement));
+            }
+        };
     }
 
     public void deviceDisconnected() {
@@ -655,8 +604,7 @@ public class OBDConnectionService extends BaseInjectorService {
         try {
             if (socket.getInputStream() != null) {
                 socket.getInputStream().close();
-            }
-            else {
+            } else {
                 LOG.warn("No socket InputStream found for closing");
             }
 
@@ -667,8 +615,7 @@ public class OBDConnectionService extends BaseInjectorService {
         try {
             if (socket.getOutputStream() != null) {
                 socket.getOutputStream().close();
-            }
-            else {
+            } else {
                 LOG.warn("No socket OutputStream found for closing");
             }
 
@@ -740,22 +687,12 @@ public class OBDConnectionService extends BaseInjectorService {
             mOBDCheckerSubscription = mBackgroundWorker.schedule(
                     obdConnectionCloser, OBD_INTERVAL, TimeUnit.MILLISECONDS);
         }
-    }
 
-
-    /**
-     * Class used for the client Binder. The remoteService is running in the same process as its
-     * client, so it is not required to deal with IPC.
-     */
-    public class OBDConnectionBinder extends Binder {
-
-        /**
-         * Returns the instance of the enclosing remoteService.
-         *
-         * @return the enclosing remoteService.
-         */
-        public OBDConnectionService getService() {
-            return OBDConnectionService.this;
+        public void shutDown() {
+            if (mOBDCheckerSubscription != null)
+                mOBDCheckerSubscription.unsubscribe();
+            if (mGPSCheckerSubscription != null)
+                mGPSCheckerSubscription.unsubscribe();
         }
     }
 }

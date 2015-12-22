@@ -96,7 +96,7 @@ public interface EnviroCarDB {
 
     Observable<Track> fetchTrack(Observable<Track> track, final boolean lazy);
 
-    Observable<Track> getActiveTrackObservable();
+    Observable<Track> getActiveTrackObservable(boolean lazy);
 
     void updateTrackMetadata(final Track track, final TrackMetadata trackMetadata) throws
             TrackSerializationException;

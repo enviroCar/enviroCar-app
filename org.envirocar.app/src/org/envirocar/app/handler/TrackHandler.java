@@ -24,14 +24,12 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
-import org.envirocar.app.activity.DialogUtil;
 import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
 import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.exception.TrackAlreadyUploadedException;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
-import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.TrackImpl;
 import org.envirocar.core.entity.User;
@@ -75,35 +73,10 @@ import rx.subjects.PublishSubject;
  */
 public class TrackHandler {
     private static final Logger LOGGER = Logger.getLogger(TrackHandler.class);
-    private static final String TRACK_MODE = "trackMode";
-
     private static final DateFormat format = SimpleDateFormat.getDateTimeInstance();
 
     private static final long DEFAULT_MAX_TIME_BETWEEN_MEASUREMENTS = 1000 * 60 * 15;
     private static final double DEFAULT_MAX_DISTANCE_BETWEEN_MEASUREMENTS = 3.0;
-
-    /**
-     * Callback interface for uploading a track.
-     */
-    public interface TrackUploadCallback {
-
-        void onUploadStarted(Track track);
-
-        /**
-         * Called if the track has been successfully uploaded.
-         *
-         * @param track the track to upload.
-         */
-        void onSuccessfulUpload(Track track);
-
-        /**
-         * Called if an error occured during the upload routine.
-         *
-         * @param track   the track that was intended to be uploaded.
-         * @param message the error message to be displayed within snackbar.
-         */
-        void onError(Track track, String message);
-    }
 
     @Inject
     @InjectApplicationScope
@@ -169,7 +142,9 @@ public class TrackHandler {
                                 return;
                             LOGGER.info("Insert new measurement ");
 
+                            // set the track database ID of the current active track
                             measurement.setTrackId(track.getTrackID());
+                            track.getMeasurements().add(measurement);
                             try {
                                 mEnvirocarDB.insertMeasurement(measurement);
                             } catch (MeasurementSerializationException e) {
@@ -185,6 +160,7 @@ public class TrackHandler {
         LOGGER.info(String.format("finishTrack(%s)", track.getTrackID()));
         track.setTrackStatus(Track.TrackStatus.FINISHED);
         mEnvirocarDB.updateTrack(track);
+        currentTrack = null;
     }
 
     private Observable<Track> getActiveTrackReference(boolean createNew) {
@@ -192,7 +168,7 @@ public class TrackHandler {
                 // Is there a current reference? if not, then try to find an instance in the
                 // enviroCar database.
                 .flatMap(track -> track == null ?
-                        mEnvirocarDB.getActiveTrackObservable() : Observable.just(track))
+                        mEnvirocarDB.getActiveTrackObservable(false) : Observable.just(track))
                 .flatMap(validateTrackRef(createNew))
                 // Optimize it....
                 .map(track -> {
@@ -335,40 +311,6 @@ public class TrackHandler {
         return true;
     }
 
-    public Track getTrackByID(long trackId) {
-        return getTrackByID(new Track.TrackId(trackId));
-    }
-
-    /**
-     *
-     */
-    public Track getTrackByID(Track.TrackId trackId) {
-        LOGGER.info(String.format("getTrackByID(%s)", trackId.toString()));
-        return mEnvirocarDB.getTrack(trackId)
-                .toBlocking()
-                .first();
-    }
-
-    public Observable<Track> uploadAllTracksObservable() {
-        return Observable.create(new Observable.OnSubscribe<Track>() {
-            @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                try {
-                    assertIsUserLoggedIn();
-                    assertHasAcceptedTermsOfUse();
-                } catch (NotLoggedInException e) {
-                    subscriber.onError(e);
-                    subscriber.onCompleted();
-                    return;
-                } catch (NotAcceptedTermsOfUseException e) {
-                    subscriber.onError(e);
-                    subscriber.onCompleted();
-                    return;
-                }
-            }
-        });
-    }
-
 
     public Observable<TrackMetadata> updateTrackMetadata(
             Track.TrackId trackId, TrackMetadata trackMetadata) {
@@ -507,77 +449,6 @@ public class TrackHandler {
         return true;
     }
 
-    // TODO REMOVE THIS ACTIVITY STUFF... unbelievable.. no structure!
-    public void uploadTrack(Track track, TrackUploadCallback callback) {
-        // If the track is no local track, then popup a snackbar.
-        if (!track.isLocalTrack()) {
-            String infoText = String.format(mContext.getString(R.string
-                    .trackviews_is_already_uploaded), track.getName());
-            LOGGER.info(infoText);
-            callback.onError(track, infoText);
-            return;
-        }
-
-        // If the user is not logged in, then skip the upload and popup a snackbar.
-        if (!mUserManager.isLoggedIn()) {
-            LOGGER.warn("Cannot upload track, because the user is not logged in");
-            String infoText = mContext.getString(R.string.trackviews_not_logged_in);
-            callback.onError(track, infoText);
-            return;
-        }
-
-        // First, try to get whether the user has accepted the terms of use.
-        final User user = mUserManager.getUser();
-        boolean verified = false;
-        try {
-            verified = mTermsOfUseManager.verifyTermsUseOfVersion(user.getTermsOfUseVersion());
-        } catch (ServerException e) {
-            LOGGER.warn(e.getMessage(), e);
-            String infoText = mContext.getString(R.string.trackviews_server_error);
-            callback.onError(track, infoText);
-            return;
-        }
-
-        // If the user has not accepted the terms of use, then show a dialog where he
-        // can accept the terms of use.
-        if (!verified) {
-            final TermsOfUse current;
-            try {
-                current = mTermsOfUseManager.getCurrentTermsOfUse();
-            } catch (ServerException e) {
-                LOGGER.warn("This should never happen!", e);
-                callback.onError(track, "Terms Of Use not accepted.");
-                return;
-            }
-
-            // Create a dialog with which the user can accept the terms of use.
-            DialogUtil.createTermsOfUseDialog(current,
-                    user.getTermsOfUseVersion() == null, new DialogUtil
-                            .PositiveNegativeCallback() {
-
-                        @Override
-                        public void negative() {
-                            LOGGER.info("User did not accept the ToU.");
-                            callback.onError(track, mContext.getString(R.string
-                                    .terms_of_use_info));
-                        }
-
-                        @Override
-                        public void positive() {
-                            // If the user accepted the terms of use, then update this and
-                            // finally upload the track.
-                            mTermsOfUseManager.userAcceptedTermsOfUse(user, current
-                                    .getIssuedDate());
-                            uploadTrack(track);
-                        }
-
-                    }, mContext);
-
-            return;
-        } else {
-            uploadTrack(track);
-        }
-    }
 
     private void uploadTrack(Track track){
         // Upload the track if everything is right.
@@ -684,6 +555,7 @@ public class TrackHandler {
                 })
                 .toBlocking()
                 .first();
+        currentTrack = null;
 
         LOGGER.info(String.format("Track with local id [%s] successful finished.",
                 track.getTrackID()));

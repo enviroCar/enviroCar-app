@@ -126,12 +126,15 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     public void insertTrack(final Track track) throws TrackSerializationException {
+        LOG.info("insertTrack(): trying to insert a new track");
         BriteDatabase.Transaction transaction = briteDatabase.newTransaction();
         try {
             long result = briteDatabase.insert(TrackTable.TABLE_TRACK,
                     TrackTable.toContentValues(track));
             Track.TrackId trackId = new Track.TrackId(result);
             track.setTrackID(trackId);
+            LOG.info(String.format("insertTrack(): " +
+                    "track has been successfully inserted ->[id = %s]", "" + result));
 
             if (track.getMeasurements().size() > 0) {
                 for (Measurement measurement : track.getMeasurements()) {
@@ -238,6 +241,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     @Override
     public void insertMeasurement(final Measurement measurement) throws
             MeasurementSerializationException {
+        LOG.info("inserted measurement into track " + measurement.getTrackId());
         briteDatabase.insert(MeasurementTable.TABLE_NAME,
                 MeasurementTable.toContentValues(measurement));
     }
@@ -296,9 +300,8 @@ public class EnviroCarDBImpl implements EnviroCarDB {
         }
     }
 
-    public Observable<TrackMetadata> updateTrackMetadataObservable(final Track track, final
-    TrackMetadata
-            trackMetadata) {
+    public Observable<TrackMetadata> updateTrackMetadataObservable(
+            final Track track, final TrackMetadata trackMetadata) {
         return Observable.create(new Observable.OnSubscribe<TrackMetadata>() {
             @Override
             public void call(Subscriber<? super TrackMetadata> subscriber) {
@@ -338,13 +341,13 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     @Override
-    public Observable<Track> getActiveTrackObservable() {
+    public Observable<Track> getActiveTrackObservable(boolean lazy) {
         return fetchTrackObservable(
                 "SELECT * FROM " + TrackTable.TABLE_TRACK +
                         " WHERE " + TrackTable.KEY_TRACK_STATE + "='" +
                         Track.TrackStatus.ONGOING + "'" +
                         " ORDER BY " + TrackTable.KEY_TRACK_ID + " DESC" +
-                        " LIMIT 1", true);
+                        " LIMIT 1", lazy);
     }
 
     private void deleteMeasurementsOfTrack(Track.TrackId trackId) {
@@ -356,10 +359,6 @@ public class EnviroCarDBImpl implements EnviroCarDB {
         } finally {
             transaction.end();
         }
-    }
-
-    private void deleteMeasurementsOfTrack(Track track) {
-        deleteMeasurementsOfTrack(track.getTrackID());
     }
 
     private Observable<Track> fetchMeasurements(final Track track) {

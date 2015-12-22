@@ -19,8 +19,6 @@
 package org.envirocar.app.handler;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.text.Spanned;
 import android.widget.Toast;
 
@@ -67,12 +65,7 @@ import rx.functions.Func1;
  * other way.
  */
 public class TrackUploadHandler {
-
-    public static final String NET_ERROR = "net_error";
-    public static final String GENERAL_ERROR = "-1";
-
     private static Logger logger = Logger.getLogger(TrackUploadHandler.class);
-
 
     @Inject
     @InjectApplicationScope
@@ -103,18 +96,6 @@ public class TrackUploadHandler {
         ((Injector) ctx).injectObjects(this);
     }
 
-    public boolean isObfuscationEnabled() {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
-        return prefs.getBoolean(PreferenceConstants.OBFUSCATE_POSITION, false);
-    }
-
-    private Observable<TrackMetadata> updateTrackMetadataObservable(Track track) {
-        return Observable.just(track)
-                .map(track1 -> new TrackMetadata(Util.getVersionString(mContext),
-                        mUserManager.getUser().getTermsOfUseVersion()))
-                .flatMap(trackMetadata -> mTrackHandler.updateTrackMetadata(track.getTrackID(),
-                        trackMetadata));
-    }
 
     public Observable<Track> uploadSingleTrack2(Track track) {
         return Observable.create(new Observable.OnSubscribe<Track>() {
@@ -160,32 +141,8 @@ public class TrackUploadHandler {
                 } catch (ServerException e) {
                     e.printStackTrace();
                 }
-
             }
         });
-    }
-
-    private Func1<Track, Track> validateRequirementsForUpload() {
-        return new Func1<Track, Track>() {
-            @Override
-            public Track call(Track track) {
-                if (!track.isLocalTrack()) {
-                    String infoText = String.format(mContext.getString(R.string
-                            .trackviews_is_already_uploaded), track.getName());
-                    logger.info(infoText);
-                    throw OnErrorThrowable.from(new TrackAlreadyUploadedException(infoText));
-                } else if (track.getCar() == null) {
-
-                } else if (!CarUtils.isCarUploaded(track.getCar())) {
-//                    String infoText = mContext.getString(R.string.)
-                } else if (!mUserManager.isLoggedIn()) {
-                    String infoText = mContext.getString(R.string.trackviews_not_logged_in);
-                    logger.info(infoText);
-                    throw OnErrorThrowable.from(new NotLoggedInException(infoText));
-                }
-                return track;
-            }
-        };
     }
 
     public Observable<Track> uploadSingleTrack(final Track track) {
@@ -282,9 +239,40 @@ public class TrackUploadHandler {
                         // obfuscate the track.
                 .map(asObfuscatedTrackWhenChecked())
                         // Upload the track
-                .flatMap(track1 -> mDAOProvider.getTrackDAO().createTrackObservable(track1))
+                .flatMap(obfTrack -> mDAOProvider.getTrackDAO().createTrackObservable(obfTrack))
                         // Update the database entry
                 .flatMap(track1 -> mEnviroCarDB.updateTrackObservable(track1));
+    }
+
+    private Observable<TrackMetadata> updateTrackMetadataObservable(Track track) {
+        return Observable.just(track)
+                .map(track1 -> new TrackMetadata(Util.getVersionString(mContext),
+                        mUserManager.getUser().getTermsOfUseVersion()))
+                .flatMap(trackMetadata -> mTrackHandler.updateTrackMetadata(track.getTrackID(),
+                        trackMetadata));
+    }
+
+    private Func1<Track, Track> validateRequirementsForUpload() {
+        return new Func1<Track, Track>() {
+            @Override
+            public Track call(Track track) {
+                if (!track.isLocalTrack()) {
+                    String infoText = String.format(mContext.getString(R.string
+                            .trackviews_is_already_uploaded), track.getName());
+                    logger.info(infoText);
+                    throw OnErrorThrowable.from(new TrackAlreadyUploadedException(infoText));
+                } else if (track.getCar() == null) {
+
+                } else if (!CarUtils.isCarUploaded(track.getCar())) {
+//                    String infoText = mContext.getString(R.string.)
+                } else if (!mUserManager.isLoggedIn()) {
+                    String infoText = mContext.getString(R.string.trackviews_not_logged_in);
+                    logger.info(infoText);
+                    throw OnErrorThrowable.from(new NotLoggedInException(infoText));
+                }
+                return track;
+            }
+        };
     }
 
     private Func1<Track, Track> asObfuscatedTrackWhenChecked() {
@@ -292,7 +280,7 @@ public class TrackUploadHandler {
             @Override
             public Track call(Track track) {
                 logger.info("asObfuscatedTrackWhenChecked()");
-                if (isObfuscationEnabled()) {
+                if (PreferencesHandler.isObfuscationEnabled(mContext)) {
                     logger.info(String.format("obfuscation is enabled. Obfuscating track with %s " +
                             "measurements.", "" + track.getMeasurements().size()));
                     try {

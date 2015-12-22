@@ -19,6 +19,7 @@
 package org.envirocar.app.handler;
 
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
@@ -43,6 +44,7 @@ import org.envirocar.core.utils.ServiceUtils;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -156,9 +158,26 @@ public class BluetoothHandler {
 
 
     public void stopOBDConnectionService() {
-        if (ServiceUtils.isServiceRunning(mContext, OBDConnectionService.class))
+        if (ServiceUtils.isServiceRunning(mContext, OBDConnectionService.class)) {
             mContext.getApplicationContext()
                     .stopService(new Intent(mContext, OBDConnectionService.class));
+        }
+
+        ActivityManager amgr = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+
+        List<ActivityManager.RunningAppProcessInfo> list = amgr.getRunningAppProcesses();
+        if (list != null){
+            for (int i = 0; i < list.size(); i++) {
+                ActivityManager.RunningAppProcessInfo apinfo = list.get(i);
+
+                String[] pkgList = apinfo.pkgList;
+                if (apinfo.processName.startsWith("org.envirocar.app.services.OBD")) {
+                    for (int j = 0; j < pkgList.length; j++) {
+                        amgr.killBackgroundProcesses(pkgList[j]);
+                    }
+                }
+            }
+        }
     }
 
 
