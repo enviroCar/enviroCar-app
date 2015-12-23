@@ -27,7 +27,6 @@ import org.envirocar.algorithm.InterpolationMeasurementProvider;
 import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.core.injection.InjectApplicationScope;
-import org.envirocar.obd.OBDController;
 
 import javax.inject.Singleton;
 
@@ -49,12 +48,6 @@ public class OBDServiceModule {
 
     @Singleton
     @Provides
-    OBDController provideOBDController() {
-        return new OBDController();
-    }
-
-    @Singleton
-    @Provides
     PowerManager.WakeLock provideWakeLock(@InjectApplicationScope Context context) {
         return ((PowerManager) context.getSystemService(Context.POWER_SERVICE))
                 .newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "wakelock");
@@ -68,8 +61,8 @@ public class OBDServiceModule {
 
     @Singleton
     @Provides
-    MeasurementProvider provideMeasurementProvider(Bus bus) {
-        return new InterpolationMeasurementProvider(bus);
+    MeasurementProvider provideMeasurementProvider() {
+        return new InterpolationMeasurementProvider();
     }
 
     @Singleton

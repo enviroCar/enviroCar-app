@@ -26,7 +26,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class NativeBluetoothSocket implements BluetoothSocketWrapper {
+/**
+ * TODO JavaDoc
+ */
+public class NativeBluetoothSocket extends BluetoothSocketWrapper {
 
 	private BluetoothSocket socket;
 

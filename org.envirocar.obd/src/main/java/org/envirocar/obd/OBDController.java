@@ -30,6 +30,7 @@ import org.envirocar.obd.adapter.CarTrendAdapter;
 import org.envirocar.obd.adapter.ELM327Adapter;
 import org.envirocar.obd.adapter.OBDAdapter;
 import org.envirocar.obd.adapter.async.DriveDeckSportAdapter;
+import org.envirocar.obd.bluetooth.BluetoothSocketWrapper;
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.PIDUtil;
 import org.envirocar.obd.commands.response.DataResponse;
@@ -38,6 +39,7 @@ import org.envirocar.obd.events.RPMUpdateEvent;
 import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.obd.exception.AllAdaptersFailedException;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayDeque;
@@ -74,8 +76,19 @@ public class OBDController {
     private Bus eventBus;
     private Scheduler.Worker eventBusWorker;
 
-
-    public OBDController() {
+    /**
+     * Default Constructor.
+     *
+     * @param bluetoothSocketWrapper
+     * @param cl
+     * @param bus
+     */
+    public OBDController(BluetoothSocketWrapper bluetoothSocketWrapper, ConnectionListener cl,
+                         Bus bus) throws IOException {
+        this(bluetoothSocketWrapper.getInputStream(),
+                bluetoothSocketWrapper.getOutputStream(),
+                bluetoothSocketWrapper.getRemoteDeviceName(),
+                cl, bus);
     }
 
     /**
@@ -248,13 +261,14 @@ public class OBDController {
 
             @Override
             public void onError(Throwable e) {
+                logger.warn("onError() received", e);
+
                 // check if this is a demanded stop: still this can lead to any kind of Exception
                 if (userRequestedStop) {
                     //TODO implement equivalent notification method:
                     //dataListener.shutdown();
                 }
 
-                logger.warn("onError() received", e);
                 this.unsubscribe();
             }
 

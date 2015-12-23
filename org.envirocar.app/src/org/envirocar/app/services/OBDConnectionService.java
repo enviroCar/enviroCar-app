@@ -61,8 +61,6 @@ import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
@@ -120,7 +118,7 @@ public class OBDConnectionService extends BaseInjectorService {
     private OBDController mOBDController;
 
     // Different subscriptions
-    private Subscription mTextToSpeechPrefSubscription;
+    private Subscription mTTSPrefSubscription;
     private Subscription mConnectingSubscription;
     private Subscription mMeasurementSubscription;
 
@@ -130,19 +128,22 @@ public class OBDConnectionService extends BaseInjectorService {
 
     // This satellite fix indicates that there is no satellite connection yet.
     private GpsSatelliteFix mCurrentGpsSatelliteFix = new GpsSatelliteFix(0, false);
-    private BluetoothServiceState mServiceState = BluetoothServiceState.SERVICE_STOPPED;
 
     private OBDConnectionRecognizer connectionRecognizer = new OBDConnectionRecognizer();
     private ConsumptionAlgorithm consumptionAlgorithm;
 
+    private final Scheduler.Worker backgroundWorker = Schedulers.io().createWorker();
+
     @Override
     public void onCreate() {
+        LOG.info("OBDConnectionService.onCreate()");
         super.onCreate();
 
         // register on the event bus
         this.bus.register(this);
         this.bus.register(mTrackDetailsProvider);
         this.bus.register(connectionRecognizer);
+        this.bus.register(measurementProvider);
 
         mTTS = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
@@ -156,7 +157,7 @@ public class OBDConnectionService extends BaseInjectorService {
             }
         });
 
-        mTextToSpeechPrefSubscription =
+        mTTSPrefSubscription =
                 PreferencesHandler.getTextToSpeechObservable(getApplicationContext())
                         .subscribe(aBoolean -> {
                             mIsTTSPrefChecked = aBoolean;
@@ -172,6 +173,7 @@ public class OBDConnectionService extends BaseInjectorService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        LOG.info("OBDConnectionService.onStartCommand()");
         doTextToSpeech("Establishing connection");
 
         // Acquire the wake lock for keeping the CPU active.
@@ -200,7 +202,6 @@ public class OBDConnectionService extends BaseInjectorService {
      */
     private void setBluetoothServiceState(BluetoothServiceState state) {
         // Set the new remoteService state
-        this.mServiceState = state;
         CURRENT_SERVICE_STATE = state; // TODO FIX
         // and fire an event on the event bus.
         this.bus.post(produceBluetoothServiceStateChangedEvent());
@@ -209,27 +210,18 @@ public class OBDConnectionService extends BaseInjectorService {
     //    @Produce
     public BluetoothServiceStateChangedEvent produceBluetoothServiceStateChangedEvent() {
         LOG.info(String.format("produceBluetoothServiceStateChangedEvent(): %s",
-                mServiceState.toString()));
-        return new BluetoothServiceStateChangedEvent(mServiceState);
+                CURRENT_SERVICE_STATE.toString()));
+        return new BluetoothServiceStateChangedEvent(CURRENT_SERVICE_STATE);
     }
 
 
     @Override
     public void onDestroy() {
-        LOG.info("onDestroy()");
+        LOG.info("OBDConnectionService.onDestroy()");
         super.onDestroy();
-
-        // If there is an active UUID subscription.
-        if (mConnectingSubscription != null)
-            mConnectingSubscription.unsubscribe();
-        if (mTextToSpeechPrefSubscription != null)
-            mTextToSpeechPrefSubscription.unsubscribe();
-        if (mMeasurementSubscription != null)
-            mMeasurementSubscription.unsubscribe();
 
         // Stop this remoteService and emove this remoteService from foreground state.
         stopOBDConnection();
-        stopForeground(true);
 
         if (mWakeLock != null)
             mWakeLock.release();
@@ -238,9 +230,8 @@ public class OBDConnectionService extends BaseInjectorService {
         bus.unregister(this);
         bus.unregister(mTrackDetailsProvider);
         bus.unregister(connectionRecognizer);
-        connectionRecognizer.shutDown();
         bus.unregister(measurementProvider);
-        mTrackDetailsProvider.onOBDConnectionStopped();
+
 
         LOG.info("OBDConnectionService successfully destroyed");
     }
@@ -307,20 +298,16 @@ public class OBDConnectionService extends BaseInjectorService {
     }
 
     private void onDeviceConnected(BluetoothSocketWrapper bluetoothSocket) {
+        LOG.info(String.format("OBDConnectionService.onDeviceConntected(%s)",
+                bluetoothSocket.getRemoteDeviceName()));
         try {
-            InputStream in = bluetoothSocket.getInputStream();
-            OutputStream out = bluetoothSocket.getOutputStream();
-
-            String deviceName = bluetoothSocket.getRemoteDeviceName();
-
-            this.mOBDController = new OBDController(in, out, deviceName, new ConnectionListener() {
-
+            this.mOBDController = new OBDController(bluetoothSocket, new ConnectionListener() {
                 private int mReconnectCount = 0;
 
                 @Override
                 public void onConnectionVerified() {
                     setBluetoothServiceState(BluetoothServiceState.SERVICE_STARTED);
-                    subscribeForMeasurements(deviceName);
+                    subscribeForMeasurements();
                 }
 
                 @Override
@@ -360,32 +347,37 @@ public class OBDConnectionService extends BaseInjectorService {
      */
     private void stopOBDConnection() {
         LOG.info("stopOBDConnection called");
-        new Thread(() -> {
-            shutdownConnectionAndHandler();
+        backgroundWorker.schedule(() -> {
+            stopForeground(true);
 
-            setBluetoothServiceState(BluetoothServiceState.SERVICE_STOPPED);
+            // If there is an active UUID subscription.
+            if (mConnectingSubscription != null && !mConnectingSubscription.isUnsubscribed())
+                mConnectingSubscription.unsubscribe();
+            if (mTTSPrefSubscription != null && !mTTSPrefSubscription.isUnsubscribed())
+                mTTSPrefSubscription.unsubscribe();
+            if (mMeasurementSubscription != null && !mMeasurementSubscription.isUnsubscribed())
+                mMeasurementSubscription.unsubscribe();
+
+            if (mOBDController != null)
+                mOBDController.shutdown();
+            if (bluetoothSocketWrapper != null)
+                bluetoothSocketWrapper.shutdown();
+            if (connectionRecognizer != null)
+                connectionRecognizer.shutDown();
+            if (mTrackDetailsProvider != null)
+                mTrackDetailsProvider.clear();
 
             mLocationHandler.stopLocating();
-
-            Notification noti = new NotificationCompat.Builder(getApplicationContext())
-                    .setContentTitle("enviroCar")
-                    .setContentText(getResources()
-                            .getText(R.string.service_state_stopped))
-                    .setSmallIcon(R.drawable.dashboard).setAutoCancel(true).build();
-
-            NotificationManager manager = (NotificationManager) getSystemService(Context
-                    .NOTIFICATION_SERVICE);
-            manager.notify(BG_NOTIFICATION_ID, noti);
-
+            showServiceStateStoppedNotification();
             doTextToSpeech("Device disconnected");
 
             // Set state of the remoteService to stopped.
             setBluetoothServiceState(BluetoothServiceState.SERVICE_STOPPED);
-        }).start();
+        });
     }
 
 
-    private void subscribeForMeasurements(String deviceName) {
+    private void subscribeForMeasurements() {
         // this is the first access to the measurement objects push it further
         Long samplingRate = PreferencesHandler.getSamplingRate(getApplicationContext()) * 1000;
         mMeasurementSubscription = measurementProvider.measurements(samplingRate)
@@ -453,48 +445,18 @@ public class OBDConnectionService extends BaseInjectorService {
         stopOBDConnection();
     }
 
-    private void shutdownConnectionAndHandler() {
-        if (mOBDController != null) {
-            mOBDController.shutdown();
-        }
-
-        shutdownSocket(bluetoothSocketWrapper);
+    private void showServiceStateStoppedNotification() {
+        NotificationManager manager = (NotificationManager) getSystemService(Context
+                .NOTIFICATION_SERVICE);
+        Notification noti = new NotificationCompat.Builder(getApplicationContext())
+                .setContentTitle("enviroCar")
+                .setContentText(getResources()
+                        .getText(R.string.service_state_stopped))
+                .setSmallIcon(R.drawable.dashboard)
+                .setAutoCancel(true)
+                .build();
+        manager.notify(BG_NOTIFICATION_ID, noti);
     }
-
-    private void shutdownSocket(BluetoothSocketWrapper socket) {
-        LOG.info("Shutting down bluetooth socket...");
-
-        try {
-            if (socket.getInputStream() != null) {
-                socket.getInputStream().close();
-            } else {
-                LOG.warn("No socket InputStream found for closing");
-            }
-
-        } catch (Exception e) {
-            LOG.warn(e.getMessage(), e);
-        }
-
-        try {
-            if (socket.getOutputStream() != null) {
-                socket.getOutputStream().close();
-            } else {
-                LOG.warn("No socket OutputStream found for closing");
-            }
-
-        } catch (Exception e) {
-            LOG.warn(e.getMessage(), e);
-        }
-
-        try {
-            socket.close();
-        } catch (Exception e) {
-            LOG.warn(e.getMessage(), e);
-        }
-
-        LOG.info("bluetooth socket down!");
-    }
-
 
     public class OBDConnectionRecognizer {
         private static final long OBD_INTERVAL = 1000 * 10; // 10 seconds;

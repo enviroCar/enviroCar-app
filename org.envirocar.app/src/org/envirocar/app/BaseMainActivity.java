@@ -609,7 +609,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
                     showSnackbar(getString(R.string.track_finished).concat(event.mTrack.getName()));
                 }
             } catch (NoMeasurementsException e) {
-                LOGGER.warn(e.getMessage(), e);
+                LOGGER.warn("Track has been finished without measurements", e);
                 // Track has no measurements
                 showSnackbar(R.string.track_finished_no_measurements);
             }

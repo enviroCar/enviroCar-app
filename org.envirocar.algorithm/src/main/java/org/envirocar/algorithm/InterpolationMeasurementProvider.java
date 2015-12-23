@@ -2,7 +2,6 @@ package org.envirocar.algorithm;
 
 import android.location.Location;
 
-import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.core.entity.Measurement;
@@ -19,27 +18,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
 import rx.Observable;
 import rx.Subscriber;
 
+/**
+ * TODO JavaDoc
+ */
 public class InterpolationMeasurementProvider extends AbstractMeasurementProvider {
     private static final Logger LOG = Logger.getLogger(InterpolationMeasurementProvider.class);
 
-    private final Bus eventBus;
     private Map<Measurement.PropertyKey, List<PropertyKeyEvent>> bufferedResponses = new
             HashMap<>();
     private long firstTimestampToBeConsidered;
     private long lastTimestampToBeConsidered;
-
-    @Inject
-    public InterpolationMeasurementProvider(Bus bus) {
-        this.eventBus = bus;
-        if (this.eventBus != null) {
-            this.eventBus.register(this);
-        }
-    }
 
     /*
      * TODO implement listing for GPS DOP Events
