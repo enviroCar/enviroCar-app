@@ -52,7 +52,9 @@ import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
 /**
- * @author de Wall
+ * TODO JavaDoc
+ *
+ * @author dewall
  */
 public class TrackRecordingHandler {
     private static final Logger LOGGER = Logger.getLogger(TrackRecordingHandler.class);
@@ -81,7 +83,6 @@ public class TrackRecordingHandler {
     @Inject
     protected CarPreferenceHandler carHander;
 
-
     private Track currentTrack;
 
     /**
@@ -109,13 +110,15 @@ public class TrackRecordingHandler {
                         @Override
                         public void onCompleted() {
                             LOGGER.info("NewMeasurementSubject onCompleted()");
-                            finishTrack(track);
+                            currentTrack = track;
+                            finishCurrentTrack();
                         }
 
                         @Override
                         public void onError(Throwable e) {
                             LOGGER.error(e.getMessage(), e);
-                            finishTrack(track);
+                            currentTrack = track;
+                            finishCurrentTrack();
                         }
 
                         @Override
@@ -132,20 +135,24 @@ public class TrackRecordingHandler {
                                 mEnvirocarDB.insertMeasurement(measurement);
                             } catch (MeasurementSerializationException e) {
                                 LOGGER.error(e.getMessage(), e);
-                                finishTrack(track);
+                                currentTrack = track;
+                                finishCurrentTrack();
                             }
                         }
                     });
                 });
     }
 
-    private void finishTrack(Track track) {
-        LOGGER.info(String.format("finishTrack(%s)", track.getTrackID()));
-        track.setTrackStatus(Track.TrackStatus.FINISHED);
-        mEnvirocarDB.updateTrack(track);
-        currentTrack = null;
-    }
-
+    /**
+     * Returns the most recent track, which is not finished yet. It only returns the track when
+     * it has not been finished yet, i.e. its last measurement'S position meets the requirements
+     * for continuing a track. Otherwise, it sets the track to finished and creates a new database
+     * entry when required.
+     *
+     * @param createNew indicates whether it should create a new track reference when no active
+     *                  track is available.
+     * @return an observable returning the active track reference.
+     */
     private Observable<Track> getActiveTrackReference(boolean createNew) {
         return Observable.just(currentTrack)
                 // Is there a current reference? if not, then try to find an instance in the
@@ -228,39 +235,48 @@ public class TrackRecordingHandler {
     }
 
     /**
-     * Finishes the current track. On the one hand, the remoteService that handles the connection to
-     * the Bluetooth device gets closed and the track in the database gets finished.
+     * Finishes the current track. On the one hand, the background service that handles the
+     * connection to the Bluetooth device gets closed and the track in the database gets finished.
      */
     public void finishCurrentTrack() {
-        LOGGER.info("stopTrack()");
+        LOGGER.info("finishCurrentTrack()");
+        finishCurrentTrackObservable()
+                .doOnError(throwable -> LOGGER.warn(throwable.getMessage(), throwable))
+                .toBlocking()
+                .first();
+    }
+
+    /**
+     * Finishes the current track. On the one hand, the background service that handles the
+     * connection to the Bluetooth device gets closed and the track in the database gets finished.
+     */
+    public Observable<Track> finishCurrentTrackObservable() {
+        LOGGER.info("finishCurrentTrackObservable()");
 
         // Set the current remoteService state to SERVICE_STOPPING.
         mBus.post(new BluetoothServiceStateChangedEvent(BluetoothServiceState.SERVICE_STOPPING));
 
-        // Schedule a new async task for closing the remoteService, finishing the current track, and
-        // finally fireing an event on the event bus.
-
-        Track track = getActiveTrackReference(false)
-                .map(track1 -> {
-                    // Stop the background remoteService that is responsible for the
-                    // OBDConnection.
+        return getActiveTrackReference(false)
+                .flatMap(track -> {
+                    // Stop the background service.
                     mBluetoothHandler.stopOBDConnectionService();
 
-                    if (track1 != null) {
-                        track1.setTrackStatus(Track.TrackStatus.FINISHED);
-                        mEnvirocarDB.updateTrack(track1);
+                    if (track == null)
+                        return Observable.just(track);
 
-                        // Fire a new TrackFinishedEvent on the event bus.
-                        mBus.post(new TrackFinishedEvent(track1));
-                    }
+                    // Fire a new TrackFinishedEvent on the event bus.
+                    mBus.post(new TrackFinishedEvent(currentTrack));
+                    track.setTrackStatus(Track.TrackStatus.FINISHED);
 
-                    return track1;
-                })
-                .toBlocking()
-                .first();
-        currentTrack = null;
+                    LOGGER.info(String.format("Track with local id [%s] successful " +
+                            "finished.", track.getTrackID()));
+                    currentTrack = null;
 
-        LOGGER.info(String.format("Track with local id [%s] successful finished.",
-                track.getTrackID()));
+                    // Depending on the number of measurements inside the track either update the
+                    // database and return the updated reference or delete the database entry.
+                    return (track.getMeasurements().size() <= 1) ?
+                            mEnvirocarDB.deleteTrackObservable(track) :
+                            mEnvirocarDB.updateTrackObservable(track);
+                });
     }
 }

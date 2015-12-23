@@ -360,7 +360,7 @@ public class OBDController {
      */
     public void shutdown() {
         LOG.info("OBDController.shutdown()");
-        
+
         /**
          * save that this is a stop on demand
          */

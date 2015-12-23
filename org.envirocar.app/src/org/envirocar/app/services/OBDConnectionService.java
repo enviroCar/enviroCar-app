@@ -122,9 +122,7 @@ public class OBDConnectionService extends BaseInjectorService {
     private Subscription mConnectingSubscription;
     private Subscription mMeasurementSubscription;
 
-
     private BluetoothSocketWrapper bluetoothSocketWrapper;
-
 
     // This satellite fix indicates that there is no satellite connection yet.
     private GpsSatelliteFix mCurrentGpsSatelliteFix = new GpsSatelliteFix(0, false);
@@ -223,15 +221,11 @@ public class OBDConnectionService extends BaseInjectorService {
         // Stop this remoteService and emove this remoteService from foreground state.
         stopOBDConnection();
 
-        if (mWakeLock != null)
-            mWakeLock.release();
-
         // Unregister from the event bus.
         bus.unregister(this);
         bus.unregister(mTrackDetailsProvider);
         bus.unregister(connectionRecognizer);
         bus.unregister(measurementProvider);
-
 
         LOG.info("OBDConnectionService successfully destroyed");
     }
@@ -272,6 +266,7 @@ public class OBDConnectionService extends BaseInjectorService {
                     @Override
                     public void onStart() {
                         LOG.info("onStart() connection");
+
                         // Set remoteService state to STARTING and fire an event on the bus.
                         setBluetoothServiceState(BluetoothServiceState.SERVICE_STARTING);
                     }
@@ -334,7 +329,7 @@ public class OBDConnectionService extends BaseInjectorService {
             }, bus);
         } catch (IOException e) {
             LOG.warn(e.getMessage(), e);
-            deviceDisconnected();
+            stopSelf();
             return;
         }
 
@@ -366,6 +361,8 @@ public class OBDConnectionService extends BaseInjectorService {
                 connectionRecognizer.shutDown();
             if (mTrackDetailsProvider != null)
                 mTrackDetailsProvider.clear();
+            if (mWakeLock != null)
+                mWakeLock.release();
 
             mLocationHandler.stopLocating();
             showServiceStateStoppedNotification();
@@ -440,10 +437,6 @@ public class OBDConnectionService extends BaseInjectorService {
         };
     }
 
-    public void deviceDisconnected() {
-        LOG.info("Bluetooth device disconnected.");
-        stopOBDConnection();
-    }
 
     private void showServiceStateStoppedNotification() {
         NotificationManager manager = (NotificationManager) getSystemService(Context
@@ -458,7 +451,7 @@ public class OBDConnectionService extends BaseInjectorService {
         manager.notify(BG_NOTIFICATION_ID, noti);
     }
 
-    public class OBDConnectionRecognizer {
+    private final class OBDConnectionRecognizer {
         private static final long OBD_INTERVAL = 1000 * 10; // 10 seconds;
         private static final long GPS_INTERVAL = 1000 * 60 * 2; // 2 minutes;
 
@@ -471,12 +464,12 @@ public class OBDConnectionService extends BaseInjectorService {
 
         private final Action0 gpsConnectionCloser = () -> {
             LOG.warn("CONNECTION CLOSED due to no GPS values");
-            stopOBDConnection();
+            stopSelf();
         };
 
         private final Action0 obdConnectionCloser = () -> {
             LOG.warn("CONNECTION CLOSED due to no OBD values");
-            stopOBDConnection();
+            stopSelf();
         };
 
         @Subscribe
@@ -507,6 +500,7 @@ public class OBDConnectionService extends BaseInjectorService {
         }
 
         public void shutDown() {
+            LOG.info("shutDown() OBDConnectionRecognizer");
             if (mOBDCheckerSubscription != null)
                 mOBDCheckerSubscription.unsubscribe();
             if (mGPSCheckerSubscription != null)

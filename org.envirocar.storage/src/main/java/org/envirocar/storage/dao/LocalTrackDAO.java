@@ -116,6 +116,6 @@ public class LocalTrackDAO implements TrackDAO {
     @Override
     public void deleteTrack(Track track) throws DataUpdateFailureException,
             NotConnectedException, UnauthorizedException {
-
+        database.deleteTrack(track);
     }
 }

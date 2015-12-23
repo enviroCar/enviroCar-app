@@ -1,11 +1,14 @@
 package org.envirocar.algorithm;
 
 import org.envirocar.core.entity.Measurement;
-import org.envirocar.obd.events.Timestamped;
 import org.envirocar.obd.events.PropertyKeyEvent;
+import org.envirocar.obd.events.Timestamped;
 
 import rx.Observable;
 
+/**
+ * TODO JavaDoc
+ */
 public interface MeasurementProvider {
 
     Observable<Measurement> measurements(long samplingRate);

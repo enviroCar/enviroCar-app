@@ -35,6 +35,7 @@ import org.envirocar.app.views.MaterialDialogObservable;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.User;
+import org.envirocar.core.exception.TrackWithNoValidCarException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
@@ -230,12 +231,16 @@ public class TrackUploadHandler {
                 if (!track.isLocalTrack()) {
                     String infoText = String.format(mContext.getString(R.string
                             .trackviews_is_already_uploaded), track.getName());
-                    logger.info(infoText);
+                    logger.warn(infoText);
                     throw OnErrorThrowable.from(new TrackAlreadyUploadedException(infoText));
                 } else if (track.getCar() == null) {
-
+                    String infoText = "Track has no car set. Please delete this track.";
+                    logger.warn(infoText);
+                    throw OnErrorThrowable.from(new TrackWithNoValidCarException(infoText));
                 } else if (!CarUtils.isCarUploaded(track.getCar())) {
-//                    String infoText = mContext.getString(R.string.)
+                    String infoText = "Cannot upload tracks with no valid remote car.";
+                    logger.warn(infoText);
+                    throw OnErrorThrowable.from(new TrackWithNoValidCarException(infoText));
                 } else if (!mUserManager.isLoggedIn()) {
                     String infoText = mContext.getString(R.string.trackviews_not_logged_in);
                     logger.info(infoText);
