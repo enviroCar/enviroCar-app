@@ -41,7 +41,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.LocationHandler;
-import org.envirocar.app.handler.TrackHandler;
+import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
@@ -73,7 +73,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
     @Inject
     protected CarPreferenceHandler mCarManager;
     @Inject
-    protected TrackHandler mTrackHandler;
+    protected TrackRecordingHandler mTrackRecordingHandler;
     @Inject
     protected LocationHandler mLocationHandler;
 
@@ -274,7 +274,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
-                        mTrackHandler.finishCurrentTrack();
+                        mTrackRecordingHandler.finishCurrentTrack();
                     }
                 })
                 .show();

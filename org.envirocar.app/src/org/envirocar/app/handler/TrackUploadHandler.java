@@ -39,8 +39,6 @@ import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.util.TrackMetadata;
-import org.envirocar.core.util.Util;
 import org.envirocar.core.utils.CarUtils;
 import org.envirocar.core.utils.TrackUtils;
 import org.envirocar.remote.DAOProvider;
@@ -79,9 +77,11 @@ public class TrackUploadHandler {
     @Inject
     protected DAOProvider mDAOProvider;
     @Inject
+    protected TrackDAOHandler trackDAOHandler;
+    @Inject
     protected UserHandler mUserManager;
     @Inject
-    protected TrackHandler mTrackHandler;
+    protected TrackRecordingHandler mTrackRecordingHandler;
     @Inject
     protected TermsOfUseManager mTermsOfUseManager;
 
@@ -97,7 +97,7 @@ public class TrackUploadHandler {
     }
 
 
-    public Observable<Track> uploadSingleTrack2(Track track) {
+    public Observable<Track> uploadSingleTrack(Track track) {
         return Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
             public void call(Subscriber<? super Track> subscriber) {
@@ -111,12 +111,18 @@ public class TrackUploadHandler {
                             user.getTermsOfUseVersion() == null, mContext);
 
                     subscriber.add(Observable.just(track)
+                            // general validation of the track
                             .map(validateRequirementsForUpload())
+                                    // Verify wether the TermsOfUSe have been accepted.
                             .map(mTermsOfUseManager.verifyTermsOfUse())
+                                    // When the TermsOfUse have not been accepted, create an
+                                    // Dialog to accept and continue when the user has accepted.
                             .flatMap(aBoolean -> aBoolean ? Observable.just(aBoolean) :
                                     MaterialDialogObservable
                                             .createTermsOfUseDialogObservable(mContext,
                                                     dialogSpanned))
+                                    // Continue when the TermsOfUse has been accepted, otherwise
+                                    // throw an error
                             .flatMap(aBoolean -> aBoolean ? uploadTrack(track) : Observable.error
                                     (new NotAcceptedTermsOfUseException("Not accepted TermsOfUse")))
                             .subscribe(new Subscriber<Track>() {
@@ -145,7 +151,7 @@ public class TrackUploadHandler {
         });
     }
 
-    public Observable<Track> uploadAllTracks(){
+    public Observable<Track> uploadAllTracks() {
         return mEnviroCarDB.getAllLocalTracks()
                 .flatMap(tracks -> uploadMultipleTracks(tracks));
     }
@@ -192,7 +198,7 @@ public class TrackUploadHandler {
     }
 
     private Observable<Track> uploadTrack(Track track) {
-        return updateTrackMetadataObservable(track)
+        return trackDAOHandler.updateTrackMetadataObservable(track)
                 // Assert whether the track has a temporary car.
                 .flatMap(trackMetadata -> mCarManager.assertTemporaryCar(track.getCar()))
                         // Set the car reference
@@ -208,13 +214,7 @@ public class TrackUploadHandler {
                 .flatMap(track1 -> mEnviroCarDB.updateTrackObservable(track1));
     }
 
-    private Observable<TrackMetadata> updateTrackMetadataObservable(Track track) {
-        return Observable.just(track)
-                .map(track1 -> new TrackMetadata(Util.getVersionString(mContext),
-                        mUserManager.getUser().getTermsOfUseVersion()))
-                .flatMap(trackMetadata -> mTrackHandler.updateTrackMetadata(track.getTrackID(),
-                        trackMetadata));
-    }
+
 
     private Func1<Track, Track> validateRequirementsForUpload() {
         return new Func1<Track, Track>() {

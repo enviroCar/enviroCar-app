@@ -38,7 +38,7 @@ import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferencesHandler;
-import org.envirocar.app.handler.TrackHandler;
+import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.NewMeasurementEvent;
@@ -118,7 +118,7 @@ public class OBDConnectionService extends BaseInjectorService {
     @Inject
     protected EnviroCarDB enviroCarDB;
     @Inject
-    protected TrackHandler trackHandler;
+    protected TrackRecordingHandler trackRecordingHandler;
 
     private AbstractCalculatedMAFAlgorithm mafAlgorithm;
 
@@ -539,7 +539,7 @@ public class OBDConnectionService extends BaseInjectorService {
             @Override
             public void onStart() {
                 LOG.info("onStart(): MeasuremnetProvider Subscription");
-                add(trackHandler.startNewTrack(measurementPublisher));
+                add(trackRecordingHandler.startNewTrack(measurementPublisher));
             }
 
             @Override
@@ -653,13 +653,6 @@ public class OBDConnectionService extends BaseInjectorService {
             LOG.warn("CONNECTION CLOSED due to no OBD values");
             stopOBDConnection();
         };
-
-        /**
-         * Constructor.
-         */
-        public OBDConnectionRecognizer() {
-
-        }
 
         @Subscribe
         public void onReceiveGpsLocationChangedEvent(GpsLocationChangedEvent event) {

@@ -60,7 +60,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
     private void uploadTrack(Track track) {
         uploadTrackSubscription = new TrackUploadHandler(getContext())
-                .uploadSingleTrack2(track)
+                .uploadSingleTrack(track)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Track>() {
@@ -101,8 +101,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                     }
                 });
 
-//        mBackgroundWorker.schedule(() -> mTrackHandler.uploadTrack(track,
-//                new TrackHandler
+//        mBackgroundWorker.schedule(() -> mTrackRecordingHandler.uploadTrack(track,
+//                new TrackRecordingHandler
 //                        .TrackUploadCallback() {
 //
 //                    private MaterialDialog mProgressDialog;

@@ -213,11 +213,12 @@ public class EnviroCarDBImpl implements EnviroCarDB {
     }
 
     @Override
-    public Observable<Void> deleteTrackObservable(Track track) {
-        return Observable.create(new Observable.OnSubscribe<Void>() {
+    public Observable<Track> deleteTrackObservable(Track track) {
+        return Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
-            public void call(Subscriber<? super Void> subscriber) {
+            public void call(Subscriber<? super Track> subscriber) {
                 deleteTrack(track);
+                subscriber.onNext(track);
                 subscriber.onCompleted();
             }
         });

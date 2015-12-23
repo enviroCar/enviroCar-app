@@ -37,7 +37,6 @@ import org.envirocar.core.events.bluetooth.BluetoothDeviceDiscoveredEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.injection.InjectApplicationScope;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.BroadcastUtils;
 import org.envirocar.core.utils.ServiceUtils;
@@ -49,6 +48,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import rx.Observable;
 import rx.Scheduler;
@@ -59,16 +59,13 @@ import rx.schedulers.Schedulers;
 /**
  * @author dewall
  */
+@Singleton
 public class BluetoothHandler {
     private static final Logger LOGGER = Logger.getLogger(BluetoothHandler.class);
 
 
-    // Injected variables.
-    @Inject
-    @InjectApplicationScope
-    protected Context mContext;
-    @Inject
-    protected Bus mBus;
+    private final Context context;
+    private final Bus bus;
 
     private final Scheduler.Worker mWorker = Schedulers.io().createWorker();
 
@@ -103,7 +100,7 @@ public class BluetoothHandler {
                         // Post a new event for the changed bluetooth state on the eventbus.
                         BluetoothStateChangedEvent turnedOffEvent =
                                 new BluetoothStateChangedEvent(false);
-                        mBus.post(turnedOffEvent);
+                        bus.post(turnedOffEvent);
 
                         break;
                     case BluetoothAdapter.STATE_TURNING_ON:
@@ -115,7 +112,7 @@ public class BluetoothHandler {
                         // Post a new event for the changed bluetooth state on the eventbus.
                         BluetoothStateChangedEvent turnedOnEvent
                                 = new BluetoothStateChangedEvent(true);
-                        mBus.post(turnedOnEvent);
+                        bus.post(turnedOnEvent);
 
                         break;
                     default:
@@ -132,41 +129,43 @@ public class BluetoothHandler {
      *
      * @param context the context of the current scope.
      */
-    public BluetoothHandler(Context context) {
-        // Inject ourselves.
-        ((Injector) context).injectObjects(this);
+    @Inject
+    public BluetoothHandler(@InjectApplicationScope Context context, Bus bus) {
+        this.context = context;
+        this.bus = bus;
 
         // Get the default bluetooth adapter.
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         // Register ourselves on the eventbus.
-        mBus.register(this);
+        this.bus.register(this);
 
         // Register this handler class for Bluetooth State Changed broadcasts.
         IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-        mContext.registerReceiver(mBluetoothStateChangedReceiver, filter);
+        this.context.registerReceiver(mBluetoothStateChangedReceiver, filter);
     }
 
     /**
      * Starts the connection to the bluetooth device if not already active.
      */
     public void startOBDConnectionService() {
-        if (!ServiceUtils.isServiceRunning(mContext, OBDConnectionService.class))
-            mContext.getApplicationContext()
-                    .startService(new Intent(mContext, OBDConnectionService.class));
+        if (!ServiceUtils.isServiceRunning(context, OBDConnectionService.class))
+            context.getApplicationContext()
+                    .startService(new Intent(context, OBDConnectionService.class));
     }
 
 
     public void stopOBDConnectionService() {
-        if (ServiceUtils.isServiceRunning(mContext, OBDConnectionService.class)) {
-            mContext.getApplicationContext()
-                    .stopService(new Intent(mContext, OBDConnectionService.class));
+        if (ServiceUtils.isServiceRunning(context, OBDConnectionService.class)) {
+            context.getApplicationContext()
+                    .stopService(new Intent(context, OBDConnectionService.class));
         }
 
-        ActivityManager amgr = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
+        ActivityManager amgr = (ActivityManager) context.getSystemService(Context
+                .ACTIVITY_SERVICE);
 
         List<ActivityManager.RunningAppProcessInfo> list = amgr.getRunningAppProcesses();
-        if (list != null){
+        if (list != null) {
             for (int i = 0; i < list.size(); i++) {
                 ActivityManager.RunningAppProcessInfo apinfo = list.get(i);
 
@@ -193,7 +192,7 @@ public class BluetoothHandler {
             return null;
 
         // Get the preferences of the device.
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         String deviceName = preferences.getString(
                 PreferenceConstants.PREF_BLUETOOTH_NAME,
                 PreferenceConstants.PREF_EMPTY);
@@ -218,7 +217,7 @@ public class BluetoothHandler {
     }
 
     public void setSelectedBluetoothDevice(BluetoothDevice selectedDevice) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         boolean success = preferences.edit()
                 .remove(PreferenceConstants.PREF_BLUETOOTH_NAME)
@@ -237,7 +236,7 @@ public class BluetoothHandler {
 
         if (success) {
             LOGGER.info("Successfully updated shared preferences");
-            mBus.post(new BluetoothDeviceSelectedEvent(selectedDevice));
+            bus.post(new BluetoothDeviceSelectedEvent(selectedDevice));
         }
 
     }
@@ -358,7 +357,7 @@ public class BluetoothHandler {
             filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 
             mDiscoverySubscription = BroadcastUtils
-                    .createBroadcastObservable(mContext, filter)
+                    .createBroadcastObservable(context, filter)
                     .subscribe(new Subscriber<Intent>() {
                         private Subscription thisSubscription;
 
@@ -452,7 +451,7 @@ public class BluetoothHandler {
         filter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 
         // Register a receiver.
-        mContext.registerReceiver(new BroadcastReceiver() {
+        context.registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
@@ -481,7 +480,7 @@ public class BluetoothHandler {
                 // If the discovery process has been finished.
                 else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                     callback.onActionDeviceDiscoveryFinished();
-                    mContext.unregisterReceiver(this);
+                    BluetoothHandler.this.context.unregisterReceiver(this);
                 } else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
                     // Nothing to do yet
                 }
@@ -568,7 +567,7 @@ public class BluetoothHandler {
 
         // Register a new BroadcastReceiver for BOND_STATE_CHANGED actions.
         IntentFilter intent = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        mContext.registerReceiver(new BroadcastReceiver() {
+        context.registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
@@ -630,7 +629,7 @@ public class BluetoothHandler {
 
         // Register a new BroadcastReceiver for BOND_STATE_CHANGED actions.
         IntentFilter intent = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-        mContext.registerReceiver(new BroadcastReceiver() {
+        context.registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
@@ -648,10 +647,10 @@ public class BluetoothHandler {
                             prevState == BluetoothDevice.BOND_BONDED) {
                         // The device has been successfully unpaired, inform the callback about this
                         callback.onDeviceUnpaired(device);
-                        mContext.unregisterReceiver(this);
+                        BluetoothHandler.this.context.unregisterReceiver(this);
                     } else if (state == BluetoothDevice.ERROR) {
                         callback.onUnpairingError(device);
-                        mContext.unregisterReceiver(this);
+                        BluetoothHandler.this.context.unregisterReceiver(this);
                     }
                 }
             }

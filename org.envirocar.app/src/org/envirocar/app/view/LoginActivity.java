@@ -43,8 +43,8 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
-import org.envirocar.app.handler.TrackHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
+import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.core.dao.TrackDAO;
@@ -131,7 +131,7 @@ public class LoginActivity extends BaseInjectorActivity {
     @Inject
     protected TermsOfUseManager mTermsOfUseManager;
     @Inject
-    protected TrackHandler mTrackHandler;
+    protected TrackDAOHandler mTrackDAOHandler;
 
     private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers
             .mainThread().createWorker();
@@ -492,7 +492,7 @@ public class LoginActivity extends BaseInjectorActivity {
                 mUserManager.logOut();
 
                 // Finally, delete all tracks that are associated to the previous user.
-                mTrackHandler.deleteAllRemoteTracksLocally();
+                mTrackDAOHandler.deleteAllRemoteTracksLocally();
                 // Close the dialog.
                 dialog.dismiss();
 

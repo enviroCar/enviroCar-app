@@ -170,7 +170,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         holder.mProgressCircle.show();
         track.setDownloadState(Track.DownloadState.DOWNLOADING);
 
-        mTrackHandler.fetchRemoteTrackObservable(track)
+        mTrackDAOHandler.fetchRemoteTrackObservable(track)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Track>() {

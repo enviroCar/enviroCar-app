@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -31,7 +31,6 @@ import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.events.NewUserSettingsEvent;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.remote.DAOProvider;
 import org.envirocar.remote.gravatar.GravatarUtils;
@@ -39,11 +38,18 @@ import org.envirocar.remote.gravatar.GravatarUtils;
 import java.io.IOException;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import rx.Observable;
 
 import static android.content.Context.MODE_PRIVATE;
 
+/**
+ * TODO JavaDoc
+ *
+ * @author dewall
+ */
+@Singleton
 public class UserHandler implements UserManager {
     private static final Logger LOG = Logger.getLogger(UserHandler.class);
 
@@ -54,15 +60,9 @@ public class UserHandler implements UserManager {
     private static final String USER_PREFERENCES = "userPrefs";
 
 
-    @Inject
-    protected Bus mBus;
-
-    @Inject
-    @InjectApplicationScope
-    protected Context context;
-
-    @Inject
-    protected DAOProvider mDAOProvider;
+    private final Context context;
+    private final Bus bus;
+    private final DAOProvider daoProvider;
 
     private User mUser;
     private Bitmap mGravatarBitmap;
@@ -72,9 +72,11 @@ public class UserHandler implements UserManager {
      *
      * @param context the context of the current scope.
      */
-    public UserHandler(Context context) {
-        // Inject ourselves.
-        ((Injector) context).injectObjects(this);
+    @Inject
+    public UserHandler(@InjectApplicationScope Context context, Bus bus, DAOProvider daoProvider) {
+        this.context = context;
+        this.bus = bus;
+        this.daoProvider = daoProvider;
     }
 
     /**
@@ -113,7 +115,7 @@ public class UserHandler implements UserManager {
         // Set the local user reference to the current user.
         mUser = user;
 
-        mBus.post(new NewUserSettingsEvent(user, true));
+        bus.post(new NewUserSettingsEvent(user, true));
     }
 
     /**
@@ -159,11 +161,11 @@ public class UserHandler implements UserManager {
         mGravatarBitmap = null;
 
         // Delete all local representations of tracks that are already uploaded.
-        //        mTrackHandler.deleteAllRemoteTracksLocally();
+        //        mTrackRecordingHandler.deleteAllRemoteTracksLocally();
 
         // Fire a new event on the event bus holding indicating that no logged in user exist.
         if (!withoutEvent) {
-            mBus.post(new NewUserSettingsEvent(null, false));
+            bus.post(new NewUserSettingsEvent(null, false));
         }
     }
 
@@ -180,7 +182,7 @@ public class UserHandler implements UserManager {
         }
 
         try {
-            User result = mDAOProvider.getUserDAO().getUser(user);
+            User result = daoProvider.getUserDAO().getUser(user);
             result.setToken(token);
             setUser(result);
 

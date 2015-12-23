@@ -28,14 +28,9 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.ThreadEnforcer;
 
 import org.envirocar.app.events.TrackDetailsProvider;
-import org.envirocar.app.handler.BluetoothHandler;
-import org.envirocar.app.handler.CarPreferenceHandler;
-import org.envirocar.app.handler.LocationHandler;
+import org.envirocar.app.handler.HandlerModule;
 import org.envirocar.app.handler.TemporaryFileManager;
-import org.envirocar.app.handler.TermsOfUseManager;
-import org.envirocar.app.handler.TrackHandler;
-import org.envirocar.app.handler.TrackUploadHandler;
-import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.services.NotificationHandler;
 import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.services.TrackUploadService;
@@ -52,7 +47,6 @@ import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.view.trackdetails.TrackStatisticsActivity;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
-import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.FeatureFlags;
 import org.envirocar.remote.CacheModule;
 import org.envirocar.remote.DAOProvider;
@@ -75,21 +69,16 @@ import dagger.Provides;
         includes = {
                 RemoteModule.class,
                 CacheModule.class,
-                DatabaseModule.class
+                DatabaseModule.class,
+                HandlerModule.class
         },
         injects = {
-                TermsOfUseManager.class,
-                CarPreferenceHandler.class,
                 BluetoothPairingPreference.class,
-                BluetoothHandler.class,
                 SelectBluetoothPreference.class,
                 TemporaryFileManager.class,
                 SystemStartupService.class,
                 NotificationHandler.class,
-                LocationHandler.class,
                 BluetoothDiscoveryIntervalPreference.class,
-                TrackHandler.class,
-                UserHandler.class,
                 TrackDetailsActivity.class,
                 CarSelectionActivity.class,
                 OBDSelectionActivity.class,
@@ -97,7 +86,6 @@ import dagger.Provides;
                 LoginActivity.class,
                 SettingsActivity.class,
                 TrackUploadService.class,
-                TrackUploadHandler.class,
                 LogbookActivity.class,
                 LogbookAddFuelingFragment.class
         },
@@ -106,8 +94,6 @@ import dagger.Provides;
         complete = false
 )
 public class BaseApplicationModule {
-    private static final Logger LOGGER = Logger.getLogger(BaseApplicationModule.class);
-
     private final Application mApplication;
     private final Context mAppContext;
 
@@ -179,21 +165,6 @@ public class BaseApplicationModule {
     }
 
     /**
-     * Provides the UserHandler of the application
-     *
-     * @return the UserHandler of the application
-     */
-    @Provides
-    @Singleton
-    UserHandler provideUserManager() {
-        return new UserHandler(mAppContext);
-    }
-
-    @Provides
-    @Singleton
-    org.envirocar.core.UserManager provideUserManagerImpl(UserHandler userHandler) { return userHandler; }
-
-    /**
      * Provides the FeatureFlags of the application
      *
      * @return the FeatureFlags of the application
@@ -217,17 +188,6 @@ public class BaseApplicationModule {
 
 
     /**
-     * Provides the TermsOfUseManager of the application
-     *
-     * @return the TermsOfUseManager of the application.
-     */
-    @Provides
-    @Singleton
-    TermsOfUseManager provideTermsOfUseManager() {
-        return new TermsOfUseManager(mAppContext);
-    }
-
-    /**
      * Provides the CarManager of the application
      *
      * @return the CarManager of the application.
@@ -240,25 +200,8 @@ public class BaseApplicationModule {
 
     @Provides
     @Singleton
-    BluetoothHandler provideBluetoothHandler() {
-        return new BluetoothHandler(mAppContext);
-    }
-
-    /**
-     * Provides the LocationHandler of the application.
-     *
-     * @return the LocationHandler of the application.
-     */
-    @Provides
-    @Singleton
-    LocationHandler provideLocationHandler() {
-        return new LocationHandler(mAppContext);
-    }
-
-    @Provides
-    @Singleton
-    TrackHandler provideTrackHandler() {
-        return new TrackHandler(mAppContext);
+    TrackRecordingHandler provideTrackHandler() {
+        return new TrackRecordingHandler(mAppContext);
     }
 
     @Provides

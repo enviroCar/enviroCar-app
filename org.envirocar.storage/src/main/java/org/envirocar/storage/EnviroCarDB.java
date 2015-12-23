@@ -80,7 +80,7 @@ public interface EnviroCarDB {
 
     void deleteTrack(Track track);
 
-    Observable<Void> deleteTrackObservable(Track track);
+    Observable<Track> deleteTrackObservable(Track track);
 
     Observable<Void> deleteAllRemoteTracks();
 

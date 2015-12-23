@@ -37,9 +37,9 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
-import org.envirocar.app.handler.TrackHandler;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.TermsOfUseManager;
+import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
@@ -85,7 +85,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     @Inject
     protected DAOProvider mDAOProvider;
     @Inject
-    protected TrackHandler mTrackHandler;
+    protected TrackDAOHandler mTrackDAOHandler;
 
     @InjectView(R.id.fragment_tracklist_info)
     protected View infoView;
@@ -263,7 +263,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                         }
 
                         try {
-                            mTrackHandler.deleteRemoteTrack(upToDateRef);
+                            mTrackDAOHandler.deleteRemoteTrack(upToDateRef);
                             return true;
                         } catch (Exception e) {
                             OnErrorThrowable.from(e);
@@ -289,8 +289,8 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                 .map(upToDateRef -> {
                     // If the track is a local track, then delete and return whether it was
                     // successful.
-                    return upToDateRef.isLocalTrack() && mTrackHandler.deleteLocalTrack
-                            (upToDateRef.getTrackID());
+                    return upToDateRef.isLocalTrack() &&
+                            mTrackDAOHandler.deleteLocalTrack(upToDateRef.getTrackID());
                 })
                 .subscribe(getDeleteTrackSubscriber(track));
     }

@@ -29,7 +29,7 @@ import android.support.v4.app.NotificationCompat;
 
 import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
-import org.envirocar.app.handler.TrackHandler;
+import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
 import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.core.entity.Track;
@@ -55,7 +55,7 @@ public class TrackUploadService extends Service {
     private static final int NOTIFICATION_ID = 52;
 
     @Inject
-    protected TrackHandler trackHandler;
+    protected TrackRecordingHandler trackRecordingHandler;
     @Inject
     protected EnviroCarDB enviroCarDB;
 
@@ -64,7 +64,7 @@ public class TrackUploadService extends Service {
         LOG.debug("onCreate()");
         super.onCreate();
 
-        // Inject the TrackHandler;
+        // Inject the TrackRecordingHandler;
         ((Injector) getApplicationContext()).injectObjects(this);
     }
 

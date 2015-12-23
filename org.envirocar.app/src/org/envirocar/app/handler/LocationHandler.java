@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -32,19 +32,22 @@ import com.squareup.otto.Bus;
 
 import org.envirocar.core.events.gps.GpsDOP;
 import org.envirocar.core.events.gps.GpsDOPEvent;
+import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFix;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
-import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.injection.InjectApplicationScope;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
+ * TODO JavaDoc
+ *
  * @author dewall
  */
+@Singleton
 public class LocationHandler {
     private static final Logger LOGGER = Logger.getLogger(LocationHandler.class);
     private static final int MAX_TIMEFRAME = 1000 * 60;
@@ -167,11 +170,8 @@ public class LocationHandler {
     };
 
     // Injected variables.
-    @Inject
-    @InjectApplicationScope
-    protected Context mContext;
-    @Inject
-    protected Bus mBus;
+    private final Context mContext;
+    private final Bus mBus;
 
     private LocationManager mLocationManager;
 
@@ -193,9 +193,10 @@ public class LocationHandler {
      *
      * @param context the context of the current scope.
      */
-    public LocationHandler(Context context) {
-        // Inject ourselves and register on the bus.
-        ((Injector) context).injectObjects(this);
+    @Inject
+    public LocationHandler(@InjectApplicationScope Context context, Bus bus) {
+        this.mContext = context;
+        this.mBus = bus;
 
         // Sets the current Location updates to null.
         this.mLastLocationUpdate = null;
@@ -299,7 +300,7 @@ public class LocationHandler {
                 // get the current gps state.
                 boolean isActivated = isGPSEnabled();
                 // if the previous state is different to the current state, then fire a new event.
-                if(previousState != isActivated){
+                if (previousState != isActivated) {
                     mBus.post(new GpsStateChangedEvent(isActivated));
                     previousState = isActivated;
                 }

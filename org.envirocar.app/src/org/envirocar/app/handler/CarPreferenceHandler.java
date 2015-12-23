@@ -61,11 +61,11 @@ import rx.Observable;
 public class CarPreferenceHandler {
     private static final Logger LOG = Logger.getLogger(CarPreferenceHandler.class);
 
-    protected Context mContext;
-    protected Bus mBus;
-    protected UserHandler mUserManager;
-    protected DAOProvider mDAOProvider;
-    protected EnviroCarDB mEnviroCarDB;
+    private final Context mContext;
+    private final Bus mBus;
+    private final UserHandler mUserManager;
+    private final DAOProvider mDAOProvider;
+    private final EnviroCarDB mEnviroCarDB;
 
     private Car mSelectedCar;
     private Set<Car> mDeserialzedCars;

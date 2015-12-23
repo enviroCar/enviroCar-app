@@ -25,7 +25,7 @@ import android.preference.PreferenceManager;
 
 import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
-import org.envirocar.app.handler.TrackHandler;
+import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.activity.DialogUtil.DialogCallback;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.obd.service.BluetoothServiceState;
@@ -53,7 +53,7 @@ public class StartStopButtonUtil {
     @Inject
     protected CarPreferenceHandler mCarManager;
     @Inject
-    protected TrackHandler mTrackHandler;
+    protected TrackRecordingHandler mTrackRecordingHandler;
 
     private int trackMode;
     private BluetoothServiceState serviceState = BluetoothServiceState.SERVICE_STOPPED;
@@ -186,7 +186,7 @@ public class StartStopButtonUtil {
                 new DialogUtil.PositiveNegativeCallback() {
                     @Override
                     public void positive() {
-                        mTrackHandler.finishCurrentTrack();
+                        mTrackRecordingHandler.finishCurrentTrack();
                         trackModeListener.onTrackModeChange(BaseMainActivity.TRACK_MODE_SINGLE);
                     }
 

@@ -36,18 +36,24 @@ import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.remote.DAOProvider;
 
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import rx.Observable;
 import rx.exceptions.OnErrorThrowable;
 import rx.functions.Func1;
 
+/**
+ * TODO JavaDoc
+ *
+ * @author dewall
+ */
+@Singleton
 public class TermsOfUseManager {
     private static final Logger LOGGER = Logger.getLogger(TermsOfUseManager.class);
     // Mutex for locking when downloading.
@@ -55,29 +61,25 @@ public class TermsOfUseManager {
     protected List<TermsOfUse> list;
 
     // Injected variables.
-    @Inject
-    @InjectApplicationScope
-    protected Context mContext;
-    @Inject
-    protected Bus mBus;
-    @Inject
-    protected UserHandler mUserManager;
-    @Inject
-    protected DAOProvider mDAOProvider;
-
+    private final Context mContext;
+    private final Bus mBus;
+    private final UserHandler mUserManager;
+    private final DAOProvider mDAOProvider;
 
     private TermsOfUse current;
 
-    public TermsOfUseManager(Context context) {
-
-        // Inject ourselves.
-        ((Injector) context).injectObjects(this);
-
-        //        try {
-        //            retrieveTermsOfUse();
-        //        } catch (ServerException e) {
-        //            LOGGER.warn(e.getMessage(), e);
-        //        }
+    /**
+     * Constructor.
+     *
+     * @param context
+     */
+    @Inject
+    public TermsOfUseManager(@InjectApplicationScope Context context, Bus bus, UserHandler
+            userHandler, DAOProvider daoProvider) {
+        this.mContext = context;
+        this.mBus = bus;
+        this.mUserManager = userHandler;
+        this.mDAOProvider = daoProvider;
     }
 
     public <T> Func1<T, Boolean> verifyTermsOfUse() {
