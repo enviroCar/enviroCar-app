@@ -132,10 +132,9 @@ public abstract class SyncAdapter implements OBDAdapter {
 
             @Override
             public void call(Subscriber<? super DataResponse> subscriber) {
+                LOGGER.info("SyncAdapter.observe().call()");
 
-                /**
-                 * prepare all pending data commands
-                 */
+                //prepare all pending data commands
                 preparePendingCommands();
 
                 PIDCommand latestCommand = null;
@@ -179,7 +178,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                         LOGGER.warn("No data received: " + e.getMessage());
                         increaseFailureCount(latestCommand.getPid());
                     } catch (InvalidCommandResponseException e) {
-//                        LOGGER.warn("Received InvalidCommandResponseException: " + e.getCommand());
+                        LOGGER.warn("Received InvalidCommandResponseException: " + e.getCommand());
                         increaseFailureCount(PIDUtil.fromString(e.getCommand()));
                     } catch (UnmatchedResponseException e) {
                         LOGGER.warn("Unmatched response: " + e.getMessage());

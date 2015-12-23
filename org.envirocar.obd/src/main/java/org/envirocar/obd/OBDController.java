@@ -60,7 +60,7 @@ import rx.schedulers.Schedulers;
  * @author matthes rieke
  */
 public class OBDController {
-    private static final Logger logger = Logger.getLogger(OBDController.class);
+    private static final Logger LOG = Logger.getLogger(OBDController.class);
     public static final long MAX_NODATA_TIME = 10000;
 
     private Subscription initSubscription;
@@ -144,7 +144,7 @@ public class OBDController {
             this.adapterCandidates.remove(this.obdAdapter);
         }
 
-        logger.info("Using " + this.obdAdapter.getClass().getSimpleName() + " connector as the " +
+        LOG.info("Using " + this.obdAdapter.getClass().getSimpleName() + " connector as the " +
                 "preferred adapter.");
         startInitialization();
     }
@@ -185,12 +185,12 @@ public class OBDController {
 
             @Override
             public void onCompleted() {
-                logger.info("Connecting has been initialized!");
+                LOG.info("Connecting has been initialized!");
             }
 
             @Override
             public void onError(Throwable e) {
-                logger.warn("Adapter failed: " + obdAdapter.getClass().getSimpleName(), e);
+                LOG.warn("Adapter failed: " + obdAdapter.getClass().getSimpleName(), e);
                 try {
                     this.unsubscribe();
 
@@ -210,7 +210,7 @@ public class OBDController {
                     // try the selected adapter
                     startInitialization();
                 } catch (AllAdaptersFailedException e1) {
-                    logger.warn("All Adapters failed", e1);
+                    LOG.warn("All Adapters failed", e1);
                     connectionListener.onAllAdaptersFailed();
                     //TODO implement equivalent notification method:
                     //dataListener.shutdown();
@@ -219,7 +219,7 @@ public class OBDController {
 
             @Override
             public void onNext(Boolean b) {
-                logger.info("Connection verified - starting data collection");
+                LOG.info("Connection verified - starting data collection");
 
                 startCollectingData();
                 //TODO implement equivalent notification method:
@@ -239,6 +239,8 @@ public class OBDController {
      * new data has arrived.
      */
     private void startCollectingData() {
+        LOG.info("OBDController.startCollectingData()");
+
         //inform the listener about the successful conn
         this.connectionListener.onConnectionVerified();
 
@@ -248,20 +250,21 @@ public class OBDController {
                 .observeOn(OBDSchedulers.scheduler())
                 .timeout(MAX_NODATA_TIME, TimeUnit.MILLISECONDS)
                 .subscribe(getCollectingDataSubscriber());
+
     }
 
     private Subscriber<DataResponse> getCollectingDataSubscriber() {
         return new Subscriber<DataResponse>() {
             @Override
             public void onCompleted() {
-                logger.info("onCompleted(): data collection");
+                LOG.info("onCompleted(): data collection");
                 //TODO implement equivalent notification method:
                 //dataListener.shutdown();
             }
 
             @Override
             public void onError(Throwable e) {
-                logger.warn("onError() received", e);
+                LOG.warn("onError() received", e);
 
                 // check if this is a demanded stop: still this can lead to any kind of Exception
                 if (userRequestedStop) {
@@ -356,6 +359,8 @@ public class OBDController {
      * and NOT on any kind of exception
      */
     public void shutdown() {
+        LOG.info("OBDController.shutdown()");
+        
         /**
          * save that this is a stop on demand
          */

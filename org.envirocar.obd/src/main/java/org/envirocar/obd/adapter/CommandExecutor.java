@@ -65,7 +65,7 @@ public class CommandExecutor {
     }
 
     public Observable<byte[]> createRawByteObservable() {
-        Observable<byte[]> obs = Observable.create(new Observable.OnSubscribe<byte[]>() {
+        return Observable.create(new Observable.OnSubscribe<byte[]>() {
             @Override
             public void call(Subscriber<? super byte[]> subscriber) {
                 try {
@@ -83,8 +83,6 @@ public class CommandExecutor {
                 }
             }
         });
-
-        return obs;
     }
 
 

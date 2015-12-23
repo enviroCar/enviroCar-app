@@ -35,9 +35,10 @@ public class OBDConnectionHandler {
 
     /**
      * Constructor
+     *
      * @param context The context of the current scope.
      */
-    public OBDConnectionHandler(Context context){
+    public OBDConnectionHandler(Context context) {
         this.context = context;
     }
 
@@ -48,12 +49,12 @@ public class OBDConnectionHandler {
             final BluetoothDevice device) {
         return Observable.just(device)
                 .map(bluetoothDevice -> {
-                    if(bluetoothDevice.fetchUuidsWithSdp())
+                    if (bluetoothDevice.fetchUuidsWithSdp())
                         return bluetoothDevice;
                     else
                         throw OnErrorThrowable.from(new UUIDSanityCheckFailedException());
                 })
-                .flatMap(bluetoothDevice -> getUUIDList(bluetoothDevice))
+                .concatMap(bluetoothDevice -> getUUIDList(bluetoothDevice))
                 .concatMap(uuids -> createOBDBluetoothObservable(device, uuids));
     }
 
@@ -80,6 +81,7 @@ public class OBDConnectionHandler {
 
         return BroadcastUtils.createBroadcastObservable(context,
                 new IntentFilter(BluetoothDevice.ACTION_UUID))
+                .first()
                 .map(intent -> {
                     LOG.info("getUUIDList(): map call");
 
@@ -159,8 +161,8 @@ public class OBDConnectionHandler {
                 }
             }
 
-            private void connectSocket() throws FallbackBluetoothSocket
-                    .FallbackException, InterruptedException, IOException {
+            private void connectSocket() throws FallbackBluetoothSocket.FallbackException,
+                    InterruptedException, IOException {
                 try {
                     // This is a blocking call and will only return on a
                     // successful connection or an exception
