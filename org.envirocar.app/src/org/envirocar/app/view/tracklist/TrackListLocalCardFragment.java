@@ -25,7 +25,6 @@ import android.view.View;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
-import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
@@ -55,11 +54,12 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     }
 
     private OnTrackUploadedListener onTrackUploadedListener;
+
     private Subscription loadTracksSubscription;
     private Subscription uploadTrackSubscription;
 
     private void uploadTrack(Track track) {
-        uploadTrackSubscription = new TrackUploadHandler(getContext())
+        uploadTrackSubscription = mTrackUploadHandler
                 .uploadSingleTrack(track)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -100,46 +100,6 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                         onTrackUploadedListener.onTrackUploaded(track);
                     }
                 });
-
-//        mBackgroundWorker.schedule(() -> mTrackRecordingHandler.uploadTrack(track,
-//                new TrackRecordingHandler
-//                        .TrackUploadCallback() {
-//
-//                    private MaterialDialog mProgressDialog;
-//
-//                    @Override
-//                    public void onUploadStarted(Track track) {
-//                        mMainThreadWorker.schedule(() ->
-//                                mProgressDialog = new MaterialDialog.Builder(getActivity())
-//                                        .title(R.string.track_list_upload_track_uploading)
-//                                        .content(R.string.track_list_upload_track_please_wait)
-//                                        .progress(true, 0)
-//                                        .show());
-//                    }
-//
-//                    @Override
-//                    public void onSuccessfulUpload(Track track) {
-//                        if (mProgressDialog != null) mProgressDialog.dismiss();
-//                        showSnackbar(String.format(
-//                                getString(R.string.track_list_upload_track_success_template),
-//                                track.getName()));
-//
-//                        // Update the lists.
-//                        mMainThreadWorker.schedule(() -> {
-//                            mRecyclerViewAdapter.removeItem(track);
-//                            mRecyclerViewAdapter.notifyDataSetChanged();
-//                        });
-//
-//                        onTrackUploadedListener.onTrackUploaded(track);
-//                    }
-//
-//                    @Override
-//                    public void onError(Track track, String message) {
-//                        if (mProgressDialog != null)
-//                            mProgressDialog.dismiss();
-//                        showSnackbar(message);
-//                    }
-//                }));
     }
 
     @Override

@@ -37,7 +37,6 @@ import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.injection.InjectApplicationScope;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.CarUtils;
 import org.envirocar.core.utils.TrackUtils;
@@ -47,6 +46,7 @@ import org.envirocar.storage.EnviroCarDB;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import rx.Observable;
 import rx.Scheduler;
@@ -62,38 +62,46 @@ import rx.functions.Func1;
  * The default constructor should only be used when there is no
  * other way.
  */
+@Singleton
 public class TrackUploadHandler {
     private static Logger logger = Logger.getLogger(TrackUploadHandler.class);
 
-    @Inject
-    @InjectApplicationScope
-    protected Context mContext;
-    @Inject
-    protected EnviroCarDB mEnviroCarDB;
-    @Inject
-    protected NotificationHandler mNotificationHandler;
-    @Inject
-    protected CarPreferenceHandler mCarManager;
-    @Inject
-    protected DAOProvider mDAOProvider;
-    @Inject
-    protected TrackDAOHandler trackDAOHandler;
-    @Inject
-    protected UserHandler mUserManager;
-    @Inject
-    protected TrackRecordingHandler mTrackRecordingHandler;
-    @Inject
-    protected TermsOfUseManager mTermsOfUseManager;
+    private final Context mContext;
+    private final EnviroCarDB mEnviroCarDB;
+    private final NotificationHandler mNotificationHandler;
+    private final CarPreferenceHandler mCarManager;
+    private final DAOProvider mDAOProvider;
+    private final TrackDAOHandler trackDAOHandler;
+    private final UserHandler mUserManager;
+    private final TrackRecordingHandler mTrackRecordingHandler;
+    private final TermsOfUseManager mTermsOfUseManager;
 
     private final Scheduler.Worker mainthreadWorker = AndroidSchedulers.mainThread().createWorker();
 
     /**
      * Normal constructor for this manager. Specify the context and the dbadapter.
      *
-     * @param ctx the context of the current scope
+     * @param context the context of the current scope
      */
-    public TrackUploadHandler(Context ctx) {
-        ((Injector) ctx).injectObjects(this);
+    @Inject
+    public TrackUploadHandler(@InjectApplicationScope Context context,
+                              EnviroCarDB enviroCarDB,
+                              NotificationHandler notificationHandler,
+                              CarPreferenceHandler carPreferenceHandler,
+                              DAOProvider daoProvider,
+                              TrackDAOHandler trackDAOHandler,
+                              UserHandler userHandler,
+                              TrackRecordingHandler trackRecordingHandler,
+                              TermsOfUseManager termsOfUseManager) {
+        this.mContext = context;
+        this.mEnviroCarDB = enviroCarDB;
+        this.mNotificationHandler = notificationHandler;
+        this.mCarManager = carPreferenceHandler;
+        this.mDAOProvider = daoProvider;
+        this.trackDAOHandler = trackDAOHandler;
+        this.mUserManager = userHandler;
+        this.mTrackRecordingHandler = trackRecordingHandler;
+        this.mTermsOfUseManager = termsOfUseManager;
     }
 
 
@@ -213,7 +221,6 @@ public class TrackUploadHandler {
                         // Update the database entry
                 .flatMap(track1 -> mEnviroCarDB.updateTrackObservable(track1));
     }
-
 
 
     private Func1<Track, Track> validateRequirementsForUpload() {

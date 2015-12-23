@@ -179,7 +179,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                         LOGGER.warn("No data received: " + e.getMessage());
                         increaseFailureCount(latestCommand.getPid());
                     } catch (InvalidCommandResponseException e) {
-                        LOGGER.warn("Received InvalidCommandResponseException: " + e.getCommand());
+//                        LOGGER.warn("Received InvalidCommandResponseException: " + e.getCommand());
                         increaseFailureCount(PIDUtil.fromString(e.getCommand()));
                     } catch (UnmatchedResponseException e) {
                         LOGGER.warn("Unmatched response: " + e.getMessage());

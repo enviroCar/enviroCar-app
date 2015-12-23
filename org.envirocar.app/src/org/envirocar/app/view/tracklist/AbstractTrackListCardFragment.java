@@ -40,6 +40,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.TrackDAOHandler;
+import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
@@ -86,6 +87,8 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected DAOProvider mDAOProvider;
     @Inject
     protected TrackDAOHandler mTrackDAOHandler;
+    @Inject
+    protected TrackUploadHandler mTrackUploadHandler;
 
     @InjectView(R.id.fragment_tracklist_info)
     protected View infoView;

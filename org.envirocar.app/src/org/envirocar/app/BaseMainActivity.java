@@ -601,17 +601,17 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 // Track is null and thus there was an error.
                 showSnackbar(R.string.track_finishing_failed);
             } else try {
-                if (event.mTrack.getLastMeasurement() == null) {
-                    // Track has no measurements
-                    showSnackbar(R.string.track_finished_no_measurements);
-                } else {
+                if (event.mTrack.getLastMeasurement() != null) {
                     LOGGER.info("last is not null.. " + event.mTrack.getLastMeasurement()
                             .toString());
+
                     // Track has no measurements
                     showSnackbar(getString(R.string.track_finished).concat(event.mTrack.getName()));
                 }
             } catch (NoMeasurementsException e) {
                 LOGGER.warn(e.getMessage(), e);
+                // Track has no measurements
+                showSnackbar(R.string.track_finished_no_measurements);
             }
         });
     }

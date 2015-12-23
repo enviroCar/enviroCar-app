@@ -89,7 +89,8 @@ public class CommandExecutor {
 
 
     private byte[] readResponseLine() throws IOException, StreamFinishedException {
-        LOGGER.info("Reading response line...");
+        // TODO
+//        LOGGER.info("Reading response line...");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
