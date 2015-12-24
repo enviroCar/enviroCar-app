@@ -17,7 +17,7 @@
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 
-package org.envirocar.app.services;
+package org.envirocar.app.exception;
 
 /**
  * TODO JavaDoc

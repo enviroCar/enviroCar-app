@@ -289,8 +289,8 @@ public class CarPreferenceHandler {
             return;
         }
 
-        if (new ContextInternetAccessProvider(mContext).isConnected()
-                && mUserManager.isLoggedIn()) {
+        if (new ContextInternetAccessProvider(mContext).isConnected() &&
+                mUserManager.isLoggedIn()) {
             new AsyncTask<Void, Void, Void>() {
 
                 @Override

@@ -25,6 +25,8 @@ import android.graphics.Bitmap;
 
 import com.squareup.otto.Bus;
 
+import org.envirocar.app.R;
+import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
@@ -41,6 +43,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
+import rx.exceptions.OnErrorThrowable;
+import rx.functions.Func1;
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -132,6 +136,19 @@ public class UserHandler implements UserManager {
         } else {
             return false;
         }
+    }
+
+    public <T> Func1<T, T> getIsLoggedIn() {
+        return new Func1<T, T>() {
+            @Override
+            public T call(T t) {
+                if (isLoggedIn())
+                    return t;
+                else
+                    throw OnErrorThrowable.from(new NotLoggedInException(context.getString(R
+                            .string.trackviews_not_logged_in)));
+            }
+        };
     }
 
     /**

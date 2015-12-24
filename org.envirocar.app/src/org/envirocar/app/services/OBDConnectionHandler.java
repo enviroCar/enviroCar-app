@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.os.Parcelable;
 
+import org.envirocar.app.exception.NoOBDSocketConnectedException;
 import org.envirocar.app.exception.UUIDSanityCheckFailedException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.BroadcastUtils;

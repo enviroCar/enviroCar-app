@@ -35,8 +35,8 @@ import org.envirocar.app.views.MaterialDialogObservable;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.User;
-import org.envirocar.core.exception.TrackWithNoValidCarException;
 import org.envirocar.core.exception.NoMeasurementsException;
+import org.envirocar.core.exception.TrackWithNoValidCarException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.CarUtils;
@@ -207,8 +207,12 @@ public class TrackUploadHandler {
     }
 
     private Observable<Track> uploadTrack(Track track) {
-        return trackDAOHandler.updateTrackMetadataObservable(track)
-                // Assert whether the track has a temporary car.
+        return Observable.just(track)
+                // Check whether the user is correctly logged in.
+                .map(mUserManager.getIsLoggedIn())
+                        // Update the track metadata.
+                .flatMap(track1 -> trackDAOHandler.updateTrackMetadataObservable(track1))
+                        // Assert whether the track has a temporary car.
                 .flatMap(trackMetadata -> mCarManager.assertTemporaryCar(track.getCar()))
                         // Set the car reference
                 .map(car -> {
