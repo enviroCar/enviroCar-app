@@ -18,6 +18,7 @@
  */
 package org.envirocar.app.handler;
 
+import android.app.Activity;
 import android.content.Context;
 import android.text.Spanned;
 import android.widget.Toast;
@@ -31,7 +32,6 @@ import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.exception.TrackAlreadyUploadedException;
 import org.envirocar.app.services.NotificationHandler;
-import org.envirocar.app.views.MaterialDialogObservable;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.User;
@@ -106,7 +106,7 @@ public class TrackUploadHandler {
     }
 
 
-    public Observable<Track> uploadSingleTrack(Track track) {
+    public Observable<Track> uploadSingleTrack(Track track, Activity activity) {
         return Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
             public void call(Subscriber<? super Track> subscriber) {
@@ -123,17 +123,14 @@ public class TrackUploadHandler {
                             // general validation of the track
                             .map(validateRequirementsForUpload())
                                     // Verify wether the TermsOfUSe have been accepted.
-                            .map(mTermsOfUseManager.verifyTermsOfUse())
                                     // When the TermsOfUse have not been accepted, create an
                                     // Dialog to accept and continue when the user has accepted.
-                            .flatMap(aBoolean -> aBoolean ? Observable.just(aBoolean) :
-                                    MaterialDialogObservable
-                                            .createTermsOfUseDialogObservable(mContext,
-                                                    dialogSpanned))
+                            .flatMap(mTermsOfUseManager.verifyTermsOfUse(activity))
                                     // Continue when the TermsOfUse has been accepted, otherwise
                                     // throw an error
-                            .flatMap(aBoolean -> aBoolean ? uploadTrack(track) : Observable.error
-                                    (new NotAcceptedTermsOfUseException("Not accepted TermsOfUse")))
+                            .flatMap(track1 -> track1 != null ? uploadTrack(track) :
+                                    Observable.error(new NotAcceptedTermsOfUseException(
+                                            "Not accepted TermsOfUse")))
                             .subscribe(new Subscriber<Track>() {
                                            @Override
                                            public void onCompleted() {
@@ -226,7 +223,6 @@ public class TrackUploadHandler {
                         // Update the database entry
                 .flatMap(track1 -> mEnviroCarDB.updateTrackObservable(track1));
     }
-
 
     private Func1<Track, Track> validateRequirementsForUpload() {
         return new Func1<Track, Track>() {

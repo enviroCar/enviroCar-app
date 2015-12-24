@@ -60,7 +60,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
     private void uploadTrack(Track track) {
         uploadTrackSubscription = mTrackUploadHandler
-                .uploadSingleTrack(track)
+                .uploadSingleTrack(track, getActivity())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Track>() {

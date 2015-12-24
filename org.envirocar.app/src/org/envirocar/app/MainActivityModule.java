@@ -25,6 +25,7 @@ import android.content.Context;
 import org.envirocar.app.activity.StartStopButtonUtil;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
+import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.view.LogbookFragment;
 import org.envirocar.app.view.RegisterFragment;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
@@ -39,6 +40,7 @@ import org.envirocar.app.view.tracklist.AbstractTrackListCardFragment;
 import org.envirocar.app.view.tracklist.TrackListLocalCardFragment;
 import org.envirocar.app.view.tracklist.TrackListPagerFragment;
 import org.envirocar.app.view.tracklist.TrackListRemoteCardFragment;
+import org.envirocar.app.views.ReactiveTermsOfUseDialog;
 import org.envirocar.core.injection.InjectionActivityScope;
 
 import javax.inject.Singleton;
@@ -73,6 +75,7 @@ import dagger.Provides;
                 AbstractTrackListCardFragment.class,
                 TrackListLocalCardFragment.class,
                 TrackListRemoteCardFragment.class,
+                ReactiveTermsOfUseDialog.class
         },
         addsTo = BaseApplicationModule.class,
         library = true,
@@ -107,6 +110,12 @@ public class MainActivityModule {
     @Singleton
     public RealDashboardFragment provideRealDashboardFragment(){
         return new RealDashboardFragment();
+    }
+
+    @Provides
+    public ReactiveTermsOfUseDialog provideReactiveTermsOfUseDialog(
+            UserHandler userHandler, TermsOfUseManager termsOfUseManager){
+        return new ReactiveTermsOfUseDialog(mActivity, userHandler, termsOfUseManager);
     }
 
 }

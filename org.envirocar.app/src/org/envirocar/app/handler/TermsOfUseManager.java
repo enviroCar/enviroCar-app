@@ -18,6 +18,7 @@
  */
 package org.envirocar.app.handler;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.Toast;
@@ -29,6 +30,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.activity.DialogUtil.PositiveNegativeCallback;
 import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.exception.ServerException;
+import org.envirocar.app.views.ReactiveTermsOfUseDialog;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.DataRetrievalFailureException;
@@ -36,6 +38,7 @@ import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.remote.DAOProvider;
 
@@ -99,6 +102,35 @@ public class TermsOfUseManager {
                     throw OnErrorThrowable.from(e);
                 }
                 return verified;
+            }
+        };
+    }
+
+    public <T> Func1<T, Observable<T>> verifyTermsOfUse(Activity activity) {
+        return new Func1<T, Observable<T>>() {
+            @Override
+            public Observable<T> call(T t) {
+                LOGGER.info("call() verify terms of use");
+                try {
+                    User user = mUserManager.getUser();
+                    if (user == null) {
+                        throw OnErrorThrowable.from(new NotLoggedInException(
+                                mContext.getString(R.string.trackviews_not_logged_in)));
+                    }
+                    boolean verified = verifyTermsUseOfVersion(user.getTermsOfUseVersion());
+
+                    LOGGER.info(String.format("Retrieved terms of use for user [%s] with terms of" +
+                            " use version [%s]", user.getUsername(), user.getTermsOfUseVersion()));
+                    LOGGER.info("" + verified);
+
+                    return verified ? Observable.just(t) :
+                            // TODO the dialog observable should store the acceptance
+                            ((Injector) activity).getObjectGraph()
+                                    .get(ReactiveTermsOfUseDialog.class).asObservable(t);
+                } catch (ServerException e) {
+                    LOGGER.warn(e.getMessage(), e);
+                    throw OnErrorThrowable.from(e);
+                }
             }
         };
     }
@@ -202,6 +234,7 @@ public class TermsOfUseManager {
     public TermsOfUse getCurrentTermsOfUse() throws ServerException {
         if (this.current == null) {
             mDAOProvider.getTermsOfUseDAO()
+
                     .getAllTermsOfUseObservable()
                     .map(new Func1<List<TermsOfUse>, TermsOfUse>() {
                         @Override
