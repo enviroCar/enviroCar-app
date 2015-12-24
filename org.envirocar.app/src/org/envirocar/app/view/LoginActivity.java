@@ -426,12 +426,11 @@ public class LoginActivity extends BaseInjectorActivity {
                     newUser.setMail(email);
                     mDAOProvider.getUserDAO().createUser(newUser);
 
-
                     // Successfully created the user
                     mMainThreadWorker.schedule(() -> {
                         // Set the new user as the logged in user.
                         mUserManager.setUser(newUser);
-                        mTermsOfUseManager.askForTermsOfUseAcceptance(newUser, null);
+
 
                         // Update the view, i.e., hide the registration card and show the profile
                         // page.
@@ -445,6 +444,8 @@ public class LoginActivity extends BaseInjectorActivity {
                                 getResources().getString(R.string.welcome_message),
                                 username), Snackbar.LENGTH_LONG).show();
                     });
+
+                    mTermsOfUseManager.askForTermsOfUseAcceptance(newUser, null);
                 } catch (ResourceConflictException e) {
                     LOG.warn(e.getMessage(), e);
 
