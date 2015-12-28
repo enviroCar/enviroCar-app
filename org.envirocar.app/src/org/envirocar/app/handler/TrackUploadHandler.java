@@ -20,21 +20,16 @@ package org.envirocar.app.handler;
 
 import android.app.Activity;
 import android.content.Context;
-import android.text.Spanned;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 
 import org.envirocar.app.R;
-import org.envirocar.app.activity.DialogUtil;
 import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
 import org.envirocar.app.exception.NotLoggedInException;
-import org.envirocar.app.exception.ServerException;
 import org.envirocar.app.exception.TrackAlreadyUploadedException;
 import org.envirocar.app.services.NotificationHandler;
-import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.TrackWithNoValidCarException;
 import org.envirocar.core.injection.InjectApplicationScope;
@@ -112,47 +107,40 @@ public class TrackUploadHandler {
             public void call(Subscriber<? super Track> subscriber) {
                 logger.info("uploadSingleTrack() start uploading.");
                 subscriber.onStart();
-                try {
-                    // Create a dialog with which the user can accept the terms of use.
-                    User user = mUserManager.getUser();
-                    TermsOfUse currentTermsOfUse = mTermsOfUseManager.getCurrentTermsOfUse();
-                    Spanned dialogSpanned = DialogUtil.createTermsOfUseMarkup(currentTermsOfUse,
-                            user.getTermsOfUseVersion() == null, mContext);
 
-                    subscriber.add(Observable.just(track)
-                            // general validation of the track
-                            .map(validateRequirementsForUpload())
-                                    // Verify wether the TermsOfUSe have been accepted.
-                                    // When the TermsOfUse have not been accepted, create an
-                                    // Dialog to accept and continue when the user has accepted.
-                            .flatMap(mTermsOfUseManager.verifyTermsOfUse(activity))
-                                    // Continue when the TermsOfUse has been accepted, otherwise
-                                    // throw an error
-                            .flatMap(track1 -> track1 != null ? uploadTrack(track) :
-                                    Observable.error(new NotAcceptedTermsOfUseException(
-                                            "Not accepted TermsOfUse")))
-                            .subscribe(new Subscriber<Track>() {
-                                           @Override
-                                           public void onCompleted() {
-                                               subscriber.onCompleted();
-                                           }
-
-                                           @Override
-                                           public void onError(Throwable e) {
-                                               subscriber.onError(e);
-                                               subscriber.unsubscribe();
-                                           }
-
-                                           @Override
-                                           public void onNext(Track track) {
-                                               subscriber.onNext(track);
-                                               subscriber.onCompleted();
-                                           }
+                // Create a dialog with which the user can accept the terms of use.
+                subscriber.add(Observable.just(track)
+                        // general validation of the track
+                        .map(validateRequirementsForUpload())
+                                // Verify wether the TermsOfUSe have been accepted.
+                                // When the TermsOfUse have not been accepted, create an
+                                // Dialog to accept and continue when the user has accepted.
+                        .flatMap(track1 ->
+                                mTermsOfUseManager.verifyTermsOfUse(activity, track1))
+                                // Continue when the TermsOfUse has been accepted, otherwise
+                                // throw an error
+                        .flatMap(track1 -> track1 != null ? uploadTrack(track) :
+                                Observable.error(new NotAcceptedTermsOfUseException(
+                                        "Not accepted TermsOfUse")))
+                        .subscribe(new Subscriber<Track>() {
+                                       @Override
+                                       public void onCompleted() {
+                                           subscriber.onCompleted();
                                        }
-                            ));
-                } catch (ServerException e) {
-                    e.printStackTrace();
-                }
+
+                                       @Override
+                                       public void onError(Throwable e) {
+                                           subscriber.onError(e);
+                                           subscriber.unsubscribe();
+                                       }
+
+                                       @Override
+                                       public void onNext(Track track) {
+                                           subscriber.onNext(track);
+                                           subscriber.onCompleted();
+                                       }
+                                   }
+                        ));
             }
         });
     }

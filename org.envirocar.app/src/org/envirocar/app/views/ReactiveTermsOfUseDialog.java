@@ -9,11 +9,8 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
 import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
-import org.envirocar.app.exception.NotLoggedInException;
-import org.envirocar.app.exception.ServerException;
-import org.envirocar.app.handler.TermsOfUseManager;
-import org.envirocar.app.handler.UserHandler;
 import org.envirocar.core.entity.TermsOfUse;
+import org.envirocar.core.entity.User;
 import org.envirocar.core.logging.Logger;
 
 import rx.Observable;
@@ -38,54 +35,50 @@ public class ReactiveTermsOfUseDialog {
 
 
     private final Activity activityContext;
-    private final UserHandler userHandler;
-    private final TermsOfUseManager termsOfUseManager;
+    private final User user;
+    private final TermsOfUse currentTermsOfUse;
+
 
     /**
      * Constructor.
      *
      * @param activityContext
      */
-    public ReactiveTermsOfUseDialog(Activity activityContext, UserHandler userHandler,
-                                    TermsOfUseManager termsOfUseManager) {
+    public ReactiveTermsOfUseDialog(Activity activityContext, User user, TermsOfUse currentToU) {
         this.activityContext = activityContext;
-        this.userHandler = userHandler;
-        this.termsOfUseManager = termsOfUseManager;
+        this.user = user;
+        this.currentTermsOfUse = currentToU;
     }
 
-    public <T> Observable<T> asObservable(T t) {
+    public Observable<TermsOfUse> asObservable() {
         LOG.info("asObservable()");
-        return Observable.create(new Observable.OnSubscribe<T>() {
+        return Observable.create(new Observable.OnSubscribe<TermsOfUse>() {
             private MaterialDialog termsOfUseDialog;
 
             @Override
-            public void call(Subscriber<? super T> subscriber) {
+            public void call(Subscriber<? super TermsOfUse> subscriber) {
                 LOG.info("asObservable().call()");
 
-                // Check whether the user is correctly logged in.
-                if (!userHandler.isLoggedIn())
-                    subscriber.onError(new NotLoggedInException("No user is logged in."));
+                boolean firstTime = user.getTermsOfUseVersion() == null;
 
-                try {
-                    // Create the terms of use dialog.
-                    MaterialDialog.Builder builder = createDialogBuilder(
-                            () -> {
-                                LOG.info("onClick() the positive button");
-                                subscriber.onNext(t);
-                            }, () -> {
-                                LOG.info("onClick() the negative button.");
-                                subscriber.onError(new NotAcceptedTermsOfUseException(
-                                        activityContext.getString(R.string
-                                                .terms_of_use_cant_continue)));
-                            });
+                // Create the terms of use dialog.
+                MaterialDialog.Builder builder = createDialogBuilder(
+                        createTermsOfUseMarkup(currentTermsOfUse, firstTime),
+                        // OnPositive callback
+                        () -> {
+                            LOG.info("onClick() the positive button");
+                            subscriber.onNext(currentTermsOfUse);
+                        },
+                        // OnNegative callback.
+                        () -> {
+                            LOG.info("onClick() the negative button.");
+                            subscriber.onError(new NotAcceptedTermsOfUseException(
+                                    activityContext.getString(R.string
+                                            .terms_of_use_cant_continue)));
+                        });
 
-                    // Show the dialog
-                    mainThreadWorker.schedule(() -> termsOfUseDialog = builder.show());
-                } catch (ServerException e) {
-                    LOG.error("Error while creating terms of use dialog = " + e.getMessage(), e);
-                    subscriber.onError(e);
-                    return;
-                }
+                // Show the dialog
+                mainThreadWorker.schedule(() -> termsOfUseDialog = builder.show());
 
 
                 // Add an additional subscription to the subscriber that dismisses the terms of
@@ -113,12 +106,12 @@ public class ReactiveTermsOfUseDialog {
      * @param onNegative the action that gets called when the user rejects the terms of use.
      * @return the created dialog instance.
      */
-    private MaterialDialog.Builder createDialogBuilder(Action0 onPositive, Action0 onNegative)
-            throws ServerException {
+    private MaterialDialog.Builder createDialogBuilder(Spanned content,
+                                                       Action0 onPositive, Action0 onNegative) {
         LOG.info("createDialog()");
         return new MaterialDialog.Builder(activityContext)
                 .title(R.string.terms_of_use_title)
-                .content(createTermsOfUseMarkup())
+                .content(content)
                 .positiveText(R.string.terms_of_use_accept)
                 .negativeText(R.string.terms_of_use_reject)
                 .cancelable(false)
@@ -128,10 +121,7 @@ public class ReactiveTermsOfUseDialog {
                         backgroundWorker.schedule(onNegative));
     }
 
-    private Spanned createTermsOfUseMarkup() throws ServerException {
-        boolean firstTime = userHandler.getUser().getTermsOfUseVersion() == null;
-        TermsOfUse currentTermsOfUse = termsOfUseManager.getCurrentTermsOfUse();
-
+    private Spanned createTermsOfUseMarkup(TermsOfUse currentTermsOfUse, boolean firstTime) {
         StringBuilder sb = new StringBuilder();
 
         sb.append("<p>");

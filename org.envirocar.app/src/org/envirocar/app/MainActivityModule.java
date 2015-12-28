@@ -25,7 +25,6 @@ import android.content.Context;
 import org.envirocar.app.activity.StartStopButtonUtil;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
-import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.view.LogbookFragment;
 import org.envirocar.app.view.RegisterFragment;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
@@ -110,12 +109,6 @@ public class MainActivityModule {
     @Singleton
     public RealDashboardFragment provideRealDashboardFragment(){
         return new RealDashboardFragment();
-    }
-
-    @Provides
-    public ReactiveTermsOfUseDialog provideReactiveTermsOfUseDialog(
-            UserHandler userHandler, TermsOfUseManager termsOfUseManager){
-        return new ReactiveTermsOfUseDialog(mActivity, userHandler, termsOfUseManager);
     }
 
 }

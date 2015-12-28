@@ -42,6 +42,7 @@ import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.view.dashboard.RealDashboardFragment;
 import org.envirocar.app.views.TypefaceEC;
+import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.exception.DataUpdateFailureException;
@@ -52,13 +53,18 @@ import org.envirocar.remote.DAOProvider;
 
 import javax.inject.Inject;
 
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+
 /**
  * Activity which displays a register screen to the user, offering registration
  * as well.
  */
 public class RegisterFragment extends BaseInjectorFragment {
 
-    private static final Logger logger = Logger.getLogger(RegisterFragment.class);
+    private static final Logger LOG = Logger.getLogger(RegisterFragment.class);
 
 
     /**
@@ -80,6 +86,8 @@ public class RegisterFragment extends BaseInjectorFragment {
     private View mRegisterFormView;
     private View mRegisterStatusView;
     private TextView mRegisterStatusMessageView;
+
+    private Subscription mRegisterSubscription;
 
     // Injected Variables
     @Inject
@@ -137,6 +145,16 @@ public class RegisterFragment extends BaseInjectorFragment {
         TypefaceEC.applyCustomFont((ViewGroup) view,
                 TypefaceEC.Raleway(getActivity()));
         mUsernameView.requestFocus();
+    }
+
+    @Override
+    public void onDestroy() {
+        LOG.info("onDestroy()");
+
+        if (mRegisterSubscription != null || !mRegisterSubscription.isUnsubscribed())
+            mRegisterSubscription.unsubscribe();
+
+        super.onDestroy();
     }
 
     /**
@@ -297,7 +315,33 @@ public class RegisterFragment extends BaseInjectorFragment {
                         User user = new UserImpl(mUsername, mPassword);
                         mUserManager.setUser(user);
 
-                        mTermsOfUseManager.askForTermsOfUseAcceptance(user, null);
+                        mRegisterSubscription = mTermsOfUseManager.verifyTermsOfUse(getActivity())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Subscriber<TermsOfUse>() {
+                                    @Override
+                                    public void onStart() {
+                                        LOG.info("onStart() verifying terms of use");
+                                    }
+
+                                    @Override
+                                    public void onCompleted() {
+                                        LOG.info("onCompleted() verifying terms of use");
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                        LOG.warn(e.getMessage(), e);
+                                    }
+
+                                    @Override
+                                    public void onNext(TermsOfUse termsOfUse) {
+                                        LOG.info(String.format(
+                                                "User has accepted the terms of use -> [%s]",
+                                                termsOfUse.getIssuedDate()));
+                                        onCompleted();
+                                    }
+                                });
 
                         getActivity().getSupportFragmentManager().popBackStack(null,
                                 FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -307,7 +351,7 @@ public class RegisterFragment extends BaseInjectorFragment {
                     }
                 });
             } catch (DataUpdateFailureException e) {
-                logger.warn(e.getMessage(), e);
+                LOG.warn(e.getMessage(), e);
                 getActivity().runOnUiThread(new Runnable() {
 
                     @Override
@@ -320,7 +364,7 @@ public class RegisterFragment extends BaseInjectorFragment {
                 });
 
             } catch (ResourceConflictException e) {
-                logger.warn(e.getMessage(), e);
+                LOG.warn(e.getMessage(), e);
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
