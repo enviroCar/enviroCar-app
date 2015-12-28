@@ -353,8 +353,8 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
 
             if (mTrackList.isEmpty()) {
                 showText(R.drawable.img_tracks,
-                        R.string.track_list_bg_no_local_tracks,
-                        R.string.track_list_bg_no_local_tracks_sub);
+                        R.string.track_list_bg_no_remote_tracks,
+                        R.string.track_list_bg_no_remote_tracks_sub);
             }
         }
 

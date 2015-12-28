@@ -33,11 +33,9 @@ public class ReactiveTermsOfUseDialog {
             .createWorker();
     private final Scheduler.Worker backgroundWorker = Schedulers.io().createWorker();
 
-
     private final Activity activityContext;
     private final User user;
     private final TermsOfUse currentTermsOfUse;
-
 
     /**
      * Constructor.

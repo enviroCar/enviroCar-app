@@ -25,7 +25,6 @@ import android.content.DialogInterface.OnCancelListener;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnDismissListener;
 import android.os.Bundle;
-import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.view.ContextThemeWrapper;
@@ -35,7 +34,6 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import org.envirocar.app.R;
-import org.envirocar.core.entity.TermsOfUse;
 
 public class DialogUtil {
 
@@ -161,31 +159,6 @@ public class DialogUtil {
 	}
 
 
-	public static void createTermsOfUseDialog(TermsOfUse current,
-			boolean firstTime, DialogCallback callback,
-			Context context) {
-		createTitleMessageDialog(context.getResources().getString(R.string.terms_of_use_title),
-				createTermsOfUseMarkup(current, firstTime, context), callback, context);
-	}
-
-
-	public static Spanned createTermsOfUseMarkup(TermsOfUse current,
-			boolean firstTime, Context context) {
-		StringBuilder sb = new StringBuilder();
-		
-		sb.append("<p>");
-		if (!firstTime) {
-			sb.append(context.getString(R.string.terms_of_use_sorry));
-		}
-		else {
-			sb.append(context.getString(R.string.terms_of_use_info));
-		}
-		sb.append(":</p>");
-		sb.append(current.getContents().replace("</li>", "<br/></li>"));
-		
-		return Html.fromHtml(sb.toString());
-	}
-	
 	private static class DoNotShowAgainAlertDialog extends AlertDialog {
 
 		private TextView messageView;
