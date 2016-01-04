@@ -55,7 +55,6 @@ import lecho.lib.hellocharts.util.ChartUtils;
 import lecho.lib.hellocharts.view.LineChartView;
 import lecho.lib.hellocharts.view.PreviewLineChartView;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 /**
@@ -92,17 +91,16 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
         enviroCarDB.getTrack(trackid)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<Track>() {
-                    @Override
-                    public void call(Track track) {
-                        mTrack = track;
-                        if (savedInstanceState == null) {
-                            mPlaceholderFragment = new PlaceholderFragment(mTrack);
-                            getFragmentManager().beginTransaction()
-                                    .add(R.id.activity_track_statistics_layout_container,
-                                            mPlaceholderFragment).commit();
-                        }
+                .subscribe(track -> {
+                    mTrack = track;
+                    if (savedInstanceState == null) {
+                        mPlaceholderFragment = new PlaceholderFragment(mTrack);
+                        getFragmentManager().beginTransaction()
+                                .add(R.id.activity_track_statistics_layout_container,
+                                        mPlaceholderFragment).commit();
                     }
+
+                    inflateMenuProperties(track);
                 });
 
         // Inject all annotated views.
@@ -114,14 +112,6 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        for (Measurement.PropertyKey key : Measurement.PropertyKey.values()) {
-            menu.add(key.toString());
-        }
-        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -138,6 +128,15 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
             }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void inflateMenuProperties(Track track){
+        Menu menu = mToolbar.getMenu();
+        if(mTrack != null && !mTrack.getMeasurements().isEmpty()){
+            for(Measurement.PropertyKey key : mTrack.getSupportedProperties()){
+                menu.add(key.toString());
+            }
+        }
     }
 
     public static class PlaceholderFragment extends Fragment {

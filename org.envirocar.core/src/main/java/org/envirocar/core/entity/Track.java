@@ -126,6 +126,10 @@ public interface Track extends BaseEntity<Track>, Comparable<Track> {
 
     void setMeasurements(List<Measurement> measurements);
 
+    boolean hasProperty(Measurement.PropertyKey propertyKey);
+
+    List<Measurement.PropertyKey> getSupportedProperties();
+
     String getRemoteID();
 
     void setRemoteID(String remoteID);
