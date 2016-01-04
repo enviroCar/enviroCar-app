@@ -22,6 +22,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
@@ -44,6 +45,7 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import lecho.lib.hellocharts.formatter.SimpleAxisValueFormatter;
 import lecho.lib.hellocharts.gesture.ZoomType;
 import lecho.lib.hellocharts.listener.DummyVieportChangeListener;
 import lecho.lib.hellocharts.model.Axis;
@@ -58,6 +60,8 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
+ * TODO JavaDoc
+ *
  * @author dewall
  */
 public class TrackStatisticsActivity extends BaseInjectorActivity {
@@ -69,7 +73,6 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
         activity.startActivity(intent);
     }
 
-
     @Inject
     protected EnviroCarDB enviroCarDB;
 
@@ -77,7 +80,6 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
     protected Toolbar mToolbar;
 
     private Track mTrack;
-
     private PlaceholderFragment mPlaceholderFragment;
 
     @Override
@@ -111,7 +113,6 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
         getSupportActionBar().setTitle("Track Statistics");
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
     }
 
     @Override
@@ -130,10 +131,10 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void inflateMenuProperties(Track track){
+    private void inflateMenuProperties(Track track) {
         Menu menu = mToolbar.getMenu();
-        if(mTrack != null && !mTrack.getMeasurements().isEmpty()){
-            for(Measurement.PropertyKey key : mTrack.getSupportedProperties()){
+        if (mTrack != null && !mTrack.getMeasurements().isEmpty()) {
+            for (Measurement.PropertyKey key : mTrack.getSupportedProperties()) {
                 menu.add(key.toString());
             }
         }
@@ -187,30 +188,31 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
         }
 
         private void generateData(Measurement.PropertyKey propertyKey) {
-            List<PointValue> values = new ArrayList<PointValue>();
-
-            List<Measurement> measurements = mTrack.getMeasurements();
-
-            for (int i = 0; i < measurements.size(); i++) {
-                Measurement m = measurements.get(i);
-                if (m != null && m.hasProperty(propertyKey)) {
-                    values.add(new PointValue(i, m.getProperty(propertyKey).floatValue()));
-                }
-            }
+            // Generate the PointValues for the Graph.
+            List<PointValue> values = generateDistancedBasedData(propertyKey, mTrack);
 
             Line line = new Line(values);
             line.setColor(getResources().getColor(R.color.green_dark_cario));
             line.setHasPoints(false);
 
-            List<Line> lines = new ArrayList<Line>();
+            List<Line> lines = new ArrayList<>();
             lines.add(line);
 
             mChartData = new LineChartData(lines);
             mChartData.setAxisXBottom(new Axis());
             mChartData.setAxisYLeft(new Axis().setHasLines(true));
+            setDistanceAxis(mChartData);
+            setYAxis(propertyKey, mChartData);
 
             mPreviewChartData = new LineChartData(mChartData);
             mPreviewChartData.getLines().get(0).setColor(ChartUtils.DEFAULT_DARKEN_COLOR);
+
+            Axis axisXBottom = mPreviewChartData.getAxisXBottom();
+            axisXBottom.setHasSeparationLine(false);
+            axisXBottom.setHasTiltedLabels(true);
+            axisXBottom.setTextColor(ChartUtils.DEFAULT_DARKEN_COLOR);
+
+            mPreviewChartData.getAxisYLeft().setTextColor(ChartUtils.DEFAULT_DARKEN_COLOR);
 
             // Set the data in the charts.
             mChart.setLineChartData(mChartData);
@@ -220,9 +222,61 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
             previewX();
         }
 
+        private List<PointValue> generateDistancedBasedData(Measurement.PropertyKey propertyKey, Track track){
+            List<PointValue> values = new ArrayList<PointValue>();
+
+            // temporary array for computing distances.
+            float[] tmp = new float[1];
+            float distance = 0;
+
+            // temporary value for the last measurement
+            Measurement lastMeasurement = null;
+
+            for(Measurement m : track.getMeasurements()){
+                if(lastMeasurement != null){
+                    Location.distanceBetween(lastMeasurement.getLatitude(), lastMeasurement
+                            .getLongitude(), m.getLatitude(), m.getLongitude(), tmp);
+                    distance += tmp[0] / 1000f; // we need km not meters.
+                }
+                if (m != null && m.hasProperty(propertyKey)) {
+                    values.add(new PointValue(distance, m.getProperty(propertyKey).floatValue()));
+                }
+                lastMeasurement = m;
+            }
+
+            return values;
+        }
+
+        private void setDistanceAxis(LineChartData data) {
+            Axis distAxis = new Axis();
+            distAxis.setName("Distance");
+            distAxis.setTextColor(getResources().getColor(R.color.blue_dark_cario));
+            distAxis.setMaxLabelChars(5);
+            distAxis.setFormatter(new SimpleAxisValueFormatter()
+                    .setAppendedText("km".toCharArray()));
+            distAxis.setHasLines(true);
+            distAxis.setHasTiltedLabels(true);
+            distAxis.setTextSize(10);
+            distAxis.setHasSeparationLine(false);
+            data.setAxisXBottom(distAxis);
+        }
+
+        private void setYAxis(Measurement.PropertyKey key, LineChartData data){
+            Axis yAxis = new Axis();
+            yAxis.setName(key.toString());
+            yAxis.setTextColor(getResources().getColor(R.color.blue_dark_cario));
+            yAxis.setMaxLabelChars(3);
+            yAxis.setHasLines(true);
+            yAxis.setTextSize(10);
+            yAxis.setFormatter(new SimpleAxisValueFormatter());
+            yAxis.setInside(false);
+            yAxis.setHasSeparationLine(false);
+            data.setAxisYLeft(yAxis);
+        }
+
         private void previewX() {
             Viewport tempViewport = new Viewport(mChart.getMaximumViewport());
-            float dx = tempViewport.width() / 4;
+            float dx = tempViewport.width() / 8;
             tempViewport.inset(dx, 0);
             mPreviewChart.setCurrentViewportWithAnimation(tempViewport);
             mPreviewChart.setZoomType(ZoomType.HORIZONTAL);
@@ -234,31 +288,6 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
             tempViewport.inset(0, dy);
             mPreviewChart.setCurrentViewportWithAnimation(tempViewport);
             mPreviewChart.setZoomType(ZoomType.VERTICAL);
-        }
-
-        private void generateDefaultData() {
-            int numValues = 50;
-
-            List<PointValue> values = new ArrayList<PointValue>();
-            for (int i = 0; i < numValues; ++i) {
-                values.add(new PointValue(i, (float) Math.random() * 100f));
-            }
-
-            Line line = new Line(values);
-            line.setColor(ChartUtils.COLOR_GREEN);
-            line.setHasPoints(false);// too many values so don't draw points.
-
-            List<Line> lines = new ArrayList<Line>();
-            lines.add(line);
-
-            mChartData = new LineChartData(lines);
-            mChartData.setAxisXBottom(new Axis());
-            mChartData.setAxisYLeft(new Axis().setHasLines(true));
-
-            // prepare preview data, is better to use separate deep copy for preview chart.
-            // Set color to grey to make preview area more visible.
-            mPreviewChartData = new LineChartData(mChartData);
-            mPreviewChartData.getLines().get(0).setColor(ChartUtils.DEFAULT_DARKEN_COLOR);
         }
     }
 }
