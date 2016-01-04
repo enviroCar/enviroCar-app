@@ -276,7 +276,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
 
         private void previewX() {
             Viewport tempViewport = new Viewport(mChart.getMaximumViewport());
-            float dx = tempViewport.width() / 8;
+            float dx = tempViewport.width() / 3;
             tempViewport.inset(dx, 0);
             mPreviewChart.setCurrentViewportWithAnimation(tempViewport);
             mPreviewChart.setZoomType(ZoomType.HORIZONTAL);
