@@ -59,7 +59,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
 
     private Protocol protocol;
     private String vin;
-    private CycleCommand cycleCommand;
+    private BasicCommand cycleCommand;
     public long lastCyclicCommandSent;
     private Set<String> loggedPids = new HashSet<>();
     private org.envirocar.obd.commands.response.ResponseParser parser = new org.envirocar.obd.commands.response.ResponseParser();
@@ -86,9 +86,19 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
             addIfSupported(p, pidList);
         }
 
-        this.cycleCommand = new CycleCommand(pidList);
+        //this.cycleCommand = new CycleCommand(pidList);
+        createCycleCommand();
         logger.info("Static Cycle Command: " + Base64.encodeToString(this.cycleCommand.getOutputBytes(), Base64.DEFAULT));
         this.pendingCommands.offer(this.cycleCommand);
+    }
+
+    private void createCycleCommand() {
+        List<LegacyCycleCommand.PID> pidList = new ArrayList<LegacyCycleCommand.PID>();
+        pidList.add(LegacyCycleCommand.PID.SPEED);
+        pidList.add(LegacyCycleCommand.PID.RPM);
+        pidList.add(LegacyCycleCommand.PID.IAP);
+        pidList.add(LegacyCycleCommand.PID.IAT);
+        this.cycleCommand = new LegacyCycleCommand(pidList);
     }
 
     private void addIfSupported(PID pid, List<CycleCommand.DriveDeckPID> pidList) {
