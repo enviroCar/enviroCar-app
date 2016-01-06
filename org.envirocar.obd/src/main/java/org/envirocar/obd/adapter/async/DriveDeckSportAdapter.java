@@ -45,6 +45,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
 
     private static final Logger logger = Logger.getLogger(DriveDeckSportAdapter.class);
     private int pidSupportedResponsesParsed;
+    private int connectingMessageCount;
 
     private static enum Protocol {
         CAN11500, CAN11250, CAN29500, CAN29250, KWP_SLOW, KWP_FAST, ISO9141
@@ -224,12 +225,19 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
 
     @Override
     public boolean hasVerifiedConnection() {
-        return vin != null || protocol != null;
+        /**
+         * this is a drivedeck if a VIN response was parsed OR the protocol was communicated
+         * OR the adapter reported the "CONNECTED" state more than two times (unlikely to be a
+         * mistaken other adapter)
+         */
+        return vin != null || protocol != null || connectingMessageCount > 2;
     }
 
     @Override
     public long getExpectedInitPeriod() {
-        return 30000;
+        //TODO JUST FOR TESTING!
+        return 120000;
+        //return 30000;
     }
 
 
@@ -344,6 +352,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
 				 */
             if (pid.equals("14")) {
                 logger.debug("Status: CONNECTING");
+                connectingMessageCount++;
             } else if (pid.equals("15")) {
                 processVIN(new String(bytes, 3, bytes.length - 3));
             } else if (pid.equals("70")) {
