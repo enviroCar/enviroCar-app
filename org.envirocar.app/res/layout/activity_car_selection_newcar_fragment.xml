@@ -260,7 +260,7 @@
                     android:layout_marginLeft="52dp"
                     android:layout_marginTop="@dimen/spacing_large"
                     android:layout_marginBottom="@dimen/spacing_large"
-                    android:background="#8e8e8e"/>
+                    android:background="#8e8e8e8e"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"

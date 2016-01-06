@@ -140,7 +140,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     protected void onDestroy() {
         LOG.info("onDestroy()");
 
-        if(this.addCarSubscription != null && !this.addCarSubscription.isUnsubscribed()){
+        if (this.addCarSubscription != null && !this.addCarSubscription.isUnsubscribed()) {
             this.addCarSubscription.unsubscribe();
         }
 
@@ -238,7 +238,15 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     @Override
     public void onCarAdded(Car car) {
         LOG.info("onCarAdded(Car)");
-        mCarListAdapter.addCarItem(car);
+
+        if (mCarManager.addCar(car)) {
+            mCarListAdapter.addCarItem(car);
+            showSnackbar(String.format(getString(R.string.car_selection_successfully_added_tmp),
+                    car.getManufacturer(), car.getModel()));
+        } else {
+            showSnackbar(String.format(getString(R.string.car_selection_already_in_list_tmp),
+                    car.getManufacturer(), car.getModel()));
+        }
         onHideAddCarFragment();
     }
 

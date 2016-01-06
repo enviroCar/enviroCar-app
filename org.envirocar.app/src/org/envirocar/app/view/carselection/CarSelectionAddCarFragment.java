@@ -118,7 +118,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         engineSpinner.setDropDownWidth(500);
 
 
-
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         toolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
         toolbar.setNavigationOnClickListener(v ->
@@ -457,6 +456,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
                 // update the manufacturer textview.
                 manufacturerText.setText(manufacturer);
+                ((TextView) view).setText(null);
 
                 // update the model views
                 updateModelViews(manufacturer);
@@ -475,6 +475,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 LOG.info(String.format("modelSpinner.onItemSelected(%s)", model));
 
                 modelText.setText(model);
+                ((TextView) view).setText(null);
 
                 updateYearView(model);
             }
@@ -492,6 +493,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 LOG.info(String.format("yearSpinner.onItemSelected(%s)", year));
 
                 yearText.setText(year);
+                ((TextView) view).setText(null);
 
                 updateEngineView(new Pair<>(modelText.getText().toString(), year));
             }
@@ -509,6 +511,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 LOG.info(String.format("engineSpinner.onItemSelected(%s)", engine));
 
                 engineText.setText(engine);
+                ((TextView) view).setText(null);
             }
 
             @Override
