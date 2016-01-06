@@ -124,7 +124,7 @@ public class CarTrendAdapter extends SyncAdapter {
     }
 
     @Override
-    public boolean hasVerifiedConnection() {
+    public boolean hasCertifiedConnection() {
         return this.identifySuccess;
     }
 

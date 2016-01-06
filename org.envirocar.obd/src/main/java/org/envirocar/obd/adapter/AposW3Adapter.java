@@ -48,7 +48,7 @@ public class AposW3Adapter extends ELM327Adapter {
             super.analyzeMetadataResponse(response, sentCommand);
         }
 
-        return hasVerifiedConnection();
+        return succesfulCount >= 4;
     }
 
     @Override
@@ -56,8 +56,4 @@ public class AposW3Adapter extends ELM327Adapter {
         return deviceName.contains("APOS") && deviceName.contains("OBD_W3");
     }
 
-    @Override
-    public boolean hasVerifiedConnection() {
-        return succesfulCount >= 4;
-    }
 }

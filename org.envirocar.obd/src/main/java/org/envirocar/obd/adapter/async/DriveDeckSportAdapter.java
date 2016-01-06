@@ -87,20 +87,11 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
             addIfSupported(p, pidList);
         }
 
-        //this.cycleCommand = new CycleCommand(pidList);
-        createCycleCommand();
+        this.cycleCommand = new CycleCommand(pidList);
         logger.info("Static Cycle Command: " + Base64.encodeToString(this.cycleCommand.getOutputBytes(), Base64.DEFAULT));
         this.pendingCommands.offer(this.cycleCommand);
     }
 
-    private void createCycleCommand() {
-        List<LegacyCycleCommand.PID> pidList = new ArrayList<LegacyCycleCommand.PID>();
-        pidList.add(LegacyCycleCommand.PID.SPEED);
-        pidList.add(LegacyCycleCommand.PID.RPM);
-        pidList.add(LegacyCycleCommand.PID.IAP);
-        pidList.add(LegacyCycleCommand.PID.IAT);
-        this.cycleCommand = new LegacyCycleCommand(pidList);
-    }
 
     private void addIfSupported(PID pid, List<CycleCommand.DriveDeckPID> pidList) {
         CycleCommand.DriveDeckPID driveDeckPID = CycleCommand.DriveDeckPID.fromDefaultPID(pid);
@@ -224,20 +215,24 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     }
 
     @Override
-    public boolean hasVerifiedConnection() {
+    public boolean hasCertifiedConnection() {
         /**
          * this is a drivedeck if a VIN response was parsed OR the protocol was communicated
-         * OR the adapter reported the "CONNECTED" state more than two times (unlikely to be a
+         * OR the adapter reported the "CONNECTED" state more than x times (unlikely to be a
          * mistaken other adapter)
          */
-        return vin != null || protocol != null || connectingMessageCount > 2;
+        int x = 4;
+        return vin != null || protocol != null || connectingMessageCount > x;
+    }
+
+    @Override
+    protected boolean hasEstablishedConnection() {
+        return vin != null || protocol != null;
     }
 
     @Override
     public long getExpectedInitPeriod() {
-        //TODO JUST FOR TESTING!
-        return 120000;
-        //return 30000;
+        return 30000;
     }
 
 

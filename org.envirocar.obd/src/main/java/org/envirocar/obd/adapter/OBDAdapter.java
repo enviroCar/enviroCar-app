@@ -93,7 +93,7 @@ public interface OBDAdapter {
 	 *
 	 * @return true if the adapter has determined a compatible device
 	 */
-	boolean hasVerifiedConnection();
+	boolean hasCertifiedConnection();
 
     /**
      *

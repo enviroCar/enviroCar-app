@@ -146,7 +146,7 @@ public class OBDController {
 
         LOG.info("Using " + this.obdAdapter.getClass().getSimpleName() + " connector as the " +
                 "preferred adapter.");
-        startInitialization();
+        startInitialization(false);
     }
 
     /**
@@ -167,21 +167,19 @@ public class OBDController {
      * to bootstrap and verify the connection of the adapter
      * with the ECU.
      * <p>
-     * The init times out fater a pre-defined period.
+     * The init times out after a pre-defined period.
      */
-    private void startInitialization() {
+    private void startInitialization(boolean alreadyTried) {
         // start the observable and subscribe to it
         this.initSubscription = this.obdAdapter.initialize(this.inputStream, this.outputStream)
                 .subscribeOn(Schedulers.io())
                 .observeOn(OBDSchedulers.scheduler())
                 .timeout(this.obdAdapter.getExpectedInitPeriod(), TimeUnit.MILLISECONDS)
-                .subscribe(getInitSubscriber());
+                .subscribe(getInitSubscriber(alreadyTried));
     }
 
-    private Subscriber<Boolean> getInitSubscriber() {
+    private Subscriber<Boolean> getInitSubscriber(boolean alreadyTried) {
         return new Subscriber<Boolean>() {
-
-            private boolean retried = false;
 
             @Override
             public void onCompleted() {
@@ -194,10 +192,10 @@ public class OBDController {
                 try {
                     this.unsubscribe();
 
-                    if (obdAdapter.hasVerifiedConnection()) {
-                        if (!retried) {
+                    if (obdAdapter.hasCertifiedConnection()) {
+                        if (!alreadyTried) {
                             // one retry if it was verified!
-                            retried = true;
+                            startInitialization(true);
                         } else {
                             throw new AllAdaptersFailedException(
                                     "Adapter verified a connection but could not establishe data: "
@@ -205,10 +203,11 @@ public class OBDController {
                         }
                     } else {
                         selectNextAdapter();
+
+                        // try the selected adapter
+                        startInitialization(false);
                     }
 
-                    // try the selected adapter
-                    startInitialization();
                 } catch (AllAdaptersFailedException e1) {
                     LOG.warn("All Adapters failed", e1);
                     connectionListener.onAllAdaptersFailed();
@@ -221,12 +220,12 @@ public class OBDController {
             public void onNext(Boolean b) {
                 LOG.info("Connection verified - starting data collection");
 
+                //unsubscribe, otherwise we will get a timeout
+                this.unsubscribe();
+
                 startCollectingData();
                 //TODO implement equivalent notification method:
                 //dataListener.onConnected(deviceName);
-
-                //unsubscribe, otherwise we will get a timeout
-                this.unsubscribe();
             }
 
         };
