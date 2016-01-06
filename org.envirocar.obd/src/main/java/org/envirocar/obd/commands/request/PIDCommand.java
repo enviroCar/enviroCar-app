@@ -2,33 +2,34 @@ package org.envirocar.obd.commands.request;
 
 import org.envirocar.obd.commands.PID;
 
-/**
- * Created by matthes on 31.10.15.
- */
 public class PIDCommand implements BasicCommand {
 
+    private final int expectedResponseLines;
     private String mode;
     private PID pid;
+    private byte[] bytes;
 
     public PIDCommand(String mode, PID pid) {
+        this(mode, pid, 1);
+    }
+
+    public PIDCommand(String mode, PID pid, int expectedResponseLines) {
+        if (expectedResponseLines < 1 || expectedResponseLines > 9) {
+            throw new IllegalStateException("expectedResponseLines out of allowed bounds");
+        }
+
         this.mode = mode;
         this.pid = pid;
+        this.expectedResponseLines = expectedResponseLines;
+
+        prepareBytes();
     }
 
-    public String getMode() {
-        return mode;
-    }
-
-    public PID getPid() {
-        return pid;
-    }
-
-    @Override
-    public byte[] getOutputBytes() {
+    private void prepareBytes() {
         int ml = mode.length();
         String pidString = pid.getHexadecimalRepresentation();
         int pl = pidString.length();
-        byte[] bytes = new byte[ml + pl + 1];
+        bytes = new byte[ml + pl + 1 + 1];
 
         int pos = 0;
         for (int i = 0; i < ml; i++) {
@@ -41,6 +42,19 @@ public class PIDCommand implements BasicCommand {
             bytes[pos++] = (byte) pidString.charAt(i);
         }
 
+        bytes[pos++] = (byte) Integer.toString(this.expectedResponseLines).charAt(0);
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public PID getPid() {
+        return pid;
+    }
+
+    @Override
+    public byte[] getOutputBytes() {
         return bytes;
     }
 
