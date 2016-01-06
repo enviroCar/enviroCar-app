@@ -118,6 +118,15 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         return contentView;
     }
 
+    @Override
+    public void onDestroy() {
+        if (mBTDiscoverySubscription != null && !mBTDiscoverySubscription.isUnsubscribed()) {
+            mBTDiscoverySubscription.unsubscribe();
+        }
+
+        super.onDestroy();
+    }
+
     @Subscribe
     public void onBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
         LOGGER.debug("onBluetoothStateChangedEvent(): " + event.toString());
