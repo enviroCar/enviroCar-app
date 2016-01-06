@@ -138,6 +138,8 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
                 menu.add(key.toString());
             }
         }
+
+        mToolbar.invalidate();
     }
 
     public static class PlaceholderFragment extends Fragment {
