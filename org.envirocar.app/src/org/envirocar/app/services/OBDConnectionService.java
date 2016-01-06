@@ -361,8 +361,9 @@ public class OBDConnectionService extends BaseInjectorService {
                 connectionRecognizer.shutDown();
             if (mTrackDetailsProvider != null)
                 mTrackDetailsProvider.clear();
-            if (mWakeLock != null)
+            if (mWakeLock != null && mWakeLock.isHeld()) {
                 mWakeLock.release();
+            }
 
             mLocationHandler.stopLocating();
             showServiceStateStoppedNotification();
