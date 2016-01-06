@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -20,6 +20,7 @@ package org.envirocar.remote.dao;
 
 import org.envirocar.core.dao.CarDAO;
 import org.envirocar.core.entity.Car;
+import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.DataCreationFailureException;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.NotConnectedException;
@@ -40,6 +41,7 @@ import retrofit.Call;
 import retrofit.Response;
 import rx.Observable;
 import rx.Subscriber;
+import rx.exceptions.OnErrorThrowable;
 import rx.functions.Func1;
 
 /**
@@ -96,6 +98,34 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements C
     @Override
     public Observable<List<Car>> getAllCarsObservable() {
         return getAllCarsObservable(1);
+    }
+
+    @Override
+    public List<Car> getCarsByUser(User user) throws UnauthorizedException,
+            NotConnectedException, DataRetrievalFailureException {
+        Call<List<Car>> carsCall = remoteService.getAllCars(user.getUsername());
+        try{
+            Response<List<Car>> carsResponse = executeCall(carsCall);
+            return carsResponse.body();
+        } catch (IOException | ResourceConflictException e) {
+            throw new DataRetrievalFailureException(e);
+        }
+    }
+
+    @Override
+    public Observable<List<Car>> getCarsByUserObservable(User user) {
+        return Observable.create(new Observable.OnSubscribe<List<Car>>() {
+            @Override
+            public void call(Subscriber<? super List<Car>> subscriber) {
+                try {
+                    subscriber.onNext(getCarsByUser(user));
+                } catch (UnauthorizedException |
+                        NotConnectedException |
+                        DataRetrievalFailureException e){
+                    throw OnErrorThrowable.from(e);
+                }
+            }
+        });
     }
 
     @Override
