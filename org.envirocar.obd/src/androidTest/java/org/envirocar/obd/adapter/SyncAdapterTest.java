@@ -136,7 +136,7 @@ public class SyncAdapterTest extends InstrumentationTestCase {
         }
 
         @Override
-        public boolean hasVerifiedConnection() {
+        public boolean hasCertifiedConnection() {
             return true;
         }
     }

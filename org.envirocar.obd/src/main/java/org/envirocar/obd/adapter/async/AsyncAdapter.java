@@ -82,7 +82,7 @@ public abstract class AsyncAdapter implements OBDAdapter {
 
                         processResponse(response);
 
-                        if (hasVerifiedConnection()) {
+                        if (hasEstablishedConnection()) {
                             subscriber.onNext(true);
                             subscriber.onCompleted();
                         }
@@ -108,6 +108,9 @@ public abstract class AsyncAdapter implements OBDAdapter {
 
         return observable;
     }
+
+    protected abstract boolean hasEstablishedConnection();
+
 
     /**
      * an implementation can provide a quirk for response parsing/filtering
@@ -167,7 +170,6 @@ public abstract class AsyncAdapter implements OBDAdapter {
                          * notify subscriber accordingly
                          */
                         subscriber.onError(e);
-                        subscriber.unsubscribe();
                         return;
                     } catch (StreamFinishedException e) {
                         /**
@@ -175,7 +177,6 @@ public abstract class AsyncAdapter implements OBDAdapter {
                          */
                         LOGGER.info("The stream was closed: "+e.getMessage());
                         subscriber.onCompleted();
-                        subscriber.unsubscribe();
                         return;
                     }
                 }

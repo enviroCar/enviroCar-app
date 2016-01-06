@@ -71,6 +71,11 @@ public class AsyncAdapterTest extends InstrumentationTestCase {
         }
 
         @Override
+        protected boolean hasEstablishedConnection() {
+            return true;
+        }
+
+        @Override
         protected ResponseQuirkWorkaround getQuirk() {
             return null;
         }
@@ -94,7 +99,7 @@ public class AsyncAdapterTest extends InstrumentationTestCase {
         }
 
         @Override
-        public boolean hasVerifiedConnection() {
+        public boolean hasCertifiedConnection() {
             return true;
         }
 

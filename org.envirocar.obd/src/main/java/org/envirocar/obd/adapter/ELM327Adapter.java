@@ -26,6 +26,7 @@ public class ELM327Adapter extends SyncAdapter {
 
     private Queue<BasicCommand> initCommands;
     protected int succesfulCount;
+    private boolean certifiedConnection;
 
 
     @Override
@@ -69,6 +70,7 @@ public class ELM327Adapter extends SyncAdapter {
         if (sent.getInstance() == ConfigurationCommand.Instance.ECHO_OFF) {
             if (content.contains("ELM327v1.") || content.contains("OK")) {
                 succesfulCount++;
+                certifiedConnection = true;
             }
         }
 
@@ -92,7 +94,7 @@ public class ELM327Adapter extends SyncAdapter {
 
         LOG.info("succesfulCount="+succesfulCount);
 
-        return hasVerifiedConnection();
+        return succesfulCount >= 5;
     }
 
     @Override
@@ -106,7 +108,7 @@ public class ELM327Adapter extends SyncAdapter {
     }
 
     @Override
-    public boolean hasVerifiedConnection() {
-        return succesfulCount >= 5;
+    public boolean hasCertifiedConnection() {
+        return certifiedConnection;
     }
 }

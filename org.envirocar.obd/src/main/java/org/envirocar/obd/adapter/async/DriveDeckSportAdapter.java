@@ -45,6 +45,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
 
     private static final Logger logger = Logger.getLogger(DriveDeckSportAdapter.class);
     private int pidSupportedResponsesParsed;
+    private int connectingMessageCount;
 
     private static enum Protocol {
         CAN11500, CAN11250, CAN29500, CAN29250, KWP_SLOW, KWP_FAST, ISO9141
@@ -59,7 +60,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
 
     private Protocol protocol;
     private String vin;
-    private CycleCommand cycleCommand;
+    private BasicCommand cycleCommand;
     public long lastCyclicCommandSent;
     private Set<String> loggedPids = new HashSet<>();
     private org.envirocar.obd.commands.response.ResponseParser parser = new org.envirocar.obd.commands.response.ResponseParser();
@@ -90,6 +91,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
         logger.info("Static Cycle Command: " + Base64.encodeToString(this.cycleCommand.getOutputBytes(), Base64.DEFAULT));
         this.pendingCommands.offer(this.cycleCommand);
     }
+
 
     private void addIfSupported(PID pid, List<CycleCommand.DriveDeckPID> pidList) {
         CycleCommand.DriveDeckPID driveDeckPID = CycleCommand.DriveDeckPID.fromDefaultPID(pid);
@@ -213,7 +215,18 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     }
 
     @Override
-    public boolean hasVerifiedConnection() {
+    public boolean hasCertifiedConnection() {
+        /**
+         * this is a drivedeck if a VIN response was parsed OR the protocol was communicated
+         * OR the adapter reported the "CONNECTED" state more than x times (unlikely to be a
+         * mistaken other adapter)
+         */
+        int x = 4;
+        return vin != null || protocol != null || connectingMessageCount > x;
+    }
+
+    @Override
+    protected boolean hasEstablishedConnection() {
         return vin != null || protocol != null;
     }
 
@@ -334,6 +347,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
 				 */
             if (pid.equals("14")) {
                 logger.debug("Status: CONNECTING");
+                connectingMessageCount++;
             } else if (pid.equals("15")) {
                 processVIN(new String(bytes, 3, bytes.length - 3));
             } else if (pid.equals("70")) {

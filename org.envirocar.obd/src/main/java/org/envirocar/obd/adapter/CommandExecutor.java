@@ -115,9 +115,10 @@ public class CommandExecutor {
     }
 
     private void readUntilLineEnd(ByteArrayOutputStream baos) throws IOException, StreamFinishedException {
-        byte b = (byte) inputStream.read();
+        int i = inputStream.read();
+        byte b = (byte) i;
         while (b != this.endOfLineInput) {
-            if ((int) b == -1) {
+            if (i == -1) {
                 throw new StreamFinishedException("Stream finished");
             }
 
@@ -125,7 +126,8 @@ public class CommandExecutor {
                 baos.write(b);
             }
 
-            b = (byte) inputStream.read();
+            i = inputStream.read();
+            b = (byte) i;
         }
     }
 

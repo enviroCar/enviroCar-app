@@ -28,16 +28,16 @@ public class CycleCommand implements BasicCommand {
 	private byte[] bytes;
 
 	public static enum DriveDeckPID implements DriveDeckPIDEnumInstance {
+        ENGINE_LOAD {
+            @Override
+            public byte getByteRepresentation() {
+                return convert(PID.CALCULATED_ENGINE_LOAD.getHexadecimalRepresentation());
+            }
+        },
 		SPEED {
 			@Override
 			public byte getByteRepresentation() {
 				return convert(PID.SPEED.getHexadecimalRepresentation());
-			}
-		},
-		MAF {
-			@Override
-			public byte getByteRepresentation() {
-				return convert(PID.MAF.getHexadecimalRepresentation());
 			}
 		},
 		RPM {
@@ -58,16 +58,16 @@ public class CycleCommand implements BasicCommand {
 				return convert(PID.INTAKE_AIR_TEMP.getHexadecimalRepresentation());
 			}
 		},
+        MAF {
+            @Override
+            public byte getByteRepresentation() {
+                return convert(PID.MAF.getHexadecimalRepresentation());
+            }
+        },
 		TPS {
 			@Override
 			public byte getByteRepresentation() {
 				return convert(PID.TPS.getHexadecimalRepresentation());
-			}
-		},
-		ENGINE_LOAD {
-			@Override
-			public byte getByteRepresentation() {
-				return convert(PID.CALCULATED_ENGINE_LOAD.getHexadecimalRepresentation());
 			}
 		},
 		O2_LAMBDA_PROBE_1_VOLTAGE {
@@ -145,7 +145,7 @@ public class CycleCommand implements BasicCommand {
 
 	public CycleCommand(List<DriveDeckPID> pidList) {
 		bytes = new byte[3 + pidList.size()];
-		byte[] prefix = "A17".getBytes();
+		byte[] prefix = "a17".getBytes();
 		
 		for (int i = 0; i < prefix.length; i++) {
 			bytes[i] = prefix[i];

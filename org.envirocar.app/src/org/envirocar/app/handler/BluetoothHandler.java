@@ -359,7 +359,6 @@ public class BluetoothHandler {
             mDiscoverySubscription = BroadcastUtils
                     .createBroadcastObservable(context, filter)
                     .subscribe(new Subscriber<Intent>() {
-                        private Subscription thisSubscription;
 
                         @Override
                         public void onCompleted() {
@@ -381,7 +380,6 @@ public class BluetoothHandler {
                             // If the discovery process has been started.
                             if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
                                 subscriber.onStart();
-                                thisSubscription = mDiscoverySubscription;
                             }
 
                             // If the discovery process finds a device
@@ -397,8 +395,9 @@ public class BluetoothHandler {
                             else if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
                                 subscriber.onCompleted();
                                 mWorker.schedule(() -> {
-                                    if (!thisSubscription.isUnsubscribed())
-                                        thisSubscription.unsubscribe();
+                                    if (!isUnsubscribed()) {
+                                        unsubscribe();
+                                    }
                                 }, 100, TimeUnit.MILLISECONDS);
                             }
                         }
