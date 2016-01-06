@@ -22,5 +22,12 @@
 <resources>
     <string name="car_selection_my_cars">My Cars</string>
     <string name="car_selection_no_car_selected">No car type selected.</string>
-    <string name="car_selection_add_car">Add Car</string>
+    <string name="car_selection_add_car">Create Car</string>
+    <string name="car_selection_enter_info">Enter the details of your car...</string>
+
+    <string name="car_selection_manufacturer">Manufacturer</string>
+    <string name="car_selection_model">Model</string>
+    <string name="car_selection_construction_year">Construction Year</string>
+    <string name="car_selection_engine_displacement">Engine Displacement (cc)</string>
+
 </resources>

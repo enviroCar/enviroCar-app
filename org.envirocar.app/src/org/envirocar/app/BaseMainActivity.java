@@ -105,7 +105,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
     public static final int TRACK_MODE_SINGLE = 0;
     public static final int TRACK_MODE_AUTO = 1;
 
-
     private static final String TRACK_MODE = "trackMode";
     private static final String SEEN_ANNOUNCEMENTS = "seenAnnouncements";
     private static final String TROUBLESHOOTING_TAG = "TROUBLESHOOTING";
