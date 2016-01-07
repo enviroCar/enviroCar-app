@@ -105,7 +105,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
     public static final int TRACK_MODE_SINGLE = 0;
     public static final int TRACK_MODE_AUTO = 1;
 
-
     private static final String TRACK_MODE = "trackMode";
     private static final String SEEN_ANNOUNCEMENTS = "seenAnnouncements";
     private static final String TROUBLESHOOTING_TAG = "TROUBLESHOOTING";
@@ -601,17 +600,17 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 // Track is null and thus there was an error.
                 showSnackbar(R.string.track_finishing_failed);
             } else try {
-                if (event.mTrack.getLastMeasurement() == null) {
-                    // Track has no measurements
-                    showSnackbar(R.string.track_finished_no_measurements);
-                } else {
+                if (event.mTrack.getLastMeasurement() != null) {
                     LOGGER.info("last is not null.. " + event.mTrack.getLastMeasurement()
                             .toString());
+
                     // Track has no measurements
                     showSnackbar(getString(R.string.track_finished).concat(event.mTrack.getName()));
                 }
             } catch (NoMeasurementsException e) {
-                LOGGER.warn(e.getMessage(), e);
+                LOGGER.warn("Track has been finished without measurements", e);
+                // Track has no measurements
+                showSnackbar(R.string.track_finished_no_measurements);
             }
         });
     }

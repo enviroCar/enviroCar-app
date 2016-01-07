@@ -20,7 +20,6 @@ package org.envirocar.app.view.obdselection;
 
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
@@ -90,6 +89,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
     private OBDDeviceListAdapter mNewDevicesArrayAdapter;
     private OBDDeviceListAdapter mPairedDevicesAdapter;
 
+    private Subscription mBTDiscoverySubscription;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
@@ -116,6 +116,15 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         //        setDynamicListHeight(mPairedDevicesListView);
 
         return contentView;
+    }
+
+    @Override
+    public void onDestroy() {
+        if (mBTDiscoverySubscription != null && !mBTDiscoverySubscription.isUnsubscribed()) {
+            mBTDiscoverySubscription.unsubscribe();
+        }
+
+        super.onDestroy();
     }
 
     @Subscribe
@@ -160,8 +169,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         // the current adapter.
         mNewDevicesArrayAdapter.clear();
 
-        //        Subscription sub = mBluetoothHandler.startBluetoothDeviceDiscoveryObservable(true)
-        Subscription sub = mBluetoothHandler.startBluetoothDiscoveryOnlyUnpaired()
+        mBTDiscoverySubscription = mBluetoothHandler.startBluetoothDiscoveryOnlyUnpaired()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
@@ -280,13 +288,10 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
             new AlertDialog.Builder(getActivity())
                     .setView(contentView)
                     .setPositiveButton(R.string.obd_selection_dialog_pairing_title,
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    // If this button is clicked, pair with the given device
-                                    view1.setClickable(false);
-                                    pairDevice(device, view1);
-                                }
+                            (dialog, which) -> {
+                                // If this button is clicked, pair with the given device
+                                view1.setClickable(false);
+                                pairDevice(device, view1);
                             })
                     .setNegativeButton(R.string.cancel, null) // Nothing to do on cancel
                     .create()

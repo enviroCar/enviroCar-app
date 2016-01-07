@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -43,11 +43,12 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
-import org.envirocar.app.handler.TrackHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
+import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.core.dao.TrackDAO;
+import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.exception.DataRetrievalFailureException;
@@ -68,6 +69,7 @@ import butterknife.InjectView;
 import butterknife.OnClick;
 import rx.Observable;
 import rx.Scheduler;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
@@ -131,7 +133,7 @@ public class LoginActivity extends BaseInjectorActivity {
     @Inject
     protected TermsOfUseManager mTermsOfUseManager;
     @Inject
-    protected TrackHandler mTrackHandler;
+    protected TrackDAOHandler mTrackDAOHandler;
 
     private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers
             .mainThread().createWorker();
@@ -140,6 +142,7 @@ public class LoginActivity extends BaseInjectorActivity {
 
     private Subscription mLoginSubscription;
     private Subscription mRegisterSubscription;
+    private Subscription mTermsOfUseSubscription;
     private Subscription mStatisticsDownloadSubscription;
 
     @Override
@@ -315,8 +318,7 @@ public class LoginActivity extends BaseInjectorActivity {
                             updateView(true);
 
                             // Then ask for terms of use acceptance.
-                            mBackgroundWorker.schedule(() -> mTermsOfUseManager
-                                    .askForTermsOfUseAcceptance(user, null));
+                            askForTermsOfUseAcceptance();
                         });
                     }
 
@@ -338,6 +340,39 @@ public class LoginActivity extends BaseInjectorActivity {
                 });
             });
         }
+    }
+
+    private void askForTermsOfUseAcceptance() {
+        // Unsubscribe before issueing a new request.
+        if(mTermsOfUseSubscription != null && !mTermsOfUseSubscription.isUnsubscribed())
+            mTermsOfUseSubscription.unsubscribe();
+
+        mTermsOfUseSubscription = mTermsOfUseManager.verifyTermsOfUse(LoginActivity.this)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<TermsOfUse>() {
+                    @Override
+                    public void onStart() {
+                        LOG.info("onStart() verifying terms of use");
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        LOG.info("onCompleted() verifying terms of use");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.warn(e.getMessage(), e);
+                    }
+
+                    @Override
+                    public void onNext(TermsOfUse termsOfUse) {
+                        LOG.info(String.format(
+                                "User has accepted the terms of use -> [%s]",
+                                termsOfUse.getIssuedDate()));
+                    }
+                });
     }
 
     @OnClick(R.id.activity_account_register_button)
@@ -426,12 +461,11 @@ public class LoginActivity extends BaseInjectorActivity {
                     newUser.setMail(email);
                     mDAOProvider.getUserDAO().createUser(newUser);
 
-
                     // Successfully created the user
                     mMainThreadWorker.schedule(() -> {
                         // Set the new user as the logged in user.
                         mUserManager.setUser(newUser);
-                        mTermsOfUseManager.askForTermsOfUseAcceptance(newUser, null);
+
 
                         // Update the view, i.e., hide the registration card and show the profile
                         // page.
@@ -445,6 +479,8 @@ public class LoginActivity extends BaseInjectorActivity {
                                 getResources().getString(R.string.welcome_message),
                                 username), Snackbar.LENGTH_LONG).show();
                     });
+
+                    askForTermsOfUseAcceptance();
                 } catch (ResourceConflictException e) {
                     LOG.warn(e.getMessage(), e);
 
@@ -492,7 +528,7 @@ public class LoginActivity extends BaseInjectorActivity {
                 mUserManager.logOut();
 
                 // Finally, delete all tracks that are associated to the previous user.
-                mTrackHandler.deleteAllRemoteTracksLocally();
+                mTrackDAOHandler.deleteAllRemoteTracksLocally();
                 // Close the dialog.
                 dialog.dismiss();
 

@@ -19,6 +19,9 @@
 package org.envirocar.core.injection;
 
 import android.app.Service;
+import android.content.Intent;
+import android.os.IBinder;
+import android.support.annotation.Nullable;
 
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
@@ -42,6 +45,12 @@ public abstract class BaseInjectorService extends Service implements Injector, I
     // Injected variables.
     @Inject
     protected Bus bus;
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
 
     @Override
     public void onCreate() {

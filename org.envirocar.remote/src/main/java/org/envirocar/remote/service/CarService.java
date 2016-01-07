@@ -27,6 +27,7 @@ import retrofit.Call;
 import retrofit.http.Body;
 import retrofit.http.GET;
 import retrofit.http.POST;
+import retrofit.http.Path;
 import retrofit.http.Query;
 import rx.Observable;
 
@@ -39,13 +40,16 @@ public interface CarService {
     Call<List<Car>> getAllCars();
 
     @GET("sensors/")
-    Call<List<Car>> getAllCars(@Query("page") int page);
-
-    @GET("sensors/")
     Observable<List<Car>> getAllCarsObservable();
 
     @GET("sensors/")
+    Call<List<Car>> getAllCars(@Query("page") int page);
+
+    @GET("sensors/")
     Observable<List<Car>> getAllCarsObservable(@Query("page") int page);
+
+    @GET("users/{user}/sensors/")
+    Call<List<Car>> getAllCars(@Path("user") String user);
 
     @POST("sensors")
     Call<Car> createCar(@Body Car car);

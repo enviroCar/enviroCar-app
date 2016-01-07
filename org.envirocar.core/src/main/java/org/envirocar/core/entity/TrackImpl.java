@@ -290,6 +290,27 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
+    public boolean hasProperty(Measurement.PropertyKey propertyKey) {
+        for(Measurement m : measurements){
+            if(m.hasProperty(propertyKey)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public List<Measurement.PropertyKey> getSupportedProperties() {
+        List<Measurement.PropertyKey> result = new ArrayList<>();
+        for(Measurement.PropertyKey key : Measurement.PropertyKey.values()){
+            if(hasProperty(key)){
+                result.add(key);
+            }
+        }
+        return result;
+    }
+
+    @Override
     public int compareTo(Track another) {
         if (downloadState == DownloadState.REMOTE) {
             if (another.getDownloadState() == DownloadState.REMOTE) {

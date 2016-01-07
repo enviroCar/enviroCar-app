@@ -79,23 +79,16 @@ import dagger.Provides;
         includes = {
                 RemoteModule.class,
                 CacheModule.class,
-                DatabaseModule.class
+                DatabaseModule.class,
+                HandlerModule.class
         },
         injects = {
-                TermsOfUseManager.class,
-                CarPreferenceHandler.class,
                 BluetoothPairingPreference.class,
-                BluetoothHandler.class,
                 SelectBluetoothPreference.class,
                 TemporaryFileManager.class,
                 SystemStartupService.class,
                 NotificationHandler.class,
-                DbAdapterImpl.class,
-                LocationHandler.class,
                 BluetoothDiscoveryIntervalPreference.class,
-                LazyLoadingStrategyImpl.class,
-                TrackHandler.class,
-                UserHandler.class,
                 TrackDetailsActivity.class,
                 CarSelectionActivity.class,
                 OBDSelectionActivity.class,
@@ -103,9 +96,9 @@ import dagger.Provides;
                 LoginActivity.class,
                 SettingsActivity.class,
                 TrackUploadService.class,
-                UploadManager.class,
                 LogbookActivity.class,
-                LogbookAddFuelingFragment.class
+                LogbookAddFuelingFragment.class,
+                CarSelectionAddCarFragment.class
         },
         staticInjections = {EnviroCarService.class},
         library = true,
@@ -185,21 +178,6 @@ public class BaseApplicationModule {
     }
 
     /**
-     * Provides the UserHandler of the application
-     *
-     * @return the UserHandler of the application
-     */
-    @Provides
-    @Singleton
-    UserHandler provideUserManager() {
-        return new UserHandler(mAppContext);
-    }
-
-    @Provides
-    @Singleton
-    org.envirocar.core.UserManager provideUserManagerImpl(UserHandler userHandler) { return userHandler; }
-
-    /**
      * Provides the FeatureFlags of the application
      *
      * @return the FeatureFlags of the application
@@ -221,37 +199,6 @@ public class BaseApplicationModule {
         return new TemporaryFileManager(mAppContext);
     }
 
-    /**
-     * Provides the TemporaryFileManager of the application
-     *
-     * @return the TemporaryFileManager of the application.
-     */
-    @Provides
-    @Singleton
-    DbAdapter provideDBAdapter() {
-
-        DbAdapter adapter = null;
-        try {
-            adapter = new DbAdapterImpl(mAppContext);
-        } catch (InstantiationException e) {
-            LOGGER.warn("Could not initalize the database layer. The app will probably work " +
-                    "unstable.");
-            LOGGER.warn(e.getMessage(), e);
-        }
-
-        return adapter;
-    }
-
-    /**
-     * Provides the TermsOfUseManager of the application
-     *
-     * @return the TermsOfUseManager of the application.
-     */
-    @Provides
-    @Singleton
-    TermsOfUseManager provideTermsOfUseManager() {
-        return new TermsOfUseManager(mAppContext);
-    }
 
     /**
      * Provides the CarManager of the application
@@ -266,36 +213,8 @@ public class BaseApplicationModule {
 
     @Provides
     @Singleton
-    BluetoothHandler provideBluetoothHandler() {
-        return new BluetoothHandler(mAppContext);
-    }
-
-    /**
-     * Provides the LocationHandler of the application.
-     *
-     * @return the LocationHandler of the application.
-     */
-    @Provides
-    @Singleton
-    LocationHandler provideLocationHandler() {
-        return new LocationHandler(mAppContext);
-    }
-
-    /**
-     * Provides the LazyLoadingStrategy of the application.
-     *
-     * @return the LazyLoadingStrategy of the application.
-     */
-    @Provides
-    @Singleton
-    LazyLoadingStrategy provideLazyLoadingStrategy() {
-        return new LazyLoadingStrategyImpl(mAppContext);
-    }
-
-    @Provides
-    @Singleton
-    TrackHandler provideTrackHandler() {
-        return new TrackHandler(mAppContext);
+    TrackRecordingHandler provideTrackHandler() {
+        return new TrackRecordingHandler(mAppContext);
     }
 
     @Provides

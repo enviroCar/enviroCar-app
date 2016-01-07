@@ -205,12 +205,6 @@
     <string name="uploading_track_no_measurements_after_obfuscation">A track to be uploaded did not contain measurements.</string>
     <string name="server_error_please_try_later">Server Error - Please try again later</string>
 
-    <string name="terms_of_use_title">Accept the Terms Of Use?</string>
-    <string name="terms_of_use_info">Before you proceed, you have to accept our Terms Of Use</string>
-    <string name="terms_of_use_sorry">Sorry to bother you again. We have changed our Terms Of Use</string>
-    <string name="terms_of_use_cant_continue">Before you upload any Track, you have to accept the Terms Of Use</string>
-    <string name="terms_of_use_updating_server">Updating Terms Of Use State on Server</string>
-
     <string name="diesel_not_yet_supported">Please note that consumption/CO2 calculation for Diesel cars is not yet supported</string>
 
     <string name="co2_initial_value">0 kg/h</string>

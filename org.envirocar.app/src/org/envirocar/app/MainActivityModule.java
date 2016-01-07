@@ -39,6 +39,7 @@ import org.envirocar.app.view.tracklist.AbstractTrackListCardFragment;
 import org.envirocar.app.view.tracklist.TrackListLocalCardFragment;
 import org.envirocar.app.view.tracklist.TrackListPagerFragment;
 import org.envirocar.app.view.tracklist.TrackListRemoteCardFragment;
+import org.envirocar.app.views.ReactiveTermsOfUseDialog;
 import org.envirocar.core.injection.InjectionActivityScope;
 
 import javax.inject.Singleton;
@@ -73,6 +74,7 @@ import dagger.Provides;
                 AbstractTrackListCardFragment.class,
                 TrackListLocalCardFragment.class,
                 TrackListRemoteCardFragment.class,
+                ReactiveTermsOfUseDialog.class
         },
         addsTo = BaseApplicationModule.class,
         library = true,

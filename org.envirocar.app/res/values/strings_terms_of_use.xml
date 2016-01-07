@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="terms_of_use_title">Accept the Terms Of Use?</string>
+    <string name="terms_of_use_accept">Accept</string>
+    <string name="terms_of_use_reject">Reject</string>
+    <string name="terms_of_use_info">Before you proceed, you have to accept our Terms Of Use</string>
+    <string name="terms_of_use_sorry">Sorry to bother you again. We have changed our Terms Of Use</string>
+    <string name="terms_of_use_cant_continue">Before you upload any Track, you have to accept the Terms Of Use</string>
+    <string name="terms_of_use_updating_server">Updating Terms Of Use State on Server</string>
+</resources>

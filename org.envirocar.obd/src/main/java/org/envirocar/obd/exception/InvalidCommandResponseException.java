@@ -18,13 +18,12 @@
  */
 package org.envirocar.obd.exception;
 
-import org.envirocar.obd.commands.PID;
-
 public class InvalidCommandResponseException extends Exception {
 
 	private final String command;
 
 	public InvalidCommandResponseException(String command) {
+		super(command);
 		this.command = command;
 	}
 

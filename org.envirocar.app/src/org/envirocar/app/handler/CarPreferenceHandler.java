@@ -25,10 +25,13 @@ import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.Car;
+import org.envirocar.core.entity.Track;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
+import org.envirocar.core.events.NewUserSettingsEvent;
 import org.envirocar.core.exception.DataCreationFailureException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
@@ -36,17 +39,23 @@ import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.CarUtils;
 import org.envirocar.remote.DAOProvider;
+import org.envirocar.storage.EnviroCarDB;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import rx.Observable;
+import rx.Subscriber;
 
 /**
  * The manager for cars.
@@ -54,15 +63,19 @@ import javax.inject.Singleton;
 @Singleton
 public class CarPreferenceHandler {
     private static final Logger LOG = Logger.getLogger(CarPreferenceHandler.class);
+    private static final String PREFERENCE_TAG_DOWNLOADED = "cars_downloaded";
 
-    protected Context mContext;
-    protected Bus mBus;
-    protected UserHandler mUserManager;
-    protected DAOProvider mDAOProvider;
+    private final Context mContext;
+    private final Bus mBus;
+    private final UserHandler mUserManager;
+    private final DAOProvider mDAOProvider;
+    private final EnviroCarDB mEnviroCarDB;
+    private final SharedPreferences mSharedPreferences;
 
     private Car mSelectedCar;
     private Set<Car> mDeserialzedCars;
     private Set<String> mSerializedCarStrings;
+    private Map<String, String> temporaryAlreadyRegisteredCars = new HashMap<>();
 
     /**
      * Constructor.
@@ -71,21 +84,23 @@ public class CarPreferenceHandler {
      */
     @Inject
     public CarPreferenceHandler(@InjectApplicationScope Context context, Bus bus, UserHandler
-            userManager, DAOProvider daoProvider) {
+            userManager, DAOProvider daoProvider, EnviroCarDB enviroCarDB,
+                                SharedPreferences sharedPreferences) {
         this.mContext = context;
         this.mBus = bus;
         this.mUserManager = userManager;
         this.mDAOProvider = daoProvider;
+        this.mEnviroCarDB = enviroCarDB;
+        this.mSharedPreferences = sharedPreferences;
 
-        // get the default PreferenceManager
-        final SharedPreferences preferences = PreferenceManager
-                .getDefaultSharedPreferences(context);
+        // no unregister required because it is applications scoped.
+        this.mBus.register(this);
 
-        mSelectedCar = CarUtils.instantiateCar(preferences.getString(PreferenceConstants
+        mSelectedCar = CarUtils.instantiateCar(sharedPreferences.getString(PreferenceConstants
                 .PREFERENCE_TAG_CAR, null));
 
         // Get the serialized car strings of all added cars.
-        mSerializedCarStrings = preferences
+        mSerializedCarStrings = sharedPreferences
                 .getStringSet(PreferenceConstants.PREFERENCE_TAG_CARS, new HashSet<>());
 
         // Instantiate the cars from the set of serialized strings.
@@ -99,6 +114,78 @@ public class CarPreferenceHandler {
                 mDeserialzedCars.add(CarUtils.instantiateCar(serializedCar));
             }
         }
+    }
+
+    public Observable<List<Car>> getAllDeserializedCars() {
+        return Observable.create(new Observable.OnSubscribe<List<Car>>() {
+            @Override
+            public void call(Subscriber<? super List<Car>> subscriber) {
+                subscriber.onStart();
+                subscriber.onNext(getDeserialzedCars());
+                subscriber.onCompleted();
+            }
+        });
+    }
+
+    public Observable<List<Car>> downloadRemoteCarsOfUser() {
+        return Observable.just(mUserManager.getUser())
+                .flatMap(user -> mDAOProvider.getSensorDAO().getCarsByUserObservable(user))
+                .map(cars -> {
+                    for (Car car : cars) {
+                        addCar(car);
+                    }
+                    setIsDownloaded(true);
+                    return cars;
+                });
+    }
+
+    public Observable<Car> assertTemporaryCar(Car car) {
+        LOG.info("getUploadedCarReference()");
+        return Observable.just(car)
+                .flatMap(car1 -> {
+                    // If the car is already uploaded, then just return car instance.
+                    if (CarUtils.isCarUploaded(car1))
+                        return Observable.just(car1);
+
+                    // the car is already uploaded before but the car has not the right remote id
+                    if (temporaryAlreadyRegisteredCars.containsKey(car1.getId())) {
+                        car1.setId(temporaryAlreadyRegisteredCars.get(car1.getId()));
+                        return Observable.just(car1);
+                    }
+
+                    // create a new car instance.
+                    return registerCar(car1);
+                });
+    }
+
+    private Observable<Car> registerCar(Car car) {
+        LOG.info(String.format("registerCarBeforeUpload(%s)", car.toString()));
+        String oldID = car.getId();
+        return mDAOProvider.getSensorDAO()
+                // Create a new remote car and update the car remote id.
+                .createCarObservable(car)
+                        // update all IDs of tracks that have this car as a reference
+                .flatMap(updCar -> updateCarIDsOfTracksObservable(oldID, updCar))
+                        // sum all tracks to a list of tracks.
+                .toList()
+                        // Just set the current car reference to the updated one and return it.
+                .map(tracks -> {
+                    if (!temporaryAlreadyRegisteredCars.containsKey(oldID))
+                        temporaryAlreadyRegisteredCars.put(oldID, car.getId());
+                    if (getCar().getId().equals(oldID))
+                        setCar(car);
+                    return car;
+                });
+    }
+
+    private Observable<Track> updateCarIDsOfTracksObservable(String oldID, Car car) {
+        return mEnviroCarDB.getAllTracksByCar(car.getId(), true)
+                .flatMap(tracks -> Observable.from(tracks))
+                .map(track -> {
+                    track.setCar(car);
+                    return track;
+                })
+                .concatMap(track -> mEnviroCarDB.updateTrackObservable(track));
     }
 
     /**
@@ -231,8 +318,8 @@ public class CarPreferenceHandler {
             return;
         }
 
-        if (new ContextInternetAccessProvider(mContext).isConnected()
-                && mUserManager.isLoggedIn()) {
+        if (new ContextInternetAccessProvider(mContext).isConnected() &&
+                mUserManager.isLoggedIn()) {
             new AsyncTask<Void, Void, Void>() {
 
                 @Override
@@ -263,6 +350,13 @@ public class CarPreferenceHandler {
         }
     }
 
+    @Subscribe
+    public void onReceiveNewUserSettingsEvent(NewUserSettingsEvent event) {
+        LOG.info("Received NewUserSettingsEvent: " + event.toString());
+        if (!event.mIsLoggedIn) {
+            setIsDownloaded(false);
+        }
+    }
 
     /**
      * Getter method for the serialized car strings.
@@ -333,6 +427,15 @@ public class CarPreferenceHandler {
             else
                 LOG.severe("flushSelectedCarState(): Error on insert.");
         }
+    }
+
+    public void setIsDownloaded(boolean isDownloaded) {
+        mSharedPreferences.edit().remove(PREFERENCE_TAG_DOWNLOADED).commit();
+        mSharedPreferences.edit().putBoolean(PREFERENCE_TAG_DOWNLOADED, isDownloaded).commit();
+    }
+
+    public boolean isDownloaded() {
+        return mSharedPreferences.getBoolean(PREFERENCE_TAG_DOWNLOADED, true);
     }
 
     private boolean removeSelectedCarState() {

@@ -26,7 +26,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import rx.Observable;
-import rx.Scheduler;
 
 /**
  * Interface for a OBD connector. It can provide device specific
@@ -38,7 +37,7 @@ import rx.Scheduler;
 public interface OBDAdapter {
 
 
-	enum ConnectionState {
+    enum ConnectionState {
 		
 		/**
 		 * used to indicate a state when the connector could
@@ -94,6 +93,11 @@ public interface OBDAdapter {
 	 *
 	 * @return true if the adapter has determined a compatible device
 	 */
-	boolean hasVerifiedConnection();
+	boolean hasCertifiedConnection();
 
+    /**
+     *
+     * @return the time (in ms) the adapter might take to connect to the OBD layer
+     */
+    long getExpectedInitPeriod();
 }

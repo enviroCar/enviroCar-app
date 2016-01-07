@@ -6,12 +6,8 @@ import org.envirocar.obd.commands.request.elm.DelayedConfigurationCommand;
 import org.envirocar.obd.commands.request.elm.Timeout;
 import org.envirocar.obd.exception.AdapterFailedException;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayDeque;
 import java.util.Queue;
-
-import rx.Observable;
 
 /**
  * Created by matthes on 03.11.15.
@@ -59,4 +55,5 @@ public class AposW3Adapter extends ELM327Adapter {
     public boolean supportsDevice(String deviceName) {
         return deviceName.contains("APOS") && deviceName.contains("OBD_W3");
     }
+
 }

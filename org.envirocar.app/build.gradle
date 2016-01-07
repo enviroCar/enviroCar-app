@@ -27,12 +27,8 @@ dependencies {
     compile rootProject.ext.rxAndroid
     compile rootProject.ext.rxJava
     compile rootProject.ext.rxPreferences
+    compile 'com.jakewharton.rxbinding:rxbinding-appcompat-v7:0.3.0'
     compile rootProject.ext.findBugs
-    // Crouton
-//    compile('de.keyboardsurfer.android.widget:crouton:1.8.5@aar') {
-//        // exclusion is not necessary, but generally a good idea.
-//        exclude group: 'com.google.android', module: 'support-v4'
-//    }
     // Commons compress
     compile 'org.apache.commons:commons-compress:1.5'
     // MapBox SDK
@@ -68,6 +64,13 @@ dependencies {
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8

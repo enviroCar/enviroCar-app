@@ -24,6 +24,7 @@ public class CommandExecutor {
     private final byte endOfLineInput;
     private OutputStream outputStream;
     private InputStream inputStream;
+    private ResponseQuirkWorkaround quirk;
 
 
     public CommandExecutor(InputStream is, OutputStream os,
@@ -38,6 +39,10 @@ public class CommandExecutor {
 
         this.endOfLineOutput = (byte) endOfLineOutput.charValue();
         this.endOfLineInput = (byte) endOfLineInput.charValue();
+    }
+
+    public void setQuirk(ResponseQuirkWorkaround quirk) {
+        this.quirk = quirk;
     }
 
     public void execute(BasicCommand cmd) throws IOException {
@@ -60,7 +65,7 @@ public class CommandExecutor {
     }
 
     public Observable<byte[]> createRawByteObservable() {
-        Observable<byte[]> obs = Observable.create(new Observable.OnSubscribe<byte[]>() {
+        return Observable.create(new Observable.OnSubscribe<byte[]>() {
             @Override
             public void call(Subscriber<? super byte[]> subscriber) {
                 try {
@@ -78,19 +83,42 @@ public class CommandExecutor {
                 }
             }
         });
-
-        return obs;
     }
 
 
     private byte[] readResponseLine() throws IOException, StreamFinishedException {
-        LOGGER.info("Reading response line...");
+        // TODO
+//        LOGGER.info("Reading response line...");
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
         // read until end of line arrives
-        byte b = (byte) inputStream.read();
+        readUntilLineEnd(baos);
+
+        byte[] byteArray = baos.toByteArray();
+
+        //some adapter (i.e. the drivedeck) MIGHT respond with linebreaks as actual data - detect this
+        if (quirk != null && quirk.shouldWaitForNextTokenLine(byteArray)) {
+            LOGGER.info("Detected quirk: "+this.quirk.getClass().getSimpleName());
+
+            //re-add the end of line, it was dismissed previously
+            baos.write(this.endOfLineInput);
+            readUntilLineEnd(baos);
+            byteArray = baos.toByteArray();
+        }
+
+        if (byteArray.length > 0 && LOGGER.isEnabled(Logger.DEBUG)) {
+            LOGGER.debug("Received bytes: " + Base64.encodeToString(byteArray, Base64.DEFAULT));
+        }
+
+        return byteArray;
+    }
+
+    private void readUntilLineEnd(ByteArrayOutputStream baos) throws IOException, StreamFinishedException {
+        int i = inputStream.read();
+        byte b = (byte) i;
         while (b != this.endOfLineInput) {
-            if ((int) b == -1) {
+            if (i == -1) {
                 throw new StreamFinishedException("Stream finished");
             }
 
@@ -98,15 +126,9 @@ public class CommandExecutor {
                 baos.write(b);
             }
 
-            b = (byte) inputStream.read();
+            i = inputStream.read();
+            b = (byte) i;
         }
-
-        byte[] byteArray = baos.toByteArray();
-        if (byteArray.length > 0 && LOGGER.isEnabled(Logger.DEBUG)) {
-            LOGGER.debug("Received bytes: " + Base64.encodeToString(byteArray, Base64.DEFAULT));
-        }
-
-        return byteArray;
     }
 
     public byte[] retrieveLatestResponse() throws IOException, StreamFinishedException {

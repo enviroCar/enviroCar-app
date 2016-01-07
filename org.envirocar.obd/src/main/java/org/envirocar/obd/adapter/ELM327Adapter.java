@@ -1,5 +1,8 @@
 package org.envirocar.obd.adapter;
 
+import android.util.Base64;
+
+import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.request.PIDCommand;
 import org.envirocar.obd.commands.request.elm.ConfigurationCommand;
@@ -19,9 +22,11 @@ import rx.Observable;
  */
 public class ELM327Adapter extends SyncAdapter {
 
+    private static final Logger LOG = Logger.getLogger(ELM327Adapter.class);
 
     private Queue<BasicCommand> initCommands;
     protected int succesfulCount;
+    private boolean certifiedConnection;
 
 
     @Override
@@ -54,6 +59,7 @@ public class ELM327Adapter extends SyncAdapter {
     @Override
     protected boolean analyzeMetadataResponse(byte[] response, BasicCommand sentCommand) throws AdapterFailedException {
         String content = new String(response);
+        LOG.info("Analyzing metadata response: "+ Base64.encodeToString(response, Base64.DEFAULT));
 
         if (sentCommand == null || !(sentCommand instanceof ConfigurationCommand)) {
             return false;
@@ -62,11 +68,9 @@ public class ELM327Adapter extends SyncAdapter {
         ConfigurationCommand sent = (ConfigurationCommand) sentCommand;
 
         if (sent.getInstance() == ConfigurationCommand.Instance.ECHO_OFF) {
-            if (content.contains("ELM327v1.")) {
+            if (content.contains("ELM327v1.") || content.contains("OK")) {
                 succesfulCount++;
-            }
-            else if (content.contains("ATE0") && content.contains("OK")) {
-                succesfulCount++;
+                certifiedConnection = true;
             }
         }
 
@@ -88,6 +92,8 @@ public class ELM327Adapter extends SyncAdapter {
             }
         }
 
+        LOG.info("succesfulCount="+succesfulCount);
+
         return succesfulCount >= 5;
     }
 
@@ -98,11 +104,11 @@ public class ELM327Adapter extends SyncAdapter {
 
     @Override
     public boolean supportsDevice(String deviceName) {
-        return deviceName.contains("OBDII") || deviceName.contains("ELM327");
+        return deviceName.contains("OBDII") || deviceName.contains("ELM327") || deviceName.toLowerCase().contains("obdlink mx");
     }
 
     @Override
-    public boolean hasVerifiedConnection() {
-        return false;
+    public boolean hasCertifiedConnection() {
+        return certifiedConnection;
     }
 }

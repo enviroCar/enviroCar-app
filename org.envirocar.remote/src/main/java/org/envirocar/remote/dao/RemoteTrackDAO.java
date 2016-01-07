@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -55,14 +55,6 @@ import rx.Subscriber;
 public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implements TrackDAO {
     private static final Logger LOG = Logger.getLogger(RemoteTrackDAO.class);
 
-
-    /**
-     * Constructor.
-     */
-    public RemoteTrackDAO() {
-        super(null, null);
-    }
-
     /**
      * Constructor.
      *
@@ -84,16 +76,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
 
         try {
             // Execute the request call
-            Response<Track> trackResponse = trackCall.execute();
-
-            // If the request call was not successful, then assert the status code and throw an
-            // exceptiom
-            if (!trackResponse.isSuccess()) {
-                LOG.warn(String.format("getTrack was not successful for the following reason: %s",
-                        trackResponse.message()));
-                EnvirocarServiceUtils.assertStatusCode(
-                        trackResponse.code(), trackResponse.message());
-            }
+            Response<Track> trackResponse = executeCall(trackCall);
 
             // If it was successful, then return the track.
             LOG.debug("getTrack() was successful");
@@ -185,7 +168,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
     }
 
     @Override
-    public String createTrack(Track track) throws DataCreationFailureException,
+    public Track createTrack(Track track) throws DataCreationFailureException,
             NotConnectedException, ResourceConflictException, UnauthorizedException {
         LOG.info("createTrack()");
 
@@ -212,13 +195,36 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
             String location = EnvirocarServiceUtils.resolveRemoteLocation(uploadTrackResponse);
             LOG.info("Uploaded remote location: " + location);
 
-            // Return the location;
-            return location.substring(location.lastIndexOf('/') + 1, location.length());
+            // Set the remoteID ...
+            track.setRemoteID(location.substring(location.lastIndexOf('/') + 1, location.length()));
+            // ... and return the track;
+            return track;
         } catch (IOException e) {
             throw new DataCreationFailureException(e);
         } catch (ResourceConflictException e) {
             throw new NotConnectedException(e);
         }
+    }
+
+    @Override
+    public Observable<Track> createTrackObservable(Track track) {
+        return Observable.create(new Observable.OnSubscribe<Track>() {
+            @Override
+            public void call(Subscriber<? super Track> subscriber) {
+                LOG.info("call: creating remote track.");
+                subscriber.onStart();
+                try {
+                    subscriber.onNext(createTrack(track));
+                } catch (DataCreationFailureException |
+                        NotConnectedException |
+                        ResourceConflictException |
+                        UnauthorizedException e) {
+                    LOG.error(e.getMessage(), e);
+                    subscriber.onError(e);
+                }
+                subscriber.onCompleted();
+            }
+        });
     }
 
     @Override
@@ -292,8 +298,12 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
     }
 
     @Override
-    public void deleteTrack(String remoteID) throws DataUpdateFailureException,
+    public void deleteTrack(Track track) throws DataUpdateFailureException,
             NotConnectedException, UnauthorizedException {
+        Preconditions.checkState(track.getRemoteID() != null, "No RemoteID for this Track.");
+        Preconditions.checkState(track.isRemoteTrack(), "Track is not a remote track. Track " +
+                "cannot be deleted");
+        String remoteID = track.getRemoteID();
         LOG.info(String.format("deleteRemoteTrack(%s)", remoteID));
 
         // If not logged in, then throw an exception
@@ -324,13 +334,6 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
             LOG.warn("WARNING!!!");
             throw e;
         }
-    }
-
-    @Override
-    public void deleteTrack(Track track) throws DataUpdateFailureException,
-            NotConnectedException, UnauthorizedException {
-        Preconditions.checkState(track.getRemoteID() != null, "No RemoteID for this Track.");
-        deleteTrack(track.getRemoteID());
     }
 
 }

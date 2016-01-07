@@ -2,9 +2,7 @@ package org.envirocar.obd.adapter.async;
 
 import android.test.InstrumentationTestCase;
 
-import org.envirocar.obd.adapter.async.AsyncAdapter;
-import org.envirocar.obd.adapter.async.CarriageReturnCommand;
-import org.envirocar.obd.adapter.async.CycleCommand;
+import org.envirocar.obd.adapter.ResponseQuirkWorkaround;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.response.DataResponse;
 import org.envirocar.obd.commands.response.entity.SpeedResponse;
@@ -25,7 +23,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Queue;
 
-import rx.Observable;
 import rx.observers.TestSubscriber;
 import rx.schedulers.Schedulers;
 
@@ -38,14 +35,14 @@ public class AsyncAdapterTest extends InstrumentationTestCase {
         InputStream is = new ByteArrayInputStream("DUMMY>DUMMY>".getBytes());
         OutputStream os = new ByteArrayOutputStream();
 
-        TestSubscriber<Void> initSub = new TestSubscriber<>();
+        TestSubscriber<Boolean> initSub = new TestSubscriber<>();
 
-        adapter.initialize(is, os, Schedulers.immediate(), Schedulers.immediate()).subscribeOn(Schedulers.immediate())
+        adapter.initialize(is, os).subscribeOn(Schedulers.immediate())
                 .observeOn(Schedulers.immediate())
                 .subscribe(initSub);
 
-        initSub.assertCompleted();
         initSub.assertNoErrors();
+        initSub.assertValueCount(1);
 
         TestSubscriber<DataResponse> dataSub = new TestSubscriber<>();
 
@@ -74,6 +71,16 @@ public class AsyncAdapterTest extends InstrumentationTestCase {
         }
 
         @Override
+        protected boolean hasEstablishedConnection() {
+            return true;
+        }
+
+        @Override
+        protected ResponseQuirkWorkaround getQuirk() {
+            return null;
+        }
+
+        @Override
         protected BasicCommand pollNextCommand() {
             return this.commands.poll();
         }
@@ -89,6 +96,16 @@ public class AsyncAdapterTest extends InstrumentationTestCase {
         @Override
         public boolean supportsDevice(String deviceName) {
             return true;
+        }
+
+        @Override
+        public boolean hasCertifiedConnection() {
+            return true;
+        }
+
+        @Override
+        public long getExpectedInitPeriod() {
+            return 15000;
         }
     }
 }

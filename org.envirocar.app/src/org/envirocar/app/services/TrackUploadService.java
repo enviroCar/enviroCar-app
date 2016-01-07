@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -29,9 +29,9 @@ import android.support.v4.app.NotificationCompat;
 
 import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
-import org.envirocar.app.handler.TrackHandler;
 import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
-import org.envirocar.app.storage.DbAdapter;
+import org.envirocar.app.handler.TrackRecordingHandler;
+import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
@@ -55,18 +55,18 @@ public class TrackUploadService extends Service {
     private static final int NOTIFICATION_ID = 52;
 
     @Inject
-    protected TrackHandler trackHandler;
-    @Inject
-    protected DbAdapter dbAdapter;
+    protected TrackRecordingHandler trackRecordingHandler;
     @Inject
     protected EnviroCarDB enviroCarDB;
+    @Inject
+    protected TrackUploadHandler trackUploadHandler;
 
     @Override
     public void onCreate() {
         LOG.debug("onCreate()");
         super.onCreate();
 
-        // Inject the TrackHandler;
+        // Inject the TrackRecordingHandler;
         ((Injector) getApplicationContext()).injectObjects(this);
     }
 
@@ -80,7 +80,7 @@ public class TrackUploadService extends Service {
         if (localTrackList.size() > 0) {
             LOG.info(String.format("%s local tracks to upload", localTrackList.size()));
 
-            trackHandler.uploadAllTracks()
+            trackUploadHandler.uploadAllTracks()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Subscriber<Track>() {

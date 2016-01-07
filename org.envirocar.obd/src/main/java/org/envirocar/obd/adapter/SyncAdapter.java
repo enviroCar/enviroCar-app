@@ -2,6 +2,7 @@ package org.envirocar.obd.adapter;
 
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.PID;
+import org.envirocar.obd.commands.PIDSupported;
 import org.envirocar.obd.commands.PIDUtil;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.request.PIDCommand;
@@ -34,6 +35,9 @@ import rx.Subscriber;
 public abstract class SyncAdapter implements OBDAdapter {
 
     private static final Logger LOGGER = Logger.getLogger(SyncAdapter.class.getName());
+
+    protected static final long ADAPTER_TRY_PERIOD = 20000;
+
     private static final char COMMAND_SEND_END = '\r';
     private static final char COMMAND_RECEIVE_END = '>';
     private static final char COMMAND_RECEIVE_SPACE = ' ';
@@ -43,9 +47,13 @@ public abstract class SyncAdapter implements OBDAdapter {
     private CommandExecutor commandExecutor;
     private ResponseParser parser = new ResponseParser();
 
+    private Set<PID> supportedPIDs = new HashSet<>();
+
     private Map<PID, AtomicInteger> failureMap = new HashMap<>();
     private List<PIDCommand> requestCommands;
     private Queue<PIDCommand> commandRingBuffer = new ArrayDeque<>();
+    private Queue<PIDSupported> pidSupportedCommands = new ArrayDeque<>(Arrays.asList(new PIDSupported[] {new PIDSupported(), new PIDSupported("20")}));
+
 
     @Override
     public Observable<Boolean> initialize(InputStream is, OutputStream os) {
@@ -60,27 +68,47 @@ public abstract class SyncAdapter implements OBDAdapter {
             @Override
             public void call(Subscriber<? super Boolean> subscriber) {
                 try {
-                    while (!subscriber.isUnsubscribed()) {
-                        BasicCommand cc = pollNextInitializationCommand();
+                    boolean analyzedSuccessfully = false;
 
-                        if (cc == null) {
-                            subscriber.onError(new AdapterFailedException(
-                                    "All init commands sent, but could not verify connection"));
+                    while (!subscriber.isUnsubscribed()) {
+                        if (analyzedSuccessfully) {
+                            /**
+                             * a successful data connection has been established:
+                             * retrieve the supported PIDs
+                             */
+                            PIDSupported pid = pidSupportedCommands.poll();
+                            while (pid != null) {
+                                commandExecutor.execute(pid);
+                                byte[] resp = commandExecutor.retrieveLatestResponse();
+                                try {
+                                    supportedPIDs.addAll(pid.parsePIDs(resp));
+                                } catch (InvalidCommandResponseException | NoDataReceivedException
+                                        | UnmatchedResponseException | AdapterSearchingException e) {
+                                    LOGGER.warn(e.getMessage(), e);
+                                }
+                                LOGGER.info("Currently supported PIDs: " + supportedPIDs.toString());
+                                pid = pidSupportedCommands.poll();
+                            }
+
+                            subscriber.onNext(true);
                             subscriber.unsubscribe();
                         }
+                        else {
+                            BasicCommand cc = pollNextInitializationCommand();
 
-                        //push the command to the output stream
-                        commandExecutor.execute(cc);
-
-                        //check if the command needs a response (most likely)
-                        if (cc.awaitsResults()) {
-                            byte[] resp = commandExecutor.retrieveLatestResponse();
-
-                            if (analyzeMetadataResponse(resp, cc)) {
-                                //the impl decided that it can support this kind of data stream
-                                subscriber.onNext(true);
+                            if (cc == null) {
+                                subscriber.onError(new AdapterFailedException(
+                                        "All init commands sent, but could not verify connection"));
                                 subscriber.unsubscribe();
-                                break;
+                            }
+
+                            //push the command to the output stream
+                            commandExecutor.execute(cc);
+
+                            //check if the command needs a response (most likely)
+                            if (cc.awaitsResults()) {
+                                byte[] resp = commandExecutor.retrieveLatestResponse();
+                                analyzedSuccessfully = analyzeMetadataResponse(resp, cc);
                             }
                         }
                     }
@@ -88,7 +116,8 @@ public abstract class SyncAdapter implements OBDAdapter {
                     subscriber.onError(e);
                     subscriber.unsubscribe();
                 } catch (StreamFinishedException e) {
-                    subscriber.onError(new IOException("The stream was closed unexpectedly"));
+                    LOGGER.warn("The stream was closed unexpectedly: "+e.getMessage());
+                    subscriber.onCompleted();
                     subscriber.unsubscribe();
                 }
             }
@@ -103,10 +132,9 @@ public abstract class SyncAdapter implements OBDAdapter {
 
             @Override
             public void call(Subscriber<? super DataResponse> subscriber) {
+                LOGGER.info("SyncAdapter.observe().call()");
 
-                /**
-                 * prepare all pending data commands
-                 */
+                //prepare all pending data commands
                 preparePendingCommands();
 
                 PIDCommand latestCommand = null;
@@ -119,12 +147,21 @@ public abstract class SyncAdapter implements OBDAdapter {
                         /**
                          * write the next pending command
                          */
-                        commandExecutor.execute(latestCommand);
+                        if (latestCommand != null) {
+                            commandExecutor.execute(latestCommand);
+                        }
 
                         /**
                          * read the next incoming response
                          */
                         bytes = commandExecutor.retrieveLatestResponse();
+
+                        DataResponse response = parser.parse(preProcess(bytes));
+
+                        if (response != null) {
+                            LOGGER.debug("isUnsubscribed? " + subscriber.isUnsubscribed());
+                            subscriber.onNext(response);
+                        }
                     } catch (IOException e) {
                         subscriber.onError(e);
                         subscriber.unsubscribe();
@@ -132,17 +169,9 @@ public abstract class SyncAdapter implements OBDAdapter {
                         subscriber.onError(e);
                         subscriber.unsubscribe();
                     } catch (StreamFinishedException e) {
-                        subscriber.onError(e);
+                        LOGGER.info("Stream finished: "+ e.getMessage());
+                        subscriber.onCompleted();
                         subscriber.unsubscribe();
-                    }
-
-                    try {
-                        DataResponse response = parser.parse(preProcess(bytes));
-
-                        if (response != null) {
-                            LOGGER.debug("isUnsubscribed? " + subscriber.isUnsubscribed());
-                            subscriber.onNext(response);
-                        }
                     } catch (AdapterSearchingException e) {
                         LOGGER.warn("Adapter still searching: " + e.getMessage());
                     } catch (NoDataReceivedException e) {
@@ -154,7 +183,6 @@ public abstract class SyncAdapter implements OBDAdapter {
                     } catch (UnmatchedResponseException e) {
                         LOGGER.warn("Unmatched response: " + e.getMessage());
                     }
-
                 }
 
             }
@@ -205,18 +233,25 @@ public abstract class SyncAdapter implements OBDAdapter {
         if (requestCommands == null) {
             requestCommands = new ArrayList<>();
 
-            requestCommands.add(PIDUtil.instantiateCommand(PID.SPEED));
-            requestCommands.add(PIDUtil.instantiateCommand(PID.MAF));
-            requestCommands.add(PIDUtil.instantiateCommand(PID.RPM));
-            requestCommands.add(PIDUtil.instantiateCommand(PID.INTAKE_MAP));
-            requestCommands.add(PIDUtil.instantiateCommand(PID.INTAKE_AIR_TEMP));
-            requestCommands.add(PIDUtil.instantiateCommand(PID.CALCULATED_ENGINE_LOAD));
-            requestCommands.add(PIDUtil.instantiateCommand(PID.TPS));
-            requestCommands.add(PIDUtil.instantiateCommand(PID.O2_LAMBDA_PROBE_1_VOLTAGE));
-            requestCommands.add(PIDUtil.instantiateCommand(PID.O2_LAMBDA_PROBE_1_CURRENT));
+            for (PID p: PID.values()) {
+                addIfSupported(p);
+            }
+
         }
 
         return requestCommands;
+    }
+
+    protected void addIfSupported(PID pid) {
+        if (supportedPIDs == null || supportedPIDs.isEmpty()) {
+            requestCommands.add(PIDUtil.instantiateCommand(pid));
+        }
+        else if (supportedPIDs.contains(pid)) {
+            requestCommands.add(PIDUtil.instantiateCommand(pid));
+        }
+        else {
+            LOGGER.info("PID "+pid.toString()+" not supported. Skipping.");
+        }
     }
 
     private void preparePendingCommands() {
@@ -231,6 +266,11 @@ public abstract class SyncAdapter implements OBDAdapter {
 
     private boolean checkIsBlacklisted(PID pid) {
         return this.failureMap.containsKey(pid)  && this.failureMap.get(pid).get() > MAX_ERROR_PER_COMMAND;
+    }
+
+    @Override
+    public long getExpectedInitPeriod() {
+        return ADAPTER_TRY_PERIOD;
     }
 
     protected abstract BasicCommand pollNextInitializationCommand();

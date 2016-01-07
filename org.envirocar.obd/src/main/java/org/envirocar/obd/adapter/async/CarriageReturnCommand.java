@@ -18,13 +18,23 @@
  */
 package org.envirocar.obd.adapter.async;
 
+import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.request.BasicCommand;
 
 public class CarriageReturnCommand implements BasicCommand {
 
+    private static final Logger LOG = Logger.getLogger(CarriageReturnCommand.class);
+
 	@Override
 	public byte[] getOutputBytes() {
-		return new byte[0];
+
+        try {
+            Thread.sleep(750);
+        } catch (InterruptedException e) {
+            LOG.warn(e.getMessage(), e);
+        }
+
+        return new byte[0];
 	}
 
 	@Override

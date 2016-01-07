@@ -18,8 +18,6 @@
  */
 package org.envirocar.core.util;
 
-import android.content.Context;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,7 +48,7 @@ public class TrackMetadata {
 		JSONArray names = json.names();
 		for (int i = 0; i < names.length(); i++) {
 			String key = names.get(i).toString();
-			result.putEntry(key, json.getString(key));
+			result.add(key, json.getString(key));
 		}
 		
 		return result;
@@ -61,19 +59,21 @@ public class TrackMetadata {
 	
 //	public TrackMetadata(Context context) {
 //		UserManager userManager = ((Injector) context).getObjectGraph().get(UserManager.class);
-//		putEntry(APP_VERSION, Util.getVersionString(context));
-//		putEntry(TOU_VERSION, userManager.getUser().getTouVersion());
+//		add(APP_VERSION, Util.getVersionString(context));
+//		add(TOU_VERSION, userManager.getUser().getTouVersion());
 //	}
 
 	public TrackMetadata(String appVersion, String touVersion){
-		putEntry(APP_VERSION, appVersion);
-		putEntry(TOU_VERSION, touVersion);
+		add(APP_VERSION, appVersion);
+		add(TOU_VERSION, touVersion);
 	}
 	
-	public void putEntry(String key, String value) {
-		if (value == null) return;
-		
-		this.entries.put(key, value);
+	public TrackMetadata add(String key, String value) {
+		if (value != null) {
+            this.entries.put(key, value);
+        }
+
+        return this;
 	}
 
 	public void merge(TrackMetadata newMetadata) {

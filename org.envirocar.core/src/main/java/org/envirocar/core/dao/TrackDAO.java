@@ -57,11 +57,10 @@ public interface TrackDAO {
 
     Integer getTotalTrackCount() throws DataRetrievalFailureException, NotConnectedException;
 
-    String createTrack(Track track) throws DataCreationFailureException, NotConnectedException,
+    Track createTrack(Track track) throws DataCreationFailureException, NotConnectedException,
             ResourceConflictException, UnauthorizedException;
 
-    void deleteTrack(String remoteID) throws DataUpdateFailureException, NotConnectedException,
-            UnauthorizedException;
+    Observable<Track> createTrackObservable(Track track);
 
     void deleteTrack(Track track) throws DataUpdateFailureException, NotConnectedException,
             UnauthorizedException;

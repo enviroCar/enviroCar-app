@@ -184,7 +184,7 @@ public class TrackDetailsProvider {
     }
 
 
-    public void onOBDConnectionStopped() {
+    public void clear() {
         mMainThreadWorker.schedule(() -> {
             mTrackMapOverlay.clearPath();
             mNumMeasurements = 0;
