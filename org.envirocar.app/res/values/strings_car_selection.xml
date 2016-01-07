@@ -27,6 +27,8 @@
     <string name="car_selection_successfully_added_tmp" formatted="false">%s %s has been added to the list.</string>
     <string name="car_selection_already_in_list_tmp" formatted="false">%s %s is already in the list.</string>
 
+    <string name="car_selection_note">Please be as specific as possible with your details. This information is used for internal calculation of essential attributes. False information will ultimately lead to wrong calculated values.</string>
+
     <string name="car_selection_manufacturer">Manufacturer</string>
     <string name="car_selection_model">Model</string>
     <string name="car_selection_construction_year">Construction Year</string>

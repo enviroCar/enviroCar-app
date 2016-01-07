@@ -30,6 +30,7 @@ import android.widget.ListView;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
@@ -67,9 +68,9 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     protected Toolbar mExpToolbar;
     @InjectView(R.id.actvity_car_selection_layout_loading)
     protected View loadingView;
-
     @InjectView(R.id.overlay)
-    protected View mOverlay;
+    protected View overlayView;
+
     @InjectView(R.id.activity_car_selection_new_car_fab)
     protected FloatingActionButton mFab;
 
@@ -106,11 +107,6 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
-        // Initialize the manufacturer names and its textview adapter
-//        mManufacturerNames = new HashSet<String>(Arrays.asList(getResources()
-//                .getStringArray(R.array.car_types)));
 
         setupListView();
     }
@@ -167,7 +163,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
             LOG.info("addCarFragment is already visible.");
             return false;
         }
-
+        ECAnimationUtils.animateShowView(this, overlayView, R.anim.fade_in);
         this.addCarFragment = new CarSelectionAddCarFragment();
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.activity_car_selection_container, this.addCarFragment)

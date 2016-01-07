@@ -117,8 +117,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-        View view = inflater.inflate(R.layout.activity_car_selection_newcar_fragment, container,
-                false);
+        View view = inflater.inflate(
+                R.layout.activity_car_selection_newcar_fragment, container, false);
         ButterKnife.inject(this, view);
 
         // Get the display size in pixels
@@ -681,6 +681,9 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     }
 
     public void closeThisFragment() {
+        // ^^
+        ECAnimationUtils.animateHideView(getContext(),
+                ((CarSelectionActivity) getActivity()).overlayView, R.anim.fade_out);
         ECAnimationUtils.animateHideView(getContext(), R.anim
                 .translate_slide_out_top_fragment, toolbar, toolbarExp);
         ECAnimationUtils.animateHideView(getContext(), contentView, R.anim

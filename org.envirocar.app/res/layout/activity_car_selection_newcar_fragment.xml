@@ -97,6 +97,12 @@
 
                 </LinearLayout>
 
+                <!--<TextView-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:textSize="@dimen/text_small"-->
+                    <!--android:text="@string/car_selection_note"/>-->
+
                 <LinearLayout
                     android:id="@+id/activity_car_selection_newcar_manufacturer_layout"
                     android:layout_width="match_parent"
