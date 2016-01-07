@@ -435,7 +435,7 @@ public class CarPreferenceHandler {
     }
 
     public boolean isDownloaded() {
-        return mSharedPreferences.getBoolean(PREFERENCE_TAG_DOWNLOADED, true);
+        return mSharedPreferences.getBoolean(PREFERENCE_TAG_DOWNLOADED, false);
     }
 
     private boolean removeSelectedCarState() {

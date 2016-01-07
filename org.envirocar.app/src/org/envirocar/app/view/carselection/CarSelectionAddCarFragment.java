@@ -48,6 +48,7 @@ import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
@@ -127,15 +128,15 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         int width = size.x;
 
         // Set the dropdown width of the spinner to half of the display pixel width.
-        manufacturerSpinner.setDropDownWidth(width/2);
-        modelSpinner.setDropDownWidth(width/2);
-        yearSpinner.setDropDownWidth(width/2);
-        engineSpinner.setDropDownWidth(width/2);
+        manufacturerSpinner.setDropDownWidth(width / 2);
+        modelSpinner.setDropDownWidth(width / 2);
+        yearSpinner.setDropDownWidth(width / 2);
+        engineSpinner.setDropDownWidth(width / 2);
 
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         toolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
-        toolbar.setNavigationOnClickListener(v ->
-                ((CarSelectionUiListener) getActivity()).onHideAddCarFragment());
+        toolbar.setNavigationOnClickListener(v -> closeThisFragment());
+
 
         // initially we set the toolbar exp to gone
         toolbar.setVisibility(View.GONE);
@@ -199,6 +200,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
         super.onDestroy();
     }
+
 
     /**
      * Add car button onClick listener. When clicked, it tries to find out if the car already
@@ -309,6 +311,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                             && other.getEngineDisplacement() == car.getEngineDisplacement()
                             && other.getFuelType() == car.getFuelType()) {
                         selectedCar = other;
+                        break;
                     }
                 }
             }
@@ -482,6 +485,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 updateEngineView(modelYear);
             }
         });
+
+        engineText.setOnFocusChangeListener((v, hasFocus) -> checkFuelingType());
     }
 
     private void initSpinner() {
@@ -549,6 +554,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
                 engineText.setText(engine);
                 ((TextView) view).setText(null);
+
+                checkFuelingType();
             }
 
             @Override
@@ -558,8 +565,41 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         });
     }
 
-    private void updateManufacturerViews(){
-        if(!mManufacturerNames.isEmpty()){
+    private void checkFuelingType(){
+        String manufacturer = manufacturerText.getText().toString();
+        String model = modelText.getText().toString();
+        String yearString = yearText.getText().toString();
+        String engineString = engineText.getText().toString();
+        Pair<String, String> modelYear = new Pair<>(model, yearString);
+
+        Car selectedCar = null;
+        if (mManufacturerNames.contains(manufacturer)
+                && mCarToModelMap.get(manufacturer) != null
+                && mCarToModelMap.get(manufacturer).contains(model)
+                && mModelToYear.get(model) != null
+                && mModelToYear.get(model).contains(yearString)
+                && mModelToCCM.get(modelYear) != null
+                && mModelToCCM.get(modelYear).contains(engineString)) {
+            for (Car other : mCars) {
+                if (other.getManufacturer().equals(manufacturer)
+                        && other.getModel().equals(model)
+                        && other.getConstructionYear() == Integer.parseInt(yearString)
+                        && other.getEngineDisplacement() == Integer.parseInt(engineString)) {
+                    selectedCar = other;
+                    break;
+                }
+            }
+        }
+
+        if(selectedCar.getFuelType() == Car.FuelType.DIESEL){
+            dieselRadio.setChecked(true);
+        } else {
+            gasolineRadio.setChecked(true);
+        }
+    }
+
+    private void updateManufacturerViews() {
+        if (!mManufacturerNames.isEmpty()) {
             updateSpinner(mManufacturerNames, manufacturerSpinner);
         } else {
             modelSpinner.setAdapter(null);
@@ -638,5 +678,17 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         if (!mModelToCCM.containsKey(modelYearPair))
             mModelToCCM.put(modelYearPair, new HashSet<>());
         mModelToCCM.get(modelYearPair).add(Integer.toString(car.getEngineDisplacement()));
+    }
+
+    public void closeThisFragment() {
+        ECAnimationUtils.animateHideView(getContext(), R.anim
+                .translate_slide_out_top_fragment, toolbar, toolbarExp);
+        ECAnimationUtils.animateHideView(getContext(), contentView, R.anim
+                .translate_slide_out_bottom, new Action0() {
+            @Override
+            public void call() {
+                ((CarSelectionUiListener) getActivity()).onHideAddCarFragment();
+            }
+        });
     }
 }

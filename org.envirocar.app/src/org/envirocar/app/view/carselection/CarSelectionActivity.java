@@ -130,8 +130,10 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
     @Override
     public void onBackPressed() {
-        // if the sheet view was not visible.
-        if (!closeAddCarCard()) {
+        // if the add car fragment is visible.
+        if(addCarFragment != null && addCarFragment.isVisible()){
+            addCarFragment.closeThisFragment();
+        } else {
             // call the super method.
             super.onBackPressed();
         }
