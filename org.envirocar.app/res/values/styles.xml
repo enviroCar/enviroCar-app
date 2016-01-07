@@ -109,4 +109,14 @@
         <item name="colorControlNormal">@color/white_cario</item>
         <item name="colorControlActivated">@color/white_cario</item>
     </style>
+
+    <style name="enviroCar.Spinner.Style" parent="android:Widget.TextView.SpinnerItem">
+        <item name="android:padding">@dimen/spacing_medium</item>
+        <item name="android:dropDownWidth">533dp</item>
+        <item name="android:showDividers">none</item>
+        <item name="android:dividerHeight">0dp</item>
+        <item name="android:dropDownHeight">70dp</item>
+        <item name="android:scrollbarAlwaysDrawVerticalTrack">true</item>
+        <item name="android:dropDownSelector">@android:color/white</item>
+    </style>
 </resources>

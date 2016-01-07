@@ -269,9 +269,8 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                             mTrackDAOHandler.deleteRemoteTrack(upToDateRef);
                             return true;
                         } catch (Exception e) {
-                            OnErrorThrowable.from(e);
+                            throw OnErrorThrowable.from(e);
                         }
-                        return false;
                     }
                 })
                 .subscribeOn(Schedulers.io())
@@ -310,7 +309,6 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
             public void onCompleted() {
                 LOG.info(String.format("onCompleted() delete track -> [%s]",
                         track.getName()));
-
             }
 
             @Override
