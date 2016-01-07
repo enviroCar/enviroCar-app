@@ -35,6 +35,7 @@ import org.envirocar.core.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.remote.DAOProvider;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,7 +45,11 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
+import rx.Observable;
+import rx.Subscriber;
 import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * @author dewall
@@ -82,7 +87,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
     private CarSelectionListAdapter mCarListAdapter;
     private AutoCompleteArrayAdapter mManufacturerNameAdapter;
-    private Subscription addCarSubscription;
+    private Subscription loadingCarsSubscription;
 
 
     @Override
@@ -99,6 +104,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         // Initialize the manufacturer names and its textview adapter
 //        mManufacturerNames = new HashSet<String>(Arrays.asList(getResources()
@@ -140,8 +146,8 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     protected void onDestroy() {
         LOG.info("onDestroy()");
 
-        if (this.addCarSubscription != null && !this.addCarSubscription.isUnsubscribed()) {
-            this.addCarSubscription.unsubscribe();
+        if (this.loadingCarsSubscription != null && !this.loadingCarsSubscription.isUnsubscribed()) {
+            this.loadingCarsSubscription.unsubscribe();
         }
 
         super.onDestroy();
@@ -186,10 +192,10 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
     private void setupListView() {
         Car selectedCar = mCarManager.getCar();
-        List<Car> usedCars = mCarManager.getDeserialzedCars();
-        mCarListAdapter = new CarSelectionListAdapter(this, selectedCar, usedCars, new
-                CarSelectionListAdapter
-                        .OnCarListActionCallback() {
+        List<Car> usedCars = new ArrayList<>();
+
+        mCarListAdapter = new CarSelectionListAdapter(this, selectedCar, usedCars,
+                new CarSelectionListAdapter.OnCarListActionCallback() {
 
                     @Override
                     public void onSelectCar(Car car) {
@@ -215,6 +221,38 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                     }
                 });
         mCarListView.setAdapter(mCarListAdapter);
+
+        loadingCarsSubscription = mCarManager.getAllDeserializedCars()
+                .flatMap(cars -> mCarManager.isDownloaded() ? Observable.just(cars) :
+                        Observable.just(cars).concatWith(mCarManager.fetchRemoteCarsOfUser()))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<List<Car>>() {
+                    @Override
+                    public void onStart() {
+                        LOG.info("onStart()");
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        LOG.info("onCompleted() loading of all tracks");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.error(e.getMessage(), e);
+                    }
+
+                    @Override
+                    public void onNext(List<Car> cars) {
+                        LOG.info("onNext() " + cars.size());
+                        for(Car car : cars){
+                            if(!usedCars.contains(car))
+                                usedCars.add(car);
+                        }
+                        mCarListAdapter.notifyDataSetInvalidated();
+                    }
+                });
     }
 
     /**

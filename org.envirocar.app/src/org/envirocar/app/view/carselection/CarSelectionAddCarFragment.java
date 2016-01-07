@@ -1,11 +1,13 @@
 package org.envirocar.app.view.carselection;
 
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Pair;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,12 +19,12 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.jakewharton.rxbinding.support.v7.widget.RxToolbar;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.CarImpl;
 import org.envirocar.core.injection.BaseInjectorFragment;
@@ -59,6 +61,12 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
     @InjectView(R.id.activity_car_selection_newcar_toolbar)
     protected Toolbar toolbar;
+    @InjectView(R.id.activity_car_selection_newcar_toolbar_exp)
+    protected View toolbarExp;
+    @InjectView(R.id.activity_car_selection_newcar_content_view)
+    protected View contentView;
+    @InjectView(R.id.activity_car_selection_newcar_download_layout)
+    protected View downloadView;
 
     @InjectView(R.id.activity_car_selection_newcar_manufacturer)
     protected TextView manufacturerText;
@@ -112,16 +120,28 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 false);
         ButterKnife.inject(this, view);
 
-        manufacturerSpinner.setDropDownWidth(500);
-        modelSpinner.setDropDownWidth(500);
-        yearSpinner.setDropDownWidth(500);
-        engineSpinner.setDropDownWidth(500);
+        // Get the display size in pixels
+        Display display = getActivity().getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
 
+        // Set the dropdown width of the spinner to half of the display pixel width.
+        manufacturerSpinner.setDropDownWidth(width/2);
+        modelSpinner.setDropDownWidth(width/2);
+        yearSpinner.setDropDownWidth(width/2);
+        engineSpinner.setDropDownWidth(width/2);
 
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         toolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
         toolbar.setNavigationOnClickListener(v ->
                 ((CarSelectionUiListener) getActivity()).onHideAddCarFragment());
+
+        // initially we set the toolbar exp to gone
+        toolbar.setVisibility(View.GONE);
+        toolbarExp.setVisibility(View.GONE);
+        contentView.setVisibility(View.GONE);
+        downloadView.setVisibility(View.INVISIBLE);
 
         createCarSubscription = RxToolbar.itemClicks(toolbar)
                 .filter(continueWhenFormIsCorrect())
@@ -154,7 +174,17 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         return view;
     }
 
-
+    @Override
+    public void onResume() {
+        LOG.info("onResume()");
+        super.onResume();
+        ECAnimationUtils.animateShowView(getContext(), toolbar,
+                R.anim.translate_slide_in_top_fragment);
+        ECAnimationUtils.animateShowView(getContext(), toolbarExp,
+                R.anim.translate_slide_in_top_fragment);
+        ECAnimationUtils.animateShowView(getContext(), contentView,
+                R.anim.translate_slide_in_bottom_fragment);
+    }
 
     @Override
     public void onDestroy() {
@@ -303,11 +333,16 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 .observeOn(Schedulers.io())
                 .subscribe(new Subscriber<List<Car>>() {
                     @Override
-                    public void onCompleted() {
-                        mainThreadWorker.schedule(() -> {
-                            Toast.makeText(getActivity(), "Received2! " +
-                                    mCars.size(), Toast.LENGTH_SHORT).show();
+                    public void onStart() {
+                        LOG.info("onStart() download sensors");
+                        downloadView.setVisibility(View.VISIBLE);
+                    }
 
+                    @Override
+                    public void onCompleted() {
+                        LOG.info("onCompleted(): cars successfully downloaded.");
+
+                        mainThreadWorker.schedule(() -> {
                             // Update the manufactuerers in
                             updateSpinner(mManufacturerNames, manufacturerSpinner);
 
@@ -317,15 +352,17 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                             // Initialize the spinner.
                             initSpinner();
                             unsubscribe();
+
+                            downloadView.setVisibility(View.INVISIBLE);
                         });
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         LOG.error(e.getMessage(), e);
-                        mainThreadWorker.schedule(() ->
-                                Toast.makeText(getActivity(), "ERROR2!", Toast
-                                        .LENGTH_SHORT).show());
+                        mainThreadWorker.schedule(() -> {
+                            downloadView.setVisibility(View.INVISIBLE);
+                        });
                     }
 
                     @Override

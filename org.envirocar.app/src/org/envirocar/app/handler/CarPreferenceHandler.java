@@ -53,6 +53,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
+import rx.Subscriber;
 
 /**
  * The manager for cars.
@@ -60,12 +61,14 @@ import rx.Observable;
 @Singleton
 public class CarPreferenceHandler {
     private static final Logger LOG = Logger.getLogger(CarPreferenceHandler.class);
+    private static final String PREFERENCE_TAG_DOWNLOADED = "cars_downloaded";
 
     private final Context mContext;
     private final Bus mBus;
     private final UserHandler mUserManager;
     private final DAOProvider mDAOProvider;
     private final EnviroCarDB mEnviroCarDB;
+    private final SharedPreferences mSharedPreferences;
 
     private Car mSelectedCar;
     private Set<Car> mDeserialzedCars;
@@ -79,22 +82,19 @@ public class CarPreferenceHandler {
      */
     @Inject
     public CarPreferenceHandler(@InjectApplicationScope Context context, Bus bus, UserHandler
-            userManager, DAOProvider daoProvider, EnviroCarDB enviroCarDB) {
+            userManager, DAOProvider daoProvider, EnviroCarDB enviroCarDB, SharedPreferences sharedPreferences) {
         this.mContext = context;
         this.mBus = bus;
         this.mUserManager = userManager;
         this.mDAOProvider = daoProvider;
         this.mEnviroCarDB = enviroCarDB;
+        this.mSharedPreferences = sharedPreferences;
 
-        // get the default PreferenceManager
-        final SharedPreferences preferences = PreferenceManager
-                .getDefaultSharedPreferences(context);
-
-        mSelectedCar = CarUtils.instantiateCar(preferences.getString(PreferenceConstants
+        mSelectedCar = CarUtils.instantiateCar(sharedPreferences.getString(PreferenceConstants
                 .PREFERENCE_TAG_CAR, null));
 
         // Get the serialized car strings of all added cars.
-        mSerializedCarStrings = preferences
+        mSerializedCarStrings = sharedPreferences
                 .getStringSet(PreferenceConstants.PREFERENCE_TAG_CARS, new HashSet<>());
 
         // Instantiate the cars from the set of serialized strings.
@@ -108,6 +108,34 @@ public class CarPreferenceHandler {
                 mDeserialzedCars.add(CarUtils.instantiateCar(serializedCar));
             }
         }
+    }
+
+    public boolean isDownloaded(){
+        return false;//mSharedPreferences.getBoolean(PREFERENCE_TAG_DOWNLOADED, true);
+    }
+
+    public Observable<List<Car>> getAllDeserializedCars(){
+        return Observable.create(new Observable.OnSubscribe<List<Car>>() {
+            @Override
+            public void call(Subscriber<? super List<Car>> subscriber) {
+                subscriber.onStart();
+                subscriber.onNext(getDeserialzedCars());
+            }
+        });
+    }
+
+    public Observable<List<Car>> fetchRemoteCarsOfUser(){
+        return Observable.just(mUserManager.getUser())
+                .flatMap(user -> mDAOProvider.getSensorDAO().getCarsByUserObservable(user))
+                .map(cars -> {
+                    for(Car car : cars){
+                        addCar(car);
+                    }
+                    //TODO mark as downloaded;
+                    mSharedPreferences.edit().remove(PREFERENCE_TAG_DOWNLOADED).commit();
+                    mSharedPreferences.edit().putBoolean(PREFERENCE_TAG_DOWNLOADED, true);
+                    return cars;
+                });
     }
 
     public Observable<Car> assertTemporaryCar(Car car) {

@@ -27,10 +27,12 @@
     </android.support.v7.widget.Toolbar>
 
     <LinearLayout
+        android:id="@+id/activity_car_selection_newcar_toolbar_exp"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
         android:background="@color/blue_dark_cario"
-        android:elevation="@dimen/spacing_medium">
+        android:elevation="@dimen/spacing_medium"
+        android:visibility="gone">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -51,6 +53,7 @@
     </LinearLayout>
 
     <android.support.v4.widget.NestedScrollView
+        android:id="@+id/activity_car_selection_newcar_content_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -63,7 +66,6 @@
             android:orientation="vertical">
 
             <LinearLayout
-                android:id="@+id/activity_logbook_add_fueling_card_content"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginBottom="@dimen/spacing_large"
@@ -71,12 +73,35 @@
                 android:layout_marginTop="@dimen/spacing_large"
                 android:orientation="vertical">
 
+                <LinearLayout
+                    android:id="@+id/activity_car_selection_newcar_download_layout"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center">
+
+                    <ProgressBar
+                        android:id="@+id/activity_car_selection_newcar_progress"
+                        style="?android:attr/progressBarStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="@dimen/spacing_large"
+                        android:text="Loading data..."/>
+
+                </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/activity_car_selection_newcar_manufacturer_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="@dimen/spacing_medium"
+                    android:layout_marginRight="@dimen/spacing_large"
                     android:layout_marginTop="@dimen/spacing_medium"
                     android:orientation="horizontal">
 
@@ -106,7 +131,8 @@
                             android:hint="@string/car_selection_manufacturer"
                             android:inputType="text"
                             android:maxLines="1"
-                            android:singleLine="true"/>
+                            android:singleLine="true"
+                            android:textSize="@dimen/text_medium"/>
 
                     </android.support.design.widget.TextInputLayout>
 
@@ -123,7 +149,7 @@
                     android:id="@+id/activity_car_selection_newcar_model_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="@dimen/spacing_medium"
+                    android:layout_marginRight="@dimen/spacing_large"
                     android:layout_marginTop="@dimen/spacing_medium"
                     android:orientation="horizontal">
 
@@ -152,7 +178,8 @@
                             android:hint="@string/car_selection_model"
                             android:inputType="text"
                             android:maxLines="1"
-                            android:singleLine="true"/>
+                            android:singleLine="true"
+                            android:textSize="@dimen/text_medium"/>
 
                     </android.support.design.widget.TextInputLayout>
 
@@ -167,7 +194,7 @@
                     android:id="@+id/activity_car_selection_newcar_year_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="@dimen/spacing_medium"
+                    android:layout_marginRight="@dimen/spacing_large"
                     android:layout_marginTop="@dimen/spacing_medium"
                     android:orientation="horizontal">
 
@@ -196,7 +223,8 @@
                             android:hint="@string/car_selection_construction_year"
                             android:inputType="number"
                             android:maxLines="1"
-                            android:singleLine="true"/>
+                            android:singleLine="true"
+                            android:textSize="@dimen/text_medium"/>
 
                     </android.support.design.widget.TextInputLayout>
 
@@ -213,7 +241,7 @@
                     android:id="@+id/activity_car_selection_newcar_engine_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginRight="@dimen/spacing_medium"
+                    android:layout_marginRight="@dimen/spacing_large"
                     android:layout_marginTop="@dimen/spacing_medium"
                     android:orientation="horizontal">
 
@@ -242,7 +270,8 @@
                             android:hint="@string/car_selection_engine_displacement"
                             android:inputType="number"
                             android:maxLines="1"
-                            android:singleLine="true"/>
+                            android:singleLine="true"
+                            android:textSize="@dimen/text_medium"/>
 
                     </android.support.design.widget.TextInputLayout>
 
@@ -257,9 +286,9 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
+                    android:layout_marginBottom="@dimen/spacing_large"
                     android:layout_marginLeft="52dp"
                     android:layout_marginTop="@dimen/spacing_large"
-                    android:layout_marginBottom="@dimen/spacing_large"
                     android:background="#8e8e8e8e"/>
 
                 <LinearLayout
@@ -279,8 +308,8 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_marginLeft="@dimen/spacing_medium">
+                        android:layout_marginLeft="@dimen/spacing_medium"
+                        android:orientation="vertical">
 
                         <TextView
                             android:layout_width="match_parent"
@@ -318,6 +347,7 @@
                     </LinearLayout>
                 </LinearLayout>
             </LinearLayout>
+
         </RelativeLayout>
     </android.support.v4.widget.NestedScrollView>
 
