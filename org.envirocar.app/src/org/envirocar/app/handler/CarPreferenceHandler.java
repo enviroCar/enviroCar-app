@@ -25,11 +25,13 @@ import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
+import org.envirocar.core.events.NewUserSettingsEvent;
 import org.envirocar.core.exception.DataCreationFailureException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
@@ -82,13 +84,17 @@ public class CarPreferenceHandler {
      */
     @Inject
     public CarPreferenceHandler(@InjectApplicationScope Context context, Bus bus, UserHandler
-            userManager, DAOProvider daoProvider, EnviroCarDB enviroCarDB, SharedPreferences sharedPreferences) {
+            userManager, DAOProvider daoProvider, EnviroCarDB enviroCarDB,
+                                SharedPreferences sharedPreferences) {
         this.mContext = context;
         this.mBus = bus;
         this.mUserManager = userManager;
         this.mDAOProvider = daoProvider;
         this.mEnviroCarDB = enviroCarDB;
         this.mSharedPreferences = sharedPreferences;
+
+        // no unregister required because it is applications scoped.
+        this.mBus.register(this);
 
         mSelectedCar = CarUtils.instantiateCar(sharedPreferences.getString(PreferenceConstants
                 .PREFERENCE_TAG_CAR, null));
@@ -110,30 +116,25 @@ public class CarPreferenceHandler {
         }
     }
 
-    public boolean isDownloaded(){
-        return false;//mSharedPreferences.getBoolean(PREFERENCE_TAG_DOWNLOADED, true);
-    }
-
-    public Observable<List<Car>> getAllDeserializedCars(){
+    public Observable<List<Car>> getAllDeserializedCars() {
         return Observable.create(new Observable.OnSubscribe<List<Car>>() {
             @Override
             public void call(Subscriber<? super List<Car>> subscriber) {
                 subscriber.onStart();
                 subscriber.onNext(getDeserialzedCars());
+                subscriber.onCompleted();
             }
         });
     }
 
-    public Observable<List<Car>> fetchRemoteCarsOfUser(){
+    public Observable<List<Car>> downloadRemoteCarsOfUser() {
         return Observable.just(mUserManager.getUser())
                 .flatMap(user -> mDAOProvider.getSensorDAO().getCarsByUserObservable(user))
                 .map(cars -> {
-                    for(Car car : cars){
+                    for (Car car : cars) {
                         addCar(car);
                     }
-                    //TODO mark as downloaded;
-                    mSharedPreferences.edit().remove(PREFERENCE_TAG_DOWNLOADED).commit();
-                    mSharedPreferences.edit().putBoolean(PREFERENCE_TAG_DOWNLOADED, true);
+                    setIsDownloaded(true);
                     return cars;
                 });
     }
@@ -349,6 +350,13 @@ public class CarPreferenceHandler {
         }
     }
 
+    @Subscribe
+    public void onReceiveNewUserSettingsEvent(NewUserSettingsEvent event) {
+        LOG.info("Received NewUserSettingsEvent: " + event.toString());
+        if (!event.mIsLoggedIn) {
+            setIsDownloaded(false);
+        }
+    }
 
     /**
      * Getter method for the serialized car strings.
@@ -419,6 +427,15 @@ public class CarPreferenceHandler {
             else
                 LOG.severe("flushSelectedCarState(): Error on insert.");
         }
+    }
+
+    public void setIsDownloaded(boolean isDownloaded) {
+        mSharedPreferences.edit().remove(PREFERENCE_TAG_DOWNLOADED).commit();
+        mSharedPreferences.edit().putBoolean(PREFERENCE_TAG_DOWNLOADED, isDownloaded).commit();
+    }
+
+    public boolean isDownloaded() {
+        return mSharedPreferences.getBoolean(PREFERENCE_TAG_DOWNLOADED, true);
     }
 
     private boolean removeSelectedCarState() {

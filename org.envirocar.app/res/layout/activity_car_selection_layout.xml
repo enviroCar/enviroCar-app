@@ -71,10 +71,34 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"/>
 
-                    <TextView
-                        style="@style/enviroCar.title"
-                        android:text="2 Cars"
-                        android:visibility="invisible"/>
+                    <LinearLayout
+                        android:id="@+id/actvity_car_selection_layout_loading"
+                        android:layout_margin="@dimen/spacing_large"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center">
+
+                        <ProgressBar
+                            style="?android:attr/progressBarStyleSmall"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentLeft="true"
+                            android:layout_alignParentStart="true"
+                            android:layout_alignParentTop="true"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginLeft="@dimen/spacing_large"
+                            android:text="Loading data..."/>
+
+                    </LinearLayout>
+
+                    <!--<TextView-->
+                        <!--style="@style/enviroCar.title"-->
+                        <!--android:text="2 Cars"-->
+                        <!--android:visibility="invisible"/>-->
                 </LinearLayout>
 
                 <ListView

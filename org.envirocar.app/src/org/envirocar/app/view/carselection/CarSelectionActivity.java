@@ -65,6 +65,8 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     protected Toolbar mToolbar;
     @InjectView(R.id.activity_car_selection_layout_exptoolbar)
     protected Toolbar mExpToolbar;
+    @InjectView(R.id.actvity_car_selection_layout_loading)
+    protected View loadingView;
 
     @InjectView(R.id.overlay)
     protected View mOverlay;
@@ -224,23 +226,26 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
         loadingCarsSubscription = mCarManager.getAllDeserializedCars()
                 .flatMap(cars -> mCarManager.isDownloaded() ? Observable.just(cars) :
-                        Observable.just(cars).concatWith(mCarManager.fetchRemoteCarsOfUser()))
+                        Observable.just(cars).concatWith(mCarManager.downloadRemoteCarsOfUser()))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<List<Car>>() {
                     @Override
                     public void onStart() {
                         LOG.info("onStart()");
+                        loadingView.setVisibility(View.VISIBLE);
                     }
 
                     @Override
                     public void onCompleted() {
                         LOG.info("onCompleted() loading of all tracks");
+                        loadingView.setVisibility(View.INVISIBLE);
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         LOG.error(e.getMessage(), e);
+                        loadingView.setVisibility(View.INVISIBLE);
                     }
 
                     @Override

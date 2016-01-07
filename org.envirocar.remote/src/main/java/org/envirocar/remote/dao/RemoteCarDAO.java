@@ -41,7 +41,6 @@ import retrofit.Call;
 import retrofit.Response;
 import rx.Observable;
 import rx.Subscriber;
-import rx.exceptions.OnErrorThrowable;
 import rx.functions.Func1;
 
 /**
@@ -118,12 +117,14 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements C
             @Override
             public void call(Subscriber<? super List<Car>> subscriber) {
                 try {
+                    subscriber.onStart();
                     subscriber.onNext(getCarsByUser(user));
                 } catch (UnauthorizedException |
                         NotConnectedException |
                         DataRetrievalFailureException e){
-                    throw OnErrorThrowable.from(e);
+                    subscriber.onError(e);
                 }
+                subscriber.onCompleted();
             }
         });
     }
