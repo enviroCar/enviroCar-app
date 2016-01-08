@@ -91,6 +91,14 @@ public class CarTrendAdapter extends SyncAdapter {
                     new String(sentCommand.getOutputBytes()), new String(response)));
         }
 
+        if (sentCommand instanceof ProtocolCommand && asString.contains("error") && asString.contains("unable")) {
+            /**
+             * the adapter understood the command but could not connect --> it is still a certified
+             * connection as no '?' was returned
+             */
+            identifySuccess = true;
+        }
+
         if (++this.metadataResponseCount > MAX_METADATA_COUNT && !this.connectionEstablished) {
             throw new AdapterFailedException("Too many tries. Could not establish data link");
         }
