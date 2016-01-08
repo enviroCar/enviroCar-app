@@ -46,6 +46,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     private static final Logger logger = Logger.getLogger(DriveDeckSportAdapter.class);
     private int pidSupportedResponsesParsed;
     private int connectingMessageCount;
+    private int totalResponseCount;
 
     private static enum Protocol {
         CAN11500, CAN11250, CAN29500, CAN29250, KWP_SLOW, KWP_FAST, ISO9141
@@ -146,13 +147,9 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
         }
 
         this.supportedPIDs.addAll(pidCmd.parsePIDs(rawBytes));
+        pidSupportedResponsesParsed++;
 
         logger.info("Supported PIDs: "+ this.supportedPIDs);
-
-        if (++pidSupportedResponsesParsed == 2) {
-            logger.info("Received two PID supported responses. Creating cycle command");
-            createAndSendCycleCommand();
-        }
     }
 
     private String oneByteToHex(byte b) {
@@ -351,9 +348,6 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
             } else if (pid.equals("15")) {
                 processVIN(new String(bytes, 3, bytes.length - 3));
             } else if (pid.equals("70")) {
-                /*
-                 * short term fix for #192: disable
-                 */
                 processSupportedPID(bytes);
             } else if (pid.equals("71")) {
                 processDiscoveredControlUnits(new String(bytes, 3, bytes.length - 3));
@@ -399,11 +393,25 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
                 return result;
             }
 
+            this.totalResponseCount++;
+            checkForCycleCommandCreation();
+
         } else if (type == 'C') {
             determineProtocol(new String(bytes,  1, bytes.length - 1));
         }
 
         return null;
+    }
+
+    private void checkForCycleCommandCreation() {
+        /**
+         * it might be the case that PID supported responses do not come in order (eg group 40
+         * before 20). So we wait for a few idle responses before going to real-time mode
+         */
+        if (pidSupportedResponsesParsed > 0 && totalResponseCount > 7 && this.cycleCommand == null) {
+            logger.info("Received PID supported responses and enough responses to start pulling data. Creating cycle command");
+            createAndSendCycleCommand();
+        }
     }
 
 }
