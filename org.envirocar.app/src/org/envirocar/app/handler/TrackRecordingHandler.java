@@ -47,6 +47,7 @@ import javax.inject.Inject;
 import rx.Observable;
 import rx.Subscriber;
 import rx.Subscription;
+import rx.functions.Action0;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
@@ -97,49 +98,69 @@ public class TrackRecordingHandler {
 
     public Subscription startNewTrack(PublishSubject<Measurement> publishSubject) {
         return getActiveTrackReference(true)
-                .subscribeOn(Schedulers.immediate())
+                .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
-                .subscribe(track -> {
-                    publishSubject.subscribe(new Subscriber<Measurement>() {
-                        @Override
-                        public void onStart() {
-                            super.onStart();
-                            LOGGER.info("Subscribed on Measurement publisher");
-                        }
+                .subscribe(new Subscriber<Track>() {
+                    @Override
+                    public void onCompleted() {
+                        LOGGER.info("onCompleted()");
+                    }
 
-                        @Override
-                        public void onCompleted() {
-                            LOGGER.info("NewMeasurementSubject onCompleted()");
-                            currentTrack = track;
-                            finishCurrentTrack();
-                        }
+                    @Override
+                    public void onError(Throwable e) {
+                        LOGGER.error(e.getMessage(), e);
+                    }
 
-                        @Override
-                        public void onError(Throwable e) {
-                            LOGGER.error(e.getMessage(), e);
-                            currentTrack = track;
-                            finishCurrentTrack();
-                        }
+                    @Override
+                    public void onNext(Track track) {
+                        add(publishSubject.doOnUnsubscribe(new Action0() {
+                            @Override
+                            public void call() {
+                                LOGGER.info("doOnUnsubscribe(): finish current track.");
+                                finishCurrentTrack();
+                            }
+                        }).subscribe(new Subscriber
+                                <Measurement>() {
+                            @Override
+                            public void onStart() {
+                                super.onStart();
+                                LOGGER.info("Subscribed on Measurement publisher");
+                            }
 
-                        @Override
-                        public void onNext(Measurement measurement) {
-                            LOGGER.info("onNextMeasurement()");
-                            if (isUnsubscribed())
-                                return;
-                            LOGGER.info("Insert new measurement ");
+                            @Override
+                            public void onCompleted() {
+                                LOGGER.info("NewMeasurementSubject onCompleted()");
+                                currentTrack = track;
+                                finishCurrentTrack();
+                            }
 
-                            // set the track database ID of the current active track
-                            measurement.setTrackId(track.getTrackID());
-                            track.getMeasurements().add(measurement);
-                            try {
-                                mEnvirocarDB.insertMeasurement(measurement);
-                            } catch (MeasurementSerializationException e) {
+                            @Override
+                            public void onError(Throwable e) {
                                 LOGGER.error(e.getMessage(), e);
                                 currentTrack = track;
                                 finishCurrentTrack();
                             }
-                        }
-                    });
+
+                            @Override
+                            public void onNext(Measurement measurement) {
+                                LOGGER.info("onNextMeasurement()");
+                                if (isUnsubscribed())
+                                    return;
+                                LOGGER.info("Insert new measurement ");
+
+                                // set the track database ID of the current active track
+                                measurement.setTrackId(track.getTrackID());
+                                track.getMeasurements().add(measurement);
+                                try {
+                                    mEnvirocarDB.insertMeasurement(measurement);
+                                } catch (MeasurementSerializationException e) {
+                                    LOGGER.error(e.getMessage(), e);
+                                    currentTrack = track;
+                                    finishCurrentTrack();
+                                }
+                            }
+                        }));
+                    }
                 });
     }
 
@@ -193,6 +214,7 @@ public class TrackRecordingHandler {
                         // trackreference is too old. Set it to finished.
                         track.setTrackStatus(Track.TrackStatus.FINISHED);
                         mEnvirocarDB.updateTrack(track);
+                        track = null;
                     } catch (NoMeasurementsException e) {
                         LOGGER.info("Last unfinished track ref does not contain any measurements." +
                                 " Delete the track");
