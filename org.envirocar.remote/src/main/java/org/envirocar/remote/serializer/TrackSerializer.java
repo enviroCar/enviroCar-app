@@ -243,6 +243,7 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
 
         // Create the track
         Track track = new TrackImpl(Track.DownloadState.DOWNLOADED);
+        track.setTrackStatus(Track.TrackStatus.FINISHED);
         track.setRemoteID(id);
         track.setName(name);
         track.setDescription(description);

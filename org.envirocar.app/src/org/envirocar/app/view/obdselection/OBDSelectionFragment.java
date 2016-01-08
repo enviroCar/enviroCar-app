@@ -51,6 +51,7 @@ import butterknife.InjectView;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 /**
@@ -172,6 +173,13 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
         mBTDiscoverySubscription = mBluetoothHandler.startBluetoothDiscoveryOnlyUnpaired()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnUnsubscribe(new Action0() {
+                    @Override
+                    public void call() {
+                        LOGGER.info("Canceling bluetooth device discovery");
+                        mBluetoothHandler.stopBluetoothDeviceDiscovery();
+                    }
+                })
                 .subscribe(
                         new Subscriber<BluetoothDevice>() {
                             @Override
