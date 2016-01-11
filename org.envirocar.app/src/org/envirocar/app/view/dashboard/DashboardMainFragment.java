@@ -141,10 +141,14 @@ public class DashboardMainFragment extends BaseInjectorFragment {
     @Override
     public void onDestroyView() {
         if (!getActivity().isFinishing() && mDashboardSettingsFragment != null) {
-            getFragmentManager().beginTransaction()
-                    .remove(mDashboardSettingsFragment)
-                    .remove(mDashboardHeaderFragment)
-                    .commitAllowingStateLoss();
+            try {
+                getFragmentManager().beginTransaction()
+                        .remove(mDashboardSettingsFragment)
+                        .remove(mDashboardHeaderFragment)
+                        .commitAllowingStateLoss();
+            } catch (IllegalStateException e){
+                LOG.warn(e.getMessage(), e);
+            }
         }
         super.onDestroyView();
     }
