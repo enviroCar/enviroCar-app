@@ -34,4 +34,5 @@
     <string name="car_selection_construction_year">Construction Year</string>
     <string name="car_selection_engine_displacement">Engine Displacement (cc)</string>
 
+    <string name="car_selection_sub_headline">Geben Sie die Details ihres Fahrzeug ein...</string>
 </resources>
