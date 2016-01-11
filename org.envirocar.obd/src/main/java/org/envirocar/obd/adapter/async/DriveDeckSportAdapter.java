@@ -420,8 +420,15 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
                 return result;
             }
 
-            this.totalResponseCount++;
-            checkForCycleCommandCreation();
+            /**
+             * if the protocol has been determined, wait a fair amount of responses
+             * to ensure that all PIDSupported were reported
+             */
+            if (this.protocol != null) {
+                this.totalResponseCount++;
+                checkForCycleCommandCreation();
+            }
+
 
         } else if (type == 'C') {
             determineProtocol(new String(bytes,  1, bytes.length - 1));
