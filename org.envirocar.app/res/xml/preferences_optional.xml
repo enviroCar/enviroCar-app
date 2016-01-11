@@ -33,10 +33,6 @@
             enviroCar:max="15"
             enviroCar:min="0" />
         <CheckBoxPreference
-            android:key="pref_pid_supported"
-            android:summary="@string/use_pid_supported_summary"
-            android:title="@string/use_pid_supported"/>
-        <CheckBoxPreference
             android:key="pref_enable_debug_logging"
             android:summary="@string/enable_debug_logging_summary"
             android:title="@string/enable_debug_logging"/>

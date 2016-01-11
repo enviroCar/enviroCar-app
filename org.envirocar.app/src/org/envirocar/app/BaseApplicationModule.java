@@ -49,7 +49,6 @@ import org.envirocar.app.view.trackdetails.TrackStatisticsActivity;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.obd.FeatureFlags;
 import org.envirocar.remote.CacheModule;
 import org.envirocar.remote.DAOProvider;
 import org.envirocar.remote.RemoteModule;
@@ -167,17 +166,6 @@ public class BaseApplicationModule {
     @Singleton
     DAOProvider provideDAOProvider() {
         return new DAOProvider(mAppContext);
-    }
-
-    /**
-     * Provides the FeatureFlags of the application
-     *
-     * @return the FeatureFlags of the application
-     */
-    @Provides
-    @Singleton
-    FeatureFlags provideFeatureFlagsManager() {
-        return new FeatureFlags(mAppContext);
     }
 
     /**
