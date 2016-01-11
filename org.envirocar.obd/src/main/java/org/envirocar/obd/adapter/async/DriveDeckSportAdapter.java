@@ -47,6 +47,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     private int pidSupportedResponsesParsed;
     private int connectingMessageCount;
     private int totalResponseCount;
+    private boolean supportForLambdaVoltage = true;
 
     private static enum Protocol {
         CAN11500, CAN11250, CAN29500, CAN29250, KWP_SLOW, KWP_FAST, ISO9141
@@ -91,6 +92,20 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
         this.cycleCommand = new CycleCommand(pidList);
         logger.info("Static Cycle Command: " + Base64.encodeToString(this.cycleCommand.getOutputBytes(), Base64.DEFAULT));
         this.pendingCommands.offer(this.cycleCommand);
+
+        /**
+         * as the default we will parse ASCII-PID Response '4D' to Lambda Voltage.
+         * If Lambda Current was found, use that instead
+         */
+        if (supportedPIDs == null || supportedPIDs.isEmpty()) {
+            supportForLambdaVoltage = true;
+        }
+        else if (supportedPIDs.contains(PID.O2_LAMBDA_PROBE_1_VOLTAGE)) {
+            supportForLambdaVoltage = false;
+        }
+        else {
+            supportForLambdaVoltage = true;
+        }
     }
 
 
@@ -120,7 +135,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     protected void processSupportedPID(byte[] bytes) throws InvalidCommandResponseException, NoDataReceivedException,
             UnmatchedResponseException, AdapterSearchingException {
 
-        logger.info("PID Supported response: "+Base64.encodeToString(bytes, Base64.DEFAULT));
+        logger.info("PID Supported response: " + Base64.encodeToString(bytes, Base64.DEFAULT));
 
         if (bytes.length < 14) {
             logger.info("PID Supported response to small: "+bytes.length);
@@ -249,18 +264,31 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
             result = PID.MAF;
         } else if (pid.equals("52")) {
             //IAP
-            result = PID.INTAKE_AIR_TEMP;
+            result = PID.INTAKE_MAP;
         } else if (pid.equals("49")) {
             //IAT
-            result = PID.INTAKE_MAP;
+            result = PID.INTAKE_AIR_TEMP;
         } else if (pid.equals("40") || pid.equals("51")) {
             //RPM
             result = PID.RPM;
+        } else if (pid.equals("44")) {
+            result = PID.TPS;
+        } else if (pid.equals("45")) {
+            result = PID.CALCULATED_ENGINE_LOAD;
         } else if (pid.equals("4D")) {
-            //TODO the current manual does not provide info on how to
-            //determine which probe value is returned.
-//            result = O2LambdaProbe.fromPIDEnum(org.envirocar.obd.commands.PIDUtil.PID
-//                    .O2_LAMBDA_PROBE_1_VOLTAGE);
+            //lambda probe
+            if (supportForLambdaVoltage) {
+                result = PID.O2_LAMBDA_PROBE_1_VOLTAGE;
+            }
+            else {
+                result = PID.O2_LAMBDA_PROBE_1_CURRENT;
+            }
+
+            /**
+             * DriveDeck stores voltage bytes (C, D) in bytes 4, 5 (TODO: Check!)
+             */
+            rawBytes[2] = rawBytes[4];
+            rawBytes[3] = rawBytes[5];
         } else if (pid.equals("DUMMY")) {
             //TODO: implement Engine Load, TPS, others
         }
@@ -373,19 +401,18 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
                 logger.verbose("Processing PID Response:" + pid);
                 super.disableQuirk();
 
-                byte[] pidResponseValue = new byte[2];
-                int target;
-                for (int i = 4; i <= bytes.length; i++) {
-                    target = i - 4;
+                byte[] pidResponseValue = new byte[6];
+                int target = 0;
+                for (int i = 4; i < bytes.length; i++) {
                     if (target >= pidResponseValue.length) {
                         break;
                     }
 
                     if ((char) bytes[i] == CYCLIC_TOKEN_SEPARATOR_CHAR) {
-                        break;
+                        continue;
                     }
 
-                    pidResponseValue[target] = bytes[i];
+                    pidResponseValue[target++] = bytes[i];
                 }
 
                 DataResponse result = parsePIDResponse(pid, pidResponseValue);
@@ -393,8 +420,15 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
                 return result;
             }
 
-            this.totalResponseCount++;
-            checkForCycleCommandCreation();
+            /**
+             * if the protocol has been determined, wait a fair amount of responses
+             * to ensure that all PIDSupported were reported
+             */
+            if (this.protocol != null) {
+                this.totalResponseCount++;
+                checkForCycleCommandCreation();
+            }
+
 
         } else if (type == 'C') {
             determineProtocol(new String(bytes,  1, bytes.length - 1));

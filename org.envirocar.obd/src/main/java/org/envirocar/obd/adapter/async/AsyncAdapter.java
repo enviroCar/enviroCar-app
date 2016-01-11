@@ -47,7 +47,7 @@ public abstract class AsyncAdapter implements OBDAdapter {
      * @see {@link #getQuirk()}
      */
     public void disableQuirk() {
-        if (!quirkDisabled.getAndSet(true)) {
+        if (!quirkDisabled.getAndSet(true) && commandExecutor != null) {
             commandExecutor.setQuirk(null);
         }
     }
