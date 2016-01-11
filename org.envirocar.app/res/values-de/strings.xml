@@ -148,7 +148,7 @@
     <string name="menu_register">Registrieren</string>
     
     <string name="dashboard">Dashboard</string>
-	<string name="my_tracks">Meine Fahrten</string>
+
 	
 	<string name="welcome_message">Willkommen, %s</string>
     <string name="goodbye_message">Auf Wiederstehen, %s</string>

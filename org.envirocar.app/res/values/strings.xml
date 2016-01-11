@@ -26,10 +26,10 @@
 
     <string name="app_name">enviroCar</string>
 
-    <string name="menu_settings">Settings</string>
-    <string name="menu_help">Help</string>
+
+
     <string name="menu_about">About</string>
-    <string name="menu_send_log">Report Issue</string>
+
     <string name="menu_garage">My Garage</string>
 
     <string name="activity_checklist_title">Checklist</string>
@@ -97,7 +97,7 @@
     <string name="menu_stop">Stop</string>
     <string name="menu_upload">Upload</string>
     <string name="menu_delete">Delete</string>
-    <string name="menu_login">Sign in/Register</string>
+
     <string name="track_mode_single">Single Track</string>
     <string name="track_mode_auto">Automatic Track Creation (experimental)</string>
     <string name="question_track_mode">Do you want to record a single track or start automatic creation?</string>
@@ -156,8 +156,8 @@
     <string name="menu_logout">Sign out</string>
     <string name="menu_register">Register</string>
 
-    <string name="dashboard">Dashboard</string>
-    <string name="my_tracks">My Tracks</string>
+
+
     <string name="select_car">Car</string>
     <string name="welcome_message">Welcome, %s</string>
     <string name="goodbye_message">Goodbye, %s</string>
@@ -222,7 +222,7 @@
     <string name="do_not_show_again" translatable="false">Do not show this message again?</string>
 
     <string name="ok" translatable="false">Ok</string>
-    <string name="menu_logbook">Logbook</string>
+
 
 
 

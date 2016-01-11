@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="menu_nav_drawer_dashboard">Dashboard</string>
+    <string name="menu_nav_drawer_my_tracks">Meine Fahrten</string>
+    <string name="menu_nav_drawer_login">Einloggen/Registrieren</string>
+    <string name="menu_nav_drawer_logbook">Logbuch</string>
+
+    <string name="menu_nav_drawer_close_ec">enviroCar Schließen</string>
+
+    <string name="menu_nav_drawer_settings">Eigenschaften</string>
+    <string name="menu_nav_drawer_help">Hilfe</string>
+    <string name="menu_nav_drawer_send_log">Problem Melden</string>
+
+</resources>
