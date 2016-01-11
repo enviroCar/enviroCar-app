@@ -164,6 +164,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                     public void onNext(Car car) {
                         LOG.info("car added");
                         ((CarSelectionUiListener) getActivity()).onCarAdded(car);
+                        closeThisFragment();
                     }
                 });
 
