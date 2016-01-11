@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="property_key_speed">Speed</string>
+    <string name="property_key_maf">MAF</string>
+    <string name="property_key_calc_maf">Calculated MAF</string>
+    <string name="property_key_rpm">RPM</string>
+    <string name="property_key_intake_temp">Intake Temperature</string>
+    <string name="property_key_intake_pressure">Intake Pressure</string>
+    <string name="property_key_co2">CO2</string>
+    <string name="property_key_consumption">Consumption</string>
+    <string name="property_key_throttle_position">Throttle Position</string>
+    <string name="property_key_engine_load">Engine Load</string>
+    <string name="property_key_gps_accuracy">GPS Accuracy</string>
+    <string name="property_key_gps_speed">GPS Speed</string>
+    <string name="property_key_gps_bearing">GPS Bearing</string>
+    <string name="property_key_gps_altitude">GPS Altitude</string>
+    <string name="property_key_gps_pdop">GPS PDOP</string>
+    <string name="property_key_gps_hdop">GPS HDOP</string>
+    <string name="property_key_gps_vdop">GPS VDOP</string>
+    <string name="property_key_lambda_voltage">O2 Lambda Voltage</string>
+    <string name="property_key_lambda_voltage_er">O2 Lambda Voltage ER</string>
+    <string name="property_key_lambda_current">O2 Lambda Current</string>
+    <string name="property_key_lambda_current_er">O2 Lambda Current ER</string>
+    <string name="property_key_fuel_system_loop">Fuel System Loop</string>
+    <string name="property_key_fuel_system_status_code">Fuel System Status Code</string>
+    <string name="property_key_long_term_trim_1">Long-Term Fuel Trim 1</string>
+    <string name="property_key_short_term_trim_1">Short-Term Fuel Trim 1</string>
+
+</resources>

@@ -24,6 +24,9 @@
     <string name="car_selection_no_car_selected">No car type selected.</string>
     <string name="car_selection_add_car">Create Car</string>
     <string name="car_selection_enter_info">Enter the details of your car...</string>
+
+    <string name="car_selection_car_selected" formatted="false">%s %s has been selected as my car.</string>
+    <string name="car_selection_car_deleted_tmp" formatted="false">%s %s has been deleted.</string>
     <string name="car_selection_successfully_added_tmp" formatted="false">%s %s has been added to the list.</string>
     <string name="car_selection_already_in_list_tmp" formatted="false">%s %s is already in the list.</string>
 
@@ -34,5 +37,4 @@
     <string name="car_selection_construction_year">Construction Year</string>
     <string name="car_selection_engine_displacement">Engine Displacement (cc)</string>
 
-    <string name="car_selection_sub_headline">Geben Sie die Details ihres Fahrzeug ein...</string>
 </resources>

@@ -110,7 +110,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
 
         // Initializes the Toolbar.
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle("Track Statistics");
+        getSupportActionBar().setTitle(R.string.track_statistics);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
@@ -251,7 +251,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
 
         private void setDistanceAxis(LineChartData data) {
             Axis distAxis = new Axis();
-            distAxis.setName("Distance");
+            distAxis.setName(getString(R.string.track_statistics_distance));
             distAxis.setTextColor(getResources().getColor(R.color.blue_dark_cario));
             distAxis.setMaxLabelChars(5);
             distAxis.setFormatter(new SimpleAxisValueFormatter()

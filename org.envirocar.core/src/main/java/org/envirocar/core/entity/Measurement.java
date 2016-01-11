@@ -28,6 +28,10 @@ import java.util.Map;
  */
 public interface Measurement extends BaseEntity<Measurement> {
 
+    interface PropertyKeyExtension{
+        int getStringResource();
+    }
+
     // All measurement values
     enum PropertyKey {
         SPEED {

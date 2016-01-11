@@ -127,7 +127,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     @Override
     public void onBackPressed() {
         // if the add car fragment is visible.
-        if(addCarFragment != null && addCarFragment.isVisible()){
+        if (addCarFragment != null && addCarFragment.isVisible()) {
             addCarFragment.closeThisFragment();
         } else {
             // call the super method.
@@ -146,7 +146,8 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     protected void onDestroy() {
         LOG.info("onDestroy()");
 
-        if (this.loadingCarsSubscription != null && !this.loadingCarsSubscription.isUnsubscribed()) {
+        if (this.loadingCarsSubscription != null && !this.loadingCarsSubscription.isUnsubscribed
+                ()) {
             this.loadingCarsSubscription.unsubscribe();
         }
 
@@ -200,23 +201,23 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                     @Override
                     public void onSelectCar(Car car) {
                         mCarManager.setCar(car);
-                        showSnackbar(String.format("%s %s selected as my car",
+                        showSnackbar(String.format(getString(R.string.car_selection_car_selected),
                                 car.getManufacturer(), car.getModel()));
                     }
 
                     @Override
                     public void onDeleteCar(Car car) {
                         LOG.info(String.format("onDeleteCar(%s %s %s %s)", car.getManufacturer
-                                (), car
-                                .getModel(), "" + car.getConstructionYear(), "" + car
+                                (), car.getModel(), "" + car.getConstructionYear(), "" + car
                                 .getEngineDisplacement()));
 
                         // If the car has been removed successfully...
                         if (mCarManager.removeCar(car)) {
                             // then remove it from the list and show a snackbar.
                             mCarListAdapter.removeCarItem(car);
-                            showSnackbar(String.format("%s %s has been deleted!", car
-                                    .getManufacturer(), car.getModel()));
+                            showSnackbar(String.format(
+                                    getString(R.string.car_selection_car_deleted_tmp),
+                                    car.getManufacturer(), car.getModel()));
                         }
                     }
                 });
@@ -249,8 +250,8 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
                     @Override
                     public void onNext(List<Car> cars) {
                         LOG.info("onNext() " + cars.size());
-                        for(Car car : cars){
-                            if(!usedCars.contains(car))
+                        for (Car car : cars) {
+                            if (!usedCars.contains(car))
                                 usedCars.add(car);
                         }
                         mCarListAdapter.notifyDataSetInvalidated();
