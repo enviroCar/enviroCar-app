@@ -198,8 +198,8 @@ public class EnvirocarServiceUtils {
             }
         }
 
-        // If the body is null, then return 0. Otherwise, return 1.
-        return response.body() != null ? 1 : 0;
+        // If the body is null, then return 0. Otherwise, return 1. // TODO
+        return response.body() != null ? 0 : 0;
     }
 
     /**

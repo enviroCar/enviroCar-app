@@ -615,6 +615,13 @@ public class LoginActivity extends BaseInjectorActivity {
                             mAccountImage.setImageBitmap(bitmap);
                     });
 
+            mTrackDAOHandler.getLocalTrackCount()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(integer -> {
+                        mLocalTrackNumber.setText("" + integer);
+                    });
+
             // Update the new values of the exp toolbar content.
             mBackgroundWorker.schedule(() -> {
                 try {

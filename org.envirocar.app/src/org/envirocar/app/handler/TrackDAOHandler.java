@@ -130,6 +130,10 @@ public class TrackDAOHandler {
         return true;
     }
 
+    public Observable<Integer> getLocalTrackCount(){
+        return enviroCarDB.getAllLocalTracks(true)
+                .map(tracks -> tracks.size());
+    }
 
     public Observable<TrackMetadata> updateTrackMetadataObservable(Track track) {
         return Observable.just(track)
