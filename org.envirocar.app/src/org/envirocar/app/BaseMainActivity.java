@@ -160,15 +160,14 @@ public class BaseMainActivity extends BaseInjectorActivity {
         /**
          * try-catch: very dirty hack for broken fragmentmanager impl on some (one?) device
          */
+        boolean noInstantiatedExceptionReceived = false;
         try {
             super.onCreate(savedInstanceState);
         }
         catch (IllegalStateException e) {
-            LOGGER.warn("Trying to reconstruct fragment state. Got Exception,e");
+            LOGGER.warn("Trying to reconstruct fragment state. Got Exception", e);
             if (e.getMessage().contains("No instantiated fragment for index #")) {
-                TrackListPagerFragment pagerFragment = new TrackListPagerFragment();
-                MenuItem menuItem = mNavigationView.getMenu().findItem(R.id.menu_nav_drawer_tracklist_new);
-                transitToFragment(menuItem, pagerFragment);
+                noInstantiatedExceptionReceived = true;
             }
         }
 
@@ -178,6 +177,17 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         // Initializes the Toolbar.
         setSupportActionBar(mToolbar);
+
+        if (noInstantiatedExceptionReceived) {
+            TrackListPagerFragment pagerFragment = new TrackListPagerFragment();
+            if (mNavigationView != null && mNavigationView.getMenu() != null) {
+                MenuItem menuItem = mNavigationView.getMenu().findItem(R.id.menu_nav_drawer_tracklist_new);
+                transitToFragment(menuItem, pagerFragment);
+            }
+            else {
+                LOGGER.warn("Could not re-create TrackListPagerFragment: mNavigationView="+ mNavigationView);
+            }
+        }
 
         // Register a listener for a menu item that gets selected.
         mNavigationView.setNavigationItemSelectedListener(menuItem -> {
