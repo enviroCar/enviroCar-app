@@ -247,9 +247,14 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
         return 30000;
     }
 
+    protected Set<PID> getSupportedPIDs() {
+        return supportedPIDs;
+    }
 
     private DataResponse parsePIDResponse(String pid, byte[] rawBytes) throws InvalidCommandResponseException, NoDataReceivedException,
             UnmatchedResponseException, AdapterSearchingException {
+
+        logger.verbose(String.format("Processing PID Response: %s; %s", pid, Base64.encodeToString(rawBytes, Base64.DEFAULT)).trim());
 
 		/*
          * resulting HEX values are 0x0d additive to the
@@ -268,9 +273,14 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
         } else if (pid.equals("49")) {
             //IAT
             result = PID.INTAKE_AIR_TEMP;
-        } else if (pid.equals("40") || pid.equals("51")) {
+        } else if (pid.equals("40")) {
             //RPM
             result = PID.RPM;
+        } else if (pid.equals("51")) {
+            //RPM special case: data is stored in bytes 2, 3
+            result = PID.RPM;
+            rawBytes[0] = rawBytes[2];
+            rawBytes[1] = rawBytes[3];
         } else if (pid.equals("44")) {
             result = PID.TPS;
         } else if (pid.equals("45")) {
@@ -398,7 +408,6 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
                 /*
                  * A PID response
                  */
-                logger.verbose("Processing PID Response:" + pid);
                 super.disableQuirk();
 
                 byte[] pidResponseValue = new byte[6];

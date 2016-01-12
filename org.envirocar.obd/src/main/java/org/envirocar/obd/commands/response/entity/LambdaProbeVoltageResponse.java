@@ -1,5 +1,7 @@
 package org.envirocar.obd.commands.response.entity;
 
+import com.google.common.base.MoreObjects;
+
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.response.DataResponse;
 
@@ -41,5 +43,12 @@ public class LambdaProbeVoltageResponse extends DataResponse {
     @Override
     public Number[] getCompositeValues() {
         return new Number[] {equivalenceRatio, voltage};
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+                .add("equivalenceRatio", equivalenceRatio)
+                .add("voltage", voltage).toString();
     }
 }

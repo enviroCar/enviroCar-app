@@ -6,6 +6,7 @@ import org.envirocar.obd.adapter.OBDAdapter;
 import org.envirocar.obd.adapter.ResponseQuirkWorkaround;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.response.DataResponse;
+import org.envirocar.obd.commands.response.entity.LambdaProbeVoltageResponse;
 import org.envirocar.obd.exception.AdapterSearchingException;
 import org.envirocar.obd.exception.InvalidCommandResponseException;
 import org.envirocar.obd.exception.NoDataReceivedException;
@@ -153,6 +154,12 @@ public abstract class AsyncAdapter implements OBDAdapter {
                              */
                             if (result != null) {
                                 subscriber.onNext(result);
+
+                                if (LOGGER.isEnabled(Logger.DEBUG)) {
+                                    if (result instanceof LambdaProbeVoltageResponse) {
+                                        LOGGER.debug("Received lambda voltage: "+result);
+                                    }
+                                }
                             }
                         } catch (AdapterSearchingException e) {
                             LOGGER.warn("Adapter still searching: " + e.getMessage());

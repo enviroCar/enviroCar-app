@@ -5,6 +5,7 @@ import android.util.Base64;
 
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.response.DataResponse;
+import org.envirocar.obd.commands.response.entity.EngineRPMResponse;
 import org.envirocar.obd.commands.response.entity.LambdaProbeVoltageResponse;
 import org.envirocar.obd.exception.AdapterSearchingException;
 import org.envirocar.obd.exception.InvalidCommandResponseException;
@@ -29,14 +30,37 @@ public class DriveDeckParserTest extends InstrumentationTestCase {
     }
 
     @Test
-    public void testPIDSupportedParsing() throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
-        byte[] decode = Base64.decode("QjREPNNzPAAAPG2q", Base64.DEFAULT);
+    public void testLambdaParsing() throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
+        byte[] decode = Base64.decode("QjREPH+dPAAAPFzy", Base64.DEFAULT);
 
         DriveDeckSportAdapter dd = new DriveDeckSportAdapter();
 
         DataResponse resp = dd.processResponse(decode);
 
         Assert.assertThat(resp, CoreMatchers.instanceOf(LambdaProbeVoltageResponse.class));
+    }
+
+    @Test
+    public void testPIDSupportedParsing() throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
+        byte[] decode = Base64.decode("QjcwN0U4MDA8mDs8oBM=", Base64.DEFAULT);
+
+        DriveDeckSportAdapter driveDeckSportAdapter = new DriveDeckSportAdapter();
+
+        driveDeckSportAdapter.processResponse(decode);
+
+        Assert.assertThat(driveDeckSportAdapter.getSupportedPIDs().size(), CoreMatchers.not(0));
+    }
+
+    @Test
+    public void testRPMSpecialCaseParsing() throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
+        byte[] decode = Base64.decode("QjUxPAAQPAwYPAAAPF0u", Base64.DEFAULT);
+
+        DriveDeckSportAdapter dd = new DriveDeckSportAdapter();
+
+        DataResponse resp = dd.processResponse(decode);
+
+        Assert.assertThat(resp, CoreMatchers.instanceOf(EngineRPMResponse.class));
+        Assert.assertThat(resp.getValue(), CoreMatchers.is(774));
     }
 
 }

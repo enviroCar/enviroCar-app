@@ -208,8 +208,8 @@ public final class Tempomat extends FrameLayout {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        LOGGER.info(String.format("onMeasure(%s,%s)", "" + widthMeasureSpec, "" +
-                heightMeasureSpec));
+//        LOGGER.info(String.format("onMeasure(%s,%s)", "" + widthMeasureSpec, "" +
+//                heightMeasureSpec));
 
         // Get the size and mode of width and height.
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
@@ -616,8 +616,8 @@ public final class Tempomat extends FrameLayout {
 
         @Override
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            LOGGER.info(String.format("SpeedIndicator.onMeasure(%s,%s)", "" + widthMeasureSpec, "" +
-                    heightMeasureSpec));
+//            LOGGER.info(String.format("SpeedIndicator.onMeasure(%s,%s)", "" + widthMeasureSpec, "" +
+//                    heightMeasureSpec));
 
             int widthMode = MeasureSpec.getMode(widthMeasureSpec);
             int widthSize = MeasureSpec.getSize(widthMeasureSpec);

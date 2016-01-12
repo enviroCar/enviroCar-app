@@ -97,7 +97,7 @@ public class DashboardTempomatFragment extends BaseInjectorFragment {
      */
     @Subscribe
     public void onReceiveSpeedUpdateEvent(SpeedUpdateEvent event) {
-        LOG.debug(String.format("Received event: %s", event.toString()));
+        //LOG.debug(String.format("Received event: %s", event.toString()));
         if(mTempomatView != null){
             mTempomatView.setSpeed(event.mSpeed);
         }
