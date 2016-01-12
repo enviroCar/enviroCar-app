@@ -247,6 +247,9 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
         return 30000;
     }
 
+    protected Set<PID> getSupportedPIDs() {
+        return supportedPIDs;
+    }
 
     private DataResponse parsePIDResponse(String pid, byte[] rawBytes) throws InvalidCommandResponseException, NoDataReceivedException,
             UnmatchedResponseException, AdapterSearchingException {

@@ -41,6 +41,17 @@ public class DriveDeckParserTest extends InstrumentationTestCase {
     }
 
     @Test
+    public void testPIDSupportedParsing() throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
+        byte[] decode = Base64.decode("QjcwN0U4MDA8mDs8oBM=", Base64.DEFAULT);
+
+        DriveDeckSportAdapter driveDeckSportAdapter = new DriveDeckSportAdapter();
+
+        driveDeckSportAdapter.processResponse(decode);
+
+        Assert.assertThat(driveDeckSportAdapter.getSupportedPIDs().size(), CoreMatchers.not(0));
+    }
+
+    @Test
     public void testRPMSpecialCaseParsing() throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
         byte[] decode = Base64.decode("QjUxPAAQPAwYPAAAPF0u", Base64.DEFAULT);
 
