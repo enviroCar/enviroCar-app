@@ -1,9 +1,11 @@
 package org.envirocar.obd.adapter.async;
 
 import android.test.InstrumentationTestCase;
+import android.util.Base64;
 
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.response.DataResponse;
+import org.envirocar.obd.commands.response.entity.LambdaProbeVoltageResponse;
 import org.envirocar.obd.exception.AdapterSearchingException;
 import org.envirocar.obd.exception.InvalidCommandResponseException;
 import org.envirocar.obd.exception.NoDataReceivedException;
@@ -26,13 +28,15 @@ public class DriveDeckParserTest extends InstrumentationTestCase {
         Assert.assertThat(resp.getValue(), CoreMatchers.is(77));
     }
 
-//    @Test
-//    public void testPIDSupportedParsing() throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
-//        byte[] decode = Base64.decode("QjcwN0U4MDA8vg==", Base64.DEFAULT);
-//
-//        DriveDeckSportAdapter dd = new DriveDeckSportAdapter();
-//
-//        dd.processSupportedPID(decode);
-//    }
+    @Test
+    public void testPIDSupportedParsing() throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
+        byte[] decode = Base64.decode("QjREPNNzPAAAPG2q", Base64.DEFAULT);
+
+        DriveDeckSportAdapter dd = new DriveDeckSportAdapter();
+
+        DataResponse resp = dd.processResponse(decode);
+
+        Assert.assertThat(resp, CoreMatchers.instanceOf(LambdaProbeVoltageResponse.class));
+    }
 
 }
