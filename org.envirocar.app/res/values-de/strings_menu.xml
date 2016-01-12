@@ -5,7 +5,7 @@
     <string name="menu_nav_drawer_login">Einloggen/Registrieren</string>
     <string name="menu_nav_drawer_logbook">Logbuch</string>
 
-    <string name="menu_nav_drawer_close_ec">enviroCar Schließen</string>
+    <string name="menu_nav_drawer_close_ec">Beenden</string>
 
     <string name="menu_nav_drawer_settings">Eigenschaften</string>
     <string name="menu_nav_drawer_help">Hilfe</string>
