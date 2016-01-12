@@ -54,9 +54,9 @@
     <string name="track_list_communication_error">Keine Verbindung zum Server.</string>
 
     <string name="track_list_menu_details">Detailansicht</string>
-    <string name="track_list_menu_delete">Lösche Fahrt</string>
-    <string name="track_list_menu_upload">Fahrt als Open Data hochladen</string>
-    <string name="track_list_menu_export">Exportiere Track</string>
+    <string name="track_list_menu_delete">Löschen</string>
+    <string name="track_list_menu_upload">Als Open Data hochladen</string>
+    <string name="track_list_menu_export">Exportieren</string>
 
     <string name="track_list_details_duration">Dauer</string>
     <string name="track_list_details_distance">Distanz</string>
