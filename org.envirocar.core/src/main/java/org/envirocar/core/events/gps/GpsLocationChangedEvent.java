@@ -42,8 +42,6 @@ public class GpsLocationChangedEvent {
     public String toString() {
         return MoreObjects.toStringHelper(this)
                 .add("Latitude", mLocation.getLatitude())
-                .add("Longitude", mLocation.getLongitude())
-                .add("Altitude", mLocation.getAltitude())
-                .add("Accuracy", mLocation.getAccuracy()).toString();
+                .add("Longitude", mLocation.getLongitude()).toString();
     }
 }
