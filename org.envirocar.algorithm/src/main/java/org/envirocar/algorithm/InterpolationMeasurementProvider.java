@@ -265,8 +265,8 @@ public class InterpolationMeasurementProvider extends AbstractMeasurementProvide
         }
 
         if (location.hasSpeed()) {
-            consider(new PropertyKeyEvent(Measurement.PropertyKey.GPS_SPEED, location.getSpeed(),
-                    now));
+            consider(new PropertyKeyEvent(
+                    Measurement.PropertyKey.GPS_SPEED, location.getSpeed() * 3.6f, now));
         }
     }
 
