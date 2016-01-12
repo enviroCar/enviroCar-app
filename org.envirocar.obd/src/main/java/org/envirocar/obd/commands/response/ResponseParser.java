@@ -1,5 +1,6 @@
 package org.envirocar.obd.commands.response;
 
+import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.PIDUtil;
 import org.envirocar.obd.commands.response.entity.GenericDataResponse;
@@ -21,12 +22,19 @@ import org.envirocar.obd.commands.response.entity.SpeedResponse;
 import org.envirocar.obd.commands.response.entity.ThrottlePositionResponse;
 import org.envirocar.obd.exception.InvalidCommandResponseException;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public class ResponseParser {
+
+    private static final Logger LOGGER = Logger.getLogger(ResponseParser.class);
 
     private static final CharSequence SEARCHING = "SEARCHING";
     private static final CharSequence STOPPED = "STOPPED";
     private static final CharSequence NO_DATA = "NODATA";
     public static final String STATUS_OK = "41";
+    private AtomicBoolean lambdaVoltageSwitched;
+    private int lambdaSwitchCandidates;
+    private int totalLambdas;
 
     public ResponseParser() {
 
@@ -125,9 +133,10 @@ public class ResponseParser {
             case O2_LAMBDA_PROBE_6_VOLTAGE:
             case O2_LAMBDA_PROBE_7_VOLTAGE:
             case O2_LAMBDA_PROBE_8_VOLTAGE:
-                return new LambdaProbeVoltageResponse(
-                        ((processedData[4]*256d) + processedData[5] )/ 8192d,
-                        ((processedData[2]*256d) + processedData[3]) / 32768d);
+                LambdaProbeVoltageResponse lambda = new LambdaProbeVoltageResponse(
+                        ((processedData[4] * 256d) + processedData[5]) / 8192d,
+                        ((processedData[2] * 256d) + processedData[3]) / 32768d);
+                return checkForPossibleSwitchedValues(lambda, processedData);
             case O2_LAMBDA_PROBE_1_CURRENT:
             case O2_LAMBDA_PROBE_2_CURRENT:
             case O2_LAMBDA_PROBE_3_CURRENT:
@@ -142,6 +151,49 @@ public class ResponseParser {
         }
 
         return new GenericDataResponse(pid, processedData, rawData);
+    }
+
+    private LambdaProbeVoltageResponse checkForPossibleSwitchedValues(LambdaProbeVoltageResponse lambda, int[] processedData) {
+        if (lambdaVoltageSwitched != null) {
+            if (lambdaVoltageSwitched.get()) {
+                /**
+                 * there are two ways of switching lambda response values:
+                 *
+                 * 1. just switch the calculated results (this does not consider the different formulas for ER and V)
+                 * 2. switch the byte position 2,3 and 4,5 and recalculate with the formulas
+                 *
+                 * for the moment, we just switch
+                 */
+                return new LambdaProbeVoltageResponse(lambda.getEquivalenceRatio(), lambda.getVoltage());
+            }
+            else {
+                return lambda;
+            }
+        }
+        else {
+            totalLambdas++;
+            /**
+             * we are in determination mode
+             */
+            double ratio = lambda.getEquivalenceRatio() == 0.0d ? 1.0d : (lambda.getVoltage() / lambda.getEquivalenceRatio());
+
+            if (ratio >= 1.0d) {
+                lambdaSwitchCandidates++;
+            }
+
+            if (totalLambdas > 100) {
+                if (lambdaSwitchCandidates > 20) {
+                    lambdaVoltageSwitched = new AtomicBoolean(true);
+                }
+                else {
+                    lambdaVoltageSwitched = new AtomicBoolean(false);
+                }
+
+                LOGGER.info("Lambda Switch analysis completed: switching? "+lambdaVoltageSwitched.get());
+            }
+
+            return lambda;
+        }
     }
 
 
