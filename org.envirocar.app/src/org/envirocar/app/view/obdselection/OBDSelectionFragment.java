@@ -95,7 +95,6 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
             savedInstanceState) {
-
         // infalte the content view of this activity.
         View contentView = inflater.inflate(R.layout.activity_obd_selection_fragment,
                 container, false);

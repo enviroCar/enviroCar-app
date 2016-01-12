@@ -72,7 +72,6 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements C
      * @throws DataRetrievalFailureException
      */
     private List<Car> getAllCars(int page) throws DataRetrievalFailureException {
-        final CarService carService = EnviroCarService.getCarService();
         Call<List<Car>> carsCall = remoteService.getAllCars(page);
 
         try {
@@ -102,6 +101,7 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements C
     @Override
     public List<Car> getCarsByUser(User user) throws UnauthorizedException,
             NotConnectedException, DataRetrievalFailureException {
+        LOG.info(String.format("getCarsByUser(%s)", user.getUsername()));
         Call<List<Car>> carsCall = remoteService.getAllCars(user.getUsername());
         try{
             Response<List<Car>> carsResponse = executeCall(carsCall);
@@ -113,9 +113,11 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements C
 
     @Override
     public Observable<List<Car>> getCarsByUserObservable(User user) {
+        LOG.info(String.format("getCarsByUserObservable(%s)", user.getUsername()));
         return Observable.create(new Observable.OnSubscribe<List<Car>>() {
             @Override
             public void call(Subscriber<? super List<Car>> subscriber) {
+                LOG.info("call:");
                 try {
                     subscriber.onStart();
                     subscriber.onNext(getCarsByUser(user));
@@ -190,11 +192,9 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements C
                 .concatMap(new Func1<Call<List<Car>>, Observable<? extends List<Car>>>() {
                     @Override
                     public Observable<? extends List<Car>> call(Call<List<Car>> listCall) {
-                        boolean hasNextPage = false;
-                        Response<List<Car>> response = null;
                         try {
                             // Execute the call.
-                            response = listCall.execute();
+                            Response<List<Car>> response = listCall.execute();
 
                             Observable<List<Car>> res = Observable.just(response.body());
                             // Search for "rel=last". If this exists, then this was not the last

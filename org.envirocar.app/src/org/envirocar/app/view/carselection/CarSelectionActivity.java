@@ -30,6 +30,7 @@ import android.widget.ListView;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.injection.BaseInjectorActivity;
@@ -77,11 +78,12 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     @InjectView(R.id.activity_car_selection_layout_carlist)
     protected ListView mCarListView;
 
-
     @Inject
     protected DAOProvider mDAOProvider;
     @Inject
     protected CarPreferenceHandler mCarManager;
+    @Inject
+    protected UserHandler mUserHandler;
 
     private CarSelectionAddCarFragment addCarFragment;
 
@@ -146,8 +148,8 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     protected void onDestroy() {
         LOG.info("onDestroy()");
 
-        if (this.loadingCarsSubscription != null && !this.loadingCarsSubscription.isUnsubscribed
-                ()) {
+        if (this.loadingCarsSubscription != null &&
+                !this.loadingCarsSubscription.isUnsubscribed()) {
             this.loadingCarsSubscription.unsubscribe();
         }
 
@@ -207,9 +209,10 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
                     @Override
                     public void onDeleteCar(Car car) {
-                        LOG.info(String.format("onDeleteCar(%s %s %s %s)", car.getManufacturer
-                                (), car.getModel(), "" + car.getConstructionYear(), "" + car
-                                .getEngineDisplacement()));
+                        LOG.info(String.format("onDeleteCar(%s %s %s %s)",
+                                car.getManufacturer(), car.getModel(),
+                                "" + car.getConstructionYear(),
+                                "" + car.getEngineDisplacement()));
 
                         // If the car has been removed successfully...
                         if (mCarManager.removeCar(car)) {
@@ -224,8 +227,15 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         mCarListView.setAdapter(mCarListAdapter);
 
         loadingCarsSubscription = mCarManager.getAllDeserializedCars()
-                .flatMap(cars -> mCarManager.isDownloaded() ? Observable.just(cars) :
-                        Observable.just(cars).concatWith(mCarManager.downloadRemoteCarsOfUser()))
+                .flatMap(cars -> {
+                    Observable<List<Car>> carsObs = Observable.just(cars);
+                    if (mUserHandler.isLoggedIn() && !mCarManager.isDownloaded()) {
+                        LOG.info("Loading Cars: user has not downloaded its remote cars. " +
+                                "Trying to fetch these.");
+                        carsObs = carsObs.concatWith(mCarManager.downloadRemoteCarsOfUser());
+                    }
+                    return carsObs;
+                })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<List<Car>>() {
@@ -237,7 +247,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
                     @Override
                     public void onCompleted() {
-                        LOG.info("onCompleted() loading of all tracks");
+                        LOG.info("onCompleted() loading of all cars");
                         loadingView.setVisibility(View.INVISIBLE);
                     }
 

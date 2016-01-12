@@ -328,7 +328,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         };
     }
 
-
     private void dispatchRemoteSensors() {
         sensorsSubscription = daoProvider.getSensorDAO()
                 .getAllCarsObservable()
@@ -487,7 +486,11 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             }
         });
 
-        engineText.setOnFocusChangeListener((v, hasFocus) -> checkFuelingType());
+        engineText.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                checkFuelingType();
+            }
+        });
     }
 
     private void initSpinner() {
@@ -566,7 +569,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         });
     }
 
-    private void checkFuelingType(){
+    private void checkFuelingType() {
         String manufacturer = manufacturerText.getText().toString();
         String model = modelText.getText().toString();
         String yearString = yearText.getText().toString();
@@ -582,6 +585,13 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 && mModelToCCM.get(modelYear) != null
                 && mModelToCCM.get(modelYear).contains(engineString)) {
             for (Car other : mCars) {
+                if (other.getManufacturer() == null ||
+                        other.getModel() == null ||
+                        other.getConstructionYear() == 0 ||
+                        other.getEngineDisplacement() == 0 ||
+                        other.getFuelType() == null) {
+                    continue;
+                }
                 if (other.getManufacturer().equals(manufacturer)
                         && other.getModel().equals(model)
                         && other.getConstructionYear() == Integer.parseInt(yearString)
@@ -592,7 +602,9 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             }
         }
 
-        if(selectedCar.getFuelType() == Car.FuelType.DIESEL){
+        if (selectedCar != null &&
+                selectedCar.getFuelType() != null &&
+                selectedCar.getFuelType() == Car.FuelType.DIESEL) {
             dieselRadio.setChecked(true);
         } else {
             gasolineRadio.setChecked(true);

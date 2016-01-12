@@ -131,6 +131,9 @@ public class CarPreferenceHandler {
         return Observable.just(mUserManager.getUser())
                 .flatMap(user -> mDAOProvider.getSensorDAO().getCarsByUserObservable(user))
                 .map(cars -> {
+                    LOG.info(String.format(
+                            "Successfully downloaded %s remote cars. Add these to the preferences.",
+                            cars.size()));
                     for (Car car : cars) {
                         addCar(car);
                     }
@@ -305,8 +308,11 @@ public class CarPreferenceHandler {
      */
     public void registerCarAtServer(final Car car) {
         try {
-            if (car.getFuelType() == null || car.getManufacturer() == null || car.getModel() ==
-                    null || car.getConstructionYear() == 0 || car.getEngineDisplacement() == 0)
+            if (car.getFuelType() == null ||
+                    car.getManufacturer() == null ||
+                    car.getModel() == null ||
+                    car.getConstructionYear() == 0 ||
+                    car.getEngineDisplacement() == 0)
                 throw new Exception("Empty value!");
             if (car.getManufacturer().isEmpty() || car.getModel().isEmpty()) {
                 throw new Exception("Empty value!");
@@ -355,6 +361,7 @@ public class CarPreferenceHandler {
         LOG.info("Received NewUserSettingsEvent: " + event.toString());
         if (!event.mIsLoggedIn) {
             setIsDownloaded(false);
+            LOG.info("Downloaded setted to false");
         }
     }
 
@@ -422,16 +429,18 @@ public class CarPreferenceHandler {
                     .commit();
 
             if (insertSuccess)
-                LOG.info("flushSelectedCarState(): Successfully inserted into shared " +
-                        "preferences");
+                LOG.info("flushSelectedCarState(): Successfully inserted into shared preferences");
             else
                 LOG.severe("flushSelectedCarState(): Error on insert.");
         }
     }
 
     public void setIsDownloaded(boolean isDownloaded) {
+        LOG.info(String.format("setIsDownloaded() to [%s]", isDownloaded));
         mSharedPreferences.edit().remove(PREFERENCE_TAG_DOWNLOADED).commit();
-        mSharedPreferences.edit().putBoolean(PREFERENCE_TAG_DOWNLOADED, isDownloaded).commit();
+        if (isDownloaded) {
+            mSharedPreferences.edit().putBoolean(PREFERENCE_TAG_DOWNLOADED, isDownloaded).commit();
+        }
     }
 
     public boolean isDownloaded() {
@@ -440,7 +449,7 @@ public class CarPreferenceHandler {
 
     private boolean removeSelectedCarState() {
         // Delete the entry of the selected car and its hash code.
-        return PreferenceManager.getDefaultSharedPreferences(mContext).edit()
+        return mSharedPreferences.edit()
                 .remove(PreferenceConstants.PREFERENCE_TAG_CAR)
                 .remove(PreferenceConstants.CAR_HASH_CODE)
                 .commit();
