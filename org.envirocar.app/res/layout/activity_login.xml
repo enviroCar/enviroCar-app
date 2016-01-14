@@ -78,9 +78,9 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"
+                    android:layout_marginBottom="@dimen/spacing_medium"
                     android:layout_marginLeft="@dimen/spacing_small"
                     android:layout_marginRight="@dimen/spacing_small"
-                    android:layout_marginBottom="@dimen/spacing_medium"
                     android:orientation="horizontal">
 
                     <LinearLayout
@@ -207,8 +207,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@id/activity_login_exp_toolbar"
-            android:visibility="gone"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
             <TextView
                 android:layout_width="match_parent"
@@ -217,6 +217,27 @@
                 android:text="No Remote Statistics found..."/>
 
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/activity_login_logo_dump"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="@dimen/spacing_large"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"></View>
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:src="@drawable/img_envirocar_logo"/>
+        </LinearLayout>
+
 
         <include
             layout="@layout/activity_account_login_card"

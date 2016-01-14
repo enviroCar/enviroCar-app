@@ -58,7 +58,7 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
 
         ButterKnife.inject(this, content);
 
-        trackListPageAdapter = new TrackListPagerAdapter(getFragmentManager());
+        trackListPageAdapter = new TrackListPagerAdapter(getChildFragmentManager());
         mViewPager.setAdapter(trackListPageAdapter);
         mTabLayout.setupWithViewPager(mViewPager);
 
