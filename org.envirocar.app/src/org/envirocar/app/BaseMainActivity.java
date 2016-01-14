@@ -100,7 +100,7 @@ import rx.subscriptions.CompositeSubscription;
  * @author dewall
  */
 public class BaseMainActivity extends BaseInjectorActivity {
-    private static final Logger LOGGER = Logger.getLogger(BaseApplication.class);
+    private static final Logger LOGGER = Logger.getLogger(BaseMainActivity.class);
 
     public static final int TRACK_MODE_SINGLE = 0;
     public static final int TRACK_MODE_AUTO = 1;
