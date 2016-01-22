@@ -151,7 +151,7 @@ public class TrackUploadHandler {
     }
 
     public Observable<Track> uploadMultipleTracks(List<Track> tracks) {
-        Preconditions.checkState(tracks == null || tracks.isEmpty(),
+        Preconditions.checkState(tracks != null && !tracks.isEmpty(),
                 "Input tracks cannot be null or empty.");
         return Observable.create(new Observable.OnSubscribe<Track>() {
             @Override

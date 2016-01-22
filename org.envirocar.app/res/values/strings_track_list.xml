@@ -66,5 +66,9 @@
     <string name="track_list_details_consumption">Consumption:</string>
     <string name="track_list_details_emission">CO\u2082 Emission:</string>
 
+    <string name="track_list_upload_all_tracks_title">Upload All Local Tracks?</string>
+    <string name="track_list_upload_all_tracks_content">You are about to upload all tracks. This means that all tracks will be uploaded and assigned to your account.\n\nDo you want to continue?</string>
+    <string name="track_list_uploading_all_tracks_title">Uploading Tracks...</string>
+    <string name="track_list_uploading_all_tracks_content_tmp">Uploading Track %s of %s</string>
 
 </resources>

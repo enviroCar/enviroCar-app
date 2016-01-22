@@ -22,8 +22,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -37,7 +37,6 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
-import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
@@ -62,6 +61,7 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -107,6 +107,8 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected ProgressBar mProgressBar;
     @InjectView(R.id.fragment_tracklist_recycler_view)
     protected RecyclerView mRecyclerView;
+    @InjectView(R.id.fragment_tracklist_fab)
+    protected FloatingActionButton mFAB;
 
     protected E mRecyclerViewAdapter;
     protected RecyclerView.LayoutManager mRecylcerViewLayoutManager;
@@ -267,7 +269,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
      */
     protected void deleteLocalTrack(final Track track) {
         // Get the up to date reference of the current track and delete it
-        mEnvirocarDB.getTrack(track.getTrackID())
+        Observable.defer(() -> mEnvirocarDB.getTrack(track.getTrackID()))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(upToDateRef -> {

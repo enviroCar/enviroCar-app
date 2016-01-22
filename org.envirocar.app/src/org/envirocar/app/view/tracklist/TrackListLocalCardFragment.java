@@ -26,6 +26,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
+import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
@@ -40,6 +41,8 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
+ * TODO JavaDoc
+ *
  * @author dewall
  */
 public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
@@ -57,6 +60,118 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
     private Subscription loadTracksSubscription;
     private Subscription uploadTrackSubscription;
+
+    private int localTrackSize = 0;
+
+
+    @Override
+    public void onResume() {
+        LOG.info("onResume()");
+        super.onResume();
+
+        mFAB.setOnClickListener(v -> new MaterialDialog.Builder(getContext())
+                .title(R.string.track_list_upload_all_tracks_title)
+                .content(R.string.track_list_upload_all_tracks_content)
+                .positiveText(R.string.ok)
+                .negativeText(R.string.cancel)
+                .onPositive((materialDialog, dialogAction) -> uploadAllLocalTracks())
+                .show());
+    }
+
+    private void uploadAllLocalTracks() {
+        uploadTrackSubscription = mEnvirocarDB.getAllLocalTracks()
+                .first()
+                .map(tracks -> {
+                    LOG.info("Tracks : " + tracks.size());
+                    localTrackSize = tracks.size();
+                    return tracks;
+                })
+                .flatMap(tracks -> mTrackUploadHandler.uploadMultipleTracks(tracks)
+//                .lift(new Observable.Operator<R, R>() {
+//                    @Override
+//                    public Subscriber<? super R> call(Subscriber<? super R> subscriber) {
+//                        return new Subscriber<R>() {
+//                            @Override
+//                            public void onCompleted() {
+//                                subscriber.onCompleted();
+//                            }
+//
+//                            @Override
+//                            public void onError(Throwable e) {
+//                                if(e instanceof NoMeasurementsException){
+//
+//                                } else{
+//                                    subscriber.onError(e);
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onNext(R track) {
+//                                subscriber.onNext(track);
+//                            }
+//                        };
+//                    }
+//                })
+                )
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnUnsubscribe(() -> LOG.info("Upload has been canceled"))
+                .subscribe(new Subscriber<Track>() {
+                    private MaterialDialog materialDialog;
+                    private int tracksToUpload = localTrackSize;
+                    private int currentTrack = 1;
+
+                    @Override
+                    public void onStart() {
+                        LOG.info("onStart(): Upload of all local tracks started.");
+                        materialDialog = new MaterialDialog.Builder(getContext())
+                                .title(R.string.track_list_upload_all_tracks_title)
+                                .cancelable(false)
+                                .negativeText(R.string.cancel)
+                                .progress(true, tracksToUpload)
+                                .onNegative((materialDialog1, dialogAction) -> unsubscribe())
+                                .show();
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        LOG.info("onCompleted(): Upload of all local tracks finished.");
+                        materialDialog.dismiss();
+
+                        showSnackbar(String.format("%s tracks have been uploaded.",
+                                localTrackSize));
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.error(e.getMessage(), e);
+                        materialDialog.dismiss();
+
+                        showSnackbar(String.format(""));
+                    }
+
+                    @Override
+                    public void onNext(Track uploaded) {
+                        LOG.info("onNext(): Track [%s] has been uploaded -> [%s]",
+                                uploaded.getName(), uploaded.getRemoteID());
+
+                        // Update the lists.
+                        mRecyclerViewAdapter.removeItem(uploaded);
+                        mRecyclerViewAdapter.notifyDataSetChanged();
+                        onTrackUploadedListener.onTrackUploaded(uploaded);
+
+                        updateDialogContent();
+                    }
+
+                    private void updateDialogContent() {
+                        currentTrack++;
+                        materialDialog.setContent(String.format(getString(R.string
+                                        .track_list_upload_all_tracks_content),
+                                currentTrack, tracksToUpload));
+                        materialDialog.incrementProgress(1);
+                    }
+                });
+    }
 
     private void uploadTrack(Track track) {
         uploadTrackSubscription = mTrackUploadHandler
@@ -169,7 +284,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
             loadTracksSubscription.unsubscribe();
         }
 
-        if (uploadTrackSubscription != null && !uploadTrackSubscription.isUnsubscribed()){
+        if (uploadTrackSubscription != null && !uploadTrackSubscription.isUnsubscribed()) {
             uploadTrackSubscription.unsubscribe();
         }
     }
@@ -242,6 +357,9 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                                 mRecyclerView.setVisibility(View.VISIBLE);
                                 infoView.setVisibility(View.GONE);
                                 mRecyclerViewAdapter.notifyDataSetChanged();
+
+                                ECAnimationUtils.animateShowView(getContext(), mFAB,
+                                        R.anim.translate_slide_in_bottom_fragment);
                             } else if (mTrackList.isEmpty()) {
                                 showText(R.drawable.img_tracks,
                                         R.string.track_list_bg_no_local_tracks,
