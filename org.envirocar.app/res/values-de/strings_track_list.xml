@@ -65,5 +65,6 @@
     <string name="track_list_details_end">Ende:</string>
     <string name="track_list_details_consumption">Verbrauch*:</string>
     <string name="track_list_details_emission">CO\u2082 Ausstoß*:</string>
+    <string name="track_list_details_diesel_not_supported">DIESEL NICHT\nUNTERSTÜTZT</string>
 
 </resources>

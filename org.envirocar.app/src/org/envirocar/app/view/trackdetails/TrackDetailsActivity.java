@@ -283,8 +283,8 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                                 DECIMAL_FORMATTER_TWO_DIGITS.format(
                                         ((TrackStatisticsProvider) track).getLiterPerHundredKm())));
             } else {
-                mEmissionText.setText("DIESEL NOT SUPPORTED");
-                mConsumptionText.setText("DIESEL NOT SUPPORTED");
+                mEmissionText.setText(R.string.track_list_details_diesel_not_supported);
+                mConsumptionText.setText(R.string.track_list_details_diesel_not_supported);
                 mEmissionText.setTextColor(Color.RED);
                 mConsumptionText.setTextColor(Color.RED);
             }

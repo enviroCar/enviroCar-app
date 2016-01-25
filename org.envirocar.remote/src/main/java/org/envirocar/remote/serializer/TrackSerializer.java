@@ -262,7 +262,11 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         Map<Measurement.PropertyKey, Double> props = measurement.getAllProperties();
         for (Measurement.PropertyKey key : props.keySet()) {
             if (supportedPhenomenons.contains(key)) {
-                result.add(key.toString(), createValue(props.get(key)));
+                if (isDiesel && (key == Measurement.PropertyKey.CO2 || key == Measurement.PropertyKey.CONSUMPTION) ){
+                    // DO NOTHING TODO delete when necessary
+                } else {
+                    result.add(key.toString(), createValue(props.get(key)));
+                }
             }
         }
         return result;

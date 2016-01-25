@@ -207,6 +207,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:gravity="right"
             android:text="emission"
             android:textColor="#939393"/>
     </RelativeLayout>
@@ -217,6 +218,6 @@
         android:paddingLeft="64dp"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:textSize="10sp"
-        android:text="* = Bei diesen Werten handelt es sich um geschätzte Werte die sich deutlich von den realen Werten unterscheiden können. Wir können daher keine Gewährleistung für diese Angaben geben."/>
+        android:text="* = Bei diesen Werten handelt es sich um geschätzte Werte, die sich deutlich von den realen Werten unterscheiden können. Wir können daher keine Gewährleistung für diese Angaben geben."/>
 
 </LinearLayout>
