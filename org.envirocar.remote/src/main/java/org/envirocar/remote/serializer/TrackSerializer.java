@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -134,8 +134,7 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
                     trackProperties.addProperty(names.get(i).toString(),
                             json.getString(names.get(i).toString()));
                 }
-            }
-            else {
+            } else {
                 LOG.warn("The track does not provide metadata!");
             }
         } catch (JSONException e) {
@@ -153,7 +152,7 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         try {
             for (Measurement measurement : measurements) {
                 JsonElement measurementJson = createMeasurementProperties(
-                        measurement, src.getCar().getId());
+                        measurement, src.getCar());
                 trackFeatures.add(measurementJson);
             }
         } catch (JSONException e) {
@@ -169,7 +168,7 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         return result;
     }
 
-    private JsonElement createMeasurementProperties(Measurement src, String sensorId) throws
+    private JsonElement createMeasurementProperties(Measurement src, Car car) throws
             JSONException {
         // Create the Geometry json object
         JsonObject geometryJsonObject = new JsonObject();
@@ -186,10 +185,10 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         JsonObject propertiesJson = new JsonObject();
         propertiesJson.addProperty(Track.KEY_TRACK_FEATURES_PROPERTIES_TIME,
                 Util.longToIsoDate(src.getTime()));
-        propertiesJson.addProperty("sensor", sensorId);
+        propertiesJson.addProperty("sensor", car.getId());
 
         // Add all measured phenomenons to this measurement.
-        JsonObject phenomenons = createPhenomenons(src);
+        JsonObject phenomenons = createPhenomenons(src, car.getFuelType() == Car.FuelType.DIESEL);
         if (phenomenons != null) {
             propertiesJson.add(Track.KEY_TRACK_FEATURES_PROPERTIES_PHENOMENONS, phenomenons);
         }
@@ -253,7 +252,8 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         return track;
     }
 
-    private JsonObject createPhenomenons(Measurement measurement) throws JSONException {
+    private JsonObject createPhenomenons(Measurement measurement, boolean isDiesel) throws
+            JSONException {
         if (measurement.getAllProperties().isEmpty()) {
             return null;
         }
@@ -262,7 +262,11 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         Map<Measurement.PropertyKey, Double> props = measurement.getAllProperties();
         for (Measurement.PropertyKey key : props.keySet()) {
             if (supportedPhenomenons.contains(key)) {
-                result.add(key.toString(), createValue(props.get(key)));
+                if (isDiesel && (key == Measurement.PropertyKey.CO2 || key == Measurement.PropertyKey.CONSUMPTION) ){
+                    // DO NOTHING TODO delete when necessary
+                } else {
+                    result.add(key.toString(), createValue(props.get(key)));
+                }
             }
         }
         return result;

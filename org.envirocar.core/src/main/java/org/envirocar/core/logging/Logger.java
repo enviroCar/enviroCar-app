@@ -142,6 +142,10 @@ public class Logger {
 		log(INFO, message, null);
 	}
 
+	public void info(String messageTmp, String... args){
+		info(String.format(messageTmp, args));
+	}
+
 	public void warn(String message) {
 		log(WARNING, message, null);
 	}

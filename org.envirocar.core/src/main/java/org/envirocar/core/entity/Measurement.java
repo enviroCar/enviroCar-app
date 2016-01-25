@@ -18,6 +18,8 @@
  */
 package org.envirocar.core.entity;
 
+import org.envirocar.core.R;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,51 +32,97 @@ public interface Measurement extends BaseEntity<Measurement> {
 
     interface PropertyKeyExtension{
         int getStringResource();
+        int getUnitResource();
     }
 
     // All measurement values
-    enum PropertyKey {
+    enum PropertyKey implements PropertyKeyExtension{
         SPEED {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_speed;
+            }
+
             public String toString() {
                 return "Speed";
             }
         },
         MAF {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_maf;
+            }
+
             public String toString() {
                 return "MAF";
             }
         },
         CALCULATED_MAF {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_calc_maf;
+            }
+
             public String toString() {
                 return "Calculated MAF";
             }
         },
         RPM {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_rpm;
+            }
+
             public String toString() {
                 return "Rpm";
             }
         },
         INTAKE_TEMPERATURE {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_intake_temp;
+            }
+
             public String toString() {
                 return "Intake Temperature";
             }
         },
         INTAKE_PRESSURE {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_intake_pressure;
+            }
+
             public String toString() {
                 return "Intake Pressure";
             }
         },
         CO2 {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_co2;
+            }
+
             public String toString() {
                 return "CO2";
             }
         },
         CONSUMPTION {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_consumption;
+            }
+
             public String toString() {
                 return "Consumption";
             }
         },
         THROTTLE_POSITON {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_throttle_position;
+            }
+
             @Override
             public String toString() {
                 return "Throttle Position";
@@ -82,11 +130,21 @@ public interface Measurement extends BaseEntity<Measurement> {
         },
         ENGINE_LOAD {
             @Override
+            public int getStringResource() {
+                return R.string.property_key_engine_load;
+            }
+
+            @Override
             public String toString() {
                 return "Engine Load";
             }
         },
         GPS_ACCURACY {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_gps_accuracy;
+            }
+
             @Override
             public String toString() {
                 return "GPS Accuracy";
@@ -94,11 +152,21 @@ public interface Measurement extends BaseEntity<Measurement> {
         },
         GPS_SPEED {
             @Override
+            public int getStringResource() {
+                return R.string.property_key_gps_speed;
+            }
+
+            @Override
             public String toString() {
                 return "GPS Speed";
             }
         },
         GPS_BEARING {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_gps_bearing;
+            }
+
             @Override
             public String toString() {
                 return "GPS Bearing";
@@ -106,11 +174,21 @@ public interface Measurement extends BaseEntity<Measurement> {
         },
         GPS_ALTITUDE {
             @Override
+            public int getStringResource() {
+                return R.string.property_key_gps_altitude;
+            }
+
+            @Override
             public String toString() {
                 return "GPS Altitude";
             }
         },
         GPS_PDOP {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_gps_pdop;
+            }
+
             @Override
             public String toString() {
                 return "GPS PDOP";
@@ -118,11 +196,21 @@ public interface Measurement extends BaseEntity<Measurement> {
         },
         GPS_HDOP {
             @Override
+            public int getStringResource() {
+                return R.string.property_key_gps_hdop;
+            }
+
+            @Override
             public String toString() {
                 return "GPS HDOP";
             }
         },
         GPS_VDOP {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_gps_vdop;
+            }
+
             @Override
             public String toString() {
                 return "GPS VDOP";
@@ -130,11 +218,21 @@ public interface Measurement extends BaseEntity<Measurement> {
         },
         LAMBDA_VOLTAGE {
             @Override
+            public int getStringResource() {
+                return R.string.property_key_lambda_voltage;
+            }
+
+            @Override
             public String toString() {
                 return "O2 Lambda Voltage";
             }
         },
         LAMBDA_VOLTAGE_ER {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_lambda_voltage_er;
+            }
+
             @Override
             public String toString() {
                 return LAMBDA_VOLTAGE.toString().concat(" ER");
@@ -142,11 +240,21 @@ public interface Measurement extends BaseEntity<Measurement> {
         },
         LAMBDA_CURRENT {
             @Override
+            public int getStringResource() {
+                return R.string.property_key_lambda_current;
+            }
+
+            @Override
             public String toString() {
                 return "O2 Lambda Current";
             }
         },
         LAMBDA_CURRENT_ER {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_lambda_current_er;
+            }
+
             @Override
             public String toString() {
                 return LAMBDA_CURRENT.toString().concat(" ER");
@@ -154,11 +262,21 @@ public interface Measurement extends BaseEntity<Measurement> {
         },
         FUEL_SYSTEM_LOOP {
             @Override
+            public int getStringResource() {
+                return R.string.property_key_fuel_system_loop;
+            }
+
+            @Override
             public String toString() {
                 return "Fuel System Loop";
             }
         },
         FUEL_SYSTEM_STATUS_CODE {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_fuel_system_status_code;
+            }
+
             @Override
             public String toString() {
                 return "Fuel System Status Code";
@@ -166,15 +284,29 @@ public interface Measurement extends BaseEntity<Measurement> {
         },
         LONG_TERM_TRIM_1 {
             @Override
+            public int getStringResource() {
+                return R.string.property_key_long_term_trim_1;
+            }
+
+            @Override
             public String toString() {
                 return "Long-Term Fuel Trim 1";
             }
         },
         SHORT_TERM_TRIM_1 {
             @Override
+            public int getStringResource() {
+                return R.string.property_key_short_term_trim_1;
+            }
+
+            @Override
             public String toString() {
                 return "Short-Term Fuel Trim 1";
             }
+        };
+        @Override
+        public int getUnitResource() {
+            return -1;
         }
     }
 

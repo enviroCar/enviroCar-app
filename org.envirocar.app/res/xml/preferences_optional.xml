@@ -38,4 +38,11 @@
             android:title="@string/enable_debug_logging"/>
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="Beta Features">
+        <CheckBoxPreference
+            android:key="pref_enable_diesel_consumption"
+            android:summary="Enables the estimation of consumption values for diesel. NOTE: This feature is just a beta feature."
+            android:title="Enable Diesel Consumption Estimate"/>
+    </PreferenceCategory>
+
 </PreferenceScreen>

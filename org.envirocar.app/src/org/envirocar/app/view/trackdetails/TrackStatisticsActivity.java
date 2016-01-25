@@ -123,7 +123,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
         }
 
         for (Measurement.PropertyKey key : Measurement.PropertyKey.values()) {
-            if (key.toString().equals(item.getTitle())) {
+            if (getString(key.getStringResource()).equals(item.getTitle())) {
                 mPlaceholderFragment.generateData(key);
                 break;
             }
@@ -135,7 +135,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
         Menu menu = mToolbar.getMenu();
         if (mTrack != null && !mTrack.getMeasurements().isEmpty()) {
             for (Measurement.PropertyKey key : mTrack.getSupportedProperties()) {
-                menu.add(key.toString());
+                menu.add(key.getStringResource());
             }
         }
 
@@ -265,7 +265,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
 
         private void setYAxis(Measurement.PropertyKey key, LineChartData data){
             Axis yAxis = new Axis();
-            yAxis.setName(key.toString());
+            yAxis.setName(getString(key.getStringResource()));
             yAxis.setTextColor(getResources().getColor(R.color.blue_dark_cario));
             yAxis.setMaxLabelChars(3);
             yAxis.setHasLines(true);

@@ -166,6 +166,7 @@ public class OBDConnectionService extends BaseInjectorService {
          */
         Car car = carHandler.getCar();
         this.consumptionAlgorithm = CarUtils.resolveConsumptionAlgorithm(car.getFuelType());
+
         this.mafAlgorithm = new CalculatedMAFWithStaticVolumetricEfficiency(car);
     }
 
@@ -422,10 +423,12 @@ public class OBDConnectionService extends BaseInjectorService {
                         }
                     }
 
-                    double consumption = consumptionAlgorithm.calculateConsumption(measurement);
-                    double co2 = consumptionAlgorithm.calculateCO2FromConsumption(consumption);
-                    measurement.setProperty(Measurement.PropertyKey.CONSUMPTION, consumption);
-                    measurement.setProperty(Measurement.PropertyKey.CO2, co2);
+                    if (consumptionAlgorithm != null) {
+                        double consumption = consumptionAlgorithm.calculateConsumption(measurement);
+                        double co2 = consumptionAlgorithm.calculateCO2FromConsumption(consumption);
+                        measurement.setProperty(Measurement.PropertyKey.CONSUMPTION, consumption);
+                        measurement.setProperty(Measurement.PropertyKey.CO2, co2);
+                    }
                 } catch (FuelConsumptionException e) {
                     LOG.warn(e.getMessage());
                 } catch (UnsupportedFuelTypeException e) {
