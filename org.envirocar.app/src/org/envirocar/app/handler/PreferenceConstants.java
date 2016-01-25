@@ -35,6 +35,8 @@ public interface PreferenceConstants {
     String PREF_BLUETOOTH_AUTOCONNECT = "pref_bluetooth_autoconnect";
     String PREF_BLUETOOTH_DISCOVERY_INTERVAL = "pref_bluetooth_discovery_interval";
 
+    String PREF_ENABLE_DIESE_CONSUMPTION = "pref_enable_diesel_consumption";
+
     String PREF_TEXT_TO_SPEECH = "pref_text_to_speech";
 
     int DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL = 60;

@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -40,7 +40,9 @@ import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 import com.mapbox.mapboxsdk.views.MapView;
 
 import org.envirocar.app.R;
+import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.view.utils.MapUtils;
+import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.NoMeasurementsException;
@@ -48,6 +50,7 @@ import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
+import org.envirocar.core.utils.CarUtils;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.text.DateFormat;
@@ -261,18 +264,30 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
             mDurationText.setText(text);
 
             mDescriptionText.setText(track.getDescription());
-            mCarText.setText(track.getCar().toString());
+            mCarText.setText(CarUtils.carToStringWithLinebreak(track.getCar()));
             mBeginText.setText(DATE_FORMAT.format(new Date(track.getStartTime())));
             mEndText.setText(DATE_FORMAT.format(new Date(track.getEndTime())));
 
-            mEmissionText.setText(DECIMAL_FORMATTER_TWO_DIGITS.format(
-                    ((TrackStatisticsProvider) track).getGramsPerKm()) + " g/km");
-            mConsumptionText.setText(
-                    String.format("%s l/h, %s l/100km",
-                            DECIMAL_FORMATTER_TWO_DIGITS.format(
-                                    ((TrackStatisticsProvider) track).getFuelConsumptionPerHour()),
-                            DECIMAL_FORMATTER_TWO_DIGITS.format(
-                                    ((TrackStatisticsProvider) track).getLiterPerHundredKm())));
+            // show consumption and emission either when the fuel type of the track's car is
+            // gasoline or the beta setting has been enabled.
+            if (track.getCar().getFuelType() == Car.FuelType.GASOLINE ||
+                    PreferencesHandler.isDieselConsumptionEnabled(this)) {
+                mEmissionText.setText(DECIMAL_FORMATTER_TWO_DIGITS.format(
+                        ((TrackStatisticsProvider) track).getGramsPerKm()) + " g/km");
+                mConsumptionText.setText(
+                        String.format("%s l/h\n%s l/100 km",
+                                DECIMAL_FORMATTER_TWO_DIGITS.format(
+                                        ((TrackStatisticsProvider) track)
+                                                .getFuelConsumptionPerHour()),
+
+                                DECIMAL_FORMATTER_TWO_DIGITS.format(
+                                        ((TrackStatisticsProvider) track).getLiterPerHundredKm())));
+            } else {
+                mEmissionText.setText("DIESEL NOT SUPPORTED");
+                mConsumptionText.setText("DIESEL NOT SUPPORTED");
+                mEmissionText.setTextColor(Color.RED);
+                mConsumptionText.setTextColor(Color.RED);
+            }
         } catch (FuelConsumptionException e) {
             e.printStackTrace();
         } catch (NoMeasurementsException e) {

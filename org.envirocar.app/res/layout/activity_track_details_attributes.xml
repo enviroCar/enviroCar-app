@@ -29,7 +29,8 @@
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/spacing_xxlarge"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/spacing_xxlarge"
                     android:paddingLeft="@dimen/activity_horizontal_margin"
                     android:paddingRight="@dimen/activity_horizontal_margin">
 
@@ -61,14 +62,15 @@
             android:layout_centerVertical="true"
             android:layout_toRightOf="@id/activity_track_details_attr_car_text"
             android:gravity="right|center_vertical"
-            android:text="car"
+            android:text="Mercedes Benz A 170"
             android:textColor="#939393"/>
 
     </RelativeLayout>
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/spacing_xxlarge"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/spacing_xxlarge"
                     android:paddingLeft="@dimen/activity_horizontal_margin"
                     android:paddingRight="@dimen/activity_horizontal_margin">
 
@@ -102,7 +104,8 @@
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/spacing_xxlarge"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/spacing_xxlarge"
                     android:paddingLeft="@dimen/activity_horizontal_margin"
                     android:paddingRight="@dimen/activity_horizontal_margin">
 
@@ -136,7 +139,8 @@
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/spacing_xxlarge"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/spacing_xxlarge"
                     android:paddingLeft="@dimen/activity_horizontal_margin"
                     android:paddingRight="@dimen/activity_horizontal_margin">
 
@@ -165,6 +169,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
+            android:gravity="right"
             android:text="Consumption"
             android:textColor="#939393"/>
 
@@ -172,7 +177,8 @@
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/spacing_xxlarge"
+                    android:layout_height="wrap_content"
+                    android:minHeight="@dimen/spacing_xxlarge"
                     android:paddingLeft="@dimen/activity_horizontal_margin"
                     android:paddingRight="@dimen/activity_horizontal_margin">
 
@@ -205,5 +211,12 @@
             android:textColor="#939393"/>
     </RelativeLayout>
 
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="64dp"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:textSize="10sp"
+        android:text="* = Bei diesen Werten handelt es sich um geschätzte Werte die sich deutlich von den realen Werten unterscheiden können. Wir können daher keine Gewährleistung für diese Angaben geben."/>
 
 </LinearLayout>

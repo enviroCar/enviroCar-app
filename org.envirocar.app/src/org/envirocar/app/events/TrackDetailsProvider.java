@@ -104,6 +104,7 @@ public class TrackDetailsProvider {
 
         mNumMeasurements++;
 
+        // update computed features
         updateDistance(event.mMeasurement);
         updateAverageSpeed(event.mMeasurement);
         updatePathOverlay(event.mMeasurement);

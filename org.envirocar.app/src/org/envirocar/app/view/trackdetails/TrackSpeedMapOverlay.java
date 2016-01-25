@@ -82,7 +82,6 @@ public class TrackSpeedMapOverlay extends PathOverlay {
 
         initPath();
         setOverlayIndex(1);
-
     }
 
 //    @Override
@@ -110,14 +109,12 @@ public class TrackSpeedMapOverlay extends PathOverlay {
 //        for (; this.mPointsPrecomputed < size; this.mPointsPrecomputed++) {
 //            final PointF pt = this.mPoints.get(this.mPointsPrecomputed);
 //            pj.toMapPixelsProjected((double) pt.x, (double) pt.y, pt);
-//        }
 //
-//        Rect rect = new Rect();
-//        PointF p1 = mPoints.get(0);
-//        rect.set((int) p1.x, (int) p1.y, (int) p1.x, (int) p1.y);
-//        for(int i = 1; i < mPoints.size(); i++){
-//            p1 = mPoints.get(i);
-//            rect.union((int) p1.x, (int) p1.y);
+//            Paint paint = new Paint();
+//            paint.setColor(getColor(mValues.get(this.mPointsPrecomputed)));
+//            paint.setStyle(Paint.Style.STROKE);
+//            paint.setStrokeWidth(5);
+//            mPaints.add(paint);
 //        }
 //
 //        PointF screenPoint0 = null; // points on screen
@@ -131,8 +128,10 @@ public class TrackSpeedMapOverlay extends PathOverlay {
 //        mPath.rewind();
 //        boolean needsDrawing = !mOptimizePath;
 //        projectedPoint0 = this.mPoints.get(size - 1);
-//        mLineBounds.set((int) projectedPoint0.x, (int) projectedPoint0.y, (int)
-//                projectedPoint0.x, (int) projectedPoint0.y);
+//        mLineBounds.set((int) projectedPoint0.x, (int) projectedPoint0.y,
+//                (int) projectedPoint0.x, (int) projectedPoint0.y);
+//
+//        mPaths.clear();
 //
 //        for (int i = size - 2; i >= 0; i--) {
 //            // compute next points
@@ -141,28 +140,17 @@ public class TrackSpeedMapOverlay extends PathOverlay {
 //            //mLineBounds needs to be computed
 //            mLineBounds.union((int) projectedPoint1.x, (int) projectedPoint1.y);
 //
-//            if (mOptimizePath && !Rect.intersects(clipBounds, mLineBounds)) {
-//                // skip this line, move to next point
-//                projectedPoint0 = projectedPoint1;
-//                mLineBounds.set((int) projectedPoint0.x, (int) projectedPoint0.y, (int)
-//                                projectedPoint0.x,(int) projectedPoint0.y);
-//                screenPoint0 = null;
-//                continue;
-//            }
-//
 //            // the starting point may be not calculated, because previous segment was out
-//            // of clip
-//            // bounds
+//            // of clip bounds
 //            if (screenPoint0 == null) {
 //                screenPoint0 = pj.toMapPixelsTranslated(projectedPoint0, this.mTempPoint1);
-//                mPath.moveTo(screenPoint0.x, screenPoint0.y);
 //            }
 //
 //            screenPoint1 = pj.toMapPixelsTranslated(projectedPoint1, this.mTempPoint2);
 //
 //            // skip this point, too close to previous point
-//            if (Math.abs(screenPoint1.x - screenPoint0.x) + Math.abs(
-//                    screenPoint1.y - screenPoint0.y) <= 1) {
+//            if (Math.abs(screenPoint1.x - screenPoint0.x) +
+//                    Math.abs(screenPoint1.y - screenPoint0.y) <= 1) {
 //                continue;
 //            }
 //
@@ -171,51 +159,27 @@ public class TrackSpeedMapOverlay extends PathOverlay {
 //            segment.lineTo(screenPoint1.x, screenPoint1.y);
 //            mPaths.add(segment);
 //
-//            Paint paint = new Paint();
-//            paint.setColor(getColor(mValues.get(i)));
-//            paint.setStyle(Paint.Style.STROKE);
-//            paint.setStrokeWidth(5);
-//            mPaints.add(paint);
-//
-//
-//            mPath.lineTo(screenPoint1.x, screenPoint1.y);
 //            // update starting point to next position
 //            projectedPoint0 = projectedPoint1;
 //            screenPoint0.x = screenPoint1.x;
 //            screenPoint0.y = screenPoint1.y;
+//
 //            if (mOptimizePath) {
 //                needsDrawing = true;
 //                mLineBounds.set((int) projectedPoint0.x, (int) projectedPoint0.y,
 //                        (int) projectedPoint0.x, (int) projectedPoint0.y);
 //            }
 //        }
-//        if (!mOptimizePath) {
-//            needsDrawing = Rect.intersects(clipBounds, mLineBounds);
-//        }
 //
 //        if (needsDrawing) {
-//            Bitmap bitmap = Bitmap.createBitmap(rect.width(), rect.height(), Bitmap.Config.ARGB_8888);
-//            Canvas bCanvas = new Canvas(bitmap);
-//
-//
-//            //            final float realWidth = this.mPaint.getStrokeWidth();
-//            //            this.mPaint.setStrokeWidth(realWidth / mapView.getScale());
-//            //            canvas.drawPath(mPath, this.mPaint);
-//            //            this.mPaint.setStrokeWidth(realWidth);
-//
 //            for (int i = 0, s = mPaths.size(); i < s; i++) {
 //                Path path = mPaths.get(i);
 //                Paint p = mPaints.get(i);
 //                float w = p.getStrokeWidth();
 //                p.setStrokeWidth(w / mapView.getScale());
-//                bCanvas.drawPath(path, p);
+//                canvas.drawPath(path, p);
 //                p.setStrokeWidth(w);
 //            }
-//
-//            Paint mBackgroundPaint = new Paint();
-//            mBackgroundPaint.setFilterBitmap(true);
-//
-//            canvas.drawBitmap(bitmap, 0, 0, mBackgroundPaint);
 //        }
 //    }
 //
@@ -223,17 +187,19 @@ public class TrackSpeedMapOverlay extends PathOverlay {
 //        if (value == null) {
 //            return Color.BLACK;
 //        }
-//        if (value < 50.0) {
-//            return Color.GREEN;
-//        }
-//        return Color.RED;
+//        ArgbEvaluator ev = new ArgbEvaluator();
+//        return (int) ev.evaluate((float) (value/80f), Color.RED, Color.GREEN);
+////        if (value < 50.0) {
+////            return Color.GREEN;
+////        }
+////        return Color.RED;
 //    }
 
     /**
      * Initializes the track path and the bounding boxes required by the mapviews.
      */
     private void initPath() {
-        mPoints = new ArrayList<PointF>();
+        mPoints = new ArrayList<>();
         mValues = new ArrayList<>();
 
         List<Measurement> measurementList = mTrack.getMeasurements();

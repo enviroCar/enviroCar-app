@@ -26,7 +26,6 @@ import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
-import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
@@ -69,13 +68,13 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         LOG.info("onResume()");
         super.onResume();
 
-        mFAB.setOnClickListener(v -> new MaterialDialog.Builder(getContext())
-                .title(R.string.track_list_upload_all_tracks_title)
-                .content(R.string.track_list_upload_all_tracks_content)
-                .positiveText(R.string.ok)
-                .negativeText(R.string.cancel)
-                .onPositive((materialDialog, dialogAction) -> uploadAllLocalTracks())
-                .show());
+//        mFAB.setOnClickListener(v -> new MaterialDialog.Builder(getContext())
+//                .title(R.string.track_list_upload_all_tracks_title)
+//                .content(R.string.track_list_upload_all_tracks_content)
+//                .positiveText(R.string.ok)
+//                .negativeText(R.string.cancel)
+//                .onPositive((materialDialog, dialogAction) -> uploadAllLocalTracks())
+//                .show());
     }
 
     private void uploadAllLocalTracks() {
@@ -201,9 +200,9 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
                     private void updateDialogContent() {
                         currentTrack++;
-                        materialDialog.setContent(String.format(getString(R.string
-                                        .track_list_upload_all_tracks_content),
-                                currentTrack, tracksToUpload));
+//                        materialDialog.setContent(String.format(getString(R.string
+//                                        .track_list_upload_all_tracks_content),
+//                                currentTrack, tracksToUpload));
                         materialDialog.incrementProgress(1);
                     }
                 });
@@ -394,8 +393,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                                 infoView.setVisibility(View.GONE);
                                 mRecyclerViewAdapter.notifyDataSetChanged();
 
-                                ECAnimationUtils.animateShowView(getContext(), mFAB,
-                                        R.anim.translate_slide_in_bottom_fragment);
+//                                ECAnimationUtils.animateShowView(getContext(), mFAB,
+//                                        R.anim.translate_slide_in_bottom_fragment);
                             } else if (mTrackList.isEmpty()) {
                                 showText(R.drawable.img_tracks,
                                         R.string.track_list_bg_no_local_tracks,

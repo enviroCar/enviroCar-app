@@ -113,4 +113,15 @@ public class PreferencesHandler implements PreferenceConstants {
         Preconditions.checkNotNull(context, "Input context cannot be null.");
         return PreferenceManager.getDefaultSharedPreferences(context);
     }
+
+    public static boolean isDieselConsumptionEnabled(Context context){
+        return getSharedPreferences(context)
+                .getBoolean(PREF_ENABLE_DIESE_CONSUMPTION, false);
+    }
+
+    public static Observable<Boolean> getDieselConsumptionObservable(Context context){
+        return getRxSharedPreferences(context)
+                .getBoolean(PREF_ENABLE_DIESE_CONSUMPTION, false)
+                .asObservable();
+    }
 }

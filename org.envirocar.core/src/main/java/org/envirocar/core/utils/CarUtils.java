@@ -115,6 +115,21 @@ public class CarUtils {
         }
     }
 
+    public static String carToStringWithLinebreak(Car car){
+        StringBuilder sb = new StringBuilder();
+        sb.append(car.getManufacturer());
+        sb.append(" - ");
+        sb.append(car.getModel());
+        sb.append("\n");
+        sb.append(car.getConstructionYear());
+        sb.append(", ");
+        sb.append(car.getFuelType());
+        sb.append(", ");
+        sb.append(car.getEngineDisplacement());
+        sb.append("cc");
+        return sb.toString();
+    }
+
     /**
      * Returns true if the current remote id of the car starts with the temporary prefix
      *
