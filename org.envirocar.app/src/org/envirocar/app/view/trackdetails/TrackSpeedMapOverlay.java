@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -85,135 +85,149 @@ public class TrackSpeedMapOverlay extends PathOverlay {
 
     }
 
-    //    @Override
-    //    public void addPoint(double aLatitude, double aLongitude) {
-    //        mPoints.add(new PointF((float) aLatitude, (float) aLongitude));
-    //    }
-    //
-    //    @Override
-    //    public int getNumberOfPoints() {
-    //        return mPoints.size();
-    //    }
-    //
-    //    @Override
-    //    protected void draw(Canvas canvas, MapView mapView, boolean shadow) {
-    //        final int size = this.mPoints.size();
-    //
-    //        // nothing to paint
-    //        if (shadow || size < 2) {
-    //            return;
-    //        }
-    //
-    //        final Projection pj = mapView.getProjection();
-    //
-    //        // precompute new points to the intermediate projection.
-    //        for (; this.mPointsPrecomputed < size; this.mPointsPrecomputed++) {
-    //            final PointF pt = this.mPoints.get(this.mPointsPrecomputed);
-    //            pj.toMapPixelsProjected((double) pt.x, (double) pt.y, pt);
-    //        }
-    //
-    //        PointF screenPoint0 = null; // points on screen
-    //        PointF screenPoint1;
-    //        PointF projectedPoint0; // points from the points list
-    //        PointF projectedPoint1;
-    //
-    //        // clipping rectangle in the intermediate projection, to avoid performing projection.
-    //        final Rect clipBounds = pj.fromPixelsToProjected(pj.getScreenRect());
-    //
-    //        mPath.rewind();
-    //        boolean needsDrawing = !mOptimizePath;
-    //        projectedPoint0 = this.mPoints.get(size - 1);
-    //        mLineBounds.set((int) projectedPoint0.x, (int) projectedPoint0.y, (int)
-    // projectedPoint0.x,
-    //                (int) projectedPoint0.y);
-    //
-    //        for (int i = size - 2; i >= 0; i--) {
-    //            // compute next points
-    //            projectedPoint1 = this.mPoints.get(i);
-    //
-    //            //mLineBounds needs to be computed
-    //            mLineBounds.union((int) projectedPoint1.x, (int) projectedPoint1.y);
-    //
-    //            if (mOptimizePath && !Rect.intersects(clipBounds, mLineBounds)) {
-    //                // skip this line, move to next point
-    //                projectedPoint0 = projectedPoint1;
-    //                mLineBounds.set((int) projectedPoint0.x, (int) projectedPoint0.y, (int)
-    // projectedPoint0.x,
-    //                        (int) projectedPoint0.y);
-    //                screenPoint0 = null;
-    //                continue;
-    //            }
-    //
-    //            // the starting point may be not calculated, because previous segment was out
-    // of clip
-    //            // bounds
-    //            if (screenPoint0 == null) {
-    //                screenPoint0 = pj.toMapPixelsTranslated(projectedPoint0, this.mTempPoint1);
-    //                mPath.moveTo(screenPoint0.x, screenPoint0.y);
-    //            }
-    //
-    //            screenPoint1 = pj.toMapPixelsTranslated(projectedPoint1, this.mTempPoint2);
-    //
-    //            // skip this point, too close to previous point
-    //            if (Math.abs(screenPoint1.x - screenPoint0.x) + Math.abs(
-    //                    screenPoint1.y - screenPoint0.y) <= 1) {
-    //                continue;
-    //            }
-    //
-    //            Path segment = new Path();
-    //            segment.moveTo(screenPoint0.x, screenPoint0.y);
-    //            segment.lineTo(screenPoint1.x, screenPoint1.y);
-    //            mPaths.add(segment);
-    //
-    //            Paint paint = new Paint();
-    //            paint.setColor(getColor(mValues.get(i)));
-    //            paint.setStyle(Paint.Style.STROKE);
-    //            paint.setStrokeWidth(5);
-    //            mPaints.add(paint);
-    //
-    //
-    //            mPath.lineTo(screenPoint1.x, screenPoint1.y);
-    //            // update starting point to next position
-    //            projectedPoint0 = projectedPoint1;
-    //            screenPoint0.x = screenPoint1.x;
-    //            screenPoint0.y = screenPoint1.y;
-    //            if (mOptimizePath) {
-    //                needsDrawing = true;
-    //                mLineBounds.set((int) projectedPoint0.x, (int) projectedPoint0.y, (int)
-    // projectedPoint0.x,
-    //                        (int) projectedPoint0.y);
-    //            }
-    //        }
-    //        if (!mOptimizePath) {
-    //            needsDrawing = Rect.intersects(clipBounds, mLineBounds);
-    //        }
-    //
-    //        if (needsDrawing) {
-    ////            final float realWidth = this.mPaint.getStrokeWidth();
-    ////            this.mPaint.setStrokeWidth(realWidth / mapView.getScale());
-    ////            canvas.drawPath(mPath, this.mPaint);
-    ////            this.mPaint.setStrokeWidth(realWidth);
-    //
-    //            for(int i = 0, s = mPaths.size(); i < s; i++){
-    //                Path path = mPaths.get(i);
-    //                Paint p = mPaints.get(i);
-    //                float w = p.getStrokeWidth();
-    //                p.setStrokeWidth(w / mapView.getScale());
-    //                canvas.drawPath(path,p);
-    //                p.setStrokeWidth(w);
-    //            }
-    //        }
-    //    }
-
-    private int getColor(Double value) {
-        if (value == null) {
-            return Color.BLACK;
-        }
-        if (value < 50.0) {
-            return Color.GREEN;
-        }
-        return Color.RED;
-    }
+//    @Override
+//    public void addPoint(double aLatitude, double aLongitude) {
+//        mPoints.add(new PointF((float) aLatitude, (float) aLongitude));
+//    }
+//
+//    @Override
+//    public int getNumberOfPoints() {
+//        return mPoints.size();
+//    }
+//
+//    @Override
+//    protected void draw(Canvas canvas, MapView mapView, boolean shadow) {
+//        final int size = this.mPoints.size();
+//
+//        // nothing to paint
+//        if (shadow || size < 2) {
+//            return;
+//        }
+//
+//        final Projection pj = mapView.getProjection();
+//
+//        // precompute new points to the intermediate projection.
+//        for (; this.mPointsPrecomputed < size; this.mPointsPrecomputed++) {
+//            final PointF pt = this.mPoints.get(this.mPointsPrecomputed);
+//            pj.toMapPixelsProjected((double) pt.x, (double) pt.y, pt);
+//        }
+//
+//        Rect rect = new Rect();
+//        PointF p1 = mPoints.get(0);
+//        rect.set((int) p1.x, (int) p1.y, (int) p1.x, (int) p1.y);
+//        for(int i = 1; i < mPoints.size(); i++){
+//            p1 = mPoints.get(i);
+//            rect.union((int) p1.x, (int) p1.y);
+//        }
+//
+//        PointF screenPoint0 = null; // points on screen
+//        PointF screenPoint1;
+//        PointF projectedPoint0; // points from the points list
+//        PointF projectedPoint1;
+//
+//        // clipping rectangle in the intermediate projection, to avoid performing projection.
+//        final Rect clipBounds = pj.fromPixelsToProjected(pj.getScreenRect());
+//
+//        mPath.rewind();
+//        boolean needsDrawing = !mOptimizePath;
+//        projectedPoint0 = this.mPoints.get(size - 1);
+//        mLineBounds.set((int) projectedPoint0.x, (int) projectedPoint0.y, (int)
+//                projectedPoint0.x, (int) projectedPoint0.y);
+//
+//        for (int i = size - 2; i >= 0; i--) {
+//            // compute next points
+//            projectedPoint1 = this.mPoints.get(i);
+//
+//            //mLineBounds needs to be computed
+//            mLineBounds.union((int) projectedPoint1.x, (int) projectedPoint1.y);
+//
+//            if (mOptimizePath && !Rect.intersects(clipBounds, mLineBounds)) {
+//                // skip this line, move to next point
+//                projectedPoint0 = projectedPoint1;
+//                mLineBounds.set((int) projectedPoint0.x, (int) projectedPoint0.y, (int)
+//                                projectedPoint0.x,(int) projectedPoint0.y);
+//                screenPoint0 = null;
+//                continue;
+//            }
+//
+//            // the starting point may be not calculated, because previous segment was out
+//            // of clip
+//            // bounds
+//            if (screenPoint0 == null) {
+//                screenPoint0 = pj.toMapPixelsTranslated(projectedPoint0, this.mTempPoint1);
+//                mPath.moveTo(screenPoint0.x, screenPoint0.y);
+//            }
+//
+//            screenPoint1 = pj.toMapPixelsTranslated(projectedPoint1, this.mTempPoint2);
+//
+//            // skip this point, too close to previous point
+//            if (Math.abs(screenPoint1.x - screenPoint0.x) + Math.abs(
+//                    screenPoint1.y - screenPoint0.y) <= 1) {
+//                continue;
+//            }
+//
+//            Path segment = new Path();
+//            segment.moveTo(screenPoint0.x, screenPoint0.y);
+//            segment.lineTo(screenPoint1.x, screenPoint1.y);
+//            mPaths.add(segment);
+//
+//            Paint paint = new Paint();
+//            paint.setColor(getColor(mValues.get(i)));
+//            paint.setStyle(Paint.Style.STROKE);
+//            paint.setStrokeWidth(5);
+//            mPaints.add(paint);
+//
+//
+//            mPath.lineTo(screenPoint1.x, screenPoint1.y);
+//            // update starting point to next position
+//            projectedPoint0 = projectedPoint1;
+//            screenPoint0.x = screenPoint1.x;
+//            screenPoint0.y = screenPoint1.y;
+//            if (mOptimizePath) {
+//                needsDrawing = true;
+//                mLineBounds.set((int) projectedPoint0.x, (int) projectedPoint0.y,
+//                        (int) projectedPoint0.x, (int) projectedPoint0.y);
+//            }
+//        }
+//        if (!mOptimizePath) {
+//            needsDrawing = Rect.intersects(clipBounds, mLineBounds);
+//        }
+//
+//        if (needsDrawing) {
+//            Bitmap bitmap = Bitmap.createBitmap(rect.width(), rect.height(), Bitmap.Config.ARGB_8888);
+//            Canvas bCanvas = new Canvas(bitmap);
+//
+//
+//            //            final float realWidth = this.mPaint.getStrokeWidth();
+//            //            this.mPaint.setStrokeWidth(realWidth / mapView.getScale());
+//            //            canvas.drawPath(mPath, this.mPaint);
+//            //            this.mPaint.setStrokeWidth(realWidth);
+//
+//            for (int i = 0, s = mPaths.size(); i < s; i++) {
+//                Path path = mPaths.get(i);
+//                Paint p = mPaints.get(i);
+//                float w = p.getStrokeWidth();
+//                p.setStrokeWidth(w / mapView.getScale());
+//                bCanvas.drawPath(path, p);
+//                p.setStrokeWidth(w);
+//            }
+//
+//            Paint mBackgroundPaint = new Paint();
+//            mBackgroundPaint.setFilterBitmap(true);
+//
+//            canvas.drawBitmap(bitmap, 0, 0, mBackgroundPaint);
+//        }
+//    }
+//
+//    private int getColor(Double value) {
+//        if (value == null) {
+//            return Color.BLACK;
+//        }
+//        if (value < 50.0) {
+//            return Color.GREEN;
+//        }
+//        return Color.RED;
+//    }
 
     /**
      * Initializes the track path and the bounding boxes required by the mapviews.

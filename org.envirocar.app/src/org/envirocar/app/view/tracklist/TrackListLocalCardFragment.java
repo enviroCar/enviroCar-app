@@ -79,6 +79,42 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     }
 
     private void uploadAllLocalTracks() {
+//        uploadTrackSubscription = mEnvirocarDB.getAllLocalTracks()
+//                .first()
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(Schedulers.io())
+//                .subscribe(new Subscriber<List<Track>>() {
+//                    private MaterialDialog dialog;
+//
+//                    @Override
+//                    public void onStart() {
+//                        super.onStart();
+//
+//                        dialog = new MaterialDialog.Builder(getContext())
+//                                .title(R.string.track_list_upload_all_tracks_title)
+//                                .cancelable(false)
+//                                .negativeText(R.string.cancel)
+//                                .progress(true, tracksToUpload)
+//                                .onNegative((materialDialog1, dialogAction) -> unsubscribe())
+//                                .show();
+//                    }
+//
+//                    @Override
+//                    public void onCompleted() {
+//
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onNext(List<Track> tracks) {
+//
+//                    }
+//                });
+
         uploadTrackSubscription = mEnvirocarDB.getAllLocalTracks()
                 .first()
                 .map(tracks -> {

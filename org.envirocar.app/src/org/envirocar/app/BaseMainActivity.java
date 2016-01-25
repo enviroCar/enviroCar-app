@@ -36,6 +36,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -173,6 +174,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         // Set the content view of the application
         setContentView(R.layout.main_layout);
+        mNavigationView = (NavigationView) findViewById(R.id.nav_drawer_navigation_view);
+        LayoutInflater.from(this).inflate(R.layout.nav_drawer_list_header, mNavigationView);
         ButterKnife.inject(this);
 
         // Initializes the Toolbar.
