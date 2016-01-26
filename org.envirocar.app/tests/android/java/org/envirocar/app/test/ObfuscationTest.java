@@ -36,6 +36,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class ObfuscationTest extends InstrumentationTestCase {
@@ -71,6 +72,32 @@ public class ObfuscationTest extends InstrumentationTestCase {
         for (Measurement m : inter) {
             Assert.assertThat(result.contains(m), CoreMatchers.is(true));
         }
+    }
+
+    @Test
+    public void testObfuscationException() throws JSONException, TrackAlreadyFinishedException {
+        start = System.currentTimeMillis();
+        end = System.currentTimeMillis() + 1000*60;
+
+        first = new MeasurementImpl(51.0, 7.0);
+        first.setTime(start);
+        last = new MeasurementImpl(51.03, 7.03);
+        last.setTime(end);
+
+        Track t = new TrackImpl();
+        t.setCar(new CarImpl("id", "man", "mod", Car.FuelType.DIESEL, 1234, 123));
+
+        t.setMeasurements(Arrays.asList(new MeasurementImpl[] {first, last}));
+
+        Exception exception = null;
+        try {
+            TrackUtils.getObfuscatedTrack(t);
+        }
+        catch (NoMeasurementsException e) {
+            exception = e;
+        }
+
+        Assert.assertNotNull(exception);
     }
 
     private Track createTrack() throws TrackAlreadyFinishedException {
