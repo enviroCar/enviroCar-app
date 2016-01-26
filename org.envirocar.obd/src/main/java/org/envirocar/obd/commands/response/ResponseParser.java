@@ -1,15 +1,13 @@
 package org.envirocar.obd.commands.response;
 
+import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.PIDUtil;
-import org.envirocar.obd.commands.response.entity.GenericDataResponse;
-import org.envirocar.obd.exception.AdapterSearchingException;
-import org.envirocar.obd.exception.NoDataReceivedException;
-import org.envirocar.obd.exception.UnmatchedResponseException;
 import org.envirocar.obd.commands.response.entity.EngineLoadResponse;
 import org.envirocar.obd.commands.response.entity.EngineRPMResponse;
 import org.envirocar.obd.commands.response.entity.FuelPressureResponse;
 import org.envirocar.obd.commands.response.entity.FuelSystemStatusResponse;
+import org.envirocar.obd.commands.response.entity.GenericDataResponse;
 import org.envirocar.obd.commands.response.entity.IntakeAirTemperatureResponse;
 import org.envirocar.obd.commands.response.entity.IntakeManifoldAbsolutePressureResponse;
 import org.envirocar.obd.commands.response.entity.LambdaProbeCurrentResponse;
@@ -19,9 +17,14 @@ import org.envirocar.obd.commands.response.entity.MAFResponse;
 import org.envirocar.obd.commands.response.entity.ShortTermFuelTrimResponse;
 import org.envirocar.obd.commands.response.entity.SpeedResponse;
 import org.envirocar.obd.commands.response.entity.ThrottlePositionResponse;
+import org.envirocar.obd.exception.AdapterSearchingException;
 import org.envirocar.obd.exception.InvalidCommandResponseException;
+import org.envirocar.obd.exception.NoDataReceivedException;
+import org.envirocar.obd.exception.UnmatchedResponseException;
 
 public class ResponseParser {
+
+    private static final Logger LOGGER = Logger.getLogger(ResponseParser.class);
 
     private static final CharSequence SEARCHING = "SEARCHING";
     private static final CharSequence STOPPED = "STOPPED";
@@ -125,9 +128,10 @@ public class ResponseParser {
             case O2_LAMBDA_PROBE_6_VOLTAGE:
             case O2_LAMBDA_PROBE_7_VOLTAGE:
             case O2_LAMBDA_PROBE_8_VOLTAGE:
-                return new LambdaProbeVoltageResponse(
-                        ((processedData[4]*256d) + processedData[5] )/ 8192d,
-                        ((processedData[2]*256d) + processedData[3]) / 32768d);
+                LambdaProbeVoltageResponse lambda = new LambdaProbeVoltageResponse(
+                        ((processedData[4] * 256d) + processedData[5]) / 8192d,
+                        ((processedData[2] * 256d) + processedData[3]) / 32768d);
+                return lambda;
             case O2_LAMBDA_PROBE_1_CURRENT:
             case O2_LAMBDA_PROBE_2_CURRENT:
             case O2_LAMBDA_PROBE_3_CURRENT:
@@ -143,7 +147,6 @@ public class ResponseParser {
 
         return new GenericDataResponse(pid, processedData, rawData);
     }
-
 
     private boolean isSearching(String dataString) {
         return dataString.contains(SEARCHING) || dataString.contains(STOPPED);
