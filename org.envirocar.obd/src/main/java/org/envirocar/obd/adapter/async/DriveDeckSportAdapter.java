@@ -254,7 +254,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     private DataResponse parsePIDResponse(String pid, byte[] rawBytes) throws InvalidCommandResponseException, NoDataReceivedException,
             UnmatchedResponseException, AdapterSearchingException {
 
-        logger.verbose(String.format("Processing PID Response: %s; %s", pid, Base64.encodeToString(rawBytes, Base64.DEFAULT)).trim());
+        logger.verbose(String.format("PID Response: %s; %s", pid, Base64.encodeToString(rawBytes, Base64.DEFAULT)).trim());
 
 		/*
          * resulting HEX values are 0x0d additive to the
