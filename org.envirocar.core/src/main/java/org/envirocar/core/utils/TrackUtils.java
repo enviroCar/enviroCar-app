@@ -63,8 +63,8 @@ public class TrackUtils {
             int last = determineLastNonObfuscatedIndex(measurements, track);
 
             if (first == -1 || last == -1) {
-                LOG.warn("Could not determine first/last non-obfuscated measurements. Returning originals");
-                return measurements;
+                LOG.warn("Could not determine first/last non-obfuscated measurements.");
+                throw new NoMeasurementsException("No obfuscated measurements available.");
             }
 
             for (int i = first; i <= last; i++) {
