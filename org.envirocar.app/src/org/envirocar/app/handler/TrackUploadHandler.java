@@ -60,7 +60,7 @@ import rx.functions.Func1;
  */
 @Singleton
 public class TrackUploadHandler {
-    private static Logger logger = Logger.getLogger(TrackUploadHandler.class);
+    private static Logger LOG = Logger.getLogger(TrackUploadHandler.class);
 
     private final Context mContext;
     private final EnviroCarDB mEnviroCarDB;
@@ -105,7 +105,7 @@ public class TrackUploadHandler {
         return Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
             public void call(Subscriber<? super Track> subscriber) {
-                logger.info("uploadSingleTrack() start uploading.");
+                LOG.info("uploadSingleTrack() start uploading.");
                 subscriber.onStart();
 
                 // Create a dialog with which the user can accept the terms of use.
@@ -169,7 +169,7 @@ public class TrackUploadHandler {
 
                             @Override
                             public void onError(Throwable e) {
-                                logger.error(e.getMessage(), e);
+                                LOG.error(e.getMessage(), e);
                                 if (e instanceof NoMeasurementsException) {
                                     mainthreadWorker.schedule(() -> Toast.makeText(mContext,
                                             R.string.uploading_track_no_measurements_after_obfuscation_long,
@@ -189,6 +189,76 @@ public class TrackUploadHandler {
                         }));
             }
         });
+    }
+
+    public Observable<Track> uploadTracks(List<Track> tracks){
+        return Observable.from(tracks)
+                .concatMap(track -> uploadTrack(track))
+                .lift(new Observable.Operator<Track, Track>() {
+                    @Override
+                    public Subscriber<? super Track> call(Subscriber<? super Track> subscriber) {
+                        return new Subscriber<Track>() {
+                            @Override
+                            public void onCompleted() {
+                                LOG.info("uploadAllLocalTracks(): onCompleted()");
+                                subscriber.onCompleted();
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                if(e.getCause() instanceof NoMeasurementsException){
+                                    subscriber.onNext(null);
+                                } else {
+                                    subscriber.onError(e);
+                                    unsubscribe();
+                                }
+                            }
+
+                            @Override
+                            public void onNext(Track track) {
+                                if(!subscriber.isUnsubscribed()){
+                                    subscriber.onNext(track);
+                                }
+                            }
+                        };
+                    }
+                });
+    }
+
+    public Observable<Track> uploadAllLocalTracks(){
+        return mEnviroCarDB.getAllLocalTracks()
+                .first()
+                .concatMap(Observable::from)
+                .concatMap(this::uploadTrack)
+                .lift(new Observable.Operator<Track, Track>() {
+                    @Override
+                    public Subscriber<? super Track> call(Subscriber<? super Track> subscriber) {
+                        return new Subscriber<Track>() {
+                            @Override
+                            public void onCompleted() {
+                                LOG.info("uploadAllLocalTracks(): onCompleted()");
+                                subscriber.onCompleted();
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                if(e.getCause() instanceof NoMeasurementsException){
+                                    subscriber.onNext(null);
+                                } else {
+                                    subscriber.onError(e);
+                                    unsubscribe();
+                                }
+                            }
+
+                            @Override
+                            public void onNext(Track track) {
+                                if(!subscriber.isUnsubscribed()){
+                                    subscriber.onNext(track);
+                                }
+                            }
+                        };
+                    }
+                });
     }
 
     private Observable<Track> uploadTrack(Track track) {
@@ -219,19 +289,19 @@ public class TrackUploadHandler {
                 if (!track.isLocalTrack()) {
                     String infoText = String.format(mContext.getString(R.string
                             .trackviews_is_already_uploaded), track.getName());
-                    logger.warn(infoText);
+                    LOG.warn(infoText);
                     throw OnErrorThrowable.from(new TrackAlreadyUploadedException(infoText));
                 } else if (track.getCar() == null) {
                     String infoText = "Track has no car set. Please delete this track.";
-                    logger.warn(infoText);
+                    LOG.warn(infoText);
                     throw OnErrorThrowable.from(new TrackWithNoValidCarException(infoText));
                 } else if (!CarUtils.isCarUploaded(track.getCar())) {
                     String infoText = "Cannot upload tracks with no valid remote car.";
-                    logger.warn(infoText);
+                    LOG.warn(infoText);
                     throw OnErrorThrowable.from(new TrackWithNoValidCarException(infoText));
                 } else if (!mUserManager.isLoggedIn()) {
                     String infoText = mContext.getString(R.string.trackviews_not_logged_in);
-                    logger.info(infoText);
+                    LOG.info(infoText);
                     throw OnErrorThrowable.from(new NotLoggedInException(infoText));
                 }
                 return track;
@@ -243,9 +313,9 @@ public class TrackUploadHandler {
         return new Func1<Track, Track>() {
             @Override
             public Track call(Track track) {
-                logger.info("asObfuscatedTrackWhenChecked()");
+                LOG.info("asObfuscatedTrackWhenChecked()");
                 if (PreferencesHandler.isObfuscationEnabled(mContext)) {
-                    logger.info(String.format("obfuscation is enabled. Obfuscating track with %s " +
+                    LOG.info(String.format("obfuscation is enabled. Obfuscating track with %s " +
                             "measurements.", "" + track.getMeasurements().size()));
                     try {
                         return TrackUtils.getObfuscatedTrack(track);
@@ -253,7 +323,7 @@ public class TrackUploadHandler {
                         throw OnErrorThrowable.from(e);
                     }
                 } else {
-                    logger.info("obfuscation is disabled.");
+                    LOG.info("obfuscation is disabled.");
                     return track;
                 }
             }
