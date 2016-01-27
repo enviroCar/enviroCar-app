@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -34,13 +34,12 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.MaterialDialog;
-
 import org.envirocar.app.R;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.view.utils.DialogUtils;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NotConnectedException;
@@ -201,25 +200,26 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                 .toBlocking()
                 .first();
 
+        View contentView = getActivity().getLayoutInflater().inflate(
+                R.layout.fragment_tracklist_delete_track_dialog, null, false);
+        ((TextView) contentView.findViewById(
+                R.id.fragment_tracklist_delete_track_dialog_trackname)).setText(track.getName());
+
         // Create a dialog that deletes on click on the positive button the track.
-        new MaterialDialog.Builder(getActivity())
-                .title(R.string.trackviews_delete_track_dialog_headline)
-                .content(String.format(getResources().getString(R.string
-                        .trackviews_delete_track_dialog_content), track.getName()))
+        DialogUtils.createDefaultDialogBuilder(getContext(),
+                R.string.trackviews_delete_track_dialog_headline,
+                R.drawable.ic_delete_white_24dp,
+                contentView)
                 .positiveText(R.string.ok)
                 .negativeText(R.string.cancel)
-                .callback(new MaterialDialog.ButtonCallback() {
-                    @Override
-                    public void onPositive(MaterialDialog dialog) {
+                .onPositive((materialDialog, dialogAction) ->
                         mBackgroundWorker.schedule(() -> {
                             // On a positive button click, then delete the track.
                             if (upToDateRef.isLocalTrack())
                                 deleteLocalTrack(track);
                             else
                                 deleteRemoteTrack(track);
-                        });
-                    }
-                })
+                        }))
                 .show();
     }
 

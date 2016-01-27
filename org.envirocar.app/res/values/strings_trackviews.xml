@@ -22,8 +22,8 @@
 <resources>
 
     <string name="trackviews_delete_track_dialog_headline">Delete Track?</string>
-    <string name="trackviews_delete_track_dialog_content">You are about to delete track \'%s\'.
-        "\nIt cannot be restored at a later time! Do you want to continue?</string>
+    <string name="trackviews_delete_track_dialog_content_1">You are about to delete track </string>
+    <string name="trackviews_delete_track_dialog_content_2">It cannot be restored at a later time! Do you want to continue?</string>
 
     <string name="trackviews_delete_track_snackbar_success">Track has been successfully deleted.</string>
 
