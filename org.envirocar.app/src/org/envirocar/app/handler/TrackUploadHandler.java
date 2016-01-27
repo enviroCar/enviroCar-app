@@ -80,15 +80,16 @@ public class TrackUploadHandler {
      * @param context the context of the current scope
      */
     @Inject
-    public TrackUploadHandler(@InjectApplicationScope Context context,
-                              EnviroCarDB enviroCarDB,
-                              NotificationHandler notificationHandler,
-                              CarPreferenceHandler carPreferenceHandler,
-                              DAOProvider daoProvider,
-                              TrackDAOHandler trackDAOHandler,
-                              UserHandler userHandler,
-                              TrackRecordingHandler trackRecordingHandler,
-                              TermsOfUseManager termsOfUseManager) {
+    public TrackUploadHandler(
+            @InjectApplicationScope Context context,
+            EnviroCarDB enviroCarDB,
+            NotificationHandler notificationHandler,
+            CarPreferenceHandler carPreferenceHandler,
+            DAOProvider daoProvider,
+            TrackDAOHandler trackDAOHandler,
+            UserHandler userHandler,
+            TrackRecordingHandler trackRecordingHandler,
+            TermsOfUseManager termsOfUseManager) {
         this.mContext = context;
         this.mEnviroCarDB = enviroCarDB;
         this.mNotificationHandler = notificationHandler;
@@ -112,13 +113,13 @@ public class TrackUploadHandler {
                 subscriber.add(Observable.just(track)
                         // general validation of the track
                         .map(validateRequirementsForUpload())
-                                // Verify wether the TermsOfUSe have been accepted.
-                                // When the TermsOfUse have not been accepted, create an
-                                // Dialog to accept and continue when the user has accepted.
+                        // Verify wether the TermsOfUSe have been accepted.
+                        // When the TermsOfUse have not been accepted, create an
+                        // Dialog to accept and continue when the user has accepted.
                         .flatMap(track1 ->
                                 mTermsOfUseManager.verifyTermsOfUse(activity, track1))
-                                // Continue when the TermsOfUse has been accepted, otherwise
-                                // throw an error
+                        // Continue when the TermsOfUse has been accepted, otherwise
+                        // throw an error
                         .flatMap(track1 -> track1 != null ? uploadTrack(track) :
                                 Observable.error(new NotAcceptedTermsOfUseException(
                                         "Not accepted TermsOfUse")))
@@ -191,94 +192,74 @@ public class TrackUploadHandler {
         });
     }
 
-    public Observable<Track> uploadTracks(List<Track> tracks){
+    /**
+     * Returns an observable that uploads a list of tracks. If a track did not contain enough
+     * measurements, i.e. the track obfuscation is throwing a {@link NoMeasurementsException},
+     * then it returns null to its subscriber.
+     *
+     * @param tracks                the list of tracks to upload.
+     * @param abortOnNoMeasurements if true, then it also closes the complete stream. Otherwise,
+     *                              it returns null to its subscriber.
+     * @return an observable that uploads a list of tracks.
+     */
+    public Observable<Track> uploadTracks(List<Track> tracks, boolean abortOnNoMeasurements) {
+        Preconditions.checkState(tracks != null && !tracks.isEmpty(),
+                "Input tracks cannot be null or empty.");
         return Observable.from(tracks)
-                .concatMap(track -> uploadTrack(track))
-                .lift(new Observable.Operator<Track, Track>() {
-                    @Override
-                    public Subscriber<? super Track> call(Subscriber<? super Track> subscriber) {
-                        return new Subscriber<Track>() {
+                .concatMap(track -> uploadTrack(track)
+                        .first()
+                        .lift(new Observable.Operator<Track, Track>() {
                             @Override
-                            public void onCompleted() {
-                                LOG.info("uploadAllLocalTracks(): onCompleted()");
-                                subscriber.onCompleted();
-                            }
+                            public Subscriber<? super Track> call(
+                                    Subscriber<? super Track> subscriber) {
+                                return new Subscriber<Track>() {
 
-                            @Override
-                            public void onError(Throwable e) {
-                                if(e.getCause() instanceof NoMeasurementsException){
-                                    subscriber.onNext(null);
-                                } else {
-                                    subscriber.onError(e);
-                                    unsubscribe();
-                                }
-                            }
+                                    @Override
+                                    public void onCompleted() {
+                                        LOG.info("uploadAllLocalTracks(): onCompleted()");
+                                        subscriber.onCompleted();
+                                    }
 
-                            @Override
-                            public void onNext(Track track) {
-                                if(!subscriber.isUnsubscribed()){
-                                    subscriber.onNext(track);
-                                }
-                            }
-                        };
-                    }
-                });
-    }
+                                    @Override
+                                    public void onError(Throwable e) {
+                                        LOG.info("onError()");
+                                        if (!abortOnNoMeasurements &&
+                                                e.getCause() instanceof NoMeasurementsException) {
+                                            subscriber.onNext(null);
+                                            onCompleted();
+                                        } else {
+                                            subscriber.onError(e);
+                                            unsubscribe();
+                                        }
+                                    }
 
-    public Observable<Track> uploadAllLocalTracks(){
-        return mEnviroCarDB.getAllLocalTracks()
-                .first()
-                .concatMap(Observable::from)
-                .concatMap(this::uploadTrack)
-                .lift(new Observable.Operator<Track, Track>() {
-                    @Override
-                    public Subscriber<? super Track> call(Subscriber<? super Track> subscriber) {
-                        return new Subscriber<Track>() {
-                            @Override
-                            public void onCompleted() {
-                                LOG.info("uploadAllLocalTracks(): onCompleted()");
-                                subscriber.onCompleted();
+                                    @Override
+                                    public void onNext(Track track) {
+                                        subscriber.onNext(track);
+                                    }
+                                };
                             }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                if(e.getCause() instanceof NoMeasurementsException){
-                                    subscriber.onNext(null);
-                                } else {
-                                    subscriber.onError(e);
-                                    unsubscribe();
-                                }
-                            }
-
-                            @Override
-                            public void onNext(Track track) {
-                                if(!subscriber.isUnsubscribed()){
-                                    subscriber.onNext(track);
-                                }
-                            }
-                        };
-                    }
-                });
+                        }));
     }
 
     private Observable<Track> uploadTrack(Track track) {
         return Observable.just(track)
                 // Check whether the user is correctly logged in.
                 .map(mUserManager.getIsLoggedIn())
-                        // Update the track metadata.
+                // Update the track metadata.
                 .flatMap(track1 -> trackDAOHandler.updateTrackMetadataObservable(track1))
-                        // Assert whether the track has a temporary car.
+                // Assert whether the track has a temporary car.
                 .flatMap(trackMetadata -> mCarManager.assertTemporaryCar(track.getCar()))
-                        // Set the car reference
+                // Set the car reference
                 .map(car -> {
                     track.setCar(car);
                     return track;
                 })
-                        // obfuscate the track.
+                // obfuscate the track.
                 .map(asObfuscatedTrackWhenChecked())
-                        // Upload the track
+                // Upload the track
                 .flatMap(obfTrack -> mDAOProvider.getTrackDAO().createTrackObservable(obfTrack))
-                        // Update the database entry
+                // Update the database entry
                 .flatMap(track1 -> mEnviroCarDB.updateTrackObservable(track1));
     }
 

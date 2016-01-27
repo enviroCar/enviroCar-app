@@ -21,12 +21,14 @@ package org.envirocar.app.view.tracklist;
 import android.os.AsyncTask;
 import android.support.design.widget.Snackbar;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
+import org.envirocar.app.view.utils.DialogUtils;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.logging.Logger;
@@ -69,85 +71,17 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         LOG.info("onResume()");
         super.onResume();
 
-        mFAB.setOnClickListener(v -> new MaterialDialog.Builder(getContext())
-                .title(R.string.track_list_upload_all_tracks_title)
-                .content(R.string.track_list_upload_all_tracks_content)
+        mFAB.setOnClickListener(v -> DialogUtils.createDefaultDialogBuilder(getContext(),
+                R.string.track_list_upload_all_tracks_title,
+                R.drawable.ic_cloud_upload_white_24dp,
+                R.string.track_list_upload_all_tracks_content)
                 .positiveText(R.string.ok)
                 .negativeText(R.string.cancel)
                 .onPositive((materialDialog, dialogAction) -> uploadAllLocalTracks())
                 .show());
     }
 
-    private Observable<Track> uploadTracksWithDialogObservable(List<Track> tracks) {
-        return Observable.create(new Observable.OnSubscribe<Track>() {
-            private int numberOfTracks = tracks.size();
-            private int numberOfSuccesses = 0;
-            private int numberOfFailures = 0;
-            private MaterialDialog dialog;
-
-            @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                subscriber.add(mTrackUploadHandler.uploadTracks(tracks)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Subscriber<Track>() {
-                            @Override
-                            public void onStart() {
-                                subscriber.onStart();
-
-                                dialog = new MaterialDialog.Builder(getContext())
-                                        .title(R.string.track_list_upload_all_tracks_title)
-                                        .cancelable(false)
-                                        .negativeText(R.string.cancel)
-                                        .progress(true, numberOfTracks)
-                                        .onNegative(
-                                                (materialDialog1, dialogAction) -> unsubscribe())
-                                        .show();
-                            }
-
-                            @Override
-                            public void onCompleted() {
-                                if (!subscriber.isUnsubscribed())
-                                    subscriber.onCompleted();
-
-                                dialog.dismiss();
-
-                                Toast.makeText(getContext(),
-                                        "" + numberOfSuccesses + "have been successfully uploaded.",
-                                        Toast.LENGTH_LONG).show();
-                                Toast.makeText(getContext(),
-                                        "" + numberOfSuccesses + "had to less measurements to " +
-                                                "uploaded.",
-                                        Toast.LENGTH_LONG).show();
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                if (!subscriber.isUnsubscribed())
-                                    subscriber.onError(e);
-                                Toast.makeText(getContext(),
-                                        "Error while uploading",
-                                        Toast.LENGTH_LONG).show();
-                                dialog.dismiss();
-                            }
-
-                            @Override
-                            public void onNext(Track track) {
-                                if (track == null)
-                                    numberOfFailures++;
-                                else
-                                    numberOfSuccesses++;
-
-                                dialog.setProgress(numberOfFailures + numberOfSuccesses);
-                                subscriber.onNext(track);
-                            }
-                        }));
-            }
-        });
-    }
-
     private void uploadAllLocalTracks() {
-
         uploadTrackSubscription = Observable.defer(() -> mEnvirocarDB.getAllLocalTracks())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -166,78 +100,14 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
                     @Override
                     public void onNext(Track track) {
-                        LOG.info("Track uploaded");
+                        LOG.info("Track successfully uploaded -> [%s]", track.getName());
+
+                        // Update the lists.
+                        mRecyclerViewAdapter.removeItem(track);
+                        mRecyclerViewAdapter.notifyDataSetChanged();
+                        onTrackUploadedListener.onTrackUploaded(track);
                     }
                 });
-
-
-//        uploadTrackSubscription = mEnvirocarDB.getAllLocalTracks()
-//                .first()
-//                .map(tracks -> {
-//                    LOG.info("Tracks : " + tracks.size());
-//                    localTrackSize = tracks.size();
-//                    return tracks;
-//                })
-//                .flatMap(tracks -> mTrackUploadHandler.uploadMultipleTracks(tracks)
-//                        .subscribeOn(Schedulers.io())
-//                        .observeOn(AndroidSchedulers.mainThread())
-//                        .doOnUnsubscribe(() -> LOG.info("Upload has been canceled"))
-//                        .subscribe(new Subscriber<Track>() {
-//                            private MaterialDialog materialDialog;
-//                            private int tracksToUpload = localTrackSize;
-//                            private int currentTrack = 1;
-//
-//                            @Override
-//                            public void onStart() {
-//                                LOG.info("onStart(): Upload of all local tracks started.");
-//                                materialDialog = new MaterialDialog.Builder(getContext())
-//                                        .title(R.string.track_list_upload_all_tracks_title)
-//                                        .cancelable(false)
-//                                        .negativeText(R.string.cancel)
-//                                        .progress(true, tracksToUpload)
-//                                        .onNegative((materialDialog1, dialogAction) ->
-//                                                unsubscribe())
-//                                        .show();
-//                            }
-//
-//                            @Override
-//                            public void onCompleted() {
-//                                LOG.info("onCompleted(): Upload of all local tracks finished.");
-//                                materialDialog.dismiss();
-//
-//                                showSnackbar(String.format("%s tracks have been uploaded.",
-//                                        localTrackSize));
-//                            }
-//
-//                            @Override
-//                            public void onError(Throwable e) {
-//                                LOG.error(e.getMessage(), e);
-//                                materialDialog.dismiss();
-//
-//                                showSnackbar(String.format(""));
-//                            }
-//
-//                            @Override
-//                            public void onNext(Track uploaded) {
-//                                LOG.info("onNext(): Track [%s] has been uploaded -> [%s]",
-//                                        uploaded.getName(), uploaded.getRemoteID());
-//
-//                                // Update the lists.
-//                                mRecyclerViewAdapter.removeItem(uploaded);
-//                                mRecyclerViewAdapter.notifyDataSetChanged();
-//                                onTrackUploadedListener.onTrackUploaded(uploaded);
-//
-//                                updateDialogContent();
-//                            }
-//
-//                            private void updateDialogContent() {
-//                                currentTrack++;
-////                        materialDialog.setContent(String.format(getString(R.string
-////                                        .track_list_upload_all_tracks_content),
-////                                currentTrack, tracksToUpload));
-//                                materialDialog.incrementProgress(1);
-//                            }
-//                        });
     }
 
     private void uploadTrack(Track track) {
@@ -356,6 +226,106 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         }
     }
 
+    private Observable<Track> uploadTracksWithDialogObservable(List<Track> tracks) {
+        return Observable.create(new Observable.OnSubscribe<Track>() {
+            private int numberOfTracks = tracks.size();
+            private int numberOfSuccesses = 0;
+            private int numberOfFailures = 0;
+            private MaterialDialog dialog;
+            private View contentView;
+
+            @Override
+            public void call(Subscriber<? super Track> subscriber) {
+                subscriber.add(mTrackUploadHandler.uploadTracks(tracks, false)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Subscriber<Track>() {
+                            protected TextView infoText;
+                            protected ProgressBar progressBar;
+                            protected TextView percentageText;
+                            protected TextView progressText;
+
+                            @Override
+                            public void onStart() {
+                                subscriber.onStart();
+
+                                // Create the custom dialog view
+                                contentView = getActivity().getLayoutInflater().inflate(R.layout
+                                        .fragment_tracklist_uploading_dialog, null, false);
+
+                                infoText = (TextView) contentView.findViewById(
+                                        R.id.fragment_tracklist_uploading_dialog_info);
+                                progressBar = (ProgressBar) contentView.findViewById(
+                                        R.id.fragment_tracklist_uploading_dialog_progressbar);
+                                percentageText = (TextView) contentView.findViewById(
+                                        R.id.fragment_tracklist_uploading_dialog_percentage);
+                                progressText = (TextView) contentView.findViewById(
+                                        R.id.fragment_tracklist_uploading_dialog_progress);
+
+                                // update the Progressbar
+                                progressBar.setMax(numberOfTracks);
+                                updateProgressView(0);
+
+                                dialog = DialogUtils.createDefaultDialogBuilder(
+                                        getContext(), "Uploading Tracks...",
+                                        R.drawable.ic_cloud_upload_white_24dp, contentView)
+                                        .cancelable(false)
+                                        .negativeText(R.string.cancel)
+                                        .onNegative((dialog, dialogAction) -> {
+                                            subscriber.unsubscribe();
+                                            unsubscribe();
+                                        })
+                                        .show();
+                            }
+
+                            @Override
+                            public void onCompleted() {
+                                if (!subscriber.isUnsubscribed())
+                                    subscriber.onCompleted();
+
+                                if (numberOfFailures > 0) {
+                                    showSnackbar(String.format("%s of %s tracks have been " +
+                                            "successfully uploaded. %s tracks had to less " +
+                                            "measurements to upload.", numberOfSuccesses,
+                                            numberOfTracks, numberOfFailures));
+                                }
+
+                                dialog.dismiss();
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                if (!subscriber.isUnsubscribed())
+                                    subscriber.onError(e);
+
+                                showSnackbar("An error occurred during the upload process.");
+                                dialog.dismiss();
+                            }
+
+                            @Override
+                            public void onNext(Track track) {
+                                if (track == null)
+                                    numberOfFailures++;
+                                else {
+                                    numberOfSuccesses++;
+                                    subscriber.onNext(track);
+                                }
+
+                                updateProgressView(numberOfFailures + numberOfSuccesses);
+                            }
+
+                            private void updateProgressView(int progress) {
+                                progressBar.setProgress(progress);
+                                progressBar.setSecondaryProgress(progress + 1);
+
+                                percentageText.setText(((int) ((progress / numberOfTracks) * 100)
+                                ) + "%");
+                                progressText.setText(progress + " / " + numberOfTracks);
+                            }
+                        }));
+            }
+        });
+    }
 
     private final class LoadLocalTracksTask extends AsyncTask<Void, Void, Void> {
 
