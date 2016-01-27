@@ -19,6 +19,12 @@ import org.envirocar.app.R;
 public class DialogUtils {
 
     public static MaterialDialog.Builder createDefaultDialogBuilder(
+            Context context, int titleRes, int iconRes, View contentView) {
+        return createDefaultDialogBuilder(context, context.getString(titleRes), iconRes,
+                contentView);
+    }
+
+    public static MaterialDialog.Builder createDefaultDialogBuilder(
             Context context, int titleRes, int iconRes, int contentRes) {
         return createDefaultDialogBuilder(context, context.getString(titleRes), iconRes, context
                 .getString(contentRes));
@@ -53,5 +59,6 @@ public class DialogUtils {
         return new MaterialDialog.Builder(context)
                 .customView(layout, false);
     }
+
 
 }
