@@ -245,10 +245,11 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                     public void onCompleted() {
                         if (!found) {
                             mConnectingDialog.dismiss();
-                            mConnectingDialog = new MaterialDialog.Builder(getActivity())
-                                    .title(R.string.dashboard_dialog_obd_not_found)
-                                    .content(String.format(getString(R.string
-                                                    .dashboard_dialog_obd_not_found_content_template),
+                            mConnectingDialog = DialogUtils.createDefaultDialogBuilder(getContext(),
+                                    R.string.dashboard_dialog_obd_not_found,
+                                    R.drawable.ic_bluetooth_searching_white_24dp,
+                                    String.format(getString(
+                                            R.string.dashboard_dialog_obd_not_found_content_template),
                                             device.getName()))
                                     .negativeText(R.string.ok)
                                     .show();
