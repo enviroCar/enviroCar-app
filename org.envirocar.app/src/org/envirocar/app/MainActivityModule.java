@@ -26,14 +26,12 @@ import org.envirocar.app.activity.StartStopButtonUtil;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.view.LogbookFragment;
-import org.envirocar.app.view.RegisterFragment;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
 import org.envirocar.app.view.dashboard.DashboardMapFragment;
 import org.envirocar.app.view.dashboard.DashboardTempomatFragment;
 import org.envirocar.app.view.dashboard.DashboardTrackDetailsFragment;
 import org.envirocar.app.view.dashboard.DashboardTrackMapFragment;
 import org.envirocar.app.view.dashboard.DashboardTrackSettingsFragment;
-import org.envirocar.app.view.dashboard.RealDashboardFragment;
 import org.envirocar.app.view.preferences.Tempomat;
 import org.envirocar.app.view.tracklist.AbstractTrackListCardFragment;
 import org.envirocar.app.view.tracklist.TrackListLocalCardFragment;
@@ -41,8 +39,6 @@ import org.envirocar.app.view.tracklist.TrackListPagerFragment;
 import org.envirocar.app.view.tracklist.TrackListRemoteCardFragment;
 import org.envirocar.app.views.ReactiveTermsOfUseDialog;
 import org.envirocar.core.injection.InjectionActivityScope;
-
-import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
@@ -58,13 +54,10 @@ import dagger.Provides;
                 TermsOfUseManager.class,
                 CarPreferenceHandler.class,
                 LogbookFragment.class,
-                RegisterFragment.class,
                 StartStopButtonUtil.class,
-                RealDashboardFragment.class,
                 Tempomat.class,
                 DashboardMainFragment.class,
                 LogbookFragment.class,
-                RegisterFragment.class,
                 DashboardTrackDetailsFragment.class,
                 DashboardTempomatFragment.class,
                 DashboardTrackSettingsFragment.class,
@@ -103,12 +96,6 @@ public class MainActivityModule {
     @InjectionActivityScope
     public Context provideContext() {
         return mActivity;
-    }
-
-    @Provides
-    @Singleton
-    public RealDashboardFragment provideRealDashboardFragment(){
-        return new RealDashboardFragment();
     }
 
 }
