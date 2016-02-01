@@ -25,12 +25,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.common.base.Preconditions;
 
 import org.envirocar.app.R;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.view.utils.DialogUtils;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.core.util.Util;
@@ -91,6 +93,9 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                     @Override
                     public void onCompleted() {
                         LOG.info("onCompleted()");
+                        if (mRecyclerViewAdapter.getItemCount() <= 0) {
+                            showNoLocalTracksInfo();
+                        }
                     }
 
                     @Override
@@ -111,25 +116,13 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     }
 
     private void uploadTrack(Track track) {
-        uploadTrackSubscription = mTrackUploadHandler
-                .uploadSingleTrack(track, getActivity())
+        uploadTrackSubscription = uploadTrackWithDialogObservable(track)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<Track>() {
-                    private MaterialDialog progressDialog;
-
-                    @Override
-                    public void onStart() {
-                        progressDialog = new MaterialDialog.Builder(getActivity())
-                                .title(R.string.track_list_upload_track_uploading)
-                                .content(R.string.track_list_upload_track_please_wait)
-                                .progress(true, 0)
-                                .show();
-                    }
-
                     @Override
                     public void onCompleted() {
-                        if (progressDialog != null) progressDialog.dismiss();
+                        LOG.info("onCompleted()");
                         showSnackbar(String.format(
                                 getString(R.string.track_list_upload_track_success_template),
                                 track.getName()));
@@ -137,10 +130,12 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
                     @Override
                     public void onError(Throwable e) {
-                        LOG.error(e.getMessage(), e);
-                        if (progressDialog != null)
-                            progressDialog.dismiss();
-                        showSnackbar(e.getMessage());
+                        LOG.warn(e.getMessage(), e);
+                        if(e instanceof NoMeasurementsException){
+                            showSnackbar(R.string.track_list_upload_track_no_measurements);
+                        } else {
+                            showSnackbar(R.string.track_list_upload_track_general_error);
+                        }
                     }
 
                     @Override
@@ -226,6 +221,71 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         }
     }
 
+    private Observable<Track> uploadTrackWithDialogObservable(Track track) {
+        Preconditions.checkNotNull(track, "Input track cannot be null");
+        return Observable.create(new Observable.OnSubscribe<Track>() {
+            private MaterialDialog dialog;
+            private View contentView;
+
+            @Override
+            public void call(Subscriber<? super Track> subscriber) {
+                subscriber.add(mTrackUploadHandler
+                        .uploadSingleTrack(track, getActivity())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Subscriber<Track>() {
+                            @Override
+                            public void onStart() {
+                                subscriber.onStart();
+
+                                // Inflate the dialog content view and set the track name.
+                                contentView = getActivity().getLayoutInflater().inflate(
+                                        R.layout.fragment_tracklist_uploading_single_dialog,
+                                        null, false);
+                                TextView trackName = (TextView) contentView.findViewById(
+                                        R.id.fragment_tracklist_uploading_single_dialog_trackname);
+                                trackName.setText(track.getName());
+
+                                // Create the dialog to show.
+                                dialog = DialogUtils.createDefaultDialogBuilder(getContext(),
+                                        R.string.track_list_upload_track_uploading,
+                                        R.drawable.ic_cloud_upload_white_24dp,
+                                        contentView)
+                                        .cancelable(false)
+                                        .negativeText(R.string.cancel)
+                                        .onNegative((materialDialog, dialogAction) -> {
+                                            subscriber.unsubscribe();
+                                            unsubscribe();
+                                        })
+                                        .show();
+                            }
+
+                            @Override
+                            public void onCompleted() {
+                                subscriber.onCompleted();
+
+                                if (dialog != null) dialog.dismiss();
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                LOG.info("onError()");
+                                subscriber.onError(e);
+
+                                if (dialog != null) dialog.dismiss();
+                            }
+
+                            @Override
+                            public void onNext(Track track) {
+                                LOG.info("onNext() track has been successfully uploaded.");
+                                subscriber.onNext(track);
+                                subscriber.onCompleted();
+                            }
+                        }));
+            }
+        });
+    }
+
     private Observable<Track> uploadTracksWithDialogObservable(List<Track> tracks) {
         return Observable.create(new Observable.OnSubscribe<Track>() {
             private int numberOfTracks = tracks.size();
@@ -285,8 +345,9 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
                                 if (numberOfFailures > 0) {
                                     showSnackbar(String.format("%s of %s tracks have been " +
-                                            "successfully uploaded. %s tracks had to less " +
-                                            "measurements to upload.", numberOfSuccesses,
+                                                    "successfully uploaded. %s tracks had to less" +
+                                                    " " +
+                                                    "measurements to upload.", numberOfSuccesses,
                                             numberOfTracks, numberOfFailures));
                                 }
 
@@ -398,15 +459,19 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                                 ECAnimationUtils.animateShowView(getContext(), mFAB,
                                         R.anim.translate_slide_in_bottom_fragment);
                             } else if (mTrackList.isEmpty()) {
-                                showText(R.drawable.img_tracks,
-                                        R.string.track_list_bg_no_local_tracks,
-                                        R.string.track_list_bg_no_local_tracks_sub);
+                                showNoLocalTracksInfo();
                             }
                         }
                     });
 
             return null;
         }
+    }
+
+    private void showNoLocalTracksInfo() {
+        showText(R.drawable.img_tracks,
+                R.string.track_list_bg_no_local_tracks,
+                R.string.track_list_bg_no_local_tracks_sub);
     }
 
     /**

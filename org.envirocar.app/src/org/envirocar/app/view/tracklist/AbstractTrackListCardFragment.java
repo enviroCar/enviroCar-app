@@ -337,23 +337,17 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     }
 
     protected void showSnackbar(final int message) {
-        mMainThreadWorker.schedule(new Action0() {
-            @Override
-            public void call() {
-                if (getView() != null) {
-                    Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
-                }
+        mMainThreadWorker.schedule(() -> {
+            if (getView() != null) {
+                Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
             }
         });
     }
 
     protected void showSnackbar(final String message) {
-        mMainThreadWorker.schedule(new Action0() {
-            @Override
-            public void call() {
-                if (getView() != null) {
-                    Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
-                }
+        mMainThreadWorker.schedule(() -> {
+            if (getView() != null) {
+                Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
             }
         });
     }
