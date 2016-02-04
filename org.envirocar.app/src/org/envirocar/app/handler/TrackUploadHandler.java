@@ -20,7 +20,6 @@ package org.envirocar.app.handler;
 
 import android.app.Activity;
 import android.content.Context;
-import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
 
@@ -158,36 +157,36 @@ public class TrackUploadHandler {
             @Override
             public void call(Subscriber<? super Track> subscriber) {
                 subscriber.onStart();
-                mNotificationHandler.createNotification("start");
+//                mNotificationHandler.createNotification("start");
 
-                subscriber.add(Observable.from(tracks)
-                        .concatMap(track -> uploadTrack(track))
-                        .subscribe(new Subscriber<Track>() {
-                            @Override
-                            public void onCompleted() {
-                                subscriber.onCompleted();
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                LOG.error(e.getMessage(), e);
-                                if (e instanceof NoMeasurementsException) {
-                                    mainthreadWorker.schedule(() -> Toast.makeText(mContext,
-                                            R.string.uploading_track_no_measurements_after_obfuscation_long,
-                                            Toast.LENGTH_LONG).show());
-                                    mNotificationHandler.createNotification
-                                            (mContext.getString(R.string
-                                                    .uploading_track_no_measurements_after_obfuscation));
-                                } else {
-                                    subscriber.onError(e);
-                                }
-                            }
-
-                            @Override
-                            public void onNext(Track track) {
-                                subscriber.onNext(track);
-                            }
-                        }));
+//                subscriber.add(Observable.from(tracks)
+//                        .concatMap(track -> uploadTrack(track))
+//                        .subscribe(new Subscriber<Track>() {
+//                            @Override
+//                            public void onCompleted() {
+//                                subscriber.onCompleted();
+//                            }
+//
+//                            @Override
+//                            public void onError(Throwable e) {
+//                                LOG.error(e.getMessage(), e);
+//                                if (e instanceof NoMeasurementsException) {
+//                                    mainthreadWorker.schedule(() -> Toast.makeText(mContext,
+//                                            R.string.uploading_track_no_measurements_after_obfuscation_long,
+//                                            Toast.LENGTH_LONG).show());
+//                                    mNotificationHandler.createNotification
+//                                            (mContext.getString(R.string
+//                                                    .uploading_track_no_measurements_after_obfuscation));
+//                                } else {
+//                                    subscriber.onError(e);
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onNext(Track track) {
+//                                subscriber.onNext(track);
+//                            }
+//                        }));
             }
         });
     }
