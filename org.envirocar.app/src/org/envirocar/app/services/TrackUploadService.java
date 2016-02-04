@@ -87,10 +87,11 @@ public class TrackUploadService extends Service {
         if (localTrackList.size() > 0) {
             LOG.info(String.format("%s local tracks to upload", localTrackList.size()));
 
-//            setNotification("yeae", "oiad");
-            uploadAllLocalTracks();
+            setNotification("yeae", "oiad");
+//            uploadAllLocalTracks();
         } else {
             LOG.info("No local tracks to upload");
+            setNotification("yeae", "oiad");
             try {
                 finalize();
             } catch (Throwable throwable) {
@@ -145,6 +146,7 @@ public class TrackUploadService extends Service {
 
     private Observable<Track> getUploadWithNotificationObservable(final List<Track> tracks) {
         return Observable.create(new Observable.OnSubscribe<Track>() {
+            private RemoteViews smallView;
             private RemoteViews bigView;
             private Notification forgroundNotification;
             private NotificationManager notificationManager;
@@ -166,14 +168,28 @@ public class TrackUploadService extends Service {
                                 forgroundNotification = new NotificationCompat
                                         .Builder(getApplicationContext())
                                         .setSmallIcon(R.drawable.ic_cloud_upload_white_24dp)
-                                        .setContentText("Slide down on note to expand")
-                                        .setContentTitle("Automatic Track Upload")
+                                        .setContentTitle(
+                                                getString(R.string.service_track_upload_title))
                                         .setPriority(Integer.MAX_VALUE)
                                         .build();
 
-                                bigView = new RemoteViews(getPackageName(), R.layout
-                                        .service_track_upload_handler_notification);
+                                smallView = new RemoteViews(getPackageName(),
+                                        R.layout.service_track_upload_handler_notification_small);
+                                bigView = new RemoteViews(getPackageName(),
+                                        R.layout.service_track_upload_handler_notification);
                                 forgroundNotification.bigContentView = bigView;
+
+                                setSmallViewText(
+                                        getString(R.string
+                                                .notification_automatic_track_upload_title),
+                                        getString(R.string.
+                                                notification_slide_down));
+                                setBigViewText(
+                                        getString(R.string.
+                                                notification_automatic_track_upload_title),
+                                        getString(R.string.
+                                                notification_automatic_track_upload_success_sub)
+                                );
 
                                 notificationManager = (NotificationManager) getSystemService(Context
                                         .NOTIFICATION_SERVICE);
@@ -185,13 +201,19 @@ public class TrackUploadService extends Service {
                                 LOG.info("getUploadWithNotificationObservable.onCompleted()");
                                 subscriber.onCompleted();
 
+                                setSmallViewText(
+                                        getString(R.string.
+                                                notification_automatic_track_upload_success),
+                                        getString(R.string.
+                                                notification_automatic_track_upload_success_sub,
+                                                numberOfSuccesses, numberOfTracks));
+
                                 forgroundNotification = new NotificationCompat
                                         .Builder(getApplicationContext())
                                         .setSmallIcon(R.drawable.ic_done)
-                                        .setContentTitle("Automatic Upload Finished")
-                                        .setContentText(String.format(
-                                                "%s of %s tracks has been successfully uploaded.",
-                                                numberOfSuccesses, numberOfTracks))
+                                        .setContentTitle(
+                                                getString(R.string.service_track_upload_title))
+                                        .setContent(smallView)
                                         .build();
 
                                 notificationManager.notify(100, forgroundNotification);
@@ -200,12 +222,17 @@ public class TrackUploadService extends Service {
                             @Override
                             public void onError(Throwable e) {
                                 subscriber.onError(e);
+                                
+                                setSmallViewText(
+                                        getString(R.string.
+                                                notification_automatic_track_upload_error),
+                                        getString(R.string.
+                                                notification_automatic_track_upload_error_sub));
 
                                 forgroundNotification = new NotificationCompat
                                         .Builder(getApplicationContext())
                                         .setSmallIcon(R.drawable.ic_error_outline_white_24dp)
                                         .setContentTitle("Track Upload Error")
-                                        .setContentText("An error occured while uploading tracks.")
                                         .build();
 
                                 notificationManager.notify(100, forgroundNotification);
@@ -244,6 +271,24 @@ public class TrackUploadService extends Service {
 
                                 notificationManager.notify(100, forgroundNotification);
                             }
+
+                            private void setSmallViewText(String title, String content) {
+                                smallView.setTextViewText(
+                                        R.id.service_track_upload_handler_notification_text,
+                                        title);
+                                smallView.setTextViewText(
+                                        R.id.service_track_upload_handler_notification_sub_text,
+                                        content);
+                            }
+
+                            private void setBigViewText(String title, String content) {
+                                bigView.setTextViewText(
+                                        R.id.service_track_upload_handler_notification_text,
+                                        title);
+                                bigView.setTextViewText(
+                                        R.id.service_track_upload_handler_notification_sub_text,
+                                        content);
+                            }
                         }));
             }
         });
@@ -253,14 +298,16 @@ public class TrackUploadService extends Service {
         RemoteViews bigView = new RemoteViews(getPackageName(), R.layout
                 .service_track_upload_handler_notification);
 
+        RemoteViews smallView = new RemoteViews(getPackageName(), R.layout
+                .service_track_upload_handler_notification_small);
+
 
         Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.home_icon);
 
         Notification forgroundNotification = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_cloud_upload_white_24dp)
-                .setContentText("Slide down on note to expand")
                 .setContentTitle(title)
-//                .setContent(bigView)
+                .setContent(smallView)
 //                .setAutoCancel(false)
                 .setPriority(Integer.MAX_VALUE)
 //                .setOngoing(true)
