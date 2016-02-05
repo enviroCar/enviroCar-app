@@ -24,13 +24,13 @@
     <string name="yesterday">Gestern</string>
 
     <string name="cancel">Abbrechen</string>
-    <string name="app_name">enviroCar</string>
-    <string name="menu_settings">Einstellungen</string>
-    <string name="menu_help">Hilfe</string>
+    <!--<string name="app_name">enviroCar</string>-->
+    <!--<string name="menu_settings">Einstellungen</string>-->
+    <!--<string name="menu_help">Hilfe</string>-->
     <string name="menu_about">Über enviroCar</string>
-	<string name="menu_garage">Meine Garage</string>    
-    <string name="activity_checklist_title">Checkliste</string>
-    <string name="menu_logbook">Logbuch</string>
+	<!--<string name="menu_garage">Meine Garage</string>    -->
+    <!--<string name="activity_checklist_title">Checkliste</string>-->
+    <!--<string name="menu_logbook">Logbuch</string>-->
 
 
     <string name="checklist_item_bluetooth_enabled">Bluetooth aktiviert</string>
@@ -129,7 +129,6 @@
 	<string name="default_track_description">Fahrt mit Auto %s.</string>
 	<string name="creating_temp_car">Erzeuge temporäres Auto.</string>
     
-    <string name="menu_login">Einloggen/Registrieren</string>
     <string name="gasoline">Benzin</string>
     <string name="diesel">Diesel</string>
     <string name="register_car">Auto neu erstellen</string>
@@ -147,7 +146,6 @@
     <string name="menu_logout">Ausloggen</string>
     <string name="menu_register">Registrieren</string>
     
-    <string name="dashboard">Dashboard</string>
     <string name="track_statistics">Statistiken</string>
     <string name="track_statistics_distance">Distanz</string>
 	
@@ -178,8 +176,7 @@
     <string name="finish_track_long">Wollen Sie wirklich diesen Track abschließen?</string>
     
     <string name="menu_cancel">Abbrechen</string>
-    <string name="menu_send_log">Problem Melden</string>
-    
+
     <string name="send_log_0">Mit Hilfe dieses Features lassen sich Fehler und Missverhalten der App reproduzieren.
 	    Wenn Sie ein Problem-Bericht einsenden, helfen sie aktiv mit, die enviroCar app zu verbessern.</string>
 	<string name="send_log_1">Dieses Feature nutzt den \"Senden an\" Mechanismus.
