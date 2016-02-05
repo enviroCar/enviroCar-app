@@ -87,11 +87,11 @@ public class TrackUploadService extends Service {
         if (localTrackList.size() > 0) {
             LOG.info(String.format("%s local tracks to upload", localTrackList.size()));
 
-            setNotification("yeae", "oiad");
-//            uploadAllLocalTracks();
+//            setNotification("yeae", "oiad");
+            uploadAllLocalTracks();
         } else {
             LOG.info("No local tracks to upload");
-            setNotification("yeae", "oiad");
+//            setNotification("yeae", "oiad");
             try {
                 finalize();
             } catch (Throwable throwable) {
