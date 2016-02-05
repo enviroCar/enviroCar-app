@@ -20,24 +20,63 @@ package org.envirocar.obd.bluetooth;
 
 import android.bluetooth.BluetoothSocket;
 
+import org.envirocar.core.logging.Logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public interface BluetoothSocketWrapper {
+/**
+ * TODO JavaDoc
+ */
+public abstract class BluetoothSocketWrapper {
+    private static final Logger LOG = Logger.getLogger(BluetoothSocketWrapper.class);
 
-	InputStream getInputStream() throws IOException;
+	public abstract InputStream getInputStream() throws IOException;
 
-	OutputStream getOutputStream() throws IOException;
+    public abstract OutputStream getOutputStream() throws IOException;
 
-	String getRemoteDeviceName();
+    public abstract String getRemoteDeviceName();
 
-	void connect() throws IOException;
+    public abstract void connect() throws IOException;
 
-	String getRemoteDeviceAddress();
+    public abstract String getRemoteDeviceAddress();
 
-	void close() throws IOException;
+    public abstract void close() throws IOException;
 
-	BluetoothSocket getUnderlyingSocket();
+    public abstract BluetoothSocket getUnderlyingSocket();
 
+    public void shutdown() {
+        LOG.info("Shutting down bluetooth socket...");
+
+        try {
+            if (getInputStream() != null) {
+                getInputStream().close();
+            } else {
+                LOG.warn("No socket InputStream found for closing");
+            }
+
+        } catch (Exception e) {
+            LOG.warn(e.getMessage(), e);
+        }
+
+        try {
+            if (getOutputStream() != null) {
+                getOutputStream().close();
+            } else {
+                LOG.warn("No socket OutputStream found for closing");
+            }
+
+        } catch (Exception e) {
+            LOG.warn(e.getMessage(), e);
+        }
+
+        try {
+            close();
+        } catch (Exception e) {
+            LOG.warn(e.getMessage(), e);
+        }
+
+        LOG.info("bluetooth socket down!");
+    }
 }

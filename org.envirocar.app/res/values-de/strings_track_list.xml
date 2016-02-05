@@ -42,6 +42,8 @@
     <string name="track_list_bg_error_sub">Fehler beim Laden der Fahrten.\nBitte versuchen Sie es erneut.</string>
     <string name="track_list_bg_no_local_tracks">KEINE LOKALE FAHRTEN</string>
     <string name="track_list_bg_no_local_tracks_sub">Sie verfügen derzeitig über keine lokale Fahrten.</string>
+    <string name="track_list_bg_no_remote_tracks">KEINE HOCHGELADENEN FAHRTEN</string>
+    <string name="track_list_bg_no_remote_tracks_sub">Sie verfügen derzeitig über keine hochgeladenen Fahrten.</string>
     <string name="track_list_bg_not_logged_in">NICHT ANGEMELDET</string>
     <string name="track_list_bg_not_logged_in_sub">Um Zugriff auf Ihre hochgeladenen Fahrten zu erhalten,\nloggen Sie sich bitte zuerst ein.</string>
     <string name="track_list_bg_no_connection">Keine Verbdinung zum Internet.</string>
@@ -52,16 +54,17 @@
     <string name="track_list_communication_error">Keine Verbindung zum Server.</string>
 
     <string name="track_list_menu_details">Detailansicht</string>
-    <string name="track_list_menu_delete">Lösche Fahrt</string>
-    <string name="track_list_menu_upload">Fahrt als Open Data hochladen</string>
-    <string name="track_list_menu_export">Exportiere Track</string>
+    <string name="track_list_menu_delete">Löschen</string>
+    <string name="track_list_menu_upload">Als Open Data hochladen</string>
+    <string name="track_list_menu_export">Exportieren</string>
 
     <string name="track_list_details_duration">Dauer</string>
     <string name="track_list_details_distance">Distanz</string>
     <string name="track_list_details_car">Auto:</string>
     <string name="track_list_details_start">Beginn:</string>
     <string name="track_list_details_end">Ende:</string>
-    <string name="track_list_details_consumption">Verbrauch:</string>
-    <string name="track_list_details_emission">CO\u2082 Ausstoß:</string>
+    <string name="track_list_details_consumption">Verbrauch*:</string>
+    <string name="track_list_details_emission">CO\u2082 Ausstoß*:</string>
+    <string name="track_list_details_diesel_not_supported">DIESEL NICHT\nUNTERSTÜTZT</string>
 
 </resources>

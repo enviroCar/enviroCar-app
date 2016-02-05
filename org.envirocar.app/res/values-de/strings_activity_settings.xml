@@ -75,4 +75,6 @@
     <string name="sampling_rate_summary">Das Zeit-Delta zwischen zwei MEssungen in Sekunden (aktueller Wert: %s). HINWEIS: Je niedriger der Wert, desto größer ist die Datenmenge. Ändern Sie diesen Wert nur dann, wenn Sie such auch der Konsequenzen bewusst sind.</string>
     <string name="enable_debug_logging">Debug-Protokollierung aktivieren</string>
     <string name="enable_debug_logging_summary">Erhöhung der Protokollierungsstufe (in der Ausgabe/Problembericht verwendet).</string>
+    <string name="pref_enable_diesel_consumption">Diesel Verbrauchsberechnung aktivieren</string>
+    <string name="pref_enable_diesel_consumption_summary">Aktiviert die Verbrauchsschätzung für Dieselfahrzeuge.\n\nBeachten Sie, dass es sich hierbei um ein nicht getestetes Feature im Beta-Stadium handelt. Daher ist unbedingt zur Enables the estimation of consumption values for diesel. NOTE: This feature is just a beta feature.</string>
 </resources>

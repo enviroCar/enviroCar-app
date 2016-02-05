@@ -104,6 +104,7 @@ public class TrackDetailsProvider {
 
         mNumMeasurements++;
 
+        // update computed features
         updateDistance(event.mMeasurement);
         updateAverageSpeed(event.mMeasurement);
         updatePathOverlay(event.mMeasurement);
@@ -176,13 +177,15 @@ public class TrackDetailsProvider {
      * @param measurement
      */
     private void updateAverageSpeed(Measurement measurement) {
-        mTotalSpeed += measurement.getProperty(Measurement.PropertyKey.SPEED);
-        mAvrgSpeed = (int) mTotalSpeed / mNumMeasurements;
-        mBus.post(provideAverageSpeed());
+        if (measurement.hasProperty(Measurement.PropertyKey.SPEED)){
+            mTotalSpeed += measurement.getProperty(Measurement.PropertyKey.SPEED);
+            mAvrgSpeed = (int) mTotalSpeed / mNumMeasurements;
+            mBus.post(provideAverageSpeed());
+        }
     }
 
 
-    public void onOBDConnectionStopped() {
+    public void clear() {
         mMainThreadWorker.schedule(() -> {
             mTrackMapOverlay.clearPath();
             mNumMeasurements = 0;

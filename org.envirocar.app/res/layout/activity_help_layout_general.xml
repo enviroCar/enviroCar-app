@@ -41,9 +41,19 @@
             app:contentScrim="?attr/colorPrimary"
             app:expandedTitleMarginEnd="64dp"
             app:expandedTitleMarginStart="48dp"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            app:statusBarScrim="@android:color/transparent">
 
-            <RelativeLayout
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:scaleType="fitCenter"
+                android:fitsSystemWindows="true"
+                app:layout_collapseMode="parallax"
+                android:layout_margin="@dimen/spacing_xxxlarge"
+                android:src="@drawable/img_envirocar_logo_white"/>
+
+<!--            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:fitsSystemWindows="true"
@@ -51,42 +61,8 @@
                 android:scaleType="centerCrop"
                 app:layout_collapseMode="parallax">
 
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true">
 
-                    <ImageView
-                        android:layout_width="56dp"
-                        android:layout_height="56dp"
-                        android:layout_gravity="center"
-                        android:layout_margin="@dimen/spacing_large"
-                        android:src="@drawable/ic_launcher"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_margin="@dimen/spacing_large"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="enviroCar"
-                            android:textColor="@color/white_cario"
-                            android:textSize="24sp"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="version x.x.x"
-                            android:textColor="@color/white_cario"
-                            android:textSize="18sp"/>
-
-                    </LinearLayout>
-                </LinearLayout>
-            </RelativeLayout>
+            </RelativeLayout>-->
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/activity_help_layout_general_toolbar"

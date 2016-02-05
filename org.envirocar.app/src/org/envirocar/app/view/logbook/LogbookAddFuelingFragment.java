@@ -58,7 +58,6 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -109,7 +108,6 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
     @Inject
     protected DAOProvider daoProvider;
 
-    private Scheduler.Worker backgroundWorker = Schedulers.io().createWorker();
     private CompositeSubscription subscriptions = new CompositeSubscription();
 
     @Nullable

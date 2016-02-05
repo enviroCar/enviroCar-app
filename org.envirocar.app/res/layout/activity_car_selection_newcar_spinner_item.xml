@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView
+    android:id="@android:id/text1"
+    style="@style/enviroCar.Spinner.Style"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:ellipsize="marquee"
+    android:orientation="vertical"
+    android:singleLine="true"/>
+
+

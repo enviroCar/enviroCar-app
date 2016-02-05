@@ -22,6 +22,7 @@ import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.core.exception.TrackSerializationException;
+import org.envirocar.core.util.TrackMetadata;
 
 import java.util.List;
 
@@ -53,6 +54,8 @@ public interface EnviroCarDB {
      */
     Observable<List<Track>> getAllTracks(boolean lazy);
 
+    Observable<List<Track>> getAllTracksByCar(String id, boolean lazy);
+
     Observable<List<Track>> getAllLocalTracks();
 
     Observable<List<Track>> getAllLocalTracks(boolean lazy);
@@ -65,13 +68,19 @@ public interface EnviroCarDB {
 
     void insertTrack(Track track) throws TrackSerializationException;
 
-    Observable<Void> insertTrackObservable(Track track);
+    Observable<Track> insertTrackObservable(Track track);
+
+    boolean updateTrack(Track track);
+
+    Observable<Track> updateTrackObservable(Track track);
+
+    boolean updateCarIdOfTracks(String currentId, String newId);
 
     void deleteTrack(Track.TrackId trackId);
 
     void deleteTrack(Track track);
 
-    Observable<Void> deleteTrackObservable(Track track);
+    Observable<Track> deleteTrackObservable(Track track);
 
     Observable<Void> deleteAllRemoteTracks();
 
@@ -87,5 +96,11 @@ public interface EnviroCarDB {
 
     Observable<Track> fetchTrack(Observable<Track> track, final boolean lazy);
 
+    Observable<Track> getActiveTrackObservable(boolean lazy);
 
+    void updateTrackMetadata(final Track track, final TrackMetadata trackMetadata) throws
+            TrackSerializationException;
+
+    Observable<TrackMetadata> updateTrackMetadataObservable(final Track track, final TrackMetadata trackMetadata) throws
+            TrackSerializationException;
 }

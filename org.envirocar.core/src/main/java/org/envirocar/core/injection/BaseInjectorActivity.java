@@ -45,10 +45,10 @@ public abstract class BaseInjectorActivity extends AppCompatActivity implements 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
         mObjectGraph = ((Injector) getApplicationContext()).getObjectGraph().plus
                 (getInjectionModules().toArray());
+
+        super.onCreate(savedInstanceState);
 
         // Inject all variables in this object.
         injectObjects(this);

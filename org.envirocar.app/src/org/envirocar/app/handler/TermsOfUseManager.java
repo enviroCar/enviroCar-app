@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -25,10 +25,10 @@ import android.os.AsyncTask;
 import com.squareup.otto.Bus;
 
 import org.envirocar.app.R;
-import org.envirocar.app.activity.DialogUtil;
-import org.envirocar.app.activity.DialogUtil.PositiveNegativeCallback;
+import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
+import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.exception.ServerException;
-import org.envirocar.remote.DAOProvider;
+import org.envirocar.app.views.ReactiveTermsOfUseDialog;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.DataRetrievalFailureException;
@@ -36,18 +36,24 @@ import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.remote.DAOProvider;
 
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
+import rx.Observable;
 import rx.exceptions.OnErrorThrowable;
 import rx.functions.Func1;
 
+/**
+ * TODO JavaDoc
+ *
+ * @author dewall
+ */
+@Singleton
 public class TermsOfUseManager {
     private static final Logger LOGGER = Logger.getLogger(TermsOfUseManager.class);
     // Mutex for locking when downloading.
@@ -55,86 +61,186 @@ public class TermsOfUseManager {
     protected List<TermsOfUse> list;
 
     // Injected variables.
-    @Inject
-    @InjectApplicationScope
-    protected Context mContext;
-    @Inject
-    protected Bus mBus;
-    @Inject
-    protected UserHandler mUserManager;
-    @Inject
-    protected DAOProvider mDAOProvider;
-
+    private final Context mContext;
+    private final Bus mBus;
+    private final UserHandler mUserManager;
+    private final DAOProvider mDAOProvider;
 
     private TermsOfUse current;
 
-    public TermsOfUseManager(Context context) {
-
-        // Inject ourselves.
-        ((Injector) context).injectObjects(this);
-
-        //        try {
-        //            retrieveTermsOfUse();
-        //        } catch (ServerException e) {
-        //            LOGGER.warn(e.getMessage(), e);
-        //        }
-    }
-
     /**
-     * Checks if the Terms are accepted. If not, open Dialog. On positive
-     * feedback, update the User.
+     * Constructor.
      *
-     * @param user
-     * @param activity
-     * @param callback
+     * @param context
      */
-    public void askForTermsOfUseAcceptance(final User user, final Activity activity,
-                                           final PositiveNegativeCallback callback) {
-        boolean verified = false;
-        try {
-            verified = verifyTermsUseOfVersion(user.getTermsOfUseVersion());
-        } catch (ServerException e) {
-            LOGGER.warn(e.getMessage(), e);
-            return;
-        }
-        if (!verified) {
-
-            final TermsOfUse current;
-            try {
-                current = getCurrentTermsOfUse();
-            } catch (ServerException e) {
-                LOGGER.warn("This should never happen!", e);
-                return;
-            }
-
-            DialogUtil.createTermsOfUseDialog(current,
-                    user.getTermsOfUseVersion() == null, new DialogUtil.PositiveNegativeCallback() {
-
-                        @Override
-                        public void negative() {
-                            LOGGER.info("User did not accept the ToU.");
-                            Crouton.makeText(activity, activity.getString(R.string
-                                    .terms_of_use_cant_continue), Style.ALERT).show();
-                            if (callback != null) {
-                                callback.negative();
-                            }
-                        }
-
-                        @Override
-                        public void positive() {
-                            userAcceptedTermsOfUse(user, current.getIssuedDate());
-                            Crouton.makeText(activity, activity.getString(R.string
-                                    .terms_of_use_updating_server), Style.INFO).show();
-                            if (callback != null) {
-                                callback.positive();
-                            }
-                        }
-
-                    }, activity);
-        } else {
-            LOGGER.info("User has accpeted ToU in current version.");
-        }
+    @Inject
+    public TermsOfUseManager(@InjectApplicationScope Context context, Bus bus, UserHandler
+            userHandler, DAOProvider daoProvider) {
+        this.mContext = context;
+        this.mBus = bus;
+        this.mUserManager = userHandler;
+        this.mDAOProvider = daoProvider;
     }
+
+    public Observable<TermsOfUse> verifyTermsOfUse(Activity activity) {
+        LOGGER.info("verifyTermsOfUse()");
+        return getCurrentTermsOfUseObservable()
+                .flatMap(checkTermsOfUseAcceptance(activity));
+    }
+
+    public <T> Observable<T> verifyTermsOfUse(Activity activity, T t) {
+        return verifyTermsOfUse(activity)
+                .map(termsOfUse -> {
+                    LOGGER.info("User has accepted terms of use.");
+                    return t;
+                });
+    }
+
+    public Observable<TermsOfUse> getCurrentTermsOfUseObservable() {
+        LOGGER.info("getCurrentTermsOfUseObservable()");
+        return current != null ? Observable.just(current) : getRemoteTermsOfUseObservable();
+    }
+
+    private Observable<TermsOfUse> getRemoteTermsOfUseObservable() {
+        LOGGER.info("getRemoteTermsOfUse() TermsOfUse are null. Try to fetch the last TermsOfUse.");
+        return mDAOProvider.getTermsOfUseDAO()
+                .getAllTermsOfUseObservable()
+                .map(termsOfUses -> {
+                    if (termsOfUses == null || termsOfUses.isEmpty())
+                        throw OnErrorThrowable.from(new NotConnectedException(
+                                "Error while retrieving terms of use: " +
+                                        "Result set was null or empty"));
+
+                    // Set the list of terms of uses.
+                    TermsOfUseManager.this.list = termsOfUses;
+
+                    try {
+                        // Get the id of the first terms of use instance and fetch
+                        // the terms of use
+                        String id = termsOfUses.get(0).getId();
+                        TermsOfUse inst = mDAOProvider.getTermsOfUseDAO().getTermsOfUse(id);
+                        return inst;
+                    } catch (DataRetrievalFailureException | NotConnectedException e) {
+                        LOGGER.warn(e.getMessage(), e);
+                        throw OnErrorThrowable.from(e);
+                    }
+                });
+    }
+
+    private Func1<TermsOfUse, Observable<TermsOfUse>> checkTermsOfUseAcceptance(Activity activity) {
+        LOGGER.info("checkTermsOfUseAcceptance()");
+        return new Func1<TermsOfUse, Observable<TermsOfUse>>() {
+            @Override
+            public Observable<TermsOfUse> call(TermsOfUse termsOfUse) {
+                User user = mUserManager.getUser();
+                if (user == null) {
+                    throw OnErrorThrowable.from(new NotLoggedInException(
+                            mContext.getString(R.string.trackviews_not_logged_in)));
+                }
+
+                LOGGER.info(String.format("Retrieved terms of use for user [%s] with terms of" +
+                        " use version [%s]", user.getUsername(), user.getTermsOfUseVersion()));
+
+                boolean hasAccepted = termsOfUse
+                        .getIssuedDate().equals(user.getTermsOfUseVersion());
+
+                // If the user has accepted, then just return the generic type
+                if (hasAccepted) {
+                    return Observable.just(termsOfUse);
+                }
+                // If the input activity is not null, then create an dialog observable.
+                else if (activity != null) {
+                    return createTermsOfUseDialogObservable(user, termsOfUse, activity);
+                }
+                // Otherwise, throw an exception.
+                else {
+                    throw OnErrorThrowable.from(new NotAcceptedTermsOfUseException(
+                            "The user has not accepted the terms of use"));
+                }
+            }
+        };
+    }
+
+    public Observable createTermsOfUseDialogObservable(
+            User user, TermsOfUse currentTermsOfUse, Activity activity) {
+        return new ReactiveTermsOfUseDialog(activity, user, currentTermsOfUse)
+                .asObservable()
+                .map(new Func1<TermsOfUse, TermsOfUse>() {
+                    @Override
+                    public TermsOfUse call(TermsOfUse termsOfUse) {
+                        LOGGER.info("TermsOfUseDialog: the user has accepted the ToU.");
+
+                        try {
+                            // set the terms of use
+                            user.setTermsOfUseVersion(termsOfUse.getIssuedDate());
+                            mDAOProvider.getUserDAO().updateUser(user);
+                            mUserManager.setUser(user);
+
+                            LOGGER.info("TermsOfUseDialog: User successfully updated");
+
+                            return termsOfUse;
+                        } catch (DataUpdateFailureException | UnauthorizedException e) {
+                            LOGGER.warn(e.getMessage(), e);
+                            throw OnErrorThrowable.from(e);
+                        }
+                    }
+                });
+    }
+
+
+//    /**
+//     * Checks if the Terms are accepted. If not, open Dialog. On positive
+//     * feedback, update the User.
+//     *
+//     * @param user
+//     * @param callback
+//     */
+//    public void askForTermsOfUseAcceptance(final User user, final PositiveNegativeCallback
+//            callback) {
+//        boolean verified = false;
+//        try {
+//            verified = verifyTermsUseOfVersion(user.getTermsOfUseVersion());
+//        } catch (ServerException e) {
+//            LOGGER.warn(e.getMessage(), e);
+//            return;
+//        }
+//        if (!verified) {
+//
+//            final TermsOfUse current;
+//            try {
+//                current = getCurrentTermsOfUse();
+//            } catch (ServerException e) {
+//                LOGGER.warn("This should never happen!", e);
+//                return;
+//            }
+//
+//            new MaterialDialog.Builder(mContext)
+//                    .title(R.string.terms_of_use_title)
+//                    .content((user.getTermsOfUseVersion() == null) ?
+//                            R.string.terms_of_use_sorry :
+//                            R.string.terms_of_use_info)
+//                    .onPositive((materialDialog, dialogAction) -> {
+//                        userAcceptedTermsOfUse(user, current.getIssuedDate());
+//                        Toast.makeText(mContext, R.string.terms_of_use_updating_server, Toast
+//                                .LENGTH_LONG).show();
+//                        if (callback != null) {
+//                            callback.positive();
+//                        }
+//                    })
+//                    .onNegative((materialDialog, dialogAction) -> {
+//                        LOGGER.info("User did not accept the ToU.");
+//                        Toast.makeText(mContext, R.string.terms_of_use_cant_continue, Toast
+//                                .LENGTH_LONG).show();
+//                        if (callback != null) {
+//                            callback.negative();
+//                        }
+//                    })
+//                    .show();
+//        } else {
+//            LOGGER.info("User has accpeted ToU in current version.");
+//        }
+//    }
+
 
     public TermsOfUse getCurrentTermsOfUse() throws ServerException {
         if (this.current == null) {
@@ -238,11 +344,6 @@ public class TermsOfUseManager {
 //        }
 //    }
 
-    private void setList(List<TermsOfUse> termsOfUse) {
-        LOGGER.info("List of TermsOfUse size: " + termsOfUse.size());
-        list = termsOfUse;
-    }
-
     public void userAcceptedTermsOfUse(final User user, final String issuedDate) {
         new AsyncTask<Void, Void, Void>() {
             @Override
@@ -263,20 +364,5 @@ public class TermsOfUseManager {
         }.execute();
     }
 
-    /**
-     * verify the user's accepted terms of use version
-     * against the latest from the server
-     *
-     * @param acceptedTermsOfUseVersion the accepted version of the current user
-     * @return true, if the provided version is the latest
-     * @throws ServerException if the server did not respond (as expected)
-     */
-    public boolean verifyTermsUseOfVersion(
-            String acceptedTermsOfUseVersion) throws ServerException {
-        if (acceptedTermsOfUseVersion == null)
-            return false;
-
-        return getCurrentTermsOfUse().getIssuedDate().equals(acceptedTermsOfUseVersion);
-    }
 
 }

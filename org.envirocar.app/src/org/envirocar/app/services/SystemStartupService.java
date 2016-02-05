@@ -32,7 +32,7 @@ import android.widget.Toast;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.TrackHandler;
+import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.PreferenceConstants;
@@ -82,7 +82,7 @@ public class SystemStartupService extends Service {
     @Inject
     protected NotificationHandler mNotificationHandler;
     @Inject
-    protected TrackHandler mTrackHandler;
+    protected TrackRecordingHandler mTrackRecordingHandler;
     @Inject
     protected CarPreferenceHandler mCarManager;
 
@@ -148,7 +148,7 @@ public class SystemStartupService extends Service {
                 LOGGER.info("Received Broadcast: Stop Track Recording.");
 
                 // Finish the current track.
-                mTrackHandler.finishCurrentTrack();
+                mTrackRecordingHandler.finishCurrentTrack();
             }
         }
     };

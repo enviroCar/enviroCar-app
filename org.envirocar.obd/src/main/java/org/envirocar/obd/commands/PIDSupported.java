@@ -18,138 +18,142 @@
  */
 package org.envirocar.obd.commands;
 
+import org.envirocar.obd.commands.request.BasicCommand;
+import org.envirocar.obd.exception.AdapterSearchingException;
+import org.envirocar.obd.exception.InvalidCommandResponseException;
+import org.envirocar.obd.exception.NoDataReceivedException;
+import org.envirocar.obd.exception.UnmatchedResponseException;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-import org.envirocar.obd.commands.PIDUtil.PID;
+
+public class PIDSupported implements BasicCommand {
+
+    private final byte[] output;
+    private Set<PID> pids;
+    private byte[] bytes;
+    private String group;
+
+    public PIDSupported() {
+        this("00");
+    }
+
+    /**
+     * @param group the group of commands ("00", "20", "40" ...)
+     */
+    public PIDSupported(String group) {
+        this.output = "01 ".concat(group).getBytes();
+        this.group = group;
+    }
+
+    private String createHex(int i) {
+        String result = Integer.toString(i, 16);
+        if (result.length() == 1) result = "0".concat(result);
+        return result;
+    }
 
 
-/**
- * Turns off line-feed.
- */
-public class PIDSupported extends CommonCommand {
+    public Set<PID> parsePIDs(byte[] rawData) throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
+        if (rawData == null) {
+            throw new InvalidCommandResponseException("Null response on PIDSupported request");
+        }
 
-	private Set<PID> pids;
-	private byte[] bytes;
-	private String group;
+        String rawAsString = new String(rawData);
+        int startIndex = rawAsString.indexOf("41".concat(group));
+        if (startIndex >= 0) {
+            if (rawData.length < startIndex + 12) {
+                throw new InvalidCommandResponseException("The response was too small");
+            }
 
-	public PIDSupported() {
-		this("00");
-	}
+            String receivedGroup = rawAsString.substring(startIndex + 2, startIndex + 4);
+            if (!receivedGroup.equals(group)) {
+                throw new InvalidCommandResponseException("Unexpected group received: "+receivedGroup);
+            }
+            rawData = rawAsString.substring(startIndex+4, startIndex + 12).getBytes();
+        }
+        else {
+            throw new InvalidCommandResponseException("The expected status response '41"+ group +"' was not in the response");
+        }
 
-	/**
-	 * @param group the group of commands ("00", "20", "40" ...)
-	 */
-	public PIDSupported(String group) {
-		super("01 ".concat(group));
-		this.group = group;
-	}
+        if (rawData.length != 8) {
+            throw new InvalidCommandResponseException("Invalid PIDSupported length: "+rawData.length);
+        }
+        
+        try {
+            List<Integer> pids = new ArrayList<>(8);
 
-	@Override
-	public String getCommandName() {
-		return "PID Supported; Group ".concat(group); 
-	}
+            int groupOffset = Integer.parseInt(this.group, 16);
+            char[] binaries;
+            byte b;
 
+            /**
+             * the 32 PIDs of the group are encoded bitwise from MSB to LSB (resulting in 8 bytes):
+             * assuming group 00 and the first byte is a 0x0A = (int) 10,
+             * then bits 4 (MSB) and 2 are set, resulting in PIDs 0x01 and 0x03 (counting starts at
+             * PID 0x01, 0x21, ...) are supported
+             */
+            for (int i = 0; i < rawData.length; i++) {
+                b = rawData[i];
+                int fromHex = Integer.parseInt(new String(new char[] {'0', (char) b}), 16);
+                BigInteger bigInt = BigInteger.valueOf(fromHex);
+                for (int j = 3; j >= 0; j--) {
+                    //check from MSB down to LSB
+                    if (bigInt.testBit(j)) {
+                        //create an int representation and apply the group offset
+                        pids.add(1 + (i*4 + 3-j) + groupOffset);
+                    }
+                }
+            }
 
-	/**
-	 * @return the set of PIDs that are supported by a car,
-	 * encoded as their HEX byte strings
-	 */
-	public Set<PID> getSupportedPIDs() {
-		if (pids == null) {
-			pids = new HashSet<PID>();
-			
-			for (int i = 0; i < bytes.length; i++) {
-				int current = bytes[i];
-				
-				for (int bit = 3; bit >= 0; bit--) {
-					boolean is = ((current >> bit) & 1 ) == 1;
-					if (is) {
-						/*
-						 * we are starting at PID 01 and not 00
-						 */
-						PID pid = PIDUtil.fromString(createHex(i*4 + (3-bit) + 1));
-						if (pid != null) {
-							pids.add(pid);
-						}
-					}
-				}
-				
-			}
-		}
-		
-		return pids;
-	}
+            Set<PID> list = new HashSet<>();
+            /**
+             * conver to hex string so the PIDUtil can parse it
+             */
+            for (Integer pidInt : pids) {
+                String hex = Integer.toHexString(pidInt);
+                if (hex.length() == 1) {
+                    hex = "0".concat(hex);
+                }
+                PID tmp = PIDUtil.fromString(hex);
+                if (tmp != null) {
+                    list.add(tmp);
+                }
+            }
 
+            return list;
+        }
+        catch (RuntimeException e) {
+            throw new InvalidCommandResponseException("The response contained invalid byte values: "+e.getMessage());
+        }
 
-	private String createHex(int i) {
-		String result = Integer.toString(i, 16);
-		if (result.length() == 1) result = "0".concat(result);
-		return result;
-	}
-
-
-	@Override
-	public void parseRawData() {
-		int index = 0;
-		int length = 2;
-
-		preprocessRawData();
-		
-		byte[] data = getRawData();
-		
-		bytes = new byte[data.length-4];
-		
-		if (bytes.length != 8) {
-			setCommandState(CommonCommandState.EXECUTION_ERROR);
-			return;
-		}
-		
-		while (index < data.length) {
-			if (index == 0) {
-				String tmp = new String(data, index, length);
-				// this is the status
-				if (!tmp.equals(NumberResultCommand.STATUS_OK)) {
-					setCommandState(CommonCommandState.EXECUTION_ERROR);
-					return;
-				}
-				index += length;
-				continue;
-			}
-			else if (index == 2) {
-				String tmp = new String(data, index, length);
-				// this is the ID byte
-				if (!tmp.equals(this.getResponseTypeID())) {
-					setCommandState(CommonCommandState.UNMATCHED_RESULT);
-					return;
-				}
-				index += length;
-				continue;
-			}
-			
-			/*
-			 * this is a hex number
-			 */
-			bytes[index-4] = (byte) Integer.valueOf(String.valueOf((char) data[index]), 16).intValue();
-			if (bytes[index-4] < 0){
-				setCommandState(CommonCommandState.EXECUTION_ERROR);
-				return;
-			}
-			index++;
-		}
-		
-		setCommandState(CommonCommandState.FINISHED);
-	}
+    }
 
 
-	private void preprocessRawData() {
-		byte[] data = getRawData();
-		String str = new String(data);
-		if (str.contains("4100")) {
-			int index = str.indexOf("4100");
-			setRawData(Arrays.copyOfRange(data, index, data.length));
-		}
-	}
+    private byte[] preProcessRawData(byte[] data) {
+        String str = new String(data);
+        if (str.contains("41".concat(this.group))) {
+            int index = str.indexOf("41".concat(this.group));
+            return Arrays.copyOfRange(data, index, data.length);
+        }
+        return data;
+    }
 
+    @Override
+    public byte[] getOutputBytes() {
+        return output;
+    }
+
+    @Override
+    public boolean awaitsResults() {
+        return true;
+    }
+
+    public String getGroup() {
+        return group;
+    }
 }

@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -72,14 +72,40 @@ public class PreferencesHandler implements PreferenceConstants {
                 .asObservable();
     }
 
-    public static boolean isTextToSpeechEnabled(Context context){
+    public static boolean isTextToSpeechEnabled(Context context) {
         return getSharedPreferences(context)
                 .getBoolean(PREF_TEXT_TO_SPEECH, DEFAULT_TEXT_TO_SPEECH);
     }
 
-    public static Observable<Boolean> getTextToSpeechObservable(Context context){
+    public static Observable<Boolean> getTextToSpeechObservable(Context context) {
         return getRxSharedPreferences(context)
                 .getBoolean(PREF_TEXT_TO_SPEECH, DEFAULT_TEXT_TO_SPEECH)
+                .asObservable();
+    }
+
+    private static RxSharedPreferences getRxSharedPreferences(Context context) {
+        return RxSharedPreferences.create(getSharedPreferences(context));
+    }
+
+    public static Long getSamplingRate(Context context) {
+        return Long.parseLong(getSharedPreferences(context)
+                .getString(SAMPLING_RATE, "5"));
+    }
+
+    public static Observable<Long> getRxSharedSamplingRate(Context context) {
+        return getRxSharedPreferences(context)
+                .getString(SAMPLING_RATE, "5")
+                .asObservable().map(s -> Long.parseLong(s));
+    }
+
+    public static boolean isObfuscationEnabled(Context context) {
+        return getSharedPreferences(context)
+                .getBoolean(PreferenceConstants.OBFUSCATE_POSITION, false);
+    }
+
+    public static Observable<Boolean> getObfuscationObservable(Context context){
+        return getRxSharedPreferences(context)
+                .getBoolean(OBFUSCATE_POSITION, false)
                 .asObservable();
     }
 
@@ -88,7 +114,14 @@ public class PreferencesHandler implements PreferenceConstants {
         return PreferenceManager.getDefaultSharedPreferences(context);
     }
 
-    private static RxSharedPreferences getRxSharedPreferences(Context context) {
-        return RxSharedPreferences.create(getSharedPreferences(context));
+    public static boolean isDieselConsumptionEnabled(Context context){
+        return getSharedPreferences(context)
+                .getBoolean(PREF_ENABLE_DIESE_CONSUMPTION, false);
+    }
+
+    public static Observable<Boolean> getDieselConsumptionObservable(Context context){
+        return getRxSharedPreferences(context)
+                .getBoolean(PREF_ENABLE_DIESE_CONSUMPTION, false)
+                .asObservable();
     }
 }

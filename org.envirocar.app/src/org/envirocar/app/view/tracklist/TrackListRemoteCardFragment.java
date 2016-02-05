@@ -170,7 +170,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         holder.mProgressCircle.show();
         track.setDownloadState(Track.DownloadState.DOWNLOADING);
 
-        mTrackHandler.fetchRemoteTrackObservable(track)
+        mTrackDAOHandler.fetchRemoteTrackObservable(track)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Track>() {
@@ -353,8 +353,8 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
 
             if (mTrackList.isEmpty()) {
                 showText(R.drawable.img_tracks,
-                        R.string.track_list_bg_no_local_tracks,
-                        R.string.track_list_bg_no_local_tracks_sub);
+                        R.string.track_list_bg_no_remote_tracks,
+                        R.string.track_list_bg_no_remote_tracks_sub);
             }
         }
 

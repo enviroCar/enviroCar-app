@@ -148,7 +148,8 @@
     <string name="menu_register">Registrieren</string>
     
     <string name="dashboard">Dashboard</string>
-	<string name="my_tracks">Meine Fahrten</string>
+    <string name="track_statistics">Statistiken</string>
+    <string name="track_statistics_distance">Distanz</string>
 	
 	<string name="welcome_message">Willkommen, %s</string>
     <string name="goodbye_message">Auf Wiederstehen, %s</string>
@@ -213,12 +214,6 @@
 	
 	<string name="server_error_please_try_later">Server Fehler - Bitte versuchen Sie es später erneut</string>
 	
-	<string name="terms_of_use_title">Nutzungsbedingungen akzeptieren?</string>
-	<string name="terms_of_use_info">Bevor Sie fortfahren, müssen Sie unsere Nutzungsbedingungen akzeptieren</string>
-	<string name="terms_of_use_sorry">Entschuldigen Sie die erneute Störung. Wir haben unsere Nutzungsbedingungen geändert</string>
-	<string name="terms_of_use_cant_continue">Sie müssen die Nutzungsbedingungen akzeptieren, bevor Sie Tracks hochladen können</string>
-	<string name="terms_of_use_updating_server">Speichere Nutzungsbedingungs-Status auf Server</string>
-    
     <string name="diesel_not_yet_supported">Bitte beachten Sie, dass die Berechnung von Verbrauch/CO2 für Diesel-Fahrzeuge nocht nicht unterstützt wird</string>
 	<string name="uploading_track_no_measurements_after_obfuscation_long">Ein hochzuladende Track enthielt keine Messungen nach Verbergen der Start- und Endpunkte. Er wurde nicht hochgeladen, ist aber weiterhin lokal verfügbar.</string>
 	<string name="uploading_track_no_measurements_after_obfuscation">Ein hochzuladende Track enthielt keine Messungen.</string>

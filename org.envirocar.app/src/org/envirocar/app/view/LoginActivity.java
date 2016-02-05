@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -43,22 +43,21 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
-import org.envirocar.app.TrackHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
+import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.app.views.TypefaceEC;
 import org.envirocar.core.dao.TrackDAO;
+import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
-import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.ResourceConflictException;
-import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.remote.DAOProvider;
 
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -66,8 +65,8 @@ import javax.inject.Inject;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnClick;
-import rx.Observable;
 import rx.Scheduler;
+import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
@@ -85,6 +84,8 @@ public class LoginActivity extends BaseInjectorActivity {
     protected Toolbar mToolbar;
     @InjectView(R.id.activity_login_exp_toolbar)
     protected Toolbar mExpToolbar;
+    @InjectView(R.id.activity_login_logo_dump)
+    protected View mLogoView;
 
     @InjectView(R.id.activity_login_exp_toolbar_content)
     protected View mExpToolbarContent;
@@ -131,7 +132,7 @@ public class LoginActivity extends BaseInjectorActivity {
     @Inject
     protected TermsOfUseManager mTermsOfUseManager;
     @Inject
-    protected TrackHandler mTrackHandler;
+    protected TrackDAOHandler mTrackDAOHandler;
 
     private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers
             .mainThread().createWorker();
@@ -140,6 +141,7 @@ public class LoginActivity extends BaseInjectorActivity {
 
     private Subscription mLoginSubscription;
     private Subscription mRegisterSubscription;
+    private Subscription mTermsOfUseSubscription;
     private Subscription mStatisticsDownloadSubscription;
 
     @Override
@@ -162,6 +164,7 @@ public class LoginActivity extends BaseInjectorActivity {
         mLoginCard.setVisibility(View.GONE);
         mStatisticsListView.setVisibility(View.GONE);
         mExpToolbarContent.setVisibility(View.GONE);
+        mLogoView.setVisibility(View.INVISIBLE);
     }
 
     @Override
@@ -315,8 +318,7 @@ public class LoginActivity extends BaseInjectorActivity {
                             updateView(true);
 
                             // Then ask for terms of use acceptance.
-                            mBackgroundWorker.schedule(() -> mTermsOfUseManager
-                                    .askForTermsOfUseAcceptance(user, LoginActivity.this, null));
+                            askForTermsOfUseAcceptance();
                         });
                     }
 
@@ -338,6 +340,39 @@ public class LoginActivity extends BaseInjectorActivity {
                 });
             });
         }
+    }
+
+    private void askForTermsOfUseAcceptance() {
+        // Unsubscribe before issueing a new request.
+        if(mTermsOfUseSubscription != null && !mTermsOfUseSubscription.isUnsubscribed())
+            mTermsOfUseSubscription.unsubscribe();
+
+        mTermsOfUseSubscription = mTermsOfUseManager.verifyTermsOfUse(LoginActivity.this)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<TermsOfUse>() {
+                    @Override
+                    public void onStart() {
+                        LOG.info("onStart() verifying terms of use");
+                    }
+
+                    @Override
+                    public void onCompleted() {
+                        LOG.info("onCompleted() verifying terms of use");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.warn(e.getMessage(), e);
+                    }
+
+                    @Override
+                    public void onNext(TermsOfUse termsOfUse) {
+                        LOG.info(String.format(
+                                "User has accepted the terms of use -> [%s]",
+                                termsOfUse.getIssuedDate()));
+                    }
+                });
     }
 
     @OnClick(R.id.activity_account_register_button)
@@ -426,13 +461,10 @@ public class LoginActivity extends BaseInjectorActivity {
                     newUser.setMail(email);
                     mDAOProvider.getUserDAO().createUser(newUser);
 
-
                     // Successfully created the user
                     mMainThreadWorker.schedule(() -> {
                         // Set the new user as the logged in user.
                         mUserManager.setUser(newUser);
-                        mTermsOfUseManager.askForTermsOfUseAcceptance(
-                                newUser, LoginActivity.this, null);
 
                         // Update the view, i.e., hide the registration card and show the profile
                         // page.
@@ -446,6 +478,8 @@ public class LoginActivity extends BaseInjectorActivity {
                                 getResources().getString(R.string.welcome_message),
                                 username), Snackbar.LENGTH_LONG).show();
                     });
+
+                    askForTermsOfUseAcceptance();
                 } catch (ResourceConflictException e) {
                     LOG.warn(e.getMessage(), e);
 
@@ -493,7 +527,7 @@ public class LoginActivity extends BaseInjectorActivity {
                 mUserManager.logOut();
 
                 // Finally, delete all tracks that are associated to the previous user.
-                mTrackHandler.deleteAllRemoteTracksLocally();
+                mTrackDAOHandler.deleteAllRemoteTracksLocally();
                 // Close the dialog.
                 dialog.dismiss();
 
@@ -521,6 +555,8 @@ public class LoginActivity extends BaseInjectorActivity {
             if (mNoStatisticsInfo.getVisibility() == View.VISIBLE) {
                 animateHideView(mNoStatisticsInfo, R.anim.fade_out, null);
             }
+
+            ECAnimationUtils.animateHideView(this, mLogoView, R.anim.fade_out);
 
             // hide the no statistics info if it is visible.
             if (mStatisticsProgressView.getVisibility() == View.VISIBLE) {
@@ -562,13 +598,17 @@ public class LoginActivity extends BaseInjectorActivity {
             if (mLoginCard.getVisibility() == View.VISIBLE) {
                 slideOutLoginCard();
             }
+
             // If the register card is visible, then slide it out.
             if (mRegisterCard.getVisibility() == View.VISIBLE) {
                 slideOutRegisterCard();
             }
-            // If the statistics progess view is not visible, then fade it in.
-            if (mStatisticsProgressView.getVisibility() != View.VISIBLE) {
-                animateViewTransition(mStatisticsProgressView, R.anim.fade_in, false);
+//            // If the statistics progess view is not visible, then fade it in.
+//            if (mStatisticsProgressView.getVisibility() != View.VISIBLE) {
+//                animateViewTransition(mStatisticsProgressView, R.anim.fade_in, false);
+//            }
+            if(mLogoView.getVisibility() != View.VISIBLE){
+                ECAnimationUtils.animateShowView(this, mLogoView, R.anim.fade_in);
             }
 
             // Update the Gravatar image.
@@ -578,6 +618,14 @@ public class LoginActivity extends BaseInjectorActivity {
                     .subscribe(bitmap -> {
                         if (mAccountImage != null && mAccountImage.getVisibility() == View.VISIBLE)
                             mAccountImage.setImageBitmap(bitmap);
+                    });
+
+            // update the local track count.
+            mTrackDAOHandler.getLocalTrackCount()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(integer -> {
+                        mLocalTrackNumber.setText("" + integer);
                     });
 
             // Update the new values of the exp toolbar content.
@@ -597,40 +645,44 @@ public class LoginActivity extends BaseInjectorActivity {
                 }
             });
 
-            Observable.just(true)
-                    .map(aBoolean -> {
-                        try {
-                            return mDAOProvider
-                                    .getUserStatisticsDAO()
-                                    .getUserStatistics(user)
-                                    .getStatistics();
-                        } catch (UnauthorizedException e) {
-                            LOG.warn("The user is unauthorized to access this endpoint.", e);
-                        } catch (DataRetrievalFailureException e) {
-                            LOG.warn("Error while trying to retrive user statistics.", e);
-                            mMainThreadWorker.schedule(() ->
-                                    animateHideView(mStatisticsProgressView, R.anim.fade_out,
-                                            () -> animateViewTransition(mNoStatisticsInfo, R
-                                                    .anim.fade_in, false)));
-                        }
-                        return null;
-                    })
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(statistics -> {
-                        if (statistics == null || statistics.isEmpty()) {
-                            animateHideView(mStatisticsProgressView, R.anim.fade_out,
-                                    () -> animateViewTransition(mNoStatisticsInfo,
-                                            R.anim.fade_in, false));
-                        } else {
-                            mStatisticsListView.setAdapter(new UserStatisticsAdapter
-                                    (LoginActivity.this,
-                                            new ArrayList<>(statistics.values())));
-                            animateHideView(mStatisticsProgressView, R.anim.fade_out,
-                                    () -> animateViewTransition(mStatisticsListView,
-                                            R.anim.fade_in, false));
-                        }
-                    });
+//            animateHideView(mStatisticsProgressView, R.anim.fade_out,
+//                    () -> animateViewTransition(mNoStatisticsInfo, R
+//                            .anim.fade_in, false)));
+
+//            Observable.just(true)
+//                    .map(aBoolean -> {
+//                        try {
+//                            return mDAOProvider
+//                                    .getUserStatisticsDAO()
+//                                    .getUserStatistics(user)
+//                                    .getStatistics();
+//                        } catch (UnauthorizedException e) {
+//                            LOG.warn("The user is unauthorized to access this endpoint.", e);
+//                        } catch (DataRetrievalFailureException e) {
+//                            LOG.warn("Error while trying to retrive user statistics.", e);
+//                            mMainThreadWorker.schedule(() ->
+//                                    animateHideView(mStatisticsProgressView, R.anim.fade_out,
+//                                            () -> animateViewTransition(mNoStatisticsInfo, R
+//                                                    .anim.fade_in, false)));
+//                        }
+//                        return null;
+//                    })
+//                    .subscribeOn(Schedulers.io())
+//                    .observeOn(AndroidSchedulers.mainThread())
+//                    .subscribe(statistics -> {
+//                        if (statistics == null || statistics.isEmpty()) {
+//                            animateHideView(mStatisticsProgressView, R.anim.fade_out,
+//                                    () -> animateViewTransition(mNoStatisticsInfo,
+//                                            R.anim.fade_in, false));
+//                        } else {
+//                            mStatisticsListView.setAdapter(new UserStatisticsAdapter
+//                                    (LoginActivity.this,
+//                                            new ArrayList<>(statistics.values())));
+//                            animateHideView(mStatisticsProgressView, R.anim.fade_out,
+//                                    () -> animateViewTransition(mStatisticsListView,
+//                                            R.anim.fade_in, false));
+//                        }
+//                    });
         }
     }
 

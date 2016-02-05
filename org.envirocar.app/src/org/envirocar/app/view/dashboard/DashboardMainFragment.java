@@ -19,13 +19,9 @@
 package org.envirocar.app.view.dashboard;
 
 import android.bluetooth.BluetoothDevice;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
@@ -36,24 +32,22 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
-import org.envirocar.app.TrackHandler;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.LocationHandler;
+import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
 import org.envirocar.core.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 
@@ -79,7 +73,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
     @Inject
     protected CarPreferenceHandler mCarManager;
     @Inject
-    protected TrackHandler mTrackHandler;
+    protected TrackRecordingHandler mTrackRecordingHandler;
     @Inject
     protected LocationHandler mLocationHandler;
 
@@ -93,31 +87,6 @@ public class DashboardMainFragment extends BaseInjectorFragment {
     protected TextView mStartStopButtonInner;
 
     private MaterialDialog mConnectingDialog;
-
-
-    // Defines callbacks for remoteService binding, passed to bindService()
-    private ServiceConnection mOBDConnectionServiceCon = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            LOG.info("onServiceConnected(): Bound remoteService connected.");
-            // successfully bounded to the remoteService, cast the binder interface to
-            // get the remoteService.
-            Snackbar.make(mStartStopButton, "Connected", Snackbar.LENGTH_LONG).show();
-            OBDConnectionService.OBDConnectionBinder binder = (OBDConnectionService
-                    .OBDConnectionBinder) service;
-            mOBDConnectionService = binder.getService();
-            mIsOBDConnectionBounded = true;
-            Toast.makeText(getActivity(), "CONNECTED", Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            LOG.info("onServiceDisconnected(): Bound remoteService disconnected.");
-            // Service has been disconnected.
-            mOBDConnectionService = null;
-            mIsOBDConnectionBounded = false;
-        }
-    };
 
     private Scheduler.Worker mMainThreadScheduler = AndroidSchedulers.mainThread().createWorker();
 
@@ -172,10 +141,14 @@ public class DashboardMainFragment extends BaseInjectorFragment {
     @Override
     public void onDestroyView() {
         if (!getActivity().isFinishing() && mDashboardSettingsFragment != null) {
-            getFragmentManager().beginTransaction()
-                    .remove(mDashboardSettingsFragment)
-                    .remove(mDashboardHeaderFragment)
-                    .commitAllowingStateLoss();
+            try {
+                getFragmentManager().beginTransaction()
+                        .remove(mDashboardSettingsFragment)
+                        .remove(mDashboardHeaderFragment)
+                        .commitAllowingStateLoss();
+            } catch (IllegalStateException e){
+                LOG.warn(e.getMessage(), e);
+            }
         }
         super.onDestroyView();
     }
@@ -305,7 +278,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                 .callback(new MaterialDialog.ButtonCallback() {
                     @Override
                     public void onPositive(MaterialDialog dialog) {
-                        mTrackHandler.finishCurrentTrack();
+                        mTrackRecordingHandler.finishCurrentTrack();
                     }
                 })
                 .show();
@@ -561,7 +534,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
 
     @UiThread
     private void onServiceStarting() {
-        bindService();
+//        bindService();
     }
 
     @UiThread
@@ -589,7 +562,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
 
     @UiThread
     private void onServiceStopping() {
-        unbindService();
+//        unbindService();
     }
 
     @UiThread
@@ -610,26 +583,26 @@ public class DashboardMainFragment extends BaseInjectorFragment {
         updateStartToStopButton();
     }
 
-    /**
-     * Creates a binding for the {@link OBDConnectionService}.
-     */
-    private void bindService() {
-        // if the remoteService is currently running, then bind to the remoteService.
-        if (ServiceUtils.isServiceRunning(getActivity(), OBDConnectionService.class)) {
-            Toast.makeText(getActivity(), "is Running", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(getActivity(), OBDConnectionService.class);
-            getActivity().bindService(intent, mOBDConnectionServiceCon, Context.BIND_AUTO_CREATE);
-        }
-    }
-
-    private void unbindService() {
-        // If it is bounded, then unbind the remoteService.
-        if (mIsOBDConnectionBounded) {
-            LOG.info("onStop(): disconnect bound remoteService");
-            getActivity().unbindService(mOBDConnectionServiceCon);
-            mIsOBDConnectionBounded = false;
-        }
-    }
+//    /**
+//     * Creates a binding for the {@link OBDConnectionService}.
+//     */
+//    private void bindService() {
+//        // if the remoteService is currently running, then bind to the remoteService.
+//        if (ServiceUtils.isServiceRunning(getActivity(), OBDConnectionService.class)) {
+//            Toast.makeText(getActivity(), "is Running", Toast.LENGTH_SHORT).show();
+//            Intent intent = new Intent(getActivity(), OBDConnectionService.class);
+//            getActivity().bindService(intent, mOBDConnectionServiceCon, Context.BIND_AUTO_CREATE);
+//        }
+//    }
+//
+//    private void unbindService() {
+//        // If it is bounded, then unbind the remoteService.
+//        if (mIsOBDConnectionBounded) {
+//            LOG.info("onStop(): disconnect bound remoteService");
+//            getActivity().unbindService(mOBDConnectionServiceCon);
+//            mIsOBDConnectionBounded = false;
+//        }
+//    }
 
     @UiThread
     private void updateStartToStopButton() {

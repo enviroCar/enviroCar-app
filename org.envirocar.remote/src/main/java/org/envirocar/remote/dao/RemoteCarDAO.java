@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -20,6 +20,7 @@ package org.envirocar.remote.dao;
 
 import org.envirocar.core.dao.CarDAO;
 import org.envirocar.core.entity.Car;
+import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.DataCreationFailureException;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.NotConnectedException;
@@ -71,7 +72,6 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements C
      * @throws DataRetrievalFailureException
      */
     private List<Car> getAllCars(int page) throws DataRetrievalFailureException {
-        final CarService carService = EnviroCarService.getCarService();
         Call<List<Car>> carsCall = remoteService.getAllCars(page);
 
         try {
@@ -96,6 +96,39 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements C
     @Override
     public Observable<List<Car>> getAllCarsObservable() {
         return getAllCarsObservable(1);
+    }
+
+    @Override
+    public List<Car> getCarsByUser(User user) throws UnauthorizedException,
+            NotConnectedException, DataRetrievalFailureException {
+        LOG.info(String.format("getCarsByUser(%s)", user.getUsername()));
+        Call<List<Car>> carsCall = remoteService.getAllCars(user.getUsername());
+        try{
+            Response<List<Car>> carsResponse = executeCall(carsCall);
+            return carsResponse.body();
+        } catch (IOException | ResourceConflictException e) {
+            throw new DataRetrievalFailureException(e);
+        }
+    }
+
+    @Override
+    public Observable<List<Car>> getCarsByUserObservable(User user) {
+        LOG.info(String.format("getCarsByUserObservable(%s)", user.getUsername()));
+        return Observable.create(new Observable.OnSubscribe<List<Car>>() {
+            @Override
+            public void call(Subscriber<? super List<Car>> subscriber) {
+                LOG.info("call:");
+                try {
+                    subscriber.onStart();
+                    subscriber.onNext(getCarsByUser(user));
+                } catch (UnauthorizedException |
+                        NotConnectedException |
+                        DataRetrievalFailureException e){
+                    subscriber.onError(e);
+                }
+                subscriber.onCompleted();
+            }
+        });
     }
 
     @Override
@@ -159,11 +192,9 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements C
                 .concatMap(new Func1<Call<List<Car>>, Observable<? extends List<Car>>>() {
                     @Override
                     public Observable<? extends List<Car>> call(Call<List<Car>> listCall) {
-                        boolean hasNextPage = false;
-                        Response<List<Car>> response = null;
                         try {
                             // Execute the call.
-                            response = listCall.execute();
+                            Response<List<Car>> response = listCall.execute();
 
                             Observable<List<Car>> res = Observable.just(response.body());
                             // Search for "rel=last". If this exists, then this was not the last

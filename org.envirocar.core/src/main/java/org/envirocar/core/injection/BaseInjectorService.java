@@ -21,9 +21,12 @@ package org.envirocar.core.injection;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.support.annotation.Nullable;
 
+import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -31,6 +34,7 @@ import javax.inject.Inject;
 import dagger.ObjectGraph;
 
 /**
+ * TODO JavaDoc
  *
  * @author dewall
  */
@@ -42,38 +46,38 @@ public abstract class BaseInjectorService extends Service implements Injector, I
     @Inject
     protected Bus bus;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        objectGraph = ((Injector) getApplicationContext()).getObjectGraph().plus
-                (getInjectionModules().toArray());
-    }
-
-
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        return super.onStartCommand(intent, flags, startId);
-    }
-
+    @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
 
     @Override
+    public void onCreate() {
+        super.onCreate();
+
+        // extend the object graph of the application scope
+        objectGraph = ((Injector) getApplicationContext())
+                .getObjectGraph().plus(getInjectionModules().toArray());
+
+        // Inject objects
+        objectGraph.inject(this);
+    }
+
+    @Override
     public List<Object> getInjectionModules() {
-        return null;
+        return new ArrayList<>();
     }
 
     @Override
     public ObjectGraph getObjectGraph() {
-        return null;
+        return objectGraph;
     }
 
     @Override
     public void injectObjects(Object instance) {
-
+        Preconditions.checkNotNull(objectGraph,
+                "Object graph has to be initialized before inejcting");
+        objectGraph.inject(instance);
     }
 }

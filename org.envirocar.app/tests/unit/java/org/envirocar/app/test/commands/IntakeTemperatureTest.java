@@ -20,28 +20,26 @@ package org.envirocar.app.test.commands;
 
 import junit.framework.Assert;
 
-import org.envirocar.obd.commands.CommonCommand.CommonCommandState;
-import org.envirocar.obd.commands.IntakeTemperature;
 import org.junit.Test;
 
 public class IntakeTemperatureTest {
 
-	@Test
-	public void testParsing() {
-		byte[] bytes = createBytes();
-		IntakeTemperature cmd = new IntakeTemperature();
-		cmd.setRawData(bytes);
-		cmd.parseRawData();
-		
-		Assert.assertTrue(cmd.getCommandState() == CommonCommandState.FINISHED);
-		
-		double temp = cmd.getNumberResult().doubleValue();
-		Assert.assertTrue(temp == 23.0);
-	}
-
-	private byte[] createBytes() {
-		return "410F3F".getBytes();
-	}
+//	@Test
+//	public void testParsing() {
+//		byte[] bytes = createBytes();
+//		IntakeTemperature cmd = new IntakeTemperature();
+//		cmd.setRawData(bytes);
+//		cmd.parseRawData();
+//
+//		Assert.assertTrue(cmd.getCommandState() == CommonCommandState.FINISHED);
+//
+//		double temp = cmd.getNumberResult().doubleValue();
+//		Assert.assertTrue(temp == 23.0);
+//	}
+//
+//	private byte[] createBytes() {
+//		return "410F3F".getBytes();
+//	}
 
 
 }

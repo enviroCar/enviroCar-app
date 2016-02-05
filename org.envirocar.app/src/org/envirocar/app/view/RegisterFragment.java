@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -25,6 +25,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentManager;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -41,6 +42,7 @@ import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.view.dashboard.RealDashboardFragment;
 import org.envirocar.app.views.TypefaceEC;
+import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.exception.DataUpdateFailureException;
@@ -51,8 +53,10 @@ import org.envirocar.remote.DAOProvider;
 
 import javax.inject.Inject;
 
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
+import rx.Subscriber;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 /**
  * Activity which displays a register screen to the user, offering registration
@@ -60,7 +64,7 @@ import de.keyboardsurfer.android.widget.crouton.Style;
  */
 public class RegisterFragment extends BaseInjectorFragment {
 
-    private static final Logger logger = Logger.getLogger(RegisterFragment.class);
+    private static final Logger LOG = Logger.getLogger(RegisterFragment.class);
 
 
     /**
@@ -82,6 +86,8 @@ public class RegisterFragment extends BaseInjectorFragment {
     private View mRegisterFormView;
     private View mRegisterStatusView;
     private TextView mRegisterStatusMessageView;
+
+    private Subscription mRegisterSubscription;
 
     // Injected Variables
     @Inject
@@ -141,6 +147,16 @@ public class RegisterFragment extends BaseInjectorFragment {
         mUsernameView.requestFocus();
     }
 
+    @Override
+    public void onDestroy() {
+        LOG.info("onDestroy()");
+
+        if (mRegisterSubscription != null || !mRegisterSubscription.isUnsubscribed())
+            mRegisterSubscription.unsubscribe();
+
+        super.onDestroy();
+    }
+
     /**
      * Attempts to sign in or register the account specified by the register
      * form. If there are form errors (invalid email, missing fields, etc.), the
@@ -192,7 +208,8 @@ public class RegisterFragment extends BaseInjectorFragment {
             mEmailView.setError(getString(R.string.error_field_required));
             focusView = mEmailView;
             cancel = true;
-        } else if (!mEmail.matches("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")) {
+        } else if (!mEmail.matches("^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\\" +
+                ".[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$")) {
             mEmailView.setError(getString(R.string.error_invalid_email));
             focusView = mEmailView;
             cancel = true;
@@ -220,7 +237,7 @@ public class RegisterFragment extends BaseInjectorFragment {
         if (cancel) {
             // There was an error; don't attempt register and focus the first
             // form field with an error.
-                    focusView.requestFocus();
+            focusView.requestFocus();
         } else {
             //hide the keyboard
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(
@@ -292,20 +309,49 @@ public class RegisterFragment extends BaseInjectorFragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Crouton.makeText(getActivity(), getResources().getString(R.string.welcome_message) + mUsername, Style.CONFIRM).show();
+                        Snackbar.make(getView(), getResources().getString(R.string
+                                .welcome_message) + mUsername, Snackbar.LENGTH_LONG).show();
+
                         User user = new UserImpl(mUsername, mPassword);
                         mUserManager.setUser(user);
 
-                        mTermsOfUseManager.askForTermsOfUseAcceptance(user, getActivity(), null);
+                        mRegisterSubscription = mTermsOfUseManager.verifyTermsOfUse(getActivity())
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribe(new Subscriber<TermsOfUse>() {
+                                    @Override
+                                    public void onStart() {
+                                        LOG.info("onStart() verifying terms of use");
+                                    }
 
-                        getActivity().getSupportFragmentManager().popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                                    @Override
+                                    public void onCompleted() {
+                                        LOG.info("onCompleted() verifying terms of use");
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                        LOG.warn(e.getMessage(), e);
+                                    }
+
+                                    @Override
+                                    public void onNext(TermsOfUse termsOfUse) {
+                                        LOG.info(String.format(
+                                                "User has accepted the terms of use -> [%s]",
+                                                termsOfUse.getIssuedDate()));
+                                        onCompleted();
+                                    }
+                                });
+
+                        getActivity().getSupportFragmentManager().popBackStack(null,
+                                FragmentManager.POP_BACK_STACK_INCLUSIVE);
                         getActivity().getSupportFragmentManager().beginTransaction()
                                 .replace(R.id.content_frame, mDashboardFragment)
                                 .commit();
                     }
                 });
             } catch (DataUpdateFailureException e) {
-                logger.warn(e.getMessage(), e);
+                LOG.warn(e.getMessage(), e);
                 getActivity().runOnUiThread(new Runnable() {
 
                     @Override
@@ -318,7 +364,7 @@ public class RegisterFragment extends BaseInjectorFragment {
                 });
 
             } catch (ResourceConflictException e) {
-                logger.warn(e.getMessage(), e);
+                LOG.warn(e.getMessage(), e);
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -345,7 +391,8 @@ public class RegisterFragment extends BaseInjectorFragment {
     /*
      * Use this method to sign up a new user
      */
-    public boolean createUser(String user, String token, String mail) throws ResourceConflictException, DataUpdateFailureException {
+    public boolean createUser(String user, String token, String mail) throws
+            ResourceConflictException, DataUpdateFailureException {
         User newUser = new UserImpl(user, token);
         newUser.setMail(mail);
         mDAOProvider.getUserDAO().createUser(newUser);

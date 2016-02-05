@@ -20,54 +20,53 @@
 
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group
-        android:id="@+id/menu_nav_drawer_views">
 
+    <group android:id="@+id/menu_nav_drawer_views">
         <item
             android:id="@+id/menu_nav_drawer_dashboard"
             android:checkable="true"
             android:checked="true"
             android:icon="@drawable/dashboard"
-            android:title="@string/dashboard"/>
+            android:title="@string/menu_nav_drawer_dashboard"/>
         <item
             android:id="@+id/menu_nav_drawer_tracklist"
             android:icon="@drawable/device_access_storage"
-            android:title="@string/my_tracks"
+            android:title="@string/menu_nav_drawer_my_tracks"
             android:visible="false"/>
         <item
             android:id="@+id/menu_nav_drawer_tracklist_new"
             android:icon="@drawable/device_access_storage"
-            android:title="@string/my_tracks"/>
+            android:title="@string/menu_nav_drawer_my_tracks"/>
         <item
             android:id="@+id/menu_nav_drawer_logbook"
             android:icon="@drawable/logbook"
-            android:title="@string/menu_logbook"/>
+            android:title="@string/menu_nav_drawer_logbook"/>
         <item
             android:id="@+id/menu_nav_drawer_account_login"
             android:icon="@drawable/device_access_accounts"
-            android:title="@string/menu_login" />
+            android:title="@string/menu_nav_drawer_login"/>
     </group>
 
     <group android:id="@+id/menu_nav_drawer_group_shutdown">
         <item
             android:id="@+id/menu_nav_drawer_quit_app"
             android:icon="@drawable/ic_shutdown_black"
-            android:title="Close enviroCar" />
+            android:title="@string/menu_nav_drawer_close_ec"/>
     </group>
 
     <group android:id="@+id/menu_nav_drawer_group_settings">
         <item
             android:id="@+id/menu_nav_drawer_settings_general"
             android:icon="@drawable/action_settings"
-            android:title="@string/menu_settings"/>
+            android:title="@string/menu_nav_drawer_settings"/>
         <item
             android:id="@+id/menu_nav_drawer_settings_help"
             android:icon="@drawable/action_help"
-            android:title="@string/menu_help"/>
+            android:title="@string/menu_nav_drawer_help"/>
         <item
             android:id="@+id/menu_nav_drawer_settings_sendlog"
             android:icon="@drawable/action_report"
-            android:title="@string/menu_send_log"/>
+            android:title="@string/menu_nav_drawer_send_log"/>
     </group>
 
 </menu>

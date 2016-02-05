@@ -55,7 +55,7 @@
     <string name="help_headline_4_3">4.3. Herunterladen von hochgeladenen Fahrten</string>
     <string name="help_content_4_3"></string>
 
-    <string name="help_headline_6">5. Probleme and Feedback</string>
+    <string name="help_headline_6">5. Probleme und Feedback</string>
     <string name="help_content_6">Bei festgestellten Problemen möchten wir Sie bitten, uns ein Fehlerprotokoll zu senden (envirocar@52north.org). Das Fehlerprotokoll enthält Informationen über Prozessverläufe im System. Es unterstützt uns dabei, die Ursachen von Fehlfunktionen zu erkennen und zu beheben.</string>
 
 </resources>

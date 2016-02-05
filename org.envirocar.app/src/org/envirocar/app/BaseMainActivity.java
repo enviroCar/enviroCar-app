@@ -28,6 +28,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -35,6 +36,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -51,7 +53,6 @@ import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.UserHandler;
-import org.envirocar.app.injection.InjectionActivityModule;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.view.HelpActivity;
@@ -60,7 +61,7 @@ import org.envirocar.app.view.SendLogFileFragment;
 import org.envirocar.app.view.TroubleshootingFragment;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
 import org.envirocar.app.view.logbook.LogbookActivity;
-import org.envirocar.app.view.settings.NewSettingsActivity;
+import org.envirocar.app.view.settings.SettingsActivity;
 import org.envirocar.app.view.tracklist.TrackListPagerFragment;
 import org.envirocar.core.entity.Announcement;
 import org.envirocar.core.entity.User;
@@ -89,10 +90,7 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
-import de.keyboardsurfer.android.widget.crouton.Crouton;
-import de.keyboardsurfer.android.widget.crouton.Style;
 import rx.Scheduler;
-import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -103,11 +101,10 @@ import rx.subscriptions.CompositeSubscription;
  * @author dewall
  */
 public class BaseMainActivity extends BaseInjectorActivity {
-    private static final Logger LOGGER = Logger.getLogger(BaseApplication.class);
+    private static final Logger LOGGER = Logger.getLogger(BaseMainActivity.class);
 
     public static final int TRACK_MODE_SINGLE = 0;
     public static final int TRACK_MODE_AUTO = 1;
-
 
     private static final String TRACK_MODE = "trackMode";
     private static final String SEEN_ANNOUNCEMENTS = "seenAnnouncements";
@@ -150,7 +147,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     private boolean paused;
     private ActionBarDrawerToggle mDrawerToggle;
-    private Subscription mPreferenceSubscription;
     private BluetoothServiceState mServiceState = BluetoothServiceState.SERVICE_STOPPED;
     private Fragment mCurrentFragment;
     private Fragment mStartupFragment;
@@ -162,14 +158,39 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        /**
+         * try-catch: very dirty hack for broken fragmentmanager impl on some (one?) device
+         */
+        boolean noInstantiatedExceptionReceived = false;
+        try {
+            super.onCreate(savedInstanceState);
+        }
+        catch (IllegalStateException e) {
+            LOGGER.warn("Trying to reconstruct fragment state. Got Exception", e);
+            if (e.getMessage().contains("No instantiated fragment for index #")) {
+                noInstantiatedExceptionReceived = true;
+            }
+        }
 
         // Set the content view of the application
         setContentView(R.layout.main_layout);
+        mNavigationView = (NavigationView) findViewById(R.id.nav_drawer_navigation_view);
+        LayoutInflater.from(this).inflate(R.layout.nav_drawer_list_header, mNavigationView);
         ButterKnife.inject(this);
 
         // Initializes the Toolbar.
         setSupportActionBar(mToolbar);
+
+        if (noInstantiatedExceptionReceived) {
+            TrackListPagerFragment pagerFragment = new TrackListPagerFragment();
+            if (mNavigationView != null && mNavigationView.getMenu() != null) {
+                MenuItem menuItem = mNavigationView.getMenu().findItem(R.id.menu_nav_drawer_tracklist_new);
+                transitToFragment(menuItem, pagerFragment);
+            }
+            else {
+                LOGGER.warn("Could not re-create TrackListPagerFragment: mNavigationView="+ mNavigationView);
+            }
+        }
 
         // Register a listener for a menu item that gets selected.
         mNavigationView.setNavigationItemSelectedListener(menuItem -> {
@@ -310,16 +331,9 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        Crouton.cancelAllCroutons();
-
         this.unregisterReceiver(errorInformationReceiver);
 
         mTemporaryFileManager.shutdown();
-
-        // Unsubscribe all subscriptions.
-        if (mPreferenceSubscription != null) {
-            mPreferenceSubscription.unsubscribe();
-        }
 
         if (!subscriptions.isUnsubscribed()) {
             subscriptions.unsubscribe();
@@ -489,7 +503,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 startActivity(intent);
                 return false;
             case R.id.menu_nav_drawer_settings_general:
-                Intent intent2 = new Intent(BaseMainActivity.this, NewSettingsActivity.class);
+                Intent intent2 = new Intent(BaseMainActivity.this, SettingsActivity.class);
                 startActivity(intent2);
                 return false;
             case R.id.menu_nav_drawer_settings_help:
@@ -531,6 +545,13 @@ public class BaseMainActivity extends BaseInjectorActivity {
         if (fragment == null || isFragmentVisible(fragment.getClass().getSimpleName()))
             return false;
 
+        //now do the transition
+        transitToFragment(menuItem, fragment);
+
+        return true;
+    }
+
+    private void transitToFragment(MenuItem menuItem, Fragment fragment) {
         // Insert the fragment by replacing the existent fragment in the content frame.
         replaceFragment(fragment,
                 selectedMenuItemID > menuItem.getItemId() ?
@@ -545,8 +566,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         /// update the title of the toolbar.
         setTitle(menuItem.getTitle());
-
-        return true;
     }
 
     private void shutdownEnviroCar() {
@@ -581,7 +600,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     @Override
     public List<Object> getInjectionModules() {
-        return Arrays.<Object>asList(new InjectionActivityModule(this));
+        return Arrays.<Object>asList(new MainActivityModule(this));
     }
 
     @Subscribe
@@ -592,22 +611,19 @@ public class BaseMainActivity extends BaseInjectorActivity {
         mMainThreadWorker.schedule(() -> {
             if (event.mTrack == null) {
                 // Track is null and thus there was an error.
-                Crouton.makeText(this, R.string.track_finishing_failed, Style.ALERT).show();
+                showSnackbar(R.string.track_finishing_failed);
             } else try {
-                if (event.mTrack.getLastMeasurement() == null) {
-                    // Track has no measurements
-                    Crouton.makeText(this, R.string.track_finished_no_measurements, Style.ALERT)
-                            .show();
-                } else {
+                if (event.mTrack.getLastMeasurement() != null) {
                     LOGGER.info("last is not null.. " + event.mTrack.getLastMeasurement()
                             .toString());
+
                     // Track has no measurements
-                    Crouton.makeText(this,
-                            getString(R.string.track_finished).concat(event.mTrack.getName()),
-                            Style.INFO).show();
+                    showSnackbar(getString(R.string.track_finished).concat(event.mTrack.getName()));
                 }
             } catch (NoMeasurementsException e) {
-                LOGGER.warn(e.getMessage(), e);
+                LOGGER.warn("Track has been finished without measurements", e);
+                // Track has no measurements
+                showSnackbar(R.string.track_finished_no_measurements);
             }
         });
     }
@@ -700,6 +716,18 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         outState.putInt(TRACK_MODE, trackMode);
         outState.putSerializable(SEEN_ANNOUNCEMENTS, this.seenAnnouncements.toArray());
+    }
+
+    private void showSnackbar(int infoRes){
+        showSnackbar(getString(infoRes));
+    }
+
+    private void showSnackbar(String info){
+        mMainThreadWorker.schedule(() -> {
+            if (mDrawerLayout != null) {
+                Snackbar.make(mDrawerLayout, info, Snackbar.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void readSavedState(Bundle savedInstanceState) {

@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -24,6 +24,9 @@ import android.util.Base64OutputStream;
 
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.trackprocessing.ConsumptionAlgorithm;
+import org.envirocar.core.trackprocessing.DieselConsumptionAlgorithm;
+import org.envirocar.core.trackprocessing.GasolineConsumptionAlgorithm;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,7 +46,8 @@ public class CarUtils {
 
         ObjectInputStream ois = null;
         try {
-            Base64InputStream b64 = new Base64InputStream(new ByteArrayInputStream(object.getBytes()), Base64.DEFAULT);
+            Base64InputStream b64 = new Base64InputStream(new ByteArrayInputStream(object
+                    .getBytes()), Base64.DEFAULT);
             ois = new ObjectInputStream(b64);
             Object carObject = ois.readObject();
             if (carObject instanceof Car) {
@@ -56,7 +60,7 @@ public class CarUtils {
         } catch (ClassNotFoundException e) {
             logger.warn(e.getMessage(), e);
             return null;
-        } catch (ClassCastException e){
+        } catch (ClassCastException e) {
             logger.warn(e.getMessage(), e);
             return null;
         } finally {
@@ -102,4 +106,38 @@ public class CarUtils {
         }
         return null;
     }
+
+    public static ConsumptionAlgorithm resolveConsumptionAlgorithm(Car.FuelType fuelType) {
+        if (fuelType == Car.FuelType.DIESEL) {
+            return new DieselConsumptionAlgorithm();
+        } else {
+            return new GasolineConsumptionAlgorithm();
+        }
+    }
+
+    public static String carToStringWithLinebreak(Car car){
+        StringBuilder sb = new StringBuilder();
+        sb.append(car.getManufacturer());
+        sb.append(" - ");
+        sb.append(car.getModel());
+        sb.append("\n");
+        sb.append(car.getConstructionYear());
+        sb.append(", ");
+        sb.append(car.getFuelType());
+        sb.append(", ");
+        sb.append(car.getEngineDisplacement());
+        sb.append("cc");
+        return sb.toString();
+    }
+
+    /**
+     * Returns true if the current remote id of the car starts with the temporary prefix
+     *
+     * @param car the car to check
+     * @return true if the car has been uploaded.
+     */
+    public static boolean isCarUploaded(Car car) {
+        return !car.getId().startsWith(Car.TEMPORARY_SENSOR_ID);
+    }
+
 }

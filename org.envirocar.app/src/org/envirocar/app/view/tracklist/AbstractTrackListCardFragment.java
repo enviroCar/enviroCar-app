@@ -36,8 +36,9 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
-import org.envirocar.app.TrackHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
+import org.envirocar.app.handler.TrackDAOHandler;
+import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
@@ -59,6 +60,7 @@ import javax.inject.Inject;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
+import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -83,7 +85,9 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     @Inject
     protected DAOProvider mDAOProvider;
     @Inject
-    protected TrackHandler mTrackHandler;
+    protected TrackDAOHandler mTrackDAOHandler;
+    @Inject
+    protected TrackUploadHandler mTrackUploadHandler;
 
     @InjectView(R.id.fragment_tracklist_info)
     protected View infoView;
@@ -102,6 +106,8 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected ProgressBar mProgressBar;
     @InjectView(R.id.fragment_tracklist_recycler_view)
     protected RecyclerView mRecyclerView;
+//    @InjectView(R.id.fragment_tracklist_fab)
+//    protected FloatingActionButton mFAB;
 
     protected E mRecyclerViewAdapter;
     protected RecyclerView.LayoutManager mRecylcerViewLayoutManager;
@@ -243,12 +249,11 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                         }
 
                         try {
-                            mTrackHandler.deleteRemoteTrack(upToDateRef);
+                            mTrackDAOHandler.deleteRemoteTrack(upToDateRef);
                             return true;
                         } catch (Exception e) {
-                            OnErrorThrowable.from(e);
+                            throw OnErrorThrowable.from(e);
                         }
-                        return false;
                     }
                 })
                 .subscribeOn(Schedulers.io())
@@ -263,14 +268,14 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
      */
     protected void deleteLocalTrack(final Track track) {
         // Get the up to date reference of the current track and delete it
-        mEnvirocarDB.getTrack(track.getTrackID())
+        Observable.defer(() -> mEnvirocarDB.getTrack(track.getTrackID()))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .map(upToDateRef -> {
                     // If the track is a local track, then delete and return whether it was
                     // successful.
-                    return upToDateRef.isLocalTrack() && mTrackHandler.deleteLocalTrack
-                            (upToDateRef.getTrackID());
+                    return upToDateRef.isLocalTrack() &&
+                            mTrackDAOHandler.deleteLocalTrack(upToDateRef.getTrackID());
                 })
                 .subscribe(getDeleteTrackSubscriber(track));
     }
@@ -287,7 +292,6 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
             public void onCompleted() {
                 LOG.info(String.format("onCompleted() delete track -> [%s]",
                         track.getName()));
-
             }
 
             @Override

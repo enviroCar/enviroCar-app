@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -25,6 +25,7 @@ import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.CarUtils;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ import java.util.List;
 public class TrackStatisticsProcessor {
     private static final Logger LOG = Logger.getLogger(TrackStatisticsProcessor.class);
 
-    protected AbstractConsumptionAlgorithm consumptionAlgorithm;
+    protected ConsumptionAlgorithm consumptionAlgorithm;
 
     /**
      * Constructor.
@@ -44,7 +45,7 @@ public class TrackStatisticsProcessor {
      * @param fuelType the fuel type of the corresponding car.
      */
     public TrackStatisticsProcessor(Car.FuelType fuelType) {
-        consumptionAlgorithm = new BasicConsumptionAlgorithm(fuelType);
+        this.consumptionAlgorithm = CarUtils.resolveConsumptionAlgorithm(fuelType);
     }
 
     public double computeDistanceOfTrack(List<Measurement> measurements) {
@@ -72,8 +73,11 @@ public class TrackStatisticsProcessor {
         return distance / 1000.0d;
     }
 
-    public double getCO2Average(List<Measurement> measurements) throws FuelConsumptionException {
+    public Double getCO2Average(List<Measurement> measurements) throws FuelConsumptionException {
         double co2Avg = 0.0;
+        if (consumptionAlgorithm == null) {
+            return null;
+        }
 
         for (Measurement measurement : measurements) {
             Double property = measurement.getProperty(Measurement.PropertyKey.CONSUMPTION);
@@ -81,15 +85,19 @@ public class TrackStatisticsProcessor {
             if (property != null) {
                 co2Avg += consumptionAlgorithm.calculateCO2FromConsumption(property);
             }
+
         }
         co2Avg /= measurements.size();
 
         return co2Avg;
     }
 
-    public double getFuelConsumptionPerHour(List<Measurement> measurements) throws
+    public Double getFuelConsumptionPerHour(List<Measurement> measurements) throws
             FuelConsumptionException {
         double consumption = 0.0;
+        if (consumptionAlgorithm == null) {
+            return null;
+        }
 
         int consideredCount = 0;
         for (Measurement measurement : measurements) {

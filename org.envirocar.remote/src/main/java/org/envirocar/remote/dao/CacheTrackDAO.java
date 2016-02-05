@@ -93,20 +93,19 @@ public class CacheTrackDAO extends AbstractCacheDAO implements TrackDAO {
     }
 
     @Override
-    public String createTrack(Track track) throws DataCreationFailureException,
+    public Track createTrack(Track track) throws DataCreationFailureException,
             NotConnectedException, ResourceConflictException, UnauthorizedException {
         throw new NotConnectedException("Not implemented for Cache DAO");
     }
 
     @Override
-    public void deleteTrack(String remoteID) throws DataUpdateFailureException,
-            NotConnectedException, UnauthorizedException {
-        throw new NotConnectedException("Not implemented for Cache DAO");
+    public Observable<Track> createTrackObservable(Track track) {
+        return Observable.error(new NotConnectedException("Not implemented for Cache DAO"));
     }
 
     @Override
     public void deleteTrack(Track track) throws DataUpdateFailureException,
             NotConnectedException, UnauthorizedException {
-
+        throw new NotConnectedException("Not implemented for Cache DAO");
     }
 }
