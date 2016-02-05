@@ -133,7 +133,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-
                 // Set the duration text.
                 try {
                     String date = UTC_DATE_FORMATTER.format(new Date(
