@@ -30,6 +30,7 @@
             android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/service_track_upload_handler_notification_small_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="@dimen/spacing_small"
@@ -41,7 +42,7 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/service_track_upload_handler_notification_percentage"
+            android:id="@+id/service_track_upload_handler_notification_small_content"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"

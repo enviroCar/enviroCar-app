@@ -42,14 +42,12 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 /**
@@ -205,12 +203,12 @@ public class TrackUploadService extends Service {
                                         getString(R.string.
                                                 notification_automatic_track_upload_success),
                                         getString(R.string.
-                                                notification_automatic_track_upload_success_sub,
+                                                        notification_automatic_track_upload_success_sub,
                                                 numberOfSuccesses, numberOfTracks));
 
                                 forgroundNotification = new NotificationCompat
                                         .Builder(getApplicationContext())
-                                        .setSmallIcon(R.drawable.ic_done)
+                                        .setSmallIcon(R.drawable.ic_cloud_upload_white_24dp)
                                         .setContentTitle(
                                                 getString(R.string.service_track_upload_title))
                                         .setContent(smallView)
@@ -222,7 +220,7 @@ public class TrackUploadService extends Service {
                             @Override
                             public void onError(Throwable e) {
                                 subscriber.onError(e);
-                                
+
                                 setSmallViewText(
                                         getString(R.string.
                                                 notification_automatic_track_upload_error),
@@ -233,6 +231,7 @@ public class TrackUploadService extends Service {
                                         .Builder(getApplicationContext())
                                         .setSmallIcon(R.drawable.ic_error_outline_white_24dp)
                                         .setContentTitle("Track Upload Error")
+                                        .setContent(smallView)
                                         .build();
 
                                 notificationManager.notify(100, forgroundNotification);
@@ -274,10 +273,10 @@ public class TrackUploadService extends Service {
 
                             private void setSmallViewText(String title, String content) {
                                 smallView.setTextViewText(
-                                        R.id.service_track_upload_handler_notification_text,
+                                        R.id.service_track_upload_handler_notification_small_title,
                                         title);
                                 smallView.setTextViewText(
-                                        R.id.service_track_upload_handler_notification_sub_text,
+                                        R.id.service_track_upload_handler_notification_small_content,
                                         content);
                             }
 
@@ -328,36 +327,7 @@ public class TrackUploadService extends Service {
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context
                 .NOTIFICATION_SERVICE);
 
-        AndroidSchedulers.mainThread().createWorker().schedule(new Action0() {
-            @Override
-            public void call() {
-                LOG.info("SETTED");
-//                bigView.setProgressBar(R.id
-//                        .service_track_upload_handler_notification_progressbar, 100, 100, false);
-                notificationManager.notify(100, forgroundNotification);
-            }
-        }, 5, TimeUnit.SECONDS);
-
         notificationManager.notify(100, forgroundNotification);
     }
 
-//    private void setNotification(String title, String notification) {
-//        // Prepare the intent
-//        Intent intent = new Intent(getBaseContext(), BaseMainActivity.class);
-//        PendingIntent pintent = PendingIntent.getActivity(getBaseContext(), 0, intent, 0);
-//
-//        NotificationCompat.Builder mBuilder =
-//                new NotificationCompat.Builder(getBaseContext())
-//                        .setSmallIcon(R.drawable.ic_cloud_upload_black_24dp)
-//                        .setContentTitle(title)
-//                        .setContentText(notification)
-//                        .setContentIntent(pintent)
-//                        .setTicker(notification);
-//
-//        NotificationManager mNotificationManager =
-//                (NotificationManager) getBaseContext().getSystemService(Context
-//                        .NOTIFICATION_SERVICE);
-//        // mId allows you to update the notification later on.
-//        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
-//    }
 }
