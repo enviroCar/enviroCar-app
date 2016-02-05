@@ -59,12 +59,4 @@
     <string name="service_state_starting">Establishing connection to OBDII adapter</string>
     <string name="service_state_started">Connected to OBDII adapter. Recording.</string>
     <string name="service_state_stopped">OBDII adapter disconnected.</string>
-
-    <string name="notification_slide_down">Slide down on note to expand</string>
-    <string name="notification_automatic_track_upload_title">Automatic Track Upload</string>
-    <string name="notification_automatic_track_upload_title_sub">Track upload is in progress...</string>
-    <string name="notification_automatic_track_upload_error">Automatic Upload Failed</string>
-    <string name="notification_automatic_track_upload_error_sub">An error occurred during the upload process.</string>
-    <string name="notification_automatic_track_upload_success">Automatic Upload Successful</string>
-    <string name="notification_automatic_track_upload_success_sub" formatted="false">%s of %s tracks has been successfully uploaded.</string>
 </resources>

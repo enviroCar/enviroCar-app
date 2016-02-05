@@ -22,8 +22,8 @@
 
 <resources>
   <string name="trackviews_delete_track_dialog_headline">Fahrt Löschen?</string>
-  <string name="trackviews_delete_track_dialog_content_1">Sie sind dabei die Fahrt</string>
-  <string name="trackviews_delete_track_dialog_content_2">zu löschen. Diese Aktion kann zu einem späteren Zeitpunkt nicht rückgängig gemacht werden! Möchten Sie fortfahren?</string>
+  <string name="trackviews_delete_track_dialog_content">Sie sind dabei die Fahrt \'%s\' zu löschen.
+        "\nDiese Aktion kann zu einem späteren Zeitpunkt nicht rückgängig gemacht werden! Möchten Sie fortfahren?</string>
 
   <string name="trackviews_delete_track_snackbar_success">Fahrt wurde erfolgreich gelöscht.</string>
 

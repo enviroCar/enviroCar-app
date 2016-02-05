@@ -40,7 +40,6 @@ import org.envirocar.storage.EnviroCarDB;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -103,11 +102,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
                                         mPlaceholderFragment).commit();
                     }
 
-                    // Workaround... for fast smartphones, the menu gets manually inflated to
-                    // fast such that no menu gets rendered. Therefore, the inflatation is
-                    // postponed by 100 milliseconds.
-                    AndroidSchedulers.mainThread().createWorker().schedule(
-                            () -> inflateMenuProperties(track), 100, TimeUnit.MILLISECONDS);
+                    inflateMenuProperties(track);
                 });
 
         // Inject all annotated views.
@@ -118,14 +113,6 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
         getSupportActionBar().setTitle(R.string.track_statistics);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-//        for (Measurement.PropertyKey key : Measurement.PropertyKey.values()) {
-//            menu.add(key.getStringResource());
-//        }
-        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -146,14 +133,13 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
 
     private void inflateMenuProperties(Track track) {
         Menu menu = mToolbar.getMenu();
-        menu.clear();
         if (mTrack != null && !mTrack.getMeasurements().isEmpty()) {
             for (Measurement.PropertyKey key : mTrack.getSupportedProperties()) {
                 menu.add(key.getStringResource());
             }
         }
 
-        mToolbar.postInvalidate();
+        mToolbar.invalidate();
     }
 
     public static class PlaceholderFragment extends Fragment {
@@ -238,8 +224,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
             previewX();
         }
 
-        private List<PointValue> generateDistancedBasedData(Measurement.PropertyKey propertyKey,
-                                                            Track track) {
+        private List<PointValue> generateDistancedBasedData(Measurement.PropertyKey propertyKey, Track track){
             List<PointValue> values = new ArrayList<PointValue>();
 
             // temporary array for computing distances.
@@ -249,8 +234,8 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
             // temporary value for the last measurement
             Measurement lastMeasurement = null;
 
-            for (Measurement m : track.getMeasurements()) {
-                if (lastMeasurement != null) {
+            for(Measurement m : track.getMeasurements()){
+                if(lastMeasurement != null){
                     Location.distanceBetween(lastMeasurement.getLatitude(), lastMeasurement
                             .getLongitude(), m.getLatitude(), m.getLongitude(), tmp);
                     distance += tmp[0] / 1000f; // we need km not meters.
@@ -278,7 +263,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
             data.setAxisXBottom(distAxis);
         }
 
-        private void setYAxis(Measurement.PropertyKey key, LineChartData data) {
+        private void setYAxis(Measurement.PropertyKey key, LineChartData data){
             Axis yAxis = new Axis();
             yAxis.setName(getString(key.getStringResource()));
             yAxis.setTextColor(getResources().getColor(R.color.blue_dark_cario));

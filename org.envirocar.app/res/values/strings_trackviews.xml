@@ -22,18 +22,12 @@
 <resources>
 
     <string name="trackviews_delete_track_dialog_headline">Delete Track?</string>
-    <string name="trackviews_delete_track_dialog_content_1">You are about to delete track </string>
-    <string name="trackviews_delete_track_dialog_content_2">It cannot be restored at a later time! Do you want to continue?</string>
+    <string name="trackviews_delete_track_dialog_content">You are about to delete track \'%s\'.
+        "\nIt cannot be restored at a later time! Do you want to continue?</string>
 
     <string name="trackviews_delete_track_snackbar_success">Track has been successfully deleted.</string>
 
     <string name="trackviews_is_already_uploaded">Track \'%s\' has already been uploaded.</string>
     <string name="trackviews_not_logged_in">Track cannot be uploaded. Please log in first.</string>
     <string name="trackviews_server_error">Server Error - Please try again later.</string>
-
-
-    <string name="service_track_upload_title">Automatic Track Upload</string>
-    <string name="service_track_upload_content_small">Slide down on note to expand.</string>
-
-    <!--<string name="service_"-->
 </resources>

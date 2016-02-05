@@ -18,22 +18,18 @@
  */
 package org.envirocar.app.services;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
-import android.widget.RemoteViews;
 
 import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
+import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
 import org.envirocar.core.entity.Track;
@@ -45,7 +41,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -85,11 +80,49 @@ public class TrackUploadService extends Service {
         if (localTrackList.size() > 0) {
             LOG.info(String.format("%s local tracks to upload", localTrackList.size()));
 
-//            setNotification("yeae", "oiad");
-            uploadAllLocalTracks();
+            trackUploadHandler.uploadAllTracks()
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Subscriber<Track>() {
+
+                        @Override
+                        public void onStart() {
+                            LOG.info("uploadAllTracks.onStart()");
+                            setNotification("enviroCar - Automatic Track Upload", "Uploading all " +
+                                    "the local tracks.");
+                        }
+
+                        @Override
+                        public void onCompleted() {
+                            LOG.info("Upload of tracks successful");
+                            setNotification("enviroCar - Automatic Track Upload", "Successfully " +
+                                    "uploaded all local tracks.");
+                            try {
+                                finalize();
+                            } catch (Throwable throwable) {
+                                throwable.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            LOG.error(e.getMessage(), e);
+                            if (e instanceof NotAcceptedTermsOfUseException) {
+                                setNotification("Error while uploading", "Can't automatically " +
+                                        "upload " +
+                                        "the tracks. You have not accepted the terms of use.");
+                            } else {
+                                setNotification("Error while uploading", "Unknown reason");
+                            }
+                        }
+
+                        @Override
+                        public void onNext(Track track) {
+
+                        }
+                    });
         } else {
             LOG.info("No local tracks to upload");
-//            setNotification("yeae", "oiad");
             try {
                 finalize();
             } catch (Throwable throwable) {
@@ -112,222 +145,23 @@ public class TrackUploadService extends Service {
         return null;
     }
 
-    private void uploadAllLocalTracks() {
-        Observable.defer(() -> enviroCarDB.getAllLocalTracks())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .first()
-                .concatMap(tracks -> getUploadWithNotificationObservable(tracks))
-                .subscribe(new Subscriber<Track>() {
-                    @Override
-                    public void onStart() {
-                        LOG.info("onStart()");
-                    }
-
-                    @Override
-                    public void onCompleted() {
-                        LOG.info("onCompleted()");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        LOG.warn(e.getMessage(), e);
-                    }
-
-                    @Override
-                    public void onNext(Track track) {
-                        LOG.info("Track has been successfully uploaded -> " + track.getRemoteID());
-                    }
-                });
-    }
-
-
-    private Observable<Track> getUploadWithNotificationObservable(final List<Track> tracks) {
-        return Observable.create(new Observable.OnSubscribe<Track>() {
-            private RemoteViews smallView;
-            private RemoteViews bigView;
-            private Notification forgroundNotification;
-            private NotificationManager notificationManager;
-
-            private int numberOfTracks = tracks.size();
-            private int numberOfSuccesses = 0;
-            private int numberOfFailures = 0;
-
-            @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                subscriber.add(trackUploadHandler.uploadTracks(tracks, false)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(new Subscriber<Track>() {
-                            @Override
-                            public void onStart() {
-                                subscriber.onStart();
-
-                                forgroundNotification = new NotificationCompat
-                                        .Builder(getApplicationContext())
-                                        .setSmallIcon(R.drawable.ic_cloud_upload_white_24dp)
-                                        .setContentTitle(
-                                                getString(R.string.service_track_upload_title))
-                                        .setPriority(Integer.MAX_VALUE)
-                                        .build();
-
-                                smallView = new RemoteViews(getPackageName(),
-                                        R.layout.service_track_upload_handler_notification_small);
-                                bigView = new RemoteViews(getPackageName(),
-                                        R.layout.service_track_upload_handler_notification);
-                                forgroundNotification.bigContentView = bigView;
-
-                                setSmallViewText(
-                                        getString(R.string
-                                                .notification_automatic_track_upload_title),
-                                        getString(R.string.
-                                                notification_slide_down));
-                                setBigViewText(
-                                        getString(R.string.
-                                                notification_automatic_track_upload_title),
-                                        getString(R.string.
-                                                notification_automatic_track_upload_success_sub)
-                                );
-
-                                notificationManager = (NotificationManager) getSystemService(Context
-                                        .NOTIFICATION_SERVICE);
-                                updateProgress();
-                            }
-
-                            @Override
-                            public void onCompleted() {
-                                LOG.info("getUploadWithNotificationObservable.onCompleted()");
-                                subscriber.onCompleted();
-
-                                setSmallViewText(
-                                        getString(R.string.
-                                                notification_automatic_track_upload_success),
-                                        getString(R.string.
-                                                        notification_automatic_track_upload_success_sub,
-                                                numberOfSuccesses, numberOfTracks));
-
-                                forgroundNotification = new NotificationCompat
-                                        .Builder(getApplicationContext())
-                                        .setSmallIcon(R.drawable.ic_cloud_upload_white_24dp)
-                                        .setContentTitle(
-                                                getString(R.string.service_track_upload_title))
-                                        .setContent(smallView)
-                                        .build();
-
-                                notificationManager.notify(100, forgroundNotification);
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                subscriber.onError(e);
-
-                                setSmallViewText(
-                                        getString(R.string.
-                                                notification_automatic_track_upload_error),
-                                        getString(R.string.
-                                                notification_automatic_track_upload_error_sub));
-
-                                forgroundNotification = new NotificationCompat
-                                        .Builder(getApplicationContext())
-                                        .setSmallIcon(R.drawable.ic_error_outline_white_24dp)
-                                        .setContentTitle("Track Upload Error")
-                                        .setContent(smallView)
-                                        .build();
-
-                                notificationManager.notify(100, forgroundNotification);
-                            }
-
-                            @Override
-                            public void onNext(Track track) {
-                                if (track == null) {
-                                    LOG.info("track had to less measurements");
-                                    numberOfFailures++;
-                                } else {
-                                    subscriber.onNext(track);
-                                    numberOfSuccesses++;
-                                }
-
-                                updateProgress();
-                            }
-
-                            private void updateProgress() {
-                                int totalNumber = numberOfFailures + numberOfSuccesses;
-
-                                bigView.setProgressBar(
-                                        R.id.service_track_upload_handler_notification_progressbar,
-                                        numberOfTracks,
-                                        numberOfFailures + numberOfSuccesses,
-                                        false);
-
-                                bigView.setTextViewText(
-                                        R.id.service_track_upload_handler_notification_total,
-                                        String.format("%s / %s", totalNumber, numberOfTracks));
-
-                                bigView.setTextViewText(
-                                        R.id.service_track_upload_handler_notification_percentage,
-                                        "" + ((numberOfFailures +
-                                                numberOfSuccesses) / numberOfTracks) * 100);
-
-                                notificationManager.notify(100, forgroundNotification);
-                            }
-
-                            private void setSmallViewText(String title, String content) {
-                                smallView.setTextViewText(
-                                        R.id.service_track_upload_handler_notification_small_title,
-                                        title);
-                                smallView.setTextViewText(
-                                        R.id.service_track_upload_handler_notification_small_content,
-                                        content);
-                            }
-
-                            private void setBigViewText(String title, String content) {
-                                bigView.setTextViewText(
-                                        R.id.service_track_upload_handler_notification_text,
-                                        title);
-                                bigView.setTextViewText(
-                                        R.id.service_track_upload_handler_notification_sub_text,
-                                        content);
-                            }
-                        }));
-            }
-        });
-    }
-
     private void setNotification(String title, String notification) {
-        RemoteViews bigView = new RemoteViews(getPackageName(), R.layout
-                .service_track_upload_handler_notification);
-
-        RemoteViews smallView = new RemoteViews(getPackageName(), R.layout
-                .service_track_upload_handler_notification_small);
-
-
-        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.home_icon);
-
-        Notification forgroundNotification = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_cloud_upload_white_24dp)
-                .setContentTitle(title)
-                .setContent(smallView)
-//                .setAutoCancel(false)
-                .setPriority(Integer.MAX_VALUE)
-//                .setOngoing(true)
-//                .setLargeIcon(bm)
-                .build();
-
-        forgroundNotification.bigContentView = bigView;
-
+        // Prepare the intent
         Intent intent = new Intent(getBaseContext(), BaseMainActivity.class);
+        PendingIntent pintent = PendingIntent.getActivity(getBaseContext(), 0, intent, 0);
 
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(BaseMainActivity.class);
-        stackBuilder.addNextIntent(intent);
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(getBaseContext())
+                        .setSmallIcon(R.drawable.ic_cloud_upload_black_24dp)
+                        .setContentTitle(title)
+                        .setContentText(notification)
+                        .setContentIntent(pintent)
+                        .setTicker(notification);
 
-        PendingIntent resultIntent = stackBuilder.getPendingIntent(0, PendingIntent
-                .FLAG_UPDATE_CURRENT);
-
-        NotificationManager notificationManager = (NotificationManager) getSystemService(Context
-                .NOTIFICATION_SERVICE);
-
-        notificationManager.notify(100, forgroundNotification);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getBaseContext().getSystemService(Context
+                        .NOTIFICATION_SERVICE);
+        // mId allows you to update the notification later on.
+        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
     }
-
 }
