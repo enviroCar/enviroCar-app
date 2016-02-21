@@ -71,7 +71,7 @@ public class TrackUploadService extends Service {
         LOG.debug("onCreate()");
         super.onCreate();
 
-        // Inject the TrackRecordingHandler;
+        // Inject the OBDServiceHandler;
         ((Injector) getApplicationContext()).injectObjects(this);
     }
 
@@ -89,7 +89,7 @@ public class TrackUploadService extends Service {
             uploadAllLocalTracks();
         } else {
             LOG.info("No local tracks to upload");
-//            setNotification("yeae", "oiad");
+            setNotification("yeae", "oiad");
             try {
                 finalize();
             } catch (Throwable throwable) {
