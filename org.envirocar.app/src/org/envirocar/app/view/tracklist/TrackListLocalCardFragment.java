@@ -230,7 +230,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
             @Override
             public void call(Subscriber<? super Track> subscriber) {
                 subscriber.add(mTrackUploadHandler
-                        .uploadSingleTrack(track, getActivity())
+                        .uploadTrackObservable(track, getActivity())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Subscriber<Track>() {
@@ -296,7 +296,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
             @Override
             public void call(Subscriber<? super Track> subscriber) {
-                subscriber.add(mTrackUploadHandler.uploadTracks(tracks, false)
+                subscriber.add(mTrackUploadHandler.uploadTracksObservable(tracks, false)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Subscriber<Track>() {
