@@ -93,7 +93,13 @@ public class TrackUploadHandler {
         this.mTermsOfUseManager = termsOfUseManager;
     }
 
-
+    /**
+     * Returns an observable that uploads a single track.
+     *
+     * @param track    the track to upload.
+     * @param activity
+     * @return an observable that uploads a single track.
+     */
     public Observable<Track> uploadTrackObservable(Track track, Activity activity) {
         return Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
@@ -103,8 +109,6 @@ public class TrackUploadHandler {
 
                 // Create a dialog with which the user can accept the terms of use.
                 subscriber.add(Observable.just(track)
-                        // general validation of the track
-                        .map(validateRequirementsForUpload())
                         // Verify whether the TermsOfUSe have been accepted.
                         // When the TermsOfUse have not been accepted, create an
                         // Dialog to accept and continue when the user has accepted.
@@ -131,9 +135,30 @@ public class TrackUploadHandler {
      */
     public Observable<Track> uploadTracksObservable(
             List<Track> tracks, boolean abortOnNoMeasurements) {
+        return uploadTracksObservable(tracks, abortOnNoMeasurements, null);
+    }
+
+    /**
+     * Returns an observable that uploads a list of tracks. If a track did not contain enough
+     * measurements, i.e. the track obfuscation is throwing a {@link NoMeasurementsException},
+     * then it returns null to its subscriber. In case when the terms of use has not been
+     * accepted for the specific user and the input parameter is not null, then it automatically
+     * creates a dialog where the user can accept the terms of use.
+     *
+     * @param tracks                the list of tracks to upload.
+     * @param abortOnNoMeasurements if true, then it also closes the complete stream. Otherwise,
+     *                              it returns null to its subscriber.
+     * @param activity              the activity of the current scope. When the activity is not
+     *                              null, then it creates a dialog where it can be accepted.
+     * @return an observable that uploads a list of tracks.
+     */
+    public Observable<Track> uploadTracksObservable(
+            List<Track> tracks, boolean abortOnNoMeasurements, Activity activity) {
         Preconditions.checkState(tracks != null && !tracks.isEmpty(),
                 "Input tracks cannot be null or empty.");
-        return Observable.from(tracks)
+        return Observable.just(tracks)
+                .compose(TermsOfUseManager.TermsOfUseValidator.create(mTermsOfUseManager, activity))
+                .flatMap(tracks1 -> Observable.from(tracks1))
                 .concatMap(track -> uploadTrack(track)
                         .first()
                         .lift(getUploadTracksOperator(abortOnNoMeasurements)));
@@ -219,8 +244,7 @@ public class TrackUploadHandler {
             @Override
             public void onError(Throwable e) {
                 LOG.info("onError()");
-                if (!abortOnNoMeasurements &&
-                        e.getCause() instanceof NoMeasurementsException) {
+                if (!abortOnNoMeasurements && e.getCause() instanceof NoMeasurementsException) {
                     subscriber.onNext(null);
                     onCompleted();
                 } else {
