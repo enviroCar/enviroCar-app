@@ -43,9 +43,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.exceptions.OnErrorThrowable;
 import rx.functions.Func1;
 
@@ -67,8 +65,6 @@ public class TrackUploadHandler {
     private final TrackDAOHandler trackDAOHandler;
     private final UserHandler mUserManager;
     private final TermsOfUseManager mTermsOfUseManager;
-
-    private final Scheduler.Worker mainthreadWorker = AndroidSchedulers.mainThread().createWorker();
 
     /**
      * Normal constructor for this manager. Specify the context and the dbadapter.
