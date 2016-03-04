@@ -239,7 +239,7 @@ public class TrackUploadHandler {
         return subscriber -> new ItemForwardSubscriber<Track>((Subscriber<Track>) subscriber) {
             @Override
             public void onError(Throwable e) {
-                LOG.info("onError()");
+                LOG.info("onError() Track has not enough measurements to upload.");
                 if (!abortOnNoMeasurements && e.getCause() instanceof NoMeasurementsException) {
                     subscriber.onNext(null);
                     onCompleted();

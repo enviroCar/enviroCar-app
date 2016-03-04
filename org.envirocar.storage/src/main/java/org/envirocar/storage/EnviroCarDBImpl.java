@@ -184,11 +184,13 @@ public class EnviroCarDBImpl implements EnviroCarDB {
             @Override
             public void call(Subscriber<? super Track> subscriber) {
                 subscriber.onStart();
-                if (updateTrack(track))
+                if (updateTrack(track)) {
+                    LOG.info("Track [%s] has been successfully updated.", track.toString());
                     subscriber.onNext(track);
-                subscriber.onCompleted();
+                }
+//                subscriber.onCompleted();
             }
-        });
+        }).first();
     }
 
     @Override
