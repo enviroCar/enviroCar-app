@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -91,6 +91,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
     private OBDDeviceListAdapter mPairedDevicesAdapter;
 
     private Subscription mBTDiscoverySubscription;
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
@@ -403,8 +404,11 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
 
                     @Override
                     public void onPairingError(BluetoothDevice device) {
-                        Toast.makeText(getActivity(), R.string.obd_selection_pairing_error,
-                                Toast.LENGTH_LONG).show();
+                        if (getActivity() != null) {
+                            Toast.makeText(getActivity(),
+                                    R.string.obd_selection_pairing_error,
+                                    Toast.LENGTH_LONG).show();
+                        }
                         if (text != null)
                             text.setText(device.getName());
                     }
@@ -413,8 +417,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                     public void onDevicePaired(BluetoothDevice device) {
                         // Device is paired. Add it to the array adapter for paired devices and
                         // remove it from the adapter for new devices.
-                        showSnackbar(String.format(
-                                getString(R.string.obd_selection_pairing_success_template),
+                        showSnackbar(getString(R.string.obd_selection_pairing_success_template,
                                 device.getName()));
                         mNewDevicesArrayAdapter.remove(device);
                         mPairedDevicesAdapter.add(device);

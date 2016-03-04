@@ -123,7 +123,6 @@ public class NotificationHandler {
                 (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
         // mId allows you to update the notification later on.
         mNotificationManager.notify(mId, mBuilder.build());
-
     }
 
     public void setNotificationState(Service service, NotificationState state) {

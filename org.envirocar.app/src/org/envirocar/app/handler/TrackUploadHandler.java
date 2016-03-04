@@ -24,16 +24,15 @@ import android.content.Context;
 import com.google.common.base.Preconditions;
 
 import org.envirocar.app.R;
-import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
 import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.exception.TrackAlreadyUploadedException;
-import org.envirocar.app.services.NotificationHandler;
+import org.envirocar.app.rxutils.ItemForwardSubscriber;
+import org.envirocar.app.rxutils.SingleItemForwardSubscriber;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.TrackWithNoValidCarException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.utils.CarUtils;
 import org.envirocar.core.utils.TrackUtils;
 import org.envirocar.remote.DAOProvider;
 import org.envirocar.storage.EnviroCarDB;
@@ -44,9 +43,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
-import rx.Scheduler;
 import rx.Subscriber;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.exceptions.OnErrorThrowable;
 import rx.functions.Func1;
 
@@ -63,15 +60,11 @@ public class TrackUploadHandler {
 
     private final Context mContext;
     private final EnviroCarDB mEnviroCarDB;
-    private final NotificationHandler mNotificationHandler;
     private final CarPreferenceHandler mCarManager;
     private final DAOProvider mDAOProvider;
     private final TrackDAOHandler trackDAOHandler;
     private final UserHandler mUserManager;
-    private final TrackRecordingHandler mTrackRecordingHandler;
     private final TermsOfUseManager mTermsOfUseManager;
-
-    private final Scheduler.Worker mainthreadWorker = AndroidSchedulers.mainThread().createWorker();
 
     /**
      * Normal constructor for this manager. Specify the context and the dbadapter.
@@ -82,111 +75,46 @@ public class TrackUploadHandler {
     public TrackUploadHandler(
             @InjectApplicationScope Context context,
             EnviroCarDB enviroCarDB,
-            NotificationHandler notificationHandler,
             CarPreferenceHandler carPreferenceHandler,
             DAOProvider daoProvider,
             TrackDAOHandler trackDAOHandler,
             UserHandler userHandler,
-            TrackRecordingHandler trackRecordingHandler,
             TermsOfUseManager termsOfUseManager) {
         this.mContext = context;
         this.mEnviroCarDB = enviroCarDB;
-        this.mNotificationHandler = notificationHandler;
         this.mCarManager = carPreferenceHandler;
         this.mDAOProvider = daoProvider;
         this.trackDAOHandler = trackDAOHandler;
         this.mUserManager = userHandler;
-        this.mTrackRecordingHandler = trackRecordingHandler;
         this.mTermsOfUseManager = termsOfUseManager;
     }
 
-
-    public Observable<Track> uploadSingleTrack(Track track, Activity activity) {
+    /**
+     * Returns an observable that uploads a single track.
+     *
+     * @param track    the track to upload.
+     * @param activity
+     * @return an observable that uploads a single track.
+     */
+    public Observable<Track> uploadTrackObservable(Track track, Activity activity) {
         return Observable.create(new Observable.OnSubscribe<Track>() {
             @Override
             public void call(Subscriber<? super Track> subscriber) {
-                LOG.info("uploadSingleTrack() start uploading.");
+                LOG.info("uploadTrackObservable() start uploading.");
                 subscriber.onStart();
 
                 // Create a dialog with which the user can accept the terms of use.
                 subscriber.add(Observable.just(track)
-                        // general validation of the track
-                        .map(validateRequirementsForUpload())
-                        // Verify wether the TermsOfUSe have been accepted.
+                        // Verify whether the TermsOfUSe have been accepted.
                         // When the TermsOfUse have not been accepted, create an
                         // Dialog to accept and continue when the user has accepted.
-                        .flatMap(track1 ->
-                                mTermsOfUseManager.verifyTermsOfUse(activity, track1))
+                        .compose(TermsOfUseManager.TermsOfUseValidator.create(mTermsOfUseManager,
+                                activity))
                         // Continue when the TermsOfUse has been accepted, otherwise
                         // throw an error
-                        .flatMap(track1 -> track1 != null ? uploadTrack(track) :
-                                Observable.error(new NotAcceptedTermsOfUseException(
-                                        "Not accepted TermsOfUse")))
-                        .subscribe(new Subscriber<Track>() {
-                                       @Override
-                                       public void onCompleted() {
-                                           subscriber.onCompleted();
-                                       }
-
-                                       @Override
-                                       public void onError(Throwable e) {
-                                           subscriber.onError(e);
-                                           subscriber.unsubscribe();
-                                       }
-
-                                       @Override
-                                       public void onNext(Track track) {
-                                           subscriber.onNext(track);
-                                           subscriber.onCompleted();
-                                       }
-                                   }
-                        ));
-            }
-        });
-    }
-
-    public Observable<Track> uploadAllTracks() {
-        return mEnviroCarDB.getAllLocalTracks()
-                .flatMap(tracks -> uploadMultipleTracks(tracks));
-    }
-
-    public Observable<Track> uploadMultipleTracks(List<Track> tracks) {
-        Preconditions.checkState(tracks != null && !tracks.isEmpty(),
-                "Input tracks cannot be null or empty.");
-        return Observable.create(new Observable.OnSubscribe<Track>() {
-            @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                subscriber.onStart();
-//                mNotificationHandler.createNotification("start");
-
-//                subscriber.add(Observable.from(tracks)
-//                        .concatMap(track -> uploadTrack(track))
-//                        .subscribe(new Subscriber<Track>() {
-//                            @Override
-//                            public void onCompleted() {
-//                                subscriber.onCompleted();
-//                            }
-//
-//                            @Override
-//                            public void onError(Throwable e) {
-//                                LOG.error(e.getMessage(), e);
-//                                if (e instanceof NoMeasurementsException) {
-//                                    mainthreadWorker.schedule(() -> Toast.makeText(mContext,
-//                                            R.string.uploading_track_no_measurements_after_obfuscation_long,
-//                                            Toast.LENGTH_LONG).show());
-//                                    mNotificationHandler.createNotification
-//                                            (mContext.getString(R.string
-//                                                    .uploading_track_no_measurements_after_obfuscation));
-//                                } else {
-//                                    subscriber.onError(e);
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onNext(Track track) {
-//                                subscriber.onNext(track);
-//                            }
-//                        }));
+                        .flatMap(track1 -> uploadTrack(track1))
+                        // Only forward the results to the real subscriber.
+                        .subscribe(SingleItemForwardSubscriber.create(subscriber)));
             }
         });
     }
@@ -201,65 +129,52 @@ public class TrackUploadHandler {
      *                              it returns null to its subscriber.
      * @return an observable that uploads a list of tracks.
      */
-    public Observable<Track> uploadTracks(List<Track> tracks, boolean abortOnNoMeasurements) {
+    public Observable<Track> uploadTracksObservable(
+            List<Track> tracks, boolean abortOnNoMeasurements) {
+        return uploadTracksObservable(tracks, abortOnNoMeasurements, null);
+    }
+
+    /**
+     * Returns an observable that uploads a list of tracks. If a track did not contain enough
+     * measurements, i.e. the track obfuscation is throwing a {@link NoMeasurementsException},
+     * then it returns null to its subscriber. In case when the terms of use has not been
+     * accepted for the specific user and the input parameter is not null, then it automatically
+     * creates a dialog where the user can accept the terms of use.
+     *
+     * @param tracks                the list of tracks to upload.
+     * @param abortOnNoMeasurements if true, then it also closes the complete stream. Otherwise,
+     *                              it returns null to its subscriber.
+     * @param activity              the activity of the current scope. When the activity is not
+     *                              null, then it creates a dialog where it can be accepted.
+     * @return an observable that uploads a list of tracks.
+     */
+    public Observable<Track> uploadTracksObservable(
+            List<Track> tracks, boolean abortOnNoMeasurements, Activity activity) {
         Preconditions.checkState(tracks != null && !tracks.isEmpty(),
                 "Input tracks cannot be null or empty.");
-        return Observable.from(tracks)
+        return Observable.just(tracks)
+                .compose(TermsOfUseManager.TermsOfUseValidator.create(mTermsOfUseManager, activity))
+                .flatMap(tracks1 -> Observable.from(tracks1))
                 .concatMap(track -> uploadTrack(track)
                         .first()
-                        .lift(new Observable.Operator<Track, Track>() {
-                            @Override
-                            public Subscriber<? super Track> call(
-                                    Subscriber<? super Track> subscriber) {
-                                return new Subscriber<Track>() {
-
-                                    @Override
-                                    public void onCompleted() {
-                                        LOG.info("uploadAllLocalTracks(): onCompleted()");
-                                        subscriber.onCompleted();
-                                    }
-
-                                    @Override
-                                    public void onError(Throwable e) {
-                                        LOG.info("onError()");
-                                        if (!abortOnNoMeasurements &&
-                                                e.getCause() instanceof NoMeasurementsException) {
-                                            subscriber.onNext(null);
-                                            onCompleted();
-                                        } else {
-                                            subscriber.onError(e);
-                                            unsubscribe();
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onNext(Track track) {
-                                        subscriber.onNext(track);
-                                    }
-                                };
-                            }
-                        }));
+                        .lift(getUploadTracksOperator(abortOnNoMeasurements)));
     }
 
     private Observable<Track> uploadTrack(Track track) {
         return Observable.just(track)
-                // Check whether the user is correctly logged in.
-                .map(mUserManager.getIsLoggedIn())
+                // general validation of the track
+                .map(validateRequirementsForUpload())
+                // assets the car of the track and, in case it is not uploaded, it uploads the
+                // car and sets the remoteId
+                .compose(validateCarOfTrack())
                 // Update the track metadata.
-                .flatMap(track1 -> trackDAOHandler.updateTrackMetadataObservable(track1))
-                // Assert whether the track has a temporary car.
-                .flatMap(trackMetadata -> mCarManager.assertTemporaryCar(track.getCar()))
-                // Set the car reference
-                .map(car -> {
-                    track.setCar(car);
-                    return track;
-                })
+                .compose(updateTrackMetadata())
                 // obfuscate the track.
                 .map(asObfuscatedTrackWhenChecked())
                 // Upload the track
                 .flatMap(obfTrack -> mDAOProvider.getTrackDAO().createTrackObservable(obfTrack))
                 // Update the database entry
-                .flatMap(track1 -> mEnviroCarDB.updateTrackObservable(track1));
+                .flatMap(uploadedTrack -> mEnviroCarDB.updateTrackObservable(uploadedTrack));
     }
 
     private Func1<Track, Track> validateRequirementsForUpload() {
@@ -275,10 +190,6 @@ public class TrackUploadHandler {
                     String infoText = "Track has no car set. Please delete this track.";
                     LOG.warn(infoText);
                     throw OnErrorThrowable.from(new TrackWithNoValidCarException(infoText));
-                } else if (!CarUtils.isCarUploaded(track.getCar())) {
-                    String infoText = "Cannot upload tracks with no valid remote car.";
-                    LOG.warn(infoText);
-                    throw OnErrorThrowable.from(new TrackWithNoValidCarException(infoText));
                 } else if (!mUserManager.isLoggedIn()) {
                     String infoText = mContext.getString(R.string.trackviews_not_logged_in);
                     LOG.info(infoText);
@@ -290,23 +201,55 @@ public class TrackUploadHandler {
     }
 
     private Func1<Track, Track> asObfuscatedTrackWhenChecked() {
-        return new Func1<Track, Track>() {
+        return track -> {
+            LOG.info("asObfuscatedTrackWhenChecked()");
+            if (PreferencesHandler.isObfuscationEnabled(mContext)) {
+                LOG.info(String.format("obfuscation is enabled. Obfuscating track with %s " +
+                        "measurements.", "" + track.getMeasurements().size()));
+                try {
+                    return TrackUtils.getObfuscatedTrack(track);
+                } catch (NoMeasurementsException e) {
+                    throw OnErrorThrowable.from(e);
+                }
+            } else {
+                LOG.info("obfuscation is disabled.");
+                return track;
+            }
+        };
+    }
+
+    private Observable.Transformer<Track, Track> validateCarOfTrack() {
+        return trackObservable -> trackObservable.flatMap(
+                track -> mCarManager
+                        .assertTemporaryCar(track.getCar())
+                        .map(car -> {
+                            track.setCar(car);
+                            return track;
+                        }));
+    }
+
+    private Observable.Transformer<Track, Track> updateTrackMetadata() {
+        return trackObservable -> trackObservable.flatMap(
+                track -> trackDAOHandler
+                        .updateTrackMetadataObservable(track)
+                        .map(trackMetadata -> track));
+    }
+
+    private Observable.Operator<Track, Track> getUploadTracksOperator(boolean abortOnNoMeasurements) {
+        return subscriber -> new ItemForwardSubscriber<Track>((Subscriber<Track>) subscriber) {
             @Override
-            public Track call(Track track) {
-                LOG.info("asObfuscatedTrackWhenChecked()");
-                if (PreferencesHandler.isObfuscationEnabled(mContext)) {
-                    LOG.info(String.format("obfuscation is enabled. Obfuscating track with %s " +
-                            "measurements.", "" + track.getMeasurements().size()));
-                    try {
-                        return TrackUtils.getObfuscatedTrack(track);
-                    } catch (NoMeasurementsException e) {
-                        throw OnErrorThrowable.from(e);
-                    }
+            public void onError(Throwable e) {
+                LOG.info("onError() Track has not enough measurements to upload.");
+                if (!abortOnNoMeasurements && e.getCause() instanceof NoMeasurementsException) {
+                    subscriber.onNext(null);
+                    onCompleted();
                 } else {
-                    LOG.info("obfuscation is disabled.");
-                    return track;
+                    subscriber.onError(e);
+                    unsubscribe();
                 }
             }
         };
     }
 }
+
+

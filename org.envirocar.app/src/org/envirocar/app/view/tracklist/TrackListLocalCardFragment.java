@@ -122,7 +122,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                 .subscribe(new Subscriber<Track>() {
                     @Override
                     public void onCompleted() {
-                        LOG.info("onCompleted()");
+                        LOG.info("uploadTrack.onCompleted()");
                         showSnackbar(String.format(
                                 getString(R.string.track_list_upload_track_success_template),
                                 track.getName()));
@@ -230,7 +230,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
             @Override
             public void call(Subscriber<? super Track> subscriber) {
                 subscriber.add(mTrackUploadHandler
-                        .uploadSingleTrack(track, getActivity())
+                        .uploadTrackObservable(track, getActivity())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Subscriber<Track>() {
@@ -296,7 +296,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
             @Override
             public void call(Subscriber<? super Track> subscriber) {
-                subscriber.add(mTrackUploadHandler.uploadTracks(tracks, false)
+                subscriber.add(mTrackUploadHandler.uploadTracksObservable(tracks, false, getActivity())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Subscriber<Track>() {
@@ -373,6 +373,10 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                                 }
 
                                 updateProgressView(numberOfFailures + numberOfSuccesses);
+
+                                if((numberOfFailures + numberOfSuccesses) == numberOfTracks){
+                                    onCompleted();
+                                }
                             }
 
                             private void updateProgressView(int progress) {

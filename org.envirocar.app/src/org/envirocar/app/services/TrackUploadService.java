@@ -71,7 +71,7 @@ public class TrackUploadService extends Service {
         LOG.debug("onCreate()");
         super.onCreate();
 
-        // Inject the TrackRecordingHandler;
+        // Inject the OBDServiceHandler;
         ((Injector) getApplicationContext()).injectObjects(this);
     }
 
@@ -89,7 +89,7 @@ public class TrackUploadService extends Service {
             uploadAllLocalTracks();
         } else {
             LOG.info("No local tracks to upload");
-//            setNotification("yeae", "oiad");
+            setNotification("yeae", "oiad");
             try {
                 finalize();
             } catch (Throwable throwable) {
@@ -155,7 +155,7 @@ public class TrackUploadService extends Service {
 
             @Override
             public void call(Subscriber<? super Track> subscriber) {
-                subscriber.add(trackUploadHandler.uploadTracks(tracks, false)
+                subscriber.add(trackUploadHandler.uploadTracksObservable(tracks, false)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Subscriber<Track>() {

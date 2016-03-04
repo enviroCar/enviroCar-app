@@ -88,14 +88,14 @@ public class TrackDetailsProvider {
 
     @Subscribe
     public void onReceiveLocationChangedEvent(GpsLocationChangedEvent event) {
-        LOGGER.info(String.format("Received event: %s", event.toString()));
+        LOGGER.debug(String.format("Received event: %s", event.toString()));
 
     }
 
 
     @Subscribe
     public void onReceiveNewMeasurementEvent(NewMeasurementEvent event) {
-        LOGGER.info(String.format("Received event: %s", event.toString()));
+        LOGGER.debug(String.format("Received event: %s", event.toString()));
 
         if (mNumMeasurements == 0) {
             mStartingBaseTime = SystemClock.elapsedRealtime();
