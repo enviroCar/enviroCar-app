@@ -122,7 +122,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                 .subscribe(new Subscriber<Track>() {
                     @Override
                     public void onCompleted() {
-                        LOG.info("onCompleted()");
+                        LOG.info("uploadTrack.onCompleted()");
                         showSnackbar(String.format(
                                 getString(R.string.track_list_upload_track_success_template),
                                 track.getName()));

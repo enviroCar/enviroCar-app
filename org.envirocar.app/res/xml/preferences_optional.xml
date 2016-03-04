@@ -41,8 +41,8 @@
     <PreferenceCategory android:title="Beta Features">
         <CheckBoxPreference
             android:key="pref_enable_diesel_consumption"
-            android:summary="Enables the estimation of consumption values for diesel. NOTE: This feature is just a beta feature."
-            android:title="Enable Diesel Consumption Estimate"/>
+            android:summary="@string/preference_beta_diesel_consumption_sum"
+            android:title="@string/preference_beta_diesel_consumption"/>
     </PreferenceCategory>
 
 </PreferenceScreen>
