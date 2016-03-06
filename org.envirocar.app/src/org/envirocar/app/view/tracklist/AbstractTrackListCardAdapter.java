@@ -225,7 +225,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
         holder.mMapView.setScrollableAreaLimit(box);
         holder.mMapView.setMinZoomLevel(holder.mMapView.getTileProvider().getMinimumZoomLevel());
         holder.mMapView.setMaxZoomLevel(holder.mMapView.getTileProvider().getMaximumZoomLevel());
-        holder.mMapView.setCenter(holder.mMapView.getTileProvider().getCenterCoordinate());
+//        holder.mMapView.setCenter(holder.mMapView.getTileProvider().getCenterCoordinate());
         holder.mMapView.setZoom(0);
 
         if (track.getMeasurements().size() > 0) {
@@ -244,6 +244,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
                     final BoundingBox viewBbox = trackMapOverlay.getViewBoundingBox();
                     final BoundingBox scrollableLimit = trackMapOverlay.getScrollableLimitBox();
 
+                    LOG.warn("trying to zoom to track bbox");
                     mMainThreadWorker.schedule(new Action0() {
                         @Override
                         public void call() {
@@ -251,8 +252,10 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
                             // Set the computed parameters on the main thread.
                             holder.mMapView.setScrollableAreaLimit(scrollableLimit);
+                            LOG.warn("scrollable limit " + viewBbox.toString());
                             holder.mMapView.setConstraintRegionFit(true);
                             holder.mMapView.zoomToBoundingBox(viewBbox, true);
+                            LOG.warn("zooming to " + viewBbox.toString());
                         }
                     });
                     return null;

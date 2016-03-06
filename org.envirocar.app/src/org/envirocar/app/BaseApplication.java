@@ -131,6 +131,8 @@ public class BaseApplication extends Application implements Injector, InjectionM
 
         Logger.initialize(Util.getVersionString(this),
                 prefs.getBoolean(PreferenceConstants.ENABLE_DEBUG_LOGGING, false));
+
+//        OBDServiceHandler.setRecordingState(OBDServiceState.UNCONNECTED);
     }
 
     @Override

@@ -34,6 +34,7 @@ import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.services.NotificationHandler;
 import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.services.TrackUploadService;
+import org.envirocar.app.services.obd.OBDServiceHandler;
 import org.envirocar.app.view.LoginActivity;
 import org.envirocar.app.view.carselection.CarSelectionActivity;
 import org.envirocar.app.view.carselection.CarSelectionAddCarFragment;
@@ -91,7 +92,7 @@ import dagger.Provides;
                 LogbookAddFuelingFragment.class,
                 CarSelectionAddCarFragment.class
         },
-        staticInjections = {EnviroCarService.class},
+        staticInjections = {EnviroCarService.class, OBDServiceHandler.class},
         library = true,
         complete = false
 )
