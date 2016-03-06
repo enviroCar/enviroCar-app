@@ -241,6 +241,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
                     TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
                     trackMapOverlay.setPaint(linePaint);
 
+                    final BoundingBox bbox = trackMapOverlay.getTrackBoundingBox();
                     final BoundingBox viewBbox = trackMapOverlay.getViewBoundingBox();
                     final BoundingBox scrollableLimit = trackMapOverlay.getScrollableLimitBox();
 
@@ -249,10 +250,10 @@ public abstract class AbstractTrackListCardAdapter<E extends
                         @Override
                         public void call() {
                             holder.mMapView.getOverlays().add(trackMapOverlay);
-
+                            LOG.warn("bbox " + bbox);
                             // Set the computed parameters on the main thread.
                             holder.mMapView.setScrollableAreaLimit(scrollableLimit);
-                            LOG.warn("scrollable limit " + viewBbox.toString());
+                            LOG.warn("scrollable limit " + scrollableLimit.toString());
                             holder.mMapView.setConstraintRegionFit(true);
                             holder.mMapView.zoomToBoundingBox(viewBbox, true);
                             LOG.warn("zooming to " + viewBbox.toString());
