@@ -126,10 +126,6 @@ public class NotificationHandler {
     }
 
     public void setNotificationState(Service service, NotificationState state) {
-        switch (state){
-            case UNCONNECTED:
-
-        }
         LOGGER.info(String.format("setNotificationState(state=%s)", state));
         int notificationID;
         if (!mServiceToNotificationID.containsKey(service.getClass())) {
