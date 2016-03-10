@@ -24,6 +24,8 @@ package org.envirocar.core.entity;
  * @author dewall
  */
 public class CarImpl implements Car {
+    private static final long serialVersionUID = 2533968678052900431L;
+
     protected String id;
     protected String model;
     protected String manufacturer;
