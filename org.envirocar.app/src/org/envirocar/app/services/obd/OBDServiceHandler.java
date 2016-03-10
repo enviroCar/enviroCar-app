@@ -40,12 +40,10 @@ public class OBDServiceHandler {
     }
 
     public static void setRecordingState(OBDServiceState state) {
+        // Set the settings and views for the small notification view.
         smallView = new RemoteViews(context.getPackageName(), R.layout
                 .notification_obd_service_state);
-        bigView = new RemoteViews(context.getPackageName(), R.layout
-                .notification_obd_service_state_big);
         setSmallViewText(state.getTitle(), state.getSubText());
-        setBigViewText(state.getTitle(), state.getSubText(), state.getAction(context));
 
         foregroundNotification = new NotificationCompat.Builder(context)
                 .setSmallIcon(state.getIcon())
@@ -53,8 +51,18 @@ public class OBDServiceHandler {
                 .setPriority(Integer.MAX_VALUE)
                 .setContent(smallView)
                 .build();
-        foregroundNotification.bigContentView = bigView;
 
+        // Check whether the notification state has content for the bigView, i.e. it provides an
+        // notification action holder.
+        OBDNotificationActionHolder actionHolder = state.getAction(context);
+        if (actionHolder != null) {
+            bigView = new RemoteViews(context.getPackageName(), R.layout
+                    .notification_obd_service_state_big);
+            setBigViewText(state.getTitle(), state.getSubText(), state.getAction(context));
+            foregroundNotification.bigContentView = bigView;
+        }
+
+        // Finally, notify the notificationmanager to update the notification view.
         ((NotificationManager) context.getSystemService(
                 Context.NOTIFICATION_SERVICE)).notify(1991, foregroundNotification);
     }
@@ -64,12 +72,8 @@ public class OBDServiceHandler {
     }
 
     private static void setSmallViewText(String title, String summary) {
-        smallView.setTextViewText(
-                R.id.notification_obd_service_state_title,
-                title);
-        smallView.setTextViewText(
-                R.id.notification_obd_service_state_summary,
-                summary);
+        smallView.setTextViewText(R.id.notification_obd_service_state_title, title);
+        smallView.setTextViewText(R.id.notification_obd_service_state_summary, summary);
     }
 
     private static void setBigViewText(int title, int summary, OBDNotificationActionHolder holder) {
@@ -78,12 +82,8 @@ public class OBDServiceHandler {
 
     private static void setBigViewText(String title, String summary, OBDNotificationActionHolder
             holder) {
-        bigView.setTextViewText(
-                R.id.notification_obd_service_state_title,
-                title);
-        bigView.setTextViewText(
-                R.id.notification_obd_service_state_summary,
-                summary);
+        bigView.setTextViewText(R.id.notification_obd_service_state_title, title);
+        bigView.setTextViewText(R.id.notification_obd_service_state_summary, summary);
 
         if (holder != null) {
             bigView.setInt(R.id.notification_obd_service_state_button_img,
@@ -93,6 +93,5 @@ public class OBDServiceHandler {
             bigView.setOnClickPendingIntent(R.id.notification_obd_service_state_button,
                     holder.actionIntent);
         }
-
     }
 }

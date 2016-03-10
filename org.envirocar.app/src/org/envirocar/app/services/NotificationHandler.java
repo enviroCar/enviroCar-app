@@ -32,6 +32,8 @@ import android.support.v4.app.NotificationCompat;
 
 import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
+import org.envirocar.app.services.obd.OBDServiceHandler;
+import org.envirocar.app.services.obd.OBDServiceState;
 import org.envirocar.app.view.carselection.CarSelectionActivity;
 import org.envirocar.app.view.obdselection.OBDSelectionActivity;
 import org.envirocar.core.injection.InjectApplicationScope;
@@ -126,6 +128,21 @@ public class NotificationHandler {
     }
 
     public void setNotificationState(Service service, NotificationState state) {
+        switch (state){
+            case DISCOVERING:
+                OBDServiceHandler.setRecordingState(OBDServiceState.DISCOVERING);
+                break;
+            case CONNCECTED:
+                OBDServiceHandler.setRecordingState(OBDServiceState.CONNECTED);
+                break;
+            case CONNECTING:
+                OBDServiceHandler.setRecordingState(OBDServiceState.CONNECTING);
+                break;
+            case UNCONNECTED:
+                OBDServiceHandler.setRecordingState(OBDServiceState.UNCONNECTED);
+                break;
+        }
+
         LOGGER.info(String.format("setNotificationState(state=%s)", state));
         int notificationID;
         if (!mServiceToNotificationID.containsKey(service.getClass())) {
