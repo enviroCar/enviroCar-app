@@ -139,7 +139,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
         ButterKnife.inject(this, view);
 
         // Initiate the recyclerview
-        mRecyclerView.setHasFixedSize(true);
+//        mRecyclerView.setHasFixedSize(true);
         mRecylcerViewLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mRecylcerViewLayoutManager);
 
