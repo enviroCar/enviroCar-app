@@ -31,7 +31,6 @@ import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.app.handler.HandlerModule;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.TrackRecordingHandler;
-import org.envirocar.app.services.NotificationHandler;
 import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.services.TrackUploadService;
 import org.envirocar.app.services.obd.OBDServiceHandler;
@@ -79,7 +78,6 @@ import dagger.Provides;
                 SelectBluetoothPreference.class,
                 TemporaryFileManager.class,
                 SystemStartupService.class,
-                NotificationHandler.class,
                 BluetoothDiscoveryIntervalPreference.class,
                 TrackDetailsActivity.class,
                 CarSelectionActivity.class,
@@ -178,18 +176,6 @@ public class BaseApplicationModule {
     @Singleton
     TemporaryFileManager provideTemporaryFileManager() {
         return new TemporaryFileManager(mAppContext);
-    }
-
-
-    /**
-     * Provides the CarManager of the application
-     *
-     * @return the CarManager of the application.
-     */
-    @Provides
-    @Singleton
-    NotificationHandler provideNotificationHandler() {
-        return new NotificationHandler(mAppContext);
     }
 
     @Provides

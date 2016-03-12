@@ -37,6 +37,8 @@ import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.services.obd.OBDServiceHandler;
+import org.envirocar.app.services.obd.OBDServiceState;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
@@ -79,8 +81,6 @@ public class SystemStartupService extends Service {
     protected Bus mBus;
     @Inject
     protected BluetoothHandler mBluetoothHandler;
-    @Inject
-    protected NotificationHandler mNotificationHandler;
     @Inject
     protected TrackRecordingHandler mTrackRecordingHandler;
     @Inject
@@ -129,8 +129,7 @@ public class SystemStartupService extends Service {
                     mDiscoverySubscription = null;
 
                     // Set the notification state to unconnected.
-                    mNotificationHandler.setNotificationState(SystemStartupService.this,
-                            NotificationHandler.NotificationState.UNCONNECTED);
+                    OBDServiceHandler.setRecordingState(OBDServiceState.UNCONNECTED);
                 }
             }
 
@@ -214,14 +213,11 @@ public class SystemStartupService extends Service {
         if (this.mBluetoothHandler.isBluetoothEnabled()) {
             // State: No OBD device selected.
             if (mBluetoothHandler.getSelectedBluetoothDevice() == null) {
-                this.mNotificationHandler.setNotificationState(this, NotificationHandler
-                        .NotificationState.NO_OBD_SELECTED);
+                OBDServiceHandler.setRecordingState(OBDServiceState.NO_OBD_SELECTED);
             } else if (mCarManager.getCar() == null) {
-                this.mNotificationHandler.setNotificationState(this, NotificationHandler
-                        .NotificationState.NO_CAR_SELECTED);
+                OBDServiceHandler.setRecordingState(OBDServiceState.NO_CAR_SELECTED);
             } else {
-                this.mNotificationHandler.setNotificationState(this,
-                        NotificationHandler.NotificationState.UNCONNECTED);
+                OBDServiceHandler.setRecordingState(OBDServiceState.UNCONNECTED);
 
                 if (mIsAutoconnect) {
                     scheduleDiscovery(-1);
@@ -274,7 +270,7 @@ public class SystemStartupService extends Service {
         }
 
         // Close the corresponding notification.
-        mNotificationHandler.closeNotification(this);
+        OBDServiceHandler.closeNotification();
         mBluetoothHandler.stopBluetoothDeviceDiscovery();
     }
 
@@ -293,16 +289,12 @@ public class SystemStartupService extends Service {
     public void onReceiveBluetoothDeviceSelectedEvent(BluetoothDeviceSelectedEvent event) {
         LOGGER.info(String.format("Received event. %s", event.toString()));
         if (event.mDevice == null) {
-            mNotificationHandler.setNotificationState(this, NotificationHandler.NotificationState
-                    .NO_OBD_SELECTED);
-        } else if (mNotificationHandler.getCurrentNotificationState(this) == NotificationHandler
-                .NotificationState.NO_OBD_SELECTED) {
+            OBDServiceHandler.setRecordingState(OBDServiceState.NO_OBD_SELECTED);
+        } else if (OBDServiceHandler.getRecordingState() == OBDServiceState.NO_OBD_SELECTED) {
             if (mCarManager.getCar() == null) {
-                mNotificationHandler.setNotificationState(this, NotificationHandler
-                        .NotificationState.NO_CAR_SELECTED);
+                OBDServiceHandler.setRecordingState(OBDServiceState.NO_CAR_SELECTED);
             } else {
-                mNotificationHandler.setNotificationState(this, NotificationHandler
-                        .NotificationState.UNCONNECTED);
+                OBDServiceHandler.setRecordingState(OBDServiceState.UNCONNECTED);
             }
         }
     }
@@ -321,27 +313,22 @@ public class SystemStartupService extends Service {
         // Update the notification state depending on the event's state.
         switch (event.mState) {
             case SERVICE_STARTING:
-                mNotificationHandler.setNotificationState(this, NotificationHandler
-                        .NotificationState.CONNECTING);
+                OBDServiceHandler.setRecordingState(OBDServiceState.CONNECTING);
                 break;
             case SERVICE_STARTED:
-                mNotificationHandler.setNotificationState(this, NotificationHandler
-                        .NotificationState.CONNCECTED);
+                OBDServiceHandler.setRecordingState(OBDServiceState.CONNECTED);
                 if (mWorkerSubscription != null)
                     mWorkerSubscription.unsubscribe();
                 break;
             case SERVICE_STOPPING:
-                mNotificationHandler.setNotificationState(this, NotificationHandler
-                        .NotificationState.STOPPING);
+                OBDServiceHandler.setRecordingState(OBDServiceState.STOPPING);
                 break;
             case SERVICE_STOPPED:
-                mNotificationHandler.setNotificationState(this, NotificationHandler
-                        .NotificationState.UNCONNECTED);
+                OBDServiceHandler.setRecordingState(OBDServiceState.UNCONNECTED);
                 scheduleDiscovery(REDISCOVERY_INTERVAL);
                 break;
             case SERVICE_DEVICE_DISCOVERY_RUNNING:
-                mNotificationHandler.setNotificationState(this, NotificationHandler
-                        .NotificationState.DISCOVERING);
+                OBDServiceHandler.setRecordingState(OBDServiceState.DISCOVERING);
                 break;
             case SERVICE_DEVICE_DISCOVERY_PENDING:
                 break;
@@ -353,32 +340,29 @@ public class SystemStartupService extends Service {
     public void onReceiveNewCarTypeSelectedEvent(NewCarTypeSelectedEvent event) {
         LOGGER.info(String.format("onReceiveNewCarTypeSelectedEvent(): %s", event.toString()));
         if (event.mCar == null) {
-            updateNotificationState(NotificationHandler.NotificationState.NO_CAR_SELECTED);
+            updateNotificationState(OBDServiceState.NO_CAR_SELECTED);
         } else if (OBDConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState
                 .SERVICE_STOPPED) {
-            updateNotificationState(NotificationHandler.NotificationState.UNCONNECTED);
+            updateNotificationState(OBDServiceState.UNCONNECTED);
         }
     }
 
 
-    private void updateNotificationState(NotificationHandler.NotificationState state) {
+    private void updateNotificationState(OBDServiceState state) {
         if (OBDConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STOPPED) {
             if (mBluetoothHandler.getSelectedBluetoothDevice() == null) {
-                mNotificationHandler.setNotificationState(this, NotificationHandler
-                        .NotificationState.NO_OBD_SELECTED);
+                OBDServiceHandler.setRecordingState(OBDServiceState.NO_OBD_SELECTED);
             } else if (mCarManager.getCar() == null) {
-                mNotificationHandler.setNotificationState(this, NotificationHandler
-                        .NotificationState.NO_CAR_SELECTED);
+                OBDServiceHandler.setRecordingState(OBDServiceState.NO_CAR_SELECTED);
             } else {
-                NotificationHandler.NotificationState currentState = mNotificationHandler
-                        .getCurrentNotificationState(this);
-                if (currentState != NotificationHandler.NotificationState.DISCOVERING &&
-                        state != NotificationHandler.NotificationState.DISCOVERING) {
-                    if (mIsAutoconnect) {
+                OBDServiceState currentState = OBDServiceHandler.getRecordingState();
+                if(currentState != OBDServiceState.DISCOVERING &&
+                        state != OBDServiceState.DISCOVERING){
+                    if(mIsAutoconnect){
                         scheduleDiscovery(REDISCOVERY_INTERVAL);
                     }
                 }
-                mNotificationHandler.setNotificationState(this, state);
+                OBDServiceHandler.setRecordingState(state);
             }
         }
     }
@@ -488,8 +472,7 @@ public class SystemStartupService extends Service {
                         @Override
                         public void onStart() {
                             LOGGER.info("Device Discovery started...");
-                            mNotificationHandler.setNotificationState(SystemStartupService.this,
-                                    NotificationHandler.NotificationState.DISCOVERING);
+                            OBDServiceHandler.setRecordingState(OBDServiceState.DISCOVERING);
                         }
 
                         @Override
@@ -515,8 +498,10 @@ public class SystemStartupService extends Service {
 
                                 // If the device has been successful discovered, set the
                                 // notification state to OBD_FOUND and stop the bluetooth discovery.
-                                mNotificationHandler.setNotificationState(SystemStartupService.this,
-                                        NotificationHandler.NotificationState.OBD_FOUND);
+                                // TODO
+//                                OBDServiceHandler.setRecordingState();
+//                                mNotificationHandler.setNotificationState(SystemStartupService.this,
+//                                        NotificationHandler.NotificationState.OBD_FOUND);
                                 scheduleDiscovery(REDISCOVERY_INTERVAL);
                             }
                         }
@@ -532,8 +517,7 @@ public class SystemStartupService extends Service {
                                 LOGGER.info("The selected OBDII device has not been found. " +
                                         "Schedule a new discovery in " + mDiscoveryInterval + " " +
                                         "seconds.");
-                                mNotificationHandler.setNotificationState(SystemStartupService.this,
-                                        NotificationHandler.NotificationState.UNCONNECTED);
+                                OBDServiceHandler.setRecordingState(OBDServiceState.UNCONNECTED);
 
                                 // Reschedule the discovery if it is enabled.
                                 if (mIsAutoconnect) {

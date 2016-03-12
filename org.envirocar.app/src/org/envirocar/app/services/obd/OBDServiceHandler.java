@@ -7,7 +7,6 @@ import android.support.v4.app.NotificationCompat;
 import android.widget.RemoteViews;
 
 import org.envirocar.app.R;
-import org.envirocar.app.services.NotificationHandler;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 
@@ -21,7 +20,7 @@ import javax.inject.Singleton;
  */
 @Singleton
 public class OBDServiceHandler {
-    private static final Logger LOG = Logger.getLogger(NotificationHandler.class);
+    private static final Logger LOG = Logger.getLogger(OBDServiceHandler.class);
 
     @Inject
     @InjectApplicationScope
@@ -30,6 +29,7 @@ public class OBDServiceHandler {
     private static Notification foregroundNotification;
     private static RemoteViews smallView;
     private static RemoteViews bigView;
+    private static OBDServiceState obdServiceState = OBDServiceState.UNCONNECTED;
 
     @Inject
     public OBDServiceHandler(@InjectApplicationScope Context context) {
@@ -39,7 +39,18 @@ public class OBDServiceHandler {
         //                .NOTIFICATION_SERVICE);
     }
 
+    public static void closeNotification(){
+        ((NotificationManager) context.getSystemService(
+                Context.NOTIFICATION_SERVICE)).cancel(1991);
+    }
+
+    public static OBDServiceState getRecordingState(){
+        return obdServiceState;
+    }
+
     public static void setRecordingState(OBDServiceState state) {
+        obdServiceState = state;
+
         // Set the settings and views for the small notification view.
         smallView = new RemoteViews(context.getPackageName(), R.layout
                 .notification_obd_service_state);
