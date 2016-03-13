@@ -33,12 +33,20 @@
     <string name="pref_select_car">Daten des Fahrzeugs</string>
     <string name="pref_optional_features">Optionale Features</string>
 
-    <string name="use_pid_supported">Benutze \"PID Supported\"-Abfrage</string>
-    <string name="use_pid_supported_summary">Erfrage bei der ECU des Fahrzeugs die unterstützten OBD-Befehle</string>
-
-
     <string name="pref_version">Version</string>
     <string name="pref_other">Anderes</string>
+
+
+    <string name="obd_settings">OBD Einstellungen</string>
+    <string name="obd_settings_sum">OBD Auswahl, Automatisches Verbinden, etc.</string>
+
+    <string name="settings_optional">Optionale Einstellungen</string>
+    <string name="settings_optional_sub">Samplingrate, Debug Logging, etc.</string>
+
+    <string name="settings_other">Andere Einstellungen</string>
+    <string name="settings_other_sub">Version, Linzenzen, etc.</string>
+
+
 
 
     <!-- General Settings-->
@@ -56,8 +64,8 @@
 
     <!-- OBD-Settings -->
     <string name="pref_obd_settings">OBD Adapter Einstellungen</string>
-    <string name="pref_bluetooth_switch_isenabled">Bluetooth is An</string>
-    <string name="pref_bluetooth_switch_isdisabled">Bluetooth is Aus</string>
+    <string name="pref_bluetooth_switch_isenabled">Bluetooth ist An</string>
+    <string name="pref_bluetooth_switch_isdisabled">Bluetooth ist Aus</string>
     <string name="pref_bluetooth_pairing">Bluetooth Kopplung</string>
     <string name="pref_bluetooth_pairing_summary">Verwalte die Kopplungen (Pairings) zu anderen Bluetooth Geräten</string>
     <string name="pref_bluetooth_select_adapter">OBD Adapter auswählen</string>
@@ -77,4 +85,7 @@
     <string name="enable_debug_logging_summary">Erhöhung der Protokollierungsstufe (in der Ausgabe/Problembericht verwendet).</string>
     <string name="pref_enable_diesel_consumption">Diesel Verbrauchsberechnung aktivieren</string>
     <string name="pref_enable_diesel_consumption_summary">Aktiviert die Verbrauchsschätzung für Dieselfahrzeuge.\n\nBeachten Sie, dass es sich hierbei um ein nicht getestetes Feature im Beta-Stadium handelt. Daher ist unbedingt zur Enables the estimation of consumption values for diesel. NOTE: This feature is just a beta feature.</string>
+
+    <!-- Other Settings -->
+    <string name="pref_licenses">Licensen</string>
 </resources>

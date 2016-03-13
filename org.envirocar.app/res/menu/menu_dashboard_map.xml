@@ -24,7 +24,7 @@
 
     <item
         android:id="@+id/menu_dashboard_tempomat_show_cruise"
-        android:icon="@drawable/abc_ic_menu_copy_mtrl_am_alpha"
+        android:icon="@drawable/ic_content_copy_white_24dp"
         android:orderInCategory="100"
         android:title="Show Cruise Control"
         app:showAsAction="always"/>

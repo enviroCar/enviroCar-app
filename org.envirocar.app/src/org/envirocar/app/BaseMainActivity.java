@@ -642,8 +642,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 mUsernameText.setText(user.getUsername());
                 mEmailText.setText(user.getMail());
             } else {
-                mUsernameText.setText("Not Logged In");
-                mEmailText.setText("Click here to log in.");
+                mUsernameText.setText(R.string.menu_not_logged_in);
+                mEmailText.setText(R.string.menu_not_logged_in_sub);
             }
         });
     }

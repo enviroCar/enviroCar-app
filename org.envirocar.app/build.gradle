@@ -20,7 +20,10 @@ dependencies {
     compile rootProject.ext.fabProgressCircle
     compile rootProject.ext.gson
     //compile rootProject.ext.guava
-    compile('com.github.afollestad.material-dialogs:core:0.8.5.0@aar') {
+    compile(materialDialogs) {
+        exclude module: 'appcompat-v7'
+        exclude module: 'recyclerview-v7'
+        exclude module: 'support-annotations'
         transitive = true
     }
     compile rootProject.ext.rxAndroid

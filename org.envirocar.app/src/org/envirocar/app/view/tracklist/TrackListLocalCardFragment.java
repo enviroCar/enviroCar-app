@@ -131,7 +131,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                     @Override
                     public void onError(Throwable e) {
                         LOG.warn(e.getMessage(), e);
-                        if(e instanceof NoMeasurementsException){
+                        if (e.getCause() instanceof NoMeasurementsException) {
                             showSnackbar(R.string.track_list_upload_track_no_measurements);
                         } else {
                             showSnackbar(R.string.track_list_upload_track_general_error);
@@ -229,8 +229,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
             @Override
             public void call(Subscriber<? super Track> subscriber) {
-                subscriber.add(mTrackUploadHandler
-                        .uploadTrackObservable(track, getActivity())
+                subscriber.add(mTrackUploadHandler.uploadTrackObservable(track, getActivity())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Subscriber<Track>() {
@@ -247,17 +246,21 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                                 trackName.setText(track.getName());
 
                                 // Create the dialog to show.
-                                dialog = DialogUtils.createDefaultDialogBuilder(getContext(),
-                                        R.string.track_list_upload_track_uploading,
-                                        R.drawable.ic_cloud_upload_white_24dp,
-                                        contentView)
-                                        .cancelable(false)
-                                        .negativeText(R.string.cancel)
-                                        .onNegative((materialDialog, dialogAction) -> {
-                                            subscriber.unsubscribe();
-                                            unsubscribe();
-                                        })
-                                        .show();
+
+                                AndroidSchedulers.mainThread().createWorker().schedule(() -> {
+                                    dialog = DialogUtils.createDefaultDialogBuilder(getContext(),
+                                            R.string.track_list_upload_track_uploading,
+                                            R.drawable.ic_cloud_upload_white_24dp,
+                                            contentView)
+                                            .cancelable(false)
+                                            .negativeText(R.string.cancel)
+                                            .onNegative((materialDialog, dialogAction) -> {
+                                                subscriber.unsubscribe();
+                                                unsubscribe();
+                                            })
+                                            .show();
+                                });
+
                             }
 
                             @Override
@@ -296,7 +299,8 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
             @Override
             public void call(Subscriber<? super Track> subscriber) {
-                subscriber.add(mTrackUploadHandler.uploadTracksObservable(tracks, false, getActivity())
+                subscriber.add(mTrackUploadHandler.uploadTracksObservable(tracks, false,
+                        getActivity())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Subscriber<Track>() {
@@ -374,7 +378,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
                                 updateProgressView(numberOfFailures + numberOfSuccesses);
 
-                                if((numberOfFailures + numberOfSuccesses) == numberOfTracks){
+                                if ((numberOfFailures + numberOfSuccesses) == numberOfTracks) {
                                     onCompleted();
                                 }
                             }

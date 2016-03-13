@@ -146,7 +146,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                 getFragmentManager().beginTransaction()
                         .remove(mDashboardSettingsFragment)
                         .remove(mDashboardHeaderFragment)
-                        .commitAllowingStateLoss();
+                        .commit();
             } catch (IllegalStateException e) {
                 LOG.warn(e.getMessage(), e);
             }
@@ -154,6 +154,22 @@ public class DashboardMainFragment extends BaseInjectorFragment {
         super.onDestroyView();
     }
 
+    @Override
+    public void onDestroy() {
+        LOG.info("onDestroy()");
+
+        if(!getActivity().isFinishing() && mDashboardSettingsFragment != null){
+            try{
+                getFragmentManager().beginTransaction()
+                        .remove(mDashboardMapFragment)
+                        .commit();
+            } catch (IllegalStateException e){
+                LOG.warn(e.getMessage(), e);
+            }
+        }
+
+        super.onDestroy();
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -369,13 +385,14 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                         mCurrentlyVisible != null ? R.anim.translate_slide_out_top_fragment : -1);
 
                 // Replace the container with the mapview.
-                if (mCurrentlyVisible != mDashboardMapFragment)
+                if (mCurrentlyVisible != mDashboardMapFragment) {
                     // TODO HERE CHANGE TO TRACK MAP FRAGMENT
                     replaceFragment(mDashboardMapFragment, R.id.fragment_startup_container,
                             mCurrentlyVisible != null ?
                                     R.anim.translate_slide_in_left_fragment : -1,
                             mCurrentlyVisible != null ?
                                     R.anim.translate_slide_out_right_fragment : -1);
+                }
 
                 mCurrentlyVisible = mDashboardMapFragment;
 
@@ -497,13 +514,15 @@ public class DashboardMainFragment extends BaseInjectorFragment {
         if (fragment == null || getFragmentManager() == null)
             return;
 
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager()
+        FragmentTransaction transaction = getActivity()
+                .getSupportFragmentManager()
                 .beginTransaction();
         if (enterAnimation != -1 && exitAnimation != -1) {
             transaction.setCustomAnimations(enterAnimation, exitAnimation);
         }
+
         transaction.replace(container, fragment);
-        transaction.commitAllowingStateLoss();
+        transaction.commit();
 
         mCurrentlyVisible = fragment;
     }

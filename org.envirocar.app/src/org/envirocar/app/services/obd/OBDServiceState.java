@@ -1,14 +1,19 @@
 package org.envirocar.app.services.obd;
 
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+
 import org.envirocar.app.R;
+import org.envirocar.app.services.SystemStartupService;
 
 /**
  * TODO JavaDoc
  *
  * @author dewall
  */
-public enum OBDServiceState implements OBDServiceStateContent{
-    NO_CAR_SELECTED{
+public enum OBDServiceState implements OBDServiceStateContent {
+    NO_CAR_SELECTED {
         @Override
         public int getTitle() {
             return R.string.notification_no_car_title;
@@ -24,7 +29,7 @@ public enum OBDServiceState implements OBDServiceStateContent{
             return super.getIcon();
         }
     },
-    NO_OBD_SELECTED{
+    NO_OBD_SELECTED {
         @Override
         public int getTitle() {
             return R.string.notification_no_obd_title;
@@ -40,7 +45,7 @@ public enum OBDServiceState implements OBDServiceStateContent{
             return super.getIcon();
         }
     },
-    UNCONNECTED{
+    UNCONNECTED {
         @Override
         public int getTitle() {
             return R.string.notification_unconnected_title;
@@ -53,10 +58,18 @@ public enum OBDServiceState implements OBDServiceStateContent{
 
         @Override
         public int getIcon() {
-            return super.getIcon();
+            return R.drawable.av_stop;
+        }
+
+        @Override
+        public OBDNotificationActionHolder getAction(Context context) {
+            return new OBDNotificationActionHolder(
+                    R.drawable.ic_bluetooth_searching_white_24dp,
+                    R.string.notification_unconnected_action,
+                    getPendingIntent(SystemStartupService.ACTION_START_BT_DISCOVERY, context));
         }
     },
-    DISCOVERING{
+    DISCOVERING {
         @Override
         public int getTitle() {
             return R.string.notification_discovering_title;
@@ -69,10 +82,18 @@ public enum OBDServiceState implements OBDServiceStateContent{
 
         @Override
         public int getIcon() {
-            return super.getIcon();
+            return R.drawable.ic_bluetooth_searching_white_24dp;
+        }
+
+        @Override
+        public OBDNotificationActionHolder getAction(Context context) {
+            return new OBDNotificationActionHolder(
+                    R.drawable.ic_close_white_24dp,
+                    R.string.notification_discovering_action,
+                    getPendingIntent(SystemStartupService.ACTION_STOP_BT_DISCOVERY, context));
         }
     },
-    CONNECTING{
+    CONNECTING {
         @Override
         public int getTitle() {
             return R.string.notification_connecting_title;
@@ -85,10 +106,10 @@ public enum OBDServiceState implements OBDServiceStateContent{
 
         @Override
         public int getIcon() {
-            return super.getIcon();
+            return R.drawable.ic_bluetooth_searching_white_24dp;
         }
     },
-    CONNECTED{
+    CONNECTED {
         @Override
         public int getTitle() {
             return R.string.notification_connected_title;
@@ -101,10 +122,10 @@ public enum OBDServiceState implements OBDServiceStateContent{
 
         @Override
         public int getIcon() {
-            return super.getIcon();
+            return R.drawable.ic_play_arrow_black_24dp;
         }
     },
-    STOPPING{
+    STOPPING {
         @Override
         public int getTitle() {
             return R.string.notification_stopping_title;
@@ -117,7 +138,7 @@ public enum OBDServiceState implements OBDServiceStateContent{
 
         @Override
         public int getIcon() {
-            return super.getIcon();
+            return R.drawable.ic_bluetooth_disabled_black_24dp;
         }
     };
 
@@ -133,6 +154,18 @@ public enum OBDServiceState implements OBDServiceStateContent{
 
     @Override
     public int getIcon() {
-        return 0;
+        return R.drawable.ic_bluetooth_black_24dp;
+    }
+
+    @Override
+    public OBDNotificationActionHolder getAction(Context context) {
+        return null;
+    }
+
+    protected PendingIntent getPendingIntent(String broadcastAction, Context context){
+        Intent intent = new Intent(broadcastAction);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 2, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT);
+        return pendingIntent;
     }
 }

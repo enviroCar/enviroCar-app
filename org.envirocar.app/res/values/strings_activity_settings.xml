@@ -32,9 +32,15 @@
     <string name="pref_version">Version</string>
     <string name="pref_other">Other</string>
 
-    <string name="use_pid_supported">Use PID Supported Query</string>
-    <string name="use_pid_supported_summary">Query the vehicle\'s ECU on the supported OBD-II commands.</string>
 
+    <string name="obd_settings">OBD Einstellungen</string>
+    <string name="obd_settings_sum">OBD Selection, Autoconnect, etc.</string>
+
+    <string name="settings_optional">Optional Settings</string>
+    <string name="settings_optional_sub">Samplingrate, Debug Logging, etc.</string>
+
+    <string name="settings_other">Other Settings</string>
+    <string name="settings_other_sub">Version, Licenses, etc.</string>
 
 
     <!-- General Settings-->
@@ -74,4 +80,8 @@
     <string name="enable_debug_logging_summary">Increase the log level (used in issue/problem reports)</string>
     <string name="pref_enable_diesel_consumption">Enable Diesel Consumption</string>
     <string name="pref_enable_diesel_consumption_summary">Enables the estimation of consumption values for diesel. NOTE: This feature is just a beta feature.</string>
+
+    <!-- Other Settings -->
+    <string name="pref_licenses">Lizenzes</string>
+
 </resources>

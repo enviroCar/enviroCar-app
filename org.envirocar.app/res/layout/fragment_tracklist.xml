@@ -26,7 +26,6 @@
     android:orientation="vertical"
     tools:context=".BaseMainActivity">
 
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/fragment_tracklist_recycler_view"
         android:layout_width="match_parent"
@@ -75,8 +74,6 @@
             android:layout_marginRight="@dimen/spacing_large">
 
         </LinearLayout>
-
-
     </RelativeLayout>
 
     <android.support.design.widget.FloatingActionButton
@@ -87,7 +84,5 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_gravity="bottom|end"/>
-
-
 
 </RelativeLayout>

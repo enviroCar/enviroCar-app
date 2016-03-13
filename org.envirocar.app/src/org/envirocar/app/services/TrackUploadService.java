@@ -89,7 +89,7 @@ public class TrackUploadService extends Service {
             uploadAllLocalTracks();
         } else {
             LOG.info("No local tracks to upload");
-            setNotification("yeae", "oiad");
+//            setNotification("yeae", "oiad");
             try {
                 finalize();
             } catch (Throwable throwable) {
@@ -146,7 +146,7 @@ public class TrackUploadService extends Service {
         return Observable.create(new Observable.OnSubscribe<Track>() {
             private RemoteViews smallView;
             private RemoteViews bigView;
-            private Notification forgroundNotification;
+            private Notification foregroundNotification;
             private NotificationManager notificationManager;
 
             private int numberOfTracks = tracks.size();
@@ -163,7 +163,7 @@ public class TrackUploadService extends Service {
                             public void onStart() {
                                 subscriber.onStart();
 
-                                forgroundNotification = new NotificationCompat
+                                foregroundNotification = new NotificationCompat
                                         .Builder(getApplicationContext())
                                         .setSmallIcon(R.drawable.ic_cloud_upload_white_24dp)
                                         .setContentTitle(
@@ -175,7 +175,7 @@ public class TrackUploadService extends Service {
                                         R.layout.service_track_upload_handler_notification_small);
                                 bigView = new RemoteViews(getPackageName(),
                                         R.layout.service_track_upload_handler_notification);
-                                forgroundNotification.bigContentView = bigView;
+                                foregroundNotification.bigContentView = bigView;
 
                                 setSmallViewText(
                                         getString(R.string
@@ -206,7 +206,7 @@ public class TrackUploadService extends Service {
                                                         notification_automatic_track_upload_success_sub,
                                                 numberOfSuccesses, numberOfTracks));
 
-                                forgroundNotification = new NotificationCompat
+                                foregroundNotification = new NotificationCompat
                                         .Builder(getApplicationContext())
                                         .setSmallIcon(R.drawable.ic_cloud_upload_white_24dp)
                                         .setContentTitle(
@@ -214,7 +214,7 @@ public class TrackUploadService extends Service {
                                         .setContent(smallView)
                                         .build();
 
-                                notificationManager.notify(100, forgroundNotification);
+                                notificationManager.notify(100, foregroundNotification);
                             }
 
                             @Override
@@ -227,14 +227,14 @@ public class TrackUploadService extends Service {
                                         getString(R.string.
                                                 notification_automatic_track_upload_error_sub));
 
-                                forgroundNotification = new NotificationCompat
+                                foregroundNotification = new NotificationCompat
                                         .Builder(getApplicationContext())
                                         .setSmallIcon(R.drawable.ic_error_outline_white_24dp)
                                         .setContentTitle("Track Upload Error")
                                         .setContent(smallView)
                                         .build();
 
-                                notificationManager.notify(100, forgroundNotification);
+                                notificationManager.notify(100, foregroundNotification);
                             }
 
                             @Override
@@ -268,7 +268,7 @@ public class TrackUploadService extends Service {
                                         "" + ((numberOfFailures +
                                                 numberOfSuccesses) / numberOfTracks) * 100);
 
-                                notificationManager.notify(100, forgroundNotification);
+                                notificationManager.notify(100, foregroundNotification);
                             }
 
                             private void setSmallViewText(String title, String content) {
