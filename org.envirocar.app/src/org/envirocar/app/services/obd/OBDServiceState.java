@@ -124,6 +124,14 @@ public enum OBDServiceState implements OBDServiceStateContent {
         public int getIcon() {
             return R.drawable.ic_play_arrow_black_24dp;
         }
+
+        @Override
+        public OBDNotificationActionHolder getAction(Context context) {
+            return new OBDNotificationActionHolder(
+                    R.drawable.ic_close_white_24dp,
+                    R.string.notification_connected_action,
+                    getPendingIntent(SystemStartupService.ACTION_STOP_TRACK_RECORDING, context));
+        }
     },
     STOPPING {
         @Override
@@ -162,7 +170,7 @@ public enum OBDServiceState implements OBDServiceStateContent {
         return null;
     }
 
-    protected PendingIntent getPendingIntent(String broadcastAction, Context context){
+    protected PendingIntent getPendingIntent(String broadcastAction, Context context) {
         Intent intent = new Intent(broadcastAction);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 2, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT);
