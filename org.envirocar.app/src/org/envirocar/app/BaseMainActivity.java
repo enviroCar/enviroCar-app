@@ -180,6 +180,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
         // Initializes the Toolbar.
         setSupportActionBar(mToolbar);
+        getSupportActionBar().setTitle(R.string.menu_nav_drawer_dashboard);
 
         if (noInstantiatedExceptionReceived) {
             TrackListPagerFragment pagerFragment = new TrackListPagerFragment();
@@ -196,7 +197,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
         mNavigationView.setNavigationItemSelectedListener(menuItem -> {
 
             if (selectDrawerItem(menuItem)) {
-
                 // we want to have shared checked states between different groups. Therefore, we
                 // cannot use the provided "single" checkedBehavior. For this reason, it is first
                 // required to make the item checkable first.

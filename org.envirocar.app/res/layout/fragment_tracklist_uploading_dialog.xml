@@ -8,13 +8,12 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin">
 
-
     <TextView
         android:id="@+id/fragment_tracklist_uploading_dialog_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="@dimen/spacing_large"
-        android:text="Uploading Track 20105105"/>
+        android:text="@string/track_list_uploading_please_wait"/>
 
     <ProgressBar
         android:id="@+id/fragment_tracklist_uploading_dialog_progressbar"
