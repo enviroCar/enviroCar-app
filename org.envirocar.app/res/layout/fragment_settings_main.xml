@@ -97,7 +97,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
-                    android:text="OBD Settings"
+                    android:text="@string/obd_settings"
                     android:textColor="@color/black"
                     android:textSize="17sp"/>
 
@@ -105,7 +105,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:text="OBD Selection, Pairing, Auto-connect"
+                    android:text="@string/obd_settings_sum"
                     android:textSize="14sp"/>
 
             </LinearLayout>
@@ -172,7 +172,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
-                    android:text="Optional Settings"
+                    android:text="@string/settings_optional"
                     android:textColor="@color/black"
                     android:textSize="17sp"/>
 
@@ -180,7 +180,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:text="Sampling Rate, Debug Logging, PID Support"
+                    android:text="@string/settings_optional_sub"
                     android:textSize="14sp"/>
 
             </LinearLayout>
@@ -209,7 +209,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
-                    android:text="Other"
+                    android:text="@string/settings_other"
                     android:textColor="@color/black"
                     android:textSize="17sp"/>
 
@@ -217,7 +217,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:text="Version, Licenses, etc."
+                    android:text="@string/settings_other_sub"
                     android:textSize="14sp"/>
 
             </LinearLayout>

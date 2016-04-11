@@ -165,6 +165,7 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements C
             public void call(Subscriber<? super Car> subscriber) {
                 try {
                     String location = createCar(car);
+                    LOG.info("Car has been uploaded -> [" + location + "]");
                     car.setId(location);
                     subscriber.onNext(car);
                 } catch (DataCreationFailureException |

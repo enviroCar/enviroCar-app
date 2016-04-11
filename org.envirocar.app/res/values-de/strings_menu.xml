@@ -11,4 +11,6 @@
     <string name="menu_nav_drawer_help">Hilfe</string>
     <string name="menu_nav_drawer_send_log">Problem Melden</string>
 
+    <string name="menu_not_logged_in">Nicht Eingeloggt</string>
+    <string name="menu_not_logged_in_sub">Hier klicken um sich einzuloggen.</string>
 </resources>

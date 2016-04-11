@@ -11,4 +11,6 @@
     <string name="menu_nav_drawer_help">Help</string>
     <string name="menu_nav_drawer_send_log">Report Issue</string>
 
+    <string name="menu_not_logged_in">Not Logged In</string>
+    <string name="menu_not_logged_in_sub">Click here to log in.</string>
 </resources>

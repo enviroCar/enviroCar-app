@@ -53,7 +53,7 @@
             android:layout_above="@+id/nav_drawer_list_header_email"
             android:layout_marginLeft="@dimen/spacing_large"
             android:layout_marginRight="@dimen/spacing_large"
-            android:text="Not Logged In"
+            android:text="@string/menu_not_logged_in"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"/>
 
         <TextView
@@ -64,7 +64,7 @@
             android:layout_marginBottom="@dimen/spacing_large"
             android:layout_marginLeft="@dimen/spacing_large"
             android:layout_marginStart="@dimen/spacing_large"
-            android:text="Click here to log in"
+            android:text="@string/menu_not_logged_in_sub"
             android:textAppearance="@style/TextAppearance.AppCompat.Body1"/>
 
         <ImageButton

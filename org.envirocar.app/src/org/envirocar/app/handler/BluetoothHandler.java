@@ -338,7 +338,7 @@ public class BluetoothHandler {
                 // Small timeout such that the broadcast receiver does not receive the first
                 // ACTION_DISCOVERY_FINISHED
                 try {
-                    wait(500);
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }

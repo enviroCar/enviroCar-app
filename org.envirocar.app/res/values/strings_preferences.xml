@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="preference_beta_diesel_consumption">Diesel Consumption Estimation</string>
+    <string name="preference_beta_diesel_consumption_sum">Enables the estimation of consumption values for diesel. NOTE: This feature is just a beta feature.</string>
+</resources>

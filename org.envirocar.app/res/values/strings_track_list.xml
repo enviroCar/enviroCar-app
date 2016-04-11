@@ -31,6 +31,9 @@
     <string name="track_list_delete_track_success_template">%s has been successfully deleted.</string>
 
     <string name="track_list_upload_track_uploading">Uploading Track</string>
+    <string name="track_list_upload_track_no_measurements">The track does not contain enough measurements to upload as obfuscated track.</string>
+    <string name="track_list_upload_track_general_error">Error while uploading track. Please try again later.</string>
+    <string name="track_list_upload_track_content">Uploading the following track as Open Data to the enviroCar server:</string>
     <string name="track_list_upload_track_please_wait">Please wait...</string>
     <string name="track_list_upload_track_success_template">The upload of track \'%s\' was successful.</string>
 
@@ -70,6 +73,7 @@
     <string name="track_list_upload_all_tracks_title">Upload All Local Tracks?</string>
     <string name="track_list_upload_all_tracks_content">You are about to upload all tracks. This means that all tracks will be uploaded and assigned to your account.\n\nDo you want to continue?</string>
     <string name="track_list_uploading_all_tracks_title">Uploading Tracks...</string>
+    <string name="track_list_uploading_please_wait">Please wait...</string>
     <string name="track_list_uploading_all_tracks_content_tmp" formatted="false">Uploading Track %s of %s</string>
 
 </resources>

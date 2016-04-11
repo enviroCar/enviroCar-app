@@ -73,7 +73,7 @@ public class TrackUtils {
 
             return nonPrivateMeasurements;
         } catch (NoMeasurementsException e) {
-            LOG.warn("Could not obfuscate track", e);
+            LOG.warn("Could not obfuscate track");
             throw e;
         }
     }

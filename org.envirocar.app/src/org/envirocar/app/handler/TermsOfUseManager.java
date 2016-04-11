@@ -188,58 +188,58 @@ public class TermsOfUseManager {
     }
 
 
-//    /**
-//     * Checks if the Terms are accepted. If not, open Dialog. On positive
-//     * feedback, update the User.
-//     *
-//     * @param user
-//     * @param callback
-//     */
-//    public void askForTermsOfUseAcceptance(final User user, final PositiveNegativeCallback
-//            callback) {
-//        boolean verified = false;
-//        try {
-//            verified = verifyTermsUseOfVersion(user.getTermsOfUseVersion());
-//        } catch (ServerException e) {
-//            LOGGER.warn(e.getMessage(), e);
-//            return;
-//        }
-//        if (!verified) {
-//
-//            final TermsOfUse current;
-//            try {
-//                current = getCurrentTermsOfUse();
-//            } catch (ServerException e) {
-//                LOGGER.warn("This should never happen!", e);
-//                return;
-//            }
-//
-//            new MaterialDialog.Builder(mContext)
-//                    .title(R.string.terms_of_use_title)
-//                    .content((user.getTermsOfUseVersion() == null) ?
-//                            R.string.terms_of_use_sorry :
-//                            R.string.terms_of_use_info)
-//                    .onPositive((materialDialog, dialogAction) -> {
-//                        userAcceptedTermsOfUse(user, current.getIssuedDate());
-//                        Toast.makeText(mContext, R.string.terms_of_use_updating_server, Toast
-//                                .LENGTH_LONG).show();
-//                        if (callback != null) {
-//                            callback.positive();
-//                        }
-//                    })
-//                    .onNegative((materialDialog, dialogAction) -> {
-//                        LOGGER.info("User did not accept the ToU.");
-//                        Toast.makeText(mContext, R.string.terms_of_use_cant_continue, Toast
-//                                .LENGTH_LONG).show();
-//                        if (callback != null) {
-//                            callback.negative();
-//                        }
-//                    })
-//                    .show();
-//        } else {
-//            LOGGER.info("User has accpeted ToU in current version.");
-//        }
-//    }
+    //    /**
+    //     * Checks if the Terms are accepted. If not, open Dialog. On positive
+    //     * feedback, update the User.
+    //     *
+    //     * @param user
+    //     * @param callback
+    //     */
+    //    public void askForTermsOfUseAcceptance(final User user, final PositiveNegativeCallback
+    //            callback) {
+    //        boolean verified = false;
+    //        try {
+    //            verified = verifyTermsUseOfVersion(user.getTermsOfUseVersion());
+    //        } catch (ServerException e) {
+    //            LOGGER.warn(e.getMessage(), e);
+    //            return;
+    //        }
+    //        if (!verified) {
+    //
+    //            final TermsOfUse current;
+    //            try {
+    //                current = getCurrentTermsOfUse();
+    //            } catch (ServerException e) {
+    //                LOGGER.warn("This should never happen!", e);
+    //                return;
+    //            }
+    //
+    //            new MaterialDialog.Builder(mContext)
+    //                    .title(R.string.terms_of_use_title)
+    //                    .content((user.getTermsOfUseVersion() == null) ?
+    //                            R.string.terms_of_use_sorry :
+    //                            R.string.terms_of_use_info)
+    //                    .onPositive((materialDialog, dialogAction) -> {
+    //                        userAcceptedTermsOfUse(user, current.getIssuedDate());
+    //                        Toast.makeText(mContext, R.string.terms_of_use_updating_server, Toast
+    //                                .LENGTH_LONG).show();
+    //                        if (callback != null) {
+    //                            callback.positive();
+    //                        }
+    //                    })
+    //                    .onNegative((materialDialog, dialogAction) -> {
+    //                        LOGGER.info("User did not accept the ToU.");
+    //                        Toast.makeText(mContext, R.string.terms_of_use_cant_continue, Toast
+    //                                .LENGTH_LONG).show();
+    //                        if (callback != null) {
+    //                            callback.negative();
+    //                        }
+    //                    })
+    //                    .show();
+    //        } else {
+    //            LOGGER.info("User has accpeted ToU in current version.");
+    //        }
+    //    }
 
 
     public TermsOfUse getCurrentTermsOfUse() throws ServerException {
@@ -279,70 +279,71 @@ public class TermsOfUseManager {
     }
 
 
-//    private void retrieveTermsOfUse() throws ServerException {
-//
-//        mDAOProvider.getTermsOfUseDAO()
-//                .getAllTermsOfUseObservable()
-//                .subscribeOn(Schedulers.io())
-//                .obser
-//
-//
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                List<TermsOfUse> response;
-//                try {
-//                    response = mDAOProvider.getTermsOfUseDAO().getAllTermsOfUse();
-//                    setList(response);
-//                    retrieveLatestInstance();
-//                } catch (DataRetrievalFailureException e) {
-//                    LOGGER.warn(e.getMessage(), e);
-//                } catch (NotConnectedException e) {
-//                    LOGGER.warn(e.getMessage(), e);
-//                }
-//            }
-//        }).start();
-//
-//        synchronized (mMutex) {
-//            while (current == null) {
-//                try {
-//                    mMutex.wait(5000);
-//
-//                    if (current == null) {
-//                        throw new ServerException(new TimeoutException("Waiting to long for a " +
-//                                "response."));
-//                    }
-//                } catch (InterruptedException e) {
-//                    throw new ServerException(e);
-//                }
-//            }
-//        }
-//    }
+    //    private void retrieveTermsOfUse() throws ServerException {
+    //
+    //        mDAOProvider.getTermsOfUseDAO()
+    //                .getAllTermsOfUseObservable()
+    //                .subscribeOn(Schedulers.io())
+    //                .obser
+    //
+    //
+    //        new Thread(new Runnable() {
+    //            @Override
+    //            public void run() {
+    //                List<TermsOfUse> response;
+    //                try {
+    //                    response = mDAOProvider.getTermsOfUseDAO().getAllTermsOfUse();
+    //                    setList(response);
+    //                    retrieveLatestInstance();
+    //                } catch (DataRetrievalFailureException e) {
+    //                    LOGGER.warn(e.getMessage(), e);
+    //                } catch (NotConnectedException e) {
+    //                    LOGGER.warn(e.getMessage(), e);
+    //                }
+    //            }
+    //        }).start();
+    //
+    //        synchronized (mMutex) {
+    //            while (current == null) {
+    //                try {
+    //                    mMutex.wait(5000);
+    //
+    //                    if (current == null) {
+    //                        throw new ServerException(new TimeoutException("Waiting to long for
+    // a " +
+    //                                "response."));
+    //                    }
+    //                } catch (InterruptedException e) {
+    //                    throw new ServerException(e);
+    //                }
+    //            }
+    //        }
+    //    }
 
-//    private void retrieveLatestInstance() {
-//        if (list != null && list != null && list.size() > 0) {
-//            String id = list.get(0).getId();
-//            try {
-//                TermsOfUse inst = mDAOProvider.getTermsOfUseDAO().getTermsOfUse(id);
-//                setCurrent(inst);
-//            } catch (DataRetrievalFailureException e) {
-//                LOGGER.warn(e.getMessage(), e);
-//            } catch (NotConnectedException e) {
-//                LOGGER.warn(e.getMessage(), e);
-//            }
-//        } else {
-//            LOGGER.warn("Could not retrieve latest instance as their is no list available!");
-//        }
-//    }
+    //    private void retrieveLatestInstance() {
+    //        if (list != null && list != null && list.size() > 0) {
+    //            String id = list.get(0).getId();
+    //            try {
+    //                TermsOfUse inst = mDAOProvider.getTermsOfUseDAO().getTermsOfUse(id);
+    //                setCurrent(inst);
+    //            } catch (DataRetrievalFailureException e) {
+    //                LOGGER.warn(e.getMessage(), e);
+    //            } catch (NotConnectedException e) {
+    //                LOGGER.warn(e.getMessage(), e);
+    //            }
+    //        } else {
+    //            LOGGER.warn("Could not retrieve latest instance as their is no list available!");
+    //        }
+    //    }
 
-//    private void setCurrent(TermsOfUse t) {
-//        LOGGER.info("Current Terms Of Use: " + t.getIssuedDate());
-//        current = t;
-//
-//        synchronized (mMutex) {
-//            mMutex.notifyAll();
-//        }
-//    }
+    //    private void setCurrent(TermsOfUse t) {
+    //        LOGGER.info("Current Terms Of Use: " + t.getIssuedDate());
+    //        current = t;
+    //
+    //        synchronized (mMutex) {
+    //            mMutex.notifyAll();
+    //        }
+    //    }
 
     public void userAcceptedTermsOfUse(final User user, final String issuedDate) {
         new AsyncTask<Void, Void, Void>() {
@@ -365,4 +366,43 @@ public class TermsOfUseManager {
     }
 
 
+    public static class TermsOfUseValidator<T> implements Observable.Transformer<T, T> {
+        private final TermsOfUseManager termsOfUseManager;
+        private final Activity activity;
+
+        public static <T> TermsOfUseValidator<T> create(
+                TermsOfUseManager termsOfUseManager,
+                Activity activity) {
+            return new TermsOfUseValidator<T>(termsOfUseManager, activity);
+        }
+
+        /**
+         * Constructor.
+         *
+         * @param termsOfUseManager the manager for the terms of use.
+         */
+        public TermsOfUseValidator(TermsOfUseManager termsOfUseManager) {
+            this(termsOfUseManager, null);
+        }
+
+        /**
+         * Constructor.
+         *
+         * @param termsOfUseManager the manager for the terms of use.
+         * @param activity          the activity for the case when the user has not accepted the
+         *                          terms of use. Then it creates a Dialog for acceptance.
+         */
+        public TermsOfUseValidator(TermsOfUseManager termsOfUseManager, Activity activity) {
+            this.termsOfUseManager = termsOfUseManager;
+            this.activity = activity;
+        }
+
+        @Override
+        public Observable<T> call(Observable<T> tObservable) {
+            return tObservable.flatMap(t ->
+                    termsOfUseManager.getCurrentTermsOfUseObservable()
+                            .flatMap(termsOfUseManager.checkTermsOfUseAcceptance(activity))
+                            .flatMap(termsOfUse -> Observable.just(t)));
+        }
+    }
 }

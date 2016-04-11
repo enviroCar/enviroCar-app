@@ -31,7 +31,7 @@
             android:summary="@string/envirocar.org" />
         <Preference
             android:key="preferences_other_licenses"
-            android:title="Licenses" />
+            android:title="@string/pref_licenses" />
     </PreferenceCategory>
 
 </PreferenceScreen>

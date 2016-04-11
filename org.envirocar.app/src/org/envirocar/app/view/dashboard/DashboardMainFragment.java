@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -43,6 +43,7 @@ import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.services.OBDConnectionService;
+import org.envirocar.app.view.utils.DialogUtils;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
@@ -145,14 +146,30 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                 getFragmentManager().beginTransaction()
                         .remove(mDashboardSettingsFragment)
                         .remove(mDashboardHeaderFragment)
-                        .commitAllowingStateLoss();
-            } catch (IllegalStateException e){
+                        .commit();
+            } catch (IllegalStateException e) {
                 LOG.warn(e.getMessage(), e);
             }
         }
         super.onDestroyView();
     }
 
+    @Override
+    public void onDestroy() {
+        LOG.info("onDestroy()");
+
+        if(!getActivity().isFinishing() && mDashboardSettingsFragment != null){
+            try{
+                getFragmentManager().beginTransaction()
+                        .remove(mDashboardMapFragment)
+                        .commit();
+            } catch (IllegalStateException e){
+                LOG.warn(e.getMessage(), e);
+            }
+        }
+
+        super.onDestroy();
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -204,17 +221,27 @@ public class DashboardMainFragment extends BaseInjectorFragment {
 
         mBluetoothHandler.startBluetoothDiscoveryForSingleDevice(device)
                 .subscribe(new Subscriber<BluetoothDevice>() {
-                    boolean found = false;
+                    private boolean found = false;
+                    private View contentView;
+                    private TextView textView;
 
                     @Override
                     public void onStart() {
-                        mConnectingDialog = new MaterialDialog.Builder(getActivity())
-                                .title(R.string.dashboard_connecting)
-                                .content(String.format(getString(
-                                                R.string.dashboard_connecting_find_template),
-                                        device.getName()))
-                                .progress(true, 0)
-                                .cancelListener(dialog -> {
+                        contentView = getActivity().getLayoutInflater().inflate(
+                                R.layout.fragment_dashboard_connecting_dialog, null, false);
+                        textView = (TextView) contentView.findViewById(
+                                R.id.fragment_dashboard_connecting_dialog_text);
+                        textView.setText(String.format(
+                                getString(R.string.dashboard_connecting_find_template),
+                                device.getName()));
+
+                        mConnectingDialog = DialogUtils.createDefaultDialogBuilder(getContext(),
+                                R.string.dashboard_connecting,
+                                R.drawable.ic_bluetooth_searching_white_24dp,
+                                contentView)
+                                .cancelable(false)
+                                .negativeText(R.string.cancel)
+                                .onNegative((materialDialog, dialogAction) -> {
                                     // On cancel, first stop the discovery of other
                                     // bluetooth devices.
                                     mBluetoothHandler.stopBluetoothDeviceDiscovery();
@@ -234,10 +261,11 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                     public void onCompleted() {
                         if (!found) {
                             mConnectingDialog.dismiss();
-                            mConnectingDialog = new MaterialDialog.Builder(getActivity())
-                                    .title(R.string.dashboard_dialog_obd_not_found)
-                                    .content(String.format(getString(R.string
-                                            .dashboard_dialog_obd_not_found_content_template),
+                            mConnectingDialog = DialogUtils.createDefaultDialogBuilder(getContext(),
+                                    R.string.dashboard_dialog_obd_not_found,
+                                    R.drawable.ic_bluetooth_searching_white_24dp,
+                                    String.format(getString(
+                                            R.string.dashboard_dialog_obd_not_found_content_template),
                                             device.getName()))
                                     .negativeText(R.string.ok)
                                     .show();
@@ -258,7 +286,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                         mBluetoothHandler.stopBluetoothDeviceDiscovery();
 
                         // Update the content of the connecting dialog.
-                        mConnectingDialog.setContent(String.format(getString(
+                        textView.setText(String.format(getString(
                                 R.string.dashboard_connecting_found_template), device.getName()));
 
                         // Start the background remoteService.
@@ -357,13 +385,14 @@ public class DashboardMainFragment extends BaseInjectorFragment {
                         mCurrentlyVisible != null ? R.anim.translate_slide_out_top_fragment : -1);
 
                 // Replace the container with the mapview.
-                if (mCurrentlyVisible != mDashboardMapFragment)
+                if (mCurrentlyVisible != mDashboardMapFragment) {
                     // TODO HERE CHANGE TO TRACK MAP FRAGMENT
                     replaceFragment(mDashboardMapFragment, R.id.fragment_startup_container,
                             mCurrentlyVisible != null ?
                                     R.anim.translate_slide_in_left_fragment : -1,
                             mCurrentlyVisible != null ?
                                     R.anim.translate_slide_out_right_fragment : -1);
+                }
 
                 mCurrentlyVisible = mDashboardMapFragment;
 
@@ -485,13 +514,15 @@ public class DashboardMainFragment extends BaseInjectorFragment {
         if (fragment == null || getFragmentManager() == null)
             return;
 
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager()
+        FragmentTransaction transaction = getActivity()
+                .getSupportFragmentManager()
                 .beginTransaction();
         if (enterAnimation != -1 && exitAnimation != -1) {
             transaction.setCustomAnimations(enterAnimation, exitAnimation);
         }
+
         transaction.replace(container, fragment);
-        transaction.commitAllowingStateLoss();
+        transaction.commit();
 
         mCurrentlyVisible = fragment;
     }
@@ -582,27 +613,6 @@ public class DashboardMainFragment extends BaseInjectorFragment {
 
         updateStartToStopButton();
     }
-
-//    /**
-//     * Creates a binding for the {@link OBDConnectionService}.
-//     */
-//    private void bindService() {
-//        // if the remoteService is currently running, then bind to the remoteService.
-//        if (ServiceUtils.isServiceRunning(getActivity(), OBDConnectionService.class)) {
-//            Toast.makeText(getActivity(), "is Running", Toast.LENGTH_SHORT).show();
-//            Intent intent = new Intent(getActivity(), OBDConnectionService.class);
-//            getActivity().bindService(intent, mOBDConnectionServiceCon, Context.BIND_AUTO_CREATE);
-//        }
-//    }
-//
-//    private void unbindService() {
-//        // If it is bounded, then unbind the remoteService.
-//        if (mIsOBDConnectionBounded) {
-//            LOG.info("onStop(): disconnect bound remoteService");
-//            getActivity().unbindService(mOBDConnectionServiceCon);
-//            mIsOBDConnectionBounded = false;
-//        }
-//    }
 
     @UiThread
     private void updateStartToStopButton() {

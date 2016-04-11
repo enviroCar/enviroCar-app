@@ -133,7 +133,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
-
                 // Set the duration text.
                 try {
                     String date = UTC_DATE_FORMATTER.format(new Date(
@@ -226,7 +225,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
         holder.mMapView.setScrollableAreaLimit(box);
         holder.mMapView.setMinZoomLevel(holder.mMapView.getTileProvider().getMinimumZoomLevel());
         holder.mMapView.setMaxZoomLevel(holder.mMapView.getTileProvider().getMaximumZoomLevel());
-        holder.mMapView.setCenter(holder.mMapView.getTileProvider().getCenterCoordinate());
+//        holder.mMapView.setCenter(holder.mMapView.getTileProvider().getCenterCoordinate());
         holder.mMapView.setZoom(0);
 
         if (track.getMeasurements().size() > 0) {
@@ -242,18 +241,22 @@ public abstract class AbstractTrackListCardAdapter<E extends
                     TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
                     trackMapOverlay.setPaint(linePaint);
 
+                    final BoundingBox bbox = trackMapOverlay.getTrackBoundingBox();
                     final BoundingBox viewBbox = trackMapOverlay.getViewBoundingBox();
                     final BoundingBox scrollableLimit = trackMapOverlay.getScrollableLimitBox();
 
+                    LOG.warn("trying to zoom to track bbox");
                     mMainThreadWorker.schedule(new Action0() {
                         @Override
                         public void call() {
                             holder.mMapView.getOverlays().add(trackMapOverlay);
-
+                            LOG.warn("bbox " + bbox);
                             // Set the computed parameters on the main thread.
                             holder.mMapView.setScrollableAreaLimit(scrollableLimit);
+                            LOG.warn("scrollable limit " + scrollableLimit.toString());
                             holder.mMapView.setConstraintRegionFit(true);
                             holder.mMapView.zoomToBoundingBox(viewBbox, true);
+                            LOG.warn("zooming to " + viewBbox.toString());
                         }
                     });
                     return null;

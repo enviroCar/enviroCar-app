@@ -143,19 +143,24 @@ public class CarPreferenceHandler {
     }
 
     public Observable<Car> assertTemporaryCar(Car car) {
-        LOG.info("getUploadedCarReference()");
         return Observable.just(car)
                 .flatMap(car1 -> {
+                    LOG.info("assertTemporaryCar() assert whether car is uploaded or the car " +
+                            "needs to be registered.");
                     // If the car is already uploaded, then just return car instance.
-                    if (CarUtils.isCarUploaded(car1))
+                    if (CarUtils.isCarUploaded(car1)) {
+                        LOG.info("assertTemporaryCar(): car has already been uploaded");
                         return Observable.just(car1);
+                    }
 
                     // the car is already uploaded before but the car has not the right remote id
                     if (temporaryAlreadyRegisteredCars.containsKey(car1.getId())) {
+                        LOG.info("assertTemporaryCar(): car has already been uploaded");
                         car1.setId(temporaryAlreadyRegisteredCars.get(car1.getId()));
                         return Observable.just(car1);
                     }
 
+                    LOG.info("assertTemporaryCar(): car is not uploaded. Trying to register.");
                     // create a new car instance.
                     return registerCar(car1);
                 });
@@ -167,12 +172,13 @@ public class CarPreferenceHandler {
         return mDAOProvider.getSensorDAO()
                 // Create a new remote car and update the car remote id.
                 .createCarObservable(car)
-                        // update all IDs of tracks that have this car as a reference
+                // update all IDs of tracks that have this car as a reference
                 .flatMap(updCar -> updateCarIDsOfTracksObservable(oldID, updCar))
-                        // sum all tracks to a list of tracks.
+                // sum all tracks to a list of tracks.
                 .toList()
-                        // Just set the current car reference to the updated one and return it.
+                // Just set the current car reference to the updated one and return it.
                 .map(tracks -> {
+                    LOG.info("kommta hier an?");
                     if (!temporaryAlreadyRegisteredCars.containsKey(oldID))
                         temporaryAlreadyRegisteredCars.put(oldID, car.getId());
                     if (getCar().getId().equals(oldID))
@@ -182,9 +188,11 @@ public class CarPreferenceHandler {
     }
 
     private Observable<Track> updateCarIDsOfTracksObservable(String oldID, Car car) {
-        return mEnviroCarDB.getAllTracksByCar(car.getId(), true)
+        return mEnviroCarDB.getAllTracksByCar(oldID, true)
+                .first()
                 .flatMap(tracks -> Observable.from(tracks))
                 .map(track -> {
+                    LOG.info("Track has been updated! -> [" + track.toString() + "]");
                     track.setCar(car);
                     return track;
                 })

@@ -58,4 +58,12 @@
     <string name="service_state_starting">Herstellen einer Verbindung zum OBDII-Adapter.</string>
     <string name="service_state_started">Verbunden mit OBD-II Adapter. Aufnahme läuft.</string>
     <string name="service_state_stopped">OBD-II Adapter getrennt.</string>
+
+    <string name="notification_slide_down">Hier ziehen um Notiz zu erweitern</string>
+    <string name="notification_automatic_track_upload_title">Automatisches Hochladen von Fahrten</string>
+    <string name="notification_automatic_track_upload_title_sub">Fahrtupload ist im gange...</string>
+    <string name="notification_automatic_track_upload_error">Automatischer Upload Fehlgeschlagen</string>
+    <string name="notification_automatic_track_upload_error_sub">Ein Fehler ist aufgetreten während des Upload-Vorgangs.</string>
+    <string name="notification_automatic_track_upload_success">Automatischer Upload Erfolgreich</string>
+    <string name="notification_automatic_track_upload_success_sub" formatted="false">%s von %s Fahrten wurden erfolgreich hochgeladen.</string>
 </resources>

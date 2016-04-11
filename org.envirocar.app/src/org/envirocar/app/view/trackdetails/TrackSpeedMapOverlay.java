@@ -29,6 +29,7 @@ import com.mapbox.mapboxsdk.overlay.PathOverlay;
 
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.logging.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,7 @@ import java.util.List;
  * @author dewall
  */
 public class TrackSpeedMapOverlay extends PathOverlay {
+    private static final Logger LOG = Logger.getLogger(TrackSpeedMapOverlay.class);
 
     private final Track mTrack;
 
@@ -215,6 +217,12 @@ public class TrackSpeedMapOverlay extends PathOverlay {
         for (Measurement measurement : measurementList) {
             double latitude = measurement.getLatitude();
             double longitude = measurement.getLongitude();
+
+            if(latitude == 0.0 || longitude == 0.0) {
+                LOG.warn("An coordinate was 0.0");
+                continue;
+            }
+
             addPoint(measurement.getLatitude(), measurement.getLongitude());
             mValues.add(measurement.getProperty(Measurement.PropertyKey.SPEED));
 
@@ -223,6 +231,8 @@ public class TrackSpeedMapOverlay extends PathOverlay {
             maxLongitude = Math.max(maxLongitude, longitude);
             minLongitude = Math.min(minLongitude, longitude);
         }
+
+        LOG.warn("maxLongitude = " + maxLongitude);
 
         // The bounding box of the pathoverlay.
         mTrackBoundingBox = new BoundingBox(maxLatitude, maxLongitude, minLatitude, minLongitude);

@@ -1,9 +1,6 @@
 package org.envirocar.algorithm;
 
 import org.envirocar.core.entity.Measurement;
-import org.envirocar.obd.commands.PID;
-import org.envirocar.obd.commands.response.DataResponse;
-import org.envirocar.obd.commands.response.entity.LambdaProbeVoltageResponse;
 import org.envirocar.obd.events.PropertyKeyEvent;
 import org.hamcrest.CoreMatchers;
 import org.junit.Assert;
@@ -20,7 +17,7 @@ public class InterpolationMeasurementProviderTest {
 
     @Test
     public void testInterpolateTwo() {
-        InterpolationMeasurementProvider imp = new InterpolationMeasurementProvider(null);
+        InterpolationMeasurementProvider imp = new InterpolationMeasurementProvider();
 
         PropertyKeyEvent s1 = new PropertyKeyEvent(Measurement.PropertyKey.SPEED, 52, 1000);
         PropertyKeyEvent s2 = new PropertyKeyEvent(Measurement.PropertyKey.SPEED, 95, 4000);
@@ -41,7 +38,7 @@ public class InterpolationMeasurementProviderTest {
 
     @Test
     public void testInterpolation() {
-        InterpolationMeasurementProvider imp = new InterpolationMeasurementProvider(null);
+        InterpolationMeasurementProvider imp = new InterpolationMeasurementProvider();
 
         PropertyKeyEvent m1 = new PropertyKeyEvent(Measurement.PropertyKey.MAF, 16.0, 1000);
         PropertyKeyEvent m2 = new PropertyKeyEvent(Measurement.PropertyKey.MAF, 48.0, 3500); // this should be the result
