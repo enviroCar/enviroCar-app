@@ -66,5 +66,5 @@
     <string name="notification_automatic_track_upload_error">Automatic Upload Failed</string>
     <string name="notification_automatic_track_upload_error_sub">An error occurred during the upload process.</string>
     <string name="notification_automatic_track_upload_success">Automatic Upload Successful</string>
-    <string name="notification_automatic_track_upload_success_sub" formatted="false">%s of %s tracks has been successfully uploaded.</string>
+    <string name="notification_automatic_track_upload_success_sub" formatted="false">%s of %s tracks have been successfully uploaded.</string>
 </resources>

@@ -167,7 +167,7 @@ public class TrackUploadService extends Service {
                                         .Builder(getApplicationContext())
                                         .setSmallIcon(R.drawable.ic_cloud_upload_white_24dp)
                                         .setContentTitle(
-                                                getString(R.string.service_track_upload_title))
+                                                getString(R.string.notification_automatic_track_upload_title))
                                         .setPriority(Integer.MAX_VALUE)
                                         .build();
 
@@ -210,7 +210,7 @@ public class TrackUploadService extends Service {
                                         .Builder(getApplicationContext())
                                         .setSmallIcon(R.drawable.ic_cloud_upload_white_24dp)
                                         .setContentTitle(
-                                                getString(R.string.service_track_upload_title))
+                                                getString(R.string.notification_automatic_track_upload_title))
                                         .setContent(smallView)
                                         .build();
 

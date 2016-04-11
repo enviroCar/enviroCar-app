@@ -31,8 +31,6 @@
     <string name="trackviews_not_logged_in">Track cannot be uploaded. Please log in first.</string>
     <string name="trackviews_server_error">Server Error - Please try again later.</string>
 
-    <string name="service_track_upload_title">Automatic Track Upload</string>
-    <string name="service_track_upload_content_small">Slide down on note to expand.</string>
 
     <!--<string name="service_"-->
 </resources>

@@ -86,7 +86,7 @@ public class SettingsActivity extends BaseInjectorActivity {
         if (mCurrentVisibleFragment != null) {
             getFragmentManager()
                     .beginTransaction()
-                    .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
+                    .setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_right)
                     .remove(mCurrentVisibleFragment)
                     .commit();
             mCurrentVisibleFragment = null;
@@ -151,7 +151,7 @@ public class SettingsActivity extends BaseInjectorActivity {
         getFragmentManager()
                 .beginTransaction()
                         // Set some animations.
-                .setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_right)
+                .setCustomAnimations(R.animator.slide_in_right, R.animator.slide_out_right)
                 .replace(R.id.fragment_settings_main_container, fragment)
                 .commit();
         mCurrentVisibleFragment = fragment;

@@ -38,7 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingBottom="@dimen/spacing_small"
-                android:text="Automatic Track Upload"
+                android:text="@string/notification_automatic_track_upload_title"
                 android:textSize="@dimen/text_large"
                 android:singleLine="true"
                 android:textColor="@color/white"/>
@@ -50,7 +50,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@string/service_track_upload_content_small"
+            android:text="@string/notification_automatic_track_upload_title_sub"
             android:textSize="@dimen/text_small"
             android:textColor="#DDDDDD"/>
 
