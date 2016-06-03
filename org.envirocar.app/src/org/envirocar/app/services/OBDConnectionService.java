@@ -146,11 +146,15 @@ public class OBDConnectionService extends BaseInjectorService {
         mTTS = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
-                if (status == TextToSpeech.SUCCESS) {
-                    mIsTTSAvailable = true;
-                    mTTS.setLanguage(Locale.ENGLISH);
-                } else {
-                    LOG.warn("TextToSpeech is not available.");
+                try {
+                    if (status == TextToSpeech.SUCCESS) {
+                        mTTS.setLanguage(Locale.ENGLISH);
+                        mIsTTSAvailable = true;
+                    } else {
+                        LOG.warn("TextToSpeech is not available.");
+                    }
+                } catch(IllegalArgumentException e){
+                    LOG.warn("TextToSpeech is not available");
                 }
             }
         });

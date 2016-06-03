@@ -78,21 +78,19 @@ class MeasurementTable {
         values.put(KEY_LONGITUDE, measurement.getLongitude());
         values.put(KEY_TIME, measurement.getTime());
         values.put(KEY_TRACK, measurement.getTrackId().getId());
-
-        try {
-            values.put(KEY_PROPERTIES, createPropertiesString(measurement));
-        } catch (JSONException e) {
-            LOG.error("Error while parsing measurement properties.", e);
-            throw new MeasurementSerializationException(e);
-        }
+        values.put(KEY_PROPERTIES, createPropertiesString(measurement));
         return values;
     }
 
-    private static String createPropertiesString(Measurement measurement) throws JSONException {
+    private static String createPropertiesString(Measurement measurement) {
         JSONObject result = new JSONObject();
         Map<Measurement.PropertyKey, Double> properties = measurement.getAllProperties();
         for (Measurement.PropertyKey key : properties.keySet()) {
-            result.put(key.name(), properties.get(key));
+            try {
+                result.put(key.name(), properties.get(key));
+            } catch (JSONException e) {
+                LOG.warn("Error while parsing measurement property "+key.name() +"="+properties.get(key) + "; "+e.getMessage());
+            }
         }
         return result.toString();
     }
