@@ -137,7 +137,10 @@ public class CarUtils {
      * @return true if the car has been uploaded.
      */
     public static boolean isCarUploaded(Car car) {
-        return !car.getId().startsWith(Car.TEMPORARY_SENSOR_ID);
+        if(car.getId() != null) {
+            return !car.getId().startsWith(Car.TEMPORARY_SENSOR_ID);
+        }
+        return false;
     }
 
 }
