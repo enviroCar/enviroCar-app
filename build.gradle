@@ -31,12 +31,11 @@ allprojects {
         maven { url "https://jitpack.io" }
         mavenCentral()
         jcenter()
-
     }
 }
 
 ext {
-    androidPlugin = 'com.android.tools.build:gradle:2.0.0-beta6'
+    androidPlugin = 'com.android.tools.build:gradle:2.1.0'
     minSdkVersion = 16
     compileSdkVersion = 23
     targetSdkVersion = 23
