@@ -382,7 +382,7 @@ public class OBDConnectionService extends BaseInjectorService {
             }
 
             mLocationHandler.stopLocating();
-            showServiceStateStoppedNotification();
+//            showServiceStateStoppedNotification();
             doTextToSpeech("Device disconnected");
 
             // Set state of the remoteService to stopped.
@@ -457,18 +457,18 @@ public class OBDConnectionService extends BaseInjectorService {
     }
 
 
-    private void showServiceStateStoppedNotification() {
-        NotificationManager manager = (NotificationManager) getSystemService(Context
-                .NOTIFICATION_SERVICE);
-        Notification noti = new NotificationCompat.Builder(getApplicationContext())
-                .setContentTitle("enviroCar")
-                .setContentText(getResources()
-                        .getText(R.string.service_state_stopped))
-                .setSmallIcon(R.drawable.dashboard)
-                .setAutoCancel(true)
-                .build();
-        manager.notify(BG_NOTIFICATION_ID, noti);
-    }
+//    private void showServiceStateStoppedNotification() {
+//        NotificationManager manager = (NotificationManager) getSystemService(Context
+//                .NOTIFICATION_SERVICE);
+//        Notification noti = new NotificationCompat.Builder(getApplicationContext())
+//                .setContentTitle("enviroCar")
+//                .setContentText(getResources()
+//                        .getText(R.string.service_state_stopped))
+//                .setSmallIcon(R.drawable.dashboard)
+//                .setAutoCancel(true)
+//                .build();
+//        manager.notify(BG_NOTIFICATION_ID, noti);
+//    }
 
     private final class OBDConnectionRecognizer {
         private static final long OBD_INTERVAL = 1000 * 10; // 10 seconds;
