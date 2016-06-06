@@ -6,6 +6,8 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.request.PIDCommand;
 import org.envirocar.obd.exception.AdapterFailedException;
+import org.envirocar.obd.exception.InvalidCommandResponseException;
+import org.envirocar.obd.exception.NoDataReceivedException;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -107,7 +109,7 @@ public class CarTrendAdapter extends SyncAdapter {
     }
 
     @Override
-    protected byte[] preProcess(byte[] bytes) {
+    protected byte[] preProcess(byte[] bytes) throws AdapterFailedException {
         if (dataStartPosition == -1) {
             String data = new String(bytes);
             /**
@@ -116,9 +118,14 @@ public class CarTrendAdapter extends SyncAdapter {
             dataStartPosition = data.indexOf("41");
             logger.info(String.format("Identified start position %s by response '%s'",
                     dataStartPosition, new String(bytes)));
+
+            if (dataStartPosition == -1) {
+                //still -1, throw exception
+                throw new AdapterFailedException("Could not determine start position of CarTrend response");
+            }
         }
 
-        if (dataStartPosition < bytes.length) {
+        if (dataStartPosition != -1 && dataStartPosition < bytes.length) {
             return Arrays.copyOfRange(bytes, dataStartPosition, bytes.length);
         }
         else {
