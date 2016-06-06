@@ -50,6 +50,8 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.remote.DAOProvider;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,6 +64,9 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
+
+import static org.envirocar.app.R.string.cost;
+import static org.envirocar.app.R.string.volume;
 
 /**
  * TODO JavaDoc
@@ -209,9 +214,34 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
             return;
         }
 
-        double cost = getEditTextDoubleValue(addFuelingTotalCostText);
-        double milage = getEditTextDoubleValue(addFuelingMilageText);
-        double volume = getEditTextDoubleValue(addFuelingMilageText);
+        Double cost = null, milage = null, volume = null;
+        try {
+            cost = getEditTextDoubleValue(addFuelingTotalCostText);
+            milage = getEditTextDoubleValue(addFuelingMilageText);
+            volume = getEditTextDoubleValue(addFuelingVolumeText);
+        } catch (ParseException e) {
+            formError = true;
+            if(cost == null){
+                LOG.error(String.format("Invalid input text -> [%s]",addFuelingTotalCostText), e);
+                addFuelingTotalCostText.setError("Ungültige Eingabe.");
+                focusView = addFuelingTotalCostText;
+            } else if(milage == null){
+                LOG.error(String.format("Invalid input text -> [%s]",addFuelingMilageText), e);
+                addFuelingMilageText.setError("Ungültige Eingabe.");
+                focusView = addFuelingMilageText;
+            } else {
+                LOG.error(String.format("Invalid input text -> [%s]",addFuelingVolumeText), e);
+                addFuelingVolumeText.setError("Ungültige Eingabe.");
+                focusView = addFuelingVolumeText;
+            }
+        }
+
+        if (formError) {
+            LOG.info("Error on input form.");
+            focusView.requestFocus();
+            return;
+        }
+
         boolean missedFuelStop = missedFuelingCheckbox.isChecked();
         boolean partialFueling = partialFuelingCheckbox.isChecked();
 
@@ -458,13 +488,14 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         return pricePerLitre != null && !pricePerLitre.isEmpty();
     }
 
-    private double getEditTextDoubleValue(EditText input) {
+    private double getEditTextDoubleValue(EditText input) throws ParseException {
         return getEditTextDoubleValue(input.getText().toString());
     }
 
-    private double getEditTextDoubleValue(String input) {
-        String stringValue = input.split(" ")[0];
-        return Double.parseDouble(stringValue);
+    private double getEditTextDoubleValue(String input) throws ParseException {
+        NumberFormat format = NumberFormat.getCurrencyInstance();
+            Number number = format.parse(input.split(" ")[0]);
+            return number.doubleValue();
     }
 
     private void showSnackbarInfo(int resourceID) {
