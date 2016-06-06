@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -50,9 +50,10 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.remote.DAOProvider;
 
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.ParseException;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -65,9 +66,6 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
-import static org.envirocar.app.R.string.cost;
-import static org.envirocar.app.R.string.volume;
-
 /**
  * TODO JavaDoc
  *
@@ -77,6 +75,13 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(LogbookAddFuelingFragment.class);
     private static final DecimalFormat DECIMAL_FORMATTER_2 = new DecimalFormat("#.##");
     private static final DecimalFormat DECIMAL_FORMATTER_3 = new DecimalFormat("#.###");
+
+    static{
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.GERMAN);
+        symbols.setDecimalSeparator('.');
+        DECIMAL_FORMATTER_2.setDecimalFormatSymbols(symbols);
+        DECIMAL_FORMATTER_3.setDecimalFormatSymbols(symbols);
+    }
 
     @InjectView(R.id.logbook_layout_addfueling_toolbar)
     protected Toolbar addFuelingToolbar;
@@ -216,21 +221,24 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
         Double cost = null, milage = null, volume = null;
         try {
-            cost = getEditTextDoubleValue(addFuelingTotalCostText);
-            milage = getEditTextDoubleValue(addFuelingMilageText);
-            volume = getEditTextDoubleValue(addFuelingVolumeText);
+            cost = getEditTextDoubleValue(addFuelingTotalCostText.toString());
+            milage = getEditTextDoubleValue(addFuelingMilageText.toString());
+            volume = getEditTextDoubleValue(addFuelingVolumeText.toString());
         } catch (ParseException e) {
             formError = true;
-            if(cost == null){
-                LOG.error(String.format("Invalid input text -> [%s]",addFuelingTotalCostText), e);
+            if (cost == null) {
+                LOG.error(String.format("Invalid input text -> [%s]", addFuelingTotalCostText
+                        .toString()), e);
                 addFuelingTotalCostText.setError("Ungültige Eingabe.");
                 focusView = addFuelingTotalCostText;
-            } else if(milage == null){
-                LOG.error(String.format("Invalid input text -> [%s]",addFuelingMilageText), e);
+            } else if (milage == null) {
+                LOG.error(String.format("Invalid input text -> [%s]", addFuelingMilageText
+                        .toString()), e);
                 addFuelingMilageText.setError("Ungültige Eingabe.");
                 focusView = addFuelingMilageText;
             } else {
-                LOG.error(String.format("Invalid input text -> [%s]",addFuelingVolumeText), e);
+                LOG.error(String.format("Invalid input text -> [%s]", addFuelingVolumeText
+                        .toString()), e);
                 addFuelingVolumeText.setError("Ungültige Eingabe.");
                 focusView = addFuelingVolumeText;
             }
@@ -291,21 +299,28 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         addFuelingVolumeText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
+                String volumeText = addFuelingVolumeText.getText().toString();
+                if (volumeText == null || volumeText.isEmpty())
+                    return;
+
                 if (!hasFocus) {
-                    String volumeText = addFuelingVolumeText.getText().toString();
                     if (volumeText != null && !volumeText.isEmpty()) {
                         addFuelingVolumeText.setText(volumeText + " l");
 
-                        if (hasEditTextValue(addFuelingTotalCostText)) {
-                            setTotalPriceValue(getEditTextDoubleValue(volumeText) *
-                                    getEditTextDoubleValue(addFuelingPricePerLitreText));
-                        } else if (hasEditTextValue(addFuelingTotalCostText)) {
-                            setPricePerLitreValue(getEditTextDoubleValue(addFuelingTotalCostText)
-                                    / getEditTextDoubleValue(volumeText));
+                        try {
+                            if (hasEditTextValue(addFuelingPricePerLitreText)) {
+                                setTotalPriceValue(getEditTextDoubleValue(volumeText) *
+                                        getEditTextDoubleValue(addFuelingPricePerLitreText));
+                            } else if (hasEditTextValue(addFuelingTotalCostText)) {
+                                setPricePerLitreValue(getEditTextDoubleValue
+                                        (addFuelingTotalCostText)
+                                        / getEditTextDoubleValue(volumeText));
+                            }
+                        } catch (ParseException e) {
+                            LOG.error(e.getMessage(), e);
                         }
                     }
                 } else {
-                    String volumeText = addFuelingVolumeText.getText().toString();
                     if (volumeText != null && !volumeText.isEmpty()) {
                         addFuelingVolumeText.setText(volumeText.split(" ")[0]);
                     }
@@ -318,21 +333,26 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         addFuelingPricePerLitreText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                String price = addFuelingPricePerLitreText.getText().toString();
-                if (price != null && !price.isEmpty()) {
-                    if (hasFocus) {
-                        addFuelingPricePerLitreText.setText(price.split(" ")[0]);
-                    } else {
-                        addFuelingPricePerLitreText.setText(price + " €/l");
+                String pricePerLitre = addFuelingPricePerLitreText.getText().toString();
+                if (pricePerLitre == null || pricePerLitre.isEmpty())
+                    return;
 
+                if (!hasFocus) {
+                    addFuelingPricePerLitreText.setText(pricePerLitre + " €/l");
+
+                    try {
                         if (hasEditTextValue(addFuelingVolumeText)) {
                             setTotalPriceValue(getEditTextDoubleValue(addFuelingVolumeText) *
-                                    getEditTextDoubleValue(price));
+                                    getEditTextDoubleValue(pricePerLitre));
                         } else if (hasEditTextValue(addFuelingTotalCostText)) {
                             setVolumeValue(getEditTextDoubleValue(addFuelingTotalCostText) /
-                                    getEditTextDoubleValue(price));
+                                    getEditTextDoubleValue(pricePerLitre));
                         }
+                    } catch (ParseException e) {
+                        LOG.error(e.getMessage(), e);
                     }
+                } else {
+                    addFuelingPricePerLitreText.setText(pricePerLitre.split(" ")[0]);
                 }
             }
         });
@@ -343,12 +363,13 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 String totalCost = addFuelingTotalCostText.getText().toString();
-                if (totalCost != null && !totalCost.isEmpty()) {
-                    if (hasFocus) {
-                        addFuelingTotalCostText.setText(totalCost.split(" ")[0]);
-                    } else {
-                        addFuelingTotalCostText.setText(totalCost + " €");
+                if (totalCost == null || totalCost.isEmpty())
+                    return;
 
+                if (!hasFocus) {
+                    addFuelingTotalCostText.setText(totalCost + " €");
+
+                    try {
                         if (hasEditTextValue(addFuelingVolumeText)) {
                             setPricePerLitreValue(getEditTextDoubleValue(totalCost) /
                                     getEditTextDoubleValue(addFuelingVolumeText));
@@ -356,6 +377,12 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                             setVolumeValue(getEditTextDoubleValue(totalCost)
                                     / getEditTextDoubleValue(addFuelingPricePerLitreText));
                         }
+                    } catch (ParseException e) {
+                        LOG.error(e.getMessage(), e);
+                    }
+                } else {
+                    if (totalCost != null && !totalCost.isEmpty()) {
+                        addFuelingTotalCostText.setText(totalCost.split(" ")[0]);
                     }
                 }
             }
@@ -480,22 +507,29 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
     }
 
     private void setTotalPriceValue(double value) {
-        addFuelingTotalCostText.setText(DECIMAL_FORMATTER_2.format(value) + " €");
+        addFuelingTotalCostText.setText(
+                (DECIMAL_FORMATTER_2.format(value) + " €").replaceAll(",", "."));
     }
 
     private boolean hasEditTextValue(EditText input) {
-        String pricePerLitre = addFuelingPricePerLitreText.getText().toString();
-        return pricePerLitre != null && !pricePerLitre.isEmpty();
+        String value = input.getText().toString();
+        return value != null && !value.isEmpty();
     }
 
     private double getEditTextDoubleValue(EditText input) throws ParseException {
-        return getEditTextDoubleValue(input.getText().toString());
+        try {
+            return getEditTextDoubleValue(input.getText().toString());
+        } catch (ParseException e) {
+            LOG.error(String.format("Invalid input text -> [%s]", input.toString()), e);
+            addFuelingTotalCostText.setError("Ungültige Eingabe.");
+            addFuelingTotalCostText.requestFocus();
+            throw e;
+        }
     }
 
     private double getEditTextDoubleValue(String input) throws ParseException {
-        NumberFormat format = NumberFormat.getCurrencyInstance();
-            Number number = format.parse(input.split(" ")[0]);
-            return number.doubleValue();
+        String numberValue = input.split(" ")[0].replaceAll(",", ".");
+        return Double.parseDouble(numberValue);
     }
 
     private void showSnackbarInfo(int resourceID) {
