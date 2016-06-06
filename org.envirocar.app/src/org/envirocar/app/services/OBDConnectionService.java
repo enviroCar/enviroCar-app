@@ -52,6 +52,7 @@ import org.envirocar.core.trackprocessing.AbstractCalculatedMAFAlgorithm;
 import org.envirocar.core.trackprocessing.CalculatedMAFWithStaticVolumetricEfficiency;
 import org.envirocar.core.trackprocessing.ConsumptionAlgorithm;
 import org.envirocar.core.utils.CarUtils;
+import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.ConnectionListener;
 import org.envirocar.obd.OBDController;
 import org.envirocar.obd.bluetooth.BluetoothSocketWrapper;
@@ -75,11 +76,21 @@ import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
+import static org.envirocar.app.services.obd.OBDServiceHandler.context;
+
 /**
  * @author dewall
  */
 public class OBDConnectionService extends BaseInjectorService {
     private static final Logger LOG = Logger.getLogger(OBDConnectionService.class);
+
+    public static void startService(Context context){
+        ServiceUtils.startService(context, OBDConnectionService.class);
+    }
+
+    public static void stopService(Context context){
+        ServiceUtils.stopService(context, OBDConnectionService.class);
+    }
 
     protected static final int MAX_RECONNECT_COUNT = 2;
     public static final int BG_NOTIFICATION_ID = 42;

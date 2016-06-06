@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -75,7 +75,6 @@ import org.envirocar.core.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
 import org.envirocar.core.util.VersionRange;
-import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.remote.DAOProvider;
@@ -85,6 +84,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -164,8 +164,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
         boolean noInstantiatedExceptionReceived = false;
         try {
             super.onCreate(savedInstanceState);
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
             LOGGER.warn("Trying to reconstruct fragment state. Got Exception", e);
             if (e.getMessage().contains("No instantiated fragment for index #")) {
                 noInstantiatedExceptionReceived = true;
@@ -185,11 +184,12 @@ public class BaseMainActivity extends BaseInjectorActivity {
         if (noInstantiatedExceptionReceived) {
             TrackListPagerFragment pagerFragment = new TrackListPagerFragment();
             if (mNavigationView != null && mNavigationView.getMenu() != null) {
-                MenuItem menuItem = mNavigationView.getMenu().findItem(R.id.menu_nav_drawer_tracklist_new);
+                MenuItem menuItem = mNavigationView.getMenu().findItem(R.id
+                        .menu_nav_drawer_tracklist_new);
                 transitToFragment(menuItem, pagerFragment);
-            }
-            else {
-                LOGGER.warn("Could not re-create TrackListPagerFragment: mNavigationView="+ mNavigationView);
+            } else {
+                LOGGER.warn("Could not re-create TrackListPagerFragment: mNavigationView=" +
+                        mNavigationView);
             }
         }
 
@@ -231,11 +231,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
         // Subscribe for preference subscriptions. In this case, subscribe for changes to the
         // active screen settings.
         // TODO
-        subscriptions.add(PreferencesHandler.getDisplayStaysActiveObservable(this)
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(aBoolean -> {
-                    checkKeepScreenOn();
-                }));
+        addPreferenceSubscriptions();
 
         errorInformationReceiver = new BroadcastReceiver() {
             @Override
@@ -261,6 +257,30 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 .INTENT));
 
         resolvePersistentSeenAnnouncements();
+    }
+
+    private void addPreferenceSubscriptions() {
+        // Keep screen active setting;
+        subscriptions.add(
+                PreferencesHandler.getDisplayStaysActiveObservable(this)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(aBoolean -> {
+                            checkKeepScreenOn();
+                        })
+        );
+
+        // Start Background handler
+        subscriptions.add(
+                PreferencesHandler.getBackgroundHandlerEnabledObservable(this)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(aBoolean -> {
+                            if (aBoolean) {
+                                SystemStartupService.startService(this);
+                            } else {
+                                SystemStartupService.stopService(this);
+                            }
+                        })
+        );
     }
 
     @Subscribe
@@ -514,17 +534,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 fragment = new SendLogFileFragment();
                 break;
             case R.id.menu_nav_drawer_quit_app:
-//                new MaterialDialog.Builder(this)
-//                        .title("Test")
-//                        .customView(R.layout.util_currency_input_view, true)
-//                        .positiveText("Okay")
-//                        .callback(new MaterialDialog.ButtonCallback() {
-//                            @Override
-//                            public void onAny(MaterialDialog dialog) {
-//                                super.onAny(dialog);
-//                            }
-//                        })
-//                        .show();
                 new MaterialDialog.Builder(this)
                         .title("Shutdown enviroCar")
                         .positiveText("Shutdown")
@@ -569,18 +578,13 @@ public class BaseMainActivity extends BaseInjectorActivity {
     }
 
     private void shutdownEnviroCar() {
+        SystemStartupService.stopService(this);
+        OBDConnectionService.stopService(this);
 
-        if (ServiceUtils.isServiceRunning(this, OBDConnectionService.class)) {
-            Intent intent = new Intent(getApplicationContext(), OBDConnectionService.class);
-            getApplicationContext().stopService(intent);
-        }
-        if (ServiceUtils.isServiceRunning(this, SystemStartupService.class)) {
-            Intent intent = new Intent(getApplicationContext(), SystemStartupService.class);
-            getApplicationContext().stopService(intent);
-        }
-
-        System.runFinalizersOnExit(true);
-        System.exit(0);
+        mMainThreadWorker.schedule(() -> {
+            System.runFinalizersOnExit(true);
+            System.exit(0);
+        }, 100, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -718,11 +722,11 @@ public class BaseMainActivity extends BaseInjectorActivity {
         outState.putSerializable(SEEN_ANNOUNCEMENTS, this.seenAnnouncements.toArray());
     }
 
-    private void showSnackbar(int infoRes){
+    private void showSnackbar(int infoRes) {
         showSnackbar(getString(infoRes));
     }
 
-    private void showSnackbar(String info){
+    private void showSnackbar(String info) {
         mMainThreadWorker.schedule(() -> {
             if (mDrawerLayout != null) {
                 Snackbar.make(mDrawerLayout, info, Snackbar.LENGTH_LONG).show();
