@@ -20,6 +20,8 @@
 
 -->
 <resources>
+    <string name="logbook_invalid_input">Ungültige Eingabe</string>
+
     <string name="logbook_my_fuelings_header">Mein Tankstops</string>
     <string name="logbook_add_fueling">Tankstop Hinzufügen</string>
     <string name="logbook_enter_info">Geben Sie Kilometerstand, getanktes Volumen und Preis ein...</string>

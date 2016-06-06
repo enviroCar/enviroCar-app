@@ -229,17 +229,17 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
             if (cost == null) {
                 LOG.error(String.format("Invalid input text -> [%s]", addFuelingTotalCostText
                         .toString()), e);
-                addFuelingTotalCostText.setError("Ungültige Eingabe.");
+                addFuelingTotalCostText.setError(getString(R.string.logbook_invalid_input));
                 focusView = addFuelingTotalCostText;
             } else if (milage == null) {
                 LOG.error(String.format("Invalid input text -> [%s]", addFuelingMilageText
                         .toString()), e);
-                addFuelingMilageText.setError("Ungültige Eingabe.");
+                addFuelingMilageText.setError(getString(R.string.logbook_invalid_input)");
                 focusView = addFuelingMilageText;
             } else {
                 LOG.error(String.format("Invalid input text -> [%s]", addFuelingVolumeText
                         .toString()), e);
-                addFuelingVolumeText.setError("Ungültige Eingabe.");
+                addFuelingVolumeText.setError(getString(R.string.logbook_invalid_input));
                 focusView = addFuelingVolumeText;
             }
         }
@@ -521,7 +521,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
             return getEditTextDoubleValue(input.getText().toString());
         } catch (ParseException e) {
             LOG.error(String.format("Invalid input text -> [%s]", input.toString()), e);
-            addFuelingTotalCostText.setError("Ungültige Eingabe.");
+            addFuelingTotalCostText.setError(getString(R.string.logbook_invalid_input));
             addFuelingTotalCostText.requestFocus();
             throw e;
         }
@@ -572,9 +572,9 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
                 // if the splitted value does not match.
                 Matcher matcher = pattern.matcher(source.toString().split(" ")[0]);
                 if (!matcher.matches()) {
-                    addFuelingPricePerLitreText.setError("Invalid input");
-                    addFuelingVolumeText.setError("Invalid input");
-                    addFuelingTotalCostText.setError("Invalid input");
+                    addFuelingPricePerLitreText.setError(getString(R.string.logbook_invalid_input));
+                    addFuelingVolumeText.setError(getString(R.string.logbook_invalid_input));
+                    addFuelingTotalCostText.setError(getString(R.string.logbook_invalid_input));
                 }
                 return null;
             }
