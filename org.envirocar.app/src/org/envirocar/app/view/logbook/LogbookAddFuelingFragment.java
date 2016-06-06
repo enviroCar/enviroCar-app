@@ -234,7 +234,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
             } else if (milage == null) {
                 LOG.error(String.format("Invalid input text -> [%s]", addFuelingMilageText
                         .toString()), e);
-                addFuelingMilageText.setError(getString(R.string.logbook_invalid_input)");
+                addFuelingMilageText.setError(getString(R.string.logbook_invalid_input));
                 focusView = addFuelingMilageText;
             } else {
                 LOG.error(String.format("Invalid input text -> [%s]", addFuelingVolumeText

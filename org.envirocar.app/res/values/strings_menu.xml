@@ -13,4 +13,8 @@
 
     <string name="menu_not_logged_in">Not Logged In</string>
     <string name="menu_not_logged_in_sub">Click here to log in.</string>
+
+    <string name="menu_close_envirocar_title">Shutdown enviroCar</string>
+    <string name="menu_close_envirocar_positive">Shutdown</string>
+    <string name="menu_close_envirocar_content">This completely closes the application including all running background services and track recordings.</string>
 </resources>

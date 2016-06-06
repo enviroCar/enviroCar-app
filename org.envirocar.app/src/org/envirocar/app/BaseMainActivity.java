@@ -535,11 +535,10 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 break;
             case R.id.menu_nav_drawer_quit_app:
                 new MaterialDialog.Builder(this)
-                        .title("Shutdown enviroCar")
-                        .positiveText("Shutdown")
-                        .negativeText("Cancel")
-                        .content("This completely closes the application including all running " +
-                                "background services and track recordings.")
+                        .title(getString(R.string.menu_close_envirocar_title))
+                        .positiveText(getString(R.string.menu_close_envirocar_positive))
+                        .negativeText(getString(R.string.cancel))
+                        .content(getString(R.string.menu_close_envirocar_content))
                         .callback(new MaterialDialog.ButtonCallback() {
                             @Override
                             public void onPositive(MaterialDialog dialog) {
