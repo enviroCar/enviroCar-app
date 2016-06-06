@@ -271,6 +271,7 @@ public class OBDController {
                     //dataListener.shutdown();
                 }
 
+                connectionListener.onAllAdaptersFailed();
                 this.unsubscribe();
             }
 
