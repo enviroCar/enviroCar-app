@@ -68,6 +68,14 @@ import rx.subscriptions.CompositeSubscription;
 public class SystemStartupService extends Service {
     private static final Logger LOGGER = Logger.getLogger(SystemStartupService.class);
 
+    public static final void startService(Context context){
+        ServiceUtils.startService(context, SystemStartupService.class);
+    }
+
+    public static final void stopService(Context context){
+        ServiceUtils.stopService(context, SystemStartupService.class);
+    }
+
     private static final int REDISCOVERY_INTERVAL = 30;
 
     // Static identifiers for actions for the broadcast receiver.

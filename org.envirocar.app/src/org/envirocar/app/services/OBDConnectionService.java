@@ -52,6 +52,7 @@ import org.envirocar.core.trackprocessing.AbstractCalculatedMAFAlgorithm;
 import org.envirocar.core.trackprocessing.CalculatedMAFWithStaticVolumetricEfficiency;
 import org.envirocar.core.trackprocessing.ConsumptionAlgorithm;
 import org.envirocar.core.utils.CarUtils;
+import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.ConnectionListener;
 import org.envirocar.obd.OBDController;
 import org.envirocar.obd.bluetooth.BluetoothSocketWrapper;
@@ -75,11 +76,21 @@ import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
 
+import static org.envirocar.app.services.obd.OBDServiceHandler.context;
+
 /**
  * @author dewall
  */
 public class OBDConnectionService extends BaseInjectorService {
     private static final Logger LOG = Logger.getLogger(OBDConnectionService.class);
+
+    public static void startService(Context context){
+        ServiceUtils.startService(context, OBDConnectionService.class);
+    }
+
+    public static void stopService(Context context){
+        ServiceUtils.stopService(context, OBDConnectionService.class);
+    }
 
     protected static final int MAX_RECONNECT_COUNT = 2;
     public static final int BG_NOTIFICATION_ID = 42;
@@ -371,7 +382,7 @@ public class OBDConnectionService extends BaseInjectorService {
             }
 
             mLocationHandler.stopLocating();
-            showServiceStateStoppedNotification();
+//            showServiceStateStoppedNotification();
             doTextToSpeech("Device disconnected");
 
             // Set state of the remoteService to stopped.
@@ -446,18 +457,18 @@ public class OBDConnectionService extends BaseInjectorService {
     }
 
 
-    private void showServiceStateStoppedNotification() {
-        NotificationManager manager = (NotificationManager) getSystemService(Context
-                .NOTIFICATION_SERVICE);
-        Notification noti = new NotificationCompat.Builder(getApplicationContext())
-                .setContentTitle("enviroCar")
-                .setContentText(getResources()
-                        .getText(R.string.service_state_stopped))
-                .setSmallIcon(R.drawable.dashboard)
-                .setAutoCancel(true)
-                .build();
-        manager.notify(BG_NOTIFICATION_ID, noti);
-    }
+//    private void showServiceStateStoppedNotification() {
+//        NotificationManager manager = (NotificationManager) getSystemService(Context
+//                .NOTIFICATION_SERVICE);
+//        Notification noti = new NotificationCompat.Builder(getApplicationContext())
+//                .setContentTitle("enviroCar")
+//                .setContentText(getResources()
+//                        .getText(R.string.service_state_stopped))
+//                .setSmallIcon(R.drawable.dashboard)
+//                .setAutoCancel(true)
+//                .build();
+//        manager.notify(BG_NOTIFICATION_ID, noti);
+//    }
 
     private final class OBDConnectionRecognizer {
         private static final long OBD_INTERVAL = 1000 * 10; // 10 seconds;

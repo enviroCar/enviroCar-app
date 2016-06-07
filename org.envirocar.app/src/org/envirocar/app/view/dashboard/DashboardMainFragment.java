@@ -522,7 +522,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
         }
 
         transaction.replace(container, fragment);
-        transaction.commit();
+        transaction.commitAllowingStateLoss();
 
         mCurrentlyVisible = fragment;
     }

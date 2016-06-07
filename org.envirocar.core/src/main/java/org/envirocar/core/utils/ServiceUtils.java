@@ -20,11 +20,41 @@ package org.envirocar.core.utils;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
+
+import org.envirocar.core.logging.Logger;
 
 /**
  * @author dewall
  */
 public final class ServiceUtils {
+    private static final Logger LOGGER = Logger.getLogger(ServiceUtils.class);
+
+    public static final void startService(Context context, Class<?> service){
+        LOGGER.info("Trying to start %s", service.getSimpleName());
+
+        // If the service is not already running, the start the service.
+        if(!ServiceUtils.isServiceRunning(context, service)) {
+            Intent startIntent = new Intent(context, service);
+            context.startService(startIntent);
+            LOGGER.info("%s successfuly started.", service.getSimpleName());
+        } else {
+            LOGGER.info("%s was already running. No start required!", service.getSimpleName());
+        }
+    }
+
+    public static final void stopService(Context context, Class<?> service){
+        LOGGER.info("Trying to stop %s", service.getSimpleName());
+
+        // If the service is already running, then stopo the service.
+        if(ServiceUtils.isServiceRunning(context, service)){
+            Intent stopIntent = new Intent(context, service);
+            context.stopService(stopIntent);
+            LOGGER.info("%s successfully stopped.", service.getSimpleName());
+        } else {
+            LOGGER.info("%s is not running. No stop required!", service.getSimpleName());
+        }
+    }
 
     /**
      * Checks whether there is a specific remoteService already running and, if so, it returns true.

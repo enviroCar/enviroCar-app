@@ -15,7 +15,7 @@ public class PIDCommand implements BasicCommand {
      *
      */
     public PIDCommand(String mode, PID pid) {
-        this(mode, pid, 1);
+        this(mode, pid, 0);
     }
 
     /**

@@ -1,5 +1,7 @@
 package org.envirocar.obd.adapter;
 
+import android.util.Base64;
+
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.PID;
 import org.envirocar.obd.commands.PIDSupported;
@@ -166,6 +168,10 @@ public abstract class SyncAdapter implements OBDAdapter {
                         subscriber.onError(e);
                         subscriber.unsubscribe();
                     } catch (AdapterFailedException e) {
+                        LOGGER.warn(e.getMessage(), e);
+                        LOGGER.warn(String.format("Sent Command was: %s; Received response was: %s",
+                                latestCommand.getPid().toString(),
+                                Base64.encodeToString(bytes, Base64.DEFAULT)));
                         subscriber.onError(e);
                         subscriber.unsubscribe();
                     } catch (StreamFinishedException e) {
@@ -285,5 +291,5 @@ public abstract class SyncAdapter implements OBDAdapter {
      */
     protected abstract boolean analyzeMetadataResponse(byte[] response, BasicCommand sentCommand) throws AdapterFailedException;
 
-    protected abstract byte[] preProcess(byte[] bytes);
+    protected abstract byte[] preProcess(byte[] bytes) throws AdapterFailedException;
 }

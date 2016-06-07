@@ -13,4 +13,8 @@
 
     <string name="menu_not_logged_in">Nicht Eingeloggt</string>
     <string name="menu_not_logged_in_sub">Hier klicken um sich einzuloggen.</string>
+
+    <string name="menu_close_envirocar_title">enviroCar Beenden</string>
+    <string name="menu_close_envirocar_positive">Beenden</string>
+    <string name="menu_close_envirocar_content">Diese Funktion schließt die Applikation einschließlich aller laufenden Hintergrundsprozesse und Aufzeichnungen.</string>
 </resources>

@@ -61,6 +61,8 @@ public class OBDServiceHandler {
                 .setContentTitle(context.getString(state.getTitle()))
                 .setPriority(Integer.MAX_VALUE)
                 .setContent(smallView)
+                .setOngoing(true)
+                .setAutoCancel(true)
                 .build();
 
         // Check whether the notification state has content for the bigView, i.e. it provides an
