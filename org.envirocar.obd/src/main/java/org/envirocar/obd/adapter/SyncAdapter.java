@@ -93,7 +93,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                             }
 
                             subscriber.onNext(true);
-                            subscriber.unsubscribe();
+                            subscriber.onCompleted();
                         }
                         else {
                             BasicCommand cc = pollNextInitializationCommand();
@@ -109,8 +109,15 @@ public abstract class SyncAdapter implements OBDAdapter {
 
                             //check if the command needs a response (most likely)
                             if (cc.awaitsResults()) {
-                                byte[] resp = commandExecutor.retrieveLatestResponse();
-                                analyzedSuccessfully = analyzeMetadataResponse(resp, cc);
+                                try {
+                                    Thread.sleep(1000);
+
+                                    byte[] resp = commandExecutor.retrieveLatestResponse();
+                                    analyzedSuccessfully = analyzedSuccessfully | analyzeMetadataResponse(resp, cc);
+                                } catch (InterruptedException e) {
+                                    LOGGER.warn(e.getMessage());
+                                }
+                            
                             }
                         }
                     }
