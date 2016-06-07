@@ -209,6 +209,11 @@ public class CarTrendAdapter extends SyncAdapter {
         public boolean awaitsResults() {
             return true;
         }
+
+        @Override
+        public String toString() {
+            return this.name;
+        }
     }
 
 }

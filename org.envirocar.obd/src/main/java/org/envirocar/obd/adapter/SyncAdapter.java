@@ -104,6 +104,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                                 subscriber.unsubscribe();
                             }
 
+                            LOGGER.info("Sending command in initial phase: "+cc.toString());
                             //push the command to the output stream
                             commandExecutor.execute(cc);
 
@@ -113,6 +114,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                                     Thread.sleep(1000);
 
                                     byte[] resp = commandExecutor.retrieveLatestResponse();
+                                    LOGGER.info("Retrieved initial phase response: "+Base64.encodeToString(resp, Base64.DEFAULT));
                                     analyzedSuccessfully = analyzedSuccessfully | analyzeMetadataResponse(resp, cc);
                                 } catch (InterruptedException e) {
                                     LOGGER.warn(e.getMessage());
