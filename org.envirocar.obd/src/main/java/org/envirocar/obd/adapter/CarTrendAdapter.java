@@ -6,8 +6,6 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.request.PIDCommand;
 import org.envirocar.obd.exception.AdapterFailedException;
-import org.envirocar.obd.exception.InvalidCommandResponseException;
-import org.envirocar.obd.exception.NoDataReceivedException;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -32,9 +30,9 @@ public class CarTrendAdapter extends SyncAdapter {
     protected BasicCommand pollNextInitializationCommand() {
         if (this.initializeRing == null) {
             this.initializeRing = new ArrayDeque<>();
-//            this.initializeRing.add(new EmptyCommand());
+            this.initializeRing.add(new EmptyCommand());
             this.initializeRing.add(new IdentifyCommand());
-//            this.initializeRing.add(new EmptyCommand());
+            this.initializeRing.add(new EmptyCommand());
             this.initializeRing.add(new ProtocolCommand("S"));
             this.initializeRing.add(new ProtocolCommand("1"));
             this.initializeRing.add(new ProtocolCommand("2"));
