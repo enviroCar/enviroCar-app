@@ -583,7 +583,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
         mMainThreadWorker.schedule(() -> {
             System.runFinalizersOnExit(true);
             System.exit(0);
-        }, 100, TimeUnit.MILLISECONDS);
+        }, 750, TimeUnit.MILLISECONDS);
     }
 
     /**
