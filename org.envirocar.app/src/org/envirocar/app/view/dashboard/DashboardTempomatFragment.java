@@ -80,8 +80,12 @@ public class DashboardTempomatFragment extends BaseInjectorFragment {
     public void onDestroy() {
         LOG.info("onDestroy()");
         super.onDestroy();
-        mTempomatView.destroyDrawingCache();
-        mTempomatView = null;
+
+        // null check before destroying.
+        if(mTempomatView != null) {
+            mTempomatView.destroyDrawingCache();
+            mTempomatView = null;
+        }
     }
 
     @Override
