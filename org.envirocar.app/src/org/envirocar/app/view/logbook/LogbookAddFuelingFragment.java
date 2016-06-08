@@ -221,9 +221,9 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
         Double cost = null, milage = null, volume = null;
         try {
-            cost = getEditTextDoubleValue(addFuelingTotalCostText.toString());
-            milage = getEditTextDoubleValue(addFuelingMilageText.toString());
-            volume = getEditTextDoubleValue(addFuelingVolumeText.toString());
+            cost = getEditTextDoubleValue(addFuelingTotalCostText.getText().toString());
+            milage = getEditTextDoubleValue(addFuelingMilageText.getText().toString());
+            volume = getEditTextDoubleValue(addFuelingVolumeText.getText().toString());
         } catch (ParseException e) {
             formError = true;
             if (cost == null) {
@@ -528,8 +528,19 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
     }
 
     private double getEditTextDoubleValue(String input) throws ParseException {
-        String numberValue = input.split(" ")[0].replaceAll(",", ".");
-        return Double.parseDouble(numberValue);
+        String[] yea = input.split(" ");
+        if(yea.length == 0){
+            return 0.0;
+        }
+
+        String toParse = yea[0].replaceAll(",", ".");
+        try{
+            return Double.parseDouble(toParse);
+        } catch (NumberFormatException e){
+            LOG.error(String.format("Error while parsing double [%s]", toParse), e);
+            throw new ParseException(e.getMessage(), 0);
+        }
+
     }
 
     private void showSnackbarInfo(int resourceID) {
@@ -570,6 +581,9 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
                 // The string value contains a unit. Therefore split the value and show an error
                 // if the splitted value does not match.
+                if(source.toString().split(" ").length == 0)
+                    return "";
+
                 Matcher matcher = pattern.matcher(source.toString().split(" ")[0]);
                 if (!matcher.matches()) {
                     addFuelingPricePerLitreText.setError(getString(R.string.logbook_invalid_input));

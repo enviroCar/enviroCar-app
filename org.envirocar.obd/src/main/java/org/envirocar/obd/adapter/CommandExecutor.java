@@ -107,6 +107,13 @@ public class CommandExecutor {
             byteArray = baos.toByteArray();
         }
 
+        if (byteArray.length == 0){
+            LOGGER.info("Unexpected empty line anonmaly detected. Try to read next line.");
+            baos.reset();
+            readUntilLineEnd(baos);
+            byteArray = baos.toByteArray();
+        }
+
         if (byteArray.length > 0 && LOGGER.isEnabled(Logger.DEBUG)) {
             LOGGER.debug("Received bytes: " + Base64.encodeToString(byteArray, Base64.DEFAULT));
         }
