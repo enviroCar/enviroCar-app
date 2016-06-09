@@ -71,6 +71,7 @@ public abstract class SyncAdapter implements OBDAdapter {
             public void call(Subscriber<? super Boolean> subscriber) {
                 try {
                     boolean analyzedSuccessfully = false;
+                    commandExecutor.setLogEverything(true);
 
                     while (!subscriber.isUnsubscribed()) {
                         if (analyzedSuccessfully) {
@@ -112,7 +113,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                             if (cc.awaitsResults()) {
                                 try {
                                     Thread.sleep(1000);
-
+                                    LOGGER.info("Retrieving initial phase response...");
                                     byte[] resp = commandExecutor.retrieveLatestResponse();
                                     LOGGER.info("Retrieved initial phase response: "+Base64.encodeToString(resp, Base64.DEFAULT));
                                     analyzedSuccessfully = analyzedSuccessfully | analyzeMetadataResponse(resp, cc);
@@ -120,6 +121,9 @@ public abstract class SyncAdapter implements OBDAdapter {
                                     LOGGER.warn(e.getMessage());
                                 }
                             
+                            }
+                            else {
+                                LOGGER.info("Command does not expect a result, continuing.");
                             }
                         }
                     }
@@ -144,6 +148,7 @@ public abstract class SyncAdapter implements OBDAdapter {
             @Override
             public void call(Subscriber<? super DataResponse> subscriber) {
                 LOGGER.info("SyncAdapter.observe().call()");
+                commandExecutor.setLogEverything(false);
 
                 //prepare all pending data commands
                 preparePendingCommands();

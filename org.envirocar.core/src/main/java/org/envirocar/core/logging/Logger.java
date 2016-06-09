@@ -80,7 +80,7 @@ public class Logger {
 		return new Logger(name);
 	}
 
-	protected final void log(int level, String message, Throwable e) {
+	public final void log(int level, String message, Throwable e) {
 		if (level > minimumLogLevel) {
 			return;
 		}
@@ -105,7 +105,7 @@ public class Logger {
 		return sb.toString();
 	}
 
-	protected final void log(int level, String message) {
+	public final void log(int level, String message) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("[");
 		sb.append(this.name);
