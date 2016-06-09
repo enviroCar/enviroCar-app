@@ -226,4 +226,8 @@ public abstract class AsyncAdapter implements OBDAdapter {
      */
     protected abstract DataResponse processResponse(byte[] bytes) throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException;
 
+    @Override
+    public String getStateMessage() {
+        return "no state message";
+    }
 }

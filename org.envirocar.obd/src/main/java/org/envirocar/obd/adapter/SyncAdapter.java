@@ -306,4 +306,9 @@ public abstract class SyncAdapter implements OBDAdapter {
     protected abstract boolean analyzeMetadataResponse(byte[] response, BasicCommand sentCommand) throws AdapterFailedException;
 
     protected abstract byte[] preProcess(byte[] bytes) throws AdapterFailedException;
+
+    @Override
+    public String getStateMessage() {
+        return "no state message";
+    }
 }

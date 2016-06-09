@@ -100,4 +100,6 @@ public interface OBDAdapter {
      * @return the time (in ms) the adapter might take to connect to the OBD layer
      */
     long getExpectedInitPeriod();
+
+	String getStateMessage();
 }
