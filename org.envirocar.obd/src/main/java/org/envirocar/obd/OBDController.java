@@ -302,7 +302,7 @@ public class OBDController {
     protected PropertyKeyEvent[] createEventsFromDataResponse(DataResponse dataResponse) {
         PID pid = dataResponse.getPid();
         switch (pid) {
-            case FUEL_SYSTEM_STATUS:
+//            case FUEL_SYSTEM_STATUS:
             case CALCULATED_ENGINE_LOAD:
             case SHORT_TERM_FUEL_TRIM_BANK_1:
             case LONG_TERM_FUEL_TRIM_BANK_1:

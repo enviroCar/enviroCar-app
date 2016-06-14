@@ -101,7 +101,7 @@ public class CycleCommand implements BasicCommand {
                 case SHORT_TERM_FUEL_TRIM_BANK_1:
                 case LONG_TERM_FUEL_TRIM_BANK_1:
                 case FUEL_PRESSURE:
-                case FUEL_SYSTEM_STATUS:
+//                case FUEL_SYSTEM_STATUS:
                     return null;
                 case CALCULATED_ENGINE_LOAD:
                     return DriveDeckPID.ENGINE_LOAD;

@@ -45,7 +45,7 @@ public class PIDUtil {
 	
 	public static PIDCommand instantiateCommand(PID pid) {
 		switch (pid) {
-			case FUEL_SYSTEM_STATUS:
+//			case FUEL_SYSTEM_STATUS:
 			case CALCULATED_ENGINE_LOAD:
 			case FUEL_PRESSURE:
 			case INTAKE_MAP:
@@ -70,9 +70,8 @@ public class PIDUtil {
 
 	public static Measurement.PropertyKey toPropertyKey(PID pid) {
 		switch (pid) {
-
-			case FUEL_SYSTEM_STATUS:
-				return Measurement.PropertyKey.FUEL_SYSTEM_STATUS_CODE;
+//			case FUEL_SYSTEM_STATUS:
+//				return Measurement.PropertyKey.FUEL_SYSTEM_STATUS_CODE;
 			case CALCULATED_ENGINE_LOAD:
 				return Measurement.PropertyKey.ENGINE_LOAD;
 			case SHORT_TERM_FUEL_TRIM_BANK_1:
