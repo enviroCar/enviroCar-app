@@ -3,8 +3,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.envirocar.app"
     android:installLocation="internalOnly"
-    android:versionCode="31"
-    android:versionName="0.22.2">
+    android:versionCode="32"
+    android:versionName="0.22.3">
 
     <uses-sdk
         android:minSdkVersion="16"
