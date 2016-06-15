@@ -30,9 +30,9 @@ public class CarTrendAdapter extends SyncAdapter {
     protected BasicCommand pollNextInitializationCommand() {
         if (this.initializeRing == null) {
             this.initializeRing = new ArrayDeque<>();
-            this.initializeRing.add(new EmptyCommand());
+//            this.initializeRing.add(new EmptyCommand());
             this.initializeRing.add(new IdentifyCommand());
-            this.initializeRing.add(new EmptyCommand());
+//            this.initializeRing.add(new EmptyCommand());
             this.initializeRing.add(new ProtocolCommand("S"));
             this.initializeRing.add(new ProtocolCommand("1"));
             this.initializeRing.add(new ProtocolCommand("2"));
