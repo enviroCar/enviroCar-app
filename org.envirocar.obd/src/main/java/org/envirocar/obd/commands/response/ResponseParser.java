@@ -6,7 +6,6 @@ import org.envirocar.obd.commands.PIDUtil;
 import org.envirocar.obd.commands.response.entity.EngineLoadResponse;
 import org.envirocar.obd.commands.response.entity.EngineRPMResponse;
 import org.envirocar.obd.commands.response.entity.FuelPressureResponse;
-import org.envirocar.obd.commands.response.entity.FuelSystemStatusResponse;
 import org.envirocar.obd.commands.response.entity.GenericDataResponse;
 import org.envirocar.obd.commands.response.entity.IntakeAirTemperatureResponse;
 import org.envirocar.obd.commands.response.entity.IntakeManifoldAbsolutePressureResponse;
@@ -98,8 +97,8 @@ public class ResponseParser {
 
     private DataResponse createDataResponse(PID pid, int[] processedData, byte[] rawData) throws InvalidCommandResponseException, UnmatchedResponseException {
         switch (pid) {
-            case FUEL_SYSTEM_STATUS:
-                return FuelSystemStatusResponse.fromRawData(rawData);
+//            case FUEL_SYSTEM_STATUS:
+//                return FuelSystemStatusResponse.fromRawData(rawData);
             case CALCULATED_ENGINE_LOAD:
                 return new EngineLoadResponse((processedData[2] * 100.0f) / 255.0f);
             case FUEL_PRESSURE:

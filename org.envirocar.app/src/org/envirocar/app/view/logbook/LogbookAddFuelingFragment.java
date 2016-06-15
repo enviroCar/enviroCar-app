@@ -533,7 +533,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
             return 0.0;
         }
 
-        String toParse = yea[0].replaceAll(",", ".");
+        String toParse = yea[0].replace(",", ".");
         try{
             return Double.parseDouble(toParse);
         } catch (NumberFormatException e){
