@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -24,19 +24,16 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.widget.Toast;
 
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
-import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.services.obd.OBDServiceHandler;
 import org.envirocar.app.services.obd.OBDServiceState;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
@@ -60,6 +57,8 @@ import rx.observers.SafeSubscriber;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
+import static org.envirocar.app.services.obd.OBDServiceHandler.context;
+
 /**
  * TODO JavaDoc
  *
@@ -68,11 +67,11 @@ import rx.subscriptions.CompositeSubscription;
 public class SystemStartupService extends Service {
     private static final Logger LOGGER = Logger.getLogger(SystemStartupService.class);
 
-    public static final void startService(Context context){
+    public static final void startService(Context context) {
         ServiceUtils.startService(context, SystemStartupService.class);
     }
 
-    public static final void stopService(Context context){
+    public static final void stopService(Context context) {
         ServiceUtils.stopService(context, SystemStartupService.class);
     }
 
@@ -96,8 +95,9 @@ public class SystemStartupService extends Service {
 
     private Scheduler.Worker mWorkerThread = Schedulers.newThread().createWorker();
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
-    private boolean mIsAutoconnect;
-    private int mDiscoveryInterval;
+    private boolean mIsAutoconnect = PreferencesHandler.DEFAULT_BLUETOOTH_AUTOCONNECT;
+    private boolean hasCarSelected = false;
+    private int mDiscoveryInterval = PreferencesHandler.DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL;
 
     // private member fields.
     private Subscription mWorkerSubscription;
@@ -172,14 +172,7 @@ public class SystemStartupService extends Service {
         this.mBus.register(this);
 
         // Get the required preference settings.
-        final SharedPreferences preferences = PreferenceManager
-                .getDefaultSharedPreferences(getApplicationContext());
-        this.mIsAutoconnect = preferences.getBoolean(PreferenceConstants
-                .PREF_BLUETOOTH_AUTOCONNECT, PreferenceConstants
-                .DEFAULT_BLUETOOTH_AUTOCONNECT);
-        this.mDiscoveryInterval = preferences.getInt(PreferenceConstants
-                        .PREF_BLUETOOTH_DISCOVERY_INTERVAL,
-                PreferenceConstants.DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);
+        this.mDiscoveryInterval = PreferencesHandler.getDiscoveryInterval(context);
 
         // Register a new BroadcastReceiver that waits for different incoming actions issued from
         // the notification.
@@ -190,33 +183,6 @@ public class SystemStartupService extends Service {
         notificationClickedFilter.addAction(ACTION_STOP_TRACK_RECORDING);
         registerReceiver(mBroadcastReciever, notificationClickedFilter);
 
-        // if the OBDConnectionService is running, then bind the remoteService.
-        //        bindOBDConnectionService();
-
-
-        subscriptions.add(
-                PreferencesHandler.getAutoconnectObservable(getApplicationContext())
-                        .subscribe(aBoolean -> {
-                            LOGGER.info(String.format("Received changed autoconnect -> [%s]",
-                                    aBoolean));
-                            mIsAutoconnect = aBoolean;
-
-                            // if autoconnect has been enabled, then schedule a new discovery.
-                            if (mIsAutoconnect) {
-                                scheduleDiscovery(REDISCOVERY_INTERVAL);
-                            } else { // otherwise, unschedule
-                                unscheduleDiscovery();
-                            }
-                        }));
-
-        subscriptions.add(
-                PreferencesHandler.getDiscoveryIntervalObservable(getApplicationContext())
-                        .subscribe(integer -> {
-                            LOGGER.info(String.format("Received changed discovery interval -> [%s]",
-                                    integer));
-                            mDiscoveryInterval = integer;
-                        }));
-
         // Set the Notification to
         if (this.mBluetoothHandler.isBluetoothEnabled()) {
             // State: No OBD device selected.
@@ -226,12 +192,52 @@ public class SystemStartupService extends Service {
                 OBDServiceHandler.setRecordingState(OBDServiceState.NO_CAR_SELECTED);
             } else {
                 OBDServiceHandler.setRecordingState(OBDServiceState.UNCONNECTED);
-
-                if (mIsAutoconnect) {
-                    scheduleDiscovery(-1);
-                }
             }
         }
+
+        subscriptions.add(
+                PreferencesHandler.getSelectedCarObsevable()
+                        .map(car -> (car != null))
+                        .subscribe(hasCar -> {
+                            LOGGER.info(String.format("Received changed selected car -> [%s]",
+                                    hasCar));
+
+                            if(!hasCarSelected){
+                                if(hasCar){
+                                    hasCarSelected = hasCar;
+                                    scheduleDiscovery(mDiscoveryInterval);
+                                }
+                            } else if (hasCarSelected && !hasCar){
+                                hasCarSelected = hasCar;
+                                unscheduleDiscovery();
+                            }
+
+                            hasCarSelected = hasCar;
+                        }));
+
+        subscriptions.add(
+                PreferencesHandler.getDiscoveryIntervalObservable(getApplicationContext())
+                        .subscribe(integer -> {
+                            LOGGER.info(String.format("Received changed discovery interval -> [%s]",
+                                    integer));
+                            mDiscoveryInterval = integer;
+
+                            scheduleDiscovery(mDiscoveryInterval);
+                        })
+        );
+
+        subscriptions.add(
+                PreferencesHandler.getAutoconnectObservable(getApplicationContext())
+                        .subscribe(aBoolean -> {
+                            LOGGER.info(String.format("Received changed autoconnect -> [%s]",
+                                    aBoolean));
+                            mIsAutoconnect = aBoolean;
+
+                            scheduleDiscovery(mDiscoveryInterval);
+                        })
+        );
+
+
     }
 
 
@@ -364,9 +370,9 @@ public class SystemStartupService extends Service {
                 OBDServiceHandler.setRecordingState(OBDServiceState.NO_CAR_SELECTED);
             } else {
                 OBDServiceState currentState = OBDServiceHandler.getRecordingState();
-                if(currentState != OBDServiceState.DISCOVERING &&
-                        state != OBDServiceState.DISCOVERING){
-                    if(mIsAutoconnect){
+                if (currentState != OBDServiceState.DISCOVERING &&
+                        state != OBDServiceState.DISCOVERING) {
+                    if (mIsAutoconnect) {
                         scheduleDiscovery(REDISCOVERY_INTERVAL);
                     }
                 }
@@ -375,6 +381,12 @@ public class SystemStartupService extends Service {
         }
     }
 
+    /**
+     * Schedules the immediate discovery for the selected OBDII adapter.
+     */
+    private void scheduleDiscovery() {
+        this.scheduleDiscovery(-1);
+    }
 
     /**
      * Schedules the discovery for the selected OBDII adapter with a specific delay.
@@ -386,10 +398,17 @@ public class SystemStartupService extends Service {
         // Unschedule all outstanding work.
         unscheduleDiscovery();
 
-        // Reschedule a fresh discovery.
-        mWorkerSubscription = mWorkerThread.schedule(() -> {
-            startDiscoveryForSelectedDevice();
-        }, delay, TimeUnit.SECONDS);
+        // if autoconnect has been enabled and a car has been selected, then schedule a new
+        // discovery.
+        if (mIsAutoconnect && hasCarSelected && this.mBluetoothHandler.isBluetoothEnabled()) {
+            // Reschedule a fresh discovery.
+            mWorkerSubscription = mWorkerThread.schedule(() -> {
+                startDiscoveryForSelectedDevice();
+            }, delay, TimeUnit.SECONDS);
+
+            LOGGER.info("Discovery subscription has been scheduled -> [%s]", "" +
+                    delay);
+        }
     }
 
     /**
@@ -508,7 +527,8 @@ public class SystemStartupService extends Service {
                                 // notification state to OBD_FOUND and stop the bluetooth discovery.
                                 // TODO
 //                                OBDServiceHandler.setRecordingState();
-//                                mNotificationHandler.setNotificationState(SystemStartupService.this,
+//                                mNotificationHandler.setNotificationState(SystemStartupService
+// .this,
 //                                        NotificationHandler.NotificationState.OBD_FOUND);
                                 scheduleDiscovery(REDISCOVERY_INTERVAL);
                             }

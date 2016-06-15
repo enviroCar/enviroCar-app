@@ -25,7 +25,12 @@ import android.preference.PreferenceManager;
 import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.google.common.base.Preconditions;
 
+import org.envirocar.core.entity.Car;
+import org.envirocar.core.utils.CarUtils;
+
 import rx.Observable;
+
+import static org.envirocar.app.services.obd.OBDServiceHandler.context;
 
 /**
  * TODO JavaDoc
@@ -135,5 +140,12 @@ public class PreferencesHandler implements PreferenceConstants {
         return getRxSharedPreferences(context)
                 .getBoolean(PREF_ENABLE_DIESE_CONSUMPTION, false)
                 .asObservable();
+    }
+
+    public static Observable<Car> getSelectedCarObsevable(){
+        return getRxSharedPreferences(context)
+                .getString(PREFERENCE_TAG_CAR, null)
+                .asObservable()
+                .map(s -> s != null ? CarUtils.instantiateCar(s) : null);
     }
 }
