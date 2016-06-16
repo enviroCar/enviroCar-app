@@ -112,7 +112,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                             //check if the command needs a response (most likely)
                             if (cc.awaitsResults()) {
                                 try {
-                                    Thread.sleep(1000);
+                                    Thread.sleep(750);
                                     LOGGER.info("Retrieving initial phase response...");
                                     byte[] resp = commandExecutor.retrieveLatestResponse();
                                     LOGGER.info("Retrieved initial phase response: "+Base64.encodeToString(resp, Base64.DEFAULT));
