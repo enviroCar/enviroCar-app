@@ -40,8 +40,8 @@ ext {
     compileSdkVersion = 23
     targetSdkVersion = 23
     buildToolsVersion = '23.0.2'
-    versionCode = 33
-    versionName = "0.22.4"
+    versionCode = 34
+    versionName = "0.22.5"
 
     javaCompileVersion = JavaVersion.VERSION_1_8
 
