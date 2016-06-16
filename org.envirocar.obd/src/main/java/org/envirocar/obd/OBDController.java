@@ -189,6 +189,15 @@ public class OBDController {
             @Override
             public void onError(Throwable e) {
                 LOG.warn("Adapter failed: " + obdAdapter.getClass().getSimpleName(), e);
+
+                try {
+                    LOG.info("State message is: "+obdAdapter.getStateMessage());
+                }
+                catch (Exception ex) {
+                    LOG.warn("Could not log state message", ex);
+                }
+
+
                 try {
                     this.unsubscribe();
 
@@ -219,6 +228,12 @@ public class OBDController {
             @Override
             public void onNext(Boolean b) {
                 LOG.info("Connection verified - starting data collection");
+                try {
+                    LOG.info("State message from adapter: "+obdAdapter.getStateMessage());
+                }
+                catch (Exception ex) {
+                    LOG.warn("Could not log state message", ex);
+                }
 
                 //unsubscribe, otherwise we will get a timeout
                 this.unsubscribe();

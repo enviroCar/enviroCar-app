@@ -25,6 +25,8 @@ public class CommandExecutor {
     private OutputStream outputStream;
     private InputStream inputStream;
     private ResponseQuirkWorkaround quirk;
+    private boolean logEverything = false;
+    private int currentLogLevel = Logger.DEBUG;
 
 
     public CommandExecutor(InputStream is, OutputStream os,
@@ -39,6 +41,18 @@ public class CommandExecutor {
 
         this.endOfLineOutput = (byte) endOfLineOutput.charValue();
         this.endOfLineInput = (byte) endOfLineInput.charValue();
+
+        this.setLogEverything(false);
+    }
+
+    public final void setLogEverything(boolean logEverything) {
+        this.logEverything = logEverything;
+        if (this.logEverything && !LOGGER.isEnabled(Logger.DEBUG)) {
+            this.currentLogLevel = Logger.INFO;
+        }
+        else {
+            this.currentLogLevel = Logger.DEBUG;
+        }
     }
 
     public void setQuirk(ResponseQuirkWorkaround quirk) {
@@ -52,8 +66,8 @@ public class CommandExecutor {
 
         byte[] bytes = cmd.getOutputBytes();
 
-        if (LOGGER.isEnabled(Logger.DEBUG)) {
-            LOGGER.debug("Sending bytes: "+ new String(bytes));
+        if (LOGGER.isEnabled(this.currentLogLevel)) {
+            LOGGER.log(this.currentLogLevel, "Sending bytes: "+ new String(bytes));
         }
 
         // write to OutputStream, or in this case a BluetoothSocket
@@ -71,9 +85,6 @@ public class CommandExecutor {
                 try {
                     while (!subscriber.isUnsubscribed()) {
                         byte[] bytes = readResponseLine();
-                        if (LOGGER.isEnabled(Logger.DEBUG)) {
-                            LOGGER.debug("Received bytes: "+ Base64.encodeToString(bytes, Base64.DEFAULT));
-                        }
                         subscriber.onNext(bytes);
                     }
                 } catch (IOException e) {
@@ -108,14 +119,14 @@ public class CommandExecutor {
         }
 
         if (byteArray.length == 0){
-            LOGGER.info("Unexpected empty line anonmaly detected. Try to read next line.");
+            LOGGER.info("Unexpected empty line anomaly detected. Try to read next line.");
             baos.reset();
             readUntilLineEnd(baos);
             byteArray = baos.toByteArray();
         }
 
-        if (byteArray.length > 0 && LOGGER.isEnabled(Logger.DEBUG)) {
-            LOGGER.debug("Received bytes: " + Base64.encodeToString(byteArray, Base64.DEFAULT));
+        if (LOGGER.isEnabled(currentLogLevel)) {
+            LOGGER.log(currentLogLevel, "Received bytes: "+ Base64.encodeToString(byteArray, Base64.DEFAULT));
         }
 
         return byteArray;
