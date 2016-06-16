@@ -19,6 +19,7 @@ public class CarTrendAdapter extends SyncAdapter {
     private static final Logger logger = Logger.getLogger(CarTrendAdapter.class);
     private static final int MAX_METADATA_COUNT = 25;
     private static final byte[] LOG_RESPONSE_SEPARATOR = "§|§".getBytes();
+    private static final long EXPECTED_INIT_PERIOD = 27500;
 
     private int requiredCount;
     private boolean protocolFound;
@@ -155,7 +156,7 @@ public class CarTrendAdapter extends SyncAdapter {
 
     @Override
     public long getExpectedInitPeriod() {
-        return 35000;
+        return EXPECTED_INIT_PERIOD;
     }
 
     private static class ConfigCommand extends GenericCommand {
