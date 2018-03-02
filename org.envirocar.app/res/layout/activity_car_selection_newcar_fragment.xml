@@ -31,7 +31,7 @@
         android:layout_height="?actionBarSize"
         android:background="@color/blue_dark_cario"
         android:elevation="@dimen/spacing_medium"
-        android:visibility="gone">
+        android:visibility="visible">
 
         <RelativeLayout
             android:layout_width="match_parent"

@@ -63,6 +63,7 @@ import butterknife.ButterKnife;
 import butterknife.InjectView;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
@@ -85,8 +86,12 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
     @InjectView(R.id.logbook_layout_addfueling_toolbar)
     protected Toolbar addFuelingToolbar;
+    @InjectView(R.id.activity_log_book_add_fueling_toolbar_exp)
+    protected View addFuelingToolbarExp;
     @InjectView(R.id.activity_logbook_add_fueling_card_content)
     protected View contentView;
+    @InjectView(R.id.activity_logbook_add_fueling_card_scrollview)
+    protected View contentScrollview;
     @InjectView(R.id.activity_logbook_add_fueling_car_selection)
     protected Spinner addFuelingCarSelection;
     @InjectView(R.id.logbook_add_fueling_milagetext)
@@ -133,11 +138,16 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         addFuelingToolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         addFuelingToolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
         addFuelingToolbar.setNavigationOnClickListener(v ->
-                ((LogbookUiListener) getActivity()).onHideAddFuelingCard());
+                            closeThisFragment());
         addFuelingToolbar.setOnMenuItemClickListener(item -> {
             onClickAddFueling();
             return true;
         });
+
+        // initially we set the toolbar exp to gone
+        addFuelingToolbar.setVisibility(View.GONE);
+        addFuelingToolbarExp.setVisibility(View.GONE);
+        contentScrollview.setVisibility(View.GONE);
 
         initTextViews();
 
@@ -172,6 +182,18 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
             subscriptions.unsubscribe();
         }
         super.onDestroy();
+    }
+
+    @Override
+    public void onResume() {
+        LOG.info("onResume()");
+        super.onResume();
+        ECAnimationUtils.animateShowView(getContext(), addFuelingToolbar,
+                R.anim.translate_slide_in_top_fragment);
+        ECAnimationUtils.animateShowView(getContext(), addFuelingToolbarExp,
+                R.anim.translate_slide_in_top_fragment);
+        ECAnimationUtils.animateShowView(getContext(), contentScrollview,
+                R.anim.translate_slide_in_bottom_fragment);
     }
 
     private void onClickAddFueling() {
@@ -600,5 +622,20 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
             }
             return null;
         }
+    }
+
+    public void closeThisFragment() {
+        // ^^
+        ECAnimationUtils.animateHideView(getContext(),
+                ((LogbookActivity) getActivity()).overlayView, R.anim.fade_out);
+        ECAnimationUtils.animateHideView(getContext(), R.anim
+                .translate_slide_out_top_fragment, addFuelingToolbar, addFuelingToolbarExp);
+        ECAnimationUtils.animateHideView(getContext(), contentScrollview, R.anim
+                .translate_slide_out_bottom, new Action0() {
+            @Override
+            public void call() {
+                ((LogbookUiListener) getActivity()).onHideAddFuelingCard();
+            }
+        });
     }
 }
