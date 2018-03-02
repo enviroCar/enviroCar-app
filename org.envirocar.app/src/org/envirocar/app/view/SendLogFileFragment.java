@@ -111,7 +111,9 @@ public class SendLogFileFragment extends Fragment {
      * @param reportBundle the file to attach
      */
     protected void sendLogFile(File reportBundle) {
-        Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+        Intent emailIntent = new Intent(android.content.Intent.ACTION_SENDTO);
+        emailIntent.setType("message/rfc822");
+        emailIntent.setData(Uri.parse("mailto:"));
         emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL,
                 new String[]{REPORTING_EMAIL});
         emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
@@ -120,7 +122,7 @@ public class SendLogFileFragment extends Fragment {
                 createEmailContents());
         emailIntent.putExtra(android.content.Intent.EXTRA_STREAM,
                 Uri.fromFile(reportBundle));
-        emailIntent.setType("application/zip");
+        //emailIntent.setType("application/zip");
 
         startActivity(Intent.createChooser(emailIntent, "Send Log Report"));
         getFragmentManager().popBackStack();
