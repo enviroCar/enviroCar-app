@@ -18,6 +18,7 @@
  */
 package org.envirocar.app.view;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -102,6 +104,12 @@ public class SendLogFileFragment extends Fragment {
     private void resolveInputFields(View view) {
         this.whenField = (EditText) view.findViewById(R.id.send_log_when);
         this.comments = (EditText) view.findViewById(R.id.send_log_comments);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        hideKeyboard(getView());
     }
 
     /**
@@ -215,6 +223,11 @@ public class SendLogFileFragment extends Fragment {
         });
 
         return Arrays.asList(allFiles);
+    }
+
+    public void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
 }
