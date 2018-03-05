@@ -78,6 +78,8 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     protected View newFuelingFab;
     @InjectView(R.id.activity_logbook_toolbar_fuelinglist)
     protected ListView fuelingList;
+    @InjectView(R.id.overlay)
+    protected View overlayView;
 
     @InjectView(R.id.layout_general_info_background)
     protected View infoBackground;
@@ -161,7 +163,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     public void onBackPressed() {
         LOG.info("onBackPressed()");
         if(addFuelingFragment != null && addFuelingFragment.isVisible()){
-            hideAddFuelingCard();
+            addFuelingFragment.closeThisFragment();
             LOG.info("AddFuelingCard was visible. Closing this card...");
             return;
         }
@@ -313,14 +315,17 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
      */
     private void showAddFuelingCard() {
         LOG.info("showAddFuelingCard()");
-        ECAnimationUtils.animateHideView(this, newFuelingFab, R.anim.fade_out, () -> {
-            addFuelingFragment = new LogbookAddFuelingFragment();
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.activity_logbook_container, addFuelingFragment)
-                    .commit();
-            LOG.info("AddFuelingCard should now be visible");
-        });
+        ECAnimationUtils.animateShowView(this, overlayView, R.anim.fade_in);
+        ECAnimationUtils.animateHideView(this, newFuelingFab, R.anim.fade_out);
+        this.addFuelingFragment = new LogbookAddFuelingFragment();
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.activity_logbook_container, this.addFuelingFragment)
+                .commit();
+        LOG.info("AddFuelingCard should now be visible");
+
+
+
+
     }
 
     /**
@@ -337,6 +342,6 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     }
 
     private void showSnackbarInfo(int resourceID) {
-        Snackbar.make(toolbar, resourceID, Snackbar.LENGTH_LONG).show();
+        Snackbar.make(newFuelingFab, resourceID, Snackbar.LENGTH_LONG).show();
     }
 }
