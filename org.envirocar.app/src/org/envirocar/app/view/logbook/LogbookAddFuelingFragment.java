@@ -18,6 +18,7 @@
  */
 package org.envirocar.app.view.logbook;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -27,6 +28,7 @@ import android.text.Spanned;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -132,10 +134,11 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
         addFuelingToolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         addFuelingToolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
-        addFuelingToolbar.setNavigationOnClickListener(v ->
-                ((LogbookUiListener) getActivity()).onHideAddFuelingCard());
+        addFuelingToolbar.setNavigationOnClickListener(v ->{((LogbookUiListener) getActivity()).onHideAddFuelingCard();
+                                                             hideKeyboard(v);});
         addFuelingToolbar.setOnMenuItemClickListener(item -> {
             onClickAddFueling();
+            hideKeyboard(getView());
             return true;
         });
 
@@ -601,4 +604,10 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
             return null;
         }
     }
+
+    public void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
 }
