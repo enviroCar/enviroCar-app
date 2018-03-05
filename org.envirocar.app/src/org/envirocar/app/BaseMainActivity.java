@@ -18,6 +18,7 @@
  */
 package org.envirocar.app;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -41,6 +42,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -478,6 +480,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
             @Override
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
+                hideKeyboard(drawerView);
             }
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
@@ -744,6 +747,11 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 this.seenAnnouncements.add(string);
             }
         }
+    }
+
+    public void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager =(InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
 }

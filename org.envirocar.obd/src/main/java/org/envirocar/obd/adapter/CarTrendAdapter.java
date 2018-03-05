@@ -7,6 +7,8 @@ import org.envirocar.obd.commands.request.BasicCommand;
 import org.envirocar.obd.commands.request.PIDCommand;
 import org.envirocar.obd.exception.AdapterFailedException;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.List;
@@ -16,6 +18,9 @@ public class CarTrendAdapter extends SyncAdapter {
 
     private static final Logger logger = Logger.getLogger(CarTrendAdapter.class);
     private static final int MAX_METADATA_COUNT = 25;
+    private static final byte[] LOG_RESPONSE_SEPARATOR = "§|§".getBytes();
+    private static final long EXPECTED_INIT_PERIOD = 27500;
+
     private int requiredCount;
     private boolean protocolFound;
     private boolean identifySuccess;
@@ -25,14 +30,15 @@ public class CarTrendAdapter extends SyncAdapter {
     private Queue<BasicCommand> initializeRing;
     private int ringSize;
     private int initialCount;
+    private ByteArrayOutputStream initialPhaseResponseLog = new ByteArrayOutputStream();
 
     @Override
     protected BasicCommand pollNextInitializationCommand() {
         if (this.initializeRing == null) {
             this.initializeRing = new ArrayDeque<>();
-            this.initializeRing.add(new EmptyCommand());
+//            this.initializeRing.add(new EmptyCommand());
             this.initializeRing.add(new IdentifyCommand());
-            this.initializeRing.add(new EmptyCommand());
+//            this.initializeRing.add(new EmptyCommand());
             this.initializeRing.add(new ProtocolCommand("S"));
             this.initializeRing.add(new ProtocolCommand("1"));
             this.initializeRing.add(new ProtocolCommand("2"));
@@ -71,6 +77,13 @@ public class CarTrendAdapter extends SyncAdapter {
 
     @Override
     protected boolean analyzeMetadataResponse(byte[] response, BasicCommand sentCommand) throws AdapterFailedException {
+        try {
+            initialPhaseResponseLog.write(response);
+            initialPhaseResponseLog.write(LOG_RESPONSE_SEPARATOR);
+        } catch (IOException e) {
+            logger.warn("Error writing metadata response to initial log", e);
+        }
+
         logger.info("Parsing meta response: "+ Base64.encodeToString(response, Base64.DEFAULT)+
                 "; sentCommand="+Base64.encodeToString(sentCommand.getOutputBytes(), Base64.DEFAULT));
 
@@ -143,7 +156,7 @@ public class CarTrendAdapter extends SyncAdapter {
 
     @Override
     public long getExpectedInitPeriod() {
-        return 35000;
+        return EXPECTED_INIT_PERIOD;
     }
 
     private static class ConfigCommand extends GenericCommand {
@@ -214,4 +227,8 @@ public class CarTrendAdapter extends SyncAdapter {
         }
     }
 
+    @Override
+    public String getStateMessage() {
+        return String.format("All initial responses: %s", Base64.encodeToString(this.initialPhaseResponseLog.toByteArray(), Base64.DEFAULT));
+    }
 }

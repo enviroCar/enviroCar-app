@@ -45,7 +45,7 @@
         starte die Aufzeichnung.</string>
     <string name="notification_connecting_action"></string>
 
-    <string name="notification_connected_title">Zeiche auf...</string>
+    <string name="notification_connected_title">Zeichne auf...</string>
     <string name="notification_connected_description">Fahrt wird aufgezeichnet.</string>
     <string name="notification_connected_action">Aufzeichnung beenden</string>
 

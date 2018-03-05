@@ -18,6 +18,7 @@
  */
 package org.envirocar.app.view;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -104,6 +106,12 @@ public class SendLogFileFragment extends Fragment {
         this.comments = (EditText) view.findViewById(R.id.send_log_comments);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        hideKeyboard(getView());
+    }
+
     /**
      * creates a new {@link Intent#ACTION_SEND} with the report
      * bundle attached.
@@ -111,7 +119,9 @@ public class SendLogFileFragment extends Fragment {
      * @param reportBundle the file to attach
      */
     protected void sendLogFile(File reportBundle) {
-        Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+        Intent emailIntent = new Intent(android.content.Intent.ACTION_SENDTO);
+        emailIntent.setType("message/rfc822");
+        emailIntent.setData(Uri.parse("mailto:"));
         emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL,
                 new String[]{REPORTING_EMAIL});
         emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
@@ -120,7 +130,7 @@ public class SendLogFileFragment extends Fragment {
                 createEmailContents());
         emailIntent.putExtra(android.content.Intent.EXTRA_STREAM,
                 Uri.fromFile(reportBundle));
-        emailIntent.setType("application/zip");
+        //emailIntent.setType("application/zip");
 
         startActivity(Intent.createChooser(emailIntent, "Send Log Report"));
         getFragmentManager().popBackStack();
@@ -213,6 +223,11 @@ public class SendLogFileFragment extends Fragment {
         });
 
         return Arrays.asList(allFiles);
+    }
+
+    public void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
 }

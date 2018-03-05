@@ -1,5 +1,6 @@
 package org.envirocar.app.view.carselection;
 
+import android.app.Activity;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -12,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -135,7 +137,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
         toolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         toolbar.inflateMenu(R.menu.menu_logbook_add_fueling);
-        toolbar.setNavigationOnClickListener(v -> closeThisFragment());
+        toolbar.setNavigationOnClickListener(v -> {hideKeyboard(v); closeThisFragment(); });
 
 
         // initially we set the toolbar exp to gone
@@ -164,6 +166,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                     public void onNext(Car car) {
                         LOG.info("car added");
                         ((CarSelectionUiListener) getActivity()).onCarAdded(car);
+                        hideKeyboard(getView());
                         closeThisFragment();
                     }
                 });
@@ -706,5 +709,10 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 ((CarSelectionUiListener) getActivity()).onHideAddCarFragment();
             }
         });
+    }
+
+    public void hideKeyboard(View view) {
+        InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
