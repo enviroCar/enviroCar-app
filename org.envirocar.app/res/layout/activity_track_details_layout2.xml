@@ -46,6 +46,7 @@
                 android:id="@+id/activity_track_details_header_map_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:elevation="1dp"
                 android:background="@android:color/transparent"
                 />
 
