@@ -55,7 +55,7 @@ import org.envirocar.obd.service.BluetoothServiceState;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import butterknife.OnClick;
 import rx.Scheduler;
 import rx.Subscriber;
@@ -78,13 +78,13 @@ public class DashboardMainFragment extends BaseInjectorFragment {
     @Inject
     protected LocationHandler mLocationHandler;
 
-    @InjectView(R.id.fragment_startup_info_field)
+    @BindView(R.id.fragment_startup_info_field)
     protected View mInfoField;
-    @InjectView(R.id.fragment_startup_info_text)
+    @BindView(R.id.fragment_startup_info_text)
     protected TextView mInfoText;
-    @InjectView(R.id.fragment_startup_start_button)
+    @BindView(R.id.fragment_startup_start_button)
     protected View mStartStopButton;
-    @InjectView(R.id.fragment_startup_start_button_inner)
+    @BindView(R.id.fragment_startup_start_button_inner)
     protected TextView mStartStopButtonInner;
 
     private MaterialDialog mConnectingDialog;
@@ -115,7 +115,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
         View contentView = inflater.inflate(R.layout.fragment_startup, container, false);
 
         // Inject all dashboard-related views.
-        ButterKnife.inject(this, contentView);
+        ButterKnife.bind(this, contentView);
 
         // Get the settings fragment and the header fragment.
         mDashboardSettingsFragment = getChildFragmentManager()

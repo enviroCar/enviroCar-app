@@ -62,7 +62,7 @@ import java.util.regex.Pattern;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
@@ -86,38 +86,38 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
         DECIMAL_FORMATTER_3.setDecimalFormatSymbols(symbols);
     }
 
-    @InjectView(R.id.logbook_layout_addfueling_toolbar)
+    @BindView(R.id.logbook_layout_addfueling_toolbar)
     protected Toolbar addFuelingToolbar;
-    @InjectView(R.id.activity_log_book_add_fueling_toolbar_exp)
+    @BindView(R.id.activity_log_book_add_fueling_toolbar_exp)
     protected View addFuelingToolbarExp;
-    @InjectView(R.id.activity_logbook_add_fueling_card_content)
+    @BindView(R.id.activity_logbook_add_fueling_card_content)
     protected View contentView;
-    @InjectView(R.id.activity_logbook_add_fueling_card_scrollview)
+    @BindView(R.id.activity_logbook_add_fueling_card_scrollview)
     protected View contentScrollview;
-    @InjectView(R.id.activity_logbook_add_fueling_car_selection)
+    @BindView(R.id.activity_logbook_add_fueling_car_selection)
     protected Spinner addFuelingCarSelection;
-    @InjectView(R.id.logbook_add_fueling_milagetext)
+    @BindView(R.id.logbook_add_fueling_milagetext)
     protected EditText addFuelingMilageText;
-    @InjectView(R.id.logbook_add_fueling_volumetext)
+    @BindView(R.id.logbook_add_fueling_volumetext)
     protected EditText addFuelingVolumeText;
-    @InjectView(R.id.logbook_add_fueling_totalpricetext)
+    @BindView(R.id.logbook_add_fueling_totalpricetext)
     protected EditText addFuelingTotalCostText;
-    @InjectView(R.id.logbook_add_fueling_priceperlitretext)
+    @BindView(R.id.logbook_add_fueling_priceperlitretext)
     protected EditText addFuelingPricePerLitreText;
-    @InjectView(R.id.logbook_add_fueling_partialfueling_checkbox)
+    @BindView(R.id.logbook_add_fueling_partialfueling_checkbox)
     protected CheckBox partialFuelingCheckbox;
-    @InjectView(R.id.logbook_add_fueling_missedfueling_checkbox)
+    @BindView(R.id.logbook_add_fueling_missedfueling_checkbox)
     protected CheckBox missedFuelingCheckbox;
-    @InjectView(R.id.logbook_add_fueling_comment)
+    @BindView(R.id.logbook_add_fueling_comment)
     protected EditText commentText;
 
-    @InjectView(R.id.layout_general_info_background)
+    @BindView(R.id.layout_general_info_background)
     protected View infoBackground;
-    @InjectView(R.id.layout_general_info_background_img)
+    @BindView(R.id.layout_general_info_background_img)
     protected ImageView infoBackgroundImg;
-    @InjectView(R.id.layout_general_info_background_firstline)
+    @BindView(R.id.layout_general_info_background_firstline)
     protected TextView infoBackgroundFirst;
-    @InjectView(R.id.layout_general_info_background_secondline)
+    @BindView(R.id.layout_general_info_background_secondline)
     protected TextView infoBackgroundSecond;
 
     @Inject
@@ -135,7 +135,7 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
         // Inflate the view and inject the annotated view.
         View view = inflater.inflate(R.layout.activity_logbook_add_fueling_card, container, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
 
         addFuelingToolbar.setNavigationIcon(R.drawable.ic_close_white_24dp);
         addFuelingToolbar.inflateMenu(R.menu.menu_logbook_add_fueling);

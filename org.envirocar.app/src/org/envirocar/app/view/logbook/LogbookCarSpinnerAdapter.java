@@ -31,7 +31,7 @@ import org.envirocar.core.entity.Car;
 import java.util.List;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 
 /**
  * TODO JavaDoc
@@ -87,9 +87,9 @@ public class LogbookCarSpinnerAdapter extends ArrayAdapter<Car> {
 
     static class CarSpinnerEntryHolder {
 
-        @InjectView(R.id.activity_logbook_car_spinner_entry_firstline)
+        @BindView(R.id.activity_logbook_car_spinner_entry_firstline)
         protected TextView title;
-        @InjectView(R.id.activity_logbook_car_spinner_entry_secondline)
+        @BindView(R.id.activity_logbook_car_spinner_entry_secondline)
         protected TextView secondLine;
 
 
@@ -99,7 +99,7 @@ public class LogbookCarSpinnerAdapter extends ArrayAdapter<Car> {
          * @param view the parent view of an entry in the car spinner.
          */
         CarSpinnerEntryHolder(View view) {
-            ButterKnife.inject(this, view);
+            ButterKnife.bind(this, view);
         }
     }
 }

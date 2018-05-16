@@ -47,7 +47,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import butterknife.OnClick;
 import rx.Observer;
 import rx.Subscriber;
@@ -70,29 +70,29 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
     @Inject
     protected UserManager userManager;
 
-    @InjectView(R.id.activity_logbook_toolbar)
+    @BindView(R.id.activity_logbook_toolbar)
     protected Toolbar toolbar;
-    @InjectView(R.id.activity_logbook_header)
+    @BindView(R.id.activity_logbook_header)
     protected View headerView;
-    @InjectView(R.id.activity_logbook_toolbar_new_fueling_fab)
+    @BindView(R.id.activity_logbook_toolbar_new_fueling_fab)
     protected View newFuelingFab;
-    @InjectView(R.id.activity_logbook_toolbar_fuelinglist)
+    @BindView(R.id.activity_logbook_toolbar_fuelinglist)
     protected ListView fuelingList;
-    @InjectView(R.id.overlay)
+    @BindView(R.id.overlay)
     protected View overlayView;
 
-    @InjectView(R.id.layout_general_info_background)
+    @BindView(R.id.layout_general_info_background)
     protected View infoBackground;
-    @InjectView(R.id.layout_general_info_background_img)
+    @BindView(R.id.layout_general_info_background_img)
     protected ImageView infoBackgroundImg;
-    @InjectView(R.id.layout_general_info_background_firstline)
+    @BindView(R.id.layout_general_info_background_firstline)
     protected TextView infoBackgroundFirst;
-    @InjectView(R.id.layout_general_info_background_secondline)
+    @BindView(R.id.layout_general_info_background_secondline)
     protected TextView infoBackgroundSecond;
 
-//    @InjectView(R.id.activity_logbook_not_logged_in)
+//    @BindView(R.id.activity_logbook_not_logged_in)
 //    protected View notLoggedInView;
-//    @InjectView(R.id.activity_logbook_no_fuelings_info_view)
+//    @BindView(R.id.activity_logbook_no_fuelings_info_view)
 //    protected View noFuelingsView;
 
     protected LogbookListAdapter fuelingListAdapter;
@@ -110,7 +110,7 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
         setContentView(R.layout.activity_logbook);
 
         // Inject the Views.
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         // Initializes the Toolbar.
         setSupportActionBar(toolbar);

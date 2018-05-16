@@ -41,7 +41,7 @@ import org.envirocar.core.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import butterknife.OnClick;
 import butterknife.OnTouch;
 import rx.Scheduler;
@@ -53,9 +53,9 @@ import rx.android.schedulers.AndroidSchedulers;
 public class DashboardTrackMapFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(DashboardTrackMapFragment.class);
 
-    @InjectView(R.id.fragment_dashboard_frag_map_mapview)
+    @BindView(R.id.fragment_dashboard_frag_map_mapview)
     protected MapView mMapView;
-    @InjectView(R.id.fragment_dashboard_frag_map_follow_fab)
+    @BindView(R.id.fragment_dashboard_frag_map_follow_fab)
     protected FloatingActionButton mFollowFab;
 
     private PathOverlay mPathOverlay;
@@ -77,7 +77,7 @@ public class DashboardTrackMapFragment extends BaseInjectorFragment {
         View contentView = inflater.inflate(R.layout.fragment_dashboard_frag_map, container, false);
 
         // Inject all dashboard-related views.
-        ButterKnife.inject(this, contentView);
+        ButterKnife.bind(this, contentView);
 
         // Init the map view
         mMapView.setTileSource(MapUtils.getOSMTileLayer());

@@ -65,7 +65,7 @@ import java.util.TimeZone;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import rx.schedulers.Schedulers;
 
 /**
@@ -99,27 +99,27 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     @Inject
     protected EnviroCarDB mEnvirocarDB;
 
-    @InjectView(R.id.activity_track_details_fab)
+    @BindView(R.id.activity_track_details_fab)
     protected FloatingActionButton mFAB;
-    @InjectView(R.id.activity_track_details_header_map)
+    @BindView(R.id.activity_track_details_header_map)
     protected MapView mMapView;
-    @InjectView(R.id.activity_track_details_header_toolbar)
+    @BindView(R.id.activity_track_details_header_toolbar)
     protected Toolbar mToolbar;
-    @InjectView(R.id.activity_track_details_attr_description_value)
+    @BindView(R.id.activity_track_details_attr_description_value)
     protected TextView mDescriptionText;
-    @InjectView(R.id.track_details_attributes_header_duration)
+    @BindView(R.id.track_details_attributes_header_duration)
     protected TextView mDurationText;
-    @InjectView(R.id.track_details_attributes_header_distance)
+    @BindView(R.id.track_details_attributes_header_distance)
     protected TextView mDistanceText;
-    @InjectView(R.id.activity_track_details_attr_begin_value)
+    @BindView(R.id.activity_track_details_attr_begin_value)
     protected TextView mBeginText;
-    @InjectView(R.id.activity_track_details_attr_end_value)
+    @BindView(R.id.activity_track_details_attr_end_value)
     protected TextView mEndText;
-    @InjectView(R.id.activity_track_details_attr_car_value)
+    @BindView(R.id.activity_track_details_attr_car_value)
     protected TextView mCarText;
-    @InjectView(R.id.activity_track_details_attr_emission_value)
+    @BindView(R.id.activity_track_details_attr_emission_value)
     protected TextView mEmissionText;
-    @InjectView(R.id.activity_track_details_attr_consumption_value)
+    @BindView(R.id.activity_track_details_attr_consumption_value)
     protected TextView mConsumptionText;
 
 
@@ -130,7 +130,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         setContentView(R.layout.activity_track_details_layout2);
 
         // Inject all annotated views.
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         supportPostponeEnterTransition();
 

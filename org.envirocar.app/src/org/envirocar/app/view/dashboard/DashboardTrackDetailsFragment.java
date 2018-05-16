@@ -44,7 +44,7 @@ import org.envirocar.core.logging.Logger;
 import java.text.DecimalFormat;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 
@@ -57,21 +57,21 @@ public class DashboardTrackDetailsFragment extends BaseInjectorFragment {
     private static final DecimalFormat DECIMAL_FORMATTER = new DecimalFormat("###.#");
 
 
-    @InjectView(R.id.fragment_dashboard_header_gps_image)
+    @BindView(R.id.fragment_dashboard_header_gps_image)
     protected ImageView mGpsImage;
-    @InjectView(R.id.fragment_dashboard_header_gps_text)
+    @BindView(R.id.fragment_dashboard_header_gps_text)
     protected TextView mGpsText;
 
-    @InjectView(R.id.fragment_dashboard_header_bt_image)
+    @BindView(R.id.fragment_dashboard_header_bt_image)
     protected ImageView mBluetoothImage;
-    @InjectView(R.id.fragment_dashboard_header_bt_text)
+    @BindView(R.id.fragment_dashboard_header_bt_text)
     protected TextView mBluetoothText;
 
-    @InjectView(R.id.fragment_dashboard_header_time_timer)
+    @BindView(R.id.fragment_dashboard_header_time_timer)
     protected Chronometer mTimerText;
-    @InjectView(R.id.fragment_dashboard_header_speed_text)
+    @BindView(R.id.fragment_dashboard_header_speed_text)
     protected TextView mSpeedText;
-    @InjectView(R.id.fragment_dashboard_header_distance_text)
+    @BindView(R.id.fragment_dashboard_header_distance_text)
     protected TextView mDistanceText;
 
 
@@ -88,7 +88,7 @@ public class DashboardTrackDetailsFragment extends BaseInjectorFragment {
         View contentView = inflater.inflate(R.layout.fragment_dashboard_header, container, false);
 
         // Inject all dashboard-related views.
-        ButterKnife.inject(this, contentView);
+        ButterKnife.bind(this, contentView);
 
         // Update the image and text of the bluetooth related views.
         updateBluetoothViews(true);

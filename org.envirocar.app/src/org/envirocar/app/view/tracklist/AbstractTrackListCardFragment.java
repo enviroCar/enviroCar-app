@@ -59,7 +59,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
@@ -89,24 +89,24 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     @Inject
     protected TrackUploadHandler mTrackUploadHandler;
 
-    @InjectView(R.id.fragment_tracklist_info)
+    @BindView(R.id.fragment_tracklist_info)
     protected View infoView;
-    @InjectView(R.id.fragment_tracklist_info_img)
+    @BindView(R.id.fragment_tracklist_info_img)
     protected ImageView infoImg;
-    @InjectView(R.id.fragment_tracklist_info_text)
+    @BindView(R.id.fragment_tracklist_info_text)
     protected TextView infoText;
-    @InjectView(R.id.fragment_tracklist_info_subtext)
+    @BindView(R.id.fragment_tracklist_info_subtext)
     protected TextView infoSubtext;
 
-    @InjectView(R.id.fragment_tracklist_progress_view)
+    @BindView(R.id.fragment_tracklist_progress_view)
     protected View mProgressView;
-    @InjectView(R.id.fragment_tracklist_progress_text)
+    @BindView(R.id.fragment_tracklist_progress_text)
     protected TextView mProgressText;
-    @InjectView(R.id.fragment_tracklist_progress_progressBar)
+    @BindView(R.id.fragment_tracklist_progress_progressBar)
     protected ProgressBar mProgressBar;
-    @InjectView(R.id.fragment_tracklist_recycler_view)
+    @BindView(R.id.fragment_tracklist_recycler_view)
     protected RecyclerView mRecyclerView;
-    @InjectView(R.id.fragment_tracklist_fab)
+    @BindView(R.id.fragment_tracklist_fab)
     protected FloatingActionButton mFAB;
 
     protected E mRecyclerViewAdapter;
@@ -136,7 +136,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
 
         // Inflate the view and inject the annotated view.
         View view = inflater.inflate(R.layout.fragment_tracklist, container, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
 
         // Initiate the recyclerview
 //        mRecyclerView.setHasFixedSize(true);

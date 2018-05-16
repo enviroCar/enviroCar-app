@@ -33,7 +33,7 @@ import org.envirocar.core.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 
 /**
  * TODO JavaDoc
@@ -43,7 +43,7 @@ import butterknife.InjectView;
 public class DashboardMapFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(DashboardMapFragment.class);
 
-    @InjectView(R.id.fragment_dashboard_frag_map_mapview)
+    @BindView(R.id.fragment_dashboard_frag_map_mapview)
     protected MapView mMapView;
 
     @Nullable
@@ -56,7 +56,7 @@ public class DashboardMapFragment extends BaseInjectorFragment {
         View contentView = inflater.inflate(R.layout.fragment_dashboard_frag_map, container, false);
 
         // Inject all dashboard-related views.
-        ButterKnife.inject(this, contentView);
+        ButterKnife.bind(this, contentView);
 
         // Init the map view
         mMapView.setTileSource(MapUtils.getOSMTileLayer());

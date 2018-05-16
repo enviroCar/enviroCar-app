@@ -45,7 +45,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import lecho.lib.hellocharts.formatter.SimpleAxisValueFormatter;
 import lecho.lib.hellocharts.gesture.ZoomType;
 import lecho.lib.hellocharts.listener.DummyVieportChangeListener;
@@ -77,7 +77,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
     @Inject
     protected EnviroCarDB enviroCarDB;
 
-    @InjectView(R.id.activity_track_statistics_toolbar)
+    @BindView(R.id.activity_track_statistics_toolbar)
     protected Toolbar mToolbar;
 
     private Track mTrack;
@@ -111,7 +111,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
                 });
 
         // Inject all annotated views.
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         // Initializes the Toolbar.
         setSupportActionBar(mToolbar);
@@ -158,9 +158,9 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
 
     public static class PlaceholderFragment extends Fragment {
 
-        @InjectView(R.id.activity_track_statistics_fragment_chart)
+        @BindView(R.id.activity_track_statistics_fragment_chart)
         protected LineChartView mChart;
-        @InjectView(R.id.activity_track_statistics_fragment_chart_preview)
+        @BindView(R.id.activity_track_statistics_fragment_chart_preview)
         protected PreviewLineChartView mPreviewChart;
 
         private LineChartData mChartData;
@@ -185,7 +185,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
                     container, false);
 
             // Inject all annotated views.
-            ButterKnife.inject(this, rootView);
+            ButterKnife.bind(this, rootView);
 
             generateData(Measurement.PropertyKey.SPEED);
 

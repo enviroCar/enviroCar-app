@@ -45,7 +45,7 @@ import org.envirocar.core.logging.Logger;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 
 /**
  * TODO JavaDoc
@@ -60,18 +60,18 @@ public class DashboardTrackSettingsFragment extends BaseInjectorFragment {
     @Inject
     protected BluetoothHandler mBluetoothHandler;
 
-    @InjectView(R.id.fragment_startup_obd_selection)
+    @BindView(R.id.fragment_startup_obd_selection)
     protected View mOBDTypeView;
-    @InjectView(R.id.fragment_startup_obd_selection_text1)
+    @BindView(R.id.fragment_startup_obd_selection_text1)
     protected TextView mOBDTypeTextView;
-    @InjectView(R.id.fragment_startup_obd_selection_text2)
+    @BindView(R.id.fragment_startup_obd_selection_text2)
     protected TextView mOBDTypeSubTextView;
 
-    @InjectView(R.id.fragment_startup_car_selection)
+    @BindView(R.id.fragment_startup_car_selection)
     protected View mCarTypeView;
-    @InjectView(R.id.fragment_startup_car_selection_text1)
+    @BindView(R.id.fragment_startup_car_selection_text1)
     protected TextView mCarTypeTextView;
-    @InjectView(R.id.fragment_startup_car_selection_text2)
+    @BindView(R.id.fragment_startup_car_selection_text2)
     protected TextView mCarTypeSubTextView;
 
     @Nullable
@@ -85,7 +85,7 @@ public class DashboardTrackSettingsFragment extends BaseInjectorFragment {
                 container, false);
 
         // Inject all dashboard-related views.
-        ButterKnife.inject(this, contentView);
+        ButterKnife.bind(this, contentView);
 
         mCarTypeView.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), CarSelectionActivity.class);

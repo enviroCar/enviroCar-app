@@ -45,7 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
@@ -62,40 +62,40 @@ import rx.schedulers.Schedulers;
 public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(CarSelectionAddCarFragment.class);
 
-    @InjectView(R.id.activity_car_selection_newcar_toolbar)
+    @BindView(R.id.activity_car_selection_newcar_toolbar)
     protected Toolbar toolbar;
-    @InjectView(R.id.activity_car_selection_newcar_toolbar_exp)
+    @BindView(R.id.activity_car_selection_newcar_toolbar_exp)
     protected View toolbarExp;
-    @InjectView(R.id.activity_car_selection_newcar_content_view)
+    @BindView(R.id.activity_car_selection_newcar_content_view)
     protected View contentView;
-    @InjectView(R.id.activity_car_selection_newcar_download_layout)
+    @BindView(R.id.activity_car_selection_newcar_download_layout)
     protected View downloadView;
 
-    @InjectView(R.id.activity_car_selection_newcar_manufacturer)
+    @BindView(R.id.activity_car_selection_newcar_manufacturer)
     protected TextView manufacturerText;
-    @InjectView(R.id.activity_car_selection_newcar_manufacturer_spinner)
+    @BindView(R.id.activity_car_selection_newcar_manufacturer_spinner)
     protected Spinner manufacturerSpinner;
 
-    @InjectView(R.id.activity_car_selection_newcar_model)
+    @BindView(R.id.activity_car_selection_newcar_model)
     protected TextView modelText;
-    @InjectView(R.id.activity_car_selection_newcar_model_spinner)
+    @BindView(R.id.activity_car_selection_newcar_model_spinner)
     protected Spinner modelSpinner;
 
-    @InjectView(R.id.activity_car_selection_newcar_year)
+    @BindView(R.id.activity_car_selection_newcar_year)
     protected TextView yearText;
-    @InjectView(R.id.activity_car_selection_newcar_year_spinner)
+    @BindView(R.id.activity_car_selection_newcar_year_spinner)
     protected Spinner yearSpinner;
 
-    @InjectView(R.id.activity_car_selection_newcar_engine)
+    @BindView(R.id.activity_car_selection_newcar_engine)
     protected TextView engineText;
-    @InjectView(R.id.activity_car_selection_newcar_engine_spinner)
+    @BindView(R.id.activity_car_selection_newcar_engine_spinner)
     protected Spinner engineSpinner;
 
-    @InjectView(R.id.activity_car_selection_newcar_radio_group)
+    @BindView(R.id.activity_car_selection_newcar_radio_group)
     protected RadioGroup fuelTypeRadioGroup;
-    @InjectView(R.id.activity_car_selection_newcar_radio_group_gasoline)
+    @BindView(R.id.activity_car_selection_newcar_radio_group_gasoline)
     protected RadioButton gasolineRadio;
-    @InjectView(R.id.activity_car_selection_newcar_radio_group_diesel)
+    @BindView(R.id.activity_car_selection_newcar_radio_group_diesel)
     protected RadioButton dieselRadio;
 
     @Inject
@@ -121,7 +121,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
         View view = inflater.inflate(
                 R.layout.activity_car_selection_newcar_fragment, container, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
 
         // Get the display size in pixels
         Display display = getActivity().getWindowManager().getDefaultDisplay();

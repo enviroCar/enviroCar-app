@@ -35,7 +35,7 @@ import org.envirocar.core.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 
 /**
  * @author dewall
@@ -43,7 +43,7 @@ import butterknife.InjectView;
 public class DashboardTempomatFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(DashboardTempomatFragment.class);
 
-    @InjectView(R.id.fragment_dashboard_tempomat_view)
+    @BindView(R.id.fragment_dashboard_tempomat_view)
     protected Tempomat mTempomatView;
 
     @Nullable
@@ -58,7 +58,7 @@ public class DashboardTempomatFragment extends BaseInjectorFragment {
         View contentView = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
         // Inject all dashboard-related views.
-        ButterKnife.inject(this, contentView);
+        ButterKnife.bind(this, contentView);
 
         // return the inflated content view.
         return contentView;

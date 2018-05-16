@@ -91,7 +91,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -125,18 +125,18 @@ public class BaseMainActivity extends BaseInjectorActivity {
     protected BluetoothHandler mBluetoothHandler;
 
 
-    @InjectView(R.id.main_layout_toolbar)
+    @BindView(R.id.main_layout_toolbar)
     protected Toolbar mToolbar;
-    @InjectView(R.id.drawer_layout)
+    @BindView(R.id.drawer_layout)
     protected DrawerLayout mDrawerLayout;
-    @InjectView(R.id.nav_drawer_navigation_view)
+    @BindView(R.id.nav_drawer_navigation_view)
     protected NavigationView mNavigationView;
 
-    @InjectView(R.id.nav_drawer_list_header_layout)
+    @BindView(R.id.nav_drawer_list_header_layout)
     protected View mHeaderLayout;
-    @InjectView(R.id.nav_drawer_list_header_username)
+    @BindView(R.id.nav_drawer_list_header_username)
     protected TextView mUsernameText;
-    @InjectView(R.id.nav_drawer_list_header_email)
+    @BindView(R.id.nav_drawer_list_header_email)
     protected TextView mEmailText;
 
 
@@ -177,7 +177,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
         setContentView(R.layout.main_layout);
         mNavigationView = (NavigationView) findViewById(R.id.nav_drawer_navigation_view);
         LayoutInflater.from(this).inflate(R.layout.nav_drawer_list_header, mNavigationView);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         // Initializes the Toolbar.
         setSupportActionBar(mToolbar);

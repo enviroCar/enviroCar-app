@@ -33,7 +33,7 @@ import org.envirocar.core.injection.Injector;
 import org.envirocar.app.handler.PreferenceConstants;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 
 /**
  * @author dewall
@@ -62,13 +62,13 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
         }
     };
 
-    @InjectView(R.id.default_header_toolbar)
+    @BindView(R.id.default_header_toolbar)
     protected Toolbar mToolbar;
-    @InjectView(R.id.bluetooth_discovery_interval_preference_numberpicker_text)
+    @BindView(R.id.bluetooth_discovery_interval_preference_numberpicker_text)
     protected TextView mText;
-    @InjectView(R.id.bluetooth_discovery_interval_preference_numberpicker_min)
+    @BindView(R.id.bluetooth_discovery_interval_preference_numberpicker_min)
     protected NumberPicker mMinutePicker;
-    @InjectView(R.id.bluetooth_discovery_interval_preference_numberpicker_sec)
+    @BindView(R.id.bluetooth_discovery_interval_preference_numberpicker_sec)
     protected NumberPicker mSecondsPicker;
 
     // The seconds and minutes the timepicker have to show
@@ -97,7 +97,7 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
         super.onBindDialogView(view);
 
         // Inject all views
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
 
         // Toolbar settings.
         mToolbar.setTitle(R.string.pref_bt_discovery_interval_title);

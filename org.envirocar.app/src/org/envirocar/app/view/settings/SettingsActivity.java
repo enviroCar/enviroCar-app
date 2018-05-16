@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import butterknife.OnClick;
 
 /**
@@ -42,18 +42,18 @@ import butterknife.OnClick;
  */
 public class SettingsActivity extends BaseInjectorActivity {
 
-    @InjectView(R.id.fragment_settings_main_toolbar)
+    @BindView(R.id.fragment_settings_main_toolbar)
     protected Toolbar mToolbar;
 
-    @InjectView(R.id.fragment_settings_main_general_settings)
+    @BindView(R.id.fragment_settings_main_general_settings)
     protected View mGeneralSettingsLayout;
-    @InjectView(R.id.fragment_settings_main_obd_settings)
+    @BindView(R.id.fragment_settings_main_obd_settings)
     protected View mOBDSettingsLayout;
-    @InjectView(R.id.fragment_settings_main_car_settings)
+    @BindView(R.id.fragment_settings_main_car_settings)
     protected View mCarSettingsLayout;
-    @InjectView(R.id.fragment_settings_main_optional_settings)
+    @BindView(R.id.fragment_settings_main_optional_settings)
     protected View mOptionalSettingsLayout;
-    @InjectView(R.id.fragment_settings_main_other_settings)
+    @BindView(R.id.fragment_settings_main_other_settings)
     protected View mOtherSettingsLayout;
 
     private Fragment mCurrentVisibleFragment;
@@ -62,7 +62,7 @@ public class SettingsActivity extends BaseInjectorActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_settings_main);
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         setSupportActionBar(mToolbar);
         // Enables the home button.

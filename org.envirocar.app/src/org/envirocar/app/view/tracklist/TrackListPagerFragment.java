@@ -34,7 +34,7 @@ import org.envirocar.core.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 
 /**
  * @author dewall
@@ -42,9 +42,9 @@ import butterknife.InjectView;
 public class TrackListPagerFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(TrackListPagerFragment.class);
 
-    @InjectView(R.id.fragment_tracklist_layout_tablayout)
+    @BindView(R.id.fragment_tracklist_layout_tablayout)
     protected TabLayout mTabLayout;
-    @InjectView(R.id.fragment_tracklist_layout_viewpager)
+    @BindView(R.id.fragment_tracklist_layout_viewpager)
     protected ViewPager mViewPager;
 
     private TrackListPagerAdapter trackListPageAdapter;
@@ -56,7 +56,7 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
         LOG.info("onCreateView()");
         View content = inflater.inflate(R.layout.fragment_tracklist_layout, container, false);
 
-        ButterKnife.inject(this, content);
+        ButterKnife.bind(this, content);
 
         trackListPageAdapter = new TrackListPagerAdapter(getChildFragmentManager());
         mViewPager.setAdapter(trackListPageAdapter);
