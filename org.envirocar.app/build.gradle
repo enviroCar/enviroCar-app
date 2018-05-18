@@ -8,8 +8,7 @@ dependencies {
     implementation rootProject.ext.supportCardview
     implementation rootProject.ext.supportRecyclerview
     implementation rootProject.ext.dagger
-    //annotationProcessor rootProject.ext.daggerCompiler
-    compileOnly rootProject.ext.daggerCompiler
+    annotationProcessor rootProject.ext.daggerCompiler
     implementation rootProject.ext.otto
     implementation rootProject.ext.butterKnife
     annotationProcessor rootProject.ext.butterknifeCompiler
