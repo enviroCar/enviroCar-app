@@ -55,6 +55,7 @@ import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.view.HelpActivity;
@@ -73,16 +74,14 @@ import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.NotConnectedException;
-import org.envirocar.core.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
 import org.envirocar.core.util.VersionRange;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
-import org.envirocar.remote.DAOProvider;
+import org.envirocar.app.handler.DAOProvider;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -90,8 +89,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.subscriptions.CompositeSubscription;
@@ -157,6 +156,12 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(this));
+        mainActivityComponent.inject(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -602,11 +607,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
         ft.replace(R.id.content_frame, fragment, fragment.getClass().getSimpleName());
         //        ft.addToBackStack(null);
         ft.commit();
-    }
-
-    @Override
-    public List<Object> getInjectionModules() {
-        return Arrays.<Object>asList(new MainActivityModule(this));
     }
 
     @Subscribe

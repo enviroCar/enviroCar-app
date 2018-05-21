@@ -28,33 +28,52 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
-import com.google.common.base.Preconditions;
-
 import org.acra.ACRA;
 import org.acra.annotation.ReportsCrashes;
 import org.envirocar.app.handler.PreferenceConstants;
-import org.envirocar.core.injection.InjectionModuleProvider;
-import org.envirocar.core.injection.Injector;
+import org.envirocar.app.services.obd.OBDServiceHandler;
 import org.envirocar.core.logging.ACRACustomSender;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.InjectApplicationScope;
 import org.envirocar.core.util.Util;
+import org.envirocar.remote.service.AnnouncementsService;
+import org.envirocar.remote.service.CarService;
+import org.envirocar.remote.service.EnviroCarService;
+import org.envirocar.remote.service.FuelingService;
+import org.envirocar.remote.service.TermsOfUseService;
+import org.envirocar.remote.service.TrackService;
+import org.envirocar.remote.service.UserService;
 
-import java.util.Arrays;
-import java.util.List;
+import javax.inject.Inject;
 
-import dagger.ObjectGraph;
 
 /**
  * @author dewall
  */
 @ReportsCrashes
-public class BaseApplication extends Application implements Injector, InjectionModuleProvider {
+public class BaseApplication extends Application {
     private static final String TAG = BaseApplication.class.getSimpleName();
     private static final Logger LOGGER = Logger.getLogger(BaseApplication.class);
 
-    protected ObjectGraph mObjectGraph;
+    BaseApplicationComponent baseApplicationComponent;
     protected BroadcastReceiver mScreenReceiver;
     protected BroadcastReceiver mGPSReceiver;
+
+    @Inject
+    UserService userService;
+    @Inject
+    CarService carService;
+    @Inject
+    TrackService trackService;
+    @Inject
+    TermsOfUseService termsOfUseService;
+    @Inject
+    FuelingService fuelingService;
+    @Inject
+    AnnouncementsService announcementsService;
+    @InjectApplicationScope
+    @Inject
+    Context context;
 
     private SharedPreferences.OnSharedPreferenceChangeListener preferenceListener
             = (sharedPreferences, key) -> {
@@ -68,13 +87,18 @@ public class BaseApplication extends Application implements Injector, InjectionM
     public void onCreate() {
         super.onCreate();
 
-        // create initial ObjectGraph
-        mObjectGraph = ObjectGraph.create(getInjectionModules().toArray());
-        mObjectGraph.validate();
+        baseApplicationComponent = DaggerBaseApplicationComponent.builder()
+                .baseApplicationModule(new BaseApplicationModule(this))
+                .build();
+        baseApplicationComponent.inject(this);
 
-        // Inject the LazyLoadingStrategy into track. Its the only static injection
-        // TODO: Remove the static injection.
-        mObjectGraph.injectStatics();
+        EnviroCarService.setCarService(carService);
+        EnviroCarService.setAnnouncementsService(announcementsService);
+        EnviroCarService.setFuelingService(fuelingService);
+        EnviroCarService.setTermsOfUseService(termsOfUseService);
+        EnviroCarService.setTrackService(trackService);
+        EnviroCarService.setUserService(userService);
+        OBDServiceHandler.context = context;
 
         SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(getApplicationContext());
@@ -160,23 +184,12 @@ public class BaseApplication extends Application implements Injector, InjectionM
         LOGGER.info("freeMemory: " + Runtime.getRuntime().freeMemory());
     }
 
-
-    @Override
-    public ObjectGraph getObjectGraph() {
-        return mObjectGraph;
+    public BaseApplicationComponent getBaseApplicationComponent(){
+        return baseApplicationComponent;
     }
 
-    @Override
-    public List<Object> getInjectionModules() {
-        return Arrays.<Object>asList(
-                new BaseApplicationModule(this));
-    }
-
-    @Override
-    public void injectObjects(Object instance) {
-        Preconditions.checkNotNull(instance, "Cannot inject into Null objects.");
-        Preconditions.checkNotNull(mObjectGraph, "The ObjectGraph must be initialized before use.");
-        mObjectGraph.inject(instance);
+    public static BaseApplication get(Context context){
+        return (BaseApplication) context.getApplicationContext();
     }
 
 }

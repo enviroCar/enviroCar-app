@@ -42,6 +42,7 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.TrackDAOHandler;
@@ -54,9 +55,9 @@ import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.ResourceConflictException;
-import org.envirocar.core.injection.BaseInjectorActivity;
+import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.remote.DAOProvider;
+import org.envirocar.app.handler.DAOProvider;
 
 import java.util.concurrent.TimeUnit;
 
@@ -143,6 +144,11 @@ public class LoginActivity extends BaseInjectorActivity {
     private Subscription mRegisterSubscription;
     private Subscription mTermsOfUseSubscription;
     private Subscription mStatisticsDownloadSubscription;
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

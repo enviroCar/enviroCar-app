@@ -21,7 +21,8 @@ dependencies {
     implementation rootProject.ext.supportV7
     implementation rootProject.ext.dagger
     annotationProcessor rootProject.ext.daggerCompiler
-    implementation rootProject.ext.sqlBrite
+    implementation 'org.glassfish:javax.annotation:10.0-b28'
+    api rootProject.ext.sqlBrite
     implementation rootProject.ext.rxJava
     implementation rootProject.ext.rxAndroid
 

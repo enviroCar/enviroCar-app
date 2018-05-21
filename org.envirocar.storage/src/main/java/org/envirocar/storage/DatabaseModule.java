@@ -24,7 +24,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.squareup.sqlbrite.BriteDatabase;
 import com.squareup.sqlbrite.SqlBrite;
 
-import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.util.InjectApplicationScope;
 
 import javax.inject.Singleton;
 
@@ -36,14 +36,7 @@ import dagger.Provides;
  *
  * @author dewall
  */
-@Module(
-        complete = false,
-        library = true,
-        injects = {
-                EnviroCarDBImpl.class,
-                EnviroCarDBOpenHelper.class
-        }
-)
+@Module
 public final class DatabaseModule {
 
     @Provides

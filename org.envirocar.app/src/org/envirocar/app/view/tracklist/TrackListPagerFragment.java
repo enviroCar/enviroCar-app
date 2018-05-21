@@ -29,8 +29,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.MainActivityComponent;
+import org.envirocar.app.MainActivityModule;
 import org.envirocar.app.R;
-import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.ButterKnife;
@@ -108,6 +112,12 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
 
         trackListPageAdapter.localCardFragment.onDestroyView();
         trackListPageAdapter.remoteCardFragment.onDestroyView();
+    }
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        MainActivityComponent mainActivityComponent =  BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
+        mainActivityComponent.inject(this);
     }
 
     /**

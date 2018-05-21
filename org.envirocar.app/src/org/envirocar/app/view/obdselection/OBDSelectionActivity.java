@@ -28,21 +28,20 @@ import android.widget.TextView;
 
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.core.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * @dewall
@@ -63,6 +62,11 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
 
     protected Fragment mOBDSelectionFragment;
 
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,8 +162,4 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
         }
     }
 
-    @Override
-    public List<Object> getInjectionModules() {
-        return Arrays.asList(new OBDSelectionModule());
-    }
 }

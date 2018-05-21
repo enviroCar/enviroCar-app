@@ -16,29 +16,28 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.core.injection;
+package org.envirocar.app.injection;
 
 
-import android.app.Activity;
+import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.BaseApplicationComponent;
+
 import java.lang.reflect.Field;
-import java.util.List;
 
 import javax.inject.Inject;
-
-import dagger.ObjectGraph;
 
 
 /**
  * @author dewall
  */
-public abstract class BaseInjectorFragment extends Fragment implements Injector,
-        InjectionModuleProvider {
+public abstract class BaseInjectorFragment extends Fragment {
     private static final String TAG = BaseInjectorFragment.class.getSimpleName();
 
     private static final Field mChildFragmentManagerFieldOfFragment;
@@ -63,36 +62,24 @@ public abstract class BaseInjectorFragment extends Fragment implements Injector,
     protected Bus mBus;
 
     /**
-     * A graph of objects linked by their dependencies. This class is used for
-     * dependency injection. (see Dagger library)
-     */
-    private ObjectGraph mObjectGraph;
-
-    /**
      * Flag that indicates that the fragment is already attached and the object
      * graph was initialized.
      */
     private boolean mAlreadyAttached;
     private boolean mIsRegistered;
 
+    protected abstract void injectDependencies(BaseApplicationComponent baseApplicationComponent);
 
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-
+    public void onAttach(Context context) {
+        super.onAttach(context);
         // Check if it is the first time where this fragment was attached to the
         // activity. If false, the ObjectGraph will be extended by fragment
         // specific modules and the dependencies will be injected.
-        if (!mAlreadyAttached || mObjectGraph == null) {
-            ObjectGraph objectGraph = ((Injector) getActivity()).getObjectGraph();
-            List<Object> moduleList = getInjectionModules();
-            if (moduleList != null) {
-                objectGraph = objectGraph.plus(moduleList.toArray());
-            }
-            this.mObjectGraph = objectGraph;
+        if (!mAlreadyAttached) {
 
-            // Inject ourselves.
-            injectObjects(this);
+            injectDependencies(BaseApplication.get(context).getBaseApplicationComponent());
+
             mAlreadyAttached = true;
 
             Preconditions.checkState(mBus != null, "Bus has to be injected before "
@@ -104,6 +91,7 @@ public abstract class BaseInjectorFragment extends Fragment implements Injector,
             mBus.register(this);
             mIsRegistered = true;
         }
+
     }
 
     @Override
@@ -121,40 +109,4 @@ public abstract class BaseInjectorFragment extends Fragment implements Injector,
             mIsRegistered = false;
         }
     }
-
-    /**
-     * Gets the object graph of the implemented class.
-     *
-     * @return the object graph
-     */
-    @Override
-    public final ObjectGraph getObjectGraph() {
-        return mObjectGraph;
-    }
-
-    /**
-     * Injects a target object using this object's object graph.
-     *
-     * @param instance the target object
-     */
-    @Override
-    public void injectObjects(Object instance) {
-        Preconditions.checkState(mObjectGraph != null,
-                "ObjectGraph must be initialized before injecting objects.");
-        mObjectGraph.inject(instance);
-        Log.d(TAG, "Objects successfully injected into "
-                + instance.getClass().getSimpleName());
-    }
-
-    /**
-     * Returns a list of modules to be added to the ObjectGraph. Originally this
-     * function returns null, but can be extended by subclasses by own modules.
-     *
-     * @return a list of modules
-     */
-    @Override
-    public List<Object> getInjectionModules() {
-        return null;
-    }
-
 }

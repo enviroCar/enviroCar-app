@@ -30,6 +30,9 @@ import android.widget.TextView;
 
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.MainActivityComponent;
+import org.envirocar.app.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
@@ -38,7 +41,7 @@ import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.app.events.AvrgSpeedUpdateEvent;
 import org.envirocar.app.events.DistanceValueUpdateEvent;
 import org.envirocar.app.events.StartingTimeEvent;
-import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 
 import java.text.DecimalFormat;
@@ -169,6 +172,11 @@ public class DashboardTrackDetailsFragment extends BaseInjectorFragment {
         }
     }
 
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(getActivity()));
+        mainActivityComponent.inject(this);
+    }
 }
 
 

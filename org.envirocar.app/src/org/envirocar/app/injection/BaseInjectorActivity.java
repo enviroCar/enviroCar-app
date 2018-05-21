@@ -16,28 +16,25 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.core.injection;
+package org.envirocar.app.injection;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 
-import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.BaseApplicationComponent;
 
 import javax.inject.Inject;
 
-import dagger.ObjectGraph;
 
 /**
  * @author dewall
  */
-public abstract class BaseInjectorActivity extends AppCompatActivity implements Injector,
-        InjectionModuleProvider {
-    private ObjectGraph mObjectGraph;
+public abstract class BaseInjectorActivity extends AppCompatActivity {
+    protected abstract void injectDependencies(BaseApplicationComponent baseApplicationComponent);
 
     // Injected variables.
     @Inject
@@ -45,13 +42,8 @@ public abstract class BaseInjectorActivity extends AppCompatActivity implements 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mObjectGraph = ((Injector) getApplicationContext()).getObjectGraph().plus
-                (getInjectionModules().toArray());
-
         super.onCreate(savedInstanceState);
-
-        // Inject all variables in this object.
-        injectObjects(this);
+        injectDependencies(BaseApplication.get(this).getBaseApplicationComponent());
     }
 
     @Override
@@ -78,22 +70,5 @@ public abstract class BaseInjectorActivity extends AppCompatActivity implements 
         }
         super.onOptionsItemSelected(item);
         return false;
-    }
-
-    @Override
-    public ObjectGraph getObjectGraph() {
-        return mObjectGraph;
-    }
-
-    @Override
-    public List<Object> getInjectionModules() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public void injectObjects(Object instance) {
-        Preconditions.checkNotNull(instance, "Cannot inject into Null objects.");
-        Preconditions.checkNotNull(mObjectGraph, "The ObjectGraph must be initialized before use.");
-        mObjectGraph.inject(instance);
     }
 }

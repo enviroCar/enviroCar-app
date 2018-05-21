@@ -22,23 +22,7 @@ package org.envirocar.app;
 import android.app.Activity;
 import android.content.Context;
 
-import org.envirocar.app.activity.StartStopButtonUtil;
-import org.envirocar.app.handler.CarPreferenceHandler;
-import org.envirocar.app.handler.TermsOfUseManager;
-import org.envirocar.app.view.LogbookFragment;
-import org.envirocar.app.view.dashboard.DashboardMainFragment;
-import org.envirocar.app.view.dashboard.DashboardMapFragment;
-import org.envirocar.app.view.dashboard.DashboardTempomatFragment;
-import org.envirocar.app.view.dashboard.DashboardTrackDetailsFragment;
-import org.envirocar.app.view.dashboard.DashboardTrackMapFragment;
-import org.envirocar.app.view.dashboard.DashboardTrackSettingsFragment;
-import org.envirocar.app.view.preferences.Tempomat;
-import org.envirocar.app.view.tracklist.AbstractTrackListCardFragment;
-import org.envirocar.app.view.tracklist.TrackListLocalCardFragment;
-import org.envirocar.app.view.tracklist.TrackListPagerFragment;
-import org.envirocar.app.view.tracklist.TrackListRemoteCardFragment;
-import org.envirocar.app.views.ReactiveTermsOfUseDialog;
-import org.envirocar.core.injection.InjectionActivityScope;
+import org.envirocar.core.util.InjectionActivityScope;
 
 import dagger.Module;
 import dagger.Provides;
@@ -48,31 +32,7 @@ import dagger.Provides;
  *
  * @author dewall
  */
-@Module(
-        injects = {
-                BaseMainActivity.class,
-                TermsOfUseManager.class,
-                CarPreferenceHandler.class,
-                LogbookFragment.class,
-                StartStopButtonUtil.class,
-                Tempomat.class,
-                DashboardMainFragment.class,
-                LogbookFragment.class,
-                DashboardTrackDetailsFragment.class,
-                DashboardTempomatFragment.class,
-                DashboardTrackSettingsFragment.class,
-                DashboardMapFragment.class,
-                DashboardTrackMapFragment.class,
-                TrackListPagerFragment.class,
-                AbstractTrackListCardFragment.class,
-                TrackListLocalCardFragment.class,
-                TrackListRemoteCardFragment.class,
-                ReactiveTermsOfUseDialog.class
-        },
-        addsTo = BaseApplicationModule.class,
-        library = true,
-        complete = false
-)
+@Module
 public class MainActivityModule {
 
     private Activity mActivity;

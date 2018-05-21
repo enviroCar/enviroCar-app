@@ -36,12 +36,12 @@ import android.widget.Toast;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.view.preferences.bluetooth.BluetoothDeviceListAdapter;
 import org.envirocar.core.events.bluetooth.BluetoothPairingChangedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 
 import java.util.Set;
@@ -103,7 +103,7 @@ public class BluetoothPairingPreference extends DialogPreference {
         super(context, attrs);
 
         // Inject fields.
-        ((Injector) context.getApplicationContext()).injectObjects(this);
+        BaseApplication.get(context).getBaseApplicationComponent().inject(this);
 
         // Set the layout of the dialog to show.
         setDialogLayoutResource(R.layout.bluetooth_pairing_preference);

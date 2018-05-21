@@ -28,14 +28,15 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
-import org.envirocar.core.injection.BaseInjectorActivity;
+import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.remote.DAOProvider;
+import org.envirocar.app.handler.DAOProvider;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -94,6 +95,11 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
     private AutoCompleteArrayAdapter mManufacturerNameAdapter;
     private Subscription loadingCarsSubscription;
 
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent appComponent) {
+        appComponent.inject(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

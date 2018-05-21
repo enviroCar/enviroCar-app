@@ -32,10 +32,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.injection.BaseInjectorActivity;
+import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.util.ArrayList;
@@ -82,6 +83,11 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
 
     private Track mTrack;
     private PlaceholderFragment mPlaceholderFragment;
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

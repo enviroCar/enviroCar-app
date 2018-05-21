@@ -29,15 +29,16 @@ dependencies {
 
     implementation rootProject.ext.dagger
     annotationProcessor rootProject.ext.daggerCompiler
+    implementation 'org.glassfish:javax.annotation:10.0-b28'
 
     implementation rootProject.ext.rxAndroid
     implementation rootProject.ext.rxJava
 
     // Everything realted to retrofit...
-    implementation rootProject.ext.retrofit
-    implementation rootProject.ext.retrofitGson
-    implementation rootProject.ext.retrofitAdapters
-    implementation rootProject.ext.retrofitRxJava
+    api rootProject.ext.retrofit
+    api rootProject.ext.retrofitGson
+    api rootProject.ext.retrofitAdapters
+    api rootProject.ext.retrofitRxJava
 
     api project(path : ':org.envirocar.core')
 }

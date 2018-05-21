@@ -18,25 +18,23 @@
  */
 package org.envirocar.app.services;
 
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
 import android.os.PowerManager;
 import android.speech.tts.TextToSpeech;
-import android.support.v4.app.NotificationCompat;
 
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.algorithm.MeasurementProvider;
-import org.envirocar.app.R;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
+import org.envirocar.app.injection.BaseInjectorService;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.NewMeasurementEvent;
@@ -46,7 +44,6 @@ import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
-import org.envirocar.core.injection.BaseInjectorService;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.AbstractCalculatedMAFAlgorithm;
 import org.envirocar.core.trackprocessing.CalculatedMAFWithStaticVolumetricEfficiency;
@@ -62,8 +59,6 @@ import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -75,8 +70,6 @@ import rx.Subscription;
 import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 import rx.subjects.PublishSubject;
-
-import static org.envirocar.app.services.obd.OBDServiceHandler.context;
 
 /**
  * @author dewall
@@ -142,6 +135,11 @@ public class OBDConnectionService extends BaseInjectorService {
     private ConsumptionAlgorithm consumptionAlgorithm;
 
     private final Scheduler.Worker backgroundWorker = Schedulers.io().createWorker();
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent appComponent) {
+        appComponent.inject(this);
+    }
 
     @Override
     public void onCreate() {
@@ -244,11 +242,6 @@ public class OBDConnectionService extends BaseInjectorService {
         bus.unregister(measurementProvider);
 
         LOG.info("OBDConnectionService successfully destroyed");
-    }
-
-    @Override
-    public List<Object> getInjectionModules() {
-        return Arrays.<Object>asList(new OBDServiceModule());
     }
 
     @Subscribe

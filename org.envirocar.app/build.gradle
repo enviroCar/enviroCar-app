@@ -9,6 +9,7 @@ dependencies {
     implementation rootProject.ext.supportRecyclerview
     implementation rootProject.ext.dagger
     annotationProcessor rootProject.ext.daggerCompiler
+    implementation 'org.glassfish:javax.annotation:10.0-b28'
     implementation rootProject.ext.otto
     implementation rootProject.ext.butterKnife
     annotationProcessor rootProject.ext.butterknifeCompiler

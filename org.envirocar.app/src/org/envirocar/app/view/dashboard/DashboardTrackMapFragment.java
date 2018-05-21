@@ -34,10 +34,13 @@ import com.mapbox.mapboxsdk.overlay.UserLocationOverlay;
 import com.mapbox.mapboxsdk.views.MapView;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.MainActivityComponent;
+import org.envirocar.app.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.events.TrackPathOverlayEvent;
 import org.envirocar.app.view.utils.MapUtils;
-import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.ButterKnife;
@@ -188,4 +191,9 @@ public class DashboardTrackMapFragment extends BaseInjectorFragment {
         });
     }
 
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(getActivity()));
+        mainActivityComponent.inject(this);
+    }
 }

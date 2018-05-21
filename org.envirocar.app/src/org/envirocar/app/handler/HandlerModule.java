@@ -10,21 +10,7 @@ import dagger.Provides;
  *
  * @author dewall
  */
-@Module(
-        complete = false,
-        library = true,
-        injects = {
-                BluetoothHandler.class,
-                CarPreferenceHandler.class,
-                LocationHandler.class,
-                TemporaryFileManager.class,
-                TermsOfUseManager.class,
-                TrackDAOHandler.class,
-                TrackRecordingHandler.class,
-                TrackUploadHandler.class,
-                UserHandler.class
-        }
-)
+@Module
 public class HandlerModule {
 
     @Provides

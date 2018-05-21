@@ -36,7 +36,7 @@ import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceDiscoveredEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.util.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.BroadcastUtils;
 import org.envirocar.core.utils.ServiceUtils;

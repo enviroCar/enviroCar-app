@@ -23,17 +23,17 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
-import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.activity.DialogUtil.DialogCallback;
 import org.envirocar.app.handler.CarPreferenceHandler;
-import org.envirocar.obd.service.BluetoothServiceState;
-import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.handler.PreferenceConstants;
-import org.envirocar.core.injection.InjectionActivityScope;
-import org.envirocar.core.injection.Injector;
+import org.envirocar.app.handler.TrackRecordingHandler;
+import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.obd.service.BluetoothServiceState;
 
 import javax.inject.Inject;
 
@@ -48,7 +48,7 @@ public class StartStopButtonUtil {
     private static final Logger LOG = Logger.getLogger(StartStopButtonUtil.class);
 
     @Inject
-    @InjectionActivityScope
+    @InjectApplicationScope
     protected Context mContext;
     @Inject
     protected CarPreferenceHandler mCarManager;
@@ -68,8 +68,7 @@ public class StartStopButtonUtil {
     public StartStopButtonUtil(Context context, int trackMode,
                                BluetoothServiceState serviceState, boolean deviceDiscoveryActive) {
         // Inject variables.
-        ((Injector) context).injectObjects(this);
-
+        BaseApplication.get(context).getBaseApplicationComponent().inject(this);
 
         this.trackMode = trackMode;
         this.serviceState = serviceState;

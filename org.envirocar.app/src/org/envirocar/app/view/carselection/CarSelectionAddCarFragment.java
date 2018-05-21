@@ -24,14 +24,15 @@ import android.widget.TextView;
 
 import com.jakewharton.rxbinding.support.v7.widget.RxToolbar;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.CarImpl;
-import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.remote.DAOProvider;
+import org.envirocar.app.handler.DAOProvider;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -714,5 +715,10 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     public void hideKeyboard(View view) {
         InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent appComponent) {
+        appComponent.inject(this);
     }
 }

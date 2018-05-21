@@ -16,26 +16,17 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.core.injection;
+package org.envirocar.core.util;
 
-import dagger.ObjectGraph;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+import javax.inject.Qualifier;
 
 /**
  * @author dewall
  */
-public interface Injector {
-    /**
-     * Gets the objectgraph of the implemented class.
-     *
-     * @return the objectgraph
-     */
-    public ObjectGraph getObjectGraph();
-
-    /**
-     * Injects a target object using this object's object graph.
-     *
-     * @param instance
-     *            the target object
-     */
-    public void injectObjects(Object instance);
+@Qualifier
+@Retention(RetentionPolicy.RUNTIME)
+public @interface InjectApplicationScope {
 }

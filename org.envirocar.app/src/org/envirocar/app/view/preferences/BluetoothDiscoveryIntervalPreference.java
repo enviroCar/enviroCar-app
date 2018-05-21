@@ -27,9 +27,9 @@ import android.view.View;
 import android.widget.NumberPicker;
 import android.widget.TextView;
 
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.R;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.app.handler.PreferenceConstants;
 
 import butterknife.ButterKnife;
@@ -85,7 +85,7 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
         super(context, attrs);
 
         // Inject ourselves.
-        ((Injector) context).injectObjects(this);
+        BaseApplication.get(context).getBaseApplicationComponent().inject(this);
 
         // Set the layout of the dialog to show.
         setDialogLayoutResource(R.layout.bluetooth_discovery_interval_preference);

@@ -23,6 +23,7 @@ dependencies {
 
     implementation rootProject.ext.dagger
     annotationProcessor  rootProject.ext.daggerCompiler
+    implementation 'org.glassfish:javax.annotation:10.0-b28'
 
     implementation rootProject.ext.acra
     api rootProject.ext.otto

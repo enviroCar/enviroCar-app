@@ -36,7 +36,7 @@ import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFix;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
-import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.util.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;

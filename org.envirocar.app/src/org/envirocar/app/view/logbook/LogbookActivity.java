@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.view.utils.ECAnimationUtils;
@@ -36,9 +37,9 @@ import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
-import org.envirocar.core.injection.BaseInjectorActivity;
+import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.remote.DAOProvider;
+import org.envirocar.app.handler.DAOProvider;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -100,6 +101,11 @@ public class LogbookActivity extends BaseInjectorActivity implements LogbookUiLi
 
     private LogbookAddFuelingFragment addFuelingFragment;
     private final CompositeSubscription subscription = new CompositeSubscription();
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

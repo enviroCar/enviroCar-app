@@ -19,6 +19,8 @@
 package org.envirocar.app.view.tracklist;
 
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -27,6 +29,9 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Preconditions;
 
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.MainActivityComponent;
+import org.envirocar.app.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.view.utils.DialogUtils;
@@ -67,13 +72,19 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     private Subscription loadTracksSubscription;
     private Subscription uploadTrackSubscription;
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        MainActivityComponent mainActivityComponent =  BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
+        mainActivityComponent.inject(this);
+    }
 
     @Override
     public void onResume() {
         LOG.info("onResume()");
         super.onResume();
 
-        mFAB.setOnClickListener(v -> DialogUtils.createDefaultDialogBuilder(getContext(),
+        mFAB.setOnClickListener(v -> DialogUtils.createDefaultDialogBuilder(getActivity(),
                 R.string.track_list_upload_all_tracks_title,
                 R.drawable.ic_cloud_upload_white_24dp,
                 R.string.track_list_upload_all_tracks_content)
@@ -248,7 +259,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                                 // Create the dialog to show.
 
                                 AndroidSchedulers.mainThread().createWorker().schedule(() -> {
-                                    dialog = DialogUtils.createDefaultDialogBuilder(getContext(),
+                                    dialog = DialogUtils.createDefaultDialogBuilder(getActivity(),
                                             R.string.track_list_upload_track_uploading,
                                             R.drawable.ic_cloud_upload_white_24dp,
                                             contentView)
@@ -331,7 +342,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                                 updateProgressView(0);
 
                                 dialog = DialogUtils.createDefaultDialogBuilder(
-                                        getContext(), "Uploading Tracks...",
+                                        getActivity(), "Uploading Tracks...",
                                         R.drawable.ic_cloud_upload_white_24dp, contentView)
                                         .cancelable(false)
                                         .negativeText(R.string.cancel)
@@ -464,7 +475,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                                 infoView.setVisibility(View.GONE);
                                 mRecyclerViewAdapter.notifyDataSetChanged();
 
-                                ECAnimationUtils.animateShowView(getContext(), mFAB,
+                                ECAnimationUtils.animateShowView(getActivity(), mFAB,
                                         R.anim.translate_slide_in_bottom_fragment);
                             } else if (mTrackList.isEmpty()) {
                                 showNoLocalTracksInfo();

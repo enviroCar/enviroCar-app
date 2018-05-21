@@ -37,6 +37,7 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.view.utils.ECAnimationUtils;
@@ -47,9 +48,9 @@ import org.envirocar.core.exception.DataCreationFailureException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
-import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.remote.DAOProvider;
+import org.envirocar.app.handler.DAOProvider;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -572,6 +573,11 @@ public class LogbookAddFuelingFragment extends BaseInjectorFragment {
 
     private void showSnackbarInfo(int resourceID) {
         Snackbar.make(addFuelingToolbar, resourceID, Snackbar.LENGTH_LONG).show();
+    }
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
     }
 
     private class DigitsInputFilter implements InputFilter {

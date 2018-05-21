@@ -22,8 +22,8 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.InjectApplicationScope;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

@@ -35,11 +35,12 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.core.events.bluetooth.BluetoothPairingChangedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 
 import java.util.Set;
@@ -61,6 +62,11 @@ import rx.schedulers.Schedulers;
  */
 public class OBDSelectionFragment extends BaseInjectorFragment {
     private static final Logger LOGGER = Logger.getLogger(OBDSelectionFragment.class);
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
 
     /**
      *

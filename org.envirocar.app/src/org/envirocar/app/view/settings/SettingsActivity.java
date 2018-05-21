@@ -25,14 +25,12 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
-import org.envirocar.core.injection.BaseInjectorActivity;
+import org.envirocar.app.injection.BaseInjectorActivity;
 
-import java.util.Arrays;
-import java.util.List;
-
-import butterknife.ButterKnife;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 
 /**
@@ -57,6 +55,11 @@ public class SettingsActivity extends BaseInjectorActivity {
     protected View mOtherSettingsLayout;
 
     private Fragment mCurrentVisibleFragment;
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,10 +158,5 @@ public class SettingsActivity extends BaseInjectorActivity {
                 .replace(R.id.fragment_settings_main_container, fragment)
                 .commit();
         mCurrentVisibleFragment = fragment;
-    }
-
-    @Override
-    public List<Object> getInjectionModules() {
-        return Arrays.asList(new SettingsModule());
     }
 }

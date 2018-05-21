@@ -18,7 +18,6 @@
  */
 package org.envirocar.app.services;
 
-import android.app.Service;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -27,19 +26,19 @@ import android.content.IntentFilter;
 import android.os.IBinder;
 import android.widget.Toast;
 
-import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
+import org.envirocar.app.injection.BaseInjectorService;
 import org.envirocar.app.services.obd.OBDServiceHandler;
 import org.envirocar.app.services.obd.OBDServiceState;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
@@ -64,7 +63,7 @@ import static org.envirocar.app.services.obd.OBDServiceHandler.context;
  *
  * @author dewall
  */
-public class SystemStartupService extends Service {
+public class SystemStartupService extends BaseInjectorService {
     private static final Logger LOGGER = Logger.getLogger(SystemStartupService.class);
 
     public static final void startService(Context context) {
@@ -84,8 +83,6 @@ public class SystemStartupService extends Service {
     public static final String ACTION_STOP_TRACK_RECORDING = "action_stop_track_recording";
 
     // Injected variables
-    @Inject
-    protected Bus mBus;
     @Inject
     protected BluetoothHandler mBluetoothHandler;
     @Inject
@@ -165,11 +162,8 @@ public class SystemStartupService extends Service {
         LOGGER.info("onCreate()");
         super.onCreate();
 
-        // Inject ourselves.
-        ((Injector) getApplicationContext()).injectObjects(this);
-
         // Register on the event bus.
-        this.mBus.register(this);
+        this.bus.register(this);
 
         // Get the required preference settings.
         this.mDiscoveryInterval = PreferencesHandler.getDiscoveryInterval(context);
@@ -240,6 +234,11 @@ public class SystemStartupService extends Service {
 
     }
 
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent appComponent) {
+        appComponent.inject(this);
+    }
 
     @Override
     public IBinder onBind(Intent intent) {

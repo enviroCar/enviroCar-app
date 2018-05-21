@@ -3,7 +3,6 @@ package org.envirocar.app.handler;
 import android.content.SharedPreferences;
 
 import org.envirocar.core.logging.Logger;
-import org.envirocar.remote.DAOProvider;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

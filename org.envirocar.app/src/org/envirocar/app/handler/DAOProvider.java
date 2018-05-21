@@ -16,10 +16,12 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.remote;
+package org.envirocar.app.handler;
 
 import android.content.Context;
 
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.core.CacheDirectoryProvider;
 import org.envirocar.core.InternetAccessProvider;
 import org.envirocar.core.dao.AnnouncementDAO;
@@ -29,24 +31,9 @@ import org.envirocar.core.dao.TermsOfUseDAO;
 import org.envirocar.core.dao.TrackDAO;
 import org.envirocar.core.dao.UserDAO;
 import org.envirocar.core.dao.UserStatisticsDAO;
-import org.envirocar.core.injection.Injector;
-import org.envirocar.remote.dao.CacheAnnouncementsDAO;
 import org.envirocar.remote.dao.CacheCarDAO;
-import org.envirocar.remote.dao.CacheFuelingDAO;
-import org.envirocar.remote.dao.CacheTermsOfUseDAO;
-import org.envirocar.remote.dao.CacheTrackDAO;
-import org.envirocar.remote.dao.CacheUserDAO;
-import org.envirocar.remote.dao.RemoteAnnouncementsDAO;
-import org.envirocar.remote.dao.RemoteCarDAO;
-import org.envirocar.remote.dao.RemoteFuelingDAO;
-import org.envirocar.remote.dao.RemoteTermsOfUseDAO;
-import org.envirocar.remote.dao.RemoteTrackDAO;
-import org.envirocar.remote.dao.RemoteUserDAO;
-import org.envirocar.remote.dao.RemoteUserStatisticsDAO;
 
 import javax.inject.Inject;
-
-import dagger.ObjectGraph;
 
 /**
  * TODO JavaDoc
@@ -64,8 +51,7 @@ public class DAOProvider {
     @Inject
     protected CacheDirectoryProvider mCacheDirectoryProvider;
 
-    // Graph for Dependency Injection.
-    private ObjectGraph mObjectGraph;
+    BaseApplicationComponent baseApplicationComponent;
 
     /**
      * Constructor.
@@ -76,17 +62,18 @@ public class DAOProvider {
         this.mAppContext = context;
 
         // Extend the object graph with the injection modules for DAOs
-        this.mObjectGraph = ((Injector) context).getObjectGraph();
-        this.mObjectGraph.inject(this);
+        baseApplicationComponent = BaseApplication.get(context).getBaseApplicationComponent();
+        baseApplicationComponent.inject(this);
+
     }
 
     /**
      * @return the {@link CarDAO}
      */
     public CarDAO getSensorDAO() {
-        CacheCarDAO cacheSensorDao = mObjectGraph.get(CacheCarDAO.class);
+        CacheCarDAO cacheSensorDao = baseApplicationComponent.getCacheCarDAO();
         if (this.mInternetAccessProvider.isConnected()) {
-            return mObjectGraph.get(RemoteCarDAO.class);
+            return baseApplicationComponent.getRemoteCarDAO();
         }
         return cacheSensorDao;
     }
@@ -96,9 +83,9 @@ public class DAOProvider {
      */
     public TrackDAO getTrackDAO() {
         if (this.mInternetAccessProvider.isConnected()) {
-            return mObjectGraph.get(RemoteTrackDAO.class);
+            return baseApplicationComponent.getRemoteTrackDAO();
         }
-        return mObjectGraph.get(CacheTrackDAO.class);
+        return baseApplicationComponent.getCacheTrackDAO();
     }
 
     /**
@@ -106,16 +93,16 @@ public class DAOProvider {
      */
     public UserDAO getUserDAO() {
         if (this.mInternetAccessProvider.isConnected()) {
-            return mObjectGraph.get(RemoteUserDAO.class);
+            return baseApplicationComponent.getRemoteUserDAO();
         }
-        return mObjectGraph.get(CacheUserDAO.class);
+        return baseApplicationComponent.getCacheUserDAO();
     }
 
     public UserStatisticsDAO getUserStatisticsDAO() {
         if (this.mInternetAccessProvider.isConnected()) {
-            return mObjectGraph.get(RemoteUserStatisticsDAO.class);
+            return baseApplicationComponent.getRemoteUserStatisticsDAO();
         }
-        return mObjectGraph.get(RemoteUserStatisticsDAO.class);
+        return baseApplicationComponent.getRemoteUserStatisticsDAO();
     }
 
     /**
@@ -123,9 +110,9 @@ public class DAOProvider {
      */
     public FuelingDAO getFuelingDAO() {
         if (this.mInternetAccessProvider.isConnected()) {
-            return mObjectGraph.get(RemoteFuelingDAO.class);
+            return baseApplicationComponent.getRemoteFuelingDAO();
         }
-        return mObjectGraph.get(CacheFuelingDAO.class);
+        return baseApplicationComponent.getCacheFuelingDAO();
     }
 
     /**
@@ -133,16 +120,16 @@ public class DAOProvider {
      */
     public TermsOfUseDAO getTermsOfUseDAO() {
         if (this.mInternetAccessProvider.isConnected()) {
-            return mObjectGraph.get(RemoteTermsOfUseDAO.class);
+            return baseApplicationComponent.getRemoteTermsOfUseDAO();
         }
-        return mObjectGraph.get(CacheTermsOfUseDAO.class);
+        return baseApplicationComponent.getCacheTermsOfUseDAO();
     }
 
     public AnnouncementDAO getAnnouncementsDAO() {
         if (this.mInternetAccessProvider.isConnected()) {
-            return mObjectGraph.get(RemoteAnnouncementsDAO.class);
+            return baseApplicationComponent.getRemoteAnnouncementsDAO();
         }
-        return mObjectGraph.get(CacheAnnouncementsDAO.class);
+        return baseApplicationComponent.getCacheAnnouncementsDAO();
     }
 }
 

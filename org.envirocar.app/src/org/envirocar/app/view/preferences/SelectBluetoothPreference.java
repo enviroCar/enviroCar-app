@@ -26,10 +26,10 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.ListView;
 
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.view.preferences.bluetooth.SelectBluetoothAdapter;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.app.handler.PreferenceConstants;
 
 import java.util.ArrayList;
@@ -59,7 +59,7 @@ public class SelectBluetoothPreference extends DialogPreference {
         super(context, attrs);
 
         // Inject the required dependencies.
-        ((Injector) context.getApplicationContext()).injectObjects(this);
+        BaseApplication.get(context).getBaseApplicationComponent().inject(this);
 
         // Set the layout resource.
         setDialogLayoutResource(R.layout.bluetooth_selection_preference);

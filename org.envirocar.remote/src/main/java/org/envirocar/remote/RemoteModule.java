@@ -36,20 +36,7 @@ import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserStatistics;
-import org.envirocar.core.injection.InjectApplicationScope;
-import org.envirocar.remote.dao.CacheAnnouncementsDAO;
-import org.envirocar.remote.dao.CacheCarDAO;
-import org.envirocar.remote.dao.CacheFuelingDAO;
-import org.envirocar.remote.dao.CacheTermsOfUseDAO;
-import org.envirocar.remote.dao.CacheTrackDAO;
-import org.envirocar.remote.dao.CacheUserDAO;
-import org.envirocar.remote.dao.RemoteAnnouncementsDAO;
-import org.envirocar.remote.dao.RemoteCarDAO;
-import org.envirocar.remote.dao.RemoteFuelingDAO;
-import org.envirocar.remote.dao.RemoteTermsOfUseDAO;
-import org.envirocar.remote.dao.RemoteTrackDAO;
-import org.envirocar.remote.dao.RemoteUserDAO;
-import org.envirocar.remote.dao.RemoteUserStatisticsDAO;
+import org.envirocar.core.util.InjectApplicationScope;
 import org.envirocar.remote.serializer.AnnouncementSerializer;
 import org.envirocar.remote.serializer.CarListDeserializer;
 import org.envirocar.remote.serializer.CarSerializer;
@@ -88,28 +75,7 @@ import retrofit.RxJavaCallAdapterFactory;
  *
  * @author dewall
  */
-@Module(
-        complete = false,
-        library = true,
-        injects = {
-                DAOProvider.class,
-                CacheUserDAO.class,
-                CacheCarDAO.class,
-                CacheFuelingDAO.class,
-                CacheTermsOfUseDAO.class,
-                CacheTrackDAO.class,
-                CacheAnnouncementsDAO.class,
-                RemoteAnnouncementsDAO.class,
-                RemoteFuelingDAO.class,
-                RemoteCarDAO.class,
-                RemoteTermsOfUseDAO.class,
-                RemoteTrackDAO.class,
-                RemoteUserDAO.class,
-                RemoteUserStatisticsDAO.class,
-                DAOProvider.class
-        },
-        staticInjections = EnviroCarService.class
-)
+@Module
 public class RemoteModule {
     public static HttpUrl URL_ENVIROCAR_BASE = HttpUrl.parse(EnviroCarService.BASE_URL);
 
@@ -137,7 +103,7 @@ public class RemoteModule {
                                                JsonContentTypeInterceptor jsonInterceptor) {
         OkHttpClient client = new OkHttpClient();
         client.interceptors().add(authInterceptor);
-        client.interceptors().add(new JsonContentTypeInterceptor());
+        client.interceptors().add(jsonInterceptor);
         client.setConnectTimeout(300, TimeUnit.SECONDS); // connect timeout
         client.setReadTimeout(300, TimeUnit.SECONDS);    // socket timeout
         client.setWriteTimeout(300, TimeUnit.SECONDS);   // write timeout
@@ -146,24 +112,114 @@ public class RemoteModule {
 
     @Provides
     @Singleton
-    protected Gson provideGson() {
+    protected UserSerializer provideUserSerializer(){
+        return new UserSerializer();
+    }
+
+    @Provides
+    @Singleton
+    protected UserStatisticDeserializer provideUserStatisticDeserializer(){
+        return new UserStatisticDeserializer();
+    }
+
+    @Provides
+    @Singleton
+    protected TypeToken<List<Car>> provideCarListTypeToken(){
+        return new TypeToken<List<Car>>(){};
+    }
+
+    @Provides
+    @Singleton
+    protected CarListDeserializer provideCarListDeserializer(){
+        return new CarListDeserializer();
+    }
+
+    @Provides
+    @Singleton
+    protected TrackSerializer provideTrackSerializer(){
+        return new TrackSerializer();
+    }
+
+    @Provides
+    @Singleton
+    protected MeasurementSerializer provideMeasurementSerializer(){
+        return new MeasurementSerializer();
+    }
+
+    @Provides
+    @Singleton
+    protected TypeToken<List<Track>> provideTrackListTypeToken(){
+        return new TypeToken<List<Track>>(){};
+    }
+
+    @Provides
+    @Singleton
+    protected RemoteTrackListDeserializer provideRemoteTrackListDeserializer(){
+        return new RemoteTrackListDeserializer();
+    }
+
+    @Provides
+    @Singleton
+    protected TermsOfUseSerializer provideTermsOfUseSerializer(){
+        return new TermsOfUseSerializer();
+    }
+
+    @Provides
+    @Singleton
+    protected TypeToken<List<TermsOfUse>> provideTermsOfUseListTypeToken(){
+        return new TypeToken<List<TermsOfUse>>(){};
+    }
+
+    @Provides
+    @Singleton
+    protected TermsOfUseListSerializer provideTermsOfUseListSerializer(){
+        return new TermsOfUseListSerializer();
+    }
+
+    @Provides
+    @Singleton
+    protected AnnouncementSerializer provideAnnouncementSerializer(){
+        return new AnnouncementSerializer();
+    }
+
+    @Provides
+    @Singleton
+    protected FuelingSerializer provideFuelingSerializer(){
+        return new FuelingSerializer();
+    }
+
+    @Provides
+    @Singleton
+    protected TypeToken<List<Fueling>> provideFuelingListTypeToken(){
+        return new TypeToken<List<Fueling>>(){};
+    }
+
+    @Provides
+    @Singleton
+    protected FuelingListSerializer provideFuelingListSerializer(){
+        return new FuelingListSerializer();
+    }
+
+    @Provides
+    @Singleton
+    protected Gson provideGson(UserSerializer userSerializer,UserStatisticDeserializer userStatisticDeserializer,TypeToken<List<Car>> carListTypeToken,
+    CarListDeserializer carListDeserializer, TrackSerializer trackSerializer, MeasurementSerializer measurementSerializer,
+    TypeToken<List<Track>> trackListTypeToken, RemoteTrackListDeserializer remoteTrackListDeserializer, TermsOfUseSerializer termsOfUseSerializer,
+    TypeToken<List<TermsOfUse>> termsOfUseListTypeToken, TermsOfUseListSerializer termsOfUseListSerializer, AnnouncementSerializer announcementSerializer,
+    FuelingSerializer fuelingSerializer, TypeToken<List<Fueling>> fuelingListTypeToken, FuelingListSerializer fuelingListSerializer) {
         return new GsonBuilder()
-                .registerTypeAdapter(User.class, new UserSerializer())
-                .registerTypeAdapter(UserStatistics.class, new UserStatisticDeserializer())
+                .registerTypeAdapter(User.class, userSerializer)
+                .registerTypeAdapter(UserStatistics.class, userStatisticDeserializer)
                 .registerTypeAdapter(Car.class, new CarSerializer())
-                .registerTypeAdapter(new TypeToken<List<Car>>() {
-                }.getType(), new CarListDeserializer())
-                .registerTypeAdapter(Track.class, new TrackSerializer())
-                .registerTypeAdapter(Measurement.class, new MeasurementSerializer())
-                .registerTypeAdapter(new TypeToken<List<Track>>() {
-                }.getType(), new RemoteTrackListDeserializer())
-                .registerTypeAdapter(TermsOfUse.class, new TermsOfUseSerializer())
-                .registerTypeAdapter(new TypeToken<List<TermsOfUse>>() {
-                }.getType(), new TermsOfUseListSerializer())
-                .registerTypeAdapter(Announcement.class, new AnnouncementSerializer())
-                .registerTypeAdapter(Fueling.class, new FuelingSerializer())
-                .registerTypeAdapter(new TypeToken<List<Fueling>>() {
-                }.getType(), new FuelingListSerializer())
+                .registerTypeAdapter(carListTypeToken.getType(), carListDeserializer)
+                .registerTypeAdapter(Track.class, trackSerializer)
+                .registerTypeAdapter(Measurement.class, measurementSerializer)
+                .registerTypeAdapter(trackListTypeToken.getType(), remoteTrackListDeserializer)
+                .registerTypeAdapter(TermsOfUse.class, termsOfUseSerializer)
+                .registerTypeAdapter(termsOfUseListTypeToken.getType(), termsOfUseListSerializer)
+                .registerTypeAdapter(Announcement.class, announcementSerializer)
+                .registerTypeAdapter(Fueling.class, fuelingSerializer)
+                .registerTypeAdapter(fuelingListTypeToken.getType(), fuelingListSerializer)
                 .create();
     }
 

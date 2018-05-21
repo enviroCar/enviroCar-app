@@ -23,7 +23,10 @@ import android.content.DialogInterface.OnClickListener;
 import android.view.View;
 import android.widget.Button;
 
-import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.MainActivityComponent;
+import org.envirocar.app.MainActivityModule;
+import org.envirocar.app.injection.BaseInjectorFragment;
 
 public class LogbookFragment extends BaseInjectorFragment
         implements OnClickListener, android.view.View.OnClickListener {
@@ -250,4 +253,9 @@ public class LogbookFragment extends BaseInjectorFragment
 
     }
 
-}	
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(getActivity()));
+        mainActivityComponent.inject(this);
+    }
+}

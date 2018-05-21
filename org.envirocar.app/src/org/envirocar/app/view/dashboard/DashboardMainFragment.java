@@ -37,6 +37,9 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.MainActivityComponent;
+import org.envirocar.app.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
@@ -47,7 +50,7 @@ import org.envirocar.app.view.utils.DialogUtils;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
-import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
@@ -626,4 +629,9 @@ public class DashboardMainFragment extends BaseInjectorFragment {
         }
     }
 
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(getActivity()));
+        mainActivityComponent.inject(this);
+    }
 }

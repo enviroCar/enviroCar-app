@@ -35,10 +35,9 @@ import org.envirocar.core.events.NewUserSettingsEvent;
 import org.envirocar.core.exception.DataCreationFailureException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
-import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.util.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.CarUtils;
-import org.envirocar.remote.DAOProvider;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.util.ArrayList;
