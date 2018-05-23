@@ -42,6 +42,14 @@
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:statusBarScrim="@android:color/transparent">
 
+            <FrameLayout
+                android:id="@+id/activity_track_details_header_map_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:elevation="1dp"
+                android:background="@android:color/transparent"
+                />
+
             <com.mapbox.mapboxsdk.views.MapView
                 android:id="@+id/activity_track_details_header_map"
                 android:layout_width="match_parent"
@@ -64,11 +72,39 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
+                android:elevation="2dp"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
         </android.support.design.widget.CollapsingToolbarLayout>
 
     </android.support.design.widget.AppBarLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/activity_track_details_expanded_map_container"
+        android:background="@color/white"
+        android:elevation="10dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:id="@+id/activity_track_details_expanded_map_cancel"
+            android:src="@drawable/ic_close_black_24dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:elevation="2dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="15dp"/>
+
+        <com.mapbox.mapboxsdk.views.MapView
+            android:id="@+id/activity_track_details_expanded_map"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+
+    </RelativeLayout>
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/activity_track_details_scrollview"
