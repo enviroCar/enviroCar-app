@@ -37,6 +37,9 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.MainActivityComponent;
+import org.envirocar.app.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
@@ -47,7 +50,7 @@ import org.envirocar.app.view.utils.DialogUtils;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
-import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
@@ -55,7 +58,7 @@ import org.envirocar.obd.service.BluetoothServiceState;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import butterknife.OnClick;
 import rx.Scheduler;
 import rx.Subscriber;
@@ -78,13 +81,13 @@ public class DashboardMainFragment extends BaseInjectorFragment {
     @Inject
     protected LocationHandler mLocationHandler;
 
-    @InjectView(R.id.fragment_startup_info_field)
+    @BindView(R.id.fragment_startup_info_field)
     protected View mInfoField;
-    @InjectView(R.id.fragment_startup_info_text)
+    @BindView(R.id.fragment_startup_info_text)
     protected TextView mInfoText;
-    @InjectView(R.id.fragment_startup_start_button)
+    @BindView(R.id.fragment_startup_start_button)
     protected View mStartStopButton;
-    @InjectView(R.id.fragment_startup_start_button_inner)
+    @BindView(R.id.fragment_startup_start_button_inner)
     protected TextView mStartStopButtonInner;
 
     private MaterialDialog mConnectingDialog;
@@ -115,7 +118,7 @@ public class DashboardMainFragment extends BaseInjectorFragment {
         View contentView = inflater.inflate(R.layout.fragment_startup, container, false);
 
         // Inject all dashboard-related views.
-        ButterKnife.inject(this, contentView);
+        ButterKnife.bind(this, contentView);
 
         // Get the settings fragment and the header fragment.
         mDashboardSettingsFragment = getChildFragmentManager()
@@ -626,4 +629,9 @@ public class DashboardMainFragment extends BaseInjectorFragment {
         }
     }
 
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(getActivity()));
+        mainActivityComponent.inject(this);
+    }
 }

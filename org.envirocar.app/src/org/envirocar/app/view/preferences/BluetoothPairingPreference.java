@@ -36,12 +36,12 @@ import android.widget.Toast;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.view.preferences.bluetooth.BluetoothDeviceListAdapter;
 import org.envirocar.core.events.bluetooth.BluetoothPairingChangedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 
 import java.util.Set;
@@ -49,7 +49,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -62,21 +62,21 @@ public class BluetoothPairingPreference extends DialogPreference {
     private static final Logger LOGGER = Logger.getLogger(BluetoothPairingPreference.class);
 
     // Views for the already paired devices.
-    @InjectView(R.id.bluetooth_pairing_preference_paired_devices_text)
+    @BindView(R.id.bluetooth_pairing_preference_paired_devices_text)
     public TextView mPairedDevicesTextView;
-    @InjectView(R.id.bluetooth_pairing_preference_paired_devices_list)
+    @BindView(R.id.bluetooth_pairing_preference_paired_devices_list)
     public ListView mPairedDevicesListView;
 
     // Views for the newly discovered devices.
-    @InjectView(R.id.bluetooth_pairing_preference_available_devices_text)
+    @BindView(R.id.bluetooth_pairing_preference_available_devices_text)
     public TextView mNewDevicesTextView;
-    @InjectView(R.id.bluetooth_pairing_preference_available_devices_list)
+    @BindView(R.id.bluetooth_pairing_preference_available_devices_list)
     public ListView mNewDevicesListView;
 
     // No device found.
-    @InjectView(R.id.bluetooth_pairing_preference_available_devices_info)
+    @BindView(R.id.bluetooth_pairing_preference_available_devices_info)
     public TextView mNewDevicesInfoTextView;
-    @InjectView(R.id.bluetooth_pairing_preference_search_devices_progressbar)
+    @BindView(R.id.bluetooth_pairing_preference_search_devices_progressbar)
     public ProgressBar mProgressBar;
 
     // Injected variables.
@@ -86,7 +86,7 @@ public class BluetoothPairingPreference extends DialogPreference {
     protected BluetoothHandler mBluetoothHandler;
 
     // Main parent view for the content.
-    @InjectView(R.id.bluetooth_pairing_preference_content)
+    @BindView(R.id.bluetooth_pairing_preference_content)
     protected LinearLayout mContentView;
 
     // ArrayAdapter for the two different list views.
@@ -103,7 +103,7 @@ public class BluetoothPairingPreference extends DialogPreference {
         super(context, attrs);
 
         // Inject fields.
-        ((Injector) context.getApplicationContext()).injectObjects(this);
+        BaseApplication.get(context).getBaseApplicationComponent().inject(this);
 
         // Set the layout of the dialog to show.
         setDialogLayoutResource(R.layout.bluetooth_pairing_preference);
@@ -119,7 +119,7 @@ public class BluetoothPairingPreference extends DialogPreference {
         super.onBindDialogView(view);
 
         // Inject all views.
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
 
         // Initialize the array adapter for both list views
         mNewDevicesArrayAdapter = new BluetoothDeviceListAdapter(getContext(),

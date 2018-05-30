@@ -32,12 +32,12 @@ import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.core.events.bluetooth.BluetoothPairingChangedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
@@ -70,7 +70,7 @@ public class OBDSettingsFragment extends PreferenceFragment {
         super.onCreate(savedInstanceState);
 
         // Inject all required dependencies.
-        ((Injector) getActivity()).injectObjects(this);
+        BaseApplication.get(getActivity()).getBaseApplicationComponent().inject(this);
 
         // Set the preference resource.
         addPreferencesFromResource(R.xml.preferences_obd);

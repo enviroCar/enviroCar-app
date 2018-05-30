@@ -18,12 +18,16 @@
  */
 package org.envirocar.app.view.tracklist;
 
-import android.app.Activity;
 import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.View;
 
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.MainActivityComponent;
+import org.envirocar.app.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.view.utils.ECAnimationUtils;
@@ -31,7 +35,6 @@ import org.envirocar.core.entity.Track;
 import org.envirocar.core.events.NewUserSettingsEvent;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 
 import java.util.Collections;
@@ -56,10 +59,12 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
     private boolean hasLoadedStored = false;
     private boolean isSorted = false;
 
+
     @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        ((Injector) activity).injectObjects(this);
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        MainActivityComponent mainActivityComponent =  BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
+        mainActivityComponent.inject(this);
     }
 
     @Override
@@ -93,7 +98,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
 
     @Override
     public TrackListRemoteCardAdapter getRecyclerViewAdapter() {
-        return new TrackListRemoteCardAdapter(getContext(), mTrackList,
+        return new TrackListRemoteCardAdapter(getActivity(), mTrackList,
                 new OnTrackInteractionCallback() {
 
                     /**
@@ -165,7 +170,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                 (AbstractTrackListCardAdapter.RemoteTrackCardViewHolder) viewHolder;
 
         // Show the downloading text notification.
-        ECAnimationUtils.animateShowView(getContext(), holder.mDownloadNotification,
+        ECAnimationUtils.animateShowView(getActivity(), holder.mDownloadNotification,
                 R.anim.fade_in);
         holder.mProgressCircle.show();
         track.setDownloadState(Track.DownloadState.DOWNLOADING);
@@ -184,10 +189,10 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                             mRecyclerViewAdapter.bindLocalTrackViewHolder(holder, track);
 
                             // and hide the download button
-                            ECAnimationUtils.animateHideView(getContext(), R.anim.fade_out,
+                            ECAnimationUtils.animateHideView(getActivity(), R.anim.fade_out,
                                     holder.mProgressCircle, holder.mDownloadButton, holder
                                             .mDownloadNotification);
-                            ECAnimationUtils.animateShowView(getContext(), holder.mContentView, R
+                            ECAnimationUtils.animateShowView(getActivity(), holder.mContentView, R
                                     .anim.fade_in);
                         });
                     }
@@ -306,7 +311,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                                 }
                             }
 
-                            ECAnimationUtils.animateHideView(getContext(), mProgressView,
+                            ECAnimationUtils.animateHideView(getActivity(), mProgressView,
                                     R.anim.fade_out);
                         }
 
@@ -349,7 +354,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                 isSorted = true;
                 Collections.sort(mTrackList);
             }
-            ECAnimationUtils.animateHideView(getContext(), mProgressView, R.anim.fade_out);
+            ECAnimationUtils.animateHideView(getActivity(), mProgressView, R.anim.fade_out);
 
             if (mTrackList.isEmpty()) {
                 showText(R.drawable.img_tracks,

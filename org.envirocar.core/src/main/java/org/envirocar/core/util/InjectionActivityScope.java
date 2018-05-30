@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.core.injection;
+package org.envirocar.core.util;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

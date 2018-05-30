@@ -35,11 +35,12 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.core.events.bluetooth.BluetoothPairingChangedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 
 import java.util.Set;
@@ -47,7 +48,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
@@ -62,6 +63,11 @@ import rx.schedulers.Schedulers;
 public class OBDSelectionFragment extends BaseInjectorFragment {
     private static final Logger LOGGER = Logger.getLogger(OBDSelectionFragment.class);
 
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
+
     /**
      *
      */
@@ -72,18 +78,18 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
     @Inject
     protected BluetoothHandler mBluetoothHandler;
 
-    @InjectView(R.id.activity_obd_selection_layout_content)
+    @BindView(R.id.activity_obd_selection_layout_content)
     protected View mContentView;
-    @InjectView(R.id.activity_obd_selection_layout_paired_devices_text)
+    @BindView(R.id.activity_obd_selection_layout_paired_devices_text)
     protected TextView mPairedDevicesTextView;
-    @InjectView(R.id.activity_obd_selection_layout_paired_devices_list)
+    @BindView(R.id.activity_obd_selection_layout_paired_devices_list)
     protected ListView mPairedDevicesListView;
-    @InjectView(R.id.activity_obd_selection_layout_available_devices_list)
+    @BindView(R.id.activity_obd_selection_layout_available_devices_list)
     protected ListView mNewDevicesListView;
-    @InjectView(R.id.activity_obd_selection_layout_search_devices_progressbar)
+    @BindView(R.id.activity_obd_selection_layout_search_devices_progressbar)
     protected ProgressBar mProgressBar;
 
-    @InjectView(R.id.activity_obd_selection_layout_available_devices_info)
+    @BindView(R.id.activity_obd_selection_layout_available_devices_info)
     protected TextView mNewDevicesInfoTextView;
 
     // ArrayAdapter for the two different list views.
@@ -101,7 +107,7 @@ public class OBDSelectionFragment extends BaseInjectorFragment {
                 container, false);
 
         // Inject all annotated views.
-        ButterKnife.inject(this, contentView);
+        ButterKnife.bind(this, contentView);
 
         // Setup the listviews, its adapters, and its onClick listener.
         setupListViews();

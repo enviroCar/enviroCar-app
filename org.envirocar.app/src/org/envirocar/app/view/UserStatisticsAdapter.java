@@ -32,7 +32,7 @@ import java.text.DecimalFormat;
 import java.util.List;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 
 /**
  * @author dewall
@@ -66,7 +66,7 @@ public class UserStatisticsAdapter extends ArrayAdapter<Phenomenon> {
 
             // Create a new viewholder and inject the sub-views of the newly inflated convertView.
             viewHolder = new ViewHolder();
-            ButterKnife.inject(viewHolder, convertView);
+            ButterKnife.bind(viewHolder, convertView);
 
             // Set the viewHolder as tag on the convertView.
             convertView.setTag(viewHolder);
@@ -86,13 +86,13 @@ public class UserStatisticsAdapter extends ArrayAdapter<Phenomenon> {
     }
 
     static final class ViewHolder {
-        @InjectView(R.id.activity_account_statistics_list_entry_phenomenon)
+        @BindView(R.id.activity_account_statistics_list_entry_phenomenon)
         TextView mPhenomenonTextView;
-        @InjectView(R.id.activity_account_statistics_list_entry_avg_value)
+        @BindView(R.id.activity_account_statistics_list_entry_avg_value)
         TextView mAvgValue;
-        @InjectView(R.id.activity_account_statistics_list_entry_max_value)
+        @BindView(R.id.activity_account_statistics_list_entry_max_value)
         TextView mMaxValue;
-        @InjectView(R.id.activity_account_statistics_list_entry_min_value)
+        @BindView(R.id.activity_account_statistics_list_entry_min_value)
         TextView mMinValue;
     }
 }

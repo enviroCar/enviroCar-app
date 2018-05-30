@@ -26,11 +26,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
-import android.widget.TextView;
 
 import org.envirocar.app.R;
-
-import java.util.Collection;
 
 /**
  * @author dewall

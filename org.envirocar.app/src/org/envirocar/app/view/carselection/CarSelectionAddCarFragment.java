@@ -24,14 +24,15 @@ import android.widget.TextView;
 
 import com.jakewharton.rxbinding.support.v7.widget.RxToolbar;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.CarImpl;
-import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.remote.DAOProvider;
+import org.envirocar.app.handler.DAOProvider;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -45,7 +46,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
@@ -62,40 +63,40 @@ import rx.schedulers.Schedulers;
 public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(CarSelectionAddCarFragment.class);
 
-    @InjectView(R.id.activity_car_selection_newcar_toolbar)
+    @BindView(R.id.activity_car_selection_newcar_toolbar)
     protected Toolbar toolbar;
-    @InjectView(R.id.activity_car_selection_newcar_toolbar_exp)
+    @BindView(R.id.activity_car_selection_newcar_toolbar_exp)
     protected View toolbarExp;
-    @InjectView(R.id.activity_car_selection_newcar_content_view)
+    @BindView(R.id.activity_car_selection_newcar_content_view)
     protected View contentView;
-    @InjectView(R.id.activity_car_selection_newcar_download_layout)
+    @BindView(R.id.activity_car_selection_newcar_download_layout)
     protected View downloadView;
 
-    @InjectView(R.id.activity_car_selection_newcar_manufacturer)
+    @BindView(R.id.activity_car_selection_newcar_manufacturer)
     protected TextView manufacturerText;
-    @InjectView(R.id.activity_car_selection_newcar_manufacturer_spinner)
+    @BindView(R.id.activity_car_selection_newcar_manufacturer_spinner)
     protected Spinner manufacturerSpinner;
 
-    @InjectView(R.id.activity_car_selection_newcar_model)
+    @BindView(R.id.activity_car_selection_newcar_model)
     protected TextView modelText;
-    @InjectView(R.id.activity_car_selection_newcar_model_spinner)
+    @BindView(R.id.activity_car_selection_newcar_model_spinner)
     protected Spinner modelSpinner;
 
-    @InjectView(R.id.activity_car_selection_newcar_year)
+    @BindView(R.id.activity_car_selection_newcar_year)
     protected TextView yearText;
-    @InjectView(R.id.activity_car_selection_newcar_year_spinner)
+    @BindView(R.id.activity_car_selection_newcar_year_spinner)
     protected Spinner yearSpinner;
 
-    @InjectView(R.id.activity_car_selection_newcar_engine)
+    @BindView(R.id.activity_car_selection_newcar_engine)
     protected TextView engineText;
-    @InjectView(R.id.activity_car_selection_newcar_engine_spinner)
+    @BindView(R.id.activity_car_selection_newcar_engine_spinner)
     protected Spinner engineSpinner;
 
-    @InjectView(R.id.activity_car_selection_newcar_radio_group)
+    @BindView(R.id.activity_car_selection_newcar_radio_group)
     protected RadioGroup fuelTypeRadioGroup;
-    @InjectView(R.id.activity_car_selection_newcar_radio_group_gasoline)
+    @BindView(R.id.activity_car_selection_newcar_radio_group_gasoline)
     protected RadioButton gasolineRadio;
-    @InjectView(R.id.activity_car_selection_newcar_radio_group_diesel)
+    @BindView(R.id.activity_car_selection_newcar_radio_group_diesel)
     protected RadioButton dieselRadio;
 
     @Inject
@@ -121,7 +122,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
         View view = inflater.inflate(
                 R.layout.activity_car_selection_newcar_fragment, container, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
 
         // Get the display size in pixels
         Display display = getActivity().getWindowManager().getDefaultDisplay();
@@ -714,5 +715,10 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     public void hideKeyboard(View view) {
         InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent appComponent) {
+        appComponent.inject(this);
     }
 }

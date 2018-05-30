@@ -22,6 +22,7 @@ import android.content.Context;
 
 import com.squareup.otto.Bus;
 
+import org.envirocar.app.BaseApplication;
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
@@ -30,12 +31,10 @@ import org.envirocar.core.entity.TrackImpl;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.core.exception.NoMeasurementsException;
-import org.envirocar.core.injection.InjectApplicationScope;
-import org.envirocar.core.injection.Injector;
+import org.envirocar.core.util.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
-import org.envirocar.remote.DAOProvider;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.text.DateFormat;
@@ -93,7 +92,7 @@ public class TrackRecordingHandler {
      */
     public TrackRecordingHandler(Context context) {
         // Inject all annotated fields.
-        ((Injector) context).injectObjects(this);
+        BaseApplication.get(context).getBaseApplicationComponent().inject(this);
     }
 
     public Subscription startNewTrack(PublishSubject<Measurement> publishSubject) {

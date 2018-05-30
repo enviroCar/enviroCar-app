@@ -49,8 +49,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
@@ -272,19 +272,19 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
         protected final View mItemView;
 
-        @InjectView(R.id.fragment_tracklist_cardlayout_toolbar)
+        @BindView(R.id.fragment_tracklist_cardlayout_toolbar)
         protected Toolbar mToolbar;
-        @InjectView(R.id.fragment_tracklist_cardlayout_toolbar_title)
+        @BindView(R.id.fragment_tracklist_cardlayout_toolbar_title)
         protected TextView mTitleTextView;
-        @InjectView(R.id.fragment_tracklist_cardlayout_content)
+        @BindView(R.id.fragment_tracklist_cardlayout_content)
         protected View mContentView;
-        @InjectView(R.id.track_details_attributes_header_distance)
+        @BindView(R.id.track_details_attributes_header_distance)
         protected TextView mDistance;
-        @InjectView(R.id.track_details_attributes_header_duration)
+        @BindView(R.id.track_details_attributes_header_duration)
         protected TextView mDuration;
-        @InjectView(R.id.fragment_tracklist_cardlayout_map)
+        @BindView(R.id.fragment_tracklist_cardlayout_map)
         protected MapView mMapView;
-        @InjectView(R.id.fragment_tracklist_cardlayout_invis_mapbutton)
+        @BindView(R.id.fragment_tracklist_cardlayout_invis_mapbutton)
         protected ImageButton mInvisMapButton;
 
         /**
@@ -295,7 +295,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
         public TrackCardViewHolder(View itemView) {
             super(itemView);
             this.mItemView = itemView;
-            ButterKnife.inject(this, itemView);
+            ButterKnife.bind(this, itemView);
         }
     }
 
@@ -320,11 +320,11 @@ public abstract class AbstractTrackListCardAdapter<E extends
      */
     static class RemoteTrackCardViewHolder extends TrackCardViewHolder {
 
-        @InjectView(R.id.fragment_tracklist_cardlayout_remote_progresscircle)
+        @BindView(R.id.fragment_tracklist_cardlayout_remote_progresscircle)
         protected FABProgressCircle mProgressCircle;
-        @InjectView(R.id.fragment_tracklist_cardlayout_remote_downloadfab)
+        @BindView(R.id.fragment_tracklist_cardlayout_remote_downloadfab)
         protected FloatingActionButton mDownloadButton;
-        @InjectView(R.id.fragment_tracklist_cardlayout_downloading_notification)
+        @BindView(R.id.fragment_tracklist_cardlayout_downloading_notification)
         protected TextView mDownloadNotification;
 
         /**

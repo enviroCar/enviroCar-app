@@ -44,6 +44,8 @@ import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.core.logging.Logger;
@@ -163,6 +165,7 @@ public final class Tempomat extends FrameLayout {
     }
 
     private void init(Context context) {
+        BaseApplication.get(context).getBaseApplicationComponent().inject(this);
 
         // This FrameLayout view draws something on its own. Therefore, this flag has
         // to be set to true.

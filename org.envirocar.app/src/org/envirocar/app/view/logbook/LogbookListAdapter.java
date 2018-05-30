@@ -38,7 +38,7 @@ import java.util.GregorianCalendar;
 import java.util.List;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 
 /**
  * TODO JavaDoc
@@ -119,24 +119,24 @@ public class LogbookListAdapter extends ArrayAdapter<Fueling> {
     }
 
     static class FuelingViewHolder {
-        @InjectView(R.id.activity_logbook_listentry_date)
+        @BindView(R.id.activity_logbook_listentry_date)
         protected TextView dateText;
-        @InjectView(R.id.activity_logbook_listentry_kmliter)
+        @BindView(R.id.activity_logbook_listentry_kmliter)
         protected TextView kmAndLiter;
-        @InjectView(R.id.activity_logbook_listentry_priceperliter)
+        @BindView(R.id.activity_logbook_listentry_priceperliter)
         protected TextView pricePerLiter;
-        @InjectView(R.id.activity_logbook_listentry_totalprice)
+        @BindView(R.id.activity_logbook_listentry_totalprice)
         protected TextView totalPrice;
 
-        @InjectView(R.id.activity_logbook_listentry_car)
+        @BindView(R.id.activity_logbook_listentry_car)
         protected TextView car;
-        @InjectView(R.id.activity_logbook_listentry_comment_view)
+        @BindView(R.id.activity_logbook_listentry_comment_view)
         protected View commentView;
-        @InjectView(R.id.activity_logbook_listentry_comment)
+        @BindView(R.id.activity_logbook_listentry_comment)
         protected TextView commentText;
-        @InjectView(R.id.activity_logbook_listentry_fillup)
+        @BindView(R.id.activity_logbook_listentry_fillup)
         protected View filledUpView;
-        @InjectView(R.id.activity_logbook_listentry_missedfillup)
+        @BindView(R.id.activity_logbook_listentry_missedfillup)
         protected View missedFillUpView;
 
         /**
@@ -145,7 +145,7 @@ public class LogbookListAdapter extends ArrayAdapter<Fueling> {
          * @param view the core view to inject the subviews from.
          */
         FuelingViewHolder(View view) {
-            ButterKnife.inject(this, view);
+            ButterKnife.bind(this, view);
         }
     }
 }

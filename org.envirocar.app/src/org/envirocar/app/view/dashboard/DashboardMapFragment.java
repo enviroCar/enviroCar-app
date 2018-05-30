@@ -27,13 +27,16 @@ import android.view.ViewGroup;
 import com.mapbox.mapboxsdk.overlay.UserLocationOverlay;
 import com.mapbox.mapboxsdk.views.MapView;
 
+import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.MainActivityComponent;
+import org.envirocar.app.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.view.utils.MapUtils;
-import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 
 /**
  * TODO JavaDoc
@@ -43,7 +46,7 @@ import butterknife.InjectView;
 public class DashboardMapFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(DashboardMapFragment.class);
 
-    @InjectView(R.id.fragment_dashboard_frag_map_mapview)
+    @BindView(R.id.fragment_dashboard_frag_map_mapview)
     protected MapView mMapView;
 
     @Nullable
@@ -56,7 +59,7 @@ public class DashboardMapFragment extends BaseInjectorFragment {
         View contentView = inflater.inflate(R.layout.fragment_dashboard_frag_map, container, false);
 
         // Inject all dashboard-related views.
-        ButterKnife.inject(this, contentView);
+        ButterKnife.bind(this, contentView);
 
         // Init the map view
         mMapView.setTileSource(MapUtils.getOSMTileLayer());
@@ -79,5 +82,11 @@ public class DashboardMapFragment extends BaseInjectorFragment {
         super.onPause();
         mMapView.setUserLocationEnabled(false);
         mMapView.setUserLocationTrackingMode(UserLocationOverlay.TrackingMode.NONE);
+    }
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(getActivity()));
+        mainActivityComponent.inject(this);
     }
 }

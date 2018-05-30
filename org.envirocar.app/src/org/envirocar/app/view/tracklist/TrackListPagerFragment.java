@@ -29,12 +29,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.MainActivityComponent;
+import org.envirocar.app.MainActivityModule;
 import org.envirocar.app.R;
-import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 
 /**
  * @author dewall
@@ -42,9 +46,9 @@ import butterknife.InjectView;
 public class TrackListPagerFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(TrackListPagerFragment.class);
 
-    @InjectView(R.id.fragment_tracklist_layout_tablayout)
+    @BindView(R.id.fragment_tracklist_layout_tablayout)
     protected TabLayout mTabLayout;
-    @InjectView(R.id.fragment_tracklist_layout_viewpager)
+    @BindView(R.id.fragment_tracklist_layout_viewpager)
     protected ViewPager mViewPager;
 
     private TrackListPagerAdapter trackListPageAdapter;
@@ -56,7 +60,7 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
         LOG.info("onCreateView()");
         View content = inflater.inflate(R.layout.fragment_tracklist_layout, container, false);
 
-        ButterKnife.inject(this, content);
+        ButterKnife.bind(this, content);
 
         trackListPageAdapter = new TrackListPagerAdapter(getChildFragmentManager());
         mViewPager.setAdapter(trackListPageAdapter);
@@ -108,6 +112,12 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
 
         trackListPageAdapter.localCardFragment.onDestroyView();
         trackListPageAdapter.remoteCardFragment.onDestroyView();
+    }
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        MainActivityComponent mainActivityComponent =  BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
+        mainActivityComponent.inject(this);
     }
 
     /**

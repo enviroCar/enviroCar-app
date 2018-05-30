@@ -30,6 +30,9 @@ import android.widget.TextView;
 
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.MainActivityComponent;
+import org.envirocar.app.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
@@ -39,13 +42,13 @@ import org.envirocar.core.entity.Car;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 
 /**
  * TODO JavaDoc
@@ -60,18 +63,18 @@ public class DashboardTrackSettingsFragment extends BaseInjectorFragment {
     @Inject
     protected BluetoothHandler mBluetoothHandler;
 
-    @InjectView(R.id.fragment_startup_obd_selection)
+    @BindView(R.id.fragment_startup_obd_selection)
     protected View mOBDTypeView;
-    @InjectView(R.id.fragment_startup_obd_selection_text1)
+    @BindView(R.id.fragment_startup_obd_selection_text1)
     protected TextView mOBDTypeTextView;
-    @InjectView(R.id.fragment_startup_obd_selection_text2)
+    @BindView(R.id.fragment_startup_obd_selection_text2)
     protected TextView mOBDTypeSubTextView;
 
-    @InjectView(R.id.fragment_startup_car_selection)
+    @BindView(R.id.fragment_startup_car_selection)
     protected View mCarTypeView;
-    @InjectView(R.id.fragment_startup_car_selection_text1)
+    @BindView(R.id.fragment_startup_car_selection_text1)
     protected TextView mCarTypeTextView;
-    @InjectView(R.id.fragment_startup_car_selection_text2)
+    @BindView(R.id.fragment_startup_car_selection_text2)
     protected TextView mCarTypeSubTextView;
 
     @Nullable
@@ -85,7 +88,7 @@ public class DashboardTrackSettingsFragment extends BaseInjectorFragment {
                 container, false);
 
         // Inject all dashboard-related views.
-        ButterKnife.inject(this, contentView);
+        ButterKnife.bind(this, contentView);
 
         mCarTypeView.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), CarSelectionActivity.class);
@@ -178,5 +181,11 @@ public class DashboardTrackSettingsFragment extends BaseInjectorFragment {
             mCarTypeSubTextView.setText(R.string.dashboard_carselection_no_car_selected_advise);
             mCarTypeSubTextView.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(getActivity()));
+        mainActivityComponent.inject(this);
     }
 }

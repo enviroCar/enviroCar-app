@@ -26,7 +26,7 @@ import android.view.MenuItem;
 import org.envirocar.app.R;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 
 /**
  * TODO JavaDoc
@@ -35,7 +35,7 @@ import butterknife.InjectView;
  */
 public class HelpActivity extends AppCompatActivity {
 
-    @InjectView(R.id.activity_help_layout_general_toolbar)
+    @BindView(R.id.activity_help_layout_general_toolbar)
     protected Toolbar toolbar;
 
     @Override
@@ -45,7 +45,7 @@ public class HelpActivity extends AppCompatActivity {
         setContentView(R.layout.activity_help_layout_general);
 
         // Inject views
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         // Set Actionbar
         setSupportActionBar(toolbar);

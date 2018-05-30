@@ -18,13 +18,13 @@
  */
 package org.envirocar.app.view.tracklist;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -35,6 +35,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.envirocar.app.R;
+import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
@@ -44,10 +45,7 @@ import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
-import org.envirocar.core.injection.BaseInjectorFragment;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.remote.DAOProvider;
 import org.envirocar.remote.serializer.TrackSerializer;
 import org.envirocar.storage.EnviroCarDB;
 
@@ -58,8 +56,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import rx.Observable;
 import rx.Scheduler;
 import rx.Subscriber;
@@ -73,7 +71,7 @@ import rx.schedulers.Schedulers;
  * @author dewall
  */
 public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapter>
-        extends BaseInjectorFragment {
+        extends Fragment {
     private static final Logger LOG = Logger.getLogger(AbstractTrackListCardFragment.class);
 
     @Inject
@@ -89,24 +87,24 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     @Inject
     protected TrackUploadHandler mTrackUploadHandler;
 
-    @InjectView(R.id.fragment_tracklist_info)
+    @BindView(R.id.fragment_tracklist_info)
     protected View infoView;
-    @InjectView(R.id.fragment_tracklist_info_img)
+    @BindView(R.id.fragment_tracklist_info_img)
     protected ImageView infoImg;
-    @InjectView(R.id.fragment_tracklist_info_text)
+    @BindView(R.id.fragment_tracklist_info_text)
     protected TextView infoText;
-    @InjectView(R.id.fragment_tracklist_info_subtext)
+    @BindView(R.id.fragment_tracklist_info_subtext)
     protected TextView infoSubtext;
 
-    @InjectView(R.id.fragment_tracklist_progress_view)
+    @BindView(R.id.fragment_tracklist_progress_view)
     protected View mProgressView;
-    @InjectView(R.id.fragment_tracklist_progress_text)
+    @BindView(R.id.fragment_tracklist_progress_text)
     protected TextView mProgressText;
-    @InjectView(R.id.fragment_tracklist_progress_progressBar)
+    @BindView(R.id.fragment_tracklist_progress_progressBar)
     protected ProgressBar mProgressBar;
-    @InjectView(R.id.fragment_tracklist_recycler_view)
+    @BindView(R.id.fragment_tracklist_recycler_view)
     protected RecyclerView mRecyclerView;
-    @InjectView(R.id.fragment_tracklist_fab)
+    @BindView(R.id.fragment_tracklist_fab)
     protected FloatingActionButton mFAB;
 
     protected E mRecyclerViewAdapter;
@@ -122,11 +120,6 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected final Object attachingActivityLock = new Object();
     protected boolean isAttached = false;
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        ((Injector) activity).injectObjects(this);
-    }
 
     @Nullable
     @Override
@@ -136,7 +129,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
 
         // Inflate the view and inject the annotated view.
         View view = inflater.inflate(R.layout.fragment_tracklist, container, false);
-        ButterKnife.inject(this, view);
+        ButterKnife.bind(this, view);
 
         // Initiate the recyclerview
 //        mRecyclerView.setHasFixedSize(true);
@@ -206,7 +199,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                 R.id.fragment_tracklist_delete_track_dialog_trackname)).setText(track.getName());
 
         // Create a dialog that deletes on click on the positive button the track.
-        DialogUtils.createDefaultDialogBuilder(getContext(),
+        DialogUtils.createDefaultDialogBuilder(getActivity(),
                 R.string.trackviews_delete_track_dialog_headline,
                 R.drawable.ic_delete_white_24dp,
                 contentView)
@@ -231,7 +224,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
                     infoImg.setImageResource(imgResource);
                     infoText.setText(textResource);
                     infoSubtext.setText(subtextResource);
-                    ECAnimationUtils.animateShowView(getContext(), infoView, R.anim.fade_in);
+                    ECAnimationUtils.animateShowView(getActivity(), infoView, R.anim.fade_in);
                 }
             });
         }
@@ -360,6 +353,6 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     }
 
     protected void hideProgressView() {
-        ECAnimationUtils.animateHideView(getContext(), mProgressView, R.anim.fade_out);
+        ECAnimationUtils.animateHideView(getActivity(), mProgressView, R.anim.fade_out);
     }
 }

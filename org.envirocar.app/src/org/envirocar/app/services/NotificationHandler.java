@@ -36,8 +36,8 @@
 //import org.envirocar.app.services.obd.OBDServiceState;
 //import org.envirocar.app.view.carselection.CarSelectionActivity;
 //import org.envirocar.app.view.obdselection.OBDSelectionActivity;
-//import org.envirocar.core.injection.InjectApplicationScope;
-//import org.envirocar.core.injection.Injector;
+//import org.envirocar.core.util.InjectApplicationScope;
+//import org.envirocar.app.injection.Injector;
 //import org.envirocar.core.logging.Logger;
 //
 //import java.util.Map;

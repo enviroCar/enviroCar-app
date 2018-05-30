@@ -28,14 +28,15 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.view.utils.ECAnimationUtils;
 import org.envirocar.core.entity.Car;
-import org.envirocar.core.injection.BaseInjectorActivity;
+import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.remote.DAOProvider;
+import org.envirocar.app.handler.DAOProvider;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -45,7 +46,7 @@ import java.util.Set;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import butterknife.OnClick;
 import rx.Observable;
 import rx.Subscriber;
@@ -61,21 +62,21 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
     private static final int DURATION_SHEET_ANIMATION = 350;
 
-    @InjectView(R.id.activity_car_selection_layout_content)
+    @BindView(R.id.activity_car_selection_layout_content)
     protected View mContentView;
-    @InjectView(R.id.activity_car_selection_layout_toolbar)
+    @BindView(R.id.activity_car_selection_layout_toolbar)
     protected Toolbar mToolbar;
-    @InjectView(R.id.activity_car_selection_layout_exptoolbar)
+    @BindView(R.id.activity_car_selection_layout_exptoolbar)
     protected Toolbar mExpToolbar;
-    @InjectView(R.id.actvity_car_selection_layout_loading)
+    @BindView(R.id.actvity_car_selection_layout_loading)
     protected View loadingView;
-    @InjectView(R.id.overlay)
+    @BindView(R.id.overlay)
     protected View overlayView;
 
-    @InjectView(R.id.activity_car_selection_new_car_fab)
+    @BindView(R.id.activity_car_selection_new_car_fab)
     protected FloatingActionButton mFab;
 
-    @InjectView(R.id.activity_car_selection_layout_carlist)
+    @BindView(R.id.activity_car_selection_layout_carlist)
     protected ListView mCarListView;
 
     @Inject
@@ -96,6 +97,11 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
 
 
     @Override
+    protected void injectDependencies(BaseApplicationComponent appComponent) {
+        appComponent.inject(this);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -103,7 +109,7 @@ public class CarSelectionActivity extends BaseInjectorActivity implements CarSel
         setContentView(R.layout.activity_car_selection_layout);
 
         // Inject all annotated views.
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         // Set the toolbar as default actionbar.
         setSupportActionBar(mToolbar);

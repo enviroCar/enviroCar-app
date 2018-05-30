@@ -1,6 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.neenbedankt.android-apt'
-apply plugin: 'me.tatarka.retrolambda'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -27,15 +25,16 @@ android {
 }
 
 dependencies {
-    testCompile 'junit:junit:4.12'
-    androidTestCompile 'junit:junit:4.12'
-    compile supportV7
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'junit:junit:4.12'
+    implementation supportV7
 
-    compile rootProject.ext.dagger
-    apt rootProject.ext.daggerCompiler
+    implementation  rootProject.ext.dagger
+    annotationProcessor rootProject.ext.daggerCompiler
+    implementation 'org.glassfish:javax.annotation:10.0-b28'
 
-    compile rootProject.ext.rxAndroid
-    compile rootProject.ext.rxJava
+    implementation  rootProject.ext.rxAndroid
+    implementation  rootProject.ext.rxJava
 
-    compile project(':org.envirocar.obd')
+    api project(path : ':org.envirocar.obd')
 }

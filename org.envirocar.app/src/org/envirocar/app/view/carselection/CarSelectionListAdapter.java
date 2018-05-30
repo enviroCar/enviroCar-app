@@ -36,7 +36,7 @@ import org.envirocar.core.logging.Logger;
 import java.util.List;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 
 /**
  * @author dewall
@@ -221,19 +221,19 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
 
         protected final View mCoreView;
 
-        @InjectView(R.id.activity_car_selection_layout_carlist_entry_icon)
+        @BindView(R.id.activity_car_selection_layout_carlist_entry_icon)
         protected ImageView mIconView;
-        @InjectView(R.id.activity_car_selection_layout_carlist_entry_firstline)
+        @BindView(R.id.activity_car_selection_layout_carlist_entry_firstline)
         protected TextView mFirstLineText;
 
-        @InjectView(R.id.activity_car_selection_layout_carlist_entry_engine)
+        @BindView(R.id.activity_car_selection_layout_carlist_entry_engine)
         protected TextView mEngineText;
-        @InjectView(R.id.activity_car_selection_layout_carlist_entry_gasoline)
+        @BindView(R.id.activity_car_selection_layout_carlist_entry_gasoline)
         protected TextView mGasolineText;
-        @InjectView(R.id.activity_car_selection_layout_carlist_entry_year)
+        @BindView(R.id.activity_car_selection_layout_carlist_entry_year)
         protected TextView mYearText;
 
-        @InjectView(R.id.activity_car_selection_layout_carlist_entry_radio)
+        @BindView(R.id.activity_car_selection_layout_carlist_entry_radio)
         protected RadioButton mRadioButton;
 
         /**
@@ -243,7 +243,7 @@ public class CarSelectionListAdapter extends ArrayAdapter<Car> {
          */
         CarViewHolder(View view) {
             this.mCoreView = view;
-            ButterKnife.inject(this, view);
+            ButterKnife.bind(this, view);
         }
     }
 }

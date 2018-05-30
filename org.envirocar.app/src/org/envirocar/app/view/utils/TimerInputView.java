@@ -29,7 +29,7 @@ import org.envirocar.app.R;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 
 /**
  * Created by dewall
@@ -44,13 +44,13 @@ public class TimerInputView extends LinearLayout {
         }
     };
 
-    @InjectView(R.id.preference_layout_timer_input_view_firstrow)
+    @BindView(R.id.preference_layout_timer_input_view_firstrow)
     protected View mButtonRow1;
-    @InjectView(R.id.preference_layout_timer_input_view_secondrow)
+    @BindView(R.id.preference_layout_timer_input_view_secondrow)
     protected View mButtonRow2;
-    @InjectView(R.id.preference_layout_timer_input_view_thirdrow)
+    @BindView(R.id.preference_layout_timer_input_view_thirdrow)
     protected View mButtonRow3;
-    @InjectView(R.id.preference_layout_timer_input_view_fourthrow)
+    @BindView(R.id.preference_layout_timer_input_view_fourthrow)
     protected View mButtonRow4;
 
     protected final Button[] mNumberButtons = new Button[10];
@@ -76,7 +76,7 @@ public class TimerInputView extends LinearLayout {
         LayoutInflater.from(context).inflate(R.layout.preference_layout_timer_input_view, this);
 
         // Inject all views
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
     }
 
     @Override

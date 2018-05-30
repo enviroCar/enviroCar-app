@@ -34,14 +34,17 @@ import com.mapbox.mapboxsdk.overlay.UserLocationOverlay;
 import com.mapbox.mapboxsdk.views.MapView;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.MainActivityComponent;
+import org.envirocar.app.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.events.TrackPathOverlayEvent;
 import org.envirocar.app.view.utils.MapUtils;
-import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import butterknife.OnClick;
 import butterknife.OnTouch;
 import rx.Scheduler;
@@ -53,9 +56,9 @@ import rx.android.schedulers.AndroidSchedulers;
 public class DashboardTrackMapFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(DashboardTrackMapFragment.class);
 
-    @InjectView(R.id.fragment_dashboard_frag_map_mapview)
+    @BindView(R.id.fragment_dashboard_frag_map_mapview)
     protected MapView mMapView;
-    @InjectView(R.id.fragment_dashboard_frag_map_follow_fab)
+    @BindView(R.id.fragment_dashboard_frag_map_follow_fab)
     protected FloatingActionButton mFollowFab;
 
     private PathOverlay mPathOverlay;
@@ -77,7 +80,7 @@ public class DashboardTrackMapFragment extends BaseInjectorFragment {
         View contentView = inflater.inflate(R.layout.fragment_dashboard_frag_map, container, false);
 
         // Inject all dashboard-related views.
-        ButterKnife.inject(this, contentView);
+        ButterKnife.bind(this, contentView);
 
         // Init the map view
         mMapView.setTileSource(MapUtils.getOSMTileLayer());
@@ -188,4 +191,9 @@ public class DashboardTrackMapFragment extends BaseInjectorFragment {
         });
     }
 
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(getActivity()));
+        mainActivityComponent.inject(this);
+    }
 }

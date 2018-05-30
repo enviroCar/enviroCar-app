@@ -42,6 +42,7 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.TrackDAOHandler;
@@ -54,16 +55,16 @@ import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.ResourceConflictException;
-import org.envirocar.core.injection.BaseInjectorActivity;
+import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.remote.DAOProvider;
+import org.envirocar.app.handler.DAOProvider;
 
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import butterknife.OnClick;
 import rx.Scheduler;
 import rx.Subscriber;
@@ -80,49 +81,49 @@ import rx.schedulers.Schedulers;
 public class LoginActivity extends BaseInjectorActivity {
     private static final Logger LOG = Logger.getLogger(LoginActivity.class);
 
-    @InjectView(R.id.activity_login_toolbar)
+    @BindView(R.id.activity_login_toolbar)
     protected Toolbar mToolbar;
-    @InjectView(R.id.activity_login_exp_toolbar)
+    @BindView(R.id.activity_login_exp_toolbar)
     protected Toolbar mExpToolbar;
-    @InjectView(R.id.activity_login_logo_dump)
+    @BindView(R.id.activity_login_logo_dump)
     protected View mLogoView;
 
-    @InjectView(R.id.activity_login_exp_toolbar_content)
+    @BindView(R.id.activity_login_exp_toolbar_content)
     protected View mExpToolbarContent;
-    @InjectView(R.id.activity_login_account_image)
+    @BindView(R.id.activity_login_account_image)
     protected ImageView mAccountImage;
-    @InjectView(R.id.activity_login_account_name)
+    @BindView(R.id.activity_login_account_name)
     protected TextView mAccountName;
-    @InjectView(R.id.activity_account_exp_toolbar_tracknumber)
+    @BindView(R.id.activity_account_exp_toolbar_tracknumber)
     protected TextView mGlobalTrackNumber;
-    @InjectView(R.id.activity_account_exp_toolbar_local_tracknumber)
+    @BindView(R.id.activity_account_exp_toolbar_local_tracknumber)
     protected TextView mLocalTrackNumber;
-    @InjectView(R.id.activity_account_exp_toolbar_remote_tracknumber)
+    @BindView(R.id.activity_account_exp_toolbar_remote_tracknumber)
     protected TextView mRemoteTrackNumber;
 
-    @InjectView(R.id.activity_login_card)
+    @BindView(R.id.activity_login_card)
     protected CardView mLoginCard;
-    @InjectView(R.id.activity_account_login_card_username_text)
+    @BindView(R.id.activity_account_login_card_username_text)
     protected EditText mLoginUsername;
-    @InjectView(R.id.activity_account_login_card_password_text)
+    @BindView(R.id.activity_account_login_card_password_text)
     protected EditText mLoginPassword;
 
-    @InjectView(R.id.activity_register_card)
+    @BindView(R.id.activity_register_card)
     protected CardView mRegisterCard;
-    @InjectView(R.id.activity_account_register_email_input)
+    @BindView(R.id.activity_account_register_email_input)
     protected EditText mRegisterEmail;
-    @InjectView(R.id.activity_account_register_username_input)
+    @BindView(R.id.activity_account_register_username_input)
     protected EditText mRegisterUsername;
-    @InjectView(R.id.activity_account_register_password_input)
+    @BindView(R.id.activity_account_register_password_input)
     protected EditText mRegisterPassword;
-    @InjectView(R.id.activity_account_register_password2_input)
+    @BindView(R.id.activity_account_register_password2_input)
     protected EditText mRegisterPassword2;
 
-    @InjectView(R.id.activity_account_statistics_no_statistics_info)
+    @BindView(R.id.activity_account_statistics_no_statistics_info)
     protected View mNoStatisticsInfo;
-    @InjectView(R.id.activity_account_statistics_listview)
+    @BindView(R.id.activity_account_statistics_listview)
     protected ListView mStatisticsListView;
-    @InjectView(R.id.activity_account_statistics_progress)
+    @BindView(R.id.activity_account_statistics_progress)
     protected View mStatisticsProgressView;
 
     @Inject
@@ -145,13 +146,18 @@ public class LoginActivity extends BaseInjectorActivity {
     private Subscription mStatisticsDownloadSubscription;
 
     @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_login);
 
         // Inject the Views.
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         TypefaceEC.applyCustomFont((ViewGroup) mAccountName.getParent(), TypefaceEC.Raleway(this));
 

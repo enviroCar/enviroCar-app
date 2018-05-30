@@ -32,7 +32,7 @@ import android.widget.TextView;
 import org.envirocar.app.R;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 
 /**
  * @author dewall
@@ -215,13 +215,13 @@ public class OBDDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
         public final View mContentView;
 
         // All the views of a row to lookup for.
-        @InjectView(R.id.activity_obd_selection_layout_paired_list_entry_image)
+        @BindView(R.id.activity_obd_selection_layout_paired_list_entry_image)
         protected ImageView mImageView;
-        @InjectView(R.id.activity_obd_selection_layout_paired_list_entry_text)
+        @BindView(R.id.activity_obd_selection_layout_paired_list_entry_text)
         protected TextView mTextView;
-        @InjectView(R.id.activity_obd_selection_layout_paired_list_entry_delete)
+        @BindView(R.id.activity_obd_selection_layout_paired_list_entry_delete)
         protected ImageButton mDeleteButton;
-        @InjectView(R.id.activity_obd_selection_layout_paired_list_entry_radio)
+        @BindView(R.id.activity_obd_selection_layout_paired_list_entry_radio)
         protected AppCompatRadioButton mRadioButton;
 
         /**
@@ -232,7 +232,7 @@ public class OBDDeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
         ViewHolder(View content) {
             this.mContentView = content;
             // Inject the annotated views.
-            ButterKnife.inject(this, content);
+            ButterKnife.bind(this, content);
         }
     }
 }

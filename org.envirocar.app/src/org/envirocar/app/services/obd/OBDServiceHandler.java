@@ -7,7 +7,7 @@ import android.support.v4.app.NotificationCompat;
 import android.widget.RemoteViews;
 
 import org.envirocar.app.R;
-import org.envirocar.core.injection.InjectApplicationScope;
+import org.envirocar.core.util.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 
 import javax.inject.Inject;
@@ -22,8 +22,7 @@ import javax.inject.Singleton;
 public class OBDServiceHandler {
     private static final Logger LOG = Logger.getLogger(OBDServiceHandler.class);
 
-    @Inject
-    @InjectApplicationScope
+
     public static Context context;
 
     private static Notification foregroundNotification;
@@ -33,7 +32,7 @@ public class OBDServiceHandler {
 
     @Inject
     public OBDServiceHandler(@InjectApplicationScope Context context) {
-        //        this.context = context;
+               // OBDServiceHandler.context = context;
         //
         //        this.notificationManager = (NotificationManager) context.getSystemService(Context
         //                .NOTIFICATION_SERVICE);

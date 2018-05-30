@@ -46,15 +46,16 @@ import com.mapbox.mapboxsdk.geometry.BoundingBox;
 import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 import com.mapbox.mapboxsdk.views.MapView;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.view.utils.MapUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
-import org.envirocar.core.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
 import org.envirocar.core.utils.CarUtils;
@@ -63,16 +64,14 @@ import org.envirocar.storage.EnviroCarDB;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 import rx.schedulers.Schedulers;
 
 /**
@@ -106,27 +105,27 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     @Inject
     protected EnviroCarDB mEnvirocarDB;
 
-    @InjectView(R.id.activity_track_details_fab)
+    @BindView(R.id.activity_track_details_fab)
     protected FloatingActionButton mFAB;
-    @InjectView(R.id.activity_track_details_header_map)
+    @BindView(R.id.activity_track_details_header_map)
     protected MapView mMapView;
-    @InjectView(R.id.activity_track_details_header_toolbar)
+    @BindView(R.id.activity_track_details_header_toolbar)
     protected Toolbar mToolbar;
-    @InjectView(R.id.activity_track_details_attr_description_value)
+    @BindView(R.id.activity_track_details_attr_description_value)
     protected TextView mDescriptionText;
-    @InjectView(R.id.track_details_attributes_header_duration)
+    @BindView(R.id.track_details_attributes_header_duration)
     protected TextView mDurationText;
-    @InjectView(R.id.track_details_attributes_header_distance)
+    @BindView(R.id.track_details_attributes_header_distance)
     protected TextView mDistanceText;
-    @InjectView(R.id.activity_track_details_attr_begin_value)
+    @BindView(R.id.activity_track_details_attr_begin_value)
     protected TextView mBeginText;
-    @InjectView(R.id.activity_track_details_attr_end_value)
+    @BindView(R.id.activity_track_details_attr_end_value)
     protected TextView mEndText;
-    @InjectView(R.id.activity_track_details_attr_car_value)
+    @BindView(R.id.activity_track_details_attr_car_value)
     protected TextView mCarText;
-    @InjectView(R.id.activity_track_details_attr_emission_value)
+    @BindView(R.id.activity_track_details_attr_emission_value)
     protected TextView mEmissionText;
-    @InjectView(R.id.activity_track_details_attr_consumption_value)
+    @BindView(R.id.activity_track_details_attr_consumption_value)
     protected TextView mConsumptionText;
     @InjectView(R.id.activity_track_details_expanded_map)
     protected MapView mMapViewExpanded;
@@ -142,13 +141,18 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected FrameLayout mMapViewContainer;
 
     @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initActivityTransition();
         setContentView(R.layout.activity_track_details_layout2);
 
         // Inject all annotated views.
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         supportPostponeEnterTransition();
 
@@ -362,10 +366,4 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
             e.printStackTrace();
         }
     }
-
-    @Override
-    public List<Object> getInjectionModules() {
-        return new ArrayList<>();
-    }
-
 }

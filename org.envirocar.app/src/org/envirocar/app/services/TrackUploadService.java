@@ -32,12 +32,13 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.widget.RemoteViews;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.BaseMainActivity;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
+import org.envirocar.app.injection.BaseInjectorService;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.injection.Injector;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarDB;
 
@@ -55,7 +56,7 @@ import rx.schedulers.Schedulers;
  *
  * @author dewall
  */
-public class TrackUploadService extends Service {
+public class TrackUploadService extends BaseInjectorService {
     private static final Logger LOG = Logger.getLogger(TrackUploadService.class);
     private static final int NOTIFICATION_ID = 52;
 
@@ -70,9 +71,6 @@ public class TrackUploadService extends Service {
     public void onCreate() {
         LOG.debug("onCreate()");
         super.onCreate();
-
-        // Inject the OBDServiceHandler;
-        ((Injector) getApplicationContext()).injectObjects(this);
     }
 
     @Override
@@ -104,6 +102,11 @@ public class TrackUploadService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+    }
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent appComponent) {
+        appComponent.inject(this);
     }
 
     @Nullable

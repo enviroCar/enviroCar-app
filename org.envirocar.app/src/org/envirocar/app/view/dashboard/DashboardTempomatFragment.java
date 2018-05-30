@@ -28,14 +28,17 @@ import android.view.ViewGroup;
 
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.MainActivityComponent;
+import org.envirocar.app.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.obd.events.SpeedUpdateEvent;
 import org.envirocar.app.view.preferences.Tempomat;
-import org.envirocar.core.injection.BaseInjectorFragment;
+import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 
 /**
  * @author dewall
@@ -43,7 +46,7 @@ import butterknife.InjectView;
 public class DashboardTempomatFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(DashboardTempomatFragment.class);
 
-    @InjectView(R.id.fragment_dashboard_tempomat_view)
+    @BindView(R.id.fragment_dashboard_tempomat_view)
     protected Tempomat mTempomatView;
 
     @Nullable
@@ -58,7 +61,7 @@ public class DashboardTempomatFragment extends BaseInjectorFragment {
         View contentView = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
         // Inject all dashboard-related views.
-        ButterKnife.inject(this, contentView);
+        ButterKnife.bind(this, contentView);
 
         // return the inflated content view.
         return contentView;
@@ -107,4 +110,9 @@ public class DashboardTempomatFragment extends BaseInjectorFragment {
         }
     }
 
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(getActivity()));
+        mainActivityComponent.inject(this);
+    }
 }

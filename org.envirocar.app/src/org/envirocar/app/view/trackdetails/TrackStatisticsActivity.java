@@ -32,10 +32,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.injection.BaseInjectorActivity;
+import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
 
 import butterknife.ButterKnife;
-import butterknife.InjectView;
+import butterknife.BindView;
 import lecho.lib.hellocharts.formatter.SimpleAxisValueFormatter;
 import lecho.lib.hellocharts.gesture.ZoomType;
 import lecho.lib.hellocharts.listener.DummyVieportChangeListener;
@@ -77,11 +78,16 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
     @Inject
     protected EnviroCarDB enviroCarDB;
 
-    @InjectView(R.id.activity_track_statistics_toolbar)
+    @BindView(R.id.activity_track_statistics_toolbar)
     protected Toolbar mToolbar;
 
     private Track mTrack;
     private PlaceholderFragment mPlaceholderFragment;
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +117,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
                 });
 
         // Inject all annotated views.
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         // Initializes the Toolbar.
         setSupportActionBar(mToolbar);
@@ -158,9 +164,9 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
 
     public static class PlaceholderFragment extends Fragment {
 
-        @InjectView(R.id.activity_track_statistics_fragment_chart)
+        @BindView(R.id.activity_track_statistics_fragment_chart)
         protected LineChartView mChart;
-        @InjectView(R.id.activity_track_statistics_fragment_chart_preview)
+        @BindView(R.id.activity_track_statistics_fragment_chart_preview)
         protected PreviewLineChartView mPreviewChart;
 
         private LineChartData mChartData;
@@ -185,7 +191,7 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
                     container, false);
 
             // Inject all annotated views.
-            ButterKnife.inject(this, rootView);
+            ButterKnife.bind(this, rootView);
 
             generateData(Measurement.PropertyKey.SPEED);
 

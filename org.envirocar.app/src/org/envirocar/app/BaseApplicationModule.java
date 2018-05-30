@@ -31,28 +31,13 @@ import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.app.handler.HandlerModule;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.TrackRecordingHandler;
-import org.envirocar.app.services.SystemStartupService;
-import org.envirocar.app.services.TrackUploadService;
-import org.envirocar.app.services.obd.OBDServiceHandler;
-import org.envirocar.app.view.LoginActivity;
-import org.envirocar.app.view.carselection.CarSelectionActivity;
-import org.envirocar.app.view.carselection.CarSelectionAddCarFragment;
-import org.envirocar.app.view.logbook.LogbookActivity;
-import org.envirocar.app.view.logbook.LogbookAddFuelingFragment;
-import org.envirocar.app.view.obdselection.OBDSelectionActivity;
-import org.envirocar.app.view.preferences.BluetoothDiscoveryIntervalPreference;
-import org.envirocar.app.view.preferences.BluetoothPairingPreference;
-import org.envirocar.app.view.preferences.SelectBluetoothPreference;
-import org.envirocar.app.view.settings.SettingsActivity;
-import org.envirocar.app.view.trackdetails.TrackDetailsActivity;
-import org.envirocar.app.view.trackdetails.TrackStatisticsActivity;
-import org.envirocar.core.injection.InjectApplicationScope;
-import org.envirocar.core.injection.Injector;
+import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.app.services.OBDServiceModule;
+import org.envirocar.core.CacheDirectoryProvider;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.remote.CacheModule;
-import org.envirocar.remote.DAOProvider;
+import org.envirocar.core.util.Util;
+import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.remote.RemoteModule;
-import org.envirocar.remote.service.EnviroCarService;
 import org.envirocar.storage.DatabaseModule;
 
 import javax.inject.Singleton;
@@ -69,30 +54,11 @@ import dagger.Provides;
 @Module(
         includes = {
                 RemoteModule.class,
-                CacheModule.class,
                 DatabaseModule.class,
-                HandlerModule.class
-        },
-        injects = {
-                BluetoothPairingPreference.class,
-                SelectBluetoothPreference.class,
-                TemporaryFileManager.class,
-                SystemStartupService.class,
-                BluetoothDiscoveryIntervalPreference.class,
-                TrackDetailsActivity.class,
-                CarSelectionActivity.class,
-                OBDSelectionActivity.class,
-                TrackStatisticsActivity.class,
-                LoginActivity.class,
-                SettingsActivity.class,
-                TrackUploadService.class,
-                LogbookActivity.class,
-                LogbookAddFuelingFragment.class,
-                CarSelectionAddCarFragment.class
-        },
-        staticInjections = {EnviroCarService.class, OBDServiceHandler.class},
-        library = true,
-        complete = false
+                HandlerModule.class,
+                OBDServiceModule.class
+        }
+
 )
 public class BaseApplicationModule {
     private static final Logger LOGGER = Logger.getLogger(BaseApplicationModule.class);
@@ -131,17 +97,6 @@ public class BaseApplicationModule {
     @InjectApplicationScope
     Context provideApplicationContext() {
         return mAppContext;
-    }
-
-    /**
-     * Provides the Application Injector.
-     *
-     * @return the Injector of the application.
-     */
-    @Provides
-    @Singleton
-    Injector provideApplicationInjector() {
-        return (Injector) mApplication;
     }
 
     /**
@@ -198,5 +153,17 @@ public class BaseApplicationModule {
     @Singleton
     RxSharedPreferences provideRxSharedPreferences(SharedPreferences prefs){
         return RxSharedPreferences.create(prefs);
+    }
+
+    /**
+     * Provides the CacheDirectoryProvider.
+     *
+     * @return the provider for cache access.
+     */
+    @Provides
+    @Singleton
+    public CacheDirectoryProvider provideCacheDirectoryProvider(
+            @InjectApplicationScope Context context) {
+        return () -> Util.resolveCacheFolder(context);
     }
 }

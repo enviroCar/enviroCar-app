@@ -28,21 +28,20 @@ import android.widget.TextView;
 
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.core.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
 
 import javax.inject.Inject;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.InjectView;
 
 /**
  * @dewall
@@ -54,15 +53,20 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
     @Inject
     protected BluetoothHandler mBluetoothHandler;
 
-    @InjectView(R.id.activity_obd_selection_layout_toolbar)
+    @BindView(R.id.activity_obd_selection_layout_toolbar)
     protected Toolbar mToolbar;
-    @InjectView(R.id.activity_obd_selection_layout_enablebt_switch)
+    @BindView(R.id.activity_obd_selection_layout_enablebt_switch)
     protected Switch mSwitch;
-    @InjectView(R.id.activity_obd_selection_layout_enablebt_text)
+    @BindView(R.id.activity_obd_selection_layout_enablebt_text)
     protected TextView mEnableBTText;
 
     protected Fragment mOBDSelectionFragment;
 
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        baseApplicationComponent.inject(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,7 +76,7 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
         setContentView(R.layout.activity_obd_selection_layout);
 
         // Inject all annotated views.
-        ButterKnife.inject(this);
+        ButterKnife.bind(this);
 
         // Set the toolbar as default actionbar.
         setSupportActionBar(mToolbar);
@@ -158,8 +162,4 @@ public class OBDSelectionActivity extends BaseInjectorActivity implements
         }
     }
 
-    @Override
-    public List<Object> getInjectionModules() {
-        return Arrays.asList(new OBDSelectionModule());
-    }
 }

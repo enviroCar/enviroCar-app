@@ -16,31 +16,29 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.core.injection;
+package org.envirocar.app.injection;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
-import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.envirocar.app.BaseApplication;
+import org.envirocar.app.BaseApplicationComponent;
 
 import javax.inject.Inject;
 
-import dagger.ObjectGraph;
 
 /**
  * TODO JavaDoc
  *
  * @author dewall
  */
-public abstract class BaseInjectorService extends Service implements Injector, InjectionModuleProvider {
+public abstract class BaseInjectorService extends Service {
 
-    private ObjectGraph objectGraph;
+    protected abstract void injectDependencies(BaseApplicationComponent baseApplicationComponent);
 
     // Injected variables.
     @Inject
@@ -55,29 +53,6 @@ public abstract class BaseInjectorService extends Service implements Injector, I
     @Override
     public void onCreate() {
         super.onCreate();
-
-        // extend the object graph of the application scope
-        objectGraph = ((Injector) getApplicationContext())
-                .getObjectGraph().plus(getInjectionModules().toArray());
-
-        // Inject objects
-        objectGraph.inject(this);
-    }
-
-    @Override
-    public List<Object> getInjectionModules() {
-        return new ArrayList<>();
-    }
-
-    @Override
-    public ObjectGraph getObjectGraph() {
-        return objectGraph;
-    }
-
-    @Override
-    public void injectObjects(Object instance) {
-        Preconditions.checkNotNull(objectGraph,
-                "Object graph has to be initialized before inejcting");
-        objectGraph.inject(instance);
+        injectDependencies(BaseApplication.get(this).getBaseApplicationComponent());
     }
 }
