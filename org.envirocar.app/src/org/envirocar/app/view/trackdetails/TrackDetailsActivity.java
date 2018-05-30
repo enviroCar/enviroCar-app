@@ -24,15 +24,22 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.Toolbar;
 import android.transition.Slide;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.mapbox.mapboxsdk.geometry.BoundingBox;
@@ -120,7 +127,18 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected TextView mEmissionText;
     @BindView(R.id.activity_track_details_attr_consumption_value)
     protected TextView mConsumptionText;
-
+    @InjectView(R.id.activity_track_details_expanded_map)
+    protected MapView mMapViewExpanded;
+    @InjectView(R.id.activity_track_details_expanded_map_container)
+    protected RelativeLayout mMapViewExpandedContainer;
+    @InjectView(R.id.activity_track_details_appbar_layout)
+    protected AppBarLayout mAppBarLayout;
+    @InjectView(R.id.activity_track_details_scrollview)
+    protected NestedScrollView mNestedScrollView;
+    @InjectView(R.id.activity_track_details_expanded_map_cancel)
+    protected ImageView mMapViewExpandedCancel;
+    @InjectView(R.id.activity_track_details_header_map_container)
+    protected FrameLayout mMapViewContainer;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -170,12 +188,14 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
         updateStatusBarColor();
 
-        mFAB.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TrackStatisticsActivity.createInstance(TrackDetailsActivity.this, mTrackID);
-            }
+        mFAB.setOnClickListener(v -> {
+           TrackStatisticsActivity.createInstance(TrackDetailsActivity.this, mTrackID);
         });
+
+        //closing the expanded mapview on "cancel" button clicked
+        mMapViewExpandedCancel.setOnClickListener(v-> closeExpandedMapView());
+        //expanding the expandable mapview on clicking the framelayout which is surrounded by header map view in collapsingtoolbarlayout
+        mMapViewContainer.setOnClickListener(v-> expandMapView(track));
     }
 
     private void updateStatusBarColor() {
@@ -198,6 +218,16 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected void onResume() {
         super.onResume();
         supportStartPostponedEnterTransition();
+    }
+
+    @Override
+    public void onBackPressed() {
+        //if the expandable mapview is expanded, then close it first
+        if(mMapViewExpandedContainer != null && mMapViewExpandedContainer.getVisibility() == View.VISIBLE){
+            closeExpandedMapView();
+        }else{
+            super.onBackPressed();
+        }
     }
 
     /**
@@ -223,6 +253,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         // Set the openstreetmap tile layer as baselayer of the map.
         WebSourceTileLayer source = MapUtils.getOSMTileLayer();
         mMapView.setTileSource(source);
+        mMapViewExpanded.setTileSource(source);
 
         // set the bounding box and min and max zoom level accordingly.
         BoundingBox box = source.getBoundingBox();
@@ -248,6 +279,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
         // Adds the path overlay to the mapview.
         mMapView.getOverlays().add(trackMapOverlay);
+        mMapViewExpanded.getOverlays().add(trackMapOverlay);
 
         final BoundingBox viewBbox = trackMapOverlay.getViewBoundingBox();
         final BoundingBox scrollableLimit = trackMapOverlay.getScrollableLimitBox();
@@ -255,7 +287,41 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         mMapView.setScrollableAreaLimit(scrollableLimit);
         mMapView.setConstraintRegionFit(true);
         mMapView.zoomToBoundingBox(viewBbox, true);
+        mMapViewExpanded.zoomToBoundingBox(viewBbox, true);
+    }
 
+    //function which expands the mapview
+    private void expandMapView(Track track){
+        TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
+        final BoundingBox viewBbox = trackMapOverlay.getViewBoundingBox();
+        mMapViewExpanded.zoomToBoundingBox(viewBbox, true);
+
+        animateShowView(mMapViewExpandedContainer,R.anim.translate_slide_in_top_fragment);
+        animateHideView(mAppBarLayout,R.anim.translate_slide_out_top_fragment);
+        animateHideView(mNestedScrollView,R.anim.translate_slide_out_bottom);
+        animateHideView(mFAB,R.anim.fade_out);
+    }
+
+    //function which closes the expanded mapview
+    private void closeExpandedMapView(){
+        animateHideView(mMapViewExpandedContainer,R.anim.translate_slide_out_top_fragment);
+        animateShowView(mAppBarLayout,R.anim.translate_slide_in_top_fragment);
+        animateShowView(mNestedScrollView,R.anim.translate_slide_in_bottom_fragment);
+        animateShowView(mFAB,R.anim.fade_in);
+    }
+
+    //general function to animate the view and hide it
+    private void animateHideView(View view, int animResource){
+       Animation animation = AnimationUtils.loadAnimation(getApplicationContext(),animResource);
+       view.startAnimation(animation);
+       view.setVisibility(View.GONE);
+    }
+
+    //general function to animate and show the view
+    private void animateShowView(View view, int animResource){
+        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(),animResource);
+        view.setVisibility(View.VISIBLE);
+        view.startAnimation(animation);
     }
 
     private void initViewValues(Track track) {
