@@ -32,13 +32,14 @@ import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.MainActivityComponent;
 import org.envirocar.app.MainActivityModule;
 import org.envirocar.app.R;
-import org.envirocar.obd.events.SpeedUpdateEvent;
-import org.envirocar.app.view.preferences.Tempomat;
+import org.envirocar.app.events.GPSSpeedChangeEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
+import org.envirocar.app.view.preferences.Tempomat;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.events.SpeedUpdateEvent;
 
-import butterknife.ButterKnife;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * @author dewall
@@ -104,9 +105,22 @@ public class DashboardTempomatFragment extends BaseInjectorFragment {
      */
     @Subscribe
     public void onReceiveSpeedUpdateEvent(SpeedUpdateEvent event) {
-        //LOG.debug(String.format("Received event: %s", event.toString()));
+        LOG.debug(String.format("Received event: %s", event.toString()));
         if(mTempomatView != null){
             mTempomatView.setSpeed(event.mSpeed);
+        }
+    }
+
+    /**
+     * Receiver method for the GPS speed update event.
+     *
+     * @param event the GPSSpeedChangeEvent to receive over the bus.
+     */
+    @Subscribe
+    public void onReceiveGPSSpeedUpdateEvent(GPSSpeedChangeEvent event) {
+        LOG.debug(String.format("Received event: %s", event.toString()));
+        if(mTempomatView != null){
+            mTempomatView.setSpeed((int) Math.round(event.mGPSSpeed));
         }
     }
 

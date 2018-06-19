@@ -22,6 +22,9 @@ package org.envirocar.app;
 import android.app.Activity;
 import android.content.Context;
 
+import org.envirocar.app.view.OthersFragment;
+import org.envirocar.app.view.dashboard.DashBoardFragment;
+import org.envirocar.app.view.tracklist.TrackListPagerFragment;
 import org.envirocar.core.util.InjectionActivityScope;
 
 import dagger.Module;
@@ -56,6 +59,21 @@ public class MainActivityModule {
     @InjectionActivityScope
     public Context provideContext() {
         return mActivity;
+    }
+
+    @Provides
+    public DashBoardFragment provideDashBoardFragment(){
+        return new DashBoardFragment();
+    }
+
+    @Provides
+    public TrackListPagerFragment provideTrackListPagerFragment(){
+        return new TrackListPagerFragment();
+    }
+
+    @Provides
+    public OthersFragment provideOthersFragment(){
+        return new OthersFragment();
     }
 
 }

@@ -41,7 +41,7 @@ import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
-import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
+import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.util.concurrent.TimeUnit;
@@ -128,13 +128,13 @@ public class SystemStartupService extends BaseInjectorService {
 
                 mBluetoothHandler.stopBluetoothDeviceDiscovery();
 
+                // Set the notification state to unconnected.
+                OBDServiceHandler.setRecordingState(OBDServiceState.UNCONNECTED);
+
                 // UNUSED: This leads sometimes to some errors if you always ski
                 if (mDiscoverySubscription != null) {
                     mDiscoverySubscription.unsubscribe();
                     mDiscoverySubscription = null;
-
-                    // Set the notification state to unconnected.
-                    OBDServiceHandler.setRecordingState(OBDServiceState.UNCONNECTED);
                 }
             }
 
@@ -145,14 +145,6 @@ public class SystemStartupService extends BaseInjectorService {
                 //                mNotificationHandler.setNotificationState(SystemStartupService
                 // .this,
                 //                        NotificationHandler.NotificationState.OBD_FOUND);
-            }
-
-            // Received action matches the command for stopping the recording process of a track.
-            else if (ACTION_STOP_TRACK_RECORDING.equals(action)) {
-                LOGGER.info("Received Broadcast: Stop Track Recording.");
-
-                // Finish the current track.
-                mTrackRecordingHandler.finishCurrentTrack();
             }
         }
     };
@@ -174,11 +166,11 @@ public class SystemStartupService extends BaseInjectorService {
         notificationClickedFilter.addAction(ACTION_START_BT_DISCOVERY);
         notificationClickedFilter.addAction(ACTION_STOP_BT_DISCOVERY);
         notificationClickedFilter.addAction(ACTION_START_TRACK_RECORDING);
-        notificationClickedFilter.addAction(ACTION_STOP_TRACK_RECORDING);
         registerReceiver(mBroadcastReciever, notificationClickedFilter);
 
         // Set the Notification to
-        if (this.mBluetoothHandler.isBluetoothEnabled()) {
+       if (OBDConnectionService.CURRENT_SERVICE_STATE != BluetoothServiceState.SERVICE_STARTED
+                && this.mBluetoothHandler.isBluetoothEnabled()) {
             // State: No OBD device selected.
             if (mBluetoothHandler.getSelectedBluetoothDevice() == null) {
                 OBDServiceHandler.setRecordingState(OBDServiceState.NO_OBD_SELECTED);
@@ -231,6 +223,16 @@ public class SystemStartupService extends BaseInjectorService {
                         })
         );
 
+        subscriptions.add(
+                PreferencesHandler.getBackgroundHandlerEnabledObservable(getApplicationContext())
+                        .subscribe(aBoolean -> {
+                            LOGGER.info(String.format("Received changed autoconnect -> [%s]",
+                                    aBoolean));
+                            if(!aBoolean) stopService(context);
+
+                        })
+        );
+
 
     }
 
@@ -266,9 +268,6 @@ public class SystemStartupService extends BaseInjectorService {
         LOGGER.info("onDestroy()");
         super.onDestroy();
 
-        // Unbind the connection remoteService.
-        //        unbindOBDConnectionService();
-
         // unregister all boradcast receivers.
         unregisterReceiver(mBroadcastReciever);
 
@@ -281,6 +280,8 @@ public class SystemStartupService extends BaseInjectorService {
         if (!subscriptions.isUnsubscribed()) {
             subscriptions.unsubscribe();
         }
+
+        this.bus.unregister(this);
 
         // Close the corresponding notification.
         OBDServiceHandler.closeNotification();
@@ -313,23 +314,25 @@ public class SystemStartupService extends BaseInjectorService {
     }
 
     /**
-     * Receiver method for {@link BluetoothServiceStateChangedEvent}s posted on the event bus.
+     * Receiver method for {@link TrackRecordingServiceStateChangedEvent}s posted on the event bus.
      *
      * @param event the corresponding event type.
      */
     @Subscribe
-    public void onReceiveBluetoothServiceStateChangedEvent(
-            BluetoothServiceStateChangedEvent event) {
-        LOGGER.info(String.format("onReceiveBluetoothServiceStateChangedEvent(): %s",
+    public void onReceiveTrackRecordingServiceStateChangedEvent(
+            TrackRecordingServiceStateChangedEvent event) {
+        LOGGER.info(String.format("onReceiveTrackRecordingServiceStateChangedEvent(): %s",
                 event.toString()));
 
         // Update the notification state depending on the event's state.
         switch (event.mState) {
             case SERVICE_STARTING:
-                OBDServiceHandler.setRecordingState(OBDServiceState.CONNECTING);
+                //OBDServiceHandler.setRecordingState(OBDServiceState.CONNECTING);
+                OBDServiceHandler.closeNotification();
                 break;
             case SERVICE_STARTED:
-                OBDServiceHandler.setRecordingState(OBDServiceState.CONNECTED);
+               // OBDServiceHandler.setRecordingState(OBDServiceState.CONNECTED);
+                OBDServiceHandler.closeNotification();
                 if (mWorkerSubscription != null)
                     mWorkerSubscription.unsubscribe();
                 break;
@@ -510,7 +513,14 @@ public class SystemStartupService extends BaseInjectorService {
                             isFound = true;
                             mBluetoothHandler.stopBluetoothDeviceDiscovery();
 
-                            // Depending on the individual settings either start the background
+                            LOGGER.info("Try to start the connection to " +
+                                    "the selected OBD adapter.");
+
+                            getApplicationContext().startService(
+                                    new Intent(getApplicationContext(), OBDConnectionService
+                                            .class));
+
+                           /* // Depending on the individual settings either start the background
                             // remoteService or update the notification state.
                             if (mIsAutoconnect) {
                                 LOGGER.info("[Autoconnect is on]. Try to start the connection to " +
@@ -530,7 +540,7 @@ public class SystemStartupService extends BaseInjectorService {
 // .this,
 //                                        NotificationHandler.NotificationState.OBD_FOUND);
                                 scheduleDiscovery(REDISCOVERY_INTERVAL);
-                            }
+                            }*/
                         }
 
                         @Override

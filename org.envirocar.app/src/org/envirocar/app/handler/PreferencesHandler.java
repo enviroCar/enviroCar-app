@@ -44,6 +44,65 @@ public class PreferencesHandler implements PreferenceConstants {
     public static final boolean DEFAULT_TEXT_TO_SPEECH = false;
     public static final boolean DEFAULT_BLUETOOTH_SERVICE_AUTOSTART = true;
 
+    public static int getPreviousViewTypeGeneralRecordingScreen(Context context){
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(PREF_PREV_VIEW_TYPE_GENERAL_RECORDING_SCREEN, 1);
+    }
+
+    public static void setPreviousViewTypeGeneralRecordingScreen(Context context,int type){
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_PREV_VIEW_TYPE_GENERAL_RECORDING_SCREEN ,type).apply();
+    }
+
+    public static int getPreviousViewTypeMeterRecordingScreen(Context context){
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(PREF_PREV_VIEW_TYPE_METER_RECORDING_SCREEN, 1);
+    }
+
+    public static void setPreviousViewTypeMeterRecordingScreen(Context context,int type){
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_PREV_VIEW_TYPE_METER_RECORDING_SCREEN ,type).apply();
+    }
+
+
+    public static int getLocalTrackCount(Context context){
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(PREF_LOCAL_TRACK_COUNT, 0);
+    }
+
+    public static void setLocalTrackCount(Context context,int count){
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_LOCAL_TRACK_COUNT ,count).apply();
+    }
+
+    public static int getUploadedTrackCount(Context context){
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(PREF_UPLOADED_TRACK_COUNT, 0);
+    }
+
+    public static void setUploadedTrackCount(Context context,int count){
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_UPLOADED_TRACK_COUNT ,count).apply();
+    }
+
+    public static int getGlobalTrackCount(Context context){
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(PREF_GLOBAL_TRACK_COUNT, 0);
+    }
+
+    public static void setGlobalTrackCount(Context context,int count){
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_GLOBAL_TRACK_COUNT ,count).apply();
+    }
+
+    public static void resetTrackCounts(Context context){
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_LOCAL_TRACK_COUNT,0)
+                .putInt(PREF_UPLOADED_TRACK_COUNT,0).putInt(PREF_GLOBAL_TRACK_COUNT,0).apply();
+    }
+
+    public static int getPreviouslySelectedRecordingType(Context context){
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(PREF_PREV_REC_TYPE, 1);
+    }
+
+    public static void setPreviouslySelectedRecordingType(Context context,int index){
+        PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_PREV_REC_TYPE ,index).apply();
+    }
 
     public static boolean isAutoconnectEnabled(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)

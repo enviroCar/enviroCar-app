@@ -64,7 +64,7 @@ public enum OBDServiceState implements OBDServiceStateContent {
         @Override
         public OBDNotificationActionHolder getAction(Context context) {
             return new OBDNotificationActionHolder(
-                    R.drawable.ic_bluetooth_searching_white_24dp,
+                    R.drawable.ic_bluetooth_searching_black_24dp,
                     R.string.notification_unconnected_action,
                     getPendingIntent(SystemStartupService.ACTION_START_BT_DISCOVERY, context));
         }
@@ -88,7 +88,7 @@ public enum OBDServiceState implements OBDServiceStateContent {
         @Override
         public OBDNotificationActionHolder getAction(Context context) {
             return new OBDNotificationActionHolder(
-                    R.drawable.ic_close_white_24dp,
+                    R.drawable.ic_close_black_24dp,
                     R.string.notification_discovering_action,
                     getPendingIntent(SystemStartupService.ACTION_STOP_BT_DISCOVERY, context));
         }
@@ -128,7 +128,7 @@ public enum OBDServiceState implements OBDServiceStateContent {
         @Override
         public OBDNotificationActionHolder getAction(Context context) {
             return new OBDNotificationActionHolder(
-                    R.drawable.ic_close_white_24dp,
+                    R.drawable.ic_close_black_24dp,
                     R.string.notification_connected_action,
                     getPendingIntent(SystemStartupService.ACTION_STOP_TRACK_RECORDING, context));
         }

@@ -20,11 +20,14 @@ package org.envirocar.app;
 
 import android.annotation.TargetApi;
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
@@ -58,6 +61,9 @@ public class BaseApplication extends Application {
     BaseApplicationComponent baseApplicationComponent;
     protected BroadcastReceiver mScreenReceiver;
     protected BroadcastReceiver mGPSReceiver;
+
+    private String CHANNEL_ID = "channel1";
+
 
     @Inject
     UserService userService;
@@ -155,6 +161,22 @@ public class BaseApplication extends Application {
 
         Logger.initialize(Util.getVersionString(this),
                 prefs.getBoolean(PreferenceConstants.ENABLE_DEBUG_LOGGING, false));
+
+        // Android O requires a Notification Channel.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationManager mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+            // Set the Notification Channel for the Notification Manager.
+            String name = "General";
+            String description = "General Notifications";
+            int importance = NotificationManager.IMPORTANCE_LOW;
+
+            NotificationChannel mChannel = new NotificationChannel(CHANNEL_ID, name, importance);
+            mChannel.setDescription(description);
+            mChannel.enableLights(true);
+            mChannel.setLightColor(Color.BLUE);
+            mNotificationManager.createNotificationChannel(mChannel);
+        }
 
 //        OBDServiceHandler.setRecordingState(OBDServiceState.UNCONNECTED);
     }

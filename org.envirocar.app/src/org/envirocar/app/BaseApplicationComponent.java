@@ -5,10 +5,12 @@ import com.squareup.sqlbrite.SqlBrite;
 import org.envirocar.app.activity.StartStopButtonUtil;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TrackRecordingHandler;
+import org.envirocar.app.services.GPSOnlyConnectionService;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.services.TrackUploadService;
 import org.envirocar.app.view.LoginActivity;
+import org.envirocar.app.view.OthersFragment;
 import org.envirocar.app.view.carselection.CarSelectionActivity;
 import org.envirocar.app.view.carselection.CarSelectionAddCarFragment;
 import org.envirocar.app.view.logbook.LogbookActivity;
@@ -73,6 +75,8 @@ public interface BaseApplicationComponent {
     void inject(TrackStatisticsActivity trackStatisticsActivity);
     void inject(LoginActivity loginActivity);
     void inject(DAOProvider daoProvider);
+    void inject(OthersFragment othersFragment);
+    void inject(GPSOnlyConnectionService gpsOnlyConnectionService);
 
     MainActivityComponent plus(MainActivityModule mainActivityModule);
 

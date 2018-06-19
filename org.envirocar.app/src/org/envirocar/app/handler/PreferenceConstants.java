@@ -56,4 +56,14 @@ public interface PreferenceConstants {
     String PERSISTENT_SEEN_ANNOUNCEMENTS = "persistent_seen_announcements";
     String SAMPLING_RATE = "ec_sampling_rate";
     String ENABLE_DEBUG_LOGGING = "pref_enable_debug_logging";
+
+    String PREF_LOCAL_TRACK_COUNT = "pref_local_track_count";
+    String PREF_UPLOADED_TRACK_COUNT = "pref_uploaded_track_count";
+    String PREF_GLOBAL_TRACK_COUNT = "pref_global_track_count";
+
+    String PREF_PREV_REC_TYPE = "pref_prev_rec_type";
+
+    String PREF_PREV_VIEW_TYPE_GENERAL_RECORDING_SCREEN = "pref_prev_view_type_general_recording_type";
+    String PREF_PREV_VIEW_TYPE_METER_RECORDING_SCREEN = "pref_prev_view_type_meter_recording_type";
+
 }

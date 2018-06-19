@@ -16,35 +16,30 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.obd.events;
+package org.envirocar.app.events;
 
 import com.google.common.base.MoreObjects;
 
-import org.envirocar.obd.service.BluetoothServiceState;
-
-
 /**
- * TODO JavaDoc
- *
- * @author dewall
+ * @author Sai Krishna
  */
-public final class BluetoothServiceStateChangedEvent {
+public class GPSSpeedChangeEvent {
 
-    public final BluetoothServiceState mState;
+    public final double mGPSSpeed;
 
     /**
      * Constructor.
      *
-     * @param state the current state of the app.
+     * @param mGPSSpeed the new avrg speed value;
      */
-    public BluetoothServiceStateChangedEvent(BluetoothServiceState state) {
-        this.mState = state;
+    public GPSSpeedChangeEvent(double mGPSSpeed) {
+        this.mGPSSpeed = mGPSSpeed;
     }
 
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("State", mState.toString())
+                .add("GPS Speed", mGPSSpeed)
                 .toString();
     }
 }

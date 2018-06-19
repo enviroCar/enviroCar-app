@@ -30,10 +30,6 @@
             android:key="bluetooth_pairing"
             android:summary="@string/pref_bluetooth_pairing_summary"
             android:title="@string/pref_bluetooth_pairing"/>
-        <org.envirocar.app.view.preferences.SelectBluetoothPreference
-            android:key="bluetooth_list"
-            android:summary="@string/pref_bluetooth_select_adapter_summary"
-            android:title="@string/pref_bluetooth_select_adapter_title"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Autoconnect (Beta)">

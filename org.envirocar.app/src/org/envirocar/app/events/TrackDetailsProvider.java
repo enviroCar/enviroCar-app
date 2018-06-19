@@ -26,10 +26,12 @@ import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.services.GPSOnlyConnectionService;
+import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.NewMeasurementEvent;
-import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.service.BluetoothServiceState;
 
 import rx.Scheduler;
 import rx.android.schedulers.AndroidSchedulers;
@@ -50,6 +52,7 @@ public class TrackDetailsProvider {
     private double mDistanceValue;
     private double mTotalSpeed;
     private int mAvrgSpeed;
+    private double GPSSpeed;
 
     private long mStartingBaseTime;
 
@@ -68,31 +71,6 @@ public class TrackDetailsProvider {
         // we do not need to register on the bus!
     }
 
-    //    @Subscribe
-    //    public void onReceiveBluetoothServiceStateChangedEvent(
-    //            BluetoothServiceStateChangedEvent event) {
-    //        LOGGER.info(String.format("Received event: %s", event.toString()));
-    //        mMainThreadWorker.schedule(() -> {
-    //            if (event.mState == BluetoothServiceState.SERVICE_STOPPED) {
-    //                mTrackMapOverlay.clearPath();
-    //                mNumMeasurements = 0;
-    //                mDistanceValue = 0;
-    //                mTotalSpeed = 0;
-    //                mAvrgSpeed = 0;
-    //                mStartingBaseTime = 0;
-    //                mLastLocation = null;
-    //                mCurrentLocation = null;
-    //            }
-    //        });
-    //    }
-
-    @Subscribe
-    public void onReceiveLocationChangedEvent(GpsLocationChangedEvent event) {
-        LOGGER.debug(String.format("Received event: %s", event.toString()));
-
-    }
-
-
     @Subscribe
     public void onReceiveNewMeasurementEvent(NewMeasurementEvent event) {
         LOGGER.debug(String.format("Received event: %s", event.toString()));
@@ -108,6 +86,16 @@ public class TrackDetailsProvider {
         updateDistance(event.mMeasurement);
         updateAverageSpeed(event.mMeasurement);
         updatePathOverlay(event.mMeasurement);
+        if(GPSOnlyConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED
+                && event.mMeasurement.hasProperty(Measurement.PropertyKey.GPS_SPEED) ){
+            GPSSpeed = event.mMeasurement.getProperty(Measurement.PropertyKey.GPS_SPEED);
+            produceGPSSpeedEvent();
+        }
+    }
+
+    @Produce
+    public GPSSpeedChangeEvent produceGPSSpeedEvent(){
+        return new GPSSpeedChangeEvent(GPSSpeed);
     }
 
     @Produce
@@ -177,8 +165,15 @@ public class TrackDetailsProvider {
      * @param measurement
      */
     private void updateAverageSpeed(Measurement measurement) {
-        if (measurement.hasProperty(Measurement.PropertyKey.SPEED)){
+        if (OBDConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED &&
+                measurement.hasProperty(Measurement.PropertyKey.SPEED)){
             mTotalSpeed += measurement.getProperty(Measurement.PropertyKey.SPEED);
+            mAvrgSpeed = (int) mTotalSpeed / mNumMeasurements;
+            mBus.post(provideAverageSpeed());
+        }
+        else if (GPSOnlyConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED &&
+                measurement.hasProperty(Measurement.PropertyKey.GPS_SPEED)){
+            mTotalSpeed += measurement.getProperty(Measurement.PropertyKey.GPS_SPEED);
             mAvrgSpeed = (int) mTotalSpeed / mNumMeasurements;
             mBus.post(provideAverageSpeed());
         }

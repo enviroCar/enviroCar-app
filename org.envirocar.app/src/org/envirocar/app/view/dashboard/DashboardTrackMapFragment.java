@@ -90,20 +90,18 @@ public class DashboardTrackMapFragment extends BaseInjectorFragment {
         mIsFollowingLocation = true;
         mFollowFab.setVisibility(View.INVISIBLE);
 
-        //        mMapView.setOnTouchListener(new View.OnTouchListener() {
-        //            @Override
-        //            public boolean onTouch(View v, MotionEvent event) {
-        //                mMapView.getUserLocationOverlay().disableFollowLocation();
-        //                mFollowFab.setVisibility(View.VISIBLE);
-        //                return false;
-        //            }
-        //        });
 
         // If the mPathOverlay has already been set, then add the overlay to the mapview.
         if (mPathOverlay != null)
             mMapView.getOverlays().add(mPathOverlay);
 
         return contentView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        onClickFollowFab();
     }
 
     @Override

@@ -31,7 +31,7 @@
         <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Cario</item>
         <item name="android:buttonStyle">@style/ButtonStyle</item>
         <item name="colorPrimary">@color/blue_dark_cario</item>
-        <item name="colorPrimaryDark">@color/green_dark_cario</item>
+        <item name="colorPrimaryDark">@color/cario_color_primary_dark</item>
         <item name="colorAccent">@color/blue_light_cario</item>
         <item name="background">@color/background_material_dark</item>
     </style>

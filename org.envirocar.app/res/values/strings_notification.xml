@@ -21,13 +21,11 @@
 -->
 <resources>
     <string name="notification_no_car_title">No car type selected</string>
-    <string name="notification_no_car_description">You have no car type selected.
-        Please go to the car settings and select one.</string>
+    <string name="notification_no_car_description">Please go to the car settings and select one.</string>
     <string name="notification_no_car_action">Open Car Selection</string>
 
     <string name="notification_no_obd_title">No paired OBD-II adapter selected.</string>
-    <string name="notification_no_obd_description">You have no paired OBD-II adapter selected.
-        Please go to the OBD-II settings and pair/select one.</string>
+    <string name="notification_no_obd_description">Please go to the OBD-II settings and pair/select one.</string>
     <string name="notification_no_obd_action">Open OBD-II Selection</string>
 
     <string name="notification_unconnected_title">Unconnected</string>
@@ -43,11 +41,11 @@
         in communication range.</string>
     <string name="notification_obd_found_action">Start Track</string>
 
-    <string name="notification_connecting_title">Connecting...</string>
-    <string name="notification_connecting_description">... and starting a track.</string>
+    <string name="notification_connecting_title">Connecting…</string>
+    <string name="notification_connecting_description">… and starting a track.</string>
     <string name="notification_connecting_action"></string>
 
-    <string name="notification_connected_title">Recording...</string>
+    <string name="notification_connected_title">Recording…</string>
     <string name="notification_connected_description">Track recording is in progress.</string>
     <string name="notification_connected_action">Stop Track</string>
 

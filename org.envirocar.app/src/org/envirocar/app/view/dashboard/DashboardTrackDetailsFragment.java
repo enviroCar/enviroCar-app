@@ -36,7 +36,7 @@ import org.envirocar.app.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
-import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
+import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.app.events.AvrgSpeedUpdateEvent;
 import org.envirocar.app.events.DistanceValueUpdateEvent;
@@ -107,8 +107,8 @@ public class DashboardTrackDetailsFragment extends BaseInjectorFragment {
     }
 
     @Subscribe
-    public void onReceiveBluetoothServiceStateChangedEvent(
-            BluetoothServiceStateChangedEvent event) {
+    public void onReceiveTrackRecordingServiceStateChangedEvent(
+            TrackRecordingServiceStateChangedEvent event) {
         LOGGER.info(String.format("Received event: %s", event.toString()));
         mMainThreadWorker.schedule(() -> {
             if (event.mState == BluetoothServiceState.SERVICE_STOPPED) {

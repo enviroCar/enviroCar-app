@@ -22,6 +22,7 @@
 <resources>
     <string name="dashboard_start_track">START TRACK</string>
     <string name="dashboard_stop_track">STOP TRACK</string>
+    <string name="dashboard_goto_track">Goto Track Recording Screen</string>
     <string name="dashboard_track_is_starting">TRACK IS STARTING...</string>
     <string name="dashboard_track_is_stopping">TRACK IS STOPPING...</string>
 
@@ -48,4 +49,8 @@
     <string name="dashboard_info_activate_bluetooth">\n - Activate Bluetooth</string>
     <string name="dashboard_info_select_obd_adapter">\n - Select an OBD-II adapter</string>
     <string name="dashboard_info_select_car_type">\n - Select a car type</string>
+
+    <string name="permission_rationale">Location permission is needed for core functionality</string>
+    <string name="permission_denied_explanation">Permission was denied, but is needed for core functionality.</string>
+    <string name="settings">Settings</string>
 </resources>

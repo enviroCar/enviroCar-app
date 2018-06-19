@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/navigation_dashboard"
+        android:icon="@drawable/dash_board_new"
+        android:title="@string/title_dashboard" />
+
+
+    <item
+        android:id="@+id/navigation_my_tracks"
+        android:icon="@drawable/img_tracks"
+        android:title="@string/title_my_tracks" />
+
+
+    <item
+        android:id="@+id/navigation_others"
+        android:icon="@drawable/dash_board_others_new"
+        android:title="@string/title_others" />
+
+</menu>

@@ -52,7 +52,7 @@ import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
+import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 
 import javax.inject.Inject;
@@ -317,14 +317,14 @@ public class DashboardMainFragment extends BaseInjectorFragment {
 
 
     /**
-     * Receiver method for {@link BluetoothServiceStateChangedEvent}s posted on the event bus.
+     * Receiver method for {@link TrackRecordingServiceStateChangedEvent}s posted on the event bus.
      *
      * @param event the corresponding event type.
      */
     @Subscribe
-    public void onReceiveBluetoothServiceStateChangedEvent(
-            BluetoothServiceStateChangedEvent event) {
-        LOG.info(String.format("onReceiveBluetoothServiceStateChangedEvent(): %s",
+    public void onReceiveTrackRecordingServiceStateChangedEvent(
+            TrackRecordingServiceStateChangedEvent event) {
+        LOG.info(String.format("onReceiveTrackRecordingServiceStateChangedEvent(): %s",
                 event.toString()));
         mServiceState = event.mState;
         if (mServiceState == BluetoothServiceState.SERVICE_STARTED && mConnectingDialog != null) {

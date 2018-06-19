@@ -20,7 +20,6 @@ package org.envirocar.app.view.tracklist;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -37,8 +36,9 @@ import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
 
-import butterknife.ButterKnife;
 import butterknife.BindView;
+import butterknife.ButterKnife;
+import info.hoang8f.android.segmented.SegmentedGroup;
 
 /**
  * @author dewall
@@ -46,8 +46,8 @@ import butterknife.BindView;
 public class TrackListPagerFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(TrackListPagerFragment.class);
 
-    @BindView(R.id.fragment_tracklist_layout_tablayout)
-    protected TabLayout mTabLayout;
+    @BindView(R.id.trackListSegmentedGroup)
+    protected SegmentedGroup trackListSegmentedGroup;
     @BindView(R.id.fragment_tracklist_layout_viewpager)
     protected ViewPager mViewPager;
 
@@ -62,9 +62,22 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
 
         ButterKnife.bind(this, content);
 
-        trackListPageAdapter = new TrackListPagerAdapter(getChildFragmentManager());
+        trackListPageAdapter = new TrackListPagerAdapter(getFragmentManager());
         mViewPager.setAdapter(trackListPageAdapter);
-        mTabLayout.setupWithViewPager(mViewPager);
+        trackListSegmentedGroup.check(R.id.localSegmentedButton);
+
+        trackListSegmentedGroup.setOnCheckedChangeListener((radioGroup, i) -> {
+            switch (i) {
+                case R.id.localSegmentedButton:
+                    mViewPager.setCurrentItem(0);
+                    break;
+                case R.id.uploadedSegmentedButton:
+                    mViewPager.setCurrentItem(1);
+                    break;
+                default:
+                    break;
+            }
+        });
 
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -78,8 +91,10 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
                 LOG.info("Page selected=" + position);
                 if (position == 0) {
                     trackListPageAdapter.localCardFragment.loadDataset();
+                    trackListSegmentedGroup.check(R.id.localSegmentedButton);
                 } else if (position == 1) {
                     trackListPageAdapter.remoteCardFragment.loadDataset();
+                    trackListSegmentedGroup.check(R.id.uploadedSegmentedButton);
                 }
             }
 
@@ -89,8 +104,6 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
             }
         });
 
-        mTabLayout.setSelectedTabIndicatorColor(getResources()
-                .getColor(R.color.green_dark_cario));
         return content;
     }
 
@@ -126,10 +139,8 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
     class TrackListPagerAdapter extends FragmentStatePagerAdapter {
         private static final int NUM_PAGES = 2;
 
-        private TrackListLocalCardFragment localCardFragment =
-                new TrackListLocalCardFragment();
-        private TrackListRemoteCardFragment remoteCardFragment =
-                new TrackListRemoteCardFragment();
+        private TrackListLocalCardFragment localCardFragment;
+        private TrackListRemoteCardFragment remoteCardFragment;
 
         /**
          * Constructor.
@@ -158,13 +169,5 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
             return NUM_PAGES;
         }
 
-        @Override
-        public CharSequence getPageTitle(int position) {
-            if (position == 0) {
-                return getString(R.string.track_list_local_tracks);
-            } else {
-                return getString(R.string.track_list_remote_tracks);
-            }
-        }
     }
 }

@@ -28,6 +28,7 @@
     <color name="green_light_cario">#B9D989</color>
     <color name="white_cario">#F2F2F2</color>
     <color name="cario_color_primary">@color/blue_dark_cario</color>
+    <color name="cario_color_primary_dark">#FF01456C</color>
     <color name="cario_color_tempomat_background">#ff546a72</color>
     <color name="envirocar_color_divider_grey">#3f6f6f6f</color>
 

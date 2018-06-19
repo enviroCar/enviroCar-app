@@ -7,10 +7,10 @@ import android.app.PendingIntent;
  *
  * @author dewall
  */
-class OBDNotificationActionHolder {
-    final int actionIcon;
-    final int actionString;
-    final PendingIntent actionIntent;
+public class OBDNotificationActionHolder {
+    public final int actionIcon;
+    public final int actionString;
+    public final PendingIntent actionIntent;
 
     /**
      * Constructor.

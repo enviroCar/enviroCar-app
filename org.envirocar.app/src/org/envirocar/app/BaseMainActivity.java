@@ -24,7 +24,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -36,7 +35,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -48,9 +46,9 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.activity.DialogUtil;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TemporaryFileManager;
@@ -60,30 +58,19 @@ import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.view.HelpActivity;
 import org.envirocar.app.view.LoginActivity;
-import org.envirocar.app.view.SendLogFileFragment;
+import org.envirocar.app.view.SendLogFileActivity;
 import org.envirocar.app.view.TroubleshootingFragment;
 import org.envirocar.app.view.dashboard.DashboardMainFragment;
 import org.envirocar.app.view.logbook.LogbookActivity;
 import org.envirocar.app.view.settings.SettingsActivity;
 import org.envirocar.app.view.tracklist.TrackListPagerFragment;
-import org.envirocar.core.entity.Announcement;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.events.NewUserSettingsEvent;
 import org.envirocar.core.events.TrackFinishedEvent;
-import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
-import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.NoMeasurementsException;
-import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.util.Util;
-import org.envirocar.core.util.VersionRange;
-import org.envirocar.obd.events.BluetoothServiceStateChangedEvent;
-import org.envirocar.obd.service.BluetoothServiceState;
-import org.envirocar.app.handler.DAOProvider;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -148,7 +135,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
 
     private boolean paused;
     private ActionBarDrawerToggle mDrawerToggle;
-    private BluetoothServiceState mServiceState = BluetoothServiceState.SERVICE_STOPPED;
+  //  private BluetoothServiceState mServiceState = BluetoothServiceState.SERVICE_STOPPED;
     private Fragment mCurrentFragment;
     private Fragment mStartupFragment;
 
@@ -290,20 +277,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
         );
     }
 
-    @Subscribe
-    public void onReceiveBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
-        LOGGER.info(String.format("Received event: %s", event.toString()));
-        updateStartStopButton();
-    }
-
-    @Subscribe
-    public void onReceiveBluetoothServiceStateChangedEvent(
-            BluetoothServiceStateChangedEvent event) {
-        LOGGER.info(String.format("Received event: %s", event.toString()));
-        this.mServiceState = event.mState;
-        mMainThreadWorker.schedule(() -> updateStartStopButton());
-    }
-
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -382,7 +355,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void checkAffectingAnnouncements() {
+  /*  private void checkAffectingAnnouncements() {
         final List<Announcement> annos = new ArrayList<>();
         try {
             annos.addAll(mDAOProvider.getAnnouncementsDAO().getAllAnnouncements());
@@ -456,7 +429,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
         preferences.edit().putString(
                 PreferenceConstants.PERSISTENT_SEEN_ANNOUNCEMENTS,
                 sb.toString()).commit();
-    }
+    }*/
 
     // TODO check
     private void firstInit() {
@@ -475,7 +448,6 @@ public class BaseMainActivity extends BaseInjectorActivity {
         // Initialize the navigation drawer
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
-        updateStartStopButton();
 
         // Initializes the toggle for the navigation drawer.
         mDrawerToggle = new ActionBarDrawerToggle(
@@ -539,7 +511,8 @@ public class BaseMainActivity extends BaseInjectorActivity {
                 startActivity(help);
                 return false;
             case R.id.menu_nav_drawer_settings_sendlog:
-                fragment = new SendLogFileFragment();
+                Intent intentsendlog = new Intent(BaseMainActivity.this, SendLogFileActivity.class);
+                startActivity(intentsendlog);
                 break;
             case R.id.menu_nav_drawer_quit_app:
                 new MaterialDialog.Builder(this)
@@ -681,7 +654,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
         }
     }
 
-    private void updateStartStopButton() {
+  /*  private void updateStartStopButton() {
         //        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
         //        StartStopButtonUtil startStopUtil = new StartStopButtonUtil(this, trackMode,
         // mServiceState,
@@ -697,7 +670,7 @@ public class BaseMainActivity extends BaseInjectorActivity {
         //        }
         //
         //        mNavDrawerAdapter.notifyDataSetChanged();
-    }
+    }*/
 
 
     protected void resolvePersistentSeenAnnouncements() {

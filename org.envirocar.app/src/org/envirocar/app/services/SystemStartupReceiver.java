@@ -84,6 +84,8 @@ public class SystemStartupReceiver extends BroadcastReceiver {
                 context, SystemStartupService.class)) {
             Intent startIntent = new Intent(context, SystemStartupService.class);
             context.startService(startIntent);
+        }else if(!autoStartService){
+            SystemStartupService.stopService(context);
         }
     }
 

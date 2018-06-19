@@ -127,17 +127,17 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected TextView mEmissionText;
     @BindView(R.id.activity_track_details_attr_consumption_value)
     protected TextView mConsumptionText;
-    @InjectView(R.id.activity_track_details_expanded_map)
+    @BindView(R.id.activity_track_details_expanded_map)
     protected MapView mMapViewExpanded;
-    @InjectView(R.id.activity_track_details_expanded_map_container)
+    @BindView(R.id.activity_track_details_expanded_map_container)
     protected RelativeLayout mMapViewExpandedContainer;
-    @InjectView(R.id.activity_track_details_appbar_layout)
+    @BindView(R.id.activity_track_details_appbar_layout)
     protected AppBarLayout mAppBarLayout;
-    @InjectView(R.id.activity_track_details_scrollview)
+    @BindView(R.id.activity_track_details_scrollview)
     protected NestedScrollView mNestedScrollView;
-    @InjectView(R.id.activity_track_details_expanded_map_cancel)
+    @BindView(R.id.activity_track_details_expanded_map_cancel)
     protected ImageView mMapViewExpandedCancel;
-    @InjectView(R.id.activity_track_details_header_map_container)
+    @BindView(R.id.activity_track_details_header_map_container)
     protected FrameLayout mMapViewContainer;
 
     @Override

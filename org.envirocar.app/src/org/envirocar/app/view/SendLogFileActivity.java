@@ -22,10 +22,11 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -45,27 +46,42 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * An activity for reporting issues.
  *
  * @author matthes rieke
  */
-public class SendLogFileFragment extends Fragment {
+public class SendLogFileActivity extends AppCompatActivity {
 
     private static final Logger logger = Logger
-            .getLogger(SendLogFileFragment.class);
+            .getLogger(SendLogFileActivity.class);
     private static final String REPORTING_EMAIL = "envirocar@52north.org";
     private static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.getDefault());
     private static final DateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     private static final String PREFIX = "report-";
     private static final String EXTENSION = ".zip";
-    private EditText whenField;
-    private EditText comments;
+
+    @BindView(R.id.send_log_when)
+    protected EditText whenField;
+    @BindView(R.id.send_log_comments)
+    protected EditText comments;
+    @BindView(R.id.textView_send_log_location)
+    protected TextView locationText;
+    @BindView(R.id.toolbar)
+    protected Toolbar toolbar;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.send_log_layout, null);
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.send_log_layout);
+        ButterKnife.bind(this);
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Send Log Report");
 
         File reportBundle = null;
         try {
@@ -73,19 +89,11 @@ public class SendLogFileFragment extends Fragment {
 
             final File tmpBundle = createReportBundle();
             reportBundle = tmpBundle;
-            view.findViewById(R.id.send_log_button).setOnClickListener(
-                    new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            sendLogFile(tmpBundle);
-                        }
-                    });
+            findViewById(R.id.send_log_button).setOnClickListener(
+                    view -> sendLogFile(tmpBundle));
         } catch (IOException e) {
             logger.warn(e.getMessage(), e);
         }
-
-        TextView locationText = (TextView) view
-                .findViewById(R.id.textView_send_log_location);
 
         if (reportBundle != null) {
             locationText.setText(reportBundle.getAbsolutePath());
@@ -95,21 +103,18 @@ public class SendLogFileFragment extends Fragment {
                     LocalFileHandler.effectiveFile.getParentFile().getAbsolutePath());
         }
 
-        resolveInputFields(view);
-
-        return view;
     }
 
-
-    private void resolveInputFields(View view) {
-        this.whenField = (EditText) view.findViewById(R.id.send_log_when);
-        this.comments = (EditText) view.findViewById(R.id.send_log_comments);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId() == android.R.id.home) onBackPressed();
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        hideKeyboard(getView());
+        hideKeyboard(getCurrentFocus());
     }
 
     /**
@@ -205,9 +210,12 @@ public class SendLogFileFragment extends Fragment {
             }
         });
 
-        for (File file : oldFiles) {
-            file.delete();
+        if(oldFiles!=null){
+            for (File file : oldFiles) {
+                file.delete();
+            }
         }
+
     }
 
     private List<File> findAllLogFiles() {
@@ -226,8 +234,10 @@ public class SendLogFileFragment extends Fragment {
     }
 
     public void hideKeyboard(View view) {
-        InputMethodManager inputMethodManager =(InputMethodManager)getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        if(view != null){
+            InputMethodManager inputMethodManager =(InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+            inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
     }
 
 }

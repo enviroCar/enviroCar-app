@@ -18,7 +18,6 @@
  */
 package org.envirocar.app.view.settings;
 
-import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -26,7 +25,6 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
 import android.view.View;
-import android.widget.Toast;
 
 import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.squareup.otto.Bus;
@@ -60,7 +58,6 @@ public class OBDSettingsFragment extends PreferenceFragment {
     // Preferences.
     private SwitchPreference mBluetoothIsActivePreference;
     private Preference mBluetoothPairingPreference;
-    private Preference mBluetoothDeviceListPreference;
     private CheckBoxPreference mBackgroundServicePreference;
     private CheckBoxPreference mAutoConnectPrefrence;
     private Preference mSearchIntervalPreference;
@@ -81,8 +78,6 @@ public class OBDSettingsFragment extends PreferenceFragment {
                 .findPreference(PreferenceConstants.PREF_BLUETOOTH_ENABLER);
         mBluetoothPairingPreference = getPreferenceScreen()
                 .findPreference(PreferenceConstants.PREF_BLUETOOTH_PAIRING);
-        mBluetoothDeviceListPreference = getPreferenceScreen()
-                .findPreference(PreferenceConstants.PREF_BLUETOOTH_LIST);
         mBackgroundServicePreference = (CheckBoxPreference) getPreferenceScreen()
                 .findPreference(PreferenceConstants.PREF_BLUETOOTH_SERVICE_AUTOSTART);
         mAutoConnectPrefrence = (CheckBoxPreference)  getPreferenceScreen()
@@ -106,16 +101,6 @@ public class OBDSettingsFragment extends PreferenceFragment {
                 return false;
             } else {
                 mBluetoothHandler.disableBluetooth(getActivity());
-            }
-            return true;
-        });
-
-        // Checks wheter bluetooth is on and, if so, starts the intended preference.
-        mBluetoothDeviceListPreference.setOnPreferenceClickListener(preference -> {
-            if (!mBluetoothHandler.isBluetoothEnabled()) {
-                Toast.makeText(getActivity(), "No Bluetooth support. Is Bluetooth on?",
-                        Toast.LENGTH_SHORT).show();
-                return false;
             }
             return true;
         });
@@ -181,8 +166,6 @@ public class OBDSettingsFragment extends PreferenceFragment {
 
         // Remove all
         if (!event.mIsPaired && mBluetoothHandler.getSelectedBluetoothDevice() == null) {
-            mBluetoothDeviceListPreference.setSummary(
-                    R.string.pref_bluetooth_select_adapter_summary);
 
             // remove the shared preference entries for the bluetooth selection tag.
             PreferenceManager.getDefaultSharedPreferences(getActivity()).edit()
@@ -205,10 +188,6 @@ public class OBDSettingsFragment extends PreferenceFragment {
             // Update the pairing list preference
             mBluetoothPairingPreference.setEnabled(false);
             mBluetoothPairingPreference.setSummary(R.string.pref_bluetooth_disabled);
-
-            // Update the BluetoothDeviceList
-            mBluetoothDeviceListPreference.setEnabled(false);
-            mBluetoothDeviceListPreference.setSummary(R.string.pref_bluetooth_disabled);
         }
         // Bluetooth is available...
         else {
@@ -220,20 +199,6 @@ public class OBDSettingsFragment extends PreferenceFragment {
             // Update the pairing list preference
             mBluetoothPairingPreference.setEnabled(true);
             mBluetoothPairingPreference.setSummary(R.string.pref_bluetooth_pairing_summary);
-
-            // Enable the Bluetooth Button.
-            mBluetoothDeviceListPreference.setEnabled(true);
-            mBluetoothDeviceListPreference.setSummary(R.string
-                    .pref_bluetooth_select_adapter_summary);
-
-            // If there is already a device that is selected as OBD Adapter, then update the
-            // summary of the preference.
-            BluetoothDevice selectedBluetoothDevice = mBluetoothHandler
-                    .getSelectedBluetoothDevice();
-            if (selectedBluetoothDevice != null) {
-                mBluetoothDeviceListPreference.setSummary(selectedBluetoothDevice.getName() + " "
-                        + selectedBluetoothDevice.getAddress());
-            }
         }
     }
 }

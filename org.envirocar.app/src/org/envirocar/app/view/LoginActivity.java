@@ -21,6 +21,7 @@ package org.envirocar.app.view;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -28,7 +29,6 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Display;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,41 +36,32 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.R;
+import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
-import org.envirocar.app.view.utils.ECAnimationUtils;
-import org.envirocar.app.views.TypefaceEC;
-import org.envirocar.core.dao.TrackDAO;
+import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.ResourceConflictException;
-import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.app.handler.DAOProvider;
-
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
-import butterknife.ButterKnife;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action0;
 import rx.schedulers.Schedulers;
 
 /**
@@ -85,21 +76,6 @@ public class LoginActivity extends BaseInjectorActivity {
     protected Toolbar mToolbar;
     @BindView(R.id.activity_login_exp_toolbar)
     protected Toolbar mExpToolbar;
-    @BindView(R.id.activity_login_logo_dump)
-    protected View mLogoView;
-
-    @BindView(R.id.activity_login_exp_toolbar_content)
-    protected View mExpToolbarContent;
-    @BindView(R.id.activity_login_account_image)
-    protected ImageView mAccountImage;
-    @BindView(R.id.activity_login_account_name)
-    protected TextView mAccountName;
-    @BindView(R.id.activity_account_exp_toolbar_tracknumber)
-    protected TextView mGlobalTrackNumber;
-    @BindView(R.id.activity_account_exp_toolbar_local_tracknumber)
-    protected TextView mLocalTrackNumber;
-    @BindView(R.id.activity_account_exp_toolbar_remote_tracknumber)
-    protected TextView mRemoteTrackNumber;
 
     @BindView(R.id.activity_login_card)
     protected CardView mLoginCard;
@@ -119,13 +95,6 @@ public class LoginActivity extends BaseInjectorActivity {
     @BindView(R.id.activity_account_register_password2_input)
     protected EditText mRegisterPassword2;
 
-    @BindView(R.id.activity_account_statistics_no_statistics_info)
-    protected View mNoStatisticsInfo;
-    @BindView(R.id.activity_account_statistics_listview)
-    protected ListView mStatisticsListView;
-    @BindView(R.id.activity_account_statistics_progress)
-    protected View mStatisticsProgressView;
-
     @Inject
     protected UserHandler mUserManager;
     @Inject
@@ -143,7 +112,6 @@ public class LoginActivity extends BaseInjectorActivity {
     private Subscription mLoginSubscription;
     private Subscription mRegisterSubscription;
     private Subscription mTermsOfUseSubscription;
-    private Subscription mStatisticsDownloadSubscription;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -159,53 +127,26 @@ public class LoginActivity extends BaseInjectorActivity {
         // Inject the Views.
         ButterKnife.bind(this);
 
-        TypefaceEC.applyCustomFont((ViewGroup) mAccountName.getParent(), TypefaceEC.Raleway(this));
-
         // Initializes the Toolbar.
         setSupportActionBar(mToolbar);
         getSupportActionBar().setTitle("Account");
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mLoginCard.setVisibility(View.GONE);
-        mStatisticsListView.setVisibility(View.GONE);
-        mExpToolbarContent.setVisibility(View.GONE);
-        mLogoView.setVisibility(View.INVISIBLE);
+        Intent intent = getIntent();
+        expandExpToolbarToHalfScreen();
+        if(intent.getStringExtra("from").equalsIgnoreCase("login")){
+            slideInLoginCard();
+        }else{
+            slideInRegisterCard();
+        }
+
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            if (mRegisterCard.getVisibility() == View.VISIBLE) {
-                animateViewTransition(mRegisterCard, R.anim.translate_slide_out_right_card, true);
-                animateViewTransition(mLoginCard, R.anim.translate_slide_in_left_card, false);
-            } else {
-                finish();
-            }
-        } else if (item.getTitle().equals("Logout")) {
-
-            new MaterialDialog.Builder(this)
-                    .title(R.string.activity_login_logout_dialog_title)
-                    .content(R.string.activity_login_logout_dialog_content)
-                    .positiveText(R.string.ok)
-                    .negativeText(R.string.cancel)
-                    .callback(new MaterialDialog.ButtonCallback() {
-                        @Override
-                        public void onPositive(MaterialDialog dialog) {
-                            logOut();
-                        }
-                    })
-                    .build()
-                    .show();
-
-        }
+        if (item.getItemId() == android.R.id.home)  onBackPressed();
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        menu.add("Logout");
-        return super.onCreateOptionsMenu(menu);
     }
 
     @Override
@@ -217,7 +158,7 @@ public class LoginActivity extends BaseInjectorActivity {
             super.onBackPressed();
         }
     }
-
+/*
     @Override
     protected void onPostResume() {
         super.onPostResume();
@@ -229,7 +170,7 @@ public class LoginActivity extends BaseInjectorActivity {
                         }
                         expandExpToolbarToHalfScreen();
                     }, 300, TimeUnit.MILLISECONDS);
-    }
+    }*/
 
     @Override
     protected void onDestroy() {
@@ -323,8 +264,9 @@ public class LoginActivity extends BaseInjectorActivity {
                             // TODO: update the UI
                             updateView(true);
 
+                            finish();
                             // Then ask for terms of use acceptance.
-                            askForTermsOfUseAcceptance();
+                           // askForTermsOfUseAcceptance();
                         });
                     }
 
@@ -485,7 +427,8 @@ public class LoginActivity extends BaseInjectorActivity {
                                 username), Snackbar.LENGTH_LONG).show();
                     });
 
-                    askForTermsOfUseAcceptance();
+                    finish();
+                   // askForTermsOfUseAcceptance();
                 } catch (ResourceConflictException e) {
                     LOG.warn(e.getMessage(), e);
 
@@ -517,7 +460,7 @@ public class LoginActivity extends BaseInjectorActivity {
     }
 
     private void logOut() {
-        if (mUserManager.isLoggedIn()) {
+       /* if (mUserManager.isLoggedIn()) {
             final MaterialDialog dialog = new MaterialDialog.Builder(LoginActivity.this)
                     .title(R.string.activity_login_logout_progress_dialog_title)
                     .content(R.string.activity_login_logout_progress_dialog_content)
@@ -573,9 +516,8 @@ public class LoginActivity extends BaseInjectorActivity {
                     mStatisticsDownloadSubscription = null;
                 }
             }
-        }
+        }*/
     }
-
 
     /**
      * OnClick annotated function that gets invoked when the register button on the login card
@@ -589,8 +531,16 @@ public class LoginActivity extends BaseInjectorActivity {
         animateViewTransition(mRegisterCard, R.anim.translate_slide_in_right_card, false);
     }
 
+    @OnClick(R.id.activity_account_register_card_signin_button)
+    protected void onSignInButtonClicked() {
+        // When the register button was clicked, then replace the login card with the
+        // registration card.
+        animateViewTransition(mRegisterCard, R.anim.translate_slide_out_right_card, true);
+        animateViewTransition(mLoginCard, R.anim.translate_slide_in_left_card, false);
+    }
+
     private void updateView(boolean isLoggedIn) {
-        if (isLoggedIn) {
+      /*  if (isLoggedIn) {
             // First, show all user informations.
             final User user = mUserManager.getUser();
             mAccountName.setText(user.getUsername());
@@ -649,7 +599,7 @@ public class LoginActivity extends BaseInjectorActivity {
                 } catch (Exception e) {
                     LOG.warn(e.getMessage(), e);
                 }
-            });
+            });*/
 
 //            animateHideView(mStatisticsProgressView, R.anim.fade_out,
 //                    () -> animateViewTransition(mNoStatisticsInfo, R
@@ -689,7 +639,7 @@ public class LoginActivity extends BaseInjectorActivity {
 //                                            R.anim.fade_in, false));
 //                        }
 //                    });
-        }
+      //  }
     }
 
 
@@ -726,30 +676,6 @@ public class LoginActivity extends BaseInjectorActivity {
         }
     }
 
-    private void animateHideView(View view, int animResource, Action0 action) {
-        Animation animation = AnimationUtils.loadAnimation(this, animResource);
-        animation.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                // nothing to do..
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                view.setVisibility(View.GONE);
-                if (action != null) {
-                    action.call();
-                }
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-                // nothing to do..
-            }
-        });
-        view.startAnimation(animation);
-    }
-
     private void slideInLoginCard() {
         Animation animation = AnimationUtils.loadAnimation(this,
                 R.anim.translate_in_bottom_login_card);
@@ -757,19 +683,11 @@ public class LoginActivity extends BaseInjectorActivity {
         mLoginCard.startAnimation(animation);
     }
 
-
-    /**
-     * Animtes the hiding process by sliding the login card out at the bottom.
-     */
-    private void slideOutLoginCard() {
-        animateViewTransition(mLoginCard, R.anim.translate_out_bottom_card, true);
-    }
-
-    /**
-     * Animtes the hiding process by sliding the register card out at the bottom.
-     */
-    private void slideOutRegisterCard() {
-        animateViewTransition(mRegisterCard, R.anim.translate_out_bottom_card, true);
+    private void slideInRegisterCard() {
+        Animation animation = AnimationUtils.loadAnimation(this,
+                R.anim.translate_in_bottom_login_card);
+        mRegisterCard.setVisibility(View.VISIBLE);
+        mRegisterCard.startAnimation(animation);
     }
 
     /**
