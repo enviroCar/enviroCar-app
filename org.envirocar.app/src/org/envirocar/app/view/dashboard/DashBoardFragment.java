@@ -189,7 +189,8 @@ public class DashBoardFragment extends BaseInjectorFragment {
     //trackType = 1 means OBD + GPS
     //trackType = 2 means GPS Only
     private static int trackType = 1;
-    private int REQUEST_PERMISSIONS_REQUEST_CODE = 108;
+    private int REQUEST_LOCATION_PERMISSION_REQUEST_CODE = 108;
+    private int REQUEST_STORAGE_PERMISSION_REQUEST_CODE = 109;
 
 
     private static boolean rocordingServiceRunning = false;
@@ -260,6 +261,10 @@ public class DashBoardFragment extends BaseInjectorFragment {
             }
         });
 
+        if(!checkStoragePermissions())
+        {
+            requestStoragePermissions();
+        }
         return contentView;
     }
 
@@ -338,10 +343,10 @@ public class DashBoardFragment extends BaseInjectorFragment {
                     Intent intent = new Intent(getActivity(),OBDPlusGPSTrackRecordingScreen.class);
                     startActivity(intent);
                 }else{
-                    if(checkPermissions()){
+                    if(checkLocationPermission()){
                         onOBDPlusGPSStartTrackButtonStartClicked();
                     }else{
-                        requestPermissions();
+                        requestLocationPermission();
                     }
                 }
                 break;
@@ -350,10 +355,10 @@ public class DashBoardFragment extends BaseInjectorFragment {
                     Intent intent = new Intent(getActivity(),GPSOnlyTrackRecordingScreen.class);
                     startActivity(intent);
                 }else{
-                    if(checkPermissions()){
+                    if(checkLocationPermission()){
                         onGPSOnlyStartTrackButtonStartClicked();
                     }else{
-                        requestPermissions();
+                        requestLocationPermission();
                     }
                 }
                 break;
@@ -377,13 +382,13 @@ public class DashBoardFragment extends BaseInjectorFragment {
     /**
      * Return the current state of the permissions needed.
      */
-    private boolean checkPermissions() {
+    private boolean checkLocationPermission() {
         int permissionState = ActivityCompat.checkSelfPermission(getActivity(),
                 Manifest.permission.ACCESS_FINE_LOCATION);
         return permissionState == PackageManager.PERMISSION_GRANTED;
     }
 
-    private void requestPermissions() {
+    private void requestLocationPermission() {
         boolean shouldProvideRationale =
                 ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
                         Manifest.permission.ACCESS_FINE_LOCATION);
@@ -392,13 +397,20 @@ public class DashBoardFragment extends BaseInjectorFragment {
         // request previously, but didn't check the "Don't ask again" checkbox.
         if (shouldProvideRationale) {
             Log.i("Requesting Location", "Displaying permission rationale to provide additional context.");
-            showSnackbar(R.string.permission_rationale,
-                    android.R.string.ok, view -> {
+
+            DialogUtils.createDefaultDialogBuilder(getContext(),
+                    R.string.request_location_permission_title,
+                    R.drawable.others_settings,
+                    R.string.permission_rationale_location)
+                    .positiveText(R.string.ok)
+                    .onPositive((dialog, which) -> {
                         // Request permission
                         ActivityCompat.requestPermissions(getActivity(),
                                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                REQUEST_PERMISSIONS_REQUEST_CODE);
-                    });
+                                REQUEST_STORAGE_PERMISSION_REQUEST_CODE);
+                    })
+                    .show();
+
         } else {
             Log.i("Permissions", "Requesting permission");
             // Request permission. It's possible this can be auto answered if device policy
@@ -406,7 +418,51 @@ public class DashBoardFragment extends BaseInjectorFragment {
             // previously and checked "Never ask again".
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_PERMISSIONS_REQUEST_CODE);
+                    REQUEST_LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+
+    /**
+     * Return the current state of the permissions needed.
+     */
+    private boolean checkStoragePermissions() {
+        int permissionState = ActivityCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        return permissionState == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestStoragePermissions() {
+        boolean shouldProvideRationale =
+                ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        // Provide an additional rationale to the user. This would happen if the user denied the
+        // request previously, but didn't check the "Don't ask again" checkbox.
+        if (shouldProvideRationale) {
+            LOG.debug("Requesting Storage. Displaying permission rationale to provide additional context.");
+
+            DialogUtils.createDefaultDialogBuilder(getContext(),
+                    R.string.request_storage_permission_title,
+                    R.drawable.others_settings,
+                    R.string.permission_rationale_file)
+                    .positiveText(R.string.ok)
+                    .onPositive((dialog, which) -> {
+                        // Request permission
+                        ActivityCompat.requestPermissions(getActivity(),
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                REQUEST_STORAGE_PERMISSION_REQUEST_CODE);
+                    })
+                    .show();
+
+        } else {
+            Log.i("Permissions", "Requesting permission");
+            // Request permission. It's possible this can be auto answered if device policy
+            // sets the permission in a given state or the user denied the permission
+            // previously and checked "Never ask again".
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_STORAGE_PERMISSION_REQUEST_CODE);
         }
     }
 
@@ -418,7 +474,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
         LOG.debug("onRequestPermissionResult");
-        if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
+        if (requestCode == REQUEST_LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length <= 0) {
                 // If user interaction was interrupted, the permission request is cancelled and you
                 // receive empty arrays.
@@ -426,6 +482,38 @@ public class DashBoardFragment extends BaseInjectorFragment {
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 LOG.debug("Permission granted, updates requested, starting the recording procedure");
                 onStartStopButtonClicked();
+            } else {
+                // Permission denied.
+
+                // Notify the user via a SnackBar that they have rejected a core permission for the
+                // app, which makes the Activity useless. In a real app, core permissions would
+                // typically be best requested during a welcome-screen flow.
+
+                // Additionally, it is important to remember that a permission might have been
+                // rejected without asking the user for permission (device policy or "Never ask
+                // again" prompts). Therefore, a user interface affordance is typically implemented
+                // when permissions are denied. Otherwise, your app could appear unresponsive to
+                // touches or interactions which have required permissions.
+                showSnackbar(R.string.permission_denied_explanation,
+                        R.string.settings, view -> {
+                            // Build intent that displays the App settings screen.
+                            Intent intent = new Intent();
+                            intent.setAction(
+                                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                            Uri uri = Uri.fromParts("package",
+                                    BuildConfig.APPLICATION_ID, null);
+                            intent.setData(uri);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        });
+            }
+        }else if(requestCode == REQUEST_STORAGE_PERMISSION_REQUEST_CODE){
+            if (grantResults.length <= 0) {
+                // If user interaction was interrupted, the permission request is cancelled and you
+                // receive empty arrays.
+                LOG.debug("User interaction was cancelled.");
+            } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                LOG.debug("Permission granted, updates requested, starting the logging procedure");
             } else {
                 // Permission denied.
 

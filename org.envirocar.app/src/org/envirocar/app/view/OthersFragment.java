@@ -11,7 +11,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +29,9 @@ import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.view.logbook.LogbookActivity;
 import org.envirocar.app.view.settings.SettingsActivity;
+import org.envirocar.app.view.utils.DialogUtils;
 import org.envirocar.core.entity.User;
+import org.envirocar.core.logging.Logger;
 
 import java.util.concurrent.TimeUnit;
 
@@ -47,7 +48,8 @@ import rx.schedulers.Schedulers;
  * A simple {@link Fragment} subclass.
  */
 public class OthersFragment extends BaseInjectorFragment {
-
+    private static final Logger LOGGER = Logger
+            .getLogger(OthersFragment.class);
     @Inject
     protected UserHandler mUserManager;
     @Inject
@@ -143,7 +145,7 @@ public class OthersFragment extends BaseInjectorFragment {
                     }
                 })
                 .show();
-        }
+    }
 
     @OnClick(R.id.othersCloseEnviroCar)
     protected void onCloseEnviroCarClicked() {
@@ -179,16 +181,24 @@ public class OthersFragment extends BaseInjectorFragment {
         // Provide an additional rationale to the user. This would happen if the user denied the
         // request previously, but didn't check the "Don't ask again" checkbox.
         if (shouldProvideRationale) {
-            Log.i("Requesting Location", "Displaying permission rationale to provide additional context.");
-            showSnackbar(R.string.permission_rationale,
-                    android.R.string.ok, view -> {
+            LOGGER.debug("Requesting File Permission. Displaying permission rationale to provide additional context.");
+
+            DialogUtils.createDefaultDialogBuilder(getContext(),
+                    R.string.request_storage_permission_title,
+                    R.drawable.others_settings,
+                    R.string.permission_rationale_file)
+                    .positiveText(R.string.ok)
+                    .onPositive((dialog, which) -> {
                         // Request permission
                         ActivityCompat.requestPermissions(getActivity(),
                                 new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
                                 REQUEST_PERMISSIONS_REQUEST_CODE);
-                    });
+                    })
+                    .show();
+
+
         } else {
-            Log.i("Permissions", "Requesting permission");
+            LOGGER.debug("Requesting permission");
             // Request permission. It's possible this can be auto answered if device policy
             // sets the permission in a given state or the user denied the permission
             // previously and checked "Never ask again".
@@ -212,9 +222,7 @@ public class OthersFragment extends BaseInjectorFragment {
                 // receive empty arrays.
                // LOG.debug("User interaction was cancelled.");
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                //LOG.debug("Permission granted, updates requested, starting the recording procedure");
-                Intent intent = new Intent(getActivity(), SendLogFileActivity.class);
-                startActivity(intent);
+                LOGGER.debug("Permission granted, updates requested, starting the logging procedure");
             } else {
                 // Permission denied.
 

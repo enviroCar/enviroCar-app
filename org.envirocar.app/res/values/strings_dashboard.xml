@@ -50,7 +50,10 @@
     <string name="dashboard_info_select_obd_adapter">\n - Select an OBD-II adapter</string>
     <string name="dashboard_info_select_car_type">\n - Select a car type</string>
 
-    <string name="permission_rationale">Location permission is needed for core functionality</string>
+    <string name="permission_rationale_location">Location permission is needed for core functionality.</string>
+    <string name="permission_rationale_file">"Storage permission is needed for logging. If you don't want logging, please click on don't ask again in the next screen."</string>
+    <string name="request_storage_permission_title">Storage permission needed</string>
+    <string name="request_location_permission_title">Location permission needed</string>
     <string name="permission_denied_explanation">Permission was denied, but is needed for core functionality.</string>
     <string name="settings">Settings</string>
 </resources>
