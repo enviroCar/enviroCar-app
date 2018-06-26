@@ -18,15 +18,22 @@
  */
 package org.envirocar.app.view.tracklist;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.FileProvider;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +41,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TermsOfUseManager;
@@ -120,6 +128,7 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected final Object attachingActivityLock = new Object();
     protected boolean isAttached = false;
 
+    private int REQUEST_STORAGE_PERMISSION_REQUEST_CODE = 109;
 
     @Nullable
     @Override
@@ -162,23 +171,135 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     protected void exportTrack(Track track) {
 
         try {
-            // Create an sharing intent.
-            Intent sharingIntent = new Intent(Intent.ACTION_SEND);
-            sharingIntent.setType("application/json");
-            Uri shareBody = Uri.fromFile(TrackSerializer.exportTrack(track).getFile());
+            if(checkStoragePermissions()){
+                // Create an sharing intent.
+                Intent sharingIntent = new Intent(Intent.ACTION_SEND);
+                sharingIntent.setType("application/json");
+                //  Uri shareBody = Uri.fromFile(TrackSerializer.exportTrack(track).getFile());
+                Uri shareBody = FileProvider.getUriForFile(
+                        getActivity(),
+                        getActivity().getApplicationContext()
+                                .getPackageName() + ".provider", TrackSerializer.exportTrack(track).getFile());
+                sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
+                        "EnviroCar Track " + track.getName());
+                sharingIntent.putExtra(android.content.Intent.EXTRA_STREAM, shareBody);
+                sharingIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                // Wrap the intent with a chooser.
+                startActivity(Intent.createChooser(sharingIntent, "Share via"));
+            }else{
+                requestStoragePermissions();
+            }
 
-            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
-                    "EnviroCar Track " + track.getName());
-            sharingIntent.putExtra(android.content.Intent.EXTRA_STREAM, shareBody);
-
-            // Wrap the intent with a chooser.
-            startActivity(Intent.createChooser(sharingIntent, "Share via"));
         } catch (IOException e) {
             LOG.warn(e.getMessage(), e);
             Snackbar.make(getView(),
                     R.string.general_error_please_report,
                     Snackbar.LENGTH_LONG).show();
         }
+    }
+
+    /**
+     * Return the current state of the permissions needed.
+     */
+    private boolean checkStoragePermissions() {
+        int permissionState = ActivityCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        return permissionState == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestStoragePermissions() {
+        boolean shouldProvideRationale =
+                ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        // Provide an additional rationale to the user. This would happen if the user denied the
+        // request previously, but didn't check the "Don't ask again" checkbox.
+        if (shouldProvideRationale) {
+            LOG.debug("Requesting Storage permission. Displaying permission rationale to provide additional context.");
+
+            DialogUtils.createDefaultDialogBuilder(getContext(),
+                    R.string.request_storage_permission_title,
+                    R.drawable.others_settings,
+                    R.string.permission_rationale_file)
+                    .positiveText(R.string.ok)
+                    .onPositive((dialog, which) -> {
+                        // Request permission
+                        ActivityCompat.requestPermissions(getActivity(),
+                                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                                REQUEST_STORAGE_PERMISSION_REQUEST_CODE);
+                    })
+                    .show();
+
+        } else {
+            LOG.info("Requesting permission");
+            // Request permission. It's possible this can be auto answered if device policy
+            // sets the permission in a given state or the user denied the permission
+            // previously and checked "Never ask again".
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_STORAGE_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+
+
+    /**
+     * Callback received when a permissions request has been completed.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        LOG.info("onRequestPermissionResult");
+        if(requestCode == REQUEST_STORAGE_PERMISSION_REQUEST_CODE){
+            if (grantResults.length <= 0) {
+                // If user interaction was interrupted, the permission request is cancelled and you
+                // receive empty arrays.
+                LOG.info("User interaction was cancelled.");
+            } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                LOG.info("Storage permission granted");
+            } else {
+                // Permission denied.
+
+                // Notify the user via a SnackBar that they have rejected a core permission for the
+                // app, which makes the Activity useless. In a real app, core permissions would
+                // typically be best requested during a welcome-screen flow.
+
+                // Additionally, it is important to remember that a permission might have been
+                // rejected without asking the user for permission (device policy or "Never ask
+                // again" prompts). Therefore, a user interface affordance is typically implemented
+                // when permissions are denied. Otherwise, your app could appear unresponsive to
+                // touches or interactions which have required permissions.
+                showSnackbar(R.string.permission_denied_explanation,
+                        R.string.settings, view -> {
+                            // Build intent that displays the App settings screen.
+                            Intent intent = new Intent();
+                            intent.setAction(
+                                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                            Uri uri = Uri.fromParts("package",
+                                    BuildConfig.APPLICATION_ID, null);
+                            intent.setData(uri);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        });
+            }
+        }
+    }
+
+
+    /**
+     * Shows a {@link Snackbar}.
+     *
+     * @param mainTextStringId The id for the string resource for the Snackbar text.
+     * @param actionStringId   The text of the action item.
+     * @param listener         The listener associated with the Snackbar action.
+     */
+    private void showSnackbar(final int mainTextStringId, final int actionStringId,
+                              View.OnClickListener listener) {
+        Snackbar.make(
+                getActivity().findViewById(R.id.navigation),
+                getString(mainTextStringId),
+                Snackbar.LENGTH_INDEFINITE)
+                .setAction(getString(actionStringId), listener).show();
     }
 
     /**
