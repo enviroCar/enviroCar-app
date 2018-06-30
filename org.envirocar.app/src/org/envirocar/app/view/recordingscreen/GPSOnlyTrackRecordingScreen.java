@@ -1,5 +1,6 @@
 package org.envirocar.app.view.recordingscreen;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentTransaction;
@@ -15,6 +16,7 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.BaseMainActivityBottomBar;
 import org.envirocar.app.MainActivityComponent;
 import org.envirocar.app.MainActivityModule;
 import org.envirocar.app.R;
@@ -24,6 +26,7 @@ import org.envirocar.app.events.StartingTimeEvent;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.services.GPSOnlyConnectionService;
 import org.envirocar.app.view.dashboard.DashboardTempomatFragment;
 import org.envirocar.app.view.dashboard.DashboardTrackMapFragment;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
@@ -90,6 +93,12 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_obdplus_gpstrack_recording_screen);
 
+        //if the track recording service is stopped then finish this activity and goback to bottombar main activity
+        if(GPSOnlyConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STOPPED){
+            startActivity(new Intent(GPSOnlyTrackRecordingScreen.this, BaseMainActivityBottomBar.class));
+            finish();
+        }
+
 
         // Inject all dashboard-related views.
         ButterKnife.bind(this);
@@ -102,6 +111,17 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
         fragmentTransaction.commit();
 
         initAnimations();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        //if the track recording service is stopped then finish this activity and goback to bottombar main activity
+        if(GPSOnlyConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STOPPED){
+            startActivity(new Intent(GPSOnlyTrackRecordingScreen.this, BaseMainActivityBottomBar.class));
+            finish();
+        }
     }
 
     @Subscribe

@@ -26,16 +26,21 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
+import android.widget.RemoteViews;
 
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.BaseApplicationComponent;
 import org.envirocar.app.BaseMainActivityBottomBar;
+import org.envirocar.app.R;
+import org.envirocar.app.events.AvrgSpeedUpdateEvent;
+import org.envirocar.app.events.DistanceValueUpdateEvent;
+import org.envirocar.app.events.StartingTimeEvent;
 import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
@@ -70,6 +75,7 @@ import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -87,6 +93,8 @@ import rx.subjects.PublishSubject;
  */
 public class OBDConnectionService extends BaseInjectorService {
     private static final Logger LOG = Logger.getLogger(OBDConnectionService.class);
+
+    private static final DecimalFormat DECIMAL_FORMATTER = new DecimalFormat("###.#");
 
     public static void startService(Context context){
         ServiceUtils.startService(context, OBDConnectionService.class);
@@ -151,6 +159,12 @@ public class OBDConnectionService extends BaseInjectorService {
 
     public static final String ACTION_STOP_TRACK_RECORDING = "action_stop_track_recording";
 
+    private int mAvrgSpeed = 0;
+    private double mDistanceValue = 0.0;
+    private long mStartingTime = 0;
+    private boolean isTrackStarted = false;
+    Notification notification;
+
     // Broadcast receiver that handles the stopping of the track that could be issued by the
     // corresponding notification of the notification bar.
     private final BroadcastReceiver mBroadcastReciever = new BroadcastReceiver() {
@@ -179,6 +193,7 @@ public class OBDConnectionService extends BaseInjectorService {
         LOG.info("OBDConnectionService.onCreate()");
         super.onCreate();
 
+        notificationManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
         // register on the event bus
         this.bus.register(this);
         this.bus.register(mTrackDetailsProvider);
@@ -211,7 +226,6 @@ public class OBDConnectionService extends BaseInjectorService {
                 PreferencesHandler.getTextToSpeechObservable(getApplicationContext())
                         .subscribe(aBoolean -> mIsTTSPrefChecked = aBoolean);
 
-        notificationManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
 
         /**
          * create the consumption and MAF algorithm, final for this connection
@@ -270,6 +284,65 @@ public class OBDConnectionService extends BaseInjectorService {
         }
 
         return START_STICKY;
+    }
+
+    @Subscribe
+    public void onReceiveAvrgSpeedUpdateEvent(AvrgSpeedUpdateEvent event) {
+        mAvrgSpeed = event.mAvrgSpeed;
+        refreshNotification();
+    }
+
+    @Subscribe
+    public void onReceiveDistanceUpdateEvent(DistanceValueUpdateEvent event) {
+        mDistanceValue = event.mDistanceValue;
+        refreshNotification();
+    }
+
+    @Subscribe
+    public void onReceiveStartingTimeEvent(StartingTimeEvent event) {
+        mStartingTime = event.mStartingTime;
+        isTrackStarted = event.mIsStarted;
+        refreshNotification();
+    }
+
+    private void refreshNotification(){
+
+        Intent intent = new Intent(getBaseContext(), OBDPlusGPSTrackRecordingScreen.class);
+        // use System.currentTimeMillis() to have a unique ID for the pending intent
+        PendingIntent pIntent = PendingIntent.getActivity(getBaseContext(), (int) System.currentTimeMillis(), intent, 0);
+
+        RemoteViews notificationBigLayout = new RemoteViews(getPackageName(), R.layout.notification_while_track_recording);
+        RemoteViews notificationSmallLayout = new RemoteViews(getPackageName(), R.layout.notification_obd_service_state);
+
+        OBDNotificationActionHolder actionHolder = OBDServiceState.CONNECTED.getAction(getBaseContext());
+        notificationBigLayout.setOnClickPendingIntent(R.id.notification_obd_service_state_button, actionHolder.actionIntent);
+        notificationBigLayout.setTextViewText(R.id.notification_distance, String.format("%s km", DECIMAL_FORMATTER.format(mDistanceValue)));
+        notificationBigLayout.setTextViewText(R.id.notification_speed, String.format("%s km/h", Integer.toString(mAvrgSpeed)));
+        notificationBigLayout.setChronometer(R.id.notification_timertext,mStartingTime,"%s",isTrackStarted);
+        notificationSmallLayout.setTextViewText(R.id.notification_distance, String.format("%s km", DECIMAL_FORMATTER.format(mDistanceValue)));
+        notificationSmallLayout.setTextViewText(R.id.notification_speed, String.format("%s km/h", Integer.toString(mAvrgSpeed)));
+        notificationSmallLayout.setChronometer(R.id.notification_timertext,mStartingTime,"%s",isTrackStarted);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            notification = new Notification.Builder(getBaseContext(),CHANNEL_ID)
+                    .setSmallIcon(OBDServiceState.CONNECTED.getIcon())
+                    .setContentIntent(pIntent)
+                    .setCustomContentView(notificationSmallLayout)
+                    .setCustomBigContentView(notificationBigLayout)
+                    .setAutoCancel(true).build();
+
+        }else{
+            notification = new Notification.Builder(getBaseContext())
+                    .setPriority(Notification.PRIORITY_LOW)
+                    .setSmallIcon(OBDServiceState.CONNECTED.getIcon())
+                    .setContentIntent(pIntent)
+                    .setContent(notificationSmallLayout)
+                    .setAutoCancel(true).build();
+
+            notification.bigContentView = notificationBigLayout;
+        }
+        notificationManager.notify(181,notification);
+
     }
 
     /**
@@ -379,38 +452,8 @@ public class OBDConnectionService extends BaseInjectorService {
                 public void onConnectionVerified() {
                     setTrackRecordingServiceState(BluetoothServiceState.SERVICE_STARTED);
                     subscribeForMeasurements();
-
-                    Intent intent = new Intent(getBaseContext(), OBDPlusGPSTrackRecordingScreen.class);
-                    // use System.currentTimeMillis() to have a unique ID for the pending intent
-                    PendingIntent pIntent = PendingIntent.getActivity(getBaseContext(), (int) System.currentTimeMillis(), intent, 0);
-
-                    Notification notification;
-                    OBDNotificationActionHolder actionHolder = OBDServiceState.CONNECTED.getAction(getBaseContext());
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
-                        Notification.Action action = new Notification.Action.Builder(Icon.createWithResource(getBaseContext(),actionHolder.actionIcon),
-                                getBaseContext().getString(actionHolder.actionString),
-                                actionHolder.actionIntent).build();
-
-                         notification = new Notification.Builder(getBaseContext(),CHANNEL_ID)
-                                .setContentTitle(getBaseContext().getString(OBDServiceState.CONNECTED.getTitle()))
-                                .setContentText(getBaseContext().getString(OBDServiceState.CONNECTED.getSubText()))
-                                .setSmallIcon(OBDServiceState.CONNECTED.getIcon())
-                                 .addAction(action)
-                                 .setContentIntent(pIntent)
-                                 .setAutoCancel(true).build();
-
-                    }else{
-                        notification = new Notification.Builder(getBaseContext())
-                                .setPriority(Notification.PRIORITY_LOW)
-                                .setContentTitle(getBaseContext().getString(OBDServiceState.CONNECTED.getTitle()))
-                                .setContentText(getBaseContext().getString(OBDServiceState.CONNECTED.getSubText()))
-                                .setSmallIcon(OBDServiceState.CONNECTED.getIcon())
-                                .addAction(actionHolder.actionIcon, getBaseContext().getString(actionHolder.actionString), actionHolder.actionIntent)
-                                .setContentIntent(pIntent)
-                                .setAutoCancel(true).build();
-                    }
-                    notificationManager.notify(181,notification);
+                    mStartingTime = SystemClock.elapsedRealtime();
+                    refreshNotification();
 
                 }
 

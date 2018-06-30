@@ -89,7 +89,7 @@ public class TrackDetailsProvider {
         if(GPSOnlyConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED
                 && event.mMeasurement.hasProperty(Measurement.PropertyKey.GPS_SPEED) ){
             GPSSpeed = event.mMeasurement.getProperty(Measurement.PropertyKey.GPS_SPEED);
-            produceGPSSpeedEvent();
+            mBus.post(produceGPSSpeedEvent());
         }
     }
 
