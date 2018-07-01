@@ -43,7 +43,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context="org.envirocar.app.view.trackdetails.TrackStatisticsActivity"
+        tools:context="org.envirocar.app.views.trackdetails.TrackStatisticsActivity"
         tools:ignore="MergeRootFrame"/>
 
 </LinearLayout>

@@ -128,12 +128,12 @@ public class OBDSimulator extends Activity {
 
         // Initialize the array adapter for the conversation thread
         mConversationArrayAdapter = new ArrayAdapter<String>(this, R.layout.message);
-        mConversationView = (ListView) findViewById(R.id.in);
+        mConversationView = findViewById(R.id.in);
         mConversationView.setAdapter(mConversationArrayAdapter);
 
 
         // Initialize the send button with a listener that for click events
-        mSendButton = (Button) findViewById(R.id.button_send);
+        mSendButton = findViewById(R.id.button_send);
         mSendButton.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 // Send a message using content of the edit text widget

@@ -34,8 +34,8 @@ import android.widget.RemoteViews;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.algorithm.MeasurementProvider;
-import org.envirocar.app.BaseApplicationComponent;
-import org.envirocar.app.BaseMainActivityBottomBar;
+import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.app.R;
 import org.envirocar.app.events.AvrgSpeedUpdateEvent;
 import org.envirocar.app.events.DistanceValueUpdateEvent;
@@ -46,9 +46,9 @@ import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.injection.BaseInjectorService;
-import org.envirocar.app.services.obd.OBDNotificationActionHolder;
-import org.envirocar.app.services.obd.OBDServiceState;
-import org.envirocar.app.view.recordingscreen.GPSOnlyTrackRecordingScreen;
+import org.envirocar.app.notifications.NotificationActionHolder;
+import org.envirocar.app.notifications.ServiceStateForNotificationForNotification;
+import org.envirocar.app.views.recordingscreen.GPSOnlyTrackRecordingScreen;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.NewMeasurementEvent;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
@@ -210,9 +210,9 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Notification notification = new Notification.Builder(this,CHANNEL_ID)
-                    .setContentTitle(getBaseContext().getString(OBDServiceState.CONNECTING.getTitle()))
-                    .setContentText(getBaseContext().getString(OBDServiceState.CONNECTING.getSubText()))
-                    .setSmallIcon(OBDServiceState.CONNECTING.getIcon())
+                    .setContentTitle(getBaseContext().getString(ServiceStateForNotificationForNotification.CONNECTING.getTitle()))
+                    .setContentText(getBaseContext().getString(ServiceStateForNotificationForNotification.CONNECTING.getSubText()))
+                    .setSmallIcon(ServiceStateForNotificationForNotification.CONNECTING.getIcon())
                     .setContentIntent(pIntent)
                     .setAutoCancel(true).build();
 
@@ -220,9 +220,9 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
         }else{
 
             Notification notification = new Notification.Builder(this)
-                    .setContentTitle(getBaseContext().getString(OBDServiceState.CONNECTING.getTitle()))
-                    .setContentText(getBaseContext().getString(OBDServiceState.CONNECTING.getSubText()))
-                    .setSmallIcon(OBDServiceState.CONNECTING.getIcon())
+                    .setContentTitle(getBaseContext().getString(ServiceStateForNotificationForNotification.CONNECTING.getTitle()))
+                    .setContentText(getBaseContext().getString(ServiceStateForNotificationForNotification.CONNECTING.getSubText()))
+                    .setSmallIcon(ServiceStateForNotificationForNotification.CONNECTING.getIcon())
                     .setContentIntent(pIntent)
                     .setAutoCancel(true).build();
 
@@ -262,9 +262,9 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
         PendingIntent pIntent = PendingIntent.getActivity(getBaseContext(), (int) System.currentTimeMillis(), intent, 0);
 
         RemoteViews notificationBigLayout = new RemoteViews(getPackageName(), R.layout.notification_while_track_recording);
-        RemoteViews notificationSmallLayout = new RemoteViews(getPackageName(), R.layout.notification_obd_service_state);
+        RemoteViews notificationSmallLayout = new RemoteViews(getPackageName(), R.layout.notification_while_track_recording_small);
 
-        OBDNotificationActionHolder actionHolder = OBDServiceState.CONNECTED.getAction(getBaseContext());
+        NotificationActionHolder actionHolder = ServiceStateForNotificationForNotification.CONNECTED.getAction(getBaseContext());
         notificationBigLayout.setOnClickPendingIntent(R.id.notification_obd_service_state_button, actionHolder.actionIntent);
         notificationBigLayout.setTextViewText(R.id.notification_distance, String.format("%s km", DECIMAL_FORMATTER.format(mDistanceValue)));
         notificationBigLayout.setTextViewText(R.id.notification_speed, String.format("%s km/h", Integer.toString(mAvrgSpeed)));
@@ -275,7 +275,7 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
             notification = new Notification.Builder(getBaseContext(),CHANNEL_ID)
-                    .setSmallIcon(OBDServiceState.CONNECTED.getIcon())
+                    .setSmallIcon(ServiceStateForNotificationForNotification.CONNECTED.getIcon())
                     .setContentIntent(pIntent)
                     .setCustomContentView(notificationSmallLayout)
                     .setCustomBigContentView(notificationBigLayout)
@@ -284,7 +284,7 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
         }else{
             notification = new Notification.Builder(getBaseContext())
                     .setPriority(Notification.PRIORITY_MAX)
-                    .setSmallIcon(OBDServiceState.CONNECTED.getIcon())
+                    .setSmallIcon(ServiceStateForNotificationForNotification.CONNECTED.getIcon())
                     .setContentIntent(pIntent)
                     .setContent(notificationSmallLayout)
                     .setAutoCancel(true).build();
@@ -362,6 +362,7 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
         setTrackRecordingServiceState(BluetoothServiceState.SERVICE_STARTED);
         subscribeForMeasurements();
         mStartingTime = SystemClock.elapsedRealtime();
+        LOG.info("Setting the custom notification while recording for the first time.");
         refreshNotification();
 
     }

@@ -40,8 +40,7 @@ public class CacheTermsOfUseDAO extends AbstractCacheDAO implements TermsOfUseDA
     public CacheTermsOfUseDAO() {}
 
     @Override
-    public TermsOfUse getTermsOfUse(String id) throws DataRetrievalFailureException,
-            NotConnectedException {
+    public TermsOfUse getTermsOfUse(String id) {
         return null;
     }
 
@@ -51,8 +50,7 @@ public class CacheTermsOfUseDAO extends AbstractCacheDAO implements TermsOfUseDA
     }
 
     @Override
-    public List<TermsOfUse> getAllTermsOfUse() throws DataRetrievalFailureException,
-			NotConnectedException {
+    public List<TermsOfUse> getAllTermsOfUse() {
         return null;
     }
 

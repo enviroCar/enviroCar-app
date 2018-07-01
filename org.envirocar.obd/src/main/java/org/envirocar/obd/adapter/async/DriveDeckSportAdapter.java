@@ -49,7 +49,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
     private int totalResponseCount;
     private boolean supportForLambdaVoltage = true;
 
-    private static enum Protocol {
+    private enum Protocol {
         CAN11500, CAN11250, CAN29500, CAN29250, KWP_SLOW, KWP_FAST, ISO9141
     }
 
@@ -100,12 +100,7 @@ public class DriveDeckSportAdapter extends AsyncAdapter {
         if (supportedPIDs == null || supportedPIDs.isEmpty()) {
             supportForLambdaVoltage = true;
         }
-        else if (supportedPIDs.contains(PID.O2_LAMBDA_PROBE_1_VOLTAGE)) {
-            supportForLambdaVoltage = false;
-        }
-        else {
-            supportForLambdaVoltage = true;
-        }
+        else supportForLambdaVoltage = !supportedPIDs.contains(PID.O2_LAMBDA_PROBE_1_VOLTAGE);
     }
 
 

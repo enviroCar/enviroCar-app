@@ -37,43 +37,37 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:name=".BaseApplication"
+        android:name=".main.BaseApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.Cario">
         <activity
-            android:name=".BaseMainActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Cario" />
-        <activity
-            android:name=".view.trackdetails.TrackDetailsActivity"
+            android:name=".views.trackdetails.TrackDetailsActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.carselection.CarSelectionActivity"
+            android:name=".views.carselection.CarSelectionActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.obdselection.OBDSelectionActivity"
+            android:name=".views.obdselection.OBDSelectionActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.trackdetails.TrackStatisticsActivity"
+            android:name=".views.trackdetails.TrackStatisticsActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.LoginActivity"
+            android:name=".views.LoginRegisterActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.settings.SettingsActivity"
+            android:name=".views.settings.SettingsActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.SendLogFileActivity"
+            android:name=".views.SendLogFileActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.logbook.LogbookActivity"
+            android:name=".views.logbook.LogbookActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.HelpActivity"
+            android:name=".views.HelpActivity"
             android:screenOrientation="portrait" />
 
         <service
@@ -103,7 +97,7 @@
         </receiver>
 
         <activity
-            android:name=".BaseMainActivityBottomBar"
+            android:name=".main.BaseMainActivityBottomBar"
             android:label="@string/app_name"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
@@ -115,10 +109,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".view.recordingscreen.OBDPlusGPSTrackRecordingScreen"
+            android:name=".views.recordingscreen.OBDPlusGPSTrackRecordingScreen"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
-        <activity android:name=".view.recordingscreen.GPSOnlyTrackRecordingScreen"
+        <activity android:name=".views.recordingscreen.GPSOnlyTrackRecordingScreen"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"/>
 

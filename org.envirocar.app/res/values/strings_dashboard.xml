@@ -21,7 +21,6 @@
 -->
 <resources>
     <string name="dashboard_start_track">START TRACK</string>
-    <string name="dashboard_stop_track">STOP TRACK</string>
     <string name="dashboard_goto_track">Goto Track Recording Screen</string>
     <string name="dashboard_track_is_starting">TRACK IS STARTING...</string>
     <string name="dashboard_track_is_stopping">TRACK IS STOPPING...</string>
@@ -43,12 +42,6 @@
     <string name="dashboard_obd_not_selected_advise">Click here to select one</string>
     <string name="dashboard_carselection_no_car_selected">No car type selected</string>
     <string name="dashboard_carselection_no_car_selected_advise">Click here to create/select one</string>
-
-    <string name="dashboard_info_base">Please make the following settings:</string>
-    <string name="dashboard_info_activate_gps">\n - Activate GPS</string>
-    <string name="dashboard_info_activate_bluetooth">\n - Activate Bluetooth</string>
-    <string name="dashboard_info_select_obd_adapter">\n - Select an OBD-II adapter</string>
-    <string name="dashboard_info_select_car_type">\n - Select a car type</string>
 
     <string name="permission_rationale_location">Location permission is needed for core functionality.</string>
     <string name="permission_rationale_file">"Storage permission is needed for logging and sharing a track. If you don't want the both, please click on don't ask again in the next screen."</string>

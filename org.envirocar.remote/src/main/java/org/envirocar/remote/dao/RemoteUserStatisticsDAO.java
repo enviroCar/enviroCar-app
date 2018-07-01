@@ -60,8 +60,7 @@ public class RemoteUserStatisticsDAO extends BaseRemoteDAO<UserDAO, UserService>
     }
 
     @Override
-    public UserStatistics getUserStatistics(User user) throws DataRetrievalFailureException,
-            UnauthorizedException {
+    public UserStatistics getUserStatistics(User user) throws DataRetrievalFailureException {
         final UserService userService = EnviroCarService.getUserService();
         Call<UserStatistics> userStatistics = userService.getUserStatistics(user.getUsername());
 

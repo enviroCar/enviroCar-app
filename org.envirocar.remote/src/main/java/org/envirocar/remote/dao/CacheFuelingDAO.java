@@ -91,7 +91,7 @@ public class CacheFuelingDAO extends AbstractCacheDAO implements FuelingDAO {
     }
 
     @Override
-    public void deleteFueling(Fueling fueling) throws NotConnectedException, UnauthorizedException {
+    public void deleteFueling(Fueling fueling) throws NotConnectedException {
         throw new NotConnectedException("CacheFuelingDAO does not support saving.");
     }
 

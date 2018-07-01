@@ -110,13 +110,10 @@ public class VersionRange {
 		if (v.compareTo(this.maximum) == 0 && maximumIncluded) {
 			return true;
 		}
-		
-		if (v.compareTo(this.minimum) > 0 && v.compareTo(this.maximum) < 0) {
-			return true;
-		}
-		
-		return false;
-	}
+
+        return v.compareTo(this.minimum) > 0 && v.compareTo(this.maximum) < 0;
+
+    }
 	
 	/**
 	 * A class representing a Version following the semantic

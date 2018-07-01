@@ -342,7 +342,7 @@ android:layout_height="match_parent">
                             android:layout_height="50dp"
                             android:padding="12dp"
                             android:tint="@color/cario_color_primary"
-                            android:src="@drawable/ic_location_on_black_24dp"/>
+                            android:src="@drawable/ic_location_on_white_24dp"/>
 
                         <ImageView
                             android:layout_width="12dp"

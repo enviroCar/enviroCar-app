@@ -20,24 +20,17 @@
 -->
 <resources>
     <string name="pref_car_settings">Vehicle Settings</string>
-    <string name="pref_auto_enable_bluetooth">Enable Bluetooth when app starts.</string>
-
     <string name="pref_bluetooth_disabled">Please enable Bluetooth</string>
-    <string name="pref_engine_displacement">Engine displacement</string>
-    <string name="pref_in_liters">in liters (e.g. 1.8)</string>
-
-    <string name="pref_about">enviroCar version</string>
-    <string name="pref_select_car">Car data</string>
     <string name="pref_optional_features">Optional Features</string>
     <string name="pref_version">Version</string>
     <string name="pref_other">Other</string>
 
-
-    <string name="obd_settings">OBD Einstellungen</string>
+    <string name="settings_title">Settings</string>
+    <string name="obd_settings">OBD Settings</string>
     <string name="obd_settings_sum">OBD Selection, Autoconnect, etc.</string>
 
     <string name="settings_optional">Optional Settings</string>
-    <string name="settings_optional_sub">Samplingrate, Debug Logging, etc.</string>
+    <string name="settings_optional_sub">Sampling rate, Debug Logging, etc.</string>
 
     <string name="settings_other">Other Settings</string>
     <string name="settings_other_sub">Version, Licenses, etc.</string>
@@ -49,9 +42,7 @@
     <string name="pref_always_upload_sub">Enables the automatic upload of all recorded tracks when connecting to the wireless network.</string>
     <string name="pref_display_always_activ">Keep the Screen On</string>
     <string name="pref_display_always_activ_sub">When checked, this setting keeps the screen on while the application is running.</string>
-    <string name="pref_imperial_unit">Imperial Unit</string>
     <string name="pref_imperial_unit_summary">Use imperial units (miles) for displaying values.</string>
-    <string name="pref_obfuscate_track">Obscure Track?</string>
     <string name="pref_obfuscate_track_summary">Only upload measurements which are taken 250 meter (820 feet) and one minute after start and before end of each track.</string>
     <string name="pref_text_to_speech">Verbal Announcements</string>
     <string name="pref_text_to_speech_summary">Enabling the verbal announcements of specific events, e.g. OBD-II connection established/lost, track finished.</string>
@@ -62,8 +53,6 @@
     <string name="pref_bluetooth_switch_isdisabled">Bluetooth is Off</string>
     <string name="pref_bluetooth_pairing">Bluetooth Pairing</string>
     <string name="pref_bluetooth_pairing_summary">Manage the pairings to Bluetooth devices.</string>
-    <string name="pref_bluetooth_select_adapter">Choose OBD-II adapter</string>
-    <string name="pref_bluetooth_select_adapter_summary">Please select an OBD-II adapter</string>
     <string name="pref_bluetooth_select_adapter_title">Select OBD-II adapter</string>
     <string name="pref_bluetooth_auto_connect">Auto Connect</string>
     <string name="pref_bluetooth_auto_connect_summary">Automatically connects to the OBD-II adapter and starts the recording of a track. This feature periodically checks whether the selected OBD-II adapter is within range. Therefore, this setting requires additional battery power.</string>
@@ -78,8 +67,6 @@
         Only consider changing if you are aware of the consequences.</string>
     <string name="enable_debug_logging">Enable Debug Logging</string>
     <string name="enable_debug_logging_summary">Increase the log level (used in issue/problem reports)</string>
-    <string name="pref_enable_diesel_consumption">Enable Diesel Consumption</string>
-    <string name="pref_enable_diesel_consumption_summary">Enables the estimation of consumption values for diesel. NOTE: This feature is just a beta feature.</string>
 
     <!-- Other Settings -->
     <string name="pref_licenses">Lizenzes</string>

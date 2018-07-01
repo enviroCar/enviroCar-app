@@ -22,7 +22,6 @@ package org.envirocar.remote.dao;
 import org.envirocar.core.dao.TermsOfUseDAO;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.exception.DataRetrievalFailureException;
-import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.remote.service.EnviroCarService;
 import org.envirocar.remote.service.TermsOfUseService;
@@ -58,8 +57,7 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO, TermsOfUse
     }
 
     @Override
-    public TermsOfUse getTermsOfUse(String id) throws DataRetrievalFailureException,
-            NotConnectedException {
+    public TermsOfUse getTermsOfUse(String id) throws DataRetrievalFailureException {
         LOG.info(String.format("getTermsOfUseInstance(%s)", id));
 
         // Get the remoteService and initiate the call.
@@ -96,8 +94,7 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO, TermsOfUse
     }
 
     @Override
-    public List<TermsOfUse> getAllTermsOfUse() throws DataRetrievalFailureException,
-            NotConnectedException {
+    public List<TermsOfUse> getAllTermsOfUse() throws DataRetrievalFailureException {
         LOG.info("getTermsOfUse()");
         // Get the remoteService and instantiate the call to the remoteService endpoint in order
         // to get the
@@ -131,8 +128,6 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO, TermsOfUse
                 try {
                     subscriber.onNext(getAllTermsOfUse());
                 } catch (DataRetrievalFailureException e) {
-                    subscriber.onError(e);
-                } catch (NotConnectedException e) {
                     subscriber.onError(e);
                 }
             }

@@ -21,21 +21,12 @@
 <resources>
     <string name="pref_car_settings">Fahrzeug-Einstellungen</string>
 
-
-    <string name="pref_auto_enable_bluetooth">Bluetooth beim Appstart einschalten</string>
-
-    <string name="pref_engine_displacement">Hubraum</string>
-    <string name="pref_in_liters">in Litern (z.B. 1.8)</string>
-
     <string name="pref_bluetooth_disabled">Bitte Bluetooth einschalten</string>
 
-    <string name="pref_about">enviroCar version</string>
-    <string name="pref_select_car">Daten des Fahrzeugs</string>
     <string name="pref_optional_features">Optionale Features</string>
 
     <string name="pref_version">Version</string>
     <string name="pref_other">Anderes</string>
-
 
     <string name="obd_settings">OBD Einstellungen</string>
     <string name="obd_settings_sum">OBD Auswahl, Automatisches Verbinden, etc.</string>
@@ -46,18 +37,13 @@
     <string name="settings_other">Andere Einstellungen</string>
     <string name="settings_other_sub">Version, Linzenzen, etc.</string>
 
-
-
-
     <!-- General Settings-->
     <string name="pref_general_settings">Allgemeine Einstellungen</string>
     <string name="pref_always_upload">Automatisches Hochladen von Tracks (nur in WiFi)</string>
     <string name="pref_always_upload_sub">Ermöglicht das automatische Hochladen von aufgezeichneten Fahrten sobald eine WiFi Verbindung hergestellt wurde.</string>
     <string name="pref_display_always_activ">Bildschrim bleibt aktiv</string>
     <string name="pref_display_always_activ_sub">Behält den Bildschirm bei Ausführung der Applikation und Aufzeichnung eines Tracks aktiv.</string>
-    <string name="pref_imperial_unit">Imperiale Maßeinheiten</string>
     <string name="pref_imperial_unit_summary">Imperiale Maßeinheiten (Meilen) für die Anzeige nutzen</string>
-    <string name="pref_obfuscate_track">Fahrtbeginn verschleiern?</string>
     <string name="pref_obfuscate_track_summary">Nur Messungen, die ab einer Entfernung von 250 Metern zum Start/Ziel sowie eine Minute nach Beginn und vor Ende der Route stattfanden, hochladen.</string>
     <string name="pref_text_to_speech">Sprachliche Ankündigungen</string>
     <string name="pref_text_to_speech_summary">Ermöglicht die spracheliche Ausgabe von spezifischen Ereignissen, wie z.B. OBD-Verbindung hergestellt oder Aufzeichnung wurde beendet.</string>
@@ -68,8 +54,6 @@
     <string name="pref_bluetooth_switch_isdisabled">Bluetooth ist Aus</string>
     <string name="pref_bluetooth_pairing">Bluetooth Kopplung</string>
     <string name="pref_bluetooth_pairing_summary">Verwalte die Kopplungen (Pairings) zu anderen Bluetooth Geräten</string>
-    <string name="pref_bluetooth_select_adapter">OBD Adapter auswählen</string>
-    <string name="pref_bluetooth_select_adapter_summary">Bitte wählen Sie einen OBDII Adapter.</string>
     <string name="pref_bluetooth_select_adapter_title">Auswählen eins OBDII Adapters</string>
     <string name="pref_bluetooth_auto_connect">Automatisches Verbinden</string>
     <string name="pref_bluetooth_auto_connect_summary">Stellt automatisch eine Verbindung zum ausgewählten OBDII Adapter her und startet einen Track. Diese Einstellung benötigt zusätzliche Akkuleistung.</string>
@@ -83,8 +67,6 @@
     <string name="sampling_rate_summary">Das Zeit-Delta zwischen zwei MEssungen in Sekunden (aktueller Wert: %s). HINWEIS: Je niedriger der Wert, desto größer ist die Datenmenge. Ändern Sie diesen Wert nur dann, wenn Sie such auch der Konsequenzen bewusst sind.</string>
     <string name="enable_debug_logging">Debug-Protokollierung aktivieren</string>
     <string name="enable_debug_logging_summary">Erhöhung der Protokollierungsstufe (in der Ausgabe/Problembericht verwendet).</string>
-    <string name="pref_enable_diesel_consumption">Diesel Verbrauchsberechnung aktivieren</string>
-    <string name="pref_enable_diesel_consumption_summary">Aktiviert die Verbrauchsschätzung für Dieselfahrzeuge.\n\nBeachten Sie, dass es sich hierbei um ein nicht getestetes Feature im Beta-Stadium handelt. Daher ist unbedingt zur Enables the estimation of consumption values for diesel. NOTE: This feature is just a beta feature.</string>
 
     <!-- Other Settings -->
     <string name="pref_licenses">Licensen</string>

@@ -95,7 +95,7 @@ public class ResponseParser {
         return createDataResponse(pid, buffer, data);
     }
 
-    private DataResponse createDataResponse(PID pid, int[] processedData, byte[] rawData) throws InvalidCommandResponseException, UnmatchedResponseException {
+    private DataResponse createDataResponse(PID pid, int[] processedData, byte[] rawData) {
         switch (pid) {
 //            case FUEL_SYSTEM_STATUS:
 //                return FuelSystemStatusResponse.fromRawData(rawData);

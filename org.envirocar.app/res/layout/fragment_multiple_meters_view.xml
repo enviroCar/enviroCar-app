@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/cario_color_primary"
-    tools:context=".view.recordingscreen.MultipleMetersViewFragment">
+    tools:context=".views.recordingscreen.MultipleMetersViewFragment">
 
     <!-- TODO: Update blank fragment layout -->
     <TextView

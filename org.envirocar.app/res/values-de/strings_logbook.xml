@@ -38,7 +38,6 @@
     <string name="logbook_error_communication">Keine Verbindung zum Server.</string>
     <string name="logbook_error_unauthorized">Sie sind dafür nicht authentifiziert. Bitte loggen Sie sich mit dem jeweiligen Account ein.</string>
     <string name="logbook_error_resource_conflict">Fehler beim hochladen: Der Eintrag existiert bereits.</string>
-    <string name="logbook_error_form_invalid_input">Ungültige Eingabe</string>
     <string name="logbook_error_form_blank_input">Dieses Feld darf nicht leer sein</string>
     <string name="logbook_deletion_success_tmp">Eintrag wurde erfolgreich vom Server gelöscht</string>
 
@@ -50,7 +49,6 @@
     <string name="logbook_dialog_uploading_fueling_content">Der Tankeintrag wird hochgeladen...</string>
 
     <string name="logbook_background_not_logged_in_first">AUSGELOGGT</string>
-    <string name="logbook_background_not_logged_in_second">Um Zugriff auf diese Funktion\nzu bekommen, müssen Sie sich einloggen.</string>
     <string name="logbook_background_no_fuelings_first">KEINE EINTRÄGE</string>
     <string name="logbook_background_no_fuelings_second">Es sind keine Tankeinträge\ndem eingeloggten Nutzer zugeordnet.</string>
     <string name="logbook_background_no_cars_first">KEINE AUTOS</string>

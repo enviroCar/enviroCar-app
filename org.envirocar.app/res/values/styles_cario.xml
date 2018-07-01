@@ -36,16 +36,6 @@
         <item name="background">@color/background_material_dark</item>
     </style>
 
-    
-    <style name="cario.TitleTextStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
-        <item name="android:textColor">@color/actionbar_title_font_cario</item>
-        <!-- Drop do not work. see https://github.com/JakeWharton/ActionBarSherlock/issues/580
-        <item name="android:shadowColor">@color/actionbar_title_shadow_cario</item>
-        <item name="android:shadowDx">10</item>
-        <item name="android:shadowDy">10</item>
-        <item name="android:shadowRadius">5</item>-->
-    </style>
-    
     <style name="ButtonStyle">
         <item name="android:background">@drawable/btn_cario</item>
         <item name="android:textColor">#FFFFFF</item>
@@ -75,12 +65,6 @@
 
     <style name="ActionButton.CloseMode.Cario" parent="Widget.AppCompat.Light.ActionButton.CloseMode">
         <item name="android:background">@drawable/btn_cab_done_cario</item>
-    </style>
-
-    <!-- this style is only referenced in a Light.DarkActionBar based theme -->
-    <style name="Theme.Cario.Widget" parent="Theme.AppCompat">
-        <item name="android:popupMenuStyle">@style/PopupMenu.Cario</item>
-        <item name="android:dropDownListViewStyle">@style/DropDownListView.Cario</item>
     </style>
 
     <style name="ToolBarStyle" parent="">

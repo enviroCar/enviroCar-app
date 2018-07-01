@@ -24,157 +24,28 @@
     <string name="yesterday">Gestern</string>
 
     <string name="cancel">Abbrechen</string>
-    <!--<string name="app_name">enviroCar</string>-->
-    <!--<string name="menu_settings">Einstellungen</string>-->
-    <!--<string name="menu_help">Hilfe</string>-->
-    <string name="menu_about">Über enviroCar</string>
-	<!--<string name="menu_garage">Meine Garage</string>    -->
-    <!--<string name="activity_checklist_title">Checkliste</string>-->
-    <!--<string name="menu_logbook">Logbuch</string>-->
 
-
-    <string name="checklist_item_bluetooth_enabled">Bluetooth aktiviert</string>
-    <string name="checklist_item_bluetooth_disabled">Bluetooth deaktiviert</string>
-    
-    <string name="checklist_item_obd_paired">OBD Adapter gekoppelt</string>
-    <string name="checklist_item_obd_not_paired">OBD Adapter nicht gekoppelt</string>
-    
-    <string name="checklist_item_obd_connected">OBD Adapter verbunden</string>
-    <string name="checklist_item_obd_not_connected">OBD Adapter nicht verbunden</string>
-    
-    <string name="checklist_item_obd_service_enabled">OBD Service aktiviert</string>
-    <string name="checklist_item_obd_service_disabled">OBD Service deaktiviert</string>    
-    
-    <string name="checklist_item_gps_enabled">GPS aktiviert</string>
-    <string name="checklist_item_gps_disabled">GPS deaktiviert</string>
-    
-    <string name="checklist_item_not_signed_in">Nicht angemeldet</string>
-    <string name="checklist_item_signed_in">Angemeldet</string>    
-
-    
-    <string name="textView">TextAnsicht</string>
-    <string name="measurement">Messung</string>
-    <string name="id">ID</string>
-    <string name="latitude">Breitengrad</string>
-    <string name="longitude">Längengrad</string>
-    <string name="time">Zeit</string>
-    <string name="tps">Drosselklappenstellung</string>
-    <string name="rpm">U/Min</string>
-    <string name="speed">Geschwindigkeit</string>
     <string name="fuel_type">Treibstoff Art</string>
-    <string name="fuel_consumption">Benzinverbrauch</string>
-    <string name="intake_pressure">Ansaugdruck</string>
-    <string name="intake_temperature">Ansauglufttemperatur</string>
-    <string name="sttb1">Short Term Trim Bank 1</string>
-    <string name="lttb1">Long Term Trim Bank 1</string>
-    <string name="maf">MAF (Luftmassenströmung)</string>
-    <string name="engine_load">Motorlast</string>
     <string name="car">Auto</string>
-    <string name="currentCO2">Co2 Ausstoß</string>
-    <string name="drivingStyleRating">Fahrstilbewertung</string>
-    <string name="moneySpent">Fahrtkosten</string>
-    <string name="title_activity_map">Gefahrene Route</string>
-    <string name="action_settings">Einstellungen</string>
-    <string name="hello_world">Hallo Welt!</string>
-    <string name="name">Name</string>
-    <string name="messages">Nachrichten</string>
-    <string name="performance">Leistung</string>
-    <string name="auto">Auto</string>
-    <string name="car2">"Auto: "</string>
-    <!--<string name="duration">"Dauer: "</string>-->
-    <string name="begin">"Beginn: "</string>
-    <string name="end">"Ende: "</string>
-    <string name="length">"Länge: "</string>
-    <string name="Co2emission">"CO\u2082 Ausstoß: "</string>
-    <string name="consumption">"Verbrauch: "</string>
-    <string name="fuel_cost">"Treibstoffkosten: "</string>
-    <string name="calculating">"Wird berechnet&#8230;"</string>
-    <string name="error_calculating_fuel_costs">"Fehler bei der Berechnung."</string>
-    <string name="title_activity_settings">Einstellungen</string>
-    <string name="currentSpeed">Geschwindigkeit</string>
-    <string name="currentPosition">Position</string>
-    <string name="positioning_Info">Die Positionsermittlung wird durch GPS durchgeführt. Damit sind präzise Messpunkte sichergestellt. Bitte warten bis Position ermittelt wird.</string>
-    <string name="no_current_position">keine</string>
-    <string name="menu_start">Start</string>
-    <string name="menu_stop">Stopp</string>
-    <string name="menu_upload">Hochladen</string>
+
     <string name="menu_delete">Löschen</string>
-    <string name="logged_in_as">Eingeloggt als %1$s</string>
-    <string name="dashboard_sensor_title">Auto:</string>
-    <string name="retry">Erneut versuchen</string>
-    <string name="description">Beschreibung:</string>
-    <string name="editDescription">Beschreibung bearbeiten</string>
-    <string name="editTrack">Fahrt bearbeiten</string>
-    <string name="enterTrackName">Name für die Fahrt eingeben</string>
-    <string name="enterTrackDescription">Beschreibung für die Fahrt eingeben</string>
-    <string name="nameChanged">Name geändert</string>
-    <string name="descriptionChanged">Beschreibung geändert</string>
-    <string name="trackDeleted">Fahrt gelöscht</string>
-    <string name="remoteTrackDeleted">Fahrt auf dem Server gelöscht</string>
-    <string name="no">Nein</string>
-	<string name="yes">Ja</string>
-	<string name="deleteRemoteTrackQuestion">Soll die Fahrt auf dem Server gelöscht werden?</string>
-    <string name="no_sensor_selected">Kein Auto ausgewählt</string>
-    <string name="no_device_selected">Kein OBD-Adapter ausgewählt</string>
-    <string name="title_create_new_sensor">Neues Fahrzeugprofil</string>
-    <string name="title_select_sensor">Fahrzeug auswählen</string>
-	<string name="upload_notification">Versuche lokale Tracks hochzuladen.</string>
-    <string name="upload_notification_success">Lokale Tracks wurden erfolgreich hochgeladen.</string>
-    <string name="please_select">&#8230;</string>
-    <string name="select_car">Fahrzeug</string>
-    <string name="startMap">Karte</string>
-    <string name="trackContainsNoCoordinates">Track enthält keine Koordinaten.</string>
-    <string name="noSdCard">"Karte wird ohne SD-Karte nicht angezeigt."</string>
-    <string name="hint_login_first">Bitte erst einloggen</string>
 	<string name="default_track_description">Fahrt mit Auto %s.</string>
-	<string name="creating_temp_car">Erzeuge temporäres Auto.</string>
-    
+
     <string name="gasoline">Benzin</string>
     <string name="diesel">Diesel</string>
-    <string name="register_car">Auto neu erstellen</string>
-    <string name="register_car_progress">Auto erstellen Fortschritt</string>
-    <string name="register_car_success">erfolgreich registriert.</string>
-    <string name="prompt_car_model">Modell</string>
-    <string name="prompt_car_manufacturer">Hersteller</string>
-    <string name="prompt_car_constructionYear">Baujahr</string>
-    
-    <string name="editName">Bezeichnung</string>
 
-   	<string name="open_drawer">Open</string>
-	<string name="close_drawer">Close</string>
-    
-    <string name="menu_logout">Ausloggen</string>
-    <string name="menu_register">Registrieren</string>
-    
     <string name="track_statistics">Statistiken</string>
     <string name="track_statistics_distance">Distanz</string>
 	
 	<string name="welcome_message">Willkommen, %s</string>
     <string name="goodbye_message">Auf Wiederstehen, %s</string>
-	<string name="no_tracks">Keine Fahrten vorhanden</string>
-	<string name="start_measuring">Starte Messung.</string>
-    <string name="stop_measuring">Messung gestoppt.</string>
-    <string name="bye_bye">Auf Wiedersehen!</string>
-    <string name="all_local_tracks_deleted">Alle lokalen Fahrten gelöscht.</string>
-    <string name="not_possible_for_remote">Noch nicht möglich für remote Tracks.</string>
-    
+
     <string name="envirocar.org">http://www.envirocar.org</string>
     
     <string name="imperial_unit">Imperiale Maßeinheiten?</string>
-    <string name="error_json">Interner Fehler beim JSON generieren.</string>
-
-	<string name="help">Hilfe</string>
-
 
 	<string name="action_send_log">Senden</string>
-    <string name="connection_state">Status</string>
-    
-    <string name="device_discovery_next_try">Geräte-Scan - %1$s:%2$s Minuten verbleibend</string>
-    <string name="device_discovery_pending">Geräte-Scan - Warten&#8230;</string>
-    
-    <string name="finish_track">Track beenden?</string>
-    <string name="finish_track_long">Wollen Sie wirklich diesen Track abschließen?</string>
-    
+
     <string name="menu_cancel">Abbrechen</string>
 
     <string name="send_log_0">Mit Hilfe dieses Features lassen sich Fehler und Missverhalten der App reproduzieren.
@@ -186,53 +57,13 @@
 	<string name="send_log_when_label" tools:ignore="Typos">Ungefähre Anzahl Minuten seit dem Problem:</string>
 	<string name="send_log_comments_label">(Kommentar)</string>
 	<string name="send_log_time_past_hint">(vergangene Zeit seit Problem)</string>
-	
-	<string name="menu_starting">Starte</string>
-	
-	<string name="prompt_car_engineDisplacement">Hubraum (ccm)</string>
-	
-	<string name="track_mode_single">Einzelner Track</string>
-    <string name="track_mode_auto">Automatische Track-Erstellung (experimentell)</string>
-    <string name="question_track_mode">Möchten Sie einen einzelnen Track aufnehmen oder die automatische Track-Erstellung aktivieren?</string>
-    
-    <string name="stop_automatic_mode">Automatische Track-Erstellung beenden?</string>
-    <string name="stop_automatic_mode_long">Möchten Sie die automatische Track-Erstellung beenden? Dies wird
-        den aktuellen Track abschließen.</string>
-    
+
     <string name="track_finished">Track abgeschlossen: </string>
     <string name="track_finishing_failed">Abschließen des Tracks fehlgeschlagen</string>
     <string name="track_finished_no_measurements">Der abzuschließende Track enthielt keine Messungen</string>
-    
-    <string name="start_connection">Starte Verbindung zum Gerät</string>
-	<string name="stop_connection">Stoppe Verbindung zum Gerät</string>
-	
-	<string name="connection_lost_info">Verbindung verloren. Versuche erneut&#8230;</string>
 	<string name="general_error_please_report">Programmfehler - Bitte melden Sie das Problem</string>
-	
-	<string name="server_error_please_try_later">Server Fehler - Bitte versuchen Sie es später erneut</string>
-	
-    <string name="diesel_not_yet_supported">Bitte beachten Sie, dass die Berechnung von Verbrauch/CO2 für Diesel-Fahrzeuge nocht nicht unterstützt wird</string>
-	<string name="uploading_track_no_measurements_after_obfuscation_long">Ein hochzuladende Track enthielt keine Messungen nach Verbergen der Start- und Endpunkte. Er wurde nicht hochgeladen, ist aber weiterhin lokal verfügbar.</string>
-	<string name="uploading_track_no_measurements_after_obfuscation">Ein hochzuladende Track enthielt keine Messungen.</string>
-    
-    <string name="co2_initial_value">0 kg/h</string>
-    <string name="speed_initial_value">0 km/h</string>
-    
-	<string name="track_list_count_text">Zeige %1$d lokale Tracks, %2$d/%3$s Remote Tracks:</string>
+
     <string name="not_yet_registered_question">Sie haben noch keinen Account?</string>
-	<string name="not_yet_registered_register">Hier registrieren!</string>	
-	
-	<string name="category_low">Niedrig</string>
-	<string name="category_normal">Wichtig</string>
-	<string name="category_high">Kritisch</string>
-	<string name="announcement">Ankündigung</string>
-	
-	<string name="store">Speichern</string>
-	<string name="mileage">Kilometerstand</string>
-	<string name="volume">Tankvolumen</string>
-	<string name="cost">Kosten</string>
-	<string name="unit">Einheit</string>
-	<string name="currency">Währung</string>
-	<string name="logbook_information">Informationen zu Zeit, Nutzer, Auto und Kraftstoff werden automatisch ermittelt</string>
-	<string name="comment">Zusätzliche Anmerkungen</string>
+	<string name="not_yet_registered_register">Hier registrieren!</string>
+
 </resources>

@@ -25,8 +25,4 @@
         <item>Delete Car</item>
     </array>
 
-    <array name="obd_list_option_items">
-        <item>Select</item>
-        <item>Delete</item>
-    </array>
 </resources>

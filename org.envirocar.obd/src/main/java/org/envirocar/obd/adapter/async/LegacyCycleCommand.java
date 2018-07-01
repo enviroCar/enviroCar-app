@@ -25,7 +25,7 @@ import java.util.List;
 public class LegacyCycleCommand implements BasicCommand {
 
 
-    public static enum PID {
+    public enum PID {
         SPEED {
             @Override
             public String toString() {

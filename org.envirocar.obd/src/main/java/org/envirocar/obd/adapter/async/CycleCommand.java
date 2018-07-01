@@ -27,7 +27,7 @@ public class CycleCommand implements BasicCommand {
 
 	private byte[] bytes;
 
-	public static enum DriveDeckPID implements DriveDeckPIDEnumInstance {
+	public enum DriveDeckPID implements DriveDeckPIDEnumInstance {
         ENGINE_LOAD {
             @Override
             public byte getByteRepresentation() {

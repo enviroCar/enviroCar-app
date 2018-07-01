@@ -62,7 +62,7 @@ public class CarListDeserializer implements JsonDeserializer<List<Car>> {
 
         List<Car> result = new ArrayList<Car>();
         for (int i = 0; i < sensors.size(); i++) {
-            result.add(context.<Car>deserialize(sensors.get(i), Car.class));
+            result.add(context.deserialize(sensors.get(i), Car.class));
         }
 
         return result;

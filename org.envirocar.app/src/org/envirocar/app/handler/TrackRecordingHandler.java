@@ -24,7 +24,7 @@ import android.content.Intent;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.BaseApplication;
+import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.R;
 import org.envirocar.app.services.GPSOnlyConnectionService;
 import org.envirocar.app.services.OBDConnectionService;
@@ -308,6 +308,7 @@ public class TrackRecordingHandler {
     }
 
     public void stopBackgroundRecordingServices() {
+        LOGGER.info("stopBackgroundRecordingServices()");
         if (ServiceUtils.isServiceRunning(mContext, OBDConnectionService.class)) {
             mContext.getApplicationContext()
                     .stopService(new Intent(mContext, OBDConnectionService.class));

@@ -113,7 +113,7 @@ public class RemoteUserDAO extends BaseRemoteDAO<UserDAO, UserService> implement
     }
 
     @Override
-    public void updateUser(User user) throws DataUpdateFailureException, UnauthorizedException {
+    public void updateUser(User user) throws DataUpdateFailureException {
         // Workaround: The server only requires mail and TOU version to update the
         // terms of use.  The serialization, however, serializes everything. If the
         // request body contains the username as well as the token, then it throws an 405.

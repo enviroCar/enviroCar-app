@@ -1,19 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="menu_nav_drawer_dashboard">Dashboard</string>
-    <string name="menu_nav_drawer_my_tracks">Meine Fahrten</string>
-    <string name="menu_nav_drawer_login">Einloggen/Registrieren</string>
-    <string name="menu_nav_drawer_logbook">Logbuch</string>
-
-    <string name="menu_nav_drawer_close_ec">Beenden</string>
-
-    <string name="menu_nav_drawer_settings">Eigenschaften</string>
-    <string name="menu_nav_drawer_help">Hilfe</string>
-    <string name="menu_nav_drawer_send_log">Problem Melden</string>
-
-    <string name="menu_not_logged_in">Nicht Eingeloggt</string>
-    <string name="menu_not_logged_in_sub">Hier klicken um sich einzuloggen.</string>
-
     <string name="menu_close_envirocar_title">enviroCar Beenden</string>
     <string name="menu_close_envirocar_positive">Beenden</string>
     <string name="menu_close_envirocar_content">Diese Funktion schließt die Applikation einschließlich aller laufenden Hintergrundsprozesse und Aufzeichnungen.</string>

@@ -54,8 +54,7 @@ public class LocalTrackDAO implements TrackDAO {
     }
 
     @Override
-    public Track getTrackById(String id) throws DataRetrievalFailureException,
-            NotConnectedException, UnauthorizedException {
+    public Track getTrackById(String id) {
         return database.getTrack(new Track.TrackId(Long.parseLong(id)))
                 .take(1)
                 .toBlocking()
@@ -69,14 +68,12 @@ public class LocalTrackDAO implements TrackDAO {
     }
 
     @Override
-    public List<Track> getTrackIds() throws DataRetrievalFailureException, NotConnectedException,
-            UnauthorizedException {
+    public List<Track> getTrackIds() {
         return null;
     }
 
     @Override
-    public List<Track> getTrackIds(int limit, int page) throws NotConnectedException,
-            UnauthorizedException {
+    public List<Track> getTrackIds(int limit, int page) {
         return null;
     }
 
@@ -91,20 +88,17 @@ public class LocalTrackDAO implements TrackDAO {
     }
 
     @Override
-    public Integer getUserTrackCount() throws DataRetrievalFailureException,
-            NotConnectedException, UnauthorizedException {
+    public Integer getUserTrackCount() {
         return null;
     }
 
     @Override
-    public Integer getTotalTrackCount() throws DataRetrievalFailureException,
-            NotConnectedException {
+    public Integer getTotalTrackCount() {
         return null;
     }
 
     @Override
-    public Track createTrack(Track track) throws DataCreationFailureException,
-            NotConnectedException, ResourceConflictException, UnauthorizedException {
+    public Track createTrack(Track track) {
         return null;
     }
 
@@ -114,8 +108,7 @@ public class LocalTrackDAO implements TrackDAO {
     }
 
     @Override
-    public void deleteTrack(Track track) throws DataUpdateFailureException,
-            NotConnectedException, UnauthorizedException {
+    public void deleteTrack(Track track) {
         database.deleteTrack(track);
     }
 }

@@ -33,7 +33,6 @@
     <string name="track_list_upload_track_no_measurements">Die Fahrt enthält nicht genug Messungen um diese anonymisiert hochzuladen.</string>
     <string name="track_list_upload_track_general_error">Fehler während des Hochladens. Versuchen Sie es später erneut.</string>
     <string name="track_list_upload_track_content">Die folgende Fahrt wird als Open Data auf den enviroCar Server hochgeladen: </string>
-    <string name="track_list_upload_track_please_wait">Bitte Warten...</string>
     <string name="track_list_upload_track_success_template">Die Fahrt \'%s\' wurde erfolgreich hochgeladen.</string>
 
     <string name="track_list_loading_tracks">Lade Fahrten...</string>
@@ -72,8 +71,6 @@
 
     <string name="track_list_upload_all_tracks_title">All Fahrten Hochladen?</string>
     <string name="track_list_upload_all_tracks_content">Sie sind dabei alle Fahrten auf den enviroCar Server als Open Data hochzuladen. Diese bedeutet, dass alle tracks ihrem Account zugewiesen werden und anonymisiert für andere zugreifbar sind.\n\nMöchten Sie fortfahren?</string>
-    <string name="track_list_uploading_all_tracks_title">Hochladen der Fahrten...</string>
     <string name="track_list_uploading_please_wait">Bitte warten...</string>
-    <string name="track_list_uploading_all_tracks_content_tmp" formatted="false">Fahrt %s von %s wird hochgeladen.</string>
 
 </resources>

@@ -26,7 +26,6 @@ import org.envirocar.core.dao.TrackDAO;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.DataCreationFailureException;
 import org.envirocar.core.exception.DataRetrievalFailureException;
-import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
@@ -169,7 +168,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
 
     @Override
     public Track createTrack(Track track) throws DataCreationFailureException,
-            NotConnectedException, ResourceConflictException, UnauthorizedException {
+            NotConnectedException, UnauthorizedException {
         LOG.info("createTrack()");
 
         // check whether the user is logged in
@@ -217,7 +216,6 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
                     subscriber.onNext(createTrack(track));
                 } catch (DataCreationFailureException |
                         NotConnectedException |
-                        ResourceConflictException |
                         UnauthorizedException e) {
                     LOG.error(e.getMessage(), e);
                     subscriber.onError(e);
@@ -298,7 +296,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
     }
 
     @Override
-    public void deleteTrack(Track track) throws DataUpdateFailureException,
+    public void deleteTrack(Track track) throws
             NotConnectedException, UnauthorizedException {
         Preconditions.checkState(track.getRemoteID() != null, "No RemoteID for this Track.");
         Preconditions.checkState(track.isRemoteTrack(), "Track is not a remote track. Track " +

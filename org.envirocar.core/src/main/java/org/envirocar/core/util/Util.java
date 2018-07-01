@@ -242,7 +242,7 @@ public class Util {
         return tou;
     }
 
-    public static CharSequence consumeInputStream(InputStream in) throws IOException {
+    public static CharSequence consumeInputStream(InputStream in) {
         Scanner sc = new Scanner(in, "UTF-8");
 
         StringBuilder sb = new StringBuilder();

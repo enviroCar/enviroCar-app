@@ -310,7 +310,7 @@ public interface Measurement extends BaseEntity<Measurement> {
         }
     }
 
-    static final Map<String, PropertyKey> PropertyKeyValues = new HashMap<String,
+    Map<String, PropertyKey> PropertyKeyValues = new HashMap<String,
             PropertyKey>() {
         {
             for (PropertyKey pk : PropertyKey.values()) {

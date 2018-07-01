@@ -30,7 +30,7 @@ import org.envirocar.core.utils.CarUtils;
 
 import rx.Observable;
 
-import static org.envirocar.app.services.obd.OBDServiceHandler.context;
+import static org.envirocar.app.notifications.NotificationHandler.context;
 
 /**
  * TODO JavaDoc
