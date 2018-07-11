@@ -21,6 +21,7 @@ dependencies {
     implementation rootProject.ext.fabProgressCircle
     implementation rootProject.ext.segmentedUIController
     implementation rootProject.ext.gson
+    implementation 'com.google.android.gms:play-services-location:15.0.1'
     //implementation rootProject.ext.guava
     implementation(materialDialogs) {
         exclude module: 'appcompat-v7'

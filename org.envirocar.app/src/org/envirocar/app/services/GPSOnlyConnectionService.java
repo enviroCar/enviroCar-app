@@ -30,15 +30,25 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
+import com.google.android.gms.location.ActivityRecognition;
+import com.google.android.gms.location.ActivityTransition;
+import com.google.android.gms.location.ActivityTransitionEvent;
+import com.google.android.gms.location.ActivityTransitionRequest;
+import com.google.android.gms.location.ActivityTransitionResult;
+import com.google.android.gms.location.DetectedActivity;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.algorithm.MeasurementProvider;
-import org.envirocar.app.main.BaseApplicationComponent;
-import org.envirocar.app.main.BaseMainActivityBottomBar;
+import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
 import org.envirocar.app.events.AvrgSpeedUpdateEvent;
 import org.envirocar.app.events.DistanceValueUpdateEvent;
+import org.envirocar.app.events.DrivingDetectedEvent;
 import org.envirocar.app.events.StartingTimeEvent;
 import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.app.handler.CarPreferenceHandler;
@@ -46,6 +56,8 @@ import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.injection.BaseInjectorService;
+import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.app.notifications.NotificationActionHolder;
 import org.envirocar.app.notifications.ServiceStateForNotificationForNotification;
 import org.envirocar.app.views.recordingscreen.GPSOnlyTrackRecordingScreen;
@@ -61,6 +73,8 @@ import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
@@ -94,6 +108,12 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
 
     public static BluetoothServiceState CURRENT_SERVICE_STATE = BluetoothServiceState
             .SERVICE_STOPPED;
+    public static boolean drivingDetected = false;
+
+    //Activity recognition stuff
+    // The intent action which will be fired when transitions are triggered.
+    private final String TRANSITIONS_RECEIVER_ACTION = BuildConfig.APPLICATION_ID + "TRANSITIONS_RECEIVER_ACTION";
+    private PendingIntent mPendingIntent;
 
     @Inject
     protected LocationHandler mLocationHandler;
@@ -148,6 +168,20 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
 
                 // Finish the current track.
                 trackRecordingHandler.finishCurrentTrack();
+            }else if(TRANSITIONS_RECEIVER_ACTION.equals(action)){
+                if (ActivityTransitionResult.hasResult(intent)) {
+                    ActivityTransitionResult result = ActivityTransitionResult.extractResult(intent);
+                    for (ActivityTransitionEvent event : result.getTransitionEvents()) {
+                        if(event.getTransitionType() == ActivityTransition.ACTIVITY_TRANSITION_ENTER){
+                            drivingDetected = true;
+                            bus.post(new DrivingDetectedEvent(drivingDetected));
+                        }
+
+                        // String activity = toActivityString(event.getActivityType());
+                        // String transitionType = toTransitionType(event.getTransitionType());
+                        Toast.makeText(GPSOnlyConnectionService.this,event.getActivityType()+" "+event.getTransitionType(),Toast.LENGTH_LONG).show();
+                    }
+                }
             }
         }
     };
@@ -168,6 +202,12 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
         this.bus.register(mTrackDetailsProvider);
         this.bus.register(connectionRecognizer);
         this.bus.register(measurementProvider);
+
+        //Activity recognition stuff
+        Intent intent = new Intent(TRANSITIONS_RECEIVER_ACTION);
+        mPendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+        registerReceiver(mBroadcastReciever, new IntentFilter(TRANSITIONS_RECEIVER_ACTION));
+        setupActivityTransitions();
 
         // Register a new BroadcastReceiver that waits for incoming actions issued from
         // the notification.
@@ -255,6 +295,46 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
         refreshNotification();
     }
 
+    /**
+     * Sets up {@link ActivityTransitionRequest}'s for the sample app, and registers callbacks for them
+     * with a custom {@link BroadcastReceiver}
+     */
+    private void setupActivityTransitions() {
+        List<ActivityTransition> transitions = new ArrayList<>();
+
+        transitions.add(
+                new ActivityTransition.Builder()
+                        .setActivityType(DetectedActivity.IN_VEHICLE)
+                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                        .build());
+        transitions.add(
+                new ActivityTransition.Builder()
+                        .setActivityType(DetectedActivity.IN_VEHICLE)
+                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                        .build());
+
+        ActivityTransitionRequest request = new ActivityTransitionRequest(transitions);
+
+        // Register for Transitions Updates.
+        Task<Void> task =
+                ActivityRecognition.getClient(this)
+                        .requestActivityTransitionUpdates(request, mPendingIntent);
+        task.addOnSuccessListener(
+                new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void result) {
+                        LOG.info("Transitions Api was successfully registered.");
+                    }
+                });
+        task.addOnFailureListener(
+                new OnFailureListener() {
+                    @Override
+                    public void onFailure(Exception e) {
+                        LOG.warn("Transitions Api could not be registered: " + e,null);
+                    }
+                });
+    }
+
     private void refreshNotification(){
 
         Intent intent = new Intent(getBaseContext(), GPSOnlyTrackRecordingScreen.class);
@@ -330,6 +410,12 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
         // unregister all boradcast receivers.
         unregisterReceiver(mBroadcastReciever);
 
+        // Unregister the transitions:
+        ActivityRecognition.getClient(this).removeActivityTransitionUpdates(mPendingIntent)
+                .addOnSuccessListener(aVoid -> LOG.info("Transitions successfully unregistered."))
+                .addOnFailureListener(e -> LOG.warn("Transitions could not be unregistered: " + e));
+
+        drivingDetected = false;
         LOG.info("GPSOnlyConnectionService successfully destroyed");
     }
 

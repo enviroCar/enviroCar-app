@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.events.DrivingDetectedEvent;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.app.main.MainActivityComponent;
@@ -69,6 +70,9 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
     protected LinearLayout trackSingleMeterContainer;
     @BindView(R.id.stopTrackRecordingButton)
     protected LinearLayout stopTrackRecordingButton;
+    @BindView(R.id.waiting_for_driving_message_view)
+    protected LinearLayout waitingForDrivingView;
+
 
     @Inject
     protected TrackRecordingHandler mTrackRecordingHandler;
@@ -102,6 +106,7 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
         ButterKnife.bind(this);
 
         switchMetersButton.setVisibility(View.GONE);
+        waitingForDrivingView.setVisibility(View.VISIBLE);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.trackMapContainer, new TrackMapFragment());
@@ -147,6 +152,11 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
     public void onReceiveAvrgSpeedUpdateEvent(AvrgSpeedUpdateEvent event) {
         mMainThreadWorker.schedule(() -> mSpeedText.setText(String.format("%s km/h",
                 Integer.toString(event.mAvrgSpeed))));
+    }
+
+    @Subscribe
+    public void onReceiveDrivingDetectedEvent(DrivingDetectedEvent event) {
+        mMainThreadWorker.schedule(() -> waitingForDrivingView.setVisibility(View.GONE));
     }
 
     @Subscribe
