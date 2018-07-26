@@ -25,8 +25,9 @@ import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
+import org.envirocar.app.services.AutomaticGPSTrackService;
+import org.envirocar.app.services.AutomaticOBDTrackService;
 import org.envirocar.app.services.OBDConnectionService;
-import org.envirocar.app.services.SystemStartupService;
 import org.envirocar.app.views.logbook.LogbookActivity;
 import org.envirocar.app.views.settings.SettingsActivity;
 import org.envirocar.app.views.utils.DialogUtils;
@@ -270,7 +271,8 @@ public class OthersFragment extends BaseInjectorFragment {
 
 
     private void shutdownEnviroCar() {
-        SystemStartupService.stopService(getActivity());
+        AutomaticGPSTrackService.stopService(getActivity());
+        AutomaticOBDTrackService.stopService(getActivity());
         OBDConnectionService.stopService(getActivity());
 
         mMainThreadWorker.schedule(() -> {

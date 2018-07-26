@@ -112,12 +112,12 @@ public class SettingsActivity extends BaseInjectorActivity {
 
     /**
      * Called when the OBD settings layout is clicked. It creates a new {@link
-     * OBDSettingsFragment} and opens this in the settings container.
+     * AutoConnectSettingsFragment} and opens this in the settings container.
      */
     @OnClick(R.id.fragment_settings_main_obd_settings)
     protected void onClickOBDSettings() {
-        getSupportActionBar().setTitle(R.string.obd_settings);
-        showFragment(new OBDSettingsFragment());
+        getSupportActionBar().setTitle(R.string.autoconnect_settings);
+        showFragment(new AutoConnectSettingsFragment());
     }
 
     @OnClick(R.id.fragment_settings_main_car_settings)

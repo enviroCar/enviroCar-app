@@ -28,12 +28,11 @@ import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.PreferencesHandler;
-import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.injection.BaseInjectorService;
+import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.notifications.NotificationHandler;
 import org.envirocar.app.notifications.ServiceStateForNotificationForNotification;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
@@ -63,15 +62,15 @@ import static org.envirocar.app.notifications.NotificationHandler.context;
  *
  * @author dewall
  */
-public class SystemStartupService extends BaseInjectorService {
-    private static final Logger LOGGER = Logger.getLogger(SystemStartupService.class);
+public class AutomaticOBDTrackService extends BaseInjectorService {
+    private static final Logger LOGGER = Logger.getLogger(AutomaticOBDTrackService.class);
 
     public static final void startService(Context context) {
-        ServiceUtils.startService(context, SystemStartupService.class);
+        ServiceUtils.startService(context, AutomaticOBDTrackService.class);
     }
 
     public static final void stopService(Context context) {
-        ServiceUtils.stopService(context, SystemStartupService.class);
+        ServiceUtils.stopService(context, AutomaticOBDTrackService.class);
     }
 
     private static final int REDISCOVERY_INTERVAL = 30;
@@ -85,8 +84,6 @@ public class SystemStartupService extends BaseInjectorService {
     // Injected variables
     @Inject
     protected BluetoothHandler mBluetoothHandler;
-    @Inject
-    protected TrackRecordingHandler mTrackRecordingHandler;
     @Inject
     protected CarPreferenceHandler mCarManager;
 
@@ -142,7 +139,7 @@ public class SystemStartupService extends BaseInjectorService {
             else if (ACTION_START_TRACK_RECORDING.equals(action)) {
                 LOGGER.info("Received Broadcast: Start Track Recording.");
                 startOBDConnectionService();
-                //                mNotificationHandler.setNotificationState(SystemStartupService
+                //                mNotificationHandler.setNotificationState(AutomaticOBDTrackService
                 // .this,
                 //                        NotificationHandler.NotificationState.OBD_FOUND);
             }
@@ -152,6 +149,7 @@ public class SystemStartupService extends BaseInjectorService {
     @Override
     public void onCreate() {
         LOGGER.info("onCreate()");
+        LOGGER.info("DEBUG onCreate()");
         super.onCreate();
 
         // Register on the event bus.
@@ -226,9 +224,9 @@ public class SystemStartupService extends BaseInjectorService {
         subscriptions.add(
                 PreferencesHandler.getBackgroundHandlerEnabledObservable(getApplicationContext())
                         .subscribe(aBoolean -> {
-                            LOGGER.info(String.format("Received changed autoconnect -> [%s]",
+                            LOGGER.info(String.format("Received changed autostart -> [%s]",
                                     aBoolean));
-                            if(!aBoolean) stopService(context);
+                            if(!aBoolean) stopSelf();
 
                         })
         );
@@ -250,7 +248,7 @@ public class SystemStartupService extends BaseInjectorService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         LOGGER.info("onStartCommand()");
-
+        LOGGER.info("DEBUG onStartCommand()");
         // only start the discovery process if the required settings has been selected.
         if (mBluetoothHandler.isBluetoothEnabled() &&
                 mBluetoothHandler.getSelectedBluetoothDevice() != null &&
@@ -267,7 +265,7 @@ public class SystemStartupService extends BaseInjectorService {
     public void onDestroy() {
         LOGGER.info("onDestroy()");
         super.onDestroy();
-
+        LOGGER.info("DEBUG onDestroy()");
         // unregister all boradcast receivers.
         unregisterReceiver(mBroadcastReciever);
 
@@ -536,7 +534,7 @@ public class SystemStartupService extends BaseInjectorService {
                                 // notification state to OBD_FOUND and stop the bluetooth discovery.
                                 // TODO
 //                                NotificationHandler.setRecordingState();
-//                                mNotificationHandler.setNotificationState(SystemStartupService
+//                                mNotificationHandler.setNotificationState(AutomaticOBDTrackService
 // .this,
 //                                        NotificationHandler.NotificationState.OBD_FOUND);
                                 scheduleDiscovery(REDISCOVERY_INTERVAL);

@@ -28,9 +28,6 @@
     <string name="pref_version">Version</string>
     <string name="pref_other">Anderes</string>
 
-    <string name="obd_settings">OBD Einstellungen</string>
-    <string name="obd_settings_sum">OBD Auswahl, Automatisches Verbinden, etc.</string>
-
     <string name="settings_optional">Optionale Einstellungen</string>
     <string name="settings_optional_sub">Samplingrate, Debug Logging, etc.</string>
 

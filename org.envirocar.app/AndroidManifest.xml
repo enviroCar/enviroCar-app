@@ -72,7 +72,10 @@
             android:screenOrientation="portrait" />
 
         <service
-            android:name=".services.SystemStartupService"
+            android:name=".services.AutomaticOBDTrackService"
+            android:enabled="true" />
+        <service
+            android:name=".services.AutomaticGPSTrackService"
             android:enabled="true" />
         <service
             android:name=".services.OBDConnectionService"
@@ -90,6 +93,7 @@
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
             </intent-filter>
         </receiver>
+
         <receiver android:name=".services.WlanConnectionReceiver">
             <intent-filter>
                 <action android:name="android.net.wifi.STATE_CHANGE" />
@@ -113,9 +117,10 @@
             android:name=".views.recordingscreen.OBDPlusGPSTrackRecordingScreen"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
-        <activity android:name=".views.recordingscreen.GPSOnlyTrackRecordingScreen"
+        <activity
+            android:name=".views.recordingscreen.GPSOnlyTrackRecordingScreen"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -124,7 +129,7 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
 
     </application>

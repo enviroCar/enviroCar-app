@@ -29,16 +29,19 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 
 import com.squareup.otto.Bus;
 
+import org.envirocar.app.services.AutomaticGPSTrackService;
 import org.envirocar.core.events.gps.GpsDOPEvent;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.utils.ServiceUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -292,7 +295,34 @@ public class LocationHandler {
                     mBus.post(new GpsStateChangedEvent(isActivated));
                     previousState = isActivated;
                 }
+
+                if(isActivated){
+                    startAutomaticGPSTrackService(context);
+                }
             }
+        }
+    }
+
+
+    /**
+     * Starts the AutomaticOBDTrackService if the preference is setted and the remoteService is not already
+     * running.
+     *
+     * @param context the context of the current scope.
+     */
+    public void startAutomaticGPSTrackService(Context context) {
+        // Get the preference related to the autoconnection.
+        boolean autoStartService = PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(PreferenceConstants.PREF_GPS_SERVICE_AUTOSTART, false);
+
+        // If autostart remoteService is on and the remoteService is not already running,
+        // then start the background remoteService.
+        if (autoStartService && !ServiceUtils.isServiceRunning(
+                context, AutomaticGPSTrackService.class)) {
+            Intent startIntent = new Intent(context, AutomaticGPSTrackService.class);
+            context.startService(startIntent);
+        }else if(!autoStartService){
+            AutomaticGPSTrackService.stopService(context);
         }
     }
 }

@@ -98,7 +98,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
-                    android:text="@string/obd_settings"
+                    android:text="@string/autoconnect_settings"
                     android:textColor="@color/black"
                     android:textSize="17sp"/>
 
@@ -106,7 +106,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:text="@string/obd_settings_sum"
+                    android:text="@string/autoconnect_settings_sum"
                     android:textSize="14sp"/>
 
             </LinearLayout>

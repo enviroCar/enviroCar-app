@@ -24,7 +24,8 @@ import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.services.SystemStartupService;
+import org.envirocar.app.services.AutomaticGPSTrackService;
+import org.envirocar.app.services.AutomaticOBDTrackService;
 import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.TroubleshootingFragment;
 import org.envirocar.app.views.dashboard.DashBoardFragment;
@@ -32,6 +33,7 @@ import org.envirocar.app.views.tracklist.TrackListPagerFragment;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.ServiceUtils;
 
 import javax.inject.Inject;
 
@@ -59,8 +61,6 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
     @Inject
     protected BluetoothHandler mBluetoothHandler;
     @Inject
-    protected DashBoardFragment mDashBoardFragment;
-    @Inject
     protected TrackListPagerFragment mTrackListPagerFragment;
     @Inject
     protected OthersFragment mOthersFragment;
@@ -85,7 +85,7 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
                 switch (item.getItemId()) {
                     case R.id.navigation_dashboard:
                         if(selectedMenuItemID != 1){
-                            fragmentTransaction.replace(R.id.fragmentContainer, mDashBoardFragment);
+                            fragmentTransaction.replace(R.id.fragmentContainer, new DashBoardFragment());
                             fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                             fragmentTransaction.commit();
                             selectedMenuItemID = 1;
@@ -217,9 +217,22 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(aBoolean -> {
                             if (aBoolean) {
-                                SystemStartupService.startService(this);
+                                if(!ServiceUtils.isServiceRunning(this, AutomaticOBDTrackService.class)) AutomaticOBDTrackService.startService(this);
                             } else {
-                                SystemStartupService.stopService(this);
+                                if(ServiceUtils.isServiceRunning(this, AutomaticOBDTrackService.class)) AutomaticOBDTrackService.stopService(this);
+                            }
+                        })
+        );
+
+        // Start Background handler
+        subscriptions.add(
+                PreferencesHandler.getGPSBackgroundHandlerEnabledObservable(this)
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(aBoolean -> {
+                            if (aBoolean) {
+                                if(!ServiceUtils.isServiceRunning(this, AutomaticGPSTrackService.class))AutomaticGPSTrackService.startService(this);
+                            } else {
+                                if(ServiceUtils.isServiceRunning(this, AutomaticGPSTrackService.class)) AutomaticGPSTrackService.stopService(this);
                             }
                         })
         );

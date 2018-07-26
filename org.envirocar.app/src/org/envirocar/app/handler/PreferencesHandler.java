@@ -126,6 +126,18 @@ public class PreferencesHandler implements PreferenceConstants {
                 .asObservable();
     }
 
+    public static Observable<Boolean> getGPSBackgroundHandlerEnabledObservable(final Context context){
+        return RxSharedPreferences.create(getSharedPreferences(context))
+                .getBoolean(PREF_GPS_SERVICE_AUTOSTART, DEFAULT_BLUETOOTH_AUTOCONNECT)
+                .asObservable();
+    }
+
+    public static Observable<Boolean> getGPSAutoconnectObservable(final Context context) {
+        return RxSharedPreferences.create(getSharedPreferences(context))
+                .getBoolean(PREF_GPS_AUTOCONNECT, DEFAULT_BLUETOOTH_AUTOCONNECT)
+                .asObservable();
+    }
+
     public static int getDiscoveryInterval(Context context) {
         return getSharedPreferences(context)
                 .getInt(PREF_BLUETOOTH_DISCOVERY_INTERVAL, DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);

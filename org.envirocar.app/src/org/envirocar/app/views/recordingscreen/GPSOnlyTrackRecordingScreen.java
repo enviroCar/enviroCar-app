@@ -54,6 +54,8 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
     protected ImageView mGpsImage;
     @BindView(R.id.mBluetoothImage)
     protected ImageView mBluetoothImage;
+    @BindView(R.id.displayBluetoothCarDriving)
+    protected TextView displayBluetoothCarDriving;
     @BindView(R.id.mTimerText)
     protected Chronometer mTimerText;
     @BindView(R.id.mDistanceText)
@@ -70,8 +72,6 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
     protected LinearLayout trackSingleMeterContainer;
     @BindView(R.id.stopTrackRecordingButton)
     protected LinearLayout stopTrackRecordingButton;
-    @BindView(R.id.waiting_for_driving_message_view)
-    protected LinearLayout waitingForDrivingView;
 
 
     @Inject
@@ -106,7 +106,8 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
         ButterKnife.bind(this);
 
         switchMetersButton.setVisibility(View.GONE);
-        waitingForDrivingView.setVisibility(View.VISIBLE);
+        displayBluetoothCarDriving.setText(R.string.driving);
+        mBluetoothImage.setImageResource(R.drawable.not_driving);
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.trackMapContainer, new TrackMapFragment());
@@ -156,7 +157,10 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
 
     @Subscribe
     public void onReceiveDrivingDetectedEvent(DrivingDetectedEvent event) {
-        mMainThreadWorker.schedule(() -> waitingForDrivingView.setVisibility(View.GONE));
+        mMainThreadWorker.schedule(() -> {
+            if(event.mDrivingDetected) mBluetoothImage.setImageResource(R.drawable.driving);
+            else mBluetoothImage.setImageResource(R.drawable.not_driving);
+        });
     }
 
     @Subscribe

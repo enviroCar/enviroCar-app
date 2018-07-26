@@ -18,25 +18,28 @@
  */
 package org.envirocar.app.views.settings;
 
+import android.content.Context;
+import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.preference.SwitchPreference;
 import android.view.View;
 
 import com.f2prateek.rx.preferences.RxSharedPreferences;
 import com.squareup.otto.Bus;
-import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.PreferenceConstants;
-import org.envirocar.core.events.bluetooth.BluetoothPairingChangedEvent;
-import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
+import org.envirocar.app.handler.PreferencesHandler;
+import org.envirocar.app.main.BaseApplication;
+import org.envirocar.app.services.AutomaticGPSTrackService;
+import org.envirocar.app.services.AutomaticOBDTrackService;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.utils.ServiceUtils;
 
 import javax.inject.Inject;
 
@@ -45,8 +48,8 @@ import javax.inject.Inject;
  *
  * @author dewall
  */
-public class OBDSettingsFragment extends PreferenceFragment {
-    private static final Logger LOG = Logger.getLogger(OBDSettingsFragment.class);
+public class AutoConnectSettingsFragment extends PreferenceFragment {
+    private static final Logger LOG = Logger.getLogger(AutoConnectSettingsFragment.class);
 
     @Inject
     protected Bus mBus;
@@ -54,13 +57,17 @@ public class OBDSettingsFragment extends PreferenceFragment {
     protected BluetoothHandler mBluetoothHandler;
     @Inject
     protected RxSharedPreferences rxSharedPreferences;
+    @InjectApplicationScope
+    @Inject
+    protected Context context;
 
-    // Preferences.
-    private SwitchPreference mBluetoothIsActivePreference;
-    private Preference mBluetoothPairingPreference;
     private CheckBoxPreference mBackgroundServicePreference;
     private CheckBoxPreference mAutoConnectPrefrence;
     private Preference mSearchIntervalPreference;
+    private CheckBoxPreference mGPSBackgroundServicePreference;
+    private CheckBoxPreference mGPSAutoConnectPrefrence;
+
+    private LocationManager mLocationManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -70,22 +77,22 @@ public class OBDSettingsFragment extends PreferenceFragment {
         BaseApplication.get(getActivity()).getBaseApplicationComponent().inject(this);
 
         // Set the preference resource.
-        addPreferencesFromResource(R.xml.preferences_obd);
+        addPreferencesFromResource(R.xml.preferences_auto_connect);
 
+        mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
         // Get all preferences that are containes within the obd settings.
-        mBluetoothIsActivePreference = (SwitchPreference) getPreferenceScreen()
-                .findPreference(PreferenceConstants.PREF_BLUETOOTH_ENABLER);
-        mBluetoothPairingPreference = getPreferenceScreen()
-                .findPreference(PreferenceConstants.PREF_BLUETOOTH_PAIRING);
         mBackgroundServicePreference = (CheckBoxPreference) getPreferenceScreen()
                 .findPreference(PreferenceConstants.PREF_BLUETOOTH_SERVICE_AUTOSTART);
         mAutoConnectPrefrence = (CheckBoxPreference)  getPreferenceScreen()
                 .findPreference(PreferenceConstants.PREF_BLUETOOTH_AUTOCONNECT);
         mSearchIntervalPreference = getPreferenceScreen()
                 .findPreference(PreferenceConstants.PREF_BLUETOOTH_DISCOVERY_INTERVAL);
+        mGPSBackgroundServicePreference = (CheckBoxPreference)  getPreferenceScreen()
+                .findPreference(PreferenceConstants.PREF_GPS_SERVICE_AUTOSTART);
+        mGPSAutoConnectPrefrence = (CheckBoxPreference)  getPreferenceScreen()
+                .findPreference(PreferenceConstants.PREF_GPS_AUTOCONNECT);
 
-        updateBluetoothPreferences(mBluetoothHandler.isBluetoothEnabled());
     }
 
     @Override
@@ -94,43 +101,73 @@ public class OBDSettingsFragment extends PreferenceFragment {
 
 
         // SwitchPreference preference change listener, which enables and disables bluetooth.
-        mBluetoothIsActivePreference.setOnPreferenceChangeListener((preference, newValue) -> {
-            boolean isOn = (boolean) newValue;
-            if (isOn) {
-                mBluetoothHandler.enableBluetooth(getActivity());
-                return false;
-            } else {
-                mBluetoothHandler.disableBluetooth(getActivity());
-            }
-            return true;
-        });
-
         mBackgroundServicePreference.setOnPreferenceChangeListener((preference, newValue) -> {
             boolean isChecked = (boolean) newValue;
             mAutoConnectPrefrence.setEnabled(isChecked);
+            mGPSBackgroundServicePreference.setEnabled(!isChecked);
             if (isChecked) {
                 mSearchIntervalPreference.setEnabled(mAutoConnectPrefrence.isChecked());
+                if(mBluetoothHandler.isBluetoothEnabled() && !ServiceUtils.isServiceRunning(
+                        context, AutomaticOBDTrackService.class)) {
+                    Intent startIntent = new Intent(context, AutomaticOBDTrackService.class);
+                    context.startService(startIntent);
+                }
             } else {
+                mAutoConnectPrefrence.setChecked(false);
                 mSearchIntervalPreference.setEnabled(false);
+            }
+            //setting the tracktype of dashboard
+            PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(),1);
+            return true;
+        });
+
+        mAutoConnectPrefrence.setOnPreferenceChangeListener((preference, newValue) -> {
+            boolean isChecked = (boolean) newValue;
+            mSearchIntervalPreference.setEnabled(isChecked);
+            return true;
+        });
+
+        mGPSBackgroundServicePreference.setOnPreferenceChangeListener((preference, newValue) -> {
+            boolean isChecked = (boolean) newValue;
+            mGPSAutoConnectPrefrence.setEnabled(isChecked);
+            mBackgroundServicePreference.setEnabled(!isChecked);
+            if(!isChecked){
+                mGPSAutoConnectPrefrence.setChecked(false);
+                //setting the track-type of dashboard
+                PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(),1);
+            }else {
+                PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(),2);
+
+                if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !ServiceUtils.isServiceRunning(
+                        context, AutomaticGPSTrackService.class)) {
+                    Intent startIntent = new Intent(context, AutomaticGPSTrackService.class);
+                    context.startService(startIntent);
+                }
             }
             return true;
         });
 
-        mAutoConnectPrefrence.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object newValue) {
-                boolean isChecked = (boolean) newValue;
-                mSearchIntervalPreference.setEnabled(isChecked);
-                return true;
-            }
-        });
+        mGPSAutoConnectPrefrence.setOnPreferenceChangeListener((preference, newValue) -> true);
 
         if(!mBackgroundServicePreference.isChecked()){
             mAutoConnectPrefrence.setEnabled(false);
             mSearchIntervalPreference.setEnabled(false);
+            mGPSBackgroundServicePreference.setEnabled(true);
+        }else{
+            mGPSBackgroundServicePreference.setEnabled(false);
+            mGPSAutoConnectPrefrence.setEnabled(false);
         }
 
         if(!mAutoConnectPrefrence.isChecked()){
+            mSearchIntervalPreference.setEnabled(false);
+        }
+
+        if(!mGPSBackgroundServicePreference.isChecked()){
+            mGPSAutoConnectPrefrence.setEnabled(false);
+            mBackgroundServicePreference.setEnabled(true);
+        }else{
+            mBackgroundServicePreference.setEnabled(false);
+            mAutoConnectPrefrence.setEnabled(false);
             mSearchIntervalPreference.setEnabled(false);
         }
 
@@ -154,51 +191,4 @@ public class OBDSettingsFragment extends PreferenceFragment {
         mBus.unregister(this);
     }
 
-    @Subscribe
-    public void onBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
-        LOG.debug("onBluetoothStateChangedEvent(): " + event.toString());
-        updateBluetoothPreferences(event.isBluetoothEnabled);
-    }
-
-    @Subscribe
-    public void onBluetoothPairingChangedEvent(BluetoothPairingChangedEvent event) {
-        LOG.severe("onBluetoothPairingChangedEvent(): " + event.toString());
-
-        // Remove all
-        if (!event.mIsPaired && mBluetoothHandler.getSelectedBluetoothDevice() == null) {
-
-            // remove the shared preference entries for the bluetooth selection tag.
-            PreferenceManager.getDefaultSharedPreferences(getActivity()).edit()
-                    .remove(PreferenceConstants.PREF_BLUETOOTH_NAME)
-                    .remove(PreferenceConstants.PREF_BLUETOOTH_ADDRESS).commit();
-        }
-    }
-
-    /**
-     * Helper method that cares about the bluetooth lists
-     */
-    private void updateBluetoothPreferences(boolean isEnabled) {
-
-        // No Bluetooth available...
-        if (!isEnabled) {
-            // Set the switch for enabling bluetooth stuff accordingly.
-            mBluetoothIsActivePreference.setChecked(isEnabled);
-            mBluetoothIsActivePreference.setTitle(R.string.pref_bluetooth_switch_isdisabled);
-
-            // Update the pairing list preference
-            mBluetoothPairingPreference.setEnabled(false);
-            mBluetoothPairingPreference.setSummary(R.string.pref_bluetooth_disabled);
-        }
-        // Bluetooth is available...
-        else {
-
-            // Set the switch for enabling bluetooth stuff accordingly.
-            mBluetoothIsActivePreference.setChecked(isEnabled);
-            mBluetoothIsActivePreference.setTitle(R.string.pref_bluetooth_switch_isenabled);
-
-            // Update the pairing list preference
-            mBluetoothPairingPreference.setEnabled(true);
-            mBluetoothPairingPreference.setSummary(R.string.pref_bluetooth_pairing_summary);
-        }
-    }
 }

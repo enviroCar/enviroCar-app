@@ -22,6 +22,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.preference.PreferenceManager;
 
 import org.envirocar.app.handler.PreferenceConstants;
@@ -49,7 +50,13 @@ public class SystemStartupReceiver extends BroadcastReceiver {
 
             // If bluetooth is enabled, then start the background remoteService.
             if (BluetoothAdapter.getDefaultAdapter().isEnabled())
-                startSystemStartupService(context);
+                startAutomaticOBDTrackService(context);
+
+            // If gps is enabled, then start the background remoteService.
+            LocationManager mLocationManager  = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+            if(mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                startAutomaticGPSTrackService(context);
+            }
 
         } else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
             LOGGER.info("Received BluetoothAdapter.ACTION_STATE_CHANGED broadcast.");
@@ -61,19 +68,19 @@ public class SystemStartupReceiver extends BroadcastReceiver {
                 case BluetoothAdapter.STATE_ON:
                     // If bluetooth has been turned on, then check wheterh the background remoteService
                     // needs to be started.
-                    startSystemStartupService(context);
+                    startAutomaticOBDTrackService(context);
                     break;
             }
         }
     }
 
     /**
-     * Starts the SystemStartupService if the preference is setted and the remoteService is not already
+     * Starts the AutomaticOBDTrackService if the preference is setted and the remoteService is not already
      * running.
      *
      * @param context the context of the current scope.
      */
-    private void startSystemStartupService(Context context) {
+    public void startAutomaticOBDTrackService(Context context) {
         // Get the preference related to the autoconnection.
         boolean autoStartService = PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(PreferenceConstants.PREF_BLUETOOTH_SERVICE_AUTOSTART, false);
@@ -81,11 +88,33 @@ public class SystemStartupReceiver extends BroadcastReceiver {
         // If autostart remoteService is on and the remoteService is not already running,
         // then start the background remoteService.
         if (autoStartService && !ServiceUtils.isServiceRunning(
-                context, SystemStartupService.class)) {
-            Intent startIntent = new Intent(context, SystemStartupService.class);
+                context, AutomaticOBDTrackService.class)) {
+            Intent startIntent = new Intent(context, AutomaticOBDTrackService.class);
             context.startService(startIntent);
         }else if(!autoStartService){
-            SystemStartupService.stopService(context);
+            AutomaticOBDTrackService.stopService(context);
+        }
+    }
+
+    /**
+     * Starts the AutomaticOBDTrackService if the preference is setted and the remoteService is not already
+     * running.
+     *
+     * @param context the context of the current scope.
+     */
+    public void startAutomaticGPSTrackService(Context context) {
+        // Get the preference related to the autoconnection.
+        boolean autoStartService = PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(PreferenceConstants.PREF_GPS_SERVICE_AUTOSTART, false);
+
+        // If autostart remoteService is on and the remoteService is not already running,
+        // then start the background remoteService.
+        if (autoStartService && !ServiceUtils.isServiceRunning(
+                context, AutomaticGPSTrackService.class)) {
+            Intent startIntent = new Intent(context, AutomaticGPSTrackService.class);
+            context.startService(startIntent);
+        }else if(!autoStartService){
+            AutomaticGPSTrackService.stopService(context);
         }
     }
 

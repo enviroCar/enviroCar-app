@@ -30,6 +30,10 @@
     <string name="notification_unconnected_description">Track recording is not in progress.</string>
     <string name="notification_unconnected_action">Search for OBD-II</string>
 
+    <string name="notification_not_started_title">Not started</string>
+    <string name="notification_not_started_description">Track recording is not in progress.</string>
+    <string name="notification_not_started_action">Start GPS based track</string>
+
     <string name="notification_discovering_title">Discovering</string>
     <string name="notification_discovering_description">Searching for OBD-II adapter.</string>
     <string name="notification_discovering_action">Cancel</string>

@@ -26,8 +26,8 @@
     <string name="pref_other">Other</string>
 
     <string name="settings_title">Settings</string>
-    <string name="obd_settings">OBD Settings</string>
-    <string name="obd_settings_sum">OBD Selection, Autoconnect, etc.</string>
+    <string name="autoconnect_settings">Auto-connect Settings</string>
+    <string name="autoconnect_settings_sum">OBD Auto-connect, GPS Auto-connect etc.</string>
 
     <string name="settings_optional">Optional Settings</string>
     <string name="settings_optional_sub">Sampling rate, Debug Logging, etc.</string>

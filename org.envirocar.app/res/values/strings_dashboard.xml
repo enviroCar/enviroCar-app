@@ -49,4 +49,15 @@
     <string name="request_location_permission_title">Location permission needed</string>
     <string name="permission_denied_explanation">Permission was denied, but is needed for core functionality.</string>
     <string name="settings">Settings</string>
+
+    <string name="obd_automatic_enabled_error_title">Automatic OBD track recording is set.</string>
+    <string name="obd_automatic_enabled_error_content">Automatic OBD track recording settings will be turned off. Do you want to proceed?</string>
+    <string name="obd_automatic_enabled_error_positive">Yes</string>
+    <string name="obd_automatic_enabled_error_negative">No</string>
+
+
+    <string name="gps_automatic_enabled_error_title">Automatic GPS track recording is set.</string>
+    <string name="gps_automatic_enabled_error_content">Automatic GPS track recording settings will be turned off. Do you want to proceed?</string>
+    <string name="gps_automatic_enabled_error_positive">Yes</string>
+    <string name="gps_automatic_enabled_error_negative">No</string>
 </resources>

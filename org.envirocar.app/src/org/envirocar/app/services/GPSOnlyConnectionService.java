@@ -30,7 +30,6 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.ActivityTransition;
@@ -138,6 +137,15 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
     // Different subscriptions
     private Subscription mTTSPrefSubscription;
     private Subscription mMeasurementSubscription;
+    private Subscription mDrivingStoppedSubscription;
+
+    private final Action0 drivingConnectionCloser = () -> {
+        LOG.warn("CONNECTION CLOSED due to driving state absence");
+        stopGPSOnlyConnection();
+        stopSelf();
+    };
+    //2 times the average latency of the activity transition library i.e. 2*55 sec
+    private static final long DRIVING_INTERVAL = 1000 * 55 * 2;
 
     // This satellite fix indicates that there is no satellite connection yet.
     private GpsSatelliteFix mCurrentGpsSatelliteFix = new GpsSatelliteFix(0, false);
@@ -175,11 +183,16 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
                         if(event.getTransitionType() == ActivityTransition.ACTIVITY_TRANSITION_ENTER){
                             drivingDetected = true;
                             bus.post(new DrivingDetectedEvent(drivingDetected));
+                            if (mDrivingStoppedSubscription != null) {
+                                mDrivingStoppedSubscription.unsubscribe();
+                                mDrivingStoppedSubscription = null;
+                            }
+                        }else if(event.getTransitionType() == ActivityTransition.ACTIVITY_TRANSITION_EXIT){
+                            if(CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED){
+                                mDrivingStoppedSubscription = backgroundWorker.schedule(
+                                        drivingConnectionCloser, DRIVING_INTERVAL, TimeUnit.MILLISECONDS);
+                            }
                         }
-
-                        // String activity = toActivityString(event.getActivityType());
-                        // String transitionType = toTransitionType(event.getTransitionType());
-                        Toast.makeText(GPSOnlyConnectionService.this,event.getActivityType()+" "+event.getTransitionType(),Toast.LENGTH_LONG).show();
                     }
                 }
             }
@@ -473,6 +486,10 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
                 mTrackDetailsProvider.clear();
             if (mWakeLock != null && mWakeLock.isHeld()) {
                 mWakeLock.release();
+            }
+            if (mDrivingStoppedSubscription != null) {
+                mDrivingStoppedSubscription.unsubscribe();
+                mDrivingStoppedSubscription = null;
             }
 
             mLocationHandler.stopLocating();

@@ -5,7 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.envirocar.app.R;
-import org.envirocar.app.services.SystemStartupService;
+import org.envirocar.app.services.AutomaticGPSTrackService;
+import org.envirocar.app.services.AutomaticOBDTrackService;
 
 /**
  * TODO JavaDoc
@@ -45,6 +46,30 @@ public enum ServiceStateForNotificationForNotification implements ServiceStateCo
             return super.getIcon();
         }
     },
+    NOT_STARTED {
+        @Override
+        public int getTitle() {
+            return R.string.notification_not_started_title;
+        }
+
+        @Override
+        public int getSubText() {
+            return R.string.notification_not_started_description;
+        }
+
+        @Override
+        public int getIcon() {
+            return R.drawable.av_stop;
+        }
+
+        @Override
+        public NotificationActionHolder getAction(Context context) {
+            return new NotificationActionHolder(
+                    R.drawable.ic_play_arrow_black_24dp,
+                    R.string.notification_not_started_action,
+                    getPendingIntent(AutomaticGPSTrackService.ACTION_START_TRACK_RECORDING, context));
+        }
+    },
     UNCONNECTED {
         @Override
         public int getTitle() {
@@ -66,7 +91,7 @@ public enum ServiceStateForNotificationForNotification implements ServiceStateCo
             return new NotificationActionHolder(
                     R.drawable.ic_bluetooth_searching_black_24dp,
                     R.string.notification_unconnected_action,
-                    getPendingIntent(SystemStartupService.ACTION_START_BT_DISCOVERY, context));
+                    getPendingIntent(AutomaticOBDTrackService.ACTION_START_BT_DISCOVERY, context));
         }
     },
     DISCOVERING {
@@ -90,7 +115,7 @@ public enum ServiceStateForNotificationForNotification implements ServiceStateCo
             return new NotificationActionHolder(
                     R.drawable.ic_close_black_24dp,
                     R.string.notification_discovering_action,
-                    getPendingIntent(SystemStartupService.ACTION_STOP_BT_DISCOVERY, context));
+                    getPendingIntent(AutomaticOBDTrackService.ACTION_STOP_BT_DISCOVERY, context));
         }
     },
     CONNECTING {
@@ -130,7 +155,7 @@ public enum ServiceStateForNotificationForNotification implements ServiceStateCo
             return new NotificationActionHolder(
                     R.drawable.ic_close_black_24dp,
                     R.string.notification_connected_action,
-                    getPendingIntent(SystemStartupService.ACTION_STOP_TRACK_RECORDING, context));
+                    getPendingIntent(AutomaticOBDTrackService.ACTION_STOP_TRACK_RECORDING, context));
         }
     },
     STOPPING {

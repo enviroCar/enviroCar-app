@@ -97,6 +97,7 @@
     <string name="banner_gps_error_content">Please turn ON GPS</string>
     <string name="banner_car_error_title">Car is not selected!</string>
     <string name="banner_car_error_content">Please choose a Car to continue</string>
+    <string name="driving">Driving</string>
 
 
 </resources>
