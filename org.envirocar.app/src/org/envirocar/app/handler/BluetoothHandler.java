@@ -524,10 +524,7 @@ public class BluetoothHandler {
     }
 
     public boolean isBluetoothActive() {
-        if (mBluetoothAdapter == null || mBluetoothAdapter.getAddress() == null) {
-            return false;
-        }
-        return true;
+        return mBluetoothAdapter != null && mBluetoothAdapter.getAddress() != null;
     }
 
     public void enableBluetooth(Activity activity) {

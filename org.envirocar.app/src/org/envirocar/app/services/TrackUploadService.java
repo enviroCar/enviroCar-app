@@ -21,7 +21,6 @@ package org.envirocar.app.services;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -32,8 +31,8 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.widget.RemoteViews;
 
-import org.envirocar.app.BaseApplicationComponent;
-import org.envirocar.app.BaseMainActivity;
+import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.handler.TrackUploadHandler;
@@ -318,10 +317,10 @@ public class TrackUploadService extends BaseInjectorService {
 
         forgroundNotification.bigContentView = bigView;
 
-        Intent intent = new Intent(getBaseContext(), BaseMainActivity.class);
+        Intent intent = new Intent(getBaseContext(), BaseMainActivityBottomBar.class);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        stackBuilder.addParentStack(BaseMainActivity.class);
+        stackBuilder.addParentStack(BaseMainActivityBottomBar.class);
         stackBuilder.addNextIntent(intent);
 
         PendingIntent resultIntent = stackBuilder.getPendingIntent(0, PendingIntent

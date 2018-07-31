@@ -119,49 +119,49 @@ public enum PID implements PIDEnumInstance {
         @Override
         public String getHexadecimalRepresentation() {
             return "34";
-        };
+        }
     }
     , O2_LAMBDA_PROBE_2_CURRENT {
         @Override
         public String getHexadecimalRepresentation() {
             return "35";
-        };
+        }
     }
     , O2_LAMBDA_PROBE_3_CURRENT {
         @Override
         public String getHexadecimalRepresentation() {
             return "36";
-        };
+        }
     }
     , O2_LAMBDA_PROBE_4_CURRENT {
         @Override
         public String getHexadecimalRepresentation() {
             return "37";
-        };
+        }
     }
     , O2_LAMBDA_PROBE_5_CURRENT {
         @Override
         public String getHexadecimalRepresentation() {
             return "38";
-        };
+        }
     }
     , O2_LAMBDA_PROBE_6_CURRENT {
         @Override
         public String getHexadecimalRepresentation() {
             return "39";
-        };
+        }
     }
     , O2_LAMBDA_PROBE_7_CURRENT {
         @Override
         public String getHexadecimalRepresentation() {
             return "3A";
-        };
+        }
     }
     , O2_LAMBDA_PROBE_8_CURRENT {
         @Override
         public String getHexadecimalRepresentation() {
             return "3B";
-        };
+        }
     }
 
 }

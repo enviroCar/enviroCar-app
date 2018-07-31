@@ -51,7 +51,7 @@ public class GzipRequestInterceptor implements Interceptor {
                     }
 
                     @Override
-                    public long contentLength() throws IOException {
+                    public long contentLength() {
                         return -1;
                     }
 

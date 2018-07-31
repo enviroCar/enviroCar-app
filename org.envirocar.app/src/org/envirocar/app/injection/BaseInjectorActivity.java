@@ -24,8 +24,8 @@ import android.view.MenuItem;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.BaseApplication;
-import org.envirocar.app.BaseApplicationComponent;
+import org.envirocar.app.main.BaseApplication;
+import org.envirocar.app.main.BaseApplicationComponent;
 
 import javax.inject.Inject;
 

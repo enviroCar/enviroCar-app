@@ -71,8 +71,7 @@ class MeasurementTable {
         }
     };
 
-    public static ContentValues toContentValues(Measurement measurement) throws
-            MeasurementSerializationException {
+    public static ContentValues toContentValues(Measurement measurement) {
         ContentValues values = new ContentValues();
         values.put(KEY_LATITUDE, measurement.getLatitude());
         values.put(KEY_LONGITUDE, measurement.getLongitude());

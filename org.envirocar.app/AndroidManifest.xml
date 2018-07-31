@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.envirocar.app"
     android:installLocation="internalOnly"
     android:versionCode="34"
@@ -8,7 +7,7 @@
 
     <uses-sdk
         android:minSdkVersion="16"
-        android:targetSdkVersion="22" />
+        android:targetSdkVersion="27" />
 
     <uses-feature
         android:name="android.hardware.bluetooth"
@@ -34,54 +33,49 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
     <application
-        android:name="org.envirocar.app.BaseApplication"
+        android:name=".main.BaseApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/Theme.Cario">
-
         <activity
-            android:name="org.envirocar.app.BaseMainActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Cario">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name="org.envirocar.app.view.trackdetails.TrackDetailsActivity"
+            android:name=".views.trackdetails.TrackDetailsActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="org.envirocar.app.view.carselection.CarSelectionActivity"
+            android:name=".views.carselection.CarSelectionActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="org.envirocar.app.view.obdselection.OBDSelectionActivity"
+            android:name=".views.obdselection.OBDSelectionActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="org.envirocar.app.view.trackdetails.TrackStatisticsActivity"
+            android:name=".views.trackdetails.TrackStatisticsActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="org.envirocar.app.view.LoginActivity"
+            android:name=".views.LoginRegisterActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.settings.SettingsActivity"
+            android:name=".views.settings.SettingsActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.logbook.LogbookActivity"
+            android:name=".views.SendLogFileActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".view.HelpActivity"
+            android:name=".views.logbook.LogbookActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".views.HelpActivity"
             android:screenOrientation="portrait" />
 
         <service
-            android:name="org.envirocar.app.services.SystemStartupService"
+            android:name=".services.AutomaticOBDTrackService"
+            android:enabled="true" />
+        <service
+            android:name=".services.AutomaticGPSTrackService"
             android:enabled="true" />
         <service
             android:name=".services.OBDConnectionService"
@@ -89,8 +83,11 @@
         <service
             android:name=".services.TrackUploadService"
             android:enabled="true" />
+        <service
+            android:name=".services.GPSOnlyConnectionService"
+            android:enabled="true" />
 
-        <receiver android:name="org.envirocar.app.services.SystemStartupReceiver">
+        <receiver android:name=".services.SystemStartupReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
@@ -103,6 +100,37 @@
                 <action android:name="android.net.wifi.supplicant.CONNECTION_CHANG" />
             </intent-filter>
         </receiver>
+
+        <activity
+            android:name=".main.BaseMainActivityBottomBar"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Cario">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".views.recordingscreen.OBDPlusGPSTrackRecordingScreen"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".views.recordingscreen.GPSOnlyTrackRecordingScreen"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
 
     </application>
 

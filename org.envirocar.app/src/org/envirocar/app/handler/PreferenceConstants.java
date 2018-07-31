@@ -25,15 +25,15 @@ package org.envirocar.app.handler;
  */
 public interface PreferenceConstants {
     String PREF_EMPTY = "";
-    String PREF_BLUETOOTH_LIST = "bluetooth_list";
     String PREF_BLUETOOTH_NAME = "bluetooth_name";
     String PREF_BLUETOOTH_ADDRESS = "bluetooth_address";
-    String PREF_BLUETOOTH_ENABLER = "bluetooth_enabler";
-    String PREF_BLUETOOTH_PAIRING = "bluetooth_pairing";
 
     String PREF_BLUETOOTH_SERVICE_AUTOSTART = "pref_bluetooth_service_autostart";
     String PREF_BLUETOOTH_AUTOCONNECT = "pref_bluetooth_autoconnect";
     String PREF_BLUETOOTH_DISCOVERY_INTERVAL = "pref_bluetooth_discovery_interval";
+
+    String PREF_GPS_SERVICE_AUTOSTART = "pref_gps_service_autostart";
+    String PREF_GPS_AUTOCONNECT = "pref_gps_autoconnect";
 
     String PREF_ENABLE_DIESE_CONSUMPTION = "pref_enable_diesel_consumption";
 
@@ -56,4 +56,14 @@ public interface PreferenceConstants {
     String PERSISTENT_SEEN_ANNOUNCEMENTS = "persistent_seen_announcements";
     String SAMPLING_RATE = "ec_sampling_rate";
     String ENABLE_DEBUG_LOGGING = "pref_enable_debug_logging";
+
+    String PREF_LOCAL_TRACK_COUNT = "pref_local_track_count";
+    String PREF_UPLOADED_TRACK_COUNT = "pref_uploaded_track_count";
+    String PREF_GLOBAL_TRACK_COUNT = "pref_global_track_count";
+
+    String PREF_PREV_REC_TYPE = "pref_prev_rec_type";
+
+    String PREF_PREV_VIEW_TYPE_GENERAL_RECORDING_SCREEN = "pref_prev_view_type_general_recording_type";
+    String PREF_PREV_VIEW_TYPE_METER_RECORDING_SCREEN = "pref_prev_view_type_meter_recording_type";
+
 }

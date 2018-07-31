@@ -44,11 +44,8 @@ public class ContextInternetAccessProvider implements InternetAccessProvider {
                 .getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
 
-        if (netInfo != null && netInfo.isConnectedOrConnecting()) {
-            return true;
-        }
+        return netInfo != null && netInfo.isConnectedOrConnecting();
 
-        return false;
     }
 
 }

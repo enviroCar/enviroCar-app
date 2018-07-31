@@ -20,7 +20,6 @@
 
 -->
 <resources>
-    <dimen name="fab_margin_side_16">16dp</dimen>
     <dimen name="fab_margin_16">16dp</dimen>
     <dimen name="fab_margin_download_button_top">28dp</dimen>
 </resources>

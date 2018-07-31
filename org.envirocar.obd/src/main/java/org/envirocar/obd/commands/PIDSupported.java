@@ -58,7 +58,7 @@ public class PIDSupported implements BasicCommand {
     }
 
 
-    public Set<PID> parsePIDs(byte[] rawData) throws InvalidCommandResponseException, NoDataReceivedException, UnmatchedResponseException, AdapterSearchingException {
+    public Set<PID> parsePIDs(byte[] rawData) throws InvalidCommandResponseException {
         if (rawData == null) {
             throw new InvalidCommandResponseException("Null response on PIDSupported request");
         }

@@ -49,7 +49,7 @@
                 android:layout_height="56dp"
                 android:background="@color/blue_dark_cario"/>
 
-            <org.envirocar.app.view.utils.CircularBorderedImageView
+            <org.envirocar.app.views.utils.CircularBorderedImageView
                 android:layout_width="96dp"
                 android:layout_height="96dp"
                 android:layout_centerHorizontal="true"

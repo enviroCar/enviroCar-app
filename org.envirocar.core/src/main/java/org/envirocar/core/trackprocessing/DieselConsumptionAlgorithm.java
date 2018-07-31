@@ -52,7 +52,7 @@ public class DieselConsumptionAlgorithm implements ConsumptionAlgorithm {
     private static final double FUEL_DENSITY = 0.832;
 
     @Override
-    public double calculateConsumption(Measurement measurement) throws FuelConsumptionException, UnsupportedFuelTypeException {
+    public double calculateConsumption(Measurement measurement) throws FuelConsumptionException {
         Preconditions.checkNotNull(measurement);
 
         if (!measurement.hasProperty(LAMBDA_VOLTAGE_ER)
@@ -120,7 +120,7 @@ public class DieselConsumptionAlgorithm implements ConsumptionAlgorithm {
     }
 
     @Override
-    public double calculateCO2FromConsumption(double consumption) throws FuelConsumptionException {
+    public double calculateCO2FromConsumption(double consumption) {
         return consumption * 2.65; //kg/h
     }
 }

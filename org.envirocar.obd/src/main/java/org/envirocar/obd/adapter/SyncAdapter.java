@@ -54,7 +54,7 @@ public abstract class SyncAdapter implements OBDAdapter {
     private Map<PID, AtomicInteger> failureMap = new HashMap<>();
     private List<PIDCommand> requestCommands;
     private Queue<PIDCommand> commandRingBuffer = new ArrayDeque<>();
-    private Queue<PIDSupported> pidSupportedCommands = new ArrayDeque<>(Arrays.asList(new PIDSupported[] {new PIDSupported(), new PIDSupported("20")}));
+    private Queue<PIDSupported> pidSupportedCommands = new ArrayDeque<>(Arrays.asList(new PIDSupported(), new PIDSupported("20")));
 
 
     @Override
@@ -85,8 +85,7 @@ public abstract class SyncAdapter implements OBDAdapter {
                                 byte[] resp = commandExecutor.retrieveLatestResponse();
                                 try {
                                     supportedPIDs.addAll(pid.parsePIDs(resp));
-                                } catch (InvalidCommandResponseException | NoDataReceivedException
-                                        | UnmatchedResponseException | AdapterSearchingException e) {
+                                } catch (InvalidCommandResponseException e) {
                                     LOGGER.warn(e.getMessage(), e);
                                 }
                                 LOGGER.info("Currently supported PIDs: " + supportedPIDs.toString());

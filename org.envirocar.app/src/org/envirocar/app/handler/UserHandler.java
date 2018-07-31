@@ -130,11 +130,7 @@ public class UserHandler implements UserManager {
     @Override
     public boolean isLoggedIn() {
         SharedPreferences prefs = getUserPreferences();
-        if (prefs.contains(USERNAME) && prefs.contains(TOKEN)) {
-            return true;
-        } else {
-            return false;
-        }
+        return prefs.contains(USERNAME) && prefs.contains(TOKEN);
     }
 
     public <T> Func1<T, T> getIsLoggedIn() {

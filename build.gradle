@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.2'
+        classpath 'com.android.tools.build:gradle:3.1.3'
         classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.12.1"
     }
 }
@@ -84,5 +84,6 @@ ext {
     helloCharts = 'com.github.lecho:hellocharts-library:1.5.8@aar'
     fabProgressCircle = 'com.github.jorgecastilloprz:fabprogresscircle:1.01'
     mapbox = 'com.mapbox.mapboxsdk:mapbox-android-sdk:0.7.4@aar'
+    segmentedUIController = 'info.hoang8f:android-segmented:1.0.6'
 
 }

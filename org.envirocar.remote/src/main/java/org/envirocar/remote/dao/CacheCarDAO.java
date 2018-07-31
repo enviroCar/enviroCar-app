@@ -50,7 +50,7 @@ public class CacheCarDAO extends AbstractCacheDAO implements CarDAO {
     }
 
     @Override
-    public List<Car> getAllCars() throws NotConnectedException, DataRetrievalFailureException {
+    public List<Car> getAllCars() {
         return null;
     }
 
@@ -60,8 +60,7 @@ public class CacheCarDAO extends AbstractCacheDAO implements CarDAO {
     }
 
     @Override
-    public List<Car> getCarsByUser(User user) throws UserNotAuthenticatedException,
-            NotConnectedException, DataRetrievalFailureException, UnauthorizedException {
+    public List<Car> getCarsByUser(User user) {
         return null;
     }
 
@@ -71,8 +70,7 @@ public class CacheCarDAO extends AbstractCacheDAO implements CarDAO {
     }
 
     @Override
-    public String createCar(Car car) throws NotConnectedException, DataCreationFailureException,
-            UnauthorizedException {
+    public String createCar(Car car) {
         return null;
     }
 

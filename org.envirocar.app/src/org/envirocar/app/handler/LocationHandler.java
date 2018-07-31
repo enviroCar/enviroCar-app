@@ -18,26 +18,30 @@
  */
 package org.envirocar.app.handler;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.location.GpsStatus;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v4.app.ActivityCompat;
 
 import com.squareup.otto.Bus;
 
-import org.envirocar.core.events.gps.GpsDOP;
+import org.envirocar.app.services.AutomaticGPSTrackService;
 import org.envirocar.core.events.gps.GpsDOPEvent;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
-import org.envirocar.core.events.gps.GpsSatelliteFix;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
-import org.envirocar.core.util.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.utils.ServiceUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -55,7 +59,7 @@ public class LocationHandler {
     private static final String GPGSA = "$GPGSA";
     private static final String NMEA_SEP = ",";
 
-    protected final LocationListener mLocationListener = new LocationListener() {
+    private final LocationListener mLocationListener = new LocationListener() {
         @Override
         public void onLocationChanged(Location location) {
             LOGGER.warn("New Location Update");
@@ -82,7 +86,7 @@ public class LocationHandler {
     /**
      * Used for receiving NMEA sentences from the GPS.
      */
-    private final GpsStatus.NmeaListener mNmeaListener = new GpsStatus.NmeaListener() {
+    GpsStatus.NmeaListener mNmeaListener = new GpsStatus.NmeaListener() {
         @Override
         public void onNmeaReceived(long timestamp, String nmea) {
             // eg2.: $GPGSA,A,3,19,28,14,18,27,22,31,39,,,,,1.7,1.0,1.3*35
@@ -102,8 +106,6 @@ public class LocationHandler {
 
                 int numberOfSats = resolveSatelliteCount(values);
 
-                // Set the last satellite fix for GPS.
-                mLastGpsSatelliteFix = new GpsSatelliteFix(numberOfSats, fix);
                 // fire an event on the GPS status (fix and number of sats)
                 mBus.post(new GpsSatelliteFixEvent(numberOfSats, fix));
 
@@ -121,8 +123,8 @@ public class LocationHandler {
                 // Only if positional, horizontal, and vertical DOP is available, then
                 // set the DOP accordingly.
                 if (pdop != null || hdop != null || vdop != null) {
-                    // set the new last GPS dop.
-                    mLastGpsDOP = new GpsDOP(pdop, hdop, vdop);
+                    // Dultion of Precision (DOP) to specify multiplicative effect of
+                    // navigation satellite geometry on positional measurement precision.
                     // fire an event on the GPS DOP
                     mBus.post(new GpsDOPEvent(pdop, hdop, vdop));
                 }
@@ -176,17 +178,7 @@ public class LocationHandler {
     private LocationManager mLocationManager;
 
     // Location fields
-    private Location mLastLocationUpdate;
     private Location mLastBestLocation;
-
-    // the last satellite fix of GPS events.
-    private GpsSatelliteFix mLastGpsSatelliteFix;
-
-    // Dultion of Precision (DOP) to specify multiplicative effect of
-    // navigation satellite geometry on positional measurement precision.
-    private GpsDOP mLastGpsDOP;
-
-    private BroadcastReceiver mGPSStateReceiver;
 
     /**
      * Constructor.
@@ -199,7 +191,6 @@ public class LocationHandler {
         this.mBus = bus;
 
         // Sets the current Location updates to null.
-        this.mLastLocationUpdate = null;
         this.mLastBestLocation = null;
 
         // Get the LocationManager
@@ -211,7 +202,7 @@ public class LocationHandler {
         // Register a new broadcast receiver for state transitions related to GPS.
         IntentFilter filter = new IntentFilter();
         filter.addAction(LocationManager.PROVIDERS_CHANGED_ACTION);
-        mGPSStateReceiver = new GpsStateReceiver(isGPSEnabled());
+        BroadcastReceiver mGPSStateReceiver = new GpsStateReceiver(isGPSEnabled());
         context.registerReceiver(mGPSStateReceiver, filter);
     }
 
@@ -227,6 +218,16 @@ public class LocationHandler {
      */
     public void startLocating() {
         LOGGER.info("startLocating()");
+        if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
         mLocationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER, 0, 0, mLocationListener);
         mLocationManager.addNmeaListener(mNmeaListener);
@@ -241,26 +242,6 @@ public class LocationHandler {
         mLocationManager.removeNmeaListener(mNmeaListener);
     }
 
-    //    @Produce
-    public GpsLocationChangedEvent produceLocationChangedEvent() {
-        if (mLastBestLocation == null)
-            return null;
-        return new GpsLocationChangedEvent(mLastBestLocation);
-    }
-
-    //    @Produce
-    public GpsDOPEvent produceGpsDOPEvent() {
-        if (mLastGpsDOP == null)
-            return null;
-        return new GpsDOPEvent(mLastGpsDOP);
-    }
-
-    //    @Produce
-    public GpsSatelliteFixEvent produceGpsSatelliteFixEvent() {
-        if (mLastGpsSatelliteFix == null)
-            return null;
-        return new GpsSatelliteFixEvent(mLastGpsSatelliteFix);
-    }
 
     /**
      * Initializes the last known location on start of the application. First,
@@ -270,6 +251,16 @@ public class LocationHandler {
     private void initLastKnownLocation() {
         // Sets the last known location as an initial value
         if (mLastBestLocation == null) {
+            if (ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
             mLastBestLocation = mLocationManager
                     .getLastKnownLocation(LocationManager.GPS_PROVIDER);
         }
@@ -304,7 +295,34 @@ public class LocationHandler {
                     mBus.post(new GpsStateChangedEvent(isActivated));
                     previousState = isActivated;
                 }
+
+                if(isActivated){
+                    startAutomaticGPSTrackService(context);
+                }
             }
+        }
+    }
+
+
+    /**
+     * Starts the AutomaticOBDTrackService if the preference is setted and the remoteService is not already
+     * running.
+     *
+     * @param context the context of the current scope.
+     */
+    public void startAutomaticGPSTrackService(Context context) {
+        // Get the preference related to the autoconnection.
+        boolean autoStartService = PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(PreferenceConstants.PREF_GPS_SERVICE_AUTOSTART, false);
+
+        // If autostart remoteService is on and the remoteService is not already running,
+        // then start the background remoteService.
+        if (autoStartService && !ServiceUtils.isServiceRunning(
+                context, AutomaticGPSTrackService.class)) {
+            Intent startIntent = new Intent(context, AutomaticGPSTrackService.class);
+            context.startService(startIntent);
+        }else if(!autoStartService){
+            AutomaticGPSTrackService.stopService(context);
         }
     }
 }

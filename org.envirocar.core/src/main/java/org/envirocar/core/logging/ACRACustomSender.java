@@ -33,7 +33,7 @@ public class ACRACustomSender implements ReportSender {
     }
 
     @Override
-    public void send(Context context, CrashReportData report) throws ReportSenderException {
+    public void send(Context context, CrashReportData report) {
     	Log.e("acra", "Receiving an app crash: "+ report.toString());
     	logger.severe(report.toString());
     	logger.severe("[END OF ACRA REPORT]");

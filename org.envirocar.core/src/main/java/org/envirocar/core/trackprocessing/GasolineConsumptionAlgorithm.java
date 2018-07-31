@@ -31,8 +31,7 @@ public class GasolineConsumptionAlgorithm implements ConsumptionAlgorithm {
 
 
     @Override
-    public double calculateConsumption(Measurement measurement) throws FuelConsumptionException,
-            UnsupportedFuelTypeException {
+    public double calculateConsumption(Measurement measurement) throws FuelConsumptionException {
         double maf;
         if (measurement.hasProperty(Measurement.PropertyKey.MAF)) {
             maf = measurement.getProperty(Measurement.PropertyKey.MAF);
@@ -48,7 +47,7 @@ public class GasolineConsumptionAlgorithm implements ConsumptionAlgorithm {
     }
 
     @Override
-    public double calculateCO2FromConsumption(double consumption) throws FuelConsumptionException {
+    public double calculateCO2FromConsumption(double consumption) {
         return consumption * 2.35; //kg/h
     }
 }

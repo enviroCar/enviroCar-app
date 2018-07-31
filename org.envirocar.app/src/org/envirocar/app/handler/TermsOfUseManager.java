@@ -28,7 +28,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
 import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.exception.ServerException;
-import org.envirocar.app.views.ReactiveTermsOfUseDialog;
+import org.envirocar.app.views.utils.ReactiveTermsOfUseDialog;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.DataRetrievalFailureException;
@@ -241,7 +241,7 @@ public class TermsOfUseManager {
     //    }
 
 
-    public TermsOfUse getCurrentTermsOfUse() throws ServerException {
+    public TermsOfUse getCurrentTermsOfUse() {
         if (this.current == null) {
             mDAOProvider.getTermsOfUseDAO()
                     .getAllTermsOfUseObservable()

@@ -43,8 +43,7 @@ public class CacheAnnouncementsDAO extends AbstractCacheDAO implements Announcem
     public CacheAnnouncementsDAO() {}
 
     @Override
-    public List<Announcement> getAllAnnouncements() throws DataRetrievalFailureException,
-            NotConnectedException {
+    public List<Announcement> getAllAnnouncements() {
         return null;
     }
 
@@ -54,8 +53,7 @@ public class CacheAnnouncementsDAO extends AbstractCacheDAO implements Announcem
     }
 
     @Override
-    public void saveAnnouncements(List<Announcement> announcements) throws NotConnectedException,
-            IOException {
+    public void saveAnnouncements(List<Announcement> announcements) {
 
     }
 

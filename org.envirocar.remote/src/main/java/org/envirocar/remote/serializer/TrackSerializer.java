@@ -224,7 +224,7 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         // Parse the car object.
         JsonObject carObject = properties.get(Track.KEY_TRACK_PROPERTIES_SENSOR)
                 .getAsJsonObject();
-        Car car = context.<Car>deserialize(carObject, Car.class);
+        Car car = context.deserialize(carObject, Car.class);
 
         LOG.info("deserialize() measurements");
 
@@ -234,7 +234,7 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         List<Measurement> measurements = new ArrayList<>();
         for (int i = 0; i < measurementsJsonArray.size(); i++) {
             JsonObject measurementObject = measurementsJsonArray.get(i).getAsJsonObject();
-            measurements.add(context.<Measurement>deserialize(
+            measurements.add(context.deserialize(
                     measurementObject, Measurement.class));
         }
 
@@ -272,7 +272,7 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         return result;
     }
 
-    public static JsonObject createValue(Double double1) throws JSONException {
+    public static JsonObject createValue(Double double1) {
         JsonObject result = new JsonObject();
         result.addProperty("value", double1);
         return result;

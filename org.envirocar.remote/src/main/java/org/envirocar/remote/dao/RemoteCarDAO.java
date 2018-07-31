@@ -62,7 +62,7 @@ public class RemoteCarDAO extends BaseRemoteDAO<CarDAO, CarService> implements C
     }
 
     @Override
-    public List<Car> getAllCars() throws NotConnectedException, DataRetrievalFailureException {
+    public List<Car> getAllCars() throws DataRetrievalFailureException {
         return getAllCars(1);
     }
 

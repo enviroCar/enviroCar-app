@@ -8,6 +8,9 @@ dependencies {
     implementation rootProject.ext.supportCardview
     implementation rootProject.ext.supportRecyclerview
     implementation rootProject.ext.dagger
+    implementation 'com.android.support:design:27.0.2'
+    implementation 'com.android.support:support-v4:27.0.2'
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
     annotationProcessor rootProject.ext.daggerCompiler
     implementation 'org.glassfish:javax.annotation:10.0-b28'
     implementation rootProject.ext.otto
@@ -16,7 +19,9 @@ dependencies {
     implementation rootProject.ext.acra
     implementation rootProject.ext.helloCharts
     implementation rootProject.ext.fabProgressCircle
+    implementation rootProject.ext.segmentedUIController
     implementation rootProject.ext.gson
+    implementation 'com.google.android.gms:play-services-location:15.0.1'
     //implementation rootProject.ext.guava
     implementation(materialDialogs) {
         exclude module: 'appcompat-v7'

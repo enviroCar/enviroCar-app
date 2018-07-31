@@ -145,9 +145,6 @@ public class EnviroCarDBImpl implements EnviroCarDB {
             }
 
             transaction.markSuccessful();
-        } catch (MeasurementSerializationException e) {
-            LOG.error(e.getMessage(), e);
-            throw new TrackSerializationException(e);
         } finally {
             transaction.close();
         }
@@ -198,7 +195,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
         ContentValues values = new ContentValues();
         values.put(TrackTable.KEY_TRACK_CAR_ID, newId);
         briteDatabase.update(TrackTable.TABLE_TRACK, values,
-                TrackTable.KEY_TRACK_CAR_ID + "=?", new String[]{currentId});
+                TrackTable.KEY_TRACK_CAR_ID + "=?", currentId);
         return true;
     }
 
@@ -273,7 +270,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
         briteDatabase.update(TrackTable.TABLE_TRACK, newValues,
                 TrackTable.KEY_TRACK_ID + "=?",
-                new String[]{Long.toString(track.getTrackID().getId())});
+                Long.toString(track.getTrackID().getId()));
     }
 
     @Override
@@ -296,7 +293,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
 
             briteDatabase.update(TrackTable.TABLE_TRACK, newValues,
                     TrackTable.KEY_TRACK_ID + "=?",
-                    new String[]{Long.toString(track.getTrackID().getId())});
+                    Long.toString(track.getTrackID().getId()));
         } catch (JSONException e) {
             LOG.error(e.getMessage(), e);
             throw new TrackSerializationException(e);
@@ -443,7 +440,7 @@ public class EnviroCarDBImpl implements EnviroCarDB {
                 "SELECT * FROM " + MeasurementTable.TABLE_NAME +
                         " WHERE " + MeasurementTable.KEY_TRACK +
                         "=\"" + track.getTrackID() + "\"" +
-                        " ORDER BY " + MeasurementTable.KEY_TIME + " ASC", null)));
+                        " ORDER BY " + MeasurementTable.KEY_TIME + " ASC", (String[]) null)));
         track.setLazyMeasurements(false);
         return track;
     }

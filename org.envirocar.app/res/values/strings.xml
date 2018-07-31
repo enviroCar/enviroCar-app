@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 
     Copyright (C) 2013 - 2015 the enviroCar community
 
@@ -29,212 +28,76 @@
     <string name="track_statistics">Track Statistics</string>
     <string name="track_statistics_distance">Distance</string>
 
-
-
-    <string name="menu_about">About</string>
-
-    <string name="checklist_item_bluetooth_enabled">Bluetooth enabled</string>
-    <string name="checklist_item_bluetooth_disabled">Bluetooth not enabled</string>
-    <string name="checklist_item_obd_paired">OBD adapter paired</string>
-    <string name="checklist_item_obd_not_paired">OBD adapter not paired</string>
-    <string name="checklist_item_obd_connected">OBD adapter connected</string>
-    <string name="checklist_item_obd_not_connected">OBD adapter not connected</string>
-    <string name="checklist_item_obd_service_enabled">OBD service enabled</string>
-    <string name="checklist_item_obd_service_disabled">OBD service not enabled</string>
-    <string name="checklist_item_gps_enabled">GPS enabled</string>
-    <string name="checklist_item_gps_disabled">GPS not enabled</string>
-    <string name="checklist_item_not_signed_in">Not signed in</string>
-    <string name="checklist_item_signed_in">Signed in</string>
-    <string name="textView">TextView</string>
-    <string name="measurement">Measurement</string>
-    <string name="id">ID</string>
-    <string name="latitude">Latitude</string>
-    <string name="longitude">Longitude</string>
-    <string name="time">Time</string>
-    <string name="tps">Throttle Position</string>
-    <string name="rpm">RPM</string>
-    <string name="speed">Speed</string>
     <string name="fuel_type">Fuel Type</string>
-    <string name="fuel_consumption">Fuel Consumption</string>
-    <string name="intake_pressure">Intake Pressure</string>
-    <string name="intake_temperature">Intake Temperature</string>
-    <string name="sttb1">Short Term Trim Bank 1</string>
-    <string name="lttb1">Long Term Trim Bank 1</string>
-    <string name="maf">MAF</string>
-    <string name="engine_load">Engine Load</string>
     <string name="car">Car</string>
-    <string name="currentCO2">Co2 Emissions</string>
-    <string name="drivingStyleRating">Driving Style Rating</string>
-    <string name="moneySpent">Money spent for this trip</string>
-    <string name="title_activity_map">Driven Route</string>
-    <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
-    <string name="name">Name</string>
-    <string name="messages">Nachrichten</string>
-    <string name="performance">Leistung</string>
-    <string name="auto">Auto</string>
-    <string name="car2">"Car: "</string>
-    <!--<string name="duration">"Duration: "</string>-->
-    <!--<string name="track_duration">Duration</string>-->
-    <string name="begin">"Begin: "</string>
-    <string name="end">"End: "</string>
-    <string name="length">"Length: "</string>
 
-    <string name="Co2emission">"CO\u2082 emission: "</string>
-    <string name="consumption">"Consumption: "</string>
-    <string name="fuel_cost">"Estimated fuel cost: "</string>
-    <string name="calculating">"Calculating&#8230;"</string>
-    <string name="euro_sign" translatable="false">"&#8364;"</string>
-    <string name="error_calculating_fuel_costs">"Error during calculation."</string>
-    <string name="title_activity_settings">Settings</string>
-    <string name="currentSpeed">Speed</string>
-    <string name="currentPosition">Position</string>
-    <string name="positioning_Info">The positioning is based on GPS, to have a precised positions for the measurement. Please wait until you get GPS coordinates.</string>
-    <string name="no_current_position">none</string>
-    <string name="menu_start">Start</string>
     <string name="menu_cancel">Cancel</string>
-    <string name="menu_starting">Starting</string>
-    <string name="menu_stop">Stop</string>
-    <string name="menu_upload">Upload</string>
     <string name="menu_delete">Delete</string>
 
-    <string name="track_mode_single">Single Track</string>
-    <string name="track_mode_auto">Automatic Track Creation (experimental)</string>
-    <string name="question_track_mode">Do you want to record a single track or start automatic creation?</string>
-    <string name="device_discovery_next_try">Device Discovery - %1$s:%2$s minutes until next try</string>
-    <string name="device_discovery_pending">Device Discovery - Pending&#8230;</string>
     <string name="track_finished">Track Finished: </string>
     <string name="track_finishing_failed">Finishing the Track failed</string>
     <string name="track_finished_no_measurements">The created track did not contain any measurements</string>
-    <string name="finish_track">Finish Track?</string>
-    <string name="finish_track_long">Do you really want to finish this track?</string>
-    <string name="stop_automatic_mode">Stop Automatic Track Creation?</string>
-    <string name="stop_automatic_mode_long">Do you want to stop the Automatic Track Creation? This
-        will finish the current track as well.</string>
     <string name="gasoline">Gasoline</string>
     <string name="diesel">Diesel</string>
-    <string name="register_car">Register Car</string>
-    <string name="register_car_progress">Register Car Progress</string>
-    <string name="register_car_success">successfully registered.</string>
-    <string name="prompt_car_model">Car model</string>
-    <string name="prompt_car_manufacturer">Car manufacturer</string>
-    <string name="prompt_car_constructionYear">Construction year</string>
-    <string name="prompt_car_engineDisplacement">Engine displacement (cc)</string>
-    <string name="logged_in_as">Signed in as %1$s</string>
-    <string name="editName">Edit Name</string>
-    <string name="dashboard_sensor_title">Car:</string>
-    <string name="retry">Retry</string>
-    <string name="description">Description:</string>
-    <string name="editDescription">Edit Description</string>
-    <string name="editTrack">Edit Track</string>
-    <string name="enterTrackName">Enter trackname</string>
-    <string name="enterTrackDescription">Enter track description</string>
-    <string name="nameChanged">Name changed</string>
-    <string name="descriptionChanged">Description changed</string>
-    <string name="trackDeleted">Track deleted</string>
-    <string name="remoteTrackDeleted">Remote track deleted</string>
-    <string name="no">No</string>
-    <string name="yes">Yes</string>
-    <string name="deleteRemoteTrackQuestion">Do you really want to delete this remote track?</string>
-    <string name="upload_notification">Attempting to upload local tracks.</string>
-    <string name="upload_notification_success">Successfully uploaded local tracks.</string>
-    <string name="no_sensor_selected">No Car selected</string>
-    <string name="no_device_selected">No OBD-Adapter selected</string>
-    <string name="title_create_new_sensor">New car profile</string>
-    <string name="startMap">View in map</string>
-    <string name="title_select_sensor">Select car</string>
-    <string name="please_select">&#8230;</string>
-    <string name="trackContainsNoCoordinates">Track contains no coordinates.</string>
-    <string name="noSdCard">"Map cannot be shown without SD card."</string>
-    <string name="hint_login_first">Please login first</string>
-    <!--<string name="not_yet_supported">not yet supported</string>-->
+
     <string name="default_track_description">Track with Car %s.</string>
-    <string name="creating_temp_car">Creating temporary car.</string>
-    <string name="open_drawer">Open</string>
-    <string name="close_drawer">Close</string>
 
-    <string name="menu_logout">Sign out</string>
-    <string name="menu_register">Register</string>
-
-
-
-    <string name="select_car">Car</string>
     <string name="welcome_message">Welcome, %s</string>
     <string name="goodbye_message">Goodbye, %s</string>
-    <string name="no_tracks">You have no tracks</string>
-    <!--<string name="fetching_tracks">fetching your tracks&#8230;</string>-->
-    <!--<string name="fetching_tracks_local">fetching local tracks&#8230;</string>-->
-    <!--<string name="fetching_tracks_remote">fetching remote tracks&#8230;</string>-->
-    <string name="start_connection">Start device connection</string>
-    <string name="stop_connection">Stop device connection</string>
-    <string name="start_measuring">Start measuring</string>
-    <string name="stop_measuring">Stopped measuring</string>
-    <string name="bye_bye">Bye Bye!</string>
-    <string name="all_local_tracks_deleted">All local tracks deleted.</string>
-    <string name="not_possible_for_remote">Not yet possible for remote tracks.</string>
 
     <string name="envirocar.org">http://www.envirocar.org</string>
 
     <string name="imperial_unit">Use Imperial units</string>
-    <string name="error_json">Internal Error creating your JSON string</string>
-    <!--<string name="error_io">File system error</string>-->
-
-    <string name="help">Help</string>
-
-
 
     <string name="action_send_log">Send</string>
-	<string name="send_log_0">This feature helps us to reproduce unexpected behavior or program crashes.
+    <string name="send_log_0">This feature helps us to reproduce unexpected behavior or program crashes.
 	    When sending in the Log file of the enviroCar app you help to improve it.</string>
-	<string name="send_log_1">This feature uses the default \"Send To\" mechanism.
+    <string name="send_log_1">This feature uses the default \"Send To\" mechanism.
 	    If you invoke it with your Email client, you can easily send the report via email. If you do not have an Email client installed,
 	    you can save the log file on a PC, e.g. through Bluetooth or USB. In such cases we appreciate sending
 	    in the reporting bundle manually. It is stored at the following location:</string>
     <string name="send_log_when_label">Approximate minutes past since issue:</string>
     <string name="send_log_comments_label">(additional comments)</string>
     <string name="send_log_time_past_hint">(time past since issue)</string>
-	<string name="troubleshootingParagraph" translatable="false">The enviroCar app was not able to establish the bluetooth connection to
+    <string name="troubleshootingParagraph" translatable="false">The enviroCar app was not able to establish the bluetooth connection to
 	    the OBD-II adapter. You could try to unplug and plug the adapter, then restart measurements.</string>
-    <!--<string name="title_activity_troubleshooting">Troubleshooting</string>-->
-    <string name="connection_state">State</string>
-
-    <string name="connection_lost_info">Connection lost. Reconnecting&#8230;</string>
 
     <string name="general_error_please_report">General Track Error - Please report this issue</string>
-    <string name="uploading_track_no_measurements_after_obfuscation_long">A track to be uploaded did not contain measurements after obfuscation. It has not been uploaded, but is still available locally.</string>
-    <string name="uploading_track_no_measurements_after_obfuscation">A track to be uploaded did not contain measurements.</string>
-    <string name="server_error_please_try_later">Server Error - Please try again later</string>
 
-    <string name="diesel_not_yet_supported">Please note that consumption/CO2 calculation for Diesel cars is not yet supported</string>
-
-    <string name="co2_initial_value">0 kg/h</string>
-
-    <string name="speed_initial_value">0 mph</string>
-
-    <string name="track_list_count_text">Showing %1$d local Tracks, %2$d/%3$s remote Tracks:</string>
     <string name="not_yet_registered_question">You do not have an account, yet?</string>
     <string name="not_yet_registered_register">Register here!</string>
 
-    <string name="category_low">Low</string>
-    <string name="category_normal">Important</string>
-    <string name="category_high">Critical</string>
-    <string name="announcement">Announcement</string>
-    <string name="do_not_show_again" translatable="false">Do not show this message again?</string>
+    <string name="already_registered_question">You already have an account?</string>
+    <string name="already_registered_sign_in">Sign in here!</string>
 
-    <string name="ok" translatable="false">Ok</string>
+    <string name="ok" translatable="false">OK</string>
 
+    <string name="title_dashboard">Dashboard</string>
+    <string name="title_my_tracks">My Tracks</string>
+    <string name="title_others">Others</string>
 
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="others_logbook">Log Book</string>
+    <string name="others_settings">Settings</string>
+    <string name="others_help">Help</string>
+    <string name="others_report_issue">Report Issue</string>
+    <string name="others_rate_us">Rate Us</string>
+    <string name="others_logout">Logout</string>
+    <string name="others_close_envirocar">Close enviroCar</string>
+    <string name="my_local_tracks">#My Local Tracks</string>
+    <string name="my_remote_tracks">#My Remote Tracks</string>
+    <string name="total_tracks">#Total Tracks</string>
 
-
-    <string name="store">Store</string>
-    <string name="mileage">Mileage</string>
-    <string name="volume">Volume</string>
-    <string name="cost">Cost</string>
-    <string name="unit">Unit</string>
-    <string name="currency">Currency</string>
-    <string name="logbook_information">Information about the Date, User, Car and Fueltype will be obtained automatically</string>
-    <string name="comment">Additional comments</string>
-
+    <string name="banner_error_ok">Ok</string>
+    <string name="banner_bluetooth_error_title">Bluetooth is Off!</string>
+    <string name="banner_bluetooth_error_content">Please turn ON Bluetooth</string>
+    <string name="banner_obd_adapter_error_title">OBD Device is not selected!</string>
+    <string name="banner_obd_adapter_error_content">Please select an OBD Device</string>
+    <string name="banner_gps_error_title">GPS is Off!</string>
+    <string name="banner_gps_error_content">Please turn ON GPS</string>
+    <string name="banner_car_error_title">Car is not selected!</string>
+    <string name="banner_car_error_content">Please choose a Car to continue</string>
+    <string name="driving">Driving</string>
 
 
 </resources>

@@ -47,7 +47,8 @@
                 android:layout_height="28dp"
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
-                android:src="@drawable/ic_settings"/>
+                android:tint="@android:color/darker_gray"
+                android:src="@drawable/others_settings"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -97,7 +98,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-medium"
-                    android:text="@string/obd_settings"
+                    android:text="@string/autoconnect_settings"
                     android:textColor="@color/black"
                     android:textSize="17sp"/>
 
@@ -105,7 +106,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif"
-                    android:text="@string/obd_settings_sum"
+                    android:text="@string/autoconnect_settings_sum"
                     android:textSize="14sp"/>
 
             </LinearLayout>
@@ -159,7 +160,7 @@
                 android:layout_alignParentLeft="true"
                 android:layout_centerVertical="true"
                 android:alpha="0.54"
-                android:src="@drawable/ic_more_horiz_black_24dp"/>
+                android:src="@drawable/dash_board_others_new"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

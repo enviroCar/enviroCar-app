@@ -21,7 +21,7 @@ package org.envirocar.app.services;
 import android.content.Context;
 import android.os.PowerManager;
 
-import org.envirocar.algorithm.InterpolationMeasurementProvider;
+import org.envirocar.app.handler.InterpolationMeasurementProvider;
 import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.core.util.InjectApplicationScope;
 

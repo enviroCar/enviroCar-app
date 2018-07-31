@@ -48,8 +48,8 @@ public class CacheTrackDAO extends AbstractCacheDAO implements TrackDAO {
     }
 
     @Override
-    public Track getTrackById(String id) throws DataRetrievalFailureException,
-            NotConnectedException, UnauthorizedException {
+    public Track getTrackById(String id) throws
+            NotConnectedException {
         throw new NotConnectedException("Not implemented for Cache DAO");
     }
 
@@ -59,14 +59,12 @@ public class CacheTrackDAO extends AbstractCacheDAO implements TrackDAO {
     }
 
     @Override
-    public List<Track> getTrackIds() throws DataRetrievalFailureException, NotConnectedException,
-            UnauthorizedException {
+    public List<Track> getTrackIds() throws NotConnectedException {
         throw new NotConnectedException("Not implemented for Cache DAO");
     }
 
     @Override
-    public List<Track> getTrackIds(int limit, int page) throws NotConnectedException,
-            UnauthorizedException {
+    public List<Track> getTrackIds(int limit, int page) throws NotConnectedException {
         throw new NotConnectedException("Not implemented for Cache DAO");
     }
 
@@ -81,20 +79,20 @@ public class CacheTrackDAO extends AbstractCacheDAO implements TrackDAO {
     }
 
     @Override
-    public Integer getUserTrackCount() throws DataRetrievalFailureException,
-            NotConnectedException, UnauthorizedException {
-        throw new NotConnectedException("Not implemented for Cache DAO");
-    }
-
-    @Override
-    public Integer getTotalTrackCount() throws DataRetrievalFailureException,
+    public Integer getUserTrackCount() throws
             NotConnectedException {
         throw new NotConnectedException("Not implemented for Cache DAO");
     }
 
     @Override
-    public Track createTrack(Track track) throws DataCreationFailureException,
-            NotConnectedException, ResourceConflictException, UnauthorizedException {
+    public Integer getTotalTrackCount() throws
+            NotConnectedException {
+        throw new NotConnectedException("Not implemented for Cache DAO");
+    }
+
+    @Override
+    public Track createTrack(Track track) throws
+            NotConnectedException {
         throw new NotConnectedException("Not implemented for Cache DAO");
     }
 
@@ -104,8 +102,8 @@ public class CacheTrackDAO extends AbstractCacheDAO implements TrackDAO {
     }
 
     @Override
-    public void deleteTrack(Track track) throws DataUpdateFailureException,
-            NotConnectedException, UnauthorizedException {
+    public void deleteTrack(Track track) throws
+            NotConnectedException {
         throw new NotConnectedException("Not implemented for Cache DAO");
     }
 }

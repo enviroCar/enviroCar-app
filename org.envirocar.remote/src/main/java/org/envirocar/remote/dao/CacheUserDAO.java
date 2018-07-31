@@ -58,7 +58,7 @@ public class CacheUserDAO extends AbstractCacheDAO implements UserDAO {
     }
 
     @Override
-    public void createUser(User user) throws DataUpdateFailureException, ResourceConflictException {
+    public void createUser(User user) throws DataUpdateFailureException {
         throw new DataUpdateFailureException("Not supported by Cache");
     }
 
