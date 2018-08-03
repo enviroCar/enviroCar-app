@@ -42,12 +42,12 @@
         <CheckBoxPreference
             android:defaultValue="false"
             android:key="pref_gps_service_autostart"
-            android:summary="@string/pref_bluetooth_start_background_summary"
-            android:title="@string/pref_bluetooth_start_background"/>
+            android:summary="@string/pref_gps_start_background_summary"
+            android:title="@string/pref_gps_start_background"/>
         <CheckBoxPreference
             android:key="pref_gps_autoconnect"
-            android:summary="@string/pref_bluetooth_auto_connect_summary"
-            android:title="@string/pref_bluetooth_auto_connect"/>
+            android:summary="@string/pref_gps_auto_connect_summary"
+            android:title="@string/pref_gps_auto_connect"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

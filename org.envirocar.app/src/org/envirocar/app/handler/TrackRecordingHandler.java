@@ -156,11 +156,11 @@ public class TrackRecordingHandler {
                                 // set the track database ID of the current active track
                                 measurement.setTrackId(track.getTrackID());
                                 track.getMeasurements().add(measurement);
+                                currentTrack = track;
                                 try {
                                     mEnvirocarDB.insertMeasurement(measurement);
                                 } catch (MeasurementSerializationException e) {
                                     LOGGER.error(e.getMessage(), e);
-                                    currentTrack = track;
                                     finishCurrentTrack();
                                 }
                             }
@@ -305,6 +305,28 @@ public class TrackRecordingHandler {
                             mEnvirocarDB.deleteTrackObservable(track) :
                             mEnvirocarDB.updateTrackObservable(track);
                 });
+    }
+
+    public void finishTrackAutomatic(){
+        deleteMeasurementsAutomatic()
+                .doOnError(throwable -> LOGGER.warn(throwable.getMessage(), throwable))
+                .toBlocking()
+                .first();
+
+        finishCurrentTrack();
+    }
+
+    private Observable<Track> deleteMeasurementsAutomatic(){
+        LOGGER.info("deleteMeasurementsAutomatic()");
+        return getActiveTrackReference(false)
+                .flatMap(track -> {
+                    if (track == null)
+                        return Observable.just(null);
+                    long trackTrimDuration = PreferencesHandler.getTrackTrimDuration(mContext)*1000;
+                    mEnvirocarDB.automaticDeleteMeasurements(System.currentTimeMillis() - trackTrimDuration , track.getTrackID());
+                    return mEnvirocarDB.updateTrackObservable(track);
+                });
+
     }
 
     public void stopBackgroundRecordingServices() {

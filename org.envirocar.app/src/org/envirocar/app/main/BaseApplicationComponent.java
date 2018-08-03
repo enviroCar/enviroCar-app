@@ -21,6 +21,7 @@ import org.envirocar.app.views.preferences.BluetoothDiscoveryIntervalPreference;
 import org.envirocar.app.views.preferences.BluetoothPairingPreference;
 import org.envirocar.app.views.preferences.SelectBluetoothPreference;
 import org.envirocar.app.views.preferences.Tempomat;
+import org.envirocar.app.views.preferences.TrackTrimDurationPreference;
 import org.envirocar.app.views.settings.AutoConnectSettingsFragment;
 import org.envirocar.app.views.settings.SettingsActivity;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
@@ -77,6 +78,7 @@ public interface BaseApplicationComponent {
     void inject(DAOProvider daoProvider);
     void inject(OthersFragment othersFragment);
     void inject(GPSOnlyConnectionService gpsOnlyConnectionService);
+    void inject(TrackTrimDurationPreference trackTrimDurationPreference);
 
     MainActivityComponent plus(MainActivityModule mainActivityModule);
 

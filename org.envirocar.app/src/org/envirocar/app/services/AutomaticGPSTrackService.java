@@ -46,11 +46,11 @@ public class AutomaticGPSTrackService extends BaseInjectorService {
     private static final Logger LOGGER = Logger.getLogger(AutomaticGPSTrackService.class);
 
     public static final void startService(Context context) {
-        ServiceUtils.startService(context, AutomaticOBDTrackService.class);
+        ServiceUtils.startService(context, AutomaticGPSTrackService.class);
     }
 
     public static final void stopService(Context context) {
-        ServiceUtils.stopService(context, AutomaticOBDTrackService.class);
+        ServiceUtils.stopService(context, AutomaticGPSTrackService.class);
     }
 
     private Scheduler.Worker mWorkerThread = Schedulers.newThread().createWorker();

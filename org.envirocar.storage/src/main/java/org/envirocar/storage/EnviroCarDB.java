@@ -86,6 +86,8 @@ public interface EnviroCarDB {
 
     void insertMeasurement(Measurement measurement) throws MeasurementSerializationException;
 
+    void automaticDeleteMeasurements(long time, Track.TrackId trackId);
+
     Observable<Void> insertMeasurementObservable(Measurement measurement);
 
     void updateTrackRemoteID(Track track, String remoteID);

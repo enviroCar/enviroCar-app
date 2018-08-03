@@ -30,6 +30,7 @@ import android.os.PowerManager;
 import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import com.google.android.gms.location.ActivityRecognition;
 import com.google.android.gms.location.ActivityTransition;
@@ -141,8 +142,8 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
 
     private final Action0 drivingConnectionCloser = () -> {
         LOG.warn("CONNECTION CLOSED due to driving state absence");
-        stopGPSOnlyConnection();
-        stopSelf();
+        // Finish the current track.
+        trackRecordingHandler.finishTrackAutomatic();
     };
     //2 times the average latency of the activity transition library i.e. 2*55 sec
     private static final long DRIVING_INTERVAL = 1000 * 55 * 2;
@@ -180,14 +181,17 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
                 if (ActivityTransitionResult.hasResult(intent)) {
                     ActivityTransitionResult result = ActivityTransitionResult.extractResult(intent);
                     for (ActivityTransitionEvent event : result.getTransitionEvents()) {
+                        LOG.info("Received Broadcast: "+event.getTransitionType() + " " + event.getActivityType());
+                        Toast.makeText(context,"Received Broadcast: "+event.getTransitionType() + " " + event.getActivityType(),Toast.LENGTH_LONG).show();
                         if(event.getTransitionType() == ActivityTransition.ACTIVITY_TRANSITION_ENTER){
                             drivingDetected = true;
-                            bus.post(new DrivingDetectedEvent(drivingDetected));
+                            bus.post(new DrivingDetectedEvent(true));
                             if (mDrivingStoppedSubscription != null) {
                                 mDrivingStoppedSubscription.unsubscribe();
                                 mDrivingStoppedSubscription = null;
                             }
                         }else if(event.getTransitionType() == ActivityTransition.ACTIVITY_TRANSITION_EXIT){
+                            bus.post(new DrivingDetectedEvent(false));
                             if(CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED){
                                 mDrivingStoppedSubscription = backgroundWorker.schedule(
                                         drivingConnectionCloser, DRIVING_INTERVAL, TimeUnit.MILLISECONDS);

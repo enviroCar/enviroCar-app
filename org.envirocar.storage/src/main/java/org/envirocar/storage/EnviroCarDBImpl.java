@@ -361,6 +361,18 @@ public class EnviroCarDBImpl implements EnviroCarDB {
         }
     }
 
+    @Override
+    public void automaticDeleteMeasurements(long time, Track.TrackId trackId) {
+        BriteDatabase.Transaction transaction = briteDatabase.newTransaction();
+        try {
+            briteDatabase.delete(MeasurementTable.TABLE_NAME,
+                    MeasurementTable.KEY_TRACK + "='" + trackId + "' AND " + MeasurementTable.KEY_TIME + " >= " + time);
+            transaction.markSuccessful();
+        } finally {
+            transaction.end();
+        }
+    }
+
     private Observable<Track> fetchMeasurements(final Track track) {
         return briteDatabase.createQuery(
                 MeasurementTable.TABLE_NAME,

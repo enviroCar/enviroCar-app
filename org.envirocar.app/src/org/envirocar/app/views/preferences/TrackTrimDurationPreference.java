@@ -1,21 +1,3 @@
-/**
- * Copyright (C) 2013 - 2015 the enviroCar community
- *
- * This file is part of the enviroCar app.
- *
- * The enviroCar app is free software: you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as published
- * by the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * The enviroCar app is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
- * Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
- */
 package org.envirocar.app.views.preferences;
 
 import android.app.AlertDialog;
@@ -25,24 +7,18 @@ import android.support.v7.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.NumberPicker;
-import android.widget.TextView;
 
-import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.R;
-import org.envirocar.core.logging.Logger;
 import org.envirocar.app.handler.PreferenceConstants;
+import org.envirocar.app.main.BaseApplication;
+import org.envirocar.core.logging.Logger;
 
-import butterknife.ButterKnife;
 import butterknife.BindView;
+import butterknife.ButterKnife;
 
-/**
- * @author dewall
- */
-public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
+public class TrackTrimDurationPreference extends DialogPreference {
     private static final Logger LOGGER = Logger.getLogger(BluetoothDiscoveryIntervalPreference
             .class);
-
-    private static final String[] DISPLAY_SECONDS = {"00", "10", "20", "30", "40", "50"};
 
     /**
      *
@@ -64,8 +40,6 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
 
     @BindView(R.id.default_header_toolbar)
     protected Toolbar mToolbar;
-    @BindView(R.id.bluetooth_discovery_interval_preference_numberpicker_text)
-    protected TextView mText;
     @BindView(R.id.bluetooth_discovery_interval_preference_numberpicker_min)
     protected NumberPicker mMinutePicker;
     @BindView(R.id.bluetooth_discovery_interval_preference_numberpicker_sec)
@@ -81,7 +55,7 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
      * @param context the context of the current scope.
      * @param attrs   the attriute set
      */
-    public BluetoothDiscoveryIntervalPreference(Context context, AttributeSet attrs) {
+    public TrackTrimDurationPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         // Inject ourselves.
@@ -100,12 +74,10 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
         ButterKnife.bind(this, view);
 
         // Toolbar settings.
-        mToolbar.setTitle(R.string.pref_bt_discovery_interval_title);
+        mToolbar.setTitle(R.string.pref_track_trim_duration_title);
         mToolbar.setNavigationIcon(R.drawable.ic_timer_white_24dp);
         mToolbar.setTitleTextColor(getContext().getResources().getColor(R.color.white_cario));
-
-        // Set the textview text
-        mText.setText(R.string.pref_bt_discovery_interval_explanation);
+        
 
         onSetInitialValue(true, null);
 
@@ -124,8 +96,7 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
 
         // set the settings for the seconds number picker.
         mSecondsPicker.setMinValue(0);
-        mSecondsPicker.setMaxValue(5);
-        mSecondsPicker.setDisplayedValues(DISPLAY_SECONDS);
+        mSecondsPicker.setMaxValue(59);
         mSecondsPicker.setOnLongPressUpdateInterval(100);
         mSecondsPicker.setFormatter(FORMATTER_TWO_DIGITS);
         mSecondsPicker.setOnValueChangedListener((spinner, oldVal, newVal) -> {
@@ -157,8 +128,8 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
 
         if(time == -1){
             time = getSharedPreferences().getInt(PreferenceConstants
-                    .PREF_BLUETOOTH_DISCOVERY_INTERVAL, PreferenceConstants
-                    .DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL);
+                    .PREF_TRACK_CUT_DURATION, PreferenceConstants
+                    .DEFAULT_TRACK_TRIM_DURATION);
         }
 
         if (time != -1){
@@ -166,7 +137,7 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
             int minutes = (time - seconds) / 60;
 
             mCurrentMinutes = minutes;
-            mCurrentSeconds = seconds / 10;
+            mCurrentSeconds = seconds;
         }
     }
 
@@ -178,11 +149,11 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
             mCurrentMinutes = mMinutePicker.getValue();
             mCurrentSeconds = mSecondsPicker.getValue();
 
-            int time = mMinutePicker.getValue() * 60 + mSecondsPicker.getValue() * 10;
+            int time = mMinutePicker.getValue() * 60 + mSecondsPicker.getValue();
             persistInt(time);
 
             getSharedPreferences().edit()
-                    .putInt(PreferenceConstants.PREF_BLUETOOTH_DISCOVERY_INTERVAL, time)
+                    .putInt(PreferenceConstants.PREF_TRACK_CUT_DURATION, time)
                     .apply();
         }
     }
@@ -195,3 +166,4 @@ public class BluetoothDiscoveryIntervalPreference extends DialogPreference {
     }
 
 }
+
