@@ -44,6 +44,11 @@ public class PreferencesHandler implements PreferenceConstants {
     public static final boolean DEFAULT_TEXT_TO_SPEECH = false;
     public static final boolean DEFAULT_BLUETOOTH_SERVICE_AUTOSTART = true;
 
+    public static long getTrackTrimDuration(Context context){
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(PreferenceConstants.PREF_TRACK_CUT_DURATION, PreferenceConstants.DEFAULT_TRACK_TRIM_DURATION);
+    }
+
     public static int getPreviousViewTypeGeneralRecordingScreen(Context context){
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getInt(PREF_PREV_VIEW_TYPE_GENERAL_RECORDING_SCREEN, 1);

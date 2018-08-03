@@ -61,6 +61,13 @@
     <string name="pref_bluetooth_discovery_interval">Discovery Interval</string>
     <string name="pref_bluetooth_discovery_interval_summary">The search interval at which the device searches for the selected OBD-II device. Note: the higher the value, the more the battery gets drained.</string>
 
+    <string name="pref_gps_auto_connect">Auto Connect</string>
+    <string name="pref_gps_auto_connect_summary">Automatically starts the recording of a track on detecting the user to be IN VEHICLE.</string>
+    <string name="pref_gps_start_background">Background Service</string>
+    <string name="pref_gps_start_background_summary">Automatically starts the background service whenever GPS gets activated.</string>
+    <string name="pref_track_cut_duration">Track Trim Duration</string>
+    <string name="pref_track_cut_duration_summary">GPS based tracks will be stopped automatically on detecting that the user is NOT DRIVING. However it has some latency in detecting. So we cut the track for that duration. Change this, if you know/feel that latency.</string>
+
     <!-- Optional Settings -->
     <string name="sampling_rate_title">Sampling Rate (sec)</string>
     <string name="sampling_rate_summary">The time delta between two measurements in seconds (current value: %s). Note: the lower the value, the bigger the data volume.

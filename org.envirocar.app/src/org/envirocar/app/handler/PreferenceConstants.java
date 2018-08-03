@@ -31,6 +31,7 @@ public interface PreferenceConstants {
     String PREF_BLUETOOTH_SERVICE_AUTOSTART = "pref_bluetooth_service_autostart";
     String PREF_BLUETOOTH_AUTOCONNECT = "pref_bluetooth_autoconnect";
     String PREF_BLUETOOTH_DISCOVERY_INTERVAL = "pref_bluetooth_discovery_interval";
+    String PREF_TRACK_CUT_DURATION = "pref_track_cut_duration";
 
     String PREF_GPS_SERVICE_AUTOSTART = "pref_gps_service_autostart";
     String PREF_GPS_AUTOCONNECT = "pref_gps_autoconnect";
@@ -40,6 +41,7 @@ public interface PreferenceConstants {
     String PREF_TEXT_TO_SPEECH = "pref_text_to_speech";
 
     int DEFAULT_BLUETOOTH_DISCOVERY_INTERVAL = 60;
+    int DEFAULT_TRACK_TRIM_DURATION = 110;
     boolean DEFAULT_BLUETOOTH_AUTOCONNECT = false;
 
 
