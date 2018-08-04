@@ -4,8 +4,7 @@ import com.squareup.sqlbrite.SqlBrite;
 
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TrackRecordingHandler;
-import org.envirocar.app.services.AutomaticGPSTrackService;
-import org.envirocar.app.services.AutomaticOBDTrackService;
+import org.envirocar.app.services.AutomaticTrackRecordingService;
 import org.envirocar.app.services.GPSOnlyConnectionService;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.TrackUploadService;
@@ -57,8 +56,7 @@ public interface BaseApplicationComponent {
     void inject(BaseApplication baseApplication);
     void inject(TrackRecordingHandler trackRecordingHandler);
     void inject(OBDConnectionService obdConnectionService);
-    void inject(AutomaticOBDTrackService automaticOBDTrackService);
-    void inject(AutomaticGPSTrackService automaticGPSTrackService);
+    void inject(AutomaticTrackRecordingService automaticTrackRecordingService);
     void inject(TrackUploadService trackUploadService);
     void inject(CarSelectionActivity carSelectionActivity);
     void inject(CarSelectionAddCarFragment carSelectionAddCarFragment);

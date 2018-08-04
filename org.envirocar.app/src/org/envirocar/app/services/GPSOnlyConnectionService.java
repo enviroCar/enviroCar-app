@@ -139,6 +139,7 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
     private Subscription mTTSPrefSubscription;
     private Subscription mMeasurementSubscription;
     private Subscription mDrivingStoppedSubscription;
+    private Subscription mTrackTrimDurationSubscription;
 
     private final Action0 drivingConnectionCloser = () -> {
         LOG.warn("CONNECTION CLOSED due to driving state absence");
@@ -146,7 +147,7 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
         trackRecordingHandler.finishTrackAutomatic();
     };
     //2 times the average latency of the activity transition library i.e. 2*55 sec
-    private static final long DRIVING_INTERVAL = 1000 * 55 * 2;
+    private static int trackTrimDuration = 55 * 2;
 
     // This satellite fix indicates that there is no satellite connection yet.
     private GpsSatelliteFix mCurrentGpsSatelliteFix = new GpsSatelliteFix(0, false);
@@ -194,7 +195,7 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
                             bus.post(new DrivingDetectedEvent(false));
                             if(CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED){
                                 mDrivingStoppedSubscription = backgroundWorker.schedule(
-                                        drivingConnectionCloser, DRIVING_INTERVAL, TimeUnit.MILLISECONDS);
+                                        drivingConnectionCloser, 1000*trackTrimDuration, TimeUnit.MILLISECONDS);
                             }
                         }
                     }
@@ -244,6 +245,13 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
                 LOG.warn("TextToSpeech is not available");
             }
         });
+
+        mTrackTrimDurationSubscription =   PreferencesHandler.getTrackTrimDurationObservable(getApplicationContext())
+                .subscribe(integer -> {
+                    LOG.info(String.format("Received changed track trim duration -> [%s]",
+                            integer));
+                    trackTrimDuration = integer;
+                });
 
         mTTSPrefSubscription =
                 PreferencesHandler.getTextToSpeechObservable(getApplicationContext())

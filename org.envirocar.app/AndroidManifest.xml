@@ -70,12 +70,8 @@
         <activity
             android:name=".views.HelpActivity"
             android:screenOrientation="portrait" />
-
         <service
-            android:name=".services.AutomaticOBDTrackService"
-            android:enabled="true" />
-        <service
-            android:name=".services.AutomaticGPSTrackService"
+            android:name=".services.AutomaticTrackRecordingService"
             android:enabled="true" />
         <service
             android:name=".services.OBDConnectionService"
@@ -93,7 +89,6 @@
                 <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
             </intent-filter>
         </receiver>
-
         <receiver android:name=".services.WlanConnectionReceiver">
             <intent-filter>
                 <action android:name="android.net.wifi.STATE_CHANGE" />

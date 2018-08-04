@@ -114,13 +114,6 @@ public class BaseApplication extends Application {
         ACRACustomSender yourSender = new ACRACustomSender();
         ACRA.getErrorReporter().setReportSender(yourSender);
 
-//        // check if the background remoteService is already running.
-//        if (!ServiceUtils.isServiceRunning(this, SystemStartupService.class)) {
-//            // Start a new remoteService
-//            Intent startIntent = new Intent(this, SystemStartupService.class);
-//            startService(startIntent);
-//        }
-
         mScreenReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
@@ -177,7 +170,6 @@ public class BaseApplication extends Application {
             mNotificationManager.createNotificationChannel(mChannel);
         }
 
-//        NotificationHandler.setRecordingState(ServiceStateForNotificationForNotification.UNCONNECTED);
     }
 
     @Override

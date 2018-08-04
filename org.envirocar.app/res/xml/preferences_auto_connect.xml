@@ -21,7 +21,7 @@
 -->
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="OBD Autoconnect (Beta)">
+    <PreferenceCategory android:title="Autoconnect (Beta)">
         <CheckBoxPreference
             android:defaultValue="true"
             android:key="pref_bluetooth_service_autostart"
@@ -36,18 +36,6 @@
             android:summary="@string/pref_bluetooth_discovery_interval_summary"
             android:defaultValue="60"
             android:title="@string/pref_bluetooth_discovery_interval"/>
-    </PreferenceCategory>
-
-    <PreferenceCategory android:title="GPS Autoconnect (Beta)">
-        <CheckBoxPreference
-            android:defaultValue="false"
-            android:key="pref_gps_service_autostart"
-            android:summary="@string/pref_gps_start_background_summary"
-            android:title="@string/pref_gps_start_background"/>
-        <CheckBoxPreference
-            android:key="pref_gps_autoconnect"
-            android:summary="@string/pref_gps_auto_connect_summary"
-            android:title="@string/pref_gps_auto_connect"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

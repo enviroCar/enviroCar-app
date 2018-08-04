@@ -46,12 +46,23 @@ public class PreferencesHandler implements PreferenceConstants {
 
     public static long getTrackTrimDuration(Context context){
         return PreferenceManager.getDefaultSharedPreferences(context)
-                .getInt(PreferenceConstants.PREF_TRACK_CUT_DURATION, PreferenceConstants.DEFAULT_TRACK_TRIM_DURATION);
+                .getInt(PREF_TRACK_CUT_DURATION, DEFAULT_TRACK_TRIM_DURATION);
+    }
+
+    public static Observable<Integer> getTrackTrimDurationObservable(final Context context) {
+        return RxSharedPreferences.create(getSharedPreferences(context))
+                .getInteger(PREF_TRACK_CUT_DURATION, DEFAULT_TRACK_TRIM_DURATION)
+                .asObservable();
     }
 
     public static int getPreviousViewTypeGeneralRecordingScreen(Context context){
         return PreferenceManager.getDefaultSharedPreferences(context)
                 .getInt(PREF_PREV_VIEW_TYPE_GENERAL_RECORDING_SCREEN, 1);
+    }
+
+    public static int getPreviousViewTypeGeneralForGPSRecordingScreen(Context context){
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getInt(PREF_PREV_VIEW_TYPE_GENERAL_RECORDING_SCREEN, 2);
     }
 
     public static void setPreviousViewTypeGeneralRecordingScreen(Context context,int type){
@@ -105,6 +116,12 @@ public class PreferencesHandler implements PreferenceConstants {
                 .getInt(PREF_PREV_REC_TYPE, 1);
     }
 
+    public static Observable<Integer> getPreviouslySelectedRecordingTypeObservable(final Context context) {
+        return RxSharedPreferences.create(getSharedPreferences(context))
+                .getInteger(PREF_PREV_REC_TYPE, 1)
+                .asObservable();
+    }
+
     public static void setPreviouslySelectedRecordingType(Context context,int index){
         PreferenceManager.getDefaultSharedPreferences(context).edit().putInt(PREF_PREV_REC_TYPE ,index).apply();
     }
@@ -128,18 +145,6 @@ public class PreferencesHandler implements PreferenceConstants {
     public static Observable<Boolean> getBackgroundHandlerEnabledObservable(final Context context){
         return RxSharedPreferences.create(getSharedPreferences(context))
                 .getBoolean(PREF_BLUETOOTH_SERVICE_AUTOSTART, DEFAULT_BLUETOOTH_SERVICE_AUTOSTART)
-                .asObservable();
-    }
-
-    public static Observable<Boolean> getGPSBackgroundHandlerEnabledObservable(final Context context){
-        return RxSharedPreferences.create(getSharedPreferences(context))
-                .getBoolean(PREF_GPS_SERVICE_AUTOSTART, DEFAULT_BLUETOOTH_AUTOCONNECT)
-                .asObservable();
-    }
-
-    public static Observable<Boolean> getGPSAutoconnectObservable(final Context context) {
-        return RxSharedPreferences.create(getSharedPreferences(context))
-                .getBoolean(PREF_GPS_AUTOCONNECT, DEFAULT_BLUETOOTH_AUTOCONNECT)
                 .asObservable();
     }
 

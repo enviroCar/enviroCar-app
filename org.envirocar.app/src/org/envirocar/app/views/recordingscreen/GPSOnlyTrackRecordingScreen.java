@@ -79,7 +79,7 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
 
     //viewTypeInGeneral = 1 means meter view
     //viewTypeInGeneral = 2 means map view
-    private static int viewTypeInGeneral = 1;
+    private static int viewTypeInGeneral = 2;
 
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
@@ -222,21 +222,21 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
     }
 
     private void updateTheDisplayViewsGeneral(){
-        viewTypeInGeneral = PreferencesHandler.getPreviousViewTypeGeneralRecordingScreen(this);
+        viewTypeInGeneral = PreferencesHandler.getPreviousViewTypeGeneralForGPSRecordingScreen(this);
 
         if(viewTypeInGeneral == 2){
-            animateViewTransition(trackMapContainer,R.anim.translate_slide_in_right_card,false);
-            animateViewTransition(trackSingleMeterContainer,R.anim.translate_slide_out_left_card,true);
+            animateViewTransition(trackMapContainer,R.anim.translate_slide_in_left_card,false);
+            animateViewTransition(trackSingleMeterContainer,R.anim.translate_slide_out_right_card,true);
         }else{
-            animateViewTransition(trackMapContainer,R.anim.translate_slide_out_right_card,true);
-            animateViewTransition(trackSingleMeterContainer,R.anim.translate_slide_in_left_card,false);
+            animateViewTransition(trackMapContainer,R.anim.translate_slide_out_left_card,true);
+            animateViewTransition(trackSingleMeterContainer,R.anim.translate_slide_in_right_card,false);
         }
 
     }
 
     private void initAnimations(){
         animateViewTransition(trackDetailsContainer,R.anim.translate_slide_in_bottom_fragment,false);
-        viewTypeInGeneral = PreferencesHandler.getPreviousViewTypeGeneralRecordingScreen(this);
+        viewTypeInGeneral = PreferencesHandler.getPreviousViewTypeGeneralForGPSRecordingScreen(this);
 
         if(viewTypeInGeneral == 2){
             animateViewTransition(trackMapContainer,R.anim.translate_slide_in_top_fragment,false);
