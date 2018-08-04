@@ -20,7 +20,6 @@ package org.envirocar.app.views.settings;
 
 import android.content.Context;
 import android.content.Intent;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -63,8 +62,6 @@ public class AutoConnectSettingsFragment extends PreferenceFragment {
     private CheckBoxPreference mAutoConnectPrefrence;
     private Preference mSearchIntervalPreference;
 
-    private LocationManager mLocationManager;
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,8 +71,6 @@ public class AutoConnectSettingsFragment extends PreferenceFragment {
 
         // Set the preference resource.
         addPreferencesFromResource(R.xml.preferences_auto_connect);
-
-        mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
         // Get all preferences
         mBackgroundServicePreference = (CheckBoxPreference) getPreferenceScreen()

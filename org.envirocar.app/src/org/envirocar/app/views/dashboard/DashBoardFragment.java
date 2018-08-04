@@ -77,6 +77,8 @@ import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
+import static android.view.View.GONE;
+
 public class DashBoardFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(DashBoardFragment.class);
     @Inject
@@ -200,6 +202,15 @@ public class DashBoardFragment extends BaseInjectorFragment {
         mainActivityComponent.inject(this);
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if(!PreferencesHandler.getEnableGPSBasedTrackRecording(context)){
+            PreferencesHandler.setPreviouslySelectedRecordingType(context,1);
+        }
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -227,7 +238,6 @@ public class DashBoardFragment extends BaseInjectorFragment {
         setCarTypeText(mCarPrefHandler.getCar());
         setOBDTypeText(mBluetoothHandler.getSelectedBluetoothDevice());
 
-
         dashboardSegmentedGroup.setOnCheckedChangeListener((radioGroup, i) -> {
 
             switch (i) {
@@ -248,6 +258,11 @@ public class DashBoardFragment extends BaseInjectorFragment {
                     break;
             }
         });
+
+        if(!PreferencesHandler.getEnableGPSBasedTrackRecording(context)){
+            dashboardSegmentedGroup.check( R.id.obdPlusGPSSegmentedButton);
+            dashboardSegmentedGroup.setVisibility(GONE);
+        }
 
         if(!checkStoragePermissions())
         {
@@ -580,7 +595,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
             dashBoardUserName.setVisibility(View.VISIBLE);
             dashBoardUserImageView.setVisibility(View.VISIBLE);
             userStatisticsContainer.setVisibility(View.VISIBLE);
-            userLoginSignupButtonContainer.setVisibility(View.GONE);
+            userLoginSignupButtonContainer.setVisibility(GONE);
 
             dashBoardUserName.setText(mUserManager.getUser().getUsername());
 
@@ -622,9 +637,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
             });
 
         }else{
-            dashBoardUserName.setVisibility(View.GONE);
-            dashBoardUserImageView.setVisibility(View.GONE);
-            userStatisticsContainer.setVisibility(View.GONE);
+            dashBoardUserName.setVisibility(GONE);
+            dashBoardUserImageView.setVisibility(GONE);
+            userStatisticsContainer.setVisibility(GONE);
             userLoginSignupButtonContainer.setVisibility(View.VISIBLE);
         }
     }
@@ -704,7 +719,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    view.setVisibility(View.GONE);
+                    view.setVisibility(GONE);
                 }
 
                 @Override
@@ -797,28 +812,28 @@ public class DashBoardFragment extends BaseInjectorFragment {
     }
 
     private void updateBannerForGPSOnlyType(){
-        errorImageBluetooth.setVisibility(View.GONE);
-        errorImageOBDAdapter.setVisibility(View.GONE);
-        okImageBluetooth.setVisibility(View.GONE);
-        okImageOBDAdapter.setVisibility(View.GONE);
+        errorImageBluetooth.setVisibility(GONE);
+        errorImageOBDAdapter.setVisibility(GONE);
+        okImageBluetooth.setVisibility(GONE);
+        okImageOBDAdapter.setVisibility(GONE);
 
         bannerBluetoothContainer.setAlpha(0.5f);
         bannerOBDAdapterContainer.setAlpha(0.5f);
 
         if(!mLocationHandler.isGPSEnabled()){
             errorImageGPS.setVisibility(View.VISIBLE);
-            okImageGPS.setVisibility(View.GONE);
+            okImageGPS.setVisibility(GONE);
         }
         else{
-            errorImageGPS.setVisibility(View.GONE);
+            errorImageGPS.setVisibility(GONE);
             okImageGPS.setVisibility(View.VISIBLE);
         }
         if(mCarManager.getCar() == null){
             errorImageCar.setVisibility(View.VISIBLE);
-            okImageCar.setVisibility(View.GONE);
+            okImageCar.setVisibility(GONE);
         }
         else{
-            errorImageCar.setVisibility(View.GONE);
+            errorImageCar.setVisibility(GONE);
             okImageCar.setVisibility(View.VISIBLE);
         }
     }
@@ -828,34 +843,34 @@ public class DashBoardFragment extends BaseInjectorFragment {
         bannerOBDAdapterContainer.setAlpha(1f);
         if(!mBluetoothHandler.isBluetoothEnabled()){
             errorImageBluetooth.setVisibility(View.VISIBLE);
-            okImageBluetooth.setVisibility(View.GONE);
+            okImageBluetooth.setVisibility(GONE);
         }
         else{
-            errorImageBluetooth.setVisibility(View.GONE);
+            errorImageBluetooth.setVisibility(GONE);
             okImageBluetooth.setVisibility(View.VISIBLE);
         }
         if( mBluetoothHandler.getSelectedBluetoothDevice() == null){
             errorImageOBDAdapter.setVisibility(View.VISIBLE);
-            okImageOBDAdapter.setVisibility(View.GONE);
+            okImageOBDAdapter.setVisibility(GONE);
         }
         else{
-            errorImageOBDAdapter.setVisibility(View.GONE);
+            errorImageOBDAdapter.setVisibility(GONE);
             okImageOBDAdapter.setVisibility(View.VISIBLE);
         }
         if(!mLocationHandler.isGPSEnabled()){
             errorImageGPS.setVisibility(View.VISIBLE);
-            okImageGPS.setVisibility(View.GONE);
+            okImageGPS.setVisibility(GONE);
         }
         else{
-            errorImageGPS.setVisibility(View.GONE);
+            errorImageGPS.setVisibility(GONE);
             okImageGPS.setVisibility(View.VISIBLE);
         }
         if(mCarManager.getCar() == null){
             errorImageCar.setVisibility(View.VISIBLE);
-            okImageCar.setVisibility(View.GONE);
+            okImageCar.setVisibility(GONE);
         }
         else {
-            errorImageCar.setVisibility(View.GONE);
+            errorImageCar.setVisibility(GONE);
             okImageCar.setVisibility(View.VISIBLE);
         }
     }
@@ -866,7 +881,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
         switch (state) {
             case SERVICE_STOPPED:
-                disableChangingParametersLayout.setVisibility(View.GONE);
+                disableChangingParametersLayout.setVisibility(GONE);
                 if (hasSettingsSelectedFOROBD()) {
                     updateStartStopButton(getResources().getColor(R.color.green_dark_cario),
                             getString(R.string.dashboard_start_track), true);
@@ -904,7 +919,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
         switch (state) {
             case SERVICE_STOPPED:
-                disableChangingParametersLayout.setVisibility(View.GONE);
+                disableChangingParametersLayout.setVisibility(GONE);
                 if (hasSettingsSelectedFORGPSOnly()) {
                     updateStartStopButton(getResources().getColor(R.color.green_dark_cario),
                             getString(R.string.dashboard_start_track), true);

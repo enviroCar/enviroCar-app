@@ -43,6 +43,12 @@ public class PreferencesHandler implements PreferenceConstants {
     public static final boolean DEFAULT_DISPLAY_STAYS_ACTIVE = false;
     public static final boolean DEFAULT_TEXT_TO_SPEECH = false;
     public static final boolean DEFAULT_BLUETOOTH_SERVICE_AUTOSTART = true;
+    public static final boolean DEFAULT_PREF_ENABLE_GPS_BASED_TRACK_RECORDING = false;
+
+    public static boolean getEnableGPSBasedTrackRecording(Context context){
+        return PreferenceManager.getDefaultSharedPreferences(context)
+                .getBoolean(PREF_ENABLE_GPS_BASED_TRACK_RECORDING, DEFAULT_PREF_ENABLE_GPS_BASED_TRACK_RECORDING);
+    }
 
     public static long getTrackTrimDuration(Context context){
         return PreferenceManager.getDefaultSharedPreferences(context)
