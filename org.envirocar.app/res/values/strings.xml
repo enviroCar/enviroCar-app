@@ -99,5 +99,6 @@
     <string name="banner_car_error_content">Please choose a Car to continue</string>
     <string name="driving">Driving</string>
 
+    <string name="gps_track_details">*This is a GPS based track. It cannot be uploaded to the open data.</string>
 
 </resources>
