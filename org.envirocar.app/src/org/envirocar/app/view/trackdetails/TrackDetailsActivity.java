@@ -28,6 +28,7 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.Toolbar;
 import android.transition.Slide;
 import android.view.MenuItem;
@@ -35,7 +36,10 @@ import android.view.View;
 import android.view.Window;
 import android.widget.TextView;
 
+import com.mapbox.mapboxsdk.api.ILatLng;
 import com.mapbox.mapboxsdk.geometry.BoundingBox;
+import com.mapbox.mapboxsdk.overlay.MapEventsOverlay;
+import com.mapbox.mapboxsdk.overlay.MapEventsReceiver;
 import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 import com.mapbox.mapboxsdk.views.MapView;
 
@@ -71,7 +75,7 @@ import rx.schedulers.Schedulers;
 /**
  * @author dewall
  */
-public class TrackDetailsActivity extends BaseInjectorActivity {
+public class TrackDetailsActivity extends BaseInjectorActivity implements TrackInterface {
     private static final Logger LOG = Logger.getLogger(TrackDetailsActivity.class);
 
     private static final String EXTRA_TRACKID = "org.envirocar.app.extraTrackID";
@@ -95,7 +99,8 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         UTC_DATE_FORMATTER.setTimeZone(TimeZone.getTimeZone("UTC"));
     }
 
-
+    public Track track;
+    public WebSourceTileLayer source;
     @Inject
     protected EnviroCarDB mEnvirocarDB;
 
@@ -142,7 +147,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         // Get the track to show.
         int mTrackID = getIntent().getIntExtra(EXTRA_TRACKID, -1);
         Track.TrackId trackid = new Track.TrackId(mTrackID);
-        Track track = mEnvirocarDB.getTrack(trackid)
+        track = mEnvirocarDB.getTrack(trackid)
                 .subscribeOn(Schedulers.io())
                 .toBlocking()
                 .first();
@@ -160,11 +165,27 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         title.setText(itemTitle);
 
         // Initialize the mapview and the trackpath
-        initMapView();
-        initTrackPath(track);
+        initMapView(mMapView,source);
+        initTrackPath(track,mMapView);
         initViewValues(track);
-
         updateStatusBarColor();
+
+        mMapView.getOverlays().add(new MapEventsOverlay(getApplicationContext(), new MapEventsReceiver() {
+            @Override
+            public boolean singleTapUpHelper(ILatLng iLatLng) {
+                FragmentManager fm = getSupportFragmentManager();
+                MapViewFragment mapViewFrag = MapViewFragment.newInstance(track);
+                mapViewFrag.show(fm, "fragment_edit_name");
+
+                return false;
+            }
+
+            @Override
+            public boolean longPressHelper(ILatLng iLatLng) {
+                return false;
+            }
+        }));
+
 
         mFAB.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -195,6 +216,16 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         super.onResume();
         supportStartPostponedEnterTransition();
     }
+    @Override
+    public Track getTrackLocal(){
+        return track;
+    }
+    @Override
+    public WebSourceTileLayer getSourceLocal(){
+        source = MapUtils.getOSMTileLayer();
+        return source;
+    }
+
 
     /**
      * Initializes the activity enter and return transitions of the activity.
@@ -215,9 +246,9 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     /**
      * Initializes the MapView, its base layers and settings.
      */
-    private void initMapView() {
+    public void initMapView(MapView mMapView, WebSourceTileLayer source) {
         // Set the openstreetmap tile layer as baselayer of the map.
-        WebSourceTileLayer source = MapUtils.getOSMTileLayer();
+        source = MapUtils.getOSMTileLayer();
         mMapView.setTileSource(source);
 
         // set the bounding box and min and max zoom level accordingly.
@@ -232,7 +263,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     /**
      * @param track
      */
-    private void initTrackPath(Track track) {
+    public void initTrackPath(Track track, MapView mMapView) {
         // Configure the line representation.
         Paint linePaint = new Paint();
         linePaint.setStyle(Paint.Style.STROKE);
