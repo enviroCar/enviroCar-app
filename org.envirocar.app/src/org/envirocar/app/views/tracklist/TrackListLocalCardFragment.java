@@ -75,7 +75,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MainActivityComponent mainActivityComponent =  BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
+        MainActivityComponent mainActivityComponent = BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
         mainActivityComponent.inject(this);
     }
 
@@ -457,10 +457,9 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                         @Override
                         public void onNext(List<Track> tracks) {
                             LOG.info(String.format("onNext(%s)", tracks.size()));
-
                             boolean newTrackAdded = false;
                             for (Track track : tracks) {
-                                if (!mTrackList.contains(track)) {
+                                if (!mTrackList.contains(track) && track.isFinished()) {
                                     mTrackList.add(track);
                                     newTrackAdded = true;
                                 }
