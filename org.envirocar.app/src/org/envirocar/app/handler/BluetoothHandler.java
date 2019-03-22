@@ -496,7 +496,7 @@ public class BluetoothHandler {
      */
     public void stopBluetoothDeviceDiscovery() {
         // Cancel discovery if it is discovering.
-        if (mBluetoothAdapter.isDiscovering()) {
+        if (mBluetoothAdapter != null && mBluetoothAdapter.isDiscovering()) {
             mBluetoothAdapter.cancelDiscovery();
             LOGGER.info("Bluetooth discovery cancled");
         }

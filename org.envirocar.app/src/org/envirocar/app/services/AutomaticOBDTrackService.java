@@ -283,6 +283,8 @@ public class AutomaticOBDTrackService extends BaseInjectorService {
 
         // Close the corresponding notification.
         NotificationHandler.closeNotification();
+
+        //Stopping the bluetooth discovery
         mBluetoothHandler.stopBluetoothDeviceDiscovery();
     }
 
