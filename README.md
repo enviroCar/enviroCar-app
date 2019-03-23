@@ -1,7 +1,7 @@
 # enviroCar Android App
 
 This is the app for the enviroCar platform.
-Uses floating car data(www.envirocar.org)
+Refer(www.envirocar.org)
 
 ## Installation
 
