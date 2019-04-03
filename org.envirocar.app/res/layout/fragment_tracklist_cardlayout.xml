@@ -19,45 +19,45 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:card_view="http://schemas.android.com/apk/res-auto"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical">
 
     <android.support.v7.widget.CardView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
         android:layout_margin="8dp"
         card_view:cardCornerRadius="4dp"
         card_view:cardElevation="6dp">
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/fragment_tracklist_cardlayout_toolbar"
+            style="@style/Widget.enviroCar.Toolbar"
+            card_view:layout_constraintEnd_toEndOf="parent"
+            card_view:layout_constraintHorizontal_bias="0.0"
+            card_view:layout_constraintStart_toStartOf="parent"
+            card_view:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/fragment_tracklist_cardlayout_toolbar_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Track 21.07.2015 10:20:28"
+                android:textColor="@color/white_cario"
+                android:textSize="18sp" />
+        </android.support.v7.widget.Toolbar>
+
+        <include
+            layout="@layout/fragment_tracklist_cardlayout_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_width="match_parent"
+            card_view:layout_constraintEnd_toEndOf="parent"
+            card_view:layout_constraintStart_toStartOf="parent"
+            card_view:layout_constraintTop_toBottomOf="@+id/fragment_tracklist_cardlayout_toolbar" />
+    </android.support.constraint.ConstraintLayout>
 
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/fragment_tracklist_cardlayout_toolbar"
-                style="@style/Widget.enviroCar.Toolbar">
-
-                <TextView
-                    android:id="@+id/fragment_tracklist_cardlayout_toolbar_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="16dp"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
-                    android:paddingTop="16dp"
-                    android:text="Track 21.07.2015 10:20:28"
-                    android:textColor="@color/white_cario"
-                    android:textSize="18sp"/>
-            </android.support.v7.widget.Toolbar>
-
-            <include layout="@layout/fragment_tracklist_cardlayout_content" />
-
-        </LinearLayout>
     </android.support.v7.widget.CardView>
-</LinearLayout>
+

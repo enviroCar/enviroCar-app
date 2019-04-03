@@ -28,6 +28,7 @@ allprojects {
     }
 
     repositories {
+        maven { url 'https://maven.google.com' }
         maven { url "https://jitpack.io" }
         mavenCentral()
         jcenter()
@@ -80,7 +81,7 @@ ext {
     acra = 'ch.acra:acra:4.6.2'
 
     // other third party dependencies.
-    materialDialogs = 'com.github.afollestad.material-dialogs:core:0.8.5.6@aar'
+    materialDialogs = 'com.github.afollestad.material-dialogs:core:0.8.5.7@aar'
     helloCharts = 'com.github.lecho:hellocharts-library:1.5.5@aar'
     fabProgressCircle = 'com.github.jorgecastilloprz:fabprogresscircle:1.01@aar'
     mapbox = 'com.mapbox.mapboxsdk:mapbox-android-sdk:0.7.4@aar'
