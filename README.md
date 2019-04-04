@@ -7,7 +7,7 @@ Refer this link(www.envirocar.org).
 
 ## Installation
 
-Use the [Google Play Store](https://play.google.com/store/apps/details?id=org.envirocar.app) to install the app on your device.
+Use the [Google Play Store](https://play.google.com/store/apps/details?id=org.envirocar.app) to install the app on your android device.
 
 We are planning to include the project into F-Droid in the near future.
 
