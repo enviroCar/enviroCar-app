@@ -11,6 +11,7 @@ dependencies {
     compile rootProject.ext.supportRecyclerview
     compile rootProject.ext.dagger
     compile  'com.android.support.constraint:constraint-layout:1.1.2'
+    compile 'com.facebook.shimmer:shimmer:0.4.0'
     //apt rootProject.ext.daggerCompiler
     provided rootProject.ext.daggerCompiler
     compile rootProject.ext.sqlBrite

@@ -51,28 +51,14 @@
                     android:id="@+id/fragment_tracklist_cardlayout_toolbar_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
                     android:singleLine="true"
                     android:text="Track 21.07.2015 10:20:28"
                     android:textColor="@color/white_cario"
-                    android:textSize="18sp"/>
+                    android:textSize="18sp" />
 
             </android.support.v7.widget.Toolbar>
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_below="@id/fragment_tracklist_cardlayout_toolbar">
-
-                <TextView
-                    android:id="@+id/fragment_tracklist_cardlayout_downloading_notification"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:text="Downloading..."
-                    android:textSize="22sp"
-                    android:visibility="gone"/>
-
-            </RelativeLayout>
 
             <include
                 layout="@layout/fragment_tracklist_cardlayout_content"
@@ -80,6 +66,12 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/fragment_tracklist_cardlayout_toolbar"
                 android:visibility="gone"/>
+
+            <include
+                layout="@layout/fragment_tracklist_cardlayout_content_remote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/fragment_tracklist_cardlayout_toolbar"/>
 
             <com.github.jorgecastilloprz.FABProgressCircle
                 android:id="@+id/fragment_tracklist_cardlayout_remote_progresscircle"

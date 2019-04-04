@@ -21,6 +21,7 @@ package org.envirocar.app.view.tracklist;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.view.View;
+import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
@@ -165,8 +166,9 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                 (AbstractTrackListCardAdapter.RemoteTrackCardViewHolder) viewHolder;
 
         // Show the downloading text notification.
-        ECAnimationUtils.animateShowView(getContext(), holder.mDownloadNotification,
-                R.anim.fade_in);
+        holder.mShimmerContentView.startShimmer();
+//        ECAnimationUtils.animateShowView(getContext(), holder.mDownloadNotification,
+//                R.anim.fade_in);
         holder.mProgressCircle.show();
         track.setDownloadState(Track.DownloadState.DOWNLOADING);
 
@@ -181,12 +183,12 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         holder.mProgressCircle.attachListener(() -> {
                             // When the visualization is finished, then Init the
                             // content view including its mapview and track details.
+                            holder.mShimmerContentView.stopShimmer();
                             mRecyclerViewAdapter.bindLocalTrackViewHolder(holder, track);
 
                             // and hide the download button
                             ECAnimationUtils.animateHideView(getContext(), R.anim.fade_out,
-                                    holder.mProgressCircle, holder.mDownloadButton, holder
-                                            .mDownloadNotification);
+                                    holder.mProgressCircle, holder.mDownloadButton);
                             ECAnimationUtils.animateShowView(getContext(), holder.mContentView, R
                                     .anim.fade_in);
                         });
@@ -197,9 +199,9 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         LOG.error("Not connected exception", e);
                         showSnackbar(R.string.track_list_communication_error);
                         holder.mProgressCircle.hide();
+                        holder.mShimmerContentView.stopShimmer();
                         track.setDownloadState(Track.DownloadState.DOWNLOADING);
-                        holder.mDownloadNotification.setText(
-                                R.string.track_list_error_while_downloading);
+                        Toast.makeText(getContext(),R.string.track_list_error_while_downloading,Toast.LENGTH_SHORT).show();
                     }
 
                     @Override

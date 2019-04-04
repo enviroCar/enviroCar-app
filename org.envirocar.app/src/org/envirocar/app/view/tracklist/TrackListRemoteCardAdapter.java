@@ -26,7 +26,9 @@ import android.view.ViewGroup;
 
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
 
 import java.util.List;
 
@@ -70,12 +72,13 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
         holder.mDownloadButton.setOnClickListener(null);
         holder.mToolbar.getMenu().clear();
 
+
         // Depending on the tracks state
         switch (remoteTrack.getDownloadState()) {
             case REMOTE:
+                holder.mShimmerContentView.setVisibility(View.VISIBLE);
                 holder.mContentView.setVisibility(View.GONE);
                 holder.mProgressCircle.setVisibility(View.VISIBLE);
-
                 // Workaround: Sometimes the inner arcview can be null when set visible
                 holder.mProgressCircle.post(() -> {
                     holder.mProgressCircle.hide();
@@ -85,19 +88,19 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
                     holder.mDownloadButton.setOnClickListener(null);
                     mTrackInteractionCallback.onDownloadTrackClicked(remoteTrack, holder);
                 });
-                holder.mDownloadNotification.setVisibility(View.GONE);
                 break;
             case DOWNLOADING:
                 holder.mContentView.setVisibility(View.GONE);
+                holder.mShimmerContentView.startShimmer();
                 holder.mProgressCircle.setVisibility(View.VISIBLE);
                 holder.mProgressCircle.post(() -> holder.mProgressCircle.show());
                 holder.mDownloadButton.setVisibility(View.VISIBLE);
-                holder.mDownloadNotification.setVisibility(View.VISIBLE);
                 break;
             case DOWNLOADED:
                 holder.mContentView.setVisibility(View.VISIBLE);
+                holder.mShimmerContentView.stopShimmer();
+                holder.mShimmerContentView.setVisibility(View.GONE);
                 holder.mProgressCircle.setVisibility(View.GONE);
-                holder.mDownloadNotification.setVisibility(View.GONE);
                 bindLocalTrackViewHolder(holder, remoteTrack);
                 break;
         }

@@ -28,6 +28,7 @@ import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.github.jorgecastilloprz.FABProgressCircle;
 import com.mapbox.mapboxsdk.geometry.BoundingBox;
 import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
@@ -60,11 +61,10 @@ import rx.functions.Action0;
  *
  * @author dewall
  */
-public abstract class AbstractTrackListCardAdapter<E extends
-        AbstractTrackListCardAdapter
-                .TrackCardViewHolder> extends RecyclerView.Adapter<E> {
-    private static final Logger LOG = Logger.getLogger(AbstractTrackListCardAdapter.class);
+public abstract class AbstractTrackListCardAdapter<E extends AbstractTrackListCardAdapter.TrackCardViewHolder>
+        extends RecyclerView.Adapter<E> {
 
+    private static final Logger LOG = Logger.getLogger(AbstractTrackListCardAdapter.class);
     protected static final DecimalFormat DECIMAL_FORMATTER_TWO = new DecimalFormat("#.##");
     protected static final DateFormat DATE_FORMAT = DateFormat.getDateTimeInstance();
     protected static final DateFormat UTC_DATE_FORMATTER = new SimpleDateFormat("HH:mm:ss", Locale
@@ -85,8 +85,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
      *
      * @param tracks the list of tracks to show cards for.
      */
-    public AbstractTrackListCardAdapter(List<Track> tracks, final OnTrackInteractionCallback
-            callback) {
+    public AbstractTrackListCardAdapter(List<Track> tracks, final OnTrackInteractionCallback callback) {
         this.mTrackDataset = tracks;
         this.mTrackInteractionCallback = callback;
     }
@@ -117,7 +116,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
             notifyDataSetChanged();
         }
     }
-
 
     protected void bindLocalTrackViewHolder(TrackCardViewHolder holder, Track track) {
         holder.mDistance.setText("...");
@@ -206,7 +204,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
             mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
         });
     }
-
 
     /**
      * Initializes the MapView, its base layers and settings.
@@ -324,8 +321,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
         protected FABProgressCircle mProgressCircle;
         @InjectView(R.id.fragment_tracklist_cardlayout_remote_downloadfab)
         protected FloatingActionButton mDownloadButton;
-        @InjectView(R.id.fragment_tracklist_cardlayout_downloading_notification)
-        protected TextView mDownloadNotification;
+        @InjectView(R.id.fragment_tracklist_cardlayout_content_remote)
+        protected ShimmerFrameLayout mShimmerContentView;
 
         /**
          * Constructor.
