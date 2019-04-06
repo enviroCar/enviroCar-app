@@ -22,6 +22,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
+import android.widget.Toast;
 
 import com.squareup.otto.Subscribe;
 
@@ -141,6 +142,11 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                     public void onDownloadTrackClicked(Track track, AbstractTrackListCardAdapter
                             .TrackCardViewHolder viewHolder) {
                         /*onDownloadTrackClickedInner(track, viewHolder);*/
+                    }
+
+                    @Override
+                    public void showToast(String message) {
+                        Toast.makeText(getActivity(),message,Toast.LENGTH_LONG).show();
                     }
                 }, PreferencesHandler.isDieselConsumptionEnabled(getActivity()));
     }

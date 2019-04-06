@@ -24,32 +24,52 @@ import org.envirocar.core.entity.Track;
 
 
 /**
+ * The interface On track interaction callback.
+ *
  * @author dewall
  */
 interface OnTrackInteractionCallback {
 
     /**
-     * @param track the track to show the details for.
+     * On track details clicked.
+     *
+     * @param track          the track to show the details for.
+     * @param transitionView the transition view
      */
     void onTrackDetailsClicked(Track track, View transitionView);
 
     /**
+     * On delete track clicked.
+     *
      * @param track the track to delete.
      */
     void onDeleteTrackClicked(Track track);
 
     /**
+     * On upload track clicked.
+     *
      * @param track the track to upload.
      */
     void onUploadTrackClicked(Track track);
 
     /**
+     * On export track clicked.
+     *
      * @param track the track to export.
      */
     void onExportTrackClicked(Track track);
 
     /**
-     * @param track the track to download.
+     * On download track clicked.
+     *
+     * @param track  the track to download.
+     * @param holder the holder
      */
     void onDownloadTrackClicked(Track track, AbstractTrackListCardAdapter.TrackCardViewHolder holder);
-}
+
+    /**
+     * Show toast.
+     *
+     * @param message the message to toast
+     */
+    void showToast(String message);}

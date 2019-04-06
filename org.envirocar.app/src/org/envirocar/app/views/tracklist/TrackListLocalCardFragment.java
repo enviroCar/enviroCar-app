@@ -25,6 +25,7 @@ import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Preconditions;
@@ -206,6 +207,11 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
             public void onDownloadTrackClicked(Track track, AbstractTrackListCardAdapter
                     .TrackCardViewHolder holder) {
                 // NOT REQUIRED
+            }
+
+            @Override
+            public void showToast(String message) {
+                Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
             }
         }, PreferencesHandler.isDieselConsumptionEnabled(getActivity()));
     }

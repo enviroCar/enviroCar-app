@@ -19,10 +19,12 @@
 package org.envirocar.app.views.tracklist;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Track;
@@ -83,16 +85,17 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
         holder.buttonLayout.setOnClickListener(v -> onClickButton(holder.expandableLayout, holder.buttonLayout, holder.completeCard, position, expandState));
         holder.completeCard.setOnClickListener(v -> holder.buttonLayout.performClick());
 
-        bindLocalTrackViewHolder(holder, remoteTrack);//Remove this later this assumes that the track is downloaded always
 
-//        holder.mMapView.getOverlays().clear();
 //        holder.mDownloadButton.setOnClickListener(null);
-//        holder.mToolbar.getMenu().clear();
 
         // Depending on the tracks state
-        /*switch (remoteTrack.getDownloadState()) {
+        switch (remoteTrack.getDownloadState()) {
             case REMOTE:
-                holder.mContentView.setVisibility(View.GONE);
+                holder.buttonLayout.setOnClickListener(view -> mTrackInteractionCallback.showToast("Track is not downloaded"));
+                holder.completeCard.setOnClickListener(v -> holder.buttonLayout.performClick());
+                holder.button_arrow.setVisibility(View.GONE);
+                holder.button_download.setVisibility(View.VISIBLE);
+                /*holder.mContentView.setVisibility(View.GONE);
                 holder.mProgressCircle.setVisibility(View.VISIBLE);
 
                 // Workaround: Sometimes the inner arcview can be null when set visible
@@ -104,24 +107,26 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
                     holder.mDownloadButton.setOnClickListener(null);
                     mTrackInteractionCallback.onDownloadTrackClicked(remoteTrack, holder);
                 });
-                holder.mDownloadNotification.setVisibility(View.GONE);
+                holder.mDownloadNotification.setVisibility(View.GONE);*/
                 break;
             case DOWNLOADING:
-                holder.mContentView.setVisibility(View.GONE);
+                /*holder.mContentView.setVisibility(View.GONE);
                 holder.mProgressCircle.setVisibility(View.VISIBLE);
                 holder.mProgressCircle.post(() -> holder.mProgressCircle.show());
                 holder.mDownloadButton.setVisibility(View.VISIBLE);
-                holder.mDownloadNotification.setVisibility(View.VISIBLE);
+                holder.mDownloadNotification.setVisibility(View.VISIBLE);*/
                 break;
             case DOWNLOADED:
-                holder.mContentView.setVisibility(View.VISIBLE);
+                holder.buttonLayout.setOnClickListener(v -> onClickButton(holder.expandableLayout, holder.buttonLayout, holder.completeCard, position, expandState));
+                holder.completeCard.setOnClickListener(v -> holder.buttonLayout.performClick());
+                holder.button_arrow.setVisibility(View.VISIBLE);
+                holder.button_download.setVisibility(View.GONE);
+                /*holder.mContentView.setVisibility(View.VISIBLE);
                 holder.mProgressCircle.setVisibility(View.GONE);
-                holder.mDownloadNotification.setVisibility(View.GONE);
+                holder.mDownloadNotification.setVisibility(View.GONE);*/
                 bindLocalTrackViewHolder(holder, remoteTrack);
                 break;
         }
-
-        holder.mMapView.postInvalidate();*/
     }
 
 }

@@ -66,7 +66,6 @@
                 android:transitionName="wurst" />
         </LinearLayout>
 
-
         <!--Dropdown Button -->
         <RelativeLayout
             android:id="@+id/dropdown_button"
@@ -75,16 +74,31 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_gravity="end"
-            android:gravity="center">
+            android:gravity="center"
+            android:focusable="true"
+            android:clickable="true"
+            android:background="?attr/selectableItemBackgroundBorderless">
 
             <View
                 android:layout_width="12dp"
+                android:id="@+id/button_arrow"
                 android:layout_height="12dp"
                 android:layout_alignParentEnd="false"
                 android:layout_alignParentRight="false"
                 android:layout_centerVertical="true"
                 android:background="@drawable/ic_arrow_down" />
+            <View
+                android:layout_width="24dp"
+                android:id="@+id/button_download"
+                android:layout_height="24dp"
+                android:layout_alignParentEnd="false"
+                android:layout_alignParentRight="false"
+                android:layout_centerVertical="true"
+                android:visibility="gone"
+                android:alpha="0.5"
+                android:background="@drawable/ic_download" />
         </RelativeLayout>
+
         <!--Expandable view-->
         <LinearLayout
             android:id="@+id/expand_layout"
