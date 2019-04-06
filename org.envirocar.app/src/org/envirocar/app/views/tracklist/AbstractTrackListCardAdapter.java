@@ -120,13 +120,13 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
 
     protected void bindLocalTrackViewHolder(TrackCardViewHolder holder, Track track) {
-        holder.mDistance.setText("...");
-        holder.mDuration.setText("...");
+        /*holder.mDistance.setText("...");
+        holder.mDuration.setText("...");*/
 
         // First, load the track from the dataset
         holder.mTitleTextView.setText(track.getName());
 
-        // Initialize the mapView.
+        /*// Initialize the mapView.
         initMapView(holder, track);
 
         // Set all the view parameters.
@@ -204,14 +204,14 @@ public abstract class AbstractTrackListCardAdapter<E extends
         holder.mInvisMapButton.setOnClickListener(v -> {
             LOG.info("Clicked on the map. Navigate to the details activity");
             mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
-        });
+        });*/
     }
 
 
     /**
      * Initializes the MapView, its base layers and settings.
      */
-    protected void initMapView(TrackCardViewHolder holder, Track track) {
+    /*protected void initMapView(TrackCardViewHolder holder, Track track) {
         // First, clear the overlays in the MapView.
         holder.mMapView.getOverlays().clear();
 
@@ -263,7 +263,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
                 }
             }.execute();
         }
-    }
+    }*/
 
     /**
      *
@@ -272,11 +272,11 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
         protected final View mItemView;
 
-        @BindView(R.id.fragment_tracklist_cardlayout_toolbar)
-        protected Toolbar mToolbar;
-        @BindView(R.id.fragment_tracklist_cardlayout_toolbar_title)
+        /*@BindView(R.id.fragment_tracklist_cardlayout_toolbar)
+        protected Toolbar mToolbar;*/
+        @BindView(R.id.card_title)
         protected TextView mTitleTextView;
-        @BindView(R.id.fragment_tracklist_cardlayout_content)
+        /*@BindView(R.id.fragment_tracklist_cardlayout_content)
         protected View mContentView;
         @BindView(R.id.track_details_attributes_header_distance)
         protected TextView mDistance;
@@ -285,7 +285,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
         @BindView(R.id.fragment_tracklist_cardlayout_map)
         protected MapView mMapView;
         @BindView(R.id.fragment_tracklist_cardlayout_invis_mapbutton)
-        protected ImageButton mInvisMapButton;
+        protected ImageButton mInvisMapButton;*/
 
         /**
          * Constructor.
@@ -320,12 +320,12 @@ public abstract class AbstractTrackListCardAdapter<E extends
      */
     static class RemoteTrackCardViewHolder extends TrackCardViewHolder {
 
-        @BindView(R.id.fragment_tracklist_cardlayout_remote_progresscircle)
+        /*@BindView(R.id.fragment_tracklist_cardlayout_remote_progresscircle)
         protected FABProgressCircle mProgressCircle;
         @BindView(R.id.fragment_tracklist_cardlayout_remote_downloadfab)
         protected FloatingActionButton mDownloadButton;
         @BindView(R.id.fragment_tracklist_cardlayout_downloading_notification)
-        protected TextView mDownloadNotification;
+        protected TextView mDownloadNotification;*/
 
         /**
          * Constructor.

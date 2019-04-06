@@ -139,7 +139,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                     @Override
                     public void onDownloadTrackClicked(Track track, AbstractTrackListCardAdapter
                             .TrackCardViewHolder viewHolder) {
-                        onDownloadTrackClickedInner(track, viewHolder);
+                        /*onDownloadTrackClickedInner(track, viewHolder);*/
                     }
                 });
     }
@@ -164,7 +164,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         }
     }
 
-    private void onDownloadTrackClickedInner(final Track track, AbstractTrackListCardAdapter
+    /*private void onDownloadTrackClickedInner(final Track track, AbstractTrackListCardAdapter
             .TrackCardViewHolder viewHolder) {
         AbstractTrackListCardAdapter.RemoteTrackCardViewHolder holder =
                 (AbstractTrackListCardAdapter.RemoteTrackCardViewHolder) viewHolder;
@@ -212,7 +212,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         LOG.info("Successfully fetched remote track:");
                     }
                 });
-    }
+    }*/
 
     private final class LoadRemoteTracksTask extends AsyncTask<Void, Void, Void> {
         @Override

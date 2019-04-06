@@ -51,7 +51,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
     public RemoteTrackCardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // Inflate the content view of the card.
         View remoteView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_tracklist_cardlayout_remote, parent, false);
+                .inflate(R.layout.fragment_tracklist_cardlayout_remote2, parent, false);
 
         // and create a new viewholder.
         return new RemoteTrackCardViewHolder(remoteView);
@@ -65,12 +65,12 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
 
         // Reset the most important settings of the views.
         holder.mTitleTextView.setText(remoteTrack.getName());
-        holder.mMapView.getOverlays().clear();
-        holder.mDownloadButton.setOnClickListener(null);
-        holder.mToolbar.getMenu().clear();
+//        holder.mMapView.getOverlays().clear();
+//        holder.mDownloadButton.setOnClickListener(null);
+//        holder.mToolbar.getMenu().clear();
 
         // Depending on the tracks state
-        switch (remoteTrack.getDownloadState()) {
+        /*switch (remoteTrack.getDownloadState()) {
             case REMOTE:
                 holder.mContentView.setVisibility(View.GONE);
                 holder.mProgressCircle.setVisibility(View.VISIBLE);
@@ -101,6 +101,6 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
                 break;
         }
 
-        holder.mMapView.postInvalidate();
+        holder.mMapView.postInvalidate();*/
     }
 }
