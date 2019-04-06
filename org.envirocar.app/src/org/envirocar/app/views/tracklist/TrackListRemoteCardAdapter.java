@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -21,8 +21,12 @@ package org.envirocar.app.views.tracklist;
 import android.content.Context;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
+import android.widget.Toast;
 
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Track;
@@ -39,6 +43,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
         AbstractTrackListCardAdapter.RemoteTrackCardViewHolder> {
     private static final Logger LOG = Logger.getLogger(TrackListRemoteCardAdapter.class);
     private SparseBooleanArray expandState = new SparseBooleanArray();
+    private Context context;
 
     /**
      * Constructor.
@@ -51,6 +56,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
     public TrackListRemoteCardAdapter(Context context, List<Track> tracks,
                                       OnTrackInteractionCallback callback, Boolean isDieselEnabled) {
         super(tracks, callback, isDieselEnabled);
+        this.context = context;
         //set initial expanded state to false
         for (int i = 0; i < tracks.size(); i++) {
             expandState.append(i, false);
@@ -78,7 +84,25 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
 
         holder.mDateTitleTextView.setText(titleArray[0]);
         holder.mTimeTitleTextView.setText(titleArray[1]);
-
+        //Pop-up menu
+        holder.popupMenuButton.setOnClickListener(view -> {
+            PopupMenu popup = new PopupMenu(context, view);
+            MenuInflater inflater = popup.getMenuInflater();
+            popup.setOnMenuItemClickListener(menuItem -> {
+                switch (menuItem.getItemId()) {
+                    case R.id.export_item:
+                        mTrackInteractionCallback.onExportTrackClicked(remoteTrack);
+                        return true;
+                    case R.id.delete_item:
+                        mTrackInteractionCallback.onDeleteTrackClicked(remoteTrack);
+                        return true;
+                    default:
+                        return false;
+                }
+            });
+            inflater.inflate(R.menu.menu_card_popup_remote_track, popup.getMenu());
+            popup.show();
+        });
         //check if view is expanded
         final boolean isExpanded = expandState.get(position);
         holder.expandableLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
@@ -112,11 +136,12 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
                 break;
         }
     }
-/**
- * Send the ID of the View that should be visible
- * */
+
+    /**
+     * Send the ID of the View that should be visible
+     */
     public static void buttonsToggle(int toggle, RemoteTrackCardViewHolder holder) {
-        switch (toggle){
+        switch (toggle) {
             case R.id.button_arrow:
                 holder.buttonArrow.setVisibility(View.VISIBLE);
                 holder.buttonDownload.setVisibility(View.GONE);

@@ -220,7 +220,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                 TrackStatisticsActivity.createInstance(getActivity(), (int)track.getTrackID().getId());
 
             }
-        }, PreferencesHandler.isDieselConsumptionEnabled(getActivity()));
+        }, PreferencesHandler.isDieselConsumptionEnabled(getActivity()), getActivity());
     }
 
     @Override

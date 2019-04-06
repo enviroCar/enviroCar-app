@@ -20,40 +20,23 @@ package org.envirocar.app.views.tracklist;
 
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
-import android.content.SharedPreferences;
+import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.transition.ChangeBounds;
 import android.transition.TransitionManager;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.github.jorgecastilloprz.FABProgressCircle;
-import com.mapbox.mapboxsdk.geometry.BoundingBox;
-import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
-import com.mapbox.mapboxsdk.views.MapView;
-
 import org.envirocar.app.R;
-import org.envirocar.app.handler.PreferencesHandler;
-import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
-import org.envirocar.app.views.trackdetails.TrackSpeedMapOverlay;
-import org.envirocar.app.views.trackdetails.TrackStatisticsActivity;
-import org.envirocar.app.views.utils.MapUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.FuelConsumptionException;
@@ -62,7 +45,6 @@ import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
 import org.envirocar.core.utils.CarUtils;
-import org.envirocar.storage.EnviroCarDB;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -71,8 +53,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
-
-import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -107,8 +87,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
     /**
      * Constructor.
+     *  @param tracks the list of tracks to show cards for.
      *
-     * @param tracks the list of tracks to show cards for.
      */
     public AbstractTrackListCardAdapter(List<Track> tracks, final OnTrackInteractionCallback
             callback, Boolean isDieselEnabled) {
@@ -153,7 +133,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
         holder.mDateTitleTextView.setText(titleArray[0]);
         holder.mTimeTitleTextView.setText(titleArray[1]);
-
         // Initialize the mapView.
 //        initMapView(holder, track);
 
@@ -330,6 +309,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
         protected View buttonDownload;
         @BindView(R.id.download_progress)
         protected ProgressBar downloadProgress;
+        @BindView(R.id.popup_menu_button_layout)
+        protected LinearLayout popupMenuButton;
 
         /**
          * Constructor.
