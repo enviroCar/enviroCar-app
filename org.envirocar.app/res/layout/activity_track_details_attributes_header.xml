@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 
     Copyright (C) 2013 - 2015 the enviroCar community
 
@@ -20,11 +19,23 @@
 
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="horizontal"
-              android:padding="8dp">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="8dp">
 
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <Button
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.8"
+            android:text="Map" />
+    </RelativeLayout>
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -40,14 +51,14 @@
             android:gravity="center"
             android:text="0:00"
             android:textColor="@color/blue_light_cario"
-            android:textSize="24sp"/>
+            android:textSize="24sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/track_list_details_duration"
-            android:textSize="10sp"/>
+            android:textSize="10sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -65,14 +76,26 @@
             android:gravity="center"
             android:text="0:00"
             android:textColor="@color/blue_light_cario"
-            android:textSize="24sp"/>
+            android:textSize="24sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/track_list_details_distance"
-            android:textSize="10sp"/>
+            android:textSize="10sp" />
     </LinearLayout>
 
+    <RelativeLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1">
+
+        <Button
+            style="@style/Widget.AppCompat.Button.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:alpha="0.8"
+            android:text="Stats" />
+    </RelativeLayout>
 </LinearLayout>
