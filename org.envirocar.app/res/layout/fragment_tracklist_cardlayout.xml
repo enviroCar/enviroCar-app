@@ -15,9 +15,7 @@
         android:id="@+id/tracklist_cardlayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:clickable="true"
-        android:focusable="true">
+        >
 
         <LinearLayout
             android:id="@+id/card_title"
@@ -27,6 +25,9 @@
             android:layout_marginLeft="15dp"
             android:layout_marginTop="12dp"
             android:orientation="horizontal"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
             android:transitionName="wurst">
 
             <ImageView
