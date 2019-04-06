@@ -51,7 +51,7 @@ public class TrackListLocalCardAdapter extends AbstractTrackListCardAdapter<
 
         // First inflate the view.
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout
-                .fragment_tracklist_cardlayout, parent, false);
+                .fragment_tracklist_cardlayout_remote2, parent, false);
 
         // then return a new view holder for the inflated view.
         return new LocalTrackCardViewHolder(view);
