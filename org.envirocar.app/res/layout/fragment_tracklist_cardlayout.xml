@@ -25,9 +25,6 @@
             android:layout_marginLeft="15dp"
             android:layout_marginTop="12dp"
             android:orientation="horizontal"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:clickable="true"
-            android:focusable="true"
             android:transitionName="wurst">
 
             <ImageView
@@ -50,7 +47,7 @@
                 android:layout_width="22dp"
                 android:layout_height="22dp"
                 android:layout_marginStart="8dp"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="14dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 android:alpha="0.54"
