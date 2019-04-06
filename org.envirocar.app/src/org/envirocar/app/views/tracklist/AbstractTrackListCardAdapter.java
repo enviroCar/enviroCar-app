@@ -18,15 +18,24 @@
  */
 package org.envirocar.app.views.tracklist;
 
+import android.animation.ObjectAnimator;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.transition.ChangeBounds;
+import android.transition.TransitionManager;
 import android.util.Log;
+import android.util.SparseBooleanArray;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.jorgecastilloprz.FABProgressCircle;
@@ -65,7 +74,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
         AbstractTrackListCardAdapter
                 .TrackCardViewHolder> extends RecyclerView.Adapter<E> {
     private static final Logger LOG = Logger.getLogger(AbstractTrackListCardAdapter.class);
-
     protected static final DecimalFormat DECIMAL_FORMATTER_TWO = new DecimalFormat("#.##");
     protected static final DateFormat DATE_FORMAT = DateFormat.getDateTimeInstance();
     protected static final DateFormat UTC_DATE_FORMATTER = new SimpleDateFormat("HH:mm:ss", Locale
@@ -231,8 +239,70 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
 
     /**
-     * Initializes the MapView, its base layers and settings.
+     *
      */
+    static class TrackCardViewHolder extends RecyclerView.ViewHolder {
+        protected final View mItemView;
+
+        /*@BindView(R.id.fragment_tracklist_cardlayout_toolbar)
+        protected Toolbar mToolbar;*/
+
+        @BindView(R.id.card_title_date)
+        protected TextView mDateTitleTextView;
+        @BindView(R.id.card_title_time)
+        protected TextView mTimeTitleTextView;
+        @BindView(R.id.expand_layout)
+        protected LinearLayout expandableLayout;
+        @BindView(R.id.dropdown_button)
+        protected RelativeLayout buttonLayout;
+        @BindView(R.id.tracklist_cardlayout)
+        protected RelativeLayout completeCard;
+        /*@BindView(R.id.fragment_tracklist_cardlayout_content)
+        protected View mContentView;
+        @BindView(R.id.track_details_attributes_header_distance)
+        protected TextView mDistance;
+        @BindView(R.id.track_details_attributes_header_duration)
+        protected TextView mDuration;
+        @BindView(R.id.fragment_tracklist_cardlayout_map)
+        protected MapView mMapView;
+        @BindView(R.id.fragment_tracklist_cardlayout_invis_mapbutton)
+        protected ImageButton mInvisMapButton;*/
+        /**
+         * Constructor.
+         *
+         * @param itemView the card view of the
+         */
+        public TrackCardViewHolder(View itemView) {
+            super(itemView);
+            this.mItemView = itemView;
+            ButterKnife.bind(this, itemView);
+        }
+
+    }
+    /**
+     * Default view holder for standard local and not uploaded tracks.
+     */
+    static class LocalTrackCardViewHolder extends TrackCardViewHolder {
+
+        /**
+         * Constructor.
+         *
+         * @param itemView
+         */
+        public LocalTrackCardViewHolder(View itemView) {
+            super(itemView);
+        }
+
+    }
+    /**
+     * Remote track view holder that only contains the views that can be filled with information
+     * of a remote track list. (i.e. users/{user}/tracks)
+     */
+    static class RemoteTrackCardViewHolder extends TrackCardViewHolder {
+
+        /**
+         * Initializes the MapView, its base layers and settings.
+         */
     /*protected void initMapView(TrackCardViewHolder holder, Track track) {
         // First, clear the overlays in the MapView.
         holder.mMapView.getOverlays().clear();
@@ -287,63 +357,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
         }
     }*/
 
-    /**
-     *
-     */
-    static class TrackCardViewHolder extends RecyclerView.ViewHolder {
-
-        protected final View mItemView;
-
-        /*@BindView(R.id.fragment_tracklist_cardlayout_toolbar)
-        protected Toolbar mToolbar;*/
-        @BindView(R.id.card_title_date)
-        protected TextView mDateTitleTextView;
-        @BindView(R.id.card_title_time)
-        protected TextView mTimeTitleTextView;
-        /*@BindView(R.id.fragment_tracklist_cardlayout_content)
-        protected View mContentView;
-        @BindView(R.id.track_details_attributes_header_distance)
-        protected TextView mDistance;
-        @BindView(R.id.track_details_attributes_header_duration)
-        protected TextView mDuration;
-        @BindView(R.id.fragment_tracklist_cardlayout_map)
-        protected MapView mMapView;
-        @BindView(R.id.fragment_tracklist_cardlayout_invis_mapbutton)
-        protected ImageButton mInvisMapButton;*/
-
-        /**
-         * Constructor.
-         *
-         * @param itemView the card view of the
-         */
-        public TrackCardViewHolder(View itemView) {
-            super(itemView);
-            this.mItemView = itemView;
-            ButterKnife.bind(this, itemView);
-        }
-    }
-
-    /**
-     * Default view holder for standard local and not uploaded tracks.
-     */
-    static class LocalTrackCardViewHolder extends TrackCardViewHolder {
-
-        /**
-         * Constructor.
-         *
-         * @param itemView
-         */
-        public LocalTrackCardViewHolder(View itemView) {
-            super(itemView);
-        }
-    }
-
-    /**
-     * Remote track view holder that only contains the views that can be filled with information
-     * of a remote track list. (i.e. users/{user}/tracks)
-     */
-    static class RemoteTrackCardViewHolder extends TrackCardViewHolder {
-
         /*@BindView(R.id.fragment_tracklist_cardlayout_remote_progresscircle)
         protected FABProgressCircle mProgressCircle;
         @BindView(R.id.fragment_tracklist_cardlayout_remote_downloadfab)
@@ -359,5 +372,46 @@ public abstract class AbstractTrackListCardAdapter<E extends
         public RemoteTrackCardViewHolder(View itemView) {
             super(itemView);
         }
+    }
+
+    public void onClickButton(final LinearLayout expandableLayout, final RelativeLayout buttonLayout, RelativeLayout completeCard, final int i, SparseBooleanArray expandState) {
+
+
+        //Simply set View to Gone if not expanded
+        //Not necessary but I put simple rotation on button layout
+        if (expandableLayout.getVisibility() == View.VISIBLE) {
+            createRotateAnimator(buttonLayout, 180f, 0f).start();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                //Transition
+                final ChangeBounds transition = new ChangeBounds();
+                transition.setDuration(300); // Sets a duration of 600 milliseconds
+
+                TransitionManager.beginDelayedTransition(completeCard, transition);
+            }
+
+            expandableLayout.setVisibility(View.GONE);
+            expandState.put(i, false);
+        } else {
+            createRotateAnimator(buttonLayout, 0f, 180f).start();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                //Transition
+                final ChangeBounds transition = new ChangeBounds();
+                transition.setDuration(300); // Sets a duration of 600 milliseconds
+
+                TransitionManager.beginDelayedTransition(completeCard, transition);
+            }
+
+            expandableLayout.setVisibility(View.VISIBLE);
+            expandState.put(i, true);
+        }
+    }
+
+    //Code to rotate button
+    public ObjectAnimator createRotateAnimator(final View target, final float from, final float to) {
+        ObjectAnimator animator = ObjectAnimator.ofFloat(target, "rotation", from, to);
+        animator.setDuration(300);
+        animator.setInterpolator(new LinearInterpolator());
+        return animator;
     }
 }

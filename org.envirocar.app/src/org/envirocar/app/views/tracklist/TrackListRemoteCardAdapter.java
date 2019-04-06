@@ -18,10 +18,19 @@
  */
 package org.envirocar.app.views.tracklist;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.os.Build;
+import android.support.v7.widget.CardView;
+import android.transition.ChangeBounds;
+import android.transition.TransitionManager;
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Track;
@@ -35,6 +44,7 @@ import java.util.List;
 public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
         AbstractTrackListCardAdapter.RemoteTrackCardViewHolder> {
     private static final Logger LOG = Logger.getLogger(TrackListRemoteCardAdapter.class);
+    private SparseBooleanArray expandState = new SparseBooleanArray();
 
     /**
      * Constructor.
@@ -45,6 +55,10 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
     public TrackListRemoteCardAdapter(Context context, List<Track> tracks,
                                       OnTrackInteractionCallback callback) {
         super(tracks, callback);
+        //set initial expanded state to false
+        for (int i = 0; i < tracks.size(); i++) {
+            expandState.append(i, false);
+        }
     }
 
     @Override
@@ -68,6 +82,14 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
 
         holder.mDateTitleTextView.setText(titleArray[0]);
         holder.mTimeTitleTextView.setText(titleArray[1]);
+
+        //check if view is expanded
+        final boolean isExpanded = expandState.get(position);
+        holder.expandableLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+        holder.buttonLayout.setRotation(expandState.get(position) ? 180f : 0f);
+
+        holder.buttonLayout.setOnClickListener(v -> onClickButton(holder.expandableLayout, holder.buttonLayout, holder.completeCard, position, expandState));
+        holder.completeCard.setOnClickListener(v -> holder.buttonLayout.performClick());
 
 //        holder.mMapView.getOverlays().clear();
 //        holder.mDownloadButton.setOnClickListener(null);
@@ -107,4 +129,5 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
 
         holder.mMapView.postInvalidate();*/
     }
+
 }

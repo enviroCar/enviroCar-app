@@ -10,11 +10,16 @@
     android:layout_marginRight="10dp"
     android:layout_marginBottom="10dp"
     app:cardElevation="5dp"
-    card_view:cardCornerRadius="8dp">
+    card_view:cardCornerRadius="8dp"
+    >
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:focusable="true"
+        android:clickable="true"
+        android:id="@+id/tracklist_cardlayout"
+        android:background="?attr/selectableItemBackgroundBorderless">
 
         <LinearLayout
             android:id="@+id/card_title"
@@ -90,7 +95,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/card_title"
             android:orientation="vertical"
-            android:visibility="visible">
+            android:visibility="gone">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"

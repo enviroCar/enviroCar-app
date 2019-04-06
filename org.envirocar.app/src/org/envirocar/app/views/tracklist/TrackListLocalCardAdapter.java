@@ -18,6 +18,7 @@
  */
 package org.envirocar.app.views.tracklist;
 
+import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,6 +35,7 @@ import java.util.List;
 public class TrackListLocalCardAdapter extends AbstractTrackListCardAdapter<
         AbstractTrackListCardAdapter.LocalTrackCardViewHolder> {
     private static final Logger LOGGER = Logger.getLogger(TrackListLocalCardAdapter.class);
+    private SparseBooleanArray expandState = new SparseBooleanArray();
 
     /**
      * Constructor.
@@ -43,6 +45,10 @@ public class TrackListLocalCardAdapter extends AbstractTrackListCardAdapter<
      */
     public TrackListLocalCardAdapter(List<Track> tracks, OnTrackInteractionCallback callback) {
         super(tracks, callback);
+        //set initial expanded state to false
+        for (int i = 0; i < tracks.size(); i++) {
+            expandState.append(i, false);
+        }
     }
 
     @Override
@@ -59,6 +65,13 @@ public class TrackListLocalCardAdapter extends AbstractTrackListCardAdapter<
 
     @Override
     public void onBindViewHolder(final LocalTrackCardViewHolder holder, int position) {
+        //check if view is expanded
+        final boolean isExpanded = expandState.get(position);
+        holder.expandableLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
+        holder.buttonLayout.setRotation(expandState.get(position) ? 180f : 0f);
+
+        holder.buttonLayout.setOnClickListener(v -> onClickButton(holder.expandableLayout, holder.buttonLayout, holder.completeCard, position, expandState));
+        holder.completeCard.setOnClickListener(v -> holder.buttonLayout.performClick());
         bindLocalTrackViewHolder(holder, mTrackDataset.get(position));
     }
 }
