@@ -39,6 +39,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -324,9 +325,12 @@ public abstract class AbstractTrackListCardAdapter<E extends
         @BindView(R.id.activity_track_details_attr_emission_value)
         protected TextView mEmission;
         @BindView(R.id.button_arrow)
-        protected View button_arrow;
+        protected View buttonArrow;
         @BindView(R.id.button_download)
-        protected View button_download;
+        protected View buttonDownload;
+        @BindView(R.id.download_progress)
+        protected ProgressBar downloadProgress;
+
         /**
          * Constructor.
          *

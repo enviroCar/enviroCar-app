@@ -19,12 +19,10 @@
 package org.envirocar.app.views.tracklist;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Track;
@@ -33,6 +31,8 @@ import org.envirocar.core.logging.Logger;
 import java.util.List;
 
 /**
+ * The type Track list remote card adapter.
+ *
  * @author dewall
  */
 public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
@@ -43,8 +43,10 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
     /**
      * Constructor.
      *
-     * @param tracks   the list of tracks to show cards for.
-     * @param callback
+     * @param context         the context
+     * @param tracks          the list of tracks to show cards for.
+     * @param callback        the callback
+     * @param isDieselEnabled the is diesel enabled
      */
     public TrackListRemoteCardAdapter(Context context, List<Track> tracks,
                                       OnTrackInteractionCallback callback, Boolean isDieselEnabled) {
@@ -91,10 +93,17 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
         // Depending on the tracks state
         switch (remoteTrack.getDownloadState()) {
             case REMOTE:
-                holder.buttonLayout.setOnClickListener(view -> mTrackInteractionCallback.showToast("Track is not downloaded"));
-                holder.completeCard.setOnClickListener(v -> holder.buttonLayout.performClick());
-                holder.button_arrow.setVisibility(View.GONE);
-                holder.button_download.setVisibility(View.VISIBLE);
+                holder.buttonLayout.setOnClickListener(view -> {
+//                    mTrackInteractionCallback.onDownloadTrackClicked(remoteTrack, holder);
+                      buttonsToggle(R.id.download_progress, holder);
+                });
+
+                holder.completeCard.setOnClickListener(v -> {
+                    mTrackInteractionCallback.showToast("Track is not downloaded");
+                });
+                buttonsToggle(R.id.button_download, holder);
+
+
                 /*holder.mContentView.setVisibility(View.GONE);
                 holder.mProgressCircle.setVisibility(View.VISIBLE);
 
@@ -119,8 +128,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
             case DOWNLOADED:
                 holder.buttonLayout.setOnClickListener(v -> onClickButton(holder.expandableLayout, holder.buttonLayout, holder.completeCard, position, expandState));
                 holder.completeCard.setOnClickListener(v -> holder.buttonLayout.performClick());
-                holder.button_arrow.setVisibility(View.VISIBLE);
-                holder.button_download.setVisibility(View.GONE);
+                buttonsToggle(R.id.button_arrow, holder);
                 /*holder.mContentView.setVisibility(View.VISIBLE);
                 holder.mProgressCircle.setVisibility(View.GONE);
                 holder.mDownloadNotification.setVisibility(View.GONE);*/
@@ -128,5 +136,26 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
                 break;
         }
     }
-
+/**
+ * Send the ID of the View that should be visible
+ * */
+    private void buttonsToggle(int toggle, RemoteTrackCardViewHolder holder) {
+        switch (toggle){
+            case R.id.button_arrow:
+                holder.buttonArrow.setVisibility(View.VISIBLE);
+                holder.buttonDownload.setVisibility(View.GONE);
+                holder.downloadProgress.setVisibility(View.GONE);
+                break;
+            case R.id.button_download:
+                holder.buttonArrow.setVisibility(View.GONE);
+                holder.buttonDownload.setVisibility(View.VISIBLE);
+                holder.downloadProgress.setVisibility(View.GONE);
+                break;
+            case R.id.download_progress:
+                holder.buttonArrow.setVisibility(View.GONE);
+                holder.buttonDownload.setVisibility(View.GONE);
+                holder.downloadProgress.setVisibility(View.VISIBLE);
+                break;
+        }
+    }
 }

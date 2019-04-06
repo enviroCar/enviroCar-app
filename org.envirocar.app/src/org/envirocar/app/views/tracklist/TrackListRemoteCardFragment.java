@@ -141,7 +141,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                     @Override
                     public void onDownloadTrackClicked(Track track, AbstractTrackListCardAdapter
                             .TrackCardViewHolder viewHolder) {
-                        /*onDownloadTrackClickedInner(track, viewHolder);*/
+//                        onDownloadTrackClickedInner(track, viewHolder);
                     }
 
                     @Override
@@ -219,8 +219,8 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         LOG.info("Successfully fetched remote track:");
                     }
                 });
-    }*/
-
+    }
+*/
     private final class LoadRemoteTracksTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {

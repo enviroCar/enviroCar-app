@@ -9,16 +9,15 @@
     android:layout_marginTop="3dp"
     android:layout_marginRight="10dp"
     app:cardElevation="4dp"
-    card_view:cardCornerRadius="8dp"
-    >
+    card_view:cardCornerRadius="8dp">
 
     <RelativeLayout
+        android:id="@+id/tracklist_cardlayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:focusable="true"
+        android:background="?attr/selectableItemBackgroundBorderless"
         android:clickable="true"
-        android:id="@+id/tracklist_cardlayout"
-        android:background="?attr/selectableItemBackgroundBorderless">
+        android:focusable="true">
 
         <LinearLayout
             android:id="@+id/card_title"
@@ -74,29 +73,37 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_gravity="end"
-            android:gravity="center"
-            android:focusable="true"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:clickable="true"
-            android:background="?attr/selectableItemBackgroundBorderless">
+            android:focusable="true"
+            android:gravity="center">
 
             <View
-                android:layout_width="12dp"
                 android:id="@+id/button_arrow"
+                android:layout_width="12dp"
                 android:layout_height="12dp"
                 android:layout_alignParentEnd="false"
                 android:layout_alignParentRight="false"
                 android:layout_centerVertical="true"
                 android:background="@drawable/ic_arrow_down" />
+
             <View
-                android:layout_width="24dp"
                 android:id="@+id/button_download"
+                android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_alignParentEnd="false"
                 android:layout_alignParentRight="false"
                 android:layout_centerVertical="true"
-                android:visibility="gone"
                 android:alpha="0.5"
-                android:background="@drawable/ic_download" />
+                android:background="@drawable/ic_download"
+                android:visibility="gone" />
+
+            <ProgressBar
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:indeterminate="true"
+                android:id="@+id/download_progress"
+                android:visibility="gone" />
         </RelativeLayout>
 
         <!--Expandable view-->
@@ -107,11 +114,12 @@
             android:layout_below="@id/card_title"
             android:orientation="vertical"
             android:visibility="visible">
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginTop="12dp"
                 android:layout_marginLeft="15dp"
+                android:layout_marginTop="12dp"
                 android:layout_marginRight="15dp"
                 android:alpha="0.2"
                 android:background="@android:color/darker_gray" />
@@ -125,6 +133,7 @@
                 android:layout_marginRight="5dp"
                 android:alpha="0.34"
                 android:background="@android:color/darker_gray" />
+
             <include layout="@layout/activity_track_details_attributes" />
         </LinearLayout>
     </RelativeLayout>
