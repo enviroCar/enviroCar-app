@@ -191,7 +191,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         });
 
         //closing the expanded mapview on "cancel" button clicked
-        mMapViewExpandedCancel.setOnClickListener(v-> closeExpandedMapView());
+        mMapViewExpandedCancel.setOnClickListener(v-> onBackPressed());
         //expanding the expandable mapview on clicking the framelayout which is surrounded by header map view in collapsingtoolbarlayout
         mMapViewContainer.setOnClickListener(v-> expandMapView(track));
         mMapViewContainer.performClick();
@@ -221,12 +221,13 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
     @Override
     public void onBackPressed() {
-        //if the expandable mapview is expanded, then close it first
+        super.onBackPressed();
+        /*//if the expandable mapview is expanded, then close it first
         if(mMapViewExpandedContainer != null && mMapViewExpandedContainer.getVisibility() == View.VISIBLE){
             closeExpandedMapView();
         }else{
             super.onBackPressed();
-        }
+        }*/
     }
 
     /**
