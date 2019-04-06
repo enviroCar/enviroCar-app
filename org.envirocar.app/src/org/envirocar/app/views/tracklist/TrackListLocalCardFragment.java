@@ -29,6 +29,7 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Preconditions;
 
+import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.main.MainActivityComponent;
 import org.envirocar.app.main.MainActivityModule;
@@ -206,7 +207,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                     .TrackCardViewHolder holder) {
                 // NOT REQUIRED
             }
-        });
+        }, PreferencesHandler.isDieselConsumptionEnabled(getActivity()));
     }
 
     @Override

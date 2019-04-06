@@ -43,8 +43,8 @@ public class TrackListLocalCardAdapter extends AbstractTrackListCardAdapter<
      * @param tracks   the list of tracks to show cards for.
      * @param callback
      */
-    public TrackListLocalCardAdapter(List<Track> tracks, OnTrackInteractionCallback callback) {
-        super(tracks, callback);
+    public TrackListLocalCardAdapter(List<Track> tracks, OnTrackInteractionCallback callback, Boolean isDieselEnabled) {
+        super(tracks, callback, isDieselEnabled);
         //set initial expanded state to false
         for (int i = 0; i < tracks.size(); i++) {
             expandState.append(i, false);

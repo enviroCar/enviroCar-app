@@ -25,6 +25,7 @@ import android.view.View;
 
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.main.MainActivityComponent;
 import org.envirocar.app.main.MainActivityModule;
@@ -141,7 +142,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                             .TrackCardViewHolder viewHolder) {
                         /*onDownloadTrackClickedInner(track, viewHolder);*/
                     }
-                });
+                }, PreferencesHandler.isDieselConsumptionEnabled(getActivity()));
     }
 
     @Override

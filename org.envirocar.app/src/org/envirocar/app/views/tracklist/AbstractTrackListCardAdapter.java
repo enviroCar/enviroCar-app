@@ -19,6 +19,8 @@
 package org.envirocar.app.views.tracklist;
 
 import android.animation.ObjectAnimator;
+import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
@@ -45,14 +47,20 @@ import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 import com.mapbox.mapboxsdk.views.MapView;
 
 import org.envirocar.app.R;
+import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.trackdetails.TrackSpeedMapOverlay;
 import org.envirocar.app.views.trackdetails.TrackStatisticsActivity;
 import org.envirocar.app.views.utils.MapUtils;
+import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.NoMeasurementsException;
+import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
+import org.envirocar.core.utils.CarUtils;
+import org.envirocar.storage.EnviroCarDB;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;
@@ -61,6 +69,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -91,6 +101,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
     protected final OnTrackInteractionCallback mTrackInteractionCallback;
+    private boolean isDieselEnabled;
 
     /**
      * Constructor.
@@ -98,9 +109,10 @@ public abstract class AbstractTrackListCardAdapter<E extends
      * @param tracks the list of tracks to show cards for.
      */
     public AbstractTrackListCardAdapter(List<Track> tracks, final OnTrackInteractionCallback
-            callback) {
+            callback, Boolean isDieselEnabled) {
         this.mTrackDataset = tracks;
         this.mTrackInteractionCallback = callback;
+        this.isDieselEnabled = isDieselEnabled;
     }
 
     @Override
@@ -131,9 +143,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
     }
 
 
+    @SuppressLint("StaticFieldLeak")
     protected void bindLocalTrackViewHolder(TrackCardViewHolder holder, Track track) {
-        holder.mDistance.setText("...");
-        holder.mDuration.setText("...");
 
         // First, load the track from the dataset
         String[] titleArray = getDateAndTime(track.getName());
@@ -144,7 +155,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
         // Initialize the mapView.
 //        initMapView(holder, track);
 
-        // Set all the view parameters.
+        // Set all the view parameters. This might lead to data leak
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
@@ -152,20 +163,53 @@ public abstract class AbstractTrackListCardAdapter<E extends
                 try {
                     String date = UTC_DATE_FORMATTER.format(new Date(
                             track.getDuration()));
-                    mMainThreadWorker.schedule(new Action0() {
-                        @Override
-                        public void call() {
-                            holder.mDuration.setText(date);
-                        }
-                    });
-
+                    final DecimalFormat DECIMAL_FORMATTER_TWO_DIGITS = new DecimalFormat("#.##");
                     // Set the tracklength parameter.
                     double distanceOfTrack = ((TrackStatisticsProvider) track).getDistanceOfTrack();
                     String tracklength = String.format("%s km", DECIMAL_FORMATTER_TWO.format(
                             distanceOfTrack));
+
                     mMainThreadWorker.schedule(new Action0() {
                         @Override
                         public void call() {
+                            holder.mDuration.setText(date);
+                            //Car details
+                            holder.mCarDetails.setText(CarUtils.carToStringWithLinebreak(track.getCar()));
+                            //Begin, End values
+                            try {
+                                holder.mBeginValue.setText(DATE_FORMAT.format(new Date(track.getStartTime())));                            holder.mEndValue.setText(DATE_FORMAT.format(new Date(track.getEndTime())));
+                                holder.mEndValue.setText(DATE_FORMAT.format(new Date(track.getEndTime())));
+                            } catch (NoMeasurementsException e) {
+                                e.printStackTrace();
+                            }
+                            //Consumption and Emission
+                            if (track.getCar().getFuelType() == Car.FuelType.GASOLINE ||
+                                    isDieselEnabled) {
+                                try {
+                                    holder.mEmission.setText(String.format("%s g/km", DECIMAL_FORMATTER_TWO_DIGITS.format(
+                                            ((TrackStatisticsProvider) track).getGramsPerKm())));
+                                    holder.mFuelConsumption.setText(
+                                            String.format("%s l/h\n%s l/100 km",
+                                                    DECIMAL_FORMATTER_TWO_DIGITS.format(
+                                                            ((TrackStatisticsProvider) track)
+                                                                    .getFuelConsumptionPerHour()),
+
+                                                    DECIMAL_FORMATTER_TWO_DIGITS.format(
+                                                            ((TrackStatisticsProvider) track).getLiterPerHundredKm())));
+                                } catch (FuelConsumptionException e) {
+                                    e.printStackTrace();
+                                } catch (NoMeasurementsException e) {
+                                    e.printStackTrace();
+                                } catch (UnsupportedFuelTypeException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                holder.mEmission.setText(R.string.track_list_details_diesel_not_supported);
+                                holder.mFuelConsumption.setText(R.string.track_list_details_diesel_not_supported);
+                                holder.mEmission.setTextColor(Color.RED);
+                                holder.mFuelConsumption.setTextColor(Color.RED);
+                            }
+                            //Distance
                             holder.mDistance.setText(tracklength);
                         }
                     });
@@ -264,17 +308,21 @@ public abstract class AbstractTrackListCardAdapter<E extends
         protected Button mapButton;
         @BindView(R.id.stats_button)
         protected Button statsButton;
-
-        /*@BindView(R.id.fragment_tracklist_cardlayout_content)
-        protected View mContentView;*/
         @BindView(R.id.track_details_attributes_header_distance)
         protected TextView mDistance;
         @BindView(R.id.track_details_attributes_header_duration)
         protected TextView mDuration;
-        /*@BindView(R.id.fragment_tracklist_cardlayout_map)
-        protected MapView mMapView;
-        @BindView(R.id.fragment_tracklist_cardlayout_invis_mapbutton)
-        protected ImageButton mInvisMapButton;*/
+        @BindView(R.id.activity_track_details_attr_car_value)
+        protected TextView mCarDetails;
+        @BindView(R.id.activity_track_details_attr_begin_value)
+        protected TextView mBeginValue;
+        @BindView(R.id.activity_track_details_attr_end_value)
+        protected TextView mEndValue;
+        @BindView(R.id.activity_track_details_attr_consumption_value)
+        protected TextView mFuelConsumption;
+        @BindView(R.id.activity_track_details_attr_emission_value)
+        protected TextView mEmission;
+
         /**
          * Constructor.
          *
