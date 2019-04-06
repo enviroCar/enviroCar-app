@@ -63,6 +63,24 @@
                 android:transitionName="wurst" />
         </LinearLayout>
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/dropdown_button"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginRight="5dp"
+            android:layout_marginTop="10dp"
+            android:alpha="0.8">
+
+            <Button
+                android:layout_width="27dp"
+                android:layout_height="27dp"
+                android:alpha="0.6"
+                android:background="@drawable/ic_more_horiz" />
+        </LinearLayout>
+
         <!--Dropdown Button -->
         <RelativeLayout
             android:id="@+id/dropdown_button"
