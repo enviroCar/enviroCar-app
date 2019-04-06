@@ -202,7 +202,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
 
                     @Override
                     public void onNext(Track remoteTrack) {
-                        LOG.info("Successfully fetched remote track:");
+                        Toast.makeText(getActivity(), "Successfully fetched remote track", Toast.LENGTH_LONG).show();
                     }
                 });
     }

@@ -85,7 +85,8 @@
                 android:layout_alignParentEnd="false"
                 android:layout_alignParentRight="false"
                 android:layout_centerVertical="true"
-                android:background="@drawable/ic_arrow_down" />
+                android:background="@drawable/ic_arrow_down"
+                android:visibility="gone" />
 
             <View
                 android:id="@+id/button_download"
@@ -99,10 +100,10 @@
                 android:visibility="gone" />
 
             <ProgressBar
+                android:id="@+id/download_progress"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:indeterminate="true"
-                android:id="@+id/download_progress"
                 android:visibility="gone" />
         </RelativeLayout>
 
