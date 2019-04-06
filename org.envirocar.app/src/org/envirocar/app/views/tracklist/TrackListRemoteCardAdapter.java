@@ -86,7 +86,8 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
 
         holder.buttonLayout.setOnClickListener(v -> onClickButton(holder.expandableLayout, holder.buttonLayout, holder.completeCard, position, expandState));
         holder.completeCard.setOnClickListener(v -> holder.buttonLayout.performClick());
-
+        holder.mapButton.setOnClickListener(view -> mTrackInteractionCallback.onTrackMapClicked(remoteTrack, null));
+        holder.statsButton.setOnClickListener(view -> mTrackInteractionCallback.onTrackStatsClicked(remoteTrack));
         // Depending on the tracks state
         switch (remoteTrack.getDownloadState()) {
             case REMOTE:

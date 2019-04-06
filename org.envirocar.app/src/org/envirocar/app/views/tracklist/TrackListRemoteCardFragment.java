@@ -18,12 +18,20 @@
  */
 package org.envirocar.app.views.tracklist;
 
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.mapbox.mapboxsdk.geometry.BoundingBox;
+import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
+import com.mapbox.mapboxsdk.views.MapView;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.handler.PreferencesHandler;
@@ -32,7 +40,10 @@ import org.envirocar.app.main.MainActivityComponent;
 import org.envirocar.app.main.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
+import org.envirocar.app.views.trackdetails.TrackSpeedMapOverlay;
+import org.envirocar.app.views.trackdetails.TrackStatisticsActivity;
 import org.envirocar.app.views.utils.ECAnimationUtils;
+import org.envirocar.app.views.utils.MapUtils;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.events.NewUserSettingsEvent;
 import org.envirocar.core.exception.NotConnectedException;
@@ -42,6 +53,7 @@ import org.envirocar.core.logging.Logger;
 import java.util.Collections;
 import java.util.List;
 
+import butterknife.BindView;
 import rx.Observer;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -54,9 +66,7 @@ import rx.subscriptions.CompositeSubscription;
 public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
         TrackListRemoteCardAdapter> implements TrackListLocalCardFragment.OnTrackUploadedListener {
     private static final Logger LOG = Logger.getLogger(TrackListRemoteCardFragment.class);
-
     private CompositeSubscription subscriptions = new CompositeSubscription();
-
     private boolean hasLoadedRemote = false;
     private boolean hasLoadedStored = false;
     private boolean isSorted = false;
@@ -111,11 +121,12 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                      * @param transitionView the transitionView used for scene transition.
                      */
                     @Override
-                    public void onTrackDetailsClicked(Track track, View transitionView) {
-                        LOG.info(String.format("onTrackDetailsClicked(%s)", track.getTrackID()
+                    public void onTrackMapClicked(Track track, View transitionView) {
+                        LOG.info(String.format("onTrackMapClicked(%s)", track.getTrackID()
                                 .toString()));
                         int trackID = (int) track.getTrackID().getId();
                         TrackDetailsActivity.navigate(getActivity(), transitionView, trackID);
+                        // Initialize the mapview and the trackpath
                     }
 
                     @Override
@@ -147,6 +158,11 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                     @Override
                     public void showToast(String message) {
                         Toast.makeText(getActivity(),message,Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onTrackStatsClicked(Track track) {
+                        TrackStatisticsActivity.createInstance(getActivity(),(int) track.getTrackID().getId());
                     }
                 }, PreferencesHandler.isDieselConsumptionEnabled(getActivity()));
     }

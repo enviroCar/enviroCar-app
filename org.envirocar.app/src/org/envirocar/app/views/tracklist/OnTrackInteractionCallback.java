@@ -36,7 +36,7 @@ interface OnTrackInteractionCallback {
      * @param track          the track to show the details for.
      * @param transitionView the transition view
      */
-    void onTrackDetailsClicked(Track track, View transitionView);
+    void onTrackMapClicked(Track track, View transitionView);
 
     /**
      * On delete track clicked.
@@ -72,4 +72,7 @@ interface OnTrackInteractionCallback {
      *
      * @param message the message to toast
      */
-    void showToast(String message);}
+    void showToast(String message);
+
+    void onTrackStatsClicked(Track track);
+}

@@ -245,7 +245,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
             switch (item.getItemId()) {
                 case R.id.menu_tracklist_cardlayout_item_details:
-                    mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
+                    mTrackInteractionCallback.onTrackMapClicked(track, holder.mMapView);
                     break;
                 case R.id.menu_tracklist_cardlayout_item_delete:
                     mTrackInteractionCallback.onDeleteTrackClicked(track);
@@ -264,7 +264,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
         // over the map view.
         holder.mInvisMapButton.setOnClickListener(v -> {
             LOG.info("Clicked on the map. Navigate to the details activity");
-            mTrackInteractionCallback.onTrackDetailsClicked(track, holder.mMapView);
+            mTrackInteractionCallback.onTrackMapClicked(track, holder.mMapView);
         });*/
     }
 

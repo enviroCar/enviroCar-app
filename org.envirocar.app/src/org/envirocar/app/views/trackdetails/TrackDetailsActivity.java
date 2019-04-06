@@ -87,9 +87,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         Intent intent = new Intent(activity, TrackDetailsActivity.class);
         intent.putExtra(EXTRA_TRACKID, trackID);
 
-        ActivityOptionsCompat options = ActivityOptionsCompat.
-                makeSceneTransitionAnimation(activity, transition, "transition_track_details");
-        ActivityCompat.startActivity(activity, intent, options.toBundle());
+        ActivityCompat.startActivity(activity, intent, null);
     }
 
     private static final DecimalFormat DECIMAL_FORMATTER_TWO_DIGITS = new DecimalFormat("#.##");
@@ -196,6 +194,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         mMapViewExpandedCancel.setOnClickListener(v-> closeExpandedMapView());
         //expanding the expandable mapview on clicking the framelayout which is surrounded by header map view in collapsingtoolbarlayout
         mMapViewContainer.setOnClickListener(v-> expandMapView(track));
+        mMapViewContainer.performClick();
     }
 
     private void updateStatusBarColor() {
