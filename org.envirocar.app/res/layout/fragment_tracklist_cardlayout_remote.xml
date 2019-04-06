@@ -1,110 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-
-    Copyright (C) 2013 - 2015 the enviroCar community
-
-    This file is part of the enviroCar app.
-
-    The enviroCar app is free software: you can redistribute it and/or
-    modify it under the terms of the GNU General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    The enviroCar app is distributed in the hope that it will be useful, but
-    WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
-    Public License for more details.
-
-    You should have received a copy of the GNU General Public License along
-    with the enviroCar app. If not, see http://www.gnu.org/licenses/.
-
--->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:layout_margin="10dp"
+    android:layout_marginLeft="10dp"
+    android:layout_marginTop="3dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginBottom="10dp"
+    app:cardElevation="5dp"
+    card_view:cardCornerRadius="8dp"
+    >
 
-    <android.support.v7.widget.CardView
-        android:id="@+id/card_view"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="8dp"
-        card_view:cardCornerRadius="4dp"
-        card_view:cardElevation="6dp">
+        android:layout_height="match_parent"
+        android:focusable="true"
+        android:clickable="true"
+        android:id="@+id/tracklist_cardlayout"
+        android:background="?attr/selectableItemBackgroundBorderless">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:id="@+id/card_title"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clipChildren="false"
-            android:clipToPadding="false">
+            android:layout_marginStart="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="12dp"
+            android:orientation="horizontal"
+            android:transitionName="wurst">
 
-            <android.support.v7.widget.Toolbar
-                android:id="@+id/fragment_tracklist_cardlayout_toolbar"
-                style="@style/Widget.enviroCar.Toolbar"
-                android:layout_alignParentTop="true">
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:alpha="0.54"
+                android:src="@drawable/ic_date" />
 
-                <TextView
-                    android:id="@+id/fragment_tracklist_cardlayout_toolbar_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="16dp"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
-                    android:paddingTop="16dp"
-                    android:singleLine="true"
-                    android:text="Track 21.07.2015 10:20:28"
-                    android:textColor="@color/white_cario"
-                    android:textSize="18sp"/>
-
-            </android.support.v7.widget.Toolbar>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="100dp"
-                android:layout_below="@id/fragment_tracklist_cardlayout_toolbar">
-
-                <TextView
-                    android:id="@+id/fragment_tracklist_cardlayout_downloading_notification"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:text="Downloading..."
-                    android:textSize="22sp"
-                    android:visibility="gone"/>
-
-            </RelativeLayout>
-
-            <include
-                layout="@layout/fragment_tracklist_cardlayout_content"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/fragment_tracklist_cardlayout_toolbar"
-                android:visibility="gone"/>
-
-            <com.github.jorgecastilloprz.FABProgressCircle
-                android:id="@+id/fragment_tracklist_cardlayout_remote_progresscircle"
+            <TextView
+                android:id="@+id/card_title_date"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="@dimen/fab_margin_16"
-                android:paddingTop="@dimen/fab_margin_download_button_top"
-                card_view:reusable="true">
+                android:alpha="0.8"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
 
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/fragment_tracklist_cardlayout_remote_downloadfab"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="@dimen/spacing_small"
-                    android:src="@drawable/ic_cloud_download_white_24dp"
-                    tools:borderWidth="0dp"
-                    tools:elevation="12dp"
-                    tools:rippleColor="@color/fab_ripple"/>
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:alpha="0.54"
+                android:src="@drawable/ic_time" />
 
-            </com.github.jorgecastilloprz.FABProgressCircle>
+            <TextView
+                android:id="@+id/card_title_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="0.8"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:transitionName="wurst" />
+        </LinearLayout>
+
+
+        <!--Dropdown Button -->
+        <RelativeLayout
+            android:id="@+id/dropdown_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_gravity="end"
+            android:gravity="center">
+
+            <View
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:layout_alignParentEnd="false"
+                android:layout_alignParentRight="false"
+                android:layout_centerVertical="true"
+                android:background="@drawable/ic_arrow_down" />
         </RelativeLayout>
-    </android.support.v7.widget.CardView>
-</LinearLayout>
+        <!--Expandable view-->
+        <LinearLayout
+            android:id="@+id/expand_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/card_title"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:alpha="0.2"
+                android:background="@android:color/darker_gray" />
+
+            <include layout="@layout/activity_track_details_attributes_header" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:alpha="0.34"
+                android:background="@android:color/darker_gray" />
+            <include layout="@layout/activity_track_details_attributes" />
+
+        </LinearLayout>
+    </RelativeLayout>
+</android.support.v7.widget.CardView>

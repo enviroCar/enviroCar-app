@@ -18,19 +18,11 @@
  */
 package org.envirocar.app.views.tracklist;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
-import android.os.Build;
-import android.support.v7.widget.CardView;
-import android.transition.ChangeBounds;
-import android.transition.TransitionManager;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.LinearInterpolator;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Track;
@@ -65,7 +57,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
     public RemoteTrackCardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // Inflate the content view of the card.
         View remoteView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_tracklist_cardlayout_remote2, parent, false);
+                .inflate(R.layout.fragment_tracklist_cardlayout_remote, parent, false);
 
         // and create a new viewholder.
         return new RemoteTrackCardViewHolder(remoteView);
