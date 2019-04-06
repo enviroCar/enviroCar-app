@@ -113,7 +113,6 @@
                 android:alpha="0.34"
                 android:background="@android:color/darker_gray" />
             <include layout="@layout/activity_track_details_attributes" />
-
         </LinearLayout>
     </RelativeLayout>
 </android.support.v7.widget.CardView>

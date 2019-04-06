@@ -33,6 +33,7 @@ import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -44,7 +45,9 @@ import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 import com.mapbox.mapboxsdk.views.MapView;
 
 import org.envirocar.app.R;
+import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.trackdetails.TrackSpeedMapOverlay;
+import org.envirocar.app.views.trackdetails.TrackStatisticsActivity;
 import org.envirocar.app.views.utils.MapUtils;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NoMeasurementsException;
@@ -129,8 +132,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
 
     protected void bindLocalTrackViewHolder(TrackCardViewHolder holder, Track track) {
-        /*holder.mDistance.setText("...");
-        holder.mDuration.setText("...");*/
+        holder.mDistance.setText("...");
+        holder.mDuration.setText("...");
 
         // First, load the track from the dataset
         String[] titleArray = getDateAndTime(track.getName());
@@ -138,8 +141,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
         holder.mDateTitleTextView.setText(titleArray[0]);
         holder.mTimeTitleTextView.setText(titleArray[1]);
 
-        /*// Initialize the mapView.
-        initMapView(holder, track);
+        // Initialize the mapView.
+//        initMapView(holder, track);
 
         // Set all the view parameters.
         new AsyncTask<Void, Void, Void>() {
@@ -182,16 +185,16 @@ public abstract class AbstractTrackListCardAdapter<E extends
             }
         }.execute();
 
-        // if the menu is not already inflated, then..
+        /*// if the menu is not already inflated, then..
         if (!holder.mToolbar.getMenu().hasVisibleItems()) {
             // Inflate the menu and set an appropriate OnMenuItemClickListener.
             holder.mToolbar.inflateMenu(R.menu.menu_tracklist_cardlayout);
             if (track.isRemoteTrack()) {
                 holder.mToolbar.getMenu().removeItem(R.id.menu_tracklist_cardlayout_item_upload);
             }
-        }
+        }*/
 
-        holder.mToolbar.setOnMenuItemClickListener(item -> {
+        /*holder.mToolbar.setOnMenuItemClickListener(item -> {
             LOG.info("Item clicked for track " + track.getTrackID());
 
             switch (item.getItemId()) {
@@ -257,13 +260,18 @@ public abstract class AbstractTrackListCardAdapter<E extends
         protected RelativeLayout buttonLayout;
         @BindView(R.id.tracklist_cardlayout)
         protected RelativeLayout completeCard;
+        @BindView(R.id.map_button)
+        protected Button mapButton;
+        @BindView(R.id.stats_button)
+        protected Button statsButton;
+
         /*@BindView(R.id.fragment_tracklist_cardlayout_content)
-        protected View mContentView;
+        protected View mContentView;*/
         @BindView(R.id.track_details_attributes_header_distance)
         protected TextView mDistance;
         @BindView(R.id.track_details_attributes_header_duration)
         protected TextView mDuration;
-        @BindView(R.id.fragment_tracklist_cardlayout_map)
+        /*@BindView(R.id.fragment_tracklist_cardlayout_map)
         protected MapView mMapView;
         @BindView(R.id.fragment_tracklist_cardlayout_invis_mapbutton)
         protected ImageButton mInvisMapButton;*/
