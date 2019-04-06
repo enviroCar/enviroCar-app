@@ -64,7 +64,11 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
         final Track remoteTrack = mTrackDataset.get(position);
 
         // Reset the most important settings of the views.
-        holder.mTitleTextView.setText(remoteTrack.getName());
+        String[] titleArray = getDateAndTime(remoteTrack.getName());
+
+        holder.mDateTitleTextView.setText(titleArray[0]);
+        holder.mTimeTitleTextView.setText(titleArray[1]);
+
 //        holder.mMapView.getOverlays().clear();
 //        holder.mDownloadButton.setOnClickListener(null);
 //        holder.mToolbar.getMenu().clear();

@@ -24,6 +24,7 @@ import android.os.AsyncTask;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -124,7 +125,10 @@ public abstract class AbstractTrackListCardAdapter<E extends
         holder.mDuration.setText("...");*/
 
         // First, load the track from the dataset
-        holder.mTitleTextView.setText(track.getName());
+        String[] titleArray = getDateAndTime(track.getName());
+
+        holder.mDateTitleTextView.setText(titleArray[0]);
+        holder.mTimeTitleTextView.setText(titleArray[1]);
 
         /*// Initialize the mapView.
         initMapView(holder, track);
@@ -207,6 +211,24 @@ public abstract class AbstractTrackListCardAdapter<E extends
         });*/
     }
 
+    protected String[] getDateAndTime(String title){
+        // Two types of formats 1. Track Apr 2, 2019 9:34:53 AM 2. Track 13.05.16 16:51:56 should parse accordingly
+        String[] dateTimeArray = new String[2];
+        String[] titleSplit = title.split(" ");
+        StringBuilder dateBuilder = new StringBuilder();
+        if(Character.isLetter(titleSplit[1].charAt(0))){
+            //For 1
+            dateBuilder.append(titleSplit[1]).append(" ").append(titleSplit[2]).append(" ").append(titleSplit[3]); // Date
+            dateTimeArray[0] = dateBuilder.toString();
+            dateTimeArray[1] = titleSplit[4] + titleSplit[5];
+        }else{
+            //For 2
+            dateTimeArray[0] = titleSplit[1];
+            dateTimeArray[1] = titleSplit[2];
+        }
+        return dateTimeArray;
+    }
+
 
     /**
      * Initializes the MapView, its base layers and settings.
@@ -274,8 +296,10 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
         /*@BindView(R.id.fragment_tracklist_cardlayout_toolbar)
         protected Toolbar mToolbar;*/
-        @BindView(R.id.card_title)
-        protected TextView mTitleTextView;
+        @BindView(R.id.card_title_date)
+        protected TextView mDateTitleTextView;
+        @BindView(R.id.card_title_time)
+        protected TextView mTimeTitleTextView;
         /*@BindView(R.id.fragment_tracklist_cardlayout_content)
         protected View mContentView;
         @BindView(R.id.track_details_attributes_header_distance)
