@@ -29,8 +29,8 @@
             <ImageView
                 android:layout_width="22dp"
                 android:layout_height="22dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
+                android:layout_marginEnd="6dp"
+                android:layout_marginRight="6dp"
                 android:alpha="0.54"
                 android:src="@drawable/ic_date" />
 
@@ -45,10 +45,10 @@
             <ImageView
                 android:layout_width="22dp"
                 android:layout_height="22dp"
-                android:layout_marginStart="8dp"
+                android:layout_marginStart="14dp"
                 android:layout_marginLeft="14dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginRight="8dp"
+                android:layout_marginEnd="6dp"
+                android:layout_marginRight="6dp"
                 android:alpha="0.54"
                 android:src="@drawable/ic_time" />
 
@@ -67,8 +67,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginRight="5dp"
             android:layout_toStartOf="@id/dropdown_button"
             android:layout_toLeftOf="@id/dropdown_button"
             android:alpha="0.8"
@@ -80,7 +78,7 @@
                 android:layout_width="27dp"
                 android:layout_height="27dp"
                 android:alpha="0.6"
-                android:background="@drawable/ic_more_horiz" />
+                android:background="@drawable/ic_more_verti" />
         </LinearLayout>
 
         <!--Dropdown Button -->

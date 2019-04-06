@@ -119,7 +119,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
                     buttonsToggle(R.id.download_progress, holder);
                     mTrackInteractionCallback.onDownloadTrackClicked(remoteTrack, holder);
                 });
-
+                holder.popupMenuButton.setVisibility(View.GONE);
                 holder.completeCard.setOnClickListener(v -> {
                     mTrackInteractionCallback.showToast("Please click on the button to download the track");
                 });
@@ -131,6 +131,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
             case DOWNLOADED:
                 holder.buttonLayout.setOnClickListener(v -> onClickButton(holder.expandableLayout, holder.buttonLayout, holder.completeCard, position, expandState));
                 holder.completeCard.setOnClickListener(v -> holder.buttonLayout.performClick());
+                holder.popupMenuButton.setVisibility(View.VISIBLE);
                 buttonsToggle(R.id.button_arrow, holder);
                 bindLocalTrackViewHolder(holder, remoteTrack);
                 break;
