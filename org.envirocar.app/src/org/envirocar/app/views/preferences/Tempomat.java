@@ -166,7 +166,7 @@ public final class Tempomat extends FrameLayout {
     private void init(Context context) {
         BaseApplication.get(context).getBaseApplicationComponent().inject(this);
 
-        // This FrameLayout view draws fragment_tracklist_cardlayout_remote on its own. Therefore, this flag has
+        // This FrameLayout view draws fragment_tracklist_cardlayout on its own. Therefore, this flag has
         // to be set to true.
         this.setWillNotDraw(false);
 
