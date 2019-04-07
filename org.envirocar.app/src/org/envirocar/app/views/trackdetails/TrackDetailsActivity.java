@@ -187,14 +187,16 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         updateStatusBarColor();
 
         mFAB.setOnClickListener(v -> {
-           TrackStatisticsActivity.createInstance(TrackDetailsActivity.this, mTrackID);
+            TrackStatisticsActivity.createInstance(TrackDetailsActivity.this, mTrackID);
         });
 
         //closing the expanded mapview on "cancel" button clicked
-        mMapViewExpandedCancel.setOnClickListener(v-> onBackPressed());
+        mMapViewExpandedCancel.setOnClickListener(v -> onBackPressed());
         //expanding the expandable mapview on clicking the framelayout which is surrounded by header map view in collapsingtoolbarlayout
-        mMapViewContainer.setOnClickListener(v-> expandMapView(track));
-        mMapViewContainer.performClick();
+        mMapViewContainer.setOnClickListener(v -> expandMapView(track));
+
+        //TODO:Change this to more appropriate code than to just launch the activity and then launching the mapview
+        mMapViewContainer.performClick(); // This is to skip the activity and directly go to mapview should be changed later
     }
 
     private void updateStatusBarColor() {
@@ -221,7 +223,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
+        super.onBackPressed(); // Skipping the details activity for time being
         /*//if the expandable mapview is expanded, then close it first
         if(mMapViewExpandedContainer != null && mMapViewExpandedContainer.getVisibility() == View.VISIBLE){
             closeExpandedMapView();
@@ -291,35 +293,35 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     }
 
     //function which expands the mapview
-    private void expandMapView(Track track){
+    private void expandMapView(Track track) {
         TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
         final BoundingBox viewBbox = trackMapOverlay.getViewBoundingBox();
         mMapViewExpanded.zoomToBoundingBox(viewBbox, true);
 
-        animateShowView(mMapViewExpandedContainer,R.anim.translate_slide_in_top_fragment);
-        animateHideView(mAppBarLayout,R.anim.translate_slide_out_top_fragment);
-        animateHideView(mNestedScrollView,R.anim.translate_slide_out_bottom);
-        animateHideView(mFAB,R.anim.fade_out);
+        animateShowView(mMapViewExpandedContainer, R.anim.translate_slide_in_top_fragment);
+        animateHideView(mAppBarLayout, R.anim.translate_slide_out_top_fragment);
+        animateHideView(mNestedScrollView, R.anim.translate_slide_out_bottom);
+        animateHideView(mFAB, R.anim.fade_out);
     }
 
     //function which closes the expanded mapview
-    private void closeExpandedMapView(){
-        animateHideView(mMapViewExpandedContainer,R.anim.translate_slide_out_top_fragment);
-        animateShowView(mAppBarLayout,R.anim.translate_slide_in_top_fragment);
-        animateShowView(mNestedScrollView,R.anim.translate_slide_in_bottom_fragment);
-        animateShowView(mFAB,R.anim.fade_in);
+    private void closeExpandedMapView() {
+        animateHideView(mMapViewExpandedContainer, R.anim.translate_slide_out_top_fragment);
+        animateShowView(mAppBarLayout, R.anim.translate_slide_in_top_fragment);
+        animateShowView(mNestedScrollView, R.anim.translate_slide_in_bottom_fragment);
+        animateShowView(mFAB, R.anim.fade_in);
     }
 
     //general function to animate the view and hide it
-    private void animateHideView(View view, int animResource){
-       Animation animation = AnimationUtils.loadAnimation(getApplicationContext(),animResource);
-       view.startAnimation(animation);
-       view.setVisibility(View.GONE);
+    private void animateHideView(View view, int animResource) {
+        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), animResource);
+        view.startAnimation(animation);
+        view.setVisibility(View.GONE);
     }
 
     //general function to animate and show the view
-    private void animateShowView(View view, int animResource){
-        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(),animResource);
+    private void animateShowView(View view, int animResource) {
+        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), animResource);
         view.setVisibility(View.VISIBLE);
         view.startAnimation(animation);
     }

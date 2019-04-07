@@ -74,5 +74,10 @@ interface OnTrackInteractionCallback {
      */
     void showToast(String message);
 
+    /**
+     * On track stats button clicked.
+     *
+     * @param track the track
+     */
     void onTrackStatsClicked(Track track);
 }

@@ -98,7 +98,7 @@ public class TrackListLocalCardAdapter extends AbstractTrackListCardAdapter<
             popup.show();
         });
 
-        holder.buttonLayout.setOnClickListener(v -> onClickButton(holder.expandableLayout, holder.buttonLayout, holder.completeCard, position, expandState));
+        holder.buttonLayout.setOnClickListener(v -> onClickArrowButton(holder.expandableLayout, holder.buttonLayout, holder.completeCard, position, expandState));
         holder.completeCard.setOnClickListener(v -> holder.buttonLayout.performClick());
         bindLocalTrackViewHolder(holder, mTrackDataset.get(position));
     }

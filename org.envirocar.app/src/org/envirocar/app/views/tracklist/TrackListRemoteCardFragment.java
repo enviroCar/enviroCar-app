@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2015 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -75,7 +75,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MainActivityComponent mainActivityComponent =  BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
+        MainActivityComponent mainActivityComponent = BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
         mainActivityComponent.inject(this);
     }
 
@@ -157,14 +157,15 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
 
                     @Override
                     public void showToast(String message) {
-                        Toast.makeText(getActivity(),message,Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
                     }
 
                     @Override
                     public void onTrackStatsClicked(Track track) {
-                        TrackStatisticsActivity.createInstance(getActivity(),(int) track.getTrackID().getId());
+                        TrackStatisticsActivity.createInstance(getActivity(), (int) track.getTrackID().getId());
                     }
-                }, PreferencesHandler.isDieselConsumptionEnabled(getActivity()));
+                },
+                PreferencesHandler.isDieselConsumptionEnabled(getActivity()));
     }
 
     @Override

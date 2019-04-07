@@ -22,11 +22,9 @@ import android.content.Context;
 import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
-import android.widget.Toast;
 
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Track;
@@ -108,7 +106,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
         holder.expandableLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
         holder.buttonLayout.setRotation(expandState.get(position) ? 180f : 0f);
 
-        holder.buttonLayout.setOnClickListener(v -> onClickButton(holder.expandableLayout, holder.buttonLayout, holder.completeCard, position, expandState));
+        holder.buttonLayout.setOnClickListener(v -> onClickArrowButton(holder.expandableLayout, holder.buttonLayout, holder.completeCard, position, expandState));
         holder.completeCard.setOnClickListener(v -> holder.buttonLayout.performClick());
         holder.mapButton.setOnClickListener(view -> mTrackInteractionCallback.onTrackMapClicked(remoteTrack, null));
         holder.statsButton.setOnClickListener(view -> mTrackInteractionCallback.onTrackStatsClicked(remoteTrack));
@@ -129,7 +127,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
                 buttonsToggle(R.id.download_progress, holder);
                 break;
             case DOWNLOADED:
-                holder.buttonLayout.setOnClickListener(v -> onClickButton(holder.expandableLayout, holder.buttonLayout, holder.completeCard, position, expandState));
+                holder.buttonLayout.setOnClickListener(v -> onClickArrowButton(holder.expandableLayout, holder.buttonLayout, holder.completeCard, position, expandState));
                 holder.completeCard.setOnClickListener(v -> holder.buttonLayout.performClick());
                 holder.popupMenuButton.setVisibility(View.VISIBLE);
                 buttonsToggle(R.id.button_arrow, holder);
@@ -139,7 +137,10 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
     }
 
     /**
-     * Send the ID of the View that should be visible
+     * Send the ID of the View that should be visible, only one should be visible of the three
+     *
+     * @param toggle the toggle
+     * @param holder the holder
      */
     public static void buttonsToggle(int toggle, RemoteTrackCardViewHolder holder) {
         switch (toggle) {

@@ -125,7 +125,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
     }
 
 
-    @SuppressLint("StaticFieldLeak")
+    @SuppressLint("StaticFieldLeak") //The leak is handled by the scheduler
     protected void bindLocalTrackViewHolder(TrackCardViewHolder holder, Track track) {
 
         // First, load the track from the dataset
@@ -133,10 +133,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
         holder.mDateTitleTextView.setText(titleArray[0]);
         holder.mTimeTitleTextView.setText(titleArray[1]);
-        // Initialize the mapView.
-//        initMapView(holder, track);
 
-        // Set all the view parameters. This might lead to data leak
+        // Set all the view parameters.
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... params) {
@@ -158,7 +156,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
                             holder.mCarDetails.setText(CarUtils.carToStringWithLinebreak(track.getCar()));
                             //Begin, End values
                             try {
-                                holder.mBeginValue.setText(DATE_FORMAT.format(new Date(track.getStartTime())));                            holder.mEndValue.setText(DATE_FORMAT.format(new Date(track.getEndTime())));
+                                holder.mBeginValue.setText(DATE_FORMAT.format(new Date(track.getStartTime())));
+                                holder.mEndValue.setText(DATE_FORMAT.format(new Date(track.getEndTime())));
                                 holder.mEndValue.setText(DATE_FORMAT.format(new Date(track.getEndTime())));
                             } catch (NoMeasurementsException e) {
                                 e.printStackTrace();
@@ -209,44 +208,14 @@ public abstract class AbstractTrackListCardAdapter<E extends
                 return null;
             }
         }.execute();
-
-        /*// if the menu is not already inflated, then..
-        if (!holder.mToolbar.getMenu().hasVisibleItems()) {
-            // Inflate the menu and set an appropriate OnMenuItemClickListener.
-            holder.mToolbar.inflateMenu(R.menu.menu_tracklist_cardlayout);
-            if (track.isRemoteTrack()) {
-                holder.mToolbar.getMenu().removeItem(R.id.menu_tracklist_cardlayout_item_upload);
-            }
-        }*/
-
-        /*holder.mToolbar.setOnMenuItemClickListener(item -> {
-            LOG.info("Item clicked for track " + track.getTrackID());
-
-            switch (item.getItemId()) {
-                case R.id.menu_tracklist_cardlayout_item_details:
-                    mTrackInteractionCallback.onTrackMapClicked(track, holder.mMapView);
-                    break;
-                case R.id.menu_tracklist_cardlayout_item_delete:
-                    mTrackInteractionCallback.onDeleteTrackClicked(track);
-                    break;
-                case R.id.menu_tracklist_cardlayout_item_export:
-                    mTrackInteractionCallback.onExportTrackClicked(track);
-                    break;
-                case R.id.menu_tracklist_cardlayout_item_upload:
-                    mTrackInteractionCallback.onUploadTrackClicked(track);
-                    break;
-            }
-            return false;
-        });
-
-        // Initialize the OnClickListener for the invisible button that is overlaid
-        // over the map view.
-        holder.mInvisMapButton.setOnClickListener(v -> {
-            LOG.info("Clicked on the map. Navigate to the details activity");
-            mTrackInteractionCallback.onTrackMapClicked(track, holder.mMapView);
-        });*/
     }
 
+    /**
+     * Get parsed date and time from the title
+     *
+     * @param title the title
+     * @return the string [ ]
+     */
     protected String[] getDateAndTime(String title){
         // Two types of formats 1. Track Apr 2, 2019 9:34:53 AM 2. Track 13.05.16 16:51:56 should parse accordingly
         String[] dateTimeArray = new String[2];
@@ -267,14 +236,9 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
 
     /**
-     *
+     * The Track card view holder.
      */
     static class TrackCardViewHolder extends RecyclerView.ViewHolder {
-        protected final View mItemView;
-
-        /*@BindView(R.id.fragment_tracklist_cardlayout_toolbar)
-        protected Toolbar mToolbar;*/
-
         @BindView(R.id.card_title_date)
         protected TextView mDateTitleTextView;
         @BindView(R.id.card_title_time)
@@ -319,7 +283,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
          */
         public TrackCardViewHolder(View itemView) {
             super(itemView);
-            this.mItemView = itemView;
             ButterKnife.bind(this, itemView);
         }
 
@@ -346,70 +309,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
     static class RemoteTrackCardViewHolder extends TrackCardViewHolder {
 
         /**
-         * Initializes the MapView, its base layers and settings.
-         */
-    /*protected void initMapView(TrackCardViewHolder holder, Track track) {
-        // First, clear the overlays in the MapView.
-        holder.mMapView.getOverlays().clear();
-
-        // Set the openstreetmap tile layer as baselayer of the map.
-        WebSourceTileLayer layer = MapUtils.getOSMTileLayer();
-        holder.mMapView.setTileSource(layer);
-
-        // set the bounding box and min and max zoom level accordingly.
-        BoundingBox box = layer.getBoundingBox();
-        holder.mMapView.setDiskCacheEnabled(true);
-        holder.mMapView.setScrollableAreaLimit(box);
-        holder.mMapView.setMinZoomLevel(holder.mMapView.getTileProvider().getMinimumZoomLevel());
-        holder.mMapView.setMaxZoomLevel(holder.mMapView.getTileProvider().getMaximumZoomLevel());
-//        holder.mMapView.setCenter(holder.mMapView.getTileProvider().getCenterCoordinate());
-        holder.mMapView.setZoom(0);
-
-        if (track.getMeasurements().size() > 0) {
-            new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... params) {
-                    // Configure the line representation.
-                    Paint linePaint = new Paint();
-                    linePaint.setStyle(Paint.Style.STROKE);
-                    linePaint.setColor(Color.BLUE);
-                    linePaint.setStrokeWidth(5);
-
-                    TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
-                    trackMapOverlay.setPaint(linePaint);
-
-                    final BoundingBox bbox = trackMapOverlay.getTrackBoundingBox();
-                    final BoundingBox viewBbox = trackMapOverlay.getViewBoundingBox();
-                    final BoundingBox scrollableLimit = trackMapOverlay.getScrollableLimitBox();
-
-                    LOG.warn("trying to zoom to track bbox");
-                    mMainThreadWorker.schedule(new Action0() {
-                        @Override
-                        public void call() {
-                            holder.mMapView.getOverlays().add(trackMapOverlay);
-                            LOG.warn("bbox " + bbox);
-                            // Set the computed parameters on the main thread.
-                            holder.mMapView.setScrollableAreaLimit(scrollableLimit);
-                            LOG.warn("scrollable limit " + scrollableLimit.toString());
-                            holder.mMapView.setConstraintRegionFit(true);
-                            holder.mMapView.zoomToBoundingBox(viewBbox, true);
-                            LOG.warn("zooming to " + viewBbox.toString());
-                        }
-                    });
-                    return null;
-                }
-            }.execute();
-        }
-    }*/
-
-        /*@BindView(R.id.fragment_tracklist_cardlayout_remote_progresscircle)
-        protected FABProgressCircle mProgressCircle;
-        @BindView(R.id.fragment_tracklist_cardlayout_remote_downloadfab)
-        protected FloatingActionButton mDownloadButton;
-        @BindView(R.id.fragment_tracklist_cardlayout_downloading_notification)
-        protected TextView mDownloadNotification;*/
-
-        /**
          * Constructor.
          *
          * @param itemView the card view of the
@@ -419,7 +318,17 @@ public abstract class AbstractTrackListCardAdapter<E extends
         }
     }
 
-    public void onClickButton(final LinearLayout expandableLayout, final RelativeLayout buttonLayout, RelativeLayout completeCard, final int i, SparseBooleanArray expandState) {
+
+    /**
+     * Should be called when arrow button is clicked
+     *
+     * @param expandableLayout the expandable layout
+     * @param buttonLayout     the button layout
+     * @param completeCard     the complete card
+     * @param i                the
+     * @param expandState      the expand state
+     */
+    public void onClickArrowButton(final LinearLayout expandableLayout, final RelativeLayout buttonLayout, RelativeLayout completeCard, final int i, SparseBooleanArray expandState) {
 
 
         //Simply set View to Gone if not expanded
