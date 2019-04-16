@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 
     Copyright (C) 2013 - 2015 the enviroCar community
 
@@ -36,57 +35,27 @@
         layout="@layout/fragment_tracklist_info_view"
         android:visibility="gone" />
 
-    <RelativeLayout
-        android:id="@+id/fragment_tracklist_progress_view"
+    <ProgressBar
+        android:id="@+id/fragment_tracklist_progress_progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:padding="5dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="-5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_centerHorizontal="true"
         android:layout_alignParentTop="true"
-        android:background="#33202020">
-
-        <ProgressBar
-            android:id="@+id/fragment_tracklist_progress_progressBar"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_gravity="center"
-            android:layout_marginLeft="@dimen/spacing_xlarge"
-            android:layout_marginRight="@dimen/spacing_medium"
-            android:progressTint="@color/white_cario"
-            android:layout_marginStart="@dimen/spacing_xlarge"
-            android:layout_marginEnd="@dimen/spacing_medium" />
-
-        <TextView
-            android:id="@+id/fragment_tracklist_progress_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_gravity="center"
-            android:layout_marginLeft="@dimen/spacing_medium"
-            android:text="@string/track_list_loading_tracks"
-            android:textColor="@color/white_cario"
-            android:textSize="24sp"
-            android:layout_marginStart="@dimen/spacing_medium" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_marginLeft="@dimen/spacing_large"
-            android:layout_marginRight="@dimen/spacing_large">
-
-        </LinearLayout>
-    </RelativeLayout>
+        android:layout_gravity="center"
+        android:indeterminate="true" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fragment_tracklist_fab"
         style="@style/Widget.enviroCar.Fab"
-        android:visibility="gone"
-        android:src="@drawable/ic_cloud_upload_white_24dp"
-        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
         android:layout_gravity="bottom|end"
-        android:layout_alignParentEnd="true" />
+        android:src="@drawable/ic_cloud_upload_white_24dp"
+        android:visibility="gone" />
 
 </RelativeLayout>

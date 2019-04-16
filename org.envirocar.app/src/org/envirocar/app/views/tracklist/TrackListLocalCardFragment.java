@@ -444,8 +444,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                         public void onStart() {
                             LOG.info("onStart() allLocalTracks");
                             mMainThreadWorker.schedule(() -> {
-                                mProgressView.setVisibility(View.VISIBLE);
-                                mProgressText.setText(R.string.track_list_loading_tracks);
+                                mProgressBar.setVisibility(View.VISIBLE);
                             });
 
                         }
@@ -480,7 +479,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                                 }
                             }
 
-                            mProgressView.setVisibility(View.INVISIBLE);
+                            mProgressBar.setVisibility(View.INVISIBLE);
                             if (newTrackAdded) {
                                 Collections.sort(mTrackList);
 

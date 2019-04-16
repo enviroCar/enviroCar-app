@@ -91,7 +91,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                     R.string.track_list_bg_not_logged_in,
                     R.string.track_list_bg_not_logged_in_sub);
 
-            mProgressView.setVisibility(View.INVISIBLE);
+            mProgressBar.setVisibility(View.INVISIBLE);
             mRecyclerView.setVisibility(View.GONE);
             mRecyclerViewAdapter.mTrackDataset.clear();
             mRecyclerViewAdapter.notifyDataSetChanged();
@@ -247,8 +247,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         public void onStart() {
                             LOG.info("onStart() tracks in db");
                             mMainThreadWorker.schedule(() -> {
-                                mProgressView.setVisibility(View.VISIBLE);
-                                mProgressText.setText(R.string.track_list_loading_tracks);
+                                mProgressBar.setVisibility(View.VISIBLE);
                             });
                         }
 
@@ -291,8 +290,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         public void onStart() {
                             LOG.info("onStart() tracks in db");
                             mMainThreadWorker.schedule(() -> {
-                                mProgressView.setVisibility(View.VISIBLE);
-                                mProgressText.setText(R.string.track_list_loading_tracks);
+                                mProgressBar.setVisibility(View.VISIBLE);
                             });
                         }
 
@@ -321,7 +319,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                                 }
                             }
 
-                            ECAnimationUtils.animateHideView(getActivity(), mProgressView,
+                            ECAnimationUtils.animateHideView(getActivity(), mProgressBar,
                                     R.anim.fade_out);
                         }
 
@@ -364,7 +362,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                 isSorted = true;
                 Collections.sort(mTrackList);
             }
-            ECAnimationUtils.animateHideView(getActivity(), mProgressView, R.anim.fade_out);
+            ECAnimationUtils.animateHideView(getActivity(), mProgressBar, R.anim.fade_out);
 
             if (mTrackList.isEmpty()) {
                 showText(R.drawable.img_tracks,

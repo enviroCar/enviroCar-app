@@ -104,10 +104,6 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
     @BindView(R.id.fragment_tracklist_info_subtext)
     protected TextView infoSubtext;
 
-    @BindView(R.id.fragment_tracklist_progress_view)
-    protected View mProgressView;
-    @BindView(R.id.fragment_tracklist_progress_text)
-    protected TextView mProgressText;
     @BindView(R.id.fragment_tracklist_progress_progressBar)
     protected ProgressBar mProgressBar;
     @BindView(R.id.fragment_tracklist_recycler_view)
@@ -467,12 +463,11 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
 
     protected void showProgressView(String text) {
         mMainThreadWorker.schedule(() -> {
-            mProgressView.setVisibility(View.VISIBLE);
-            mProgressText.setText(text);
+            mProgressBar.setVisibility(View.VISIBLE);
         });
     }
 
     protected void hideProgressView() {
-        ECAnimationUtils.animateHideView(getActivity(), mProgressView, R.anim.fade_out);
+        ECAnimationUtils.animateHideView(getActivity(), mProgressBar, R.anim.fade_out);
     }
 }
