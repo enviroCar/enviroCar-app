@@ -118,5 +118,7 @@ android {
 
     defaultConfig {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
     }
 }
