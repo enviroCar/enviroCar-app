@@ -27,6 +27,7 @@ public interface PreferenceConstants {
     String PREF_EMPTY = "";
     String PREF_BLUETOOTH_NAME = "bluetooth_name";
     String PREF_BLUETOOTH_ADDRESS = "bluetooth_address";
+    String PREF_ENABLE_GPS_BASED_TRACK_RECORDING = "pref_enable_gps_based_track_recording";
 
     String PREF_BLUETOOTH_SERVICE_AUTOSTART = "pref_bluetooth_service_autostart";
     String PREF_BLUETOOTH_AUTOCONNECT = "pref_bluetooth_autoconnect";

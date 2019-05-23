@@ -24,10 +24,12 @@ import android.content.Context;
 import com.google.common.base.Preconditions;
 
 import org.envirocar.app.R;
+import org.envirocar.app.exception.GPSOnlyTrackCannotUploadException;
 import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.exception.TrackAlreadyUploadedException;
 import org.envirocar.app.rxutils.ItemForwardSubscriber;
 import org.envirocar.app.rxutils.SingleItemForwardSubscriber;
+import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.TrackWithNoValidCarException;
@@ -193,6 +195,10 @@ public class TrackUploadHandler {
                     String infoText = mContext.getString(R.string.trackviews_not_logged_in);
                     LOG.info(infoText);
                     throw OnErrorThrowable.from(new NotLoggedInException(infoText));
+                } else if (!track.hasProperty(Measurement.PropertyKey.SPEED)){
+                    String infoText = mContext.getString(R.string.trackviews_cannot_upload_gps_tracks);
+                    LOG.info(infoText);
+                    throw OnErrorThrowable.from(new GPSOnlyTrackCannotUploadException(infoText));
                 }
                 return track;
             }

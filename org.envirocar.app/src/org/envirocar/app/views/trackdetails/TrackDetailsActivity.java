@@ -46,12 +46,13 @@ import com.mapbox.mapboxsdk.geometry.BoundingBox;
 import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 import com.mapbox.mapboxsdk.views.MapView;
 
-import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.views.utils.MapUtils;
 import org.envirocar.core.entity.Car;
+import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.NoMeasurementsException;
@@ -139,6 +140,12 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected ImageView mMapViewExpandedCancel;
     @BindView(R.id.activity_track_details_header_map_container)
     protected FrameLayout mMapViewContainer;
+    @BindView(R.id.consumption_container)
+    protected RelativeLayout mConsumptionContainer;
+    @BindView(R.id.co2_container)
+    protected RelativeLayout mCo2Container;
+    @BindView(R.id.descriptionTv)
+    protected TextView descriptionTv;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -340,7 +347,12 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
             // show consumption and emission either when the fuel type of the track's car is
             // gasoline or the beta setting has been enabled.
-            if (track.getCar().getFuelType() == Car.FuelType.GASOLINE ||
+            if(!track.hasProperty(Measurement.PropertyKey.SPEED)){
+                mConsumptionContainer.setVisibility(View.GONE);
+                mCo2Container.setVisibility(View.GONE);
+                descriptionTv.setText(R.string.gps_track_details);
+            }
+            else if (track.getCar().getFuelType() == Car.FuelType.GASOLINE ||
                     PreferencesHandler.isDieselConsumptionEnabled(this)) {
                 mEmissionText.setText(DECIMAL_FORMATTER_TWO_DIGITS.format(
                         ((TrackStatisticsProvider) track).getGramsPerKm()) + " g/km");
@@ -358,6 +370,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 mEmissionText.setTextColor(Color.RED);
                 mConsumptionText.setTextColor(Color.RED);
             }
+
         } catch (FuelConsumptionException e) {
             e.printStackTrace();
         } catch (NoMeasurementsException e) {

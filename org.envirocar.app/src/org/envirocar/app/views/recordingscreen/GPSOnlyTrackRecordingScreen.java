@@ -15,20 +15,19 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.app.events.DrivingDetectedEvent;
-import org.envirocar.app.main.BaseApplicationComponent;
-import org.envirocar.app.main.BaseMainActivityBottomBar;
-import org.envirocar.app.main.MainActivityComponent;
-import org.envirocar.app.main.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.events.AvrgSpeedUpdateEvent;
 import org.envirocar.app.events.DistanceValueUpdateEvent;
+import org.envirocar.app.events.DrivingDetectedEvent;
 import org.envirocar.app.events.StartingTimeEvent;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.main.BaseMainActivityBottomBar;
+import org.envirocar.app.main.MainActivityComponent;
+import org.envirocar.app.main.MainActivityModule;
 import org.envirocar.app.services.GPSOnlyConnectionService;
-import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
@@ -80,7 +79,7 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
 
     //viewTypeInGeneral = 1 means meter view
     //viewTypeInGeneral = 2 means map view
-    private static int viewTypeInGeneral = 1;
+    private static int viewTypeInGeneral = 2;
 
     private Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
 
@@ -115,6 +114,7 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
         fragmentTransaction.commit();
 
         initAnimations();
+        updateDrivingViews(GPSOnlyConnectionService.drivingDetected);
     }
 
     @Override
@@ -128,11 +128,6 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
         }
     }
 
-    @Subscribe
-    public void onReceiveBluetoothStateChangedEvent(BluetoothStateChangedEvent event) {
-        LOGGER.info(String.format("Received event: %s", event.toString()));
-        mMainThreadWorker.schedule(() -> updateBluetoothViews(event.isBluetoothEnabled));
-    }
 
     @Subscribe
     public void onReceiveTrackRecordingServiceStateChangedEvent(
@@ -158,8 +153,7 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
     @Subscribe
     public void onReceiveDrivingDetectedEvent(DrivingDetectedEvent event) {
         mMainThreadWorker.schedule(() -> {
-            if(event.mDrivingDetected) mBluetoothImage.setImageResource(R.drawable.driving);
-            else mBluetoothImage.setImageResource(R.drawable.not_driving);
+            updateDrivingViews(event.mDrivingDetected);
         });
     }
 
@@ -211,17 +205,6 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
                 .show();
     }
 
-    /**
-     * @param isConnected
-     */
-    private void updateBluetoothViews(boolean isConnected) {
-        if (isConnected) {
-            mBluetoothImage.setImageResource(R.drawable.ic_bluetooth_white_24dp);
-        } else {
-            mBluetoothImage.setImageResource(R.drawable.ic_bluetooth_disabled_black_24dp);
-        }
-    }
-
     private void updateLocationViews(boolean isFix) {
         if (isFix) {
             mGpsImage.setImageResource(R.drawable.ic_location_on_white_24dp);
@@ -230,22 +213,30 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
         }
     }
 
+    private void updateDrivingViews(boolean isDriving) {
+        if (isDriving) {
+            mBluetoothImage.setImageResource(R.drawable.driving);
+        } else {
+            mBluetoothImage.setImageResource(R.drawable.not_driving);
+        }
+    }
+
     private void updateTheDisplayViewsGeneral(){
-        viewTypeInGeneral = PreferencesHandler.getPreviousViewTypeGeneralRecordingScreen(this);
+        viewTypeInGeneral = PreferencesHandler.getPreviousViewTypeGeneralForGPSRecordingScreen(this);
 
         if(viewTypeInGeneral == 2){
-            animateViewTransition(trackMapContainer,R.anim.translate_slide_in_right_card,false);
-            animateViewTransition(trackSingleMeterContainer,R.anim.translate_slide_out_left_card,true);
+            animateViewTransition(trackMapContainer,R.anim.translate_slide_in_left_card,false);
+            animateViewTransition(trackSingleMeterContainer,R.anim.translate_slide_out_right_card,true);
         }else{
-            animateViewTransition(trackMapContainer,R.anim.translate_slide_out_right_card,true);
-            animateViewTransition(trackSingleMeterContainer,R.anim.translate_slide_in_left_card,false);
+            animateViewTransition(trackMapContainer,R.anim.translate_slide_out_left_card,true);
+            animateViewTransition(trackSingleMeterContainer,R.anim.translate_slide_in_right_card,false);
         }
 
     }
 
     private void initAnimations(){
         animateViewTransition(trackDetailsContainer,R.anim.translate_slide_in_bottom_fragment,false);
-        viewTypeInGeneral = PreferencesHandler.getPreviousViewTypeGeneralRecordingScreen(this);
+        viewTypeInGeneral = PreferencesHandler.getPreviousViewTypeGeneralForGPSRecordingScreen(this);
 
         if(viewTypeInGeneral == 2){
             animateViewTransition(trackMapContainer,R.anim.translate_slide_in_top_fragment,false);

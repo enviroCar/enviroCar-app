@@ -24,8 +24,7 @@ import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
-import org.envirocar.app.services.AutomaticGPSTrackService;
-import org.envirocar.app.services.AutomaticOBDTrackService;
+import org.envirocar.app.services.AutomaticTrackRecordingService;
 import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.TroubleshootingFragment;
 import org.envirocar.app.views.dashboard.DashBoardFragment;
@@ -217,25 +216,13 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(aBoolean -> {
                             if (aBoolean) {
-                                if(!ServiceUtils.isServiceRunning(this, AutomaticOBDTrackService.class)) AutomaticOBDTrackService.startService(this);
+                                if(!ServiceUtils.isServiceRunning(this, AutomaticTrackRecordingService.class)) AutomaticTrackRecordingService.startService(this);
                             } else {
-                                if(ServiceUtils.isServiceRunning(this, AutomaticOBDTrackService.class)) AutomaticOBDTrackService.stopService(this);
+                                if(ServiceUtils.isServiceRunning(this, AutomaticTrackRecordingService.class)) AutomaticTrackRecordingService.stopService(this);
                             }
                         })
         );
 
-        // Start Background handler
-        subscriptions.add(
-                PreferencesHandler.getGPSBackgroundHandlerEnabledObservable(this)
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe(aBoolean -> {
-                            if (aBoolean) {
-                                if(!ServiceUtils.isServiceRunning(this, AutomaticGPSTrackService.class))AutomaticGPSTrackService.startService(this);
-                            } else {
-                                if(ServiceUtils.isServiceRunning(this, AutomaticGPSTrackService.class)) AutomaticGPSTrackService.stopService(this);
-                            }
-                        })
-        );
     }
 
     private void checkKeepScreenOn() {

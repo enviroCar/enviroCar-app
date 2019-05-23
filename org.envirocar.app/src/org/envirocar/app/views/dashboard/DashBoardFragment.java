@@ -9,7 +9,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -40,7 +39,6 @@ import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.LocationHandler;
-import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.TrackDAOHandler;
@@ -78,6 +76,8 @@ import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+
+import static android.view.View.GONE;
 
 public class DashBoardFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(DashBoardFragment.class);
@@ -196,12 +196,19 @@ public class DashBoardFragment extends BaseInjectorFragment {
     private int REQUEST_STORAGE_PERMISSION_REQUEST_CODE = 109;
 
 
-    private static boolean recordingServiceRunning = false;
-
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(getActivity()));
         mainActivityComponent.inject(this);
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if(!PreferencesHandler.getEnableGPSBasedTrackRecording(context)){
+            PreferencesHandler.setPreviouslySelectedRecordingType(context,1);
+        }
     }
 
     @Nullable
@@ -231,74 +238,31 @@ public class DashBoardFragment extends BaseInjectorFragment {
         setCarTypeText(mCarPrefHandler.getCar());
         setOBDTypeText(mBluetoothHandler.getSelectedBluetoothDevice());
 
-
         dashboardSegmentedGroup.setOnCheckedChangeListener((radioGroup, i) -> {
-
-            boolean autoStartGPSService = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
-                    .getBoolean(PreferenceConstants.PREF_GPS_SERVICE_AUTOSTART, false);
-
-            boolean autoStartOBDService = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext())
-                    .getBoolean(PreferenceConstants.PREF_BLUETOOTH_SERVICE_AUTOSTART, false);
-
-            RadioButton obdRadioButton1 = radioGroup.findViewById(R.id.obdPlusGPSSegmentedButton);
-            RadioButton gpsRadioButton1 = radioGroup.findViewById(R.id.GPSOnlySegmentedButton);
 
             switch (i) {
                 case R.id.obdPlusGPSSegmentedButton:
-                    if (!autoStartGPSService) {
-                        DashBoardFragment.this.showOBDPlusGPSSettings();
-                        PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(), 1);
-                        trackType = 1;
-                        DashBoardFragment.this.updateStartStopButtonOBDPlusGPS(OBDConnectionService.CURRENT_SERVICE_STATE);
-                    } else {
-                        //show a dialog that informs user that automatic settings will be turned off
-                        DialogUtils.createDefaultDialogBuilder(DashBoardFragment.this.getContext(),
-                                R.string.gps_automatic_enabled_error_title,
-                                R.drawable.others_settings,
-                                R.string.gps_automatic_enabled_error_content)
-                                .cancelable(false)
-                                .positiveText(R.string.gps_automatic_enabled_error_positive)
-                                .onPositive((dialog, which) -> {
-                                    PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext()).edit().putBoolean(PreferenceConstants.PREF_GPS_SERVICE_AUTOSTART, false)
-                                            .putBoolean(PreferenceConstants.PREF_GPS_AUTOCONNECT, false).apply();
-                                    gpsRadioButton1.setChecked(true);
-                                    obdRadioButton1.setChecked(true);
-                                })
-                                .negativeText(R.string.gps_automatic_enabled_error_negative)
-                                .onNegative((dialog, which) -> gpsRadioButton1.setChecked(true))
-                                .show();
-                    }
+                    DashBoardFragment.this.showOBDPlusGPSSettings();
+                    PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(), 1);
+                    trackType = 1;
+                    DashBoardFragment.this.updateStartStopButtonOBDPlusGPS(OBDConnectionService.CURRENT_SERVICE_STATE);
                     break;
                 case R.id.GPSOnlySegmentedButton:
-                    if (!autoStartOBDService) {
-                        DashBoardFragment.this.showGPSOnlySettings();
-                        PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(), 2);
-                        trackType = 2;
-                        DashBoardFragment.this.updateStartStopButtonGPSOnly(GPSOnlyConnectionService.CURRENT_SERVICE_STATE);
-                        DashBoardFragment.this.updateBannerForGPSOnlyType();
-                    } else {
-                        //show a dialog that informs user that automatic settings will be turned off
-                        DialogUtils.createDefaultDialogBuilder(DashBoardFragment.this.getContext(),
-                                R.string.obd_automatic_enabled_error_title,
-                                R.drawable.others_settings,
-                                R.string.obd_automatic_enabled_error_content)
-                                .cancelable(false)
-                                .positiveText(R.string.obd_automatic_enabled_error_positive)
-                                .onPositive((dialog, which) -> {
-                                    PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext()).edit().putBoolean(PreferenceConstants.PREF_BLUETOOTH_SERVICE_AUTOSTART, false)
-                                            .putBoolean(PreferenceConstants.PREF_BLUETOOTH_AUTOCONNECT, false).apply();
-                                    obdRadioButton1.setChecked(true);
-                                    gpsRadioButton1.setChecked(true);
-                                })
-                                .negativeText(R.string.obd_automatic_enabled_error_negative)
-                                .onNegative((dialog, which) -> obdRadioButton1.setChecked(true))
-                                .show();
-                    }
+                    DashBoardFragment.this.showGPSOnlySettings();
+                    PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(), 2);
+                    trackType = 2;
+                    DashBoardFragment.this.updateStartStopButtonGPSOnly(GPSOnlyConnectionService.CURRENT_SERVICE_STATE);
+                    DashBoardFragment.this.updateBannerForGPSOnlyType();
                     break;
                 default:
                     break;
             }
         });
+
+        if(!PreferencesHandler.getEnableGPSBasedTrackRecording(context)){
+            dashboardSegmentedGroup.check( R.id.obdPlusGPSSegmentedButton);
+            dashboardSegmentedGroup.setVisibility(GONE);
+        }
 
         if(!checkStoragePermissions())
         {
@@ -430,7 +394,6 @@ public class DashBoardFragment extends BaseInjectorFragment {
             showOBDPlusGPSSettings();
             trackType = 1;
         }else{
-            // obdRadioButton.setChecked(false);
             gpsRadioButton.setChecked(true);
             showGPSOnlySettings();
             trackType = 2;
@@ -632,7 +595,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
             dashBoardUserName.setVisibility(View.VISIBLE);
             dashBoardUserImageView.setVisibility(View.VISIBLE);
             userStatisticsContainer.setVisibility(View.VISIBLE);
-            userLoginSignupButtonContainer.setVisibility(View.GONE);
+            userLoginSignupButtonContainer.setVisibility(GONE);
 
             dashBoardUserName.setText(mUserManager.getUser().getUsername());
 
@@ -674,9 +637,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
             });
 
         }else{
-            dashBoardUserName.setVisibility(View.GONE);
-            dashBoardUserImageView.setVisibility(View.GONE);
-            userStatisticsContainer.setVisibility(View.GONE);
+            dashBoardUserName.setVisibility(GONE);
+            dashBoardUserImageView.setVisibility(GONE);
+            userStatisticsContainer.setVisibility(GONE);
             userLoginSignupButtonContainer.setVisibility(View.VISIBLE);
         }
     }
@@ -756,7 +719,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    view.setVisibility(View.GONE);
+                    view.setVisibility(GONE);
                 }
 
                 @Override
@@ -849,28 +812,28 @@ public class DashBoardFragment extends BaseInjectorFragment {
     }
 
     private void updateBannerForGPSOnlyType(){
-        errorImageBluetooth.setVisibility(View.GONE);
-        errorImageOBDAdapter.setVisibility(View.GONE);
-        okImageBluetooth.setVisibility(View.GONE);
-        okImageOBDAdapter.setVisibility(View.GONE);
+        errorImageBluetooth.setVisibility(GONE);
+        errorImageOBDAdapter.setVisibility(GONE);
+        okImageBluetooth.setVisibility(GONE);
+        okImageOBDAdapter.setVisibility(GONE);
 
         bannerBluetoothContainer.setAlpha(0.5f);
         bannerOBDAdapterContainer.setAlpha(0.5f);
 
         if(!mLocationHandler.isGPSEnabled()){
             errorImageGPS.setVisibility(View.VISIBLE);
-            okImageGPS.setVisibility(View.GONE);
+            okImageGPS.setVisibility(GONE);
         }
         else{
-            errorImageGPS.setVisibility(View.GONE);
+            errorImageGPS.setVisibility(GONE);
             okImageGPS.setVisibility(View.VISIBLE);
         }
         if(mCarManager.getCar() == null){
             errorImageCar.setVisibility(View.VISIBLE);
-            okImageCar.setVisibility(View.GONE);
+            okImageCar.setVisibility(GONE);
         }
         else{
-            errorImageCar.setVisibility(View.GONE);
+            errorImageCar.setVisibility(GONE);
             okImageCar.setVisibility(View.VISIBLE);
         }
     }
@@ -880,34 +843,34 @@ public class DashBoardFragment extends BaseInjectorFragment {
         bannerOBDAdapterContainer.setAlpha(1f);
         if(!mBluetoothHandler.isBluetoothEnabled()){
             errorImageBluetooth.setVisibility(View.VISIBLE);
-            okImageBluetooth.setVisibility(View.GONE);
+            okImageBluetooth.setVisibility(GONE);
         }
         else{
-            errorImageBluetooth.setVisibility(View.GONE);
+            errorImageBluetooth.setVisibility(GONE);
             okImageBluetooth.setVisibility(View.VISIBLE);
         }
         if( mBluetoothHandler.getSelectedBluetoothDevice() == null){
             errorImageOBDAdapter.setVisibility(View.VISIBLE);
-            okImageOBDAdapter.setVisibility(View.GONE);
+            okImageOBDAdapter.setVisibility(GONE);
         }
         else{
-            errorImageOBDAdapter.setVisibility(View.GONE);
+            errorImageOBDAdapter.setVisibility(GONE);
             okImageOBDAdapter.setVisibility(View.VISIBLE);
         }
         if(!mLocationHandler.isGPSEnabled()){
             errorImageGPS.setVisibility(View.VISIBLE);
-            okImageGPS.setVisibility(View.GONE);
+            okImageGPS.setVisibility(GONE);
         }
         else{
-            errorImageGPS.setVisibility(View.GONE);
+            errorImageGPS.setVisibility(GONE);
             okImageGPS.setVisibility(View.VISIBLE);
         }
         if(mCarManager.getCar() == null){
             errorImageCar.setVisibility(View.VISIBLE);
-            okImageCar.setVisibility(View.GONE);
+            okImageCar.setVisibility(GONE);
         }
         else {
-            errorImageCar.setVisibility(View.GONE);
+            errorImageCar.setVisibility(GONE);
             okImageCar.setVisibility(View.VISIBLE);
         }
     }
@@ -918,7 +881,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
         switch (state) {
             case SERVICE_STOPPED:
-                disableChangingParametersLayout.setVisibility(View.GONE);
+                disableChangingParametersLayout.setVisibility(GONE);
                 if (hasSettingsSelectedFOROBD()) {
                     updateStartStopButton(getResources().getColor(R.color.green_dark_cario),
                             getString(R.string.dashboard_start_track), true);
@@ -956,7 +919,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
         switch (state) {
             case SERVICE_STOPPED:
-                disableChangingParametersLayout.setVisibility(View.GONE);
+                disableChangingParametersLayout.setVisibility(GONE);
                 if (hasSettingsSelectedFORGPSOnly()) {
                     updateStartStopButton(getResources().getColor(R.color.green_dark_cario),
                             getString(R.string.dashboard_start_track), true);

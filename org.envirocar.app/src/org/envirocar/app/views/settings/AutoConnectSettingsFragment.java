@@ -20,7 +20,6 @@ package org.envirocar.app.views.settings;
 
 import android.content.Context;
 import android.content.Intent;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -33,10 +32,8 @@ import com.squareup.otto.Bus;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.PreferenceConstants;
-import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.main.BaseApplication;
-import org.envirocar.app.services.AutomaticGPSTrackService;
-import org.envirocar.app.services.AutomaticOBDTrackService;
+import org.envirocar.app.services.AutomaticTrackRecordingService;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.InjectApplicationScope;
 import org.envirocar.core.utils.ServiceUtils;
@@ -64,10 +61,6 @@ public class AutoConnectSettingsFragment extends PreferenceFragment {
     private CheckBoxPreference mBackgroundServicePreference;
     private CheckBoxPreference mAutoConnectPrefrence;
     private Preference mSearchIntervalPreference;
-    private CheckBoxPreference mGPSBackgroundServicePreference;
-    private CheckBoxPreference mGPSAutoConnectPrefrence;
-
-    private LocationManager mLocationManager;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -79,19 +72,13 @@ public class AutoConnectSettingsFragment extends PreferenceFragment {
         // Set the preference resource.
         addPreferencesFromResource(R.xml.preferences_auto_connect);
 
-        mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-
-        // Get all preferences that are containes within the obd settings.
+        // Get all preferences
         mBackgroundServicePreference = (CheckBoxPreference) getPreferenceScreen()
                 .findPreference(PreferenceConstants.PREF_BLUETOOTH_SERVICE_AUTOSTART);
         mAutoConnectPrefrence = (CheckBoxPreference)  getPreferenceScreen()
                 .findPreference(PreferenceConstants.PREF_BLUETOOTH_AUTOCONNECT);
         mSearchIntervalPreference = getPreferenceScreen()
                 .findPreference(PreferenceConstants.PREF_BLUETOOTH_DISCOVERY_INTERVAL);
-        mGPSBackgroundServicePreference = (CheckBoxPreference)  getPreferenceScreen()
-                .findPreference(PreferenceConstants.PREF_GPS_SERVICE_AUTOSTART);
-        mGPSAutoConnectPrefrence = (CheckBoxPreference)  getPreferenceScreen()
-                .findPreference(PreferenceConstants.PREF_GPS_AUTOCONNECT);
 
     }
 
@@ -100,24 +87,21 @@ public class AutoConnectSettingsFragment extends PreferenceFragment {
         super.onViewCreated(view, savedInstanceState);
 
 
-        // SwitchPreference preference change listener, which enables and disables bluetooth.
+        // SwitchPreference preference change listener
         mBackgroundServicePreference.setOnPreferenceChangeListener((preference, newValue) -> {
             boolean isChecked = (boolean) newValue;
             mAutoConnectPrefrence.setEnabled(isChecked);
-            mGPSBackgroundServicePreference.setEnabled(!isChecked);
             if (isChecked) {
                 mSearchIntervalPreference.setEnabled(mAutoConnectPrefrence.isChecked());
-                if(mBluetoothHandler.isBluetoothEnabled() && !ServiceUtils.isServiceRunning(
-                        context, AutomaticOBDTrackService.class)) {
-                    Intent startIntent = new Intent(context, AutomaticOBDTrackService.class);
+                if(!ServiceUtils.isServiceRunning(
+                        context, AutomaticTrackRecordingService.class)) {
+                    Intent startIntent = new Intent(context, AutomaticTrackRecordingService.class);
                     context.startService(startIntent);
                 }
             } else {
                 mAutoConnectPrefrence.setChecked(false);
                 mSearchIntervalPreference.setEnabled(false);
             }
-            //setting the tracktype of dashboard
-            PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(),1);
             return true;
         });
 
@@ -127,47 +111,12 @@ public class AutoConnectSettingsFragment extends PreferenceFragment {
             return true;
         });
 
-        mGPSBackgroundServicePreference.setOnPreferenceChangeListener((preference, newValue) -> {
-            boolean isChecked = (boolean) newValue;
-            mGPSAutoConnectPrefrence.setEnabled(isChecked);
-            mBackgroundServicePreference.setEnabled(!isChecked);
-            if(!isChecked){
-                mGPSAutoConnectPrefrence.setChecked(false);
-                //setting the track-type of dashboard
-                PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(),1);
-            }else {
-                PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(),2);
-
-                if (mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && !ServiceUtils.isServiceRunning(
-                        context, AutomaticGPSTrackService.class)) {
-                    Intent startIntent = new Intent(context, AutomaticGPSTrackService.class);
-                    context.startService(startIntent);
-                }
-            }
-            return true;
-        });
-
-        mGPSAutoConnectPrefrence.setOnPreferenceChangeListener((preference, newValue) -> true);
-
         if(!mBackgroundServicePreference.isChecked()){
             mAutoConnectPrefrence.setEnabled(false);
             mSearchIntervalPreference.setEnabled(false);
-            mGPSBackgroundServicePreference.setEnabled(true);
-        }else{
-            mGPSBackgroundServicePreference.setEnabled(false);
-            mGPSAutoConnectPrefrence.setEnabled(false);
         }
 
         if(!mAutoConnectPrefrence.isChecked()){
-            mSearchIntervalPreference.setEnabled(false);
-        }
-
-        if(!mGPSBackgroundServicePreference.isChecked()){
-            mGPSAutoConnectPrefrence.setEnabled(false);
-            mBackgroundServicePreference.setEnabled(true);
-        }else{
-            mBackgroundServicePreference.setEnabled(false);
-            mAutoConnectPrefrence.setEnabled(false);
             mSearchIntervalPreference.setEnabled(false);
         }
 

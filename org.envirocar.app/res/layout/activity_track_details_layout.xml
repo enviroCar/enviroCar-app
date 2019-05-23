@@ -38,7 +38,6 @@
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
             app:expandedTitleMarginEnd="64dp"
-            app:expandedTitleMarginStart="48dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
             app:statusBarScrim="@android:color/transparent">
 
@@ -54,18 +53,9 @@
                 android:id="@+id/activity_track_details_header_map"
                 android:layout_width="match_parent"
                 android:layout_height="350dp"
-                android:fitsSystemWindows="true"
                 android:scaleType="centerCrop"
                 android:transitionName="transition_track_details"
                 app:layout_collapseMode="parallax" />
-
-            <!--TODO-->
-            <!--<LinearLayout-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="50dp"-->
-            <!--android:background="@color/blue_light_cario"-->
-            <!--android:gravity="bottom"-->
-            <!--android:layout_gravity="bottom"></LinearLayout>-->
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/activity_track_details_header_toolbar"

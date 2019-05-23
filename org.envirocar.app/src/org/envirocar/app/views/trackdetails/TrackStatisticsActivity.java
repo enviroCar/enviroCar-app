@@ -193,7 +193,11 @@ public class TrackStatisticsActivity extends BaseInjectorActivity {
             // Inject all annotated views.
             ButterKnife.bind(this, rootView);
 
-            generateData(Measurement.PropertyKey.SPEED);
+            if(mTrack.hasProperty(Measurement.PropertyKey.SPEED)){
+                generateData(Measurement.PropertyKey.SPEED);
+            }else{
+                generateData(Measurement.PropertyKey.GPS_SPEED);
+            }
 
             mChart.setZoomEnabled(false);
             mChart.setScrollEnabled(false);

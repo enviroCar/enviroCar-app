@@ -36,6 +36,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.app.views.utils.ECAnimationUtils;
+import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
@@ -189,8 +190,12 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
             @Override
             public void onUploadTrackClicked(Track track) {
                 LOG.info(String.format("onUploadTrackClicked(%s)", track.getTrackID()));
-                // Upload the track
-                uploadTrack(track);
+                if(track.hasProperty(Measurement.PropertyKey.SPEED)){
+                    // Upload the track
+                    uploadTrack(track);
+                }else {
+                    showSnackbar(R.string.trackviews_cannot_upload_gps_tracks);
+                }
             }
 
             @Override

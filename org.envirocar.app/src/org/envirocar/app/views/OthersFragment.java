@@ -18,15 +18,15 @@ import android.widget.LinearLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
-import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
-import org.envirocar.app.services.AutomaticGPSTrackService;
-import org.envirocar.app.services.AutomaticOBDTrackService;
+import org.envirocar.app.main.BaseApplicationComponent;
+import org.envirocar.app.services.AutomaticTrackRecordingService;
+import org.envirocar.app.services.GPSOnlyConnectionService;
 import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.views.logbook.LogbookActivity;
 import org.envirocar.app.views.settings.SettingsActivity;
@@ -271,9 +271,9 @@ public class OthersFragment extends BaseInjectorFragment {
 
 
     private void shutdownEnviroCar() {
-        AutomaticGPSTrackService.stopService(getActivity());
-        AutomaticOBDTrackService.stopService(getActivity());
+        AutomaticTrackRecordingService.stopService(getActivity());
         OBDConnectionService.stopService(getActivity());
+        GPSOnlyConnectionService.stopService(getActivity());
 
         mMainThreadWorker.schedule(() -> {
             System.runFinalizersOnExit(true);

@@ -55,17 +55,14 @@
     <string name="pref_bluetooth_pairing_summary">Manage the pairings to Bluetooth devices.</string>
     <string name="pref_bluetooth_select_adapter_title">Select OBD-II adapter</string>
     <string name="pref_bluetooth_auto_connect">Auto Connect</string>
-    <string name="pref_bluetooth_auto_connect_summary">Automatically connects to the OBD-II adapter and starts the recording of a track. This feature periodically checks whether the selected OBD-II adapter is within range. Therefore, this setting requires additional battery power.</string>
+    <string name="pref_bluetooth_auto_connect_summary">In case of OBD track, it automatically connects to the OBD-II adapter and starts the recording of a track. This feature periodically checks whether the selected OBD-II adapter is within range.
+    In case of GPS track, it uses activity recognition features and automatically starts the GPS based track once it detects that the user is IN_VEHICLE. Therefore, this setting requires additional battery power.</string>
     <string name="pref_bluetooth_start_background">Background Service</string>
-    <string name="pref_bluetooth_start_background_summary">Automatically starts the background service whenever Bluetooth gets activated.</string>
+    <string name="pref_bluetooth_start_background_summary">Automatically starts the background service whenever Bluetooth/GPS gets activated, depending on the track recording type selected.</string>
     <string name="pref_bluetooth_discovery_interval">Discovery Interval</string>
     <string name="pref_bluetooth_discovery_interval_summary">The search interval at which the device searches for the selected OBD-II device. Note: the higher the value, the more the battery gets drained.</string>
 
-    <string name="pref_gps_auto_connect">Auto Connect</string>
-    <string name="pref_gps_auto_connect_summary">Automatically starts the recording of a track on detecting the user to be IN VEHICLE.</string>
-    <string name="pref_gps_start_background">Background Service</string>
-    <string name="pref_gps_start_background_summary">Automatically starts the background service whenever GPS gets activated.</string>
-    <string name="pref_track_cut_duration">Track Trim Duration</string>
+   <string name="pref_track_cut_duration">Track Trim Duration</string>
     <string name="pref_track_cut_duration_summary">GPS based tracks will be stopped automatically on detecting that the user is NOT DRIVING. However it has some latency in detecting. So we cut the track for that duration. Change this, if you know/feel that latency.</string>
 
     <!-- Optional Settings -->

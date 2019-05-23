@@ -18,11 +18,9 @@
  */
 package org.envirocar.app.services;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.location.LocationManager;
 import android.preference.PreferenceManager;
 
 import org.envirocar.app.handler.PreferenceConstants;
@@ -47,40 +45,17 @@ public class SystemStartupReceiver extends BroadcastReceiver {
         // If the device completes his boot process
         if (Intent.ACTION_BOOT_COMPLETED.equals(action)) {
             LOGGER.info("Received ACTION_BOOT_COMPLETED broadcast.");
-
-            // If bluetooth is enabled, then start the background remoteService.
-            if (BluetoothAdapter.getDefaultAdapter().isEnabled())
-                startAutomaticOBDTrackService(context);
-
-            // If gps is enabled, then start the background remoteService.
-            LocationManager mLocationManager  = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-            if(mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
-                startAutomaticGPSTrackService(context);
-            }
-
-        } else if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-            LOGGER.info("Received BluetoothAdapter.ACTION_STATE_CHANGED broadcast.");
-
-            final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
-                    BluetoothAdapter.ERROR);
-
-            switch (state) {
-                case BluetoothAdapter.STATE_ON:
-                    // If bluetooth has been turned on, then check wheterh the background remoteService
-                    // needs to be started.
-                    startAutomaticOBDTrackService(context);
-                    break;
-            }
+            startAutomaticTrackRecordingService(context);
         }
     }
 
     /**
-     * Starts the AutomaticOBDTrackService if the preference is setted and the remoteService is not already
+     * Starts the AutomaticTrackRecordingService if the preference is setted and the remoteService is not already
      * running.
      *
      * @param context the context of the current scope.
      */
-    public void startAutomaticOBDTrackService(Context context) {
+    public void startAutomaticTrackRecordingService(Context context) {
         // Get the preference related to the autoconnection.
         boolean autoStartService = PreferenceManager.getDefaultSharedPreferences(context)
                 .getBoolean(PreferenceConstants.PREF_BLUETOOTH_SERVICE_AUTOSTART, false);
@@ -88,33 +63,11 @@ public class SystemStartupReceiver extends BroadcastReceiver {
         // If autostart remoteService is on and the remoteService is not already running,
         // then start the background remoteService.
         if (autoStartService && !ServiceUtils.isServiceRunning(
-                context, AutomaticOBDTrackService.class)) {
-            Intent startIntent = new Intent(context, AutomaticOBDTrackService.class);
+                context, AutomaticTrackRecordingService.class)) {
+            Intent startIntent = new Intent(context, AutomaticTrackRecordingService.class);
             context.startService(startIntent);
         }else if(!autoStartService){
-            AutomaticOBDTrackService.stopService(context);
-        }
-    }
-
-    /**
-     * Starts the AutomaticOBDTrackService if the preference is setted and the remoteService is not already
-     * running.
-     *
-     * @param context the context of the current scope.
-     */
-    public void startAutomaticGPSTrackService(Context context) {
-        // Get the preference related to the autoconnection.
-        boolean autoStartService = PreferenceManager.getDefaultSharedPreferences(context)
-                .getBoolean(PreferenceConstants.PREF_GPS_SERVICE_AUTOSTART, false);
-
-        // If autostart remoteService is on and the remoteService is not already running,
-        // then start the background remoteService.
-        if (autoStartService && !ServiceUtils.isServiceRunning(
-                context, AutomaticGPSTrackService.class)) {
-            Intent startIntent = new Intent(context, AutomaticGPSTrackService.class);
-            context.startService(startIntent);
-        }else if(!autoStartService){
-            AutomaticGPSTrackService.stopService(context);
+            AutomaticTrackRecordingService.stopService(context);
         }
     }
 
