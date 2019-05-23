@@ -428,7 +428,7 @@ public final class Tempomat extends FrameLayout {
     private void drawStaticScaleTexture(final Canvas canvas) {
         canvas.drawOval(mScaleRect, mScaleTexturePaint);
 
-        canvas.save(Canvas.MATRIX_SAVE_FLAG);
+        canvas.save(); //Canvas.MATRIX_SAVE_FLAG);
         canvas.rotate(SCALE_LOWEST_DEGREE, 0.5f, 0.5f);
         for (int i = 0; i <= NUM_SPEED_NOTCHES; ++i) {
             if (i % 4 == 0) {
