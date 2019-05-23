@@ -21,7 +21,7 @@ package org.envirocar.app.views.preferences;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.preference.DialogPreference;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.NumberPicker;

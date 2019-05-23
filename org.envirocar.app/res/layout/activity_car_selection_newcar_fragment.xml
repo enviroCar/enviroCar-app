@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/activity_car_selection_newcar_toolbar"
         style="@style/ToolBarStyle"
         android:layout_width="match_parent"
@@ -23,7 +23,7 @@
             android:textSize="18sp"
             android:textStyle="bold"/>
 
-    </android.support.v7.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
         android:id="@+id/activity_car_selection_newcar_toolbar_exp"
@@ -51,7 +51,7 @@
         </RelativeLayout>
     </LinearLayout>
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:id="@+id/activity_car_selection_newcar_content_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -120,7 +120,7 @@
                         android:alpha="0.54"
                         android:src="@drawable/ic_drive_eta_black_24dp"/>
 
-                    <android.support.design.widget.TextInputLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/activity_car_selection_newcar_manufacturer_l"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -140,7 +140,7 @@
                             android:singleLine="true"
                             android:textSize="@dimen/text_medium"/>
 
-                    </android.support.design.widget.TextInputLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <Spinner
                         android:id="@+id/activity_car_selection_newcar_manufacturer_spinner"
@@ -168,7 +168,7 @@
                         android:src="@drawable/ic_drive_eta_black_24dp"
                         android:visibility="invisible"/>
 
-                    <android.support.design.widget.TextInputLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/spacing_medium"
@@ -187,7 +187,7 @@
                             android:singleLine="true"
                             android:textSize="@dimen/text_medium"/>
 
-                    </android.support.design.widget.TextInputLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <Spinner
                         android:id="@+id/activity_car_selection_newcar_model_spinner"
@@ -213,7 +213,7 @@
                         android:src="@drawable/ic_drive_eta_black_24dp"
                         android:visibility="invisible"/>
 
-                    <android.support.design.widget.TextInputLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/spacing_medium"
@@ -232,7 +232,7 @@
                             android:singleLine="true"
                             android:textSize="@dimen/text_medium"/>
 
-                    </android.support.design.widget.TextInputLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <Spinner
                         android:id="@+id/activity_car_selection_newcar_year_spinner"
@@ -260,7 +260,7 @@
                         android:src="@drawable/ic_drive_eta_black_24dp"
                         android:visibility="invisible"/>
 
-                    <android.support.design.widget.TextInputLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="3">
@@ -279,7 +279,7 @@
                             android:singleLine="true"
                             android:textSize="@dimen/text_medium"/>
 
-                    </android.support.design.widget.TextInputLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
                     <Spinner
                         android:id="@+id/activity_car_selection_newcar_engine_spinner"
@@ -355,6 +355,6 @@
             </LinearLayout>
 
         </RelativeLayout>
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </LinearLayout>

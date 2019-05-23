@@ -26,7 +26,7 @@
               android:minHeight="300dp"
               android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/bluetooth_pairing_preference_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

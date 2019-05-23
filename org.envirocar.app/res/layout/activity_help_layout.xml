@@ -19,7 +19,7 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<android.support.v4.widget.NestedScrollView
+<androidx.core.widget.NestedScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -291,4 +291,4 @@
             style="@style/enviroCar.Help.content"
             android:text="@string/help_content_6"/>
     </LinearLayout>
-</android.support.v4.widget.NestedScrollView>
+</androidx.core.widget.NestedScrollView>
