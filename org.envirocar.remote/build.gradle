@@ -25,20 +25,26 @@ android {
 }
 
 dependencies {
+    // Android dependencies
     implementation rootProject.ext.supportV7
 
+    // Dependency injection, view injection, event bus
     implementation rootProject.ext.dagger
     annotationProcessor rootProject.ext.daggerCompiler
-    implementation 'org.glassfish:javax.annotation:10.0-b28'
 
+    // RxJava dependencies
     implementation rootProject.ext.rxAndroid
     implementation rootProject.ext.rxJava
 
-    // Everything realted to retrofit...
+    // Retrofit dependencies
     api rootProject.ext.retrofit
     api rootProject.ext.retrofitGson
     api rootProject.ext.retrofitAdapters
     api rootProject.ext.retrofitRxJava
 
+    // third party
+    implementation rootProject.ext.apacheCommons
+
+    // Modules
     api project(path : ':org.envirocar.core')
 }

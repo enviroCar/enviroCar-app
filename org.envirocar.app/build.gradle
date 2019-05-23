@@ -2,42 +2,56 @@ apply plugin: 'com.android.application' //or apply plugin: 'java'
 apply plugin: "com.github.hierynomus.license"
 
 dependencies {
+    // Android dependencies.
     implementation rootProject.ext.supportV4
     implementation rootProject.ext.supportV7
     implementation rootProject.ext.supportDesign
     implementation rootProject.ext.supportCardview
     implementation rootProject.ext.supportRecyclerview
+    implementation rootProject.ext.supportConstraintLayout
+
+    // Dependency injection, view injection, event bus ...
     implementation rootProject.ext.dagger
-    implementation 'com.google.android.material:material:1.0.0-beta01'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0-beta01'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.2'
-    annotationProcessor rootProject.ext.daggerCompiler
-    implementation 'org.glassfish:javax.annotation:10.0-b28'
     implementation rootProject.ext.otto
     implementation rootProject.ext.butterKnife
+    annotationProcessor rootProject.ext.daggerCompiler
     annotationProcessor rootProject.ext.butterknifeCompiler
+    //    implementation 'org.glassfish:javax.annotation:10.0-b28'
+
+    // Google dependencies
+    implementation rootProject.ext.gson
+    implementation rootProject.ext.playServicesLocation
+    implementation rootProject.ext.findBugs
+
+    // RxJava for Android
+    implementation rootProject.ext.rxAndroid
+    implementation rootProject.ext.rxJava
+    implementation rootProject.ext.rxPreferences
+    implementation rootProject.ext.rxBinding
+
+    // other third party libraries
     implementation rootProject.ext.acra
     implementation rootProject.ext.helloCharts
     implementation rootProject.ext.fabProgressCircle
     implementation rootProject.ext.segmentedUIController
-    implementation rootProject.ext.gson
-    implementation 'com.google.android.gms:play-services-location:15.0.1'
+    implementation rootProject.ext.materialDialogs
+
     //implementation rootProject.ext.guava
-    implementation(materialDialogs) {
-        exclude module: 'appcompat-v7'
-        exclude module: 'recyclerview-v7'
-        exclude module: 'support-annotations'
-        transitive = true
-    }
-    implementation rootProject.ext.rxAndroid
-    implementation rootProject.ext.rxJava
-    implementation rootProject.ext.rxPreferences
-    implementation 'com.jakewharton.rxbinding:rxbinding-appcompat-v7:0.4.0'
-    implementation rootProject.ext.findBugs
+//    implementation(materialDialogs) {
+//        exclude module: 'appcompat-v7'
+//        exclude module: 'recyclerview-v7'
+//        exclude module: 'support-annotations'
+//        transitive = true
+//    }
+
+
+
     // MapBox SDK
     implementation(rootProject.ext.mapbox) {
         transitive = true
     }
+
+    // Test
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.mockito:mockito-core:1.9.5'
     testImplementation('org.powermock:powermock-api-mockito:1.6.2') {
@@ -55,6 +69,8 @@ dependencies {
     androidTestImplementation('androidx.test:rules:1.1.0-alpha4') {
         exclude module: 'support-annotations'
     }
+
+    // modules
     api project(path: ':org.envirocar.core')
     api project(path: ':org.envirocar.remote')
     api project(path: ':org.envirocar.obd')

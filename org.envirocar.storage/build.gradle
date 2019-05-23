@@ -18,16 +18,23 @@ android {
 }
 
 dependencies {
+    // Android dependencies
     implementation rootProject.ext.supportV7
+
+    // Dependency injection, view injection, event bus...
     implementation rootProject.ext.dagger
     annotationProcessor rootProject.ext.daggerCompiler
-    implementation 'org.glassfish:javax.annotation:10.0-b28'
-    api rootProject.ext.sqlBrite
+
+    // RxJava dependencies
     implementation rootProject.ext.rxJava
     implementation rootProject.ext.rxAndroid
+    api rootProject.ext.sqlBrite // change to implementation when updating
 
-    testImplementation 'junit:junit:4.12'
+    // Testing
+    testImplementation rootProject.ext.junit
+    androidTestImplementation rootProject.ext.junit
+
+    // Modules
     api project(path : ':org.envirocar.core')
-    androidTestImplementation 'junit:junit:4.12'
 }
 
