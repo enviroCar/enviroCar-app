@@ -22,6 +22,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import androidx.fragment.app.FragmentTransaction;
+
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -38,6 +40,7 @@ import org.envirocar.app.events.AvrgSpeedUpdateEvent;
 import org.envirocar.app.events.DistanceValueUpdateEvent;
 import org.envirocar.app.events.DrivingDetectedEvent;
 import org.envirocar.app.events.StartingTimeEvent;
+import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
@@ -118,9 +121,13 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
             finish();
         }
 
-
         // Inject all dashboard-related views.
         ButterKnife.bind(this);
+
+        // set keep screen on setting
+        this.trackDetailsContainer.setKeepScreenOn(PreferenceManager
+                .getDefaultSharedPreferences(this)
+                .getBoolean(PreferenceConstants.DISPLAY_STAYS_ACTIV, false));
 
         switchMetersButton.setVisibility(View.GONE);
         displayBluetoothCarDriving.setText(R.string.driving);
