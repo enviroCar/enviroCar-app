@@ -1,5 +1,5 @@
-/*
- * Copyright (C) 2013 - 2015 the enviroCar community
+/**
+ * Copyright (C) 2013 - 2019 the enviroCar community
  *
  * This file is part of the enviroCar app.
  *
@@ -16,7 +16,6 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-
 package org.envirocar.app.exception;
 
 /**

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
 
-    Copyright (C) 2013 - 2015 the enviroCar community
+    Copyright (C) 2013 - 2019 the enviroCar community
 
     This file is part of the enviroCar app.
 
@@ -19,7 +19,6 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-
 <resources>
   <string name="trackviews_delete_track_dialog_headline">Fahrt Löschen?</string>
   <string name="trackviews_delete_track_dialog_content_1">Sie sind dabei die Fahrt</string>

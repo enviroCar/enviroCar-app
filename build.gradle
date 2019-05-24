@@ -13,8 +13,12 @@ buildscript {
     }
 }
 
+plugins {
+    id "com.github.hierynomus.license" version "0.15.0"
+}
+
 allprojects {
-    apply plugin: "com.github.hierynomus.license"
+    apply plugin: "license"
 
     license {
         header rootProject.file('LICENSE_HEADER')
