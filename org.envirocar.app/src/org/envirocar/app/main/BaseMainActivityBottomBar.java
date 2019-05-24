@@ -248,8 +248,10 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
                 .getDefaultSharedPreferences(this)
                 .getBoolean(PreferenceConstants.DISPLAY_STAYS_ACTIV, false)) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            this.navigationBottomBar.setKeepScreenOn(true);
         } else {
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+            this.navigationBottomBar.setKeepScreenOn(false);
         }
     }
 

@@ -22,6 +22,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
 import androidx.fragment.app.FragmentTransaction;
+
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -33,6 +35,7 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.app.main.MainActivityComponent;
@@ -115,6 +118,7 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_obdplus_gpstrack_recording_screen);
 
+
         //if the track recording service is stopped then finish this activity and goback to bottombar main activity
         if(OBDConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STOPPED){
             startActivity(new Intent(OBDPlusGPSTrackRecordingScreen.this, BaseMainActivityBottomBar.class));
@@ -123,6 +127,11 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
 
         // Inject all dashboard-related views.
         ButterKnife.bind(this);
+
+        // set keep screen on setting
+        this.trackDetailsContainer.setKeepScreenOn(PreferenceManager
+                .getDefaultSharedPreferences(this)
+                .getBoolean(PreferenceConstants.DISPLAY_STAYS_ACTIV, false));
 
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.add(R.id.trackMapContainer, new TrackMapFragment());
