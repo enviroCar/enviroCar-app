@@ -20,7 +20,7 @@ package org.envirocar.app.injection;
 
 
 import android.content.Context;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.util.Log;
 
 import com.google.common.base.Preconditions;

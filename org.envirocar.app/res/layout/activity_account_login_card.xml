@@ -19,7 +19,7 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<android.support.v7.widget.CardView
+<androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_login_card"
@@ -63,7 +63,7 @@
             style="@style/LoginFormContainer"
             android:orientation="vertical">
 
-            <android.support.design.widget.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/username_text_input_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -77,9 +77,9 @@
                     android:maxLines="1"
                     android:singleLine="true"/>
 
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <android.support.design.widget.TextInputLayout
+            <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/username_text_input_layout2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -95,7 +95,7 @@
                     android:maxLines="1"
                     android:singleLine="true"/>
 
-            </android.support.design.widget.TextInputLayout>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <Button
                 android:id="@+id/activity_account_login_card_login_button"
@@ -133,4 +133,4 @@
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
-</android.support.v7.widget.CardView>
+</androidx.cardview.widget.CardView>

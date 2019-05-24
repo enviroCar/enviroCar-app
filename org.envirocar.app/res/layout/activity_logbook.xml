@@ -19,7 +19,7 @@
     with the enviroCar app. If not, see http://www.gnu.org/licenses/.
 
 -->
-<android.support.design.widget.CoordinatorLayout
+<androidx.coordinatorlayout.widget.CoordinatorLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -30,7 +30,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/activity_logbook_toolbar"
             style="@style/ToolBarStyle"
             android:layout_width="match_parent"
@@ -44,7 +44,7 @@
             android:layout_height="match_parent"
             android:background="@color/white_cario">
 
-            <android.support.v7.widget.Toolbar
+            <androidx.appcompat.widget.Toolbar
                 android:id="@+id/activity_car_selection_layout_exptoolbar"
                 style="@style/Widget.enviroCar.Toolbar"
                 android:layout_width="match_parent"
@@ -126,7 +126,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/activity_logbook_toolbar_new_fueling_fab"
         style="@style/Widget.enviroCar.Fab"
         android:layout_alignParentBottom="true"
@@ -134,4 +134,4 @@
         android:layout_gravity="bottom|end"
         android:layout_alignParentEnd="true" />
 
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

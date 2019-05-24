@@ -24,7 +24,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/fragment_settings_main_toolbar"
         style="@style/Widget.enviroCar.Toolbar"/>
 

@@ -18,24 +18,28 @@ android {
 }
 
 dependencies {
+    // Android dependencies
     implementation rootProject.ext.supportV4
     implementation rootProject.ext.supportV7
 
+    // Dependency injection, view injection, event bus...
     implementation rootProject.ext.dagger
     annotationProcessor  rootProject.ext.daggerCompiler
-    implementation 'org.glassfish:javax.annotation:10.0-b28'
+    implementation rootProject.ext.otto
 
-    implementation rootProject.ext.acra
-    api rootProject.ext.otto
-    //implementation rootProject.ext.guava
-    implementation rootProject.ext.gson
-
-    implementation rootProject.ext.findBugs
-
+    // RxJava dependencies
     implementation rootProject.ext.rxAndroid
     implementation rootProject.ext.rxJava
 
-    api 'org.apache.commons:commons-compress:1.12'
+    // acra
+    implementation rootProject.ext.acra
+
+    // Google dependencies
+    implementation rootProject.ext.gson
+    implementation rootProject.ext.findBugs
+
+    // Third party
+    implementation rootProject.ext.apacheCommons
 }
 
 

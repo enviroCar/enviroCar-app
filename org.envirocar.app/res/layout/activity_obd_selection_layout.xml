@@ -25,7 +25,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <android.support.v7.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar
         android:id="@+id/activity_obd_selection_layout_toolbar"
         style="@style/ToolBarStyle"
         android:layout_width="match_parent"
