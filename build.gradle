@@ -65,10 +65,10 @@ ext {
     otto = 'com.squareup:otto:1.3.8'
 
     // Retrofit dependencies.
-    retrofit = 'com.squareup.retrofit:retrofit:2.0.0-beta2'
-    retrofitGson = 'com.squareup.retrofit:converter-gson:2.0.0-beta2'
-    retrofitAdapters = 'com.squareup.retrofit:retrofit-adapters:2.0.0-beta2'
-    retrofitRxJava = 'com.squareup.retrofit:adapter-rxjava:2.0.0-beta2'
+    retrofit = 'com.squareup.retrofit2:retrofit:2.5.0'
+    retrofitGson = 'com.squareup.retrofit2:converter-gson:2.5.0'
+    retrofitAdapters = 'com.squareup.retrofit2:retrofit-adapters:2.5.0'
+    retrofitRxJava = 'com.squareup.retrofit2:adapter-rxjava2:2.5.0'
 
     // RxJava dependencies.
     rxJava = 'io.reactivex:rxjava:1.0.16'

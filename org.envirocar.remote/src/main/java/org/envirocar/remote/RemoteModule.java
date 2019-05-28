@@ -23,8 +23,6 @@ import android.content.Context;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.OkHttpClient;
 
 import org.envirocar.core.ContextInternetAccessProvider;
 import org.envirocar.core.InternetAccessProvider;
@@ -66,9 +64,11 @@ import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import retrofit.GsonConverterFactory;
-import retrofit.Retrofit;
-import retrofit.RxJavaCallAdapterFactory;
+import okhttp3.HttpUrl;
+import okhttp3.OkHttpClient;
+import retrofit2.Retrofit;
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * TODO JavaDoc
@@ -101,12 +101,15 @@ public class RemoteModule {
     @Singleton
     protected OkHttpClient provideOkHttpClient(AuthenticationInterceptor authInterceptor,
                                                JsonContentTypeInterceptor jsonInterceptor) {
-        OkHttpClient client = new OkHttpClient();
-        client.interceptors().add(authInterceptor);
-        client.interceptors().add(jsonInterceptor);
-        client.setConnectTimeout(300, TimeUnit.SECONDS); // connect timeout
-        client.setReadTimeout(300, TimeUnit.SECONDS);    // socket timeout
-        client.setWriteTimeout(300, TimeUnit.SECONDS);   // write timeout
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(300, TimeUnit.SECONDS)  // connect timeout
+                .writeTimeout(300, TimeUnit.SECONDS)    // write timeout
+                .readTimeout(300, TimeUnit.SECONDS)     // socket timeout
+                .addInterceptor(authInterceptor)
+                .addInterceptor(jsonInterceptor)
+                .build();
+        //client.interceptors().add(authInterceptor);
+        //client.interceptors().add(jsonInterceptor);
         return client;
     }
 
@@ -230,7 +233,7 @@ public class RemoteModule {
                 .client(client)
                 .baseUrl(baseUrl)
                 .addConverterFactory(GsonConverterFactory.create(gson))
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .build();
     }
 
