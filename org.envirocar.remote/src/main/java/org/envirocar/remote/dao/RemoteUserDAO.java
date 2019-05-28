@@ -18,8 +18,6 @@
  */
 package org.envirocar.remote.dao;
 
-import com.squareup.okhttp.ResponseBody;
-
 import org.envirocar.core.dao.UserDAO;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.DataRetrievalFailureException;
@@ -37,8 +35,9 @@ import java.io.IOException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import retrofit.Call;
-import retrofit.Response;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Response;
 import rx.Observable;
 
 /**
@@ -66,7 +65,7 @@ public class RemoteUserDAO extends BaseRemoteDAO<UserDAO, UserService> implement
             Response<User> userResponse = userCall.execute();
             // If the execution was successful, then return the user instance. if not, then get
             // the error code and throw a corresponding exception.
-            if (!userResponse.isSuccess()) {
+            if (!userResponse.isSuccessful()) {
                 LOG.severe("Error while retrieving remote user of id = " + id);
                 EnvirocarServiceUtils.assertStatusCode(userResponse.code(), userResponse.message());
             }
@@ -98,7 +97,7 @@ public class RemoteUserDAO extends BaseRemoteDAO<UserDAO, UserService> implement
             // execute the call
             userResponse = userCall.execute();
             // If the execution was successful, then throw an exception.
-            if (!userResponse.isSuccess()) {
+            if (!userResponse.isSuccessful()) {
                 int responseCode = userResponse.code();
                 EnvirocarServiceUtils.assertStatusCode(responseCode, userResponse
                         .errorBody().string());
@@ -130,7 +129,7 @@ public class RemoteUserDAO extends BaseRemoteDAO<UserDAO, UserService> implement
             Response<ResponseBody> userResponse = userCall.execute();
 
             // If the execution was not a success, then throw an error.
-            if (!userResponse.isSuccess()) {
+            if (!userResponse.isSuccessful()) {
                 LOG.severe("updateUser(): Error while updating remote user");
                 EnvirocarServiceUtils.assertStatusCode(userResponse.code(), userResponse.message());
             }

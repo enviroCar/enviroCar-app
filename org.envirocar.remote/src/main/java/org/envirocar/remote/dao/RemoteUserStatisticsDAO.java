@@ -34,8 +34,8 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 
-import retrofit.Call;
-import retrofit.Response;
+import retrofit2.Call;
+import retrofit2.Response;
 import rx.Observable;
 
 /**
@@ -67,7 +67,7 @@ public class RemoteUserStatisticsDAO extends BaseRemoteDAO<UserDAO, UserService>
         try {
             Response<UserStatistics> userStatisticsResponse = userStatistics.execute();
 
-            if (userStatisticsResponse.isSuccess()) {
+            if (userStatisticsResponse.isSuccessful()) {
                 return userStatisticsResponse.body();
             } else {
                 // If the execution was successful, then throw an exception.

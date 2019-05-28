@@ -31,8 +31,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import retrofit.Call;
-import retrofit.Response;
+import retrofit2.Call;
+import retrofit2.Response;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -69,7 +69,7 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO, TermsOfUse
             Response<TermsOfUse> touResponse = termsOfUseCall.execute();
 
             // check the response for success
-            if (!touResponse.isSuccess()) {
+            if (!touResponse.isSuccessful()) {
                 EnvirocarServiceUtils.assertStatusCode(touResponse.code(), touResponse
                         .message());
             }
@@ -107,7 +107,7 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO, TermsOfUse
             Response<List<TermsOfUse>> touResponse = termsOfUseCall.execute();
 
             // check the response for success
-            if (!touResponse.isSuccess()) {
+            if (!touResponse.isSuccessful()) {
                 EnvirocarServiceUtils.assertStatusCode(touResponse.code(), touResponse
                         .message());
             }

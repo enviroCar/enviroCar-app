@@ -37,11 +37,16 @@ dependencies {
     implementation rootProject.ext.rxJava
 
     // Retrofit dependencies
-    api rootProject.ext.retrofit
-    api rootProject.ext.retrofitGson
-    api rootProject.ext.retrofitAdapters
-    api rootProject.ext.retrofitRxJava
-    compile 'com.squareup.okhttp3:okhttp:3.0.0'
+    //api rootProject.ext.retrofit
+    //api rootProject.ext.retrofitGson
+    //api rootProject.ext.retrofitAdapters
+    //api rootProject.ext.retrofitRxJava
+
+    // Retrofit2 dependencies
+    api rootProject.ext.retrofit2
+    api rootProject.ext.retrofitGson2
+    api rootProject.ext.retrofitAdapters2
+    api rootProject.ext.retrofitRxJava2
 
     // third party
     implementation rootProject.ext.apacheCommons
