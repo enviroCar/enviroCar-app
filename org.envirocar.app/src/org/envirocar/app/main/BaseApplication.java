@@ -31,11 +31,13 @@ import android.graphics.Color;
 import android.os.Build;
 import android.preference.PreferenceManager;
 
-import org.acra.ACRA;
-import org.acra.annotation.ReportsCrashes;
+import org.acra.*;
+import org.acra.annotation.*;
+import org.acra.config.ConfigurationBuilder;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.notifications.NotificationHandler;
 import org.envirocar.core.logging.ACRACustomSender;
+import org.envirocar.core.logging.ACRASenderFactory;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.InjectApplicationScope;
 import org.envirocar.core.util.Util;
@@ -53,7 +55,7 @@ import javax.inject.Inject;
 /**
  * @author dewall
  */
-@ReportsCrashes
+@AcraCore(buildConfigClass = BuildConfig.class, reportSenderFactoryClasses = ACRASenderFactory.class)
 public class BaseApplication extends Application {
     private static final Logger LOGGER = Logger.getLogger(BaseApplication.class);
 
@@ -111,8 +113,6 @@ public class BaseApplication extends Application {
 
         // Initialize ACRA
         ACRA.init(this);
-        ACRACustomSender yourSender = new ACRACustomSender();
-        ACRA.getErrorReporter().setReportSender(yourSender);
 
         mScreenReceiver = new BroadcastReceiver() {
             @Override
