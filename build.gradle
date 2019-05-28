@@ -86,12 +86,12 @@ ext {
     rxAndroid = 'io.reactivex:rxandroid:1.0.1'
     rxPreferences = 'com.f2prateek.rx.preferences:rx-preferences:1.0.1'
     rxBinding = 'com.jakewharton.rxbinding:rxbinding-appcompat-v7:0.4.0'
-    sqlBrite = 'com.squareup.sqlbrite:sqlbrite:0.4.1'
+    sqlBrite = 'com.squareup.sqlbrite:sqlbrite:1.1.2'
 
     // Google dependencies
     gson = 'com.google.code.gson:gson:2.8.5'
     //guava = 'com.google.guava:guava:18.0'
-    findBugs = 'com.google.code.findbugs:jsr305:3.0.0'
+    findBugs = 'com.google.code.findbugs:jsr305:3.0.2'
     playServicesLocation = 'com.google.android.gms:play-services-location:16.0.0'
 
     //acra
