@@ -68,7 +68,7 @@ ext {
     retrofit2 = 'com.squareup.retrofit2:retrofit:2.5.0'
     retrofitGson2 = 'com.squareup.retrofit2:converter-gson:2.5.0'
     retrofitAdapters2 = 'com.squareup.retrofit2:retrofit-adapters:2.5.0'
-    retrofitRxJava2 = 'com.squareup.retrofit2:adapter-rxjava2:2.5.0'
+    retrofitRxJava2 = 'com.squareup.retrofit2:adapter-rxjava:2.5.0'
 
     // RxJava dependencies.
     rxJava = 'io.reactivex:rxjava:1.0.16'
