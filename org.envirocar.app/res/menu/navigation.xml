@@ -24,15 +24,18 @@
 
     <item
         android:id="@+id/navigation_dashboard"
-        android:icon="@drawable/dash_board_new"
+        android:icon="@drawable/dashboard_icon"
         android:title="@string/title_dashboard" />
 
+    <item
+        android:id="@+id/navigation_statistics"
+        android:icon="@drawable/stats_icon"
+        android:title="@string/title_statistics" />
 
     <item
         android:id="@+id/navigation_my_tracks"
-        android:icon="@drawable/img_tracks"
+        android:icon="@drawable/tracks_icon"
         android:title="@string/title_my_tracks" />
-
 
     <item
         android:id="@+id/navigation_others"

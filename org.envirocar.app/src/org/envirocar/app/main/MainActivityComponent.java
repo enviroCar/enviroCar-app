@@ -24,6 +24,7 @@ import org.envirocar.app.views.recordingscreen.TempomatFragment;
 import org.envirocar.app.views.recordingscreen.TrackMapFragment;
 import org.envirocar.app.views.recordingscreen.GPSOnlyTrackRecordingScreen;
 import org.envirocar.app.views.recordingscreen.OBDPlusGPSTrackRecordingScreen;
+import org.envirocar.app.views.statistics.StatisticsFragment;
 import org.envirocar.app.views.tracklist.TrackListLocalCardFragment;
 import org.envirocar.app.views.tracklist.TrackListPagerFragment;
 import org.envirocar.app.views.tracklist.TrackListRemoteCardFragment;
@@ -39,6 +40,7 @@ import dagger.Subcomponent;
 public interface MainActivityComponent {
 
     void inject(BaseMainActivityBottomBar baseMainActivity);
+    void inject(StatisticsFragment statisticsFragment);
     void inject(TempomatFragment tempomatFragment);
     void inject(TrackMapFragment trackMapFragment);
     void inject(TrackListLocalCardFragment trackListLocalCardFragment);

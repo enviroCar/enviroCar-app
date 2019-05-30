@@ -46,6 +46,7 @@ import org.envirocar.app.services.AutomaticTrackRecordingService;
 import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.TroubleshootingFragment;
 import org.envirocar.app.views.dashboard.DashBoardFragment;
+import org.envirocar.app.views.statistics.StatisticsFragment;
 import org.envirocar.app.views.tracklist.TrackListPagerFragment;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.NoMeasurementsException;
@@ -108,22 +109,32 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
                             selectedMenuItemID = 1;
                         }
                         return true;
-                    case R.id.navigation_my_tracks:
+                    case R.id.navigation_statistics:
                         if(selectedMenuItemID != 2){
-                            fragmentTransaction.replace(R.id.fragmentContainer, new TrackListPagerFragment());
+                            fragmentTransaction.replace(R.id.fragmentContainer, new StatisticsFragment());
                             fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                             fragmentTransaction.commit();
                             selectedMenuItemID = 2;
                         }
                         return true;
-                    case R.id.navigation_others:
+                    case R.id.navigation_my_tracks:
                         if(selectedMenuItemID != 3){
-                            fragmentTransaction.replace(R.id.fragmentContainer, mOthersFragment);
+                            fragmentTransaction.replace(R.id.fragmentContainer, new TrackListPagerFragment());
                             fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                             fragmentTransaction.commit();
                             selectedMenuItemID = 3;
                         }
                         return true;
+
+                    case R.id.navigation_others:
+                        if(selectedMenuItemID != 4){
+                            fragmentTransaction.replace(R.id.fragmentContainer, mOthersFragment);
+                            fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+                            fragmentTransaction.commit();
+                            selectedMenuItemID = 4;
+                        }
+                        return true;
+
                 }
                 return false;
             };
