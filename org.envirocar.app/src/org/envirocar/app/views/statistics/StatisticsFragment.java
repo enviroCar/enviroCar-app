@@ -13,8 +13,10 @@ import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.main.MainActivityComponent;
 import org.envirocar.app.main.MainActivityModule;
+import org.envirocar.core.logging.Logger;
 
 public class StatisticsFragment extends BaseInjectorFragment {
+    private static final Logger LOG = Logger.getLogger(StatisticsFragment.class);
 
     public StatisticsFragment() {
 

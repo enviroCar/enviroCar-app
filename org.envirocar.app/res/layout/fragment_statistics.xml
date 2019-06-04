@@ -1,16 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     tools:context=".views.statistics.StatisticsFragment">
 
     <LinearLayout
+        android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@color/cario_color_primary"
-        android:gravity="center">
+        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:layout_width="wrap_content"
@@ -19,15 +25,225 @@
 
     </LinearLayout>
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
+        android:id="@+id/stat_card"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="220dp"
+        android:layout_margin="12dp"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="14dp"
+        app:cardElevation="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
 
-        <TextView
-            android:id="@+id/textView"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/title_statistics" />
-    </LinearLayout>
-</LinearLayout>
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/last_track_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginLeft="24dp"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/roboto_medium"
+                android:text="@string/stat_lasttrack_header"
+                android:textColor="#0065A0"
+                android:textSize="24sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textView3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginLeft="24dp"
+                android:layout_marginTop="8dp"
+                android:fontFamily="@font/roboto_medium"
+                android:text="@string/stat_testheader"
+                android:textColor="#000000"
+                android:textSize="17sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/last_track_header" />
+
+            <TextView
+                android:id="@+id/stat_track_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="24dp"
+                android:layout_marginLeft="24dp"
+                android:layout_marginTop="16dp"
+                android:text="TextView"
+                android:textSize="13.5dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+            <TextView
+                android:id="@+id/stat_track_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="104dp"
+                android:layout_marginLeft="104dp"
+                android:layout_marginTop="16dp"
+                android:text="TextView"
+                android:textSize="13.5sp"
+                app:layout_constraintStart_toEndOf="@+id/stat_track_date"
+                app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+            <TextView
+                android:id="@+id/stat_fuel_consum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/roboto_light"
+                android:text="TextView"
+                android:textSize="12dp"
+                app:layout_constraintBottom_toTopOf="@+id/stat_avg_speed"
+                app:layout_constraintStart_toEndOf="@+id/imageView" />
+
+            <TextView
+                android:id="@+id/stat_avg_speed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginBottom="30dp"
+                android:fontFamily="@font/roboto_light"
+                android:text="TextView"
+                android:textSize="12dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/imageView2" />
+
+            <TextView
+                android:id="@+id/stat_comp_fuel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="@font/roboto_light"
+                android:text="TextView"
+                android:textSize="12dp"
+                app:layout_constraintBottom_toTopOf="@+id/stat_comp_speed"
+                app:layout_constraintEnd_toStartOf="@+id/img_stat_comp_fuel" />
+
+            <TextView
+                android:id="@+id/stat_comp_speed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="30dp"
+                android:fontFamily="@font/roboto_light"
+                android:text="TextView"
+                android:textSize="12dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/img_stat_comp_speed" />
+
+            <TextView
+                android:id="@+id/stat_info"
+                android:layout_width="61dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="32dp"
+                android:layout_marginRight="32dp"
+                android:layout_marginBottom="32dp"
+                android:lineSpacingExtra="4sp"
+                android:text="@string/stat_info"
+                android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent" />
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginLeft="24dp"
+                android:src="@drawable/fuel"
+                app:layout_constraintBottom_toBottomOf="@+id/stat_fuel_consum"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/stat_fuel_consum" />
+
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginStart="24dp"
+                android:layout_marginLeft="24dp"
+                android:src="@drawable/avg_speed"
+                app:layout_constraintBottom_toBottomOf="@+id/stat_avg_speed"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/stat_avg_speed"
+                app:layout_constraintVertical_bias="0.416" />
+
+            <ImageView
+                android:id="@+id/img_stat_comp_fuel"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:src="@drawable/arrow_up"
+                app:layout_constraintBottom_toBottomOf="@+id/stat_comp_fuel"
+                app:layout_constraintEnd_toStartOf="@+id/stat_info"
+                app:layout_constraintTop_toTopOf="@+id/stat_comp_fuel" />
+
+            <ImageView
+                android:id="@+id/img_stat_comp_speed"
+                android:layout_width="28dp"
+                android:layout_height="28dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:src="@drawable/arrow_down"
+                app:layout_constraintBottom_toBottomOf="@+id/stat_comp_speed"
+                app:layout_constraintEnd_toStartOf="@+id/stat_info"
+                app:layout_constraintTop_toTopOf="@+id/stat_comp_speed" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <ScrollView
+        android:id="@+id/scrollView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/stat_card">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Spinner
+                android:id="@+id/spinner2"
+                android:layout_width="180dp"
+                android:layout_height="35dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginLeft="16dp"
+                android:layout_marginTop="16dp"
+                android:entries="@array/stat_array"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <com.db.chart.view.LineChartView xmlns:chart="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/linechart"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_margin="16dp"
+                android:layout_marginTop="8dp"
+                chart:layout_constraintEnd_toEndOf="parent"
+                chart:layout_constraintHorizontal_bias="0.5"
+                chart:layout_constraintStart_toStartOf="parent"
+                chart:layout_constraintTop_toBottomOf="@+id/spinner2" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
