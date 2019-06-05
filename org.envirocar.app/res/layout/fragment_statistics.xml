@@ -7,6 +7,21 @@
     android:layout_height="match_parent"
     tools:context=".views.statistics.StatisticsFragment">
 
+    <TextView
+        android:id="@+id/stat_progress"
+        android:layout_width="331dp"
+        android:layout_height="347dp"
+        android:fontFamily="@font/roboto_medium"
+        android:gravity="center"
+        android:text="@string/track_list_loading_tracks"
+        android:textColor="#00659F"
+        android:textSize="36sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="match_parent"
@@ -166,6 +181,7 @@
                 android:layout_marginStart="24dp"
                 android:layout_marginLeft="24dp"
                 android:src="@drawable/fuel"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/stat_fuel_consum"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/stat_fuel_consum" />
@@ -177,6 +193,7 @@
                 android:layout_marginStart="24dp"
                 android:layout_marginLeft="24dp"
                 android:src="@drawable/avg_speed"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/stat_avg_speed"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/stat_avg_speed"
@@ -189,6 +206,7 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
                 android:src="@drawable/arrow_up"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/stat_comp_fuel"
                 app:layout_constraintEnd_toStartOf="@+id/stat_info"
                 app:layout_constraintTop_toTopOf="@+id/stat_comp_fuel" />
@@ -200,6 +218,7 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
                 android:src="@drawable/arrow_down"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="@+id/stat_comp_speed"
                 app:layout_constraintEnd_toStartOf="@+id/stat_info"
                 app:layout_constraintTop_toTopOf="@+id/stat_comp_speed" />
