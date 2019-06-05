@@ -20,6 +20,7 @@ package org.envirocar.app.main;
 
 import com.squareup.sqlbrite.SqlBrite;
 
+import org.envirocar.app.aidl.EnviroCarDataService;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.services.AutomaticTrackRecordingService;
@@ -95,6 +96,7 @@ public interface BaseApplicationComponent {
     void inject(OthersFragment othersFragment);
     void inject(GPSOnlyConnectionService gpsOnlyConnectionService);
     void inject(TrackTrimDurationPreference trackTrimDurationPreference);
+    void inject(EnviroCarDataService enviroCarDataService);
 
     MainActivityComponent plus(MainActivityModule mainActivityModule);
 

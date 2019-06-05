@@ -83,11 +83,10 @@
         <service
             android:name=".aidl.EnviroCarDataService"
             android:enabled="true"
-            android:exported="true"
-            android:process=":remote">
-            <intent-filter>
-                <action android:name="service.envirocarobd" />
-            </intent-filter>
+            android:exported="true">
+            <!--<intent-filter>-->
+                <!--<action android:name="service.envirocarobd" />-->
+            <!--</intent-filter>-->
         </service>
 
         <receiver android:name=".services.SystemStartupReceiver">
