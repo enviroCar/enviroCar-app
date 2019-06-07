@@ -26,6 +26,7 @@ import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
 
+import java.util.Date;
 import java.util.List;
 
 import rx.Observable;
@@ -51,6 +52,11 @@ public interface TrackDAO {
     Observable<List<Track>> getTrackIdsObservable();
 
     Observable<List<Track>> getTrackIdsObservable(int limit, int page);
+
+    List<Track> getTrackinPeriod(Date after, Date before) throws NotConnectedException,
+            UnauthorizedException ;
+
+    Observable<List<Track>> getTrackinPeriodObservable(final Date after, final Date before);
 
     Integer getUserTrackCount() throws DataRetrievalFailureException, NotConnectedException,
             UnauthorizedException;

@@ -80,6 +80,11 @@ public interface TrackService {
     @DELETE("users/{user}/tracks/{track}")
     Call<ResponseBody> deleteTrack(@Path("user") String user, @Path("track") String track);
 
+    @GET("users/{user}/tracks")
+    Call<List<Track>> getTracksInPeriod(@Path("user") String user,
+                                         @Query("after") String after,
+                                         @Query("before") String before);
+
 
 }
 

@@ -28,6 +28,7 @@ import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.storage.EnviroCarDB;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -110,5 +111,14 @@ public class LocalTrackDAO implements TrackDAO {
     @Override
     public void deleteTrack(Track track) {
         database.deleteTrack(track);
+    }
+
+    @Override
+    public List<Track> getTrackinPeriod(Date after, Date before) {
+        return null;
+    }
+    @Override
+    public Observable<List<Track>> getTrackinPeriodObservable(final Date after, final Date before){
+        return null;
     }
 }

@@ -29,6 +29,7 @@ import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -105,5 +106,15 @@ public class CacheTrackDAO extends AbstractCacheDAO implements TrackDAO {
     public void deleteTrack(Track track) throws
             NotConnectedException {
         throw new NotConnectedException("Not implemented for Cache DAO");
+    }
+
+    public List<Track> getTrackinPeriod(Date after, Date before) throws
+            NotConnectedException {
+        throw new NotConnectedException("Not implemented for Cache DAO");
+    }
+
+    public Observable<List<Track>> getTrackinPeriodObservable(final Date after,
+                                                              final Date before){
+        return Observable.error(new NotConnectedException("Not implemented for Cache DAO"));
     }
 }
