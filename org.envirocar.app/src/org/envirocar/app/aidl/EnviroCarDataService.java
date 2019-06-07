@@ -13,14 +13,17 @@ import org.envirocar.aidl.ECMeasurement;
 import org.envirocar.aidl.ECRawObdValue;
 import org.envirocar.aidl.IECRecordingService;
 import org.envirocar.app.events.GPSSpeedChangeEvent;
+import org.envirocar.app.events.StartingTimeEvent;
 import org.envirocar.app.injection.BaseInjectorService;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.core.entity.Measurement;
-import org.envirocar.core.events.NewMeasurementEvent;
+import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.logging.Logger;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,7 +85,15 @@ public class EnviroCarDataService extends BaseInjectorService {
     }
 
     @Subscribe
-    public void onReceiveNewMeasurementEvent(NewMeasurementEvent event) {
+    public void onReceiveStartingTimeEvent(StartingTimeEvent event) {
+        LOG.debug("Receieved event {}".format(event.toString()));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+        String formatted = dateFormat.format(new Date(event.mStartingTime));
+        this.isRecordingSince = formatted;
+    }
+
+    @Subscribe
+    public void onReceiveNewMeasurementEvent(RecordingNewMeasurementEvent event) {
         LOG.info("[] Received new measurement " + event.mMeasurement.toString());
 
         Measurement m = event.mMeasurement;
