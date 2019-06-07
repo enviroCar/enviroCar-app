@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.SystemClock;
 import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
@@ -16,8 +17,10 @@ import org.envirocar.app.events.AvrgSpeedUpdateEvent;
 import org.envirocar.app.events.DistanceValueUpdateEvent;
 import org.envirocar.app.events.StartingTimeEvent;
 import org.envirocar.app.notifications.NotificationActionHolder;
-import org.envirocar.app.notifications.ServiceStateForNotificationForNotification;
+import org.envirocar.app.notifications.ServiceStateForNotification;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
+import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.text.DecimalFormat;
 
@@ -31,7 +34,7 @@ public class RecordingNotification {
     private static final DecimalFormat DECIMAL_FORMATTER = new DecimalFormat("###.#");
 
     // Channel_ID required for newer version
-    private static final String CHANNEL_ID = "channel1";
+    protected static final String CHANNEL_ID = "channel1";
 
     // context information
     private final Context context;
@@ -39,6 +42,7 @@ public class RecordingNotification {
     private final NotificationManager notificationManager;
 
     // Stats of the recording
+    private BluetoothServiceState bluetoothServiceState;
     private int avrgSpeed = 0;
     private double distanceValue = 0.0;
     private long startingTime = 0;
@@ -56,6 +60,19 @@ public class RecordingNotification {
         this.context = context;
         this.screenClass = screenClass;
         this.notificationManager = notificationManager;
+    }
+
+    /**
+     * Subscriber method for receiving
+     * @param event
+     */
+    @Subscribe
+    public void onReceiveServiceStateChangedEvent(TrackRecordingServiceStateChangedEvent event){
+        this.bluetoothServiceState = event.mState;
+        if(event.mState == BluetoothServiceState.SERVICE_STARTED){
+            this.startingTime = SystemClock.elapsedRealtime();
+        }
+        refresh();
     }
 
     /**
@@ -101,7 +118,7 @@ public class RecordingNotification {
         // use System.currentTimeMillis() to have a unique ID for the pending intent
         PendingIntent pIntent = PendingIntent.getActivity(this.context, (int) System.currentTimeMillis(), intent, 0);
 
-        NotificationActionHolder actionHolder = ServiceStateForNotificationForNotification.CONNECTED.getAction(this.context);
+        NotificationActionHolder actionHolder = ServiceStateForNotification.CONNECTED.getAction(this.context);
 
         // populate big notification layout
         RemoteViews bigLayout = new RemoteViews(context.getPackageName(), R.layout.notification_while_track_recording);
@@ -118,7 +135,7 @@ public class RecordingNotification {
 
         // create new Notification
         this.notification = new NotificationCompat.Builder(this.context, CHANNEL_ID)
-                .setSmallIcon(ServiceStateForNotificationForNotification.CONNECTED.getIcon())
+                .setSmallIcon(ServiceStateForNotification.CONNECTED.getIcon())
                 .setContentIntent(pIntent)
                 .setCustomContentView(smallLayout)
                 .setCustomBigContentView(bigLayout)
