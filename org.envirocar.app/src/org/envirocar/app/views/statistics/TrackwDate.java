@@ -60,9 +60,19 @@ public class TrackwDate {
     {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
+
         int day = cal.get(Calendar.DAY_OF_WEEK);
         boolean test = (day == d);
         return test;
+    }
+
+    public int getDay() // Sunday is 1
+    {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+
+        int day = cal.get(Calendar.DAY_OF_WEEK);
+        return day;
     }
 
     public boolean checkWeek(int w) // Zero based, i.e January is 0

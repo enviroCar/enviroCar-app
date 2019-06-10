@@ -61,7 +61,7 @@ public class StatisticsFragment extends BaseInjectorFragment {
     protected TrackDAOHandler mTrackDAOHandler;
 
     @Inject
-    protected EnviroCarDB mEnvirocarDB;;
+    protected EnviroCarDB mEnvirocarDB;
 
     @BindView(R.id.stat_last_track_header)
     protected TextView LastTrackHeader;
@@ -107,6 +107,7 @@ public class StatisticsFragment extends BaseInjectorFragment {
 
     protected boolean isUserSignedIn;
     protected Unbinder unbinder;
+
     private boolean hasLoadedRemote = false;
     private boolean hasLoadedStored = false;
     private boolean isSorted = false;
@@ -148,12 +149,14 @@ public class StatisticsFragment extends BaseInjectorFragment {
             scrollView.setVisibility(View.INVISIBLE);
         }
         else{
+            loadDataset();
             ViewPagerAdapter adapter = new ViewPagerAdapter(getFragmentManager());
             viewPager.setAdapter(adapter);
             tabLayout.setupWithViewPager(viewPager);
+            //statisticsTrackInterface.sendTracks(mTrackList);
             mUserManager.getUser();
 
-            loadDataset();
+
         }
 
 
@@ -207,8 +210,7 @@ public class StatisticsFragment extends BaseInjectorFragment {
                 }
             }
 
-
-            subscriptions.add(mEnvirocarDB.getAllRemoteTracks()
+            subscriptions.add(mDAOProvider.getTrackDAO().getTrackIdsObservable(1,1)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Subscriber<List<Track>>() {
@@ -295,8 +297,6 @@ public class StatisticsFragment extends BaseInjectorFragment {
                         public void onNext(List<Track> tracks) {
                             LOG.info("onNext(" + tracks.size() + ") remotely stored tracks");
 
-                            // Add all tracks to the track list that are not in the
-                            // list so far
                             for (Track track : tracks) {
                                 if (!mTrackList.contains(track)) {
                                     mTrackList.add(track);
@@ -304,7 +304,6 @@ public class StatisticsFragment extends BaseInjectorFragment {
                             }
                             hasLoadedRemote = true;
 
-                            // Sort the list and update the list
                             updateView();
                         }
                     }));
@@ -329,9 +328,7 @@ public class StatisticsFragment extends BaseInjectorFragment {
         if (!mTrackList.isEmpty()) {
             LastTrackDate.setText(mTrackList.get(0).getName());
             LastTrackTime.setText(mTrackList.size()+"");
-            //mRecyclerView.setVisibility(View.VISIBLE);
-            //infoView.setVisibility(View.GONE);
-            //mRecyclerViewAdapter.notifyDataSetChanged();
+
         }
     }
     protected void showSnackbar(final int message) {
@@ -351,10 +348,9 @@ public class StatisticsFragment extends BaseInjectorFragment {
     }
 
     protected void loadDataset() {
-        // Do not load the dataset twice.
         if (mUserManager.isLoggedIn() && !tracksLoaded) {
             tracksLoaded = true;
-            Toast.makeText(getContext(), "Starting", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(), "Starting", Toast.LENGTH_SHORT).show();
             new LoadRemoteTracksTask().execute();
         }
     }
