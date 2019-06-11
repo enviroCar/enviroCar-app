@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import retrofit.Response;
+import retrofit2.Response;
 
 /**
  * @author dewall
@@ -210,7 +210,7 @@ public class EnvirocarServiceUtils {
      */
     public static String resolveRemoteLocation(Response<?> response) {
         Preconditions.checkNotNull(response, "Response type can not be null.");
-        Preconditions.checkState(response.isSuccess(), "Response has to be succesful to be able " +
+        Preconditions.checkState(response.isSuccessful(), "Response has to be succesful to be able " +
                 "to resolve the uploaded location");
 
         // Get all headers in order to find out the location of the uploaded car.

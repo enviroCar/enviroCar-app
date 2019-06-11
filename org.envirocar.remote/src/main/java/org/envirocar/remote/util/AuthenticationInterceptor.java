@@ -18,9 +18,6 @@
  */
 package org.envirocar.remote.util;
 
-import com.squareup.okhttp.Interceptor;
-import com.squareup.okhttp.Response;
-
 import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.User;
 
@@ -28,6 +25,9 @@ import java.io.IOException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import okhttp3.Interceptor;
+import okhttp3.Response;
 
 /**
  * TODO JavaDoc

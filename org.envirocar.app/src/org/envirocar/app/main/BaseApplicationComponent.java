@@ -62,7 +62,7 @@ import org.envirocar.remote.dao.RemoteUserStatisticsDAO;
 import javax.inject.Singleton;
 
 import dagger.Component;
-import retrofit.Retrofit;
+import retrofit2.Retrofit;
 
 /**
  * @author Sai Krishna

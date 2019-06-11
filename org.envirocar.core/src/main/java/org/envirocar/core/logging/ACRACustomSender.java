@@ -21,9 +21,14 @@ package org.envirocar.core.logging;
 import android.content.Context;
 import android.util.Log;
 
-import org.acra.collector.CrashReportData;
+//import org.acra.collector.CrashReportData;
+import org.acra.config.CoreConfiguration;
+import org.acra.data.CrashReportData;
 import org.acra.sender.ReportSender;
-import org.acra.sender.ReportSenderException;
+import org.acra.sender.ReportSenderFactory;
+
+
+import javax.annotation.Nonnull;
 
 public class ACRACustomSender implements ReportSender {
 

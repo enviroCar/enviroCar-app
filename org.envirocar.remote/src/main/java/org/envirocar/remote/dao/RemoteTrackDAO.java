@@ -19,7 +19,6 @@
 package org.envirocar.remote.dao;
 
 import com.google.common.base.Preconditions;
-import com.squareup.okhttp.ResponseBody;
 
 import org.envirocar.core.UserManager;
 import org.envirocar.core.dao.TrackDAO;
@@ -40,8 +39,9 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
-import retrofit.Call;
-import retrofit.Response;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Response;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -117,7 +117,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
 
             // If the request call was not successful, then assert the status code and throw an
             // exceptiom
-            if (!allTracksCountResponse.isSuccess()) {
+            if (!allTracksCountResponse.isSuccessful()) {
                 EnvirocarServiceUtils.assertStatusCode(allTracksCountResponse.code(),
                         allTracksCountResponse.errorBody().toString());
                 return null;
@@ -148,7 +148,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
 
             // If the request call was not successful, then assert the status code and throw an
             // exceptiom
-            if (!allTracksCountResponse.isSuccess()) {
+            if (!allTracksCountResponse.isSuccessful()) {
                 EnvirocarServiceUtils.assertStatusCode(allTracksCountResponse.code(),
                         allTracksCountResponse.errorBody().toString());
                 return null;
@@ -184,7 +184,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
         try {
             Response<ResponseBody> uploadTrackResponse = uploadTrackCall.execute();
 
-            if (!uploadTrackResponse.isSuccess()) {
+            if (!uploadTrackResponse.isSuccessful()) {
                 LOG.severe("Error while uploading track: " + uploadTrackResponse.message());
                 EnvirocarServiceUtils.assertStatusCode(uploadTrackResponse.code(),
                         uploadTrackResponse.message());
@@ -246,7 +246,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
             // Execute the call
             Response<List<Track>> remoteTracksResponse = remoteTrackCall.execute();
 
-            if (!remoteTracksResponse.isSuccess()) {
+            if (!remoteTracksResponse.isSuccessful()) {
                 LOG.severe("Error while retrieving the list of remote tracks");
                 EnvirocarServiceUtils.assertStatusCode(remoteTracksResponse.code(),
                         remoteTracksResponse.message());
@@ -319,7 +319,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
             Response<ResponseBody> deleteTrackResponse = deleteTrackCall.execute();
 
             // Check whether the call was successful or not
-            if (!deleteTrackResponse.isSuccess()) {
+            if (!deleteTrackResponse.isSuccessful()) {
                 LOG.warn(String.format("deleteLocalTrack(): Error while deleting remote track."));
                 EnvirocarServiceUtils.assertStatusCode(deleteTrackResponse.code(),
                         deleteTrackResponse.message());

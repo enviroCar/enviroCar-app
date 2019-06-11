@@ -37,8 +37,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import retrofit.Call;
-import retrofit.Response;
+import retrofit2.Call;
+import retrofit2.Response;
 import rx.Observable;
 import rx.Subscriber;
 import rx.functions.Func1;

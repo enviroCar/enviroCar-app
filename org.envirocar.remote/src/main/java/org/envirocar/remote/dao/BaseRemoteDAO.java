@@ -26,8 +26,8 @@ import org.envirocar.remote.util.EnvirocarServiceUtils;
 
 import java.io.IOException;
 
-import retrofit.Call;
-import retrofit.Response;
+import retrofit2.Call;
+import retrofit2.Response;
 
 /**
  * TODO JavaDoc
@@ -68,7 +68,7 @@ public class BaseRemoteDAO<C, S> {
         Response<T> response = call.execute();
 
         // assert the responsecode if it was not an success.
-        if (!response.isSuccess()) {
+        if (!response.isSuccessful()) {
             EnvirocarServiceUtils.assertStatusCode(response.code(),
                     response.message());
         }

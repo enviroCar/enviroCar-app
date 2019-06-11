@@ -33,8 +33,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import retrofit.Call;
-import retrofit.Response;
+import retrofit2.Call;
+import retrofit2.Response;
 import rx.Observable;
 import rx.Subscriber;
 
@@ -75,7 +75,7 @@ public class RemoteAnnouncementsDAO extends BaseRemoteDAO<AnnouncementDAO, Annou
             Response<List<Announcement>> allAnnouncementsResponse = allAnnouncementsCall.execute();
 
             // assert the response code when it was not successful
-            if (!allAnnouncementsResponse.isSuccess()) {
+            if (!allAnnouncementsResponse.isSuccessful()) {
                 EnvirocarServiceUtils.assertStatusCode(allAnnouncementsResponse.code(),
                         allAnnouncementsResponse.message());
                 return null;

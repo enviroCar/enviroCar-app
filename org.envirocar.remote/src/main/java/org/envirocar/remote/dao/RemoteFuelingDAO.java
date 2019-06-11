@@ -18,7 +18,6 @@
  */
 package org.envirocar.remote.dao;
 
-import com.squareup.okhttp.ResponseBody;
 
 import org.envirocar.core.UserManager;
 import org.envirocar.core.dao.FuelingDAO;
@@ -35,7 +34,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import retrofit.Response;
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 import rx.Observable;
 import rx.Subscriber;
 
