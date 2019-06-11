@@ -30,7 +30,7 @@ import org.envirocar.app.services.AutomaticTrackRecordingService;
  *
  * @author dewall
  */
-public enum ServiceStateForNotificationForNotification implements ServiceStateContentForNotification {
+public enum ServiceStateForNotification implements ServiceStateContentForNotification {
     NO_CAR_SELECTED {
         @Override
         public int getTitle() {

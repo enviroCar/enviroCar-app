@@ -108,6 +108,7 @@ public class BaseApplicationModule {
     Bus provideBus() {
         if (mBus == null)
             mBus = new Bus(ThreadEnforcer.ANY);
+        LOGGER.info("inject: " + mBus.hashCode());
         return mBus;
     }
 

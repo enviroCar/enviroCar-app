@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.core.events;
+package org.envirocar.core.events.recording;
 
 import com.google.common.base.MoreObjects;
 
@@ -28,7 +28,7 @@ import org.envirocar.core.entity.Measurement;
  *
  * @author dewall
  */
-public class NewMeasurementEvent {
+public class RecordingNewMeasurementEvent {
 
     public final Measurement mMeasurement;
 
@@ -37,7 +37,7 @@ public class NewMeasurementEvent {
      *
      * @param measurement
      */
-    public NewMeasurementEvent(Measurement measurement) {
+    public RecordingNewMeasurementEvent(Measurement measurement) {
         this.mMeasurement = measurement;
     }
 
