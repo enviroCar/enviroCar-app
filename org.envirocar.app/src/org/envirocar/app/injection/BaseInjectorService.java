@@ -18,6 +18,7 @@
  */
 package org.envirocar.app.injection;
 
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -54,5 +55,9 @@ public abstract class BaseInjectorService extends Service {
     public void onCreate() {
         super.onCreate();
         injectDependencies(BaseApplication.get(this).getBaseApplicationComponent());
+    }
+
+    protected NotificationManager getNotificationManager(){
+        return (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
     }
 }

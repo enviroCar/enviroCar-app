@@ -251,7 +251,6 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
                             }
                         })
         );
-
     }
 
     private void checkKeepScreenOn() {

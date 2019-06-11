@@ -32,7 +32,7 @@ import android.preference.PreferenceManager;
 import com.google.common.base.Preconditions;
 import com.squareup.otto.Bus;
 
-import org.envirocar.app.services.OBDConnectionService;
+import org.envirocar.app.services.recording.OBDRecordingService;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceDiscoveredEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
@@ -149,16 +149,16 @@ public class BluetoothHandler {
      * Starts the connection to the bluetooth device if not already active.
      */
     public void startOBDConnectionService() {
-        if (!ServiceUtils.isServiceRunning(context, OBDConnectionService.class))
+        if (!ServiceUtils.isServiceRunning(context, OBDRecordingService.class))
             context.getApplicationContext()
-                    .startService(new Intent(context, OBDConnectionService.class));
+                    .startService(new Intent(context, OBDRecordingService.class));
     }
 
 
     public void stopOBDConnectionService() {
-        if (ServiceUtils.isServiceRunning(context, OBDConnectionService.class)) {
+        if (ServiceUtils.isServiceRunning(context, OBDRecordingService.class)) {
             context.getApplicationContext()
-                    .stopService(new Intent(context, OBDConnectionService.class));
+                    .stopService(new Intent(context, OBDRecordingService.class));
         }
 
         ActivityManager amgr = (ActivityManager) context.getSystemService(Context

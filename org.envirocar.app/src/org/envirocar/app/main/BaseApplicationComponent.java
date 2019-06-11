@@ -20,12 +20,14 @@ package org.envirocar.app.main;
 
 import com.squareup.sqlbrite.SqlBrite;
 
+import org.envirocar.app.aidl.EnviroCarDataService;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.services.AutomaticTrackRecordingService;
-import org.envirocar.app.services.GPSOnlyConnectionService;
-import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.services.TrackUploadService;
+import org.envirocar.app.services.recording.AbstractRecordingService;
+import org.envirocar.app.services.recording.GPSOnlyRecordingService;
+import org.envirocar.app.services.recording.OBDRecordingService;
 import org.envirocar.app.views.LoginRegisterActivity;
 import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
@@ -73,7 +75,6 @@ public interface BaseApplicationComponent {
 
     void inject(BaseApplication baseApplication);
     void inject(TrackRecordingHandler trackRecordingHandler);
-    void inject(OBDConnectionService obdConnectionService);
     void inject(AutomaticTrackRecordingService automaticTrackRecordingService);
     void inject(TrackUploadService trackUploadService);
     void inject(CarSelectionActivity carSelectionActivity);
@@ -93,8 +94,11 @@ public interface BaseApplicationComponent {
     void inject(LoginRegisterActivity loginRegisterActivity);
     void inject(DAOProvider daoProvider);
     void inject(OthersFragment othersFragment);
-    void inject(GPSOnlyConnectionService gpsOnlyConnectionService);
     void inject(TrackTrimDurationPreference trackTrimDurationPreference);
+    void inject(EnviroCarDataService enviroCarDataService);
+    void inject(AbstractRecordingService abstractRecordingService);
+    void inject(GPSOnlyRecordingService gpsOnlyRecordingService);
+    void inject(OBDRecordingService obdRecordingService);
 
     MainActivityComponent plus(MainActivityModule mainActivityModule);
 

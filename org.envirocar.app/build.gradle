@@ -77,6 +77,7 @@ dependencies {
     api project(path: ':org.envirocar.obd')
     api project(path: ':org.envirocar.storage')
     api project(path: ':org.envirocar.algorithm')
+    implementation("org.envirocar:aidl:0.22.6")
 }
 
 
