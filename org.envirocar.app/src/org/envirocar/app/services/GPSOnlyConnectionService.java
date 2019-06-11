@@ -59,10 +59,10 @@ import org.envirocar.app.injection.BaseInjectorService;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.app.notifications.NotificationActionHolder;
-import org.envirocar.app.notifications.ServiceStateForNotificationForNotification;
+import org.envirocar.app.notifications.ServiceStateForNotification;
 import org.envirocar.app.views.recordingscreen.GPSOnlyTrackRecordingScreen;
 import org.envirocar.core.entity.Measurement;
-import org.envirocar.core.events.NewMeasurementEvent;
+import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.events.gps.GpsSatelliteFix;
 import org.envirocar.core.events.gps.GpsSatelliteFixEvent;
@@ -151,7 +151,7 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
 
     // This satellite fix indicates that there is no satellite connection yet.
     private GpsSatelliteFix mCurrentGpsSatelliteFix = new GpsSatelliteFix(0, false);
-    private GPSOnlyConnectionRecognizer connectionRecognizer = new GPSOnlyConnectionRecognizer();
+git
 
     private final Scheduler.Worker backgroundWorker = Schedulers.io().createWorker();
     NotificationManager notificationManager;
@@ -275,9 +275,9 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Notification notification = new Notification.Builder(this,CHANNEL_ID)
-                    .setContentTitle(getBaseContext().getString(ServiceStateForNotificationForNotification.CONNECTING.getTitle()))
-                    .setContentText(getBaseContext().getString(ServiceStateForNotificationForNotification.CONNECTING.getSubText()))
-                    .setSmallIcon(ServiceStateForNotificationForNotification.CONNECTING.getIcon())
+                    .setContentTitle(getBaseContext().getString(ServiceStateForNotification.CONNECTING.getTitle()))
+                    .setContentText(getBaseContext().getString(ServiceStateForNotification.CONNECTING.getSubText()))
+                    .setSmallIcon(ServiceStateForNotification.CONNECTING.getIcon())
                     .setContentIntent(pIntent)
                     .setAutoCancel(true).build();
 
@@ -285,9 +285,9 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
         }else{
 
             Notification notification = new Notification.Builder(this)
-                    .setContentTitle(getBaseContext().getString(ServiceStateForNotificationForNotification.CONNECTING.getTitle()))
-                    .setContentText(getBaseContext().getString(ServiceStateForNotificationForNotification.CONNECTING.getSubText()))
-                    .setSmallIcon(ServiceStateForNotificationForNotification.CONNECTING.getIcon())
+                    .setContentTitle(getBaseContext().getString(ServiceStateForNotification.CONNECTING.getTitle()))
+                    .setContentText(getBaseContext().getString(ServiceStateForNotification.CONNECTING.getSubText()))
+                    .setSmallIcon(ServiceStateForNotification.CONNECTING.getIcon())
                     .setContentIntent(pIntent)
                     .setAutoCancel(true).build();
 
@@ -345,12 +345,7 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
                 ActivityRecognition.getClient(this)
                         .requestActivityTransitionUpdates(request, mPendingIntent);
         task.addOnSuccessListener(
-                new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void result) {
-                        LOG.info("Transitions Api was successfully registered.");
-                    }
-                });
+                result -> LOG.info("Transitions Api was successfully registered."));
         task.addOnFailureListener(
                 new OnFailureListener() {
                     @Override
@@ -369,7 +364,7 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
         RemoteViews notificationBigLayout = new RemoteViews(getPackageName(), R.layout.notification_while_track_recording);
         RemoteViews notificationSmallLayout = new RemoteViews(getPackageName(), R.layout.notification_while_track_recording_small);
 
-        NotificationActionHolder actionHolder = ServiceStateForNotificationForNotification.CONNECTED.getAction(getBaseContext());
+        NotificationActionHolder actionHolder = ServiceStateForNotification.CONNECTED.getAction(getBaseContext());
         notificationBigLayout.setOnClickPendingIntent(R.id.notification_obd_service_state_button, actionHolder.actionIntent);
         notificationBigLayout.setTextViewText(R.id.notification_distance, String.format("%s km", DECIMAL_FORMATTER.format(mDistanceValue)));
         notificationBigLayout.setTextViewText(R.id.notification_speed, String.format("%s km/h", Integer.toString(mAvrgSpeed)));
@@ -380,7 +375,7 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
             notification = new Notification.Builder(getBaseContext(),CHANNEL_ID)
-                    .setSmallIcon(ServiceStateForNotificationForNotification.CONNECTED.getIcon())
+                    .setSmallIcon(ServiceStateForNotification.CONNECTED.getIcon())
                     .setContentIntent(pIntent)
                     .setCustomContentView(notificationSmallLayout)
                     .setCustomBigContentView(notificationBigLayout)
@@ -389,7 +384,7 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
         }else{
             notification = new Notification.Builder(getBaseContext())
                     .setPriority(Notification.PRIORITY_MAX)
-                    .setSmallIcon(ServiceStateForNotificationForNotification.CONNECTED.getIcon())
+                    .setSmallIcon(ServiceStateForNotification.CONNECTED.getIcon())
                     .setContentIntent(pIntent)
                     .setContent(notificationSmallLayout)
                     .setAutoCancel(true).build();
@@ -550,7 +545,7 @@ public class GPSOnlyConnectionService extends BaseInjectorService {
             public void onNext(Measurement measurement) {
                 LOG.info("onNNNNENEEXT()");
                 measurementPublisher.onNext(measurement);
-                bus.post(new NewMeasurementEvent(measurement));
+                bus.post(new RecordingNewMeasurementEvent(measurement));
             }
         };
     }
