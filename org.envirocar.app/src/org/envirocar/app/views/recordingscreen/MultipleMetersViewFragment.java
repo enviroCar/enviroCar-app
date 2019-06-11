@@ -30,7 +30,7 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Measurement;
-import org.envirocar.core.events.NewMeasurementEvent;
+import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
 import org.envirocar.core.logging.Logger;
 
 import butterknife.BindView;
@@ -69,7 +69,7 @@ public class MultipleMetersViewFragment extends Fragment {
 
 
     @Subscribe
-    public void onReceiveNewMeasurementEvent(NewMeasurementEvent event) {
+    public void onReceiveNewMeasurementEvent(RecordingNewMeasurementEvent event) {
         LOGGER.debug(String.format("Received event: %s", event.toString()));
         Measurement measurement = event.mMeasurement;
         if(measurement.hasProperty(Measurement.PropertyKey.SPEED)){

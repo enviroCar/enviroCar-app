@@ -64,12 +64,13 @@ public class RecordingNotification {
 
     /**
      * Subscriber method for receiving
+     *
      * @param event
      */
     @Subscribe
-    public void onReceiveServiceStateChangedEvent(TrackRecordingServiceStateChangedEvent event){
+    public void onReceiveServiceStateChangedEvent(TrackRecordingServiceStateChangedEvent event) {
         this.bluetoothServiceState = event.mState;
-        if(event.mState == BluetoothServiceState.SERVICE_STARTED){
+        if (event.mState == BluetoothServiceState.SERVICE_STARTED) {
             this.startingTime = SystemClock.elapsedRealtime();
         }
         refresh();
