@@ -17,17 +17,18 @@ import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.tasks.Task;
 import com.squareup.otto.Subscribe;
 
+import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.events.DrivingDetectedEvent;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.main.BaseApplicationComponent;
-import org.envirocar.app.services.GPSOnlyConnectionService;
 import org.envirocar.app.views.recordingscreen.GPSOnlyTrackRecordingScreen;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 
@@ -50,17 +51,23 @@ import rx.subjects.PublishSubject;
 public class GPSOnlyRecordingService extends AbstractRecordingService {
     private static final Logger LOG = Logger.getLogger(GPSOnlyRecordingService.class);
 
+    public static void stopService(Context context) {
+        ServiceUtils.stopService(context, GPSOnlyRecordingService.class);
+    }
+
     private static final String ACTION_STOP_TRACK_RECORDING = "action_stop_track_recording";
     private static final String TRANSITIONS_RECEIVER_ACTION = BuildConfig.APPLICATION_ID + "TRANSITIONS_RECEIVER_ACTION";
 
-    private static BluetoothServiceState CURRENT_SERVICE_STATE = BluetoothServiceState.SERVICE_STOPPED;
+    public static BluetoothServiceState CURRENT_SERVICE_STATE = BluetoothServiceState.SERVICE_STOPPED;
 
     // Background worker
     private final Scheduler.Worker backgroundWorker = Schedulers.io().createWorker();
 
     // config parameters
     private int trackTrimDuration = 55 * 2;
-    private boolean drivingDetected = false;
+    public static boolean drivingDetected = false;
+
+    private long startingTime;
 
     // observable subscriptions
     private Subscription trackTrimDurationSubscription;
@@ -70,7 +77,7 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
     // Parameters for activity recognition
     private PendingIntent activityTransitionPendingIntent;
 
-    private GPSOnlyConnectionService.GPSOnlyConnectionRecognizer connectionRecognizer = new GPSOnlyConnectionService.GPSOnlyConnectionRecognizer();
+    private GPSOnlyConnectionRecognizer connectionRecognizer = new GPSOnlyConnectionRecognizer();
 
     private final Action0 drivingConnectionCloser = () -> {
         LOG.warn("Connection closed to to driving state absence");
@@ -127,8 +134,14 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
         }
     };
 
+
     @Override
     public void onCreate() {
+        // Init connection recognizer
+        this.connectionRecognizer = new GPSOnlyConnectionRecognizer();
+        this.eventBusReceivers.add(this.connectionRecognizer);
+
+        //
         super.onCreate();
 
         // Initialize activity recognition stuff.
@@ -159,7 +172,7 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
         this.trackTrimDurationSubscription =
                 PreferencesHandler.getTrackTrimDurationObservable(getApplicationContext())
                         .subscribe(integer -> {
-                            LOG.info(String.format("Received changed track trim duration [%s]", integer);
+                            LOG.info(String.format("Received changed track trim duration [%s]", integer));
                             trackTrimDuration = integer;
                         });
     }
@@ -170,23 +183,21 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
         CURRENT_SERVICE_STATE = BluetoothServiceState.SERVICE_STARTED;
         this.bus.post(new TrackRecordingServiceStateChangedEvent(BluetoothServiceState.SERVICE_STARTED));
 
-        subscribeForMeasurements();
-        mStartingTime = SystemClock.elapsedRealtime();
+        // subscribe for measurements
+        this.measurementSubscription = subscribeForMeasurements(getApplicationContext(), this.measurementProvider);
+
+        this.startingTime = SystemClock.elapsedRealtime();
         LOG.info("Setting the custom notification while recording for the first time.");
-        refreshNotification();
-
-
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        // Stop the GPS Only Connection
-
+    protected void stopRecording() {
         // Unregister subscriptions.
         this.trackTrimDurationSubscription.unsubscribe();
         this.trackTrimDurationSubscription = null;
+
+        // stopping the GPS Only connection
+        this.stopGPSOnlyConnection();
 
         // Unregister broadcast receivers
         unregisterReceiver(broadcastReceiver);
@@ -198,9 +209,8 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
                 .addOnFailureListener(e -> LOG.error("Transitions could not be registered", e));
 
         this.drivingDetected = false;
-
-        LOG.info("GPSOnlyRecordingService successfully destroyed");
     }
+
 
     @Override
     protected Class<? extends BaseInjectorActivity> getRecordingScreenClass() {
@@ -212,10 +222,10 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
         baseApplicationComponent.inject(this);
     }
 
-    private void subscribeForMeasurements() {
+    private Subscription subscribeForMeasurements(Context context, MeasurementProvider measurementProvider) {
         // this is the first access to the measurement objects push it further
-        Long samplingRate = PreferencesHandler.getSamplingRate(getApplicationContext()) * 1000;
-        measurementSubscription = measurementProvider.measurements(samplingRate)
+        Long samplingRate = PreferencesHandler.getSamplingRate(context) * 1000;
+        return measurementProvider.measurements(samplingRate)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.io())
                 .subscribe(getMeasurementSubscriber());
@@ -268,21 +278,22 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
 
             if (connectionRecognizer != null)
                 connectionRecognizer.shutDown();
-            if (mTrackDetailsProvider != null)
-                mTrackDetailsProvider.clear();
-            if (mWakeLock != null && mWakeLock.isHeld()) {
-                mWakeLock.release();
+            if (trackDetailsProvider != null)
+                trackDetailsProvider.clear();
+            if (wakeLock != null && wakeLock.isHeld()) {
+                wakeLock.release();
             }
-            if (mDrivingStoppedSubscription != null) {
-                mDrivingStoppedSubscription.unsubscribe();
-                mDrivingStoppedSubscription = null;
+            if (drivingStoppedSubscription != null) {
+                drivingStoppedSubscription.unsubscribe();
+                drivingStoppedSubscription = null;
             }
 
-            mLocationHandler.stopLocating();
-            doTextToSpeech("Device disconnected");
+            locationHandler.stopLocating();
+            this.speechOutput.doTextToSpeech("Device disconnected");
 
             // Set state of the remoteService to stopped.
-            setTrackRecordingServiceState(BluetoothServiceState.SERVICE_STOPPED);
+            CURRENT_SERVICE_STATE = BluetoothServiceState.SERVICE_STOPPED;
+            this.bus.post(new TrackRecordingServiceStateChangedEvent(BluetoothServiceState.SERVICE_STOPPED));
         });
     }
 

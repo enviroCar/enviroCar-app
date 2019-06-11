@@ -18,6 +18,7 @@ import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.app.notifications.ServiceStateForNotification;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public abstract class AbstractRecordingService extends BaseInjectorService {
     protected SpeechOutput speechOutput;
 
 
-    private List<Object> eventBusReceivers = new ArrayList<>();
+    protected List<Object> eventBusReceivers = new ArrayList<>();
 
 
     protected RecordingNotification recordingNotification;
@@ -58,6 +59,7 @@ public abstract class AbstractRecordingService extends BaseInjectorService {
 
     @Override
     public void onCreate() {
+        LOG.info("onCreate()");
         super.onCreate();
 
         this.recordingNotification = new RecordingNotification(this,
@@ -108,8 +110,7 @@ public abstract class AbstractRecordingService extends BaseInjectorService {
             this.bus.unregister(o);
         }
 
-
-
+        this.stopRecording();
 
         // Stop locating
         this.locationHandler.stopLocating();
@@ -145,6 +146,12 @@ public abstract class AbstractRecordingService extends BaseInjectorService {
      *
      */
     protected abstract void startRecording();
+
+
+    /**
+     *
+     */
+    protected abstract void stopRecording();
 
     /**
      *

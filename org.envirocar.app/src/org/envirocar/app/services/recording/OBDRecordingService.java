@@ -19,9 +19,7 @@ import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.main.BaseApplicationComponent;
-import org.envirocar.app.notifications.ServiceStateForNotification;
 import org.envirocar.app.services.OBDConnectionHandler;
-import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.views.recordingscreen.OBDPlusGPSTrackRecordingScreen;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
@@ -61,6 +59,10 @@ import rx.subjects.PublishSubject;
  */
 public class OBDRecordingService extends AbstractRecordingService {
     private static final Logger LOG = Logger.getLogger(OBDRecordingService.class);
+
+    public static void stopService(Context context) {
+        ServiceUtils.stopService(context, OBDRecordingService.class);
+    }
 
     public static final String ACTION_STOP_TRACK_RECORDING = "action_stop_track_recording";
     protected static final int MAX_RECONNECT_COUNT = 2;
@@ -123,6 +125,11 @@ public class OBDRecordingService extends AbstractRecordingService {
 
     @Override
     public void onCreate() {
+        // Connection Recognizer
+        this.connectionRecognizer = new OBDConnectionRecognizer();
+        this.eventBusReceivers.add(this.connectionRecognizer);
+
+        //
         super.onCreate();
 
         // Register a new BroadcastReceiver that waits for incoming actions issued from
@@ -135,44 +142,26 @@ public class OBDRecordingService extends AbstractRecordingService {
         Car car = carPreferenceHandler.getCar();
         this.consumptionAlgorithm = CarUtils.resolveConsumptionAlgorithm(car.getFuelType());
         this.mafAlgorithm = new CalculatedMAFWithStaticVolumetricEfficiency(car);
-
-        // Connection Recognizer
-        this.connectionRecognizer = new OBDConnectionRecognizer();
-
     }
 
+
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        LOG.info("Starting the OBD-based Recording");
-        this.speechOutput.doTextToSpeech("Establishing connection");
-
-        // Acquire the wake lock for keeping the CPU active.
-        wakeLock.acquire();
-
-        // start locating
-        locationHandler.startLocating();
-
+    protected void startRecording() {
         // Get the default device
         BluetoothDevice device = bluetoothHandler.getSelectedBluetoothDevice();
         if (device != null) {
             LOG.info("The BluetoothHandler has a valid device. Start the OBD Connection");
 
-            // update notification
-            showNotification(ServiceStateForNotification.CONNECTING);
-
             //
             connectingSubscription = startOBDConnection(device);
         } else {
             LOG.severe("No default Bluetooth device selected");
-            ServiceUtils.stopService(this, OBDConnectionService.class);
+            ServiceUtils.stopService(this, OBDRecordingService.class);
         }
-
-        return START_STICKY;
     }
 
-
     @Override
-    public void onDestroy() {
+    protected void stopRecording() {
         LOG.info("Destroying the OBD-based recording");
         super.onDestroy();
 
