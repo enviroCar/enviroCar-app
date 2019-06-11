@@ -28,7 +28,7 @@
         android:text="@string/no_stats"
         android:textColor="#800278AF"
         android:textSize="28sp"
-        android:visibility="visible"
+        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/stat_line_graph"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"

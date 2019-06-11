@@ -162,6 +162,8 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         JsonObject result = new JsonObject();
         result.addProperty(Track.KEY_TRACK_TYPE, "FeatureCollection");
         //TODO result.addProperty(Track.KEY_TRACK_PROPERTIES_LENGTH, src.getLengthOfTrack());
+        result.addProperty(Track.KEY_TRACK_PROPERTIES_LENGTH, src.getLength());
+        result.addProperty(Track.KEY_TRACK_PROPERTIES_CREATED,src.getCreated());
         result.add(Track.KEY_TRACK_PROPERTIES, trackProperties);
         result.add(Track.KEY_TRACK_FEATURES, trackFeatures);
 
@@ -217,10 +219,15 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         String name = properties.has(Track.KEY_TRACK_PROPERTIES_NAME) ?
                 properties.get(Track.KEY_TRACK_PROPERTIES_NAME).getAsString() :
                 ("unnamed Track #" + id);
+        String created = properties.has(Track.KEY_TRACK_PROPERTIES_CREATED) ?
+                properties.get(Track.KEY_TRACK_PROPERTIES_CREATED).getAsString() :
+                "";
         String description = properties.has(Track.KEY_TRACK_PROPERTIES_DESCRIPTION) ?
                 properties.get(Track.KEY_TRACK_PROPERTIES_DESCRIPTION).getAsString() :
                 "";
-
+        Long length = properties.has(Track.KEY_TRACK_PROPERTIES_LENGTH) ?
+                properties.get(Track.KEY_TRACK_PROPERTIES_LENGTH).getAsLong() :
+                new Long(0);
         // Parse the car object.
         JsonObject carObject = properties.get(Track.KEY_TRACK_PROPERTIES_SENSOR)
                 .getAsJsonObject();
@@ -246,6 +253,8 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         track.setRemoteID(id);
         track.setName(name);
         track.setDescription(description);
+        track.setCreated(created);
+        track.setLength(length);
         track.setCar(car);
         track.setMeasurements(measurements); // Storing happens here...
 

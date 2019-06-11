@@ -42,10 +42,12 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     protected String remoteID;
     protected String name;
     protected String description;
+    protected String created;
     protected Car car;
     protected Long lastModified;
     protected Long startTime;
     protected Long endTime;
+    protected Long length;
     protected TrackMetadata metadata;
     protected Track.TrackStatus trackStatus = Track.TrackStatus.ONGOING;
     protected List<Measurement> measurements = new ArrayList<Measurement>();
@@ -194,6 +196,16 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
+    public String getCreated(){
+        return this.created;
+    }
+
+    @Override
+    public void setCreated(String created){
+        this.created = created;
+    }
+
+    @Override
     public Long getStartTime() throws NoMeasurementsException {
         if (startTime == null) {
             setStartTime(getFirstMeasurement().getTime());
@@ -217,6 +229,16 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     @Override
     public void setEndTime(Long endTime) {
         this.endTime = endTime;
+    }
+
+    @Override
+    public Long getLength(){
+        return this.length;
+    }
+
+    @Override
+    public void setLength(Long length){
+        this.length = length;
     }
 
     @Override

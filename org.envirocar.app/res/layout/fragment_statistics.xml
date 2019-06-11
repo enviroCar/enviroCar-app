@@ -238,29 +238,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/stat_card">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
             <Spinner
                 android:id="@+id/stat_graph_spinner"
                 android:layout_width="250dp"
                 android:layout_height="35dp"
                 android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
-                android:entries="@array/stat_array"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:entries="@array/stat_array" />
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/stat_tabLayout"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="12dp"
-                android:layout_marginTop="16dp"
-                app:layout_constraintTop_toBottomOf="@+id/stat_graph_spinner"
-                tools:layout_editor_absoluteX="0dp">
+                android:layout_height="wrap_content">
 
                 <com.google.android.material.tabs.TabItem
                     android:layout_width="wrap_content"
@@ -280,16 +273,12 @@
 
             <androidx.viewpager.widget.ViewPager
                 android:id="@+id/stat_viewPager"
-                android:layout_width="409dp"
-                android:layout_height="400dp"
-                android:layout_margin="12dp"
-                android:layout_marginTop="8dp"
-                app:layout_constraintTop_toBottomOf="@+id/stat_tabLayout"
-                tools:layout_editor_absoluteX="0dp">
+                android:layout_width="match_parent"
+                android:layout_height="400dp">
 
             </androidx.viewpager.widget.ViewPager>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
     </ScrollView>
 
 

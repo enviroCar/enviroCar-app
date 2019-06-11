@@ -82,8 +82,7 @@ public interface TrackService {
 
     @GET("users/{user}/tracks")
     Call<List<Track>> getTracksInPeriod(@Path("user") String user,
-                                         @Query("after") String after,
-                                         @Query("before") String before);
+                                         @Query("during") String during);
 
 
 }

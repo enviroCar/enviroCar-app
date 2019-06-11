@@ -147,8 +147,10 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         String afterD = formatter.format(after);
         String beforeD = formatter.format(before);
+        String during = afterD +","+beforeD;
+        LOG.info("calling getTracksinPeriod with following dates: after "+afterD+" before "+beforeD);
         Call<List<Track>> remoteTrackCall = trackService.getTracksInPeriod(userManager.getUser()
-                .getUsername(), afterD, beforeD);
+                .getUsername(), during);
 
         try {
             // Execute the call
@@ -161,6 +163,7 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
             }
 
             // Return the list of remotetracks.
+            LOG.info("Successful Response of getTracksinPeriod: Tracks retrieved "+remoteTracksResponse.body().size());
             return remoteTracksResponse.body();
         } catch (IOException e) {
             throw new NotConnectedException(e);
@@ -177,9 +180,11 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
                     public void call(Subscriber<? super List<Track>> subscriber) {
                         try {
                             List<Track> remoteTracks = getTrackinPeriod(after, before);
+                            LOG.info("Observable created and "+remoteTracks.size()+" tracks present");
                             subscriber.onNext(remoteTracks);
                             subscriber.onCompleted();
                         } catch (Exception e) {
+                            LOG.error("Error: ",e);
                             subscriber.onError(e);
                         }
                     }
