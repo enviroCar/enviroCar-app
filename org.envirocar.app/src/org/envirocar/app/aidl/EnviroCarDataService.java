@@ -21,6 +21,8 @@ import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
+import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,7 +35,7 @@ import java.util.Map;
 public class EnviroCarDataService extends BaseInjectorService {
     private static final Logger LOG = Logger.getLogger(EnviroCarDataService.class);
 
-    private boolean isRecordingTrack;
+    private boolean isRecordingTrack = false;
 
     private boolean isOBDConnected;
 
@@ -77,6 +79,16 @@ public class EnviroCarDataService extends BaseInjectorService {
         );
 
 //        this.lastMeasurement = res;
+    }
+
+    @Subscribe
+    public void onReceiveRecordingStateChangedEvent(TrackRecordingServiceStateChangedEvent event){
+        LOG.info("Received event {}".format(event.toString()));
+        if(event.mState.equals(BluetoothServiceState.SERVICE_STARTED)) {
+            this.isRecordingTrack = true;
+        } else {
+            this.isRecordingTrack = false;
+        }
     }
 
     @Subscribe
