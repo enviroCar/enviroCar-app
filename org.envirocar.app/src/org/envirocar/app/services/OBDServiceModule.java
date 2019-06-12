@@ -23,6 +23,8 @@ import android.os.PowerManager;
 
 import org.envirocar.app.handler.InterpolationMeasurementProvider;
 import org.envirocar.algorithm.MeasurementProvider;
+import org.envirocar.app.main.BaseApplication;
+import org.envirocar.app.services.recording.RecordingNotification;
 import org.envirocar.app.services.recording.SpeechOutput;
 import org.envirocar.core.trackprocessing.ConsumptionAlgorithm;
 import org.envirocar.core.util.InjectApplicationScope;
@@ -60,7 +62,9 @@ public class OBDServiceModule {
     @Singleton
     @Provides
     SpeechOutput provideSpeechOutput(@InjectApplicationScope Context context){
-        return new SpeechOutput(context);
+        SpeechOutput speechOutput = new SpeechOutput(context);
+        ((BaseApplication) context).getBaseApplicationComponent().inject(speechOutput);
+        return speechOutput;
     }
 
 }

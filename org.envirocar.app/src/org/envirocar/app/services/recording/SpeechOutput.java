@@ -3,6 +3,11 @@ package org.envirocar.app.services.recording;
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
 
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
+
+import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.handler.PreferencesHandler;
@@ -12,14 +17,22 @@ import org.envirocar.core.logging.Logger;
 
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import rx.Subscription;
 
 /**
  * Handles the text to speech output of the enviroCar app.
+ *
+ * @author dewall
  */
-public class SpeechOutput {
+public class SpeechOutput implements LifecycleObserver {
     private static final Logger LOG = Logger.getLogger(SpeechOutput.class);
 
+    @Inject
+    protected Bus eventBus;
+
+    private Context context;
 
     // text to speech variables
     private boolean ttsAvailable = false;
@@ -38,6 +51,8 @@ public class SpeechOutput {
      * @param context
      */
     public SpeechOutput(Context context) {
+        this.context = context;
+
         // init
         this.tts = new TextToSpeech(context, status -> {
             try {
@@ -51,11 +66,6 @@ public class SpeechOutput {
                 LOG.warn("TextToSpeech is not available");
             }
         });
-
-        // subscription that handles preference changes
-        ttsPrefSubscription =
-                PreferencesHandler.getTextToSpeechObservable(context)
-                        .subscribe(aBoolean -> ttsEnabled = aBoolean);
     }
 
     /**
@@ -69,19 +79,35 @@ public class SpeechOutput {
         }
     }
 
-    protected void onCreate(Context context) {
+    /**
+     * Lifecycle Event hook. Should be called when the onCreate method of the Recording Service was called.
+     */
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    protected void onCreate() {
         // subscription that handles preference changes
         ttsPrefSubscription =
-                PreferencesHandler.getTextToSpeechObservable(context)
+                PreferencesHandler.getTextToSpeechObservable(this.context)
                         .subscribe(aBoolean -> ttsEnabled = aBoolean);
+
+        LOG.info("Registering on eventBus");
+        this.eventBus.register(this);
     }
 
     /**
-     * Needs to be called when the recording has been stopped.
+     * Needs to be called when the recording service has been stopped.
      */
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     protected void onDestroy() {
+        // unsubscribe
         if (ttsPrefSubscription != null && !ttsPrefSubscription.isUnsubscribed()) {
             ttsPrefSubscription.unsubscribe();
+        }
+
+        // try to unregister from event bus.
+        try {
+            this.eventBus.unregister(this);
+        } catch (IllegalArgumentException e){
+            // nothing
         }
     }
 
