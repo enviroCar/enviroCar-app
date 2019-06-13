@@ -2,12 +2,15 @@ package org.envirocar.app.views.statistics;
 
 import android.app.DatePickerDialog;
 import android.graphics.Color;
+import android.icu.text.DecimalFormat;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -15,6 +18,7 @@ import androidx.fragment.app.Fragment;
 
 import com.db.chart.animation.Animation;
 import com.db.chart.model.LineSet;
+import com.db.chart.renderer.AxisRenderer;
 import com.db.chart.view.LineChartView;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -53,10 +57,11 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
-public class GraphFragment extends BaseInjectorFragment {
+public class GraphFragment extends BaseInjectorFragment implements StatisticsFragment.SpinnerEventListener {
     private static final Logger LOG = Logger.getLogger(GraphFragment.class);
 
     protected int position;
+    protected int choice;
 
     @Inject
     protected UserHandler mUserManager;
@@ -78,6 +83,15 @@ public class GraphFragment extends BaseInjectorFragment {
 
     @BindView(R.id.no_stats)
     protected TextView noStats;
+
+    @BindView(R.id.no_stats_img)
+    protected ImageView noStatsImg;
+
+    @BindView(R.id.arrow_left)
+    protected ImageButton arrowLeft;
+
+    @BindView(R.id.arrow_right)
+    protected ImageButton arrowRight;
 
     protected List<String> labels;
     protected ArrayList<Float> values;
@@ -131,6 +145,7 @@ public class GraphFragment extends BaseInjectorFragment {
         mWeek = c.get(Calendar.WEEK_OF_YEAR);
         begOfWeek = getWeekStartDate(c.getTime()).getDate();
         endOfWeek = getWeekEndDate(c.getTime()).getDate();
+        choice = 0;
         setZeros();
         setLabels();
         setDateSelectorButton(c);
@@ -174,11 +189,13 @@ public class GraphFragment extends BaseInjectorFragment {
         if(mTrackList.size()==0)
         {
             noStats.setVisibility(View.VISIBLE);
+            noStatsImg.setVisibility(View.VISIBLE);
             lineChartView.setVisibility(View.INVISIBLE);
             LOG.info("mTracklist has zero elements");
         }
         else {
             noStats.setVisibility(View.INVISIBLE);
+            noStatsImg.setVisibility(View.INVISIBLE);
             lineChartView.setVisibility(View.VISIBLE);
             LOG.info(mTrackList.size() + " Tracks in range");
 
@@ -197,23 +214,37 @@ public class GraphFragment extends BaseInjectorFragment {
                         index = t.getDate() - 1;
                     else
                         index = t.getMonth();
-                    values.set(index, values.get(index) + 1 );
+                    if(choice == 0)
+                        values.set(index, values.get(index) + 1 );
+                    else if(choice == 1)
+                        values.set(index, values.get(index) + temp.getLength() );
+
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
 
             dataset = new LineSet(labels.toArray(new String[0]), convertArrayList());
-            dataset.setColor(Color.parseColor("#36759B"));
-            dataset.setThickness(7f);
-            float intervals[] = {0f, 0.8f};
-            int colors[] = {Color.parseColor("#9EC9E2"), Color.WHITE};
+            dataset.setColor(Color.parseColor("#8036759B"));
+            dataset.setDotsRadius(10f);
+            dataset.setDotsColor(Color.WHITE);
+            dataset.setDotsStrokeThickness(4f);
+            dataset.setDotsStrokeColor(Color.parseColor("#36759B"));
+            dataset.setThickness(5f);
+            float intervals[] = {0f, 0.9f};
+            int colors[] = {Color.parseColor("#9EC9E2"), Color.TRANSPARENT};
             dataset.setGradientFill(colors, intervals);
             lineChartView.reset();
             lineChartView.addData(dataset);
             Animation animation = new Animation();
-            animation.setDuration(1000);
-            lineChartView.show();
+            animation.setDuration(1500);
+            lineChartView.setXAxis(Boolean.FALSE);
+            lineChartView.setYAxis(Boolean.FALSE);
+            lineChartView.setLabelsColor(Color.parseColor("#9EC9E2"));
+            if(position == 1)
+                lineChartView.setXLabels(AxisRenderer.LabelPosition.NONE);
+            lineChartView.setAxisLabelsSpacing(30);
+            lineChartView.show(animation);
         }
     }
 
@@ -265,6 +296,13 @@ public class GraphFragment extends BaseInjectorFragment {
                         setGraph();
                     }
                 }));
+    }
+
+    @Override
+    public void itemClick(int dataChoice){
+        LOG.info(dataChoice + " received");
+        choice = dataChoice;
+        loadData();
     }
 
     @OnClick(R.id.dateButton)
@@ -362,7 +400,7 @@ public class GraphFragment extends BaseInjectorFragment {
         }
         else if(position == 1)
         {
-            String header = new SimpleDateFormat("MMMM yy").format(c.getTime());
+            String header = new SimpleDateFormat("MMMM yyyy").format(c.getTime());
             dateButton.setText(header);
         }
         else if(position == 2)
@@ -370,6 +408,63 @@ public class GraphFragment extends BaseInjectorFragment {
             String header = new SimpleDateFormat("yyyy").format(c.getTime());
             dateButton.setText(header);
         }
+    }
+
+    @OnClick(R.id.arrow_left)
+    public void moveLeft(){
+        Calendar c = Calendar.getInstance();
+        if(position == 0)
+        {
+            c.set(mYear,mMonth,mDay);
+            c.add(Calendar.DAY_OF_YEAR, -7);
+            mYear = c.get(Calendar.YEAR);
+            mMonth = c.get(Calendar.MONTH);
+            mDay = c.get(Calendar.DAY_OF_MONTH);
+            mWeek = c.get(Calendar.WEEK_OF_YEAR);
+            begOfWeek = getWeekStartDate(c.getTime()).getDate();
+            endOfWeek = getWeekEndDate(c.getTime()).getDate();
+        }
+        else if(position == 1)
+        {
+            mMonth--;
+            c.set(mYear,mMonth,mDay);
+        }
+        else
+        {
+            mYear--;
+            c.set(mYear,mMonth,mDay);
+        }
+
+        setDateSelectorButton(c);
+        loadData();
+    }
+
+    @OnClick(R.id.arrow_right)
+    public void moveRight(){
+        Calendar c = Calendar.getInstance();
+        if(position == 0)
+        {
+            c.set(mYear,mMonth,mDay);
+            c.add(Calendar.DAY_OF_YEAR, 7);
+            mYear = c.get(Calendar.YEAR);
+            mMonth = c.get(Calendar.MONTH);
+            mDay = c.get(Calendar.DAY_OF_MONTH);
+            mWeek = c.get(Calendar.WEEK_OF_YEAR);
+            begOfWeek = getWeekStartDate(c.getTime()).getDate();
+            endOfWeek = getWeekEndDate(c.getTime()).getDate();
+        }
+        else if(position == 1)
+        {
+            mMonth++;
+            c.set(mYear,mMonth,mDay);
+        }
+        else
+        {
+            mYear++;
+            c.set(mYear,mMonth,mDay);
+        }
+        setDateSelectorButton(c);
+        loadData();
     }
 
 

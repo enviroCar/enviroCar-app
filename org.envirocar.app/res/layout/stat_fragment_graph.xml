@@ -9,11 +9,14 @@
 
     <Button
         android:id="@+id/dateButton"
-        android:layout_width="156dp"
-        android:layout_height="40dp"
+        android:layout_width="140dp"
+        android:layout_height="35dp"
         android:layout_marginTop="8dp"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
+        android:background="#CBECF8"
+        android:fontFamily="@font/roboto_medium"
         android:text="Button"
+        android:textColor="#0065A0"
         app:layout_constraintBottom_toTopOf="@+id/stat_line_graph"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
@@ -26,25 +29,66 @@
         android:layout_height="wrap_content"
         android:fontFamily="@font/roboto_medium"
         android:text="@string/no_stats"
-        android:textColor="#800278AF"
-        android:textSize="28sp"
+        android:textColor="#9C9C9C"
+        android:textSize="13sp"
         android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/stat_line_graph"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/stat_line_graph" />
+        app:layout_constraintTop_toBottomOf="@+id/stat_line_graph"
+        app:layout_constraintVertical_bias="0.279" />
 
     <com.db.chart.view.LineChartView
         android:id="@+id/stat_line_graph"
         android:layout_width="match_parent"
         android:layout_height="150dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
+        android:alwaysDrawnWithCache="true"
+        android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dateButton">
 
     </com.db.chart.view.LineChartView>
+
+    <ImageView
+        android:id="@+id/no_stats_img"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/no_stats"
+        app:layout_constraintEnd_toStartOf="@+id/stat_line_graph"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/stat_line_graph"
+        app:layout_constraintTop_toTopOf="@+id/stat_line_graph"
+        app:srcCompat="@drawable/no_tracks" />
+
+    <ImageButton
+        android:id="@+id/arrow_left"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginRight="32dp"
+        android:background="#56FFFFFF"
+        app:layout_constraintBottom_toBottomOf="@+id/dateButton"
+        app:layout_constraintEnd_toStartOf="@+id/dateButton"
+        app:layout_constraintTop_toTopOf="@+id/dateButton"
+        app:srcCompat="@drawable/arrow_left" />
+
+    <ImageButton
+        android:id="@+id/arrow_right"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginLeft="32dp"
+        android:background="#56FFFFFF"
+        app:layout_constraintBottom_toBottomOf="@+id/dateButton"
+        app:layout_constraintStart_toEndOf="@+id/dateButton"
+        app:layout_constraintTop_toTopOf="@+id/dateButton"
+        app:srcCompat="@drawable/arrow_right" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
