@@ -32,8 +32,8 @@ import rx.Observable;
  */
 public interface UserStatisticsDAO {
 
-    UserStatistics getUserStatistics(User user)
+    UserStatistics getUserStatistics()
             throws DataRetrievalFailureException, UnauthorizedException;
 
-    Observable<UserStatistics> getUserStatisticsObservable(String user);
+    Observable<UserStatistics> getUserStatisticsObservable();
 }
