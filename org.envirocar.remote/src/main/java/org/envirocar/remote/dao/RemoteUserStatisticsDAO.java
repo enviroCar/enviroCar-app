@@ -37,6 +37,7 @@ import javax.inject.Inject;
 import retrofit2.Call;
 import retrofit2.Response;
 import rx.Observable;
+import rx.Subscriber;
 
 /**
  * TODO JavaDoc
@@ -60,9 +61,9 @@ public class RemoteUserStatisticsDAO extends BaseRemoteDAO<UserDAO, UserService>
     }
 
     @Override
-    public UserStatistics getUserStatistics(User user) throws DataRetrievalFailureException {
+    public UserStatistics getUserStatistics() throws DataRetrievalFailureException {
         final UserService userService = EnviroCarService.getUserService();
-        Call<UserStatistics> userStatistics = userService.getUserStatistics(user.getUsername());
+        Call<UserStatistics> userStatistics = userService.getUserStatistics(userManager.getUser().getUsername());
 
         try {
             Response<UserStatistics> userStatisticsResponse = userStatistics.execute();
@@ -85,9 +86,18 @@ public class RemoteUserStatisticsDAO extends BaseRemoteDAO<UserDAO, UserService>
     }
 
     @Override
-    public Observable<UserStatistics> getUserStatisticsObservable(String user) {
-        return EnviroCarService
-                .getUserService()
-                .getUserStatisticsObservable(user);
+    public Observable<UserStatistics> getUserStatisticsObservable() {
+        return Observable.create(new Observable.OnSubscribe<UserStatistics>() {
+            @Override
+            public void call(Subscriber<? super UserStatistics> subscriber) {
+                try {
+                    UserStatistics userStatistics = getUserStatistics();
+                    subscriber.onNext(userStatistics);
+                    subscriber.onCompleted();
+                } catch (Exception e) {
+                    subscriber.onError(e);
+                }
+            }
+        });
     }
 }

@@ -32,6 +32,7 @@ import org.envirocar.core.entity.Fueling;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.entity.TrackStatistics;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserStatistics;
 import org.envirocar.core.util.InjectApplicationScope;
@@ -45,6 +46,7 @@ import org.envirocar.remote.serializer.RemoteTrackListDeserializer;
 import org.envirocar.remote.serializer.TermsOfUseListSerializer;
 import org.envirocar.remote.serializer.TermsOfUseSerializer;
 import org.envirocar.remote.serializer.TrackSerializer;
+import org.envirocar.remote.serializer.TrackStatisticsDeserializer;
 import org.envirocar.remote.serializer.UserSerializer;
 import org.envirocar.remote.serializer.UserStatisticDeserializer;
 import org.envirocar.remote.service.AnnouncementsService;
@@ -127,6 +129,12 @@ public class RemoteModule {
 
     @Provides
     @Singleton
+    protected TrackStatisticsDeserializer provideTrackStatisticsDeserializer(){
+        return new TrackStatisticsDeserializer();
+    }
+
+    @Provides
+    @Singleton
     protected TypeToken<List<Car>> provideCarListTypeToken(){
         return new TypeToken<List<Car>>(){};
     }
@@ -205,7 +213,7 @@ public class RemoteModule {
 
     @Provides
     @Singleton
-    protected Gson provideGson(UserSerializer userSerializer,UserStatisticDeserializer userStatisticDeserializer,TypeToken<List<Car>> carListTypeToken,
+    protected Gson provideGson(UserSerializer userSerializer,UserStatisticDeserializer userStatisticDeserializer,TrackStatisticsDeserializer trackStatisticsDeserializer,TypeToken<List<Car>> carListTypeToken,
     CarListDeserializer carListDeserializer, TrackSerializer trackSerializer, MeasurementSerializer measurementSerializer,
     TypeToken<List<Track>> trackListTypeToken, RemoteTrackListDeserializer remoteTrackListDeserializer, TermsOfUseSerializer termsOfUseSerializer,
     TypeToken<List<TermsOfUse>> termsOfUseListTypeToken, TermsOfUseListSerializer termsOfUseListSerializer, AnnouncementSerializer announcementSerializer,
@@ -213,6 +221,7 @@ public class RemoteModule {
         return new GsonBuilder()
                 .registerTypeAdapter(User.class, userSerializer)
                 .registerTypeAdapter(UserStatistics.class, userStatisticDeserializer)
+                .registerTypeAdapter(TrackStatistics.class, trackStatisticsDeserializer)
                 .registerTypeAdapter(Car.class, new CarSerializer())
                 .registerTypeAdapter(carListTypeToken.getType(), carListDeserializer)
                 .registerTypeAdapter(Track.class, trackSerializer)
