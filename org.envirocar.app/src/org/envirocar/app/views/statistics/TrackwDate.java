@@ -19,6 +19,10 @@ public class TrackwDate {
 
     }
 
+    public Date getDateObject(){
+        return date;
+    }
+
     public void getDateTime(Track mTrack){
         track = mTrack;
         String dateS = track.getCreated();

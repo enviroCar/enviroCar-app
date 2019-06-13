@@ -7,16 +7,15 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.viewpager.widget.ViewPager;
 
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
 import org.envirocar.app.R;
@@ -33,6 +32,7 @@ import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.storage.EnviroCarDB;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -48,7 +48,12 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
-public class StatisticsFragment extends BaseInjectorFragment {
+public class StatisticsFragment extends BaseInjectorFragment implements AdapterView.OnItemSelectedListener{
+
+    public interface SpinnerEventListener {
+        void itemClick(int dataChoice);
+    }
+
     private static final Logger LOG = Logger.getLogger(StatisticsFragment.class);
 
     @Inject
@@ -108,8 +113,6 @@ public class StatisticsFragment extends BaseInjectorFragment {
     protected boolean isUserSignedIn;
     protected Unbinder unbinder;
 
-    private boolean hasLoadedRemote = false;
-    private boolean hasLoadedStored = false;
     private boolean isSorted = false;
     protected final Object attachingActivityLock = new Object();
     protected boolean isAttached = false;
@@ -117,6 +120,9 @@ public class StatisticsFragment extends BaseInjectorFragment {
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     protected boolean tracksLoaded = false;
     protected final List<Track> mTrackList = Collections.synchronizedList(new ArrayList<>());
+
+    //Inject
+    //protected SpinnerEventListener spinnerEventListener;
 
 
     public StatisticsFragment() {
@@ -135,6 +141,7 @@ public class StatisticsFragment extends BaseInjectorFragment {
         View statView= inflater.inflate(R.layout.fragment_statistics, container, false);
         unbinder = ButterKnife.bind(this, statView);
         isUserSignedIn = mUserManager.isLoggedIn();
+        GraphSpinner.setOnItemSelectedListener(this);
         ProgressMessage.setVisibility(View.INVISIBLE);
         tracksLoaded = false;
         subscriptions = new CompositeSubscription();
@@ -153,10 +160,7 @@ public class StatisticsFragment extends BaseInjectorFragment {
             ViewPagerAdapter adapter = new ViewPagerAdapter(getFragmentManager());
             viewPager.setAdapter(adapter);
             tabLayout.setupWithViewPager(viewPager);
-            //statisticsTrackInterface.sendTracks(mTrackList);
             mUserManager.getUser();
-
-
         }
 
 
@@ -165,7 +169,8 @@ public class StatisticsFragment extends BaseInjectorFragment {
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
-        MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(getActivity()));
+        MainActivityComponent mainActivityComponent =  baseApplicationComponent.
+                plus(new MainActivityModule(getActivity()));
         mainActivityComponent.inject(this);
     }
 
@@ -196,6 +201,16 @@ public class StatisticsFragment extends BaseInjectorFragment {
         unbinder.unbind();
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
+        LOG.info("Item "+position+" clicked.");
+        //spinnerEventListener.itemClick(position);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> arg0) {
+    }
+
     private final class LoadRemoteTracksTask extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
@@ -209,49 +224,6 @@ public class StatisticsFragment extends BaseInjectorFragment {
                     }
                 }
             }
-
-            subscriptions.add(mDAOProvider.getTrackDAO().getTrackIdsObservable(1,1)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<List<Track>>() {
-
-                        @Override
-                        public void onStart() {
-                            LOG.info("onStart() tracks in db");
-                            mMainThreadWorker.schedule(() -> {
-                                ProgressMessage.setVisibility(View.VISIBLE);
-                            });
-                        }
-
-                        @Override
-                        public void onCompleted() {
-
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            LOG.error(e.getMessage(), e);
-                            showSnackbar(R.string.track_list_loading_lremote_tracks_error);
-                        }
-
-                        @Override
-                        public void onNext(List<Track> tracks) {
-                            LOG.info("onNext(" + tracks.size() + ") locally stored tracks");
-                            for (Track track : tracks) {
-                                if (track.getMeasurements() != null &&
-                                        !track.getMeasurements().isEmpty()) {
-                                    if (mTrackList.contains(track)) {
-                                        mTrackList.set(mTrackList.indexOf(track), track);
-                                    } else {
-                                        mTrackList.add(track);
-                                    }
-                                }
-                            }
-
-                            hasLoadedStored = true;
-                            updateView();
-                        }
-                    }));
 
             subscriptions.add(mDAOProvider.getTrackDAO().getTrackIdsObservable()
                     .subscribeOn(Schedulers.io())
@@ -279,14 +251,11 @@ public class StatisticsFragment extends BaseInjectorFragment {
                                 LOG.error("Error", e);
                                 if (mTrackList.isEmpty()) {
                                     LOG.debug("TrackList Empty");
-                                    showSnackbar(R.string.track_list_bg_no_connection);
                                 }
                             } else if (e instanceof UnauthorizedException) {
                                 LOG.error("Unauthorised",e);
-                                showSnackbar(R.string.track_list_bg_unauthorized);
                                 if (mTrackList.isEmpty()) {
                                     LOG.debug("TrackList Empty");
-                                    showSnackbar(R.string.track_list_bg_unauthorized);
                                 }
                             }
 
@@ -302,8 +271,6 @@ public class StatisticsFragment extends BaseInjectorFragment {
                                     mTrackList.add(track);
                                 }
                             }
-                            hasLoadedRemote = true;
-
                             updateView();
                         }
                     }));
@@ -313,7 +280,7 @@ public class StatisticsFragment extends BaseInjectorFragment {
     }
 
     private void updateView() {
-        if (hasLoadedStored && hasLoadedRemote) {
+
             if (!isSorted) {
                 isSorted = true;
                 Collections.sort(mTrackList);
@@ -321,36 +288,42 @@ public class StatisticsFragment extends BaseInjectorFragment {
             ProgressMessage.setVisibility(View.INVISIBLE);
 
             if (mTrackList.isEmpty()) {
-                showSnackbar(R.string.track_list_bg_no_remote_tracks);
+                LOG.info("No Remote Tracks");
             }
-        }
+
 
         if (!mTrackList.isEmpty()) {
-            LastTrackDate.setText(mTrackList.get(0).getName());
-            LastTrackTime.setText(mTrackList.size()+"");
+            TrackwDate t = new TrackwDate();
+            t.getDateTime(mTrackList.get(0));
+
+            LastTrackDate.setText(new SimpleDateFormat
+                    ("dd MMMM yy").format(t.getDateObject()));
+            LastTrackTime.setText(new SimpleDateFormat
+                    ("HH : mm").format(t.getDateObject()));
+            LastTrackSpeed.setText(mTrackList.get(0).getLength()+" km");
+
+            Integer hh = Integer.parseInt(new SimpleDateFormat
+                    ("HH").format(t.getDateObject()));
+            if(hh < 4 || hh > 19) {
+                LastTrackName.setText("Your Night Track");
+            }
+            else if(hh >= 4 && hh < 9) {
+                LastTrackName.setText("Your Morning Track");
+            }
+            else if(hh > 9 && hh < 15) {
+                LastTrackName.setText("Your Afternoon Track");
+            }
+            else {
+                LastTrackName.setText("Your Evening Track");
+            }
 
         }
     }
-    protected void showSnackbar(final int message) {
-        mMainThreadWorker.schedule(() -> {
-            if (getView() != null) {
-                Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
-            }
-        });
-    }
 
-    protected void showSnackbar(final String message) {
-        mMainThreadWorker.schedule(() -> {
-            if (getView() != null) {
-                Snackbar.make(getView(), message, Snackbar.LENGTH_LONG).show();
-            }
-        });
-    }
 
     protected void loadDataset() {
         if (mUserManager.isLoggedIn() && !tracksLoaded) {
             tracksLoaded = true;
-            //Toast.makeText(getContext(), "Starting", Toast.LENGTH_SHORT).show();
             new LoadRemoteTracksTask().execute();
         }
     }

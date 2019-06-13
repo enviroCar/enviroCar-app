@@ -4,8 +4,8 @@
     <string name="stat_testheader">Your Afternoon Ride</string>
     <string name="stat_info">Compared to your usual stats</string>
     <string-array name="stat_array">
-        <item>Speed</item>
-        <item>Fuel Consumption</item>
+        <item>No. of Tracks</item>
         <item>Distance Travelled</item>
+        <item>Speed</item>
     </string-array>
 </resources>

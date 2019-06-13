@@ -182,7 +182,7 @@
                 android:layout_marginStart="24dp"
                 android:layout_marginLeft="24dp"
                 android:src="@drawable/fuel"
-                android:visibility="invisible"
+                android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="@+id/stat_fuel_consum"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/stat_fuel_consum" />
@@ -194,7 +194,7 @@
                 android:layout_marginStart="24dp"
                 android:layout_marginLeft="24dp"
                 android:src="@drawable/avg_speed"
-                android:visibility="invisible"
+                android:visibility="visible"
                 app:layout_constraintBottom_toBottomOf="@+id/stat_avg_speed"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/stat_avg_speed"
@@ -247,6 +247,7 @@
                 android:id="@+id/stat_graph_spinner"
                 android:layout_width="250dp"
                 android:layout_height="35dp"
+                android:layout_marginLeft="16dp"
                 android:layout_marginStart="16dp"
                 android:entries="@array/stat_array" />
 
