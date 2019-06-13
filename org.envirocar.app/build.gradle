@@ -10,9 +10,9 @@ dependencies {
     implementation rootProject.ext.supportRecyclerview
     implementation rootProject.ext.supportConstraintLayout
 
-    implementation rootProject.ext.lifecycleExtension
-    implementation rootProject.ext.lifecycleRuntime
-    annotationProcessor rootProject.ext.lifecycleCompiler
+    implementation rootProject.ext.supportLifecycleExtension
+    implementation rootProject.ext.supportLifecycleRuntime
+    annotationProcessor rootProject.ext.supportLifecycleCompiler
 
     // Dependency injection, view injection, event bus ...
     implementation rootProject.ext.dagger
