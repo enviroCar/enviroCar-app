@@ -5,17 +5,23 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.icu.text.AlphabeticIndex;
 import android.os.SystemClock;
 import android.widget.RemoteViews;
 
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.OnLifecycleEvent;
 
+import com.squareup.otto.Bus;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
 import org.envirocar.app.events.AvrgSpeedUpdateEvent;
 import org.envirocar.app.events.DistanceValueUpdateEvent;
 import org.envirocar.app.events.StartingTimeEvent;
+import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.app.notifications.NotificationActionHolder;
 import org.envirocar.app.notifications.ServiceStateForNotification;
 import org.envirocar.core.logging.Logger;
@@ -24,17 +30,24 @@ import org.envirocar.obd.service.BluetoothServiceState;
 
 import java.text.DecimalFormat;
 
+import javax.inject.Inject;
+
 /**
  * TODO JavaDoc
  *
  * @author dewall
  */
-public class RecordingNotification {
+public class RecordingNotification implements LifecycleObserver {
     private static final Logger LOG = Logger.getLogger(RecordingNotification.class);
     private static final DecimalFormat DECIMAL_FORMATTER = new DecimalFormat("###.#");
 
     // Channel_ID required for newer version
     protected static final String CHANNEL_ID = "channel1";
+    private static final int notificationId = 181;
+
+    // Injected variables
+    @Inject
+    protected Bus eventBus;
 
     // context information
     private final Context context;
@@ -51,16 +64,42 @@ public class RecordingNotification {
     // currently visible notification
     private Notification notification;
 
+
     /**
      * Constructor.
      *
      * @param context
      */
-    public RecordingNotification(final Context context, Class screenClass, NotificationManager notificationManager) {
+    public RecordingNotification(final Context context) {
         this.context = context;
-        this.screenClass = screenClass;
-        this.notificationManager = notificationManager;
+        this.notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+        this.screenClass = BaseMainActivityBottomBar.class;
     }
+
+    /**
+     * Handles onCreate events of the bounded observer.
+     */
+    @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
+    protected void onCreate(){
+        this.eventBus.register(this);
+    }
+
+    /**
+     * Handles onDestroy lifecycle events of the bounded observer.
+     */
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    protected void onDestroy(){
+        // unregister from event bus
+        try {
+            this.eventBus.unregister(this);
+        } catch (IllegalArgumentException e){
+            LOG.info("RecordingNotification was not registered on event bus.");
+        }
+
+        // cancel notification such that it is not visible anymore.
+        this.cancel();
+    }
+
 
     /**
      * Subscriber method for receiving
@@ -72,6 +111,8 @@ public class RecordingNotification {
         this.bluetoothServiceState = event.mState;
         if (event.mState == BluetoothServiceState.SERVICE_STARTED) {
             this.startingTime = SystemClock.elapsedRealtime();
+        } else if (event.mState == BluetoothServiceState.SERVICE_STOPPED){
+            this.cancel();
         }
         refresh();
     }
@@ -143,6 +184,13 @@ public class RecordingNotification {
                 .setAutoCancel(true).build();
 
         // notify change
-        this.notificationManager.notify(181, this.notification);
+        this.notificationManager.notify(notificationId, this.notification);
+    }
+
+    /**
+     * Deletes the recording notification
+     */
+    private void cancel(){
+        this.notificationManager.cancel(notificationId);
     }
 }

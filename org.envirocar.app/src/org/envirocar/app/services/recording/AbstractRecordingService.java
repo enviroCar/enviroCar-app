@@ -18,7 +18,6 @@ import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.app.notifications.ServiceStateForNotification;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.obd.service.BluetoothServiceState;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.util.ArrayList;
@@ -46,15 +45,16 @@ public abstract class AbstractRecordingService extends BaseInjectorService {
     @Inject
     protected EnviroCarDB enviroCarDB;
     @Inject
+    protected CarPreferenceHandler carPreferenceHandler;
+    @Inject
     protected TrackRecordingHandler trackRecordingHandler;
     @Inject
     protected SpeechOutput speechOutput;
+    @Inject
+    protected RecordingNotification recordingNotification;
 
 
     protected List<Object> eventBusReceivers = new ArrayList<>();
-
-
-    protected RecordingNotification recordingNotification;
 
 
     @Override
@@ -62,16 +62,17 @@ public abstract class AbstractRecordingService extends BaseInjectorService {
         LOG.info("onCreate()");
         super.onCreate();
 
-        this.recordingNotification = new RecordingNotification(this,
-                getRecordingScreenClass(), getNotificationManager());
 
 
         this.eventBusReceivers.add(this);
-        this.eventBusReceivers.add(this.recordingNotification);
-        this.eventBusReceivers.add(this.speechOutput);
+//        this.eventBusReceivers.add(this.recordingNotification);
+//        this.eventBusReceivers.add(this.speechOutput);
         this.eventBusReceivers.add(this.locationHandler);
         this.eventBusReceivers.add(this.measurementProvider);
         this.eventBusReceivers.add(this.trackDetailsProvider);
+
+        getLifecycle().addObserver(this.speechOutput);
+        getLifecycle().addObserver(this.recordingNotification);
 
         // register on event bus
         for (Object o : eventBusReceivers) {
@@ -82,6 +83,8 @@ public abstract class AbstractRecordingService extends BaseInjectorService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         LOG.info("OnStartCommand: Starting recording service.");
+        super.onStartCommand(intent, flags, startId);
+
         this.speechOutput.doTextToSpeech("Establishing connection");
 
         // Acquire wake lock for keeping the CPU active.
@@ -100,7 +103,6 @@ public abstract class AbstractRecordingService extends BaseInjectorService {
     }
 
 
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -116,7 +118,6 @@ public abstract class AbstractRecordingService extends BaseInjectorService {
         this.locationHandler.stopLocating();
 
         this.speechOutput.doTextToSpeech("Device disconnected.");
-        this.speechOutput.onDestroy();
     }
 
     protected void showNotification(ServiceStateForNotification state) {
@@ -134,7 +135,6 @@ public abstract class AbstractRecordingService extends BaseInjectorService {
     }
 
     /**
-     *
      * @param baseApplicationComponent
      */
     @Override
@@ -154,7 +154,6 @@ public abstract class AbstractRecordingService extends BaseInjectorService {
     protected abstract void stopRecording();
 
     /**
-     *
      * @return the recording screen to bind to.
      */
     protected abstract Class<? extends BaseInjectorActivity> getRecordingScreenClass();
