@@ -49,6 +49,11 @@ public interface TrackDAO {
     List<Track> getTrackIds(int limit, int page) throws NotConnectedException,
             UnauthorizedException;
 
+    List<Track> getTrackIdsWithLimit(int limit) throws NotConnectedException,
+            UnauthorizedException;
+
+    Observable<List<Track>> getTrackIdsWithLimitObservable(int limit);
+
     Observable<List<Track>> getTrackIdsObservable();
 
     Observable<List<Track>> getTrackIdsObservable(int limit, int page);
