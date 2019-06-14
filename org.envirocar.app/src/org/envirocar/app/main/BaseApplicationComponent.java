@@ -28,6 +28,8 @@ import org.envirocar.app.services.TrackUploadService;
 import org.envirocar.app.services.recording.AbstractRecordingService;
 import org.envirocar.app.services.recording.GPSOnlyRecordingService;
 import org.envirocar.app.services.recording.OBDRecordingService;
+import org.envirocar.app.services.recording.RecordingNotification;
+import org.envirocar.app.services.recording.SpeechOutput;
 import org.envirocar.app.views.LoginRegisterActivity;
 import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
@@ -99,6 +101,8 @@ public interface BaseApplicationComponent {
     void inject(AbstractRecordingService abstractRecordingService);
     void inject(GPSOnlyRecordingService gpsOnlyRecordingService);
     void inject(OBDRecordingService obdRecordingService);
+    void inject(SpeechOutput speechOutput);
+    void inject(RecordingNotification recordingNotification);
 
     MainActivityComponent plus(MainActivityModule mainActivityModule);
 
