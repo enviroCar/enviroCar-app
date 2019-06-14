@@ -55,9 +55,12 @@
     <string name="obd_automatic_enabled_error_positive">Yes</string>
     <string name="obd_automatic_enabled_error_negative">No</string>
 
-
     <string name="gps_automatic_enabled_error_title">Automatic GPS track recording is set.</string>
     <string name="gps_automatic_enabled_error_content">Automatic GPS track recording settings will be turned off. Do you want to proceed?</string>
     <string name="gps_automatic_enabled_error_positive">Yes</string>
     <string name="gps_automatic_enabled_error_negative">No</string>
+
+    <string name="my_local_tracks">#My Local Tracks</string>
+    <string name="my_remote_tracks">#My Remote Tracks</string>
+    <string name="total_tracks">#Total Tracks</string>
 </resources>

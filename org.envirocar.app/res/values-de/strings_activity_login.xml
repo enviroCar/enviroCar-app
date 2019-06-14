@@ -42,8 +42,12 @@
     <string name="error_host_not_found">Keine Verbindung zum Server möglich.</string>
 
     <string name="activity_login_logout_progress_dialog_title">Logge aus...</string>
-    <string name="activity_login_logout_progress_dialog_content">
-        Lösche alle lokal gespeicherten Kopien von hochgeladenen Fahrten.</string>
-
+    <string name="activity_login_logout_progress_dialog_content">Lösche alle lokal gespeicherten Kopien von hochgeladenen Fahrten.</string>
     <string name="activity_login_logging_in_dialog_title">Logge ein...</string>
+
+    <string name="already_registered_question">Du hast bereits ein Konto?</string>
+    <string name="already_registered_sign_in">Melden Sie sich hier an!</string>
+
+    <string name="not_yet_registered_question">Du hast noch keinen Account?</string>
+    <string name="not_yet_registered_register">Hier registrieren!</string>
 </resources>

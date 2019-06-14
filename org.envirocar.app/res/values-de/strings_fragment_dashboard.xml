@@ -42,4 +42,25 @@
     <string name="dashboard_carselection_no_car_selected">Kein Auto ausgewählt</string>
     <string name="dashboard_carselection_no_car_selected_advise">Hier klicken um eines zu erstellen/auszuwählen</string>
 
+    <string name="permission_rationale_location">Für die Kernfunktionalität ist eine Standortberechtigung erforderlich.</string>
+    <string name="permission_rationale_file">Für die Protokollierung und Freigabe eines Tracks ist eine Speicherberechtigung erforderlich. Wenn Sie die beiden nicht möchten, klicken Sie bitte auf Nicht mehr fragen im nächsten Bildschirm.</string>
+    <string name="request_storage_permission_title">Speicherzugriff erforderlich</string>
+    <string name="request_location_permission_title">Standortberechtigung erforderlich</string>
+    <string name="permission_denied_explanation">Die Berechtigung wurde verweigert, ist aber für die Kernfunktionalität erforderlich.</string>
+    <string name="settings">Einstellungen</string>
+
+    <string name="obd_automatic_enabled_error_title">Die automatische OBD-Aufzeichnung ist eingestellt.</string>
+    <string name="obd_automatic_enabled_error_content">Die automatische OBD-Aufzeichnung wird deaktiviert. Möchten Sie fortfahren?</string>
+    <string name="obd_automatic_enabled_error_positive">Ja</string>
+    <string name="obd_automatic_enabled_error_negative">Nein</string>
+
+    <string name="gps_automatic_enabled_error_title">Die automatische GPS-Aufzeichnung ist eingestellt.</string>
+    <string name="gps_automatic_enabled_error_content">Die Einstellungen für die automatische GPS-Aufzeichnung wird deaktiviert. Möchten Sie fortfahren?</string>
+    <string name="gps_automatic_enabled_error_positive">Ja</string>
+    <string name="gps_automatic_enabled_error_negative">Nein</string>
+
+    <string name="my_local_tracks">#Meine lokalen Fahrten</string>
+    <string name="my_remote_tracks">#Meine remote Fahrten</string>
+    <string name="total_tracks">#Anzahl Tracks in eC</string>
+
 </resources>
