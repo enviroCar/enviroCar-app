@@ -153,8 +153,4 @@ public abstract class AbstractRecordingService extends BaseInjectorService {
      */
     protected abstract void stopRecording();
 
-    /**
-     * @return the recording screen to bind to.
-     */
-    protected abstract Class<? extends BaseInjectorActivity> getRecordingScreenClass();
 }

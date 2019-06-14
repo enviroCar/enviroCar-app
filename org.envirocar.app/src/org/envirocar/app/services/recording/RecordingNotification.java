@@ -64,7 +64,6 @@ public class RecordingNotification implements LifecycleObserver {
     // currently visible notification
     private Notification notification;
 
-
     /**
      * Constructor.
      *
@@ -99,7 +98,6 @@ public class RecordingNotification implements LifecycleObserver {
         // cancel notification such that it is not visible anymore.
         this.cancel();
     }
-
 
     /**
      * Subscriber method for receiving

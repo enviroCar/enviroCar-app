@@ -32,6 +32,7 @@ import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -94,7 +95,7 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-
+            LOG.info("Received broadcast!!! " + action);
             // Check if the intent is intended to stop the recording.
             if (ACTION_STOP_TRACK_RECORDING.equals(action)) {
                 LOG.info("Received Broadcast: Stop Track Recording.");
@@ -149,16 +150,25 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
         activityTransitionPendingIntent = PendingIntent.getBroadcast(this, 0, activityTransitionIntent, 0);
         registerReceiver(broadcastReceiver, new IntentFilter(TRANSITIONS_RECEIVER_ACTION));
 
-        // Initialize transition
-        List<ActivityTransition> transitions = Arrays.asList(
-                new ActivityTransition.Builder()
-                        .setActivityType(DetectedActivity.IN_VEHICLE)
-                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
-                        .build(),
-                new ActivityTransition.Builder()
-                        .setActivityType(DetectedActivity.IN_VEHICLE)
-                        .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
-                        .build());
+        // Activities to create the transitions for
+        List<Integer> activities = Arrays.asList(DetectedActivity.IN_VEHICLE);
+
+        // Initialize transitions
+        List<ActivityTransition> transitions = new ArrayList<>();
+        for (int activity : activities) {
+            ActivityTransition enter = new ActivityTransition.Builder()
+                    .setActivityType(activity)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_ENTER)
+                    .build();
+
+            ActivityTransition exit = new ActivityTransition.Builder()
+                    .setActivityType(activity)
+                    .setActivityTransition(ActivityTransition.ACTIVITY_TRANSITION_EXIT)
+                    .build();
+
+            transitions.add(enter);
+            transitions.add(exit);
+        }
 
         ActivityTransitionRequest request = new ActivityTransitionRequest(transitions);
 
@@ -209,12 +219,6 @@ public class GPSOnlyRecordingService extends AbstractRecordingService {
                 .addOnFailureListener(e -> LOG.error("Transitions could not be registered", e));
 
         this.drivingDetected = false;
-    }
-
-
-    @Override
-    protected Class<? extends BaseInjectorActivity> getRecordingScreenClass() {
-        return GPSOnlyTrackRecordingScreen.class;
     }
 
     @Override

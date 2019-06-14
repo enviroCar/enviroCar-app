@@ -79,17 +79,11 @@ public class OBDRecordingService extends AbstractRecordingService {
     @Inject
     protected BluetoothHandler bluetoothHandler;
     @Inject
-    protected SpeechOutput speechOutput;
-    @Inject
-    protected CarPreferenceHandler carPreferenceHandler;
-    @Inject
     protected TrackRecordingHandler trackRecordingHandler;
     @Inject
     protected OBDConnectionHandler obdConnectionHandler;
     @Inject
     protected TrackDetailsProvider trackDetailsProvider;
-    @Inject
-    protected MeasurementProvider measurementProvider;
 
     // Member fields required for the connection to the OBD device.
     private OBDController obdController;
@@ -168,12 +162,6 @@ public class OBDRecordingService extends AbstractRecordingService {
         unregisterReceiver(broadcastReciever);
 
         LOG.info("OBDConnectionService successfully destroyed");
-    }
-
-
-    @Override
-    protected Class<? extends BaseInjectorActivity> getRecordingScreenClass() {
-        return OBDPlusGPSTrackRecordingScreen.class;
     }
 
     @Override
