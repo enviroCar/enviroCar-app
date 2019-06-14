@@ -62,6 +62,12 @@ public enum PID implements PIDEnumInstance {
             return "0C";
         }
     },
+    ENGINE_FUEL_RATE {
+        @Override
+        public String getHexadecimalRepresentation() {
+            return "5E";
+        }
+    },
     SPEED {
         @Override
         public String getHexadecimalRepresentation() {
