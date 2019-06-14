@@ -20,12 +20,10 @@
 
 -->
 <resources>
-    <string name="pref_track_trim_duration_title">Set Track Trim Duration</string>
+    <string name="preference_track_trim_duration_title">Set Track Trim Duration</string>
     <string name="preference_beta_diesel_consumption">Diesel Consumption Estimation</string>
     <string name="preference_beta_diesel_consumption_sum">Enables the estimation of consumption values for diesel. NOTE: This feature is just a beta feature.</string>
 
     <string name="preference_beta_enable_gps_based_track_recording">Enable GPS based track recording</string>
     <string name="preference_beta_enable_gps_based_track_recording_sum">Enables an option to record GPS based tracks, which do not require OBD-II adapter. NOTE: This feature is just a beta feature.</string>
-
-
 </resources>

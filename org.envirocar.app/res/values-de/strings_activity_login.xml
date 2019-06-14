@@ -21,7 +21,7 @@
 <resources>
 
     <!-- Strings related to login -->
-    <string name="prompt_username">Username</string>
+    <string name="prompt_username">Nutzername</string>
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Passwort</string>
     <string name="prompt_confirm_password">Passwort wiederholen</string>

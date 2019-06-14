@@ -23,4 +23,9 @@
     <string name="menu_close_envirocar_title">enviroCar Beenden</string>
     <string name="menu_close_envirocar_positive">Beenden</string>
     <string name="menu_close_envirocar_content">Diese Funktion schließt die Applikation einschließlich aller laufenden Hintergrundsprozesse und Aufzeichnungen.</string>
+
+    <string name="menu_logout_envirocar_title">Sind Sie sicher?</string>
+    <string name="menu_logout_envirocar_positive">Ja</string>
+    <string name="menu_logout_envirocar_negative">Nein</string>
+    <string name="menu_logout_envirocar_content">Du möchtest dich abmelden?</string>
 </resources>

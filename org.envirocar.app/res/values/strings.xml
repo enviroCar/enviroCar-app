@@ -46,7 +46,7 @@
     <string name="welcome_message">Welcome, %s</string>
     <string name="goodbye_message">Goodbye, %s</string>
 
-    <string name="envirocar.org">http://www.envirocar.org</string>
+    <string name="envirocar.org" translatable="false">http://www.envirocar.org</string>
 
     <string name="imperial_unit">Use Imperial units</string>
 

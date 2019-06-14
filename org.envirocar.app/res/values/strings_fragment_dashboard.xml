@@ -60,7 +60,7 @@
     <string name="gps_automatic_enabled_error_positive">Yes</string>
     <string name="gps_automatic_enabled_error_negative">No</string>
 
-    <string name="my_local_tracks">#My Local Tracks</string>
-    <string name="my_remote_tracks">#My Remote Tracks</string>
-    <string name="total_tracks">#Total Tracks</string>
+    <string name="dashboard_my_local_tracks">#My Local Tracks</string>
+    <string name="dashboard_my_remote_tracks">#My Remote Tracks</string>
+    <string name="dashboard_total_tracks">#Total Tracks</string>
 </resources>
