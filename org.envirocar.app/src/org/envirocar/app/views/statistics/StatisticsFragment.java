@@ -1,7 +1,5 @@
 package org.envirocar.app.views.statistics;
 
-import android.graphics.Color;
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 import android.view.LayoutInflater;
@@ -10,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -117,8 +114,8 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
     @BindView(R.id.stat_viewPager)
     protected ViewPager viewPager;
 
-    @BindView(R.id.stat_progress)
-    protected TextView ProgressMessage;
+    @BindView(R.id.loading_layout)
+    protected ConstraintLayout ProgressMessage;
 
     @BindView(R.id.stat_info)
     protected TextView StatInfo;
@@ -147,7 +144,8 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
     private CompositeSubscription subscriptions ;
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     protected boolean tracksLoaded = false;
-    protected boolean statsLoaded = false;
+    protected boolean userStatsLoaded = false;
+    protected boolean trackStatsLoaded = false;
     protected List<Track> mTrackList = Collections.synchronizedList(new ArrayList<>());
     protected UserStatistics mUserStatistics;
     protected GraphFragment graphFragment;
@@ -160,6 +158,13 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
 
     public StatisticsFragment() {
 
+    }
+
+    @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        MainActivityComponent mainActivityComponent =  baseApplicationComponent.
+                plus(new MainActivityModule(getActivity()));
+        mainActivityComponent.inject(this);
     }
 
     @Override
@@ -180,15 +185,12 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
         spinnerAdapter.setDropDownViewResource(R.layout.spinner_item);
         GraphSpinner.setAdapter(spinnerAdapter);
         GraphSpinner.setOnItemSelectedListener(this);
-        ProgressMessage.setVisibility(View.INVISIBLE);
+
         LOG.info("Statistics Fragment Created.");
         tracksLoaded = false;
-        statsLoaded = false;
+        userStatsLoaded = false;
+        trackStatsLoaded = false;
         subscriptions = new CompositeSubscription();
-        synchronized (attachingActivityLock) {
-            isAttached = true;
-            attachingActivityLock.notifyAll();
-        }
 
         if(!isUserSignedIn)
         {
@@ -197,25 +199,20 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
             noUser.setVisibility(View.VISIBLE);
         }
         else{
+            ProgressMessage.setVisibility(View.VISIBLE);
             noUser.setVisibility(View.GONE);
-            loadDataset();
             ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
             viewPager.setAdapter(adapter);
             tabLayout.setupWithViewPager(viewPager);
             mUserManager.getUser();
+            loadDataset();
         }
 
 
         return statView;
     }
 
-    @Override
-    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
-        MainActivityComponent mainActivityComponent =  baseApplicationComponent.
-                plus(new MainActivityModule(getActivity()));
-        mainActivityComponent.inject(this);
-    }
-
+    /*
     @Override
     public void onResume() {
         super.onResume();
@@ -234,7 +231,7 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
             scrollView.setVisibility(View.INVISIBLE);
         }
     }
-
+    */
     @Override
     public void onDestroyView() {
         LOG.info("onDestroyView()");
@@ -246,181 +243,115 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
         unbinder.unbind();
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
-        LOG.info("Item "+position+" clicked.");
-        //spinnerEventListener.itemClick(position);
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> arg0) {
-    }
-
-    private final class LoadRemoteTracksTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-
-            synchronized (attachingActivityLock) {
-                while (!isAttached) {
-                    try {
-                        attachingActivityLock.wait();
-                    } catch (InterruptedException e) {
-                        LOG.error(e.getMessage(), e);
-                    }
-                }
-            }
-
-            subscriptions.add(mDAOProvider.getTrackDAO().getTrackIdsObservable()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<List<Track>>() {
-
-                        @Override
-                        public void onStart() {
-                            LOG.info("onStart() tracks in db");
-                            mMainThreadWorker.schedule(() -> {
-                                ProgressMessage.setVisibility(View.VISIBLE);
-                            });
-                        }
-
-                        @Override
-                        public void onCompleted() {
-
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            LOG.error(e.getMessage(), e);
-
-                            if (e instanceof NotConnectedException) {
-                                LOG.error("Error", e);
-                                if (mTrackList.isEmpty()) {
-                                    LOG.debug("TrackList Empty");
-                                }
-                            } else if (e instanceof UnauthorizedException) {
-                                LOG.error("Unauthorised",e);
-                                if (mTrackList.isEmpty()) {
-                                    LOG.debug("TrackList Empty");
-                                }
-                            }
-
-                            ProgressMessage.setVisibility(View.INVISIBLE);
-                        }
-
-                        @Override
-                        public void onNext(List<Track> tracks) {
-                            LOG.info("onNext(" + tracks.size() + ") remotely stored tracks");
-
-                            for (Track track : tracks) {
-                                if (!mTrackList.contains(track)) {
-                                    mTrackList.add(track);
-                                }
-                            }
-                            tracksLoaded = true;
-                            updateView();
-                        }
-                    }));
-
-            subscriptions.add(mDAOProvider.getUserStatisticsDAO().getUserStatisticsObservable()
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Subscriber<UserStatistics>() {
-                        @Override
-                        public void onCompleted() {
-
-                        }
-
-                        @Override
-                        public void onError(Throwable e) {
-                            LOG.error("Error: "+e.getMessage(),e);
-
-                            if (e instanceof NotConnectedException) {
-                                LOG.error("Error", e);
-                                if (mTrackList.isEmpty()) {
-                                    LOG.debug("TrackList Empty");
-                                }
-                            } else if (e instanceof UnauthorizedException) {
-                                LOG.error("Unauthorised",e);
-                                if (mTrackList.isEmpty()) {
-                                    LOG.debug("TrackList Empty");
-                                }
-                            }
-                        }
-
-                        @Override
-                        public void onNext(UserStatistics userStatistics) {
-                            LOG.info("User Statistics loaded.");
-                            mUserStatistics = userStatistics;
-                            statsLoaded = true;
-                            updateView();
-                        }
-                    }));
-
-            return null;
-        }
-    }
-
-    private void updateView() {
-        if(statsLoaded && tracksLoaded)
-            if (!isSorted) {
-                isSorted = true;
-                Collections.sort(mTrackList);
-            }
-            ProgressMessage.setVisibility(View.INVISIBLE);
-
-            if (mTrackList.isEmpty()) {
-                LOG.info("No Remote Tracks");
-            }
-
-
-        if (!mTrackList.isEmpty()) {
-
-            TrackwDate t = new TrackwDate();
-            t.getDateTime(mTrackList.get(0));
-
-            Calendar c = Calendar.getInstance();
-            TimeZone tz = c.getTimeZone();
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM dd, yyyy");
-            SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm a");
-            timeFormat.setTimeZone(tz);
-            LastTrackDate.setText(dateFormat.format(t.getDateObject()));
-            LastTrackTime.setText(timeFormat.format(t.getDateObject()));
-
-            Integer hh = Integer.parseInt(new SimpleDateFormat
-                    ("HH").format(t.getDateObject()));
-            if(hh < 4 || hh > 19) {
-                LastTrackName.setText("Your Night Track");
-            }
-            else if(hh >= 4 && hh < 9) {
-                LastTrackName.setText("Your Morning Track");
-            }
-            else if(hh > 9 && hh < 15) {
-                LastTrackName.setText("Your Afternoon Track");
-            }
-            else {
-                LastTrackName.setText("Your Evening Track");
-            }
-            getLastTrackStatistics();
-        }
-        else
-        {
-            noTracksCard.setVisibility(View.VISIBLE);
-            TracksCard.setVisibility(View.INVISIBLE);
-        }
-    }
-
-
     protected void loadDataset() {
-        if (mUserManager.isLoggedIn() && !tracksLoaded) {
-            tracksLoaded = true;
-            new LoadRemoteTracksTask().execute();
-        }
+            getStatsOfUser();
+            getAllTracksFromDB();
+
+    }
+
+    public void getStatsOfUser(){
+
+        subscriptions.add(mDAOProvider.getUserStatisticsDAO().getUserStatisticsObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<UserStatistics>() {
+                    @Override
+                    public void onStart() {
+                        LOG.info("onStart() of getStatsOfUser");
+                        mMainThreadWorker.schedule(() -> {
+                            ProgressMessage.setVisibility(View.VISIBLE);
+                        });
+                    }
+
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.error("Error: "+e.getMessage(),e);
+
+                        if (e instanceof NotConnectedException) {
+                            LOG.error("Error", e);
+                            if (mUserStatistics == null) {
+                                LOG.debug("No User Statistics");
+                            }
+                        } else if (e instanceof UnauthorizedException) {
+                            LOG.error("Unauthorised",e);
+                            if (mUserStatistics == null) {
+                                LOG.debug("No User Statistics");
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onNext(UserStatistics userStatistics) {
+                        LOG.info("User Statistics loaded.");
+                        mUserStatistics = userStatistics;
+                        userStatsLoaded = Boolean.TRUE;
+                        if(trackStatsLoaded == Boolean.TRUE)
+                            setUserStatisticsInCard();
+                    }
+                }));
+    }
+
+    public void getAllTracksFromDB()
+    {
+        subscriptions.add(mDAOProvider.getTrackDAO().getTrackIdsWithLimitObservable(1)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribe(new Subscriber<List<Track>>() {
+                                @Override
+                                public void onStart() {
+                                    LOG.info("onStart() of getAllTracksFromDB");
+                                    mMainThreadWorker.schedule(() -> {
+                                        ProgressMessage.setVisibility(View.VISIBLE);
+                                    });
+                                }
+
+                                @Override
+                                public void onCompleted() {
+
+                                }
+
+                                @Override
+                                public void onError(Throwable e) {
+                                    LOG.error(e.getMessage(), e);
+
+                                    if (e instanceof NotConnectedException) {
+                                        LOG.error("Error", e);
+                                        if (mTrackList.isEmpty()) {
+                                            LOG.debug("TrackList Empty");
+                                        }
+                                    } else if (e instanceof UnauthorizedException) {
+                                        LOG.error("Unauthorised",e);
+                                        if (mTrackList.isEmpty()) {
+                                            LOG.debug("TrackList Empty");
+                                        }
+                                    }
+                                    ProgressMessage.setVisibility(View.INVISIBLE);
+                                }
+
+                                @Override
+                                public void onNext(List<Track> trackList) {
+                                    LOG.info("onNext(" + trackList.size() + ") tracks stored on db");
+
+                                    for (Track track : trackList) {
+                                        if (!mTrackList.contains(track)) {
+                                            mTrackList.add(track);
+                                        }
+                                    }
+                                    Collections.sort(mTrackList);
+                                    isSorted = true;
+                                    getLastTrackStatistics();
+                                }
+                            }));
     }
 
     public void getLastTrackStatistics(){
 
         String trackID = mTrackList.get(0).getRemoteID();
-        Track temp = mTrackList.get(0);
 
         subscriptions.add(mDAOProvider.getTrackStatisticsDAO().getTrackStatisticsObservable(trackID)
                 .subscribeOn(Schedulers.io())
@@ -429,6 +360,7 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
 
                     @Override
                     public void onStart() {
+                        LOG.info("onStart of getLastTrackStatistics");
                         mMainThreadWorker.schedule(() -> {
 
                         });
@@ -445,153 +377,170 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
                         if (e instanceof NotConnectedException) {
                             LOG.error("Error", e);
                             if (mTrackStatistics == null) {
-                                LOG.debug("TrackStatistics Empty");
+                                LOG.debug("Last Track Statistics Empty");
                             }
                         } else if (e instanceof UnauthorizedException) {
                             LOG.error("Unauthorised",e);
                             if (mTrackStatistics == null) {
-                                LOG.debug("TrackStatistics Empty");
+                                LOG.debug("Last Track Statistics Empty");
                             }
                         }
                     }
 
                     @Override
                     public void onNext(TrackStatistics trackStatistics) {
+                        LOG.info("Last Track Statistics Loaded");
                         mTrackStatistics = trackStatistics;
-                        Phenomenon speed = mTrackStatistics.getStatistic(TrackStatistics.KEY_USER_STAT_SPEED);
-                        if(speed!=null)
-                        {
-                            trackAvgSpeed = (float)speed.getAvgValue();
-                            LastTrackSpeed.setText(""+TWO_DIGITS_FORMATTER.format(trackAvgSpeed) + " " + speed.getPhenomenonUnit());
-                        }
-                        else
-                        {
-                            trackAvgSpeed = null;
-                            LastTrackSpeed.setText("NA");
-                        }
-                        Phenomenon fuel = mTrackStatistics.getStatistic(TrackStatistics.KEY_USER_STAT_CONSUMPTION);
-                        if(fuel!=null)
-                        {
-                            trackAvgFuel = (float)fuel.getAvgValue();
-                            LastTrackFuel.setText(""+TWO_DIGITS_FORMATTER.format(trackAvgFuel) + " " + speed.getPhenomenonUnit());
-                        }
-                        else
-                        {
-                            trackAvgFuel = null;
-                            LastTrackFuel.setText("NA");
-                        }
-                        getUserStatistics();
-                        }
-                    }));
-
-    }
-
-    public void getUserStatistics(){
-
-        String trackID = mTrackList.get(0).getRemoteID();
-        Track temp = mTrackList.get(0);
-
-        subscriptions.add(mDAOProvider.getUserStatisticsDAO().getUserStatisticsObservable()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<UserStatistics>() {
-
-                    @Override
-                    public void onStart() {
-                        mMainThreadWorker.schedule(() -> {
-
-                        });
-                    }
-
-                    @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        LOG.error(e.getMessage(), e);
-                        if (e instanceof NotConnectedException) {
-                            LOG.error("Error", e);
-                            if (mTrackStatistics == null) {
-                                LOG.debug("TrackStatistics Empty");
-                            }
-                        } else if (e instanceof UnauthorizedException) {
-                            LOG.error("Unauthorised",e);
-                            if (mTrackStatistics == null) {
-                                LOG.debug("TrackStatistics Empty");
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onNext(UserStatistics userStatistics) {
-                        mUserStatistics = userStatistics;
-                        Float temp;
-
-                        Phenomenon fuel = mUserStatistics.getStatistic(UserStatistics.KEY_USER_STAT_CONSUMPTION);
-                        if(fuel!=null)
-                        {
-                            Float userAvgFuel = (float)fuel.getAvgValue();
-                            temp = userAvgFuel;
-                            if(trackAvgFuel!=null)
-                            {
-                                temp = (trackAvgFuel - userAvgFuel) * 100f / userAvgFuel;
-                                if (temp < 0) {
-                                    temp = -temp;
-                                    compFuel.setImageResource(R.drawable.arrow_down);
-                                } else {
-                                    compFuel.setImageResource(R.drawable.arrow_up);
-                                }
-                                LastTrackStatFuel.setText(""+TWO_DIGITS_FORMATTER.format(temp)+" %");
-                                compFuel.setVisibility(View.VISIBLE);
-                            }
-                            else
-                            {
-                                LastTrackStatFuel.setText(""+TWO_DIGITS_FORMATTER.format(temp)+ " " + fuel.getPhenomenonUnit());
-                            }
-                        }
-                        else
-                        {
-                            LastTrackStatFuel.setText("NA");
-                        }
-
-
-                        Phenomenon speed = mUserStatistics.getStatistic(UserStatistics.KEY_USER_STAT_SPEED);
-                        if(speed!=null)
-                        {
-                            Float userAvgSpeed = (float)speed.getAvgValue();
-                            temp = userAvgSpeed;
-                            if(trackAvgSpeed!=null)
-                            {
-                                temp = (trackAvgSpeed - userAvgSpeed) * 100f / userAvgSpeed;
-                                if(temp < 0)
-                                {
-                                    temp = -temp;
-                                    compSpeed.setImageResource(R.drawable.arrow_down);
-                                }
-                                else
-                                {
-                                    compSpeed.setImageResource(R.drawable.arrow_up);
-                                }
-                                LastTrackStatSpeed.setText(""+TWO_DIGITS_FORMATTER.format(temp)+" %");
-                                compSpeed.setVisibility(View.VISIBLE);
-                            }
-                            else
-                            {
-                                LastTrackStatSpeed.setText(""+TWO_DIGITS_FORMATTER.format(temp)+ " " + speed.getPhenomenonUnit());
-                            }
-                        }
-                        else
-                        {
-                            LastTrackStatSpeed.setText("NA");
-                        }
-
-                        if(trackAvgSpeed == null && trackAvgFuel ==null)
-                            StatInfo.setVisibility(View.INVISIBLE);
+                        setTrackStatisticsInCard();
                     }
                 }));
 
+    }
+
+    public void setTrackStatisticsInCard() {
+        LOG.info("Setting Track Statistics");
+        Phenomenon speed = mTrackStatistics.getStatistic(TrackStatistics.KEY_USER_STAT_SPEED);
+        if(speed!=null)
+        {
+            trackAvgSpeed = (float)speed.getAvgValue();
+            LastTrackSpeed.setText(""+TWO_DIGITS_FORMATTER.format(trackAvgSpeed) + " " + speed.getPhenomenonUnit());
+        }
+        else
+        {
+            trackAvgSpeed = null;
+            LastTrackSpeed.setText("NA");
+        }
+        Phenomenon fuel = mTrackStatistics.getStatistic(TrackStatistics.KEY_USER_STAT_CONSUMPTION);
+        if(fuel!=null)
+        {
+            trackAvgFuel = (float)fuel.getAvgValue();
+            LastTrackFuel.setText(""+TWO_DIGITS_FORMATTER.format(trackAvgFuel) + " " + speed.getPhenomenonUnit());
+        }
+        else
+        {
+            trackAvgFuel = null;
+            LastTrackFuel.setText("NA");
+        }
+
+        if(userStatsLoaded == Boolean.TRUE)
+            setUserStatisticsInCard();
+    }
+
+    public void setUserStatisticsInCard(){
+
+        LOG.info("Setting User Statistics");
+        Float temp;
+        Phenomenon fuel = mUserStatistics.getStatistic(UserStatistics.KEY_USER_STAT_CONSUMPTION);
+        if(fuel!=null)
+        {
+            Float userAvgFuel = (float)fuel.getAvgValue();
+            temp = userAvgFuel;
+            if(trackAvgFuel!=null)
+            {
+                temp = (trackAvgFuel - userAvgFuel) * 100f / userAvgFuel;
+                if (temp < 0) {
+                    temp = -temp;
+                    compFuel.setImageResource(R.drawable.arrow_down);
+                } else {
+                    compFuel.setImageResource(R.drawable.arrow_up);
+                }
+                LastTrackStatFuel.setText(""+TWO_DIGITS_FORMATTER.format(temp)+" %");
+                compFuel.setVisibility(View.VISIBLE);
+            }
+            else
+            {
+                LastTrackStatFuel.setText(""+TWO_DIGITS_FORMATTER.format(temp)+ " " + fuel.getPhenomenonUnit());
+            }
+        }
+        else
+        {
+            LastTrackStatFuel.setText("NA");
+        }
+
+
+        Phenomenon speed = mUserStatistics.getStatistic(UserStatistics.KEY_USER_STAT_SPEED);
+        if(speed!=null)
+        {
+            Float userAvgSpeed = (float)speed.getAvgValue();
+            temp = userAvgSpeed;
+            if(trackAvgSpeed!=null)
+            {
+                temp = (trackAvgSpeed - userAvgSpeed) * 100f / userAvgSpeed;
+                if(temp < 0)
+                {
+                    temp = -temp;
+                    compSpeed.setImageResource(R.drawable.arrow_down);
+                }
+                else
+                {
+                    compSpeed.setImageResource(R.drawable.arrow_up);
+                }
+                LastTrackStatSpeed.setText(""+TWO_DIGITS_FORMATTER.format(temp)+" %");
+                compSpeed.setVisibility(View.VISIBLE);
+            }
+            else
+            {
+                LastTrackStatSpeed.setText(""+TWO_DIGITS_FORMATTER.format(temp)+ " " + speed.getPhenomenonUnit());
+            }
+        }
+        else
+        {
+            LastTrackStatSpeed.setText("NA");
+        }
+
+        if(trackAvgSpeed == null && trackAvgFuel ==null)
+            StatInfo.setVisibility(View.INVISIBLE);
+        LOG.info("Layouts set.");
+        updateView();
+    }
+
+    private void updateView() {
+
+            LOG.info("Update the View.");
+            ProgressMessage.setVisibility(View.INVISIBLE);
+
+
+            if (mTrackList.isEmpty()) {
+                LOG.info("No Tracks in DB");
+                noTracksCard.setVisibility(View.VISIBLE);
+                TracksCard.setVisibility(View.GONE);
+            }
+            else {
+                TracksCard.setVisibility(View.VISIBLE);
+                TrackwDate t = new TrackwDate();
+                t.getDateTime(mTrackList.get(0));
+
+                Calendar c = Calendar.getInstance();
+                TimeZone tz = c.getTimeZone();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM dd, yyyy");
+                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm a");
+                timeFormat.setTimeZone(tz);
+                LastTrackDate.setText(dateFormat.format(t.getDateObject()));
+                LastTrackTime.setText(timeFormat.format(t.getDateObject()));
+
+                Integer hh = Integer.parseInt(new SimpleDateFormat
+                        ("HH").format(t.getDateObject()));
+                if (hh < 4 || hh > 19) {
+                    LastTrackName.setText("Your Night Track");
+                } else if (hh >= 4 && hh < 9) {
+                    LastTrackName.setText("Your Morning Track");
+                } else if (hh > 9 && hh < 15) {
+                    LastTrackName.setText("Your Afternoon Track");
+                } else {
+                    LastTrackName.setText("Your Evening Track");
+                }
+            }
+
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
+        LOG.info("Item "+position+" clicked.");
+        //spinnerEventListener.itemClick(position);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> arg0) {
     }
 
 }

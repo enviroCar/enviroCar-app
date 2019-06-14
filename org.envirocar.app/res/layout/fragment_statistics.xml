@@ -40,22 +40,6 @@
             app:layout_constraintTop_toBottomOf="@+id/no_user_img" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <TextView
-        android:id="@+id/stat_progress"
-        android:layout_width="331dp"
-        android:layout_height="347dp"
-        android:fontFamily="@font/roboto_medium"
-        android:gravity="center"
-        android:text="@string/track_list_loading_tracks"
-        android:textColor="#00659F"
-        android:textSize="36sp"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <androidx.cardview.widget.CardView
         android:id="@+id/stat_card"
         android:layout_width="match_parent"
@@ -70,6 +54,26 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/linearLayout2">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/loading_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/stat_progress"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#F9F9F9"
+                android:fontFamily="@font/roboto_medium"
+                android:gravity="center"
+                android:text="@string/track_list_loading_tracks"
+                android:textColor="#9900659F"
+                android:textSize="36sp"
+                android:visibility="visible"
+                tools:layout_editor_absoluteX="40dp"
+                tools:layout_editor_absoluteY="16dp" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/no_tracks_card"
@@ -113,7 +117,7 @@
             android:id="@+id/tracks_card"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <TextView
                 android:id="@+id/stat_last_track_header"
