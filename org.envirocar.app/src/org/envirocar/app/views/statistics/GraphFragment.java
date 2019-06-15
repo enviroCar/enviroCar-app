@@ -115,6 +115,12 @@ public class GraphFragment extends BaseInjectorFragment implements StatisticsFra
     }
 
     @Override
+    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
+        MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(getActivity()));
+        mainActivityComponent.inject(this);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         position = getArguments().getInt("pos");
@@ -128,12 +134,6 @@ public class GraphFragment extends BaseInjectorFragment implements StatisticsFra
         unbinder = ButterKnife.bind(this, view);
         mDAOProvider = new DAOProvider(getContext());
         return view;
-    }
-
-    @Override
-    protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
-        MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(getActivity()));
-        mainActivityComponent.inject(this);
     }
 
     @Override
@@ -163,6 +163,47 @@ public class GraphFragment extends BaseInjectorFragment implements StatisticsFra
         unbinder.unbind();
     }
 
+    public void setZeros()
+    {
+        int n;
+        if(position == 0)
+            n=7;
+        else if(position == 1)
+            n=31;
+        else
+            n=12;
+        values = new ArrayList<Float>(Collections.nCopies(n, 0f));
+        noOfTracks = new ArrayList<Float>(Collections.nCopies(n, 0f));
+    }
+
+    public void setLabels()
+    {
+        String weekdays[] = {"Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"};
+        String months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
+                "Aug", "Sep", "Oct", "Nov", "Dec"};
+        labels = new ArrayList<>();
+        if(position == 0)
+            labels = Arrays.asList(weekdays);
+        else if(position == 1)
+            for(int i=1;i<=31;++i)
+                labels.add(i+"");
+        else
+            labels = Arrays.asList(months);
+
+    }
+
+    public float[] convertArrayList()
+    {
+        float[] floatArray = new float[values.size()];
+        int i = 0;
+
+        for (Float f : values) {
+            floatArray[i++] = (f != null ? f : Float.NaN);
+        }
+
+        return floatArray;
+    }
+
     public void loadData(){
         Calendar cal = Calendar.getInstance();
         Date after = cal.getTime(), before = cal.getTime();
@@ -187,6 +228,56 @@ public class GraphFragment extends BaseInjectorFragment implements StatisticsFra
             before = cal.getTime();
         }
         getData(after, before);
+    }
+
+    public void getData(Date after, Date before)
+    {
+        subscriptions.add(mDAOProvider.getTrackDAO().getTrackinPeriodObservable(after, before)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<List<Track>>() {
+
+                    @Override
+                    public void onStart() {
+                        LOG.info("onStart() of getData");
+                        mMainThreadWorker.schedule(() -> {
+
+                        });
+                    }
+
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.error(e.getMessage(), e);
+                        if (e instanceof NotConnectedException) {
+                            LOG.error("Error", e);
+                            if (mTrackList.isEmpty()) {
+                                LOG.debug("TrackList Empty");
+                            }
+                        } else if (e instanceof UnauthorizedException) {
+                            LOG.error("Unauthorised",e);
+                            if (mTrackList.isEmpty()) {
+                                LOG.debug("TrackList Empty");
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onNext(List<Track> tracks) {
+                        LOG.info("onNext(" + tracks.size() + ") tracks loaded in GraphFragment");
+                        mTrackList.clear();
+                        for (Track track : tracks) {
+                            if (!mTrackList.contains(track)) {
+                                mTrackList.add(track);
+                            }
+                        }
+                        setGraph();
+                    }
+                }));
     }
 
     public void setGraph()
@@ -240,6 +331,84 @@ public class GraphFragment extends BaseInjectorFragment implements StatisticsFra
         }
     }
 
+    public void getTrackStatistics(){
+
+        String trackID = mTrackList.get(iteration).getRemoteID();
+        Track temp = mTrackList.get(iteration);
+        TrackwDate t = new TrackwDate();
+        t.getDateTime(temp);
+        int index;
+        if (position == 0)
+            index = t.getDay() - 1;
+        else if (position == 1)
+            index = t.getDate() - 1;
+        else
+            index = t.getMonth();
+
+        subscriptions.add(mDAOProvider.getTrackStatisticsDAO().getTrackStatisticsObservable(trackID)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<TrackStatistics>() {
+
+                    @Override
+                    public void onStart() {
+                        LOG.info("onStart() of getTrackStatistics with " + trackID +" at index: " + index);
+                        mMainThreadWorker.schedule(() -> {
+
+                        });
+                    }
+
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.error(e.getMessage(), e);
+                        if (e instanceof NotConnectedException) {
+                            LOG.error("Error", e);
+                            if (mTrackStatistics == null) {
+                                LOG.debug("TrackStatistics Empty");
+                            }
+                        } else if (e instanceof UnauthorizedException) {
+                            LOG.error("Unauthorised",e);
+                            if (mTrackStatistics == null) {
+                                LOG.debug("TrackStatistics Empty");
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onNext(TrackStatistics trackStatistics) {
+                        mTrackStatistics = trackStatistics;
+                        values.set(index, values.get(index) + getTrackStatData());
+                        noOfTracks.set(index, noOfTracks.get(index) + 1);
+
+                        LOG.info("Statistics load with " + getTrackStatData());
+                        LOG.info("Value of " + index + " = " + values.get(index));
+                        LOG.info("No of Tracks at index " + index + " = " + noOfTracks.get(index));
+                        iteration++;
+
+                        if(iteration<mTrackList.size())
+                            getTrackStatistics();
+                        else
+                        {
+                            for (int i = 0; i < values.size(); ++i) {
+                                if (values.get(i) != 0)
+                                    values.set(i, values.get(i) / noOfTracks.get(i));
+                            }
+
+                            setGraphOptionsAndShow();
+                        }
+                    }
+                }));
+    }
+
+    public Float getTrackStatData(){
+        return (float) mTrackStatistics.getStatistic(TrackStatistics.KEY_USER_STAT_SPEED).getAvgValue();
+    }
+
     public void setGraphOptionsAndShow()
     {
         dataset = new LineSet(labels.toArray(new String[0]), convertArrayList());
@@ -263,63 +432,6 @@ public class GraphFragment extends BaseInjectorFragment implements StatisticsFra
             lineChartView.setXLabels(AxisRenderer.LabelPosition.NONE);
         lineChartView.setAxisLabelsSpacing(30);
         lineChartView.show(animation);
-    }
-
-    public void getData(Date after, Date before)
-    {
-        subscriptions.add(mDAOProvider.getTrackDAO().getTrackinPeriodObservable(after, before)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<List<Track>>() {
-
-                    @Override
-                    public void onStart() {
-                        LOG.info("onStart() of getData");
-                        mMainThreadWorker.schedule(() -> {
-
-                        });
-                    }
-
-                    @Override
-                    public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        LOG.error(e.getMessage(), e);
-                        if (e instanceof NotConnectedException) {
-                            LOG.error("Error", e);
-                            if (mTrackList.isEmpty()) {
-                                LOG.debug("TrackList Empty");
-                            }
-                        } else if (e instanceof UnauthorizedException) {
-                            LOG.error("Unauthorised",e);
-                            if (mTrackList.isEmpty()) {
-                                LOG.debug("TrackList Empty");
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onNext(List<Track> tracks) {
-                        LOG.info("onNext(" + tracks.size() + ") tracks loaded in GraphFragment");
-                        mTrackList.clear();
-                        for (Track track : tracks) {
-                                if (!mTrackList.contains(track)) {
-                                    mTrackList.add(track);
-                                }
-                            }
-                        setGraph();
-                    }
-                }));
-    }
-
-    @Override
-    public void itemClick(int dataChoice){
-        LOG.info(dataChoice + " received");
-        choice = dataChoice;
-        loadData();
     }
 
     @OnClick(R.id.dateButton)
@@ -349,45 +461,23 @@ public class GraphFragment extends BaseInjectorFragment implements StatisticsFra
         datePickerDialog.show();
     }
 
-    public void setZeros()
-    {
-        int n;
+    public void setDateSelectorButton(Calendar c){
         if(position == 0)
-            n=7;
-        else if(position == 1)
-            n=31;
-        else
-            n=12;
-        values = new ArrayList<Float>(Collections.nCopies(n, 0f));
-        noOfTracks = new ArrayList<Float>(Collections.nCopies(n, 0f));
-    }
-
-    public void setLabels()
-    {
-        String weekdays[] = {"Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"};
-        String months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
-                "Aug", "Sep", "Oct", "Nov", "Dec"};
-        labels = new ArrayList<>();
-        if(position == 0)
-            labels = Arrays.asList(weekdays);
-        else if(position == 1)
-            for(int i=1;i<=31;++i)
-                labels.add(i+"");
-        else
-            labels = Arrays.asList(months);
-
-    }
-
-    public float[] convertArrayList()
-    {
-        float[] floatArray = new float[values.size()];
-        int i = 0;
-
-        for (Float f : values) {
-            floatArray[i++] = (f != null ? f : Float.NaN);
+        {
+            String header = begOfWeek + " - " + endOfWeek + " " + new SimpleDateFormat
+                    ("MMMM").format(c.getTime());
+            dateButton.setText(header);
         }
-
-        return floatArray;
+        else if(position == 1)
+        {
+            String header = new SimpleDateFormat("MMMM yyyy").format(c.getTime());
+            dateButton.setText(header);
+        }
+        else if(position == 2)
+        {
+            String header = new SimpleDateFormat("yyyy").format(c.getTime());
+            dateButton.setText(header);
+        }
     }
 
     public static Date getWeekStartDate(Date date) {
@@ -409,24 +499,6 @@ public class GraphFragment extends BaseInjectorFragment implements StatisticsFra
         return calendar.getTime();
     }
 
-    public void setDateSelectorButton(Calendar c){
-        if(position == 0)
-        {
-            String header = begOfWeek + " - " + endOfWeek + " " + new SimpleDateFormat
-                    ("MMMM").format(c.getTime());
-            dateButton.setText(header);
-        }
-        else if(position == 1)
-        {
-            String header = new SimpleDateFormat("MMMM yyyy").format(c.getTime());
-            dateButton.setText(header);
-        }
-        else if(position == 2)
-        {
-            String header = new SimpleDateFormat("yyyy").format(c.getTime());
-            dateButton.setText(header);
-        }
-    }
 
     @OnClick(R.id.arrow_left)
     public void moveLeft(){
@@ -485,82 +557,11 @@ public class GraphFragment extends BaseInjectorFragment implements StatisticsFra
         loadData();
     }
 
-    public void getTrackStatistics(){
-
-        String trackID = mTrackList.get(iteration).getRemoteID();
-        Track temp = mTrackList.get(iteration);
-        TrackwDate t = new TrackwDate();
-        t.getDateTime(temp);
-        int index;
-        if (position == 0)
-            index = t.getDay() - 1;
-        else if (position == 1)
-            index = t.getDate() - 1;
-        else
-            index = t.getMonth();
-
-        subscriptions.add(mDAOProvider.getTrackStatisticsDAO().getTrackStatisticsObservable(trackID)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Subscriber<TrackStatistics>() {
-
-                            @Override
-                            public void onStart() {
-                                LOG.info("onStart() of getTrackStatistics with " + trackID +" at index: " + index);
-                                mMainThreadWorker.schedule(() -> {
-
-                                });
-                            }
-
-                            @Override
-                            public void onCompleted() {
-
-                            }
-
-                            @Override
-                            public void onError(Throwable e) {
-                                LOG.error(e.getMessage(), e);
-                                if (e instanceof NotConnectedException) {
-                                    LOG.error("Error", e);
-                                    if (mTrackStatistics == null) {
-                                        LOG.debug("TrackStatistics Empty");
-                                    }
-                                } else if (e instanceof UnauthorizedException) {
-                                    LOG.error("Unauthorised",e);
-                                    if (mTrackStatistics == null) {
-                                        LOG.debug("TrackStatistics Empty");
-                                    }
-                                }
-                            }
-
-                            @Override
-                            public void onNext(TrackStatistics trackStatistics) {
-                                mTrackStatistics = trackStatistics;
-                                values.set(index, values.get(index) + getTrackStatData());
-                                noOfTracks.set(index, noOfTracks.get(index) + 1);
-
-                                LOG.info("Statistics load with " + getTrackStatData());
-                                LOG.info("Value of " + index + " = " + values.get(index));
-                                LOG.info("No of Tracks at index " + index + " = " + noOfTracks.get(index));
-                                iteration++;
-
-                                if(iteration<mTrackList.size())
-                                    getTrackStatistics();
-                                else
-                                {
-                                    for (int i = 0; i < values.size(); ++i) {
-                                        if (values.get(i) != 0)
-                                            values.set(i, values.get(i) / noOfTracks.get(i));
-                                    }
-
-                                    setGraphOptionsAndShow();
-                                }
-                            }
-                        }));
-    }
-
-    public Float getTrackStatData(){
-        return (float) mTrackStatistics.getStatistic(TrackStatistics.KEY_USER_STAT_SPEED).getAvgValue();
+    @Override
+    public void itemClick(int dataChoice){
+        LOG.info(dataChoice + " received");
+        choice = dataChoice;
+        loadData();
     }
 
 }
