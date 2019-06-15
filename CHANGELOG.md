@@ -5,3 +5,7 @@ Updated the following libraries
     - Constraint Layouts
     - Play Services Location
   - Gson
+  - SQLBrite to 1.1.2
+  - findbugs to 3.0.2
+  - Apache Commons to 1.18
+  
