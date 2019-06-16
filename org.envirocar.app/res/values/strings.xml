@@ -101,5 +101,17 @@
     <string name="driving">Driving</string>
 
     <string name="gps_track_details">*This is a GPS based track. It cannot be uploaded to the open data.</string>
+    <string name="report_issue_text">Timestamps are automatically included in the logs. Sending us reports helps us make enviroCar better and more stable. Click the send button below to email this report to us.</string>
+    <string name="report_issue_bottom_text">Incase the above button does not work, email this report to envirocar@52north.org. Log reports can be manually found at</string>
+
+    <string-array name="checkbox_text_items">
+        <item>Force Crash</item>
+        <item>Sudden Lags</item>
+        <item>App was Unresponsive</item>
+        <item>Component does not work as expected</item>
+        <item>Request for a feature</item>
+        <item>Internet was enabled</item>
+        <item>GPS was enabled</item>
+    </string-array>
 
 </resources>

@@ -19,19 +19,28 @@
 package org.envirocar.app.views;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import org.envirocar.app.R;
+import org.envirocar.app.views.reportissue.CheckBoxItem;
+import org.envirocar.app.views.reportissue.CheckboxBaseAdapter;
 import org.envirocar.core.logging.LocalFileHandler;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
@@ -41,6 +50,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -56,7 +66,7 @@ import butterknife.ButterKnife;
  */
 public class SendLogFileActivity extends AppCompatActivity {
 
-    private static final Logger logger = Logger
+    private static final Logger LOG = Logger
             .getLogger(SendLogFileActivity.class);
     private static final String REPORTING_EMAIL = "envirocar@52north.org";
     private static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.getDefault());
@@ -64,24 +74,58 @@ public class SendLogFileActivity extends AppCompatActivity {
     private static final String PREFIX = "report-";
     private static final String EXTENSION = ".zip";
 
-    @BindView(R.id.send_log_when)
+    @BindView(R.id.report_issue_header)
     protected EditText whenField;
-    @BindView(R.id.send_log_comments)
+    @BindView(R.id.report_issue_desc)
     protected EditText comments;
-    @BindView(R.id.textView_send_log_location)
+    @BindView(R.id.report_issue_log_location)
     protected TextView locationText;
     @BindView(R.id.toolbar)
     protected Toolbar toolbar;
+    @BindView(R.id.report_issue_submit)
+    protected Button submitIssue;
+    @BindView(R.id.report_issue_checkbox_list)
+    protected ListView checkBoxListView;
+
+    protected List<CheckBoxItem> checkBoxItems;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.send_log_layout);
+        setContentView(R.layout.send_log_layout_new);
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Send Log Report");
+        getSupportActionBar().setTitle("Report an Issue");
+
+        checkBoxItems = new ArrayList<>();
+        setCheckBoxes();
+        CheckboxBaseAdapter checkboxBaseAdapter = new CheckboxBaseAdapter(getApplicationContext(), checkBoxItems);
+        checkboxBaseAdapter.notifyDataSetChanged();
+        checkBoxListView.setAdapter(checkboxBaseAdapter);
+        checkBoxListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int itemIndex, long l) {
+
+                Object itemObject = adapterView.getAdapter().getItem(itemIndex);
+
+                CheckBoxItem item = (CheckBoxItem) itemObject;
+
+                CheckBox itemCheckbox = view.findViewById(R.id.report_issue_checkbox_item);
+
+                if(item.isChecked())
+                {
+                    itemCheckbox.setChecked(false);
+                    item.setChecked(false);
+                }else
+                {
+                    itemCheckbox.setChecked(true);
+                    item.setChecked(true);
+                }
+            }
+        });
 
         File reportBundle = null;
         try {
@@ -89,10 +133,23 @@ public class SendLogFileActivity extends AppCompatActivity {
 
             final File tmpBundle = createReportBundle();
             reportBundle = tmpBundle;
-            findViewById(R.id.send_log_button).setOnClickListener(
+            submitIssue.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(checkIfCheckboxSelected())
+                    {
+                        sendLogFile(tmpBundle);
+                    }
+                    else
+                    {
+                        createDialog(tmpBundle);
+                    }
+                }
+            });
+            submitIssue.setOnClickListener(
                     view -> sendLogFile(tmpBundle));
         } catch (IOException e) {
-            logger.warn(e.getMessage(), e);
+            LOG.warn(e.getMessage(), e);
         }
 
         if (reportBundle != null) {
@@ -103,6 +160,16 @@ public class SendLogFileActivity extends AppCompatActivity {
                     LocalFileHandler.effectiveFile.getParentFile().getAbsolutePath());
         }
 
+    }
+
+    public void setCheckBoxes(){
+        List<String> items = Arrays.asList(getResources().getStringArray(R.array.checkbox_text_items));
+        for (int i = 0; i < items.size(); i++) {
+            CheckBoxItem temp = new CheckBoxItem();
+            temp.setChecked(false);
+            temp.setItemText(items.get(i));
+            checkBoxItems.add(temp);
+        }
     }
 
     @Override
@@ -116,6 +183,44 @@ public class SendLogFileActivity extends AppCompatActivity {
         super.onPause();
         hideKeyboard(getCurrentFocus());
     }
+
+    public boolean checkIfCheckboxSelected(){
+
+        for(int i=0;i<checkBoxItems.size();i++)
+        {
+            CheckBoxItem dto = checkBoxItems.get(i);
+            if(dto.isChecked())
+            {
+                return Boolean.TRUE;
+            }
+        }
+        LOG.info("No checkboxes ticked.");
+        return Boolean.FALSE;
+    }
+
+    public void createDialog(File reportBundle){
+        AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
+        builder.setMessage("You have not selected any of the checkboxes. These help developers " +
+                "sort through issues quickly and resolve them. Please consider filling those that " +
+                "are relevant.")
+                .setTitle("No Checkbox Selected")
+                .setCancelable(false)
+                .setPositiveButton("Go Back", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setNegativeButton("Send Report Anyway", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        sendLogFile(reportBundle);
+                    }
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
 
     /**
      * creates a new {@link Intent#ACTION_SEND} with the report
