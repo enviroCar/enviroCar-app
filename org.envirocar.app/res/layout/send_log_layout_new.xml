@@ -49,22 +49,15 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-                <EditText
-                    android:id="@+id/report_issue_header"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="12dp"
-                    android:layout_marginTop="12dp"
-                    android:fontFamily="@font/roboto_medium"
-                    android:hint="Summary of what went wrong"
-                    android:textSize="20sp" />
-
-            </LinearLayout>
+            <EditText
+                android:id="@+id/report_issue_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="12dp"
+                android:layout_marginTop="12dp"
+                android:fontFamily="@font/roboto_medium"
+                android:hint="Summary of what went wrong"
+                android:textSize="20sp" />
 
             <EditText
                 android:id="@+id/report_issue_desc"
@@ -72,12 +65,23 @@
                 android:layout_height="170dp"
                 android:layout_marginLeft="12dp"
                 android:layout_marginRight="12dp"
+                android:background="@android:color/transparent"
                 android:ems="10"
                 android:fontFamily="@font/roboto"
                 android:gravity="start|top"
-                android:hint="A more detailed description"
+                android:hint=" A more detailed description"
                 android:inputType="textMultiLine"
                 android:textColor="#000000" />
+
+            <EditText
+                android:id="@+id/report_issue_time_since_crash"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:background="@android:color/transparent"
+                android:hint="Minutes since crash:"
+                android:inputType="number"
+                android:textSize="18sp" />
 
             <ListView
                 android:id="@+id/report_issue_checkbox_list"
@@ -101,7 +105,7 @@
                 android:id="@+id/report_issue_submit"
                 android:layout_width="130dp"
                 android:layout_height="45dp"
-                android:layout_gravity="right"
+                android:layout_gravity="center_vertical|end"
                 android:layout_margin="12dp"
                 android:layout_marginRight="20dp"
                 android:background="@drawable/btn_new"

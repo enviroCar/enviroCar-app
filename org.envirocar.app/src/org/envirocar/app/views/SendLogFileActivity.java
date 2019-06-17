@@ -86,6 +86,8 @@ public class SendLogFileActivity extends AppCompatActivity {
     private static final String EXTENSION = ".zip";
 
     @BindView(R.id.report_issue_header)
+    protected EditText title;
+    @BindView(R.id.report_issue_time_since_crash)
     protected EditText whenField;
     @BindView(R.id.report_issue_desc)
     protected EditText comments;
@@ -177,36 +179,6 @@ public class SendLogFileActivity extends AppCompatActivity {
 
     }
 
-    /*public BluetoothDevice getSelectedBluetoothDevice() {
-        // No Bluetooth is available. Therefore, return null.
-        if (!isBluetoothEnabled())
-            return null;
-
-        // Get the preferences of the device.
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        String deviceName = preferences.getString(
-                PreferenceConstants.PREF_BLUETOOTH_NAME,
-                PreferenceConstants.PREF_EMPTY);
-        String deviceAddress = preferences.getString(
-                PreferenceConstants.PREF_BLUETOOTH_ADDRESS,
-                PreferenceConstants.PREF_EMPTY);
-
-        // If the device address is not empty and the device is still a paired device, get the
-        // corresponding BluetoothDevice and return it.
-        if (!deviceAddress.equals(PreferenceConstants.PREF_EMPTY)) {
-            Set<BluetoothDevice> devices = getPairedBluetoothDevices();
-            for (BluetoothDevice device : devices) {
-                if (device.getAddress().equals(deviceAddress))
-                    return device;
-            }
-
-            // The device is not paired anymore. Therefore, delete everything in the shared
-            // preferences related to the preference.
-            setSelectedBluetoothDevice(null);
-        }
-        return null;
-    }
-    */
     public void setCheckBoxes(){
         List<String> totalList = new ArrayList<>();
         totalList.addAll(subjectHeaders);
@@ -389,7 +361,7 @@ public class SendLogFileActivity extends AppCompatActivity {
         sb.append(Util.NEW_LINE_CHAR);
         sb.append("Additional comments:");
         sb.append(Util.NEW_LINE_CHAR);
-        sb.append(createAdditionalComments());
+        sb.append(createComments());
         sb.append(Util.NEW_LINE_CHAR);
         sb.append(Util.NEW_LINE_CHAR);
         sb.append("Estimated system time of occurrence: ");
@@ -398,13 +370,25 @@ public class SendLogFileActivity extends AppCompatActivity {
         return sb.toString();
     }
 
-    private String createAdditionalComments() {
-        return this.comments.getText().toString();
+    private String createComments() {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Summary: ");
+        stringBuilder.append(title.getText().toString());
+        stringBuilder.append("\n");
+        stringBuilder.append(comments.getText().toString());
+        stringBuilder.append("\n");
+        return stringBuilder.toString();
     }
 
     private String createEstimatedTimeStamp() {
         long now = System.currentTimeMillis();
-        String text = this.whenField.getText().toString();
+        String text;
+        try {
+            text = whenField.getText().toString();
+        }catch (Exception e){
+            e.printStackTrace();
+            text = null;
+        }
 
         int delta;
         if (text == null || text.isEmpty()) {
