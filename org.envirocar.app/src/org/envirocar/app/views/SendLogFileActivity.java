@@ -19,31 +19,41 @@
 package org.envirocar.app.views;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.preference.PreferenceManager;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import org.envirocar.app.R;
+import org.envirocar.app.handler.BluetoothHandler;
+import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.views.reportissue.CheckBoxItem;
 import org.envirocar.app.views.reportissue.CheckboxBaseAdapter;
+import org.envirocar.core.entity.Car;
 import org.envirocar.core.logging.LocalFileHandler;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
+import org.envirocar.core.utils.CarUtils;
 
 import java.io.File;
 import java.io.FileFilter;
@@ -56,6 +66,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -66,8 +78,7 @@ import butterknife.ButterKnife;
  */
 public class SendLogFileActivity extends AppCompatActivity {
 
-    private static final Logger LOG = Logger
-            .getLogger(SendLogFileActivity.class);
+    private static final Logger LOG = Logger.getLogger(SendLogFileActivity.class);
     private static final String REPORTING_EMAIL = "envirocar@52north.org";
     private static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.getDefault());
     private static final DateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
@@ -87,8 +98,17 @@ public class SendLogFileActivity extends AppCompatActivity {
     @BindView(R.id.report_issue_checkbox_list)
     protected ListView checkBoxListView;
 
-    protected List<CheckBoxItem> checkBoxItems;
+    @Inject
+    protected CarPreferenceHandler mCarPrefHandler;
+    @Inject
+    protected BluetoothHandler mBluetoothHandler;
 
+    protected List<CheckBoxItem> checkBoxItems;
+    protected List<String> subjectHeaders;
+    protected List<String> bodyHeaders;
+    protected List<String> subjectTags;
+    protected List<String> bodyTags;
+    protected String extraInfo;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -99,31 +119,28 @@ public class SendLogFileActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Report an Issue");
+        hideKeyboard(getCurrentFocus());
 
+        subjectHeaders = Arrays.asList(getResources().getStringArray(R.array.report_issue_subject_header));
+        bodyHeaders = Arrays.asList(getResources().getStringArray(R.array.report_issue_body_header));
+        subjectTags = Arrays.asList(getResources().getStringArray(R.array.report_issue_subject_tags));
+        bodyTags = Arrays.asList(getResources().getStringArray(R.array.report_issue_body_tags));
         checkBoxItems = new ArrayList<>();
+        extraInfo = new String();
         setCheckBoxes();
-        CheckboxBaseAdapter checkboxBaseAdapter = new CheckboxBaseAdapter(getApplicationContext(), checkBoxItems);
+        CheckboxBaseAdapter checkboxBaseAdapter = new CheckboxBaseAdapter(SendLogFileActivity.this, checkBoxItems);
         checkboxBaseAdapter.notifyDataSetChanged();
         checkBoxListView.setAdapter(checkboxBaseAdapter);
+        setListViewHeightBasedOnChildren(checkBoxListView);
+
         checkBoxListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int itemIndex, long l) {
 
-                Object itemObject = adapterView.getAdapter().getItem(itemIndex);
-
-                CheckBoxItem item = (CheckBoxItem) itemObject;
-
+                CheckBoxItem item = (CheckBoxItem) adapterView.getAdapter().getItem(itemIndex);
                 CheckBox itemCheckbox = view.findViewById(R.id.report_issue_checkbox_item);
-
-                if(item.isChecked())
-                {
-                    itemCheckbox.setChecked(false);
-                    item.setChecked(false);
-                }else
-                {
-                    itemCheckbox.setChecked(true);
-                    item.setChecked(true);
-                }
+                LOG.info("Checkbox " + itemIndex + " is " + itemCheckbox.isChecked());
+                LOG.info("Checkbox List at " + itemIndex + " is " + checkBoxItems.get(itemIndex).isChecked());
             }
         });
 
@@ -146,8 +163,6 @@ public class SendLogFileActivity extends AppCompatActivity {
                     }
                 }
             });
-            submitIssue.setOnClickListener(
-                    view -> sendLogFile(tmpBundle));
         } catch (IOException e) {
             LOG.warn(e.getMessage(), e);
         }
@@ -162,12 +177,44 @@ public class SendLogFileActivity extends AppCompatActivity {
 
     }
 
+    /*public BluetoothDevice getSelectedBluetoothDevice() {
+        // No Bluetooth is available. Therefore, return null.
+        if (!isBluetoothEnabled())
+            return null;
+
+        // Get the preferences of the device.
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        String deviceName = preferences.getString(
+                PreferenceConstants.PREF_BLUETOOTH_NAME,
+                PreferenceConstants.PREF_EMPTY);
+        String deviceAddress = preferences.getString(
+                PreferenceConstants.PREF_BLUETOOTH_ADDRESS,
+                PreferenceConstants.PREF_EMPTY);
+
+        // If the device address is not empty and the device is still a paired device, get the
+        // corresponding BluetoothDevice and return it.
+        if (!deviceAddress.equals(PreferenceConstants.PREF_EMPTY)) {
+            Set<BluetoothDevice> devices = getPairedBluetoothDevices();
+            for (BluetoothDevice device : devices) {
+                if (device.getAddress().equals(deviceAddress))
+                    return device;
+            }
+
+            // The device is not paired anymore. Therefore, delete everything in the shared
+            // preferences related to the preference.
+            setSelectedBluetoothDevice(null);
+        }
+        return null;
+    }
+    */
     public void setCheckBoxes(){
-        List<String> items = Arrays.asList(getResources().getStringArray(R.array.checkbox_text_items));
-        for (int i = 0; i < items.size(); i++) {
+        List<String> totalList = new ArrayList<>();
+        totalList.addAll(subjectHeaders);
+        totalList.addAll(bodyHeaders);
+        for (int i = 0; i < totalList.size(); i++) {
             CheckBoxItem temp = new CheckBoxItem();
             temp.setChecked(false);
-            temp.setItemText(items.get(i));
+            temp.setItemText(totalList.get(i));
             checkBoxItems.add(temp);
         }
     }
@@ -186,11 +233,14 @@ public class SendLogFileActivity extends AppCompatActivity {
 
     public boolean checkIfCheckboxSelected(){
 
+        LOG.info("Checking checkboxes.");
         for(int i=0;i<checkBoxItems.size();i++)
         {
             CheckBoxItem dto = checkBoxItems.get(i);
+            LOG.info("Checkbox " + i + " : " + dto.isChecked());
             if(dto.isChecked())
             {
+                LOG.info("Ticked Checkbox found.");
                 return Boolean.TRUE;
             }
         }
@@ -199,7 +249,7 @@ public class SendLogFileActivity extends AppCompatActivity {
     }
 
     public void createDialog(File reportBundle){
-        AlertDialog.Builder builder = new AlertDialog.Builder(getApplicationContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(SendLogFileActivity.this);
         builder.setMessage("You have not selected any of the checkboxes. These help developers " +
                 "sort through issues quickly and resolve them. Please consider filling those that " +
                 "are relevant.")
@@ -208,7 +258,7 @@ public class SendLogFileActivity extends AppCompatActivity {
                 .setPositiveButton("Go Back", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        finish();
+
                     }
                 })
                 .setNegativeButton("Send Report Anyway", new DialogInterface.OnClickListener() {
@@ -218,6 +268,13 @@ public class SendLogFileActivity extends AppCompatActivity {
                     }
                 });
         AlertDialog alertDialog = builder.create();
+        alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dialog) {
+                alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(Color.parseColor("#7DB7DC"));
+                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(Color.parseColor("#0065A0"));
+            }
+        });
         alertDialog.show();
     }
 
@@ -235,7 +292,7 @@ public class SendLogFileActivity extends AppCompatActivity {
         emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL,
                 new String[]{REPORTING_EMAIL});
         emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT,
-                "enviroCar Log Report");
+                createSubject()+" enviroCar Log Report");
         emailIntent.putExtra(android.content.Intent.EXTRA_TEXT,
                 createEmailContents());
         emailIntent.putExtra(android.content.Intent.EXTRA_STREAM,
@@ -244,6 +301,73 @@ public class SendLogFileActivity extends AppCompatActivity {
 
         startActivity(Intent.createChooser(emailIntent, "Send Log Report"));
         getFragmentManager().popBackStack();
+    }
+
+    protected String getVersionNames(){
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Version Details\n");
+        String versionName;
+        try{
+            versionName = getApplicationContext().getPackageManager()
+                    .getPackageInfo(getApplicationContext().getPackageName(), 0).versionName;
+        }catch (Exception e){
+            versionName = "Unable to determine enviroCar version";
+            e.printStackTrace();
+        }
+
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+        int version = Build.VERSION.SDK_INT;
+        String versionRelease = Build.VERSION.RELEASE;
+
+        stringBuilder.append("enviroCar Version: ");
+        stringBuilder.append(versionName);
+        stringBuilder.append(   "\n Manufacturer: " + manufacturer +
+                                "\n Model: " + model +
+                                "\n Version: " + version+
+                                "\n Version Release: " + versionRelease);
+        stringBuilder.append("\n");
+        return  stringBuilder.toString();
+
+    }
+
+    protected String getCarBluetoothNames(){
+        StringBuilder stringBuilder = new StringBuilder();
+        Car car = CarUtils.instantiateCar(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(PreferenceConstants
+                .PREFERENCE_TAG_CAR, null));
+        stringBuilder.append("Car Details: ");
+        stringBuilder.append(car.getManufacturer() + " " + car.getModel());
+        stringBuilder.append("\nBluetooh Adapter: " + PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(PreferenceConstants
+                .PREF_BLUETOOTH_NAME, null));
+        stringBuilder.append("\n");
+        return stringBuilder.toString();
+    }
+
+    protected String createSubject(){
+        StringBuilder subject = new StringBuilder();
+        for(int i=0;i<subjectTags.size();i++)
+        {
+            CheckBoxItem dto = checkBoxItems.get(i);
+            if(dto.isChecked())
+            {
+                subject.append(subjectTags.get(i));
+            }
+        }
+        return subject.toString();
+    }
+
+    protected String createBodyTags(){
+        StringBuilder bodyT = new StringBuilder();
+        bodyT.append("Tags: ");
+        for(int i=0;i<bodyTags.size();i++)
+        {
+            CheckBoxItem dto = checkBoxItems.get(i+subjectTags.size());
+            if(dto.isChecked())
+            {
+                bodyT.append(bodyTags.get(i));
+            }
+        }
+        return bodyT.toString();
     }
 
     /**
@@ -256,13 +380,21 @@ public class SendLogFileActivity extends AppCompatActivity {
         sb.append("A new Issue Report has been created:");
         sb.append(Util.NEW_LINE_CHAR);
         sb.append(Util.NEW_LINE_CHAR);
-        sb.append("Estimated system time of occurrence: ");
-        sb.append(createEstimatedTimeStamp());
+        sb.append(createBodyTags());
         sb.append(Util.NEW_LINE_CHAR);
+        sb.append(Util.NEW_LINE_CHAR);
+        sb.append(getVersionNames());
+        sb.append(Util.NEW_LINE_CHAR);
+        sb.append(getCarBluetoothNames());
         sb.append(Util.NEW_LINE_CHAR);
         sb.append("Additional comments:");
         sb.append(Util.NEW_LINE_CHAR);
         sb.append(createAdditionalComments());
+        sb.append(Util.NEW_LINE_CHAR);
+        sb.append(Util.NEW_LINE_CHAR);
+        sb.append("Estimated system time of occurrence: ");
+        sb.append(createEstimatedTimeStamp());
+
         return sb.toString();
     }
 
@@ -343,6 +475,27 @@ public class SendLogFileActivity extends AppCompatActivity {
             InputMethodManager inputMethodManager =(InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
+    }
+
+    public static void setListViewHeightBasedOnChildren(ListView listView) {
+        ListAdapter listAdapter = listView.getAdapter();
+        if (listAdapter == null)
+            return;
+
+        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.UNSPECIFIED);
+        int totalHeight = 0;
+        View view = null;
+        for (int i = 0; i < listAdapter.getCount(); i++) {
+            view = listAdapter.getView(i, view, listView);
+            if (i == 0)
+                view.setLayoutParams(new ViewGroup.LayoutParams(desiredWidth, ViewGroup.LayoutParams.WRAP_CONTENT));
+
+            view.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+            totalHeight += view.getMeasuredHeight();
+        }
+        ViewGroup.LayoutParams params = listView.getLayoutParams();
+        params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+        listView.setLayoutParams(params);
     }
 
 }

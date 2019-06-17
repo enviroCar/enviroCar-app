@@ -66,12 +66,22 @@ public class CheckboxBaseAdapter extends BaseAdapter {
             viewHolder.setItemTextView(listItemText);
 
             convertView.setTag(viewHolder);
+
+            viewHolder.getItemCheckbox().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    CheckBox temp = (CheckBox) v;
+                    CheckBoxItem t = (CheckBoxItem) temp.getTag();
+                    t.setChecked(temp.isChecked());
+
+                }
+            });
         }
 
         CheckBoxItem checkBoxItem = checkBoxItems.get(itemIndex);
         viewHolder.getItemCheckbox().setChecked(checkBoxItem.isChecked());
         viewHolder.getItemTextView().setText(checkBoxItem.getItemText());
-
+        viewHolder.getItemCheckbox().setTag(checkBoxItem);
         return convertView;
 
     }
