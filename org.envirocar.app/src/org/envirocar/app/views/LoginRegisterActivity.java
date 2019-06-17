@@ -35,6 +35,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -94,6 +95,10 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
     protected EditText mRegisterPassword;
     @BindView(R.id.activity_account_register_password2_input)
     protected EditText mRegisterPassword2;
+    @BindView(R.id.activity_account_register_agree_tou_checbox)
+    protected CheckBox mAcceptTouCheckbox;
+    @BindView(R.id.activity_account_register_agree_privacy_checbox)
+    protected CheckBox mAcceptPrivacyCheckbox;
 
     @Inject
     protected UserHandler mUserManager;
@@ -363,6 +368,16 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
         if (!password.equals(password2)) {
             mRegisterPassword2.setError(getString(R.string.error_passwords_not_matching));
             focusView = mRegisterPassword2;
+        }
+
+        // check if tou and privacy statement have been accepted.
+        if (!mAcceptTouCheckbox.isChecked()){
+            mAcceptTouCheckbox.setError("some error");
+            focusView = mAcceptTouCheckbox;
+        }
+        if (!mAcceptPrivacyCheckbox.isChecked()) {
+            mAcceptPrivacyCheckbox.setError("some error");
+            focusView = mAcceptPrivacyCheckbox;
         }
 
         // Check if an error occured.
