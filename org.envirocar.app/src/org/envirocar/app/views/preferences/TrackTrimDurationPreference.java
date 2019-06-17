@@ -92,7 +92,7 @@ public class TrackTrimDurationPreference extends DialogPreference {
         ButterKnife.bind(this, view);
 
         // Toolbar settings.
-        mToolbar.setTitle(R.string.pref_track_trim_duration_title);
+        mToolbar.setTitle(R.string.preference_track_trim_duration_title);
         mToolbar.setNavigationIcon(R.drawable.ic_timer_white_24dp);
         mToolbar.setTitleTextColor(getContext().getResources().getColor(R.color.white_cario));
         

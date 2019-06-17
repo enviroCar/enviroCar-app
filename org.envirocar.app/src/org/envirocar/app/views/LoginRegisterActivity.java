@@ -377,7 +377,6 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
         }
         if (!mAcceptPrivacyCheckbox.isChecked()) {
             mAcceptPrivacyCheckbox.setError("some error");
-            focusView = mAcceptPrivacyCheckbox;
         }
 
         // Check if an error occured.
