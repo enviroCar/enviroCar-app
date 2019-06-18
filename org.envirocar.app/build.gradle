@@ -30,6 +30,8 @@ dependencies {
     implementation rootProject.ext.rxBinding
 
     // other third party libraries
+    implementation rootProject.ext.materialDesignLibrary
+    implementation 'com.ogaclejapan.smarttablayout:library:2.0.0@aar'
     implementation rootProject.ext.acra
     implementation rootProject.ext.helloCharts
     implementation rootProject.ext.fabProgressCircle

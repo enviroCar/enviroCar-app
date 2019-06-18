@@ -87,6 +87,7 @@ ext {
     acra = 'ch.acra:acra-core:5.1.3'
 
     // other third party dependencies.
+    materialDesignLibrary = 'com.github.navasmdc:MaterialDesign:1.5@aar'
     materialDialogs = 'com.afollestad.material-dialogs:core:0.9.6.0'
     helloCharts = 'com.github.lecho:hellocharts-library:1.5.8@aar'
     fabProgressCircle = 'com.github.jorgecastilloprz:fabprogresscircle:1.01'

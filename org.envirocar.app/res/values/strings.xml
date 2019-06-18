@@ -101,5 +101,7 @@
     <string name="driving">Driving</string>
 
     <string name="gps_track_details">*This is a GPS based track. It cannot be uploaded to the open data.</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_skip">Skip</string>
 
 </resources>
