@@ -152,6 +152,13 @@ public class SendLogFileActivity extends AppCompatActivity {
 
             final File tmpBundle = createReportBundle();
             reportBundle = tmpBundle;
+            if (reportBundle != null) {
+                locationText.setText(reportBundle.getAbsolutePath());
+            } else {
+                locationText.setError("Error allocating report bundle.");
+                locationText.setText("An error occured while creating the report bundle. Please send in the logs available at " +
+                        LocalFileHandler.effectiveFile.getParentFile().getAbsolutePath());
+            }
             submitIssue.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -169,13 +176,7 @@ public class SendLogFileActivity extends AppCompatActivity {
             LOG.warn(e.getMessage(), e);
         }
 
-        if (reportBundle != null) {
-            locationText.setText(reportBundle.getAbsolutePath());
-        } else {
-            locationText.setError("Error allocating report bundle.");
-            locationText.setText("An error occured while creating the report bundle. Please send in the logs available at " +
-                    LocalFileHandler.effectiveFile.getParentFile().getAbsolutePath());
-        }
+
 
     }
 
@@ -294,10 +295,10 @@ public class SendLogFileActivity extends AppCompatActivity {
 
         stringBuilder.append("enviroCar Version: ");
         stringBuilder.append(versionName);
-        stringBuilder.append(   "\n Manufacturer: " + manufacturer +
-                                "\n Model: " + model +
-                                "\n Version: " + version+
-                                "\n Version Release: " + versionRelease);
+        stringBuilder.append("\n Manufacturer: " + manufacturer);
+        stringBuilder.append("\n Model: " + model);
+        stringBuilder.append("\n Version: " + version);
+        stringBuilder.append("\n Version Release: " + versionRelease);
         stringBuilder.append("\n");
         return  stringBuilder.toString();
 
@@ -308,7 +309,10 @@ public class SendLogFileActivity extends AppCompatActivity {
         Car car = CarUtils.instantiateCar(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(PreferenceConstants
                 .PREFERENCE_TAG_CAR, null));
         stringBuilder.append("Car Details: ");
-        stringBuilder.append(car.getManufacturer() + " " + car.getModel());
+        if(car!=null)
+            stringBuilder.append(car.getManufacturer() + " " + car.getModel());
+        else
+            stringBuilder.append("No Car Selected.");
         stringBuilder.append("\nBluetooh Adapter: " + PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(PreferenceConstants
                 .PREF_BLUETOOTH_NAME, null));
         stringBuilder.append("\n");
