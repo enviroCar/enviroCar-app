@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 
     Copyright (C) 2013 - 2019 the enviroCar community
 
@@ -103,5 +102,12 @@
     <string name="gps_track_details">*This is a GPS based track. It cannot be uploaded to the open data.</string>
     <string name="onboarding_next">Next</string>
     <string name="onboarding_skip">Skip</string>
+    <string name="action_sign_up">Sign Up</string>
+    <string name="onboarding_subtitle">Start Today. \nJoin the Community.</string>
+    <string name="onboarding_3_txt">How much have you travelled in the past month? How much fuel does your car consume on each trip?</string>
+    <string name="onboarding_3_txt1">enviroCar offers a variety of interactive analysis and visualisation tools, map products and APIs to answer these and similar questions.</string>
+    <string name="onboarding_2_txt">Contribute your data to research studies. Help to jointly optimize the traffic flow and make mobility more sustainable</string>
+    <string name="onboarding_txt2" >Upload your recorded tracks to help enrich the enviroCar community data store.
+enviroCar provides free & open access to the the community's anonymized tracks.</string>
 
 </resources>

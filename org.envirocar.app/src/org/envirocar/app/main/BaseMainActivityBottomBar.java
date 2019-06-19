@@ -46,6 +46,7 @@ import org.envirocar.app.services.AutomaticTrackRecordingService;
 import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.TroubleshootingFragment;
 import org.envirocar.app.views.dashboard.DashBoardFragment;
+import org.envirocar.app.views.onboarding.OnboardingActivity;
 import org.envirocar.app.views.tracklist.TrackListPagerFragment;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.NoMeasurementsException;
@@ -138,9 +139,16 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
     protected void onCreate(Bundle savedInstanceState) {
         LOGGER.info("BaseMainActivityBottomBar : onCreate");
         super.onCreate(savedInstanceState);
+        boolean isOnboardingComplete = PreferencesHandler.getSharedPreferences(getApplicationContext()).getBoolean(OnboardingActivity.ONBOARDING_COMPLETE,false);
+        LOGGER.info("Onboarding: "+ isOnboardingComplete);
+        if(!isOnboardingComplete){
+            Intent onboarding = new Intent(BaseMainActivityBottomBar.this, OnboardingActivity.class);
+            LOGGER.info("Onboarding Starting.");
+            finish();
+            startActivity(onboarding);
+        }
         setContentView(R.layout.activity_base_main_bottom_bar);
         ButterKnife.bind(this);
-
         navigationBottomBar.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         navigationBottomBar.setSelectedItemId(R.id.navigation_dashboard);
 

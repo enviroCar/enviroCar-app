@@ -14,6 +14,7 @@ dependencies {
     implementation rootProject.ext.dagger
     implementation rootProject.ext.otto
     implementation rootProject.ext.butterKnife
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     annotationProcessor rootProject.ext.daggerCompiler
     annotationProcessor rootProject.ext.butterknifeCompiler
     //    implementation 'org.glassfish:javax.annotation:10.0-b28'
@@ -47,7 +48,6 @@ dependencies {
 //    }
 
 
-
     // MapBox SDK
     implementation(rootProject.ext.mapbox) {
         transitive = true
@@ -79,7 +79,6 @@ dependencies {
     api project(path: ':org.envirocar.storage')
     api project(path: ':org.envirocar.algorithm')
 }
-
 
 
 android {
