@@ -99,18 +99,27 @@
                 android:layout_marginLeft="12dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginRight="12dp"
-                android:fontFamily="@font/roboto"
+                android:layout_marginBottom="12dp"
+                android:fontFamily="@font/roboto_light1"
+                android:lineSpacingExtra="1.5dp"
                 android:text="@string/report_issue_text" />
 
             <Button
                 android:id="@+id/report_issue_submit"
-                android:layout_width="130dp"
-                android:layout_height="45dp"
-                android:layout_gravity="center_vertical|end"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center|center_vertical"
                 android:layout_margin="12dp"
                 android:layout_marginRight="20dp"
                 android:background="@drawable/btn_new"
-                android:text="Send Report" />
+                android:fontFamily="@font/roboto_medium"
+                android:paddingLeft="25dp"
+                android:paddingTop="15dp"
+                android:paddingRight="25dp"
+                android:paddingBottom="15dp"
+                android:text="Send Report"
+                android:textAllCaps="true"
+                android:textSize="15sp" />
 
             <TextView
                 android:id="@+id/report_issue_bottom_text"
@@ -119,7 +128,8 @@
                 android:layout_marginLeft="12dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginRight="12dp"
-                android:fontFamily="@font/roboto"
+                android:fontFamily="@font/roboto_light1"
+                android:lineSpacingExtra="1.5dp"
                 android:text="@string/report_issue_bottom_text" />
 
             <TextView
@@ -127,7 +137,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="12dp"
-                android:layout_marginRight="12dp" />
+                android:layout_marginRight="12dp"
+                android:layout_marginBottom="35dp" />
         </LinearLayout>
     </ScrollView>
 

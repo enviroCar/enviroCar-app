@@ -23,6 +23,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
@@ -121,28 +122,16 @@ public class SendLogFileActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Report an Issue");
-        hideKeyboard(getCurrentFocus());
+        //hideKeyboard(getCurrentFocus());
 
-        subjectHeaders = Arrays.asList(getResources().getStringArray(R.array.report_issue_subject_header));
-        bodyHeaders = Arrays.asList(getResources().getStringArray(R.array.report_issue_body_header));
-        subjectTags = Arrays.asList(getResources().getStringArray(R.array.report_issue_subject_tags));
-        bodyTags = Arrays.asList(getResources().getStringArray(R.array.report_issue_body_tags));
-        checkBoxItems = new ArrayList<>();
-        extraInfo = new String();
-        setCheckBoxes();
-        CheckboxBaseAdapter checkboxBaseAdapter = new CheckboxBaseAdapter(SendLogFileActivity.this, checkBoxItems);
-        checkboxBaseAdapter.notifyDataSetChanged();
-        checkBoxListView.setAdapter(checkboxBaseAdapter);
-        setListViewHeightBasedOnChildren(checkBoxListView);
-
-        checkBoxListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        AsyncTask.execute(new Runnable() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int itemIndex, long l) {
-
-                CheckBoxItem item = (CheckBoxItem) adapterView.getAdapter().getItem(itemIndex);
-                CheckBox itemCheckbox = view.findViewById(R.id.report_issue_checkbox_item);
-                LOG.info("Checkbox " + itemIndex + " is " + itemCheckbox.isChecked());
-                LOG.info("Checkbox List at " + itemIndex + " is " + checkBoxItems.get(itemIndex).isChecked());
+            public void run() {
+                subjectHeaders = Arrays.asList(getResources().getStringArray(R.array.report_issue_subject_header));
+                bodyHeaders = Arrays.asList(getResources().getStringArray(R.array.report_issue_body_header));
+                subjectTags = Arrays.asList(getResources().getStringArray(R.array.report_issue_subject_tags));
+                bodyTags = Arrays.asList(getResources().getStringArray(R.array.report_issue_body_tags));
+                set();
             }
         });
 
@@ -153,8 +142,10 @@ public class SendLogFileActivity extends AppCompatActivity {
             final File tmpBundle = createReportBundle();
             reportBundle = tmpBundle;
             if (reportBundle != null) {
+                LOG.info("Report Location: " + reportBundle.getAbsolutePath());
                 locationText.setText(reportBundle.getAbsolutePath());
             } else {
+                LOG.info("Error: Report is NULL.");
                 locationText.setError("Error allocating report bundle.");
                 locationText.setText("An error occured while creating the report bundle. Please send in the logs available at " +
                         LocalFileHandler.effectiveFile.getParentFile().getAbsolutePath());
@@ -313,7 +304,7 @@ public class SendLogFileActivity extends AppCompatActivity {
             stringBuilder.append(car.getManufacturer() + " " + car.getModel());
         else
             stringBuilder.append("No Car Selected.");
-        stringBuilder.append("\nBluetooh Adapter: " + PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(PreferenceConstants
+        stringBuilder.append("\nBluetooth Adapter: " + PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(PreferenceConstants
                 .PREF_BLUETOOTH_NAME, null));
         stringBuilder.append("\n");
         return stringBuilder.toString();
@@ -484,6 +475,27 @@ public class SendLogFileActivity extends AppCompatActivity {
         ViewGroup.LayoutParams params = listView.getLayoutParams();
         params.height = totalHeight + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
         listView.setLayoutParams(params);
+    }
+
+    public void set(){
+        checkBoxItems = new ArrayList<>();
+        extraInfo = new String();
+        setCheckBoxes();
+        CheckboxBaseAdapter checkboxBaseAdapter = new CheckboxBaseAdapter(SendLogFileActivity.this, checkBoxItems);
+        checkboxBaseAdapter.notifyDataSetChanged();
+        checkBoxListView.setAdapter(checkboxBaseAdapter);
+        setListViewHeightBasedOnChildren(checkBoxListView);
+
+        checkBoxListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int itemIndex, long l) {
+
+                CheckBoxItem item = (CheckBoxItem) adapterView.getAdapter().getItem(itemIndex);
+                CheckBox itemCheckbox = view.findViewById(R.id.report_issue_checkbox_item);
+                LOG.info("Checkbox " + itemIndex + " is " + itemCheckbox.isChecked());
+                LOG.info("Checkbox List at " + itemIndex + " is " + checkBoxItems.get(itemIndex).isChecked());
+            }
+        });
     }
 
 }
