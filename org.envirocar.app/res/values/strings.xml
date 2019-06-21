@@ -109,5 +109,8 @@
     <string name="onboarding_2_txt">Contribute your data to research studies. Help to jointly optimize the traffic flow and make mobility more sustainable</string>
     <string name="onboarding_txt2" >Upload your recorded tracks to help enrich the enviroCar community data store.
 enviroCar provides free and open access to the the community\'s anonymized tracks.</string>
+    <string name="login_user_already_signed_in">There is already a user signed in. Do you want to go to your Dashboard?</string>
+    <string name="login_go_to_dashboard">Go to Dashboard</string>
+    <string name="login_logout_user">Log Out</string>
 
 </resources>

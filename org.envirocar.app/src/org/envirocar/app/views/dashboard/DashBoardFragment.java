@@ -303,6 +303,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @OnClick(R.id.btn_startOnboarding)
     protected void onStartOnboardingClicked(){
         Intent intent = new Intent(getActivity(), OnboardingActivity.class);
+        intent.putExtra("test-call", true);
         startActivity(intent);
     }
 
