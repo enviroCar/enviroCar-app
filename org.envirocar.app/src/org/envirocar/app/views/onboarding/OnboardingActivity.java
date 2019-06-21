@@ -18,12 +18,14 @@ import org.envirocar.app.R;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.app.views.LoginRegisterActivity;
+import org.envirocar.core.logging.Logger;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class OnboardingActivity extends AppCompatActivity implements OnboardingFragment4.OBButtonInterface {
 
+    private static final Logger LOGGER = Logger.getLogger(OnboardingActivity.class);
     public static final String ONBOARDING_COMPLETE = "Onboarding_Complete";
 
     @BindView(R.id.onboarding_viewpager)
@@ -47,6 +49,24 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        boolean isOnboardingComplete = PreferencesHandler.getSharedPreferences(getApplicationContext()).getBoolean(OnboardingActivity.ONBOARDING_COMPLETE,false);
+        boolean isTest = false;
+        try{
+            Intent intent = getIntent();
+            isTest = intent.getBooleanExtra("test-call", false);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+        LOGGER.info("Onboarding: "+ isOnboardingComplete);
+        if(isOnboardingComplete && !isTest ){
+            Intent intent = new Intent(OnboardingActivity.this, BaseMainActivityBottomBar.class);
+            LOGGER.info("Openning BaseMainActivityBottomBar");
+            startActivity(intent);
+            finish();
+
+        }
+
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.onboarding_basic);

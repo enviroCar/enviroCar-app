@@ -70,6 +70,8 @@ public class OnboardingFragment4 extends Fragment {
         SharedPreferences prefs = getContext().getSharedPreferences("userPrefs", MODE_PRIVATE);
         if(!(prefs.contains("username") && prefs.contains("token"))){
             signUp.setText("Sign Up");
+            signUp.setVisibility(View.VISIBLE);
+            skip.setVisibility(View.VISIBLE);
             signIn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -79,7 +81,8 @@ public class OnboardingFragment4 extends Fragment {
         }
         else {
             signIn.setText("Continue to Dashboard");
-            signUp.setText("Create new User");
+            signUp.setVisibility(View.INVISIBLE);
+            skip.setVisibility(View.INVISIBLE);
             signIn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
