@@ -141,10 +141,10 @@ public class BaseMainActivityBottomBar extends BaseInjectorActivity {
         super.onCreate(savedInstanceState);
         boolean isOnboardingComplete = PreferencesHandler.getSharedPreferences(getApplicationContext()).getBoolean(OnboardingActivity.ONBOARDING_COMPLETE,false);
         LOGGER.info("Onboarding: "+ isOnboardingComplete);
-        if(!isOnboardingComplete){
+        if(isOnboardingComplete){
             Intent onboarding = new Intent(BaseMainActivityBottomBar.this, OnboardingActivity.class);
             LOGGER.info("Onboarding Starting.");
-            finish();
+            //finish();
             startActivity(onboarding);
         }
         setContentView(R.layout.activity_base_main_bottom_bar);

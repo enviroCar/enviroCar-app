@@ -27,11 +27,14 @@ import android.os.Bundle;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.cardview.widget.CardView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
 import android.text.TextUtils;
 import android.view.Display;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
@@ -76,16 +79,16 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
     protected Toolbar mToolbar;
     @BindView(R.id.activity_login_exp_toolbar)
     protected Toolbar mExpToolbar;
-
-    @BindView(R.id.activity_login_card)
-    protected CardView mLoginCard;
+    
+    @BindView(R.id.activity_account_login_card_layout)
+    protected ConstraintLayout mLoginLayout;
     @BindView(R.id.activity_account_login_card_username_text)
     protected EditText mLoginUsername;
     @BindView(R.id.activity_account_login_card_password_text)
     protected EditText mLoginPassword;
 
-    @BindView(R.id.activity_register_card)
-    protected CardView mRegisterCard;
+    @BindView(R.id.activity_account_register_card_layout)
+    protected ConstraintLayout mRegisterLayout;
     @BindView(R.id.activity_account_register_email_input)
     protected EditText mRegisterEmail;
     @BindView(R.id.activity_account_register_username_input)
@@ -121,7 +124,8 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_login);
 
         // Inject the Views.
@@ -134,7 +138,7 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
-        expandExpToolbarToHalfScreen();
+        //expandExpToolbarToHalfScreen();
         if(intent.getStringExtra("from").equalsIgnoreCase("login")){
             slideInLoginCard();
         }else{
@@ -151,9 +155,9 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
 
     @Override
     public void onBackPressed() {
-        if (mRegisterCard != null && mRegisterCard.getVisibility() == View.VISIBLE) {
-            animateViewTransition(mRegisterCard, R.anim.translate_slide_out_right_card, true);
-            animateViewTransition(mLoginCard, R.anim.translate_slide_in_left_card, false);
+        if (mRegisterLayout != null && mRegisterLayout.getVisibility() == View.VISIBLE) {
+            animateViewTransition(mRegisterLayout, R.anim.translate_slide_out_right_card, true);
+            animateViewTransition(mLoginLayout, R.anim.translate_slide_in_left_card, false);
         } else {
             super.onBackPressed();
         }
@@ -247,7 +251,7 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
                                             R.string.welcome_message), user.getUsername()),
                                     Snackbar.LENGTH_LONG)
                                     .show();
-
+                            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                             finish();
                             // Then ask for terms of use acceptance.
                            // askForTermsOfUseAcceptance();
@@ -409,7 +413,7 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
                                 getResources().getString(R.string.welcome_message),
                                 username), Snackbar.LENGTH_LONG).show();
                     });
-
+                    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                     finish();
                    // askForTermsOfUseAcceptance();
                 } catch (ResourceConflictException e) {
@@ -450,16 +454,16 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
     protected void onRegisterButtonClicked() {
         // When the register button was clicked, then replace the login card with the
         // registration card.
-        animateViewTransition(mLoginCard, R.anim.translate_slide_out_left_card, true);
-        animateViewTransition(mRegisterCard, R.anim.translate_slide_in_right_card, false);
+        animateViewTransition(mLoginLayout, R.anim.translate_slide_out_left_card, true);
+        animateViewTransition(mRegisterLayout, R.anim.translate_slide_in_right_card, false);
     }
 
     @OnClick(R.id.activity_account_register_card_signin_button)
     protected void onSignInButtonClicked() {
         // When the register button was clicked, then replace the login card with the
         // registration card.
-        animateViewTransition(mRegisterCard, R.anim.translate_slide_out_right_card, true);
-        animateViewTransition(mLoginCard, R.anim.translate_slide_in_left_card, false);
+        animateViewTransition(mRegisterLayout, R.anim.translate_slide_out_right_card, true);
+        animateViewTransition(mLoginLayout, R.anim.translate_slide_in_left_card, false);
     }
 
     /**
@@ -498,15 +502,15 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
     private void slideInLoginCard() {
         Animation animation = AnimationUtils.loadAnimation(this,
                 R.anim.translate_in_bottom_login_card);
-        mLoginCard.setVisibility(View.VISIBLE);
-        mLoginCard.startAnimation(animation);
+        mLoginLayout.setVisibility(View.VISIBLE);
+        mLoginLayout.startAnimation(animation);
     }
 
     private void slideInRegisterCard() {
         Animation animation = AnimationUtils.loadAnimation(this,
                 R.anim.translate_in_bottom_login_card);
-        mRegisterCard.setVisibility(View.VISIBLE);
-        mRegisterCard.startAnimation(animation);
+        mRegisterLayout.setVisibility(View.VISIBLE);
+        mRegisterLayout.startAnimation(animation);
     }
 
     /**

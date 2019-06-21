@@ -64,11 +64,11 @@
 
     <string name="general_error_please_report">General Track Error - Please report this issue</string>
 
-    <string name="not_yet_registered_question">You do not have an account, yet?</string>
-    <string name="not_yet_registered_register">Register here!</string>
+    <string name="not_yet_registered_question">Dont\'t have an account?</string>
+    <string name="not_yet_registered_register">Sign Up!</string>
 
-    <string name="already_registered_question">You already have an account?</string>
-    <string name="already_registered_sign_in">Sign in here!</string>
+    <string name="already_registered_question">Have an Account?</string>
+    <string name="already_registered_sign_in">Sign in!</string>
 
     <string name="ok" translatable="false">OK</string>
 
@@ -108,6 +108,6 @@
     <string name="onboarding_3_txt1">enviroCar offers a variety of interactive analysis and visualisation tools, map products and APIs to answer these and similar questions.</string>
     <string name="onboarding_2_txt">Contribute your data to research studies. Help to jointly optimize the traffic flow and make mobility more sustainable</string>
     <string name="onboarding_txt2" >Upload your recorded tracks to help enrich the enviroCar community data store.
-enviroCar provides free & open access to the the community's anonymized tracks.</string>
+enviroCar provides free and open access to the the community\'s anonymized tracks.</string>
 
 </resources>

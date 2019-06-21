@@ -70,6 +70,7 @@ import org.envirocar.app.services.OBDConnectionService;
 import org.envirocar.app.views.LoginRegisterActivity;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
+import org.envirocar.app.views.onboarding.OnboardingActivity;
 import org.envirocar.app.views.recordingscreen.GPSOnlyTrackRecordingScreen;
 import org.envirocar.app.views.recordingscreen.OBDPlusGPSTrackRecordingScreen;
 import org.envirocar.app.views.utils.DialogUtils;
@@ -201,6 +202,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @BindView(R.id.fragment_startup_start_button_inner)
     protected TextView mStartStopButtonInner;
 
+    @BindView(R.id.btn_startOnboarding)
+    protected Button startOnboarding;
+
     private MaterialDialog mConnectingDialog;
 
     private final Scheduler.Worker mBackgroundWorker = Schedulers
@@ -293,6 +297,12 @@ public class DashBoardFragment extends BaseInjectorFragment {
     protected void onLoginInitiatorButtonClicked(){
         Intent intent = new Intent(getActivity(), LoginRegisterActivity.class);
         intent.putExtra("from","login");
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.btn_startOnboarding)
+    protected void onStartOnboardingClicked(){
+        Intent intent = new Intent(getActivity(), OnboardingActivity.class);
         startActivity(intent);
     }
 

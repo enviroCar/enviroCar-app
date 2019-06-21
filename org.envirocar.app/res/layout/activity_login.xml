@@ -52,12 +52,12 @@
         </androidx.appcompat.widget.Toolbar>
 
         <include
-            layout="@layout/activity_account_login_card"
-            android:visibility="gone"/>
+            layout="@layout/activity_account_login_card_new"
+            android:visibility="gone" />
 
         <include
-            layout="@layout/activity_account_register_card"
-            android:visibility="gone"/>
+            layout="@layout/activity_account_register_card_new"
+            android:visibility="gone" />
 
     </RelativeLayout>
 

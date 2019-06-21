@@ -2,20 +2,12 @@ package org.envirocar.app.views.onboarding;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.Constraints;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import android.animation.ArgbEvaluator;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -25,12 +17,12 @@ import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.main.BaseMainActivityBottomBar;
-import org.envirocar.app.views.dashboard.DashBoardFragment;
+import org.envirocar.app.views.LoginRegisterActivity;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class OnboardingActivity extends AppCompatActivity {
+public class OnboardingActivity extends AppCompatActivity implements OnboardingFragment4.OBButtonInterface {
 
     public static final String ONBOARDING_COMPLETE = "Onboarding_Complete";
 
@@ -86,7 +78,7 @@ public class OnboardingActivity extends AppCompatActivity {
         skipButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finishOnboarding();
+                viewPager.setCurrentItem(3);
             }
         });
 
@@ -137,8 +129,8 @@ public class OnboardingActivity extends AppCompatActivity {
     }
 
     protected void finishOnboarding(){
-        //PreferencesHandler.getSharedPreferences(getApplicationContext()).edit().putBoolean(ONBOARDING_COMPLETE,true).apply();
-        Intent main = new Intent(this, BaseMainActivityBottomBar.class);
+        PreferencesHandler.getSharedPreferences(getApplicationContext()).edit().putBoolean(ONBOARDING_COMPLETE,true).apply();
+        Intent main = new Intent(OnboardingActivity.this, BaseMainActivityBottomBar.class);
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         startActivity(main);
         finish();
@@ -155,5 +147,34 @@ public class OnboardingActivity extends AppCompatActivity {
         if(viewPager.getCurrentItem()!=0){
             viewPager.setCurrentItem(viewPager.getCurrentItem()-1);
         }
+    }
+
+    @Override
+    public void signInButtonPressed(){
+        PreferencesHandler.getSharedPreferences(getApplicationContext()).edit().putBoolean(ONBOARDING_COMPLETE,true).apply();
+        Intent main = new Intent(OnboardingActivity.this, LoginRegisterActivity.class);
+        main.putExtra("from","login");
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        startActivity(main);
+        finish();
+    }
+
+    @Override
+    public void signUpButtonPressed(){
+        PreferencesHandler.getSharedPreferences(getApplicationContext()).edit().putBoolean(ONBOARDING_COMPLETE,true).apply();
+        Intent main = new Intent(OnboardingActivity.this, LoginRegisterActivity.class);
+        main.putExtra("from","register");
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        startActivity(main);
+        finish();
+    }
+
+    @Override
+    public void skipButtonPressed(){
+        PreferencesHandler.getSharedPreferences(getApplicationContext()).edit().putBoolean(ONBOARDING_COMPLETE,true).apply();
+        Intent main = new Intent(OnboardingActivity.this, BaseMainActivityBottomBar.class);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        startActivity(main);
+        finish();
     }
 }

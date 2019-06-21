@@ -736,6 +736,19 @@ android:layout_height="match_parent">
 
             </androidx.cardview.widget.CardView>
 
+            <Button
+                android:id="@+id/btn_startOnboarding"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="12dp"
+                android:background="@drawable/btn_white"
+                android:fontFamily="@font/roboto_medium"
+                android:padding="11dp"
+                android:text="Start Onboarding"
+                android:textAllCaps="true"
+                android:textColor="#0065A0"
+                android:textSize="15sp" />
+
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
