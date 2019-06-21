@@ -86,10 +86,7 @@ public class OnboardingActivity extends AppCompatActivity implements OnboardingF
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(viewPager.getCurrentItem() == 2){
-                    //finishOnboarding();
-                }
-                else{
+                if(viewPager.getCurrentItem() < obPageAdapter.getCount()-1){
                     viewPager.setCurrentItem(viewPager.getCurrentItem()+1,true);
                 }
             }

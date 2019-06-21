@@ -478,16 +478,6 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
 
     @OnClick(R.id.activity_account_register_card_signin_button)
     protected void onSignInButtonClicked() {
-
-        SharedPreferences prefs = getApplicationContext().getSharedPreferences("userPrefs", MODE_PRIVATE);
-        if(prefs.contains("username") && prefs.contains("token")){
-            loginLayout.setVisibility(View.GONE);
-            loginErrorLayout.setVisibility(View.VISIBLE);
-        }
-        else{
-            loginErrorLayout.setVisibility(View.GONE);
-            loginLayout.setVisibility(View.INVISIBLE);
-        }
         // When the register button was clicked, then replace the login card with the
         // registration card.
         animateViewTransition(mRegisterLayout, R.anim.translate_slide_out_right_card, true);
