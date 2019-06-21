@@ -52,6 +52,8 @@
                 android:id="@+id/textView9"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
+                android:layout_marginTop="17dp"
+                android:layout_marginBottom="17dp"
                 android:fontFamily="@font/roboto_bold"
                 android:gravity="center"
                 android:text="@string/action_sign_up"
@@ -136,6 +138,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="6dp"
                     android:layout_marginRight="10dp"
+                    android:layout_marginBottom="5dp"
                     android:textColorHint="#809DB8">
 
                     <EditText

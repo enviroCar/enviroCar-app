@@ -22,6 +22,7 @@ import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Point;
 import android.os.Bundle;
 import com.google.android.material.snackbar.Snackbar;
@@ -38,7 +39,9 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
@@ -49,6 +52,7 @@ import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
@@ -82,6 +86,8 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
     
     @BindView(R.id.activity_account_login_card_layout)
     protected ConstraintLayout mLoginLayout;
+    @BindView(R.id.login_layout)
+    protected LinearLayout loginLayout;
     @BindView(R.id.activity_account_login_card_username_text)
     protected EditText mLoginUsername;
     @BindView(R.id.activity_account_login_card_password_text)
@@ -97,6 +103,11 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
     protected EditText mRegisterPassword;
     @BindView(R.id.activity_account_register_password2_input)
     protected EditText mRegisterPassword2;
+
+    @BindView(R.id.login_error_layout)
+    protected LinearLayout loginErrorLayout;
+    @BindView(R.id.login_error_dash)
+    protected Button loginErrorDash;
 
     @Inject
     protected UserHandler mUserManager;
@@ -446,6 +457,13 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
         }
     }
 
+    @OnClick(R.id.login_error_dash)
+    protected void onGoToDashboardClicked(){
+        Intent intent = new Intent(LoginRegisterActivity.this, BaseMainActivityBottomBar.class);
+        startActivity(intent);
+        finish();
+    }
+
     /**
      * OnClick annotated function that gets invoked when the register button on the login card
      * gets clicked.
@@ -460,6 +478,16 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
 
     @OnClick(R.id.activity_account_register_card_signin_button)
     protected void onSignInButtonClicked() {
+
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences("userPrefs", MODE_PRIVATE);
+        if(prefs.contains("username") && prefs.contains("token")){
+            loginLayout.setVisibility(View.GONE);
+            loginErrorLayout.setVisibility(View.VISIBLE);
+        }
+        else{
+            loginErrorLayout.setVisibility(View.GONE);
+            loginLayout.setVisibility(View.INVISIBLE);
+        }
         // When the register button was clicked, then replace the login card with the
         // registration card.
         animateViewTransition(mRegisterLayout, R.anim.translate_slide_out_right_card, true);

@@ -44,17 +44,65 @@
         app:layout_constraintTop_toTopOf="@+id/guideline4">
 
         <LinearLayout
+            android:id="@+id/login_error_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/imageView5"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginTop="25dp"
+                android:layout_marginBottom="8dp"
+                app:srcCompat="@drawable/login_eror" />
 
             <TextView
-                android:id="@+id/textView9"
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="18dp"
+                android:layout_marginRight="18dp"
+                android:fontFamily="@font/roboto_light"
+                android:gravity="center"
+                android:text="@string/login_user_already_signed_in"
+                android:textAllCaps="false"
+                android:textColor="#005089"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/login_error_dash"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/btn_white"
+                android:fontFamily="@font/roboto_medium"
+                android:gravity="center"
+                android:padding="10dp"
+                android:text="@string/login_go_to_dashboard"
+                android:textColor="#0065A0"
+                android:textSize="15sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/login_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
+                android:layout_marginTop="17dp"
+                android:layout_marginBottom="17dp"
                 android:fontFamily="@font/roboto_bold"
                 android:gravity="center"
-                android:text="@string/action_sign_up"
+                android:text="@string/action_sign_in_short"
                 android:textAllCaps="true"
                 android:textColor="#005089"
                 android:textSize="27sp" />
@@ -93,6 +141,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="11dp"
                     android:layout_marginRight="10dp"
+                    android:layout_marginBottom="5dp"
                     android:textColorHint="#809DB8">
 
                     <EditText
@@ -164,4 +213,5 @@
         app:layout_constraintBottom_toTopOf="@+id/guideline3"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="175dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
