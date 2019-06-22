@@ -45,6 +45,13 @@ public class CheckboxBaseAdapter extends BaseAdapter {
         return itemIndex;
     }
 
+    /**
+     * Sets all the fields of the ViewHolder and also sets the on click listener for the Checkbox
+     * @param itemIndex
+     * @param convertView
+     * @param viewGroup
+     * @return
+     */
     @Override
     public View getView(int itemIndex, View convertView, ViewGroup viewGroup) {
 

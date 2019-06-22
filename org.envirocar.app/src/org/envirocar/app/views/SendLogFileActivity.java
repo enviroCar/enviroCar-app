@@ -122,7 +122,6 @@ public class SendLogFileActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Report an Issue");
-        //hideKeyboard(getCurrentFocus());
 
         AsyncTask.execute(new Runnable() {
             @Override
@@ -171,6 +170,9 @@ public class SendLogFileActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * function to set the names for the checkboxes
+     */
     public void setCheckBoxes(){
         List<String> totalList = new ArrayList<>();
         totalList.addAll(subjectHeaders);
@@ -195,6 +197,9 @@ public class SendLogFileActivity extends AppCompatActivity {
         hideKeyboard(getCurrentFocus());
     }
 
+    /**
+     * @return true if at least one checkbox is ticked
+     */
     public boolean checkIfCheckboxSelected(){
 
         LOG.info("Checking checkboxes.");
@@ -212,6 +217,11 @@ public class SendLogFileActivity extends AppCompatActivity {
         return Boolean.FALSE;
     }
 
+    /**
+     * In case no checkbox has been ticked, a dialog is created urging the user to do so,
+     * else continue
+     * @param reportBundle
+     */
     public void createDialog(File reportBundle){
         AlertDialog.Builder builder = new AlertDialog.Builder(SendLogFileActivity.this);
         builder.setMessage("You have not selected any of the checkboxes. These help developers " +
@@ -267,6 +277,11 @@ public class SendLogFileActivity extends AppCompatActivity {
         getFragmentManager().popBackStack();
     }
 
+    /**
+     * Gets all the appropriate version names, for the app, the Android version and API
+     * Manufacturer and Model name of the phone
+     * @return the string containing all the above
+     */
     protected String getVersionNames(){
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Version Details\n");
@@ -295,6 +310,10 @@ public class SendLogFileActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * gets the current car and bluetooth adapter name
+     * @return the string with the data
+     */
     protected String getCarBluetoothNames(){
         StringBuilder stringBuilder = new StringBuilder();
         Car car = CarUtils.instantiateCar(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(PreferenceConstants
@@ -310,6 +329,10 @@ public class SendLogFileActivity extends AppCompatActivity {
         return stringBuilder.toString();
     }
 
+    /**
+     * finds the checkboxes which have been ticked and their tag names
+     * @return returns the string with the tags to be added to the subject line
+     */
     protected String createSubject(){
         StringBuilder subject = new StringBuilder();
         for(int i=0;i<subjectTags.size();i++)
@@ -323,6 +346,9 @@ public class SendLogFileActivity extends AppCompatActivity {
         return subject.toString();
     }
 
+    /**
+     * @return the string containing the body tags
+     */
     protected String createBodyTags(){
         StringBuilder bodyT = new StringBuilder();
         bodyT.append("Tags: ");
@@ -456,6 +482,10 @@ public class SendLogFileActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * used to make sure the list View is not cut off in the parent ScrollView
+     * @param listView
+     */
     public static void setListViewHeightBasedOnChildren(ListView listView) {
         ListAdapter listAdapter = listView.getAdapter();
         if (listAdapter == null)
@@ -477,6 +507,9 @@ public class SendLogFileActivity extends AppCompatActivity {
         listView.setLayoutParams(params);
     }
 
+    /**
+     * Gets the strings for the checkboxes and sets the adapter
+     */
     public void set(){
         checkBoxItems = new ArrayList<>();
         extraInfo = new String();
