@@ -4,9 +4,9 @@
     android:id="@android:id/text1"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
+    android:layout_margin="12dp"
     android:fontFamily="@font/roboto_medium"
     android:gravity="left"
-    android:padding="5dp"
+    android:padding="10dp"
     android:textColor="#A00065A0"
     android:textSize="20sp" />

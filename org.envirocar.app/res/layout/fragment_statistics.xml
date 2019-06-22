@@ -307,9 +307,10 @@
             <Spinner
                 android:id="@+id/stat_graph_spinner"
                 android:layout_width="250dp"
-                android:layout_height="35dp"
+                android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
+                android:layout_marginBottom="12dp"
                 android:entries="@array/stat_array" />
 
             <com.google.android.material.tabs.TabLayout

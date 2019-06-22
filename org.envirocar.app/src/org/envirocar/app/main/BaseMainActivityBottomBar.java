@@ -46,6 +46,7 @@ import org.envirocar.app.services.AutomaticTrackRecordingService;
 import org.envirocar.app.views.OthersFragment;
 import org.envirocar.app.views.TroubleshootingFragment;
 import org.envirocar.app.views.dashboard.DashBoardFragment;
+import org.envirocar.app.views.statistics.GraphFragment;
 import org.envirocar.app.views.statistics.StatisticsFragment;
 import org.envirocar.app.views.tracklist.TrackListPagerFragment;
 import org.envirocar.core.events.TrackFinishedEvent;

@@ -37,6 +37,7 @@ dependencies {
     implementation rootProject.ext.segmentedUIController
     implementation rootProject.ext.materialDialogs
     implementation 'com.diogobernardino:williamchart:2.5.0'
+    implementation "android.arch.lifecycle:extensions:1.1.1"
 
     //implementation rootProject.ext.guava
 //    implementation(materialDialogs) {

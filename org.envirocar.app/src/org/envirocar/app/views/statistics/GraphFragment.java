@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.db.chart.animation.Animation;
 import com.db.chart.model.LineSet;
@@ -24,6 +25,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
+import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
@@ -58,7 +60,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
-public class GraphFragment extends BaseInjectorFragment implements StatisticsFragment.SpinnerEventListener {
+public class GraphFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(GraphFragment.class);
 
     protected int position;
@@ -105,6 +107,7 @@ public class GraphFragment extends BaseInjectorFragment implements StatisticsFra
     protected TrackStatistics mTrackStatistics;
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private Unbinder unbinder;
+    private ChoiceViewModel choiceViewModel;
 
     public static Fragment getInstance(int position) {
         Bundle bundle = new Bundle();
@@ -124,6 +127,12 @@ public class GraphFragment extends BaseInjectorFragment implements StatisticsFra
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         position = getArguments().getInt("pos");
+        choiceViewModel = ViewModelProviders.of(this.getActivity()).get(ChoiceViewModel.class);
+
+        choiceViewModel.getSelectedOption().observe(this, item -> {
+            choice = item;
+            loadData();
+        });
     }
 
     @Nullable
@@ -133,6 +142,7 @@ public class GraphFragment extends BaseInjectorFragment implements StatisticsFra
         View view = inflater.inflate(R.layout.stat_fragment_graph, container, false);
         unbinder = ButterKnife.bind(this, view);
         mDAOProvider = new DAOProvider(getContext());
+        choice = 0;
         return view;
     }
 
@@ -148,14 +158,12 @@ public class GraphFragment extends BaseInjectorFragment implements StatisticsFra
         mWeek = c.get(Calendar.WEEK_OF_YEAR);
         begOfWeek = getWeekStartDate(c.getTime()).getDate();
         endOfWeek = getWeekEndDate(c.getTime()).getDate();
-        choice = 2;
         iteration = 0;
         setZeros();
         setLabels();
         setDateSelectorButton(c);
         loadData();
     }
-
 
     @Override
     public void onDestroyView() {
@@ -554,13 +562,6 @@ public class GraphFragment extends BaseInjectorFragment implements StatisticsFra
             c.set(mYear,mMonth,mDay);
         }
         setDateSelectorButton(c);
-        loadData();
-    }
-
-    @Override
-    public void itemClick(int dataChoice){
-        LOG.info(dataChoice + " received");
-        choice = dataChoice;
         loadData();
     }
 

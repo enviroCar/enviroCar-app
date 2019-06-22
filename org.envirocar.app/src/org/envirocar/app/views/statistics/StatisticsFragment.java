@@ -1,5 +1,6 @@
 package org.envirocar.app.views.statistics;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import android.view.LayoutInflater;
@@ -15,12 +16,14 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.widget.NestedScrollView;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
+import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
@@ -56,10 +59,6 @@ import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 public class StatisticsFragment extends BaseInjectorFragment implements AdapterView.OnItemSelectedListener{
-
-    public interface SpinnerEventListener {
-        void itemClick(int dataChoice);
-    }
 
     private static final Logger LOG = Logger.getLogger(StatisticsFragment.class);
     private static final DecimalFormat TWO_DIGITS_FORMATTER = new DecimalFormat("#.##");
@@ -139,8 +138,7 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
     protected Unbinder unbinder;
 
     private boolean isSorted = false;
-    protected final Object attachingActivityLock = new Object();
-    protected boolean isAttached = false;
+    private ChoiceViewModel choiceViewModel;
     private CompositeSubscription subscriptions ;
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     protected boolean tracksLoaded = false;
@@ -148,12 +146,10 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
     protected boolean trackStatsLoaded = false;
     protected List<Track> mTrackList = Collections.synchronizedList(new ArrayList<>());
     protected UserStatistics mUserStatistics;
-    protected GraphFragment graphFragment;
     protected TrackStatistics mTrackStatistics;
     Float trackAvgSpeed;
     Float trackAvgFuel;
 
-    protected SpinnerEventListener spinnerEventListener;
 
 
     public StatisticsFragment() {
@@ -170,6 +166,7 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        choiceViewModel = ViewModelProviders.of(this.getActivity()).get(ChoiceViewModel.class);
     }
 
     @Nullable
@@ -178,7 +175,6 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
                              @Nullable Bundle savedInstanceState) {
         View statView= inflater.inflate(R.layout.fragment_statistics, container, false);
         unbinder = ButterKnife.bind(this, statView);
-
         isUserSignedIn = mUserManager.isLoggedIn();
         ArrayAdapter spinnerAdapter = ArrayAdapter.createFromResource(getContext(),R.array.stat_array, R.layout.spinner_item);
 
@@ -536,7 +532,7 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
     @Override
     public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
         LOG.info("Item "+position+" clicked.");
-        //spinnerEventListener.itemClick(position);
+        choiceViewModel.setSelectedOption(position);
     }
 
     @Override
