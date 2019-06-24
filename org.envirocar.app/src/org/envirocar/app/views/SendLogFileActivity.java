@@ -84,6 +84,7 @@ public class SendLogFileActivity extends AppCompatActivity {
     private static final DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss", Locale.getDefault());
     private static final DateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
     private static final String PREFIX = "report-";
+    private static final String OTHER_DETAILS_PREFIX = "extra-info";
     private static final String EXTENSION = ".zip";
 
     @BindView(R.id.report_issue_header)
@@ -100,6 +101,8 @@ public class SendLogFileActivity extends AppCompatActivity {
     protected Button submitIssue;
     @BindView(R.id.report_issue_checkbox_list)
     protected ListView checkBoxListView;
+    @BindView(R.id.report_issue_other_file)
+    protected TextView otherFileLocation;
 
     @Inject
     protected CarPreferenceHandler mCarPrefHandler;
@@ -139,6 +142,7 @@ public class SendLogFileActivity extends AppCompatActivity {
             removeOldReportBundles();
 
             final File tmpBundle = createReportBundle();
+            final File otherFile = createVersionAndErrorDetailsFile();
             reportBundle = tmpBundle;
             if (reportBundle != null) {
                 LOG.info("Report Location: " + reportBundle.getAbsolutePath());
@@ -148,6 +152,11 @@ public class SendLogFileActivity extends AppCompatActivity {
                 locationText.setError("Error allocating report bundle.");
                 locationText.setText("An error occured while creating the report bundle. Please send in the logs available at " +
                         LocalFileHandler.effectiveFile.getParentFile().getAbsolutePath());
+            }
+            if(otherFile!=null){
+                otherFileLocation.setText(otherFile.getAbsolutePath());
+            } else {
+                LOG.info("Error creating the versions txt file.");
             }
             submitIssue.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -285,25 +294,18 @@ public class SendLogFileActivity extends AppCompatActivity {
     protected String getVersionNames(){
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append("Version Details\n");
-        String versionName;
-        try{
-            versionName = getApplicationContext().getPackageManager()
-                    .getPackageInfo(getApplicationContext().getPackageName(), 0).versionName;
-        }catch (Exception e){
-            versionName = "Unable to determine enviroCar version";
-            e.printStackTrace();
-        }
+        String versionName = Util.getVersionString(getBaseContext());
 
         String manufacturer = Build.MANUFACTURER;
         String model = Build.MODEL;
         int version = Build.VERSION.SDK_INT;
         String versionRelease = Build.VERSION.RELEASE;
 
-        stringBuilder.append("enviroCar Version: ");
+        stringBuilder.append("enviroCar : ");
         stringBuilder.append(versionName);
         stringBuilder.append("\n Manufacturer: " + manufacturer);
         stringBuilder.append("\n Model: " + model);
-        stringBuilder.append("\n Version: " + version);
+        stringBuilder.append("\n Android API Level: " + version);
         stringBuilder.append("\n Version Release: " + versionRelease);
         stringBuilder.append("\n");
         return  stringBuilder.toString();
@@ -420,6 +422,19 @@ public class SendLogFileActivity extends AppCompatActivity {
 
         Date date = new Date(now - delta * 1000 * 60);
         return SimpleDateFormat.getDateTimeInstance().format(date);
+    }
+
+
+    public File createVersionAndErrorDetailsFile() throws IOException{
+        File otherFile = Util.createFileOnExternalStorage(OTHER_DETAILS_PREFIX
+                + ".txt");
+        StringBuilder text = new StringBuilder();
+        text.append(createSubject());
+        text.append("\n");
+        text.append(createEmailContents());
+        Util.saveContentsToFile(text.toString(),otherFile);
+
+        return otherFile;
     }
 
     /**

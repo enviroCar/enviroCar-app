@@ -105,7 +105,7 @@
     <string name="report_issue_bottom_text">This feature uses the default \"Send To\" mechanism.
 	    If you invoke it with your Email client, you can easily send the report via email. If you do not have an Email client installed,
 	    you can save the log file on a PC, e.g. through Bluetooth or USB. \n\nIn such cases we appreciate sending
-	    in the reporting bundle manually. It is stored at the following location:</string>
+	    in the reporting bundle manually. They are stored at the following locations:</string>
     <string name="report_issue_desc_text">A more detailed description</string>
 
     <string-array name="report_issue_subject_header">
