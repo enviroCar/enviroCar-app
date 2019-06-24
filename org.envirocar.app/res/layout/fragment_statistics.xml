@@ -290,10 +290,11 @@
     <androidx.core.widget.NestedScrollView
         android:id="@+id/stat_scrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:fillViewport="false"
-        android:scrollbarStyle="outsideInset"
+        android:layout_height="0dp"
+        android:layout_marginTop="8dp"
+        android:fillViewport="true"
+        android:scrollbarStyle="insideOverlay"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
@@ -306,12 +307,13 @@
 
             <Spinner
                 android:id="@+id/stat_graph_spinner"
-                android:layout_width="250dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:layout_marginBottom="12dp"
-                android:entries="@array/stat_array" />
+                android:layout_marginRight="16dp"
+                android:entries="@array/stat_array"
+                android:gravity="center_horizontal"
+                android:padding="5dp" />
 
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/stat_tabLayout"
@@ -338,7 +340,7 @@
             <androidx.viewpager.widget.ViewPager
                 android:id="@+id/stat_viewPager"
                 android:layout_width="match_parent"
-                android:layout_height="400dp">
+                android:layout_height="500dp">
 
             </androidx.viewpager.widget.ViewPager>
 

@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import javax.inject.Inject;
@@ -504,13 +505,11 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
             else {
                 TracksCard.setVisibility(View.VISIBLE);
                 TrackwDate t = new TrackwDate();
-                t.getDateTime(mTrackList.get(0));
+                t.getDateTime(mTrackList.get(0),1);
 
                 Calendar c = Calendar.getInstance();
-                TimeZone tz = c.getTimeZone();
-                SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM dd, yyyy");
-                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm a");
-                timeFormat.setTimeZone(tz);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMMM dd, yyyy", Locale.getDefault());
+                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm a", Locale.getDefault());
                 LastTrackDate.setText(dateFormat.format(t.getDateObject()));
                 LastTrackTime.setText(timeFormat.format(t.getDateObject()));
 

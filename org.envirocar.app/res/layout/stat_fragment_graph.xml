@@ -37,12 +37,12 @@
         app:layout_constraintHorizontal_bias="0.496"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/stat_line_graph"
-        app:layout_constraintVertical_bias="0.279" />
+        app:layout_constraintVertical_bias="0.4" />
 
     <com.db.chart.view.LineChartView
         android:id="@+id/stat_line_graph"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="200dp"
         android:layout_marginTop="8dp"
         android:alwaysDrawnWithCache="true"
         android:padding="8dp"
@@ -57,8 +57,8 @@
         android:id="@+id/no_stats_img"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginBottom="4dp"
         android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/no_stats"
         app:layout_constraintEnd_toStartOf="@+id/stat_line_graph"

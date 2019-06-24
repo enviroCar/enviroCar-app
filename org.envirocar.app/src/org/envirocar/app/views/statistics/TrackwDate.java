@@ -7,6 +7,7 @@ import org.envirocar.core.entity.Track;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import static androidx.constraintlayout.widget.Constraints.TAG;
 
@@ -27,6 +28,18 @@ public class TrackwDate {
         track = mTrack;
         String dateS = track.getCreated();
         SimpleDateFormat dateFormatter=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        try {
+            date = dateFormatter.parse(dateS);
+        }catch (Exception e)
+        {
+            Log.d(TAG, "getDate: Error parsing date"+e.toString());
+        }
+    }
+
+    public void getDateTime(Track mTrack, int choice){
+        track = mTrack;
+        String dateS = track.getCreated();
+        SimpleDateFormat dateFormatter=new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault());
         try {
             date = dateFormatter.parse(dateS);
         }catch (Exception e)
