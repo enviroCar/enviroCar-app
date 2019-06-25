@@ -103,18 +103,16 @@ android:layout_height="match_parent">
                         android:text="-"
                         android:id="@+id/userLocalTrackCountTV"
                         android:textStyle="bold"
-                        android:textSize="22sp"
-                        />
+                        android:textSize="22sp" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:maxLines="1"
-                        android:ellipsize="end"
-                        android:text="@string/my_local_tracks"
-                        android:textSize="12sp"
-                        />
+                        android:singleLine="false"
+                        android:text="@string/dashboard_my_local_tracks"
+                        android:textSize="12sp" />
 
                 </LinearLayout>
 
@@ -141,8 +139,7 @@ android:layout_height="match_parent">
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:maxLines="1"
-                        android:ellipsize="end"
-                        android:text="@string/my_remote_tracks"
+                        android:text="@string/dashboard_my_remote_tracks"
                         android:textSize="12sp"
                         />
 
@@ -171,8 +168,7 @@ android:layout_height="match_parent">
                         android:layout_height="wrap_content"
                         android:layout_marginTop="6dp"
                         android:maxLines="1"
-                        android:ellipsize="end"
-                        android:text="@string/total_tracks"
+                        android:text="@string/dashboard_total_tracks"
                         android:textSize="12sp"
                         />
 
