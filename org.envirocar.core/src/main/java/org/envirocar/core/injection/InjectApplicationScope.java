@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.core.util;
+package org.envirocar.core.injection;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -28,5 +28,5 @@ import javax.inject.Qualifier;
  */
 @Qualifier
 @Retention(RetentionPolicy.RUNTIME)
-public @interface InjectionActivityScope {
+public @interface InjectApplicationScope {
 }
