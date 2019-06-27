@@ -108,8 +108,7 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO, TermsOfUse
 
             // check the response for success
             if (!touResponse.isSuccessful()) {
-                EnvirocarServiceUtils.assertStatusCode(touResponse.code(), touResponse
-                        .message());
+                EnvirocarServiceUtils.assertStatusCode(touResponse.code(), touResponse.message());
             }
 
             // Return the terms of use.
