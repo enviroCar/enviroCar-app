@@ -20,7 +20,7 @@
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="310dp"
-            android:layout_height="43dp"
+            android:layout_height="46dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:src="@drawable/img_envirocar_logo_white"
@@ -35,7 +35,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.32" />
+            app:layout_constraintGuide_percent="0.27" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
@@ -59,7 +59,8 @@
                 android:layout_height="match_parent"
                 android:visibility="visible"
                 tools:layout_editor_absoluteX="0dp"
-                tools:layout_editor_absoluteY="83dp">
+                tools:layout_editor_absoluteY="83dp"
+                tools:visibility="visible">
 
                 <ImageView
                     android:id="@+id/dashBoardUserImageView"
@@ -79,23 +80,12 @@
                     android:layout_marginStart="24dp"
                     android:layout_marginLeft="24dp"
                     android:fontFamily="@font/roboto_medium"
+                    android:text="User Name"
                     android:textColor="#000000"
-                    android:textSize="15sp"
+                    android:textSize="22sp"
                     app:layout_constraintBottom_toBottomOf="@+id/dashBoardUserImageView"
                     app:layout_constraintStart_toEndOf="@+id/dashBoardUserImageView"
                     app:layout_constraintTop_toTopOf="@+id/dashBoardUserImageView" />
-
-                <TextView
-                    android:id="@+id/userLoggedInDate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginEnd="24dp"
-                    android:layout_marginRight="24dp"
-                    android:fontFamily="@font/roboto_medium"
-                    android:text="TextView"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
 
                 <LinearLayout
                     android:id="@+id/userStatisticsContainer"
@@ -109,19 +99,23 @@
                     app:layout_constraintTop_toBottomOf="@+id/dashBoardUserName">
 
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_weight="1"
+                        android:layout_marginLeft="8dp"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="5dp">
+                        android:padding="5dp"
+                        tools:layout_conversion_absoluteHeight="62dp"
+                        tools:layout_conversion_absoluteWidth="106dp"
+                        tools:layout_editor_absoluteX="45dp"
+                        tools:layout_editor_absoluteY="175dp">
 
                         <TextView
                             android:id="@+id/userLocalTrackCountTV"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="-"
+                            android:textColor="#000000"
                             android:textSize="22sp"
                             android:textStyle="bold" />
 
@@ -130,26 +124,30 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
                             android:maxLines="1"
-                            android:singleLine="false"
+                            android:singleLine="true"
                             android:text="@string/dashboard_my_local_tracks"
                             android:textSize="12sp" />
 
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginRight="8dp"
-                        android:layout_weight="1"
+                        android:layout_marginLeft="8dp"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="5dp">
+                        android:padding="5dp"
+                        tools:layout_conversion_absoluteHeight="62dp"
+                        tools:layout_conversion_absoluteWidth="118dp"
+                        tools:layout_editor_absoluteX="158dp"
+                        tools:layout_editor_absoluteY="175dp">
 
                         <TextView
                             android:id="@+id/userUploadedTrackCountTV"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="-"
+                            android:textColor="#000000"
                             android:textSize="22sp"
                             android:textStyle="bold" />
 
@@ -158,24 +156,29 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
                             android:maxLines="1"
+                            android:singleLine="true"
                             android:text="@string/dashboard_my_remote_tracks"
                             android:textSize="12sp" />
 
                     </LinearLayout>
 
                     <LinearLayout
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
                         android:gravity="center"
                         android:orientation="vertical"
-                        android:padding="5dp">
+                        android:padding="5dp"
+                        tools:layout_conversion_absoluteHeight="62dp"
+                        tools:layout_conversion_absoluteWidth="85dp"
+                        tools:layout_editor_absoluteX="284dp"
+                        tools:layout_editor_absoluteY="175dp">
 
                         <TextView
                             android:id="@+id/userGlobalTrackCountTV"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="-"
+                            android:textColor="#000000"
                             android:textSize="22sp"
                             android:textStyle="bold" />
 
@@ -184,6 +187,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
                             android:maxLines="1"
+                            android:singleLine="true"
                             android:text="@string/dashboard_total_tracks"
                             android:textSize="12sp" />
 
@@ -206,10 +210,10 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/btn_outline"
                     android:fontFamily="@font/roboto_medium"
-                    android:paddingLeft="24dp"
-                    android:paddingTop="10dp"
-                    android:paddingRight="24dp"
-                    android:paddingBottom="10dp"
+                    android:paddingLeft="30dp"
+                    android:paddingTop="12dp"
+                    android:paddingRight="30dp"
+                    android:paddingBottom="12dp"
                     android:text="@string/action_sign_in_short"
                     android:textColor="#000000"
                     android:textSize="16sp"
@@ -225,10 +229,10 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/btn_outline"
                     android:fontFamily="@font/roboto_medium"
-                    android:paddingLeft="24dp"
-                    android:paddingTop="10dp"
-                    android:paddingRight="24dp"
-                    android:paddingBottom="10dp"
+                    android:paddingLeft="30dp"
+                    android:paddingTop="12dp"
+                    android:paddingRight="30dp"
+                    android:paddingBottom="12dp"
                     android:text="@string/action_sign_in_register"
                     android:textColor="#000000"
                     android:textSize="16sp"
@@ -242,7 +246,7 @@
                     android:id="@+id/noUserDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="16dp"
                     android:layout_marginEnd="24dp"
                     android:layout_marginRight="24dp"
                     android:fontFamily="@font/roboto_medium"
@@ -272,18 +276,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.82" />
+            app:layout_constraintGuide_percent="0.78" />
 
         <Button
             android:id="@+id/GPSOnlySegmentedButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="4dp"
+            android:layout_marginBottom="3dp"
             android:background="@android:color/transparent"
             android:fontFamily="@font/roboto_medium"
-            android:paddingLeft="18dp"
+            android:paddingLeft="20dp"
             android:paddingTop="14dp"
-            android:paddingRight="18dp"
+            android:paddingRight="20dp"
             android:paddingBottom="6dp"
             android:text="GPS Only"
             android:textColor="#000000"
@@ -300,9 +304,9 @@
             android:background="@android:color/transparent"
             android:fontFamily="@font/roboto_medium"
             android:gravity="center"
-            android:paddingLeft="18dp"
+            android:paddingLeft="20dp"
             android:paddingTop="14dp"
-            android:paddingRight="18dp"
+            android:paddingRight="20dp"
             android:paddingBottom="6dp"
             android:text="OBD + GPS"
             android:textColor="#000000"
@@ -316,7 +320,7 @@
         <TextView
             android:id="@+id/obdGPSIndicator"
             android:layout_width="0dp"
-            android:layout_height="1.5dp"
+            android:layout_height="2.5dp"
             android:layout_marginStart="2dp"
             android:layout_marginLeft="2dp"
             android:layout_marginEnd="2dp"
@@ -329,7 +333,7 @@
         <TextView
             android:id="@+id/GPSIndicator"
             android:layout_width="0dp"
-            android:layout_height="1.5dp"
+            android:layout_height="2.5dp"
             android:layout_marginStart="2dp"
             android:layout_marginLeft="2dp"
             android:layout_marginEnd="2dp"
@@ -346,7 +350,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.40" />
+        app:layout_constraintGuide_percent="0.46" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="0dp"
@@ -378,17 +382,16 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <LinearLayout
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/buttonBanner"
                 android:layout_width="match_parent"
                 android:layout_height="60dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
                 android:gravity="center"
-                android:orientation="horizontal"
                 android:weightSum="4"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -399,10 +402,16 @@
                     android:id="@+id/bannerBluetoothContainer"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginLeft="16dp"
                     android:gravity="center_horizontal|center_vertical"
                     android:orientation="vertical"
-                    android:visibility="visible">
+                    android:visibility="visible"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/bannerOBDAdapterContainer"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <FrameLayout
                         android:layout_width="wrap_content"
@@ -448,10 +457,12 @@
                     android:id="@+id/bannerOBDAdapterContainer"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:gravity="center_horizontal|center_vertical"
                     android:orientation="vertical"
-                    android:visibility="visible">
+                    android:visibility="visible"
+                    app:layout_constraintEnd_toStartOf="@+id/bannerGPSContainer"
+                    app:layout_constraintStart_toEndOf="@+id/bannerBluetoothContainer"
+                    app:layout_constraintTop_toTopOf="@+id/bannerBluetoothContainer">
 
                     <FrameLayout
                         android:layout_width="wrap_content"
@@ -496,9 +507,11 @@
                     android:id="@+id/bannerGPSContainer"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:gravity="center_horizontal|center_vertical"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toStartOf="@+id/bannerCarContainer"
+                    app:layout_constraintStart_toEndOf="@+id/bannerOBDAdapterContainer"
+                    app:layout_constraintTop_toTopOf="@+id/bannerOBDAdapterContainer">
 
                     <FrameLayout
                         android:layout_width="wrap_content"
@@ -544,9 +557,11 @@
                     android:id="@+id/bannerCarContainer"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
                     android:gravity="center_horizontal|center_vertical"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/bannerGPSContainer"
+                    app:layout_constraintTop_toTopOf="@+id/bannerGPSContainer">
 
                     <FrameLayout
                         android:layout_width="wrap_content"
@@ -588,7 +603,7 @@
 
                 </LinearLayout>
 
-            </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/frameLayout"
@@ -605,10 +620,10 @@
                     android:id="@+id/obdPlusGPSSettingsContainer"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginRight="24dp"
                     android:visibility="visible"
                     app:cardBackgroundColor="@android:color/transparent"
                     app:cardCornerRadius="2dp"
@@ -656,10 +671,11 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="28dp"
                                 android:layout_marginLeft="28dp"
+                                android:fontFamily="@font/roboto"
                                 android:singleLine="true"
                                 android:text="Car Attributes"
                                 android:textColor="#000000"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toEndOf="@+id/imageView3"
                                 app:layout_constraintTop_toBottomOf="@+id/dash_board_view_obd_selection_text1" />
@@ -668,10 +684,11 @@
                                 android:id="@+id/dash_board_view_obd_selection_text1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="@font/roboto_medium"
                                 android:singleLine="true"
                                 android:text="No OBD Device Selected"
                                 android:textColor="#000000"
-                                android:textSize="16sp"
+                                android:textSize="18sp"
                                 app:layout_constraintBottom_toTopOf="@+id/dash_board_view_obd_selection_text2"
                                 app:layout_constraintStart_toStartOf="@+id/dash_board_view_obd_selection_text2"
                                 app:layout_constraintTop_toTopOf="parent" />
@@ -705,10 +722,11 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="28dp"
                                 android:layout_marginLeft="28dp"
+                                android:fontFamily="@font/roboto"
                                 android:singleLine="true"
                                 android:text="Car Attributes"
                                 android:textColor="#000000"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toEndOf="@+id/imageView4"
                                 app:layout_constraintTop_toBottomOf="@+id/dash_board_view_car_selection_text1" />
@@ -717,10 +735,11 @@
                                 android:id="@+id/dash_board_view_car_selection_text1"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="@font/roboto_medium"
                                 android:singleLine="true"
                                 android:text="Manufacturer + Model"
                                 android:textColor="#000000"
-                                android:textSize="16sp"
+                                android:textSize="18sp"
                                 app:layout_constraintBottom_toTopOf="@+id/dash_board_view_car_selection_text2"
                                 app:layout_constraintStart_toStartOf="@+id/dash_board_view_car_selection_text2"
                                 app:layout_constraintTop_toTopOf="parent" />
@@ -734,17 +753,20 @@
                     android:id="@+id/GPSOnlySettingsContainer"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:layout_marginRight="16dp"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginLeft="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginRight="24dp"
                     android:visibility="gone"
                     app:cardBackgroundColor="@android:color/transparent"
                     app:cardCornerRadius="2dp"
                     app:cardElevation="0dp"
                     app:cardUseCompatPadding="true"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent">
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
 
                     <LinearLayout
@@ -779,10 +801,11 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="28dp"
                                 android:layout_marginLeft="28dp"
+                                android:fontFamily="@font/roboto"
                                 android:singleLine="true"
                                 android:text="Please turn on location services"
                                 android:textColor="#000000"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toEndOf="@+id/imageView6"
                                 app:layout_constraintTop_toBottomOf="@+id/gpsOnlyGPSSelectedHeader" />
@@ -791,10 +814,11 @@
                                 android:id="@+id/gpsOnlyGPSSelectedHeader"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="@font/roboto_medium"
                                 android:singleLine="true"
                                 android:text="GPS Not Turned On"
                                 android:textColor="#000000"
-                                android:textSize="16sp"
+                                android:textSize="18sp"
                                 app:layout_constraintBottom_toTopOf="@+id/gpsOnlyGPSSelectedSubHeader"
                                 app:layout_constraintStart_toStartOf="@+id/gpsOnlyGPSSelectedSubHeader"
                                 app:layout_constraintTop_toTopOf="parent" />
@@ -816,8 +840,8 @@
                                 android:layout_height="28dp"
                                 android:layout_gravity="center"
                                 android:layout_marginLeft="@dimen/spacing_large"
-                                android:alpha="@dimen/fab_margin_16"
-                                android:src="@drawable/ic_drive_eta_black_24dp"
+                                android:src="@drawable/img_car"
+                                android:tint="@color/common_google_signin_btn_text_dark_focused"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toStartOf="parent"
                                 app:layout_constraintTop_toTopOf="parent" />
@@ -828,10 +852,11 @@
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="28dp"
                                 android:layout_marginLeft="28dp"
+                                android:fontFamily="@font/roboto"
                                 android:singleLine="true"
                                 android:text="Car Attributes"
                                 android:textColor="#000000"
-                                android:textSize="12sp"
+                                android:textSize="14sp"
                                 app:layout_constraintBottom_toBottomOf="parent"
                                 app:layout_constraintStart_toEndOf="@+id/imageView5"
                                 app:layout_constraintTop_toBottomOf="@+id/gpsOnlyCarSelectedHeader" />
@@ -840,10 +865,11 @@
                                 android:id="@+id/gpsOnlyCarSelectedHeader"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="@font/roboto_medium"
                                 android:singleLine="true"
                                 android:text="Manufacturer + Model"
                                 android:textColor="#000000"
-                                android:textSize="16sp"
+                                android:textSize="18sp"
                                 app:layout_constraintBottom_toTopOf="@+id/gpsOnlyCarSelectedSubHeader"
                                 app:layout_constraintStart_toStartOf="@+id/gpsOnlyCarSelectedSubHeader"
                                 app:layout_constraintTop_toTopOf="parent" />

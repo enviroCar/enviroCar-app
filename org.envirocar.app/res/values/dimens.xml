@@ -50,6 +50,6 @@
     <dimen name="fab_margin_16">0dp</dimen>
     <dimen name="fab_margin_download_button_top">16dp</dimen>
 
-    <dimen name="dashboard_selector">55dp</dimen>
+    <dimen name="dashboard_selector">57dp</dimen>
 
 </resources>

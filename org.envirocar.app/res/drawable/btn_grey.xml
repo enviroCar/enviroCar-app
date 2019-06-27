@@ -3,14 +3,14 @@
     <item>
         <shape>
             <solid
-                android:color="#8099DAF2"/>
+                android:color="#E1E1E1"/>
             <corners
                 android:radius="30dp" />
             <padding
-                android:left="8dp"
-                android:top="8dp"
-                android:right="8dp"
-                android:bottom="8dp" />
+                android:left="3dp"
+                android:top="3dp"
+                android:right="3dp"
+                android:bottom="3dp" />
         </shape>
     </item>
 </selector>
