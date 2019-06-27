@@ -58,7 +58,7 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO, TermsOfUse
 
     @Override
     public TermsOfUse getTermsOfUse(String id) throws DataRetrievalFailureException {
-        LOG.info(String.format("getTermsOfUseInstance(%s)", id));
+        LOG.info("getTermsOfUseInstance(%s)", id);
 
         // Get the remoteService and initiate the call.
         final TermsOfUseService touService = EnviroCarService.getTermsOfUseService();
@@ -89,8 +89,8 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO, TermsOfUse
     }
 
     @Override
-    public Observable<TermsOfUse> getTermsOfUseObservable(String id) {
-        return null;
+    public Observable<TermsOfUse> getTermsOfUseObservable(String id){
+        return wrapObservableHandling(() -> getTermsOfUse(id));
     }
 
     @Override
@@ -121,16 +121,7 @@ public class RemoteTermsOfUseDAO extends BaseRemoteDAO<TermsOfUseDAO, TermsOfUse
 
     @Override
     public Observable<List<TermsOfUse>> getAllTermsOfUseObservable() {
-        return Observable.create(new Observable.OnSubscribe<List<TermsOfUse>>() {
-            @Override
-            public void call(Subscriber<? super List<TermsOfUse>> subscriber) {
-                try {
-                    subscriber.onNext(getAllTermsOfUse());
-                } catch (DataRetrievalFailureException e) {
-                    subscriber.onError(e);
-                }
-            }
-        });
+        return wrapObservableHandling(() -> getAllTermsOfUse());
     }
 
 
