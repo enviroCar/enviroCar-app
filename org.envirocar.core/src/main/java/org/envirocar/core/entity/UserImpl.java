@@ -28,6 +28,8 @@ import org.envirocar.core.util.VersionRange;
 public class UserImpl implements User {
 
     protected String username;
+    protected String firstName;
+    protected String lastName;
     protected String token;
     protected String mail;
     protected String touVersion;
@@ -65,6 +67,32 @@ public class UserImpl implements User {
     @Override
     public String getUsername() {
         return username;
+    }
+
+    @Override
+    public String getName() {
+        String name = this.getFirstName() + " " + this.getLastName();
+        return name;
+    }
+
+    @Override
+    public String getFirstName() {
+        return firstName;
+    }
+
+    @Override
+    public String getLastName() {
+        return lastName;
+    }
+
+    @Override
+    public void setFirstName(String FirstName) {
+        this.firstName = FirstName;
+    }
+
+    @Override
+    public void setLastName(String LastName) {
+        this.lastName = LastName;
     }
 
     @Override
