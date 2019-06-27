@@ -20,7 +20,7 @@ package org.envirocar.app.handler;
 
 import android.content.Context;
 
-import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
 

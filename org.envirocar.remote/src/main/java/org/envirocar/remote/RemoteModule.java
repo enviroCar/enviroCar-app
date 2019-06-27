@@ -34,7 +34,7 @@ import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserStatistics;
-import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.remote.serializer.AnnouncementSerializer;
 import org.envirocar.remote.serializer.CarListDeserializer;
 import org.envirocar.remote.serializer.CarSerializer;
