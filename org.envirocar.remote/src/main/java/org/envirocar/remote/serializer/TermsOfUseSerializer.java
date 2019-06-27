@@ -53,28 +53,6 @@ public class TermsOfUseSerializer implements JsonSerializer<TermsOfUse>,
     public TermsOfUse deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext
             context) throws JsonParseException {
 
-        //        // Get the root element of the terms of use array.
-        //        JsonArray termsOfUseArray = json.getAsJsonObject()
-        //                .get(TermsOfUse.KEY_TERMSOFUSE)
-        //                .getAsJsonArray();
-        //
-        //        // Get all the instances of the terms of use.
-        //        List<TermsOfUse> instances = Lists.newArrayList();
-        //        for (int i = 0; i < termsOfUseArray.size(); i++) {
-        //            // Get the values of the terms of use.
-        //            JsonObject termsOfUseObject = termsOfUseArray.get(i).getAsJsonObject();
-        //            String id = termsOfUseObject.get(TermsOfUse.KEY_TERMSOFUSE_ID).getAsString();
-        //            String issuedDate = termsOfUseObject.get(TermsOfUse.KEY_TERMSOFUSE_ISSUEDDATE)
-        //                    .getAsString();
-        //
-        //            // add the terms of use instance to the arraylist.
-        //            instances.add(new TermsOfUse(id, issuedDate));
-        //        }
-        //
-        //        // Return a terms of use holder that holds all the intances of the terms of use.
-        //        return new TermsOfUse(instances);
-
-
         // Get the values of the terms of use.
         JsonObject termsOfUseObject = json.getAsJsonObject();
         String id = termsOfUseObject.get(TermsOfUse.KEY_TERMSOFUSE_ID).getAsString();
@@ -94,6 +72,5 @@ public class TermsOfUseSerializer implements JsonSerializer<TermsOfUse>,
 
         return result;
     }
-
 
 }
