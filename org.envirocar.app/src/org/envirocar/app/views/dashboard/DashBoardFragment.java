@@ -31,6 +31,8 @@ import android.provider.Settings;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import com.google.android.material.snackbar.Snackbar;
+
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.cardview.widget.CardView;
 import android.util.Log;
@@ -42,8 +44,6 @@ import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -83,6 +83,10 @@ import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.InjectionActivityScope;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 import javax.inject.Inject;
 
@@ -124,13 +128,15 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @BindView(R.id.userStatisticsContainer)
     protected LinearLayout userStatisticsContainer;
     @BindView(R.id.userLoginSignupButtonContainer)
-    protected LinearLayout userLoginSignupButtonContainer;
+    protected ConstraintLayout userLoginSignupButtonContainer;
     @BindView(R.id.userLocalTrackCountTV)
     protected TextView userLocalTrackCountTV;
     @BindView(R.id.userUploadedTrackCountTV)
     protected TextView userUploadedTrackCountTV;
     @BindView(R.id.userGlobalTrackCountTV)
     protected TextView userGlobalTrackCountTV;
+    @BindView(R.id.noUserDate)
+    protected TextView noUserDate;
     @BindView(R.id.signInInitiatorButton)
     protected Button signInInitiatorButton;
     @BindView(R.id.registerInitiatorButton)
@@ -171,35 +177,43 @@ public class DashBoardFragment extends BaseInjectorFragment {
     protected LinearLayout disableChangingParametersLayout;
 
     @BindView(R.id.dash_board_view_car_selection)
-    protected RelativeLayout mCarTypeView;
+    protected ConstraintLayout mCarTypeView;
     @BindView(R.id.dash_board_view_car_selection_text1)
     protected TextView mCarTypeTextView;
     @BindView(R.id.dash_board_view_car_selection_text2)
     protected TextView mCarTypeSubTextView;
 
     @BindView(R.id.gpsOnlyCarSelectedLayout)
-    protected RelativeLayout mGPSOnlyCarTypeView;
+    protected ConstraintLayout mGPSOnlyCarTypeView;
     @BindView(R.id.gpsOnlyCarSelectedHeader)
     protected TextView mGPSOnlyCarTypeTextView;
     @BindView(R.id.gpsOnlyCarSelectedSubHeader)
     protected TextView mGPSOnlyCarTypeSubTextView;
 
     @BindView(R.id.dashboard_view_obd_selection)
-    protected RelativeLayout mOBDTypeView;
+    protected ConstraintLayout mOBDTypeView;
     @BindView(R.id.dash_board_view_obd_selection_text1)
     protected TextView mOBDTypeTextView;
     @BindView(R.id.dash_board_view_obd_selection_text2)
     protected TextView mOBDTypeSubTextView;
-    @BindView(R.id.dashboardSegmentedGroup)
+    //@BindView(R.id.dashboardSegmentedGroup)
     protected SegmentedGroup dashboardSegmentedGroup;
+    @BindView(R.id.obdPlusGPSSegmentedButton)
+    protected Button obdPlusGPSSegmentedButton;
+    @BindView(R.id.GPSOnlySegmentedButton)
+    protected Button GPSOnlySegmentedButton;
+    @BindView(R.id.obdGPSIndicator)
+    protected TextView obdGPSIndicator;
+    @BindView(R.id.GPSIndicator)
+    protected TextView GPSIndicator;
     @BindView(R.id.obdPlusGPSSettingsContainer)
     protected CardView obdPlusGPSSettingsContainer;
     @BindView(R.id.GPSOnlySettingsContainer)
     protected CardView GPSOnlySettingsContainer;
-    @BindView(R.id.fragment_startup_start_button)
-    protected View mStartStopButton;
+    //@BindView(R.id.fragment_startup_start_button)
+    //protected View mStartStopButton;
     @BindView(R.id.fragment_startup_start_button_inner)
-    protected TextView mStartStopButtonInner;
+    protected Button mStartStopButtonInner;
 
     private MaterialDialog mConnectingDialog;
 
@@ -233,7 +247,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         // First inflate the general dashboard view.
-        View contentView = inflater.inflate(R.layout.fragment_dashboard_view, container, false);
+        View contentView = inflater.inflate(R.layout.fragment_dashboard_view_new, container, false);
 
         ButterKnife.bind(this,contentView);
         userLocalTrackCountTV.setText(PreferencesHandler.getLocalTrackCount(getActivity()) + " ");
@@ -256,30 +270,30 @@ public class DashBoardFragment extends BaseInjectorFragment {
         setCarTypeText(mCarPrefHandler.getCar());
         setOBDTypeText(mBluetoothHandler.getSelectedBluetoothDevice());
 
-        dashboardSegmentedGroup.setOnCheckedChangeListener((radioGroup, i) -> {
-
-            switch (i) {
-                case R.id.obdPlusGPSSegmentedButton:
-                    DashBoardFragment.this.showOBDPlusGPSSettings();
-                    PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(), 1);
-                    trackType = 1;
-                    DashBoardFragment.this.updateStartStopButtonOBDPlusGPS(OBDRecordingService.CURRENT_SERVICE_STATE);
-                    break;
-                case R.id.GPSOnlySegmentedButton:
-                    DashBoardFragment.this.showGPSOnlySettings();
-                    PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(), 2);
-                    trackType = 2;
-                    DashBoardFragment.this.updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
-                    DashBoardFragment.this.updateBannerForGPSOnlyType();
-                    break;
-                default:
-                    break;
-            }
+        obdPlusGPSSegmentedButton.setOnClickListener(v->{
+            trackType = 1;
+            checkTrackTypeAndSet();
         });
 
+        GPSOnlySegmentedButton.setOnClickListener(v->{
+            trackType = 2;
+            checkTrackTypeAndSet();
+        });
+
+        checkTrackTypeAndSet();
+        setDate();
+
         if(!PreferencesHandler.getEnableGPSBasedTrackRecording(context)){
-            dashboardSegmentedGroup.check( R.id.obdPlusGPSSegmentedButton);
-            dashboardSegmentedGroup.setVisibility(GONE);
+            trackType = 1;
+            checkTrackTypeAndSet();
+            obdPlusGPSSegmentedButton.setVisibility(GONE);
+            GPSOnlySegmentedButton.setVisibility(GONE);
+            //dashboardSegmentedGroup.check( R.id.obdPlusGPSSegmentedButton);
+            //dashboardSegmentedGroup.setVisibility(GONE);
+        }
+        else{
+            obdPlusGPSSegmentedButton.setVisibility(View.VISIBLE);
+            GPSOnlySegmentedButton.setVisibility(View.VISIBLE);
         }
 
         if(!checkStoragePermissions())
@@ -287,6 +301,37 @@ public class DashBoardFragment extends BaseInjectorFragment {
             requestStoragePermissions();
         }
         return contentView;
+    }
+
+    protected void checkTrackTypeAndSet(){
+        switch (trackType) {
+            case 1:
+                DashBoardFragment.this.showOBDPlusGPSSettings();
+                PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(), 1);
+                trackType = 1;
+                DashBoardFragment.this.updateStartStopButtonOBDPlusGPS(OBDRecordingService.CURRENT_SERVICE_STATE);
+                obdGPSIndicator.setVisibility(View.VISIBLE);
+                GPSIndicator.setVisibility(GONE);
+                break;
+            case 2:
+                DashBoardFragment.this.showGPSOnlySettings();
+                PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(), 2);
+                trackType = 2;
+                DashBoardFragment.this.updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
+                DashBoardFragment.this.updateBannerForGPSOnlyType();
+                obdGPSIndicator.setVisibility(GONE);
+                GPSIndicator.setVisibility(View.VISIBLE);
+                break;
+            default:
+                break;
+        }
+    }
+
+    protected void setDate(){
+        Calendar c = Calendar.getInstance();
+        Date date = c.getTime();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM yyyy");
+        noUserDate.setText(simpleDateFormat.format(date));
     }
 
     @OnClick(R.id.signInInitiatorButton)
@@ -356,7 +401,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
         startActivity(intent);
     }
 
-    @OnClick(R.id.fragment_startup_start_button)
+    @OnClick(R.id.fragment_startup_start_button_inner)
     public void onStartStopButtonClicked() {
         switch (trackType) {
             case 1:
@@ -402,17 +447,16 @@ public class DashBoardFragment extends BaseInjectorFragment {
     }
 
     private void updateSegmentedView(){
-        RadioButton obdRadioButton = dashboardSegmentedGroup.findViewById(R.id.obdPlusGPSSegmentedButton);
-        RadioButton gpsRadioButton = dashboardSegmentedGroup.findViewById(R.id.GPSOnlySegmentedButton);
-
         //index 1 means OBD + GPS recording type
         //index 2 means GPS only recording type
         if(PreferencesHandler.getPreviouslySelectedRecordingType(context.getApplicationContext()) == 1){
-            obdRadioButton.setChecked(true);
+            obdGPSIndicator.setVisibility(View.VISIBLE);
+            GPSIndicator.setVisibility(GONE);
             showOBDPlusGPSSettings();
             trackType = 1;
         }else{
-            gpsRadioButton.setChecked(true);
+            obdGPSIndicator.setVisibility(GONE);
+            GPSIndicator.setVisibility(View.VISIBLE);
             showGPSOnlySettings();
             trackType = 2;
         }
@@ -615,7 +659,10 @@ public class DashBoardFragment extends BaseInjectorFragment {
             userStatisticsContainer.setVisibility(View.VISIBLE);
             userLoginSignupButtonContainer.setVisibility(GONE);
 
-            dashBoardUserName.setText(mUserManager.getUser().getUsername());
+            if(mUserManager.getUser().getFirstName()==null)
+                dashBoardUserName.setText(mUserManager.getUser().getUsername());
+            else
+                dashBoardUserName.setText(mUserManager.getUser().getName());
 
             // update the local track count.
             mTrackDAOHandler.getLocalTrackCount()
@@ -835,8 +882,8 @@ public class DashBoardFragment extends BaseInjectorFragment {
         okImageBluetooth.setVisibility(GONE);
         okImageOBDAdapter.setVisibility(GONE);
 
-        bannerBluetoothContainer.setAlpha(0.5f);
-        bannerOBDAdapterContainer.setAlpha(0.5f);
+        bannerBluetoothContainer.setVisibility(GONE);
+        bannerOBDAdapterContainer.setVisibility(GONE);
 
         if(!mLocationHandler.isGPSEnabled()){
             errorImageGPS.setVisibility(View.VISIBLE);
@@ -857,8 +904,8 @@ public class DashBoardFragment extends BaseInjectorFragment {
     }
 
     private void updateBannerForOBDPlusGPSType(){
-        bannerBluetoothContainer.setAlpha(1f);
-        bannerOBDAdapterContainer.setAlpha(1f);
+        bannerBluetoothContainer.setVisibility(View.VISIBLE);
+        bannerOBDAdapterContainer.setVisibility(View.VISIBLE);
         if(!mBluetoothHandler.isBluetoothEnabled()){
             errorImageBluetooth.setVisibility(View.VISIBLE);
             okImageBluetooth.setVisibility(GONE);
@@ -901,28 +948,28 @@ public class DashBoardFragment extends BaseInjectorFragment {
             case SERVICE_STOPPED:
                 disableChangingParametersLayout.setVisibility(GONE);
                 if (hasSettingsSelectedFOROBD()) {
-                    updateStartStopButton(getResources().getColor(R.color.green_dark_cario),
+                    updateStartStopButton(R.drawable.btn_dark,
                             getString(R.string.dashboard_start_track), true);
                 } else {
-                    updateStartStopButton(Color.GRAY,
+                    updateStartStopButton(R.drawable.btn_grey,
                             getString(R.string.dashboard_start_track), false);
                 }
                 break;
             case SERVICE_STARTED:
                 disableChangingParametersLayout.setVisibility(View.VISIBLE);
                 // Update the StartStopButton
-                updateStartStopButton(getResources().getColor(R.color.cario_color_primary), getString(R.string.dashboard_goto_track), true);
+                updateStartStopButton(R.drawable.btn_dark, getString(R.string.dashboard_goto_track), true);
                 // hide the info field when the track is started.
                 //mInfoField.setVisibility(View.INVISIBLE);
                 break;
             case SERVICE_STARTING:
                 disableChangingParametersLayout.setVisibility(View.VISIBLE);
-                updateStartStopButton(Color.GRAY,
+                updateStartStopButton(R.drawable.btn_grey,
                     getString(R.string.dashboard_track_is_starting), false);
                 break;
             case SERVICE_STOPPING:
                 disableChangingParametersLayout.setVisibility(View.VISIBLE);
-                updateStartStopButton(Color.GRAY,
+                updateStartStopButton(R.drawable.btn_grey,
                     getString(R.string.dashboard_track_is_stopping), false);
             break;
             default:
@@ -939,28 +986,28 @@ public class DashBoardFragment extends BaseInjectorFragment {
             case SERVICE_STOPPED:
                 disableChangingParametersLayout.setVisibility(GONE);
                 if (hasSettingsSelectedFORGPSOnly()) {
-                    updateStartStopButton(getResources().getColor(R.color.green_dark_cario),
+                    updateStartStopButton(R.drawable.btn_dark,
                             getString(R.string.dashboard_start_track), true);
                 } else {
-                    updateStartStopButton(Color.GRAY,
+                    updateStartStopButton(R.drawable.btn_grey,
                             getString(R.string.dashboard_start_track), false);
                 }
                 break;
             case SERVICE_STARTED:
                 disableChangingParametersLayout.setVisibility(View.VISIBLE);
                 // Update the StartStopButton
-                updateStartStopButton(getResources().getColor(R.color.cario_color_primary), getString(R.string.dashboard_goto_track), true);
+                updateStartStopButton(R.drawable.btn_dark, getString(R.string.dashboard_goto_track), true);
                 // hide the info field when the track is started.
                 //mInfoField.setVisibility(View.INVISIBLE);
                 break;
             case SERVICE_STARTING:
                 disableChangingParametersLayout.setVisibility(View.VISIBLE);
-                updateStartStopButton(Color.GRAY,
+                updateStartStopButton(R.drawable.btn_grey,
                         getString(R.string.dashboard_track_is_starting), false);
                 break;
             case SERVICE_STOPPING:
                 disableChangingParametersLayout.setVisibility(View.VISIBLE);
-                updateStartStopButton(Color.GRAY,
+                updateStartStopButton(R.drawable.btn_grey,
                         getString(R.string.dashboard_track_is_stopping), false);
                 break;
             default:
@@ -980,12 +1027,14 @@ public class DashBoardFragment extends BaseInjectorFragment {
                 mCarManager.getCar() != null;
     }
 
-    private void updateStartStopButton(int color, String text, boolean enabled) {
-        mMainThreadWorker.schedule(() -> {
-            mStartStopButtonInner.setBackgroundColor(color);
+    private void updateStartStopButton(int background, String text, boolean enabled) {
+            mStartStopButtonInner.setBackgroundResource(background);
+            if(background == R.drawable.btn_grey)
+                mStartStopButtonInner.setTextColor(Color.BLACK);
+            else
+                mStartStopButtonInner.setTextColor(Color.WHITE);
             mStartStopButtonInner.setText(text);
-            mStartStopButton.setEnabled(enabled);
-        });
+            mStartStopButtonInner.setEnabled(enabled);
     }
 
     private void onOBDPlusGPSStartTrackButtonStartClicked() {
