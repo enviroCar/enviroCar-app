@@ -173,7 +173,7 @@ public class UserHandler implements UserManager {
         if (prefs.contains(FIRSTNAME))
             e.remove(FIRSTNAME);
         if (prefs.contains(LASTNAME))
-            e.remove(TOKEN);
+            e.remove(LASTNAME);
         if (prefs.contains(EMAIL))
             e.remove(EMAIL);
         if (prefs.contains(ACCEPTED_TERMS_OF_USE_VERSION))
