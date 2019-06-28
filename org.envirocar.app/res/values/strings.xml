@@ -78,5 +78,40 @@
     <string name="driving">Driving</string>
 
     <string name="gps_track_details">*This is a GPS based track. It cannot be uploaded to the open data.</string>
+    <string name="report_issue_text">Timestamps are automatically included in the logs. Sending us reports helps us reproduce unexpected behavior or crashes. This makes enviroCar better and more stable. Click the send button below to email this report to us.</string>
+    <string name="report_issue_bottom_text">This feature uses the default \"Send To\" mechanism.
+	    If you invoke it with your Email client, you can easily send the report via email. If you do not have an Email client installed,
+	    you can save the log file on a PC, e.g. through Bluetooth or USB. \n\nIn such cases we appreciate sending
+	    in the reporting bundle manually. They are stored at the following locations:</string>
+    <string name="report_issue_desc_text">A more detailed description</string>
+
+    <string-array name="report_issue_subject_header">
+        <item>Force Crash</item>
+        <item>Sudden Lags</item>
+        <item>App was Unresponsive</item>
+        <item>Component does not work as expected</item>
+        <item>Request for a feature</item>
+    </string-array>
+
+    <string-array name="report_issue_subject_tags">
+        <item>[CRASH]</item>
+        <item>[LAG]</item>
+        <item>[UNRES]</item>
+        <item>[UNEXPECTED BEHAVIOR]</item>
+        <item>[FEATURE REQ]</item>
+    </string-array>
+
+
+    <string-array name="report_issue_body_header">
+        <item>Internet was enabled</item>
+        <item>GPS was enabled</item>
+        <item>During Active Track</item>
+    </string-array>
+
+    <string-array name="report_issue_body_tags">
+        <item>[IN-EN]</item>
+        <item>[GPS-EN]</item>
+        <item>[ACTIVE-TRACK]</item>
+    </string-array>
 
 </resources>

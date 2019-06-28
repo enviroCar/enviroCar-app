@@ -64,3 +64,4 @@ public final class DatabaseModule {
     }
 
 }
+
