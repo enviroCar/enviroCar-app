@@ -26,7 +26,7 @@ import org.envirocar.app.handler.InterpolationMeasurementProvider;
 import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.services.recording.RecordingNotification;
 import org.envirocar.app.services.recording.SpeechOutput;
-import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.injection.InjectApplicationScope;
 
 import javax.inject.Singleton;
 
