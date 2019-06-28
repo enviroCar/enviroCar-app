@@ -16,16 +16,13 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.views.utils;
+package org.envirocar.app.views.dialogs;
 
 
 import android.app.Activity;
 import android.text.Html;
 import android.text.Spanned;
 
-import androidx.annotation.NonNull;
-
-import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.envirocar.app.R;
@@ -34,38 +31,25 @@ import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.logging.Logger;
 
-import rx.Observable;
-import rx.Scheduler;
 import rx.Subscriber;
-import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action0;
-import rx.schedulers.Schedulers;
 
 /**
  * TODO JavaDoc
  *
  * @author dewall
  */
-public class ReactiveTermsOfUseDialog {
+public class ReactiveTermsOfUseDialog extends AbstractReactiveAcceptDialog<TermsOfUse> {
     private static Logger LOG = Logger.getLogger(ReactiveTermsOfUseDialog.class);
-
-    private final Scheduler.Worker mainThreadWorker = AndroidSchedulers.mainThread()
-            .createWorker();
-    private final Scheduler.Worker backgroundWorker = Schedulers.io().createWorker();
-
-    private final Activity activityContext;
-    private final User user;
-    private final TermsOfUse currentTermsOfUse;
 
     /**
      * Constructor.
      *
      * @param activityContext the current activity context
-     * @param termsOfUse      the terms of use to show.
+     * @param entity          the terms of use to show.
      */
-    public ReactiveTermsOfUseDialog(Activity activityContext, TermsOfUse termsOfUse) {
-        this(activityContext, null, termsOfUse);
+    public ReactiveTermsOfUseDialog(Activity activityContext, TermsOfUse entity) {
+        this(activityContext, null, entity);
     }
 
     /**
@@ -73,68 +57,34 @@ public class ReactiveTermsOfUseDialog {
      *
      * @param activityContext
      */
-    public ReactiveTermsOfUseDialog(Activity activityContext, User user, TermsOfUse currentToU) {
-        this.activityContext = activityContext;
-        this.user = user;
-        this.currentTermsOfUse = currentToU;
+    public ReactiveTermsOfUseDialog(Activity activityContext, User user, TermsOfUse entity) {
+        super(activityContext, user, entity);
     }
 
-    /**
-     * @return the dialog as an Observable.
-     */
-    public Observable<TermsOfUse> asObservable() {
-        LOG.info("asObservable()");
-        return Observable.create(new Observable.OnSubscribe<TermsOfUse>() {
-            private MaterialDialog termsOfUseDialog;
 
-            @Override
-            public void call(Subscriber<? super TermsOfUse> subscriber) {
-                LOG.info("asObservable().call()");
+    @Override
+    protected MaterialDialog.Builder createDialogBuilder(Subscriber subscriber) {
+        // Create the terms of use dialog.
+        if (user != null) {
+            boolean firstTime = user.getTermsOfUseVersion() == null;
+            return createAcceptDialogBuilder(
+                    createTermsOfUseMarkup(entity, firstTime),
+                    // OnPositive callback
+                    () -> {
+                        LOG.info("onClick() the positive button");
+                        subscriber.onNext(entity);
+                    },
+                    // OnNegative callback.
+                    () -> {
+                        LOG.info("onClick() the negative button.");
+                        subscriber.onError(new NotAcceptedTermsOfUseException(
+                                activityContext.getString(R.string
+                                        .terms_of_use_cant_continue)));
+                    });
 
-                // Create the terms of use dialog.
-                if (user != null) {
-                    boolean firstTime = user.getTermsOfUseVersion() == null;
-                    MaterialDialog.Builder builder = createAcceptDialogBuilder(
-                            createTermsOfUseMarkup(currentTermsOfUse, firstTime),
-                            // OnPositive callback
-                            () -> {
-                                LOG.info("onClick() the positive button");
-                                subscriber.onNext(currentTermsOfUse);
-                            },
-                            // OnNegative callback.
-                            () -> {
-                                LOG.info("onClick() the negative button.");
-                                subscriber.onError(new NotAcceptedTermsOfUseException(
-                                        activityContext.getString(R.string
-                                                .terms_of_use_cant_continue)));
-                            });
-
-                    // Show the dialog
-                    mainThreadWorker.schedule(() -> termsOfUseDialog = builder.show());
-                } else {
-                    MaterialDialog.Builder builder = createInfoDialogBuilder(
-                            createSimpleTermsOfUseMarkup(currentTermsOfUse));
-
-                    // Show the dialog
-                    mainThreadWorker.schedule(() -> termsOfUseDialog = builder.show());
-                }
-
-                // Add an additional subscription to the subscriber that dismisses the terms of
-                // use dialog on unsubscribe.
-                subscriber.add(new Subscription() {
-                    @Override
-                    public void unsubscribe() {
-                        if (termsOfUseDialog != null)
-                            termsOfUseDialog.dismiss();
-                    }
-
-                    @Override
-                    public boolean isUnsubscribed() {
-                        return subscriber.isUnsubscribed();
-                    }
-                });
-            }
-        });
+        } else {
+            return createInfoDialogBuilder(createSimpleTermsOfUseMarkup(entity));
+        }
     }
 
     /**
@@ -159,6 +109,7 @@ public class ReactiveTermsOfUseDialog {
 
     /**
      * Creates the dialog for showing the terms of use
+     *
      * @param content the terms of use string
      * @return
      */
@@ -173,7 +124,7 @@ public class ReactiveTermsOfUseDialog {
 
     private Spanned createSimpleTermsOfUseMarkup(TermsOfUse termsOfUse) {
         StringBuilder sb = new StringBuilder();
-        sb.append(currentTermsOfUse.getContents().replace("</li>", "<br/></li>"));
+        sb.append(entity.getContents().replace("</li>", "<br/></li>"));
         return Html.fromHtml(sb.toString());
     }
 

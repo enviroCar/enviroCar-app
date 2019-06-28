@@ -27,7 +27,7 @@ import com.squareup.otto.Bus;
 import org.envirocar.app.R;
 import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
 import org.envirocar.app.exception.NotLoggedInException;
-import org.envirocar.app.views.utils.ReactiveTermsOfUseDialog;
+import org.envirocar.app.views.dialogs.ReactiveTermsOfUseDialog;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.DataRetrievalFailureException;
