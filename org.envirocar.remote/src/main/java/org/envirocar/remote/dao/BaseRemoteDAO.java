@@ -105,6 +105,7 @@ public class BaseRemoteDAO<C, S> {
         return Observable.create(subscriber -> {
             try {
                 subscriber.onNext(func.call());
+                subscriber.onCompleted();
             } catch (Exception e){
                 subscriber.onError(e);
             }

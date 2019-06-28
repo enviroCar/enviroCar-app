@@ -20,6 +20,7 @@
 
 -->
 <resources>
+    <string name="terms_of_use_simple">Terms of Use</string>
     <string name="terms_of_use_title">Accept the Terms Of Use?</string>
     <string name="terms_of_use_accept">Accept</string>
     <string name="terms_of_use_reject">Reject</string>

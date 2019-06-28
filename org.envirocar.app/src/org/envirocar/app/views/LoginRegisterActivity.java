@@ -164,10 +164,14 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
 
         List<Pair<String, View.OnClickListener>> clickableStrings = Arrays.asList(
                 new Pair<>("Terms and Conditions", (View.OnClickListener) v -> {
+                    LOG.info("Terms and Conditions clicked. Showing dialog");
                     Toast.makeText(getBaseContext(), "Clicked", Toast.LENGTH_SHORT).show();
+                    showTermsOfUseDialog();
                 }),
                 new Pair<>("Privacy Policy", (View.OnClickListener) v -> {
+                    LOG.info("Privacy Policy clicked. Showing dialog");
                     Toast.makeText(getBaseContext(), "Clicked", Toast.LENGTH_SHORT).show();
+                    showTermsOfUseDialog();
                 })
         );
         makeTextLinks(mAcceptedTouText, clickableStrings);
@@ -302,6 +306,12 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
                 });
             });
         }
+    }
+
+    private void showTermsOfUseDialog() {
+        LOG.info("Show Terms of Use Dialog");
+        mTermsOfUseManager.showLatestTermsOfUseDialogObservable(this)
+                .subscribe(tou -> LOG.info("Closed Dialog"));
     }
 
     private void askForTermsOfUseAcceptance() {
