@@ -393,7 +393,7 @@
                 android:layout_height="60dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
                 android:gravity="center"
@@ -613,7 +613,7 @@
                 android:id="@+id/frameLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="4dp"
                 android:background="@android:color/transparent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="1.0"
@@ -628,7 +628,7 @@
                     android:layout_marginLeft="24dp"
                     android:layout_marginEnd="24dp"
                     android:layout_marginRight="24dp"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     app:cardBackgroundColor="@android:color/transparent"
                     app:cardCornerRadius="2dp"
                     app:cardElevation="0dp"
@@ -701,6 +701,57 @@
                         </androidx.constraintlayout.widget.ConstraintLayout>
 
                         <androidx.constraintlayout.widget.ConstraintLayout
+                            android:id="@+id/obdGPSSelectedLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:clickable="true"
+                            android:orientation="horizontal"
+                            android:paddingTop="@dimen/spacing_medium"
+                            android:paddingBottom="@dimen/spacing_medium">
+
+                            <ImageView
+                                android:id="@+id/imageView7"
+                                android:layout_width="28dp"
+                                android:layout_height="28dp"
+                                android:layout_gravity="center"
+                                android:layout_marginLeft="@dimen/spacing_large"
+                                android:src="@drawable/gps"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                            <TextView
+                                android:id="@+id/obdGPSSelectedSubHeader"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="28dp"
+                                android:layout_marginLeft="28dp"
+                                android:fontFamily="@font/roboto"
+                                android:singleLine="true"
+                                android:text="Please turn on location services"
+                                android:textColor="#000000"
+                                android:textSize="14sp"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintStart_toEndOf="@+id/imageView7"
+                                app:layout_constraintTop_toBottomOf="@+id/obdGPSSelectedHeader" />
+
+                            <TextView
+                                android:id="@+id/obdGPSSelectedHeader"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/roboto_medium"
+                                android:singleLine="true"
+                                android:text="GPS Not Turned On"
+                                android:textColor="#000000"
+                                android:textSize="18sp"
+                                app:layout_constraintBottom_toTopOf="@+id/obdGPSSelectedSubHeader"
+                                app:layout_constraintStart_toStartOf="@+id/obdGPSSelectedSubHeader"
+                                app:layout_constraintTop_toTopOf="parent" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
                             android:id="@+id/dash_board_view_car_selection"
                             android:layout_width="match_parent"
                             android:layout_height="@dimen/spacing_xxxxlarge"
@@ -761,7 +812,7 @@
                     android:layout_marginLeft="24dp"
                     android:layout_marginEnd="24dp"
                     android:layout_marginRight="24dp"
-                    android:visibility="visible"
+                    android:visibility="gone"
                     app:cardBackgroundColor="@android:color/transparent"
                     app:cardCornerRadius="2dp"
                     app:cardElevation="0dp"
@@ -890,7 +941,6 @@
                 android:id="@+id/fragment_startup_start_button_inner"
                 android:layout_width="145dp"
                 android:layout_height="45dp"
-                android:layout_marginTop="20dp"
                 android:background="@drawable/btn_dark"
                 android:fontFamily="@font/roboto_medium"
                 android:paddingLeft="18dp"
@@ -899,6 +949,7 @@
                 android:paddingBottom="12dp"
                 android:text="@string/dashboard_start_track"
                 android:textSize="12sp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
