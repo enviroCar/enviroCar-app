@@ -38,7 +38,7 @@ public class UserImpl implements User {
      * Default Constructor.
      */
     public UserImpl() {
-        this(null, null, null);
+        this(null, null, null, null, null);
     }
 
     /**
@@ -48,7 +48,7 @@ public class UserImpl implements User {
      * @param token    the password
      */
     public UserImpl(String username, String token) {
-        this(username, token, null);
+        this(username, token, null, null, null);
     }
 
     /**
@@ -58,10 +58,12 @@ public class UserImpl implements User {
      * @param token    the password
      * @param mail     the mail
      */
-    public UserImpl(String username, String token, String mail) {
+    public UserImpl(String username, String token, String mail, String firstName, String lastName) {
         this.username = username;
         this.token = token;
         this.mail = mail;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
     @Override

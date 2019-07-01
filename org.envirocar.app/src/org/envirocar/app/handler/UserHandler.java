@@ -98,7 +98,7 @@ public class UserHandler implements UserManager {
             String lastName = prefs.getString(LASTNAME, null);
             String token = prefs.getString(TOKEN, null);
             String mail = prefs.getString(EMAIL, null);
-            mUser = new UserImpl(username, token, mail);
+            mUser = new UserImpl(username, token, mail, firstName, lastName);
             mUser.setTermsOfUseVersion(prefs.getString(ACCEPTED_TERMS_OF_USE_VERSION, null));
             mUser.setFirstName(firstName);
             mUser.setLastName(lastName);
