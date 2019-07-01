@@ -663,7 +663,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                                                 .addTransition(new ChangeBounds())
                                                 .addTransition(new AutoTransition())
                                                 .addTransition(new Slide(Gravity.LEFT));
-        TransitionManager.beginDelayedTransition(frameTransition, transitionSet);
+        TransitionManager.beginDelayedTransition(settingsLayout, transitionSet);
         mOBDTypeView.setVisibility(View.VISIBLE);
         //obdPlusGPSSettingsContainer.setVisibility(View.VISIBLE);
     }
@@ -673,7 +673,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                 .addTransition(new ChangeBounds())
                 .addTransition(new AutoTransition())
                 .addTransition(new Slide(Gravity.LEFT));
-        TransitionManager.beginDelayedTransition(frameTransition, transitionSet);
+        TransitionManager.beginDelayedTransition(settingsLayout, transitionSet);
         //obdPlusGPSSettingsContainer.setVisibility(GONE);
         mOBDTypeView.setVisibility(GONE);
     }
@@ -1072,7 +1072,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
     private void updateStartStopButton(int background, String text, boolean enabled) {
         TransitionSet transitionSet = new TransitionSet()
-                .addTransition(new ChangeBounds())
+                .addTransition(new Recolor())
                 .addTarget(R.id.fragment_startup_start_button_inner);
 
         TransitionManager.beginDelayedTransition(frameTransition, transitionSet);
