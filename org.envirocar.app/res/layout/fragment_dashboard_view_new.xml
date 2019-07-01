@@ -393,7 +393,7 @@
                 android:layout_height="60dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginLeft="16dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginEnd="16dp"
                 android:layout_marginRight="16dp"
                 android:gravity="center"
@@ -577,7 +577,7 @@
                             android:layout_gravity="center"
                             android:background="@drawable/btn_dashboard_circle"
                             android:padding="10dp"
-                            android:src="@drawable/img_car"
+                            android:src="@drawable/ic_drive_eta_black_24dp"
                             android:tint="@color/common_google_signin_btn_text_dark_focused"
                             android:visibility="visible" />
 
@@ -588,7 +588,7 @@
                             android:layout_gravity="center"
                             android:background="@drawable/btn_dashboard_circle"
                             android:padding="10dp"
-                            android:src="@drawable/img_car"
+                            android:src="@drawable/ic_drive_eta_black_24dp"
                             android:tint="@color/common_google_signin_btn_text_dark_focused"
                             android:visibility="gone" />
 
@@ -599,7 +599,7 @@
                             android:layout_gravity="center"
                             android:background="@drawable/btn_dashboard_connected_circle"
                             android:padding="10dp"
-                            android:src="@drawable/img_car"
+                            android:src="@drawable/ic_drive_eta_black_24dp"
                             android:tint="@color/common_google_signin_btn_text_dark_focused"
                             android:visibility="gone" />
 
@@ -657,7 +657,7 @@
                             android:paddingBottom="@dimen/spacing_medium">
 
                             <ImageView
-                                android:id="@+id/imageView3"
+                                android:id="@+id/dashboard_view_obd_selection_img"
                                 android:layout_width="28dp"
                                 android:layout_height="28dp"
                                 android:layout_gravity="center"
@@ -681,7 +681,7 @@
                                 android:textColor="#000000"
                                 android:textSize="14sp"
                                 app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toEndOf="@+id/imageView3"
+                                app:layout_constraintStart_toEndOf="@+id/dashboard_view_obd_selection_img"
                                 app:layout_constraintTop_toBottomOf="@+id/dash_board_view_obd_selection_text1" />
 
                             <TextView
@@ -710,7 +710,7 @@
                             android:paddingBottom="@dimen/spacing_medium">
 
                             <ImageView
-                                android:id="@+id/imageView7"
+                                android:id="@+id/obdGPSSelectedImage"
                                 android:layout_width="28dp"
                                 android:layout_height="28dp"
                                 android:layout_gravity="center"
@@ -732,7 +732,7 @@
                                 android:textColor="#000000"
                                 android:textSize="14sp"
                                 app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toEndOf="@+id/imageView7"
+                                app:layout_constraintStart_toEndOf="@+id/obdGPSSelectedImage"
                                 app:layout_constraintTop_toBottomOf="@+id/obdGPSSelectedHeader" />
 
                             <TextView
@@ -761,7 +761,7 @@
                             android:paddingBottom="@dimen/spacing_medium">
 
                             <ImageView
-                                android:id="@+id/imageView4"
+                                android:id="@+id/dash_board_view_car_selection_img"
                                 android:layout_width="28dp"
                                 android:layout_height="28dp"
                                 android:layout_gravity="center"
@@ -783,7 +783,7 @@
                                 android:textColor="#000000"
                                 android:textSize="14sp"
                                 app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toEndOf="@+id/imageView4"
+                                app:layout_constraintStart_toEndOf="@+id/dash_board_view_car_selection_img"
                                 app:layout_constraintTop_toBottomOf="@+id/dash_board_view_car_selection_text1" />
 
                             <TextView
@@ -800,137 +800,6 @@
                                 app:layout_constraintTop_toTopOf="parent" />
 
                         </androidx.constraintlayout.widget.ConstraintLayout>
-                    </LinearLayout>
-
-                </androidx.cardview.widget.CardView>
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/GPSOnlySettingsContainer"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginLeft="24dp"
-                    android:layout_marginEnd="24dp"
-                    android:layout_marginRight="24dp"
-                    android:visibility="gone"
-                    app:cardBackgroundColor="@android:color/transparent"
-                    app:cardCornerRadius="2dp"
-                    app:cardElevation="0dp"
-                    app:cardUseCompatPadding="true"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.5"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
-
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical">
-
-
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:id="@+id/gpsOnlyGPSSelectedLayout"
-                            android:layout_width="match_parent"
-                            android:layout_height="@dimen/spacing_xxxxlarge"
-                            android:clickable="true"
-                            android:orientation="horizontal"
-                            android:paddingTop="@dimen/spacing_medium"
-                            android:paddingBottom="@dimen/spacing_medium">
-
-                            <ImageView
-                                android:id="@+id/imageView6"
-                                android:layout_width="28dp"
-                                android:layout_height="28dp"
-                                android:layout_gravity="center"
-                                android:layout_marginLeft="@dimen/spacing_large"
-                                android:src="@drawable/gps"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                            <TextView
-                                android:id="@+id/gpsOnlyGPSSelectedSubHeader"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="28dp"
-                                android:layout_marginLeft="28dp"
-                                android:fontFamily="@font/roboto"
-                                android:singleLine="true"
-                                android:text="Please turn on location services"
-                                android:textColor="#000000"
-                                android:textSize="14sp"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toEndOf="@+id/imageView6"
-                                app:layout_constraintTop_toBottomOf="@+id/gpsOnlyGPSSelectedHeader" />
-
-                            <TextView
-                                android:id="@+id/gpsOnlyGPSSelectedHeader"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/roboto_medium"
-                                android:singleLine="true"
-                                android:text="GPS Not Turned On"
-                                android:textColor="#000000"
-                                android:textSize="18sp"
-                                app:layout_constraintBottom_toTopOf="@+id/gpsOnlyGPSSelectedSubHeader"
-                                app:layout_constraintStart_toStartOf="@+id/gpsOnlyGPSSelectedSubHeader"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-
-                        <androidx.constraintlayout.widget.ConstraintLayout
-                            android:id="@+id/gpsOnlyCarSelectedLayout"
-                            android:layout_width="match_parent"
-                            android:layout_height="@dimen/spacing_xxxxlarge"
-                            android:clickable="true"
-                            android:orientation="horizontal"
-                            android:paddingTop="@dimen/spacing_medium"
-                            android:paddingBottom="@dimen/spacing_medium">
-
-                            <ImageView
-                                android:id="@+id/imageView5"
-                                android:layout_width="28dp"
-                                android:layout_height="28dp"
-                                android:layout_gravity="center"
-                                android:layout_marginLeft="@dimen/spacing_large"
-                                android:src="@drawable/img_car"
-                                android:tint="@color/common_google_signin_btn_text_dark_focused"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toStartOf="parent"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                            <TextView
-                                android:id="@+id/gpsOnlyCarSelectedSubHeader"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginStart="28dp"
-                                android:layout_marginLeft="28dp"
-                                android:fontFamily="@font/roboto"
-                                android:singleLine="true"
-                                android:text="Car Attributes"
-                                android:textColor="#000000"
-                                android:textSize="14sp"
-                                app:layout_constraintBottom_toBottomOf="parent"
-                                app:layout_constraintStart_toEndOf="@+id/imageView5"
-                                app:layout_constraintTop_toBottomOf="@+id/gpsOnlyCarSelectedHeader" />
-
-                            <TextView
-                                android:id="@+id/gpsOnlyCarSelectedHeader"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/roboto_medium"
-                                android:singleLine="true"
-                                android:text="Manufacturer + Model"
-                                android:textColor="#000000"
-                                android:textSize="18sp"
-                                app:layout_constraintBottom_toTopOf="@+id/gpsOnlyCarSelectedSubHeader"
-                                app:layout_constraintStart_toStartOf="@+id/gpsOnlyCarSelectedSubHeader"
-                                app:layout_constraintTop_toTopOf="parent" />
-
-                        </androidx.constraintlayout.widget.ConstraintLayout>
-
                     </LinearLayout>
 
                 </androidx.cardview.widget.CardView>
