@@ -16,17 +16,17 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.app.handler;
+package org.envirocar.app.handler.agreement;
 
 import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.squareup.otto.Bus;
-
 import org.envirocar.app.R;
 import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
 import org.envirocar.app.exception.NotLoggedInException;
+import org.envirocar.app.handler.DAOProvider;
+import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.views.dialogs.ReactiveTermsOfUseDialog;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
@@ -54,15 +54,14 @@ import rx.schedulers.Schedulers;
  * @author dewall
  */
 @Singleton
-public class TermsOfUseManager {
-    private static final Logger LOGGER = Logger.getLogger(TermsOfUseManager.class);
+public class AgreementManager {
+    private static final Logger LOGGER = Logger.getLogger(AgreementManager.class);
     // Mutex for locking when downloading.
     private final Object mMutex = new Object();
     protected List<TermsOfUse> list;
 
     // Injected variables.
     private final Context mContext;
-    private final Bus mBus;
     private final UserHandler mUserManager;
     private final DAOProvider mDAOProvider;
 
@@ -74,10 +73,9 @@ public class TermsOfUseManager {
      * @param context
      */
     @Inject
-    public TermsOfUseManager(@InjectApplicationScope Context context, Bus bus, UserHandler
+    public AgreementManager(@InjectApplicationScope Context context, UserHandler
             userHandler, DAOProvider daoProvider) {
         this.mContext = context;
-        this.mBus = bus;
         this.mUserManager = userHandler;
         this.mDAOProvider = daoProvider;
     }
@@ -124,7 +122,7 @@ public class TermsOfUseManager {
                                         "Result set was null or empty"));
 
                     // Set the list of terms of uses.
-                    TermsOfUseManager.this.list = termsOfUses;
+                    AgreementManager.this.list = termsOfUses;
 
                     try {
                         // Get the id of the first terms of use instance and fetch
@@ -379,41 +377,41 @@ public class TermsOfUseManager {
 
 
     public static class TermsOfUseValidator<T> implements Observable.Transformer<T, T> {
-        private final TermsOfUseManager termsOfUseManager;
+        private final AgreementManager agreementManager;
         private final Activity activity;
 
         public static <T> TermsOfUseValidator<T> create(
-                TermsOfUseManager termsOfUseManager,
+                AgreementManager agreementManager,
                 Activity activity) {
-            return new TermsOfUseValidator<T>(termsOfUseManager, activity);
+            return new TermsOfUseValidator<T>(agreementManager, activity);
         }
 
         /**
          * Constructor.
          *
-         * @param termsOfUseManager the manager for the terms of use.
+         * @param agreementManager the manager for the terms of use.
          */
-        public TermsOfUseValidator(TermsOfUseManager termsOfUseManager) {
-            this(termsOfUseManager, null);
+        public TermsOfUseValidator(AgreementManager agreementManager) {
+            this(agreementManager, null);
         }
 
         /**
          * Constructor.
          *
-         * @param termsOfUseManager the manager for the terms of use.
+         * @param agreementManager the manager for the terms of use.
          * @param activity          the activity for the case when the user has not accepted the
          *                          terms of use. Then it creates a Dialog for acceptance.
          */
-        public TermsOfUseValidator(TermsOfUseManager termsOfUseManager, Activity activity) {
-            this.termsOfUseManager = termsOfUseManager;
+        public TermsOfUseValidator(AgreementManager agreementManager, Activity activity) {
+            this.agreementManager = agreementManager;
             this.activity = activity;
         }
 
         @Override
         public Observable<T> call(Observable<T> tObservable) {
             return tObservable.flatMap(t ->
-                    termsOfUseManager.getCurrentTermsOfUseObservable()
-                            .flatMap(termsOfUseManager.checkTermsOfUseAcceptance(activity))
+                    agreementManager.getCurrentTermsOfUseObservable()
+                            .flatMap(agreementManager.checkTermsOfUseAcceptance(activity))
                             .flatMap(termsOfUse -> Observable.just(t)));
         }
     }

@@ -42,7 +42,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
@@ -53,7 +52,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.TermsOfUseManager;
+import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
@@ -121,7 +120,7 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
     @Inject
     protected DAOProvider mDAOProvider;
     @Inject
-    protected TermsOfUseManager mTermsOfUseManager;
+    protected AgreementManager mAgreementManager;
     @Inject
     protected TrackDAOHandler mTrackDAOHandler;
 
@@ -163,14 +162,12 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
         }
 
         List<Pair<String, View.OnClickListener>> clickableStrings = Arrays.asList(
-                new Pair<>("Terms and Conditions", (View.OnClickListener) v -> {
+                new Pair<>("Terms and Conditions", v -> {
                     LOG.info("Terms and Conditions clicked. Showing dialog");
-                    Toast.makeText(getBaseContext(), "Clicked", Toast.LENGTH_SHORT).show();
                     showTermsOfUseDialog();
                 }),
-                new Pair<>("Privacy Policy", (View.OnClickListener) v -> {
+                new Pair<>("Privacy Policy", v -> {
                     LOG.info("Privacy Policy clicked. Showing dialog");
-                    Toast.makeText(getBaseContext(), "Clicked", Toast.LENGTH_SHORT).show();
                     showTermsOfUseDialog();
                 })
         );
@@ -310,8 +307,13 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
 
     private void showTermsOfUseDialog() {
         LOG.info("Show Terms of Use Dialog");
-        mTermsOfUseManager.showLatestTermsOfUseDialogObservable(this)
+        mAgreementManager.showLatestTermsOfUseDialogObservable(this)
                 .subscribe(tou -> LOG.info("Closed Dialog"));
+    }
+
+    private void showPrivacyStatementDialog() {
+        LOG.info("Show Privacy Statement dialog");
+
     }
 
     private void askForTermsOfUseAcceptance() {
@@ -319,7 +321,7 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
         if (mTermsOfUseSubscription != null && !mTermsOfUseSubscription.isUnsubscribed())
             mTermsOfUseSubscription.unsubscribe();
 
-        mTermsOfUseSubscription = mTermsOfUseManager.verifyTermsOfUse(LoginRegisterActivity.this)
+        mTermsOfUseSubscription = mAgreementManager.verifyTermsOfUse(LoginRegisterActivity.this)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<TermsOfUse>() {
@@ -484,7 +486,7 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
                         mRegisterUsername.requestFocus();
                     });
 
-                    // Dismuss the progress dialog.
+                    // Dismiss the progress dialog.
                     dialog.dismiss();
                 }
             });

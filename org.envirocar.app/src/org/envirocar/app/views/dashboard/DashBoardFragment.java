@@ -53,12 +53,12 @@ import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
+import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferencesHandler;
-import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
@@ -104,7 +104,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @Inject
     protected DAOProvider mDAOProvider;
     @Inject
-    protected TermsOfUseManager mTermsOfUseManager;
+    protected AgreementManager mAgreementManager;
     @Inject
     protected TrackDAOHandler mTrackDAOHandler;
     @InjectActivityScope
