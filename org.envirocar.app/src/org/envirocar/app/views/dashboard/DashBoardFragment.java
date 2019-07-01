@@ -57,6 +57,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.squareup.otto.Subscribe;
+import com.transitionseverywhere.Recolor;
 
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
@@ -382,36 +383,24 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @OnClick(R.id.bannerOBDAdapterContainer)
     protected void onbannerOBDAdapterContainerClicked(){
         if(errorImageOBDAdapter.getVisibility() == View.VISIBLE){
-            DialogUtils.createDefaultDialogBuilder(getContext(),
-                    R.string.banner_obd_adapter_error_title,
-                    R.drawable.others_settings,
-                    R.string.banner_obd_adapter_error_content)
-                    .positiveText(R.string.banner_error_ok)
-                    .show();
+            Intent intent = new Intent(getActivity(), OBDSelectionActivity.class);
+            getActivity().startActivity(intent);
         }
     }
 
     @OnClick(R.id.bannerGPSContainer)
     protected void onbannerGPSContainerClicked(){
         if(errorImageGPS.getVisibility() == View.VISIBLE){
-            DialogUtils.createDefaultDialogBuilder(getContext(),
-                    R.string.banner_gps_error_title,
-                    R.drawable.ic_location_on_white_24dp,
-                    R.string.banner_gps_error_content)
-                    .positiveText(R.string.banner_error_ok)
-                    .show();
+            Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent);
         }
     }
 
     @OnClick(R.id.bannerCarContainer)
     protected void onbannerCarContainerClicked(){
         if(errorImageCar.getVisibility() == View.VISIBLE){
-            DialogUtils.createDefaultDialogBuilder(getContext(),
-                    R.string.banner_car_error_title,
-                    R.drawable.img_car,
-                    R.string.banner_car_error_content)
-                    .positiveText(R.string.banner_error_ok)
-                    .show();
+            Intent intent = new Intent(getActivity(), CarSelectionActivity.class);
+            getActivity().startActivity(intent);
         }
     }
 
