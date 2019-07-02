@@ -32,7 +32,7 @@ import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.events.NewUserSettingsEvent;
 import org.envirocar.core.exception.UnauthorizedException;
-import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.remote.gravatar.GravatarUtils;
 

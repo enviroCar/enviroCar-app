@@ -88,7 +88,7 @@ import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.util.InjectionActivityScope;
+import org.envirocar.core.injection.InjectActivityScope;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 
@@ -119,7 +119,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
     protected TermsOfUseManager mTermsOfUseManager;
     @Inject
     protected TrackDAOHandler mTrackDAOHandler;
-    @InjectionActivityScope
+    @InjectActivityScope
     @Inject
     protected Context context;
 

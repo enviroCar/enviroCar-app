@@ -29,7 +29,7 @@ import android.widget.RemoteViews;
 
 import org.envirocar.app.main.BaseMainActivityBottomBar;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.injection.InjectApplicationScope;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
