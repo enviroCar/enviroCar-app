@@ -162,6 +162,9 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         JsonObject result = new JsonObject();
         result.addProperty(Track.KEY_TRACK_TYPE, "FeatureCollection");
         //TODO result.addProperty(Track.KEY_TRACK_PROPERTIES_LENGTH, src.getLengthOfTrack());
+        result.addProperty(Track.KEY_TRACK_PROPERTIES_BEGIN,src.getBegin());
+        result.addProperty(Track.KEY_TRACK_PROPERTIES_END,src.getEnd());
+        result.addProperty(Track.KEY_TRACK_PROPERTIES_LENGTH, src.getLength());
         result.add(Track.KEY_TRACK_PROPERTIES, trackProperties);
         result.add(Track.KEY_TRACK_FEATURES, trackFeatures);
 
@@ -220,7 +223,15 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         String description = properties.has(Track.KEY_TRACK_PROPERTIES_DESCRIPTION) ?
                 properties.get(Track.KEY_TRACK_PROPERTIES_DESCRIPTION).getAsString() :
                 "";
-
+        String begin = properties.has(Track.KEY_TRACK_PROPERTIES_BEGIN) ?
+                properties.get(Track.KEY_TRACK_PROPERTIES_BEGIN).getAsString() :
+                "";
+        String end = properties.has(Track.KEY_TRACK_PROPERTIES_END) ?
+                properties.get(Track.KEY_TRACK_PROPERTIES_END).getAsString() :
+                "";
+        Long length = properties.has(Track.KEY_TRACK_PROPERTIES_LENGTH) ?
+                properties.get(Track.KEY_TRACK_PROPERTIES_LENGTH).getAsLong() :
+                new Long(0);
         // Parse the car object.
         JsonObject carObject = properties.get(Track.KEY_TRACK_PROPERTIES_SENSOR)
                 .getAsJsonObject();
@@ -246,6 +257,9 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         track.setRemoteID(id);
         track.setName(name);
         track.setDescription(description);
+        track.setBegin(begin);
+        track.setEnd(end);
+        track.setLength(length);
         track.setCar(car);
         track.setMeasurements(measurements); // Storing happens here...
 
