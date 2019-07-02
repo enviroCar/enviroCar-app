@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -30,13 +30,14 @@ import java.util.Map;
  */
 public interface Measurement extends BaseEntity<Measurement> {
 
-    interface PropertyKeyExtension{
+    interface PropertyKeyExtension {
         int getStringResource();
+
         int getUnitResource();
     }
 
     // All measurement values
-    enum PropertyKey implements PropertyKeyExtension{
+    enum PropertyKey implements PropertyKeyExtension {
         SPEED {
             @Override
             public int getStringResource() {
@@ -105,6 +106,16 @@ public interface Measurement extends BaseEntity<Measurement> {
 
             public String toString() {
                 return "CO2";
+            }
+        },
+        ENGINE_FULE_RATE {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_engine_fuel_rate;
+            }
+
+            public String toString() {
+                return "Engine Fuel Rate";
             }
         },
         CONSUMPTION {
@@ -304,6 +315,7 @@ public interface Measurement extends BaseEntity<Measurement> {
                 return "Short-Term Fuel Trim 1";
             }
         };
+
         @Override
         public int getUnitResource() {
             return -1;

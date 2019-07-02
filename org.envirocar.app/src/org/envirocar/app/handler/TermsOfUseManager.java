@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -27,15 +27,14 @@ import com.squareup.otto.Bus;
 import org.envirocar.app.R;
 import org.envirocar.app.exception.NotAcceptedTermsOfUseException;
 import org.envirocar.app.exception.NotLoggedInException;
-import org.envirocar.app.exception.ServerException;
-import org.envirocar.app.views.utils.ReactiveTermsOfUseDialog;
+import org.envirocar.app.views.dialogs.ReactiveTermsOfUseDialog;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
-import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 
 import java.util.List;
@@ -44,8 +43,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
 import rx.exceptions.OnErrorThrowable;
 import rx.functions.Func1;
+import rx.schedulers.Schedulers;
 
 /**
  * TODO JavaDoc
@@ -98,6 +99,18 @@ public class TermsOfUseManager {
     public Observable<TermsOfUse> getCurrentTermsOfUseObservable() {
         LOGGER.info("getCurrentTermsOfUseObservable()");
         return current != null ? Observable.just(current) : getRemoteTermsOfUseObservable();
+    }
+
+    /**
+     *
+     * @param activity currently visible activity
+     * @return
+     */
+    public Observable<TermsOfUse> showLatestTermsOfUseDialogObservable(Activity activity) {
+        return getRemoteTermsOfUseObservable()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .flatMap(termsOfUse -> new ReactiveTermsOfUseDialog(activity, termsOfUse).asObservable());
     }
 
     private Observable<TermsOfUse> getRemoteTermsOfUseObservable() {

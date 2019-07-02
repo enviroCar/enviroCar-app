@@ -27,6 +27,7 @@
     <string name="property_key_rpm">RPM</string>
     <string name="property_key_intake_temp">Intake Temperature</string>
     <string name="property_key_intake_pressure">Intake Pressure</string>
+    <string name="property_key_engine_fuel_rate">Engine Fuel Rate</string>
     <string name="property_key_co2">CO2</string>
     <string name="property_key_consumption">Consumption</string>
     <string name="property_key_throttle_position">Throttle Position</string>

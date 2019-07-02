@@ -16,16 +16,17 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.remote;
+package org.envirocar.core.injection;
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+import javax.inject.Qualifier;
 
 /**
- * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
+ * @author dewall
  */
-public class ApplicationTest extends ApplicationTestCase<Application> {
-    public ApplicationTest() {
-        super(Application.class);
-    }
+@Qualifier
+@Retention(RetentionPolicy.RUNTIME)
+public @interface InjectActivityScope {
 }

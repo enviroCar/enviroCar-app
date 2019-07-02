@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -24,10 +24,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.cardview.widget.CardView;
-import androidx.appcompat.widget.Toolbar;
+import android.text.Selection;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.Spanned;
 import android.text.TextUtils;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.util.Pair;
 import android.view.Display;
 import android.view.MenuItem;
 import android.view.View;
@@ -35,23 +39,34 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.snackbar.Snackbar;
 
-import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
+import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.exception.DataUpdateFailureException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.logging.Logger;
+
+import java.util.Arrays;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -94,6 +109,12 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
     protected EditText mRegisterPassword;
     @BindView(R.id.activity_account_register_password2_input)
     protected EditText mRegisterPassword2;
+    @BindView(R.id.activity_account_register_agree_tou_checbox)
+    protected CheckBox mAcceptTouCheckbox;
+    //    @BindView(R.id.activity_account_register_agree_privacy_checbox)
+//    protected CheckBox mAcceptPrivacyCheckbox;
+    @BindView(R.id.activity_account_register_agree_tou_text)
+    protected TextView mAcceptedTouText;
 
     @Inject
     protected UserHandler mUserManager;
@@ -135,17 +156,30 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
 
         Intent intent = getIntent();
         expandExpToolbarToHalfScreen();
-        if(intent.getStringExtra("from").equalsIgnoreCase("login")){
+        if (intent.getStringExtra("from").equalsIgnoreCase("login")) {
             slideInLoginCard();
-        }else{
+        } else {
             slideInRegisterCard();
         }
 
+        List<Pair<String, View.OnClickListener>> clickableStrings = Arrays.asList(
+                new Pair<>("Terms and Conditions", (View.OnClickListener) v -> {
+                    LOG.info("Terms and Conditions clicked. Showing dialog");
+                    Toast.makeText(getBaseContext(), "Clicked", Toast.LENGTH_SHORT).show();
+                    showTermsOfUseDialog();
+                }),
+                new Pair<>("Privacy Policy", (View.OnClickListener) v -> {
+                    LOG.info("Privacy Policy clicked. Showing dialog");
+                    Toast.makeText(getBaseContext(), "Clicked", Toast.LENGTH_SHORT).show();
+                    showTermsOfUseDialog();
+                })
+        );
+        makeTextLinks(mAcceptedTouText, clickableStrings);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home)  onBackPressed();
+        if (item.getItemId() == android.R.id.home) onBackPressed();
         return super.onOptionsItemSelected(item);
     }
 
@@ -250,7 +284,7 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
 
                             finish();
                             // Then ask for terms of use acceptance.
-                           // askForTermsOfUseAcceptance();
+                            // askForTermsOfUseAcceptance();
                         });
                     }
 
@@ -274,9 +308,15 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
         }
     }
 
+    private void showTermsOfUseDialog() {
+        LOG.info("Show Terms of Use Dialog");
+        mTermsOfUseManager.showLatestTermsOfUseDialogObservable(this)
+                .subscribe(tou -> LOG.info("Closed Dialog"));
+    }
+
     private void askForTermsOfUseAcceptance() {
         // Unsubscribe before issueing a new request.
-        if(mTermsOfUseSubscription != null && !mTermsOfUseSubscription.isUnsubscribed())
+        if (mTermsOfUseSubscription != null && !mTermsOfUseSubscription.isUnsubscribed())
             mTermsOfUseSubscription.unsubscribe();
 
         mTermsOfUseSubscription = mTermsOfUseManager.verifyTermsOfUse(LoginRegisterActivity.this)
@@ -365,6 +405,15 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
             focusView = mRegisterPassword2;
         }
 
+        // check if tou and privacy statement have been accepted.
+        if (!mAcceptTouCheckbox.isChecked()) {
+            mAcceptTouCheckbox.setError("some error");
+            focusView = mAcceptTouCheckbox;
+        }
+//        if (!mAcceptPrivacyCheckbox.isChecked()) {
+//            mAcceptPrivacyCheckbox.setError("some error");
+//        }
+
         // Check if an error occured.
         if (focusView != null) {
             // There was an error; don't attempt register and focus the first
@@ -411,7 +460,7 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
                     });
 
                     finish();
-                   // askForTermsOfUseAcceptance();
+                    // askForTermsOfUseAcceptance();
                 } catch (ResourceConflictException e) {
                     LOG.warn(e.getMessage(), e);
 
@@ -507,6 +556,28 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
                 R.anim.translate_in_bottom_login_card);
         mRegisterCard.setVisibility(View.VISIBLE);
         mRegisterCard.startAnimation(animation);
+    }
+
+    private void makeTextLinks(TextView text, List<Pair<String, View.OnClickListener>> links) {
+        SpannableString string = new SpannableString(text.getText());
+        for (Pair<String, View.OnClickListener> link : links) {
+            ClickableSpan span = new ClickableSpan() {
+                @Override
+                public void onClick(@NonNull View widget) {
+                    Selection.setSelection((Spannable) ((TextView) widget).getText(), 0);
+                    widget.invalidate();
+                    link.second.onClick(widget);
+                }
+            };
+
+            int start = text.getText().toString().indexOf(link.first);
+            if (start > 0) {
+                string.setSpan(span, start, start + link.first.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
+
+        text.setMovementMethod(LinkMovementMethod.getInstance());
+        text.setText(string, TextView.BufferType.SPANNABLE);
     }
 
     /**

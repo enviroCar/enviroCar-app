@@ -41,6 +41,11 @@
 
     <string name="activity_login_logout_progress_dialog_title">Signing out...</string>
     <string name="activity_login_logout_progress_dialog_content">Deleting all local data and copies of uploaded tracks.</string>
-
     <string name="activity_login_logging_in_dialog_title">Logging in...</string>
+
+    <string name="not_yet_registered_question">You do not have an account, yet?</string>
+    <string name="not_yet_registered_register">Register here!</string>
+
+    <string name="already_registered_question">You already have an account?</string>
+    <string name="already_registered_sign_in">Sign in here!</string>
 </resources>

@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -33,13 +33,11 @@ import android.preference.PreferenceManager;
 
 import org.acra.*;
 import org.acra.annotation.*;
-import org.acra.config.ConfigurationBuilder;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.notifications.NotificationHandler;
-import org.envirocar.core.logging.ACRACustomSender;
 import org.envirocar.core.logging.ACRASenderFactory;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.util.Util;
 import org.envirocar.remote.service.AnnouncementsService;
 import org.envirocar.remote.service.CarService;
@@ -94,9 +92,11 @@ public class BaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        baseApplicationComponent = DaggerBaseApplicationComponent.builder()
-                .baseApplicationModule(new BaseApplicationModule(this))
-                .build();
+        baseApplicationComponent =
+                DaggerBaseApplicationComponent
+                        .builder()
+                        .baseApplicationModule(new BaseApplicationModule(this))
+                        .build();
         baseApplicationComponent.inject(this);
 
         EnviroCarService.setCarService(carService);
@@ -149,7 +149,7 @@ public class BaseApplication extends Application {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         boolean obfus = prefs.getBoolean(PreferenceConstants.OBFUSCATE_POSITION, false);
 
-        LOGGER.info("Obfuscation enabled? "+ obfus);
+        LOGGER.info("Obfuscation enabled? " + obfus);
 
         Logger.initialize(Util.getVersionString(this),
                 prefs.getBoolean(PreferenceConstants.ENABLE_DEBUG_LOGGING, false));
@@ -197,11 +197,11 @@ public class BaseApplication extends Application {
         LOGGER.info("freeMemory: " + Runtime.getRuntime().freeMemory());
     }
 
-    public BaseApplicationComponent getBaseApplicationComponent(){
+    public BaseApplicationComponent getBaseApplicationComponent() {
         return baseApplicationComponent;
     }
 
-    public static BaseApplication get(Context context){
+    public static BaseApplication get(Context context) {
         return (BaseApplication) context.getApplicationContext();
     }
 

@@ -71,15 +71,29 @@
         <service
             android:name=".services.AutomaticTrackRecordingService"
             android:enabled="true" />
-        <service
-            android:name=".services.OBDConnectionService"
-            android:enabled="true" />
+        <!--<service-->
+            <!--android:name=".services.OBDConnectionService"-->
+            <!--android:enabled="true" />-->
         <service
             android:name=".services.TrackUploadService"
             android:enabled="true" />
+        <!--<service-->
+            <!--android:name=".services.GPSOnlyConnectionService"-->
+            <!--android:enabled="true" />-->
+
         <service
-            android:name=".services.GPSOnlyConnectionService"
-            android:enabled="true" />
+            android:name=".services.recording.OBDRecordingService"
+            android:enabled="true"/>
+        <service android:name=".services.recording.GPSOnlyRecordingService"
+            android:enabled="true"/>
+        <service
+            android:name=".aidl.EnviroCarDataService"
+            android:enabled="true"
+            android:exported="true">
+            <!--<intent-filter>-->
+                <!--<action android:name="service.envirocarobd" />-->
+            <!--</intent-filter>-->
+        </service>
 
         <receiver android:name=".services.SystemStartupReceiver">
             <intent-filter>

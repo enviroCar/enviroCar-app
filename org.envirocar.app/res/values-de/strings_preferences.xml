@@ -20,6 +20,10 @@
 
 -->
 <resources>
+    <string name="preference_track_trim_duration_title">Einstellen der Trimmdauer einer GPS-Fahrt</string>
     <string name="preference_beta_diesel_consumption">Diesel Verbrauchsschätzung</string>
     <string name="preference_beta_diesel_consumption_sum">Aktiviert die Verbrauchsschätzung für Dieselfahrzeuge.\nBEACHTE: Diese Funktion befindet sich im Beta Stadium und es handelt sich um Schätzungen. Es gibt keinerlei Gewährleistung für die Richtigkeit der berechneten Daten geben.</string>
+
+    <string name="preference_beta_enable_gps_based_track_recording">GPS-basierte Aufzeichnung aktivieren</string>
+    <string name="preference_beta_enable_gps_based_track_recording_sum">Ermöglicht die Aufzeichnung von GPS-basierten Fahrten, die keinen OBD-II-Adapter erfordern. HINWEIS: Dieses Feature ist nur eine Beta-Funktion.</string>
 </resources>

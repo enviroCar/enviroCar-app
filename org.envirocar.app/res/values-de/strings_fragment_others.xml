@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="others_logbook">Logbuch</string>
+    <string name="others_settings">Einstellungen</string>
+    <string name="others_help">Hilfe</string>
+    <string name="others_report_issue">Problem melden</string>
+    <string name="others_rate_us">Bewerte uns</string>
+    <string name="others_logout">Ausloggen</string>
+    <string name="others_close_envirocar">enviroCar Schließen</string>
+</resources>

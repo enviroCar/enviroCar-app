@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -21,9 +21,12 @@ package org.envirocar.app.services;
 import android.content.Context;
 import android.os.PowerManager;
 
-import org.envirocar.app.handler.InterpolationMeasurementProvider;
 import org.envirocar.algorithm.MeasurementProvider;
-import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.app.handler.InterpolationMeasurementProvider;
+import org.envirocar.app.main.BaseApplication;
+import org.envirocar.app.services.recording.RecordingNotification;
+import org.envirocar.app.services.recording.SpeechOutput;
+import org.envirocar.core.injection.InjectApplicationScope;
 
 import javax.inject.Singleton;
 
@@ -54,4 +57,21 @@ public class OBDServiceModule {
     OBDConnectionHandler provideOBDConnectionHandler(@InjectApplicationScope Context context) {
         return new OBDConnectionHandler(context);
     }
+
+    @Singleton
+    @Provides
+    SpeechOutput provideSpeechOutput(@InjectApplicationScope Context context) {
+        SpeechOutput speechOutput = new SpeechOutput(context);
+        ((BaseApplication) context).getBaseApplicationComponent().inject(speechOutput);
+        return speechOutput;
+    }
+
+    @Singleton
+    @Provides
+    RecordingNotification provideRecordingNotification(@InjectApplicationScope Context context) {
+        RecordingNotification recordingNotification = new RecordingNotification(context);
+        ((BaseApplication) context).getBaseApplicationComponent().inject(recordingNotification);
+        return recordingNotification;
+    }
+
 }

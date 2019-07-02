@@ -24,13 +24,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.squareup.sqlbrite.BriteDatabase;
 import com.squareup.sqlbrite.SqlBrite;
 
-import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.injection.InjectApplicationScope;
 
 import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
-import rx.schedulers.Schedulers;
 
 /**
  * TODO JavaDoc
@@ -55,7 +54,7 @@ public final class DatabaseModule {
     @Provides
     @Singleton
     BriteDatabase provideBriteDatabase(SqlBrite sqlBrite, SQLiteOpenHelper helper) {
-        return sqlBrite.wrapDatabaseHelper(helper, Schedulers.io());
+        return sqlBrite.wrapDatabaseHelper(helper);
     }
 
     @Provides
@@ -65,3 +64,4 @@ public final class DatabaseModule {
     }
 
 }
+

@@ -26,8 +26,8 @@ import com.squareup.otto.Bus;
 
 import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.R;
-import org.envirocar.app.services.GPSOnlyConnectionService;
-import org.envirocar.app.services.OBDConnectionService;
+import org.envirocar.app.services.recording.GPSOnlyRecordingService;
+import org.envirocar.app.services.recording.OBDRecordingService;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
@@ -35,7 +35,7 @@ import org.envirocar.core.entity.TrackImpl;
 import org.envirocar.core.events.TrackFinishedEvent;
 import org.envirocar.core.exception.MeasurementSerializationException;
 import org.envirocar.core.exception.NoMeasurementsException;
-import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
@@ -331,14 +331,14 @@ public class TrackRecordingHandler {
 
     public void stopBackgroundRecordingServices() {
         LOGGER.info("stopBackgroundRecordingServices()");
-        if (ServiceUtils.isServiceRunning(mContext, OBDConnectionService.class)) {
+        if (ServiceUtils.isServiceRunning(mContext, OBDRecordingService.class)) {
             mContext.getApplicationContext()
-                    .stopService(new Intent(mContext, OBDConnectionService.class));
+                    .stopService(new Intent(mContext, OBDRecordingService.class));
         }
 
-        if (ServiceUtils.isServiceRunning(mContext, GPSOnlyConnectionService.class)) {
+        if (ServiceUtils.isServiceRunning(mContext, GPSOnlyRecordingService.class)) {
             mContext.getApplicationContext()
-                    .stopService(new Intent(mContext, GPSOnlyConnectionService.class));
+                    .stopService(new Intent(mContext, GPSOnlyRecordingService.class));
         }
 
         ActivityManager amgr = (ActivityManager) mContext.getSystemService(Context

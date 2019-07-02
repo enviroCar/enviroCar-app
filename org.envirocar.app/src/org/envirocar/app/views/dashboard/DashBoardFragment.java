@@ -65,8 +65,8 @@ import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.main.MainActivityComponent;
 import org.envirocar.app.main.MainActivityModule;
-import org.envirocar.app.services.GPSOnlyConnectionService;
-import org.envirocar.app.services.OBDConnectionService;
+import org.envirocar.app.services.recording.GPSOnlyRecordingService;
+import org.envirocar.app.services.recording.OBDRecordingService;
 import org.envirocar.app.views.LoginRegisterActivity;
 import org.envirocar.app.views.carselection.CarSelectionActivity;
 import org.envirocar.app.views.obdselection.OBDSelectionActivity;
@@ -80,7 +80,7 @@ import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.util.InjectionActivityScope;
+import org.envirocar.core.injection.InjectActivityScope;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 
@@ -107,7 +107,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
     protected TermsOfUseManager mTermsOfUseManager;
     @Inject
     protected TrackDAOHandler mTrackDAOHandler;
-    @InjectionActivityScope
+    @InjectActivityScope
     @Inject
     protected Context context;
 
@@ -263,13 +263,13 @@ public class DashBoardFragment extends BaseInjectorFragment {
                     DashBoardFragment.this.showOBDPlusGPSSettings();
                     PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(), 1);
                     trackType = 1;
-                    DashBoardFragment.this.updateStartStopButtonOBDPlusGPS(OBDConnectionService.CURRENT_SERVICE_STATE);
+                    DashBoardFragment.this.updateStartStopButtonOBDPlusGPS(OBDRecordingService.CURRENT_SERVICE_STATE);
                     break;
                 case R.id.GPSOnlySegmentedButton:
                     DashBoardFragment.this.showGPSOnlySettings();
                     PreferencesHandler.setPreviouslySelectedRecordingType(context.getApplicationContext(), 2);
                     trackType = 2;
-                    DashBoardFragment.this.updateStartStopButtonGPSOnly(GPSOnlyConnectionService.CURRENT_SERVICE_STATE);
+                    DashBoardFragment.this.updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
                     DashBoardFragment.this.updateBannerForGPSOnlyType();
                     break;
                 default:
@@ -360,7 +360,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
     public void onStartStopButtonClicked() {
         switch (trackType) {
             case 1:
-                if(OBDConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED){
+                if(OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED){
                     Intent intent = new Intent(getActivity(),OBDPlusGPSTrackRecordingScreen.class);
                     startActivity(intent);
                 }else{
@@ -372,7 +372,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                 }
                 break;
             case 2:
-                if(GPSOnlyConnectionService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED){
+                if(GPSOnlyRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED){
                     Intent intent = new Intent(getActivity(),GPSOnlyTrackRecordingScreen.class);
                     startActivity(intent);
                 }else{
@@ -394,10 +394,10 @@ public class DashBoardFragment extends BaseInjectorFragment {
         updateSegmentedView();
         updateUserDetailsView();
         if(trackType == 1){
-            updateStartStopButtonOBDPlusGPS(OBDConnectionService.CURRENT_SERVICE_STATE);
+            updateStartStopButtonOBDPlusGPS(OBDRecordingService.CURRENT_SERVICE_STATE);
         }
         else if(trackType == 2){
-            updateStartStopButtonGPSOnly(GPSOnlyConnectionService.CURRENT_SERVICE_STATE);
+            updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
         }
     }
 
@@ -795,9 +795,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
                 "" + event.isBluetoothEnabled));
         mMainThreadWorker.schedule(() -> {
             if(trackType == 1){
-                updateStartStopButtonOBDPlusGPS(OBDConnectionService.CURRENT_SERVICE_STATE);
+                updateStartStopButtonOBDPlusGPS(OBDRecordingService.CURRENT_SERVICE_STATE);
             }else if(trackType == 2){
-                updateStartStopButtonGPSOnly(GPSOnlyConnectionService.CURRENT_SERVICE_STATE);
+                updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
             }
 
             setOBDTypeText(mBluetoothHandler.getSelectedBluetoothDevice());
@@ -809,9 +809,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
         LOG.debug(String.format("Received event: %s", event.toString()));
         mMainThreadWorker.schedule(() -> {
             if(trackType == 1){
-                updateStartStopButtonOBDPlusGPS(OBDConnectionService.CURRENT_SERVICE_STATE);
+                updateStartStopButtonOBDPlusGPS(OBDRecordingService.CURRENT_SERVICE_STATE);
             }else if(trackType == 2){
-                updateStartStopButtonGPSOnly(GPSOnlyConnectionService.CURRENT_SERVICE_STATE);
+                updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
             }
 
             setCarTypeText(event.mCar);
@@ -822,9 +822,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
     public void onReceiveGpsStatusChangedEvent(GpsStateChangedEvent event) {
         mMainThreadWorker.schedule(() -> {
             if(trackType == 1){
-                updateStartStopButtonOBDPlusGPS(OBDConnectionService.CURRENT_SERVICE_STATE);
+                updateStartStopButtonOBDPlusGPS(OBDRecordingService.CURRENT_SERVICE_STATE);
             }else if(trackType == 2){
-                updateStartStopButtonGPSOnly(GPSOnlyConnectionService.CURRENT_SERVICE_STATE);
+                updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
             }
         });
     }
@@ -1027,7 +1027,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                                         // and if the remoteService is already started, then
                                         // stop it.
                                         getActivity().stopService(new Intent
-                                                (getActivity(), OBDConnectionService
+                                                (getActivity(), OBDRecordingService
                                                         .class));
                                     }
                                     found = true;
@@ -1070,10 +1070,10 @@ public class DashBoardFragment extends BaseInjectorFragment {
                         // Start the background remoteService.
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             getActivity().startForegroundService(
-                                    new Intent(getActivity(), OBDConnectionService.class));
+                                    new Intent(getActivity(), OBDRecordingService.class));
                         }else{
                             getActivity().startService(
-                                    new Intent(getActivity(), OBDConnectionService.class));
+                                    new Intent(getActivity(), OBDRecordingService.class));
                         }
                     }
                 });
@@ -1082,11 +1082,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
     private void onGPSOnlyStartTrackButtonStartClicked(){
         // Start the background remoteService.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            getActivity().startForegroundService(
-                    new Intent(getActivity(), GPSOnlyConnectionService.class));
+            getActivity().startForegroundService(new Intent(getActivity(), GPSOnlyRecordingService.class));
         }else{
-            getActivity().startService(
-                    new Intent(getActivity(), GPSOnlyConnectionService.class));
+            getActivity().startService(new Intent(getActivity(), GPSOnlyRecordingService.class));
         }
     }
 
