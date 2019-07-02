@@ -296,6 +296,48 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
     }
 
     @Override
+    public List<Track> getTrackIdsWithLimit(int limit) throws NotConnectedException,
+            UnauthorizedException {
+        final TrackService trackService = EnviroCarService.getTrackService();
+        Call<List<Track>> remoteTrackCall = trackService.getTrackIdsWithLimit(userManager.getUser()
+                .getUsername(), limit);
+
+        try {
+            Response<List<Track>> remoteTracksResponse = remoteTrackCall.execute();
+
+            if (!remoteTracksResponse.isSuccessful()) {
+                LOG.severe("Error while retrieving the list of remote tracks with limit " + limit);
+                EnvirocarServiceUtils.assertStatusCode(remoteTracksResponse.code(),
+                        remoteTracksResponse.message());
+            }
+
+            return remoteTracksResponse.body();
+        } catch (IOException e) {
+            throw new NotConnectedException(e);
+        } catch (ResourceConflictException e) {
+            throw new NotConnectedException(e);
+        }
+    }
+
+    @Override
+    public Observable<List<Track>> getTrackIdsWithLimitObservable(final int limit) {
+        return Observable.create(
+                new Observable.OnSubscribe<List<Track>>() {
+                    @Override
+                    public void call(Subscriber<? super List<Track>> subscriber) {
+                        try {
+                            List<Track> remoteTracks = getTrackIdsWithLimit(limit);
+                            subscriber.onNext(remoteTracks);
+                            subscriber.onCompleted();
+                        } catch (Exception e) {
+                            subscriber.onError(e);
+                        }
+                    }
+                }
+        );
+    }
+
+    @Override
     public void deleteTrack(Track track) throws
             NotConnectedException, UnauthorizedException {
         Preconditions.checkState(track.getRemoteID() != null, "No RemoteID for this Track.");

@@ -64,6 +64,15 @@ public class CacheTrackDAO extends AbstractCacheDAO implements TrackDAO {
     }
 
     @Override
+    public List<Track> getTrackIdsWithLimit(int limit) throws NotConnectedException {
+        throw new NotConnectedException("Not implemented for Cache DAO");
+    }
+
+    public Observable<List<Track>> getTrackIdsWithLimitObservable(final int limit){
+        return Observable.error(new NotConnectedException("Not implemented for Cache DAO"));
+    }
+
+    @Override
     public List<Track> getTrackIds(int limit, int page) throws NotConnectedException {
         throw new NotConnectedException("Not implemented for Cache DAO");
     }
