@@ -63,4 +63,5 @@
     <string name="dashboard_my_local_tracks">#My Local Tracks</string>
     <string name="dashboard_my_remote_tracks">#My Remote Tracks</string>
     <string name="dashboard_total_tracks">#Total Tracks</string>
+    <string name="dashboard_total_distance">Total Distance</string>
 </resources>

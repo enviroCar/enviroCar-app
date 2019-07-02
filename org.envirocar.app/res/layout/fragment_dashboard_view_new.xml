@@ -91,7 +91,7 @@
                     android:id="@+id/noUserDate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="20dp"
                     android:layout_marginEnd="24dp"
                     android:layout_marginRight="24dp"
                     android:fontFamily="@font/roboto_medium"
@@ -126,6 +126,7 @@
                             android:id="@+id/userLocalTrackCountTV"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/roboto_medium"
                             android:text="-"
                             android:textColor="#000000"
                             android:textSize="22sp"
@@ -159,6 +160,7 @@
                             android:id="@+id/userUploadedTrackCountTV"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:fontFamily="@font/roboto_medium"
                             android:text="-"
                             android:textColor="#000000"
                             android:textSize="22sp"
@@ -175,37 +177,65 @@
 
                     </LinearLayout>
 
-                    <LinearLayout
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/linearLayout"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_marginRight="8dp"
                         android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="5dp"
                         tools:layout_conversion_absoluteHeight="62dp"
                         tools:layout_conversion_absoluteWidth="85dp"
                         tools:layout_editor_absoluteX="284dp"
                         tools:layout_editor_absoluteY="175dp">
 
                         <TextView
-                            android:id="@+id/userGlobalTrackCountTV"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="-"
-                            android:textColor="#000000"
-                            android:textSize="22sp"
-                            android:textStyle="bold" />
-
-                        <TextView
+                            android:id="@+id/userTotalDistanceTV"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
+                            android:fontFamily="@font/roboto_medium"
+                            android:text="0"
+                            android:textColor="#000000"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            app:layout_constraintEnd_toEndOf="@+id/textView"
+                            app:layout_constraintHorizontal_bias="0.4"
+                            app:layout_constraintStart_toStartOf="@+id/textView"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/textView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginLeft="5dp"
+                            android:layout_marginTop="6dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_marginRight="5dp"
+                            android:layout_marginBottom="6dp"
                             android:maxLines="1"
                             android:singleLine="true"
-                            android:text="@string/dashboard_total_tracks"
-                            android:textSize="12sp" />
+                            android:text="@string/dashboard_total_distance"
+                            android:textSize="12sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@id/userTotalDistanceTV" />
 
-                    </LinearLayout>
+                        <TextView
+                            android:id="@+id/textView2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginLeft="4dp"
+                            android:layout_marginBottom="3dp"
+                            android:fontFamily="@font/roboto_medium"
+                            android:text="KM"
+                            android:textSize="11sp"
+                            app:layout_constraintBottom_toBottomOf="@+id/userTotalDistanceTV"
+                            app:layout_constraintStart_toEndOf="@+id/userTotalDistanceTV" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>

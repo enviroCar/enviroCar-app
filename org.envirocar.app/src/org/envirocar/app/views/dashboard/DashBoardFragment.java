@@ -83,10 +83,13 @@ import org.envirocar.app.views.recordingscreen.OBDPlusGPSTrackRecordingScreen;
 import org.envirocar.app.views.utils.DialogUtils;
 import org.envirocar.core.dao.TrackDAO;
 import org.envirocar.core.entity.Car;
+import org.envirocar.core.entity.Track;
 import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
+import org.envirocar.core.exception.NotConnectedException;
+import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.injection.InjectActivityScope;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
@@ -95,18 +98,20 @@ import org.envirocar.obd.service.BluetoothServiceState;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
-import static android.content.Context.MODE_PRIVATE;
 import static android.view.View.GONE;
 
 public class DashBoardFragment extends BaseInjectorFragment {
@@ -141,8 +146,10 @@ public class DashBoardFragment extends BaseInjectorFragment {
     protected TextView userLocalTrackCountTV;
     @BindView(R.id.userUploadedTrackCountTV)
     protected TextView userUploadedTrackCountTV;
-    @BindView(R.id.userGlobalTrackCountTV)
-    protected TextView userGlobalTrackCountTV;
+    //@BindView(R.id.userGlobalTrackCountTV)
+    //protected TextView userGlobalTrackCountTV;
+    @BindView(R.id.userTotalDistanceTV)
+    protected TextView userTotalDistanceTV;
     @BindView(R.id.noUserDate)
     protected TextView noUserDate;
     @BindView(R.id.signInInitiatorButton)
@@ -237,10 +244,14 @@ public class DashBoardFragment extends BaseInjectorFragment {
     protected ViewGroup bannerTransition;
     protected ViewGroup frameTransition;
     protected ViewGroup settingTransition;
+    protected CompositeSubscription subscriptions = new CompositeSubscription();
     private final Scheduler.Worker mBackgroundWorker = Schedulers
             .newThread().createWorker();
     private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers
             .mainThread().createWorker();
+    protected Unbinder unbinder;
+    protected Long distance = Long.valueOf(0);
+    protected long timeInMillis = 0;
     //trackType = 1 means OBD + GPS
     //trackType = 2 means GPS Only
     private static int trackType = 1;
@@ -269,10 +280,11 @@ public class DashBoardFragment extends BaseInjectorFragment {
         // First inflate the general dashboard view.
         View contentView = inflater.inflate(R.layout.fragment_dashboard_view_new, container, false);
 
-        ButterKnife.bind(this,contentView);
-        userLocalTrackCountTV.setText(PreferencesHandler.getLocalTrackCount(getActivity()) + " ");
+        unbinder = ButterKnife.bind(this,contentView);
+        userLocalTrackCountTV.setText(PreferencesHandler.getTotalTime(getActivity()) + " ");
         userUploadedTrackCountTV.setText(PreferencesHandler.getUploadedTrackCount(getActivity()) + "");
-        userGlobalTrackCountTV.setText(PreferencesHandler.getGlobalTrackCount(getActivity()) + "");
+        userTotalDistanceTV.setText(PreferencesHandler.getTotalDistanceTravelledOfUser(getActivity())+"");
+        //userGlobalTrackCountTV.setText(PreferencesHandler.getGlobalTrackCount(getActivity()) + "");
         obdGPSTransition = buttonGroup;
         bannerTransition = buttonBanner;
         frameTransition = frameLayout;
@@ -453,6 +465,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
     public void onResume() {
         super.onResume();
         updateSegmentedView();
+        getUserCardDetails();
         updateUserDetailsView();
         if(trackType == 1){
             updateStartStopButtonOBDPlusGPS(OBDRecordingService.CURRENT_SERVICE_STATE);
@@ -460,6 +473,17 @@ public class DashBoardFragment extends BaseInjectorFragment {
         else if(trackType == 2){
             updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        LOG.info("onDestroyView()");
+        super.onDestroyView();
+
+        if (!subscriptions.isUnsubscribed()) {
+            subscriptions.unsubscribe();
+        }
+        unbinder.unbind();
     }
 
     private void updateSegmentedView(){
@@ -679,6 +703,96 @@ public class DashBoardFragment extends BaseInjectorFragment {
         mOBDTypeView.setVisibility(GONE);
     }
 
+    void getUserCardDetails(){
+        subscriptions.add(mDAOProvider.getTrackDAO().getTrackIdsObservable()
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Subscriber<List<Track>>() {
+            @Override
+            public void onStart() {
+                LOG.info("onStart() of getUserCardDetails");
+            }
+            @Override
+            public void onCompleted() {
+
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                LOG.error(e.getMessage(), e);
+
+                if (e instanceof NotConnectedException) {
+                    LOG.error("Error", e);
+                } else if (e instanceof UnauthorizedException) {
+                    LOG.error("Unauthorised",e);
+                }
+                distance = Long.valueOf(-1);
+            }
+
+            @Override
+            public void onNext(List<Track> tracks) {
+
+                for (Track track : tracks) {
+                    distance += track.getLength();
+                    timeInMillis += track.getTimeInMillis();
+                }
+
+                String time = convertMillisToDate();
+                PreferencesHandler.setTotalTime(context, time);
+                LOG.info(time+" Duration");
+                userLocalTrackCountTV.setText(PreferencesHandler.getTotalTime(context)+"");
+                PreferencesHandler.setTotalDistanceTravelledOfUser(context, distance);
+                userTotalDistanceTV.setText(PreferencesHandler.getTotalDistanceTravelledOfUser(context)+"");
+            }
+        }));
+    }
+
+    String convertMillisToDate(){
+        long diffSeconds = timeInMillis / 1000 % 60;
+        long diffMinutes = timeInMillis / (60 * 1000) % 60;
+        long diffHours = timeInMillis / (60 * 60 * 1000) % 24;
+        long diffDays = timeInMillis / (24 * 60 * 60 * 1000);
+        StringBuilder stringBuilder = new StringBuilder();
+        if(diffDays != 0) {
+            stringBuilder.append(diffDays);
+            stringBuilder.append("d ");
+            if (diffHours > 1) {
+                stringBuilder.append(diffHours);
+                stringBuilder.append("h");
+            }
+        }
+        else {
+            if (diffHours != 0) {
+                stringBuilder.append(diffHours);
+                if (diffMinutes != 0){
+                    stringBuilder.append(" : ");
+                    stringBuilder.append(diffMinutes);
+                }
+                stringBuilder.append("h");
+            }
+            else {
+                if (diffMinutes!=0) {
+                    stringBuilder.append(diffMinutes);
+                    if(diffSeconds!=0){
+                        stringBuilder.append(" : ");
+                        stringBuilder.append(diffSeconds);
+                    }
+                    stringBuilder.append("m");
+                }
+                else{
+                    if(diffSeconds!=0){
+                        stringBuilder.append(diffSeconds);
+                        stringBuilder.append("s");
+                    }
+                    else{
+                        stringBuilder.append("No Tracks");
+                    }
+                }
+            }
+
+        }
+        return stringBuilder.toString();
+    }
     void updateUserDetailsView(){
         if(mUserManager.isLoggedIn()){
             dashBoardUserName.setVisibility(View.VISIBLE);
@@ -696,7 +810,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(integer -> {
-                        userLocalTrackCountTV.setText("" + integer);
+                        //userLocalTrackCountTV.setText("" + integer);
                         PreferencesHandler.setLocalTrackCount(context,integer);
                     });
 
@@ -708,7 +822,6 @@ public class DashBoardFragment extends BaseInjectorFragment {
                         if (dashBoardUserImageView != null && dashBoardUserImageView.getVisibility() == View.VISIBLE && bitmap != null)
                             dashBoardUserImageView.setImageBitmap(bitmap);
                     });
-
             // Update the new values of the exp toolbar content.
             mBackgroundWorker.schedule(() -> {
                 try {
@@ -718,7 +831,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
                     String.format("%s (%s)", userTrackCount, totalTrackCount);
                     mMainThreadWorker.schedule(() -> {
-                        userGlobalTrackCountTV.setText(Integer.toString(totalTrackCount));
+                        //userGlobalTrackCountTV.setText(Integer.toString(totalTrackCount));
                         userUploadedTrackCountTV.setText(Integer.toString(userTrackCount));
                         PreferencesHandler.setUploadedTrackCount(context, userTrackCount);
                         PreferencesHandler.setGlobalTrackCount(context, totalTrackCount);
