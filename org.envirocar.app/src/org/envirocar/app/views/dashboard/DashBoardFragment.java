@@ -273,7 +273,6 @@ public class DashBoardFragment extends BaseInjectorFragment {
         userLocalTrackCountTV.setText(PreferencesHandler.getLocalTrackCount(getActivity()) + " ");
         userUploadedTrackCountTV.setText(PreferencesHandler.getUploadedTrackCount(getActivity()) + "");
         userGlobalTrackCountTV.setText(PreferencesHandler.getGlobalTrackCount(getActivity()) + "");
-        //dashBoardUserName.setText(mUserManager.getUser().getName());
         obdGPSTransition = buttonGroup;
         bannerTransition = buttonBanner;
         frameTransition = frameLayout;
@@ -284,8 +283,14 @@ public class DashBoardFragment extends BaseInjectorFragment {
             getActivity().startActivity(intent);
         });
         mOBDTypeView.setOnClickListener(v -> {
-            Intent intent = new Intent(getActivity(), OBDSelectionActivity.class);
-            getActivity().startActivity(intent);
+            if(errorImageBluetooth.getVisibility() == View.VISIBLE){
+                Intent intent = new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
+                startActivity(intent);
+            }
+            else {
+                Intent intent = new Intent(getActivity(), OBDSelectionActivity.class);
+                getActivity().startActivity(intent);
+            }
         });
 
         mGPSSelectedView.setOnClickListener(v->{
@@ -371,12 +376,8 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @OnClick(R.id.bannerBluetoothContainer)
     protected void onbannerBluetoothContainerClicked(){
         if(errorImageBluetooth.getVisibility() == View.VISIBLE){
-            DialogUtils.createDefaultDialogBuilder(getContext(),
-                 R.string.banner_bluetooth_error_title,
-                 R.drawable.ic_bluetooth_white_24dp,
-                 R.string.banner_bluetooth_error_content)
-                 .positiveText(R.string.banner_error_ok)
-                 .show();
+            Intent intent = new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
+            startActivity(intent);
         }
     }
 
