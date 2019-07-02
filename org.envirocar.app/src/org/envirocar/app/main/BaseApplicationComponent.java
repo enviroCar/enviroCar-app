@@ -47,6 +47,7 @@ import org.envirocar.app.views.settings.AutoConnectSettingsFragment;
 import org.envirocar.app.views.settings.SettingsActivity;
 import org.envirocar.app.views.trackdetails.TrackDetailsActivity;
 import org.envirocar.app.views.trackdetails.TrackStatisticsActivity;
+import org.envirocar.core.dao.PrivacyStatementDAO;
 import org.envirocar.remote.dao.CacheAnnouncementsDAO;
 import org.envirocar.remote.dao.CacheCarDAO;
 import org.envirocar.remote.dao.CacheFuelingDAO;
@@ -117,7 +118,9 @@ public interface BaseApplicationComponent {
     RemoteFuelingDAO getRemoteFuelingDAO();
     CacheFuelingDAO getCacheFuelingDAO();
     RemoteTermsOfUseDAO getRemoteTermsOfUseDAO();
+    PrivacyStatementDAO getRemotePrivacyStatementDAO();
     CacheTermsOfUseDAO getCacheTermsOfUseDAO();
+    PrivacyStatementDAO getCachePrivacyStatementDao();
     RemoteAnnouncementsDAO getRemoteAnnouncementsDAO();
     CacheAnnouncementsDAO getCacheAnnouncementsDAO();
     Retrofit provideRetrofit();
