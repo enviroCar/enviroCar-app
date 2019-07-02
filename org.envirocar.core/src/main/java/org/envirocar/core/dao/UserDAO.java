@@ -42,4 +42,5 @@ public interface UserDAO {
     void createUser(User user) throws DataUpdateFailureException, ResourceConflictException;
 
     void updateUser(User user) throws DataUpdateFailureException, UnauthorizedException;
+
 }

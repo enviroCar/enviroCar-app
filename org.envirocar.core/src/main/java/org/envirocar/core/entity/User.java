@@ -59,6 +59,10 @@ public interface User extends BaseEntity<User> {
 
     void setTermsOfUseVersion(String termsOfUseVersion);
 
+    String getPrivacyStatementVersion();
+
+    void setPrivacyStatementVersion(String privacyStatementVersion);
+
     VersionRange getVersionRange();
 
     void setVersionRange();
