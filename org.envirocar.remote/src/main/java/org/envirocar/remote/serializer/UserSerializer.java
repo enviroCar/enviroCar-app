@@ -52,7 +52,11 @@ public class UserSerializer implements JsonSerializer<User>, JsonDeserializer<Us
         }
 
         if (src.getTermsOfUseVersion() != null) {
-            user.addProperty(User.KEY_USER_TOU_VERSION, src.getTermsOfUseVersion());
+            user.addProperty(User.KEY_USER_TOU_ACCEPTED, src.getTermsOfUseVersion());
+        }
+
+        if (src.getPrivacyStatementVersion() != null){
+            user.addProperty(User.KEY_USER_PRIVACY_STATEMENT_ACCEPTED, src.getPrivacyStatementVersion());
         }
 
         return user;
@@ -69,9 +73,14 @@ public class UserSerializer implements JsonSerializer<User>, JsonDeserializer<Us
         user.setUsername(username);
         user.setMail(mail);
 
-        if (userObject.has(User.KEY_USER_TOU_VERSION)) {
-            String touVersion = userObject.get(User.KEY_USER_TOU_VERSION).getAsString();
+        if (userObject.has(User.KEY_USER_TOU_ACCEPTED)) {
+            String touVersion = userObject.get(User.KEY_USER_TOU_ACCEPTED).getAsString();
             user.setTermsOfUseVersion(touVersion);
+        }
+
+        if (userObject.has(User.KEY_USER_PRIVACY_STATEMENT_ACCEPTED)){
+            String psVersion = userObject.get(User.KEY_USER_TOU_ACCEPTED).getAsString();
+            user.setPrivacyStatementVersion(psVersion);
         }
 
         return user;
