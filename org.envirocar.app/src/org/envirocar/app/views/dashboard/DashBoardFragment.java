@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -28,11 +28,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.core.app.ActivityCompat;
-import androidx.cardview.widget.CardView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,13 +42,18 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.core.app.ActivityCompat;
+
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.snackbar.Snackbar;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BuildConfig;
 import org.envirocar.app.R;
-import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.BluetoothHandler;
 import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.DAOProvider;
@@ -61,6 +61,7 @@ import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.main.MainActivityComponent;
@@ -79,8 +80,8 @@ import org.envirocar.core.events.NewCarTypeSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothDeviceSelectedEvent;
 import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
-import org.envirocar.core.logging.Logger;
 import org.envirocar.core.injection.InjectActivityScope;
+import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 
@@ -216,7 +217,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
-        MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(getActivity()));
+        MainActivityComponent mainActivityComponent = baseApplicationComponent.plus(new MainActivityModule(getActivity()));
         mainActivityComponent.inject(this);
     }
 
@@ -224,8 +225,8 @@ public class DashBoardFragment extends BaseInjectorFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(!PreferencesHandler.getEnableGPSBasedTrackRecording(context)){
-            PreferencesHandler.setPreviouslySelectedRecordingType(context,1);
+        if (!PreferencesHandler.getEnableGPSBasedTrackRecording(context)) {
+            PreferencesHandler.setPreviouslySelectedRecordingType(context, 1);
         }
     }
 
@@ -235,7 +236,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
         // First inflate the general dashboard view.
         View contentView = inflater.inflate(R.layout.fragment_dashboard_view, container, false);
 
-        ButterKnife.bind(this,contentView);
+        ButterKnife.bind(this, contentView);
         userLocalTrackCountTV.setText(PreferencesHandler.getLocalTrackCount(getActivity()) + " ");
         userUploadedTrackCountTV.setText(PreferencesHandler.getUploadedTrackCount(getActivity()) + "");
         userGlobalTrackCountTV.setText(PreferencesHandler.getGlobalTrackCount(getActivity()) + "");
@@ -277,40 +278,39 @@ public class DashBoardFragment extends BaseInjectorFragment {
             }
         });
 
-        if(!PreferencesHandler.getEnableGPSBasedTrackRecording(context)){
-            dashboardSegmentedGroup.check( R.id.obdPlusGPSSegmentedButton);
+        if (!PreferencesHandler.getEnableGPSBasedTrackRecording(context)) {
+            dashboardSegmentedGroup.check(R.id.obdPlusGPSSegmentedButton);
             dashboardSegmentedGroup.setVisibility(GONE);
         }
 
-        if(!checkStoragePermissions())
-        {
+        if (!checkStoragePermissions()) {
             requestStoragePermissions();
         }
         return contentView;
     }
 
     @OnClick(R.id.signInInitiatorButton)
-    protected void onLoginInitiatorButtonClicked(){
+    protected void onLoginInitiatorButtonClicked() {
         Intent intent = new Intent(getActivity(), LoginRegisterActivity.class);
-        intent.putExtra("from","login");
+        intent.putExtra("from", "login");
         startActivity(intent);
     }
 
     @OnClick(R.id.bannerBluetoothContainer)
-    protected void onbannerBluetoothContainerClicked(){
-        if(errorImageBluetooth.getVisibility() == View.VISIBLE){
+    protected void onbannerBluetoothContainerClicked() {
+        if (errorImageBluetooth.getVisibility() == View.VISIBLE) {
             DialogUtils.createDefaultDialogBuilder(getContext(),
-                 R.string.banner_bluetooth_error_title,
-                 R.drawable.ic_bluetooth_white_24dp,
-                 R.string.banner_bluetooth_error_content)
-                 .positiveText(R.string.banner_error_ok)
-                 .show();
+                    R.string.banner_bluetooth_error_title,
+                    R.drawable.ic_bluetooth_white_24dp,
+                    R.string.banner_bluetooth_error_content)
+                    .positiveText(R.string.banner_error_ok)
+                    .show();
         }
     }
 
     @OnClick(R.id.bannerOBDAdapterContainer)
-    protected void onbannerOBDAdapterContainerClicked(){
-        if(errorImageOBDAdapter.getVisibility() == View.VISIBLE){
+    protected void onbannerOBDAdapterContainerClicked() {
+        if (errorImageOBDAdapter.getVisibility() == View.VISIBLE) {
             DialogUtils.createDefaultDialogBuilder(getContext(),
                     R.string.banner_obd_adapter_error_title,
                     R.drawable.others_settings,
@@ -321,8 +321,8 @@ public class DashBoardFragment extends BaseInjectorFragment {
     }
 
     @OnClick(R.id.bannerGPSContainer)
-    protected void onbannerGPSContainerClicked(){
-        if(errorImageGPS.getVisibility() == View.VISIBLE){
+    protected void onbannerGPSContainerClicked() {
+        if (errorImageGPS.getVisibility() == View.VISIBLE) {
             DialogUtils.createDefaultDialogBuilder(getContext(),
                     R.string.banner_gps_error_title,
                     R.drawable.ic_location_on_white_24dp,
@@ -333,8 +333,8 @@ public class DashBoardFragment extends BaseInjectorFragment {
     }
 
     @OnClick(R.id.bannerCarContainer)
-    protected void onbannerCarContainerClicked(){
-        if(errorImageCar.getVisibility() == View.VISIBLE){
+    protected void onbannerCarContainerClicked() {
+        if (errorImageCar.getVisibility() == View.VISIBLE) {
             DialogUtils.createDefaultDialogBuilder(getContext(),
                     R.string.banner_car_error_title,
                     R.drawable.img_car,
@@ -345,14 +345,14 @@ public class DashBoardFragment extends BaseInjectorFragment {
     }
 
     @OnClick(R.id.disableChangingParametersLayout)
-    protected void ondisableChangingParametersLayoutClicked(){
-        Toast.makeText(context,"You cannot change these values while track recording is in progress",Toast.LENGTH_LONG).show();
+    protected void ondisableChangingParametersLayoutClicked() {
+        Toast.makeText(context, "You cannot change these values while track recording is in progress", Toast.LENGTH_LONG).show();
     }
 
     @OnClick(R.id.registerInitiatorButton)
-    protected void onRegisterInitiatorButtonClicked(){
+    protected void onRegisterInitiatorButtonClicked() {
         Intent intent = new Intent(getActivity(), LoginRegisterActivity.class);
-        intent.putExtra("from","register");
+        intent.putExtra("from", "register");
         startActivity(intent);
     }
 
@@ -360,25 +360,25 @@ public class DashBoardFragment extends BaseInjectorFragment {
     public void onStartStopButtonClicked() {
         switch (trackType) {
             case 1:
-                if(OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED){
-                    Intent intent = new Intent(getActivity(),OBDPlusGPSTrackRecordingScreen.class);
+                if (OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED) {
+                    Intent intent = new Intent(getActivity(), OBDPlusGPSTrackRecordingScreen.class);
                     startActivity(intent);
-                }else{
-                    if(checkLocationPermission()){
+                } else {
+                    if (checkLocationPermission()) {
                         onOBDPlusGPSStartTrackButtonStartClicked();
-                    }else{
+                    } else {
                         requestLocationPermission();
                     }
                 }
                 break;
             case 2:
-                if(GPSOnlyRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED){
-                    Intent intent = new Intent(getActivity(),GPSOnlyTrackRecordingScreen.class);
+                if (GPSOnlyRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED) {
+                    Intent intent = new Intent(getActivity(), GPSOnlyTrackRecordingScreen.class);
                     startActivity(intent);
-                }else{
-                    if(checkLocationPermission()){
+                } else {
+                    if (checkLocationPermission()) {
                         onGPSOnlyStartTrackButtonStartClicked();
-                    }else{
+                    } else {
                         requestLocationPermission();
                     }
                 }
@@ -393,25 +393,24 @@ public class DashBoardFragment extends BaseInjectorFragment {
         super.onResume();
         updateSegmentedView();
         updateUserDetailsView();
-        if(trackType == 1){
+        if (trackType == 1) {
             updateStartStopButtonOBDPlusGPS(OBDRecordingService.CURRENT_SERVICE_STATE);
-        }
-        else if(trackType == 2){
+        } else if (trackType == 2) {
             updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
         }
     }
 
-    private void updateSegmentedView(){
+    private void updateSegmentedView() {
         RadioButton obdRadioButton = dashboardSegmentedGroup.findViewById(R.id.obdPlusGPSSegmentedButton);
         RadioButton gpsRadioButton = dashboardSegmentedGroup.findViewById(R.id.GPSOnlySegmentedButton);
 
         //index 1 means OBD + GPS recording type
         //index 2 means GPS only recording type
-        if(PreferencesHandler.getPreviouslySelectedRecordingType(context.getApplicationContext()) == 1){
+        if (PreferencesHandler.getPreviouslySelectedRecordingType(context.getApplicationContext()) == 1) {
             obdRadioButton.setChecked(true);
             showOBDPlusGPSSettings();
             trackType = 1;
-        }else{
+        } else {
             gpsRadioButton.setChecked(true);
             showGPSOnlySettings();
             trackType = 2;
@@ -546,7 +545,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                             startActivity(intent);
                         });
             }
-        }else if(requestCode == REQUEST_STORAGE_PERMISSION_REQUEST_CODE){
+        } else if (requestCode == REQUEST_STORAGE_PERMISSION_REQUEST_CODE) {
             if (grantResults.length <= 0) {
                 // If user interaction was interrupted, the permission request is cancelled and you
                 // receive empty arrays.
@@ -582,13 +581,13 @@ public class DashBoardFragment extends BaseInjectorFragment {
     }
 
 
-        /**
-         * Shows a {@link Snackbar}.
-         *
-         * @param mainTextStringId The id for the string resource for the Snackbar text.
-         * @param actionStringId   The text of the action item.
-         * @param listener         The listener associated with the Snackbar action.
-         */
+    /**
+     * Shows a {@link Snackbar}.
+     *
+     * @param mainTextStringId The id for the string resource for the Snackbar text.
+     * @param actionStringId   The text of the action item.
+     * @param listener         The listener associated with the Snackbar action.
+     */
     private void showSnackbar(final int mainTextStringId, final int actionStringId,
                               View.OnClickListener listener) {
         Snackbar.make(
@@ -598,18 +597,18 @@ public class DashBoardFragment extends BaseInjectorFragment {
                 .setAction(getString(actionStringId), listener).show();
     }
 
-    void showOBDPlusGPSSettings(){
-        animateViewTransition(GPSOnlySettingsContainer,R.anim.translate_slide_out_right_card,true);
-        animateViewTransition(obdPlusGPSSettingsContainer,R.anim.translate_slide_in_left_card,false);
+    void showOBDPlusGPSSettings() {
+        animateViewTransition(GPSOnlySettingsContainer, R.anim.translate_slide_out_right_card, true);
+        animateViewTransition(obdPlusGPSSettingsContainer, R.anim.translate_slide_in_left_card, false);
     }
 
-    void showGPSOnlySettings(){
-        animateViewTransition(GPSOnlySettingsContainer,R.anim.translate_slide_in_right,false);
-        animateViewTransition(obdPlusGPSSettingsContainer,R.anim.translate_slide_out_left_card,true);
+    void showGPSOnlySettings() {
+        animateViewTransition(GPSOnlySettingsContainer, R.anim.translate_slide_in_right, false);
+        animateViewTransition(obdPlusGPSSettingsContainer, R.anim.translate_slide_out_left_card, true);
     }
 
-    void updateUserDetailsView(){
-        if(mUserManager.isLoggedIn()){
+    void updateUserDetailsView() {
+        if (mUserManager.isLoggedIn()) {
             dashBoardUserName.setVisibility(View.VISIBLE);
             dashBoardUserImageView.setVisibility(View.VISIBLE);
             userStatisticsContainer.setVisibility(View.VISIBLE);
@@ -623,7 +622,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(integer -> {
                         userLocalTrackCountTV.setText("" + integer);
-                        PreferencesHandler.setLocalTrackCount(context,integer);
+                        PreferencesHandler.setLocalTrackCount(context, integer);
                     });
 
             // Update the Gravatar image.
@@ -654,7 +653,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                 }
             });
 
-        }else{
+        } else {
             dashBoardUserName.setVisibility(GONE);
             dashBoardUserImageView.setVisibility(GONE);
             userStatisticsContainer.setVisibility(GONE);
@@ -762,21 +761,21 @@ public class DashBoardFragment extends BaseInjectorFragment {
             TrackRecordingServiceStateChangedEvent event) {
         LOG.info(String.format("onReceiveTrackRecordingServiceStateChangedEvent(): %s",
                 event.toString()));
-        if ( event.mState == BluetoothServiceState.SERVICE_STARTED && mConnectingDialog != null) {
+        if (event.mState == BluetoothServiceState.SERVICE_STARTED && mConnectingDialog != null) {
             mConnectingDialog.dismiss();
             mConnectingDialog = null;
         }
 
         mMainThreadWorker.schedule(() -> {
             // Update the start stop button.
-            if(trackType == 1){
-                if(event.mState == BluetoothServiceState.SERVICE_STARTED){
+            if (trackType == 1) {
+                if (event.mState == BluetoothServiceState.SERVICE_STARTED) {
                     getActivity().startActivity(new Intent(getActivity(), OBDPlusGPSTrackRecordingScreen.class));
                 }
                 updateStartStopButtonOBDPlusGPS(event.mState);
-            }else if(trackType == 2){
+            } else if (trackType == 2) {
                 updateStartStopButtonGPSOnly(event.mState);
-                if(event.mState == BluetoothServiceState.SERVICE_STARTED){
+                if (event.mState == BluetoothServiceState.SERVICE_STARTED) {
                     getActivity().startActivity(new Intent(getActivity(), GPSOnlyTrackRecordingScreen.class));
                 }
             }
@@ -794,9 +793,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
         LOG.info(String.format("onReceiveBluetoothStateChangedEvent(isEnabled=%s)",
                 "" + event.isBluetoothEnabled));
         mMainThreadWorker.schedule(() -> {
-            if(trackType == 1){
+            if (trackType == 1) {
                 updateStartStopButtonOBDPlusGPS(OBDRecordingService.CURRENT_SERVICE_STATE);
-            }else if(trackType == 2){
+            } else if (trackType == 2) {
                 updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
             }
 
@@ -808,9 +807,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
     public void onReceiveNewCarTypeSelectedEvent(NewCarTypeSelectedEvent event) {
         LOG.debug(String.format("Received event: %s", event.toString()));
         mMainThreadWorker.schedule(() -> {
-            if(trackType == 1){
+            if (trackType == 1) {
                 updateStartStopButtonOBDPlusGPS(OBDRecordingService.CURRENT_SERVICE_STATE);
-            }else if(trackType == 2){
+            } else if (trackType == 2) {
                 updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
             }
 
@@ -821,15 +820,15 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @Subscribe
     public void onReceiveGpsStatusChangedEvent(GpsStateChangedEvent event) {
         mMainThreadWorker.schedule(() -> {
-            if(trackType == 1){
+            if (trackType == 1) {
                 updateStartStopButtonOBDPlusGPS(OBDRecordingService.CURRENT_SERVICE_STATE);
-            }else if(trackType == 2){
+            } else if (trackType == 2) {
                 updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
             }
         });
     }
 
-    private void updateBannerForGPSOnlyType(){
+    private void updateBannerForGPSOnlyType() {
         errorImageBluetooth.setVisibility(GONE);
         errorImageOBDAdapter.setVisibility(GONE);
         okImageBluetooth.setVisibility(GONE);
@@ -838,56 +837,50 @@ public class DashBoardFragment extends BaseInjectorFragment {
         bannerBluetoothContainer.setAlpha(0.5f);
         bannerOBDAdapterContainer.setAlpha(0.5f);
 
-        if(!mLocationHandler.isGPSEnabled()){
+        if (!mLocationHandler.isGPSEnabled()) {
             errorImageGPS.setVisibility(View.VISIBLE);
             okImageGPS.setVisibility(GONE);
-        }
-        else{
+        } else {
             errorImageGPS.setVisibility(GONE);
             okImageGPS.setVisibility(View.VISIBLE);
         }
-        if(mCarManager.getCar() == null){
+        if (mCarManager.getCar() == null) {
             errorImageCar.setVisibility(View.VISIBLE);
             okImageCar.setVisibility(GONE);
-        }
-        else{
+        } else {
             errorImageCar.setVisibility(GONE);
             okImageCar.setVisibility(View.VISIBLE);
         }
     }
 
-    private void updateBannerForOBDPlusGPSType(){
+    private void updateBannerForOBDPlusGPSType() {
         bannerBluetoothContainer.setAlpha(1f);
         bannerOBDAdapterContainer.setAlpha(1f);
-        if(!mBluetoothHandler.isBluetoothEnabled()){
+        if (!mBluetoothHandler.isBluetoothEnabled()) {
             errorImageBluetooth.setVisibility(View.VISIBLE);
             okImageBluetooth.setVisibility(GONE);
-        }
-        else{
+        } else {
             errorImageBluetooth.setVisibility(GONE);
             okImageBluetooth.setVisibility(View.VISIBLE);
         }
-        if( mBluetoothHandler.getSelectedBluetoothDevice() == null){
+        if (mBluetoothHandler.getSelectedBluetoothDevice() == null) {
             errorImageOBDAdapter.setVisibility(View.VISIBLE);
             okImageOBDAdapter.setVisibility(GONE);
-        }
-        else{
+        } else {
             errorImageOBDAdapter.setVisibility(GONE);
             okImageOBDAdapter.setVisibility(View.VISIBLE);
         }
-        if(!mLocationHandler.isGPSEnabled()){
+        if (!mLocationHandler.isGPSEnabled()) {
             errorImageGPS.setVisibility(View.VISIBLE);
             okImageGPS.setVisibility(GONE);
-        }
-        else{
+        } else {
             errorImageGPS.setVisibility(GONE);
             okImageGPS.setVisibility(View.VISIBLE);
         }
-        if(mCarManager.getCar() == null){
+        if (mCarManager.getCar() == null) {
             errorImageCar.setVisibility(View.VISIBLE);
             okImageCar.setVisibility(GONE);
-        }
-        else {
+        } else {
             errorImageCar.setVisibility(GONE);
             okImageCar.setVisibility(View.VISIBLE);
         }
@@ -918,13 +911,13 @@ public class DashBoardFragment extends BaseInjectorFragment {
             case SERVICE_STARTING:
                 disableChangingParametersLayout.setVisibility(View.VISIBLE);
                 updateStartStopButton(Color.GRAY,
-                    getString(R.string.dashboard_track_is_starting), false);
+                        getString(R.string.dashboard_track_is_starting), false);
                 break;
             case SERVICE_STOPPING:
                 disableChangingParametersLayout.setVisibility(View.VISIBLE);
                 updateStartStopButton(Color.GRAY,
-                    getString(R.string.dashboard_track_is_stopping), false);
-            break;
+                        getString(R.string.dashboard_track_is_stopping), false);
+                break;
             default:
                 break;
         }
@@ -976,7 +969,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
     }
 
     private boolean hasSettingsSelectedFORGPSOnly() {
-        return  mLocationHandler.isGPSEnabled() &&
+        return mLocationHandler.isGPSEnabled() &&
                 mCarManager.getCar() != null;
     }
 
@@ -1071,7 +1064,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             getActivity().startForegroundService(
                                     new Intent(getActivity(), OBDRecordingService.class));
-                        }else{
+                        } else {
                             getActivity().startService(
                                     new Intent(getActivity(), OBDRecordingService.class));
                         }
@@ -1079,11 +1072,11 @@ public class DashBoardFragment extends BaseInjectorFragment {
                 });
     }
 
-    private void onGPSOnlyStartTrackButtonStartClicked(){
+    private void onGPSOnlyStartTrackButtonStartClicked() {
         // Start the background remoteService.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             getActivity().startForegroundService(new Intent(getActivity(), GPSOnlyRecordingService.class));
-        }else{
+        } else {
             getActivity().startService(new Intent(getActivity(), GPSOnlyRecordingService.class));
         }
     }

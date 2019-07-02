@@ -6,6 +6,7 @@ import org.envirocar.core.entity.UserImpl;
  * @author dewall
  */
 public class CreateUserRequest extends UserImpl {
+    private String name;
     private boolean acceptedTerms;
     private boolean acceptedPrivacy;
 
@@ -18,11 +19,20 @@ public class CreateUserRequest extends UserImpl {
      */
     public CreateUserRequest(String username, String email, String token, boolean acceptedTerms, boolean acceptedPrivacy) {
         super(username, token, email);
+        this.name = username;
         this.acceptedTerms = acceptedTerms;
         this.acceptedPrivacy = acceptedPrivacy;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public boolean isAcceptedTerms() {
+        return acceptedTerms;
+    }
+
+    public boolean getAcceptedTerms() {
         return acceptedTerms;
     }
 
@@ -31,6 +41,10 @@ public class CreateUserRequest extends UserImpl {
     }
 
     public boolean isAcceptedPrivacy() {
+        return acceptedPrivacy;
+    }
+
+    public boolean getAcceptedPrivacy() {
         return acceptedPrivacy;
     }
 
