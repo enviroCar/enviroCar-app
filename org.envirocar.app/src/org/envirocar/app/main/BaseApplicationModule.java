@@ -31,13 +31,13 @@ import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.app.handler.HandlerModule;
 import org.envirocar.app.handler.TemporaryFileManager;
 import org.envirocar.app.handler.TrackRecordingHandler;
-import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.app.services.OBDServiceModule;
 import org.envirocar.core.CacheDirectoryProvider;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.util.Util;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.remote.RemoteModule;
+import org.envirocar.remote.injection.RemoteModule;
 import org.envirocar.storage.DatabaseModule;
 
 import javax.inject.Singleton;

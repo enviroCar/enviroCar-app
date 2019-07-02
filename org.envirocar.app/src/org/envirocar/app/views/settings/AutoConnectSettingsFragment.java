@@ -35,7 +35,7 @@ import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.services.AutomaticTrackRecordingService;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.utils.ServiceUtils;
 
 import javax.inject.Inject;

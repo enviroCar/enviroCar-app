@@ -33,13 +33,11 @@ import android.preference.PreferenceManager;
 
 import org.acra.*;
 import org.acra.annotation.*;
-import org.acra.config.ConfigurationBuilder;
 import org.envirocar.app.handler.PreferenceConstants;
 import org.envirocar.app.notifications.NotificationHandler;
-import org.envirocar.core.logging.ACRACustomSender;
 import org.envirocar.core.logging.ACRASenderFactory;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.util.InjectApplicationScope;
+import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.util.Util;
 import org.envirocar.remote.service.AnnouncementsService;
 import org.envirocar.remote.service.CarService;
