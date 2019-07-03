@@ -303,8 +303,8 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
                                 new MaterialDialog.Builder(LoginRegisterActivity.this)
                                         .cancelable(true)
                                         .positiveText(R.string.ok)
-                                        .title("Email Confirmation Required")
-                                        .content("Your Email account has not been confirmed yet. To use the full functionality of enviroCar, please log into your email account and confirm your email address.")
+                                        .title(R.string.login_mail_not_confirmed_dialog_title)
+                                        .content(R.string.login_mail_not_confirmed_dialog_content)
                                         .build().show());
                     }
 
@@ -468,8 +468,8 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
                         dialog.dismiss();
 
                         final MaterialDialog d = new MaterialDialog.Builder(LoginRegisterActivity.this)
-                                .title("You are just one step away....")
-                                .content("You are just one step away from activating your account on enviroCar. Please check your mails in order to complete the registration.")
+                                .title(R.string.register_success_dialog_title)
+                                .content(R.string.register_success_dialog_content)
                                 .cancelable(false)
                                 .positiveText(R.string.ok)
                                 .cancelListener(dialog1 -> {
