@@ -28,10 +28,10 @@ import org.envirocar.remote.util.EnvirocarServiceUtils;
 
 import java.io.IOException;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
 import rx.Observable;
-import rx.functions.Func1;
 
 /**
  * TODO JavaDoc
@@ -81,7 +81,8 @@ public class BaseRemoteDAO<C, S> {
 
         // assert the responsecode if it was not an success.
         if (!response.isSuccessful()) {
-            EnvirocarServiceUtils.assertStatusCode(response.code(), response.message());
+            ResponseBody body = response.errorBody();
+            EnvirocarServiceUtils.assertStatusCode(response.code(), response.message(), body.string());
         }
 
         return response;
@@ -96,17 +97,17 @@ public class BaseRemoteDAO<C, S> {
         try {
             return executeCallReturnBody(call);
         } catch (IOException | UnauthorizedException | ResourceConflictException e) {
-            LOG.error("Error while requesting privacy statement", e);
+            LOG.error(String.format("Error while requesting %s", remoteService.getClass().getSimpleName()), e);
             throw new DataRetrievalFailureException(e);
         }
     }
 
-    protected <T> Observable<T> wrapObservableHandling(FuncWithException<T> func){
+    protected <T> Observable<T> wrapObservableHandling(FuncWithException<T> func) {
         return Observable.create(subscriber -> {
             try {
                 subscriber.onNext(func.call());
                 subscriber.onCompleted();
-            } catch (Exception e){
+            } catch (Exception e) {
                 subscriber.onError(e);
             }
         });

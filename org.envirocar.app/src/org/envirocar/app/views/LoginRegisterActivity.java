@@ -52,9 +52,9 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.core.entity.TermsOfUse;
@@ -207,6 +207,9 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
         }
     }
 
+    /**
+     * Login routine.
+     */
     @OnClick(R.id.activity_account_login_card_login_button)
     protected void onLoginButtonClicked() {
         // Reset errors.
@@ -294,6 +297,18 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
                     }
 
                     @Override
+                    public void onMailNotConfirmed() {
+                        dialog.dismiss();
+                        mMainThreadWorker.schedule(() ->
+                                new MaterialDialog.Builder(LoginRegisterActivity.this)
+                                        .cancelable(true)
+                                        .positiveText(R.string.ok)
+                                        .title("Email Confirmation Required")
+                                        .content("Your Email account has not been confirmed yet. To use the full functionality of enviroCar, please log into your email account and confirm your email address.")
+                                        .build().show());
+                    }
+
+                    @Override
                     public void onUnableToCommunicateServer() {
                         dialog.dismiss();
                         mMainThreadWorker.schedule(() ->
@@ -349,6 +364,9 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
                 });
     }
 
+    /**
+     * Register routine
+     */
     @OnClick(R.id.activity_account_register_button)
     protected void onRegisterAccountButtonClicked() {
         mRegisterUsername.setError(null);
@@ -446,22 +464,26 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
 
                     // Successfully created the user
                     mMainThreadWorker.schedule(() -> {
-                        // Set the new user as the logged in user.
-                        mUserManager.setUser(newUser);
-
-                        // Update the view, i.e., hide the registration card and show the profile
-                        // page.
-
                         // Dismiss the progress dialog.
                         dialog.dismiss();
 
-                        // Show a snackbar containing a welcome message.
-                        Snackbar.make(mExpToolbar, String.format(
-                                getResources().getString(R.string.welcome_message),
-                                username), Snackbar.LENGTH_LONG).show();
+                        final MaterialDialog d = new MaterialDialog.Builder(LoginRegisterActivity.this)
+                                .title("You are just one step away....")
+                                .content("You are just one step away from activating your account on enviroCar. Please check your mails in order to complete the registration.")
+                                .cancelable(false)
+                                .positiveText(R.string.ok)
+                                .cancelListener(dialog1 -> {
+                                    LOG.info("canceled");
+                                    finish();
+                                })
+                                .onAny((a, b) -> {
+                                    LOG.info("onPositive");
+                                    finish();
+                                })
+                                .show();
                     });
 
-                    finish();
+//                    finish();
                     // askForTermsOfUseAcceptance();
                 } catch (ResourceConflictException e) {
                     LOG.warn(e.getMessage(), e);

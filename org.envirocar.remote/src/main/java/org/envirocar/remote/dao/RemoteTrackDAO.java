@@ -89,16 +89,13 @@ public class RemoteTrackDAO extends BaseRemoteDAO<TrackDAO, TrackService> implem
 
     @Override
     public Observable<Track> getTrackByIdObservable(final String id) {
-        return Observable.create(new Observable.OnSubscribe<Track>() {
-            @Override
-            public void call(Subscriber<? super Track> subscriber) {
-                try {
-                    Track remoteTracks = getTrackById(id);
-                    subscriber.onNext(remoteTracks);
-                    subscriber.onCompleted();
-                } catch (Exception e) {
-                    subscriber.onError(e);
-                }
+        return Observable.create(subscriber -> {
+            try {
+                Track remoteTracks = getTrackById(id);
+                subscriber.onNext(remoteTracks);
+                subscriber.onCompleted();
+            } catch (Exception e) {
+                subscriber.onError(e);
             }
         });
     }

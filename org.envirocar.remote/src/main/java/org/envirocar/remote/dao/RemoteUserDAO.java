@@ -56,25 +56,12 @@ public class RemoteUserDAO extends BaseRemoteDAO<UserDAO, UserService> implement
     }
 
     @Override
-    public User getUser(String id) throws DataRetrievalFailureException, UnauthorizedException, NotConnectedException {
+    public User getUser(String id) throws DataRetrievalFailureException, UnauthorizedException, NotConnectedException, ResourceConflictException {
         // Get the remoteService for the user endpoints and initiates a call.
-        UserService userService = EnviroCarService.getUserService();
-        Call<User> userCall = userService.getUser(id);
-
+        Call<User> userCall = remoteService.getUser(id);
         try {
-            // execute the call
-            Response<User> userResponse = userCall.execute();
-            // If the execution was successful, then return the user instance. if not, then get
-            // the error code and throw a corresponding exception.
-            if (!userResponse.isSuccessful()) {
-                LOG.severe("Error while retrieving remote user of id = " + id);
-                EnvirocarServiceUtils.assertStatusCode(userResponse.code(), userResponse.message());
-            }
-
-            return userResponse.body();
+            return executeCall(userCall).body();
         } catch (IOException e) {
-            throw new DataRetrievalFailureException(e);
-        } catch (ResourceConflictException e) {
             throw new DataRetrievalFailureException(e);
         }
     }
