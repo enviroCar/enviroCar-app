@@ -489,12 +489,16 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
                     LOG.warn(e.getMessage(), e);
 
                     // Show an error. // TODO show error in a separate error text view.
+                    final ResourceConflictException.ConflictType reason = e.getConflictType();
                     mMainThreadWorker.schedule(() -> {
-                        mRegisterUsername.setError(getString(
-                                R.string.error_username_already_in_use));
-                        mRegisterEmail.setError(getString(
-                                R.string.error_email_already_in_use));
-                        mRegisterUsername.requestFocus();
+                        if (e.getConflictType() == ResourceConflictException.ConflictType.USERNAME) {
+                            mRegisterUsername.setError(getString(
+                                    R.string.error_username_already_in_use));
+                            mRegisterUsername.requestFocus();
+                        } else if (e.getConflictType() == ResourceConflictException.ConflictType.MAIL) {
+                            mRegisterEmail.setError(getString(R.string.error_email_already_in_use));
+                            mRegisterEmail.requestFocus();
+                        }
                     });
 
                     // Dismuss the progress dialog.

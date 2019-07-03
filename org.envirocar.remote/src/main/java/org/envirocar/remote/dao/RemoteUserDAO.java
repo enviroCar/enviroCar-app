@@ -75,20 +75,11 @@ public class RemoteUserDAO extends BaseRemoteDAO<UserDAO, UserService> implement
     @Override
     public void createUser(User newUser) throws DataUpdateFailureException,
             ResourceConflictException {
-        // Get the remoteService for the user endpoints and initiate a call.
-        Call<ResponseBody> userCall = remoteService.createUser( // Workaround
-                new CreateUserRequest(newUser.getUsername(), newUser.getMail(), newUser.getToken(), true, true));
-
-        Response<ResponseBody> userResponse = null;
         try {
-            // execute the call
-            userResponse = userCall.execute();
-            // If the execution was successful, then throw an exception.
-            if (!userResponse.isSuccessful()) {
-                int responseCode = userResponse.code();
-                EnvirocarServiceUtils.assertStatusCode(responseCode, userResponse
-                        .errorBody().string());
-            }
+            // Get the remoteService for the user endpoints and initiate a call.
+            Call<ResponseBody> userCall = remoteService.createUser( // Workaround
+                    new CreateUserRequest(newUser.getUsername(), newUser.getMail(), newUser.getToken(), true, true));
+            executeCall(userCall);
         } catch (IOException e) {
             throw new DataUpdateFailureException(e);
         } catch (NotConnectedException e) {

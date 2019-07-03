@@ -118,7 +118,7 @@ public class EnvirocarServiceUtils {
 
     public static final void assertStatusCode(int httpStatusCode, String error)
             throws UnauthorizedException, NotConnectedException, ResourceConflictException {
-        assertStatusCode(httpStatusCode, error, null);
+        assertStatusCode(httpStatusCode, error, error);
     }
 
     public static final void assertStatusCode(int httpStatusCode, String error, String body) throws
