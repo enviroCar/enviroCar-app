@@ -38,6 +38,7 @@ import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import rx.Observer;
@@ -58,7 +59,10 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
     private boolean hasLoadedRemote = false;
     private boolean hasLoadedStored = false;
     private boolean isSorted = false;
-
+    private boolean dateFilter = false;
+    private boolean carFilter = false;
+    private Date afterDate;
+    private Date beforeDate;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
