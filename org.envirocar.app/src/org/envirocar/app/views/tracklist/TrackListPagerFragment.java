@@ -23,10 +23,13 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Spinner;
 
 import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.main.BaseApplicationComponent;
@@ -50,8 +53,15 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
     protected SegmentedGroup trackListSegmentedGroup;
     @BindView(R.id.fragment_tracklist_layout_viewpager)
     protected ViewPager mViewPager;
+    @BindView(R.id.spinnerSort)
+    protected Spinner spinnerSort;
+    @BindView(R.id.sortButton)
+    protected Button sortButton;
+    @BindView(R.id.filterButton)
+    protected Button filterButton;
 
     private TrackListPagerAdapter trackListPageAdapter;
+    private FilterViewModel filterViewModel;
 
     @Nullable
     @Override
@@ -59,13 +69,12 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
             savedInstanceState) {
         LOG.info("onCreateView()");
         View content = inflater.inflate(R.layout.fragment_tracklist_layout, container, false);
-
         ButterKnife.bind(this, content);
 
         trackListPageAdapter = new TrackListPagerAdapter(getFragmentManager());
         mViewPager.setAdapter(trackListPageAdapter);
         trackListSegmentedGroup.check(R.id.localSegmentedButton);
-
+        filterViewModel = ViewModelProviders.of(this.getActivity()).get(FilterViewModel.class);
         trackListSegmentedGroup.setOnCheckedChangeListener((radioGroup, i) -> {
             switch (i) {
                 case R.id.localSegmentedButton:
@@ -79,6 +88,13 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
             }
         });
 
+        filterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FilterDialog filterDialog = new FilterDialog(getContext(), getActivity());
+                filterDialog.show();
+            }
+        });
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int
