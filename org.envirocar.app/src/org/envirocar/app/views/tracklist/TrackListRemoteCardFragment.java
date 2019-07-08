@@ -21,6 +21,8 @@ package org.envirocar.app.views.tracklist;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProviders;
+
 import android.view.View;
 
 import com.squareup.otto.Subscribe;
@@ -64,11 +66,20 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
     private Date afterDate;
     private Date beforeDate;
 
+    private FilterViewModel filterViewModel;
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         MainActivityComponent mainActivityComponent =  BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
         mainActivityComponent.inject(this);
+        filterViewModel = ViewModelProviders.of(this.getActivity()).get(FilterViewModel.class);
+
+        filterViewModel.getFilterDate().observe(this, item ->{
+            dateFilter = item;
+            afterDate = filterViewModel.getFilterDateAfter().getValue();
+            beforeDate = filterViewModel.getFilterDateBefore().getValue();
+        });
     }
 
     @Override
@@ -366,7 +377,12 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         R.string.track_list_bg_no_remote_tracks_sub);
             }
         }
-
+        if(dateFilter == true){
+            for(Track track : mTrackList){
+                if(track.isDownloaded())
+                    mTrackList.remove(track);
+            }
+        }
         if (!mTrackList.isEmpty()) {
             mRecyclerView.setVisibility(View.VISIBLE);
             infoView.setVisibility(View.GONE);

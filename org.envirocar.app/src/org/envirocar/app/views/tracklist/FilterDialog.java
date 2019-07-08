@@ -1,12 +1,10 @@
 package org.envirocar.app.views.tracklist;
 
 import android.app.DatePickerDialog;
-import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -16,32 +14,34 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
 
 import org.envirocar.app.R;
-import org.envirocar.app.handler.CarPreferenceHandler;
+import org.envirocar.app.handler.PreferenceConstants;
+import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.utils.CarUtils;
 
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class FilterDialog extends Dialog {
+public class FilterDialog extends AlertDialog implements AdapterView.OnItemSelectedListener{
 
     private static final Logger LOG = Logger.getLogger(FilterDialog.class);
 
-    @Inject
-    protected CarPreferenceHandler carPreferenceHandler;
     @BindView(R.id.spinnerCar)
     protected Spinner spinnerCar;
     @BindView(R.id.dateLayout)
@@ -68,6 +68,7 @@ public class FilterDialog extends Dialog {
     private boolean error ;
     private boolean datesSet = false;
     private boolean carSet = false;
+    ArrayList<String> carNames;
     private FilterViewModel filterViewModel;
 
     public FilterDialog(@NonNull Context context, @NonNull FragmentActivity activity) {
@@ -79,7 +80,6 @@ public class FilterDialog extends Dialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.fragment_tracklist_filter_dialog);
         ButterKnife.bind(this);
         filterViewModel = ViewModelProviders.of(activity).get(FilterViewModel.class);
@@ -196,13 +196,17 @@ public class FilterDialog extends Dialog {
 
 
     public void setSpinner(){
-        List<Car> carList = carPreferenceHandler.getDeserialzedCars();
-        ArrayList<String> carNames = new ArrayList<>();
+        Set<String> temp  = PreferencesHandler.getSharedPreferences(context)
+                .getStringSet(PreferenceConstants.PREFERENCE_TAG_CARS, new HashSet<>());
+        List<String> carList = new ArrayList<>(temp);
+        carNames = new ArrayList<>();
         for(int i=0; i<carList.size();++i){
-            carNames.add(carList.get(i).getModel());
+            Car car = CarUtils.instantiateCar(carList.get(i));
+            carNames.add(car.getManufacturer() + " " + car.getModel());
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter(activity,android.R.layout.simple_spinner_item, carNames);
+        ArrayAdapter<String> adapter = new ArrayAdapter(activity,R.layout.spinner_item, carNames);
         spinnerCar.setAdapter(adapter);
+        spinnerCar.setOnItemSelectedListener(this);
     }
 
     public void checkViewModelStatus(){
@@ -262,5 +266,16 @@ public class FilterDialog extends Dialog {
             start.setText("Start Date");
             end.setText("End Date");
         }
+    }
+
+    @Override
+    public void onItemSelected(AdapterView<?> arg0, View arg1, int position, long id) {
+        LOG.info("Item "+position+" clicked.");
+        carName = carNames.get(position);
+        filterViewModel.setFilterCarName(carName);
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> arg0) {
     }
 }
