@@ -6,9 +6,11 @@ import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
 
 /**
+ * TODO JavaDoc
+ *
  * @author dewall
  */
-public class LoadBasedEnergyConsumptionAlgorithm implements ConsumptionAlgorithm{
+public class LoadBasedEnergyConsumptionAlgorithm implements ConsumptionAlgorithm {
     // External parameters
     private static final double G = 9.81;               // gravitational acceleration in m/s²
     private static final double RHO_AIR = 1.2;           // air mass density in kg/m³
@@ -50,7 +52,7 @@ public class LoadBasedEnergyConsumptionAlgorithm implements ConsumptionAlgorithm
     private double longitudePrev;         // in °
     private double altitudePrev;          // in m
 
-
+    private final Car.FuelType fuelType;
 
     /**
      * Constructor
@@ -72,8 +74,16 @@ public class LoadBasedEnergyConsumptionAlgorithm implements ConsumptionAlgorithm
             this.efficiencyMax = 0.43;
         }
         this.efficiencyMin = 0.1;
+
+        this.fuelType = fuelType;
     }
 
+    /**
+     * @param measurement the measurement providing the required parameters
+     * @return the estimated fuel consumption for gasoline.
+     * @throws FuelConsumptionException
+     * @throws UnsupportedFuelTypeException
+     */
     @Override
     public double calculateConsumption(Measurement measurement) throws FuelConsumptionException, UnsupportedFuelTypeException {
         double speedNow = measurement.getProperty(Measurement.PropertyKey.SPEED);
@@ -144,6 +154,13 @@ public class LoadBasedEnergyConsumptionAlgorithm implements ConsumptionAlgorithm
 
     @Override
     public double calculateCO2FromConsumption(double consumption) throws FuelConsumptionException {
-        return 0;
+        switch (this.fuelType) {
+            case DIESEL:
+                return consumption * DIESEL_CONSUMPTION_TO_CO2_FACTOR;
+            case GASOLINE:
+                return consumption * GASOLINE_CONSUMPTION_TO_CO2_FACTOR;
+            default:
+                throw new FuelConsumptionException(String.format("FuelType {} is not supported", this.fuelType.toString()));
+        }
     }
 }

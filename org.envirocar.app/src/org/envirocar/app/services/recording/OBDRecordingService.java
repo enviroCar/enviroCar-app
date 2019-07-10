@@ -334,15 +334,15 @@ public class OBDRecordingService extends AbstractRecordingService {
 
                     if (consumptionAlgorithm != null) {
                         double consumption = consumptionAlgorithm.calculateConsumption(measurement);
-                        double co2 = consumptionAlgorithm.calculateCO2FromConsumption(consumption);
                         measurement.setProperty(Measurement.PropertyKey.CONSUMPTION, consumption);
+                        double co2 = consumptionAlgorithm.calculateCO2FromConsumption(consumption);
                         measurement.setProperty(Measurement.PropertyKey.CO2, co2);
                     }
 
                     try {
                         double consumption = energyConsumptionAlgorithm.calculateConsumption(measurement);
-                        double co2 = energyConsumptionAlgorithm.calculateCO2FromConsumption(consumption);
                         measurement.setProperty(Measurement.PropertyKey.ENERGY_CONSUMPTION, consumption);
+                        double co2 = energyConsumptionAlgorithm.calculateCO2FromConsumption(consumption);
                         measurement.setProperty(Measurement.PropertyKey.ENERGY_CONSUMPTION_CO2, co2);
                     } catch (Exception e) {
                         LOG.warn(e.getMessage(), e);
