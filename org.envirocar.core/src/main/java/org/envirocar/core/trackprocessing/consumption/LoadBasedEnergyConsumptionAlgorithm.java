@@ -1,12 +1,14 @@
-package org.envirocar.core.trackprocessing;
+package org.envirocar.core.trackprocessing.consumption;
 
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
+import org.envirocar.core.exception.FuelConsumptionException;
+import org.envirocar.core.exception.UnsupportedFuelTypeException;
 
 /**
  * @author dewall
  */
-public class LoadBasedEnergyConsumptionAlgorithm {
+public class LoadBasedEnergyConsumptionAlgorithm implements ConsumptionAlgorithm{
     // External parameters
     private static final double G = 9.81;               // gravitational acceleration in m/s²
     private static final double RHO_AIR = 1.2;           // air mass density in kg/m³
@@ -49,6 +51,7 @@ public class LoadBasedEnergyConsumptionAlgorithm {
     private double altitudePrev;          // in m
 
 
+
     /**
      * Constructor
      */
@@ -71,8 +74,8 @@ public class LoadBasedEnergyConsumptionAlgorithm {
         this.efficiencyMin = 0.1;
     }
 
-
-    public double calculate(Measurement measurement) {
+    @Override
+    public double calculateConsumption(Measurement measurement) throws FuelConsumptionException, UnsupportedFuelTypeException {
         double speedNow = measurement.getProperty(Measurement.PropertyKey.SPEED);
         double datetimeNow = measurement.getTime();
         double longitudeNow = measurement.getLongitude();
@@ -137,5 +140,10 @@ public class LoadBasedEnergyConsumptionAlgorithm {
 
         // Calculate consumption (in l/h)
         return (power / 1000 / (energyDensity * efficiency));
+    }
+
+    @Override
+    public double calculateCO2FromConsumption(double consumption) throws FuelConsumptionException {
+        return 0;
     }
 }

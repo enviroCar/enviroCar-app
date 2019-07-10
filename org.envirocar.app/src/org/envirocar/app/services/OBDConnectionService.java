@@ -61,9 +61,9 @@
 //import org.envirocar.core.exception.NoMeasurementsException;
 //import org.envirocar.core.exception.UnsupportedFuelTypeException;
 //import org.envirocar.core.logging.Logger;
-//import org.envirocar.core.trackprocessing.AbstractCalculatedMAFAlgorithm;
-//import org.envirocar.core.trackprocessing.CalculatedMAFWithStaticVolumetricEfficiency;
-//import org.envirocar.core.trackprocessing.ConsumptionAlgorithm;
+//import org.envirocar.core.trackprocessing.statistics.AbstractCalculatedMAFAlgorithm;
+//import org.envirocar.core.trackprocessing.statistics.CalculatedMAFWithStaticVolumetricEfficiency;
+//import org.envirocar.core.trackprocessing.consumption.ConsumptionAlgorithm;
 //import org.envirocar.core.utils.CarUtils;
 //import org.envirocar.core.utils.ServiceUtils;
 //import org.envirocar.obd.ConnectionListener;

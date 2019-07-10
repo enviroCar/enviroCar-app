@@ -39,7 +39,7 @@ import org.envirocar.app.views.utils.MapUtils;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
+import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 
 import java.text.DateFormat;
 import java.text.DecimalFormat;

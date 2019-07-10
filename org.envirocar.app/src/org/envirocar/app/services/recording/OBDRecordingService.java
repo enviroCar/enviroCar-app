@@ -25,10 +25,9 @@ import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.trackprocessing.CalculatedMAFWithStaticVolumetricEfficiency;
-import org.envirocar.core.trackprocessing.ConsumptionAlgorithm;
-import org.envirocar.core.trackprocessing.LoadBasedEnergyConsumptionAlgorithm;
-import org.envirocar.core.utils.CarUtils;
+import org.envirocar.core.trackprocessing.consumption.ConsumptionAlgorithm;
+import org.envirocar.core.trackprocessing.consumption.LoadBasedEnergyConsumptionAlgorithm;
+import org.envirocar.core.trackprocessing.statistics.CalculatedMAFWithStaticVolumetricEfficiency;
 import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.ConnectionListener;
 import org.envirocar.obd.OBDController;
@@ -132,7 +131,7 @@ public class OBDRecordingService extends AbstractRecordingService {
 
         // car specific algorithms and preferences
         Car car = carPreferenceHandler.getCar();
-        this.consumptionAlgorithm = CarUtils.resolveConsumptionAlgorithm(car.getFuelType());
+        this.consumptionAlgorithm = ConsumptionAlgorithm.fromFuelType(car.getFuelType());
         this.mafAlgorithm = new CalculatedMAFWithStaticVolumetricEfficiency(car);
         this.energyConsumptionAlgorithm = new LoadBasedEnergyConsumptionAlgorithm(car.getFuelType());
     }
@@ -341,8 +340,10 @@ public class OBDRecordingService extends AbstractRecordingService {
                     }
 
                     try {
-                        double consumption = energyConsumptionAlgorithm.calculate(measurement);
-                        measurement.setProperty(Measurement.PropertyKey.CONSUMPTION, consumption);
+                        double consumption = energyConsumptionAlgorithm.calculateConsumption(measurement);
+                        double co2 = energyConsumptionAlgorithm.calculateCO2FromConsumption(consumption);
+                        measurement.setProperty(Measurement.PropertyKey.ENERGY_CONSUMPTION, consumption);
+                        measurement.setProperty(Measurement.PropertyKey.ENERGY_CONSUMPTION_CO2, co2);
                     } catch (Exception e) {
                         LOG.warn(e.getMessage(), e);
                     }

@@ -16,11 +16,10 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.core.trackprocessing;
+package org.envirocar.core.trackprocessing.consumption;
 
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.exception.FuelConsumptionException;
-import org.envirocar.core.exception.UnsupportedFuelTypeException;
 
 /**
  * TODO JavaDoc
@@ -48,6 +47,6 @@ public class GasolineConsumptionAlgorithm implements ConsumptionAlgorithm {
 
     @Override
     public double calculateCO2FromConsumption(double consumption) {
-        return consumption * 2.35; //kg/h
+        return consumption * GASOLINE_CONSUMPTION_TO_CO2_FACTOR; //kg/h
     }
 }
