@@ -31,6 +31,7 @@
     <string name="property_key_co2">CO2</string>
     <string name="property_key_consumption">Consumption</string>
     <string name="property_key_energy_consumption">Energy Consumption</string>
+    <string name="property_key_energy_co2_emission">Energy Consumption CO2</string>
     <string name="property_key_throttle_position">Throttle Position</string>
     <string name="property_key_engine_load">Engine Load</string>
     <string name="property_key_gps_accuracy">GPS Accuracy</string>
