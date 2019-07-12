@@ -21,6 +21,8 @@ package org.envirocar.app.views.tracklist;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProviders;
+
 import com.google.android.material.snackbar.Snackbar;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -40,11 +42,16 @@ import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
 import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.core.util.Util;
 
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -61,6 +68,15 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         TrackListLocalCardAdapter> {
     private static final Logger LOG = Logger.getLogger(TrackListLocalCardFragment.class);
 
+    private boolean dateFilter = false;
+    private boolean carFilter = false;
+    private Date startDate;
+    private Date endDate;
+    private String carName;
+    private Integer sortC = 0;
+    private Integer sortO = 1;
+    private FilterViewModel filterViewModel;
+    private SortViewModel sortViewModel;
     /**
      *
      */
@@ -78,6 +94,27 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         super.onCreate(savedInstanceState);
         MainActivityComponent mainActivityComponent =  BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
         mainActivityComponent.inject(this);
+        filterViewModel = ViewModelProviders.of(this.getActivity()).get(FilterViewModel.class);
+        sortViewModel = ViewModelProviders.of(this.getActivity()).get(SortViewModel.class);
+
+        filterViewModel.getFilterActive().observe(this, item -> {
+            dateFilter = filterViewModel.getFilterDate().getValue();
+            startDate = filterViewModel.getFilterDateStart().getValue();
+            endDate = filterViewModel.getFilterDateEnd().getValue();
+            carFilter = filterViewModel.getFilterCar().getValue();
+            carName = filterViewModel.getFilterCarName().getValue();
+            loadDataset();
+        });
+
+        sortViewModel.getSortActive().observe(this, item -> {
+            sortC = sortViewModel.getSortChoice().getValue();
+            if(sortViewModel.getSortOrder().getValue())
+                sortO = 1;
+            else
+                sortO = -1;
+
+            updateView();
+        });
     }
 
     @Override
@@ -217,10 +254,9 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     @Override
     protected void loadDataset() {
         // Do not load the dataset twice.
-        if (!tracksLoaded) {
-            tracksLoaded = true;
-            new LoadLocalTracksTask().execute();
-        }
+        tracksLoaded = true;
+        new LoadLocalTracksTask().execute();
+
     }
 
     @Override
@@ -473,14 +509,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
                             mProgressView.setVisibility(View.INVISIBLE);
                             if (newTrackAdded) {
-                                Collections.sort(mTrackList);
-
-                                mRecyclerView.setVisibility(View.VISIBLE);
-                                infoView.setVisibility(View.GONE);
-                                mRecyclerViewAdapter.notifyDataSetChanged();
-
-                                ECAnimationUtils.animateShowView(getActivity(), mFAB,
-                                        R.anim.translate_slide_in_bottom_fragment);
+                                updateView();
                             } else if (mTrackList.isEmpty()) {
                                 showNoLocalTracksInfo();
                             }
@@ -491,6 +520,106 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         }
     }
 
+    public  void updateView(){
+        Collections.sort(mTrackList);
+
+        if (dateFilter) {
+            for (int i = 0; i < mTrackList.size(); ++i) {
+                Track track = mTrackList.get(i);
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault());
+                try {
+                    Date trackDateStart = simpleDateFormat.parse(track.getBegin());
+                    Date trackDateEnd = simpleDateFormat.parse(track.getEnd());
+                    if (trackDateStart.before(startDate) || trackDateEnd.after(endDate)) {
+                        mTrackList.remove(i);
+                        i--;
+                    }
+                } catch (Exception e) {
+                    LOG.error("Error: ", e);
+                }
+            }
+        }
+        if (carFilter) {
+            for (int i = 0; i < mTrackList.size(); ++i) {
+                Track track = mTrackList.get(i);
+                String trackCarName = track.getCar().getManufacturer() + " " + track.getCar().getModel();
+                if (!carName.equalsIgnoreCase(trackCarName)) {
+                    mTrackList.remove(i);
+                    i--;
+                }
+            }
+        }
+
+        switch (sortC){
+            case 0:
+                Collections.sort(mTrackList, new Comparator<Track>() {
+                    @Override
+                    public int compare(Track track1, Track track2)
+                    {
+                        int res = track1.getBegin().compareTo(track2.getBegin());
+                        return res*sortO;
+                    }
+                });break;
+
+            case 1:
+                Collections.sort(mTrackList, new Comparator<Track>() {
+                    @Override
+                    public int compare(Track lhs, Track rhs) {
+                        Float lhsLen;
+
+                        if (lhs.getLength() == null)
+                            lhsLen = (float) (((TrackStatisticsProvider) lhs).getDistanceOfTrack());
+                        else
+                            lhsLen = lhs.getLength();
+
+                        Float rhsLen;
+                        if (rhs.getLength() == null)
+                            rhsLen = (float) (((TrackStatisticsProvider) rhs).getDistanceOfTrack());
+                        else
+                            rhsLen = rhs.getLength();
+                        int res = lhsLen.compareTo(rhsLen);
+                        LOG.info(res + " result of compare");
+
+                        return res*sortO;
+                    }
+                });
+                break;
+
+            case 2:
+                Collections.sort(mTrackList, new Comparator<Track>() {
+                    @Override
+                    public int compare(Track lhs, Track rhs) {
+                        int res = Long.compare(lhs.getTimeInMillis(), rhs.getTimeInMillis());
+                        return res*sortO;
+                    }
+                });
+                break;
+
+            case 3:
+                Collections.sort(mTrackList, new Comparator<Track>() {
+                    @Override
+                    public int compare(Track lhs, Track rhs) {
+                        int res = lhs.getCar().getManufacturer().compareTo(rhs.getCar().getManufacturer());
+                        return res*sortO;
+                    }
+                });
+                break;
+
+        }
+
+        if (mTrackList.isEmpty()) {
+            showNoLocalTracksInfo();
+        }
+        else{
+            mRecyclerView.setVisibility(View.VISIBLE);
+            infoView.setVisibility(View.GONE);
+            mRecyclerViewAdapter.notifyDataSetChanged();
+
+            ECAnimationUtils.animateShowView(getActivity(), mFAB,
+                    R.anim.translate_slide_in_bottom_fragment);
+        }
+
+    }
     private void showNoLocalTracksInfo() {
         showText(R.drawable.img_tracks,
                 R.string.track_list_bg_no_local_tracks,

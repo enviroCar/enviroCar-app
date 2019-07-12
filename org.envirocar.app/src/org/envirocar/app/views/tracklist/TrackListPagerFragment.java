@@ -28,6 +28,8 @@ import androidx.viewpager.widget.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 
@@ -38,6 +40,10 @@ import org.envirocar.app.main.MainActivityModule;
 import org.envirocar.app.R;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.core.logging.Logger;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -53,15 +59,12 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
     protected SegmentedGroup trackListSegmentedGroup;
     @BindView(R.id.fragment_tracklist_layout_viewpager)
     protected ViewPager mViewPager;
-    @BindView(R.id.spinnerSort)
-    protected Spinner spinnerSort;
-    @BindView(R.id.sortButton)
-    protected Button sortButton;
     @BindView(R.id.filterButton)
     protected Button filterButton;
+    @BindView(R.id.sortButton)
+    protected Button sortButton;
 
     private TrackListPagerAdapter trackListPageAdapter;
-    private FilterViewModel filterViewModel;
 
     @Nullable
     @Override
@@ -74,7 +77,7 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
         trackListPageAdapter = new TrackListPagerAdapter(getFragmentManager());
         mViewPager.setAdapter(trackListPageAdapter);
         trackListSegmentedGroup.check(R.id.localSegmentedButton);
-        filterViewModel = ViewModelProviders.of(this.getActivity()).get(FilterViewModel.class);
+
         trackListSegmentedGroup.setOnCheckedChangeListener((radioGroup, i) -> {
             switch (i) {
                 case R.id.localSegmentedButton:
@@ -93,6 +96,14 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
             public void onClick(View v) {
                 FilterDialog filterDialog = new FilterDialog(getContext(), getActivity());
                 filterDialog.show();
+            }
+        });
+
+        sortButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SortDialog sortDialog = new SortDialog(getContext(), getActivity());
+                sortDialog.show();
             }
         });
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -148,6 +159,7 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
         MainActivityComponent mainActivityComponent =  BaseApplication.get(getActivity()).getBaseApplicationComponent().plus(new MainActivityModule(getActivity()));
         mainActivityComponent.inject(this);
     }
+
 
     /**
      * @author dewall
