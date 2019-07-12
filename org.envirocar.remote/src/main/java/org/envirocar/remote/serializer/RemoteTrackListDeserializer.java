@@ -63,6 +63,9 @@ public class RemoteTrackListDeserializer implements JsonDeserializer<List<Track>
             Float length = trackObject.get(Track.KEY_TRACK_PROPERTIES_LENGTH).getAsFloat();
             String begin = trackObject.get(Track.KEY_TRACK_PROPERTIES_BEGIN).getAsString();
             String end = trackObject.get(Track.KEY_TRACK_PROPERTIES_END).getAsString();
+            JsonObject carObject = trackObject.get(Track.KEY_TRACK_PROPERTIES_SENSOR)
+                    .getAsJsonObject();
+            Car car = context.deserialize(carObject, Car.class);
             // Create a new remote track.
             Track remoteTrack = new TrackImpl(Track.DownloadState.REMOTE);
             remoteTrack.setRemoteID(id);
@@ -70,6 +73,7 @@ public class RemoteTrackListDeserializer implements JsonDeserializer<List<Track>
             remoteTrack.setLength(length);
             remoteTrack.setBegin(begin);
             remoteTrack.setEnd(end);
+            remoteTrack.setCar(car);
             try {
                 remoteTrack.setLastModified(Util.isoDateToLong(modified));
             } catch (ParseException e) {
