@@ -200,6 +200,7 @@ public class TrackDAOHandler {
             remoteTrack.setDescription(downloadedTrack.getDescription());
             remoteTrack.setMeasurements(new ArrayList<>(downloadedTrack.getMeasurements()));
             remoteTrack.setCar(downloadedTrack.getCar());
+            remoteTrack.setLength(downloadedTrack.getLength());
             remoteTrack.setTrackStatus(downloadedTrack.getTrackStatus());
             remoteTrack.setMetadata(downloadedTrack.getMetadata());
 

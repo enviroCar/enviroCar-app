@@ -28,6 +28,7 @@ import org.envirocar.core.util.TrackMetadata;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -49,7 +50,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     protected Long lastModified;
     protected Long startTime;
     protected Long endTime;
-    protected Long length;
+    protected Float length;
     protected String begin;
     protected String end;
     protected TrackMetadata metadata;
@@ -121,6 +122,7 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
         track.setCar(car);
         track.setStartTime(startTime);
         track.setEndTime(endTime);
+        track.setLength(length);
         track.setMetadata(metadata);
         track.setTrackStatus(trackStatus);
         track.setMeasurements(new ArrayList<>(measurements));
@@ -226,12 +228,12 @@ public class TrackImpl implements Track, TrackStatisticsProvider {
     }
 
     @Override
-    public Long getLength(){
+    public Float getLength(){
         return this.length;
     }
 
     @Override
-    public void setLength(Long length){
+    public void setLength(Float length){
         this.length = length;
     }
 

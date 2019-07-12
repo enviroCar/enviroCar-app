@@ -48,9 +48,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -223,15 +226,9 @@ public class TrackSerializer implements JsonSerializer<Track>, JsonDeserializer<
         String description = properties.has(Track.KEY_TRACK_PROPERTIES_DESCRIPTION) ?
                 properties.get(Track.KEY_TRACK_PROPERTIES_DESCRIPTION).getAsString() :
                 "";
-        String begin = properties.has(Track.KEY_TRACK_PROPERTIES_BEGIN) ?
-                properties.get(Track.KEY_TRACK_PROPERTIES_BEGIN).getAsString() :
-                "";
-        String end = properties.has(Track.KEY_TRACK_PROPERTIES_END) ?
-                properties.get(Track.KEY_TRACK_PROPERTIES_END).getAsString() :
-                "";
-        Long length = properties.has(Track.KEY_TRACK_PROPERTIES_LENGTH) ?
-                properties.get(Track.KEY_TRACK_PROPERTIES_LENGTH).getAsLong() :
-                new Long(0);
+        Float length = properties.has(Track.KEY_TRACK_PROPERTIES_LENGTH) ?
+                properties.get(Track.KEY_TRACK_PROPERTIES_LENGTH).getAsFloat() :
+                new Float(0);
         // Parse the car object.
         JsonObject carObject = properties.get(Track.KEY_TRACK_PROPERTIES_SENSOR)
                 .getAsJsonObject();
