@@ -73,4 +73,11 @@
     <string name="track_list_upload_all_tracks_content">You are about to upload all tracks. This means that all tracks will be uploaded and assigned to your account.\n\nDo you want to continue?</string>
     <string name="track_list_uploading_please_wait">Please wait...</string>
 
+    <string-array name="sort_options">
+        <item>By Date</item>
+        <item>By Length</item>
+        <item>By Duration</item>
+        <item>By Car</item>
+    </string-array>
+
 </resources>
