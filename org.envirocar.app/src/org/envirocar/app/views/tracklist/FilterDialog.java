@@ -1,6 +1,7 @@
 package org.envirocar.app.views.tracklist;
 
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
@@ -14,7 +15,6 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -33,12 +33,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.inject.Inject;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class FilterDialog extends AlertDialog implements AdapterView.OnItemSelectedListener{
+public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedListener {
 
     private static final Logger LOG = Logger.getLogger(FilterDialog.class);
 
@@ -78,7 +76,7 @@ public class FilterDialog extends AlertDialog implements AdapterView.OnItemSelec
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_tracklist_filter_dialog);
         ButterKnife.bind(this);
@@ -93,6 +91,16 @@ public class FilterDialog extends AlertDialog implements AdapterView.OnItemSelec
             @Override
             public void onClick(View v) {
                 error = true;
+
+                if(!checkBoxDate.isChecked() || !checkBoxCar.isChecked())
+                {
+                    error = false;
+                    if(!checkBoxDate.isChecked())
+                        filterViewModel.setFilterDate(false);
+                    if(!checkBoxCar.isChecked())
+                        filterViewModel.setFilterCar(false);
+                }
+
                 if(checkBoxDate.isChecked() && startDate!=null && endDate!=null && startDate.before(endDate)){
                     filterViewModel.setFilterDates(startDate, endDate);
                     filterViewModel.setFilterDate(true);
@@ -104,6 +112,10 @@ public class FilterDialog extends AlertDialog implements AdapterView.OnItemSelec
                     error = false;
                 }
                 if(!error){
+                    if(filterViewModel.getFilterActive().getValue() == null)
+                        filterViewModel.setFilterActive(true);
+                    else
+                        filterViewModel.setFilterActive(!filterViewModel.getFilterActive().getValue());
                     dismiss();
                 }
             }
@@ -127,6 +139,7 @@ public class FilterDialog extends AlertDialog implements AdapterView.OnItemSelec
             public void onCheckedChanged(CompoundButton  group, boolean isChecked) {
                 if (isChecked){
                     spinnerCar.setVisibility(View.VISIBLE);
+                    //carName = carNames.get(0);
                 }
                 else {
                     spinnerCar.setVisibility(View.GONE);
@@ -214,8 +227,8 @@ public class FilterDialog extends AlertDialog implements AdapterView.OnItemSelec
             datesSet = filterViewModel.getFilterDate().getValue();
             checkBoxDate.setChecked(datesSet);
             if(datesSet){
-                startDate = filterViewModel.getFilterDateAfter().getValue();
-                endDate = filterViewModel.getFilterDateBefore().getValue();
+                startDate = filterViewModel.getFilterDateStart().getValue();
+                endDate = filterViewModel.getFilterDateEnd().getValue();
                 setDateHeader(1);
                 setDateHeader(2);
                 dateLayout.setVisibility(View.VISIBLE);

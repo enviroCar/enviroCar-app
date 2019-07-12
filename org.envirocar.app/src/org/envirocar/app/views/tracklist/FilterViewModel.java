@@ -4,26 +4,34 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import java.util.Date;
-import java.util.List;
 
 public class FilterViewModel extends ViewModel {
 
+    private final MutableLiveData<Boolean> filterActive = new MutableLiveData<>();
     private final MutableLiveData<Boolean> filterDate = new MutableLiveData<>();
-    private final MutableLiveData<Date> filterDateAfter = new MutableLiveData<>();
-    private final MutableLiveData<Date> filterDateBefore = new MutableLiveData<>();
+    private final MutableLiveData<Date> filterDateStart = new MutableLiveData<>();
+    private final MutableLiveData<Date> filterDateEnd = new MutableLiveData<>();
     private final MutableLiveData<Boolean> filterCar = new MutableLiveData<>();
     private final MutableLiveData<String> filterCarName = new MutableLiveData<>();
+
+    public MutableLiveData<Boolean> getFilterActive() {
+        return filterActive;
+    }
+
+    public void setFilterActive(Boolean bool){
+        filterActive.setValue(bool);
+    }
 
     public MutableLiveData<Boolean> getFilterDate() {
         return filterDate;
     }
 
-    public MutableLiveData<Date> getFilterDateAfter() {
-        return filterDateAfter;
+    public MutableLiveData<Date> getFilterDateStart() {
+        return filterDateStart;
     }
 
-    public MutableLiveData<Date> getFilterDateBefore() {
-        return filterDateBefore;
+    public MutableLiveData<Date> getFilterDateEnd() {
+        return filterDateEnd;
     }
 
     public MutableLiveData<Boolean> getFilterCar() {
@@ -39,8 +47,8 @@ public class FilterViewModel extends ViewModel {
     }
 
     public void setFilterDates(Date after, Date before){
-        filterDateAfter.setValue(after);
-        filterDateBefore.setValue(before);
+        filterDateStart.setValue(after);
+        filterDateEnd.setValue(before);
     }
 
     public void setFilterCar(Boolean bool){
