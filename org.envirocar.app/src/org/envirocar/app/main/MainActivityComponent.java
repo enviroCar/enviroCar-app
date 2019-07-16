@@ -23,6 +23,8 @@ import org.envirocar.app.views.recordingscreen.TempomatFragment;
 import org.envirocar.app.views.recordingscreen.TrackMapFragment;
 import org.envirocar.app.views.recordingscreen.GPSOnlyTrackRecordingScreen;
 import org.envirocar.app.views.recordingscreen.OBDPlusGPSTrackRecordingScreen;
+import org.envirocar.app.views.trackdetails.TrackInfoFragment;
+import org.envirocar.app.views.trackdetails.TrackStatisticsFragment;
 import org.envirocar.app.views.tracklist.TrackListLocalCardFragment;
 import org.envirocar.app.views.tracklist.TrackListPagerFragment;
 import org.envirocar.app.views.tracklist.TrackListRemoteCardFragment;
@@ -40,6 +42,8 @@ public interface MainActivityComponent {
     void inject(BaseMainActivityBottomBar baseMainActivity);
     void inject(TempomatFragment tempomatFragment);
     void inject(TrackMapFragment trackMapFragment);
+    void inject(TrackInfoFragment trackInfoFragment);
+    void inject(TrackStatisticsFragment trackStatisticsFragment);
     void inject(TrackListLocalCardFragment trackListLocalCardFragment);
     void inject(TrackListPagerFragment trackListPagerFragment);
     void inject(TrackListRemoteCardFragment trackListRemoteCardFragment);

@@ -19,6 +19,7 @@
 package org.envirocar.remote.service;
 
 
+import org.envirocar.core.entity.GlobalStatistics;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserStatistics;
 
@@ -53,4 +54,10 @@ public interface UserService {
 
     @GET("users/{user}/statistics")
     Observable<UserStatistics> getUserStatisticsObservable(@Path("user") String user);
+
+    @GET("statistics")
+    Call<GlobalStatistics> getGlobalStatistics();
+
+    @GET("statistics/{phenomenon}")
+    Call<GlobalStatistics> getGlobalStatisticsByPhenomenon(@Path("phenomenon") String phenomenon);
 }

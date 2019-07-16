@@ -21,6 +21,7 @@ package org.envirocar.remote.dao;
 import org.envirocar.core.CacheDirectoryProvider;
 import org.envirocar.core.dao.AbstractCacheDAO;
 import org.envirocar.core.dao.UserDAO;
+import org.envirocar.core.entity.GlobalStatistics;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.DataUpdateFailureException;
@@ -60,6 +61,16 @@ public class CacheUserDAO extends AbstractCacheDAO implements UserDAO {
     @Override
     public void createUser(User user) throws DataUpdateFailureException {
         throw new DataUpdateFailureException("Not supported by Cache");
+    }
+
+    @Override
+    public GlobalStatistics getGlobalStatistics() throws DataRetrievalFailureException {
+        throw new DataRetrievalFailureException("Not supported by Cache");
+    }
+
+    @Override
+    public Observable<GlobalStatistics> getGlobalStatisticsObservable() {
+        return Observable.error(new DataUpdateFailureException("Not supported by Cache"));
     }
 
 }

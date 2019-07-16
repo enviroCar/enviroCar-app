@@ -7,9 +7,11 @@ import com.google.gson.reflect.TypeToken;
 import org.envirocar.core.entity.Announcement;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Fueling;
+import org.envirocar.core.entity.GlobalStatistics;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.TermsOfUse;
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.entity.TrackStatistics;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserStatistics;
 import org.envirocar.remote.serializer.AnnouncementSerializer;
@@ -17,11 +19,13 @@ import org.envirocar.remote.serializer.CarListDeserializer;
 import org.envirocar.remote.serializer.CarSerializer;
 import org.envirocar.remote.serializer.FuelingListSerializer;
 import org.envirocar.remote.serializer.FuelingSerializer;
+import org.envirocar.remote.serializer.GlobalStatisticsDeserializer;
 import org.envirocar.remote.serializer.MeasurementSerializer;
 import org.envirocar.remote.serializer.RemoteTrackListDeserializer;
 import org.envirocar.remote.serializer.TermsOfUseListSerializer;
 import org.envirocar.remote.serializer.TermsOfUseSerializer;
 import org.envirocar.remote.serializer.TrackSerializer;
+import org.envirocar.remote.serializer.TrackStatisticsDeserializer;
 import org.envirocar.remote.serializer.UserSerializer;
 import org.envirocar.remote.serializer.UserStatisticDeserializer;
 
@@ -50,6 +54,18 @@ public class SerializationModule {
     @Singleton
     protected UserStatisticDeserializer provideUserStatisticDeserializer() {
         return new UserStatisticDeserializer();
+    }
+
+    @Provides
+    @Singleton
+    protected TrackStatisticsDeserializer provideTrackStatisticsDeserializer(){
+        return new TrackStatisticsDeserializer();
+    }
+
+    @Provides
+    @Singleton
+    protected GlobalStatisticsDeserializer provideGlobalStatisticsDeserializer(){
+        return new GlobalStatisticsDeserializer();
     }
 
     @Provides
@@ -136,14 +152,16 @@ public class SerializationModule {
 
     @Provides
     @Singleton
-    protected Gson provideGson(UserSerializer userSerializer, UserStatisticDeserializer userStatisticDeserializer, TypeToken<List<Car>> carListTypeToken,
-                               CarListDeserializer carListDeserializer, TrackSerializer trackSerializer, MeasurementSerializer measurementSerializer,
+    protected Gson provideGson(UserSerializer userSerializer, UserStatisticDeserializer userStatisticDeserializer, TrackStatisticsDeserializer trackStatisticsDeserializer, GlobalStatisticsDeserializer globalStatisticsDeserializer,
+                               TypeToken<List<Car>> carListTypeToken, CarListDeserializer carListDeserializer, TrackSerializer trackSerializer, MeasurementSerializer measurementSerializer,
                                TypeToken<List<Track>> trackListTypeToken, RemoteTrackListDeserializer remoteTrackListDeserializer, TermsOfUseSerializer termsOfUseSerializer,
                                TypeToken<List<TermsOfUse>> termsOfUseListTypeToken, TermsOfUseListSerializer termsOfUseListSerializer, AnnouncementSerializer announcementSerializer,
                                FuelingSerializer fuelingSerializer, TypeToken<List<Fueling>> fuelingListTypeToken, FuelingListSerializer fuelingListSerializer) {
         return new GsonBuilder()
                 .registerTypeAdapter(User.class, userSerializer)
                 .registerTypeAdapter(UserStatistics.class, userStatisticDeserializer)
+                .registerTypeAdapter(TrackStatistics.class, trackStatisticsDeserializer)
+                .registerTypeAdapter(GlobalStatistics.class, globalStatisticsDeserializer)
                 .registerTypeAdapter(Car.class, new CarSerializer())
                 .registerTypeAdapter(carListTypeToken.getType(), carListDeserializer)
                 .registerTypeAdapter(Track.class, trackSerializer)

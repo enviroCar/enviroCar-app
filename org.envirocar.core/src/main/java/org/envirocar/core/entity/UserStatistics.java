@@ -27,6 +27,9 @@ import java.util.Map;
  */
 public interface UserStatistics extends BaseEntity<UserStatistics> {
 
+    String KEY_USER_STAT_CONSUMPTION = "Consumption";
+    String KEY_USER_STAT_SPEED = "Speed";
+
     Phenomenon getStatistic(String phenomenon);
 
     void setStatistic(Phenomenon phenomenon);

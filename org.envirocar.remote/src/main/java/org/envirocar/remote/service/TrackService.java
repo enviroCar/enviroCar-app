@@ -21,6 +21,7 @@ package org.envirocar.remote.service;
 
 
 import org.envirocar.core.entity.Track;
+import org.envirocar.core.entity.TrackStatistics;
 
 import java.util.List;
 
@@ -80,6 +81,14 @@ public interface TrackService {
     @DELETE("users/{user}/tracks/{track}")
     Call<ResponseBody> deleteTrack(@Path("user") String user, @Path("track") String track);
 
+    @GET("users/{user}/tracks/{track}/statistics")
+    Call<TrackStatistics> getTrackStatistics(@Path("user") String user,
+                                             @Path("track") String trackId);
+
+    @GET("users/{user}/tracks/{track}/statistics/{phenomenon}")
+    Call<TrackStatistics> getTrackStatisticsByPhenomenon(@Path("user") String user,
+                                                        @Path("track") String trackId,
+                                                        @Path("phenomenon") String phenomenon);
 
 }
 

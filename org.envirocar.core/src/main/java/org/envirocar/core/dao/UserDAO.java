@@ -19,6 +19,7 @@
 package org.envirocar.core.dao;
 
 
+import org.envirocar.core.entity.GlobalStatistics;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.exception.DataRetrievalFailureException;
 import org.envirocar.core.exception.DataUpdateFailureException;
@@ -42,4 +43,8 @@ public interface UserDAO {
     void createUser(User user) throws DataUpdateFailureException, ResourceConflictException;
 
     void updateUser(User user) throws DataUpdateFailureException, UnauthorizedException;
+
+    GlobalStatistics getGlobalStatistics() throws DataRetrievalFailureException, UnauthorizedException, NotConnectedException;
+
+    Observable<GlobalStatistics> getGlobalStatisticsObservable();
 }

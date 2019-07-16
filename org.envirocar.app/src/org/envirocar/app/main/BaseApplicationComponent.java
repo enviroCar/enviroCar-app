@@ -56,8 +56,10 @@ import org.envirocar.remote.dao.CacheUserDAO;
 import org.envirocar.remote.dao.RemoteAnnouncementsDAO;
 import org.envirocar.remote.dao.RemoteCarDAO;
 import org.envirocar.remote.dao.RemoteFuelingDAO;
+import org.envirocar.remote.dao.RemoteGlobalStatisticsDAO;
 import org.envirocar.remote.dao.RemoteTermsOfUseDAO;
 import org.envirocar.remote.dao.RemoteTrackDAO;
+import org.envirocar.remote.dao.RemoteTrackStatisticsDAO;
 import org.envirocar.remote.dao.RemoteUserDAO;
 import org.envirocar.remote.dao.RemoteUserStatisticsDAO;
 
@@ -114,6 +116,8 @@ public interface BaseApplicationComponent {
     RemoteUserDAO getRemoteUserDAO();
     CacheUserDAO getCacheUserDAO();
     RemoteUserStatisticsDAO getRemoteUserStatisticsDAO();
+    RemoteTrackStatisticsDAO getRemoteTrackStatisticsDAO();
+    RemoteGlobalStatisticsDAO getRemoteGlobalStatisticsDAO();
     RemoteFuelingDAO getRemoteFuelingDAO();
     CacheFuelingDAO getCacheFuelingDAO();
     RemoteTermsOfUseDAO getRemoteTermsOfUseDAO();
