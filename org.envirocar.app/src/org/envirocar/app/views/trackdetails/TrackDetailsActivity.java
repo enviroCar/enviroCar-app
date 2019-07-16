@@ -19,6 +19,7 @@
 package org.envirocar.app.views.trackdetails;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -31,6 +32,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.viewpager.widget.ViewPager;
+
 import android.transition.Slide;
 import android.view.MenuItem;
 import android.view.View;
@@ -112,22 +115,14 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected MapView mMapView;
     @BindView(R.id.activity_track_details_header_toolbar)
     protected Toolbar mToolbar;
-    @BindView(R.id.activity_track_details_attr_description_value)
-    protected TextView mDescriptionText;
     @BindView(R.id.track_details_attributes_header_duration)
     protected TextView mDurationText;
     @BindView(R.id.track_details_attributes_header_distance)
     protected TextView mDistanceText;
-    @BindView(R.id.activity_track_details_attr_begin_value)
-    protected TextView mBeginText;
-    @BindView(R.id.activity_track_details_attr_end_value)
-    protected TextView mEndText;
-    @BindView(R.id.activity_track_details_attr_car_value)
-    protected TextView mCarText;
-    @BindView(R.id.activity_track_details_attr_emission_value)
-    protected TextView mEmissionText;
-    @BindView(R.id.activity_track_details_attr_consumption_value)
-    protected TextView mConsumptionText;
+    @BindView(R.id.track_details_attributes_header_date)
+    protected TextView mDateText;
+    @BindView(R.id.track_details_attributes_header_time)
+    protected TextView mTimeText;
     @BindView(R.id.activity_track_details_expanded_map)
     protected MapView mMapViewExpanded;
     @BindView(R.id.activity_track_details_expanded_map_container)
@@ -140,13 +135,16 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected ImageView mMapViewExpandedCancel;
     @BindView(R.id.activity_track_details_header_map_container)
     protected FrameLayout mMapViewContainer;
-    @BindView(R.id.consumption_container)
-    protected RelativeLayout mConsumptionContainer;
-    @BindView(R.id.co2_container)
-    protected RelativeLayout mCo2Container;
-    @BindView(R.id.descriptionTv)
-    protected TextView descriptionTv;
+    @BindView(R.id.title)
+    protected TextView title;
+    @BindView(R.id.timeImage)
+    protected ImageView timeImage;
+    @BindView(R.id.time)
+    protected TextView timeTV;
+    @BindView(R.id.viewPager)
+    protected ViewPager viewPager;
 
+    protected Track track;
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
@@ -171,27 +169,29 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         // Get the track to show.
         int mTrackID = getIntent().getIntExtra(EXTRA_TRACKID, -1);
         Track.TrackId trackid = new Track.TrackId(mTrackID);
-        Track track = mEnvirocarDB.getTrack(trackid)
+        track = mEnvirocarDB.getTrack(trackid)
                 .subscribeOn(Schedulers.io())
                 .toBlocking()
                 .first();
+        Bundle bundle = new Bundle();
+        bundle.putString("ID", track.getRemoteID());
+        bundle.putInt("track", mTrackID);
+        viewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager(), bundle));
 
-        String itemTitle = track.getName();
         CollapsingToolbarLayout collapsingToolbarLayout = findViewById
                 (R.id.collapsing_toolbar);
-        collapsingToolbarLayout.setTitle(itemTitle);
+        //collapsingToolbarLayout.setTitle(itemTitle);
         collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(android.R.color
                 .transparent));
         collapsingToolbarLayout.setStatusBarScrimColor(getResources().getColor(android.R.color
                 .transparent));
 
-        TextView title = findViewById(R.id.title);
-        title.setText(itemTitle);
+        setTitleAndAttr();
 
         // Initialize the mapview and the trackpath
         initMapView();
-        initTrackPath(track);
-        initViewValues(track);
+        initTrackPath();
+        initViewValues();
 
         updateStatusBarColor();
 
@@ -203,6 +203,81 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         mMapViewExpandedCancel.setOnClickListener(v-> closeExpandedMapView());
         //expanding the expandable mapview on clicking the framelayout which is surrounded by header map view in collapsingtoolbarlayout
         mMapViewContainer.setOnClickListener(v-> expandMapView(track));
+    }
+
+    private void setTitleAndAttr(){
+        try{
+            Date trackDate = new Date(track.getStartTime());
+            String carName = " with the " + track.getCar().getModel();
+            Integer hh = Integer.parseInt(new SimpleDateFormat("HH", Locale.getDefault()).format(trackDate));
+            if(hh < 4 || hh > 19) {
+                title.setText("Your Night Track" + carName);
+                timeImage.setImageResource(R.drawable.night);
+            }
+            else if(hh >= 4 && hh < 9) {
+                title.setText("Your Morning Track" + carName);
+                timeImage.setImageResource(R.drawable.morning);
+            }
+            else if(hh > 9 && hh < 15) {
+                title.setText("Your Afternoon Track" + carName);
+                timeImage.setImageResource(R.drawable.afternoon);
+            }
+            else {
+                title.setText("Your Evening Track" + carName);
+                timeImage.setImageResource(R.drawable.evening);
+            }
+            String trackDateS = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(trackDate);
+            String trackTimeS = new SimpleDateFormat("KK:mm a", Locale.getDefault()).format(trackDate);
+            mDateText.setText(trackDateS);
+            mTimeText.setText(trackTimeS);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    String convertMillisToDate(){
+        try {
+            long timeInMillis = track.getDuration();
+            long diffSeconds = timeInMillis / 1000 % 60;
+            long diffMinutes = timeInMillis / (60 * 1000) % 60;
+            long diffHours = timeInMillis / (60 * 60 * 1000) % 24;
+            long diffDays = timeInMillis / (24 * 60 * 60 * 1000);
+            StringBuilder stringBuilder = new StringBuilder();
+            if (diffDays != 0) {
+                stringBuilder.append(diffDays);
+                stringBuilder.append("d ");
+                if (diffHours > 1) {
+                    stringBuilder.append(diffHours);
+                    stringBuilder.append("h");
+                }
+            } else {
+                if (diffHours != 0) {
+                    stringBuilder.append(diffHours);
+                    if (diffMinutes != 0) {
+                        stringBuilder.append(":");
+                        stringBuilder.append(new DecimalFormat("00").format(diffMinutes));
+                    }
+                    timeTV.setText("H");
+                } else {
+                    if (diffMinutes != 0) {
+                        stringBuilder.append(diffMinutes);
+                        if (diffSeconds != 0) {
+                            stringBuilder.append(":");
+                            stringBuilder.append(new DecimalFormat("00").format(diffSeconds));
+                        }
+                        timeTV.setText("M");
+                    } else {
+                            stringBuilder.append(diffSeconds);
+                            timeTV.setText("S");
+                    }
+                }
+
+            }
+            return stringBuilder.toString();
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
     private void updateStatusBarColor() {
@@ -271,10 +346,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         mMapView.setZoom(0);
     }
 
-    /**
-     * @param track
-     */
-    private void initTrackPath(Track track) {
+    private void initTrackPath() {
         // Configure the line representation.
         Paint linePaint = new Paint();
         linePaint.setStyle(Paint.Style.STROKE);
@@ -331,52 +403,11 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         view.startAnimation(animation);
     }
 
-    private void initViewValues(Track track) {
-        try {
-            final String text = UTC_DATE_FORMATTER.format(new Date(
-                    track.getDuration()));
-            mDistanceText.setText(String.format("%s km",
+    private void initViewValues() {
+            mDistanceText.setText(String.format("%s",
                     DECIMAL_FORMATTER_TWO_DIGITS.format(((TrackStatisticsProvider) track)
                             .getDistanceOfTrack())));
-            mDurationText.setText(text);
+            mDurationText.setText(convertMillisToDate());
 
-            mDescriptionText.setText(track.getDescription());
-            mCarText.setText(CarUtils.carToStringWithLinebreak(track.getCar()));
-            mBeginText.setText(DATE_FORMAT.format(new Date(track.getStartTime())));
-            mEndText.setText(DATE_FORMAT.format(new Date(track.getEndTime())));
-
-            // show consumption and emission either when the fuel type of the track's car is
-            // gasoline or the beta setting has been enabled.
-            if(!track.hasProperty(Measurement.PropertyKey.SPEED)){
-                mConsumptionContainer.setVisibility(View.GONE);
-                mCo2Container.setVisibility(View.GONE);
-                descriptionTv.setText(R.string.gps_track_details);
-            }
-            else if (track.getCar().getFuelType() == Car.FuelType.GASOLINE ||
-                    PreferencesHandler.isDieselConsumptionEnabled(this)) {
-                mEmissionText.setText(DECIMAL_FORMATTER_TWO_DIGITS.format(
-                        ((TrackStatisticsProvider) track).getGramsPerKm()) + " g/km");
-                mConsumptionText.setText(
-                        String.format("%s l/h\n%s l/100 km",
-                                DECIMAL_FORMATTER_TWO_DIGITS.format(
-                                        ((TrackStatisticsProvider) track)
-                                                .getFuelConsumptionPerHour()),
-
-                                DECIMAL_FORMATTER_TWO_DIGITS.format(
-                                        ((TrackStatisticsProvider) track).getLiterPerHundredKm())));
-            } else {
-                mEmissionText.setText(R.string.track_list_details_diesel_not_supported);
-                mConsumptionText.setText(R.string.track_list_details_diesel_not_supported);
-                mEmissionText.setTextColor(Color.RED);
-                mConsumptionText.setTextColor(Color.RED);
-            }
-
-        } catch (FuelConsumptionException e) {
-            e.printStackTrace();
-        } catch (NoMeasurementsException e) {
-            e.printStackTrace();
-        } catch (UnsupportedFuelTypeException e) {
-            e.printStackTrace();
-        }
     }
 }
