@@ -280,7 +280,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
         protected View mContentView;
         @BindView(R.id.track_details_attributes_header_distance)
         protected TextView mDistance;
-        @BindView(R.id.track_details_attributes_header_duration)
+        @BindView(R.id.track_details_attributes_header_duration2)
         protected TextView mDuration;
         @BindView(R.id.fragment_tracklist_cardlayout_map)
         protected MapView mMapView;

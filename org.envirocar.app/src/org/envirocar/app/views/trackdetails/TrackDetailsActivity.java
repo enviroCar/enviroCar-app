@@ -18,8 +18,8 @@
  */
 package org.envirocar.app.views.trackdetails;
 
+import android.animation.FloatEvaluator;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -40,6 +40,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -50,19 +51,12 @@ import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
 import com.mapbox.mapboxsdk.views.MapView;
 
 import org.envirocar.app.R;
-import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.views.utils.MapUtils;
-import org.envirocar.core.entity.Car;
-import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
-import org.envirocar.core.exception.FuelConsumptionException;
-import org.envirocar.core.exception.NoMeasurementsException;
-import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
 import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
-import org.envirocar.core.utils.CarUtils;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.text.DateFormat;
@@ -115,8 +109,10 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected MapView mMapView;
     @BindView(R.id.activity_track_details_header_toolbar)
     protected Toolbar mToolbar;
-    @BindView(R.id.track_details_attributes_header_duration)
-    protected TextView mDurationText;
+    @BindView(R.id.track_details_attributes_header_duration1)
+    protected TextView mDurationText1;
+    @BindView(R.id.track_details_attributes_header_duration2)
+    protected TextView mDurationText2;
     @BindView(R.id.track_details_attributes_header_distance)
     protected TextView mDistanceText;
     @BindView(R.id.track_details_attributes_header_date)
@@ -139,11 +135,16 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected TextView title;
     @BindView(R.id.timeImage)
     protected ImageView timeImage;
-    @BindView(R.id.time)
-    protected TextView timeTV;
+    @BindView(R.id.time1)
+    protected TextView timeTV1;
+    @BindView(R.id.time2)
+    protected TextView timeTV2;
     @BindView(R.id.viewPager)
     protected ViewPager viewPager;
-
+    @BindView(R.id.indicator_0)
+    protected Button indicator0;
+    @BindView(R.id.indicator_1)
+    protected Button indicator1;
     protected Track track;
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -177,17 +178,52 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         bundle.putString("ID", track.getRemoteID());
         bundle.putInt("track", mTrackID);
         viewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager(), bundle));
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
+                FloatEvaluator evaluator = new FloatEvaluator();
+                Float update1 = evaluator.evaluate(positionOffset, 1f, 0.2f);
+                Float update2 = evaluator.evaluate(positionOffset, 0.2f, 1f);
+                if(position == 0)
+                {
+                    indicator0.setAlpha(update1);
+                    indicator1.setAlpha(update2);
+                }
+                else{
+                    indicator0.setAlpha(update2);
+                    indicator1.setAlpha(update1);
+                }
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if(position == 0)
+                {
+                    indicator0.setAlpha(1);
+                    indicator1.setAlpha(0.2f);
+                }
+                else{
+                    indicator0.setAlpha(0.2f);
+                    indicator1.setAlpha(1);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
         CollapsingToolbarLayout collapsingToolbarLayout = findViewById
                 (R.id.collapsing_toolbar);
-        //collapsingToolbarLayout.setTitle(itemTitle);
+
         collapsingToolbarLayout.setExpandedTitleColor(getResources().getColor(android.R.color
                 .transparent));
         collapsingToolbarLayout.setStatusBarScrimColor(getResources().getColor(android.R.color
                 .transparent));
 
         setTitleAndAttr();
-
+        collapsingToolbarLayout.setTitle(title.getText().toString());
         // Initialize the mapview and the trackpath
         initMapView();
         initTrackPath();
@@ -235,48 +271,69 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         }
     }
 
-    String convertMillisToDate(){
+    public void convertMillisToDate(){
         try {
             long timeInMillis = track.getDuration();
             long diffSeconds = timeInMillis / 1000 % 60;
             long diffMinutes = timeInMillis / (60 * 1000) % 60;
             long diffHours = timeInMillis / (60 * 60 * 1000) % 24;
             long diffDays = timeInMillis / (24 * 60 * 60 * 1000);
-            StringBuilder stringBuilder = new StringBuilder();
             if (diffDays != 0) {
-                stringBuilder.append(diffDays);
-                stringBuilder.append("d ");
+                mDurationText1.setText(diffDays+"");
+                timeTV1.setText("D");
                 if (diffHours > 1) {
-                    stringBuilder.append(diffHours);
-                    stringBuilder.append("h");
+                    mDurationText2.setVisibility(View.VISIBLE);
+                    timeTV2.setVisibility(View.VISIBLE);
+                    mDurationText2.setText(diffHours+"");
+                    timeTV2.setText("H");
+                }
+                else{
+                    mDurationText2.setVisibility(View.INVISIBLE);
+                    timeTV2.setVisibility(View.INVISIBLE);
                 }
             } else {
                 if (diffHours != 0) {
-                    stringBuilder.append(diffHours);
+                    mDurationText1.setVisibility(View.VISIBLE);
+                    timeTV1.setVisibility(View.VISIBLE);
+                    mDurationText1.setText(diffHours+"");
+                    timeTV1.setText("H");
                     if (diffMinutes != 0) {
-                        stringBuilder.append(":");
-                        stringBuilder.append(new DecimalFormat("00").format(diffMinutes));
+                        mDurationText2.setVisibility(View.VISIBLE);
+                        timeTV2.setVisibility(View.VISIBLE);
+                        mDurationText2.setText(new DecimalFormat("00").format(diffMinutes)+"");
+                        timeTV2.setText("M");
+                    } else{
+                        mDurationText2.setVisibility(View.INVISIBLE);
+                        timeTV2.setVisibility(View.INVISIBLE);
                     }
-                    timeTV.setText("H");
                 } else {
                     if (diffMinutes != 0) {
-                        stringBuilder.append(diffMinutes);
+                        mDurationText1.setVisibility(View.VISIBLE);
+                        timeTV1.setVisibility(View.VISIBLE);
+                        mDurationText1.setText(diffMinutes+"");
+                        timeTV1.setText("M");
                         if (diffSeconds != 0) {
-                            stringBuilder.append(":");
-                            stringBuilder.append(new DecimalFormat("00").format(diffSeconds));
+                            mDurationText2.setVisibility(View.VISIBLE);
+                            timeTV2.setVisibility(View.VISIBLE);
+                            mDurationText2.setText(new DecimalFormat("00").format(diffSeconds)+"");
+                            timeTV2.setText("S");
+                        } else{
+                            mDurationText2.setVisibility(View.INVISIBLE);
+                            timeTV2.setVisibility(View.INVISIBLE);
                         }
-                        timeTV.setText("M");
                     } else {
-                            stringBuilder.append(diffSeconds);
-                            timeTV.setText("S");
+                            mDurationText1.setVisibility(View.VISIBLE);
+                            timeTV1.setVisibility(View.VISIBLE);
+                            mDurationText1.setText(diffSeconds+"");
+                            timeTV1.setText("S");
+                            mDurationText2.setVisibility(View.INVISIBLE);
+                            timeTV2.setVisibility(View.INVISIBLE);
                     }
                 }
 
             }
-            return stringBuilder.toString();
         }catch (Exception e){
             e.printStackTrace();
-            return null;
         }
     }
 
@@ -407,7 +464,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
             mDistanceText.setText(String.format("%s",
                     DECIMAL_FORMATTER_TWO_DIGITS.format(((TrackStatisticsProvider) track)
                             .getDistanceOfTrack())));
-            mDurationText.setText(convertMillisToDate());
+            convertMillisToDate();
 
     }
 }
