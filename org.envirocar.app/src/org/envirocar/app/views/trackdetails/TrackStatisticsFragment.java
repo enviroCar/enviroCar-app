@@ -1,6 +1,7 @@
 package org.envirocar.app.views.trackdetails;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,8 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TrackDAOHandler;
@@ -21,6 +24,7 @@ import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.main.MainActivityComponent;
 import org.envirocar.app.main.MainActivityModule;
+import org.envirocar.app.views.LoginRegisterActivity;
 import org.envirocar.core.entity.GlobalStatistics;
 import org.envirocar.core.entity.TrackStatistics;
 import org.envirocar.core.entity.UserStatistics;
@@ -80,7 +84,6 @@ public class TrackStatisticsFragment extends BaseInjectorFragment {
     private TrackStatistics trackStatistics;
     private GlobalStatistics globalStatistics;
     private UserStatistics userStatistics;
-    private TrackDetailsActivity activity;
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
@@ -104,6 +107,15 @@ public class TrackStatisticsFragment extends BaseInjectorFragment {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         subscription = new CompositeSubscription();
         loadData();
+        infoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final MaterialDialog dialog = new MaterialDialog.Builder(getContext())
+                        .customView(R.layout.track_details_dialog, false)
+                        .cancelable(true)
+                        .show();
+            }
+        });
         return rootView;
     }
 
