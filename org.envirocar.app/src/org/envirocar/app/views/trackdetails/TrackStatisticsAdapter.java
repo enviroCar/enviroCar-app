@@ -53,7 +53,7 @@ public class TrackStatisticsAdapter extends RecyclerView.Adapter<TrackStatistics
         {
             holder.globalAvg.setVisibility(View.VISIBLE);
             holder.userAvg.setVisibility(View.VISIBLE);
-            holder.globalAvg.setText("Community Average: " + temp.getGlobalAvg() + temp.getUnit());
+            holder.globalAvg.setText("The Community Average: " + temp.getGlobalAvg() + temp.getUnit());
             holder.userAvg.setText("Your Average: " + temp.getUserAvg() + temp.getUnit());
         }
         else{
