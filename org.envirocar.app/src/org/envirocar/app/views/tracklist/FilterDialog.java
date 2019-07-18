@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -54,6 +55,8 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
     protected CheckBox checkBoxCar;
     @BindView(R.id.checkBoxDate)
     protected CheckBox checkBoxDate;
+    @BindView(R.id.filterDialog)
+    protected ConstraintLayout filterDialog;
 
     private Context context;
     private FragmentActivity activity;
@@ -139,7 +142,6 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
             public void onCheckedChanged(CompoundButton  group, boolean isChecked) {
                 if (isChecked){
                     spinnerCar.setVisibility(View.VISIBLE);
-                    //carName = carNames.get(0);
                 }
                 else {
                     spinnerCar.setVisibility(View.GONE);
@@ -257,6 +259,7 @@ public class FilterDialog extends Dialog implements AdapterView.OnItemSelectedLi
             if(carSet){
                 carName = filterViewModel.getFilterCarName().getValue();
                 spinnerCar.setVisibility(View.VISIBLE);
+                spinnerCar.setSelection(carNames.indexOf(carName));
             }else
                 spinnerCar.setVisibility(View.GONE);
         }catch (Exception e){

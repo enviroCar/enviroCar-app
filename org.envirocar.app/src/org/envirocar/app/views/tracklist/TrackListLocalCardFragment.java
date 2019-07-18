@@ -21,15 +21,20 @@ package org.envirocar.app.views.tracklist;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.material.snackbar.Snackbar;
+
+import android.view.Gravity;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.common.base.Preconditions;
+import com.transitionseverywhere.Slide;
+import com.transitionseverywhere.TransitionManager;
 
 import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.main.MainActivityComponent;
@@ -47,6 +52,7 @@ import org.envirocar.core.util.TrackMetadata;
 import org.envirocar.core.util.Util;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -77,6 +83,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     private Integer sortO = 1;
     private FilterViewModel filterViewModel;
     private SortViewModel sortViewModel;
+    private List<Track> localList = Collections.synchronizedList(new ArrayList<>());
     /**
      *
      */
@@ -103,7 +110,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
             endDate = filterViewModel.getFilterDateEnd().getValue();
             carFilter = filterViewModel.getFilterCar().getValue();
             carName = filterViewModel.getFilterCarName().getValue();
-            loadDataset();
+            updateView();
         });
 
         sortViewModel.getSortActive().observe(this, item -> {
@@ -112,7 +119,6 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                 sortO = 1;
             else
                 sortO = -1;
-
             updateView();
         });
     }
@@ -254,9 +260,11 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
     @Override
     protected void loadDataset() {
         // Do not load the dataset twice.
-        tracksLoaded = true;
-        new LoadLocalTracksTask().execute();
-
+        if(!tracksLoaded)
+        {
+            tracksLoaded = true;
+            new LoadLocalTracksTask().execute();
+        }
     }
 
     @Override
@@ -470,11 +478,7 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
                         @Override
                         public void onStart() {
                             LOG.info("onStart() allLocalTracks");
-                            mMainThreadWorker.schedule(() -> {
-                                mProgressView.setVisibility(View.VISIBLE);
-                                mProgressText.setText(R.string.track_list_loading_tracks);
-                            });
-
+                            showProgressView(R.string.track_list_loading_tracks);
                         }
 
                         @Override
@@ -501,13 +505,13 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
 
                             boolean newTrackAdded = false;
                             for (Track track : tracks) {
-                                if (!mTrackList.contains(track)) {
-                                    mTrackList.add(track);
+                                if (!localList.contains(track)) {
+                                    localList.add(track);
                                     newTrackAdded = true;
                                 }
                             }
-
-                            mProgressView.setVisibility(View.INVISIBLE);
+                            setTrackList();
+                            hideProgressView();
                             if (newTrackAdded) {
                                 updateView();
                             } else if (mTrackList.isEmpty()) {
@@ -520,9 +524,16 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
         }
     }
 
-    public  void updateView(){
-        Collections.sort(mTrackList);
+    public void setTrackList(){
+        for(Track track : localList){
+            if(!mTrackList.contains(track))
+                mTrackList.add(track);
+        }
+    }
 
+    public  void updateView(){
+
+        setTrackList();
         if (dateFilter) {
             for (int i = 0; i < mTrackList.size(); ++i) {
                 Track track = mTrackList.get(i);
@@ -611,10 +622,13 @@ public class TrackListLocalCardFragment extends AbstractTrackListCardFragment<
             showNoLocalTracksInfo();
         }
         else{
+            TransitionManager.beginDelayedTransition(mRecyclerView, new Slide(Gravity.LEFT).
+                    setDuration(1000).
+                    setInterpolator(new FastOutSlowInInterpolator()));
+            mRecyclerView.removeAllViews();
             mRecyclerView.setVisibility(View.VISIBLE);
             infoView.setVisibility(View.GONE);
             mRecyclerViewAdapter.notifyDataSetChanged();
-
             ECAnimationUtils.animateShowView(getActivity(), mFAB,
                     R.anim.translate_slide_in_bottom_fragment);
         }

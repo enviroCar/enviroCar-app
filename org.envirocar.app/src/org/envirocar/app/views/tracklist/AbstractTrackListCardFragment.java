@@ -473,7 +473,15 @@ public abstract class AbstractTrackListCardFragment<E extends RecyclerView.Adapt
         });
     }
 
+    protected void showProgressView(int text) {
+        mMainThreadWorker.schedule(() -> {
+            mProgressView.setVisibility(View.VISIBLE);
+            mProgressText.setText(text);
+        });
+    }
+
     protected void hideProgressView() {
-        ECAnimationUtils.animateHideView(getActivity(), mProgressView, R.anim.fade_out);
+        if(mProgressView.getVisibility() == View.VISIBLE)
+            ECAnimationUtils.animateHideView(getActivity(), mProgressView, R.anim.fade_out);
     }
 }

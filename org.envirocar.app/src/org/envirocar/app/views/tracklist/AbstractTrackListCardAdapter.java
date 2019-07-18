@@ -272,6 +272,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
         protected final View mItemView;
 
+        @BindView(R.id.card_view)
+        protected CardView cardView;
         @BindView(R.id.fragment_tracklist_cardlayout_toolbar)
         protected Toolbar mToolbar;
         @BindView(R.id.fragment_tracklist_cardlayout_toolbar_title)

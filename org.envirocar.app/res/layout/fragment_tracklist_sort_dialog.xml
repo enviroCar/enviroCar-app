@@ -25,7 +25,7 @@
     <RadioGroup
         android:id="@+id/radioGroup"
         android:layout_width="320dp"
-        android:layout_height="89dp"
+        android:layout_height="wrap_content"
         android:layout_margin="@dimen/activity_horizontal_margin"
         android:layout_marginTop="12dp"
         android:orientation="vertical"
