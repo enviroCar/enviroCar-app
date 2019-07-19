@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -66,9 +66,9 @@ import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferencesHandler;
-import org.envirocar.app.handler.TermsOfUseManager;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.main.MainActivityComponent;
@@ -120,7 +120,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @Inject
     protected DAOProvider mDAOProvider;
     @Inject
-    protected TermsOfUseManager mTermsOfUseManager;
+    protected AgreementManager mAgreementManager;
     @Inject
     protected TrackDAOHandler mTrackDAOHandler;
     @InjectActivityScope
@@ -260,7 +260,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
-        MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(getActivity()));
+        MainActivityComponent mainActivityComponent = baseApplicationComponent.plus(new MainActivityModule(getActivity()));
         mainActivityComponent.inject(this);
     }
 
@@ -268,8 +268,8 @@ public class DashBoardFragment extends BaseInjectorFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(!PreferencesHandler.getEnableGPSBasedTrackRecording(context)){
-            PreferencesHandler.setPreviouslySelectedRecordingType(context,1);
+        if (!PreferencesHandler.getEnableGPSBasedTrackRecording(context)) {
+            PreferencesHandler.setPreviouslySelectedRecordingType(context, 1);
         }
     }
 
@@ -380,9 +380,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
     }
 
     @OnClick(R.id.signInInitiatorButton)
-    protected void onLoginInitiatorButtonClicked(){
+    protected void onLoginInitiatorButtonClicked() {
         Intent intent = new Intent(getActivity(), LoginRegisterActivity.class);
-        intent.putExtra("from","login");
+        intent.putExtra("from", "login");
         startActivity(intent);
     }
 
@@ -419,14 +419,14 @@ public class DashBoardFragment extends BaseInjectorFragment {
     }
 
     @OnClick(R.id.disableChangingParametersLayout)
-    protected void ondisableChangingParametersLayoutClicked(){
-        Toast.makeText(context,"You cannot change these values while track recording is in progress",Toast.LENGTH_LONG).show();
+    protected void ondisableChangingParametersLayoutClicked() {
+        Toast.makeText(context, "You cannot change these values while track recording is in progress", Toast.LENGTH_LONG).show();
     }
 
     @OnClick(R.id.registerInitiatorButton)
-    protected void onRegisterInitiatorButtonClicked(){
+    protected void onRegisterInitiatorButtonClicked() {
         Intent intent = new Intent(getActivity(), LoginRegisterActivity.class);
-        intent.putExtra("from","register");
+        intent.putExtra("from", "register");
         startActivity(intent);
     }
 
@@ -434,25 +434,25 @@ public class DashBoardFragment extends BaseInjectorFragment {
     public void onStartStopButtonClicked() {
         switch (trackType) {
             case 1:
-                if(OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED){
-                    Intent intent = new Intent(getActivity(),OBDPlusGPSTrackRecordingScreen.class);
+                if (OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED) {
+                    Intent intent = new Intent(getActivity(), OBDPlusGPSTrackRecordingScreen.class);
                     startActivity(intent);
-                }else{
-                    if(checkLocationPermission()){
+                } else {
+                    if (checkLocationPermission()) {
                         onOBDPlusGPSStartTrackButtonStartClicked();
-                    }else{
+                    } else {
                         requestLocationPermission();
                     }
                 }
                 break;
             case 2:
-                if(GPSOnlyRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED){
-                    Intent intent = new Intent(getActivity(),GPSOnlyTrackRecordingScreen.class);
+                if (GPSOnlyRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED) {
+                    Intent intent = new Intent(getActivity(), GPSOnlyTrackRecordingScreen.class);
                     startActivity(intent);
-                }else{
-                    if(checkLocationPermission()){
+                } else {
+                    if (checkLocationPermission()) {
                         onGPSOnlyStartTrackButtonStartClicked();
-                    }else{
+                    } else {
                         requestLocationPermission();
                     }
                 }
@@ -468,10 +468,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
         updateSegmentedView();
         getUserCardDetails();
         updateUserDetailsView();
-        if(trackType == 1){
+        if (trackType == 1) {
             updateStartStopButtonOBDPlusGPS(OBDRecordingService.CURRENT_SERVICE_STATE);
-        }
-        else if(trackType == 2){
+        } else if (trackType == 2) {
             updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
         }
     }
@@ -631,7 +630,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                             startActivity(intent);
                         });
             }
-        }else if(requestCode == REQUEST_STORAGE_PERMISSION_REQUEST_CODE){
+        } else if (requestCode == REQUEST_STORAGE_PERMISSION_REQUEST_CODE) {
             if (grantResults.length <= 0) {
                 // If user interaction was interrupted, the permission request is cancelled and you
                 // receive empty arrays.
@@ -667,13 +666,13 @@ public class DashBoardFragment extends BaseInjectorFragment {
     }
 
 
-        /**
-         * Shows a {@link Snackbar}.
-         *
-         * @param mainTextStringId The id for the string resource for the Snackbar text.
-         * @param actionStringId   The text of the action item.
-         * @param listener         The listener associated with the Snackbar action.
-         */
+    /**
+     * Shows a {@link Snackbar}.
+     *
+     * @param mainTextStringId The id for the string resource for the Snackbar text.
+     * @param actionStringId   The text of the action item.
+     * @param listener         The listener associated with the Snackbar action.
+     */
     private void showSnackbar(final int mainTextStringId, final int actionStringId,
                               View.OnClickListener listener) {
         Snackbar.make(
@@ -852,7 +851,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                 }
             });
 
-        }else{
+        } else {
             dashBoardUserName.setVisibility(GONE);
             dashBoardUserImageView.setVisibility(GONE);
             userStatisticsContainer.setVisibility(GONE);
@@ -972,21 +971,21 @@ public class DashBoardFragment extends BaseInjectorFragment {
             TrackRecordingServiceStateChangedEvent event) {
         LOG.info(String.format("onReceiveTrackRecordingServiceStateChangedEvent(): %s",
                 event.toString()));
-        if ( event.mState == BluetoothServiceState.SERVICE_STARTED && mConnectingDialog != null) {
+        if (event.mState == BluetoothServiceState.SERVICE_STARTED && mConnectingDialog != null) {
             mConnectingDialog.dismiss();
             mConnectingDialog = null;
         }
 
         mMainThreadWorker.schedule(() -> {
             // Update the start stop button.
-            if(trackType == 1){
-                if(event.mState == BluetoothServiceState.SERVICE_STARTED){
+            if (trackType == 1) {
+                if (event.mState == BluetoothServiceState.SERVICE_STARTED) {
                     getActivity().startActivity(new Intent(getActivity(), OBDPlusGPSTrackRecordingScreen.class));
                 }
                 updateStartStopButtonOBDPlusGPS(event.mState);
-            }else if(trackType == 2){
+            } else if (trackType == 2) {
                 updateStartStopButtonGPSOnly(event.mState);
-                if(event.mState == BluetoothServiceState.SERVICE_STARTED){
+                if (event.mState == BluetoothServiceState.SERVICE_STARTED) {
                     getActivity().startActivity(new Intent(getActivity(), GPSOnlyTrackRecordingScreen.class));
                 }
             }
@@ -1004,9 +1003,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
         LOG.info(String.format("onReceiveBluetoothStateChangedEvent(isEnabled=%s)",
                 "" + event.isBluetoothEnabled));
         mMainThreadWorker.schedule(() -> {
-            if(trackType == 1){
+            if (trackType == 1) {
                 updateStartStopButtonOBDPlusGPS(OBDRecordingService.CURRENT_SERVICE_STATE);
-            }else if(trackType == 2){
+            } else if (trackType == 2) {
                 updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
             }
 
@@ -1018,9 +1017,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
     public void onReceiveNewCarTypeSelectedEvent(NewCarTypeSelectedEvent event) {
         LOG.debug(String.format("Received event: %s", event.toString()));
         mMainThreadWorker.schedule(() -> {
-            if(trackType == 1){
+            if (trackType == 1) {
                 updateStartStopButtonOBDPlusGPS(OBDRecordingService.CURRENT_SERVICE_STATE);
-            }else if(trackType == 2){
+            } else if (trackType == 2) {
                 updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
             }
 
@@ -1031,9 +1030,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @Subscribe
     public void onReceiveGpsStatusChangedEvent(GpsStateChangedEvent event) {
         mMainThreadWorker.schedule(() -> {
-            if(trackType == 1){
+            if (trackType == 1) {
                 updateStartStopButtonOBDPlusGPS(OBDRecordingService.CURRENT_SERVICE_STATE);
-            }else if(trackType == 2){
+            } else if (trackType == 2) {
                 updateStartStopButtonGPSOnly(GPSOnlyRecordingService.CURRENT_SERVICE_STATE);
             }
             setmGPSSelectedView(event.mIsGPSEnabled);
@@ -1053,16 +1052,14 @@ public class DashBoardFragment extends BaseInjectorFragment {
         if(!mLocationHandler.isGPSEnabled()){
             errorImageGPS.setVisibility(View.VISIBLE);
             okImageGPS.setVisibility(GONE);
-        }
-        else{
+        } else {
             errorImageGPS.setVisibility(GONE);
             okImageGPS.setVisibility(View.VISIBLE);
         }
-        if(mCarManager.getCar() == null){
+        if (mCarManager.getCar() == null) {
             errorImageCar.setVisibility(View.VISIBLE);
             okImageCar.setVisibility(GONE);
-        }
-        else{
+        } else {
             errorImageCar.setVisibility(GONE);
             okImageCar.setVisibility(View.VISIBLE);
         }
@@ -1077,32 +1074,28 @@ public class DashBoardFragment extends BaseInjectorFragment {
         if(!mBluetoothHandler.isBluetoothEnabled()){
             errorImageBluetooth.setVisibility(View.VISIBLE);
             okImageBluetooth.setVisibility(GONE);
-        }
-        else{
+        } else {
             errorImageBluetooth.setVisibility(GONE);
             okImageBluetooth.setVisibility(View.VISIBLE);
         }
-        if( mBluetoothHandler.getSelectedBluetoothDevice() == null){
+        if (mBluetoothHandler.getSelectedBluetoothDevice() == null) {
             errorImageOBDAdapter.setVisibility(View.VISIBLE);
             okImageOBDAdapter.setVisibility(GONE);
-        }
-        else{
+        } else {
             errorImageOBDAdapter.setVisibility(GONE);
             okImageOBDAdapter.setVisibility(View.VISIBLE);
         }
-        if(!mLocationHandler.isGPSEnabled()){
+        if (!mLocationHandler.isGPSEnabled()) {
             errorImageGPS.setVisibility(View.VISIBLE);
             okImageGPS.setVisibility(GONE);
-        }
-        else{
+        } else {
             errorImageGPS.setVisibility(GONE);
             okImageGPS.setVisibility(View.VISIBLE);
         }
-        if(mCarManager.getCar() == null){
+        if (mCarManager.getCar() == null) {
             errorImageCar.setVisibility(View.VISIBLE);
             okImageCar.setVisibility(GONE);
-        }
-        else {
+        } else {
             errorImageCar.setVisibility(GONE);
             okImageCar.setVisibility(View.VISIBLE);
         }
@@ -1191,7 +1184,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
     }
 
     private boolean hasSettingsSelectedFORGPSOnly() {
-        return  mLocationHandler.isGPSEnabled() &&
+        return mLocationHandler.isGPSEnabled() &&
                 mCarManager.getCar() != null;
     }
 
@@ -1293,7 +1286,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             getActivity().startForegroundService(
                                     new Intent(getActivity(), OBDRecordingService.class));
-                        }else{
+                        } else {
                             getActivity().startService(
                                     new Intent(getActivity(), OBDRecordingService.class));
                         }
@@ -1301,11 +1294,11 @@ public class DashBoardFragment extends BaseInjectorFragment {
                 });
     }
 
-    private void onGPSOnlyStartTrackButtonStartClicked(){
+    private void onGPSOnlyStartTrackButtonStartClicked() {
         // Start the background remoteService.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             getActivity().startForegroundService(new Intent(getActivity(), GPSOnlyRecordingService.class));
-        }else{
+        } else {
             getActivity().startService(new Intent(getActivity(), GPSOnlyRecordingService.class));
         }
     }

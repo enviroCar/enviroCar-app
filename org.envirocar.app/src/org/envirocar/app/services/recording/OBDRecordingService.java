@@ -10,17 +10,13 @@ import android.os.PowerManager;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
-import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.app.handler.BluetoothHandler;
-import org.envirocar.app.handler.CarPreferenceHandler;
 import org.envirocar.app.handler.LocationHandler;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackRecordingHandler;
-import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.services.OBDConnectionHandler;
-import org.envirocar.app.views.recordingscreen.OBDPlusGPSTrackRecordingScreen;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.gps.GpsLocationChangedEvent;
@@ -29,9 +25,9 @@ import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.trackprocessing.CalculatedMAFWithStaticVolumetricEfficiency;
-import org.envirocar.core.trackprocessing.ConsumptionAlgorithm;
-import org.envirocar.core.utils.CarUtils;
+import org.envirocar.core.trackprocessing.consumption.ConsumptionAlgorithm;
+import org.envirocar.core.trackprocessing.consumption.LoadBasedEnergyConsumptionAlgorithm;
+import org.envirocar.core.trackprocessing.statistics.CalculatedMAFWithStaticVolumetricEfficiency;
 import org.envirocar.core.utils.ServiceUtils;
 import org.envirocar.obd.ConnectionListener;
 import org.envirocar.obd.OBDController;
@@ -92,6 +88,7 @@ public class OBDRecordingService extends AbstractRecordingService {
     // computation algorithms
     private ConsumptionAlgorithm consumptionAlgorithm;
     private CalculatedMAFWithStaticVolumetricEfficiency mafAlgorithm;
+    private LoadBasedEnergyConsumptionAlgorithm energyConsumptionAlgorithm;
 
     // subscriptions
     private Subscription connectingSubscription;
@@ -134,8 +131,9 @@ public class OBDRecordingService extends AbstractRecordingService {
 
         // car specific algorithms and preferences
         Car car = carPreferenceHandler.getCar();
-        this.consumptionAlgorithm = CarUtils.resolveConsumptionAlgorithm(car.getFuelType());
+        this.consumptionAlgorithm = ConsumptionAlgorithm.fromFuelType(car.getFuelType());
         this.mafAlgorithm = new CalculatedMAFWithStaticVolumetricEfficiency(car);
+        this.energyConsumptionAlgorithm = new LoadBasedEnergyConsumptionAlgorithm(car.getFuelType());
     }
 
 
@@ -336,9 +334,18 @@ public class OBDRecordingService extends AbstractRecordingService {
 
                     if (consumptionAlgorithm != null) {
                         double consumption = consumptionAlgorithm.calculateConsumption(measurement);
-                        double co2 = consumptionAlgorithm.calculateCO2FromConsumption(consumption);
                         measurement.setProperty(Measurement.PropertyKey.CONSUMPTION, consumption);
+                        double co2 = consumptionAlgorithm.calculateCO2FromConsumption(consumption);
                         measurement.setProperty(Measurement.PropertyKey.CO2, co2);
+                    }
+
+                    try {
+                        double consumption = energyConsumptionAlgorithm.calculateConsumption(measurement);
+                        measurement.setProperty(Measurement.PropertyKey.ENERGY_CONSUMPTION, consumption);
+                        double co2 = energyConsumptionAlgorithm.calculateCO2FromConsumption(consumption);
+                        measurement.setProperty(Measurement.PropertyKey.ENERGY_CONSUMPTION_CO2, co2);
+                    } catch (Exception e) {
+                        LOG.warn(e.getMessage(), e);
                     }
                 } catch (FuelConsumptionException e) {
                     LOG.warn(e.getMessage());

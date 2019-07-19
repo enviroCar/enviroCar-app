@@ -45,6 +45,11 @@ public interface UserManager {
         void onPasswordIncorrect(String password);
 
         /**
+         * Called when the Mail has not been confirmed
+         */
+        void onMailNotConfirmed();
+
+        /**
          * Called when no connection could be established to the server.
          */
         void onUnableToCommunicateServer();

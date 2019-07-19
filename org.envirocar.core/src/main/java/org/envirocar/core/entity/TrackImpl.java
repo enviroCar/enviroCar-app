@@ -22,8 +22,8 @@ import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.trackprocessing.TrackStatisticsProcessor;
-import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
+import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProcessor;
+import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import org.envirocar.core.util.TrackMetadata;
 
 import java.text.SimpleDateFormat;

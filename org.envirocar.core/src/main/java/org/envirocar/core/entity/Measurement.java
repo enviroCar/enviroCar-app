@@ -128,6 +128,27 @@ public interface Measurement extends BaseEntity<Measurement> {
                 return "Consumption";
             }
         },
+        ENERGY_CONSUMPTION {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_energy_consumption;
+            }
+
+            public String toString() {
+                return "Energy Consumption";
+            }
+        },
+        ENERGY_CONSUMPTION_CO2 {
+            @Override
+            public int getStringResource() {
+                return R.string.property_key_energy_co2_emission;
+            }
+
+            @Override
+            public String toString() {
+                return "Energy Consumption CO2 Emission";
+            }
+        },
         THROTTLE_POSITON {
             @Override
             public int getStringResource() {

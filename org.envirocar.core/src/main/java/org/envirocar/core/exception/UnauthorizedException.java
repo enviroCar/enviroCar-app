@@ -19,15 +19,17 @@
 package org.envirocar.core.exception;
 
 
+/**
+ * @author dewall
+ */
 public class UnauthorizedException extends DAOException {
-
-	public UnauthorizedException(String m) {
-		super(m);
-	}
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 
+	public UnauthorizedException(String m) {
+		super(m);
+	}
 }

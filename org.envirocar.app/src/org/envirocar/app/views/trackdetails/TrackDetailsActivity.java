@@ -58,7 +58,7 @@ import org.envirocar.core.exception.FuelConsumptionException;
 import org.envirocar.core.exception.NoMeasurementsException;
 import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
+import org.envirocar.core.trackprocessing.statistics.TrackStatisticsProvider;
 import org.envirocar.core.utils.CarUtils;
 import org.envirocar.storage.EnviroCarDB;
 
