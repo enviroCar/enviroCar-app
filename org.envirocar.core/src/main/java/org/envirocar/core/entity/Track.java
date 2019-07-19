@@ -38,6 +38,8 @@ public interface Track extends BaseEntity<Track>, Comparable<Track> {
     String KEY_TRACK_PROPERTIES_MODIFIED = "modified";
     String KEY_TRACK_PROPERTIES_SENSOR = "sensor";
     String KEY_TRACK_PROPERTIES_LENGTH = "length";
+    String KEY_TRACK_PROPERTIES_BEGIN = "begin";
+    String KEY_TRACK_PROPERTIES_END = "end";
 
     String KEY_TRACK_FEATURES = "features";
     String KEY_TRACK_FEATURES_GEOMETRY = "geometry";
@@ -105,6 +107,20 @@ public interface Track extends BaseEntity<Track>, Comparable<Track> {
     void setEndTime(Long endTime);
 
     long getDuration() throws NoMeasurementsException;
+
+    String getBegin();
+
+    void setBegin(String begin);
+
+    String getEnd();
+
+    void setEnd(String end);
+
+    long getTimeInMillis();
+
+    Long getLength();
+
+    void setLength(Long length);
 
     TrackStatus getTrackStatus();
 

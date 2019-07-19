@@ -101,7 +101,7 @@ android:layout_height="match_parent">
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="-"
-                        android:id="@+id/userLocalTrackCountTV"
+                        android:id="@+id/userTotalDurationTV"
                         android:textStyle="bold"
                         android:textSize="22sp" />
 
@@ -129,7 +129,7 @@ android:layout_height="match_parent">
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="-"
-                        android:id="@+id/userUploadedTrackCountTV"
+                        android:id="@+id/userTrackCountTV"
                         android:textStyle="bold"
                         android:textSize="22sp"
                         />
@@ -158,7 +158,7 @@ android:layout_height="match_parent">
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="-"
-                        android:id="@+id/userGlobalTrackCountTV"
+                        android:id="@+id/userTotalDistanceTV"
                         android:textStyle="bold"
                         android:textSize="22sp"
                         />

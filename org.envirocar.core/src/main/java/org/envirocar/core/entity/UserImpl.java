@@ -28,6 +28,8 @@ import org.envirocar.core.util.VersionRange;
 public class UserImpl implements User {
 
     protected String username;
+    protected String firstName;
+    protected String lastName;
     protected String token;
     protected String mail;
     protected String touVersion;
@@ -37,7 +39,7 @@ public class UserImpl implements User {
      * Default Constructor.
      */
     public UserImpl() {
-        this(null, null, null);
+        this(null, null, null, null, null);
     }
 
     /**
@@ -47,7 +49,7 @@ public class UserImpl implements User {
      * @param token    the password
      */
     public UserImpl(String username, String token) {
-        this(username, token, null);
+        this(username, token, null, null, null);
     }
 
     /**
@@ -58,14 +60,53 @@ public class UserImpl implements User {
      * @param mail     the mail
      */
     public UserImpl(String username, String token, String mail) {
+        this(username, token, mail, null, null);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param username the name of the user
+     * @param token    the password
+     * @param mail     the mail
+     */
+    public UserImpl(String username, String token, String mail, String firstName, String lastName) {
         this.username = username;
         this.token = token;
         this.mail = mail;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
     @Override
     public String getUsername() {
         return username;
+    }
+
+    @Override
+    public String getName() {
+        String name = this.getFirstName() + " " + this.getLastName();
+        return name;
+    }
+
+    @Override
+    public String getFirstName() {
+        return firstName;
+    }
+
+    @Override
+    public String getLastName() {
+        return lastName;
+    }
+
+    @Override
+    public void setFirstName(String FirstName) {
+        this.firstName = FirstName;
+    }
+
+    @Override
+    public void setLastName(String LastName) {
+        this.lastName = LastName;
     }
 
     @Override
@@ -129,6 +170,8 @@ public class UserImpl implements User {
         user.token = token;
         user.touVersion = touVersion;
         user.mail = mail;
+        user.firstName = firstName;
+        user.lastName = lastName;
         return user;
     }
 }
