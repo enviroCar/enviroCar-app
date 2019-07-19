@@ -21,6 +21,7 @@ package org.envirocar.remote.service;
 
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserStatistics;
+import org.envirocar.remote.requests.CreateUserRequest;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -43,7 +44,7 @@ public interface UserService {
     Observable<User> getUserObservable(@Path("user") String user);
 
     @POST("users/")
-    Call<ResponseBody> createUser(@Body User user);
+    Call<ResponseBody> createUser(@Body CreateUserRequest user);
 
     @PUT("users/{user}")
     Call<ResponseBody> updateUser(@Path("user") String user, @Body User body);

@@ -52,9 +52,9 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
+import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.core.entity.TermsOfUse;
@@ -207,6 +207,9 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
         }
     }
 
+    /**
+     * Login routine.
+     */
     @OnClick(R.id.activity_account_login_card_login_button)
     protected void onLoginButtonClicked() {
         // Reset errors.
@@ -294,6 +297,18 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
                     }
 
                     @Override
+                    public void onMailNotConfirmed() {
+                        dialog.dismiss();
+                        mMainThreadWorker.schedule(() ->
+                                new MaterialDialog.Builder(LoginRegisterActivity.this)
+                                        .cancelable(true)
+                                        .positiveText(R.string.ok)
+                                        .title(R.string.login_mail_not_confirmed_dialog_title)
+                                        .content(R.string.login_mail_not_confirmed_dialog_content)
+                                        .build().show());
+                    }
+
+                    @Override
                     public void onUnableToCommunicateServer() {
                         dialog.dismiss();
                         mMainThreadWorker.schedule(() ->
@@ -349,6 +364,9 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
                 });
     }
 
+    /**
+     * Register routine
+     */
     @OnClick(R.id.activity_account_register_button)
     protected void onRegisterAccountButtonClicked() {
         mRegisterUsername.setError(null);
@@ -446,33 +464,41 @@ public class LoginRegisterActivity extends BaseInjectorActivity {
 
                     // Successfully created the user
                     mMainThreadWorker.schedule(() -> {
-                        // Set the new user as the logged in user.
-                        mUserManager.setUser(newUser);
-
-                        // Update the view, i.e., hide the registration card and show the profile
-                        // page.
-
                         // Dismiss the progress dialog.
                         dialog.dismiss();
 
-                        // Show a snackbar containing a welcome message.
-                        Snackbar.make(mExpToolbar, String.format(
-                                getResources().getString(R.string.welcome_message),
-                                username), Snackbar.LENGTH_LONG).show();
+                        final MaterialDialog d = new MaterialDialog.Builder(LoginRegisterActivity.this)
+                                .title(R.string.register_success_dialog_title)
+                                .content(R.string.register_success_dialog_content)
+                                .cancelable(false)
+                                .positiveText(R.string.ok)
+                                .cancelListener(dialog1 -> {
+                                    LOG.info("canceled");
+                                    finish();
+                                })
+                                .onAny((a, b) -> {
+                                    LOG.info("onPositive");
+                                    finish();
+                                })
+                                .show();
                     });
 
-                    finish();
+//                    finish();
                     // askForTermsOfUseAcceptance();
                 } catch (ResourceConflictException e) {
                     LOG.warn(e.getMessage(), e);
 
                     // Show an error. // TODO show error in a separate error text view.
+                    final ResourceConflictException.ConflictType reason = e.getConflictType();
                     mMainThreadWorker.schedule(() -> {
-                        mRegisterUsername.setError(getString(
-                                R.string.error_username_already_in_use));
-                        mRegisterEmail.setError(getString(
-                                R.string.error_email_already_in_use));
-                        mRegisterUsername.requestFocus();
+                        if (e.getConflictType() == ResourceConflictException.ConflictType.USERNAME) {
+                            mRegisterUsername.setError(getString(
+                                    R.string.error_username_already_in_use));
+                            mRegisterUsername.requestFocus();
+                        } else if (e.getConflictType() == ResourceConflictException.ConflictType.MAIL) {
+                            mRegisterEmail.setError(getString(R.string.error_email_already_in_use));
+                            mRegisterEmail.requestFocus();
+                        }
                     });
 
                     // Dismuss the progress dialog.

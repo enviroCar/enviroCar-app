@@ -29,8 +29,8 @@ public interface User extends BaseEntity<User> {
     String KEY_USER_NAME = "name";
     String KEY_USER_MAIL = "mail";
     String KEY_USER_TOKEN = "token";
-    String KEY_USER_TOU_VERSION = "touVersion";
     String KEY_USER_TOU_ACCEPTED = "acceptedTermsOfUseVersion";
+    String KEY_USER_PRIVACY_STATEMENT_ACCEPTED = "acceptedPrivacyStatementVersion";
 
     String KEY_STATISTICS = "statistics";
     String KEY_STATISTICS_MAX = "max";
@@ -58,6 +58,10 @@ public interface User extends BaseEntity<User> {
     String getTermsOfUseVersion();
 
     void setTermsOfUseVersion(String termsOfUseVersion);
+
+    String getPrivacyStatementVersion();
+
+    void setPrivacyStatementVersion(String privacyStatementVersion);
 
     VersionRange getVersionRange();
 

@@ -1,18 +1,18 @@
 /**
  * Copyright (C) 2013 - 2019 the enviroCar community
- *
+ * <p>
  * This file is part of the enviroCar app.
- *
+ * <p>
  * The enviroCar app is free software: you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as published
  * by the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- *
+ * <p>
  * The enviroCar app is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
  * Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
@@ -26,6 +26,7 @@ import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.ResourceConflictException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
+import org.envirocar.remote.requests.CreateUserRequest;
 import org.envirocar.remote.service.EnviroCarService;
 import org.envirocar.remote.service.UserService;
 import org.envirocar.remote.util.EnvirocarServiceUtils;
@@ -50,30 +51,17 @@ public class RemoteUserDAO extends BaseRemoteDAO<UserDAO, UserService> implement
     private static final Logger LOG = Logger.getLogger(RemoteUserDAO.class);
 
     @Inject
-    public RemoteUserDAO(CacheUserDAO cacheDao, UserService userService){
+    public RemoteUserDAO(CacheUserDAO cacheDao, UserService userService) {
         super(cacheDao, userService);
     }
 
     @Override
-    public User getUser(String id) throws DataRetrievalFailureException, UnauthorizedException, NotConnectedException {
+    public User getUser(String id) throws DataRetrievalFailureException, UnauthorizedException, NotConnectedException, ResourceConflictException {
         // Get the remoteService for the user endpoints and initiates a call.
-        UserService userService = EnviroCarService.getUserService();
-        Call<User> userCall = userService.getUser(id);
-
+        Call<User> userCall = remoteService.getUser(id);
         try {
-            // execute the call
-            Response<User> userResponse = userCall.execute();
-            // If the execution was successful, then return the user instance. if not, then get
-            // the error code and throw a corresponding exception.
-            if (!userResponse.isSuccessful()) {
-                LOG.severe("Error while retrieving remote user of id = " + id);
-                EnvirocarServiceUtils.assertStatusCode(userResponse.code(), userResponse.message());
-            }
-
-            return userResponse.body();
+            return executeCall(userCall).body();
         } catch (IOException e) {
-            throw new DataRetrievalFailureException(e);
-        } catch (ResourceConflictException e) {
             throw new DataRetrievalFailureException(e);
         }
     }
@@ -81,27 +69,17 @@ public class RemoteUserDAO extends BaseRemoteDAO<UserDAO, UserService> implement
     @Override
     public Observable<User> getUserObservable(String id) {
         // Get the remoteService for the user endpoints and returns an user observable.
-        UserService userService = EnviroCarService.getUserService();
-        return userService.getUserObservable(id);
+        return remoteService.getUserObservable(id);
     }
 
     @Override
     public void createUser(User newUser) throws DataUpdateFailureException,
             ResourceConflictException {
-        // Get the remoteService for the user endpoints and initiate a call.
-        UserService userService = EnviroCarService.getUserService();
-        Call<ResponseBody> userCall = userService.createUser(newUser);
-
-        Response<ResponseBody> userResponse = null;
         try {
-            // execute the call
-            userResponse = userCall.execute();
-            // If the execution was successful, then throw an exception.
-            if (!userResponse.isSuccessful()) {
-                int responseCode = userResponse.code();
-                EnvirocarServiceUtils.assertStatusCode(responseCode, userResponse
-                        .errorBody().string());
-            }
+            // Get the remoteService for the user endpoints and initiate a call.
+            Call<ResponseBody> userCall = remoteService.createUser( // Workaround
+                    new CreateUserRequest(newUser.getUsername(), newUser.getMail(), newUser.getToken(), true, true));
+            executeCall(userCall);
         } catch (IOException e) {
             throw new DataUpdateFailureException(e);
         } catch (NotConnectedException e) {

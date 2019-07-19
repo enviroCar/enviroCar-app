@@ -16,13 +16,12 @@
  * You should have received a copy of the GNU General Public License along
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
-package org.envirocar.core.trackprocessing;
+package org.envirocar.core.trackprocessing.consumption;
 
 import com.google.common.base.Preconditions;
 
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.exception.FuelConsumptionException;
-import org.envirocar.core.exception.UnsupportedFuelTypeException;
 import org.envirocar.core.logging.Logger;
 
 import static org.envirocar.core.entity.Measurement.PropertyKey.*;
@@ -139,6 +138,6 @@ public class DieselConsumptionAlgorithm implements ConsumptionAlgorithm {
 
     @Override
     public double calculateCO2FromConsumption(double consumption) {
-        return consumption * 2.65; //kg/h
+        return consumption * DIESEL_CONSUMPTION_TO_CO2_FACTOR; //kg/h
     }
 }
