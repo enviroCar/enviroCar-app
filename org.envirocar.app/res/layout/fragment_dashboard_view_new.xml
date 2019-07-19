@@ -114,6 +114,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
                         android:gravity="center"
                         android:orientation="vertical"
                         android:padding="5dp"
@@ -123,7 +124,7 @@
                         tools:layout_editor_absoluteY="175dp">
 
                         <TextView
-                            android:id="@+id/userLocalTrackCountTV"
+                            android:id="@+id/userTrackCountTV"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/roboto_medium"
@@ -135,52 +136,82 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_marginLeft="8dp"
                             android:layout_marginTop="6dp"
+                            android:layout_marginRight="8dp"
                             android:maxLines="1"
                             android:singleLine="true"
-                            android:text="@string/dashboard_my_local_tracks"
+                            android:text="User Tracks"
                             android:textSize="12sp" />
 
                     </LinearLayout>
 
-                    <LinearLayout
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/linearLayout2"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_marginLeft="8dp"
                         android:layout_marginRight="8dp"
                         android:gravity="center"
-                        android:orientation="vertical"
-                        android:padding="5dp"
                         tools:layout_conversion_absoluteHeight="62dp"
                         tools:layout_conversion_absoluteWidth="118dp"
                         tools:layout_editor_absoluteX="158dp"
                         tools:layout_editor_absoluteY="175dp">
 
                         <TextView
-                            android:id="@+id/userUploadedTrackCountTV"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/roboto_medium"
-                            android:text="-"
-                            android:textColor="#000000"
-                            android:textSize="22sp"
-                            android:textStyle="bold" />
-
-                        <TextView
+                            android:id="@+id/userTotalDurationTV"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="6dp"
+                            android:fontFamily="@font/roboto_medium"
+                            android:text="0:00"
+                            android:textColor="#000000"
+                            android:textSize="22sp"
+                            android:textStyle="bold"
+                            app:layout_constraintEnd_toEndOf="@+id/textView4"
+                            app:layout_constraintStart_toStartOf="@+id/textView4"
+                            app:layout_constraintTop_toTopOf="parent" />
+
+                        <TextView
+                            android:id="@+id/textView4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:layout_marginLeft="5dp"
+                            android:layout_marginTop="6dp"
+                            android:layout_marginEnd="5dp"
+                            android:layout_marginRight="5dp"
+                            android:layout_marginBottom="6dp"
                             android:maxLines="1"
                             android:singleLine="true"
-                            android:text="@string/dashboard_my_remote_tracks"
-                            android:textSize="12sp" />
+                            android:text="Total Duration"
+                            android:textSize="12sp"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/userTotalDurationTV" />
 
-                    </LinearLayout>
+                        <TextView
+                            android:id="@+id/userTotalDurationAddTV"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:layout_marginLeft="4dp"
+                            android:layout_marginBottom="3dp"
+                            android:fontFamily="@font/roboto_medium"
+                            android:text="H"
+                            android:textAllCaps="true"
+                            android:textSize="11sp"
+                            app:layout_constraintBottom_toBottomOf="@+id/userTotalDurationTV"
+                            app:layout_constraintStart_toEndOf="@+id/userTotalDurationTV" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <androidx.constraintlayout.widget.ConstraintLayout
                         android:id="@+id/linearLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
+                        android:layout_marginLeft="8dp"
                         android:layout_marginRight="8dp"
                         android:gravity="center"
                         tools:layout_conversion_absoluteHeight="62dp"
@@ -384,7 +415,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.45" />
+        app:layout_constraintGuide_percent="0.43" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/buttonBanner"

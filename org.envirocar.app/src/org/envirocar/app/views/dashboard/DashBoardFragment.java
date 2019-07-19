@@ -105,7 +105,6 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import butterknife.Unbinder;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -142,12 +141,12 @@ public class DashBoardFragment extends BaseInjectorFragment {
     protected LinearLayout userStatisticsContainer;
     @BindView(R.id.userLoginSignupButtonContainer)
     protected ConstraintLayout userLoginSignupButtonContainer;
-    @BindView(R.id.userLocalTrackCountTV)
-    protected TextView userLocalTrackCountTV;
-    @BindView(R.id.userUploadedTrackCountTV)
-    protected TextView userUploadedTrackCountTV;
-    //@BindView(R.id.userGlobalTrackCountTV)
-    //protected TextView userGlobalTrackCountTV;
+    @BindView(R.id.userTotalDurationTV)
+    protected TextView userTotalDurationTV;
+    @BindView(R.id.userTotalDurationAddTV)
+    protected TextView userTotalDurationAddTV;
+    @BindView(R.id.userTrackCountTV)
+    protected TextView userTrackCountTV;
     @BindView(R.id.userTotalDistanceTV)
     protected TextView userTotalDistanceTV;
     @BindView(R.id.noUserDate)
@@ -249,9 +248,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
             .newThread().createWorker();
     private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers
             .mainThread().createWorker();
-    protected Unbinder unbinder;
     protected Long distance = Long.valueOf(0);
     protected long timeInMillis = 0;
+    protected Boolean localTCount = false, remoteTCount = false;
     //trackType = 1 means OBD + GPS
     //trackType = 2 means GPS Only
     private static int trackType = 1;
@@ -280,11 +279,13 @@ public class DashBoardFragment extends BaseInjectorFragment {
         // First inflate the general dashboard view.
         View contentView = inflater.inflate(R.layout.fragment_dashboard_view_new, container, false);
 
-        unbinder = ButterKnife.bind(this,contentView);
-        userLocalTrackCountTV.setText(PreferencesHandler.getTotalTime(getActivity()) + " ");
-        userUploadedTrackCountTV.setText(PreferencesHandler.getUploadedTrackCount(getActivity()) + "");
+        ButterKnife.bind(this,contentView);
+        String t = PreferencesHandler.getTotalTime(getActivity());
+        userTotalDurationAddTV.setText(t.charAt(t.length()-1)+"");
+        userTotalDurationTV.setText(t.substring(0, t.length()-1) + "");
+        Integer totalTracks = PreferencesHandler.getUploadedTrackCount(getActivity()) + PreferencesHandler.getLocalTrackCount(getActivity());
+        userTrackCountTV.setText( totalTracks + "");
         userTotalDistanceTV.setText(PreferencesHandler.getTotalDistanceTravelledOfUser(getActivity())+"");
-        //userGlobalTrackCountTV.setText(PreferencesHandler.getGlobalTrackCount(getActivity()) + "");
         obdGPSTransition = buttonGroup;
         bannerTransition = buttonBanner;
         frameTransition = frameLayout;
@@ -483,7 +484,6 @@ public class DashBoardFragment extends BaseInjectorFragment {
         if (!subscriptions.isUnsubscribed()) {
             subscriptions.unsubscribe();
         }
-        unbinder.unbind();
     }
 
     private void updateSegmentedView(){
@@ -731,7 +731,8 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
             @Override
             public void onNext(List<Track> tracks) {
-
+                distance = Long.valueOf(0);
+                timeInMillis = Long.valueOf(0);
                 for (Track track : tracks) {
                     distance += track.getLength();
                     timeInMillis += track.getTimeInMillis();
@@ -739,8 +740,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
                 String time = convertMillisToDate();
                 PreferencesHandler.setTotalTime(context, time);
+                userTotalDurationAddTV.setText(time.charAt(time.length()-1)+"");
                 LOG.info(time+" Duration");
-                userLocalTrackCountTV.setText(PreferencesHandler.getTotalTime(context)+"");
+                userTotalDurationTV.setText(time.substring(0, time.length()-1)+"");
                 PreferencesHandler.setTotalDistanceTravelledOfUser(context, distance);
                 userTotalDistanceTV.setText(PreferencesHandler.getTotalDistanceTravelledOfUser(context)+"");
             }
@@ -755,11 +757,11 @@ public class DashBoardFragment extends BaseInjectorFragment {
         StringBuilder stringBuilder = new StringBuilder();
         if(diffDays != 0) {
             stringBuilder.append(diffDays);
-            stringBuilder.append("d ");
+            stringBuilder.append(" : ");
             if (diffHours > 1) {
                 stringBuilder.append(diffHours);
-                stringBuilder.append("h");
             }
+            stringBuilder.append("d");
         }
         else {
             if (diffHours != 0) {
@@ -810,8 +812,13 @@ public class DashBoardFragment extends BaseInjectorFragment {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(integer -> {
-                        //userLocalTrackCountTV.setText("" + integer);
                         PreferencesHandler.setLocalTrackCount(context,integer);
+                        localTCount = true;
+                        if(localTCount && remoteTCount)
+                        {
+                            Integer total = integer + PreferencesHandler.getUploadedTrackCount(context);
+                            userTrackCountTV.setText(total+"");
+                        }
                     });
 
             // Update the Gravatar image.
@@ -831,8 +838,12 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
                     String.format("%s (%s)", userTrackCount, totalTrackCount);
                     mMainThreadWorker.schedule(() -> {
-                        //userGlobalTrackCountTV.setText(Integer.toString(totalTrackCount));
-                        userUploadedTrackCountTV.setText(Integer.toString(userTrackCount));
+                        remoteTCount = true;
+                        if(localTCount && remoteTCount)
+                        {
+                            Integer total = userTrackCount + PreferencesHandler.getLocalTrackCount(context);
+                            userTrackCountTV.setText(total+"");
+                        }
                         PreferencesHandler.setUploadedTrackCount(context, userTrackCount);
                         PreferencesHandler.setGlobalTrackCount(context, totalTrackCount);
                     });
