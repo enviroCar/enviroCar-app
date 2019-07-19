@@ -280,9 +280,12 @@ public class DashBoardFragment extends BaseInjectorFragment {
         View contentView = inflater.inflate(R.layout.fragment_dashboard_view_new, container, false);
 
         ButterKnife.bind(this,contentView);
-        String t = PreferencesHandler.getTotalTime(getActivity());
-        userTotalDurationAddTV.setText(t.charAt(t.length()-1)+"");
-        userTotalDurationTV.setText(t.substring(0, t.length()-1) + "");
+        String temp = PreferencesHandler.getTotalTime(getActivity());
+        String t1 = temp.substring(0, temp.length()-1);
+        String t2 = temp.substring(temp.length()-1);
+        userTotalDurationTV.setText(t1);
+        userTotalDurationAddTV.setText(t2);
+
         Integer totalTracks = PreferencesHandler.getUploadedTrackCount(getActivity()) + PreferencesHandler.getLocalTrackCount(getActivity());
         userTrackCountTV.setText( totalTracks + "");
         userTotalDistanceTV.setText(PreferencesHandler.getTotalDistanceTravelledOfUser(getActivity())+"");
@@ -737,11 +740,13 @@ public class DashBoardFragment extends BaseInjectorFragment {
                     timeInMillis += track.getTimeInMillis();
                 }
 
-                String time = convertMillisToDate();
-                PreferencesHandler.setTotalTime(context, time);
-                userTotalDurationAddTV.setText(time.charAt(time.length()-1)+"");
-                LOG.info(time+" Duration");
-                userTotalDurationTV.setText(time.substring(0, time.length()-1)+"");
+                String temp = convertMillisToDate();
+                PreferencesHandler.setTotalTime(context, temp);
+                String t1 = temp.substring(0, temp.length()-1);
+                String t2 = temp.substring(temp.length()-1, temp.length());
+                userTotalDurationTV.setText(t1);
+                userTotalDurationAddTV.setText(t2);
+                LOG.info(temp+" Duration");
                 PreferencesHandler.setTotalDistanceTravelledOfUser(context, distance);
                 userTotalDistanceTV.setText(PreferencesHandler.getTotalDistanceTravelledOfUser(context)+"");
             }
