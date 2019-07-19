@@ -51,7 +51,7 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
     public RemoteTrackCardViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         // Inflate the content view of the card.
         View remoteView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_tracklist_cardlayout_remote, parent, false);
+                .inflate(R.layout.fragment_tracklist_cardlayout_content_new, parent, false);
 
         // and create a new viewholder.
         return new RemoteTrackCardViewHolder(remoteView);

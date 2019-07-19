@@ -74,7 +74,7 @@
                     android:layout_centerInParent="true"
                     android:text="Downloading..."
                     android:textSize="22sp"
-                    android:visibility="gone"/>
+                    android:visibility="gone" />
 
             </RelativeLayout>
 

@@ -30,8 +30,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_margin="8dp"
-        card_view:cardCornerRadius="4dp"
+        android:layout_marginLeft="4dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginBottom="8dp"
+        card_view:cardCornerRadius="6dp"
         card_view:cardElevation="6dp">
 
         <LinearLayout
@@ -39,24 +42,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/fragment_tracklist_cardlayout_toolbar"
-                style="@style/Widget.enviroCar.Toolbar">
-
-                <TextView
-                    android:id="@+id/fragment_tracklist_cardlayout_toolbar_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="16dp"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
-                    android:paddingTop="16dp"
-                    android:text="Track 21.07.2015 10:20:28"
-                    android:textColor="@color/white_cario"
-                    android:textSize="18sp"/>
-            </androidx.appcompat.widget.Toolbar>
-
-            <include layout="@layout/fragment_tracklist_cardlayout_content" />
+            <include layout="@layout/fragment_tracklist_cardlayout_content_new" />
 
         </LinearLayout>
     </androidx.cardview.widget.CardView>

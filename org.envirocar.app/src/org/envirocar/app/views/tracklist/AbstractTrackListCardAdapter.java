@@ -22,10 +22,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.constraintlayout.widget.Guideline;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.appcompat.widget.Toolbar;
+
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.jorgecastilloprz.FABProgressCircle;
@@ -272,15 +275,17 @@ public abstract class AbstractTrackListCardAdapter<E extends
 
         protected final View mItemView;
 
-        @BindView(R.id.card_view)
-        protected CardView cardView;
-        @BindView(R.id.fragment_tracklist_cardlayout_toolbar)
-        protected Toolbar mToolbar;
-        @BindView(R.id.fragment_tracklist_cardlayout_toolbar_title)
+        @BindView(R.id.track_details_attributes_header_options)
+        protected ImageView mOptions;
+        @BindView(R.id.track_details_attributes_header_title)
         protected TextView mTitleTextView;
-        @BindView(R.id.fragment_tracklist_cardlayout_content)
-        protected View mContentView;
-        @BindView(R.id.track_details_attributes_header_distance)
+        @BindView(R.id.guideline3)
+        protected Guideline guideline;
+        @BindView(R.id.track_details_attributes_header_date)
+        protected TextView mDate;
+        @BindView(R.id.track_details_attributes_header_time)
+        protected TextView mTime;
+        @BindView(R.id.linearLayout)
         protected TextView mDistance;
         @BindView(R.id.track_details_attributes_header_duration)
         protected TextView mDuration;
