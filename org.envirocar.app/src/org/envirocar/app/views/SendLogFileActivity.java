@@ -539,7 +539,7 @@ public class SendLogFileActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int itemIndex, long l) {
 
                 CheckBoxItem item = (CheckBoxItem) adapterView.getAdapter().getItem(itemIndex);
-                CheckBox itemCheckbox = view.findViewById(R.id.report_issue_checkbox_item);
+                CheckBox itemCheckbox = (CheckBox) view.findViewById(R.id.report_issue_checkbox_item);
                 LOG.info("Checkbox " + itemIndex + " is " + itemCheckbox.isChecked());
                 LOG.info("Checkbox List at " + itemIndex + " is " + checkBoxItems.get(itemIndex).isChecked());
             }

@@ -58,6 +58,8 @@ public class UserHandler implements UserManager {
     private static final Logger LOG = Logger.getLogger(UserHandler.class);
 
     private static final String USERNAME = "username";
+    private static final String FIRSTNAME = "firstName";
+    private static final String LASTNAME = "lastName";
     private static final String TOKEN = "token";
     private static final String EMAIL = "email";
     private static final String ACCEPTED_TERMS_OF_USE_VERSION = "acceptedTermsOfUseVersion";
@@ -93,10 +95,14 @@ public class UserHandler implements UserManager {
         if (mUser == null) {
             SharedPreferences prefs = getUserPreferences();
             String username = prefs.getString(USERNAME, null);
+            String firstName = prefs.getString(FIRSTNAME, null);
+            String lastName = prefs.getString(LASTNAME, null);
             String token = prefs.getString(TOKEN, null);
             String mail = prefs.getString(EMAIL, null);
-            mUser = new UserImpl(username, token, mail);
+            mUser = new UserImpl(username, token, mail, firstName, lastName);
             mUser.setTermsOfUseVersion(prefs.getString(ACCEPTED_TERMS_OF_USE_VERSION, null));
+            mUser.setFirstName(firstName);
+            mUser.setLastName(lastName);
         }
         return mUser;
     }
@@ -111,6 +117,8 @@ public class UserHandler implements UserManager {
         // First set the user in the preferences
         Editor e = getUserPreferences().edit();
         e.putString(USERNAME, user.getUsername());
+        e.putString(FIRSTNAME, user.getFirstName());
+        e.putString(LASTNAME, user.getLastName());
         e.putString(TOKEN, user.getToken());
         e.putString(EMAIL, user.getMail());
         e.putString(ACCEPTED_TERMS_OF_USE_VERSION, user.getTermsOfUseVersion());
@@ -163,6 +171,10 @@ public class UserHandler implements UserManager {
             e.remove(USERNAME);
         if (prefs.contains(TOKEN))
             e.remove(TOKEN);
+        if (prefs.contains(FIRSTNAME))
+            e.remove(FIRSTNAME);
+        if (prefs.contains(LASTNAME))
+            e.remove(LASTNAME);
         if (prefs.contains(EMAIL))
             e.remove(EMAIL);
         if (prefs.contains(ACCEPTED_TERMS_OF_USE_VERSION))

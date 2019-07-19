@@ -27,6 +27,8 @@ import org.envirocar.core.util.VersionRange;
  */
 public interface User extends BaseEntity<User> {
     String KEY_USER_NAME = "name";
+    String KEY_USER_FIRST_NAME = "firstName";
+    String KEY_USER_LAST_NAME = "lastName";
     String KEY_USER_MAIL = "mail";
     String KEY_USER_TOKEN = "token";
     String KEY_USER_TOU_ACCEPTED = "acceptedTermsOfUseVersion";
@@ -46,6 +48,16 @@ public interface User extends BaseEntity<User> {
     String getUsername();
 
     void setUsername(String username);
+
+    String getName();
+
+    String getFirstName();
+
+    String getLastName();
+
+    void setFirstName(String FirstName);
+
+    void setLastName(String LastName);
 
     String getMail();
 

@@ -47,6 +47,14 @@ public class UserSerializer implements JsonSerializer<User>, JsonDeserializer<Us
             user.addProperty(User.KEY_USER_TOKEN, src.getToken());
         }
 
+        if (src.getFirstName() != null) {
+            user.addProperty(User.KEY_USER_FIRST_NAME, src.getFirstName());
+        }
+
+        if (src.getLastName() != null) {
+            user.addProperty(User.KEY_USER_LAST_NAME, src.getLastName());
+        }
+
         if (src.getMail() != null) {
             user.addProperty(User.KEY_USER_MAIL, src.getMail());
         }
@@ -68,10 +76,14 @@ public class UserSerializer implements JsonSerializer<User>, JsonDeserializer<Us
         JsonObject userObject = json.getAsJsonObject();
         String username = userObject.get(User.KEY_USER_NAME).getAsString();
         String mail = userObject.get(User.KEY_USER_MAIL).getAsString();
+        String firstName = userObject.get(User.KEY_USER_FIRST_NAME).getAsString();
+        String lastName = userObject.get(User.KEY_USER_LAST_NAME).getAsString();
 
         User user = new UserImpl();
         user.setUsername(username);
         user.setMail(mail);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
 
         if (userObject.has(User.KEY_USER_TOU_ACCEPTED)) {
             String touVersion = userObject.get(User.KEY_USER_TOU_ACCEPTED).getAsString();
