@@ -27,6 +27,7 @@ import org.envirocar.app.R;
 import org.envirocar.app.exception.GPSOnlyTrackCannotUploadException;
 import org.envirocar.app.exception.NotLoggedInException;
 import org.envirocar.app.exception.TrackAlreadyUploadedException;
+import org.envirocar.app.handler.agreement.AgreementManager;
 import org.envirocar.app.rxutils.ItemForwardSubscriber;
 import org.envirocar.app.rxutils.SingleItemForwardSubscriber;
 import org.envirocar.core.entity.Measurement;
@@ -65,7 +66,7 @@ public class TrackUploadHandler {
     private final DAOProvider mDAOProvider;
     private final TrackDAOHandler trackDAOHandler;
     private final UserHandler mUserManager;
-    private final TermsOfUseManager mTermsOfUseManager;
+    private final AgreementManager mAgreementManager;
 
     /**
      * Normal constructor for this manager. Specify the context and the dbadapter.
@@ -80,14 +81,14 @@ public class TrackUploadHandler {
             DAOProvider daoProvider,
             TrackDAOHandler trackDAOHandler,
             UserHandler userHandler,
-            TermsOfUseManager termsOfUseManager) {
+            AgreementManager agreementManager) {
         this.mContext = context;
         this.mEnviroCarDB = enviroCarDB;
         this.mCarManager = carPreferenceHandler;
         this.mDAOProvider = daoProvider;
         this.trackDAOHandler = trackDAOHandler;
         this.mUserManager = userHandler;
-        this.mTermsOfUseManager = termsOfUseManager;
+        this.mAgreementManager = agreementManager;
     }
 
     /**
@@ -109,7 +110,7 @@ public class TrackUploadHandler {
                         // Verify whether the TermsOfUSe have been accepted.
                         // When the TermsOfUse have not been accepted, create an
                         // Dialog to accept and continue when the user has accepted.
-                        .compose(TermsOfUseManager.TermsOfUseValidator.create(mTermsOfUseManager,
+                        .compose(AgreementManager.TermsOfUseValidator.create(mAgreementManager,
                                 activity))
                         // Continue when the TermsOfUse has been accepted, otherwise
                         // throw an error
@@ -154,7 +155,7 @@ public class TrackUploadHandler {
         Preconditions.checkState(tracks != null && !tracks.isEmpty(),
                 "Input tracks cannot be null or empty.");
         return Observable.just(tracks)
-                .compose(TermsOfUseManager.TermsOfUseValidator.create(mTermsOfUseManager, activity))
+                .compose(AgreementManager.TermsOfUseValidator.create(mAgreementManager, activity))
                 .flatMap(tracks1 -> Observable.from(tracks1))
                 .concatMap(track -> uploadTrack(track)
                         .first()

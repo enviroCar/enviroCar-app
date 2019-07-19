@@ -31,6 +31,7 @@ import org.envirocar.core.UserManager;
 import org.envirocar.core.entity.User;
 import org.envirocar.core.entity.UserImpl;
 import org.envirocar.core.events.NewUserSettingsEvent;
+import org.envirocar.core.exception.MailNotConfirmedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.injection.InjectApplicationScope;
 import org.envirocar.core.logging.Logger;
@@ -205,8 +206,14 @@ public class UserHandler implements UserManager {
             LOG.warn(e.getMessage(), e);
 
             logOut(true);
-            // Password is incorrect. Inform the callback about this.
-            callback.onPasswordIncorrect(token);
+            if (e instanceof MailNotConfirmedException){
+                callback.onMailNotConfirmed();
+            } else {
+                // Password is incorrect. Inform the callback about this.
+                callback.onPasswordIncorrect(token);
+            }
+
+
         } catch (Exception e) {
             LOG.warn(e.getMessage(), e);
 
@@ -214,8 +221,6 @@ public class UserHandler implements UserManager {
             // Unable to communicate with the server. Inform the callback about this.
             callback.onUnableToCommunicateServer();
         }
-
-
     }
 
 
