@@ -59,6 +59,17 @@ public class UserImpl implements User {
      * @param token    the password
      * @param mail     the mail
      */
+    public UserImpl(String username, String token, String mail) {
+        this(username, token, mail, null, null);
+    }
+
+    /**
+     * Constructor.
+     *
+     * @param username the name of the user
+     * @param token    the password
+     * @param mail     the mail
+     */
     public UserImpl(String username, String token, String mail, String firstName, String lastName) {
         this.username = username;
         this.token = token;
