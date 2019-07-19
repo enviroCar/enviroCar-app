@@ -781,13 +781,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
                     stringBuilder.append("m");
                 }
                 else{
-                    if(diffSeconds!=0){
-                        stringBuilder.append(diffSeconds);
-                        stringBuilder.append("s");
-                    }
-                    else{
-                        stringBuilder.append("No Tracks");
-                    }
+                    stringBuilder.append(diffSeconds);
+                    stringBuilder.append("s");
+
                 }
             }
 
