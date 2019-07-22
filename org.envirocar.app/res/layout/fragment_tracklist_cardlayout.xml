@@ -31,11 +31,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginLeft="4dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="2dp"
         android:layout_marginRight="4dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="2dp"
         card_view:cardCornerRadius="6dp"
-        card_view:cardElevation="6dp">
+        card_view:cardElevation="2dp">
 
         <LinearLayout
             android:layout_width="match_parent"

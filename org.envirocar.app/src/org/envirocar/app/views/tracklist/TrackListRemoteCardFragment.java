@@ -23,13 +23,13 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.transition.Slide;
+import androidx.transition.TransitionManager;
 
 import android.view.Gravity;
 import android.view.View;
 
 import com.squareup.otto.Subscribe;
-import com.transitionseverywhere.Slide;
-import com.transitionseverywhere.TransitionManager;
 
 import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.main.MainActivityComponent;
@@ -227,14 +227,14 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
                         holder.mProgressCircle.attachListener(() -> {
                             // When the visualization is finished, then Init the
                             // content view including its mapview and track details.
-                            mRecyclerViewAdapter.bindLocalTrackViewHolder(holder, track);
+                            mRecyclerViewAdapter.bindTrackViewHolder(holder, track, true);
 
                             // and hide the download button
                             ECAnimationUtils.animateHideView(getActivity(), R.anim.fade_out,
                                     holder.mProgressCircle, holder.mDownloadButton, holder
                                             .mDownloadNotification);
-                            ECAnimationUtils.animateShowView(getActivity(), holder.mContentView, R
-                                    .anim.fade_in);
+                            //ECAnimationUtils.animateShowView(getActivity(), holder.mContentView, R
+                            //        .anim.fade_in);
                         });
                     }
 

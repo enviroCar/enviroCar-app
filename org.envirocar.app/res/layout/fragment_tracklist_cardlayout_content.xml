@@ -85,7 +85,7 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/linearLayout"
+                android:id="@+id/track_details_attributes_header_distance"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

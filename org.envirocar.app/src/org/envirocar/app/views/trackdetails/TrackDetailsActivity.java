@@ -116,7 +116,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected TextView mDescriptionText;
     @BindView(R.id.track_details_attributes_header_duration)
     protected TextView mDurationText;
-    @BindView(R.id.linearLayout)
+    @BindView(R.id.track_details_attributes_header_distance)
     protected TextView mDistanceText;
     @BindView(R.id.activity_track_details_attr_begin_value)
     protected TextView mBeginText;

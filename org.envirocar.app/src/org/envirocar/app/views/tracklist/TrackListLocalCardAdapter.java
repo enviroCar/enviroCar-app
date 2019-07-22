@@ -59,6 +59,6 @@ public class TrackListLocalCardAdapter extends AbstractTrackListCardAdapter<
 
     @Override
     public void onBindViewHolder(final LocalTrackCardViewHolder holder, int position) {
-        bindLocalTrackViewHolder(holder, mTrackDataset.get(position));
+        bindTrackViewHolder(holder, mTrackDataset.get(position), true);
     }
 }
