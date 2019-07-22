@@ -28,19 +28,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.app.ActivityCompat;
-import androidx.cardview.widget.CardView;
-import androidx.transition.AutoTransition;
-import androidx.transition.ChangeBounds;
-import androidx.transition.Slide;
-import androidx.transition.TransitionManager;
-import androidx.transition.TransitionSet;
-
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -54,8 +41,20 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.transition.AutoTransition;
+import androidx.transition.ChangeBounds;
+import androidx.transition.Slide;
+import androidx.transition.TransitionManager;
+import androidx.transition.TransitionSet;
+
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.material.snackbar.Snackbar;
 import com.squareup.otto.Subscribe;
 import com.transitionseverywhere.Recolor;
 
@@ -90,8 +89,8 @@ import org.envirocar.core.events.bluetooth.BluetoothStateChangedEvent;
 import org.envirocar.core.events.gps.GpsStateChangedEvent;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
-import org.envirocar.core.logging.Logger;
 import org.envirocar.core.injection.InjectActivityScope;
+import org.envirocar.core.logging.Logger;
 import org.envirocar.obd.events.TrackRecordingServiceStateChangedEvent;
 import org.envirocar.obd.service.BluetoothServiceState;
 
@@ -115,6 +114,10 @@ import static android.view.View.GONE;
 
 public class DashBoardFragment extends BaseInjectorFragment {
     private static final Logger LOG = Logger.getLogger(DashBoardFragment.class);
+
+    @InjectActivityScope
+    @Inject
+    protected Context context;
     @Inject
     protected UserHandler mUserManager;
     @Inject
@@ -123,11 +126,6 @@ public class DashBoardFragment extends BaseInjectorFragment {
     protected AgreementManager mAgreementManager;
     @Inject
     protected TrackDAOHandler mTrackDAOHandler;
-    @InjectActivityScope
-    @Inject
-    protected Context context;
-
-
     @Inject
     protected CarPreferenceHandler mCarPrefHandler;
     @Inject
@@ -219,7 +217,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
     @BindView(R.id.dash_board_view_obd_selection_text2)
     protected TextView mOBDTypeSubTextView;
 
-    @BindView(R.id.buttonGroup)
+    @BindView(R.id.fragment_dasboard_mode_selector)
     protected ConstraintLayout buttonGroup;
     @BindView(R.id.obdPlusGPSSegmentedButton)
     protected Button obdPlusGPSSegmentedButton;
@@ -279,13 +277,13 @@ public class DashBoardFragment extends BaseInjectorFragment {
         // First inflate the general dashboard view.
         View contentView = inflater.inflate(R.layout.fragment_dashboard_view_new, container, false);
 
-        ButterKnife.bind(this,contentView);
+        ButterKnife.bind(this, contentView);
         String t = PreferencesHandler.getTotalTime(getActivity());
-        userTotalDurationAddTV.setText(t.charAt(t.length()-1)+"");
-        userTotalDurationTV.setText(t.substring(0, t.length()-1) + "");
+///*        userTotalDurationAddTV.setText(t.charAt(t.length() - 1) + "");
+//        userTotalDurationTV.setText(t.substring(0, t.length() - 1) + "");*/
         Integer totalTracks = PreferencesHandler.getUploadedTrackCount(getActivity()) + PreferencesHandler.getLocalTrackCount(getActivity());
-        userTrackCountTV.setText( totalTracks + "");
-        userTotalDistanceTV.setText(PreferencesHandler.getTotalDistanceTravelledOfUser(getActivity())+"");
+        userTrackCountTV.setText(totalTracks + "");
+        userTotalDistanceTV.setText(PreferencesHandler.getTotalDistanceTravelledOfUser(getActivity()) + "");
         obdGPSTransition = buttonGroup;
         bannerTransition = buttonBanner;
         frameTransition = frameLayout;
@@ -296,17 +294,16 @@ public class DashBoardFragment extends BaseInjectorFragment {
             getActivity().startActivity(intent);
         });
         mOBDTypeView.setOnClickListener(v -> {
-            if(errorImageBluetooth.getVisibility() == View.VISIBLE){
+            if (errorImageBluetooth.getVisibility() == View.VISIBLE) {
                 Intent intent = new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
                 startActivity(intent);
-            }
-            else {
+            } else {
                 Intent intent = new Intent(getActivity(), OBDSelectionActivity.class);
                 getActivity().startActivity(intent);
             }
         });
 
-        mGPSSelectedView.setOnClickListener(v->{
+        mGPSSelectedView.setOnClickListener(v -> {
             Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             startActivity(intent);
         });
@@ -315,12 +312,12 @@ public class DashBoardFragment extends BaseInjectorFragment {
         setOBDTypeText(mBluetoothHandler.getSelectedBluetoothDevice());
         setmGPSSelectedView(mLocationHandler.isGPSEnabled());
 
-        obdPlusGPSSegmentedButton.setOnClickListener(v->{
+        obdPlusGPSSegmentedButton.setOnClickListener(v -> {
             trackType = 1;
             checkTrackTypeAndSet();
         });
 
-        GPSOnlySegmentedButton.setOnClickListener(v->{
+        GPSOnlySegmentedButton.setOnClickListener(v -> {
             trackType = 2;
             checkTrackTypeAndSet();
         });
@@ -328,26 +325,24 @@ public class DashBoardFragment extends BaseInjectorFragment {
         checkTrackTypeAndSet();
         setDate();
 
-        if(!PreferencesHandler.getEnableGPSBasedTrackRecording(context)){
+        if (!PreferencesHandler.getEnableGPSBasedTrackRecording(context)) {
             trackType = 1;
             checkTrackTypeAndSet();
 
             obdPlusGPSSegmentedButton.setVisibility(GONE);
             GPSOnlySegmentedButton.setVisibility(GONE);
-        }
-        else{
+        } else {
             obdPlusGPSSegmentedButton.setVisibility(View.VISIBLE);
             GPSOnlySegmentedButton.setVisibility(View.VISIBLE);
         }
 
-        if(!checkStoragePermissions())
-        {
+        if (!checkStoragePermissions()) {
             requestStoragePermissions();
         }
         return contentView;
     }
 
-    protected void checkTrackTypeAndSet(){
+    protected void checkTrackTypeAndSet() {
         TransitionManager.beginDelayedTransition(obdGPSTransition);
         switch (trackType) {
             case 1:
@@ -372,7 +367,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
         }
     }
 
-    protected void setDate(){
+    protected void setDate() {
         Calendar c = Calendar.getInstance();
         Date date = c.getTime();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("dd MMMM yyyy");
@@ -387,32 +382,32 @@ public class DashBoardFragment extends BaseInjectorFragment {
     }
 
     @OnClick(R.id.bannerBluetoothContainer)
-    protected void onbannerBluetoothContainerClicked(){
-        if(errorImageBluetooth.getVisibility() == View.VISIBLE){
+    protected void onbannerBluetoothContainerClicked() {
+        if (errorImageBluetooth.getVisibility() == View.VISIBLE) {
             Intent intent = new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
             startActivity(intent);
         }
     }
 
     @OnClick(R.id.bannerOBDAdapterContainer)
-    protected void onbannerOBDAdapterContainerClicked(){
-        if(errorImageOBDAdapter.getVisibility() == View.VISIBLE){
+    protected void onbannerOBDAdapterContainerClicked() {
+        if (errorImageOBDAdapter.getVisibility() == View.VISIBLE) {
             Intent intent = new Intent(getActivity(), OBDSelectionActivity.class);
             getActivity().startActivity(intent);
         }
     }
 
     @OnClick(R.id.bannerGPSContainer)
-    protected void onbannerGPSContainerClicked(){
-        if(errorImageGPS.getVisibility() == View.VISIBLE){
+    protected void onbannerGPSContainerClicked() {
+        if (errorImageGPS.getVisibility() == View.VISIBLE) {
             Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
             startActivity(intent);
         }
     }
 
     @OnClick(R.id.bannerCarContainer)
-    protected void onbannerCarContainerClicked(){
-        if(errorImageCar.getVisibility() == View.VISIBLE){
+    protected void onbannerCarContainerClicked() {
+        if (errorImageCar.getVisibility() == View.VISIBLE) {
             Intent intent = new Intent(getActivity(), CarSelectionActivity.class);
             getActivity().startActivity(intent);
         }
@@ -485,16 +480,16 @@ public class DashBoardFragment extends BaseInjectorFragment {
         }
     }
 
-    private void updateSegmentedView(){
+    private void updateSegmentedView() {
         //index 1 means OBD + GPS recording type
         //index 2 means GPS only recording type
-        if(PreferencesHandler.getPreviouslySelectedRecordingType(context.getApplicationContext()) == 1){
+        if (PreferencesHandler.getPreviouslySelectedRecordingType(context.getApplicationContext()) == 1) {
             obdGPSIndicator.setVisibility(View.VISIBLE);
             GPSIndicator.setVisibility(GONE);
             trackType = 1;
             showOBDPlusGPSSettings();
 
-        }else{
+        } else {
             obdGPSIndicator.setVisibility(GONE);
             GPSIndicator.setVisibility(View.VISIBLE);
             trackType = 2;
@@ -682,17 +677,17 @@ public class DashBoardFragment extends BaseInjectorFragment {
                 .setAction(getString(actionStringId), listener).show();
     }
 
-    void showOBDPlusGPSSettings(){
+    void showOBDPlusGPSSettings() {
         TransitionSet transitionSet = new TransitionSet()
-                                                .addTransition(new ChangeBounds())
-                                                .addTransition(new AutoTransition())
-                                                .addTransition(new Slide(Gravity.LEFT));
+                .addTransition(new ChangeBounds())
+                .addTransition(new AutoTransition())
+                .addTransition(new Slide(Gravity.LEFT));
         TransitionManager.beginDelayedTransition(settingsLayout, transitionSet);
         mOBDTypeView.setVisibility(View.VISIBLE);
         //obdPlusGPSSettingsContainer.setVisibility(View.VISIBLE);
     }
 
-    void showGPSOnlySettings(){
+    void showGPSOnlySettings() {
         TransitionSet transitionSet = new TransitionSet()
                 .addTransition(new ChangeBounds())
                 .addTransition(new AutoTransition())
@@ -702,85 +697,83 @@ public class DashBoardFragment extends BaseInjectorFragment {
         mOBDTypeView.setVisibility(GONE);
     }
 
-    void getUserCardDetails(){
+    void getUserCardDetails() {
         subscriptions.add(mDAOProvider.getTrackDAO().getTrackIdsObservable()
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(new Subscriber<List<Track>>() {
-            @Override
-            public void onStart() {
-                LOG.info("onStart() of getUserCardDetails");
-            }
-            @Override
-            public void onCompleted() {
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<List<Track>>() {
+                    @Override
+                    public void onStart() {
+                        LOG.info("onStart() of getUserCardDetails");
+                    }
 
-            }
+                    @Override
+                    public void onCompleted() {
 
-            @Override
-            public void onError(Throwable e) {
-                LOG.error(e.getMessage(), e);
+                    }
 
-                if (e instanceof NotConnectedException) {
-                    LOG.error("Error", e);
-                } else if (e instanceof UnauthorizedException) {
-                    LOG.error("Unauthorised",e);
-                }
-                distance = Long.valueOf(-1);
-            }
+                    @Override
+                    public void onError(Throwable e) {
+                        LOG.error(e.getMessage(), e);
 
-            @Override
-            public void onNext(List<Track> tracks) {
-                distance = Long.valueOf(0);
-                timeInMillis = Long.valueOf(0);
-                for (Track track : tracks) {
-                    distance += track.getLength();
-                    timeInMillis += track.getTimeInMillis();
-                }
+                        if (e instanceof NotConnectedException) {
+                            LOG.error("Error", e);
+                        } else if (e instanceof UnauthorizedException) {
+                            LOG.error("Unauthorised", e);
+                        }
+                        distance = Long.valueOf(-1);
+                    }
 
-                String time = convertMillisToDate();
-                PreferencesHandler.setTotalTime(context, time);
-                userTotalDurationAddTV.setText(time.charAt(time.length()-1)+"");
-                LOG.info(time+" Duration");
-                userTotalDurationTV.setText(time.substring(0, time.length()-1)+"");
-                PreferencesHandler.setTotalDistanceTravelledOfUser(context, distance);
-                userTotalDistanceTV.setText(PreferencesHandler.getTotalDistanceTravelledOfUser(context)+"");
-            }
-        }));
+                    @Override
+                    public void onNext(List<Track> tracks) {
+                        distance = Long.valueOf(0);
+                        timeInMillis = Long.valueOf(0);
+                        for (Track track : tracks) {
+                            distance += track.getLength();
+                            timeInMillis += track.getTimeInMillis();
+                        }
+
+                        String time = convertMillisToDate();
+                        PreferencesHandler.setTotalTime(context, time);
+                        userTotalDurationAddTV.setText(time.charAt(time.length() - 1) + "");
+                        LOG.info(time + " Duration");
+                        userTotalDurationTV.setText(time.substring(0, time.length() - 1) + "");
+                        PreferencesHandler.setTotalDistanceTravelledOfUser(context, distance);
+                        userTotalDistanceTV.setText(PreferencesHandler.getTotalDistanceTravelledOfUser(context) + "");
+                    }
+                }));
     }
 
-    String convertMillisToDate(){
+    String convertMillisToDate() {
         long diffSeconds = timeInMillis / 1000 % 60;
         long diffMinutes = timeInMillis / (60 * 1000) % 60;
         long diffHours = timeInMillis / (60 * 60 * 1000) % 24;
         long diffDays = timeInMillis / (24 * 60 * 60 * 1000);
         StringBuilder stringBuilder = new StringBuilder();
-        if(diffDays != 0) {
+        if (diffDays != 0) {
             stringBuilder.append(diffDays);
             stringBuilder.append(" : ");
             if (diffHours > 1) {
                 stringBuilder.append(diffHours);
             }
             stringBuilder.append("d");
-        }
-        else {
+        } else {
             if (diffHours != 0) {
                 stringBuilder.append(diffHours);
-                if (diffMinutes != 0){
+                if (diffMinutes != 0) {
                     stringBuilder.append(" : ");
                     stringBuilder.append(diffMinutes);
                 }
                 stringBuilder.append("h");
-            }
-            else {
-                if (diffMinutes!=0) {
+            } else {
+                if (diffMinutes != 0) {
                     stringBuilder.append(diffMinutes);
-                    if(diffSeconds!=0){
+                    if (diffSeconds != 0) {
                         stringBuilder.append(" : ");
                         stringBuilder.append(diffSeconds);
                     }
                     stringBuilder.append("m");
-                }
-                else{
+                } else {
                     stringBuilder.append(diffSeconds);
                     stringBuilder.append("s");
 
@@ -790,14 +783,15 @@ public class DashBoardFragment extends BaseInjectorFragment {
         }
         return stringBuilder.toString();
     }
-    void updateUserDetailsView(){
-        if(mUserManager.isLoggedIn()){
+
+    void updateUserDetailsView() {
+        if (mUserManager.isLoggedIn()) {
             dashBoardUserName.setVisibility(View.VISIBLE);
             dashBoardUserImageView.setVisibility(View.VISIBLE);
             userStatisticsContainer.setVisibility(View.VISIBLE);
             userLoginSignupButtonContainer.setVisibility(GONE);
 
-            if(mUserManager.getUser().getFirstName()==null)
+            if (mUserManager.getUser().getFirstName() == null)
                 dashBoardUserName.setText(mUserManager.getUser().getUsername());
             else
                 dashBoardUserName.setText(mUserManager.getUser().getName());
@@ -807,12 +801,11 @@ public class DashBoardFragment extends BaseInjectorFragment {
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(integer -> {
-                        PreferencesHandler.setLocalTrackCount(context,integer);
+                        PreferencesHandler.setLocalTrackCount(context, integer);
                         localTCount = true;
-                        if(localTCount && remoteTCount)
-                        {
+                        if (localTCount && remoteTCount) {
                             Integer total = integer + PreferencesHandler.getUploadedTrackCount(context);
-                            userTrackCountTV.setText(total+"");
+                            userTrackCountTV.setText(total + "");
                         }
                     });
 
@@ -834,10 +827,9 @@ public class DashBoardFragment extends BaseInjectorFragment {
                     String.format("%s (%s)", userTrackCount, totalTrackCount);
                     mMainThreadWorker.schedule(() -> {
                         remoteTCount = true;
-                        if(localTCount && remoteTCount)
-                        {
+                        if (localTCount && remoteTCount) {
                             Integer total = userTrackCount + PreferencesHandler.getLocalTrackCount(context);
-                            userTrackCountTV.setText(total+"");
+                            userTrackCountTV.setText(total + "");
                         }
                         PreferencesHandler.setUploadedTrackCount(context, userTrackCount);
                         PreferencesHandler.setGlobalTrackCount(context, totalTrackCount);
@@ -870,12 +862,12 @@ public class DashBoardFragment extends BaseInjectorFragment {
                 mOBDTypeSubTextView.setText(R.string.dashboard_obd_not_selected_advise);
                 mOBDTypeImg.setImageResource(R.drawable.obd_nc);
                 mOBDTypeSubTextView.setVisibility(View.VISIBLE);
-            } else if (mBluetoothHandler.isAutoconnecting()){
+            } else if (mBluetoothHandler.isAutoconnecting()) {
                 mOBDTypeTextView.setText("Autoconnecting");
                 mOBDTypeSubTextView.setText("Trying to Autoconnect to the OBD Device");
                 mOBDTypeImg.setImageResource(R.drawable.obd);
                 mOBDTypeSubTextView.setVisibility(View.VISIBLE);
-            } else if (!mBluetoothHandler.isBluetoothActive()){
+            } else if (!mBluetoothHandler.isBluetoothActive()) {
                 mOBDTypeTextView.setText("OBD-II adapter not found");
                 mOBDTypeSubTextView.setText("Unable to pair with the current selected OBD-II adapter");
                 mOBDTypeImg.setImageResource(R.drawable.obd);
@@ -912,18 +904,18 @@ public class DashBoardFragment extends BaseInjectorFragment {
         }
     }
 
-    private void setmGPSSelectedView(boolean isGPSEnabled){
-        if(isGPSEnabled == false){
+    private void setmGPSSelectedView(boolean isGPSEnabled) {
+        if (isGPSEnabled == false) {
             mGPSSelectedTextView.setText("GPS is not enabled");
             mGPSSelectedSubTextView.setText("Please turn on location services");
             mGPSSelectedImg.setImageResource(R.drawable.gps_off);
-        }
-        else{
+        } else {
             mGPSSelectedTextView.setText("GPS is enabled");
             mGPSSelectedSubTextView.setText("enviroCar has access to your location");
             mGPSSelectedImg.setImageResource(R.drawable.gps_connected);
         }
     }
+
     /**
      * Applies an animation on the given view.
      *
@@ -1035,7 +1027,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
         });
     }
 
-    private void updateBannerForGPSOnlyType(){
+    private void updateBannerForGPSOnlyType() {
         LOG.info("updateBannerForGPSOnlyType() called");
         TransitionManager.beginDelayedTransition(bannerTransition);
         errorImageBluetooth.setVisibility(GONE);
@@ -1045,7 +1037,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
         bannerBluetoothContainer.setVisibility(GONE);
         bannerOBDAdapterContainer.setVisibility(GONE);
         LOG.info("Bluetooth and OBD containers hidden");
-        if(!mLocationHandler.isGPSEnabled()){
+        if (!mLocationHandler.isGPSEnabled()) {
             errorImageGPS.setVisibility(View.VISIBLE);
             okImageGPS.setVisibility(GONE);
         } else {
@@ -1061,13 +1053,13 @@ public class DashBoardFragment extends BaseInjectorFragment {
         }
     }
 
-    private void updateBannerForOBDPlusGPSType(){
+    private void updateBannerForOBDPlusGPSType() {
         LOG.info("updateBannerForOBDPlusGPSType() called");
         TransitionManager.beginDelayedTransition(bannerTransition);
         bannerBluetoothContainer.setVisibility(View.VISIBLE);
         bannerOBDAdapterContainer.setVisibility(View.VISIBLE);
         LOG.info("Bluetooth and OBD containers loaded.");
-        if(!mBluetoothHandler.isBluetoothEnabled()){
+        if (!mBluetoothHandler.isBluetoothEnabled()) {
             errorImageBluetooth.setVisibility(View.VISIBLE);
             okImageBluetooth.setVisibility(GONE);
         } else {
@@ -1122,13 +1114,13 @@ public class DashBoardFragment extends BaseInjectorFragment {
             case SERVICE_STARTING:
                 disableChangingParametersLayout.setVisibility(View.VISIBLE);
                 updateStartStopButton(R.drawable.btn_grey,
-                    getString(R.string.dashboard_track_is_starting), false);
+                        getString(R.string.dashboard_track_is_starting), false);
                 break;
             case SERVICE_STOPPING:
                 disableChangingParametersLayout.setVisibility(View.VISIBLE);
                 updateStartStopButton(R.drawable.btn_grey,
-                    getString(R.string.dashboard_track_is_stopping), false);
-            break;
+                        getString(R.string.dashboard_track_is_stopping), false);
+                break;
             default:
                 break;
         }
@@ -1191,12 +1183,12 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
         TransitionManager.beginDelayedTransition(frameTransition, transitionSet);
         mStartStopButtonInner.setBackgroundResource(background);
-            if(background == R.drawable.btn_grey)
-                mStartStopButtonInner.setTextColor(Color.BLACK);
-            else
-                mStartStopButtonInner.setTextColor(Color.WHITE);
-            mStartStopButtonInner.setText(text);
-            mStartStopButtonInner.setEnabled(enabled);
+        if (background == R.drawable.btn_grey)
+            mStartStopButtonInner.setTextColor(Color.BLACK);
+        else
+            mStartStopButtonInner.setTextColor(Color.WHITE);
+        mStartStopButtonInner.setText(text);
+        mStartStopButtonInner.setEnabled(enabled);
     }
 
     private void onOBDPlusGPSStartTrackButtonStartClicked() {
