@@ -101,7 +101,7 @@ ext {
     materialDialogs = 'com.afollestad.material-dialogs:core:0.9.6.0'
     helloCharts = 'com.github.lecho:hellocharts-library:1.5.8@aar'
     fabProgressCircle = 'com.github.jorgecastilloprz:fabprogresscircle:1.01'
-    mapbox = 'com.mapbox.mapboxsdk:mapbox-android-sdk:0.7.4@aar'
+    mapbox = 'com.mapbox.mapboxsdk:mapbox-android-sdk:8.1.0'
     segmentedUIController = 'info.hoang8f:android-segmented:1.0.6'
     apacheCommons = 'org.apache.commons:commons-compress:1.18'
 
