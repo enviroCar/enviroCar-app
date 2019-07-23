@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="150dp">
 
-        <com.mapbox.mapboxsdk.views.MapView
+        <com.mapbox.mapboxsdk.maps.MapView
             android:id="@+id/fragment_tracklist_cardlayout_map"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

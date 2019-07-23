@@ -33,19 +33,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.github.jorgecastilloprz.FABProgressCircle;
-import com.mapbox.geojson.BoundingBox;
-import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.Point;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
-import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-//import com.mapbox.mapboxsdk.geometry.BoundingBox;
-//import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
-//import com.mapbox.mapboxsdk.views.MapView;
+import com.mapbox.mapboxsdk.style.sources.TileSet;
 
 import org.envirocar.app.R;
 import org.envirocar.app.views.trackdetails.TrackSpeedMapOverlay;
@@ -233,79 +227,66 @@ public abstract class AbstractTrackListCardAdapter<E extends
             public void onMapReady(@NonNull MapboxMap mapboxMap) {
                 mapboxMap.getUiSettings().setLogoEnabled(false);
                 mapboxMap.getUiSettings().setAttributionEnabled(false);
+                TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
+                TileSet layer = MapUtils.getOSMTileLayer();
+                //mapboxMap.(layer)
                 mapboxMap.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
-                        // Add the marker image to map
-                        style.addImage("marker-icon-id",
-                                BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.mapbox_marker_icon_default));
 
-                        GeoJsonSource geoJsonSource = new GeoJsonSource("source-id", Feature.fromGeometry(
-                                Point.fromLngLat(-87.679, 41.885)));
-                        style.addSource(geoJsonSource);
+                        mapboxMap.clear();
+                        if (track.getMeasurements().size() > 0) {
 
-                        SymbolLayer symbolLayer = new SymbolLayer("layer-id", "source-id");
-                        symbolLayer.withProperties(
-                                PropertyFactory.iconImage("marker-icon-id")
-                        );
+                            new AsyncTask<Void, Void, Void>() {
+                                @Override
+                                protected Void doInBackground(Void... params) {
+                                    // Configure the line representation.
+                                    mMainThreadWorker.schedule(new Action0() {
+                                        @Override
+                                        public void call() {
+                                    TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
 
-                        style.addLayer(symbolLayer);
+                                    final LatLngBounds bbox = trackMapOverlay.getTrackBoundingBox();
+                                    final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
+                                    final LatLngBounds scrollableLimit = trackMapOverlay.getScrollableLimitBox();
+
+                                    LOG.warn("trying to zoom to track bbox");
+
+                                            LOG.warn("bbox " + bbox);
+                                            style.addSource(trackMapOverlay.getGeoJsonSource());
+                                            style.addLayer(trackMapOverlay.getLineLayer());
+                                            // Set the computed parameters on the main thread.
+                                            mapboxMap.setLatLngBoundsForCameraTarget(scrollableLimit);
+                                            LOG.warn("scrollable limit " + scrollableLimit.toString());
+                                            mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50), 5000);
+                                            LOG.warn("zooming to " + viewBbox.toString());
+                                        }
+                                    });
+                                    return null;
+                                }
+                            }.execute();
+                        }
                     }
                 });
+
+                mapboxMap.setMaxZoomPreference(layer.getMaxZoom());
+                mapboxMap.setMinZoomPreference(layer.getMinZoom());
+
             }
         });
 
-        /*holder.mMapView.getOverlays().clear();
-
         // Set the openstreetmap tile layer as baselayer of the map.
-        WebSourceTileLayer layer = MapUtils.getOSMTileLayer();
-        holder.mMapView.setTileSource(layer);
+
+        //MapboxMap
+        //holder.mMapView. setTileSource(layer);
 
         // set the bounding box and min and max zoom level accordingly.
-        BoundingBox box = layer.getBoundingBox();
-        holder.mMapView.setDiskCacheEnabled(true);
-        holder.mMapView.setScrollableAreaLimit(box);
-        holder.mMapView.setMinZoomLevel(holder.mMapView.getTileProvider().getMinimumZoomLevel());
-        holder.mMapView.setMaxZoomLevel(holder.mMapView.getTileProvider().getMaximumZoomLevel());
-//        holder.mMapView.setCenter(holder.mMapView.getTileProvider().getCenterCoordinate());
-        holder.mMapView.setZoom(0);
+        //BoundingBox box = layer.getBoundingBox();
+        //holder.mMapView.setDiskCacheEnabled(true);
+        //holder.mMapView.setCenter(holder.mMapView.getTileProvider().getCenterCoordinate());
 
-        if (track.getMeasurements().size() > 0) {
-            new AsyncTask<Void, Void, Void>() {
-                @Override
-                protected Void doInBackground(Void... params) {
-                    // Configure the line representation.
-                    Paint linePaint = new Paint();
-                    linePaint.setStyle(Paint.Style.STROKE);
-                    linePaint.setColor(Color.BLUE);
-                    linePaint.setStrokeWidth(5);
 
-                    TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
-                    trackMapOverlay.setPaint(linePaint);
 
-                    final BoundingBox bbox = trackMapOverlay.getTrackBoundingBox();
-                    final BoundingBox viewBbox = trackMapOverlay.getViewBoundingBox();
-                    final BoundingBox scrollableLimit = trackMapOverlay.getScrollableLimitBox();
-
-                    LOG.warn("trying to zoom to track bbox");
-                    mMainThreadWorker.schedule(new Action0() {
-                        @Override
-                        public void call() {
-                            holder.mMapView.getOverlays().add(trackMapOverlay);
-                            LOG.warn("bbox " + bbox);
-                            // Set the computed parameters on the main thread.
-                            holder.mMapView.setScrollableAreaLimit(scrollableLimit);
-                            LOG.warn("scrollable limit " + scrollableLimit.toString());
-                            holder.mMapView.setConstraintRegionFit(true);
-                            holder.mMapView.zoomToBoundingBox(viewBbox, true);
-                            LOG.warn("zooming to " + viewBbox.toString());
-                        }
-                    });
-                    return null;
-                }
-            }.execute();
-        }
-        */
     }
 
     /**

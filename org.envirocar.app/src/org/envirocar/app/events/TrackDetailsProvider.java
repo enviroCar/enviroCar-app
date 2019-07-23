@@ -21,13 +21,14 @@ package org.envirocar.app.events;
 import android.location.Location;
 import android.os.SystemClock;
 
-import com.mapbox.mapboxsdk.overlay.PathOverlay;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.services.recording.GPSOnlyRecordingService;
 import org.envirocar.app.services.recording.OBDRecordingService;
+import org.envirocar.app.views.trackdetails.MapLayer;
+import org.envirocar.app.views.trackdetails.TrackSpeedMapOverlay;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.events.recording.RecordingNewMeasurementEvent;
 import org.envirocar.core.logging.Logger;
@@ -46,7 +47,7 @@ public class TrackDetailsProvider {
     private final Scheduler.Worker mMainThreadWorker = AndroidSchedulers
             .mainThread().createWorker();
 
-    private PathOverlay mTrackMapOverlay = new PathOverlay();
+    private MapLayer mTrackMapOverlay = new MapLayer();
 
     private int mNumMeasurements;
     private double mDistanceValue;

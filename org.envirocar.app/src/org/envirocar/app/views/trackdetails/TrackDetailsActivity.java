@@ -49,6 +49,8 @@ import android.widget.TextView;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 //import com.mapbox.mapboxsdk.geometry.BoundingBox;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
+import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -56,14 +58,11 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-//import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
-//import com.mapbox.mapboxsdk.views.MapView;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.injection.BaseInjectorActivity;
 import org.envirocar.app.main.BaseApplicationComponent;
-import org.envirocar.app.views.utils.MapUtils;
 import org.envirocar.core.entity.Car;
 import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
@@ -121,6 +120,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
     @BindView(R.id.activity_track_details_fab)
     protected FloatingActionButton mFAB;
+    protected MapboxMap mapboxMap;
     @BindView(R.id.activity_track_details_header_map)
     protected MapView mMapView;
     @BindView(R.id.activity_track_details_header_toolbar)
@@ -141,6 +141,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected TextView mEmissionText;
     @BindView(R.id.activity_track_details_attr_consumption_value)
     protected TextView mConsumptionText;
+    protected MapboxMap mapboxMapExpanded;
     @BindView(R.id.activity_track_details_expanded_map)
     protected MapView mMapViewExpanded;
     @BindView(R.id.activity_track_details_expanded_map_container)
@@ -160,6 +161,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     @BindView(R.id.descriptionTv)
     protected TextView descriptionTv;
 
+    Boolean mp = false, mpE = false, init = false;
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
@@ -202,7 +204,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         title.setText(itemTitle);
 
         // Initialize the mapview and the trackpath
-        initMapView();
+        initMapView(track);
         //initTrackPath(track);
         initViewValues(track);
 
@@ -269,31 +271,44 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     /**
      * Initializes the MapView, its base layers and settings.
      */
-    private void initMapView() {
+    private void initMapView(Track track) {
+        TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
+        final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
+        final LatLngBounds scrollableLimit = trackMapOverlay.getScrollableLimitBox();
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMap) {
-                mapboxMap.getUiSettings().setLogoEnabled(false);
-                mapboxMap.getUiSettings().setAttributionEnabled(false);
-                mapboxMap.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
+            public void onMapReady(@NonNull MapboxMap tep) {
+
+                tep.getUiSettings().setLogoEnabled(false);
+                tep.getUiSettings().setAttributionEnabled(false);
+                tep.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
-                        // Add the marker image to map
-                        style.addImage("marker-icon-id",
-                                BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.mapbox_marker_icon_default));
-
-                        GeoJsonSource geoJsonSource = new GeoJsonSource("source-id", Feature.fromGeometry(
-                                Point.fromLngLat(-87.679, 41.885)));
-                        style.addSource(geoJsonSource);
-
-                        SymbolLayer symbolLayer = new SymbolLayer("layer-id", "source-id");
-                        symbolLayer.withProperties(
-                                PropertyFactory.iconImage("marker-icon-id")
-                        );
-
-                        style.addLayer(symbolLayer);
+                        style.addLayer(trackMapOverlay.getLineLayer());
+                        style.addSource(trackMapOverlay.getGeoJsonSource());
                     }
                 });
+                tep.setLatLngBoundsForCameraTarget(scrollableLimit);
+                tep.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50), 5000);
+                mapboxMap = tep;
+            }
+        });
+
+        mMapViewExpanded.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(@NonNull MapboxMap tep) {
+                tep.getUiSettings().setLogoEnabled(false);
+                tep.getUiSettings().setAttributionEnabled(false);
+                tep.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+                        style.addLayer(trackMapOverlay.getLineLayer());
+                       style.addSource(trackMapOverlay.getGeoJsonSource());
+                    }
+                });
+                tep.setLatLngBoundsForCameraTarget(scrollableLimit);
+                tep.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50), 5000);
+                mapboxMapExpanded = tep;
             }
         });
         /*
@@ -312,67 +327,41 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         */
     }
 
-    /*
+
     /**
      * @param track
      */
-    /*
+
     private void initTrackPath(Track track) {
-        // Configure the line representation.
-        Paint linePaint = new Paint();
-        linePaint.setStyle(Paint.Style.STROKE);
-        linePaint.setColor(Color.BLUE);
-        linePaint.setStrokeWidth(5);
 
-        TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
-        trackMapOverlay.setPaint(linePaint);
+        if(mp && mpE && !init){
+            init = true;
+            TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
+            // Adds the path overlay to the mapview.
+            mapboxMap.getStyle().addLayer(trackMapOverlay.getLineLayer());
+            mapboxMap.getStyle().addSource(trackMapOverlay.getGeoJsonSource());
 
-        // Adds the path overlay to the mapview.
-        mMapView.getOverlays().add(trackMapOverlay);
-        mMapViewExpanded.getOverlays().add(trackMapOverlay);
+            mapboxMapExpanded.getStyle().addLayer(trackMapOverlay.getLineLayer());
+            mapboxMapExpanded.getStyle().addSource(trackMapOverlay.getGeoJsonSource());
 
-        final BoundingBox viewBbox = trackMapOverlay.getViewBoundingBox();
-        final BoundingBox scrollableLimit = trackMapOverlay.getScrollableLimitBox();
+            final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
+            final LatLngBounds scrollableLimit = trackMapOverlay.getScrollableLimitBox();
 
-        mMapView.setScrollableAreaLimit(scrollableLimit);
-        mMapView.setConstraintRegionFit(true);
-        mMapView.zoomToBoundingBox(viewBbox, true);
-        mMapViewExpanded.zoomToBoundingBox(viewBbox, true);
+            mapboxMap.setLatLngBoundsForCameraTarget(scrollableLimit);
+            mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50), 5000);
+
+            mapboxMapExpanded.setLatLngBoundsForCameraTarget(scrollableLimit);
+            mapboxMapExpanded.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50), 5000);
+        }
     }
-    */
+
 
     //function which expands the mapview
     private void expandMapView(Track track){
-        mMapViewExpanded.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMap) {
-                mapboxMap.getUiSettings().setLogoEnabled(false);
-                mapboxMap.getUiSettings().setAttributionEnabled(false);
-                mapboxMap.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        // Add the marker image to map
-                        style.addImage("marker-icon-id",
-                                BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.mapbox_marker_icon_default));
+        TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
+        final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
+        mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50), 5000);
 
-                        GeoJsonSource geoJsonSource = new GeoJsonSource("source-id", Feature.fromGeometry(
-                                Point.fromLngLat(-87.679, 41.885)));
-                        style.addSource(geoJsonSource);
-
-                        SymbolLayer symbolLayer = new SymbolLayer("layer-id", "source-id");
-                        symbolLayer.withProperties(
-                                PropertyFactory.iconImage("marker-icon-id")
-                        );
-
-                        style.addLayer(symbolLayer);
-                    }
-                });
-            }
-        });
-        /*TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
-        final BoundingBox viewBbox = trackMapOverlay.getViewBoundingBox();
-        mMapViewExpanded.zoomToBoundingBox(viewBbox, true);
-        */
         animateShowView(mMapViewExpandedContainer,R.anim.translate_slide_in_top_fragment);
         animateHideView(mAppBarLayout,R.anim.translate_slide_out_top_fragment);
         animateHideView(mNestedScrollView,R.anim.translate_slide_out_bottom);
