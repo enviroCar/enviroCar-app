@@ -24,6 +24,7 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Rect;
 
+import com.mapbox.geojson.BoundingBox;
 import com.mapbox.mapboxsdk.geometry.BoundingBox;
 import com.mapbox.mapboxsdk.overlay.PathOverlay;
 

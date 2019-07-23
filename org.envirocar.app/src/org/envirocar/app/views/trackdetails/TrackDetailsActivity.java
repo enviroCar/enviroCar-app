@@ -20,6 +20,8 @@ package org.envirocar.app.views.trackdetails;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
@@ -27,6 +29,8 @@ import android.os.Bundle;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.CollapsingToolbarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.widget.NestedScrollView;
@@ -42,9 +46,18 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.mapbox.mapboxsdk.geometry.BoundingBox;
-import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
-import com.mapbox.mapboxsdk.views.MapView;
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.Point;
+//import com.mapbox.mapboxsdk.geometry.BoundingBox;
+import com.mapbox.mapboxsdk.maps.MapView;
+import com.mapbox.mapboxsdk.maps.MapboxMap;
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+//import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
+//import com.mapbox.mapboxsdk.views.MapView;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.PreferencesHandler;
@@ -190,7 +203,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
         // Initialize the mapview and the trackpath
         initMapView();
-        initTrackPath(track);
+        //initTrackPath(track);
         initViewValues(track);
 
         updateStatusBarColor();
@@ -257,6 +270,33 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
      * Initializes the MapView, its base layers and settings.
      */
     private void initMapView() {
+        mMapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(@NonNull MapboxMap mapboxMap) {
+                mapboxMap.getUiSettings().setLogoEnabled(false);
+                mapboxMap.getUiSettings().setAttributionEnabled(false);
+                mapboxMap.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+                        // Add the marker image to map
+                        style.addImage("marker-icon-id",
+                                BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.mapbox_marker_icon_default));
+
+                        GeoJsonSource geoJsonSource = new GeoJsonSource("source-id", Feature.fromGeometry(
+                                Point.fromLngLat(-87.679, 41.885)));
+                        style.addSource(geoJsonSource);
+
+                        SymbolLayer symbolLayer = new SymbolLayer("layer-id", "source-id");
+                        symbolLayer.withProperties(
+                                PropertyFactory.iconImage("marker-icon-id")
+                        );
+
+                        style.addLayer(symbolLayer);
+                    }
+                });
+            }
+        });
+        /*
         // Set the openstreetmap tile layer as baselayer of the map.
         WebSourceTileLayer source = MapUtils.getOSMTileLayer();
         mMapView.setTileSource(source);
@@ -269,11 +309,14 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         mMapView.setMaxZoomLevel(mMapView.getTileProvider().getMaximumZoomLevel());
         mMapView.setCenter(mMapView.getTileProvider().getCenterCoordinate());
         mMapView.setZoom(0);
+        */
     }
 
+    /*
     /**
      * @param track
      */
+    /*
     private void initTrackPath(Track track) {
         // Configure the line representation.
         Paint linePaint = new Paint();
@@ -296,13 +339,40 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         mMapView.zoomToBoundingBox(viewBbox, true);
         mMapViewExpanded.zoomToBoundingBox(viewBbox, true);
     }
+    */
 
     //function which expands the mapview
     private void expandMapView(Track track){
-        TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
+        mMapViewExpanded.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(@NonNull MapboxMap mapboxMap) {
+                mapboxMap.getUiSettings().setLogoEnabled(false);
+                mapboxMap.getUiSettings().setAttributionEnabled(false);
+                mapboxMap.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+                        // Add the marker image to map
+                        style.addImage("marker-icon-id",
+                                BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.mapbox_marker_icon_default));
+
+                        GeoJsonSource geoJsonSource = new GeoJsonSource("source-id", Feature.fromGeometry(
+                                Point.fromLngLat(-87.679, 41.885)));
+                        style.addSource(geoJsonSource);
+
+                        SymbolLayer symbolLayer = new SymbolLayer("layer-id", "source-id");
+                        symbolLayer.withProperties(
+                                PropertyFactory.iconImage("marker-icon-id")
+                        );
+
+                        style.addLayer(symbolLayer);
+                    }
+                });
+            }
+        });
+        /*TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
         final BoundingBox viewBbox = trackMapOverlay.getViewBoundingBox();
         mMapViewExpanded.zoomToBoundingBox(viewBbox, true);
-
+        */
         animateShowView(mMapViewExpandedContainer,R.anim.translate_slide_in_top_fragment);
         animateHideView(mAppBarLayout,R.anim.translate_slide_out_top_fragment);
         animateHideView(mNestedScrollView,R.anim.translate_slide_out_bottom);

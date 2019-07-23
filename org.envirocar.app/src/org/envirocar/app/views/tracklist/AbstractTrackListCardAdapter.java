@@ -18,10 +18,14 @@
  */
 package org.envirocar.app.views.tracklist;
 
+import android.content.res.Resources;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.AsyncTask;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 import android.view.View;
@@ -29,9 +33,19 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.github.jorgecastilloprz.FABProgressCircle;
-import com.mapbox.mapboxsdk.geometry.BoundingBox;
-import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
-import com.mapbox.mapboxsdk.views.MapView;
+import com.mapbox.geojson.BoundingBox;
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.Point;
+import com.mapbox.mapboxsdk.maps.MapView;
+import com.mapbox.mapboxsdk.maps.MapboxMap;
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+//import com.mapbox.mapboxsdk.geometry.BoundingBox;
+//import com.mapbox.mapboxsdk.tileprovider.tilesource.WebSourceTileLayer;
+//import com.mapbox.mapboxsdk.views.MapView;
 
 import org.envirocar.app.R;
 import org.envirocar.app.views.trackdetails.TrackSpeedMapOverlay;
@@ -213,7 +227,35 @@ public abstract class AbstractTrackListCardAdapter<E extends
      */
     protected void initMapView(TrackCardViewHolder holder, Track track) {
         // First, clear the overlays in the MapView.
-        holder.mMapView.getOverlays().clear();
+
+        holder.mMapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(@NonNull MapboxMap mapboxMap) {
+                mapboxMap.getUiSettings().setLogoEnabled(false);
+                mapboxMap.getUiSettings().setAttributionEnabled(false);
+                mapboxMap.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+                        // Add the marker image to map
+                        style.addImage("marker-icon-id",
+                                BitmapFactory.decodeResource(Resources.getSystem(), R.drawable.mapbox_marker_icon_default));
+
+                        GeoJsonSource geoJsonSource = new GeoJsonSource("source-id", Feature.fromGeometry(
+                                Point.fromLngLat(-87.679, 41.885)));
+                        style.addSource(geoJsonSource);
+
+                        SymbolLayer symbolLayer = new SymbolLayer("layer-id", "source-id");
+                        symbolLayer.withProperties(
+                                PropertyFactory.iconImage("marker-icon-id")
+                        );
+
+                        style.addLayer(symbolLayer);
+                    }
+                });
+            }
+        });
+
+        /*holder.mMapView.getOverlays().clear();
 
         // Set the openstreetmap tile layer as baselayer of the map.
         WebSourceTileLayer layer = MapUtils.getOSMTileLayer();
@@ -263,6 +305,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
                 }
             }.execute();
         }
+        */
     }
 
     /**
