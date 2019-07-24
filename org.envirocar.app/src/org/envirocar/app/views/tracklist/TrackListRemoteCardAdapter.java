@@ -23,10 +23,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.NonNull;
 
-import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import androidx.annotation.NonNull;
 
 import org.envirocar.app.R;
 import org.envirocar.core.entity.Track;
@@ -70,15 +68,10 @@ public class TrackListRemoteCardAdapter extends AbstractTrackListCardAdapter<
 
         // Reset the most important settings of the views.
         holder.mTitleTextView.setText(remoteTrack.getName());
-        holder.mMapView.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMap) {
-                mapboxMap.clear();
-            }
-        });
         holder.mDownloadButton.setOnClickListener(null);
         holder.mToolbar.getMenu().clear();
-
+        if(holder.mapboxMap != null)
+            holder.mapboxMap.clear();
         // Depending on the tracks state
         switch (remoteTrack.getDownloadState()) {
             case REMOTE:

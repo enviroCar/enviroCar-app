@@ -130,7 +130,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
     protected void bindLocalTrackViewHolder(TrackCardViewHolder holder, Track track) {
         holder.mDistance.setText("...");
         holder.mDuration.setText("...");
-
+        LOG.info("bindLocalTrackViewHolder()");
         // First, load the track from the dataset
         holder.mTitleTextView.setText(track.getName());
 
@@ -221,20 +221,22 @@ public abstract class AbstractTrackListCardAdapter<E extends
      */
     protected void initMapView(TrackCardViewHolder holder, Track track) {
         // First, clear the overlays in the MapView.
-
+        LOG.info("initMapView()");
         holder.mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(@NonNull MapboxMap mapboxMap) {
+                holder.mapboxMap = mapboxMap;
+                LOG.info("onMapReady()");
                 mapboxMap.getUiSettings().setLogoEnabled(false);
                 mapboxMap.getUiSettings().setAttributionEnabled(false);
                 TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
                 TileSet layer = MapUtils.getOSMTileLayer();
-                //mapboxMap.(layer)
+                mapboxMap.clear();
                 mapboxMap.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
-
-                        mapboxMap.clear();
+                        LOG.info("onStyleLoaded() with ");
+                        //
                         if (track.getMeasurements().size() > 0) {
 
                             new AsyncTask<Void, Void, Void>() {
@@ -244,7 +246,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
                                     mMainThreadWorker.schedule(new Action0() {
                                         @Override
                                         public void call() {
-                                    TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
 
                                     final LatLngBounds bbox = trackMapOverlay.getTrackBoundingBox();
                                     final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
@@ -256,9 +257,9 @@ public abstract class AbstractTrackListCardAdapter<E extends
                                             style.addSource(trackMapOverlay.getGeoJsonSource());
                                             style.addLayer(trackMapOverlay.getLineLayer());
                                             // Set the computed parameters on the main thread.
-                                            mapboxMap.setLatLngBoundsForCameraTarget(scrollableLimit);
+                                            mapboxMap.setLatLngBoundsForCameraTarget(bbox);
                                             LOG.warn("scrollable limit " + scrollableLimit.toString());
-                                            mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50), 5000);
+                                            mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50), 400);
                                             LOG.warn("zooming to " + viewBbox.toString());
                                         }
                                     });
@@ -269,8 +270,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
                     }
                 });
 
-                mapboxMap.setMaxZoomPreference(layer.getMaxZoom());
-                mapboxMap.setMinZoomPreference(layer.getMinZoom());
+                //mapboxMap.setMaxZoomPreference(layer.getMaxZoom());
+                //mapboxMap.setMinZoomPreference(10);
 
             }
         });
@@ -306,6 +307,7 @@ public abstract class AbstractTrackListCardAdapter<E extends
         protected TextView mDistance;
         @BindView(R.id.track_details_attributes_header_duration)
         protected TextView mDuration;
+        protected MapboxMap mapboxMap;
         @BindView(R.id.fragment_tracklist_cardlayout_map)
         protected MapView mMapView;
         @BindView(R.id.fragment_tracklist_cardlayout_invis_mapbutton)
