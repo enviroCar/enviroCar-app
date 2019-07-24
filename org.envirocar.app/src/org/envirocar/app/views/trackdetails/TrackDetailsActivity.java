@@ -178,7 +178,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
         // Inject all annotated views.
         ButterKnife.bind(this);
-
+        Mapbox.getInstance(TrackDetailsActivity.this, "");
         supportPostponeEnterTransition();
 
         // Set the toolbar as default actionbar.

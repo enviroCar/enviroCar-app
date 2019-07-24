@@ -33,6 +33,7 @@ import android.widget.Toast;
 import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
@@ -43,6 +44,7 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.style.sources.TileSet;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.main.BaseApplicationComponent;
@@ -97,9 +99,10 @@ public class TrackMapFragment extends BaseInjectorFragment implements
 
         // Inject all dashboard-related views.
         ButterKnife.bind(this, contentView);
-
+        Mapbox.getInstance(getContext(), "");
         // Init the map view
         mMapView.onCreate(savedInstanceState);
+
         mMapView.getMapAsync(this);
         //mMapView.setTileSource(MapUtils.getOSMTileLayer());
         //mMapView.setUserLocationEnabled(true);
@@ -121,7 +124,9 @@ public class TrackMapFragment extends BaseInjectorFragment implements
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         TrackMapFragment.this.mapboxMap = mapboxMap;
-
+        TileSet layer = MapUtils.getOSMTileLayer();
+        mapboxMap.setMaxZoomPreference(layer.getMaxZoom());
+        mapboxMap.setMinZoomPreference(layer.getMinZoom());
         mapboxMap.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "),
                 new Style.OnStyleLoaded() {
                     @Override
@@ -232,8 +237,13 @@ public class TrackMapFragment extends BaseInjectorFragment implements
         mMainThreadWorker.schedule(() -> {
             mPathOverlay = event.mTrackOverlay;
             if (mMapView != null) {
-                mapboxMap.getStyle().addSource(mPathOverlay.getGeoJsonSource());
-                mapboxMap.getStyle().addLayer(mPathOverlay.getLineLayer());
+                mapboxMap.getStyle(new Style.OnStyleLoaded() {
+                    @Override
+                    public void onStyleLoaded(@NonNull Style style) {
+                        style.addSource(mPathOverlay.getGeoJsonSource());
+                        style.addLayer(mPathOverlay.getLineLayer());
+                    }
+                });
             }
         });
     }
@@ -344,4 +354,5 @@ public class TrackMapFragment extends BaseInjectorFragment implements
         super.onLowMemory();
         mMapView.onLowMemory();
     }
+
 }

@@ -7,6 +7,8 @@ import android.os.PowerManager;
 
 import androidx.core.app.NotificationCompat;
 
+import com.mapbox.mapboxsdk.Mapbox;
+
 import org.envirocar.algorithm.MeasurementProvider;
 import org.envirocar.app.events.TrackDetailsProvider;
 import org.envirocar.app.handler.CarPreferenceHandler;
@@ -61,7 +63,7 @@ public abstract class AbstractRecordingService extends BaseInjectorService {
     public void onCreate() {
         LOG.info("onCreate()");
         super.onCreate();
-
+        Mapbox.getInstance(getApplicationContext(), "");
 
 
         this.eventBusReceivers.add(this);
