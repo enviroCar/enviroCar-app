@@ -288,7 +288,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                     }
                 });
                 tep.setLatLngBoundsForCameraTarget(scrollableLimit);
-                tep.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50), 5000);
+                mapboxMap.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
                 mapboxMap = tep;
                 mapboxMap.setMaxZoomPreference(layer.getMaxZoom());
                 mapboxMap.setMinZoomPreference(layer.getMinZoom());
@@ -307,9 +307,9 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                         style.addLayer(trackMapOverlay.getLineLayer());
                     }
                 });
-                tep.setLatLngBoundsForCameraTarget(scrollableLimit);
-                tep.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50), 5000);
-                mapboxMapExpanded = tep;
+                mapboxMap1.setLatLngBoundsForCameraTarget(scrollableLimit);
+                mapboxMap.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
+                mapboxMapExpanded = mapboxMap1;
                 mapboxMapExpanded.setMaxZoomPreference(layer.getMaxZoom());
                 mapboxMapExpanded.setMinZoomPreference(layer.getMinZoom());
             }
@@ -334,7 +334,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     private void expandMapView(Track track){
         TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-        mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50), 1);
+        mapboxMap.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
 
         animateShowView(mMapViewExpandedContainer,R.anim.translate_slide_in_top_fragment);
         animateHideView(mAppBarLayout,R.anim.translate_slide_out_top_fragment);

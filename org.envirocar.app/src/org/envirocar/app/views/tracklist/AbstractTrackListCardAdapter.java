@@ -238,34 +238,19 @@ public abstract class AbstractTrackListCardAdapter<E extends
                         LOG.info("onStyleLoaded() with ");
                         //
                         if (track.getMeasurements().size() > 0) {
-
-                            new AsyncTask<Void, Void, Void>() {
-                                @Override
-                                protected Void doInBackground(Void... params) {
-                                    // Configure the line representation.
-                                    mMainThreadWorker.schedule(new Action0() {
-                                        @Override
-                                        public void call() {
-
-                                    final LatLngBounds bbox = trackMapOverlay.getTrackBoundingBox();
-                                    final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-                                    final LatLngBounds scrollableLimit = trackMapOverlay.getScrollableLimitBox();
-
-                                    LOG.warn("trying to zoom to track bbox");
-
-                                            LOG.warn("bbox " + bbox);
-                                            style.addSource(trackMapOverlay.getGeoJsonSource());
-                                            style.addLayer(trackMapOverlay.getLineLayer());
-                                            // Set the computed parameters on the main thread.
-                                            mapboxMap.setLatLngBoundsForCameraTarget(bbox);
-                                            LOG.warn("scrollable limit " + scrollableLimit.toString());
-                                            mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50), 400);
-                                            LOG.warn("zooming to " + viewBbox.toString());
-                                        }
-                                    });
-                                    return null;
-                                }
-                            }.execute();
+                            final LatLngBounds bbox = trackMapOverlay.getTrackBoundingBox();
+                            final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
+                            final LatLngBounds scrollableLimit = trackMapOverlay.getScrollableLimitBox();
+                            if(style.removeSource("base-source")){
+                                style.addSource(trackMapOverlay.getGeoJsonSource());
+                            }
+                            if(style.removeLayer("base-layer")){
+                                style.addLayer(trackMapOverlay.getLineLayer());
+                            }
+                            mapboxMap.setLatLngBoundsForCameraTarget(bbox);
+                            LOG.warn("trying to zoom to viewbox");
+                            LOG.warn("viewbox " + viewBbox);
+                            mapboxMap.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
                         }
                     }
                 });
