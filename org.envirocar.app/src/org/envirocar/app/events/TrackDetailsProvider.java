@@ -22,7 +22,6 @@ import android.content.Context;
 import android.location.Location;
 import android.os.SystemClock;
 
-import com.mapbox.mapboxsdk.Mapbox;
 import com.squareup.otto.Bus;
 import com.squareup.otto.Produce;
 import com.squareup.otto.Subscribe;
@@ -71,7 +70,6 @@ public class TrackDetailsProvider {
      */
     public TrackDetailsProvider(Bus bus, Context context) {
         this.mBus = bus;
-        //Mapbox.getInstance(context, "");
         // we do not need to register on the bus!
     }
 

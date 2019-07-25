@@ -33,7 +33,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.mapbox.mapboxsdk.Mapbox;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.R;
@@ -114,7 +113,6 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Mapbox.getInstance(Mapbox.getApplicationContext(), "");
         setContentView(R.layout.activity_obdplus_gpstrack_recording_screen);
         //if the track recording service is stopped then finish this activity and goback to bottombar main activity
         if(GPSOnlyRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STOPPED){

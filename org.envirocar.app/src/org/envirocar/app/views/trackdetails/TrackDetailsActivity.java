@@ -46,19 +46,12 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.Point;
-//import com.mapbox.mapboxsdk.geometry.BoundingBox;
-import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
-import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.TileSet;
 
 import org.envirocar.app.R;
@@ -176,7 +169,6 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         super.onCreate(savedInstanceState);
         initActivityTransition();
         setContentView(R.layout.activity_track_details_layout);
-        Mapbox.getInstance(TrackDetailsActivity.this, "");
         // Inject all annotated views.
         ButterKnife.bind(this);
         mMapView.onCreate(savedInstanceState);
@@ -336,8 +328,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     private void expandMapView(Track track){
         TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-        mapboxMapExpanded.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
-
+        //mapboxMapExpanded.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
         animateShowView(mMapViewExpandedContainer,R.anim.translate_slide_in_top_fragment);
         animateHideView(mAppBarLayout,R.anim.translate_slide_out_top_fragment);
         animateHideView(mNestedScrollView,R.anim.translate_slide_out_bottom);

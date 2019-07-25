@@ -50,7 +50,6 @@ import androidx.core.app.ActivityCompat;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.material.snackbar.Snackbar;
-import com.mapbox.mapboxsdk.Mapbox;
 import com.squareup.otto.Subscribe;
 
 import org.envirocar.app.BuildConfig;
@@ -359,7 +358,6 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
     @OnClick(R.id.fragment_startup_start_button)
     public void onStartStopButtonClicked() {
-        //Mapbox.getInstance(context, "");
         switch (trackType) {
             case 1:
                 if (OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED) {

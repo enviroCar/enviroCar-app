@@ -33,7 +33,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.github.jorgecastilloprz.FABProgressCircle;
-import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;

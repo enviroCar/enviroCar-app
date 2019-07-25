@@ -28,8 +28,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.mapbox.mapboxsdk.Mapbox;
-
 import org.envirocar.app.main.BaseApplication;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.main.MainActivityComponent;
@@ -61,7 +59,6 @@ public class TrackListPagerFragment extends BaseInjectorFragment {
             savedInstanceState) {
         LOG.info("onCreateView()");
         View content = inflater.inflate(R.layout.fragment_tracklist_layout, container, false);
-        Mapbox.getInstance(getContext(), "");
         ButterKnife.bind(this, content);
 
         trackListPageAdapter = new TrackListPagerAdapter(getFragmentManager());

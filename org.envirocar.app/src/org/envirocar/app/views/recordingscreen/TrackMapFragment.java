@@ -33,7 +33,6 @@ import android.widget.Toast;
 import com.mapbox.android.core.location.LocationEngineRequest;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
-import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
@@ -125,8 +124,10 @@ public class TrackMapFragment extends BaseInjectorFragment implements
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         TrackMapFragment.this.mapboxMap = mapboxMap;
         TileSet layer = MapUtils.getOSMTileLayer();
+        mapboxMap.getUiSettings().setLogoEnabled(false);
+        mapboxMap.getUiSettings().setAttributionEnabled(false);
         mapboxMap.setMaxZoomPreference(layer.getMaxZoom());
-        mapboxMap.setMinZoomPreference(layer.getMinZoom());
+        mapboxMap.setMinZoomPreference(14);
         mapboxMap.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "),
                 new Style.OnStyleLoaded() {
                     @Override
@@ -346,7 +347,7 @@ public class TrackMapFragment extends BaseInjectorFragment implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mMapView.onDestroy();
+        //mMapView.onDestroy();
     }
 
     @Override
