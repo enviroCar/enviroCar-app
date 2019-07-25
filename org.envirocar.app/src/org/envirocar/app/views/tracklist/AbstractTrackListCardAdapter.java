@@ -42,6 +42,7 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.sources.TileSet;
 
 import org.envirocar.app.R;
+import org.envirocar.app.views.trackdetails.MapLayer;
 import org.envirocar.app.views.trackdetails.TrackSpeedMapOverlay;
 import org.envirocar.app.views.utils.MapUtils;
 import org.envirocar.core.entity.Track;
@@ -102,6 +103,11 @@ public abstract class AbstractTrackListCardAdapter<E extends
     @Override
     public int getItemCount() {
         return mTrackDataset.size();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return mTrackDataset.get(position).getTrackID().getId();
     }
 
     /**

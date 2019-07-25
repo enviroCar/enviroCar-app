@@ -81,6 +81,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
 
             mProgressView.setVisibility(View.INVISIBLE);
             mRecyclerView.setVisibility(View.GONE);
+            mRecyclerViewAdapter.setHasStableIds(true);
             mRecyclerViewAdapter.mTrackDataset.clear();
             mRecyclerViewAdapter.notifyDataSetChanged();
         }
