@@ -281,14 +281,18 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
                     }
                 });
-                tep.setLatLngBoundsForCameraTarget(scrollableLimit);
                 tep.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
                 mapboxMap = tep;
                 mapboxMap.setMaxZoomPreference(layer.getMaxZoom());
                 mapboxMap.setMinZoomPreference(layer.getMinZoom());
             }
         });
+    }
 
+    //function which expands the mapview
+    private void expandMapView(Track track){
+        TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
+        final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
         mMapViewExpanded.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(@NonNull MapboxMap mapboxMap1) {
@@ -297,38 +301,19 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 mapboxMap1.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
-                        style.addSource(trackMapOverlay.getGeoJsonSource());
-                        style.addLayer(trackMapOverlay.getLineLayer());
+                        if(style.removeSource(MapLayer.SOURCE_NAME))
+                            style.addSource(trackMapOverlay.getGeoJsonSource());
+                        if(style.removeLayer(MapLayer.LAYER_NAME))
+                            style.addLayer(trackMapOverlay.getLineLayer());
                     }
                 });
-                mapboxMap1.setLatLngBoundsForCameraTarget(scrollableLimit);
                 mapboxMap1.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
                 mapboxMapExpanded = mapboxMap1;
-                mapboxMapExpanded.setMaxZoomPreference(layer.getMaxZoom());
-                mapboxMapExpanded.setMinZoomPreference(layer.getMinZoom());
+                mapboxMapExpanded.setMaxZoomPreference(18);
+                mapboxMapExpanded.setMinZoomPreference(1);
             }
         });
-        /*
-        // Set the openstreetmap tile layer as baselayer of the map.
-        WebSourceTileLayer source = MapUtils.getOSMTileLayer();
-        mMapView.setTileSource(source);
-        mMapViewExpanded.setTileSource(source);
 
-        // set the bounding box and min and max zoom level accordingly.
-        BoundingBox box = source.getBoundingBox();
-        mMapView.setScrollableAreaLimit(box);
-        mMapView.setMinZoomLevel(mMapView.getTileProvider().getMinimumZoomLevel());
-        mMapView.setMaxZoomLevel(mMapView.getTileProvider().getMaximumZoomLevel());
-        mMapView.setCenter(mMapView.getTileProvider().getCenterCoordinate());
-        mMapView.setZoom(0);
-        */
-    }
-
-    //function which expands the mapview
-    private void expandMapView(Track track){
-        TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
-        final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-        //mapboxMapExpanded.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
         animateShowView(mMapViewExpandedContainer,R.anim.translate_slide_in_top_fragment);
         animateHideView(mAppBarLayout,R.anim.translate_slide_out_top_fragment);
         animateHideView(mNestedScrollView,R.anim.translate_slide_out_bottom);

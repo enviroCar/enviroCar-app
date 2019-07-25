@@ -248,11 +248,10 @@ public abstract class AbstractTrackListCardAdapter<E extends
                         if (track.getMeasurements().size() > 0) {
                             final LatLngBounds bbox = trackMapOverlay.getTrackBoundingBox();
                             final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-                            final LatLngBounds scrollableLimit = trackMapOverlay.getScrollableLimitBox();
-                            if(style.removeSource("base-source")){
+                            if(style.removeSource(MapLayer.SOURCE_NAME)){
                                 style.addSource(trackMapOverlay.getGeoJsonSource());
                             }
-                            if(style.removeLayer("base-layer")){
+                            if(style.removeLayer(MapLayer.LAYER_NAME)){
                                 style.addLayer(trackMapOverlay.getLineLayer());
                             }
                             mapboxMap.setLatLngBoundsForCameraTarget(bbox);
@@ -262,9 +261,6 @@ public abstract class AbstractTrackListCardAdapter<E extends
                         }
                     }
                 });
-
-                //mapboxMap.setMaxZoomPreference(layer.getMaxZoom());
-                //mapboxMap.setMinZoomPreference(10);
 
             }
         });

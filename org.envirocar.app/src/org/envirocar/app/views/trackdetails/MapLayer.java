@@ -17,6 +17,11 @@ import java.util.ArrayList;
 
 public class MapLayer {
     private static final Logger LOG = Logger.getLogger(MapLayer.class);
+
+
+    public static final String SOURCE_NAME = "base-source";
+    public static final String LAYER_NAME = "base-layer";
+
     protected LineLayer lineLayer;
     protected GeoJsonSource geoJsonSource;
 
@@ -24,11 +29,11 @@ public class MapLayer {
     protected ArrayList<LatLng> latLngs = new ArrayList<>();
 
     public MapLayer(){
-        geoJsonSource = new GeoJsonSource("base-source", FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
+
+        geoJsonSource = new GeoJsonSource(SOURCE_NAME, FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
                 LineString.fromLngLats(mPoints)
         )}));
-        lineLayer = new LineLayer("base-layer", "base-source");
-        lineLayer.withProperties(PropertyFactory.lineColor(Color.parseColor("#99DAF2")),
+        lineLayer = new LineLayer(LAYER_NAME, SOURCE_NAME).withProperties(PropertyFactory.lineColor(Color.parseColor("#99DAF2")),
                 PropertyFactory.lineWidth(4f));
     }
 
