@@ -68,12 +68,12 @@ import rx.android.schedulers.AndroidSchedulers;
 /**
  * @author dewall
  */
-public class TrackMapFragment extends BaseInjectorFragment implements
-        OnMapReadyCallback, PermissionsListener {
+public class TrackMapFragment extends BaseInjectorFragment implements PermissionsListener {
     private static final Logger LOG = Logger.getLogger(TrackMapFragment.class);
 
     private PermissionsManager permissionsManager;
     private MapboxMap mapboxMap;
+    private Style mapStyle;
     private LocationComponent locationComponent;
     @BindView(R.id.fragment_dashboard_frag_map_mapview)
     protected MapView mMapView;
@@ -102,39 +102,32 @@ public class TrackMapFragment extends BaseInjectorFragment implements
         // Init the map view
         mMapView.onCreate(savedInstanceState);
 
-        mMapView.getMapAsync(this);
-        //mMapView.setTileSource(MapUtils.getOSMTileLayer());
-        //mMapView.setUserLocationEnabled(true);
-        //mMapView.setUserLocationTrackingMode(UserLocationOverlay.TrackingMode.FOLLOW_BEARING);
-        //mMapView.setUserLocationRequiredZoom(18);
+        mMapView.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(@NonNull MapboxMap mapbox) {
+                mapboxMap = mapbox;
+                mapbox.getUiSettings().setLogoEnabled(false);
+                mapbox.getUiSettings().setAttributionEnabled(false);
+                mapbox.setMinZoomPreference(18);
+                mapbox.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "),
+                        new Style.OnStyleLoaded() {
+                            @Override
+                            public void onStyleLoaded(@NonNull Style style) {
+                                enableLocationComponent(style);
+                                mapStyle = style;
+                                // If the mPathOverlay has already been set, then add the overlay to the mapview.
+                                if (mPathOverlay != null) {
+                                    mapStyle.addSource(mPathOverlay.getGeoJsonSource());
+                                    mapStyle.addLayer(mPathOverlay.getLineLayer());
+                                }
+                            }
+                        });
+            }
+        });
         mIsFollowingLocation = true;
         mFollowFab.setVisibility(View.INVISIBLE);
 
-
-        // If the mPathOverlay has already been set, then add the overlay to the mapview.
-        if (mPathOverlay != null) {
-            mapboxMap.getStyle().addSource(mPathOverlay.getGeoJsonSource());
-            mapboxMap.getStyle().addLayer(mPathOverlay.getLineLayer());
-        }
-
         return contentView;
-    }
-
-    @Override
-    public void onMapReady(@NonNull final MapboxMap mapboxMap) {
-        TrackMapFragment.this.mapboxMap = mapboxMap;
-        TileSet layer = MapUtils.getOSMTileLayer();
-        mapboxMap.getUiSettings().setLogoEnabled(false);
-        mapboxMap.getUiSettings().setAttributionEnabled(false);
-        mapboxMap.setMaxZoomPreference(layer.getMaxZoom());
-        mapboxMap.setMinZoomPreference(14);
-        mapboxMap.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "),
-                new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        enableLocationComponent(style);
-                    }
-                });
     }
 
     private void setCameraTrackingMode(@CameraMode.Mode int mode) {
@@ -180,9 +173,6 @@ public class TrackMapFragment extends BaseInjectorFragment implements
     @OnClick(R.id.fragment_dashboard_frag_map_follow_fab)
     protected void onClickFollowFab() {
         if (!mIsFollowingLocation) {
-            //UserLocationOverlay userLocationOverlay = mMapView.getUserLocationOverlay();
-            //userLocationOverlay.enableFollowLocation();
-            //userLocationOverlay.goToMyPosition(true); // animated is not working... don't know why
             setCameraTrackingMode(CameraMode.TRACKING_GPS);
             mIsFollowingLocation = true;
 
@@ -238,13 +228,16 @@ public class TrackMapFragment extends BaseInjectorFragment implements
         mMainThreadWorker.schedule(() -> {
             mPathOverlay = event.mTrackOverlay;
             if (mMapView != null) {
-/*                mapboxMap.getStyle(new Style.OnStyleLoaded() {
-                    @Override
-                    public void onStyleLoaded(@NonNull Style style) {
-                        style.addSource(mPathOverlay.getGeoJsonSource());
-                        style.addLayer(mPathOverlay.getLineLayer());
+                if(mapStyle!=null){
+                    if(mapStyle.removeSource(MapLayer.SOURCE_NAME))
+                    {
+                        mapStyle.addSource(mPathOverlay.getGeoJsonSource());
                     }
-                });*/
+                    if(mapStyle.removeLayer(MapLayer.LAYER_NAME))
+                    {
+                        mapStyle.addLayer(mPathOverlay.getLineLayer());
+                    }
+                }
             }
         });
     }
@@ -347,7 +340,13 @@ public class TrackMapFragment extends BaseInjectorFragment implements
     @Override
     public void onDestroy() {
         super.onDestroy();
-        //mMapView.onDestroy();
+        if(mMapView!=null){
+            LOG.info("mMapView is not null. onDestroy() called.");
+            mMapView.onDestroy();
+        } else{
+            LOG.info("mMapView is null. onDestroy() wasn't called.");
+        }
+
     }
 
     @Override
