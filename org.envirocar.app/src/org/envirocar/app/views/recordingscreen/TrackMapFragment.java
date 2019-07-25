@@ -96,7 +96,7 @@ public class TrackMapFragment extends BaseInjectorFragment implements
 
         // First inflate the general dashboard view.
         View contentView = inflater.inflate(R.layout.fragment_track_map, container, false);
-        Mapbox.getInstance(Mapbox.getApplicationContext(), "");
+
         // Inject all dashboard-related views.
         ButterKnife.bind(this, contentView);
 
@@ -237,13 +237,13 @@ public class TrackMapFragment extends BaseInjectorFragment implements
         mMainThreadWorker.schedule(() -> {
             mPathOverlay = event.mTrackOverlay;
             if (mMapView != null) {
-                mapboxMap.getStyle(new Style.OnStyleLoaded() {
+/*                mapboxMap.getStyle(new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
                         style.addSource(mPathOverlay.getGeoJsonSource());
                         style.addLayer(mPathOverlay.getLineLayer());
                     }
-                });
+                });*/
             }
         });
     }
