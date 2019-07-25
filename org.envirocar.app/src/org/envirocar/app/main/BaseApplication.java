@@ -33,6 +33,8 @@ import android.preference.PreferenceManager;
 
 import androidx.multidex.MultiDexApplication;
 
+import com.mapbox.mapboxsdk.Mapbox;
+
 import org.acra.*;
 import org.acra.annotation.*;
 import org.envirocar.app.handler.PreferenceConstants;
@@ -93,6 +95,8 @@ public class BaseApplication extends MultiDexApplication {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        Mapbox.getInstance(this, "");
 
         baseApplicationComponent =
                 DaggerBaseApplicationComponent
