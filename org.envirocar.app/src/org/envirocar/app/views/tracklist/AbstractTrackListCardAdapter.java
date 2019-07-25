@@ -33,6 +33,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.github.jorgecastilloprz.FABProgressCircle;
+import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
 import com.mapbox.mapboxsdk.maps.MapView;
@@ -226,13 +227,15 @@ public abstract class AbstractTrackListCardAdapter<E extends
             @Override
             public void onMapReady(@NonNull MapboxMap mapboxMap) {
                 holder.mapboxMap = mapboxMap;
+                mapboxMap.clear();
                 LOG.info("onMapReady()");
                 mapboxMap.getUiSettings().setLogoEnabled(false);
                 mapboxMap.getUiSettings().setAttributionEnabled(false);
                 TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
                 TileSet layer = MapUtils.getOSMTileLayer();
-                mapboxMap.clear();
-                mapboxMap.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
+                mapboxMap.setStyle(
+                        new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c ")
+                        , new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
                         LOG.info("onStyleLoaded() with ");

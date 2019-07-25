@@ -119,7 +119,7 @@ public class OBDPlusGPSTrackRecordingScreen extends BaseInjectorActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_obdplus_gpstrack_recording_screen);
 
-        Mapbox.getInstance(OBDPlusGPSTrackRecordingScreen.this, "");
+        //Mapbox.getInstance(OBDPlusGPSTrackRecordingScreen.this, "");
         //if the track recording service is stopped then finish this activity and goback to bottombar main activity
         if(OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STOPPED){
             startActivity(new Intent(OBDPlusGPSTrackRecordingScreen.this, BaseMainActivityBottomBar.class));

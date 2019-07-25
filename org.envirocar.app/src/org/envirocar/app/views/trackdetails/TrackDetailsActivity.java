@@ -102,9 +102,10 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     public static void navigate(Activity activity, View transition, int trackID) {
         Intent intent = new Intent(activity, TrackDetailsActivity.class);
         intent.putExtra(EXTRA_TRACKID, trackID);
+        ActivityOptionsCompat options = ActivityOptionsCompat
+                .makeSceneTransitionAnimation(activity, transition, "transition_track_details");
+                //.makeBasic();
 
-        ActivityOptionsCompat options = ActivityOptionsCompat.
-                makeSceneTransitionAnimation(activity, transition, "transition_track_details");
         ActivityCompat.startActivity(activity, intent, options.toBundle());
     }
 
@@ -175,10 +176,11 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         super.onCreate(savedInstanceState);
         initActivityTransition();
         setContentView(R.layout.activity_track_details_layout);
-
+        Mapbox.getInstance(TrackDetailsActivity.this, "");
         // Inject all annotated views.
         ButterKnife.bind(this);
-        Mapbox.getInstance(TrackDetailsActivity.this, "");
+        mMapView.onCreate(savedInstanceState);
+        mMapViewExpanded.onCreate(savedInstanceState);
         supportPostponeEnterTransition();
 
         // Set the toolbar as default actionbar.
@@ -288,7 +290,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                     }
                 });
                 tep.setLatLngBoundsForCameraTarget(scrollableLimit);
-                mapboxMap.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
+                tep.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
                 mapboxMap = tep;
                 mapboxMap.setMaxZoomPreference(layer.getMaxZoom());
                 mapboxMap.setMinZoomPreference(layer.getMinZoom());
@@ -297,10 +299,10 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
         mMapViewExpanded.getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onMapReady(@NonNull MapboxMap tep) {
-                tep.getUiSettings().setLogoEnabled(false);
-                tep.getUiSettings().setAttributionEnabled(false);
-                tep.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
+            public void onMapReady(@NonNull MapboxMap mapboxMap1) {
+                mapboxMap1.getUiSettings().setLogoEnabled(false);
+                mapboxMap1.getUiSettings().setAttributionEnabled(false);
+                mapboxMap1.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
                         style.addSource(trackMapOverlay.getGeoJsonSource());
@@ -308,7 +310,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                     }
                 });
                 mapboxMap1.setLatLngBoundsForCameraTarget(scrollableLimit);
-                mapboxMap.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
+                mapboxMap1.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
                 mapboxMapExpanded = mapboxMap1;
                 mapboxMapExpanded.setMaxZoomPreference(layer.getMaxZoom());
                 mapboxMapExpanded.setMinZoomPreference(layer.getMinZoom());
@@ -334,7 +336,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     private void expandMapView(Track track){
         TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-        mapboxMap.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
+        mapboxMapExpanded.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
 
         animateShowView(mMapViewExpandedContainer,R.anim.translate_slide_in_top_fragment);
         animateHideView(mAppBarLayout,R.anim.translate_slide_out_top_fragment);

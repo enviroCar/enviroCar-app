@@ -63,7 +63,7 @@ public abstract class AbstractRecordingService extends BaseInjectorService {
     public void onCreate() {
         LOG.info("onCreate()");
         super.onCreate();
-        Mapbox.getInstance(getApplicationContext(), "");
+        //Mapbox.getInstance(getApplicationContext(), "");
 
 
         this.eventBusReceivers.add(this);

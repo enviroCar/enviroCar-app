@@ -114,7 +114,7 @@ public class GPSOnlyTrackRecordingScreen extends BaseInjectorActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Mapbox.getInstance(Mapbox.getApplicationContext(), "");
+        //Mapbox.getInstance(Mapbox.getApplicationContext(), "");
         setContentView(R.layout.activity_obdplus_gpstrack_recording_screen);
         //if the track recording service is stopped then finish this activity and goback to bottombar main activity
         if(GPSOnlyRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STOPPED){

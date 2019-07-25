@@ -359,7 +359,7 @@ public class DashBoardFragment extends BaseInjectorFragment {
 
     @OnClick(R.id.fragment_startup_start_button)
     public void onStartStopButtonClicked() {
-        Mapbox.getInstance(context, "");
+        //Mapbox.getInstance(context, "");
         switch (trackType) {
             case 1:
                 if (OBDRecordingService.CURRENT_SERVICE_STATE == BluetoothServiceState.SERVICE_STARTED) {

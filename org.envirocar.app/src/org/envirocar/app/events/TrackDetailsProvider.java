@@ -71,7 +71,7 @@ public class TrackDetailsProvider {
      */
     public TrackDetailsProvider(Bus bus, Context context) {
         this.mBus = bus;
-        Mapbox.getInstance(context, "");
+        //Mapbox.getInstance(context, "");
         // we do not need to register on the bus!
     }
 
