@@ -52,10 +52,14 @@ public class MapLayer {
         return lineLayer;
     }
 
-    public GeoJsonSource getGeoJsonSource() {
-        geoJsonSource = new GeoJsonSource("base-source", FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
+    public void setGeoJsonSource() {
+        this.geoJsonSource = new GeoJsonSource(SOURCE_NAME, FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
                 LineString.fromLngLats(mPoints)
         )}));
+    }
+
+    public GeoJsonSource getGeoJsonSource() {
+        setGeoJsonSource();
         return geoJsonSource;
     }
 }

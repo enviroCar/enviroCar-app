@@ -76,6 +76,7 @@ public class TrackSpeedMapOverlay extends MapLayer{
             }
             addPoint(latitude, longitude);
         }
+        setGeoJsonSource();
         setBoundingBoxes();
     }
 

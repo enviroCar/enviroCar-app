@@ -45,6 +45,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
@@ -75,6 +76,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 import javax.inject.Inject;
@@ -82,6 +84,8 @@ import javax.inject.Inject;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import rx.schedulers.Schedulers;
+
+import static androidx.constraintlayout.widget.ConstraintSet.GONE;
 
 /**
  * @author dewall
@@ -96,8 +100,8 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         Intent intent = new Intent(activity, TrackDetailsActivity.class);
         intent.putExtra(EXTRA_TRACKID, trackID);
         ActivityOptionsCompat options = ActivityOptionsCompat
-                .makeSceneTransitionAnimation(activity, transition, "transition_track_details");
-                //.makeBasic();
+                //.makeSceneTransitionAnimation(activity, transition, "transition_track_details");
+                .makeBasic();
 
         ActivityCompat.startActivity(activity, intent, options.toBundle());
     }
@@ -114,6 +118,8 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
     @Inject
     protected EnviroCarDB mEnvirocarDB;
+
+    TrackSpeedMapOverlay trackMapOverlay;
 
     @BindView(R.id.activity_track_details_fab)
     protected FloatingActionButton mFAB;
@@ -188,6 +194,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 .toBlocking()
                 .first();
 
+        trackMapOverlay = new TrackSpeedMapOverlay(track);
         String itemTitle = track.getName();
         CollapsingToolbarLayout collapsingToolbarLayout = findViewById
                 (R.id.collapsing_toolbar);
@@ -201,8 +208,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         title.setText(itemTitle);
 
         // Initialize the mapview and the trackpath
-        initMapView(track);
-        //initTrackPath(track);
+        initMapView();
         initViewValues(track);
 
         updateStatusBarColor();
@@ -214,7 +220,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         //closing the expanded mapview on "cancel" button clicked
         mMapViewExpandedCancel.setOnClickListener(v-> closeExpandedMapView());
         //expanding the expandable mapview on clicking the framelayout which is surrounded by header map view in collapsingtoolbarlayout
-        mMapViewContainer.setOnClickListener(v-> expandMapView(track));
+        mMapViewContainer.setOnClickListener(v-> expandMapView());
     }
 
     private void updateStatusBarColor() {
@@ -262,10 +268,8 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     /**
      * Initializes the MapView, its base layers and settings.
      */
-    private void initMapView(Track track) {
-        TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
+    private void initMapView() {
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-        final LatLngBounds scrollableLimit = trackMapOverlay.getScrollableLimitBox();
         TileSet layer = MapUtils.getOSMTileLayer();
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
@@ -290,8 +294,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     }
 
     //function which expands the mapview
-    private void expandMapView(Track track){
-        TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
+    private void expandMapView(){
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
         mMapViewExpanded.getMapAsync(new OnMapReadyCallback() {
             @Override
@@ -322,10 +325,17 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
     //function which closes the expanded mapview
     private void closeExpandedMapView(){
-        animateHideView(mMapViewExpandedContainer,R.anim.translate_slide_out_top_fragment);
+        final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
+        mapboxMapExpanded.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50),2000);
+        mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50),2000);
+        mMapViewExpandedContainer.setVisibility(View.GONE);
+        mAppBarLayout.setVisibility(View.VISIBLE);
+        mNestedScrollView.setVisibility(View.VISIBLE);
+        mFAB.setVisibility(View.VISIBLE);
+        /*animateHideView(mMapViewExpandedContainer,R.anim.translate_slide_out_top_fragment);
         animateShowView(mAppBarLayout,R.anim.translate_slide_in_top_fragment);
         animateShowView(mNestedScrollView,R.anim.translate_slide_in_bottom_fragment);
-        animateShowView(mFAB,R.anim.fade_in);
+        animateShowView(mFAB,R.anim.fade_in);*/
     }
 
     //general function to animate the view and hide it
