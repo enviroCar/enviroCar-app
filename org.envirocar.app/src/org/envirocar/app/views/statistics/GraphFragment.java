@@ -2,7 +2,6 @@ package org.envirocar.app.views.statistics;
 
 import android.app.DatePickerDialog;
 import android.graphics.Color;
-import android.icu.text.DecimalFormat;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,23 +20,21 @@ import com.db.chart.animation.Animation;
 import com.db.chart.model.LineSet;
 import com.db.chart.renderer.AxisRenderer;
 import com.db.chart.view.LineChartView;
-import com.google.android.material.snackbar.Snackbar;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.main.MainActivityComponent;
 import org.envirocar.app.main.MainActivityModule;
+import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.TrackStatistics;
 import org.envirocar.core.exception.NotConnectedException;
 import org.envirocar.core.exception.UnauthorizedException;
 import org.envirocar.core.logging.Logger;
-import org.envirocar.core.trackprocessing.TrackStatisticsProvider;
 import org.envirocar.storage.EnviroCarDB;
 
 import java.text.SimpleDateFormat;
@@ -54,6 +51,14 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import lecho.lib.hellocharts.formatter.SimpleAxisValueFormatter;
+import lecho.lib.hellocharts.gesture.ZoomType;
+import lecho.lib.hellocharts.model.Axis;
+import lecho.lib.hellocharts.model.AxisValue;
+import lecho.lib.hellocharts.model.Line;
+import lecho.lib.hellocharts.model.LineChartData;
+import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.model.Viewport;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -97,7 +102,12 @@ public class GraphFragment extends BaseInjectorFragment {
     @BindView(R.id.arrow_right)
     protected ImageButton arrowRight;
 
+    @BindView(R.id.chart)
+    protected lecho.lib.hellocharts.view.LineChartView mChart;
+
     protected List<String> labels;
+    protected List<String> labelsX;
+    protected List<String> labelsY;
     protected ArrayList<Float> values;
     protected ArrayList<Float> noOfTracks;
     protected LineSet dataset;
@@ -108,6 +118,10 @@ public class GraphFragment extends BaseInjectorFragment {
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private Unbinder unbinder;
     private ChoiceViewModel choiceViewModel;
+
+    private LineChartData mChartData;
+    List<PointValue> valuesHello = new ArrayList<>();
+    List<AxisValue> labelsHello = new ArrayList<>();
 
     public static Fragment getInstance(int position) {
         Bundle bundle = new Bundle();
@@ -173,6 +187,7 @@ public class GraphFragment extends BaseInjectorFragment {
 
     public void setZeros()
     {
+        valuesHello.clear();
         int n;
         if(position == 0)
             n=7;
@@ -180,16 +195,21 @@ public class GraphFragment extends BaseInjectorFragment {
             n=31;
         else
             n=12;
+        for(int i=0; i<n; ++i)
+            valuesHello.add(new PointValue(i,0));
         values = new ArrayList<Float>(Collections.nCopies(n, 0f));
         noOfTracks = new ArrayList<Float>(Collections.nCopies(n, 0f));
     }
 
     public void setLabels()
     {
+        labelsHello.clear();
         String weekdays[] = {"Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat"};
         String months[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul",
                 "Aug", "Sep", "Oct", "Nov", "Dec"};
         labels = new ArrayList<>();
+        String x[] = {"Days", "Months", "Years"};
+        String y[] = {"Days", "Months", "Years"};
         if(position == 0)
             labels = Arrays.asList(weekdays);
         else if(position == 1)
@@ -197,7 +217,10 @@ public class GraphFragment extends BaseInjectorFragment {
                 labels.add(i+"");
         else
             labels = Arrays.asList(months);
-
+        for(int i = 0; i<labels.size(); ++i){
+            labelsHello.add(new AxisValue(i).setLabel(labels.get(i)));
+        }
+        labelsX = Arrays.asList(x);
     }
 
     public float[] convertArrayList()
@@ -320,10 +343,16 @@ public class GraphFragment extends BaseInjectorFragment {
                             index = t.getDate() - 1;
                         else
                             index = t.getMonth();
+
                         if (choice == 0)
+                        {
                             values.set(index, values.get(index) + 1);
+
+                        }
                         else if (choice == 1)
+                        {
                             values.set(index, values.get(index) + temp.getLength());
+                        }
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -390,7 +419,6 @@ public class GraphFragment extends BaseInjectorFragment {
                     @Override
                     public void onNext(TrackStatistics trackStatistics) {
                         mTrackStatistics = trackStatistics;
-                        values.set(index, values.get(index) + getTrackStatData());
                         noOfTracks.set(index, noOfTracks.get(index) + 1);
 
                         LOG.info("Statistics load with " + getTrackStatData());
@@ -405,7 +433,7 @@ public class GraphFragment extends BaseInjectorFragment {
                             for (int i = 0; i < values.size(); ++i) {
                                 if (values.get(i) != 0)
                                     values.set(i, values.get(i) / noOfTracks.get(i));
-                            }
+                                }
 
                             setGraphOptionsAndShow();
                         }
@@ -419,6 +447,7 @@ public class GraphFragment extends BaseInjectorFragment {
 
     public void setGraphOptionsAndShow()
     {
+        mChart.cancelDataAnimation();
         dataset = new LineSet(labels.toArray(new String[0]), convertArrayList());
         dataset.setColor(Color.parseColor("#800065A0"));
         dataset.setDotsRadius(10f);
@@ -440,7 +469,60 @@ public class GraphFragment extends BaseInjectorFragment {
             lineChartView.setXLabels(AxisRenderer.LabelPosition.NONE);
         lineChartView.setAxisLabelsSpacing(30);
         lineChartView.show(animation);
+
+        Line line = new Line(valuesHello);
+        line.setColor(getResources().getColor(R.color.green_dark_cario)).setCubic(true);
+
+        List<Line> lines = new ArrayList<>();
+        lines.add(line);
+        int i = 0;
+        for(PointValue value : line.getValues()){
+            value.setTarget(value.getX(), values.get(i));
+            i++;
+        }
+        mChartData = new LineChartData(lines);
+        mChartData.setAxisXBottom(new Axis(labelsHello).setHasLines(true));
+        mChartData.setAxisYLeft(new Axis());
+        //mChartData.setAxisYLeft(new Axis().setHasLines(true));
+        //setXAxis(mChartData);
+        setYAxis(mChartData);
+
+        // Set the data in the charts.
+        mChart.setLineChartData(mChartData);
+        mChart.startDataAnimation(300);
+        // For build-up animation you have to disable viewport recalculation.
+        mChart.setViewportCalculationEnabled(false);
+
+        // And set initial max viewport and current viewport- remember to set viewports after data.
+        Viewport v = new Viewport(0, 110, 6, 0);
+        mChart.setMaximumViewport(v);
+        mChart.setCurrentViewport(v);
+
+        mChart.setZoomType(ZoomType.HORIZONTAL);
     }
+
+    private void setXAxis(LineChartData data) {
+        Axis distAxis = new Axis();
+        distAxis.setName(labelsX.get(position));
+        distAxis.setTextColor(getResources().getColor(R.color.blue_dark_cario));
+        distAxis.setMaxLabelChars(5);
+        distAxis.setFormatter(new SimpleAxisValueFormatter()
+                .setAppendedText("km".toCharArray()));
+        distAxis.setHasLines(true);
+        distAxis.setHasTiltedLabels(true);
+        distAxis.setTextSize(10);
+        distAxis.setHasSeparationLine(false);
+        data.setAxisXBottom(distAxis);
+    }
+
+    private void setYAxis(LineChartData data) {
+        Float start = Collections.min(values);
+        Float end = Collections.max(values);
+        Float step = ( end - start ) / 4.0f;
+        Axis yAxis = Axis.generateAxisFromRange(start, end, step);
+        data.setAxisYLeft(yAxis);
+    }
+
 
     @OnClick(R.id.dateButton)
     public void setDate()

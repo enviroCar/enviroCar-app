@@ -53,6 +53,15 @@
 
     </com.db.chart.view.LineChartView>
 
+    <lecho.lib.hellocharts.view.LineChartView
+        android:id="@+id/chart"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/stat_line_graph" />
+
     <ImageView
         android:id="@+id/no_stats_img"
         android:layout_width="80dp"
