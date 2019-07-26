@@ -20,10 +20,7 @@ package org.envirocar.app.views.trackdetails;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
 import com.google.android.material.appbar.AppBarLayout;
@@ -35,8 +32,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.widget.NestedScrollView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.transition.TransitionManager;
+
 import android.transition.Slide;
+import android.view.Gravity;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.animation.Animation;
@@ -45,10 +46,10 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.VideoView;
 
 import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLngBounds;
+import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -76,16 +77,17 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Map;
 import java.util.TimeZone;
 
 import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.OnTouch;
 import rx.schedulers.Schedulers;
 
-import static androidx.constraintlayout.widget.ConstraintSet.GONE;
+import static android.view.View.GONE;
 
 /**
  * @author dewall
@@ -163,8 +165,11 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected RelativeLayout mCo2Container;
     @BindView(R.id.descriptionTv)
     protected TextView descriptionTv;
+    @BindView(R.id.fragment_dashboard_frag_map_follow_fab)
+    protected FloatingActionButton mCentreFab;
 
-    Boolean mp = false, mpE = false, init = false;
+    private boolean mIsCentredOnTrack;
+
     @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         baseApplicationComponent.inject(this);
@@ -206,16 +211,18 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
 
         TextView title = findViewById(R.id.title);
         title.setText(itemTitle);
-
         // Initialize the mapview and the trackpath
         initMapView();
         initViewValues(track);
 
         updateStatusBarColor();
-
+        mIsCentredOnTrack = true;
+        mCentreFab.setVisibility(View.VISIBLE);
         mFAB.setOnClickListener(v -> {
            TrackStatisticsActivity.createInstance(TrackDetailsActivity.this, mTrackID);
         });
+
+
 
         //closing the expanded mapview on "cancel" button clicked
         mMapViewExpandedCancel.setOnClickListener(v-> closeExpandedMapView());
@@ -227,6 +234,27 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             // Set the statusbar to be transparent with a grey touch
             getWindow().setStatusBarColor(Color.parseColor("#3f3f3f3f"));
+        }
+    }
+
+    @OnTouch(R.id.activity_track_details_expanded_map)
+    protected boolean onTouchMapView() {
+        if (mIsCentredOnTrack) {
+            mIsCentredOnTrack = false;
+            TransitionManager.beginDelayedTransition(mMapViewExpandedContainer,new androidx.transition.Slide(Gravity.RIGHT));
+            mCentreFab.setVisibility(View.VISIBLE);
+        }
+        return false;
+    }
+
+    @OnClick(R.id.fragment_dashboard_frag_map_follow_fab)
+    protected void onClickFollowFab() {
+        final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
+        if (!mIsCentredOnTrack) {
+            mIsCentredOnTrack = true;
+            TransitionManager.beginDelayedTransition(mMapViewExpandedContainer,new androidx.transition.Slide(Gravity.LEFT));
+            mCentreFab.setVisibility(View.GONE);
+            mapboxMapExpanded.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50),2500);
         }
     }
 
@@ -328,7 +356,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
         mapboxMapExpanded.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50),2000);
         mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50),2000);
-        mMapViewExpandedContainer.setVisibility(View.GONE);
+        mMapViewExpandedContainer.setVisibility(GONE);
         mAppBarLayout.setVisibility(View.VISIBLE);
         mNestedScrollView.setVisibility(View.VISIBLE);
         mFAB.setVisibility(View.VISIBLE);
@@ -342,7 +370,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     private void animateHideView(View view, int animResource){
        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(),animResource);
        view.startAnimation(animation);
-       view.setVisibility(View.GONE);
+       view.setVisibility(GONE);
     }
 
     //general function to animate and show the view
@@ -369,8 +397,8 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
             // show consumption and emission either when the fuel type of the track's car is
             // gasoline or the beta setting has been enabled.
             if(!track.hasProperty(Measurement.PropertyKey.SPEED)){
-                mConsumptionContainer.setVisibility(View.GONE);
-                mCo2Container.setVisibility(View.GONE);
+                mConsumptionContainer.setVisibility(GONE);
+                mCo2Container.setVisibility(GONE);
                 descriptionTv.setText(R.string.gps_track_details);
             }
             else if (track.getCar().getFuelType() == Car.FuelType.GASOLINE ||
