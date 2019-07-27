@@ -24,7 +24,8 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -35,6 +36,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clickable="false"
+            mapbox:mapbox_renderTextureMode="true"
+            android:background="@android:color/background_light"
             android:transitionName="transition_track_details"/>
 
         <ImageButton

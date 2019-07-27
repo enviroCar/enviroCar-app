@@ -29,12 +29,8 @@ public class MapLayer {
     protected ArrayList<LatLng> latLngs = new ArrayList<>();
 
     public MapLayer(){
-
-        geoJsonSource = new GeoJsonSource(SOURCE_NAME, FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
-                LineString.fromLngLats(mPoints)
-        )}));
-        lineLayer = new LineLayer(LAYER_NAME, SOURCE_NAME).withProperties(PropertyFactory.lineColor(Color.parseColor("#99DAF2")),
-                PropertyFactory.lineWidth(4f));
+        setGeoJsonSource();
+        setLineLayer();
     }
 
 
@@ -49,6 +45,7 @@ public class MapLayer {
     }
 
     public LineLayer getLineLayer() {
+        setLineLayer();
         return lineLayer;
     }
 
@@ -56,6 +53,11 @@ public class MapLayer {
         this.geoJsonSource = new GeoJsonSource(SOURCE_NAME, FeatureCollection.fromFeatures(new Feature[] {Feature.fromGeometry(
                 LineString.fromLngLats(mPoints)
         )}));
+    }
+
+    public void setLineLayer() {
+        lineLayer = new LineLayer(LAYER_NAME, SOURCE_NAME).withSourceLayer(SOURCE_NAME).withProperties(PropertyFactory.lineColor(Color.parseColor("#99DAF2")),
+                PropertyFactory.lineWidth(4f));
     }
 
     public GeoJsonSource getGeoJsonSource() {

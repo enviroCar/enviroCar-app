@@ -344,7 +344,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 mapboxMapExpanded.setMinZoomPreference(1);
             }
         });
-
+        mMapViewExpanded.setVisibility(View.VISIBLE);
         animateShowView(mMapViewExpandedContainer,R.anim.translate_slide_in_top_fragment);
         animateHideView(mAppBarLayout,R.anim.translate_slide_out_top_fragment);
         animateHideView(mNestedScrollView,R.anim.translate_slide_out_bottom);
@@ -354,8 +354,9 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     //function which closes the expanded mapview
     private void closeExpandedMapView(){
         final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-        mapboxMapExpanded.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50),2000);
         mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50),2000);
+        mapboxMapExpanded.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50),2000);
+        mMapViewExpanded.setVisibility(GONE);
         mMapViewExpandedContainer.setVisibility(GONE);
         mAppBarLayout.setVisibility(View.VISIBLE);
         mNestedScrollView.setVisibility(View.VISIBLE);

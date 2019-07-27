@@ -88,6 +88,19 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
     }
 
     @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        mRecyclerViewAdapter.onLowMemory();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mRecyclerViewAdapter.onDestroy();
+    }
+
+    @Override
     public void onDestroyView() {
         LOG.info("onDestroyView()");
         super.onDestroyView();
@@ -147,6 +160,7 @@ public class TrackListRemoteCardFragment extends AbstractTrackListCardFragment<
 
     @Override
     protected void loadDataset() {
+        LOG.info("loadDataset()");
         // Do not load the dataset twice.
         if (mUserManager.isLoggedIn() && !tracksLoaded) {
             tracksLoaded = true;

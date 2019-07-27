@@ -17,11 +17,6 @@
  * with the enviroCar app. If not, see http://www.gnu.org/licenses/.
  */
 package org.envirocar.app.views.tracklist;
-
-import android.content.res.Resources;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.os.AsyncTask;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -42,7 +37,6 @@ import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.sources.TileSet;
 
 import org.envirocar.app.R;
-import org.envirocar.app.views.trackdetails.MapLayer;
 import org.envirocar.app.views.trackdetails.TrackSpeedMapOverlay;
 import org.envirocar.app.views.utils.MapUtils;
 import org.envirocar.core.entity.Track;
@@ -228,55 +222,45 @@ public abstract class AbstractTrackListCardAdapter<E extends
     protected void initMapView(TrackCardViewHolder holder, Track track) {
         // First, clear the overlays in the MapView.
         LOG.info("initMapView()");
+        TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
+        final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
+        TileSet layer = MapUtils.getOSMTileLayer();
+        holder.mMapView.addOnDidFailLoadingMapListener(holder.failLoadingMapListener);
         holder.mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onMapReady(@NonNull MapboxMap mapboxMap) {
-                holder.mapboxMap = mapboxMap;
-                mapboxMap.clear();
+            public void onMapReady(@NonNull MapboxMap tep) {
                 LOG.info("onMapReady()");
-                mapboxMap.getUiSettings().setLogoEnabled(false);
-                mapboxMap.getUiSettings().setAttributionEnabled(false);
-                TrackSpeedMapOverlay trackMapOverlay = new TrackSpeedMapOverlay(track);
-                TileSet layer = MapUtils.getOSMTileLayer();
-                mapboxMap.setStyle(
-                        new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c ")
-                        , new Style.OnStyleLoaded() {
+                tep.getUiSettings().setLogoEnabled(false);
+                tep.getUiSettings().setAttributionEnabled(false);
+                tep.setStyle(new Style.Builder().fromUrl("https://api.maptiler.com/maps/basic/style.json?key=YJCrA2NeKXX45f8pOV6c "), new Style.OnStyleLoaded() {
                     @Override
                     public void onStyleLoaded(@NonNull Style style) {
-                        LOG.info("onStyleLoaded() with ");
-                        //
-                        if (track.getMeasurements().size() > 0) {
-                            final LatLngBounds bbox = trackMapOverlay.getTrackBoundingBox();
-                            final LatLngBounds viewBbox = trackMapOverlay.getViewBoundingBox();
-                            if(style.removeSource(MapLayer.SOURCE_NAME)){
-                                style.addSource(trackMapOverlay.getGeoJsonSource());
-                            }
-                            if(style.removeLayer(MapLayer.LAYER_NAME)){
-                                style.addLayer(trackMapOverlay.getLineLayer());
-                            }
-                            mapboxMap.setLatLngBoundsForCameraTarget(bbox);
-                            LOG.warn("trying to zoom to viewbox");
-                            LOG.warn("viewbox " + viewBbox);
-                            mapboxMap.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
-                        }
+                        LOG.info("onStyleLoaded()");
+                        style.addSource(trackMapOverlay.getGeoJsonSource());
+                        style.addLayer(trackMapOverlay.getLineLayer());
+
                     }
                 });
-
+                tep.moveCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50));
+                tep.setMaxZoomPreference(layer.getMaxZoom());
+                tep.setMinZoomPreference(layer.getMinZoom());
             }
         });
+    }
 
-        // Set the openstreetmap tile layer as baselayer of the map.
+    @Override
+    public void onViewAttachedToWindow(@NonNull E holder) {
+        super.onViewAttachedToWindow(holder);
+        holder.mMapView.onStart();
+        holder.mMapView.onResume();
 
-        //MapboxMap
-        //holder.mMapView. setTileSource(layer);
+    }
 
-        // set the bounding box and min and max zoom level accordingly.
-        //BoundingBox box = layer.getBoundingBox();
-        //holder.mMapView.setDiskCacheEnabled(true);
-        //holder.mMapView.setCenter(holder.mMapView.getTileProvider().getCenterCoordinate());
-
-
-
+    @Override
+    public void onViewDetachedFromWindow(@NonNull E holder) {
+        super.onViewDetachedFromWindow(holder);
+        holder.mMapView.onPause();
+        holder.mMapView.onStop();
     }
 
     /**
@@ -302,6 +286,8 @@ public abstract class AbstractTrackListCardAdapter<E extends
         @BindView(R.id.fragment_tracklist_cardlayout_invis_mapbutton)
         protected ImageButton mInvisMapButton;
 
+        protected MapView.OnDidFailLoadingMapListener failLoadingMapListener;
+
         /**
          * Constructor.
          *
@@ -311,6 +297,12 @@ public abstract class AbstractTrackListCardAdapter<E extends
             super(itemView);
             this.mItemView = itemView;
             ButterKnife.bind(this, itemView);
+            failLoadingMapListener = new MapView.OnDidFailLoadingMapListener() {
+                @Override
+                public void onDidFailLoadingMap(String errorMessage) {
+                    LOG.info("Map loading failed : " + errorMessage);
+                }
+            };
         }
     }
 
