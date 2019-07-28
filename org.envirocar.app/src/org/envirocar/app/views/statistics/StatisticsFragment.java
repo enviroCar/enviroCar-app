@@ -1,6 +1,5 @@
 package org.envirocar.app.views.statistics;
 
-import android.content.Context;
 import android.os.Bundle;
 
 import android.view.LayoutInflater;
@@ -23,7 +22,6 @@ import com.google.android.material.tabs.TabLayout;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
-import org.envirocar.app.handler.PreferencesHandler;
 import org.envirocar.app.handler.TrackDAOHandler;
 import org.envirocar.app.handler.UserHandler;
 import org.envirocar.app.injection.BaseInjectorFragment;
@@ -46,7 +44,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import javax.inject.Inject;
 

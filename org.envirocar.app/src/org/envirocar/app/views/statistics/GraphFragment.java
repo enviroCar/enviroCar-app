@@ -45,14 +45,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
-import lecho.lib.hellocharts.formatter.SimpleAxisValueFormatter;
-import lecho.lib.hellocharts.gesture.ZoomType;
 import lecho.lib.hellocharts.model.Axis;
 import lecho.lib.hellocharts.model.AxisValue;
 import lecho.lib.hellocharts.model.Line;
 import lecho.lib.hellocharts.model.LineChartData;
 import lecho.lib.hellocharts.model.PointValue;
-import lecho.lib.hellocharts.model.Viewport;
 import rx.Scheduler;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -457,15 +454,6 @@ public class GraphFragment extends BaseInjectorFragment {
         // Set the data in the charts.
         mChart.setLineChartData(mChartData);
         mChart.startDataAnimation(1500);
-        // For build-up animation you have to disable viewport recalculation.
-        //mChart.setViewportCalculationEnabled(false);
-
-        // And set initial max viewport and current viewport- remember to set viewports after data.
-        //Viewport v = new Viewport(0, 110, 6, 0);
-        //mChart.setMaximumViewport(v);
-        //mChart.setCurrentViewport(v);
-
-        //mChart.setZoomType(ZoomType.HORIZONTAL);
     }
 
     @OnClick(R.id.dateButton)
