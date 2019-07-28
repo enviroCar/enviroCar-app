@@ -198,7 +198,6 @@ public class StatisticsFragment extends BaseInjectorFragment implements AdapterV
             ViewPagerAdapter adapter = new ViewPagerAdapter(getChildFragmentManager());
             viewPager.setAdapter(adapter);
             tabLayout.setupWithViewPager(viewPager);
-            mUserManager.getUser();
             loadDataset();
         }
 

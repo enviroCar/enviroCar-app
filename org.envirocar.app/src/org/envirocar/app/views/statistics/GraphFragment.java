@@ -1,6 +1,7 @@
 package org.envirocar.app.views.statistics;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -38,6 +39,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -99,11 +101,13 @@ public class GraphFragment extends BaseInjectorFragment {
     protected ArrayList<Float> noOfTracks;
     protected int mYear, mMonth, mDay, mWeek, begOfWeek, endOfWeek;
     protected CompositeSubscription subscriptions = new CompositeSubscription();
-    protected List<Track> mTrackList;
+    protected List<Track> mTrackList = new ArrayList<>();
+    protected List<Track> persistentTrackList = new ArrayList<>();
     protected TrackStatistics mTrackStatistics;
     protected Scheduler.Worker mMainThreadWorker = AndroidSchedulers.mainThread().createWorker();
     private Unbinder unbinder;
     private ChoiceViewModel choiceViewModel;
+    private Context context;
 
     private LineChartData mChartData;
     List<PointValue> valuesHello = new ArrayList<>();
@@ -118,6 +122,12 @@ public class GraphFragment extends BaseInjectorFragment {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        this.context = context;
+    }
+
+    @Override
     protected void injectDependencies(BaseApplicationComponent baseApplicationComponent) {
         MainActivityComponent mainActivityComponent =  baseApplicationComponent.plus(new MainActivityModule(getActivity()));
         mainActivityComponent.inject(this);
@@ -126,12 +136,12 @@ public class GraphFragment extends BaseInjectorFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        position = getArguments().getInt("pos");
+        LOG.info("onCreate");
         choiceViewModel = ViewModelProviders.of(this.getActivity()).get(ChoiceViewModel.class);
-
         choiceViewModel.getSelectedOption().observe(this, item -> {
+            LOG.info("choiceViewModel.getSelectedOption()");
             choice = item;
-            loadData();
+            loadGraph();
         });
     }
 
@@ -139,19 +149,27 @@ public class GraphFragment extends BaseInjectorFragment {
     @Override
     public View onCreateView(@Nullable LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        LOG.info("onCreateView Position: " + position);
         View view = inflater.inflate(R.layout.stat_fragment_graph, container, false);
+        position = getArguments().getInt("pos");
         unbinder = ButterKnife.bind(this, view);
-        mDAOProvider = new DAOProvider(getContext());
+        mDAOProvider = new DAOProvider(context);
         choice = 0;
+        cleanUpData();
         return view;
     }
 
-    @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        LOG.info("Graph Created. Position: " + position);
-        super.onViewCreated(view, savedInstanceState);
+    public void loadGraph(){
+        cleanUpData();
+        if(persistentTrackList.size() == 0)
+            getData();
+        else
+            loadDates();
+    }
+
+    public void cleanUpData(){
         Calendar c = Calendar.getInstance();
-        mTrackList = new ArrayList<Track>();
         mYear = c.get(Calendar.YEAR);
         mMonth = c.get(Calendar.MONTH);
         mDay = c.get(Calendar.DAY_OF_MONTH);
@@ -162,7 +180,6 @@ public class GraphFragment extends BaseInjectorFragment {
         setZeros();
         setLabels();
         setDateSelectorButton(c);
-        loadData();
     }
 
     @Override
@@ -221,35 +238,9 @@ public class GraphFragment extends BaseInjectorFragment {
         return floatArray;
     }
 
-    public void loadData(){
-        Calendar cal = Calendar.getInstance();
-        Date after = cal.getTime(), before = cal.getTime();
-        if(position == 0){
-            cal.set(mYear,mMonth,mDay);
-            after = getWeekStartDate(cal.getTime());
-            before = getWeekEndDate(cal.getTime());
-
-        }
-        else if(position ==1)
-        {
-            cal.set(mYear,mMonth,1);
-            after = cal.getTime();
-            cal.set(mYear,mMonth+1,1);
-            before = cal.getTime();
-        }
-        else if(position ==2)
-        {
-            cal.set(mYear,0,1);
-            after = cal.getTime();
-            cal.set(mYear+1,0,1);
-            before = cal.getTime();
-        }
-        getData(after, before);
-    }
-
-    public void getData(Date after, Date before)
+    public void getData()
     {
-        subscriptions.add(mDAOProvider.getTrackDAO().getTrackinPeriodObservable(after, before)
+        subscriptions.add(mDAOProvider.getTrackDAO().getTrackIdsObservable()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<List<Track>>() {
@@ -272,12 +263,12 @@ public class GraphFragment extends BaseInjectorFragment {
                         LOG.error(e.getMessage(), e);
                         if (e instanceof NotConnectedException) {
                             LOG.error("Error", e);
-                            if (mTrackList.isEmpty()) {
+                            if (persistentTrackList.isEmpty()) {
                                 LOG.debug("TrackList Empty");
                             }
                         } else if (e instanceof UnauthorizedException) {
                             LOG.error("Unauthorised",e);
-                            if (mTrackList.isEmpty()) {
+                            if (persistentTrackList.isEmpty()) {
                                 LOG.debug("TrackList Empty");
                             }
                         }
@@ -286,15 +277,64 @@ public class GraphFragment extends BaseInjectorFragment {
                     @Override
                     public void onNext(List<Track> tracks) {
                         LOG.info("onNext(" + tracks.size() + ") tracks loaded in GraphFragment");
-                        mTrackList.clear();
                         for (Track track : tracks) {
-                            if (!mTrackList.contains(track)) {
-                                mTrackList.add(track);
+                            if (!persistentTrackList.contains(track)) {
+                                persistentTrackList.add(track);
                             }
                         }
-                        setGraph();
+                        loadDates();
                     }
                 }));
+    }
+
+    public void setTrackList(){
+        for(Track track : persistentTrackList){
+            if(!mTrackList.contains(track)){
+                mTrackList.add(track);
+            }
+        }
+    }
+
+
+    public void loadDates(){
+        setTrackList();
+        Calendar cal = Calendar.getInstance();
+        Date after = cal.getTime(), before = cal.getTime();
+        if(position == 0){
+            cal.set(mYear,mMonth,mDay);
+            after = getWeekStartDate(cal.getTime());
+            before = getWeekEndDate(cal.getTime());
+
+        }
+        else if(position ==1)
+        {
+            cal.set(mYear,mMonth,1);
+            after = cal.getTime();
+            cal.set(mYear,mMonth+1,1);
+            before = cal.getTime();
+        }
+        else if(position ==2)
+        {
+            cal.set(mYear,0,1);
+            after = cal.getTime();
+            cal.set(mYear+1,0,1);
+            before = cal.getTime();
+        }
+        trimTacksToRange(after, before);
+    }
+
+    public void trimTacksToRange(Date start, Date end){
+        for(int i = 0; i<mTrackList.size(); ++i){
+            TrackwDate t = new TrackwDate();
+            t.getDateTime(mTrackList.get(i));
+            if(!(t.getDateObject().after(start) && t.getDateObject().before(end)))
+            {
+                mTrackList.remove(i);
+                i--;
+            }
+        }
+
+        setGraph();
     }
 
     public void setGraph()
@@ -459,7 +499,7 @@ public class GraphFragment extends BaseInjectorFragment {
     @OnClick(R.id.dateButton)
     public void setDate()
     {
-        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+        DatePickerDialog datePickerDialog = new DatePickerDialog(context,
                 new DatePickerDialog.OnDateSetListener() {
 
                     @Override
@@ -477,7 +517,7 @@ public class GraphFragment extends BaseInjectorFragment {
                         endOfWeek = getWeekEndDate(c.getTime()).getDate();
                         LOG.info("mWeek: "+mWeek+" mYear: "+mYear+" mMonth: "+mMonth+" mDay: "+mDay);
                         setDateSelectorButton(c);
-                        loadData();
+                        loadDates();
                     }
                 }, mYear, mMonth, mDay);
         datePickerDialog.show();
@@ -487,17 +527,17 @@ public class GraphFragment extends BaseInjectorFragment {
         if(position == 0)
         {
             String header = begOfWeek + " - " + endOfWeek + " " + new SimpleDateFormat
-                    ("MMMM").format(c.getTime());
+                    ("MMMM", Locale.getDefault()).format(c.getTime());
             dateButton.setText(header);
         }
         else if(position == 1)
         {
-            String header = new SimpleDateFormat("MMMM yyyy").format(c.getTime());
+            String header = new SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(c.getTime());
             dateButton.setText(header);
         }
         else if(position == 2)
         {
-            String header = new SimpleDateFormat("yyyy").format(c.getTime());
+            String header = new SimpleDateFormat("yyyy", Locale.getDefault()).format(c.getTime());
             dateButton.setText(header);
         }
     }
@@ -548,7 +588,7 @@ public class GraphFragment extends BaseInjectorFragment {
         }
 
         setDateSelectorButton(c);
-        loadData();
+        loadDates();
     }
 
     @OnClick(R.id.arrow_right)
@@ -576,7 +616,7 @@ public class GraphFragment extends BaseInjectorFragment {
             c.set(mYear,mMonth,mDay);
         }
         setDateSelectorButton(c);
-        loadData();
+        loadDates();
     }
 
 }
