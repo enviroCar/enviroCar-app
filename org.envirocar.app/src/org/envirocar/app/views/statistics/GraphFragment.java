@@ -16,11 +16,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.db.chart.animation.Animation;
-import com.db.chart.model.LineSet;
-import com.db.chart.renderer.AxisRenderer;
-import com.db.chart.view.LineChartView;
-
 import org.envirocar.app.R;
 import org.envirocar.app.handler.DAOProvider;
 import org.envirocar.app.handler.TrackDAOHandler;
@@ -29,7 +24,6 @@ import org.envirocar.app.injection.BaseInjectorFragment;
 import org.envirocar.app.main.BaseApplicationComponent;
 import org.envirocar.app.main.MainActivityComponent;
 import org.envirocar.app.main.MainActivityModule;
-import org.envirocar.core.entity.Measurement;
 import org.envirocar.core.entity.Track;
 import org.envirocar.core.entity.TrackStatistics;
 import org.envirocar.core.exception.NotConnectedException;
@@ -84,9 +78,6 @@ public class GraphFragment extends BaseInjectorFragment {
     @Inject
     protected EnviroCarDB mEnvirocarDB;
 
-    @BindView(R.id.stat_line_graph)
-    protected LineChartView lineChartView;
-
     @BindView(R.id.dateButton)
     protected Button dateButton;
 
@@ -107,10 +98,8 @@ public class GraphFragment extends BaseInjectorFragment {
 
     protected List<String> labels;
     protected List<String> labelsX;
-    protected List<String> labelsY;
     protected ArrayList<Float> values;
     protected ArrayList<Float> noOfTracks;
-    protected LineSet dataset;
     protected int mYear, mMonth, mDay, mWeek, begOfWeek, endOfWeek;
     protected CompositeSubscription subscriptions = new CompositeSubscription();
     protected List<Track> mTrackList;
@@ -317,13 +306,13 @@ public class GraphFragment extends BaseInjectorFragment {
         {
             noStats.setVisibility(View.VISIBLE);
             noStatsImg.setVisibility(View.VISIBLE);
-            lineChartView.setVisibility(View.INVISIBLE);
+            mChart.setVisibility(View.INVISIBLE);
             LOG.info("mTracklist has zero elements");
         }
         else {
             noStats.setVisibility(View.INVISIBLE);
             noStatsImg.setVisibility(View.INVISIBLE);
-            lineChartView.setVisibility(View.VISIBLE);
+            mChart.setVisibility(View.VISIBLE);
             LOG.info(mTrackList.size() + " Tracks in range");
 
             TrackwDate t = new TrackwDate();
@@ -448,30 +437,10 @@ public class GraphFragment extends BaseInjectorFragment {
     public void setGraphOptionsAndShow()
     {
         mChart.cancelDataAnimation();
-        dataset = new LineSet(labels.toArray(new String[0]), convertArrayList());
-        dataset.setColor(Color.parseColor("#800065A0"));
-        dataset.setDotsRadius(10f);
-        dataset.setDotsColor(Color.WHITE);
-        dataset.setDotsStrokeThickness(5f);
-        dataset.setDotsStrokeColor(Color.parseColor("#36759B"));
-        dataset.setThickness(5f);
-        float intervals[] = {0f, 0.9f};
-        int colors[] = {Color.parseColor("#9EC9E2"), Color.TRANSPARENT};
-        dataset.setGradientFill(colors, intervals);
-        lineChartView.reset();
-        lineChartView.addData(dataset);
-        Animation animation = new Animation();
-        animation.setDuration(1500);
-        lineChartView.setXAxis(Boolean.FALSE);
-        lineChartView.setYAxis(Boolean.FALSE);
-        lineChartView.setLabelsColor(Color.parseColor("#9EC9E2"));
-        if(position == 1)
-            lineChartView.setXLabels(AxisRenderer.LabelPosition.NONE);
-        lineChartView.setAxisLabelsSpacing(30);
-        lineChartView.show(animation);
-
         Line line = new Line(valuesHello);
-        line.setColor(getResources().getColor(R.color.green_dark_cario)).setCubic(true);
+        line.setCubic(false).setColor(Color.parseColor("#8036759B"))
+                .setPointRadius(3)
+                .setPointColor(Color.parseColor("#36759B"));
 
         List<Line> lines = new ArrayList<>();
         lines.add(line);
@@ -481,48 +450,23 @@ public class GraphFragment extends BaseInjectorFragment {
             i++;
         }
         mChartData = new LineChartData(lines);
-        mChartData.setAxisXBottom(new Axis(labelsHello).setHasLines(true));
-        mChartData.setAxisYLeft(new Axis());
-        //mChartData.setAxisYLeft(new Axis().setHasLines(true));
-        //setXAxis(mChartData);
-        setYAxis(mChartData);
+        mChartData.setAxisXBottom(new Axis(labelsHello).setHasLines(true).setName(labelsX.get(position))
+                .setTextColor(Color.parseColor("#800065A0")));
+        mChartData.setAxisYLeft(new Axis().setTextColor(Color.parseColor("#800065A0")));
 
         // Set the data in the charts.
         mChart.setLineChartData(mChartData);
-        mChart.startDataAnimation(300);
+        mChart.startDataAnimation(1500);
         // For build-up animation you have to disable viewport recalculation.
-        mChart.setViewportCalculationEnabled(false);
+        //mChart.setViewportCalculationEnabled(false);
 
         // And set initial max viewport and current viewport- remember to set viewports after data.
-        Viewport v = new Viewport(0, 110, 6, 0);
-        mChart.setMaximumViewport(v);
-        mChart.setCurrentViewport(v);
+        //Viewport v = new Viewport(0, 110, 6, 0);
+        //mChart.setMaximumViewport(v);
+        //mChart.setCurrentViewport(v);
 
-        mChart.setZoomType(ZoomType.HORIZONTAL);
+        //mChart.setZoomType(ZoomType.HORIZONTAL);
     }
-
-    private void setXAxis(LineChartData data) {
-        Axis distAxis = new Axis();
-        distAxis.setName(labelsX.get(position));
-        distAxis.setTextColor(getResources().getColor(R.color.blue_dark_cario));
-        distAxis.setMaxLabelChars(5);
-        distAxis.setFormatter(new SimpleAxisValueFormatter()
-                .setAppendedText("km".toCharArray()));
-        distAxis.setHasLines(true);
-        distAxis.setHasTiltedLabels(true);
-        distAxis.setTextSize(10);
-        distAxis.setHasSeparationLine(false);
-        data.setAxisXBottom(distAxis);
-    }
-
-    private void setYAxis(LineChartData data) {
-        Float start = Collections.min(values);
-        Float end = Collections.max(values);
-        Float step = ( end - start ) / 4.0f;
-        Axis yAxis = Axis.generateAxisFromRange(start, end, step);
-        data.setAxisYLeft(yAxis);
-    }
-
 
     @OnClick(R.id.dateButton)
     public void setDate()
