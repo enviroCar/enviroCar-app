@@ -37,8 +37,8 @@ import androidx.transition.TransitionManager;
 import android.transition.Slide;
 import android.view.Gravity;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -64,6 +64,8 @@ import com.mapbox.mapboxsdk.style.layers.Property;
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.style.sources.TileSet;
+import static com.mapbox.mapboxsdk.style.layers.Property.NONE;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.visibility;
 
 import org.envirocar.app.R;
 import org.envirocar.app.handler.PreferencesHandler;
@@ -184,6 +186,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     private LatLngBounds mTrackBoundingBox;
     private LatLngBounds mViewBoundingBox;
     private Track track;
+    ViewGroup.LayoutParams paramsOriginal;
 
     private boolean mIsCentredOnTrack;
 
@@ -239,8 +242,6 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
            TrackStatisticsActivity.createInstance(TrackDetailsActivity.this, mTrackID);
         });
 
-
-
         //closing the expanded mapview on "cancel" button clicked
         mMapViewExpandedCancel.setOnClickListener(v-> closeExpandedMapView());
         //expanding the expandable mapview on clicking the framelayout which is surrounded by header map view in collapsingtoolbarlayout
@@ -258,7 +259,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     protected boolean onTouchMapView() {
         if (mIsCentredOnTrack) {
             mIsCentredOnTrack = false;
-            TransitionManager.beginDelayedTransition(mMapViewExpandedContainer,new androidx.transition.Slide(Gravity.RIGHT));
+            TransitionManager.beginDelayedTransition((ViewGroup) mMapViewExpandedContainer,new androidx.transition.Slide(Gravity.RIGHT));
             mCentreFab.setVisibility(View.VISIBLE);
         }
         return false;
@@ -269,7 +270,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         final LatLngBounds viewBbox = mViewBoundingBox;//trackMapOverlay.getViewBoundingBox();
         if (!mIsCentredOnTrack) {
             mIsCentredOnTrack = true;
-            TransitionManager.beginDelayedTransition(mMapViewExpandedContainer,new androidx.transition.Slide(Gravity.LEFT));
+            TransitionManager.beginDelayedTransition((ViewGroup)mMapViewExpandedContainer,new androidx.transition.Slide(Gravity.LEFT));
             mCentreFab.setVisibility(View.GONE);
             mapboxMapExpanded.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50),2500);
         }
@@ -348,15 +349,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 mapboxMap.setMinZoomPreference(layer.getMinZoom());
             }
         });
-    }
 
-    //function which expands the mapview
-    private void expandMapView(){
-        mMapView.setVisibility(GONE);
-        mAppBarLayout.setVisibility(GONE);
-        mNestedScrollView.setVisibility(GONE);
-        mFAB.setVisibility(GONE);
-        final LatLngBounds viewBbox = mViewBoundingBox;//trackMapOverlay.getViewBoundingBox();
         mMapViewExpanded.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(@NonNull MapboxMap mapboxMap1) {
@@ -382,36 +375,65 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
                 mapboxMapExpanded = mapboxMap1;
                 mapboxMapExpanded.setMaxZoomPreference(18);
                 mapboxMapExpanded.setMinZoomPreference(1);
+                //mapboxMapExpanded.getStyle().getLayer("linelayer").setProperties(visibility(Property.VISIBLE));
             }
         });
+    }
+
+    //function which expands the mapview
+    private void expandMapView(){
+        //mMapView.setVisibility(GONE);
+        //mAppBarLayout.setVisibility(GONE);
+        //mNestedScrollView.setVisibility(GONE);
+        //mFAB.setVisibility(GONE);
+        final LatLngBounds viewBbox = mViewBoundingBox;//trackMapOverlay.getViewBoundingBox();
+
         mMapViewExpanded.setVisibility(View.VISIBLE);
-        mMapViewExpandedContainer.setVisibility(View.VISIBLE);
-        //animateShowView(mMapViewExpandedContainer,R.anim.translate_slide_in_top_fragment);
-        //animateHideView(mAppBarLayout,R.anim.translate_slide_out_top_fragment);
-        //animateHideView(mNestedScrollView,R.anim.translate_slide_out_bottom);
-        //animateHideView(mFAB,R.anim.fade_out);
+        //mMapViewExpandedContainer.setVisibility(View.VISIBLE);
+        animateShowView(mMapViewExpandedContainer,R.anim.translate_slide_in_top_fragment);
+        animateHideView(mAppBarLayout,R.anim.translate_slide_out_top_fragment);
+        animateHideView(mNestedScrollView,R.anim.translate_slide_out_bottom);
+        animateHideView(mFAB,R.anim.fade_out);
     }
 
     //function which closes the expanded mapview
     private void closeExpandedMapView(){
         final LatLngBounds viewBbox = mViewBoundingBox;//trackMapOverlay.getViewBoundingBox();
-        mMapViewExpanded.setVisibility(GONE);
-        mMapViewExpandedContainer.setVisibility(GONE);
-        mMapView.setVisibility(View.VISIBLE);
-        mAppBarLayout.setVisibility(View.VISIBLE);
-        mNestedScrollView.setVisibility(View.VISIBLE);
-        mFAB.setVisibility(View.VISIBLE);
-        mapboxMap.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50),2000);
-        //mapboxMapExpanded.easeCamera(CameraUpdateFactory.newLatLngBounds(viewBbox, 50),2000);
-        //mMapViewExpandedContainer.setVisibility(GONE);
         //mMapViewExpanded.setVisibility(GONE);
+        //mMapViewExpandedContainer.setVisibility(GONE);
+        //mMapView.setVisibility(View.VISIBLE);
         //mAppBarLayout.setVisibility(View.VISIBLE);
         //mNestedScrollView.setVisibility(View.VISIBLE);
         //mFAB.setVisibility(View.VISIBLE);
-        /*animateHideView(mMapViewExpandedContainer,R.anim.translate_slide_out_top_fragment);
+        //mMapViewExpandedContainer.setVisibility(GONE);
+        //mMapViewExpanded.setVisibility(View.INVISIBLE);
+        //mAppBarLayout.setVisibility(View.VISIBLE);
+        //mNestedScrollView.setVisibility(View.VISIBLE);
+        //mFAB.setVisibility(View.VISIBLE);
+        //animateHideView(mMapViewExpandedContainer,R.anim.translate_slide_out_top_fragment);
         animateShowView(mAppBarLayout,R.anim.translate_slide_in_top_fragment);
         animateShowView(mNestedScrollView,R.anim.translate_slide_in_bottom_fragment);
-        animateShowView(mFAB,R.anim.fade_in);*/
+        animateShowView(mFAB,R.anim.fade_in);
+        //ViewGroup.LayoutParams params = mMapViewExpandedContainer.getLayoutParams();
+        //ViewGroup.LayoutParams params1 = mAppBarLayout.getLayoutParams();
+        //params.height = 0;
+        //mMapViewExpandedContainer.setLayoutParams(params);
+        mapboxMap.moveCamera(CameraUpdateFactory.newLatLngBounds(mViewBoundingBox, 50), new MapboxMap.CancelableCallback() {
+            @Override
+            public void onCancel() {
+                LOG.info("mMapView move camera was cancelled.");
+            }
+
+            @Override
+            public void onFinish() {
+                LOG.info("mMapView move camera finished.");
+            }
+        });
+        mMapViewExpandedContainer.setVisibility(View.INVISIBLE);
+        mMapViewExpanded.setVisibility(View.INVISIBLE);
+        LOG.info("mMapViewExpanded visibility: " + mMapViewExpanded.getVisibility());
+        LOG.info("mMapViewExpandedContainer visibility: " + mMapViewExpandedContainer.getVisibility());
+        LOG.info("mMapView visibility: " + mMapView.getVisibility());
     }
 
     private void initRouteCoordinates(Track track) {
@@ -446,7 +468,7 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
     private void animateHideView(View view, int animResource){
        Animation animation = AnimationUtils.loadAnimation(getApplicationContext(),animResource);
        view.startAnimation(animation);
-       view.setVisibility(GONE);
+       view.setVisibility(View.GONE);
     }
 
     //general function to animate and show the view
@@ -473,8 +495,8 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
             // show consumption and emission either when the fuel type of the track's car is
             // gasoline or the beta setting has been enabled.
             if(!track.hasProperty(Measurement.PropertyKey.SPEED)){
-                mConsumptionContainer.setVisibility(GONE);
-                mCo2Container.setVisibility(GONE);
+                mConsumptionContainer.setVisibility(View.GONE);
+                mCo2Container.setVisibility(View.GONE);
                 descriptionTv.setText(R.string.gps_track_details);
             }
             else if (track.getCar().getFuelType() == Car.FuelType.GASOLINE ||
