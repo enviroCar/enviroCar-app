@@ -475,7 +475,8 @@ public class GraphFragment extends BaseInjectorFragment {
     {
         mChart.cancelDataAnimation();
         Line line = new Line(valuesHello);
-        line.setCubic(false).setColor(Color.parseColor("#8036759B"))
+        line.setCubic(false).setColor(Color.parseColor("#36759B"))
+                .setStrokeWidth(2)
                 .setPointRadius(3)
                 .setPointColor(Color.parseColor("#36759B"));
 
