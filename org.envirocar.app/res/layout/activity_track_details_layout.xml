@@ -61,8 +61,8 @@
                 android:id="@+id/activity_track_details_header_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:elevation="2dp"
                 app:layout_collapseMode="pin"
+                android:elevation="2dp"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
@@ -75,7 +75,7 @@
         android:layout_height="match_parent"
         android:background="@color/white"
         android:elevation="10dp"
-        android:visibility="visible">
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/activity_track_details_expanded_map_cancel"

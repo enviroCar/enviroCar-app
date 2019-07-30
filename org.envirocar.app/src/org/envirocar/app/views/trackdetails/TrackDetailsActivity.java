@@ -404,9 +404,9 @@ public class TrackDetailsActivity extends BaseInjectorActivity {
         //mAppBarLayout.setVisibility(View.VISIBLE);
         //mNestedScrollView.setVisibility(View.VISIBLE);
         //mFAB.setVisibility(View.VISIBLE);
-        mMapViewExpanded.setVisibility(GONE);
-        mMapViewExpandedContainer.setVisibility(View.INVISIBLE);
-        //animateHideView(mMapViewExpandedContainer,R.anim.translate_slide_out_top_fragment);
+        //mMapViewExpanded.setVisibility(GONE);
+        mMapViewExpandedContainer.setVisibility(View.GONE);
+        animateHideView(mMapViewExpandedContainer,R.anim.translate_slide_out_top_fragment);
         animateShowView(mAppBarLayout,R.anim.translate_slide_in_top_fragment);
         animateShowView(mNestedScrollView,R.anim.translate_slide_in_bottom_fragment);
         animateShowView(mFAB,R.anim.fade_in);
